@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29BA05FFF84
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 15:21:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 108785FFF85
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 15:21:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229608AbiJPNVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 09:21:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43930 "EHLO
+        id S229579AbiJPNVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 09:21:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229600AbiJPNVP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 09:21:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 603DF32EC0
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 06:21:14 -0700 (PDT)
+        with ESMTP id S229600AbiJPNVS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 09:21:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C916532DA1
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 06:21:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E421B80CBE
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:21:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80A90C433C1;
-        Sun, 16 Oct 2022 13:21:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6651160B76
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:21:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76B0AC433C1;
+        Sun, 16 Oct 2022 13:21:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665926471;
-        bh=NNJogp2luAxWLD8VRYpWNsJPH7gF8tFD/CVVwL1r2DM=;
+        s=korg; t=1665926476;
+        bh=vzWIQjTACHs+g0jsDChxFj6hgtBpMtIaMFSj9tvShgM=;
         h=Subject:To:Cc:From:Date:From;
-        b=pruWGuqyXW40HWKlJfnXRbvKuWaGAXyjAAVAKLBSra2M+5Q8X1I+Wg7uhQLgeaSfP
-         PIQz9wQQ2jSDTT3/rspph1y21K9C2PPvD47R4bQZj1J5XWqoE2sPezVXtKxLl2wzIn
-         0mkGvhvzWd6fSeT37MTCmZldAO9CBt7h3pKS/mx4=
-Subject: FAILED: patch "[PATCH] ext4: fix dir corruption when ext4_dx_add_entry() fails" failed to apply to 5.4-stable tree
+        b=0ZLYIHp5QN7cyXizba/8hvx8fmjs6F+mitDDn25c8iCjsiB57LrTChD04q8+PvrfH
+         5QM35t3bfOuV9ZCGk1lr/66NZE4rbM6Wlv4HyIcTxtrlsdigSMV/vOO3qqCD7XpBF/
+         D5DuUajhaSwuKb7fQOJ/zignJFvzZl3JMbWn7now=
+Subject: FAILED: patch "[PATCH] ext4: fix dir corruption when ext4_dx_add_entry() fails" failed to apply to 5.10-stable tree
 To:     chengzhihao1@huawei.com, jack@suse.cz, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 15:21:57 +0200
-Message-ID: <16659265172313@kroah.com>
+Date:   Sun, 16 Oct 2022 15:21:59 +0200
+Message-ID: <1665926519239243@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -66,14 +66,6 @@ c92dc856848f ("ext4: defer saving error info from atomic context")
 014c9caa29d3 ("ext4: make ext4_abort() use __ext4_error()")
 b08070eca9e2 ("ext4: don't remount read-only with errors=continue on reboot")
 ca9b404ff137 ("ext4: print quota journalling mode on (re-)mount")
-9b5f6c9b83d9 ("ext4: make s_mount_flags modifications atomic")
-ababea77bc50 ("ext4: use s_mount_flags instead of s_mount_state for fast commit state")
-8016e29f4362 ("ext4: fast commit recovery path")
-5b849b5f96b4 ("jbd2: fast commit recovery path")
-aa75f4d3daae ("ext4: main fast-commit commit path")
-ff780b91efe9 ("jbd2: add fast commit machinery")
-6866d7b3f2bb ("ext4 / jbd2: add fast commit initialization")
-995a3ed67fc8 ("ext4: add fast_commit feature and handling for extended mount options")
 
 thanks,
 
