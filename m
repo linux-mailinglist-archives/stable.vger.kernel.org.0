@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E48405FFED9
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:10:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C7525FFEE4
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:16:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229643AbiJPLKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:10:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43434 "EHLO
+        id S229600AbiJPLQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:16:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229594AbiJPLKP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:10:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15EDE303D1
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:10:13 -0700 (PDT)
+        with ESMTP id S229531AbiJPLQJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:16:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB3CF357E8
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:16:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99E4760A56
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:10:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BF93C433D7;
-        Sun, 16 Oct 2022 11:10:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90383B8015B
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:16:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2253C433C1;
+        Sun, 16 Oct 2022 11:16:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665918612;
-        bh=rwnGEeXkEpx/3yqnxwbKFzkm8OeLHIA/UMqSH2YOMSc=;
+        s=korg; t=1665918965;
+        bh=Tq5vb5E20y1EMW/TiThUTeZ5IzY8fo75Uxn4r0QJY6Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=uFJAR3Zd/3dWX9SQtIJODeST9FiG9ZGK0kdXz16neuUZ0zA3yCUkI7ECxDERibiOB
-         Q9QRUwiAulmO2oSRCh8OG51mlLwq1vdueWGMUz2xupf68BNxmCaoy3aM9fV8M9ZmwQ
-         apWaEqqyfdKcJ//l/Yk7vUqdW/W9o9prZIJ3Etr8=
-Subject: FAILED: patch "[PATCH] xen/gntdev: Accommodate VMA splitting" failed to apply to 4.9-stable tree
-To:     m.v.b@runbox.com, jgross@suse.com
+        b=r/qcQluYHiyAmQL618xaQxQZkK3uPZXJ3La79gqMwlKR+G44016k7MHvG+9n15AXX
+         d0VXrBvvLmzx6Rqyu/K2llLqVI80I270YM2tRYO8KxpYtUfqlNPemyEArHlAisOCts
+         xyAHKcTbEt9LGZGSxvb0cwWwojiC8lE74WuCWeSc=
+Subject: FAILED: patch "[PATCH] serial: stm32: Deassert Transmit Enable on ->rs485_config()" failed to apply to 5.15-stable tree
+To:     lukas@wunner.de, gregkh@linuxfoundation.org,
+        ilpo.jarvinen@linux.intel.com, marex@denx.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:10:57 +0200
-Message-ID: <166591865777188@kroah.com>
+Date:   Sun, 16 Oct 2022 13:16:51 +0200
+Message-ID: <16659190111050@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -47,33 +48,20 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-5c13a4a0291b ("xen/gntdev: Accommodate VMA splitting")
-dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
-ce2f46f3531a ("xen/gntdev: fix unmap notification order")
-f28347cc6639 ("Xen/gntdev: don't ignore kernel unmapping error")
-30dcc56bba91 ("xen: assume XENFEAT_gnttab_map_avail_bits being set for pv guests")
-970655aa9b42 ("xen/gntdev: fix gntdev_mmap() error exit path")
-bce21a2b48ed ("Xen/gnttab: introduce common INVALID_GRANT_{HANDLE,REF}")
-36caa3fedf06 ("Xen/gntdev: don't needlessly allocate k{,un}map_ops[]")
-8310b77b48c5 ("Xen/gnttab: handle p2m update errors on a per-slot basis")
-36bf1dfb8b26 ("xen/arm: don't ignore return errors from set_phys_to_machine")
-ebee0eab0859 ("Xen/gntdev: correct error checking in gntdev_map_grant_pages()")
-dbe5283605b3 ("Xen/gntdev: correct dev_bus_addr handling in gntdev_map_grant_pages()")
-0102e4efda76 ("xen: Use evtchn_type_t as a type for event channels")
-9293724192a7 ("xen/gntdev: Do not use mm notifiers with autotranslating guests")
-b3f7931f5c61 ("xen/gntdev: switch from kcalloc() to kvcalloc()")
-3b06ac6707c1 ("xen/gntdev: replace global limit of mapped pages by limit per call")
-d3eeb1d77c5d ("xen/gntdev: use mmu_interval_notifier_insert")
-ee7f5225dc3c ("xen: Stop abusing DT of_dma_configure API")
-bce5963bcb4f ("xen/events: fix binding user event channels to cpus")
-8b1e0f81fb6f ("mm/pgtable: drop pgtable_t variable from pte_fn_t functions")
+adafbbf6895e ("serial: stm32: Deassert Transmit Enable on ->rs485_config()")
+d7c76716169d ("serial: stm32: Use TC interrupt to deassert GPIO RTS in RS485 mode")
+3bcea529b295 ("serial: stm32: Factor out GPIO RTS toggling into separate function")
+037b91ec7729 ("serial: stm32: fix software flow control transfer")
+2a3bcfe03725 ("serial: stm32: fix flow control transfer in DMA mode")
+33bb2f6ac308 ("serial: stm32: rework RX over DMA")
+cc58d0a3f0a4 ("serial: stm32: re-introduce an irq flag condition in usart_receive_chars")
 
 thanks,
 
@@ -81,262 +69,165 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5c13a4a0291b30191eff9ead8d010e1ca43a4d0c Mon Sep 17 00:00:00 2001
-From: "M. Vefa Bicakci" <m.v.b@runbox.com>
-Date: Sun, 2 Oct 2022 18:20:06 -0400
-Subject: [PATCH] xen/gntdev: Accommodate VMA splitting
+From adafbbf6895eb0ce41a313c6ee68870ab9aa93cd Mon Sep 17 00:00:00 2001
+From: Lukas Wunner <lukas@wunner.de>
+Date: Sun, 11 Sep 2022 11:02:03 +0200
+Subject: [PATCH] serial: stm32: Deassert Transmit Enable on ->rs485_config()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Prior to this commit, the gntdev driver code did not handle the
-following scenario correctly with paravirtualized (PV) Xen domains:
+The STM32 USART can control RS-485 Transmit Enable in hardware.  Since
+commit 7df5081cbf5e ("serial: stm32: Add RS485 RTS GPIO control"),
+it can alternatively be controlled in software.  That was done to allow
+RS-485 even if the RTS pin is unavailable because it's pinmuxed to a
+different function.
 
-* User process sets up a gntdev mapping composed of two grant mappings
-  (i.e., two pages shared by another Xen domain).
-* User process munmap()s one of the pages.
-* User process munmap()s the remaining page.
-* User process exits.
+However the commit neglected to deassert Transmit Enable upon invocation
+of the ->rs485_config() callback.  Fix it.
 
-In the scenario above, the user process would cause the kernel to log
-the following messages in dmesg for the first munmap(), and the second
-munmap() call would result in similar log messages:
+Avoid forward declarations by moving stm32_usart_tx_empty(),
+stm32_usart_rs485_rts_enable() and stm32_usart_rs485_rts_disable()
+further up in the driver.
 
-  BUG: Bad page map in process doublemap.test  pte:... pmd:...
-  page:0000000057c97bff refcount:1 mapcount:-1 \
-    mapping:0000000000000000 index:0x0 pfn:...
-  ...
-  page dumped because: bad pte
-  ...
-  file:gntdev fault:0x0 mmap:gntdev_mmap [xen_gntdev] readpage:0x0
-  ...
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x46/0x5e
-   print_bad_pte.cold+0x66/0xb6
-   unmap_page_range+0x7e5/0xdc0
-   unmap_vmas+0x78/0xf0
-   unmap_region+0xa8/0x110
-   __do_munmap+0x1ea/0x4e0
-   __vm_munmap+0x75/0x120
-   __x64_sys_munmap+0x28/0x40
-   do_syscall_64+0x38/0x90
-   entry_SYSCALL_64_after_hwframe+0x61/0xcb
-   ...
+Fixes: 7df5081cbf5e ("serial: stm32: Add RS485 RTS GPIO control")
+Cc: stable@vger.kernel.org # v5.9+
+Cc: Marek Vasut <marex@denx.de>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/6059eab35dba394468335ef640df8b0050fd9dbd.1662886616.git.lukas@wunner.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-For each munmap() call, the Xen hypervisor (if built with CONFIG_DEBUG)
-would print out the following and trigger a general protection fault in
-the affected Xen PV domain:
-
-  (XEN) d0v... Attempt to implicitly unmap d0's grant PTE ...
-  (XEN) d0v... Attempt to implicitly unmap d0's grant PTE ...
-
-As of this writing, gntdev_grant_map structure's vma field (referred to
-as map->vma below) is mainly used for checking the start and end
-addresses of mappings. However, with split VMAs, these may change, and
-there could be more than one VMA associated with a gntdev mapping.
-Hence, remove the use of map->vma and rely on map->pages_vm_start for
-the original start address and on (map->count << PAGE_SHIFT) for the
-original mapping size. Let the invalidate() and find_special_page()
-hooks use these.
-
-Also, given that there can be multiple VMAs associated with a gntdev
-mapping, move the "mmu_interval_notifier_remove(&map->notifier)" call to
-the end of gntdev_put_map, so that the MMU notifier is only removed
-after the closing of the last remaining VMA.
-
-Finally, use an atomic to prevent inadvertent gntdev mapping re-use,
-instead of using the map->live_grants atomic counter and/or the map->vma
-pointer (the latter of which is now removed). This prevents the
-userspace from mmap()'ing (with MAP_FIXED) a gntdev mapping over the
-same address range as a previously set up gntdev mapping. This scenario
-can be summarized with the following call-trace, which was valid prior
-to this commit:
-
-  mmap
-    gntdev_mmap
-  mmap (repeat mmap with MAP_FIXED over the same address range)
-    gntdev_invalidate
-      unmap_grant_pages (sets 'being_removed' entries to true)
-        gnttab_unmap_refs_async
-    unmap_single_vma
-    gntdev_mmap (maps the shared pages again)
-  munmap
-    gntdev_invalidate
-      unmap_grant_pages
-        (no-op because 'being_removed' entries are true)
-    unmap_single_vma (For PV domains, Xen reports that a granted page
-      is being unmapped and triggers a general protection fault in the
-      affected domain, if Xen was built with CONFIG_DEBUG)
-
-The fix for this last scenario could be worth its own commit, but we
-opted for a single commit, because removing the gntdev_grant_map
-structure's vma field requires guarding the entry to gntdev_mmap(), and
-the live_grants atomic counter is not sufficient on its own to prevent
-the mmap() over a pre-existing mapping.
-
-Link: https://github.com/QubesOS/qubes-issues/issues/7631
-Fixes: ab31523c2fca ("xen/gntdev: allow usermode to map granted pages")
-Cc: stable@vger.kernel.org
-Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221002222006.2077-3-m.v.b@runbox.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-
-diff --git a/drivers/xen/gntdev-common.h b/drivers/xen/gntdev-common.h
-index 40ef379c28ab..9c286b2a1900 100644
---- a/drivers/xen/gntdev-common.h
-+++ b/drivers/xen/gntdev-common.h
-@@ -44,9 +44,10 @@ struct gntdev_unmap_notify {
- };
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index 0b18615b2ca4..c48f225eba86 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -131,6 +131,53 @@ static void stm32_usart_clr_bits(struct uart_port *port, u32 reg, u32 bits)
+ 	writel_relaxed(val, port->membase + reg);
+ }
  
- struct gntdev_grant_map {
-+	atomic_t in_use;
- 	struct mmu_interval_notifier notifier;
-+	bool notifier_init;
- 	struct list_head next;
--	struct vm_area_struct *vma;
- 	int index;
- 	int count;
- 	int flags;
-diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-index eb0586b9767d..4d9a3050de6a 100644
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -286,6 +286,9 @@ void gntdev_put_map(struct gntdev_priv *priv, struct gntdev_grant_map *map)
- 		 */
- 	}
- 
-+	if (use_ptemod && map->notifier_init)
-+		mmu_interval_notifier_remove(&map->notifier);
++static unsigned int stm32_usart_tx_empty(struct uart_port *port)
++{
++	struct stm32_port *stm32_port = to_stm32_port(port);
++	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
 +
- 	if (map->notify.flags & UNMAP_NOTIFY_SEND_EVENT) {
- 		notify_remote_via_evtchn(map->notify.event);
- 		evtchn_put(map->notify.event);
-@@ -298,7 +301,7 @@ void gntdev_put_map(struct gntdev_priv *priv, struct gntdev_grant_map *map)
- static int find_grant_ptes(pte_t *pte, unsigned long addr, void *data)
++	if (readl_relaxed(port->membase + ofs->isr) & USART_SR_TC)
++		return TIOCSER_TEMT;
++
++	return 0;
++}
++
++static void stm32_usart_rs485_rts_enable(struct uart_port *port)
++{
++	struct stm32_port *stm32_port = to_stm32_port(port);
++	struct serial_rs485 *rs485conf = &port->rs485;
++
++	if (stm32_port->hw_flow_control ||
++	    !(rs485conf->flags & SER_RS485_ENABLED))
++		return;
++
++	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
++		mctrl_gpio_set(stm32_port->gpios,
++			       stm32_port->port.mctrl | TIOCM_RTS);
++	} else {
++		mctrl_gpio_set(stm32_port->gpios,
++			       stm32_port->port.mctrl & ~TIOCM_RTS);
++	}
++}
++
++static void stm32_usart_rs485_rts_disable(struct uart_port *port)
++{
++	struct stm32_port *stm32_port = to_stm32_port(port);
++	struct serial_rs485 *rs485conf = &port->rs485;
++
++	if (stm32_port->hw_flow_control ||
++	    !(rs485conf->flags & SER_RS485_ENABLED))
++		return;
++
++	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
++		mctrl_gpio_set(stm32_port->gpios,
++			       stm32_port->port.mctrl & ~TIOCM_RTS);
++	} else {
++		mctrl_gpio_set(stm32_port->gpios,
++			       stm32_port->port.mctrl | TIOCM_RTS);
++	}
++}
++
+ static void stm32_usart_config_reg_rs485(u32 *cr1, u32 *cr3, u32 delay_ADE,
+ 					 u32 delay_DDE, u32 baud)
  {
- 	struct gntdev_grant_map *map = data;
--	unsigned int pgnr = (addr - map->vma->vm_start) >> PAGE_SHIFT;
-+	unsigned int pgnr = (addr - map->pages_vm_start) >> PAGE_SHIFT;
- 	int flags = map->flags | GNTMAP_application_map | GNTMAP_contains_pte |
- 		    (1 << _GNTMAP_guest_avail0);
- 	u64 pte_maddr;
-@@ -508,11 +511,7 @@ static void gntdev_vma_close(struct vm_area_struct *vma)
- 	struct gntdev_priv *priv = file->private_data;
+@@ -214,6 +261,12 @@ static int stm32_usart_config_rs485(struct uart_port *port, struct ktermios *ter
  
- 	pr_debug("gntdev_vma_close %p\n", vma);
--	if (use_ptemod) {
--		WARN_ON(map->vma != vma);
--		mmu_interval_notifier_remove(&map->notifier);
--		map->vma = NULL;
--	}
+ 	stm32_usart_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
+ 
++	/* Adjust RTS polarity in case it's driven in software */
++	if (stm32_usart_tx_empty(port))
++		stm32_usart_rs485_rts_disable(port);
++	else
++		stm32_usart_rs485_rts_enable(port);
 +
- 	vma->vm_private_data = NULL;
- 	gntdev_put_map(priv, map);
+ 	return 0;
  }
-@@ -540,29 +539,30 @@ static bool gntdev_invalidate(struct mmu_interval_notifier *mn,
- 	struct gntdev_grant_map *map =
- 		container_of(mn, struct gntdev_grant_map, notifier);
- 	unsigned long mstart, mend;
-+	unsigned long map_start, map_end;
  
- 	if (!mmu_notifier_range_blockable(range))
- 		return false;
- 
-+	map_start = map->pages_vm_start;
-+	map_end = map->pages_vm_start + (map->count << PAGE_SHIFT);
-+
- 	/*
- 	 * If the VMA is split or otherwise changed the notifier is not
- 	 * updated, but we don't want to process VA's outside the modified
- 	 * VMA. FIXME: It would be much more understandable to just prevent
- 	 * modifying the VMA in the first place.
- 	 */
--	if (map->vma->vm_start >= range->end ||
--	    map->vma->vm_end <= range->start)
-+	if (map_start >= range->end || map_end <= range->start)
- 		return true;
- 
--	mstart = max(range->start, map->vma->vm_start);
--	mend = min(range->end, map->vma->vm_end);
-+	mstart = max(range->start, map_start);
-+	mend = min(range->end, map_end);
- 	pr_debug("map %d+%d (%lx %lx), range %lx %lx, mrange %lx %lx\n",
--			map->index, map->count,
--			map->vma->vm_start, map->vma->vm_end,
--			range->start, range->end, mstart, mend);
--	unmap_grant_pages(map,
--				(mstart - map->vma->vm_start) >> PAGE_SHIFT,
--				(mend - mstart) >> PAGE_SHIFT);
-+		 map->index, map->count, map_start, map_end,
-+		 range->start, range->end, mstart, mend);
-+	unmap_grant_pages(map, (mstart - map_start) >> PAGE_SHIFT,
-+			  (mend - mstart) >> PAGE_SHIFT);
- 
- 	return true;
+@@ -529,42 +582,6 @@ static void stm32_usart_tc_interrupt_disable(struct uart_port *port)
+ 	stm32_usart_clr_bits(port, ofs->cr1, USART_CR1_TCIE);
  }
-@@ -1042,18 +1042,15 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
- 		return -EINVAL;
  
- 	pr_debug("map %d+%d at %lx (pgoff %lx)\n",
--			index, count, vma->vm_start, vma->vm_pgoff);
-+		 index, count, vma->vm_start, vma->vm_pgoff);
- 
- 	mutex_lock(&priv->lock);
- 	map = gntdev_find_map_index(priv, index, count);
- 	if (!map)
- 		goto unlock_out;
--	if (use_ptemod && map->vma)
--		goto unlock_out;
--	if (atomic_read(&map->live_grants)) {
--		err = -EAGAIN;
-+	if (!atomic_add_unless(&map->in_use, 1, 1))
- 		goto unlock_out;
+-static void stm32_usart_rs485_rts_enable(struct uart_port *port)
+-{
+-	struct stm32_port *stm32_port = to_stm32_port(port);
+-	struct serial_rs485 *rs485conf = &port->rs485;
+-
+-	if (stm32_port->hw_flow_control ||
+-	    !(rs485conf->flags & SER_RS485_ENABLED))
+-		return;
+-
+-	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
+-		mctrl_gpio_set(stm32_port->gpios,
+-			       stm32_port->port.mctrl | TIOCM_RTS);
+-	} else {
+-		mctrl_gpio_set(stm32_port->gpios,
+-			       stm32_port->port.mctrl & ~TIOCM_RTS);
 -	}
-+
- 	refcount_inc(&map->users);
- 
- 	vma->vm_ops = &gntdev_vmops;
-@@ -1074,15 +1071,16 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
- 			map->flags |= GNTMAP_readonly;
- 	}
- 
-+	map->pages_vm_start = vma->vm_start;
-+
- 	if (use_ptemod) {
--		map->vma = vma;
- 		err = mmu_interval_notifier_insert_locked(
- 			&map->notifier, vma->vm_mm, vma->vm_start,
- 			vma->vm_end - vma->vm_start, &gntdev_mmu_ops);
--		if (err) {
--			map->vma = NULL;
-+		if (err)
- 			goto out_unlock_put;
--		}
-+
-+		map->notifier_init = true;
- 	}
- 	mutex_unlock(&priv->lock);
- 
-@@ -1099,7 +1097,6 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
- 		 */
- 		mmu_interval_read_begin(&map->notifier);
- 
--		map->pages_vm_start = vma->vm_start;
- 		err = apply_to_page_range(vma->vm_mm, vma->vm_start,
- 					  vma->vm_end - vma->vm_start,
- 					  find_grant_ptes, map);
-@@ -1128,13 +1125,8 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
- out_unlock_put:
- 	mutex_unlock(&priv->lock);
- out_put_map:
--	if (use_ptemod) {
-+	if (use_ptemod)
- 		unmap_grant_pages(map, 0, map->count);
--		if (map->vma) {
--			mmu_interval_notifier_remove(&map->notifier);
--			map->vma = NULL;
--		}
+-}
+-
+-static void stm32_usart_rs485_rts_disable(struct uart_port *port)
+-{
+-	struct stm32_port *stm32_port = to_stm32_port(port);
+-	struct serial_rs485 *rs485conf = &port->rs485;
+-
+-	if (stm32_port->hw_flow_control ||
+-	    !(rs485conf->flags & SER_RS485_ENABLED))
+-		return;
+-
+-	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
+-		mctrl_gpio_set(stm32_port->gpios,
+-			       stm32_port->port.mctrl & ~TIOCM_RTS);
+-	} else {
+-		mctrl_gpio_set(stm32_port->gpios,
+-			       stm32_port->port.mctrl | TIOCM_RTS);
 -	}
- 	gntdev_put_map(priv, map);
- 	return err;
+-}
+-
+ static void stm32_usart_transmit_chars_pio(struct uart_port *port)
+ {
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
+@@ -807,17 +824,6 @@ static irqreturn_t stm32_usart_threaded_interrupt(int irq, void *ptr)
+ 	return IRQ_HANDLED;
  }
+ 
+-static unsigned int stm32_usart_tx_empty(struct uart_port *port)
+-{
+-	struct stm32_port *stm32_port = to_stm32_port(port);
+-	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+-
+-	if (readl_relaxed(port->membase + ofs->isr) & USART_SR_TC)
+-		return TIOCSER_TEMT;
+-
+-	return 0;
+-}
+-
+ static void stm32_usart_set_mctrl(struct uart_port *port, unsigned int mctrl)
+ {
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
 
