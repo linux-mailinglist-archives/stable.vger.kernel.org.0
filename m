@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7896A6000CF
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E50166000D0
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:43:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229464AbiJPPnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:43:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60822 "EHLO
+        id S229574AbiJPPn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:43:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229574AbiJPPno (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:43:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26C0D31EC5
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:43:42 -0700 (PDT)
+        with ESMTP id S229691AbiJPPnz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:43:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D18E31EC5
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:43:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 004B260BEC
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:43:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EBC6C433D6;
-        Sun, 16 Oct 2022 15:43:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D476660C05
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:43:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E62C433D7;
+        Sun, 16 Oct 2022 15:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665935021;
-        bh=Bt9Tb89/5hOYiIPYsrsu8iB40sRL66xXhGAXLQV0Fgs=;
+        s=korg; t=1665935033;
+        bh=n9D4r/cZG2iIDRRH5equLcTL+0QE4GzjhotQ1UtU4fQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=M13P5ykHib8uArSNveWAiwLZ2XJ4zbMiOvpPWi/Sv9YFiAK72vZir7AxsTnI1m5yP
-         44bUc8wX5MYyUD3E0VPEgLYCxvqRgID4N72xHZf2gIaLzeSnrhe4DLC6M/CYBKbkWI
-         LtaHq7uUerQU2ABVOLBjzk6cBOKXD9Fk5Q2X3ciM=
-Subject: FAILED: patch "[PATCH] efi: libstub: drop pointless get_memory_map() call" failed to apply to 4.14-stable tree
-To:     ardb@kernel.org, stable@vger.kernel.org
+        b=eZ2UyJrC67P7euJIynJPduygvd72jmXfO1GgxOepOpOokjUIa5Fs8Y6keBSFmdw19
+         Hj84BbBUYkCCevY8+AHWdgvQtovPGbe3+/X9CyqempJBTKlyGguL12UrbnXp5+jNYa
+         S1lq2pkyEvMPw0mobn/Smm36SqLOUudO3ApzR9oQ=
+Subject: FAILED: patch "[PATCH] media: cedrus: Fix watchdog race condition" failed to apply to 5.19-stable tree
+To:     nicolas.dufresne@collabora.com, hverkuil-cisco@xs4all.nl,
+        mchehab@kernel.org, paul.kocialkowski@bootlin.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:44:17 +0200
-Message-ID: <166593505720190@kroah.com>
+Date:   Sun, 16 Oct 2022 17:44:39 +0200
+Message-ID: <1665935079229102@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +48,17 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-d80ca810f096 ("efi: libstub: drop pointless get_memory_map() call")
-cd33a5c1d53e ("efi/libstub: Remove 'sys_table_arg' from all function prototypes")
-8173ec7905b5 ("efi/libstub: Drop sys_table_arg from printk routines")
-c3710de5065d ("efi/libstub/x86: Drop __efi_early() export and efi_config struct")
-dc29da14ed94 ("efi/libstub: Unify the efi_char16_printk implementations")
-2fcdad2a80a6 ("efi/libstub: Get rid of 'sys_table_arg' macro parameter")
-afc4cc71cf78 ("efi/libstub/x86: Avoid thunking for native firmware calls")
-f958efe97596 ("efi/libstub: Distinguish between native/mixed not 32/64 bit")
-1786e8301164 ("efi/libstub: Extend native protocol definitions with mixed_mode aliases")
-2732ea0d5c0a ("efi/libstub: Use a helper to iterate over a EFI handle array")
-58ec655a7573 ("efi/libstub: Remove unused __efi_call_early() macro")
-8de8788d2182 ("efi/gop: Unify 32/64-bit functions")
-44c84b4ada73 ("efi/gop: Convert GOP structures to typedef and clean up some types")
-8d62af177812 ("efi/gop: Remove bogus packed attribute from GOP structures")
-4911ee401b7c ("x86/efistub: Disable paging at mixed mode entry")
-818c7ce72477 ("efi/libstub/random: Initialize pointer variables to zero for mixed mode")
-9fa76ca7b8bd ("efi: Fix efi_loaded_image_t::unload type")
-ff397be685e4 ("efi/gop: Fix memory leak in __gop_query32/64()")
-dbd89c303b44 ("efi/gop: Return EFI_SUCCESS if a usable GOP was found")
-6fc3cec30dfe ("efi/gop: Return EFI_NOT_FOUND if there are no usable GOPs")
+fe8b81fde69a ("media: cedrus: Fix watchdog race condition")
+4af46bcc4915 ("media: cedrus: Add error handling for failed setup")
+f1a413902aa7 ("media: cedrus: h265: Fix logic for not low delay flag")
+104a70e1d0bc ("media: cedrus: h265: Fix flag name")
 
 thanks,
 
@@ -81,35 +66,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d80ca810f096ff66f451e7a3ed2f0cd9ef1ff519 Mon Sep 17 00:00:00 2001
-From: Ard Biesheuvel <ardb@kernel.org>
-Date: Thu, 15 Sep 2022 19:00:24 +0200
-Subject: [PATCH] efi: libstub: drop pointless get_memory_map() call
+From fe8b81fde69acfcbb5af9e85328e5b9549999fdb Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Thu, 18 Aug 2022 22:33:06 +0200
+Subject: [PATCH] media: cedrus: Fix watchdog race condition
 
-Currently, the non-x86 stub code calls get_memory_map() redundantly,
-given that the data it returns is never used anywhere. So drop the call.
+The watchdog needs to be scheduled before we trigger the decode
+operation, otherwise there is a risk that the decoder IRQ will be
+called before we have schedule the watchdog. As a side effect, the
+watchdog would never be cancelled and its function would be called
+at an inappropriate time.
 
-Cc: <stable@vger.kernel.org> # v4.14+
-Fixes: 24d7c494ce46 ("efi/arm-stub: Round up FDT allocation to mapping size")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+This was observed while running Fluster with GStreamer as a backend.
+Some programming error would cause the decoder IRQ to be call very
+quickly after the trigger. Later calls into the driver would deadlock
+due to the unbalanced state.
 
-diff --git a/drivers/firmware/efi/libstub/fdt.c b/drivers/firmware/efi/libstub/fdt.c
-index fe567be0f118..804f542be3f2 100644
---- a/drivers/firmware/efi/libstub/fdt.c
-+++ b/drivers/firmware/efi/libstub/fdt.c
-@@ -280,14 +280,6 @@ efi_status_t allocate_new_fdt_and_exit_boot(void *handle,
- 		goto fail;
- 	}
+Cc: stable@vger.kernel.org
+Fixes: 7c38a551bda1 ("media: cedrus: Add watchdog for job completion")
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+
+diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_dec.c b/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
+index 3b6aa78a2985..e7f7602a5ab4 100644
+--- a/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
++++ b/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
+@@ -106,11 +106,11 @@ void cedrus_device_run(void *priv)
  
--	/*
--	 * Now that we have done our final memory allocation (and free)
--	 * we can get the memory map key needed for exit_boot_services().
--	 */
--	status = efi_get_memory_map(&map);
--	if (status != EFI_SUCCESS)
--		goto fail_free_new_fdt;
+ 	/* Trigger decoding if setup went well, bail out otherwise. */
+ 	if (!error) {
+-		dev->dec_ops[ctx->current_codec]->trigger(ctx);
 -
- 	status = update_fdt((void *)fdt_addr, fdt_size,
- 			    (void *)*new_fdt_addr, MAX_FDT_SIZE, cmdline_ptr,
- 			    initrd_addr, initrd_size);
+ 		/* Start the watchdog timer. */
+ 		schedule_delayed_work(&dev->watchdog_work,
+ 				      msecs_to_jiffies(2000));
++
++		dev->dec_ops[ctx->current_codec]->trigger(ctx);
+ 	} else {
+ 		v4l2_m2m_buf_done_and_job_finish(ctx->dev->m2m_dev,
+ 						 ctx->fh.m2m_ctx,
 
