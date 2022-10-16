@@ -2,108 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82D37600341
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 22:21:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F269600348
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 22:35:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbiJPUVx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 16:21:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53402 "EHLO
+        id S229655AbiJPUfl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 16:35:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229633AbiJPUVv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 16:21:51 -0400
-Received: from mx01.omp.ru (mx01.omp.ru [90.154.21.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 459121AF14
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:21:48 -0700 (PDT)
-Received: from [192.168.1.103] (31.173.84.208) by msexch01.omp.ru
- (10.188.4.12) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.986.14; Sun, 16 Oct
- 2022 23:21:38 +0300
-From:   Sergey Shtylyov <s.shtylyov@omp.ru>
-Subject: [PATCH 5.10.y] arm64: topology: fix possible overflow in
- amu_fie_setup()
-To:     Will Deacon <will@kernel.org>, <stable@vger.kernel.org>
-CC:     <lvc-project@linuxtesting.org>, <lvc-patches@linuxtesting.org>
-Organization: Open Mobile Platform
-Message-ID: <012bfa47-1597-c0f8-b51a-6a927019b5a6@omp.ru>
-Date:   Sun, 16 Oct 2022 23:21:38 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        with ESMTP id S229486AbiJPUfj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 16:35:39 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16BCF36DF0
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:35:38 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id b2so20862857eja.6
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:35:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=JtijseIF9rcDiXBG1sccQH8HeZLuOnytJzwbzy3nh+s=;
+        b=YlDPXEBfvpccnJ/hqA8Eg1DGdJgWxa0/6ZbBaLn7a/brLL7JpsQ9aV2iNVKIsiR7b8
+         sLIMOl32Ac7hpxPb1hlcJnt1Tw4Hj4JgdYJhcTANoVc91FkgecN/k4ttEJw2ReL1UTHt
+         50eabxi1PK5dp7NNAfLht4igmUG8+CY/1F7ODrMZTE4mB+mR416cXhewpeSQOsE/Vt9k
+         N2KH2MJcBDHSkytTd88dsoAN70zvGb4EoMNIshsX4yBh2EU1mFoG2ed9d3uzdUX+7X92
+         NeZgT9Ut+eQHkvQmly8h3T2PYj6sHqpaHyVIRPFKhFTiOst/bHyztyolV//XQB7ZULUW
+         SmQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JtijseIF9rcDiXBG1sccQH8HeZLuOnytJzwbzy3nh+s=;
+        b=6zf9nxVKFuMBib0QygF2vGzUTK7aoDs25656LoZbNErrlXndLWb4apDags5xdRrsib
+         lfRSfxFWKDD1bQtNbOGIH+jyXaIr0jF26MfCID3aWfJEXcvBXklHPTGktvXfs30qm18P
+         lhhYtJU3+nMB7jJ+s74VMufigz3/gF9NqD8o7EYlklsSdwdDZxaKRAdMn6xK1jeGKEfc
+         bYWltNdm2ObcyfvRXCOBIKj1aUwGXMLt2YVrXhRJfbDl03K/a754dnacr7JiLvjI0rew
+         B0e5kK4eE21/99XTnniAuwHUUa605Mj8BxDAP9HZQtumskgLxFQugNOZMPxOyXLTMWrJ
+         Vvcw==
+X-Gm-Message-State: ACrzQf2Z+Q4RKQZFS9QTFerfQKHRyT3YgSRYBn6omJD4768WJ7iUcB41
+        I1Je+Ds7HFYOzkhSx1q5XT4bntEYY6s=
+X-Google-Smtp-Source: AMsMyM7d5rwf6tGtXCCbi/Ir7+1mtVxWlL0xv+k2HHmValsBF6w7i+binyGEB1geELdTCZUZ1CAdvg==
+X-Received: by 2002:a17:906:5dae:b0:78e:3109:36d1 with SMTP id n14-20020a1709065dae00b0078e310936d1mr6257807ejv.470.1665952536358;
+        Sun, 16 Oct 2022 13:35:36 -0700 (PDT)
+Received: from 127.0.0.1localhost (94.196.234.149.threembb.co.uk. [94.196.234.149])
+        by smtp.gmail.com with ESMTPSA id m3-20020a170906160300b0078194737761sm5008083ejd.124.2022.10.16.13.35.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 16 Oct 2022 13:35:35 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com
+Subject: [PATCH stable-6.0 0/6] io_uring 6.0 backports
+Date:   Sun, 16 Oct 2022 21:33:24 +0100
+Message-Id: <cover.1665951939.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.38.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [31.173.84.208]
-X-ClientProxiedBy: msexch01.omp.ru (10.188.4.12) To msexch01.omp.ru
- (10.188.4.12)
-X-KSE-ServerInfo: msexch01.omp.ru, 9
-X-KSE-AntiSpam-Interceptor-Info: scan successful
-X-KSE-AntiSpam-Version: 5.9.20, Database issued on: 10/16/2022 19:57:48
-X-KSE-AntiSpam-Status: KAS_STATUS_NOT_DETECTED
-X-KSE-AntiSpam-Method: none
-X-KSE-AntiSpam-Rate: 59
-X-KSE-AntiSpam-Info: Lua profiles 173142 [Oct 16 2022]
-X-KSE-AntiSpam-Info: Version: 5.9.20.0
-X-KSE-AntiSpam-Info: Envelope from: s.shtylyov@omp.ru
-X-KSE-AntiSpam-Info: LuaCore: 500 500 6cc86d8f5638d79810308830d98d6b6279998c49
-X-KSE-AntiSpam-Info: {rep_avail}
-X-KSE-AntiSpam-Info: {Tracking_phishing_log_reg_60_70}
-X-KSE-AntiSpam-Info: {Tracking_uf_ne_domains}
-X-KSE-AntiSpam-Info: {Tracking_from_domain_doesnt_match_to}
-X-KSE-AntiSpam-Info: {relay has no DNS name}
-X-KSE-AntiSpam-Info: {SMTP from is not routable}
-X-KSE-AntiSpam-Info: lore.kernel.org:7.1.1;omp.ru:7.1.1;127.0.0.199:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1
-X-KSE-AntiSpam-Info: ApMailHostAddress: 31.173.84.208
-X-KSE-AntiSpam-Info: {DNS response errors}
-X-KSE-AntiSpam-Info: Rate: 59
-X-KSE-AntiSpam-Info: Status: not_detected
-X-KSE-AntiSpam-Info: Method: none
-X-KSE-AntiSpam-Info: Auth:dmarc=temperror header.from=omp.ru;spf=temperror
- smtp.mailfrom=omp.ru;dkim=none
-X-KSE-Antiphishing-Info: Clean
-X-KSE-Antiphishing-ScanningType: Heuristic
-X-KSE-Antiphishing-Method: None
-X-KSE-Antiphishing-Bases: 10/16/2022 20:01:00
-X-KSE-AttachmentFiltering-Interceptor-Info: protection disabled
-X-KSE-Antivirus-Interceptor-Info: scan successful
-X-KSE-Antivirus-Info: Clean, bases: 10/16/2022 6:23:00 PM
-X-KSE-BulkMessagesFiltering-Scan-Result: InTheLimit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit d4955c0ad77dbc684fc716387070ac24801b8bca upstream.
+io_uring patches that has failed to be applied today with their
+dependencies.
 
-cpufreq_get_hw_max_freq() returns max frequency in kHz as *unsigned int*,
-while freq_inv_set_max_ratio() gets passed this frequency in Hz as 'u64'.
-Multiplying max frequency by 1000 can potentially result in overflow --
-multiplying by 1000ULL instead should avoid that...
+Pavel Begunkov (6):
+  io_uring/net: refactor io_sr_msg types
+  io_uring/net: use io_sr_msg for sendzc
+  io_uring/net: don't lose partial send_zc on fail
+  io_uring/net: rename io_sendzc()
+  io_uring/net: don't skip notifs for failed requests
+  io_uring/net: fix notif cqe reordering
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE static
-analysis tool.
+ io_uring/net.c   | 60 ++++++++++++++++++++++++++----------------------
+ io_uring/net.h   |  7 +++---
+ io_uring/opdef.c |  7 +++---
+ 3 files changed, 40 insertions(+), 34 deletions(-)
 
-Fixes: cd0ed03a8903 ("arm64: use activity monitors for frequency invariance")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/01493d64-2bce-d968-86dc-11a122a9c07d@omp.ru
-Signed-off-by: Will Deacon <will@kernel.org>
+-- 
+2.38.0
 
----
- arch/arm64/kernel/topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-stable/arch/arm64/kernel/topology.c
-===================================================================
---- linux-stable.orig/arch/arm64/kernel/topology.c
-+++ linux-stable/arch/arm64/kernel/topology.c
-@@ -158,7 +158,7 @@ static int validate_cpu_freq_invariance_
- 	}
- 
- 	/* Convert maximum frequency from KHz to Hz and validate */
--	max_freq_hz = cpufreq_get_hw_max_freq(cpu) * 1000;
-+	max_freq_hz = cpufreq_get_hw_max_freq(cpu) * 1000ULL;
- 	if (unlikely(!max_freq_hz)) {
- 		pr_debug("CPU%d: invalid maximum frequency.\n", cpu);
- 		return -EINVAL;
