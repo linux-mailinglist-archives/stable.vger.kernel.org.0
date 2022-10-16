@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A3085FFEBA
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 12:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBB1F5FFEBC
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 12:50:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229730AbiJPKsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 06:48:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57438 "EHLO
+        id S229594AbiJPKuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 06:50:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229733AbiJPKsx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 06:48:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2693CBF3
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 03:48:52 -0700 (PDT)
+        with ESMTP id S229733AbiJPKtf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 06:49:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A17CF1004F;
+        Sun, 16 Oct 2022 03:49:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2999AB80C82
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 10:48:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E33FC433C1;
-        Sun, 16 Oct 2022 10:48:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D85060A56;
+        Sun, 16 Oct 2022 10:49:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 461A4C433D6;
+        Sun, 16 Oct 2022 10:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665917329;
-        bh=ETD4g+IC04HjhzbMLtVjHXDJb6bIQXoNiQx/JZRo9+s=;
-        h=Subject:To:Cc:From:Date:From;
-        b=T3Sp0eLFhEJQHxLW4k6J7GoabpSU6mIZqrhc5zveEgeBYBDxBlLLpiVmDvJqZveCV
-         MAcaA3hbuhwm35clLrRzvfke9IL3F5OhEJpwsWdkxgYKxoEHA04J7jm1OAHmtK3gmx
-         VGdTXFLViIMfcdtLz8EeQ6p3Kp91d73ACsOTJAL8=
-Subject: FAILED: patch "[PATCH] arm64: errata: Add Cortex-A55 to the repeat tlbi list" failed to apply to 4.9-stable tree
-To:     james.morse@arm.com, catalin.marinas@arm.com,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 12:49:26 +0200
-Message-ID: <166591736638157@kroah.com>
+        s=korg; t=1665917371;
+        bh=H7gM9TLHxVIJ3T3+SR0Qi2B1qrGZ+otdQuICAByme8w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=W9hOjA8ouIWA0LdJ0j9N2JSDicjNq4OoixwmVyLP1raxzDI/pVh3eI5Z0ch9uz1iM
+         19jVE5VWhUKs9W+2zepmwpdM9i28+AD6D+iaFK9JUqERVaxKU6qfzSlIGoIVBc09t9
+         QGc0VtvESqSLL9K1K1Tl2IDkgkU11GjGSLtg1S3g=
+Date:   Sun, 16 Oct 2022 12:50:17 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Stephen Boyd <swboyd@chromium.org>
+Cc:     stable@vger.kernel.org, Sibi Sankar <sibis@codeaurora.org>,
+        linux-kernel@vger.kernel.org, patches@lists.linux.dev,
+        Alex Elder <elder@linaro.org>,
+        Evan Green <evgreen@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: Re: [PATCH 5.10] arm64: dts: qcom: sc7180-trogdor: Fixup modem
+ memory region
+Message-ID: <Y0vh6Q0U99bnUCbc@kroah.com>
+References: <20221014215302.3905135-1-swboyd@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221014215302.3905135-1-swboyd@chromium.org>
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -47,103 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Oct 14, 2022 at 02:53:02PM -0700, Stephen Boyd wrote:
+> From: Sibi Sankar <sibis@codeaurora.org>
+> 
+> commit ef9a5d188d663753e73a3c8e8910ceab8e9305c4 upstream.
+> 
+> The modem firmware memory requirements vary between 32M/140M on
+> no-lte/lte skus respectively, so fixup the modem memory region
+> to reflect the requirements.
+> 
+> Reviewed-by: Evan Green <evgreen@chromium.org>
+> Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+> Link: https://lore.kernel.org/r/1602786476-27833-1-git-send-email-sibis@codeaurora.org
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> ---
+> 
+> This fixes boot of the modem on trogdor boards with the DTS from 5.10.y
+> stable tree. Without this patch I run into memory assignment errors and
+> then the modem fails to boot.
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+You forgot to sign off on this patch you forwarded on for stable
+inclusion :(
 
-Possible dependencies:
-
-171df58028bf ("arm64: errata: Add Cortex-A55 to the repeat tlbi list")
-39fdb65f52e9 ("arm64: errata: Add Cortex-A510 to the repeat tlbi list")
-1dd498e5e26a ("KVM: arm64: Workaround Cortex-A510's single-step and PAC trap errata")
-297ae1eb23b0 ("arm64: cpufeature: List early Cortex-A510 parts as having broken dbm")
-708e8af4924e ("arm64: errata: Add detection for TRBE trace data corruption")
-3bd94a8759de ("arm64: errata: Add detection for TRBE invalid prohibited states")
-607a9afaae09 ("arm64: errata: Add detection for TRBE ignored system register writes")
-83bb2c1a01d7 ("KVM: arm64: Save PSTATE early on exit")
-d7e0a795bf37 ("Merge tag 'for-linus' of git://git.kernel.org/pub/scm/virt/kvm/kvm")
+Please fix up and resend if you wish to see it applied.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 171df58028bf4649460fb146a56a58dcb0c8f75a Mon Sep 17 00:00:00 2001
-From: James Morse <james.morse@arm.com>
-Date: Fri, 30 Sep 2022 14:19:59 +0100
-Subject: [PATCH] arm64: errata: Add Cortex-A55 to the repeat tlbi list
-
-Cortex-A55 is affected by an erratum where in rare circumstances the
-CPUs may not handle a race between a break-before-make sequence on one
-CPU, and another CPU accessing the same page. This could allow a store
-to a page that has been unmapped.
-
-Work around this by adding the affected CPUs to the list that needs
-TLB sequences to be done twice.
-
-Signed-off-by: James Morse <james.morse@arm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220930131959.3082594-1-james.morse@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-
-diff --git a/Documentation/arm64/silicon-errata.rst b/Documentation/arm64/silicon-errata.rst
-index 17d9fc5d14fb..808ade4cc008 100644
---- a/Documentation/arm64/silicon-errata.rst
-+++ b/Documentation/arm64/silicon-errata.rst
-@@ -76,6 +76,8 @@ stable kernels.
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A55      | #1530923        | ARM64_ERRATUM_1530923       |
- +----------------+-----------------+-----------------+-----------------------------+
-+| ARM            | Cortex-A55      | #2441007        | ARM64_ERRATUM_2441007       |
-++----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A57      | #832075         | ARM64_ERRATUM_832075        |
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A57      | #852523         | N/A                         |
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 1675310f1791..20d082d54bd8 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -634,6 +634,23 @@ config ARM64_ERRATUM_1530923
- config ARM64_WORKAROUND_REPEAT_TLBI
- 	bool
- 
-+config ARM64_ERRATUM_2441007
-+	bool "Cortex-A55: Completion of affected memory accesses might not be guaranteed by completion of a TLBI"
-+	default y
-+	select ARM64_WORKAROUND_REPEAT_TLBI
-+	help
-+	  This option adds a workaround for ARM Cortex-A55 erratum #2441007.
-+
-+	  Under very rare circumstances, affected Cortex-A55 CPUs
-+	  may not handle a race between a break-before-make sequence on one
-+	  CPU, and another CPU accessing the same page. This could allow a
-+	  store to a page that has been unmapped.
-+
-+	  Work around this by adding the affected CPUs to the list that needs
-+	  TLB sequences to be done twice.
-+
-+	  If unsure, say Y.
-+
- config ARM64_ERRATUM_1286807
- 	bool "Cortex-A76: Modification of the translation table for a virtual address might lead to read-after-read ordering violation"
- 	default y
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index 58ca4f6b25d6..89ac00084f38 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -230,6 +230,11 @@ static const struct arm64_cpu_capabilities arm64_repeat_tlbi_list[] = {
- 		ERRATA_MIDR_RANGE(MIDR_QCOM_KRYO_4XX_GOLD, 0xc, 0xe, 0xf, 0xe),
- 	},
- #endif
-+#ifdef CONFIG_ARM64_ERRATUM_2441007
-+	{
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
-+	},
-+#endif
- #ifdef CONFIG_ARM64_ERRATUM_2441009
- 	{
- 		/* Cortex-A510 r0p0 -> r1p1. Fixed in r1p2 */
-
