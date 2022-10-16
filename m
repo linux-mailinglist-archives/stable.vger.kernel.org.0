@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 719656000D6
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:46:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91DDD6000D7
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:46:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229729AbiJPPqr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:46:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43146 "EHLO
+        id S229697AbiJPPqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:46:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229660AbiJPPqq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:46:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B9C333841
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:46:46 -0700 (PDT)
+        with ESMTP id S229660AbiJPPqt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:46:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8AEE33428
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:46:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF56E60C09
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:46:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF0EFC433C1;
-        Sun, 16 Oct 2022 15:46:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 468CD60BA8
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:46:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CD90C433D6;
+        Sun, 16 Oct 2022 15:46:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665935205;
-        bh=ghbuqFjYhqcF0llne+fbYWuudPWFqhz2inHxw4NFXHU=;
+        s=korg; t=1665935207;
+        bh=HMQhkHYF2mKQhV8x0bFJB9UdfvErjZ6jxmCD0M58T6o=;
         h=Subject:To:Cc:From:Date:From;
-        b=WBjFPXcD2NPJKzXGeDPgz0taNbPnGhpuw/qJCijSICk1M2mB1e9oJLv+bcDexsXGx
-         3FoNh97zoRrUM4TeSTEJQM9+rZnVaaH03BHjC3zwrl5oEXNUi0LtCfX5A8G0RybCtx
-         RIvyP9HHyG8c2Ag3xHhFGEu1MQSHbe3HBsxATQcw=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Don't propagate vmcs12's PERF_GLOBAL_CTRL settings" failed to apply to 5.4-stable tree
+        b=0+9h2LYJJCxI3SiK/9XgSSnKZHceipbYy109/Pnpw2nnw9tFi8vGk7zlH0YIDyFzG
+         OfXX1vRNf4WrZXl01MvvQxGLe/uojUwGMxoqGHmGsus7q3w1kjkezlYE6BGvM/ashB
+         CdUn7yjmyN3Wnbq7EVMRl/MgcvYBSICC2KGxKyjc=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Don't propagate vmcs12's PERF_GLOBAL_CTRL settings" failed to apply to 4.19-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com, vkuznets@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:47:28 +0200
-Message-ID: <166593524811422@kroah.com>
+Date:   Sun, 16 Oct 2022 17:47:29 +0200
+Message-ID: <166593524919210@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -62,6 +62,12 @@ d041b5ea9335 ("KVM: nVMX: Enable nested TSC scaling")
 9dadc2f918df ("KVM: VMX: Rename INTERRUPT_PENDING to INTERRUPT_WINDOW")
 4289d2728664 ("KVM: retpolines: x86: eliminate retpoline from vmx.c exit handlers")
 f399e60c45f6 ("KVM: x86: optimize more exit handlers in vmx.c")
+b7ad61084842 ("tools headers kvm: Sync kvm headers with the kernel sources")
+4a53d99dd0c2 ("KVM: VMX: Introduce exit reason for receiving INIT signal on guest-mode")
+5497b95567c1 ("KVM: nVMX: add tracepoint for failed nested VM-Enter")
+1edce0a9eb23 ("KVM: x86: Add kvm_emulate_{rd,wr}msr() to consolidate VXM/SVM code")
+f20935d85a23 ("KVM: x86: Refactor up kvm_{g,s}et_msr() to simplify callers")
+32d1d15c52c1 ("Merge tag 'kvmarm-5.4' of git://git.kernel.org/pub/scm/linux/kernel/git/kvmarm/kvmarm into HEAD")
 
 thanks,
 
