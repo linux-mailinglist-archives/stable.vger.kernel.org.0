@@ -2,59 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F580600384
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 23:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AC80600386
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 23:45:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229776AbiJPVpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 17:45:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43528 "EHLO
+        id S229782AbiJPVpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 17:45:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229765AbiJPVpN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 17:45:13 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43B082F3B8
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 14:45:12 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id z97so13553370ede.8
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 14:45:12 -0700 (PDT)
+        with ESMTP id S229705AbiJPVpP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 17:45:15 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F42032EED
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 14:45:13 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id k2so21074518ejr.2
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 14:45:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lxZGauP5P46PgzbXhPd0V/Eo64zwUXum5Bih9cfxJPE=;
-        b=QxP2bjctaRihkAvSbIsPxtkaqWrnvg1exTXQC0600x8VU0opLPeIatq7UzSHHypbb2
-         5xBT6QURrEORnvcS1sfR4CGot7baXYhCyUpBkFOmunPoDOgGU6GieC1YjapdAPysJYAA
-         FWkWIq7H4E+vp5olXJyN4G/EVSScZj+MZ30kTF2DvgI0N3zLEzv0jdHBk5PxMlY9DJRM
-         VkjfBxOUOH1diIJC1pIwRZedx8QbtDWg/jRN+QRStf7mgnX5/gfegHYIrozowNsPq+NU
-         wItz3ZqhSZqxaTfdh2xir5F8+tR+uWc9GmXp9elFIIzzivwmarUSwRqBo29VPoQnuIDS
-         OOlA==
+        bh=tUcc5JovUqHX056pp4p87zlUUaHV8JGfeF8nsouwWh0=;
+        b=ZjdfRlt+5r7mKHwLaakrE1gSNxFu2egN0Wfq3TwRWA+I1+MUWfiXB8DEiLQwEJmjr2
+         6qFp6IYX2nPNofQj9NHenpB1i60/dyP84us2hcf4fV7WgcLm5DdZpEtOQaQG/Jbdi7Fs
+         NBNGLHFXQAj229W52oJ+1hlJd+nZLiM3Fcs2DMa5rdQXpP3CcRa5uPXWip3rfBDKXW5Q
+         3LPf+QDh9Pr3D+TK94jXVzK3MX+EZ2bUPym0nK2bLGpqf8HzkEL/ajuzD/fdhlgk0qwz
+         zsmumu5wAvFrOeLiHE9J6HypCb5gijSa7hL2vgsTRo954Oe85u90rR/TMw/NFNtFwa56
+         r9eA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lxZGauP5P46PgzbXhPd0V/Eo64zwUXum5Bih9cfxJPE=;
-        b=w6cm7Jg7ee9iWdM0oh6Il0J2RoP4hSuRRK/Y3DjWMO/2XU7B7pmwEwSPcu7RFBW97x
-         WFROz2O9kuovJ7xnkVy6N3o8kPSPvwFjCC6EL8ZWpGDaljQFQwx6Vw259RF7bJnHuOFm
-         TJPnyN2FiOEDSfKdZ7CIsxYrK7wDzmoAX8wr2qnvWre8Me4gUNn+Y3PD3H99dENftbeA
-         AKJ1nvM4APHSf9bqsGPRtUykQ3Ql9COa4aDhwFgNMeG1Ofuhb4Wmm0PQ8GfZ0O5vadvc
-         CgFRZb2dgw8mEt1ujsXG8wBEdYXn3gNmc7mjlsXjB8aFO3eN7+1Hv+O0NiTtv4Mfc4ZO
-         dIPA==
-X-Gm-Message-State: ACrzQf02KgneseT+A3Du7XHM/FP0Yy5IUTwBDg93MtwJqwdUFNd3t3q3
-        ilfbvGvfpC/koSXeh14fQTK78eoAT1o=
-X-Google-Smtp-Source: AMsMyM5xhKyce8Bl9CpmeEfm9ogFz9NpiyW70PoiNZuDl1URKryFjzYB4bsqwitblSYfiUHFyW41wg==
-X-Received: by 2002:a05:6402:3709:b0:459:279e:fdc6 with SMTP id ek9-20020a056402370900b00459279efdc6mr7628355edb.338.1665956710561;
-        Sun, 16 Oct 2022 14:45:10 -0700 (PDT)
+        bh=tUcc5JovUqHX056pp4p87zlUUaHV8JGfeF8nsouwWh0=;
+        b=v81zcCRY6puAjGOyPTVQ3OhJ1LXmJjVAlXzSKquLocxYXA/fpSAxBHFR1QRCHvtBsl
+         lPKTJqEdD+k0CqBIpYJstePpFS0PrsBgAujF7k74fGYLEFB7YuYFOGPth7xxkM7SyV0m
+         Nuc79lcqORQT3bKMJbzebl1jRVWNEY10Wi/cNzklRr3bzxGX3PXXKTWXhcRJcudnFwHN
+         kHfx1BZM8qinvc4o9JH7qaFeWwu350hxUmZlUQKwHGDizdfSeUu58bhYlU8t7V01XgmU
+         KQpwGPx4kVqFjsVCJBfr/IzPDr0SfshQdAm9K3P24OhqFmSE6UqzQcSVOSlamDSN6TnP
+         Tksg==
+X-Gm-Message-State: ACrzQf0xF9XEGUrYLPUlFnh9QhIy9MHBhqhXb7kMkaIW8UZEQr6ZDAJJ
+        d3qEuPgQ78wpEVAaHuOCisCohwH03Pk=
+X-Google-Smtp-Source: AMsMyM650oyNFgJQUdnwZ6LMkx6OjRp/kp6kxKvtMCaJgn6MlcH9I1z2WSVgF0SJbVrVrTJSHDhu8g==
+X-Received: by 2002:a17:907:2c5b:b0:78d:3f8a:19d0 with SMTP id hf27-20020a1709072c5b00b0078d3f8a19d0mr6183959ejc.369.1665956711511;
+        Sun, 16 Oct 2022 14:45:11 -0700 (PDT)
 Received: from 127.0.0.1localhost (94.196.234.149.threembb.co.uk. [94.196.234.149])
-        by smtp.gmail.com with ESMTPSA id q6-20020a17090676c600b0078c47463277sm5177331ejn.96.2022.10.16.14.45.09
+        by smtp.gmail.com with ESMTPSA id q6-20020a17090676c600b0078c47463277sm5177331ejn.96.2022.10.16.14.45.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 16 Oct 2022 14:45:10 -0700 (PDT)
+        Sun, 16 Oct 2022 14:45:11 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com
-Subject: [PATCH stable-5.15 3/5] io_uring/rw: fix short rw error handling
-Date:   Sun, 16 Oct 2022 22:42:56 +0100
-Message-Id: <6592121a38f7ee5834ce0691b1f85d54fcea3cfa.1665954636.git.asml.silence@gmail.com>
+Subject: [PATCH stable-5.15 4/5] io_uring/rw: fix error'ed retry return values
+Date:   Sun, 16 Oct 2022 22:42:57 +0100
+Message-Id: <ebd1fd870c2f7048613f85fcdf3934f15301c1a7.1665954636.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <cover.1665954636.git.asml.silence@gmail.com>
 References: <cover.1665954636.git.asml.silence@gmail.com>
@@ -70,99 +70,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ upstream commit 89473c1a9205760c4fa6d158058da7b594a815f0 ]
+[ upstream commit 62bb0647b14646fa6c9aa25ecdf67ad18f13523c ]
 
-We have a couple of problems, first reports of unexpected link breakage
-for reads when cqe->res indicates that the IO was done in full. The
-reason here is partial IO with retries.
+Kernel test robot reports that we test negativity of an unsigned in
+io_fixup_rw_res() after a recent change, which masks error codes and
+messes up the return value in case I/O is re-retried and failed with
+an error.
 
-TL;DR; we compare the result in __io_complete_rw_common() against
-req->cqe.res, but req->cqe.res doesn't store the full length but rather
-the length left to be done. So, when we pass the full corrected result
-via kiocb_done() -> __io_complete_rw_common(), it fails.
-
-The second problem is that we don't try to correct res in
-io_complete_rw(), which, for instance, might be a problem for O_DIRECT
-but when a prefix of data was cached in the page cache. We also
-definitely don't want to pass a corrected result into io_rw_done().
-
-The fix here is to leave __io_complete_rw_common() alone, always pass
-not corrected result into it and fix it up as the last step just before
-actually finishing the I/O.
-
-Cc: stable@vger.kernel.org
+Fixes: 4d9cb92ca41dd ("io_uring/rw: fix short rw error handling")
+Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/9754a0970af1861e7865f9014f735c70dc60bf79.1663071587.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ fs/io_uring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 2da7a490d1c7..c0d1948fb5a6 100644
+index c0d1948fb5a6..f667197c8bb9 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2701,6 +2701,20 @@ static bool __io_complete_rw_common(struct io_kiocb *req, long res)
+@@ -2701,7 +2701,7 @@ static bool __io_complete_rw_common(struct io_kiocb *req, long res)
  	return false;
  }
  
-+static inline unsigned io_fixup_rw_res(struct io_kiocb *req, unsigned res)
-+{
-+	struct io_async_rw *io = req->async_data;
-+
-+	/* add previously done IO, if any */
-+	if (io && io->bytes_done > 0) {
-+		if (res < 0)
-+			res = io->bytes_done;
-+		else
-+			res += io->bytes_done;
-+	}
-+	return res;
-+}
-+
- static void io_req_task_complete(struct io_kiocb *req, bool *locked)
+-static inline unsigned io_fixup_rw_res(struct io_kiocb *req, unsigned res)
++static inline int io_fixup_rw_res(struct io_kiocb *req, unsigned res)
  {
- 	unsigned int cflags = io_put_rw_kbuf(req);
-@@ -2724,7 +2738,7 @@ static void __io_complete_rw(struct io_kiocb *req, long res, long res2,
- {
- 	if (__io_complete_rw_common(req, res))
- 		return;
--	__io_req_complete(req, issue_flags, req->result, io_put_rw_kbuf(req));
-+	__io_req_complete(req, issue_flags, io_fixup_rw_res(req, res), io_put_rw_kbuf(req));
- }
+ 	struct io_async_rw *io = req->async_data;
  
- static void io_complete_rw(struct kiocb *kiocb, long res, long res2)
-@@ -2733,7 +2747,7 @@ static void io_complete_rw(struct kiocb *kiocb, long res, long res2)
- 
- 	if (__io_complete_rw_common(req, res))
- 		return;
--	req->result = res;
-+	req->result = io_fixup_rw_res(req, res);
- 	req->io_task_work.func = io_req_task_complete;
- 	io_req_task_work_add(req);
- }
-@@ -2979,15 +2993,6 @@ static void kiocb_done(struct kiocb *kiocb, ssize_t ret,
- 		       unsigned int issue_flags)
- {
- 	struct io_kiocb *req = container_of(kiocb, struct io_kiocb, rw.kiocb);
--	struct io_async_rw *io = req->async_data;
--
--	/* add previously done IO, if any */
--	if (io && io->bytes_done > 0) {
--		if (ret < 0)
--			ret = io->bytes_done;
--		else
--			ret += io->bytes_done;
--	}
- 
- 	if (req->flags & REQ_F_CUR_POS)
- 		req->file->f_pos = kiocb->ki_pos;
-@@ -3004,6 +3009,7 @@ static void kiocb_done(struct kiocb *kiocb, ssize_t ret,
- 			unsigned int cflags = io_put_rw_kbuf(req);
- 			struct io_ring_ctx *ctx = req->ctx;
- 
-+			ret = io_fixup_rw_res(req, ret);
- 			req_set_fail(req);
- 			if (!(issue_flags & IO_URING_F_NONBLOCK)) {
- 				mutex_lock(&ctx->uring_lock);
 -- 
 2.38.0
 
