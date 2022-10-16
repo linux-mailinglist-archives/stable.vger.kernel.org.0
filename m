@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE3B2600097
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:22:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFDE9600098
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:22:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229766AbiJPPWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:22:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50772 "EHLO
+        id S229865AbiJPPW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:22:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229885AbiJPPWu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:22:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CC5437181
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:22:50 -0700 (PDT)
+        with ESMTP id S229843AbiJPPW6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:22:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 535F936BCD
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:22:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADA1760BCA
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:22:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB639C433D6;
-        Sun, 16 Oct 2022 15:22:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05865B80CA6
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:22:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5637CC433C1;
+        Sun, 16 Oct 2022 15:22:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665933769;
-        bh=0J1YS1rSsr2BfUfinY9BoGo/0zTSVZk3fs47tgJN4Fw=;
+        s=korg; t=1665933774;
+        bh=aDKPT9rwf3xwzCvpKgHHjLFhcUi57PKkUl4q7UcUMAg=;
         h=Subject:To:Cc:From:Date:From;
-        b=HS3cGQrDbYiH6OIxROVke517O4XfxNnHBFNJTt8N2bMWwEyAaTYfz5oylpGpjWD3l
-         6Wqs1r47HQ/TqnZ6K8dPBqVcVSd9//xLK0ZHFJcACXe0MEBkCfYpvbRBafkxcxiRQq
-         06yWB63madXUMRqvR8A+iHGP9FH+KxoPlOMHKDtc=
-Subject: FAILED: patch "[PATCH] tracing: Do not free snapshot if tracer is on cmdline" failed to apply to 5.15-stable tree
+        b=yqyxMuhgbgc/C97r3pcdlYJdi03Bwtd0LpdbnefFfineHtkSvoe1xTSNjB0LB/LMh
+         Oom3DcnZP8WvWrPMwVMSBo5BBVZ6VC4WZMUIcWO2dJfy6qXaE8jpeYKO82jkzevdiW
+         5P7zWFOt5aDR2OxDssZdrZHMHoLWfIBSUdyCTq7o=
+Subject: FAILED: patch "[PATCH] tracing: Do not free snapshot if tracer is on cmdline" failed to apply to 5.10-stable tree
 To:     rostedt@goodmis.org, akpm@linux-foundation.org,
         mhiramat@kernel.org, zwisler@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:23:35 +0200
-Message-ID: <1665933815209117@kroah.com>
+Date:   Sun, 16 Oct 2022 17:23:40 +0200
+Message-ID: <1665933820109188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
