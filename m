@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C29C5FFDB6
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:06:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91FAC5FFDB7
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229619AbiJPHGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 03:06:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46262 "EHLO
+        id S229583AbiJPHGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 03:06:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229583AbiJPHGI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:06:08 -0400
+        with ESMTP id S229665AbiJPHGL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:06:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64158386BA
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:06:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD52238A08
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:06:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12E78B80B71
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:06:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AE0DC433D7;
-        Sun, 16 Oct 2022 07:06:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98079B80B78
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:06:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11BCBC433C1;
+        Sun, 16 Oct 2022 07:06:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665903964;
-        bh=qvoPWuAgN/e0gZL4s0jCxbxBicDzOp6dfgeuxrISmmQ=;
+        s=korg; t=1665903967;
+        bh=6Y+4gH7cUy17HmY/xft0KaU9KG/wn88evKar3dQRCBM=;
         h=Subject:To:Cc:From:Date:From;
-        b=PJGn0kqGrD4LmJiIR9mFOrtB0STgOdwggfzzwBLv3qtwJuRvm9r3NGzk3yhe0E0Cd
-         ACgGPTrxtSVHgoh+qYUU9Osj9IF2ytTp0fyIY2xbmnrFzSL5HKRpi1UPduk4uuAd62
-         y508sYUWy+KLLOP+dywfn5hWS5EGgH93HIA0ECvU=
-Subject: FAILED: patch "[PATCH] io_uring: don't gate task_work run on TIF_NOTIFY_SIGNAL" failed to apply to 5.15-stable tree
-To:     axboe@kernel.dk, haesbaert@haesbaert.org
+        b=bDx5Cz08W8Bv0Y+GhbIjIWeRK/SDBW/fr5yTiwTkGx1EHUh7iHgrb41hQF5hCvORG
+         fDYzkTcgYB2Uq5aNN/xVFrkJNpbJ92pX176g40VkZMwLXMH3CpP9t9+31oeSENYOik
+         gND2hs017CvPi3HOAu+UYxznrO0iDwcKL6jK+vXU=
+Subject: FAILED: patch "[PATCH] io_uring/net: don't skip notifs for failed requests" failed to apply to 6.0-stable tree
+To:     asml.silence@gmail.com, axboe@kernel.dk, metze@samba.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 09:06:42 +0200
-Message-ID: <166590400224043@kroah.com>
+Date:   Sun, 16 Oct 2022 09:06:48 +0200
+Message-ID: <166590400827154@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +47,26 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-46a525e199e4 ("io_uring: don't gate task_work run on TIF_NOTIFY_SIGNAL")
-c0e0d6ba25f1 ("io_uring: add IORING_SETUP_DEFER_TASKRUN")
-b4c98d59a787 ("io_uring: introduce io_has_work")
-78a861b94959 ("io_uring: add sync cancelation API through io_uring_register()")
-c34398a8c018 ("io_uring: remove __io_req_task_work_add")
-ed5ccb3beeba ("io_uring: remove priority tw list optimisation")
-625d38b3fd34 ("io_uring: improve io_run_task_work()")
-4a0fef62788b ("io_uring: optimize io_uring_task layout")
-253993210bd8 ("io_uring: introduce locking helpers for CQE posting")
-305bef988708 ("io_uring: hide eventfd assumptions in eventfd paths")
-affa87db9010 ("io_uring: fix multi ctx cancellation")
-d9dee4302a7c ("io_uring: remove ->flush_cqes optimisation")
-a830ffd28780 ("io_uring: move io_eventfd_signal()")
-9046c6415be6 ("io_uring: reshuffle io_uring/io_uring.h")
-d142c3ec8d16 ("io_uring: remove extra io_commit_cqring()")
-68494a65d0e2 ("io_uring: introduce io_req_cqe_overflow()")
-faf88dde060f ("io_uring: don't inline __io_get_cqe()")
-d245bca6375b ("io_uring: don't expose io_fill_cqe_aux()")
-9ca9fb24d5fe ("io_uring: mutex locked poll hashing")
-e6f89be61410 ("io_uring: introduce a struct for hash table")
+6ae91ac9a6aa ("io_uring/net: don't skip notifs for failed requests")
+a75155faef4e ("io_uring/net: fix UAF in io_sendrecv_fail()")
+493108d95f14 ("io_uring/net: zerocopy sendmsg")
+c4c0009e0b56 ("io_uring/net: combine fail handlers")
+b0e9b5517eb1 ("io_uring/net: rename io_sendzc()")
+516e82f0e043 ("io_uring/net: support non-zerocopy sendto")
+6ae61b7aa2c7 ("io_uring/net: refactor io_setup_async_addr")
+5693bcce892d ("io_uring/net: don't lose partial send_zc on fail")
+7e6b638ed501 ("io_uring/net: don't lose partial send/recv on fail")
+ac9e5784bbe7 ("io_uring/net: use io_sr_msg for sendzc")
+0b048557db76 ("io_uring/net: refactor io_sr_msg types")
+6bf8ad25fcd4 ("io_uring/net: io_async_msghdr caches for sendzc")
+95eafc74be5e ("io_uring/net: reshuffle error handling")
 
 thanks,
 
@@ -81,47 +74,114 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 46a525e199e4037516f7e498c18f065b09df32ac Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Thu, 29 Sep 2022 15:29:13 -0600
-Subject: [PATCH] io_uring: don't gate task_work run on TIF_NOTIFY_SIGNAL
+From 6ae91ac9a6aa7d6005c3c6d0f4d263fbab9f377f Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Wed, 28 Sep 2022 00:51:49 +0100
+Subject: [PATCH] io_uring/net: don't skip notifs for failed requests
 
-This isn't a reliable mechanism to tell if we have task_work pending, we
-really should be looking at whether we have any items queued. This is
-problematic if forward progress is gated on running said task_work. One
-such example is reading from a pipe, where the write side has been closed
-right before the read is started. The fput() of the file queues TWA_RESUME
-task_work, and we need that task_work to be run before ->release() is
-called for the pipe. If ->release() isn't called, then the read will sit
-forever waiting on data that will never arise.
+We currently only add a notification CQE when the send succeded, i.e.
+cqe.res >= 0. However, it'd be more robust to do buffer notifications
+for failed requests as well in case drivers decide do something fanky.
 
-Fix this by io_run_task_work() so it checks if we have task_work pending
-rather than rely on TIF_NOTIFY_SIGNAL for that. The latter obviously
-doesn't work for task_work that is queued without TWA_SIGNAL.
+Always return a buffer notification after initial prep, don't hide it.
+This behaviour is better aligned with documentation and the patch also
+helps the userspace to respect it.
 
-Reported-by: Christiano Haesbaert <haesbaert@haesbaert.org>
-Cc: stable@vger.kernel.org
-Link: https://github.com/axboe/liburing/issues/665
+Cc: stable@vger.kernel.org # 6.0
+Suggested-by: Stefan Metzmacher <metze@samba.org>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/9c8bead87b2b980fcec441b8faef52188b4a6588.1664292100.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/io_uring/io_uring.h b/io_uring/io_uring.h
-index 177bd55357d7..48ce2348c8c1 100644
---- a/io_uring/io_uring.h
-+++ b/io_uring/io_uring.h
-@@ -231,11 +231,11 @@ static inline unsigned int io_sqring_entries(struct io_ring_ctx *ctx)
- 
- static inline int io_run_task_work(void)
- {
--	if (test_thread_flag(TIF_NOTIFY_SIGNAL)) {
-+	if (task_work_pending(current)) {
-+		if (test_thread_flag(TIF_NOTIFY_SIGNAL))
-+			clear_notify_signal();
- 		__set_current_state(TASK_RUNNING);
--		clear_notify_signal();
--		if (task_work_pending(current))
--			task_work_run();
-+		task_work_run();
- 		return 1;
+diff --git a/io_uring/net.c b/io_uring/net.c
+index 6b69eff6887e..5058a9fc9e9c 100644
+--- a/io_uring/net.c
++++ b/io_uring/net.c
+@@ -916,7 +916,6 @@ void io_send_zc_cleanup(struct io_kiocb *req)
+ 			kfree(io->free_iov);
  	}
+ 	if (zc->notif) {
+-		zc->notif->flags |= REQ_F_CQE_SKIP;
+ 		io_notif_flush(zc->notif);
+ 		zc->notif = NULL;
+ 	}
+@@ -1047,7 +1046,7 @@ int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
+ 	struct msghdr msg;
+ 	struct iovec iov;
+ 	struct socket *sock;
+-	unsigned msg_flags, cflags;
++	unsigned msg_flags;
+ 	int ret, min_ret = 0;
  
+ 	sock = sock_from_file(req->file);
+@@ -1115,8 +1114,6 @@ int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
+ 			req->flags |= REQ_F_PARTIAL_IO;
+ 			return io_setup_async_addr(req, &__address, issue_flags);
+ 		}
+-		if (ret < 0 && !zc->done_io)
+-			zc->notif->flags |= REQ_F_CQE_SKIP;
+ 		if (ret == -ERESTARTSYS)
+ 			ret = -EINTR;
+ 		req_set_fail(req);
+@@ -1129,8 +1126,7 @@ int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
+ 
+ 	io_notif_flush(zc->notif);
+ 	req->flags &= ~REQ_F_NEED_CLEANUP;
+-	cflags = ret >= 0 ? IORING_CQE_F_MORE : 0;
+-	io_req_set_res(req, ret, cflags);
++	io_req_set_res(req, ret, IORING_CQE_F_MORE);
+ 	return IOU_OK;
+ }
+ 
+@@ -1139,7 +1135,7 @@ int io_sendmsg_zc(struct io_kiocb *req, unsigned int issue_flags)
+ 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
+ 	struct io_async_msghdr iomsg, *kmsg;
+ 	struct socket *sock;
+-	unsigned flags, cflags;
++	unsigned flags;
+ 	int ret, min_ret = 0;
+ 
+ 	sock = sock_from_file(req->file);
+@@ -1178,8 +1174,6 @@ int io_sendmsg_zc(struct io_kiocb *req, unsigned int issue_flags)
+ 			req->flags |= REQ_F_PARTIAL_IO;
+ 			return io_setup_async_msg(req, kmsg, issue_flags);
+ 		}
+-		if (ret < 0 && !sr->done_io)
+-			sr->notif->flags |= REQ_F_CQE_SKIP;
+ 		if (ret == -ERESTARTSYS)
+ 			ret = -EINTR;
+ 		req_set_fail(req);
+@@ -1196,27 +1190,20 @@ int io_sendmsg_zc(struct io_kiocb *req, unsigned int issue_flags)
+ 
+ 	io_notif_flush(sr->notif);
+ 	req->flags &= ~REQ_F_NEED_CLEANUP;
+-	cflags = ret >= 0 ? IORING_CQE_F_MORE : 0;
+-	io_req_set_res(req, ret, cflags);
++	io_req_set_res(req, ret, IORING_CQE_F_MORE);
+ 	return IOU_OK;
+ }
+ 
+ void io_sendrecv_fail(struct io_kiocb *req)
+ {
+ 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
+-	int res = req->cqe.res;
+ 
+ 	if (req->flags & REQ_F_PARTIAL_IO)
+-		res = sr->done_io;
++		req->cqe.res = sr->done_io;
++
+ 	if ((req->flags & REQ_F_NEED_CLEANUP) &&
+-	    (req->opcode == IORING_OP_SEND_ZC || req->opcode == IORING_OP_SENDMSG_ZC)) {
+-		/* preserve notification for partial I/O */
+-		if (res < 0)
+-			sr->notif->flags |= REQ_F_CQE_SKIP;
+-		io_notif_flush(sr->notif);
+-		sr->notif = NULL;
+-	}
+-	io_req_set_res(req, res, req->cqe.flags);
++	    (req->opcode == IORING_OP_SEND_ZC || req->opcode == IORING_OP_SENDMSG_ZC))
++		req->cqe.flags |= IORING_CQE_F_MORE;
+ }
+ 
+ int io_accept_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 
