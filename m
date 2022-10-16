@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B2F9600093
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:21:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49C51600094
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229748AbiJPPVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:21:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50466 "EHLO
+        id S229738AbiJPPVz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:21:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229738AbiJPPVu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:21:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62D2BB4B9
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:21:49 -0700 (PDT)
+        with ESMTP id S229691AbiJPPVy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:21:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D384236BCD
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:21:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F388360BA8
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:21:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10FBAC433C1;
-        Sun, 16 Oct 2022 15:21:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94829B80B66
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:21:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B2CBC433C1;
+        Sun, 16 Oct 2022 15:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665933708;
-        bh=cJTRKih2WF7NaE4z8rkjyd3uN2Wy8pvV8vDMrA3LyK0=;
+        s=korg; t=1665933711;
+        bh=yTqrK+xJ8t8Ih3H1hrN4movzpX/8BjRKYBiIUQV1e9E=;
         h=Subject:To:Cc:From:Date:From;
-        b=2MICINLMtXit/EHyAovR2++ClT0cx3dfNrngB+y2AtOrMOqaVEwxe3dmSSqUVkTkk
-         C5mBqmqFqyZ3oAfGQ39kMM7vTibxU+RFbjTF+4P5VCN3SS6bJ4sR44IhjMKD9rM5R5
-         VG2RtV7dDwjToOh5vAKiap2nhzAmgMK+r5JzxnKE=
-Subject: FAILED: patch "[PATCH] tracing: Wake up waiters when tracing is disabled" failed to apply to 4.19-stable tree
+        b=zwtvKGag3RvTZQxddoLhhPZ4ZKXkLpEXBM4WTLvfC+eAyol4Ms397WL8S9mRzha0l
+         7FUtZnmKhvw9gZy3XA9pV+A9x/rQDhhHiY20Mc6US6ETapbebDbTNy+doiWkUzMvVx
+         MubGdC31F5BuJ6ZaMC/UgP/aRXzxitGYYbprAdvg=
+Subject: FAILED: patch "[PATCH] tracing: Wake up waiters when tracing is disabled" failed to apply to 5.4-stable tree
 To:     rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 16 Oct 2022 17:22:26 +0200
-Message-ID: <1665933746182188@kroah.com>
+Message-ID: <1665933746254224@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,8 +59,6 @@ f3ddb74ad079 ("tracing: Wake up ring buffer waiters on closing of the file")
 efbbdaa22bb7 ("tracing: Show real address for trace event arguments")
 8e99cf91b99b ("tracing: Do not allocate buffer in trace_find_next_entry() in atomic")
 ff895103a84a ("tracing: Save off entry when peeking at next entry")
-03329f993978 ("tracing: Add tracefs file buffer_percentage")
-2c2b0a78b373 ("ring-buffer: Add percentage of ring buffer full to wake up reader")
 
 thanks,
 
