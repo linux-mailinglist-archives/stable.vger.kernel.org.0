@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03C855FFF7F
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 15:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8F1A5FFF81
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 15:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229594AbiJPNUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 09:20:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40746 "EHLO
+        id S229562AbiJPNU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 09:20:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229562AbiJPNUD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 09:20:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B44024F20
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 06:20:01 -0700 (PDT)
+        with ESMTP id S229600AbiJPNUz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 09:20:55 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0286F32DA1
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 06:20:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F82FB80CB8
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:20:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C68FC433D6;
-        Sun, 16 Oct 2022 13:19:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 70648CE0DA2
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:20:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64F60C433D6;
+        Sun, 16 Oct 2022 13:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665926398;
-        bh=ZBQ6rcUIdI7OYtWx1beZ4UBNbC3W4+fx3up+4XM8IBs=;
+        s=korg; t=1665926450;
+        bh=E0OdE84Cg2XZO1pn1r+yk5hRKI5mTPDLYX4SoPRoe0Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=0P/i34ud3Sw+qq+QdzUBATtug3fVsyaxcfwAGp2UeRExyAjxOUMrW0OrY4tB6YDYw
-         /BkF4BRtBmehX9u25/B8EE+rDlr01qU5y9mRA8hgQFAr7Ug3VVzdKuQsm5DjzVm0LH
-         74U+HW5MkibSCLJbvzBwl7c6G9lTVGB7A1B9HuMU=
-Subject: FAILED: patch "[PATCH] ext4: unconditionally enable the i_version counter" failed to apply to 5.15-stable tree
-To:     jlayton@kernel.org, bcodding@redhat.com, brauner@kernel.org,
-        david@fromorbit.com, djwong@kernel.org, hch@infradead.org,
-        jack@suse.cz, lczerner@redhat.com, tytso@mit.edu
+        b=JsEYkEPDioipmmLb0uKPvpf59Jyg3KAkhHUa+a5DJ4cY0PgbBMv4B7eh3rwQOUd38
+         jbSieMfIGIXem/x/uWRGU5yIx7qdeGY+mBzfdV0xGdo/WIihF3p4SvV51MlPMB5A4n
+         fwZ5SGAJZn/cIPVoLPT3JW+eN9vCrvANkSF0qsAc=
+Subject: FAILED: patch "[PATCH] ext4: fix i_version handling in ext4" failed to apply to 5.10-stable tree
+To:     jlayton@kernel.org, brauner@kernel.org, jack@suse.cz,
+        lczerner@redhat.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 15:20:37 +0200
-Message-ID: <166592643719321@kroah.com>
+Date:   Sun, 16 Oct 2022 15:21:36 +0200
+Message-ID: <1665926496248202@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,13 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
+a642c2c0827f ("ext4: fix i_version handling in ext4")
 1ff20307393e ("ext4: unconditionally enable the i_version counter")
 50f094a5580e ("ext4: don't increase iversion counter for ea_inodes")
 960e0ab63b2e ("ext4: fix i_version handling on remount")
@@ -71,6 +71,7 @@ da812f611934 ("ext4: Allow sb to be NULL in ext4_msg()")
 4c94bff967d9 ("ext4: move option validation to a separate function")
 e5a185c26c11 ("ext4: Add fs parameter specifications for mount options")
 9a089b21f79b ("ext4: Send notifications on error")
+2e5fd489a4e5 ("Merge tag 'libnvdimm-for-5.15' of git://git.kernel.org/pub/scm/linux/kernel/git/nvdimm/nvdimm")
 
 thanks,
 
@@ -78,128 +79,131 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1ff20307393e17dc57fde62226df625a3a3c36e9 Mon Sep 17 00:00:00 2001
+From a642c2c0827f5604a93f9fa1e5701eecdce4ae22 Mon Sep 17 00:00:00 2001
 From: Jeff Layton <jlayton@kernel.org>
-Date: Wed, 24 Aug 2022 18:03:49 +0200
-Subject: [PATCH] ext4: unconditionally enable the i_version counter
+Date: Thu, 8 Sep 2022 13:24:42 -0400
+Subject: [PATCH] ext4: fix i_version handling in ext4
 
-The original i_version implementation was pretty expensive, requiring a
-log flush on every change. Because of this, it was gated behind a mount
-option (implemented via the MS_I_VERSION mountoption flag).
+ext4 currently updates the i_version counter when the atime is updated
+during a read. This is less than ideal as it can cause unnecessary cache
+invalidations with NFSv4 and unnecessary remeasurements for IMA.
 
-Commit ae5e165d855d (fs: new API for handling inode->i_version) made the
-i_version flag much less expensive, so there is no longer a performance
-penalty from enabling it. xfs and btrfs already enable it
-unconditionally when the on-disk format can support it.
+The increment in ext4_mark_iloc_dirty is also problematic since it can
+corrupt the i_version counter for ea_inodes. We aren't bumping the file
+times in ext4_mark_iloc_dirty, so changing the i_version there seems
+wrong, and is the cause of both problems.
 
-Have ext4 ignore the SB_I_VERSION flag, and just enable it
-unconditionally.  While we're in here, mark the i_version mount
-option Opt_removed.
+Remove that callsite and add increments to the setattr, setxattr and
+ioctl codepaths, at the same times that we update the ctime. The
+i_version bump that already happens during timestamp updates should take
+care of the rest.
 
-[ Removed leftover bits of i_version from ext4_apply_options() since it
-  now can't ever be set in ctx->mask_s_flags -- lczerner ]
+In ext4_move_extents, increment the i_version on both inodes, and also
+add in missing ctime updates.
+
+[ Some minor updates since we've already enabled the i_version counter
+  unconditionally already via another patch series. -- TYT ]
 
 Cc: stable@kernel.org
-Cc: Dave Chinner <david@fromorbit.com>
-Cc: Benjamin Coddington <bcodding@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Cc: Lukas Czerner <lczerner@redhat.com>
 Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220824160349.39664-3-lczerner@redhat.com
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Link: https://lore.kernel.org/r/20220908172448.208585-3-jlayton@kernel.org
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 
 diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 2a220be34caa..c77d40f05763 100644
+index a56c57375456..6da73be32bff 100644
 --- a/fs/ext4/inode.c
 +++ b/fs/ext4/inode.c
-@@ -5425,7 +5425,7 @@ int ext4_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+@@ -5349,6 +5349,7 @@ int ext4_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+ 	int error, rc = 0;
+ 	int orphan = 0;
+ 	const unsigned int ia_valid = attr->ia_valid;
++	bool inc_ivers = true;
+ 
+ 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
+ 		return -EIO;
+@@ -5432,8 +5433,8 @@ int ext4_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
  			return -EINVAL;
  		}
  
--		if (IS_I_VERSION(inode) && attr->ia_size != inode->i_size)
-+		if (attr->ia_size != inode->i_size)
- 			inode_inc_iversion(inode);
+-		if (attr->ia_size != inode->i_size)
+-			inode_inc_iversion(inode);
++		if (attr->ia_size == inode->i_size)
++			inc_ivers = false;
  
  		if (shrink) {
-@@ -5735,8 +5735,7 @@ int ext4_mark_iloc_dirty(handle_t *handle,
- 	 * ea_inodes are using i_version for storing reference count, don't
- 	 * mess with it
- 	 */
--	if (IS_I_VERSION(inode) &&
--	    !(EXT4_I(inode)->i_flags & EXT4_EA_INODE_FL))
-+	if (!(EXT4_I(inode)->i_flags & EXT4_EA_INODE_FL))
- 		inode_inc_iversion(inode);
+ 			if (ext4_should_order_data(inode)) {
+@@ -5535,6 +5536,8 @@ int ext4_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+ 	}
  
- 	/* the do_update_inode consumes one bh->b_count */
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 6bb0f493221c..2a7af6cbe5e0 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1585,7 +1585,7 @@ enum {
- 	Opt_inlinecrypt,
- 	Opt_usrjquota, Opt_grpjquota, Opt_quota,
- 	Opt_noquota, Opt_barrier, Opt_nobarrier, Opt_err,
--	Opt_usrquota, Opt_grpquota, Opt_prjquota, Opt_i_version,
-+	Opt_usrquota, Opt_grpquota, Opt_prjquota,
- 	Opt_dax, Opt_dax_always, Opt_dax_inode, Opt_dax_never,
- 	Opt_stripe, Opt_delalloc, Opt_nodelalloc, Opt_warn_on_error,
- 	Opt_nowarn_on_error, Opt_mblk_io_submit, Opt_debug_want_extra_isize,
-@@ -1692,7 +1692,7 @@ static const struct fs_parameter_spec ext4_param_specs[] = {
- 	fsparam_flag	("barrier",		Opt_barrier),
- 	fsparam_u32	("barrier",		Opt_barrier),
- 	fsparam_flag	("nobarrier",		Opt_nobarrier),
--	fsparam_flag	("i_version",		Opt_i_version),
-+	fsparam_flag	("i_version",		Opt_removed),
- 	fsparam_flag	("dax",			Opt_dax),
- 	fsparam_enum	("dax",			Opt_dax_type, ext4_param_dax),
- 	fsparam_u32	("stripe",		Opt_stripe),
-@@ -2131,11 +2131,6 @@ static int ext4_parse_param(struct fs_context *fc, struct fs_parameter *param)
- 	case Opt_abort:
- 		ctx_set_mount_flag(ctx, EXT4_MF_FS_ABORTED);
- 		return 0;
--	case Opt_i_version:
--		ext4_msg(NULL, KERN_WARNING, deprecated_msg, param->key, "5.20");
--		ext4_msg(NULL, KERN_WARNING, "Use iversion instead\n");
--		ctx_set_flags(ctx, SB_I_VERSION);
--		return 0;
- 	case Opt_inlinecrypt:
- #ifdef CONFIG_FS_ENCRYPTION_INLINE_CRYPT
- 		ctx_set_flags(ctx, SB_INLINECRYPT);
-@@ -2805,14 +2800,6 @@ static void ext4_apply_options(struct fs_context *fc, struct super_block *sb)
- 	sb->s_flags &= ~ctx->mask_s_flags;
- 	sb->s_flags |= ctx->vals_s_flags;
+ 	if (!error) {
++		if (inc_ivers)
++			inode_inc_iversion(inode);
+ 		setattr_copy(mnt_userns, inode, attr);
+ 		mark_inode_dirty(inode);
+ 	}
+@@ -5738,13 +5741,6 @@ int ext4_mark_iloc_dirty(handle_t *handle,
+ 	}
+ 	ext4_fc_track_inode(handle, inode);
  
 -	/*
--	 * i_version differs from common mount option iversion so we have
--	 * to let vfs know that it was set, otherwise it would get cleared
--	 * on remount
+-	 * ea_inodes are using i_version for storing reference count, don't
+-	 * mess with it
 -	 */
--	if (ctx->mask_s_flags & SB_I_VERSION)
--		fc->sb_flags |= SB_I_VERSION;
+-	if (!(EXT4_I(inode)->i_flags & EXT4_EA_INODE_FL))
+-		inode_inc_iversion(inode);
 -
- #define APPLY(X) ({ if (ctx->spec & EXT4_SPEC_##X) sbi->X = ctx->X; })
- 	APPLY(s_commit_interval);
- 	APPLY(s_stripe);
-@@ -2961,8 +2948,6 @@ static int _ext4_show_options(struct seq_file *seq, struct super_block *sb,
- 		SEQ_OPTS_PRINT("min_batch_time=%u", sbi->s_min_batch_time);
- 	if (nodefs || sbi->s_max_batch_time != EXT4_DEF_MAX_BATCH_TIME)
- 		SEQ_OPTS_PRINT("max_batch_time=%u", sbi->s_max_batch_time);
--	if (sb->s_flags & SB_I_VERSION)
--		SEQ_OPTS_PUTS("i_version");
- 	if (nodefs || sbi->s_stripe)
- 		SEQ_OPTS_PRINT("stripe=%lu", sbi->s_stripe);
- 	if (nodefs || EXT4_MOUNT_DATA_FLAGS &
-@@ -4632,6 +4617,9 @@ static int __ext4_fill_super(struct fs_context *fc, struct super_block *sb)
- 	sb->s_flags = (sb->s_flags & ~SB_POSIXACL) |
- 		(test_opt(sb, POSIX_ACL) ? SB_POSIXACL : 0);
+ 	/* the do_update_inode consumes one bh->b_count */
+ 	get_bh(iloc->bh);
  
-+	/* i_version is always enabled now */
-+	sb->s_flags |= SB_I_VERSION;
-+
- 	if (le32_to_cpu(es->s_rev_level) == EXT4_GOOD_OLD_REV &&
- 	    (ext4_has_compat_features(sb) ||
- 	     ext4_has_ro_compat_features(sb) ||
+diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
+index 3cf3ec4b1c21..ad3a294a88eb 100644
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -452,6 +452,7 @@ static long swap_inode_boot_loader(struct super_block *sb,
+ 	swap_inode_data(inode, inode_bl);
+ 
+ 	inode->i_ctime = inode_bl->i_ctime = current_time(inode);
++	inode_inc_iversion(inode);
+ 
+ 	inode->i_generation = prandom_u32();
+ 	inode_bl->i_generation = prandom_u32();
+@@ -665,6 +666,7 @@ static int ext4_ioctl_setflags(struct inode *inode,
+ 	ext4_set_inode_flags(inode, false);
+ 
+ 	inode->i_ctime = current_time(inode);
++	inode_inc_iversion(inode);
+ 
+ 	err = ext4_mark_iloc_dirty(handle, inode, &iloc);
+ flags_err:
+@@ -775,6 +777,7 @@ static int ext4_ioctl_setproject(struct inode *inode, __u32 projid)
+ 
+ 	EXT4_I(inode)->i_projid = kprojid;
+ 	inode->i_ctime = current_time(inode);
++	inode_inc_iversion(inode);
+ out_dirty:
+ 	rc = ext4_mark_iloc_dirty(handle, inode, &iloc);
+ 	if (!err)
+@@ -1257,6 +1260,7 @@ static long __ext4_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 		err = ext4_reserve_inode_write(handle, inode, &iloc);
+ 		if (err == 0) {
+ 			inode->i_ctime = current_time(inode);
++			inode_inc_iversion(inode);
+ 			inode->i_generation = generation;
+ 			err = ext4_mark_iloc_dirty(handle, inode, &iloc);
+ 		}
+diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
+index 533216e80fa2..36d6ba7190b6 100644
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2412,6 +2412,7 @@ ext4_xattr_set_handle(handle_t *handle, struct inode *inode, int name_index,
+ 	if (!error) {
+ 		ext4_xattr_update_super_block(handle, inode->i_sb);
+ 		inode->i_ctime = current_time(inode);
++		inode_inc_iversion(inode);
+ 		if (!value)
+ 			no_expand = 0;
+ 		error = ext4_mark_iloc_dirty(handle, inode, &is.iloc);
 
