@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B617A6000DD
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 435C16000DE
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:47:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229744AbiJPPrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:47:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43358 "EHLO
+        id S229747AbiJPPrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:47:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229748AbiJPPrG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:47:06 -0400
+        with ESMTP id S229751AbiJPPrJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:47:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59B24357FB
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:47:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4394B34736
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:47:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA39760C09
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:47:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C920C433D7;
-        Sun, 16 Oct 2022 15:47:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF51160C05
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:47:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB3EDC433D6;
+        Sun, 16 Oct 2022 15:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665935224;
-        bh=XgWScVj63V2MLwoMkvNRdictDgPL53xSSm/eev9LaUs=;
+        s=korg; t=1665935227;
+        bh=EcWb46FbB4PIu/IjbRvf38+KJHwuxQPCMhI6OAvKSUc=;
         h=Subject:To:Cc:From:Date:From;
-        b=Nf3OSrdl2vbG2Egb6oelrt7q8YfVh8bhi/dzhmFUkYHb1bxP+sICogFvBo2OX5rK9
-         8kjdEGnRoU/CzwpuA6tZat8rBWWrwlG4MyU0TvK/jm5JO6tJdteiH2HKC6gJYpJvw+
-         dXBcxmQpLhXIyHAg1xi/AQXZgHewp+RPmgPkBvzo=
-Subject: FAILED: patch "[PATCH] KVM: x86: Treat #DBs from the emulator as fault-like (code" failed to apply to 5.15-stable tree
+        b=TC+yML+eLWiE67zSvErlF5m/eO6FrY8aZ6XH3+nIAKTX2u0uRZM4PhmPJdKifZ7Y1
+         fIizvnQthHYC5bZ69omZHunI0ejtgRIGUFnFmtF0nq/4ArcwiC8rsJ3RcHF3FH8Zj+
+         E4xeYjQP7XTIewhXiGXzA2WR5/JwTawTmeCUeyM4=
+Subject: FAILED: patch "[PATCH] KVM: x86: Treat #DBs from the emulator as fault-like (code" failed to apply to 5.10-stable tree
 To:     seanjc@google.com, mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:47:48 +0200
-Message-ID: <1665935268127127@kroah.com>
+Date:   Sun, 16 Oct 2022 17:47:49 +0200
+Message-ID: <166593526964162@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,6 +56,24 @@ Possible dependencies:
 
 5623f751bd9c ("KVM: x86: Treat #DBs from the emulator as fault-like (code and DR7.GD=1)")
 a61d7c5432ac ("KVM: x86: Trace re-injected exceptions")
+b97f07458373 ("KVM: x86: determine if an exception has an error code only when injecting it.")
+cb6a32c2b877 ("KVM: x86: Handle triple fault in L2 without killing L1")
+63129754178c ("KVM: SVM: Pass struct kvm_vcpu to exit handlers (and many, many other places)")
+2a32a77cefa6 ("KVM: SVM: merge update_cr0_intercept into svm_set_cr0")
+11f0cbf0c605 ("KVM: nSVM: Trace VM-Enter consistency check failures")
+6906e06db9b0 ("KVM: nSVM: Add missing checks for reserved bits to svm_set_nested_state()")
+c08f390a75c1 ("KVM: nSVM: only copy L1 non-VMLOAD/VMSAVE data in svm_set_nested_state()")
+9e8f0fbfff1a ("KVM: nSVM: rename functions and variables according to vmcbXY nomenclature")
+193015adf40d ("KVM: nSVM: Track the ASID generation of the vmcb vmrun through the vmcb")
+af18fa775d07 ("KVM: nSVM: Track the physical cpu of the vmcb vmrun through the vmcb")
+4995a3685f1b ("KVM: SVM: Use a separate vmcb for the nested L2 guest")
+6d1b867d0456 ("KVM: SVM: Don't strip the C-bit from CR2 on #PF interception")
+43c11d91fb1e ("KVM: x86: to track if L1 is running L2 VM")
+9e46f6c6c959 ("KVM: SVM: Clear the CR4 register on reset")
+2df8d3807ce7 ("KVM: SVM: Fix nested VM-Exit on #GP interception handling")
+d2df592fd8c6 ("KVM: nSVM: prepare guest save area while is_guest_mode is true")
+a04aead144fd ("KVM: nSVM: fix running nested guests when npt=0")
+996ff5429e98 ("KVM: x86: move kvm_inject_gp up from kvm_set_dr to callers")
 
 thanks,
 
