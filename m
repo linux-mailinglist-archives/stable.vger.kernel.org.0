@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 798505FFF42
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 14:46:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EBD85FFF43
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 14:47:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbiJPMq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 08:46:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46724 "EHLO
+        id S229673AbiJPMrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 08:47:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbiJPMq5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 08:46:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53AD439104
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 05:46:56 -0700 (PDT)
+        with ESMTP id S229577AbiJPMrF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 08:47:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B075C39104
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 05:47:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E6AE160B5C
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 12:46:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3F15C433D7;
-        Sun, 16 Oct 2022 12:46:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49C1260B5E
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 12:47:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60A7CC433D6;
+        Sun, 16 Oct 2022 12:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665924415;
-        bh=M4AMnPK7a3yw8o+fh7xbF2U/GL2p4Y0KSOQoaTwWNlc=;
+        s=korg; t=1665924423;
+        bh=J4I5Qjxzcd5X/m+xA+wGvbqxSjg2OHMfVhfNM6+TW1k=;
         h=Subject:To:Cc:From:Date:From;
-        b=BQCRBOB8WN0xn6aUF7DoSNVos1ERk6/qPOEl8LA/GeGOtCaAr3XSRzBaBXZ4jakY2
-         EquzaluNckvV9+ZL+Zs6i+LkxgcYBDkiZZyXGXix+33Ptg4UT0rswoGFRthQ4tpoIC
-         HxlHwoAYCEkSd6r2IT+GFwaE0MbLTGarr6TgC03g=
-Subject: FAILED: patch "[PATCH] f2fs: fix to do sanity check on summary info" failed to apply to 4.9-stable tree
+        b=KrYUEqfB7WOW2ruo+lssz6zAgYGV8uJhbE2uln7SfWcHIltezqBxH8uKwKS5XnWZq
+         FVDT7rUgHEvlYdo6CoPOIokeDqqtIVwc5ABYYHm9eOhYzajYJcc5Ua5Z0WvnsKsiLL
+         UzM7fe5Pyf2TbAf7NfAGtQVjVRy+wee1eolnUH6M=
+Subject: FAILED: patch "[PATCH] f2fs: fix to do sanity check on summary info" failed to apply to 4.4-stable tree
 To:     chao@kernel.org, jaegeuk@kernel.org, wenqingliu0120@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 14:47:41 +0200
-Message-ID: <166592446114124@kroah.com>
+Date:   Sun, 16 Oct 2022 14:47:49 +0200
+Message-ID: <1665924469205179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,16 +47,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-c6ad7fd16657 ("f2fs: fix to do sanity check on summary info")
-77900c45ee5c ("f2fs: fix to do sanity check in is_alive()")
-c13ff37e359b ("f2fs: relax node version check for victim data in gc")
+
 
 thanks,
 
