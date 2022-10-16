@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B72566000A0
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:30:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC9096000A4
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:31:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229622AbiJPPa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:30:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39702 "EHLO
+        id S229794AbiJPPb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:31:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229594AbiJPPaz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:30:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2322C2F018
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:30:54 -0700 (PDT)
+        with ESMTP id S229755AbiJPPbZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:31:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB79D3386D
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:31:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B292060BEC
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:30:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A23DC433D6;
-        Sun, 16 Oct 2022 15:30:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0A54B80CBF
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:31:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEE44C433D7;
+        Sun, 16 Oct 2022 15:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665934253;
-        bh=QV6IeWxkfAwOncdX9X+YEjOgzbZ2kSnxf9P1IxAjHuI=;
+        s=korg; t=1665934282;
+        bh=lkQZbuABYmodCfu62nqV5C96OcC8HQl/OnpqV4nxvr4=;
         h=Subject:To:Cc:From:Date:From;
-        b=IBQ8Zy2xl0NgyduNVpR3JiLYvf6PfIpHl2f05YqHqhi7I9SfTwvLeikEnNwAqphdm
-         GR7VL0nC4oB/itxQo/l19sR2bIGY5w8GKb7zTDG1ZSoj42XGTfKH3+f0tcLTBSO503
-         ZO5xBLh5Rns06yEZixctH5EcdHTlYk9XmEtpON7w=
-Subject: FAILED: patch "[PATCH] ring-buffer: Add ring_buffer_wake_waiters()" failed to apply to 4.9-stable tree
+        b=xe9W5nGVi8Qd94fhhlSJJUUCC0mDg08nmpft6GrWJzJ2h3YJnspzN5mQYKQINSCQ2
+         K3CFXMjo2MR1fukofoNghRrh+IuVRChkE7jUfPbadY1bMa665NsWgT+XP/JigNTl0U
+         gE1b9OtuJxRg6XSaQkcho74SoO4YdlPQsvbNMLu0=
+Subject: FAILED: patch "[PATCH] tracing: Add ioctl() to force ring buffer waiters to wake up" failed to apply to 4.9-stable tree
 To:     rostedt@goodmis.org, akpm@linux-foundation.org, mingo@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:31:38 +0200
-Message-ID: <166593429855224@kroah.com>
+Date:   Sun, 16 Oct 2022 17:32:08 +0200
+Message-ID: <1665934328121188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -54,7 +54,7 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-7e9fbbb1b776 ("ring-buffer: Add ring_buffer_wake_waiters()")
+01b2a5217173 ("tracing: Add ioctl() to force ring buffer waiters to wake up")
 
 thanks,
 
@@ -62,115 +62,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7e9fbbb1b776d8d7969551565bc246f74ec53b27 Mon Sep 17 00:00:00 2001
+From 01b2a52171735c6eea80ee2f355f32bea6c41418 Mon Sep 17 00:00:00 2001
 From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Date: Wed, 28 Sep 2022 13:39:38 -0400
-Subject: [PATCH] ring-buffer: Add ring_buffer_wake_waiters()
+Date: Thu, 29 Sep 2022 09:50:29 -0400
+Subject: [PATCH] tracing: Add ioctl() to force ring buffer waiters to wake up
 
-On closing of a file that represents a ring buffer or flushing the file,
-there may be waiters on the ring buffer that needs to be woken up and exit
-the ring_buffer_wait() function.
+If a process is waiting on the ring buffer for data, there currently isn't
+a clean way to force it to wake up. Add an ioctl call that will force any
+tasks that are waiting on the trace_pipe_raw file to wake up.
 
-Add ring_buffer_wake_waiters() to wake up the waiters on the ring buffer
-and allow them to exit the wait loop.
-
-Link: https://lkml.kernel.org/r/20220928133938.28dc2c27@gandalf.local.home
+Link: https://lkml.kernel.org/r/20220929095029.117f913f@gandalf.local.home
 
 Cc: stable@vger.kernel.org
 Cc: Ingo Molnar <mingo@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>
-Fixes: 15693458c4bc0 ("tracing/ring-buffer: Move poll wake ups into ring buffer code")
+Fixes: e30f53aad2202 ("tracing: Do not busy wait in buffer splice")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-diff --git a/include/linux/ring_buffer.h b/include/linux/ring_buffer.h
-index dac53fd3afea..2504df9a0453 100644
---- a/include/linux/ring_buffer.h
-+++ b/include/linux/ring_buffer.h
-@@ -101,7 +101,7 @@ __ring_buffer_alloc(unsigned long size, unsigned flags, struct lock_class_key *k
- int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full);
- __poll_t ring_buffer_poll_wait(struct trace_buffer *buffer, int cpu,
- 			  struct file *filp, poll_table *poll_table);
--
-+void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu);
- 
- #define RING_BUFFER_ALL_CPUS -1
- 
-diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-index 5a7d818ca3ea..3046deacf7b3 100644
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -413,6 +413,7 @@ struct rb_irq_work {
- 	struct irq_work			work;
- 	wait_queue_head_t		waiters;
- 	wait_queue_head_t		full_waiters;
-+	long				wait_index;
- 	bool				waiters_pending;
- 	bool				full_waiters_pending;
- 	bool				wakeup_full;
-@@ -924,6 +925,37 @@ static void rb_wake_up_waiters(struct irq_work *work)
- 	}
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index e101b0764b39..58afc83afc9d 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -8349,12 +8349,34 @@ tracing_buffers_splice_read(struct file *file, loff_t *ppos,
+ 	return ret;
  }
  
-+/**
-+ * ring_buffer_wake_waiters - wake up any waiters on this ring buffer
-+ * @buffer: The ring buffer to wake waiters on
-+ *
-+ * In the case of a file that represents a ring buffer is closing,
-+ * it is prudent to wake up any waiters that are on this.
-+ */
-+void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu)
++/* An ioctl call with cmd 0 to the ring buffer file will wake up all waiters */
++static long tracing_buffers_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 +{
-+	struct ring_buffer_per_cpu *cpu_buffer;
-+	struct rb_irq_work *rbwork;
++	struct ftrace_buffer_info *info = file->private_data;
++	struct trace_iterator *iter = &info->iter;
 +
-+	if (cpu == RING_BUFFER_ALL_CPUS) {
++	if (cmd)
++		return -ENOIOCTLCMD;
 +
-+		/* Wake up individual ones too. One level recursion */
-+		for_each_buffer_cpu(buffer, cpu)
-+			ring_buffer_wake_waiters(buffer, cpu);
++	mutex_lock(&trace_types_lock);
 +
-+		rbwork = &buffer->irq_work;
-+	} else {
-+		cpu_buffer = buffer->buffers[cpu];
-+		rbwork = &cpu_buffer->irq_work;
-+	}
-+
-+	rbwork->wait_index++;
-+	/* make sure the waiters see the new index */
++	iter->wait_index++;
++	/* Make sure the waiters see the new wait_index */
 +	smp_wmb();
 +
-+	rb_wake_up_waiters(&rbwork->work);
++	ring_buffer_wake_waiters(iter->array_buffer->buffer, iter->cpu_file);
++
++	mutex_unlock(&trace_types_lock);
++	return 0;
 +}
 +
- /**
-  * ring_buffer_wait - wait for input to the ring buffer
-  * @buffer: buffer to wait on
-@@ -939,6 +971,7 @@ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full)
- 	struct ring_buffer_per_cpu *cpu_buffer;
- 	DEFINE_WAIT(wait);
- 	struct rb_irq_work *work;
-+	long wait_index;
- 	int ret = 0;
+ static const struct file_operations tracing_buffers_fops = {
+ 	.open		= tracing_buffers_open,
+ 	.read		= tracing_buffers_read,
+ 	.poll		= tracing_buffers_poll,
+ 	.release	= tracing_buffers_release,
+ 	.splice_read	= tracing_buffers_splice_read,
++	.unlocked_ioctl = tracing_buffers_ioctl,
+ 	.llseek		= no_llseek,
+ };
  
- 	/*
-@@ -957,6 +990,7 @@ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full)
- 		work = &cpu_buffer->irq_work;
- 	}
- 
-+	wait_index = READ_ONCE(work->wait_index);
- 
- 	while (true) {
- 		if (full)
-@@ -1021,6 +1055,11 @@ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full)
- 		}
- 
- 		schedule();
-+
-+		/* Make sure to see the new wait index */
-+		smp_rmb();
-+		if (wait_index != work->wait_index)
-+			break;
- 	}
- 
- 	if (full)
 
