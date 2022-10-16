@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E5A75FFDE1
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:31:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46385FFDE2
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:31:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229481AbiJPHbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 03:31:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33268 "EHLO
+        id S229594AbiJPHbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 03:31:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229575AbiJPHbC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:31:02 -0400
+        with ESMTP id S229583AbiJPHbG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:31:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DA783868D
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:31:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4DF9386A8
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:31:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47CD2B803F1
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:31:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CE95C433B5;
-        Sun, 16 Oct 2022 07:30:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64E43B80B71
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:31:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2B58C433D7;
+        Sun, 16 Oct 2022 07:31:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665905459;
-        bh=14tnfaWrHhdUH+VBupRXDAAMj1LXciBFc7rxjpqRHYQ=;
+        s=korg; t=1665905463;
+        bh=9IaR7OMzxejBnp4RESqlf4hq/1F/T3ZG6LWJhjM0vAI=;
         h=Subject:To:Cc:From:Date:From;
-        b=2tgaiqaHyum2pSkrdby1ePx/ckBsADosELWeKQxzuVyfUaTWmId5HIhYhPaCl+WAe
-         atIPltVsJDPjqG+fT3/Cyboqqz++CGfCiJGj9vY6pSoGHSbVPwcVsWhouwsee55I0Z
-         3eV75/XL70vXm1mwCauLja8ngsJe9MIwqM5b4Q/Q=
-Subject: FAILED: patch "[PATCH] fs: dlm: fix invalid derefence of sb_lvbptr" failed to apply to 5.15-stable tree
+        b=DJgYVm2pNcus9w/v1UaoNEI7GldnRPx5TZr4SW9f9gdtaFYxESDKc0EANyp6ARYg0
+         vrWciMRMUQ3vRPQAE9yDT3eC3t+1zCxvrVjP+SlPrJpPcI6UIComNiv9ZdRCjsQtAn
+         IdxtytC4OQYmEcFo9gcIw1jbajVaBXUqvExJPpX4=
+Subject: FAILED: patch "[PATCH] fs: dlm: fix invalid derefence of sb_lvbptr" failed to apply to 5.10-stable tree
 To:     aahringo@redhat.com, teigland@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 09:31:45 +0200
-Message-ID: <1665905505238114@kroah.com>
+Date:   Sun, 16 Oct 2022 09:31:47 +0200
+Message-ID: <1665905507128231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,6 +60,20 @@ Possible dependencies:
 3428785a65da ("dlm: use __le types for dlm header")
 6c2e3bf68f3e ("fs: dlm: filter user dlm messages for kernel locks")
 9af5b8f0ead7 ("fs: dlm: add debugfs rawmsg send functionality")
+88aa023a2556 ("fs: dlm: cleanup and remove _send_rcom")
+d10a0b88751a ("fs: dlm: rename socket and app buffer defines")
+5b2f981fde8b ("fs: dlm: add midcomms debugfs functionality")
+489d8e559c65 ("fs: dlm: add reliable connection if reconnect")
+8e2e40860c7f ("fs: dlm: add union in dlm header for lockspace id")
+37a247da517f ("fs: dlm: move out some hash functionality")
+8f2dc78dbc20 ("fs: dlm: make buffer handling per msg")
+a070a91cf140 ("fs: dlm: add more midcomms hooks")
+6fb5cf9d4206 ("fs: dlm: public header in out utility")
+8aa31cbf20ad ("fs: dlm: fix connection tcp EOF handling")
+ba868d9deaab ("fs: dlm: reconnect if socket error report occurs")
+b38bc9c2b317 ("fs: dlm: fix srcu read lock usage")
+2fd8db2dd05d ("fs: dlm: fix missing unlock on error in accept_from_sock()")
+9d232469bcd7 ("fs: dlm: add shutdown hook")
 
 thanks,
 
