@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE335FFDD8
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:26:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E5A75FFDE1
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229481AbiJPH0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 03:26:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
+        id S229481AbiJPHbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 03:31:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229653AbiJPH0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:26:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AC883ED6B
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:26:13 -0700 (PDT)
+        with ESMTP id S229575AbiJPHbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:31:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DA783868D
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:31:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24F53B803F1
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:26:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88E30C433C1;
-        Sun, 16 Oct 2022 07:26:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47CD2B803F1
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:31:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CE95C433B5;
+        Sun, 16 Oct 2022 07:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665905170;
-        bh=jRwSxjX7PVxiQhjiBreS1rTknnAPxjbNaK0n25VfrMU=;
+        s=korg; t=1665905459;
+        bh=14tnfaWrHhdUH+VBupRXDAAMj1LXciBFc7rxjpqRHYQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=JZxrVL7YQhEFJsI8HzQGqfCUvscHMkbXwkT8/E83jHVFUA836gxC/bkJQH0vg+FeS
-         YFVbUrPktGZ9B1RasulcUa0zzfAAC9FwgOeq0/nYDKFwrV2d8dfhVi1CuCEEZLxNpg
-         r6jRjEYWSVxNCYX35+NscuWIwj8dO29+mbLGqZ8Q=
-Subject: FAILED: patch "[PATCH] io_uring/rw: fix unexpected link breakage" failed to apply to 5.4-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk, beldzhang@gmail.com
+        b=2tgaiqaHyum2pSkrdby1ePx/ckBsADosELWeKQxzuVyfUaTWmId5HIhYhPaCl+WAe
+         atIPltVsJDPjqG+fT3/Cyboqqz++CGfCiJGj9vY6pSoGHSbVPwcVsWhouwsee55I0Z
+         3eV75/XL70vXm1mwCauLja8ngsJe9MIwqM5b4Q/Q=
+Subject: FAILED: patch "[PATCH] fs: dlm: fix invalid derefence of sb_lvbptr" failed to apply to 5.15-stable tree
+To:     aahringo@redhat.com, teigland@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 09:26:47 +0200
-Message-ID: <1665905207811@kroah.com>
+Date:   Sun, 16 Oct 2022 09:31:45 +0200
+Message-ID: <1665905505238114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-bf68b5b34311 ("io_uring/rw: fix unexpected link breakage")
-f3b44f92e59a ("io_uring: move read/write related opcodes to its own file")
-c98817e6cd44 ("io_uring: move remaining file table manipulation to filetable.c")
-735729844819 ("io_uring: move rsrc related data, core, and commands")
-3b77495a9723 ("io_uring: split provided buffers handling into its own file")
-7aaff708a768 ("io_uring: move cancelation into its own file")
-329061d3e2f9 ("io_uring: move poll handling into its own file")
-cfd22e6b3319 ("io_uring: add opcode name to io_op_defs")
-92ac8beaea1f ("io_uring: include and forward-declaration sanitation")
-c9f06aa7de15 ("io_uring: move io_uring_task (tctx) helpers into its own file")
-a4ad4f748ea9 ("io_uring: move fdinfo helpers to its own file")
-e5550a1447bf ("io_uring: use io_is_uring_fops() consistently")
-17437f311490 ("io_uring: move SQPOLL related handling into its own file")
-59915143e89f ("io_uring: move timeout opcodes and handling into its own file")
-e418bbc97bff ("io_uring: move our reference counting into a header")
-36404b09aa60 ("io_uring: move msg_ring into its own file")
-f9ead18c1058 ("io_uring: split network related opcodes into its own file")
-e0da14def1ee ("io_uring: move statx handling to its own file")
-a9c210cebe13 ("io_uring: move epoll handler to its own file")
-4cf90495281b ("io_uring: add a dummy -EOPNOTSUPP prep handler")
+7175e131ebba ("fs: dlm: fix invalid derefence of sb_lvbptr")
+00e99ccde757 ("dlm: use __le types for dlm messages")
+2f9dbeda8dc0 ("dlm: use __le types for rcom messages")
+3428785a65da ("dlm: use __le types for dlm header")
+6c2e3bf68f3e ("fs: dlm: filter user dlm messages for kernel locks")
+9af5b8f0ead7 ("fs: dlm: add debugfs rawmsg send functionality")
 
 thanks,
 
@@ -81,36 +67,84 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From bf68b5b34311ee57ed40749a1257a30b46127556 Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Tue, 27 Sep 2022 00:44:39 +0100
-Subject: [PATCH] io_uring/rw: fix unexpected link breakage
+From 7175e131ebba47afef47e6ac4d5bab474d1e6e49 Mon Sep 17 00:00:00 2001
+From: Alexander Aring <aahringo@redhat.com>
+Date: Mon, 15 Aug 2022 15:43:19 -0400
+Subject: [PATCH] fs: dlm: fix invalid derefence of sb_lvbptr
 
-req->cqe.res is set in io_read() to the amount of bytes left to be done,
-which is used to figure out whether to fail a read or not. However,
-io_read() may do another without returning, and we stash the previous
-value into ->bytes_done but forget to update cqe.res. Then we ask a read
-to do strictly less than cqe.res but expect the return to be exactly
-cqe.res.
+I experience issues when putting a lkbsb on the stack and have sb_lvbptr
+field to a dangled pointer while not using DLM_LKF_VALBLK. It will crash
+with the following kernel message, the dangled pointer is here
+0xdeadbeef as example:
 
-Fix the bug by updating cqe.res for retries.
+[  102.749317] BUG: unable to handle page fault for address: 00000000deadbeef
+[  102.749320] #PF: supervisor read access in kernel mode
+[  102.749323] #PF: error_code(0x0000) - not-present page
+[  102.749325] PGD 0 P4D 0
+[  102.749332] Oops: 0000 [#1] PREEMPT SMP PTI
+[  102.749336] CPU: 0 PID: 1567 Comm: lock_torture_wr Tainted: G        W         5.19.0-rc3+ #1565
+[  102.749343] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.16.0-2.module+el8.7.0+15506+033991b0 04/01/2014
+[  102.749344] RIP: 0010:memcpy_erms+0x6/0x10
+[  102.749353] Code: cc cc cc cc eb 1e 0f 1f 00 48 89 f8 48 89 d1 48 c1 e9 03 83 e2 07 f3 48 a5 89 d1 f3 a4 c3 66 0f 1f 44 00 00 48 89 f8 48 89 d1 <f3> a4 c3 0f 1f 80 00 00 00 00 48 89 f8 48 83 fa 20 72 7e 40 38 fe
+[  102.749355] RSP: 0018:ffff97a58145fd08 EFLAGS: 00010202
+[  102.749358] RAX: ffff901778b77070 RBX: 0000000000000000 RCX: 0000000000000040
+[  102.749360] RDX: 0000000000000040 RSI: 00000000deadbeef RDI: ffff901778b77070
+[  102.749362] RBP: ffff97a58145fd10 R08: ffff901760b67a70 R09: 0000000000000001
+[  102.749364] R10: ffff9017008e2cb8 R11: 0000000000000001 R12: ffff901760b67a70
+[  102.749366] R13: ffff901760b78f00 R14: 0000000000000003 R15: 0000000000000001
+[  102.749368] FS:  0000000000000000(0000) GS:ffff901876e00000(0000) knlGS:0000000000000000
+[  102.749372] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  102.749374] CR2: 00000000deadbeef CR3: 000000017c49a004 CR4: 0000000000770ef0
+[  102.749376] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  102.749378] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  102.749379] PKRU: 55555554
+[  102.749381] Call Trace:
+[  102.749382]  <TASK>
+[  102.749383]  ? send_args+0xb2/0xd0
+[  102.749389]  send_common+0xb7/0xd0
+[  102.749395]  _unlock_lock+0x2c/0x90
+[  102.749400]  unlock_lock.isra.56+0x62/0xa0
+[  102.749405]  dlm_unlock+0x21e/0x330
+[  102.749411]  ? lock_torture_stats+0x80/0x80 [dlm_locktorture]
+[  102.749416]  torture_unlock+0x5a/0x90 [dlm_locktorture]
+[  102.749419]  ? preempt_count_sub+0xba/0x100
+[  102.749427]  lock_torture_writer+0xbd/0x150 [dlm_locktorture]
+[  102.786186]  kthread+0x10a/0x130
+[  102.786581]  ? kthread_complete_and_exit+0x20/0x20
+[  102.787156]  ret_from_fork+0x22/0x30
+[  102.787588]  </TASK>
+[  102.787855] Modules linked in: dlm_locktorture torture rpcsec_gss_krb5 intel_rapl_msr intel_rapl_common kvm_intel iTCO_wdt iTCO_vendor_support kvm vmw_vsock_virtio_transport qxl irqbypass vmw_vsock_virtio_transport_common drm_ttm_helper crc32_pclmul joydev crc32c_intel ttm vsock virtio_scsi virtio_balloon snd_pcm drm_kms_helper virtio_console snd_timer snd drm soundcore syscopyarea i2c_i801 sysfillrect sysimgblt i2c_smbus pcspkr fb_sys_fops lpc_ich serio_raw
+[  102.792536] CR2: 00000000deadbeef
+[  102.792930] ---[ end trace 0000000000000000 ]---
+
+This patch fixes the issue by checking also on DLM_LKF_VALBLK on exflags
+is set when copying the lvbptr array instead of if it's just null which
+fixes for me the issue.
+
+I think this patch can fix other dlm users as well, depending how they
+handle the init, freeing memory handling of sb_lvbptr and don't set
+DLM_LKF_VALBLK for some dlm_lock() calls. It might a there could be a
+hidden issue all the time. However with checking on DLM_LKF_VALBLK the
+user always need to provide a sb_lvbptr non-null value. There might be
+more intelligent handling between per ls lvblen, DLM_LKF_VALBLK and
+non-null to report the user the way how DLM API is used is wrong but can
+be added for later, this will only fix the current behaviour.
 
 Cc: stable@vger.kernel.org
-Reported-and-Tested-by: Beld Zhang <beldzhang@gmail.com>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/3a1088440c7be98e5800267af922a67da0ef9f13.1664235732.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 
-diff --git a/io_uring/rw.c b/io_uring/rw.c
-index 59c92a4616b8..ed14322aadb9 100644
---- a/io_uring/rw.c
-+++ b/io_uring/rw.c
-@@ -793,6 +793,7 @@ int io_read(struct io_kiocb *req, unsigned int issue_flags)
- 			return -EAGAIN;
- 		}
- 
-+		req->cqe.res = iov_iter_count(&s->iter);
- 		/*
- 		 * Now retry read with the IOCB_WAITQ parts set in the iocb. If
- 		 * we get -EIOCBQUEUED, then we'll get a notification when the
+diff --git a/fs/dlm/lock.c b/fs/dlm/lock.c
+index 354f79254d62..da95ba3c295e 100644
+--- a/fs/dlm/lock.c
++++ b/fs/dlm/lock.c
+@@ -3651,7 +3651,7 @@ static void send_args(struct dlm_rsb *r, struct dlm_lkb *lkb,
+ 	case cpu_to_le32(DLM_MSG_REQUEST_REPLY):
+ 	case cpu_to_le32(DLM_MSG_CONVERT_REPLY):
+ 	case cpu_to_le32(DLM_MSG_GRANT):
+-		if (!lkb->lkb_lvbptr)
++		if (!lkb->lkb_lvbptr || !(lkb->lkb_exflags & DLM_LKF_VALBLK))
+ 			break;
+ 		memcpy(ms->m_extra, lkb->lkb_lvbptr, r->res_ls->ls_lvblen);
+ 		break;
 
