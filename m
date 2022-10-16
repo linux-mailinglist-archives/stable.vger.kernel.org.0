@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 108785FFF85
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 15:21:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F90C5FFF86
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 15:22:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbiJPNVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 09:21:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43946 "EHLO
+        id S229616AbiJPNWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 09:22:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229600AbiJPNVS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 09:21:18 -0400
+        with ESMTP id S229600AbiJPNWW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 09:22:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C916532DA1
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 06:21:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8084932DA1
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 06:22:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6651160B76
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:21:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76B0AC433C1;
-        Sun, 16 Oct 2022 13:21:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C50C60B7A
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:22:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E1A7C433D6;
+        Sun, 16 Oct 2022 13:22:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665926476;
-        bh=vzWIQjTACHs+g0jsDChxFj6hgtBpMtIaMFSj9tvShgM=;
+        s=korg; t=1665926540;
+        bh=KnWn+ewqGL9IZV8t52hWiyP45CeX8AyNX2Hd18kJaEg=;
         h=Subject:To:Cc:From:Date:From;
-        b=0ZLYIHp5QN7cyXizba/8hvx8fmjs6F+mitDDn25c8iCjsiB57LrTChD04q8+PvrfH
-         5QM35t3bfOuV9ZCGk1lr/66NZE4rbM6Wlv4HyIcTxtrlsdigSMV/vOO3qqCD7XpBF/
-         D5DuUajhaSwuKb7fQOJ/zignJFvzZl3JMbWn7now=
-Subject: FAILED: patch "[PATCH] ext4: fix dir corruption when ext4_dx_add_entry() fails" failed to apply to 5.10-stable tree
-To:     chengzhihao1@huawei.com, jack@suse.cz, tytso@mit.edu
+        b=2jROz6es7TAm/2dCTttgQalyCewb3KyQYITi5dpU9ECPCbV+GLVqgReXdd972g4rH
+         lT9pIBBhgOpaQ9o0AEU5eKi1Ln1UW72IaKy5ZfxydxtpJt4TuOrx45QKcWFIkyKjh1
+         /zFrlQpcFidMe+oLNKobN6NwKoVWIzsk34AVN/N8=
+Subject: FAILED: patch "[PATCH] ext4: fix potential out of bound read in" failed to apply to 6.0-stable tree
+To:     yebin10@huawei.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 15:21:59 +0200
-Message-ID: <1665926519239243@kroah.com>
+Date:   Sun, 16 Oct 2022 15:23:06 +0200
+Message-ID: <1665926586240239@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,25 +47,17 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-7177dd009c7c ("ext4: fix dir corruption when ext4_dx_add_entry() fails")
-188c299e2a26 ("ext4: Support for checksumming from journal triggers")
-c915fb80eaa6 ("ext4: fix bh ref count on error paths")
-a3f5cf14ff91 ("ext4: drop ext4_handle_dirty_super()")
-05c2c00f3769 ("ext4: protect superblock modifications with a buffer lock")
-4392fbc4bab5 ("ext4: drop sync argument of ext4_commit_super()")
-c92dc856848f ("ext4: defer saving error info from atomic context")
-02a7780e4d2f ("ext4: simplify ext4 error translation")
-4067662388f9 ("ext4: move functions in super.c")
-014c9caa29d3 ("ext4: make ext4_abort() use __ext4_error()")
-b08070eca9e2 ("ext4: don't remount read-only with errors=continue on reboot")
-ca9b404ff137 ("ext4: print quota journalling mode on (re-)mount")
+1b45cc5c7b92 ("ext4: fix potential out of bound read in ext4_fc_replay_scan()")
+dcc5827484d6 ("ext4: factor out ext4_fc_get_tl()")
+fdc2a3c75dd8 ("ext4: introduce EXT4_FC_TAG_BASE_LEN helper")
+ccbf8eeb39f2 ("ext4: fix miss release buffer head in ext4_fc_write_inode")
 
 thanks,
 
@@ -73,93 +65,95 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7177dd009c7c04290891e9a534cd47d1b620bd04 Mon Sep 17 00:00:00 2001
-From: Zhihao Cheng <chengzhihao1@huawei.com>
-Date: Sun, 11 Sep 2022 12:52:04 +0800
-Subject: [PATCH] ext4: fix dir corruption when ext4_dx_add_entry() fails
+From 1b45cc5c7b920fd8bf72e5a888ec7abeadf41e09 Mon Sep 17 00:00:00 2001
+From: Ye Bin <yebin10@huawei.com>
+Date: Sat, 24 Sep 2022 15:52:33 +0800
+Subject: [PATCH] ext4: fix potential out of bound read in
+ ext4_fc_replay_scan()
 
-Following process may lead to fs corruption:
-1. ext4_create(dir/foo)
- ext4_add_nondir
-  ext4_add_entry
-   ext4_dx_add_entry
-     a. add_dirent_to_buf
-      ext4_mark_inode_dirty
-      ext4_handle_dirty_metadata   // dir inode bh is recorded into journal
-     b. ext4_append    // dx_get_count(entries) == dx_get_limit(entries)
-       ext4_bread(EXT4_GET_BLOCKS_CREATE)
-        ext4_getblk
-         ext4_map_blocks
-          ext4_ext_map_blocks
-            ext4_mb_new_blocks
-             dquot_alloc_block
-              dquot_alloc_space_nodirty
-               inode_add_bytes    // update dir's i_blocks
-            ext4_ext_insert_extent
-	     ext4_ext_dirty  // record extent bh into journal
-              ext4_handle_dirty_metadata(bh)
-	      // record new block into journal
-       inode->i_size += inode->i_sb->s_blocksize   // new size(in mem)
-     c. ext4_handle_dirty_dx_node(bh2)
-	// record dir's new block(dx_node) into journal
-     d. ext4_handle_dirty_dx_node((frame - 1)->bh)
-     e. ext4_handle_dirty_dx_node(frame->bh)
-     f. do_split    // ret err!
-     g. add_dirent_to_buf
-	 ext4_mark_inode_dirty(dir)  // update raw_inode on disk(skipped)
-2. fsck -a /dev/sdb
- drop last block(dx_node) which beyonds dir's i_size.
-  /dev/sdb: recovering journal
-  /dev/sdb contains a file system with errors, check forced.
-  /dev/sdb: Inode 12, end of extent exceeds allowed value
-	(logical block 128, physical block 3938, len 1)
-3. fsck -fn /dev/sdb
- dx_node->entry[i].blk > dir->i_size
-  Pass 2: Checking directory structure
-  Problem in HTREE directory inode 12 (/dir): bad block number 128.
-  Clear HTree index? no
-  Problem in HTREE directory inode 12: block #3 has invalid depth (2)
-  Problem in HTREE directory inode 12: block #3 has bad max hash
-  Problem in HTREE directory inode 12: block #3 not referenced
+For scan loop must ensure that at least EXT4_FC_TAG_BASE_LEN space. If remain
+space less than EXT4_FC_TAG_BASE_LEN which will lead to out of bound read
+when mounting corrupt file system image.
+ADD_RANGE/HEAD/TAIL is needed to add extra check when do journal scan, as this
+three tags will read data during scan, tag length couldn't less than data length
+which will read.
 
-Fix it by marking inode dirty directly inside ext4_append().
-Fetch a reproducer in [Link].
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216466
-Cc: stable@vger.kernel.org
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220911045204.516460-1-chengzhihao1@huawei.com
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20220924075233.2315259-4-yebin10@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index bc2e0612ec32..4183a4cb4a21 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -85,15 +85,20 @@ static struct buffer_head *ext4_append(handle_t *handle,
- 		return bh;
- 	inode->i_size += inode->i_sb->s_blocksize;
- 	EXT4_I(inode)->i_disksize = inode->i_size;
-+	err = ext4_mark_inode_dirty(handle, inode);
-+	if (err)
-+		goto out;
- 	BUFFER_TRACE(bh, "get_write_access");
- 	err = ext4_journal_get_write_access(handle, inode->i_sb, bh,
- 					    EXT4_JTR_NONE);
--	if (err) {
--		brelse(bh);
--		ext4_std_error(inode->i_sb, err);
--		return ERR_PTR(err);
--	}
-+	if (err)
-+		goto out;
- 	return bh;
-+
-+out:
-+	brelse(bh);
-+	ext4_std_error(inode->i_sb, err);
-+	return ERR_PTR(err);
+diff --git a/fs/ext4/fast_commit.c b/fs/ext4/fast_commit.c
+index 54622005a0c8..ef05bfa87798 100644
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -1976,6 +1976,34 @@ void ext4_fc_replay_cleanup(struct super_block *sb)
+ 	kfree(sbi->s_fc_replay_state.fc_modified_inodes);
  }
  
- static int ext4_dx_csum_verify(struct inode *inode,
++static inline bool ext4_fc_tag_len_isvalid(struct ext4_fc_tl *tl,
++					   u8 *val, u8 *end)
++{
++	if (val + tl->fc_len > end)
++		return false;
++
++	/* Here only check ADD_RANGE/TAIL/HEAD which will read data when do
++	 * journal rescan before do CRC check. Other tags length check will
++	 * rely on CRC check.
++	 */
++	switch (tl->fc_tag) {
++	case EXT4_FC_TAG_ADD_RANGE:
++		return (sizeof(struct ext4_fc_add_range) == tl->fc_len);
++	case EXT4_FC_TAG_TAIL:
++		return (sizeof(struct ext4_fc_tail) <= tl->fc_len);
++	case EXT4_FC_TAG_HEAD:
++		return (sizeof(struct ext4_fc_head) == tl->fc_len);
++	case EXT4_FC_TAG_DEL_RANGE:
++	case EXT4_FC_TAG_LINK:
++	case EXT4_FC_TAG_UNLINK:
++	case EXT4_FC_TAG_CREAT:
++	case EXT4_FC_TAG_INODE:
++	case EXT4_FC_TAG_PAD:
++	default:
++		return true;
++	}
++}
++
+ /*
+  * Recovery Scan phase handler
+  *
+@@ -2032,10 +2060,15 @@ static int ext4_fc_replay_scan(journal_t *journal,
+ 	}
+ 
+ 	state->fc_replay_expected_off++;
+-	for (cur = start; cur < end;
++	for (cur = start; cur < end - EXT4_FC_TAG_BASE_LEN;
+ 	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
+ 		ext4_fc_get_tl(&tl, cur);
+ 		val = cur + EXT4_FC_TAG_BASE_LEN;
++		if (!ext4_fc_tag_len_isvalid(&tl, val, end)) {
++			ret = state->fc_replay_num_tags ?
++				JBD2_FC_REPLAY_STOP : -ECANCELED;
++			goto out_err;
++		}
+ 		ext4_debug("Scan phase, tag:%s, blk %lld\n",
+ 			   tag2str(tl.fc_tag), bh->b_blocknr);
+ 		switch (tl.fc_tag) {
+@@ -2146,7 +2179,7 @@ static int ext4_fc_replay(journal_t *journal, struct buffer_head *bh,
+ 	start = (u8 *)bh->b_data;
+ 	end = (__u8 *)bh->b_data + journal->j_blocksize - 1;
+ 
+-	for (cur = start; cur < end;
++	for (cur = start; cur < end - EXT4_FC_TAG_BASE_LEN;
+ 	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
+ 		ext4_fc_get_tl(&tl, cur);
+ 		val = cur + EXT4_FC_TAG_BASE_LEN;
+@@ -2156,6 +2189,7 @@ static int ext4_fc_replay(journal_t *journal, struct buffer_head *bh,
+ 			ext4_fc_set_bitmaps_and_counters(sb);
+ 			break;
+ 		}
++
+ 		ext4_debug("Replay phase, tag:%s\n", tag2str(tl.fc_tag));
+ 		state->fc_replay_num_tags--;
+ 		switch (tl.fc_tag) {
 
