@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46FC55FFDC3
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:16:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 430345FFDC4
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:16:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbiJPHQe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 03:16:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34924 "EHLO
+        id S229594AbiJPHQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 03:16:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229594AbiJPHQd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:16:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEC323EA70
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:16:32 -0700 (PDT)
+        with ESMTP id S229583AbiJPHQm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:16:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A19163ECC7
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:16:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F67F609AE
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:16:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ECA5C433D6;
-        Sun, 16 Oct 2022 07:16:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CEE260AB3
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:16:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49098C433D7;
+        Sun, 16 Oct 2022 07:16:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665904591;
-        bh=V3Yt4JJsXJN53nOFj5BBU8esBsOEMhUNa+qh+0U/Hm4=;
+        s=korg; t=1665904600;
+        bh=6/rmFadYQKr0uHNp11eBPuf+wGG+715WvmJXL8b1BP8=;
         h=Subject:To:Cc:From:Date:From;
-        b=vgB+pW6NhxrtxVMPfwJu0pidJO9dHMwR+7uUgwAoqohkXjIw4q0tO3ESgH9b3t2Zq
-         s750tQkkKwttNNoU+ewaWI2b56EFMLmVaUs2wop8qJAAUq5pwnMIcFSsa4G6A5ZsZO
-         iqPi2J68hzebBY7jscVd2IabbfLW0ygDIZA5i6Kw=
-Subject: FAILED: patch "[PATCH] can: kvaser_usb_leaf: Fix overread with an invalid command" failed to apply to 4.14-stable tree
+        b=yXmc348UkVzX4nYAAzM47AzCI7pMhi2JXjJSp9c53JvAXpBsKktiPcGpVmWpE4X0k
+         U7ju62xHrv6mkm4AQe5Wm8n483VeOJI8n5b3eoSzn2H5vR+rGY5gqHFopKUqNPR60P
+         ZVit0VYWJY2yVGNeVofGe3XjjwLsluNXUtZ7M3Ag=
+Subject: FAILED: patch "[PATCH] can: kvaser_usb_leaf: Fix overread with an invalid command" failed to apply to 4.9-stable tree
 To:     anssi.hannula@bitwise.fi, extja@kvaser.com, mkl@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 09:17:18 +0200
-Message-ID: <1665904638113213@kroah.com>
+Date:   Sun, 16 Oct 2022 09:17:19 +0200
+Message-ID: <166590463924511@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -73,6 +73,7 @@ ffbdd9172ee2 ("can: usb: Kconfig/Makefile: sort alphabetically")
 8bd13bd522ff ("can: kvaser_usb: ratelimit errors if incomplete messages are received")
 e84f44eb5523 ("can: kvaser_usb: Fix comparison bug in kvaser_usb_read_bulk_callback()")
 435019b48033 ("can: kvaser_usb: free buf in error paths")
+e1d2d1329a57 ("can: kvaser_usb: Ignore CMD_FLUSH_QUEUE_REPLY messages")
 
 thanks,
 
