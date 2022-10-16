@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28F006000E3
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:47:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B56956000E4
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:47:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229766AbiJPPrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:47:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43602 "EHLO
+        id S229594AbiJPPrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:47:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229765AbiJPPrU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:47:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5DD438699
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:47:19 -0700 (PDT)
+        with ESMTP id S229768AbiJPPrq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:47:46 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3A8D38699
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:47:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BB8560C05
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:47:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80ED0C433D6;
-        Sun, 16 Oct 2022 15:47:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 559C4CE0E02
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:47:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7708FC433D7;
+        Sun, 16 Oct 2022 15:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665935238;
-        bh=E4ZDo/WUT11lLBs8Mv6BzzOT1j0JFdgIUtZgkM/7zEY=;
+        s=korg; t=1665935260;
+        bh=f+HGSM9mWzNMv485EqN+ce1PygsYQuEc+2qLlXGg4cc=;
         h=Subject:To:Cc:From:Date:From;
-        b=epVztkJT9eODmOokBkwXNeEGLXHW2iy0BdOa5irClt7E4B54R8f4wgmS4kTy4Ut+F
-         scw5Az7PlmCodK7NfT9DW66EqbvNqxmWrTf7g7YQVVHBcAbYIg9hGNCR4mxWWVtCP/
-         hEzEtWVKCO2V5nXSHeYDUoo5I1vpVfJPcqJllkKg=
-Subject: FAILED: patch "[PATCH] KVM: x86: Treat #DBs from the emulator as fault-like (code" failed to apply to 4.9-stable tree
+        b=z3AACW1R1yWZfmKAkUpghJgR9r4yMm7SZebcQTZxkSh4EREk4pJJEpPGcF9paq1/8
+         s+pYjE9i4wdUsNt9yIqfH82TUheVpD+hSa7h5IVX8nZEVrkIpW6PIz9PsKlPTd76oo
+         y58agYOnFKPwbpF1an27IWZYABbqEI3VO7/jvfMw=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Make an event request when pending an MTF nested" failed to apply to 6.0-stable tree
 To:     seanjc@google.com, mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:47:54 +0200
-Message-ID: <1665935274157226@kroah.com>
+Date:   Sun, 16 Oct 2022 17:48:27 +0200
+Message-ID: <16659353074972@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +47,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
+2ea89c7f7f7b ("KVM: nVMX: Make an event request when pending an MTF nested VM-Exit")
+7709aba8f716 ("KVM: x86: Morph pending exceptions to pending VM-Exits at queue time")
+28360f887068 ("KVM: x86: Evaluate ability to inject SMI/NMI/IRQ after potential VM-Exit")
+6c593b5276e6 ("KVM: x86: Hoist nested event checks above event injection logic")
+72c14e00bdc4 ("KVM: x86: Formalize blocking of nested pending exceptions")
+d4963e319f1f ("KVM: x86: Make kvm_queued_exception a properly named, visible struct")
+593a5c2e3c12 ("KVM: nVMX: Unconditionally clear mtf_pending on nested VM-Exit")
 5623f751bd9c ("KVM: x86: Treat #DBs from the emulator as fault-like (code and DR7.GD=1)")
-a61d7c5432ac ("KVM: x86: Trace re-injected exceptions")
-b97f07458373 ("KVM: x86: determine if an exception has an error code only when injecting it.")
-cb6a32c2b877 ("KVM: x86: Handle triple fault in L2 without killing L1")
-63129754178c ("KVM: SVM: Pass struct kvm_vcpu to exit handlers (and many, many other places)")
-2a32a77cefa6 ("KVM: SVM: merge update_cr0_intercept into svm_set_cr0")
-11f0cbf0c605 ("KVM: nSVM: Trace VM-Enter consistency check failures")
-6906e06db9b0 ("KVM: nSVM: Add missing checks for reserved bits to svm_set_nested_state()")
-c08f390a75c1 ("KVM: nSVM: only copy L1 non-VMLOAD/VMSAVE data in svm_set_nested_state()")
-9e8f0fbfff1a ("KVM: nSVM: rename functions and variables according to vmcbXY nomenclature")
-193015adf40d ("KVM: nSVM: Track the ASID generation of the vmcb vmrun through the vmcb")
-af18fa775d07 ("KVM: nSVM: Track the physical cpu of the vmcb vmrun through the vmcb")
-4995a3685f1b ("KVM: SVM: Use a separate vmcb for the nested L2 guest")
-6d1b867d0456 ("KVM: SVM: Don't strip the C-bit from CR2 on #PF interception")
-43c11d91fb1e ("KVM: x86: to track if L1 is running L2 VM")
-9e46f6c6c959 ("KVM: SVM: Clear the CR4 register on reset")
-2df8d3807ce7 ("KVM: SVM: Fix nested VM-Exit on #GP interception handling")
-d2df592fd8c6 ("KVM: nSVM: prepare guest save area while is_guest_mode is true")
-a04aead144fd ("KVM: nSVM: fix running nested guests when npt=0")
-996ff5429e98 ("KVM: x86: move kvm_inject_gp up from kvm_set_dr to callers")
+b9d44f9091ac ("KVM: nVMX: Prioritize TSS T-flag #DBs over Monitor Trap Flag")
+8d178f460772 ("KVM: nVMX: Treat General Detect #DB (DR7.GD=1) as fault-like")
+eba9799b5a6e ("KVM: VMX: Drop bits 31:16 when shoving exception error code into VMCS")
 
 thanks,
 
@@ -81,94 +72,59 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5623f751bd9c438ed12840e086f33c4646440d19 Mon Sep 17 00:00:00 2001
+From 2ea89c7f7f7b192e32d1842dafc2e972cd14329b Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Tue, 30 Aug 2022 23:15:55 +0000
-Subject: [PATCH] KVM: x86: Treat #DBs from the emulator as fault-like (code
- and DR7.GD=1)
+Date: Wed, 21 Sep 2022 00:31:51 +0000
+Subject: [PATCH] KVM: nVMX: Make an event request when pending an MTF nested
+ VM-Exit
 
-Add a dedicated "exception type" for #DBs, as #DBs can be fault-like or
-trap-like depending the sub-type of #DB, and effectively defer the
-decision of what to do with the #DB to the caller.
+Set KVM_REQ_EVENT when MTF becomes pending to ensure that KVM will run
+through inject_pending_event() and thus vmx_check_nested_events() prior
+to re-entering the guest.
 
-For the emulator's two calls to exception_type(), treat the #DB as
-fault-like, as the emulator handles only code breakpoint and general
-detect #DBs, both of which are fault-like.
+MTF currently works by virtue of KVM's hack that calls
+kvm_check_nested_events() from kvm_vcpu_running(), but that hack will
+be removed in the near future.  Until that call is removed, the patch
+introduces no real functional change.
 
-For event injection, which uses exception_type() to determine whether to
-set EFLAGS.RF=1 on the stack, keep the current behavior of not setting
-RF=1 for #DBs.  Intel and AMD explicitly state RF isn't set on code #DBs,
-so exempting by failing the "== EXCPT_FAULT" check is correct.  The only
-other fault-like #DB is General Detect, and despite Intel and AMD both
-strongly implying (through omission) that General Detect #DBs should set
-RF=1, hardware (multiple generations of both Intel and AMD), in fact does
-not.  Through insider knowledge, extreme foresight, sheer dumb luck, or
-some combination thereof, KVM correctly handled RF for General Detect #DBs.
-
-Fixes: 38827dbd3fb8 ("KVM: x86: Do not update EFLAGS on faulting emulation")
+Fixes: 5ef8acbdd687 ("KVM: nVMX: Emulate MTF when performing instruction emulation")
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
 Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220830231614.3580124-9-seanjc@google.com
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220921003201.1441511-3-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index ee22264ab471..ee3041da222b 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -533,6 +533,7 @@ static int exception_class(int vector)
- #define EXCPT_TRAP		1
- #define EXCPT_ABORT		2
- #define EXCPT_INTERRUPT		3
-+#define EXCPT_DB		4
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 85318d803f4f..3a080051a4ec 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -6632,6 +6632,9 @@ static int vmx_set_nested_state(struct kvm_vcpu *vcpu,
+ 	if (ret)
+ 		goto error_guest_mode;
  
- static int exception_type(int vector)
- {
-@@ -543,8 +544,14 @@ static int exception_type(int vector)
- 
- 	mask = 1 << vector;
- 
--	/* #DB is trap, as instruction watchpoints are handled elsewhere */
--	if (mask & ((1 << DB_VECTOR) | (1 << BP_VECTOR) | (1 << OF_VECTOR)))
-+	/*
-+	 * #DBs can be trap-like or fault-like, the caller must check other CPU
-+	 * state, e.g. DR6, to determine whether a #DB is a trap or fault.
-+	 */
-+	if (mask & (1 << DB_VECTOR))
-+		return EXCPT_DB;
++	if (vmx->nested.mtf_pending)
++		kvm_make_request(KVM_REQ_EVENT, vcpu);
 +
-+	if (mask & ((1 << BP_VECTOR) | (1 << OF_VECTOR)))
- 		return EXCPT_TRAP;
+ 	return 0;
  
- 	if (mask & ((1 << DF_VECTOR) | (1 << MC_VECTOR)))
-@@ -8844,6 +8851,12 @@ int x86_emulate_instruction(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
- 		unsigned long rflags = static_call(kvm_x86_get_rflags)(vcpu);
- 		toggle_interruptibility(vcpu, ctxt->interruptibility);
- 		vcpu->arch.emulate_regs_need_sync_to_vcpu = false;
-+
-+		/*
-+		 * Note, EXCPT_DB is assumed to be fault-like as the emulator
-+		 * only supports code breakpoints and general detect #DB, both
-+		 * of which are fault-like.
-+		 */
- 		if (!ctxt->have_exception ||
- 		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
- 			kvm_pmu_trigger_event(vcpu, PERF_COUNT_HW_INSTRUCTIONS);
-@@ -9767,6 +9780,16 @@ static int inject_pending_event(struct kvm_vcpu *vcpu, bool *req_immediate_exit)
+ error_guest_mode:
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 94c314dc2393..9dba04b6b019 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -1665,10 +1665,12 @@ static void vmx_update_emulated_instruction(struct kvm_vcpu *vcpu)
+ 	    (!vcpu->arch.exception.pending ||
+ 	     vcpu->arch.exception.vector == DB_VECTOR) &&
+ 	    (!vcpu->arch.exception_vmexit.pending ||
+-	     vcpu->arch.exception_vmexit.vector == DB_VECTOR))
++	     vcpu->arch.exception_vmexit.vector == DB_VECTOR)) {
+ 		vmx->nested.mtf_pending = true;
+-	else
++		kvm_make_request(KVM_REQ_EVENT, vcpu);
++	} else {
+ 		vmx->nested.mtf_pending = false;
++	}
+ }
  
- 	/* try to inject new event if pending */
- 	if (vcpu->arch.exception.pending) {
-+		/*
-+		 * Fault-class exceptions, except #DBs, set RF=1 in the RFLAGS
-+		 * value pushed on the stack.  Trap-like exception and all #DBs
-+		 * leave RF as-is (KVM follows Intel's behavior in this regard;
-+		 * AMD states that code breakpoint #DBs excplitly clear RF=0).
-+		 *
-+		 * Note, most versions of Intel's SDM and AMD's APM incorrectly
-+		 * describe the behavior of General Detect #DBs, which are
-+		 * fault-like.  They do _not_ set RF, a la code breakpoints.
-+		 */
- 		if (exception_type(vcpu->arch.exception.nr) == EXCPT_FAULT)
- 			__kvm_set_rflags(vcpu, kvm_get_rflags(vcpu) |
- 					     X86_EFLAGS_RF);
+ static int vmx_skip_emulated_instruction(struct kvm_vcpu *vcpu)
 
