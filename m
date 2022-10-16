@@ -2,59 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CAFD60034C
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD7E60034D
 	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 22:35:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229662AbiJPUfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229681AbiJPUfp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 16 Oct 2022 16:35:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49790 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229681AbiJPUfn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 16:35:43 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FC4F37188
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:35:42 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id 13so20885862ejn.3
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:35:42 -0700 (PDT)
+        with ESMTP id S229705AbiJPUfo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 16:35:44 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4235336DFD
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:35:43 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id m15so13395385edb.13
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:35:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=1dsEJtRQSO2w3laOKJnGSSoqsh2IPl5ke2XC2Hs2x3c=;
-        b=RhSMk5y4Sdg0o6uGOnThJKO7/LlchUGuEaezSFk9ELxNbL77j6E2FwRGhC0OyLQkeE
-         LOXj8vQWaY3x/P8qih6tGoIVhYF7KalL/SE/OPaCA2gM8DLR3n6peYGizWeDNr+vN/Os
-         oc+yU6s9Faa5JIL4joE2MK6uFFO99WxNGzGJiEjlq/m9072ynGsALF3yhtXuoe3mRTGq
-         Ug5gcJsNpFOyIq8bH0dERbVLAVqLnwcbRm1UzQLGM93p1PCs1v8v2c/ycYPhO0OQyVFd
-         wgR0gCfVRtDK09Cxp59ej2THFFfn2WE/FY/81YUXsf+KyHhpX5iv3NoScGTh3m/whHEr
-         FiDQ==
+        bh=Z8ta4yUpPa4GMeYpbdiNmVRJHo9IZTko0q0dv3E9ezM=;
+        b=nH9OZcMLw4IOLkAo74TqlMjV1ToqaKQBso5BYTCtAXwzalXu1TxR3Lfp8h/oyMH4W7
+         9V6+B6GZ3HJ9aTeG6p8j6qCnXDp6sl3Fx4AFQ797pPKui162bUrlJn5lG6onS+JY3ZNt
+         PxW4yf4E8IW5XkTKQ1+auN/srRII2uA+dutrlZRuVS8N+aYtPg4KIIr5AzDMeZzaDi9/
+         So9dGiwodcwU9FZcQiNETK31FhY6ET+NGzrUE3gtBuNaYjIfyiLyFyZebKpyqHtksITS
+         /1Hul8jO1JnryqzerR9znO+KDbf3Q/qi6+2Yh5URmJtQuc6BOvzSxrLX00rhJiVPZJku
+         e0IA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=1dsEJtRQSO2w3laOKJnGSSoqsh2IPl5ke2XC2Hs2x3c=;
-        b=k13KeQdpNktBwg4rac7TQKIea+7Jms9e+en9WEiEhf8TEvfADFSWmQKWsaFz9XZYkZ
-         0262bPEZidb1TZ+sSqhUAqyjxjxQIUtROMI61ytQ2RJV/UrlVKo+lubqx4UdtnjeFCPd
-         vfflwbcq+LJzF+YLI/YtV5mXwr6WOCARjSpnJaUIGoA4aHwM+v/qfn80TCf/yyD4sb5x
-         m0YSWjiOh1X5msMhVHGbK2FD8rZuBDC7ApbwdFXYt3LI1l/TOXHZ3qzo86/Cl1jGh+a4
-         Tr7C4JwzpxeHCbQzwoXNyzwb9bHz0XraC4X7tcJchkFXMYtGJg6h75ne4gMyqkm94yXj
-         Iejw==
-X-Gm-Message-State: ACrzQf2AlcjewODSB85sQbRV6i28RkYLXGT4/OLOd6qMn8SJmEOTOSMG
-        QeN+ipEBC3E6Wiw7y10jsyvHuUWZnBE=
-X-Google-Smtp-Source: AMsMyM44sj0fKxn/mIijIS66tfePYezhnWguiZ6M9LBLvg7/56btxjxXgj+mcc0GalnFVWhIJhy6ZQ==
-X-Received: by 2002:a17:907:3f27:b0:78d:ad42:f733 with SMTP id hq39-20020a1709073f2700b0078dad42f733mr6396418ejc.320.1665952540429;
-        Sun, 16 Oct 2022 13:35:40 -0700 (PDT)
+        bh=Z8ta4yUpPa4GMeYpbdiNmVRJHo9IZTko0q0dv3E9ezM=;
+        b=MK/+iMTs1y5aulc3xML/kNSz1l9P9CDIvYmloYDnMhIQ5eMQ3wymB/rJ2nv0de8DYr
+         SJXDQg7Ksgrfa7LdJhbb2kiztBgYgzHvUMuDwoh+FUlH20TdnFV2UKLdRC1rJaPoQhqH
+         iTHCNrZWPe0yDwcGB4WvNDMO+KKQ/zUeUuPh6XZcxBtM78tUQRV1rrRcGKp+2nxgaQvY
+         2zJt19wtViQqZOueE9AeEb28rfPwjvaRsbmzbyF4dy0cfG/KJ9ldrqfVfvhzr/HmR+os
+         BWoo7FJZzEty70jxejgAC9rblIfnDNUbMn0/M5SNmAh5NfWtYQTyLly6fk+Q7/Suiq24
+         CdNA==
+X-Gm-Message-State: ACrzQf0nIm1jqpPCTdUzgLw1WLEV6kNHEFLPYAZ5aUSV0urqb+Z9dZzl
+        T1dSsHu5oNBf34MkQEWysVLqN5XR9cs=
+X-Google-Smtp-Source: AMsMyM491gR7y5zlPG3nTWAEpkamQHvJMHw++hZsiBERJ4QGFLOfkdH7HKENRHO7zXus3wITvWzq5A==
+X-Received: by 2002:aa7:ce02:0:b0:459:4833:380a with SMTP id d2-20020aa7ce02000000b004594833380amr7431667edv.359.1665952541472;
+        Sun, 16 Oct 2022 13:35:41 -0700 (PDT)
 Received: from 127.0.0.1localhost (94.196.234.149.threembb.co.uk. [94.196.234.149])
-        by smtp.gmail.com with ESMTPSA id m3-20020a170906160300b0078194737761sm5008083ejd.124.2022.10.16.13.35.39
+        by smtp.gmail.com with ESMTPSA id m3-20020a170906160300b0078194737761sm5008083ejd.124.2022.10.16.13.35.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 16 Oct 2022 13:35:40 -0700 (PDT)
+        Sun, 16 Oct 2022 13:35:41 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com
-Subject: [PATCH stable-6.0 4/6] io_uring/net: rename io_sendzc()
-Date:   Sun, 16 Oct 2022 21:33:28 +0100
-Message-Id: <7f580aebe73419deff39d7300544b1ca559a9057.1665951939.git.asml.silence@gmail.com>
+Subject: [PATCH stable-6.0 5/6] io_uring/net: don't skip notifs for failed requests
+Date:   Sun, 16 Oct 2022 21:33:29 +0100
+Message-Id: <6e84a6e0dbfbbb43379a82abd262ce0bd4311ca2.1665951939.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <cover.1665951939.git.asml.silence@gmail.com>
 References: <cover.1665951939.git.asml.silence@gmail.com>
@@ -70,86 +70,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ upstream commit b0e9b5517eb12fa80c72e205fe28534c2e2f39b9 ]
+[ upstream commit 6ae91ac9a6aa7d6005c3c6d0f4d263fbab9f377f ]
 
-Simple renaming of io_sendzc*() functions in preparatio to adding
-a zerocopy sendmsg variant.
+We currently only add a notification CQE when the send succeded, i.e.
+cqe.res >= 0. However, it'd be more robust to do buffer notifications
+for failed requests as well in case drivers decide do something fanky.
 
+Always return a buffer notification after initial prep, don't hide it.
+This behaviour is better aligned with documentation and the patch also
+helps the userspace to respect it.
+
+Cc: stable@vger.kernel.org # 6.0
+Suggested-by: Stefan Metzmacher <metze@samba.org>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/265af46829e6076dd220011b1858dc3151969226.1663668091.git.asml.silence@gmail.com
+Link: https://lore.kernel.org/r/9c8bead87b2b980fcec441b8faef52188b4a6588.1664292100.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- io_uring/net.c   | 6 +++---
- io_uring/net.h   | 6 +++---
- io_uring/opdef.c | 6 +++---
- 3 files changed, 9 insertions(+), 9 deletions(-)
+ io_uring/net.c | 22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
 
 diff --git a/io_uring/net.c b/io_uring/net.c
-index 83cb8f1f6672..3dbb2bf99b4d 100644
+index 3dbb2bf99b4d..b0324775e6ce 100644
 --- a/io_uring/net.c
 +++ b/io_uring/net.c
-@@ -871,7 +871,7 @@ int io_recv(struct io_kiocb *req, unsigned int issue_flags)
- 	return ret;
- }
- 
--void io_sendzc_cleanup(struct io_kiocb *req)
-+void io_send_zc_cleanup(struct io_kiocb *req)
+@@ -875,7 +875,6 @@ void io_send_zc_cleanup(struct io_kiocb *req)
  {
  	struct io_sr_msg *zc = io_kiocb_to_cmd(req, struct io_sr_msg);
  
-@@ -880,7 +880,7 @@ void io_sendzc_cleanup(struct io_kiocb *req)
+-	zc->notif->flags |= REQ_F_CQE_SKIP;
+ 	io_notif_flush(zc->notif);
  	zc->notif = NULL;
  }
+@@ -992,7 +991,7 @@ int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
+ 	struct msghdr msg;
+ 	struct iovec iov;
+ 	struct socket *sock;
+-	unsigned msg_flags, cflags;
++	unsigned msg_flags;
+ 	int ret, min_ret = 0;
  
--int io_sendzc_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
-+int io_send_zc_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	struct io_sr_msg *zc = io_kiocb_to_cmd(req, struct io_sr_msg);
- 	struct io_ring_ctx *ctx = req->ctx;
-@@ -985,7 +985,7 @@ static int io_sg_from_iter(struct sock *sk, struct sk_buff *skb,
- 	return ret;
+ 	sock = sock_from_file(req->file);
+@@ -1060,8 +1059,6 @@ int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
+ 			req->flags |= REQ_F_PARTIAL_IO;
+ 			return io_setup_async_addr(req, addr, issue_flags);
+ 		}
+-		if (ret < 0 && !zc->done_io)
+-			zc->notif->flags |= REQ_F_CQE_SKIP;
+ 		if (ret == -ERESTARTSYS)
+ 			ret = -EINTR;
+ 		req_set_fail(req);
+@@ -1074,8 +1071,7 @@ int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
+ 
+ 	io_notif_flush(zc->notif);
+ 	req->flags &= ~REQ_F_NEED_CLEANUP;
+-	cflags = ret >= 0 ? IORING_CQE_F_MORE : 0;
+-	io_req_set_res(req, ret, cflags);
++	io_req_set_res(req, ret, IORING_CQE_F_MORE);
+ 	return IOU_OK;
  }
  
--int io_sendzc(struct io_kiocb *req, unsigned int issue_flags)
-+int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
+@@ -1092,17 +1088,11 @@ void io_sendrecv_fail(struct io_kiocb *req)
+ void io_send_zc_fail(struct io_kiocb *req)
  {
- 	struct sockaddr_storage __address, *addr = NULL;
- 	struct io_sr_msg *zc = io_kiocb_to_cmd(req, struct io_sr_msg);
-diff --git a/io_uring/net.h b/io_uring/net.h
-index e7366aac335c..4090d008fd55 100644
---- a/io_uring/net.h
-+++ b/io_uring/net.h
-@@ -55,9 +55,9 @@ int io_connect_prep_async(struct io_kiocb *req);
- int io_connect_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe);
- int io_connect(struct io_kiocb *req, unsigned int issue_flags);
+ 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
+-	int res = req->cqe.res;
  
--int io_sendzc(struct io_kiocb *req, unsigned int issue_flags);
--int io_sendzc_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe);
--void io_sendzc_cleanup(struct io_kiocb *req);
-+int io_send_zc(struct io_kiocb *req, unsigned int issue_flags);
-+int io_send_zc_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe);
-+void io_send_zc_cleanup(struct io_kiocb *req);
- void io_send_zc_fail(struct io_kiocb *req);
+-	if (req->flags & REQ_F_PARTIAL_IO) {
+-		if (req->flags & REQ_F_NEED_CLEANUP) {
+-			io_notif_flush(sr->notif);
+-			sr->notif = NULL;
+-			req->flags &= ~REQ_F_NEED_CLEANUP;
+-		}
+-		res = sr->done_io;
+-	}
+-	io_req_set_res(req, res, req->cqe.flags);
++	if (req->flags & REQ_F_PARTIAL_IO)
++		req->cqe.res = sr->done_io;
++	if (req->flags & REQ_F_NEED_CLEANUP)
++		req->cqe.flags |= IORING_CQE_F_MORE;
+ }
  
- void io_netmsg_cache_free(struct io_cache_entry *entry);
-diff --git a/io_uring/opdef.c b/io_uring/opdef.c
-index 7f85e0fbd60b..4f0f69482016 100644
---- a/io_uring/opdef.c
-+++ b/io_uring/opdef.c
-@@ -484,10 +484,10 @@ const struct io_op_def io_op_defs[] = {
- 		.manual_alloc		= 1,
- #if defined(CONFIG_NET)
- 		.async_size		= sizeof(struct io_async_msghdr),
--		.prep			= io_sendzc_prep,
--		.issue			= io_sendzc,
-+		.prep			= io_send_zc_prep,
-+		.issue			= io_send_zc,
- 		.prep_async		= io_sendzc_prep_async,
--		.cleanup		= io_sendzc_cleanup,
-+		.cleanup		= io_send_zc_cleanup,
- 		.fail			= io_send_zc_fail,
- #else
- 		.prep			= io_eopnotsupp_prep,
+ int io_accept_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 -- 
 2.38.0
 
