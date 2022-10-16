@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8652F5FFDBF
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:08:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DABF5FFDC0
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:12:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229722AbiJPHI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 03:08:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47502 "EHLO
+        id S229729AbiJPHMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 03:12:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229725AbiJPHI5 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sun, 16 Oct 2022 03:08:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 650EE38A13
-        for <Stable@vger.kernel.org>; Sun, 16 Oct 2022 00:08:56 -0700 (PDT)
+        with ESMTP id S229481AbiJPHMl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:12:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0BC83DF04
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:12:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0191260AB2
-        for <Stable@vger.kernel.org>; Sun, 16 Oct 2022 07:08:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12448C433C1;
-        Sun, 16 Oct 2022 07:08:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D6FD60AB2
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:12:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B754C433B5;
+        Sun, 16 Oct 2022 07:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665904135;
-        bh=N2dJbFpaP1nxKsPEY1NPMqZtR6sdWG3s8+CkIyBRosA=;
+        s=korg; t=1665904359;
+        bh=EjrXxVUPp/srpQHohQRUrSlsv1ZUrIEnvMUzFJXFckQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=FoLADdusGVoiGd2otqwtW0GPxRbigrxfgVIXo8sqlf8nMoePYTUtDQGNuBQcyTQOK
-         g5ioRVGK++uQ167/X8AzNgSHcJwysomZ+1MaTx1021y5MYkctw1uRnOj0ant4u+MZ0
-         jBohPjPkShVJU9KMtWQv9eVp7ICjg/At0e2BzOwE=
-Subject: FAILED: patch "[PATCH] io_uring: correct pinned_vm accounting" failed to apply to 5.10-stable tree
-To:     asml.silence@gmail.com, Stable@vger.kernel.org, axboe@kernel.dk
+        b=sT+UirOJu0Nxf/H0Grwlsr9D86IRWeDtm29LJaCAKLTogKC2iNcryzxF9VABmQuIF
+         D0Y20Npo5Yqr6RiqcIoz8Bxk/1J+dYLkEbj7RDFBcQMYIZ6jP39BJyI1AhMDrEWTIK
+         6LpZaJxWuugVDonpKcFqlkM+HBTaHEqoPzcYvI5I=
+Subject: FAILED: patch "[PATCH] hv_netvsc: Fix race between VF offering and VF association" failed to apply to 5.10-stable tree
+To:     gauravkohli@linux.microsoft.com, davem@davemloft.net,
+        haiyangz@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 09:09:34 +0200
-Message-ID: <166590417434237@kroah.com>
+Date:   Sun, 16 Oct 2022 09:13:26 +0200
+Message-ID: <16659044069194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -54,21 +55,12 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-42b6419d0aba ("io_uring: correct pinned_vm accounting")
-ed29b0b4fd83 ("io_uring: move to separate directory")
-ab4094024784 ("io_uring: optimise rsrc referencing")
-a46be971edb6 ("io_uring: optimise io_req_set_rsrc_node()")
-d886e185a128 ("io_uring: control ->async_data with a REQ_F flag")
-ef05d9ebcc92 ("io_uring: kill off ->inflight_entry field")
-d4b7a5ef2b9c ("io_uring: inline completion batching helpers")
-3aa83bfb6e5c ("io_uring: add a helper for batch free")
-c2b6c6bc4e0d ("io_uring: replace list with stack for req caches")
-3ab665b74e59 ("io_uring: remove allocation cache array")
-6f33b0bc4ea4 ("io_uring: use slist for completion batching")
-c450178d9be9 ("io_uring: dedup CQE flushing non-empty checks")
-4b628aeb69cc ("io_uring: kill off ios_left")
-4c928904ff77 ("block: move CONFIG_BLOCK guard to top Makefile")
-ddf21bd8ab98 ("Merge tag 'iov_iter.3-5.15-2021-09-17' of git://git.kernel.dk/linux-block")
+365e1ececb29 ("hv_netvsc: Fix race between VF offering and VF association message from host")
+d0922bf79817 ("hv_netvsc: Add error handling while switching data path")
+34b06a2eee44 ("hv_netvsc: Process NETDEV_GOING_DOWN on VF hot remove")
+8b31f8c982b7 ("hv_netvsc: Wait for completion on request SWITCH_DATA_PATH")
+4d18fcc95f50 ("hv_netvsc: Use vmbus_requestor to generate transaction IDs for VMBus hardening")
+e8b7db38449a ("Drivers: hv: vmbus: Add vmbus_requestor data structure for VMBus hardening")
 
 thanks,
 
@@ -76,46 +68,102 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 42b6419d0aba47c5d8644cdc0b68502254671de5 Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Tue, 4 Oct 2022 03:19:08 +0100
-Subject: [PATCH] io_uring: correct pinned_vm accounting
+From 365e1ececb2905f94cc10a5817c5b644a32a3ae2 Mon Sep 17 00:00:00 2001
+From: Gaurav Kohli <gauravkohli@linux.microsoft.com>
+Date: Wed, 5 Oct 2022 22:52:59 -0700
+Subject: [PATCH] hv_netvsc: Fix race between VF offering and VF association
+ message from host
 
-->mm_account should be released only after we free all registered
-buffers, otherwise __io_sqe_buffers_unregister() will see a NULL
-->mm_account and skip locked_vm accounting.
+During vm boot, there might be possibility that vf registration
+call comes before the vf association from host to vm.
 
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/6d798f65ed4ab8db3664c4d3397d4af16ca98846.1664849932.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+And this might break netvsc vf path, To prevent the same block
+vf registration until vf bind message comes from host.
 
-diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index 63f6ce5e5355..ea5cee593bbd 100644
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -2585,12 +2585,6 @@ static void io_req_caches_free(struct io_ring_ctx *ctx)
- static __cold void io_ring_ctx_free(struct io_ring_ctx *ctx)
- {
- 	io_sq_thread_finish(ctx);
+Cc: stable@vger.kernel.org
+Fixes: 00d7ddba11436 ("hv_netvsc: pair VF based on serial number")
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Gaurav Kohli <gauravkohli@linux.microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/hyperv/hyperv_net.h b/drivers/net/hyperv/hyperv_net.h
+index 25b38a374e3c..dd5919ec408b 100644
+--- a/drivers/net/hyperv/hyperv_net.h
++++ b/drivers/net/hyperv/hyperv_net.h
+@@ -1051,7 +1051,8 @@ struct net_device_context {
+ 	u32 vf_alloc;
+ 	/* Serial number of the VF to team with */
+ 	u32 vf_serial;
 -
--	if (ctx->mm_account) {
--		mmdrop(ctx->mm_account);
--		ctx->mm_account = NULL;
--	}
--
- 	io_rsrc_refs_drop(ctx);
- 	/* __io_rsrc_put_work() may need uring_lock to progress, wait w/o it */
- 	io_wait_rsrc_data(ctx->buf_data);
-@@ -2633,6 +2627,10 @@ static __cold void io_ring_ctx_free(struct io_ring_ctx *ctx)
- 	WARN_ON_ONCE(!list_empty(&ctx->ltimeout_list));
- 	WARN_ON_ONCE(ctx->notif_slots || ctx->nr_notif_slots);
++	/* completion variable to confirm vf association */
++	struct completion vf_add;
+ 	/* Is the current data path through the VF NIC? */
+ 	bool  data_path_is_vf;
  
-+	if (ctx->mm_account) {
-+		mmdrop(ctx->mm_account);
-+		ctx->mm_account = NULL;
+diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
+index f066de0da492..9352dad58996 100644
+--- a/drivers/net/hyperv/netvsc.c
++++ b/drivers/net/hyperv/netvsc.c
+@@ -1580,6 +1580,10 @@ static void netvsc_send_vf(struct net_device *ndev,
+ 
+ 	net_device_ctx->vf_alloc = nvmsg->msg.v4_msg.vf_assoc.allocated;
+ 	net_device_ctx->vf_serial = nvmsg->msg.v4_msg.vf_assoc.serial;
++
++	if (net_device_ctx->vf_alloc)
++		complete(&net_device_ctx->vf_add);
++
+ 	netdev_info(ndev, "VF slot %u %s\n",
+ 		    net_device_ctx->vf_serial,
+ 		    net_device_ctx->vf_alloc ? "added" : "removed");
+diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
+index 5f08482065ca..89eb4f179a3c 100644
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -2313,6 +2313,18 @@ static struct net_device *get_netvsc_byslot(const struct net_device *vf_netdev)
+ 
+ 	}
+ 
++	/* Fallback path to check synthetic vf with
++	 * help of mac addr
++	 */
++	list_for_each_entry(ndev_ctx, &netvsc_dev_list, list) {
++		ndev = hv_get_drvdata(ndev_ctx->device_ctx);
++		if (ether_addr_equal(vf_netdev->perm_addr, ndev->perm_addr)) {
++			netdev_notice(vf_netdev,
++				      "falling back to mac addr based matching\n");
++			return ndev;
++		}
 +	}
- 	io_mem_free(ctx->rings);
- 	io_mem_free(ctx->sq_sqes);
++
+ 	netdev_notice(vf_netdev,
+ 		      "no netdev found for vf serial:%u\n", serial);
+ 	return NULL;
+@@ -2409,6 +2421,11 @@ static int netvsc_vf_changed(struct net_device *vf_netdev, unsigned long event)
+ 	if (net_device_ctx->data_path_is_vf == vf_is_up)
+ 		return NOTIFY_OK;
  
++	if (vf_is_up && !net_device_ctx->vf_alloc) {
++		netdev_info(ndev, "Waiting for the VF association from host\n");
++		wait_for_completion(&net_device_ctx->vf_add);
++	}
++
+ 	ret = netvsc_switch_datapath(ndev, vf_is_up);
+ 
+ 	if (ret) {
+@@ -2440,6 +2457,7 @@ static int netvsc_unregister_vf(struct net_device *vf_netdev)
+ 
+ 	netvsc_vf_setxdp(vf_netdev, NULL);
+ 
++	reinit_completion(&net_device_ctx->vf_add);
+ 	netdev_rx_handler_unregister(vf_netdev);
+ 	netdev_upper_dev_unlink(vf_netdev, ndev);
+ 	RCU_INIT_POINTER(net_device_ctx->vf_netdev, NULL);
+@@ -2479,6 +2497,7 @@ static int netvsc_probe(struct hv_device *dev,
+ 
+ 	INIT_DELAYED_WORK(&net_device_ctx->dwork, netvsc_link_change);
+ 
++	init_completion(&net_device_ctx->vf_add);
+ 	spin_lock_init(&net_device_ctx->lock);
+ 	INIT_LIST_HEAD(&net_device_ctx->reconfig_events);
+ 	INIT_DELAYED_WORK(&net_device_ctx->vf_takeover, netvsc_vf_setup);
 
