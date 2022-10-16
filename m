@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06A915FFF16
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 14:24:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 148575FFF17
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 14:24:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229583AbiJPMYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 08:24:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53858 "EHLO
+        id S229643AbiJPMYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 08:24:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229579AbiJPMYQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 08:24:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C189B32EF0
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 05:24:15 -0700 (PDT)
+        with ESMTP id S229579AbiJPMYU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 08:24:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FF9232EF0
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 05:24:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D2F960A4B
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 12:24:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 749A4C433D6;
-        Sun, 16 Oct 2022 12:24:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C530600E1
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 12:24:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 279EAC433C1;
+        Sun, 16 Oct 2022 12:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665923054;
-        bh=uX4VkGLCHJALFzYwKTcnknI/ocv4k69f0JFaK1WTemA=;
+        s=korg; t=1665923057;
+        bh=tWyphG7zh940nxIY0BMex4tMj1h7VqVDE2KQ8FH41is=;
         h=Subject:To:Cc:From:Date:From;
-        b=oWbgSBe0GnrtdaZGW6SE320Buu3I+BOFXGqqT70b6RR1u5/51wnzka1V4D0QgjCMD
-         qdZFxy6lOxbJOCq5xn6jZ8Ntz2PrO4eTmpxSzDiPJiVLGq/fgVJfbVj2D1bvVUU7hV
-         oJMuELR0qmlYLKP51f/n2cLRZpVGdb2NB/XqQOKQ=
-Subject: FAILED: patch "[PATCH] btrfs: enhance unsupported compat RO flags handling" failed to apply to 5.10-stable tree
+        b=DDzJsC1fqz6eHrqThIE9N74m30HVZ+INzAnWh/xTNUIdSyfrB1hj14AhJXiyGohAC
+         STLJcbi174IqEbDvUUTZ+OljTWm00vwlz4n/5/JxB9Guv74R0fJqKGMTAgTYFsAxIJ
+         uZw7rkM9p05xDMHAZ6b+v7ZuEawUT+6ciDQ2h0fY=
+Subject: FAILED: patch "[PATCH] btrfs: enhance unsupported compat RO flags handling" failed to apply to 5.4-stable tree
 To:     wqu@suse.com, dsterba@suse.com, nborisov@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 14:24:58 +0200
-Message-ID: <1665923098198193@kroah.com>
+Date:   Sun, 16 Oct 2022 14:24:59 +0200
+Message-ID: <166592309921189@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -63,6 +63,17 @@ ab0b4a3ebf14 ("btrfs: add a helper to print out rescue= options")
 ceafe3cc3992 ("btrfs: sysfs: export supported rescue= mount options")
 334c16d82cfe ("btrfs: push the NODATASUM check into btrfs_lookup_bio_sums")
 d70bf7484f72 ("btrfs: unify the ro checking for mount options")
+7573df5547c0 ("btrfs: sysfs: export supported send stream version")
+3ef3959b29c4 ("btrfs: don't show full path of bind mounts in subvol=")
+74ef00185eb8 ("btrfs: introduce "rescue=" mount option")
+e3ba67a108ff ("btrfs: factor out reading of bg from find_frist_block_group")
+89d7da9bc592 ("btrfs: get mapping tree directly from fsinfo in find_first_block_group")
+c730ae0c6bb3 ("btrfs: convert comments to fallthrough annotations")
+aeb935a45581 ("btrfs: don't set SHAREABLE flag for data reloc tree")
+92a7cc425223 ("btrfs: rename BTRFS_ROOT_REF_COWS to BTRFS_ROOT_SHAREABLE")
+3be4d8efe3cf ("btrfs: block-group: rename write_one_cache_group()")
+97f4728af888 ("btrfs: block-group: refactor how we insert a block group item")
+7357623a7f4b ("btrfs: block-group: refactor how we delete one block group item")
 
 thanks,
 
