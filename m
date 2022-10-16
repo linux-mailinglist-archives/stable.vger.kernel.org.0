@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91FAC5FFDB7
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:06:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9CF55FFDB8
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 09:06:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229583AbiJPHGL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 03:06:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46286 "EHLO
+        id S229726AbiJPHGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 03:06:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229665AbiJPHGL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:06:11 -0400
+        with ESMTP id S229665AbiJPHGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 03:06:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD52238A08
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:06:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D61C38A08
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 00:06:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98079B80B78
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:06:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11BCBC433C1;
-        Sun, 16 Oct 2022 07:06:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CDECB80B78
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 07:06:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DBD5C433C1;
+        Sun, 16 Oct 2022 07:06:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665903967;
-        bh=6Y+4gH7cUy17HmY/xft0KaU9KG/wn88evKar3dQRCBM=;
+        s=korg; t=1665903970;
+        bh=G/e+NeehEEZ4FbFAlNdOsPwCqje9QQOImHIa068lTOE=;
         h=Subject:To:Cc:From:Date:From;
-        b=bDx5Cz08W8Bv0Y+GhbIjIWeRK/SDBW/fr5yTiwTkGx1EHUh7iHgrb41hQF5hCvORG
-         fDYzkTcgYB2Uq5aNN/xVFrkJNpbJ92pX176g40VkZMwLXMH3CpP9t9+31oeSENYOik
-         gND2hs017CvPi3HOAu+UYxznrO0iDwcKL6jK+vXU=
-Subject: FAILED: patch "[PATCH] io_uring/net: don't skip notifs for failed requests" failed to apply to 6.0-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk, metze@samba.org
+        b=z45yKgjU9IXY0UdKASADiMS8Ml2jw80x7sQ2sBKmuU1gnCVlCaFjHRUBNoo5o65pn
+         kJlmgWFEi/EHQEtevhxtXXUGv+9FKcyBRBkBbtO/PHSJ8va9smBQL4YBacNQaYweDb
+         JBqcldx9tnK2vSoCcpNyZsoaixpPltSUwne4cPOs=
+Subject: FAILED: patch "[PATCH] io_uring/net: fix notif cqe reordering" failed to apply to 6.0-stable tree
+To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 09:06:48 +0200
-Message-ID: <166590400827154@kroah.com>
+Date:   Sun, 16 Oct 2022 09:06:55 +0200
+Message-ID: <1665904015154101@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -54,6 +54,7 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
+108893ddcc4d ("io_uring/net: fix notif cqe reordering")
 6ae91ac9a6aa ("io_uring/net: don't skip notifs for failed requests")
 a75155faef4e ("io_uring/net: fix UAF in io_sendrecv_fail()")
 493108d95f14 ("io_uring/net: zerocopy sendmsg")
@@ -74,114 +75,70 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6ae91ac9a6aa7d6005c3c6d0f4d263fbab9f377f Mon Sep 17 00:00:00 2001
+From 108893ddcc4d3aa0a4a02aeb02d478e997001227 Mon Sep 17 00:00:00 2001
 From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Wed, 28 Sep 2022 00:51:49 +0100
-Subject: [PATCH] io_uring/net: don't skip notifs for failed requests
+Date: Thu, 29 Sep 2022 22:23:19 +0100
+Subject: [PATCH] io_uring/net: fix notif cqe reordering
 
-We currently only add a notification CQE when the send succeded, i.e.
-cqe.res >= 0. However, it'd be more robust to do buffer notifications
-for failed requests as well in case drivers decide do something fanky.
+send zc is not restricted to !IO_URING_F_UNLOCKED anymore and so
+we can't use task-tw ordering trick to order notification cqes
+with requests completions. In this case leave it alone and let
+io_send_zc_cleanup() flush it.
 
-Always return a buffer notification after initial prep, don't hide it.
-This behaviour is better aligned with documentation and the patch also
-helps the userspace to respect it.
-
-Cc: stable@vger.kernel.org # 6.0
-Suggested-by: Stefan Metzmacher <metze@samba.org>
+Cc: stable@vger.kernel.org
+Fixes: 53bdc88aac9a2 ("io_uring/notif: order notif vs send CQEs")
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/9c8bead87b2b980fcec441b8faef52188b4a6588.1664292100.git.asml.silence@gmail.com
+Link: https://lore.kernel.org/r/0031f3a00d492e814a4a0935a2029a46d9c9ba06.1664486545.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/io_uring/net.c b/io_uring/net.c
-index 6b69eff6887e..5058a9fc9e9c 100644
+index 604eac5f7a34..caa6a803cb72 100644
 --- a/io_uring/net.c
 +++ b/io_uring/net.c
-@@ -916,7 +916,6 @@ void io_send_zc_cleanup(struct io_kiocb *req)
- 			kfree(io->free_iov);
- 	}
- 	if (zc->notif) {
--		zc->notif->flags |= REQ_F_CQE_SKIP;
- 		io_notif_flush(zc->notif);
- 		zc->notif = NULL;
- 	}
-@@ -1047,7 +1046,7 @@ int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
- 	struct msghdr msg;
- 	struct iovec iov;
- 	struct socket *sock;
--	unsigned msg_flags, cflags;
-+	unsigned msg_flags;
- 	int ret, min_ret = 0;
+@@ -1127,8 +1127,14 @@ int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
+ 	else if (zc->done_io)
+ 		ret = zc->done_io;
  
- 	sock = sock_from_file(req->file);
-@@ -1115,8 +1114,6 @@ int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
- 			req->flags |= REQ_F_PARTIAL_IO;
- 			return io_setup_async_addr(req, &__address, issue_flags);
- 		}
--		if (ret < 0 && !zc->done_io)
--			zc->notif->flags |= REQ_F_CQE_SKIP;
- 		if (ret == -ERESTARTSYS)
- 			ret = -EINTR;
- 		req_set_fail(req);
-@@ -1129,8 +1126,7 @@ int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
- 
- 	io_notif_flush(zc->notif);
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
--	cflags = ret >= 0 ? IORING_CQE_F_MORE : 0;
--	io_req_set_res(req, ret, cflags);
-+	io_req_set_res(req, ret, IORING_CQE_F_MORE);
+-	io_notif_flush(zc->notif);
+-	req->flags &= ~REQ_F_NEED_CLEANUP;
++	/*
++	 * If we're in io-wq we can't rely on tw ordering guarantees, defer
++	 * flushing notif to io_send_zc_cleanup()
++	 */
++	if (!(issue_flags & IO_URING_F_UNLOCKED)) {
++		io_notif_flush(zc->notif);
++		req->flags &= ~REQ_F_NEED_CLEANUP;
++	}
+ 	io_req_set_res(req, ret, IORING_CQE_F_MORE);
  	return IOU_OK;
  }
- 
-@@ -1139,7 +1135,7 @@ int io_sendmsg_zc(struct io_kiocb *req, unsigned int issue_flags)
- 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
- 	struct io_async_msghdr iomsg, *kmsg;
- 	struct socket *sock;
--	unsigned flags, cflags;
-+	unsigned flags;
- 	int ret, min_ret = 0;
- 
- 	sock = sock_from_file(req->file);
-@@ -1178,8 +1174,6 @@ int io_sendmsg_zc(struct io_kiocb *req, unsigned int issue_flags)
- 			req->flags |= REQ_F_PARTIAL_IO;
- 			return io_setup_async_msg(req, kmsg, issue_flags);
- 		}
--		if (ret < 0 && !sr->done_io)
--			sr->notif->flags |= REQ_F_CQE_SKIP;
- 		if (ret == -ERESTARTSYS)
- 			ret = -EINTR;
+@@ -1182,8 +1188,10 @@ int io_sendmsg_zc(struct io_kiocb *req, unsigned int issue_flags)
  		req_set_fail(req);
-@@ -1196,27 +1190,20 @@ int io_sendmsg_zc(struct io_kiocb *req, unsigned int issue_flags)
+ 	}
+ 	/* fast path, check for non-NULL to avoid function call */
+-	if (kmsg->free_iov)
++	if (kmsg->free_iov) {
+ 		kfree(kmsg->free_iov);
++		kmsg->free_iov = NULL;
++	}
  
- 	io_notif_flush(sr->notif);
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
--	cflags = ret >= 0 ? IORING_CQE_F_MORE : 0;
--	io_req_set_res(req, ret, cflags);
-+	io_req_set_res(req, ret, IORING_CQE_F_MORE);
+ 	io_netmsg_recycle(req, issue_flags);
+ 	if (ret >= 0)
+@@ -1191,8 +1199,14 @@ int io_sendmsg_zc(struct io_kiocb *req, unsigned int issue_flags)
+ 	else if (sr->done_io)
+ 		ret = sr->done_io;
+ 
+-	io_notif_flush(sr->notif);
+-	req->flags &= ~REQ_F_NEED_CLEANUP;
++	/*
++	 * If we're in io-wq we can't rely on tw ordering guarantees, defer
++	 * flushing notif to io_send_zc_cleanup()
++	 */
++	if (!(issue_flags & IO_URING_F_UNLOCKED)) {
++		io_notif_flush(sr->notif);
++		req->flags &= ~REQ_F_NEED_CLEANUP;
++	}
+ 	io_req_set_res(req, ret, IORING_CQE_F_MORE);
  	return IOU_OK;
  }
- 
- void io_sendrecv_fail(struct io_kiocb *req)
- {
- 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
--	int res = req->cqe.res;
- 
- 	if (req->flags & REQ_F_PARTIAL_IO)
--		res = sr->done_io;
-+		req->cqe.res = sr->done_io;
-+
- 	if ((req->flags & REQ_F_NEED_CLEANUP) &&
--	    (req->opcode == IORING_OP_SEND_ZC || req->opcode == IORING_OP_SENDMSG_ZC)) {
--		/* preserve notification for partial I/O */
--		if (res < 0)
--			sr->notif->flags |= REQ_F_CQE_SKIP;
--		io_notif_flush(sr->notif);
--		sr->notif = NULL;
--	}
--	io_req_set_res(req, res, req->cqe.flags);
-+	    (req->opcode == IORING_OP_SEND_ZC || req->opcode == IORING_OP_SENDMSG_ZC))
-+		req->cqe.flags |= IORING_CQE_F_MORE;
- }
- 
- int io_accept_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 
