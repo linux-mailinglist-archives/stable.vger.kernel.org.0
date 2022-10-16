@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0E6B5FFECB
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:04:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B31D5FFECF
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:09:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229660AbiJPLEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:04:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58080 "EHLO
+        id S229531AbiJPLJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:09:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229696AbiJPLEt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:04:49 -0400
+        with ESMTP id S229600AbiJPLJg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:09:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7603D15A1B
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:04:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ADF5B7D3
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:09:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BFC760AEF
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:04:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0EA2C433C1;
-        Sun, 16 Oct 2022 11:04:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD02B609AE
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:09:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE3B8C433C1;
+        Sun, 16 Oct 2022 11:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665918284;
-        bh=PMVHHAVVrCpyVFM/m1B50CmBRRWLibQS8ZoyvPoPvwM=;
+        s=korg; t=1665918572;
+        bh=LZUlGGnu6U+X8umSiI0ABavRXOb2yFNIApbIKvzDSzU=;
         h=Subject:To:Cc:From:Date:From;
-        b=A+f8b3zpNpRWvNN8I57YdR9IbDeyt2t/iKYm1cZA7QHKyHkZL9jMl/Xn3Mgffwj6h
-         wa/Qpb7bWbby7vR1z2Rhy65xrWhkDrE5MHrBIaTbCRu+dwBsjvS1nB4K5w72yF+MZ4
-         7TKRqXp3dMBAiUVf46AfXzqCPvQ8iWzfJobR21FQ=
-Subject: FAILED: patch "[PATCH] mm: hugetlb: fix UAF in hugetlb_handle_userfault" failed to apply to 4.14-stable tree
-To:     liushixin2@huawei.com, akpm@linux-foundation.org, david@redhat.com,
-        jhubbard@nvidia.com, liuzixian4@huawei.com,
-        mike.kravetz@oracle.com, sidhartha.kumar@oracle.com,
-        songmuchun@bytedance.com, stable@vger.kernel.org,
-        wangkefeng.wang@huawei.com
+        b=AOxmtMI22Q6XIaxuI11FzYFKA5XG0mTu2OGmwZ5i3JhpMDvygVfc7HxhLG+05ZBHr
+         Qbxo726zwnZ7aG7GMOC0Jz7CI5zMY3RV5y2eHQ3XK13JTdeuJOQh/dcIZyEPAHnZYt
+         cJiOY+OiaJDAtGI6IDj1xEDBhdNiuiYWMfAVGj58=
+Subject: FAILED: patch "[PATCH] xen/gntdev: Prevent leaking grants" failed to apply to 5.10-stable tree
+To:     m.v.b@runbox.com, demi@invisiblethingslab.com, jgross@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:05:20 +0200
-Message-ID: <166591832012567@kroah.com>
+Date:   Sun, 16 Oct 2022 13:10:17 +0200
+Message-ID: <166591861715945@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,25 +47,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-958f32ce832b ("mm: hugetlb: fix UAF in hugetlb_handle_userfault")
-40549ba8f8e0 ("hugetlb: use new vma_lock for pmd sharing synchronization")
-378397ccb8e5 ("hugetlb: create hugetlb_unmap_file_folio to unmap single file folio")
-8d9bfb260814 ("hugetlb: add vma based lock for pmd sharing")
-12710fd69634 ("hugetlb: rename vma_shareable() and refactor code")
-c86272287bc6 ("hugetlb: create remove_inode_single_folio to remove single file folio")
-7e1813d48dd3 ("hugetlb: rename remove_huge_page to hugetlb_delete_from_page_cache")
-3a47c54f09c4 ("hugetlbfs: revert use i_mmap_rwsem for more pmd sharing synchronization")
-188a39725ad7 ("hugetlbfs: revert use i_mmap_rwsem to address page fault/truncate race")
-5e6b1bf1b5c3 ("hugetlb: remove meaningless BUG_ON(huge_pte_none())")
-3a5497a2dae3 ("mm/hugetlb: fix missing call to restore_reserve_on_error()")
-6614a3c3164a ("Merge tag 'mm-stable-2022-08-03' of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm")
+0991028cd495 ("xen/gntdev: Prevent leaking grants")
+166d38632316 ("xen/gntdev: Ignore failure to unmap INVALID_GRANT_HANDLE")
+dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
+ce2f46f3531a ("xen/gntdev: fix unmap notification order")
+f28347cc6639 ("Xen/gntdev: don't ignore kernel unmapping error")
+bce21a2b48ed ("Xen/gnttab: introduce common INVALID_GRANT_{HANDLE,REF}")
+36caa3fedf06 ("Xen/gntdev: don't needlessly allocate k{,un}map_ops[]")
+8310b77b48c5 ("Xen/gnttab: handle p2m update errors on a per-slot basis")
+36bf1dfb8b26 ("xen/arm: don't ignore return errors from set_phys_to_machine")
+ebee0eab0859 ("Xen/gntdev: correct error checking in gntdev_map_grant_pages()")
+dbe5283605b3 ("Xen/gntdev: correct dev_bus_addr handling in gntdev_map_grant_pages()")
 
 thanks,
 
@@ -77,153 +72,152 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 958f32ce832ba781ac20e11bb2d12a9352ea28fc Mon Sep 17 00:00:00 2001
-From: Liu Shixin <liushixin2@huawei.com>
-Date: Fri, 23 Sep 2022 12:21:13 +0800
-Subject: [PATCH] mm: hugetlb: fix UAF in hugetlb_handle_userfault
+From 0991028cd49567d7016d1b224fe0117c35059f86 Mon Sep 17 00:00:00 2001
+From: "M. Vefa Bicakci" <m.v.b@runbox.com>
+Date: Sun, 2 Oct 2022 18:20:05 -0400
+Subject: [PATCH] xen/gntdev: Prevent leaking grants
 
-The vma_lock and hugetlb_fault_mutex are dropped before handling userfault
-and reacquire them again after handle_userfault(), but reacquire the
-vma_lock could lead to UAF[1,2] due to the following race,
+Prior to this commit, if a grant mapping operation failed partially,
+some of the entries in the map_ops array would be invalid, whereas all
+of the entries in the kmap_ops array would be valid. This in turn would
+cause the following logic in gntdev_map_grant_pages to become invalid:
 
-hugetlb_fault
-  hugetlb_no_page
-    /*unlock vma_lock */
-    hugetlb_handle_userfault
-      handle_userfault
-        /* unlock mm->mmap_lock*/
-                                           vm_mmap_pgoff
-                                             do_mmap
-                                               mmap_region
-                                                 munmap_vma_range
-                                                   /* clean old vma */
-        /* lock vma_lock again  <--- UAF */
-    /* unlock vma_lock */
+  for (i = 0; i < map->count; i++) {
+    if (map->map_ops[i].status == GNTST_okay) {
+      map->unmap_ops[i].handle = map->map_ops[i].handle;
+      if (!use_ptemod)
+        alloced++;
+    }
+    if (use_ptemod) {
+      if (map->kmap_ops[i].status == GNTST_okay) {
+        if (map->map_ops[i].status == GNTST_okay)
+          alloced++;
+        map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
+      }
+    }
+  }
+  ...
+  atomic_add(alloced, &map->live_grants);
 
-Since the vma_lock will unlock immediately after
-hugetlb_handle_userfault(), let's drop the unneeded lock and unlock in
-hugetlb_handle_userfault() to fix the issue.
+Assume that use_ptemod is true (i.e., the domain mapping the granted
+pages is a paravirtualized domain). In the code excerpt above, note that
+the "alloced" variable is only incremented when both kmap_ops[i].status
+and map_ops[i].status are set to GNTST_okay (i.e., both mapping
+operations are successful).  However, as also noted above, there are
+cases where a grant mapping operation fails partially, breaking the
+assumption of the code excerpt above.
 
-[1] https://lore.kernel.org/linux-mm/000000000000d5e00a05e834962e@google.com/
-[2] https://lore.kernel.org/linux-mm/20220921014457.1668-1-liuzixian4@huawei.com/
-Link: https://lkml.kernel.org/r/20220923042113.137273-1-liushixin2@huawei.com
-Fixes: 1a1aad8a9b7b ("userfaultfd: hugetlbfs: add userfaultfd hugetlb hook")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reported-by: syzbot+193f9cee8638750b23cf@syzkaller.appspotmail.com
-Reported-by: Liu Zixian <liuzixian4@huawei.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Sidhartha Kumar <sidhartha.kumar@oracle.com>
-Cc: <stable@vger.kernel.org>	[4.14+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+The aforementioned causes map->live_grants to be incorrectly set. In
+some cases, all of the map_ops mappings fail, but all of the kmap_ops
+mappings succeed, meaning that live_grants may remain zero. This in turn
+makes it impossible to unmap the successfully grant-mapped pages pointed
+to by kmap_ops, because unmap_grant_pages has the following snippet of
+code at its beginning:
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 2182134216f0..3c1316ad54b5 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5489,7 +5489,6 @@ static inline vm_fault_t hugetlb_handle_userfault(struct vm_area_struct *vma,
- 						  unsigned long addr,
- 						  unsigned long reason)
- {
--	vm_fault_t ret;
- 	u32 hash;
- 	struct vm_fault vmf = {
- 		.vma = vma,
-@@ -5507,18 +5506,14 @@ static inline vm_fault_t hugetlb_handle_userfault(struct vm_area_struct *vma,
- 	};
+  if (atomic_read(&map->live_grants) == 0)
+    return; /* Nothing to do */
+
+In other cases where only some of the map_ops mappings fail but all
+kmap_ops mappings succeed, live_grants is made positive, but when the
+user requests unmapping the grant-mapped pages, __unmap_grant_pages_done
+will then make map->live_grants negative, because the latter function
+does not check if all of the pages that were requested to be unmapped
+were actually unmapped, and the same function unconditionally subtracts
+"data->count" (i.e., a value that can be greater than map->live_grants)
+from map->live_grants. The side effects of a negative live_grants value
+have not been studied.
+
+The net effect of all of this is that grant references are leaked in one
+of the above conditions. In Qubes OS v4.1 (which uses Xen's grant
+mechanism extensively for X11 GUI isolation), this issue manifests
+itself with warning messages like the following to be printed out by the
+Linux kernel in the VM that had granted pages (that contain X11 GUI
+window data) to dom0: "g.e. 0x1234 still pending", especially after the
+user rapidly resizes GUI VM windows (causing some grant-mapping
+operations to partially or completely fail, due to the fact that the VM
+unshares some of the pages as part of the window resizing, making the
+pages impossible to grant-map from dom0).
+
+The fix for this issue involves counting all successful map_ops and
+kmap_ops mappings separately, and then adding the sum to live_grants.
+During unmapping, only the number of successfully unmapped grants is
+subtracted from live_grants. The code is also modified to check for
+negative live_grants values after the subtraction and warn the user.
+
+Link: https://github.com/QubesOS/qubes-issues/issues/7631
+Fixes: dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
+Cc: stable@vger.kernel.org
+Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+Acked-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20221002222006.2077-2-m.v.b@runbox.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+
+diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
+index 84b143eef395..eb0586b9767d 100644
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -367,8 +367,7 @@ int gntdev_map_grant_pages(struct gntdev_grant_map *map)
+ 	for (i = 0; i < map->count; i++) {
+ 		if (map->map_ops[i].status == GNTST_okay) {
+ 			map->unmap_ops[i].handle = map->map_ops[i].handle;
+-			if (!use_ptemod)
+-				alloced++;
++			alloced++;
+ 		} else if (!err)
+ 			err = -EINVAL;
  
- 	/*
--	 * vma_lock and hugetlb_fault_mutex must be
--	 * dropped before handling userfault.  Reacquire
--	 * after handling fault to make calling code simpler.
-+	 * vma_lock and hugetlb_fault_mutex must be dropped before handling
-+	 * userfault. Also mmap_lock could be dropped due to handling
-+	 * userfault, any vma operation should be careful from here.
- 	 */
- 	hugetlb_vma_unlock_read(vma);
- 	hash = hugetlb_fault_mutex_hash(mapping, idx);
- 	mutex_unlock(&hugetlb_fault_mutex_table[hash]);
--	ret = handle_userfault(&vmf, reason);
--	mutex_lock(&hugetlb_fault_mutex_table[hash]);
--	hugetlb_vma_lock_read(vma);
--
--	return ret;
-+	return handle_userfault(&vmf, reason);
- }
+@@ -377,8 +376,7 @@ int gntdev_map_grant_pages(struct gntdev_grant_map *map)
  
- static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
-@@ -5536,6 +5531,7 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
- 	spinlock_t *ptl;
- 	unsigned long haddr = address & huge_page_mask(h);
- 	bool new_page, new_pagecache_page = false;
-+	u32 hash = hugetlb_fault_mutex_hash(mapping, idx);
+ 		if (use_ptemod) {
+ 			if (map->kmap_ops[i].status == GNTST_okay) {
+-				if (map->map_ops[i].status == GNTST_okay)
+-					alloced++;
++				alloced++;
+ 				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
+ 			} else if (!err)
+ 				err = -EINVAL;
+@@ -394,8 +392,14 @@ static void __unmap_grant_pages_done(int result,
+ 	unsigned int i;
+ 	struct gntdev_grant_map *map = data->data;
+ 	unsigned int offset = data->unmap_ops - map->unmap_ops;
++	int successful_unmaps = 0;
++	int live_grants;
  
- 	/*
- 	 * Currently, we are forced to kill the process in the event the
-@@ -5546,7 +5542,7 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
- 	if (is_vma_resv_set(vma, HPAGE_RESV_UNMAPPED)) {
- 		pr_warn_ratelimited("PID %d killed due to inadequate hugepage pool\n",
- 			   current->pid);
--		return ret;
-+		goto out;
- 	}
- 
- 	/*
-@@ -5560,12 +5556,10 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
- 		if (idx >= size)
- 			goto out;
- 		/* Check for page in userfault range */
--		if (userfaultfd_missing(vma)) {
--			ret = hugetlb_handle_userfault(vma, mapping, idx,
-+		if (userfaultfd_missing(vma))
-+			return hugetlb_handle_userfault(vma, mapping, idx,
- 						       flags, haddr, address,
- 						       VM_UFFD_MISSING);
--			goto out;
--		}
- 
- 		page = alloc_huge_page(vma, haddr, 0);
- 		if (IS_ERR(page)) {
-@@ -5631,10 +5625,9 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
- 		if (userfaultfd_minor(vma)) {
- 			unlock_page(page);
- 			put_page(page);
--			ret = hugetlb_handle_userfault(vma, mapping, idx,
-+			return hugetlb_handle_userfault(vma, mapping, idx,
- 						       flags, haddr, address,
- 						       VM_UFFD_MINOR);
--			goto out;
+ 	for (i = 0; i < data->count; i++) {
++		if (map->unmap_ops[offset + i].status == GNTST_okay &&
++		    map->unmap_ops[offset + i].handle != INVALID_GRANT_HANDLE)
++			successful_unmaps++;
++
+ 		WARN_ON(map->unmap_ops[offset + i].status != GNTST_okay &&
+ 			map->unmap_ops[offset + i].handle != INVALID_GRANT_HANDLE);
+ 		pr_debug("unmap handle=%d st=%d\n",
+@@ -403,6 +407,10 @@ static void __unmap_grant_pages_done(int result,
+ 			map->unmap_ops[offset+i].status);
+ 		map->unmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
+ 		if (use_ptemod) {
++			if (map->kunmap_ops[offset + i].status == GNTST_okay &&
++			    map->kunmap_ops[offset + i].handle != INVALID_GRANT_HANDLE)
++				successful_unmaps++;
++
+ 			WARN_ON(map->kunmap_ops[offset + i].status != GNTST_okay &&
+ 				map->kunmap_ops[offset + i].handle != INVALID_GRANT_HANDLE);
+ 			pr_debug("kunmap handle=%u st=%d\n",
+@@ -411,11 +419,15 @@ static void __unmap_grant_pages_done(int result,
+ 			map->kunmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
  		}
  	}
++
+ 	/*
+ 	 * Decrease the live-grant counter.  This must happen after the loop to
+ 	 * prevent premature reuse of the grants by gnttab_mmap().
+ 	 */
+-	atomic_sub(data->count, &map->live_grants);
++	live_grants = atomic_sub_return(successful_unmaps, &map->live_grants);
++	if (WARN_ON(live_grants < 0))
++		pr_err("%s: live_grants became negative (%d) after unmapping %d pages!\n",
++		       __func__, live_grants, successful_unmaps);
  
-@@ -5692,6 +5685,8 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
- 
- 	unlock_page(page);
- out:
-+	hugetlb_vma_unlock_read(vma);
-+	mutex_unlock(&hugetlb_fault_mutex_table[hash]);
- 	return ret;
- 
- backout:
-@@ -5789,11 +5784,13 @@ vm_fault_t hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
- 
- 	entry = huge_ptep_get(ptep);
- 	/* PTE markers should be handled the same way as none pte */
--	if (huge_pte_none_mostly(entry)) {
--		ret = hugetlb_no_page(mm, vma, mapping, idx, address, ptep,
-+	if (huge_pte_none_mostly(entry))
-+		/*
-+		 * hugetlb_no_page will drop vma lock and hugetlb fault
-+		 * mutex internally, which make us return immediately.
-+		 */
-+		return hugetlb_no_page(mm, vma, mapping, idx, address, ptep,
- 				      entry, flags);
--		goto out_mutex;
--	}
- 
- 	ret = 0;
- 
+ 	/* Release reference taken by __unmap_grant_pages */
+ 	gntdev_put_map(NULL, map);
 
