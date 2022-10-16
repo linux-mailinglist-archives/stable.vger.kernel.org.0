@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85D5E5FFF44
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 14:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D76B5FFF45
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 14:47:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229577AbiJPMr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 08:47:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46838 "EHLO
+        id S229567AbiJPMro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 08:47:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbiJPMr2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 08:47:28 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B9839104
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 05:47:27 -0700 (PDT)
+        with ESMTP id S229725AbiJPMrn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 08:47:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08ED13DBE0
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 05:47:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 08654CE0D88
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 12:47:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0F0FC433D6;
-        Sun, 16 Oct 2022 12:47:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B19D3B80CA7
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 12:47:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13A5FC433D6;
+        Sun, 16 Oct 2022 12:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665924444;
-        bh=PwsMF1r3qDSYl3hf2w0yO41+8oswvAP3uNv4FTwI4KQ=;
+        s=korg; t=1665924453;
+        bh=stEtZazh8PGuIXEJ/piCjIoDvGPMxjoFNoBAbMdKkRU=;
         h=Subject:To:Cc:From:Date:From;
-        b=0/3h3Re8lwRd1BcV1Eu7pQJKFMG+DMltOeGRdCZs0WuSciftl5Pe0hBnFCBeDrwky
-         Q1O3H64Z/PU6j8UGGeKisBw7ShMciJ8UYVVnGFl1kGB/EIJk8RHYe8dLjjvCzdk1Jw
-         zxnjJRy0Ef7XJ0yxUGcoGEEMpuFCaxyBnuW5cBjE=
-Subject: FAILED: patch "[PATCH] f2fs: fix to do sanity check on summary info" failed to apply to 4.14-stable tree
+        b=dOh7L4FwZfrWIJBPcIykIm6KBnIqIuS1O0B5UusxK3Ny4GG8Vk8fl3dvoS5frK7b9
+         EVAONQEWp1TrlUxZRPjIHxQB7j8lu+iEMQsBcFvqhM0lwqe0sxWuSh5ddMG76r2Wb3
+         Hv8Cu8LGmSOAOglnpgelXqAmuhbHAmXJ+1UC7APg=
+Subject: FAILED: patch "[PATCH] f2fs: fix to do sanity check on summary info" failed to apply to 4.19-stable tree
 To:     chao@kernel.org, jaegeuk@kernel.org, wenqingliu0120@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 14:48:10 +0200
-Message-ID: <166592449020746@kroah.com>
+Date:   Sun, 16 Oct 2022 14:48:19 +0200
+Message-ID: <16659244995911@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
