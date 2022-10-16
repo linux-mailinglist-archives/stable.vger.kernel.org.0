@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A32CC5FFEFD
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:38:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8723A5FFF13
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 14:22:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229755AbiJPLiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:38:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36602 "EHLO
+        id S229572AbiJPMWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 08:22:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229737AbiJPLiG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:38:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1405839BA1
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:38:06 -0700 (PDT)
+        with ESMTP id S229643AbiJPMWc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 08:22:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2C1C32D8C
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 05:22:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94F4860AF5
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:38:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5377C433D6;
-        Sun, 16 Oct 2022 11:38:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DC7260A4B
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 12:22:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6062AC433D6;
+        Sun, 16 Oct 2022 12:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665920285;
-        bh=YXIHjNWiMsv+3tQZuYQTsfep5JAyNiwOrVERDD1n2xk=;
+        s=korg; t=1665922950;
+        bh=U/qNEWeHFtnvh+iRGxcYK1yYJDbzeUesrf8JHzibtrQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=vomPBvmKkvS/ue6jKSe6pFHUsGwmpOGKbyG9S9YxNkS/IZUvxWjKHRwYwGKVZNkx4
-         SI4cQwQtl6AaeKSI+ITF8ZN1WlU9hZaULyQ2SG0wX7x5R9rtwaaXysNF0nrx+Tlezt
-         Gzi1EnOTaJS/Ymc1SavHwXzxsmlW5twmZoqoK9BU=
-Subject: FAILED: patch "[PATCH] scsi: qedf: Populate sysfs attributes for vport" failed to apply to 4.14-stable tree
-To:     skashyap@marvell.com, guazhang@redhat.com, jmeneghi@redhat.com,
-        martin.petersen@oracle.com, njavali@marvell.com
+        b=ifsnv26vpGQV3+QhsTU9g5wzir92ME0bsaZ8AsI4jZ1gAmIeshRrHRLH/wOZHhWHa
+         /tfRcaGrbLRThzyV3ERnxyB3aiGvR6G1A0j9muA3Fu7H6f1K+5I7zHVHiBeKaeHxMf
+         ok8FhzTuJFdzwYPnQ/PKondpFM2C0OsIKJyTr9Nk=
+Subject: FAILED: patch "[PATCH] ksmbd: fix incorrect handling of iterate_dir" failed to apply to 5.15-stable tree
+To:     linkinjeon@kernel.org, hyc.lee@gmail.com, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:38:41 +0200
-Message-ID: <1665920321112192@kroah.com>
+Date:   Sun, 16 Oct 2022 14:23:11 +0200
+Message-ID: <166592299197218@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,14 +47,16 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-592642e6b11e ("scsi: qedf: Populate sysfs attributes for vport")
+88541cb414b7 ("ksmbd: fix incorrect handling of iterate_dir")
+65ca7a3ffff8 ("ksmbd: handle smb2 query dir request for OutputBufferLength that is too small")
+04e260948a16 ("ksmbd: don't align last entry offset in smb2 query directory")
 
 thanks,
 
@@ -63,52 +64,75 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 592642e6b11e620e4b43189f8072752429fc8dc3 Mon Sep 17 00:00:00 2001
-From: Saurav Kashyap <skashyap@marvell.com>
-Date: Mon, 19 Sep 2022 06:44:34 -0700
-Subject: [PATCH] scsi: qedf: Populate sysfs attributes for vport
+From 88541cb414b7a2450c45fc9c131b37b5753b7679 Mon Sep 17 00:00:00 2001
+From: Namjae Jeon <linkinjeon@kernel.org>
+Date: Fri, 9 Sep 2022 17:43:53 +0900
+Subject: [PATCH] ksmbd: fix incorrect handling of iterate_dir
 
-Few vport parameters were displayed by systool as 'Unknown' or 'NULL'.
-Copy speed, supported_speed, frame_size and update port_type for NPIV port.
+if iterate_dir() returns non-negative value, caller has to treat it
+as normal and check there is any error while populating dentry
+information. ksmbd doesn't have to do anything because ksmbd already
+checks too small OutputBufferLength to store one file information.
 
-Link: https://lore.kernel.org/r/20220919134434.3513-1-njavali@marvell.com
+And because ctx->pos is set to file->f_pos when iterative_dir is called,
+remove restart_ctx(). And if iterate_dir() return -EIO, which mean
+directory entry is corrupted, return STATUS_FILE_CORRUPT_ERROR error
+response.
+
+This patch fixes some failure of SMB2_QUERY_DIRECTORY, which happens when
+ntfs3 is local filesystem.
+
+Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
 Cc: stable@vger.kernel.org
-Tested-by: Guangwu Zhang <guazhang@redhat.com>
-Reviewed-by: John Meneghini <jmeneghi@redhat.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index 3d6b137314f3..cc6d9decf62c 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -1921,6 +1921,27 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
- 		fc_vport_setlink(vn_port);
+diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
+index ba74aba2f1d3..634e21bba770 100644
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -3809,11 +3809,6 @@ static int __query_dir(struct dir_context *ctx, const char *name, int namlen,
+ 	return 0;
+ }
+ 
+-static void restart_ctx(struct dir_context *ctx)
+-{
+-	ctx->pos = 0;
+-}
+-
+ static int verify_info_level(int info_level)
+ {
+ 	switch (info_level) {
+@@ -3921,7 +3916,6 @@ int smb2_query_dir(struct ksmbd_work *work)
+ 	if (srch_flag & SMB2_REOPEN || srch_flag & SMB2_RESTART_SCANS) {
+ 		ksmbd_debug(SMB, "Restart directory scan\n");
+ 		generic_file_llseek(dir_fp->filp, 0, SEEK_SET);
+-		restart_ctx(&dir_fp->readdir_data.ctx);
  	}
  
-+	/* Set symbolic node name */
-+	if (base_qedf->pdev->device == QL45xxx)
-+		snprintf(fc_host_symbolic_name(vn_port->host), 256,
-+			 "Marvell FastLinQ 45xxx FCoE v%s", QEDF_VERSION);
-+
-+	if (base_qedf->pdev->device == QL41xxx)
-+		snprintf(fc_host_symbolic_name(vn_port->host), 256,
-+			 "Marvell FastLinQ 41xxx FCoE v%s", QEDF_VERSION);
-+
-+	/* Set supported speed */
-+	fc_host_supported_speeds(vn_port->host) = n_port->link_supported_speeds;
-+
-+	/* Set speed */
-+	vn_port->link_speed = n_port->link_speed;
-+
-+	/* Set port type */
-+	fc_host_port_type(vn_port->host) = FC_PORTTYPE_NPIV;
-+
-+	/* Set maxframe size */
-+	fc_host_maxframe_size(vn_port->host) = n_port->mfs;
-+
- 	QEDF_INFO(&(base_qedf->dbg_ctx), QEDF_LOG_NPIV, "vn_port=%p.\n",
- 		   vn_port);
+ 	memset(&d_info, 0, sizeof(struct ksmbd_dir_info));
+@@ -3968,11 +3962,9 @@ int smb2_query_dir(struct ksmbd_work *work)
+ 	 */
+ 	if (!d_info.out_buf_len && !d_info.num_entry)
+ 		goto no_buf_len;
+-	if (rc == 0)
+-		restart_ctx(&dir_fp->readdir_data.ctx);
+-	if (rc == -ENOSPC)
++	if (rc > 0 || rc == -ENOSPC)
+ 		rc = 0;
+-	if (rc)
++	else if (rc)
+ 		goto err_out;
+ 
+ 	d_info.wptr = d_info.rptr;
+@@ -4029,6 +4021,8 @@ int smb2_query_dir(struct ksmbd_work *work)
+ 		rsp->hdr.Status = STATUS_NO_MEMORY;
+ 	else if (rc == -EFAULT)
+ 		rsp->hdr.Status = STATUS_INVALID_INFO_CLASS;
++	else if (rc == -EIO)
++		rsp->hdr.Status = STATUS_FILE_CORRUPT_ERROR;
+ 	if (!rsp->hdr.Status)
+ 		rsp->hdr.Status = STATUS_UNEXPECTED_IO_ERROR;
  
 
