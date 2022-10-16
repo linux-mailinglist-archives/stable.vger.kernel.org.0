@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 471095FFED6
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:10:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 843985FFED7
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:10:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229646AbiJPLKE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:10:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41900 "EHLO
+        id S229575AbiJPLKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:10:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229633AbiJPLKD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:10:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D63027FF2
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:10:01 -0700 (PDT)
+        with ESMTP id S229661AbiJPLKI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:10:08 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBDE42EF4B
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:10:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5610DB80B88
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:10:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2725C433D6;
-        Sun, 16 Oct 2022 11:09:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E830ECE0B83
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:10:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8941AC433D6;
+        Sun, 16 Oct 2022 11:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665918599;
-        bh=vGz47Mfy97G4/WndKV3AXRXbJvvsXX5iEzJRBV3G3oY=;
+        s=korg; t=1665918603;
+        bh=7WXvqs8eW7IkTVulap2J2ZZKJ4qRQdMsNlNMlJdFG6Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=jJ5yOlx692f9S9qZsOMo0cCfpOiQoQcJfozjbsAvMILkvCGY9yo+/2k/uJJvFu+xI
-         srDVeV7+Cg+Q4ouoHX2YQk083ARwAAc68iK/cZY14hEkBv/h9Qo08Z8hNQ0UkvGnY8
-         7NmeWSGd8fy9Ol81ZJtJqp06ge4t3vNNe4uhD5BY=
-Subject: FAILED: patch "[PATCH] xen/gntdev: Accommodate VMA splitting" failed to apply to 5.4-stable tree
+        b=cqRnGbcDgHH7IzuIxqSTKQEIXg7D61qzRG28zmCEvlfj1vXR0TQzJ0UhUEoFN6ub5
+         UjOiT2LU3zPEFO3x87vCrvTsZduDPkOfZGsdGTjC29p9Y/yEGHoLO51FS9uniIKerw
+         Y07JTblwu8mas+lKDc9DPavJI0M4OCmpkK5Jg/vk=
+Subject: FAILED: patch "[PATCH] xen/gntdev: Accommodate VMA splitting" failed to apply to 4.19-stable tree
 To:     m.v.b@runbox.com, jgross@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:10:44 +0200
-Message-ID: <166591864452216@kroah.com>
+Date:   Sun, 16 Oct 2022 13:10:49 +0200
+Message-ID: <166591864939255@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,6 +71,9 @@ dbe5283605b3 ("Xen/gntdev: correct dev_bus_addr handling in gntdev_map_grant_pag
 b3f7931f5c61 ("xen/gntdev: switch from kcalloc() to kvcalloc()")
 3b06ac6707c1 ("xen/gntdev: replace global limit of mapped pages by limit per call")
 d3eeb1d77c5d ("xen/gntdev: use mmu_interval_notifier_insert")
+ee7f5225dc3c ("xen: Stop abusing DT of_dma_configure API")
+bce5963bcb4f ("xen/events: fix binding user event channels to cpus")
+8b1e0f81fb6f ("mm/pgtable: drop pgtable_t variable from pte_fn_t functions")
 
 thanks,
 
