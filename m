@@ -2,72 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 903955FFF46
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 14:47:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85D5E5FFF44
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 14:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229738AbiJPMr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 08:47:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46988 "EHLO
+        id S229577AbiJPMr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 08:47:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229696AbiJPMr4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 08:47:56 -0400
-Received: from mail-io1-xd2b.google.com (mail-io1-xd2b.google.com [IPv6:2607:f8b0:4864:20::d2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C13F3DBF8
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 05:47:54 -0700 (PDT)
-Received: by mail-io1-xd2b.google.com with SMTP id q196so7198693iod.8
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 05:47:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=D9XmLyyTmf4X7HoL/z+TJG+pHrpmv/0YTKYU2U+M3/I=;
-        b=rrBehKH/4qq81g0meoJXpOdvkEYZr4ibBDA+Egi35y8JBz0EwfFxiIP0Y+nsdDMT2c
-         76Bhn/Q9JI5jpk35/xu7MWMzp0BfkJH/LgiQ5+xVedNbtQckjutq+UcrBHeJEZWt1aAY
-         6AzYrB8i7zf4OPTh8V2Z1ootH8pncWs68osVT6h88uqAqi5/EkqsgQJOclDBWAgs+JCT
-         GgMG7b94IjNas8/rXXo3Tdlf2RI4NjAlVeAzpzo1dAU/XX11QRMObjQYmJiWIMAG/Yr8
-         hp/H4Zej2rffviAw1m4gJDXYq8cZtKqA5r7G1J+Bnlcw2pggEryF7YZWoB4W1Ltz8bpN
-         Sw9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=D9XmLyyTmf4X7HoL/z+TJG+pHrpmv/0YTKYU2U+M3/I=;
-        b=xXnyERdZs5tSE9Hg1gNAX4vO2DaUwWhYKeAnaFEucgjJE0pvB1OAZXdeXKyRf+dRkZ
-         YjSvowF2SuQgQp1tNJBYjuyaefCi0cghsk2YsRqPveVLTc0n78/m/VxLbwOLPYImA0AA
-         tmnbFsyw3rgT3EoSXbOH2puRyNLe6q6FlY1wFaURxISNeG6fxWMDLTirGV6FOYEbMWRV
-         nosdCVXWsE+kJAXZcSHO64RQcZ7I9LgvSeGJ45b7mTZsQbecM4PKbs4n2nZtKZYuV2wf
-         r7cJK6Dd9Xs2CWMPdFoPVZEQUeKvRfj7QmUbBqN0E0oVXO+aQ6WtKuUyBZvedo9pJXD4
-         zKvw==
-X-Gm-Message-State: ACrzQf0aZVDyCcQYQZIi71XpMfSXNlpg6X/H+O9cU9AEzNun1ufc1yCy
-        7ZzyIvmASTF4st6r5nXOWJdW9w==
-X-Google-Smtp-Source: AMsMyM7CNajkShuH3uv9CfNiOpocRNtK9NZNK0NbARF877QL4nwKKE9B85Y6nJVfkn2L8xXncqP7uA==
-X-Received: by 2002:a05:6638:3044:b0:35b:ac10:53be with SMTP id u4-20020a056638304400b0035bac1053bemr3148891jak.17.1665924473632;
-        Sun, 16 Oct 2022 05:47:53 -0700 (PDT)
-Received: from [172.22.22.26] ([98.61.227.136])
-        by smtp.googlemail.com with ESMTPSA id t8-20020a056602140800b006bbfb3856d6sm3122759iov.5.2022.10.16.05.47.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 16 Oct 2022 05:47:52 -0700 (PDT)
-Message-ID: <3a85899c-522c-1a0e-14db-ddc02a985e2c@linaro.org>
-Date:   Sun, 16 Oct 2022 07:47:49 -0500
+        with ESMTP id S229567AbiJPMr2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 08:47:28 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B9839104
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 05:47:27 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 08654CE0D88
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 12:47:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0F0FC433D6;
+        Sun, 16 Oct 2022 12:47:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1665924444;
+        bh=PwsMF1r3qDSYl3hf2w0yO41+8oswvAP3uNv4FTwI4KQ=;
+        h=Subject:To:Cc:From:Date:From;
+        b=0/3h3Re8lwRd1BcV1Eu7pQJKFMG+DMltOeGRdCZs0WuSciftl5Pe0hBnFCBeDrwky
+         Q1O3H64Z/PU6j8UGGeKisBw7ShMciJ8UYVVnGFl1kGB/EIJk8RHYe8dLjjvCzdk1Jw
+         zxnjJRy0Ef7XJ0yxUGcoGEEMpuFCaxyBnuW5cBjE=
+Subject: FAILED: patch "[PATCH] f2fs: fix to do sanity check on summary info" failed to apply to 4.14-stable tree
+To:     chao@kernel.org, jaegeuk@kernel.org, wenqingliu0120@gmail.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 16 Oct 2022 14:48:10 +0200
+Message-ID: <166592449020746@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH 5.10] arm64: dts: qcom: sc7180-trogdor: Fixup modem memory
- region
-To:     Stephen Boyd <swboyd@chromium.org>, stable@vger.kernel.org
-Cc:     Sibi Sankar <sibis@codeaurora.org>, linux-kernel@vger.kernel.org,
-        patches@lists.linux.dev, Evan Green <evgreen@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-References: <20221014215302.3905135-1-swboyd@chromium.org>
-Content-Language: en-US
-From:   Alex Elder <elder@linaro.org>
-In-Reply-To: <20221014215302.3905135-1-swboyd@chromium.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,61 +46,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/14/22 4:53 PM, Stephen Boyd wrote:
-> From: Sibi Sankar <sibis@codeaurora.org>
-> 
-> commit ef9a5d188d663753e73a3c8e8910ceab8e9305c4 upstream.
 
-When you re-send you can add this if you like:
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Acked-by: Alex Elder <elder@linaro.org>
+Possible dependencies:
 
-> The modem firmware memory requirements vary between 32M/140M on
-> no-lte/lte skus respectively, so fixup the modem memory region
-> to reflect the requirements.
-> 
-> Reviewed-by: Evan Green <evgreen@chromium.org>
-> Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
-> Link: https://lore.kernel.org/r/1602786476-27833-1-git-send-email-sibis@codeaurora.org
-> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-> ---
-> 
-> This fixes boot of the modem on trogdor boards with the DTS from 5.10.y
-> stable tree. Without this patch I run into memory assignment errors and
-> then the modem fails to boot.
-> 
->   arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi | 4 ++++
->   arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi         | 2 +-
->   2 files changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi
-> index 44956e3165a1..469aad4e5948 100644
-> --- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi
-> +++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi
-> @@ -9,6 +9,10 @@ &ap_sar_sensor {
->   	label = "proximity-wifi-lte";
->   };
->   
-> +&mpss_mem {
-> +	reg = <0x0 0x86000000 0x0 0x8c00000>;
-> +};
-> +
->   &remoteproc_mpss {
->   	firmware-name = "qcom/sc7180-trogdor/modem/mba.mbn",
->   			"qcom/sc7180-trogdor/modem/qdsp6sw.mbn";
-> diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-> index 5b2a616c6257..cb2c47f13a8a 100644
-> --- a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-> +++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-> @@ -39,7 +39,7 @@ atf_mem: memory@80b00000 {
->   		};
->   
->   		mpss_mem: memory@86000000 {
-> -			reg = <0x0 0x86000000 0x0 0x8c00000>;
-> +			reg = <0x0 0x86000000 0x0 0x2000000>;
->   			no-map;
->   		};
->   
-> 
-> base-commit: 014862eecf03f58066a957027dde73cbecdf4395
+c6ad7fd16657 ("f2fs: fix to do sanity check on summary info")
+77900c45ee5c ("f2fs: fix to do sanity check in is_alive()")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From c6ad7fd16657ebd34a87a97d9588195aae87597d Mon Sep 17 00:00:00 2001
+From: Chao Yu <chao@kernel.org>
+Date: Wed, 14 Sep 2022 19:51:51 +0800
+Subject: [PATCH] f2fs: fix to do sanity check on summary info
+
+As Wenqing Liu reported in bugzilla:
+
+https://bugzilla.kernel.org/show_bug.cgi?id=216456
+
+BUG: KASAN: use-after-free in recover_data+0x63ae/0x6ae0 [f2fs]
+Read of size 4 at addr ffff8881464dcd80 by task mount/1013
+
+CPU: 3 PID: 1013 Comm: mount Tainted: G        W          6.0.0-rc4 #1
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ dump_stack_lvl+0x45/0x5e
+ print_report.cold+0xf3/0x68d
+ kasan_report+0xa8/0x130
+ recover_data+0x63ae/0x6ae0 [f2fs]
+ f2fs_recover_fsync_data+0x120d/0x1fc0 [f2fs]
+ f2fs_fill_super+0x4665/0x61e0 [f2fs]
+ mount_bdev+0x2cf/0x3b0
+ legacy_get_tree+0xed/0x1d0
+ vfs_get_tree+0x81/0x2b0
+ path_mount+0x47e/0x19d0
+ do_mount+0xce/0xf0
+ __x64_sys_mount+0x12c/0x1a0
+ do_syscall_64+0x38/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+The root cause is: in fuzzed image, SSA table is corrupted: ofs_in_node
+is larger than ADDRS_PER_PAGE(), result in out-of-range access on 4k-size
+page.
+
+- recover_data
+ - do_recover_data
+  - check_index_in_prev_nodes
+   - f2fs_data_blkaddr
+
+This patch adds sanity check on summary info in recovery and GC flow
+in where the flows rely on them.
+
+After patch:
+[   29.310883] F2FS-fs (loop0): Inconsistent ofs_in_node:65286 in summary, ino:0, nid:6, max:1018
+
+Cc: stable@vger.kernel.org
+Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index fd400d148afb..3a820e5cdaee 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1078,7 +1078,7 @@ static bool is_alive(struct f2fs_sb_info *sbi, struct f2fs_summary *sum,
+ {
+ 	struct page *node_page;
+ 	nid_t nid;
+-	unsigned int ofs_in_node;
++	unsigned int ofs_in_node, max_addrs;
+ 	block_t source_blkaddr;
+ 
+ 	nid = le32_to_cpu(sum->nid);
+@@ -1104,6 +1104,14 @@ static bool is_alive(struct f2fs_sb_info *sbi, struct f2fs_summary *sum,
+ 		return false;
+ 	}
+ 
++	max_addrs = IS_INODE(node_page) ? DEF_ADDRS_PER_INODE :
++						DEF_ADDRS_PER_BLOCK;
++	if (ofs_in_node >= max_addrs) {
++		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%u, nid:%u, max:%u",
++			ofs_in_node, dni->ino, dni->nid, max_addrs);
++		return false;
++	}
++
+ 	*nofs = ofs_of_node(node_page);
+ 	source_blkaddr = data_blkaddr(NULL, node_page, ofs_in_node);
+ 	f2fs_put_page(node_page, 1);
+diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
+index 8326003e6918..5c9facec98f6 100644
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -474,7 +474,7 @@ static int check_index_in_prev_nodes(struct f2fs_sb_info *sbi,
+ 	struct dnode_of_data tdn = *dn;
+ 	nid_t ino, nid;
+ 	struct inode *inode;
+-	unsigned int offset;
++	unsigned int offset, ofs_in_node, max_addrs;
+ 	block_t bidx;
+ 	int i;
+ 
+@@ -501,15 +501,24 @@ static int check_index_in_prev_nodes(struct f2fs_sb_info *sbi,
+ got_it:
+ 	/* Use the locked dnode page and inode */
+ 	nid = le32_to_cpu(sum.nid);
++	ofs_in_node = le16_to_cpu(sum.ofs_in_node);
++
++	max_addrs = ADDRS_PER_PAGE(dn->node_page, dn->inode);
++	if (ofs_in_node >= max_addrs) {
++		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%lu, nid:%u, max:%u",
++			ofs_in_node, dn->inode->i_ino, nid, max_addrs);
++		return -EFSCORRUPTED;
++	}
++
+ 	if (dn->inode->i_ino == nid) {
+ 		tdn.nid = nid;
+ 		if (!dn->inode_page_locked)
+ 			lock_page(dn->inode_page);
+ 		tdn.node_page = dn->inode_page;
+-		tdn.ofs_in_node = le16_to_cpu(sum.ofs_in_node);
++		tdn.ofs_in_node = ofs_in_node;
+ 		goto truncate_out;
+ 	} else if (dn->nid == nid) {
+-		tdn.ofs_in_node = le16_to_cpu(sum.ofs_in_node);
++		tdn.ofs_in_node = ofs_in_node;
+ 		goto truncate_out;
+ 	}
+ 
 
