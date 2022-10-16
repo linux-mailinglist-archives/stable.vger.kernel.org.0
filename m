@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93FF9600111
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 18:11:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70CB9600112
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 18:11:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229683AbiJPQLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 12:11:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35408 "EHLO
+        id S229792AbiJPQLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 12:11:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229583AbiJPQLW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 12:11:22 -0400
+        with ESMTP id S229583AbiJPQLa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 12:11:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C27ED33E15
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 09:11:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4466B33A3F
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 09:11:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58CFBB80CBF
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 16:11:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2E01C433D6;
-        Sun, 16 Oct 2022 16:11:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E96A5B80CC4
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 16:11:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F403C433C1;
+        Sun, 16 Oct 2022 16:11:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665936678;
-        bh=7lyM1HM6doQwUDaYRWQoHdYY0w8+sgI75Y4x0ehmYKA=;
+        s=korg; t=1665936686;
+        bh=j3nyV2+2RikmD9g7yurYEDtzIs/VIOoujDVZr0SODXA=;
         h=Subject:To:Cc:From:Date:From;
-        b=B/q28327GOELJeOEsQDBE3+dGyk+X9SjbwyWLYv8NR5lERKQ/gUZYUeylGDiwPLgn
-         mjrAJQ+Yz30oETJABqLyD8GGWyTmlzZu8QSOUkVeGWoYMM1g9v2GqvFL6MaZhYVQ4N
-         ox/I+jX1NWscWQWrJ9jx60H9y0NmpCsndosnkhfU=
-Subject: FAILED: patch "[PATCH] drm/simpledrm: Fix return type of" failed to apply to 6.0-stable tree
+        b=mx7PnpOyqUV/OAUpOgL2sz06tdT48h6mWqiK/PmsFj4TURc9YNK2hYTl3APB/HrsR
+         CVsZbWOL4jZR0EmJOZIHfdZTTOq8TyHkJxNcHCnf/DvwsManALch4+83Qil7fewlHP
+         BI8+4SEcXGn1MC91OG8X0h7Ga1ptTWEk7rXvx8vM=
+Subject: FAILED: patch "[PATCH] drm/simpledrm: Fix return type of" failed to apply to 5.19-stable tree
 To:     nathan@kernel.org, samitolvanen@google.com, tpgxyz@gmail.com,
         tzimmermann@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 18:12:03 +0200
-Message-ID: <166593672329153@kroah.com>
+Date:   Sun, 16 Oct 2022 18:12:04 +0200
+Message-ID: <1665936724155186@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
