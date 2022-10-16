@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E64635FFEE6
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:16:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB555FFEE7
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:16:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229597AbiJPLQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:16:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57114 "EHLO
+        id S229635AbiJPLQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:16:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229531AbiJPLQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:16:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A04EE3608C
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:16:43 -0700 (PDT)
+        with ESMTP id S229531AbiJPLQu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:16:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2474E367B7
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:16:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E6F060A69
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:16:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1496C433D6;
-        Sun, 16 Oct 2022 11:16:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC520B80C82
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:16:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFF82C433C1;
+        Sun, 16 Oct 2022 11:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665919002;
-        bh=i1FuIGz+gMT3m6SeM3ofxFo4wz+/uJZPkJDpX4poSn0=;
+        s=korg; t=1665919006;
+        bh=ZibG4E11x0SuxzewiB+5cz9Is62LQrMRd0pkPJSUxvA=;
         h=Subject:To:Cc:From:Date:From;
-        b=Txvhk2gLB8xMgfom2HbbnSijPF8jj8sWXZuoW+UPx+lBrLWe7tlIgvWqQf6gEWU2Y
-         AvUZqm5i53zVYo4mtPLfwKm/aeY5ixMvqbjbk1SH4Z+AhWM6gRxXVCNaFWZFP1/Ts/
-         rnL8G+4uRShyZQio6AyCXILSW3pwug/FBz69uD4Q=
-Subject: FAILED: patch "[PATCH] serial: Deassert Transmit Enable on probe in driver-specific" failed to apply to 5.19-stable tree
+        b=S2kYrmlJol4GMUdNDhwuSjaDOmZBv2ruMRiVhp1kTPCJ+x168wfceRWMW+JuJbF2W
+         s6/jUp2uhu+L/CxSKZSMFeiMPsllyRWqJYC+c0HiBTYkAWdMcCebhfLexSdLW6GW6q
+         GHUekGmawUhM5QEcrjbwztOdtAXgjVSLDrpsyvZE=
+Subject: FAILED: patch "[PATCH] serial: Deassert Transmit Enable on probe in driver-specific" failed to apply to 5.15-stable tree
 To:     lukas@wunner.de, Henri.Roosen@ginzinger.com,
         gregkh@linuxfoundation.org, ilpo.jarvinen@linux.intel.com,
         matthias.schiffer@ew.tq-group.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:17:28 +0200
-Message-ID: <166591904849152@kroah.com>
+Date:   Sun, 16 Oct 2022 13:17:30 +0200
+Message-ID: <166591905019035@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,6 +67,7 @@ be2e2cb1d281 ("serial: Sanitize rs485_struct")
 59c221f8e126 ("serial: 8250_exar: Fill in rs485_supported")
 2dbd0c14ebe8 ("serial: Move serial_rs485 sanitization into separate function")
 8322b1f52715 ("serial: Add uart_rs485_config()")
+d6da35e0c6d5 ("Merge 5.18-rc7 into usb-next")
 
 thanks,
 
