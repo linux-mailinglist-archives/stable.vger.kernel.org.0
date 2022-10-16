@@ -2,127 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9801C5FFE83
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 11:50:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A77785FFEAB
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 12:44:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229594AbiJPJuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 05:50:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40796 "EHLO
+        id S229660AbiJPKoR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 06:44:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229577AbiJPJuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 05:50:37 -0400
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E94631211;
-        Sun, 16 Oct 2022 02:50:35 -0700 (PDT)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 0C6F91C0016; Sun, 16 Oct 2022 11:50:32 +0200 (CEST)
-Date:   Sun, 16 Oct 2022 11:50:31 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: Re: [PATCH 5.10 0/4] 5.10.149-rc1 review
-Message-ID: <20221016095031.GA3626@duo.ucw.cz>
-References: <20221016064454.382206984@linuxfoundation.org>
+        with ESMTP id S229461AbiJPKoR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 06:44:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 464BD39BA7;
+        Sun, 16 Oct 2022 03:44:16 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0A42B80C83;
+        Sun, 16 Oct 2022 10:44:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 233F9C433D6;
+        Sun, 16 Oct 2022 10:44:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1665917053;
+        bh=RGlcwFjnAJzR2vAEJptPRund7Ned/ff3vJDoCawrpsU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ujLGWGrA45GtYzOoL/TfcMhMYWycTm3+lMY66sxpbPRfN7sb7z0COZ4Ugwp2/iJCc
+         SZutia2aGc/sqXPS17ygcKi1P+5rQ7DDthRwyZWZP/UFg6EDqy/7YRkhush7/5W70M
+         JYKvCoB7lCZ+xLWrZbqdHZIgwupeqq2tNZ92xBzU=
+Date:   Sun, 16 Oct 2022 12:44:59 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Rishabh Bhatnagar <risbhat@amazon.com>
+Cc:     stable@vger.kernel.org, hch@lst.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5.15 5.10] nvme-pci: set min_align_mask before
+ calculating max_hw_sectors
+Message-ID: <Y0vgq8q3AjVGcVCn@kroah.com>
+References: <20221013175827.25295-1-risbhat@amazon.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221016064454.382206984@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <20221013175827.25295-1-risbhat@amazon.com>
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Oct 13, 2022 at 05:58:27PM +0000, Rishabh Bhatnagar wrote:
+> commit 61ce339f19fabbc3e51237148a7ef6f2270e44fa upstream.
+> 
+> If swiotlb is force enabled dma_max_mapping_size ends up calling
+> swiotlb_max_mapping_size which takes into account the min align mask for
+> the device.  Set the min align mask for nvme driver before calling
+> dma_max_mapping_size while calculating max hw sectors.
+> 
+> Signed-off-by: Rishabh Bhatnagar <risbhat@amazon.com>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/nvme/host/pci.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Now queued up, thanks.
 
-Hi!
-
-> This is the start of the stable review cycle for the 5.10.149 release.
-> There are 4 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
-> Responses should be made by Tue, 18 Oct 2022 06:44:46 +0000.
-> Anything received after that time might be too late.
-
-CIP testing did not find any problems here:
-
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-5.10.y
-
-Tested-by: Pavel Machek (CIP) <pavel@denx.de>
-
-Best regards,
-                                                                Pavel
-
-> Pseudo-Shortlog of commits:
->=20
-> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->     Linux 5.10.149-rc1
->=20
-> Johannes Berg <johannes.berg@intel.com>
->     wifi: mac80211: fix MBSSID parsing use-after-free
->=20
-> Johannes Berg <johannes.berg@intel.com>
->     wifi: mac80211: don't parse mbssid in assoc response
->=20
-> Johannes Berg <johannes.berg@intel.com>
->     mac80211: mlme: find auth challenge directly
->=20
-> Sasha Levin <sashal@kernel.org>
->     Revert "fs: check FMODE_LSEEK to control internal pipe splicing"
-
-But I'm confused. Queue seems to contain different stuff, and I see
-these patches only in origin/linux-5.10.y.
-
-43e0669893b3a57024beab4348b1038cf7b98af8 (origin/queue/5.10) regulator: qco=
-m_rpm: Fix circular deferral regression
-50af1850d6adaccd414656e51e66aa2192f7786a hwmon: (gsc-hwmon) Call of_node_ge=
-t() before of_find_xxx API
-7c8b9726479b0ee1275969c6e7b66bf0f6f701eb ASoC: wcd934x: fix order of Slimbu=
-s unprepare/disable
-f010aef6ae5b81511f57f71175f2f46e98e22f42 ASoC: wcd9335: fix order of Slimbu=
-s unprepare/disable
-ee39e253def995ca56788c767aba109070cec058 platform/chrome: cros_ec_proto: Up=
-date version on GET_NEXT_EVENT failure
-daa9a833bc179da7a759b35f70e3bd594d5dab5a quota: Check next/prev free block =
-number after reading from quota file
-d76384203c14e0afef7730a2a3016aac60ca8a79 HID: multitouch: Add memory barrie=
-rs
-=2E.
-79994c46b1cb8efd35211d95dbdf79c21173b17a ALSA: rawmidi: Drop register_mutex=
- in snd_rawmidi_free()
-65cb91292340d565b98fa6f661cdb7465f4c9d67 ALSA: oss: Fix potential deadlock =
-at unregistration
-3783e64fee4a624f3ed1d7d6ae630890922edb7b (tag: v5.10.148) Linux 5.10.148
-
-Best regards,
-							Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---EeQfGwPcQSOJBaQU
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY0vT5wAKCRAw5/Bqldv6
-8mikAJ9L3+814OLLMIz7phZidkOZTZZ2ZwCeM8PhMI1YRZyt6I/vudect+l5yDg=
-=oSNT
------END PGP SIGNATURE-----
-
---EeQfGwPcQSOJBaQU--
+greg k-h
