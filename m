@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53CE35FFED1
+	by mail.lfdr.de (Postfix) with ESMTP id B63005FFED2
 	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 13:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229622AbiJPLJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 07:09:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39446 "EHLO
+        id S229583AbiJPLJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 07:09:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229583AbiJPLJp (ORCPT
+        with ESMTP id S229607AbiJPLJp (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 07:09:45 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3BA71A200
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3C2D1A220
         for <stable@vger.kernel.org>; Sun, 16 Oct 2022 04:09:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 22D35CE0B85
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:09:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A2FEC433C1;
-        Sun, 16 Oct 2022 11:09:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD03D60AF0
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 11:09:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB07FC433C1;
+        Sun, 16 Oct 2022 11:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665918578;
-        bh=eBveBNQF2g24jI63qOkun9FD1hc8QpjEzxWKZd/dUrU=;
+        s=korg; t=1665918581;
+        bh=n3rAwdR6e9s9lfayXMVnvzn5cUk8bCUM7odm6bf2ltU=;
         h=Subject:To:Cc:From:Date:From;
-        b=YgFkhtQlKVuFpq2sxRDY+RCt0wN6VELkOQc7hsuW4z65HpsxHi9HE6gOAQGa3xbHy
-         uED29Ozr8eEvBY5fZS81XfX82TRQtIBf7boszRCZjgJRLs21ALFO6Zj8biO6Fl06xT
-         aSdd/aNNCk/uoCOd8Ze7tzkbsYQujig6PZrTEdlY=
-Subject: FAILED: patch "[PATCH] xen/gntdev: Prevent leaking grants" failed to apply to 5.4-stable tree
+        b=tO7BpNJgBdixm2qOdxYTKOJpcr3ndnGDFD7IKJta9XKqRYoMlD1MSiwcjTgv+3NTF
+         qaYKHtGYI/l0LvDqvX7jRHDO9JMM18FsytYte3w//WlGespA38mG6/auTC/Tt5nUEh
+         gIBwgRdruTpxWhFDsFKfKGmLyx53fjcL51CnoUOk=
+Subject: FAILED: patch "[PATCH] xen/gntdev: Prevent leaking grants" failed to apply to 4.19-stable tree
 To:     m.v.b@runbox.com, demi@invisiblethingslab.com, jgross@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 13:10:20 +0200
-Message-ID: <1665918620254205@kroah.com>
+Date:   Sun, 16 Oct 2022 13:10:24 +0200
+Message-ID: <166591862466252@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,6 +69,11 @@ dbe5283605b3 ("Xen/gntdev: correct dev_bus_addr handling in gntdev_map_grant_pag
 b3f7931f5c61 ("xen/gntdev: switch from kcalloc() to kvcalloc()")
 3b06ac6707c1 ("xen/gntdev: replace global limit of mapped pages by limit per call")
 d3eeb1d77c5d ("xen/gntdev: use mmu_interval_notifier_insert")
+ee7f5225dc3c ("xen: Stop abusing DT of_dma_configure API")
+bce5963bcb4f ("xen/events: fix binding user event channels to cpus")
+dfcd66604c1c ("mm/mmu_notifier: convert user range->blockable to helper function")
+a3e0d41c2b1f ("mm/hmm: improve driver API to work and wait over a range")
+73231612dc7c ("mm/hmm: improve and rename hmm_vma_fault() to hmm_range_fault()")
 
 thanks,
 
