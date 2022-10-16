@@ -2,59 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77CF66003F0
+	by mail.lfdr.de (Postfix) with ESMTP id 2C7F26003EF
 	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 00:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229562AbiJPWdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229472AbiJPWdr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 16 Oct 2022 18:33:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57040 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229472AbiJPWdq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 18:33:46 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B38E2A25C
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:33:45 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id q9so21316161ejd.0
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:33:45 -0700 (PDT)
+        with ESMTP id S229486AbiJPWdr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 18:33:47 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 637CC28E0B
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:33:46 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id d26so21168286ejc.8
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:33:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=cW6zCaRYCkHol4+Ow1pmvRXSsQeJEYbHgmDplNV9qt4=;
-        b=Q7nMTyWVZWuHFDdgYJ+NUpwGbFy8l0KSihP5G1RrecSuFZ/OOPzaTV0NV55KBfF6UW
-         9VT3j5VVeXfNcmOVLXjo4Vrq/2vCRbLZLD+WRR+SXOoEMCivCMBmU8jl6h3MZ3zedpyU
-         QNkqg4fZGNAfah8DNR20uFdz6bBr7RNVAAyUKJWsPy1JIR9UBnJPjPNCDziCKiEvzClW
-         9mvfDGEDVaZno4YvcW2DjqBrnBnNME1EQC2iWCn5ac8oAhxgwUvRDDlkmDQBTq0pUHwF
-         sc/CGZPu2AGqhrXQMPfPyXERvRkLg+ApzlFoE2RzhkR0aCF9n4QNhc+9w2LfRkUp1dvV
-         zrjQ==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=f+ihA93Yd1s8IYxB3RO4gGBNd3B65+Ou1tjE2Uq0SIk=;
+        b=LWCbzEs9Hp/3YR/BmbCwaC+SV27YvinMo12f9exOhTLZGPW8SKFmyg0i6mPP5b+iFR
+         rt0lhVUgXC8NVmxOYGiUsPq7Wik1u7vjvtzy3iyx5GYyfqkibmnklz4f6D12T9p5EoWe
+         3AGrXHX3Th5jwZ412mVIRxZbAqz8RjuI6IlPPGI5dhU5IwFR3rbQNjRR2ypQPepXmqQg
+         q+XybNWUgsjXAR8Oc3v6iuWRTDoRQFujRON7xZJnbVOmk+6Zcbg7lpDv9VC47urHA1GS
+         OETPfl0rompYlEtCcqd/IUhP1idHSolg7pzdv8o2+N2klPIl/B9hbuKaQF5D4NuCUhqx
+         2hCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=cW6zCaRYCkHol4+Ow1pmvRXSsQeJEYbHgmDplNV9qt4=;
-        b=agOOLSkte5+CyIpAuG61iZp4GAR4EHQpcjaIBuo8aCJK3063s2Syb6HIbSE8VpWamg
-         718bV68phEKhQMoMevTPRnAZJ81DYSPh3yIkgmffqffKxRYsHaGJn3wOglXy/KPRu9gW
-         QZ0CTXn68/sKGb7CuaDHt9NVqFE24zLuQ0DJBDT9SQpMVELvWtiIOldVAmpErtH2DUlF
-         YNXp3xCiqoa+Go7eDu0tSj2hsOzSg0xP3CpkJ07LmZtQ3JJndLyNC63qreuZjDJXMemI
-         itozlDTbDKGUQFt1fgR69VEQufmbKxalXfc/nAnnI6WrIJTnV0ATU/NA3W8pU5QXhFTZ
-         BdHg==
-X-Gm-Message-State: ACrzQf2QwxC/hP8AwjSYFYaBnfp7MDjUFqvXxhPWEcO3JZa869eO6vgt
-        UjAsYdfITuxJ/qCv8DkTGliZajvcR+4=
-X-Google-Smtp-Source: AMsMyM4chnnInMLlxhNKQSljFtlI4Tw/HDRbIXdrhJG5xdd8KsO27LqSQzva1aWcNeGDGXeE/AReIg==
-X-Received: by 2002:a17:907:a068:b0:78d:cbcf:f7bc with SMTP id ia8-20020a170907a06800b0078dcbcff7bcmr6474609ejc.519.1665959623634;
-        Sun, 16 Oct 2022 15:33:43 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=f+ihA93Yd1s8IYxB3RO4gGBNd3B65+Ou1tjE2Uq0SIk=;
+        b=FQ6auN54AJNblnUFG0uCY1KZ3cMCIWuqi/bDS668AeWDKG9JVEBzJkALGMQFszi58N
+         b2iS8hjfbK9oDd7qkpypjQNMmR2HjrvA38E6loSVuVYxVLaq0VzP8hUqVvsLjRWIDLAG
+         NoDmEiOonIPIZeqt9tk7Lx8oBTPyczx3tIQ6YfRw5HiY8ndsOq/rdB9xoiLngg5DOlYN
+         Rhsav24iSV2vKzhnU+QhXHpgBRjjCG00pZYKxTOZnSIYY6ut/ALLC8tsEBh7P5YDSccu
+         Dl07Vt6wKPB5mN0lOtSvHhjfOzjqvKqhmUdpH9Bs9Mevd/0yFCuLHViq7aRaOpJC6Poj
+         H8FQ==
+X-Gm-Message-State: ACrzQf3Wf50ZG+aRwd9+jpR4HKuADBg8WfkeWGyvfnmny1NTT8EoBD34
+        7PkQVV6vUpcyRZHq3Wl6t0DXYvIBf9A=
+X-Google-Smtp-Source: AMsMyM4DfqwgFAKSjytUzzsJwyCakUU/mfBnTq5EHSFv+pGMaxDN8v2qV6MHzDwP5lkrrCzLoPRv+Q==
+X-Received: by 2002:a17:907:72c1:b0:783:34ce:87b9 with SMTP id du1-20020a17090772c100b0078334ce87b9mr6422640ejc.115.1665959624657;
+        Sun, 16 Oct 2022 15:33:44 -0700 (PDT)
 Received: from 127.0.0.1localhost (94.196.234.149.threembb.co.uk. [94.196.234.149])
-        by smtp.gmail.com with ESMTPSA id jt3-20020a170906dfc300b0078db5bddd9csm5193496ejc.22.2022.10.16.15.33.42
+        by smtp.gmail.com with ESMTPSA id jt3-20020a170906dfc300b0078db5bddd9csm5193496ejc.22.2022.10.16.15.33.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 16 Oct 2022 15:33:43 -0700 (PDT)
+        Sun, 16 Oct 2022 15:33:44 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com
-Subject: [PATCH stable-5.10 0/2] io_uring backports
-Date:   Sun, 16 Oct 2022 23:31:24 +0100
-Message-Id: <cover.1665959215.git.asml.silence@gmail.com>
+Subject: [PATCH stable-5.10 1/2] io_uring: correct pinned_vm accounting
+Date:   Sun, 16 Oct 2022 23:31:25 +0100
+Message-Id: <24dd0e2b9c4cdcff826a5370a68ad7a953ecb648.1665959215.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.38.0
+In-Reply-To: <cover.1665959215.git.asml.silence@gmail.com>
+References: <cover.1665959215.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -67,17 +70,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-io_uring backports for stable 5.10
+[ upstream commit 42b6419d0aba47c5d8644cdc0b68502254671de5 ]
 
-Pavel Begunkov (2):
-  io_uring: correct pinned_vm accounting
-  io_uring/af_unix: defer registered files gc to io_uring release
+->mm_account should be released only after we free all registered
+buffers, otherwise __io_sqe_buffers_unregister() will see a NULL
+->mm_account and skip locked_vm accounting.
 
- fs/io_uring.c          |  8 ++++++--
- include/linux/skbuff.h |  2 ++
- net/unix/garbage.c     | 20 ++++++++++++++++++++
- 3 files changed, 28 insertions(+), 2 deletions(-)
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/6d798f65ed4ab8db3664c4d3397d4af16ca98846.1664849932.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 9654b60a06a5..b82a446d5e59 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8436,8 +8436,6 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
+ 	if (ctx->sqo_task) {
+ 		put_task_struct(ctx->sqo_task);
+ 		ctx->sqo_task = NULL;
+-		mmdrop(ctx->mm_account);
+-		ctx->mm_account = NULL;
+ 	}
+ 
+ #ifdef CONFIG_BLK_CGROUP
+@@ -8456,6 +8454,11 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
+ 	}
+ #endif
+ 
++	if (ctx->mm_account) {
++		mmdrop(ctx->mm_account);
++		ctx->mm_account = NULL;
++	}
++
+ 	io_mem_free(ctx->rings);
+ 	io_mem_free(ctx->sq_sqes);
+ 
 -- 
 2.38.0
 
