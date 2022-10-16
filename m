@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05AD65FFF7E
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 15:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03C855FFF7F
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 15:20:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229577AbiJPNT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 09:19:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40454 "EHLO
+        id S229594AbiJPNUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 09:20:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229562AbiJPNTy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 09:19:54 -0400
+        with ESMTP id S229562AbiJPNUD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 09:20:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A831201B5
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 06:19:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B44024F20
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 06:20:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A614BB80CB8
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:19:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABF83C433D6;
-        Sun, 16 Oct 2022 13:19:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F82FB80CB8
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 13:20:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C68FC433D6;
+        Sun, 16 Oct 2022 13:19:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665926390;
-        bh=ug5IJwwPw+D5Q0UIcsxw3Io3cLuG92BTxwSMQ5+AJjY=;
+        s=korg; t=1665926398;
+        bh=ZBQ6rcUIdI7OYtWx1beZ4UBNbC3W4+fx3up+4XM8IBs=;
         h=Subject:To:Cc:From:Date:From;
-        b=0Xk6Jt+oayrgdeVVk2WFN39NtpsyLhlug7Vg47vn+hxOLAJJ41PB2ZgQyl2njxIia
-         Qq1Ja3TLhLFYIPDHOWHnzbW2zCX4CgT5X3ajPU3eWL21DrSk39TjmeH1JjFaPX7sUD
-         TdA+TGT6GhqNf3N4iDmWW6vd2+YWpp8637qCC0qE=
-Subject: FAILED: patch "[PATCH] ext4: unconditionally enable the i_version counter" failed to apply to 5.10-stable tree
+        b=0P/i34ud3Sw+qq+QdzUBATtug3fVsyaxcfwAGp2UeRExyAjxOUMrW0OrY4tB6YDYw
+         /BkF4BRtBmehX9u25/B8EE+rDlr01qU5y9mRA8hgQFAr7Ug3VVzdKuQsm5DjzVm0LH
+         74U+HW5MkibSCLJbvzBwl7c6G9lTVGB7A1B9HuMU=
+Subject: FAILED: patch "[PATCH] ext4: unconditionally enable the i_version counter" failed to apply to 5.15-stable tree
 To:     jlayton@kernel.org, bcodding@redhat.com, brauner@kernel.org,
         david@fromorbit.com, djwong@kernel.org, hch@infradead.org,
         jack@suse.cz, lczerner@redhat.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 15:20:36 +0200
-Message-ID: <16659264364411@kroah.com>
+Date:   Sun, 16 Oct 2022 15:20:37 +0200
+Message-ID: <166592643719321@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,7 +71,6 @@ da812f611934 ("ext4: Allow sb to be NULL in ext4_msg()")
 4c94bff967d9 ("ext4: move option validation to a separate function")
 e5a185c26c11 ("ext4: Add fs parameter specifications for mount options")
 9a089b21f79b ("ext4: Send notifications on error")
-2e5fd489a4e5 ("Merge tag 'libnvdimm-for-5.15' of git://git.kernel.org/pub/scm/linux/kernel/git/nvdimm/nvdimm")
 
 thanks,
 
