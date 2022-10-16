@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF6355FFEB7
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 12:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9608F5FFEB8
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 12:48:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229729AbiJPKsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 06:48:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57356 "EHLO
+        id S229711AbiJPKsq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 06:48:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229673AbiJPKsm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 06:48:42 -0400
+        with ESMTP id S229673AbiJPKsp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 06:48:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66E233CBEF
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 03:48:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 983223CBF0
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 03:48:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03C1F60A54
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 10:48:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFF13C433D6;
-        Sun, 16 Oct 2022 10:48:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3545760A56
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 10:48:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26C73C433D7;
+        Sun, 16 Oct 2022 10:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665917320;
-        bh=GgUNZgyjCpOYYh76VjFjM9mVXy6Uk24MTQl0mL7dLd4=;
+        s=korg; t=1665917323;
+        bh=TjUnu22GJAkqIGnvFyV2YxA7hv2UR4423FdvuMvhgDI=;
         h=Subject:To:Cc:From:Date:From;
-        b=LMCKQrwBTpHhTqZcSGz8plOJJyaK4TcnyrTKTTp2KQFq01HCAe5+5+o4K1Hce1/AG
-         hXrozL8x9qQOqWiQ95jTf0GGZBlEghLQUMYW92SHRiEi0yfESQDdnvg8fSbMvrU5ob
-         hJvqtQt8AU2vSAPgNzjpt1rBNt4zRYYZWWFh0rL0=
-Subject: FAILED: patch "[PATCH] arm64: errata: Add Cortex-A55 to the repeat tlbi list" failed to apply to 5.4-stable tree
+        b=dt4XuWUqGlxyAq09xM2aYsWu7+8bZilCZJpyQnd8GsTsYhLqtuna5+XZx44uqdLoc
+         qhTxZ7pwbr5yeoMEg7wiwMMvZE1dJj5UrB9Jnh2bXOkLJZ6I4ehFFZNV1KxW2Fb6qn
+         bdlVKiVB/rSRFNw2+ccP69OyG32nfLuW+mpvHzxY=
+Subject: FAILED: patch "[PATCH] arm64: errata: Add Cortex-A55 to the repeat tlbi list" failed to apply to 4.19-stable tree
 To:     james.morse@arm.com, catalin.marinas@arm.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 12:49:23 +0200
-Message-ID: <166591736370235@kroah.com>
+Date:   Sun, 16 Oct 2022 12:49:24 +0200
+Message-ID: <166591736425044@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
