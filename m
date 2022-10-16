@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABBF35FFEB2
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 12:47:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD0895FFEB3
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 12:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229600AbiJPKrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 06:47:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
+        id S229607AbiJPKsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 06:48:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229607AbiJPKrs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 06:47:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CBCC3CBD9
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 03:47:47 -0700 (PDT)
+        with ESMTP id S229461AbiJPKsA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 06:48:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0249F3CBD9
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 03:47:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD2C260AF1
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 10:47:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD63DC433C1;
-        Sun, 16 Oct 2022 10:47:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5E85BCE0C53
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 10:47:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A911C433D6;
+        Sun, 16 Oct 2022 10:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665917266;
-        bh=tOqSAqryYHtlPpiquVk0xsEvfjRFQI34K3tkOmK9RXg=;
+        s=korg; t=1665917275;
+        bh=lRyerdnnWjjN3rTAu8/o/iqE0QcYBWi6pV/rQB0GquM=;
         h=Subject:To:Cc:From:Date:From;
-        b=ODTeX3knC3uS8JTz9qAez43c1nF9DkrHSQo1n5lV6vyPKwqhlulGhl0dnA86rsK+l
-         CZcXQh1YtNpbHF3JdG07iiNH6LuxGv6Mc/o4w0jmtMgOgpQuORnPGjHcehiYBk8iR7
-         EZESHF+Peu7U3NdPjjWQJDE7/enWe5S6ijBFqwNM=
-Subject: FAILED: patch "[PATCH] arm64: mte: move register initialization to C" failed to apply to 5.15-stable tree
+        b=FBlwzVW8EqtsjFM2x5a4MC7//b9wvsvuveVyYBImzMrREwJnCKw4hIvsZE1tI0toY
+         3O6eW6WgR9abgqh23G23YejVP66waSNfz1DsDKljuzOQ5wrVdozZQBoz39kf8JWCZJ
+         e9mgQp5Q1iNz03eHDhvJkXfmZhlOgwtodKL++xOk=
+Subject: FAILED: patch "[PATCH] arm64: mte: move register initialization to C" failed to apply to 5.10-stable tree
 To:     pcc@google.com, catalin.marinas@arm.com, eugenis@google.com,
         lkp@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 12:48:31 +0200
-Message-ID: <166591731121085@kroah.com>
+Date:   Sun, 16 Oct 2022 12:48:33 +0200
+Message-ID: <166591731324889@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,11 @@ Possible dependencies:
 
 973b9e373306 ("arm64: mte: move register initialization to C")
 e921da6bc7ca ("arm64/mm: Consolidate TCR_EL1 fields")
+7a062ce31807 ("arm64/cpufeature: Optionally disable MTE via command-line")
+82868247897b ("arm64: kasan: mte: use a constant kernel GCR_EL1 value")
+d914b80a8f56 ("arm64: avoid double ISB on kernel entry")
+59f44069e052 ("arm64: mte: fix restoration of GCR_EL1 from suspend")
+fdceddb06a5f ("Merge branch 'for-next/mte' into for-next/core")
 
 thanks,
 
