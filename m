@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4AD96000BB
-	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:35:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EC9F6000BC
+	for <lists+stable@lfdr.de>; Sun, 16 Oct 2022 17:36:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229761AbiJPPft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 11:35:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48324 "EHLO
+        id S229711AbiJPPgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 11:36:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229711AbiJPPfs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:35:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAD2C2CDC3
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:35:47 -0700 (PDT)
+        with ESMTP id S229594AbiJPPgT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 11:36:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78DEC24F26
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 08:36:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 840C7B80C8C
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:35:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A45A8C433D6;
-        Sun, 16 Oct 2022 15:35:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1400660BFC
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 15:36:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29931C433C1;
+        Sun, 16 Oct 2022 15:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1665934545;
-        bh=w/KKkNa94X7WgAZblv7esHoVg/KErqpBPQiF3Kk0vE4=;
+        s=korg; t=1665934577;
+        bh=QP08OYYoyLHyBzeRaMC/LAevz5vgWS0w7oGlheO9Odo=;
         h=Subject:To:Cc:From:Date:From;
-        b=KRW8rFfkUy57VNUu23jfM14Er8ddamYuCEWwuV8spaQxiWwcCxYE/gv8dXX4HgRmA
-         4KINzKzBjS8Mj4ybWsFFqeiHeU/+/waSFFfi+mY/PpKVW98zCbZGmWdAyiZd6OyP6p
-         4SBbes0PJ4yRcyQLf+IjawF5MKPNy5Cwvo8wmGX0=
-Subject: FAILED: patch "[PATCH] tracing: Fix reading strings from synthetic events" failed to apply to 5.10-stable tree
-To:     rostedt@goodmis.org, akpm@linux-foundation.org,
-        mhiramat@kernel.org, zanussi@kernel.org
+        b=Vyq3BO9fs9mxCeAj2n1we9hVqIPhhbaVy3hPbT4+yuFNd6hEmNOBrsuSTmNpS8FaF
+         nGxu+wmooWf0CJgqGI5olU0ipN46j7AKf/QAae+DTRuzZwTcuZz+PpG4G3DF/cA8Ls
+         X1Nu3Nxak6/ANVGKxEfa8x6davJoWBRfuYLh28vE=
+Subject: FAILED: patch "[PATCH] ring-buffer: Add ring_buffer_wake_waiters()" failed to apply to 5.4-stable tree
+To:     rostedt@goodmis.org, akpm@linux-foundation.org, mingo@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 Oct 2022 17:36:31 +0200
-Message-ID: <1665934591170142@kroah.com>
+Date:   Sun, 16 Oct 2022 17:37:03 +0200
+Message-ID: <166593462346255@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,14 +47,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-0934ae9977c2 ("tracing: Fix reading strings from synthetic events")
+7e9fbbb1b776 ("ring-buffer: Add ring_buffer_wake_waiters()")
 
 thanks,
 
@@ -63,108 +62,115 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0934ae9977c27133449b6dd8c6213970e7eece38 Mon Sep 17 00:00:00 2001
+From 7e9fbbb1b776d8d7969551565bc246f74ec53b27 Mon Sep 17 00:00:00 2001
 From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Date: Wed, 12 Oct 2022 06:40:58 -0400
-Subject: [PATCH] tracing: Fix reading strings from synthetic events
+Date: Wed, 28 Sep 2022 13:39:38 -0400
+Subject: [PATCH] ring-buffer: Add ring_buffer_wake_waiters()
 
-The follow commands caused a crash:
+On closing of a file that represents a ring buffer or flushing the file,
+there may be waiters on the ring buffer that needs to be woken up and exit
+the ring_buffer_wait() function.
 
-  # cd /sys/kernel/tracing
-  # echo 's:open char file[]' > dynamic_events
-  # echo 'hist:keys=common_pid:file=filename:onchange($file).trace(open,$file)' > events/syscalls/sys_enter_openat/trigger'
-  # echo 1 > events/synthetic/open/enable
+Add ring_buffer_wake_waiters() to wake up the waiters on the ring buffer
+and allow them to exit the wait loop.
 
-BOOM!
-
-The problem is that the synthetic event field "char file[]" will read
-the value given to it as a string without any memory checks to make sure
-the address is valid. The above example will pass in the user space
-address and the sythetic event code will happily call strlen() on it
-and then strscpy() where either one will cause an oops when accessing
-user space addresses.
-
-Use the helper functions from trace_kprobe and trace_eprobe that can
-read strings safely (and actually succeed when the address is from user
-space and the memory is mapped in).
-
-Now the above can show:
-
-     packagekitd-1721    [000] ...2.   104.597170: open: file=/usr/lib/rpm/fileattrs/cmake.attr
-    in:imjournal-978     [006] ...2.   104.599642: open: file=/var/lib/rsyslog/imjournal.state.tmp
-     packagekitd-1721    [000] ...2.   104.626308: open: file=/usr/lib/rpm/fileattrs/debuginfo.attr
-
-Link: https://lkml.kernel.org/r/20221012104534.826549315@goodmis.org
+Link: https://lkml.kernel.org/r/20220928133938.28dc2c27@gandalf.local.home
 
 Cc: stable@vger.kernel.org
+Cc: Ingo Molnar <mingo@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tom Zanussi <zanussi@kernel.org>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Fixes: bd82631d7ccdc ("tracing: Add support for dynamic strings to synthetic events")
+Fixes: 15693458c4bc0 ("tracing/ring-buffer: Move poll wake ups into ring buffer code")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-diff --git a/kernel/trace/trace_events_synth.c b/kernel/trace/trace_events_synth.c
-index 5e8c07aef071..e310052dc83c 100644
---- a/kernel/trace/trace_events_synth.c
-+++ b/kernel/trace/trace_events_synth.c
-@@ -17,6 +17,8 @@
- /* for gfp flag names */
- #include <linux/trace_events.h>
- #include <trace/events/mmflags.h>
-+#include "trace_probe.h"
-+#include "trace_probe_kernel.h"
- 
- #include "trace_synth.h"
- 
-@@ -409,6 +411,7 @@ static unsigned int trace_string(struct synth_trace_event *entry,
- {
- 	unsigned int len = 0;
- 	char *str_field;
-+	int ret;
- 
- 	if (is_dynamic) {
- 		u32 data_offset;
-@@ -417,19 +420,27 @@ static unsigned int trace_string(struct synth_trace_event *entry,
- 		data_offset += event->n_u64 * sizeof(u64);
- 		data_offset += data_size;
- 
--		str_field = (char *)entry + data_offset;
+diff --git a/include/linux/ring_buffer.h b/include/linux/ring_buffer.h
+index dac53fd3afea..2504df9a0453 100644
+--- a/include/linux/ring_buffer.h
++++ b/include/linux/ring_buffer.h
+@@ -101,7 +101,7 @@ __ring_buffer_alloc(unsigned long size, unsigned flags, struct lock_class_key *k
+ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full);
+ __poll_t ring_buffer_poll_wait(struct trace_buffer *buffer, int cpu,
+ 			  struct file *filp, poll_table *poll_table);
 -
--		len = strlen(str_val) + 1;
--		strscpy(str_field, str_val, len);
-+		len = kern_fetch_store_strlen((unsigned long)str_val);
++void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu);
  
- 		data_offset |= len << 16;
- 		*(u32 *)&entry->fields[*n_u64] = data_offset;
+ #define RING_BUFFER_ALL_CPUS -1
  
-+		ret = kern_fetch_store_string((unsigned long)str_val, &entry->fields[*n_u64], entry);
-+
- 		(*n_u64)++;
- 	} else {
- 		str_field = (char *)&entry->fields[*n_u64];
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index 5a7d818ca3ea..3046deacf7b3 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -413,6 +413,7 @@ struct rb_irq_work {
+ 	struct irq_work			work;
+ 	wait_queue_head_t		waiters;
+ 	wait_queue_head_t		full_waiters;
++	long				wait_index;
+ 	bool				waiters_pending;
+ 	bool				full_waiters_pending;
+ 	bool				wakeup_full;
+@@ -924,6 +925,37 @@ static void rb_wake_up_waiters(struct irq_work *work)
+ 	}
+ }
  
--		strscpy(str_field, str_val, STR_VAR_LEN_MAX);
-+#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-+		if ((unsigned long)str_val < TASK_SIZE)
-+			ret = strncpy_from_user_nofault(str_field, str_val, STR_VAR_LEN_MAX);
-+		else
-+#endif
-+			ret = strncpy_from_kernel_nofault(str_field, str_val, STR_VAR_LEN_MAX);
++/**
++ * ring_buffer_wake_waiters - wake up any waiters on this ring buffer
++ * @buffer: The ring buffer to wake waiters on
++ *
++ * In the case of a file that represents a ring buffer is closing,
++ * it is prudent to wake up any waiters that are on this.
++ */
++void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu)
++{
++	struct ring_buffer_per_cpu *cpu_buffer;
++	struct rb_irq_work *rbwork;
 +
-+		if (ret < 0)
-+			strcpy(str_field, FAULT_STRING);
++	if (cpu == RING_BUFFER_ALL_CPUS) {
 +
- 		(*n_u64) += STR_VAR_LEN_MAX / sizeof(u64);
++		/* Wake up individual ones too. One level recursion */
++		for_each_buffer_cpu(buffer, cpu)
++			ring_buffer_wake_waiters(buffer, cpu);
++
++		rbwork = &buffer->irq_work;
++	} else {
++		cpu_buffer = buffer->buffers[cpu];
++		rbwork = &cpu_buffer->irq_work;
++	}
++
++	rbwork->wait_index++;
++	/* make sure the waiters see the new index */
++	smp_wmb();
++
++	rb_wake_up_waiters(&rbwork->work);
++}
++
+ /**
+  * ring_buffer_wait - wait for input to the ring buffer
+  * @buffer: buffer to wait on
+@@ -939,6 +971,7 @@ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full)
+ 	struct ring_buffer_per_cpu *cpu_buffer;
+ 	DEFINE_WAIT(wait);
+ 	struct rb_irq_work *work;
++	long wait_index;
+ 	int ret = 0;
+ 
+ 	/*
+@@ -957,6 +990,7 @@ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full)
+ 		work = &cpu_buffer->irq_work;
  	}
  
-@@ -462,7 +473,7 @@ static notrace void trace_event_raw_event_synth(void *__data,
- 		val_idx = var_ref_idx[field_pos];
- 		str_val = (char *)(long)var_ref_vals[val_idx];
++	wait_index = READ_ONCE(work->wait_index);
  
--		len = strlen(str_val) + 1;
-+		len = kern_fetch_store_strlen((unsigned long)str_val);
+ 	while (true) {
+ 		if (full)
+@@ -1021,6 +1055,11 @@ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full)
+ 		}
  
- 		fields_size += len;
+ 		schedule();
++
++		/* Make sure to see the new wait index */
++		smp_rmb();
++		if (wait_index != work->wait_index)
++			break;
  	}
+ 
+ 	if (full)
 
