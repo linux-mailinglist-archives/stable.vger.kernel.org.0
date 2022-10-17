@@ -2,43 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 639EA60071E
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 08:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 124C360076E
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 09:13:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230180AbiJQG4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 02:56:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51772 "EHLO
+        id S230061AbiJQHNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 03:13:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230212AbiJQG4T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 02:56:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05B0458097;
-        Sun, 16 Oct 2022 23:55:56 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED8FA60F29;
-        Mon, 17 Oct 2022 06:55:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A511C433D6;
-        Mon, 17 Oct 2022 06:55:52 +0000 (UTC)
-Message-ID: <fc03d70e-a97e-57a4-eced-08dc38273052@xs4all.nl>
-Date:   Mon, 17 Oct 2022 08:55:50 +0200
+        with ESMTP id S230040AbiJQHNB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 03:13:01 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0104021261
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 00:12:58 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id y14so22739724ejd.9
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 00:12:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=KJrhH2F7uJON+OIrH6fgwC/AeouFBzeMMasW8/7uZkY=;
+        b=yFwPWDfXBF+DZOjXQFyL6BB1l4+ZCzLKZPU662WgdCabSuTUSj8Zlv1k2oJzrB5nwz
+         B0vltkzzngx8sge/O1mvs2Adb4aMwtbTT5Ok91i/c0kteI4/gUGyG+k+sknGHOCugE3Y
+         pPJWodW2bT47rPlPKoaHH+W8gFVmTgRM7PBSjZb2sD9QKyhl1rk2ad5rh2ypVq4J+puY
+         HNMf89LLqqtJ0dcswjlC9fdZkxG0IP4hM+ZHKMVhv4Qu62tfEXPKIhBDp8lk5+Y5IXZc
+         9x6Tt5XIXGbiheu/ik1MSqtPybGWNJILyrbiOslru15klunb+2544Jje1z7Ja9X0woZ6
+         2rlA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=KJrhH2F7uJON+OIrH6fgwC/AeouFBzeMMasW8/7uZkY=;
+        b=N8JjzGWNFnF1MwbUdkAaOu1bwaSDW1o4Xg8FEQn2xjgn0BvGckS1ziMIlPC5+NT7bc
+         DFw+mhxkesqXczxum5k660XDFQn5iVW6b/bXOx5Xo43MtKlIg0jiOJUS6Xha1GsOCmV7
+         xHC0/NqMjBow7CC6d1Yn1QiR/WCQZRvlMgQe2DtaUoA7CHqd2Mui8E+DXaPMNScdl0Uf
+         jQQcyKygnURwzTufGnwIhCX9yaT4C8105VuRBtyENE8XsuBO0Ow6l//XHfRpPvo43ye0
+         880L5ufeu3lZB6F6RvYNegSYusnPtqF+w6zX0jZBwUhzxunDssaVfZqB6Dz+pPO58qwB
+         O+nw==
+X-Gm-Message-State: ACrzQf0eXYoFQVhU6WyBtc6cGKvPMCr9FXBf+r6id+C9ab2Lxmra4C9n
+        0EIW4rQpGdJa38zn4kbYpX2M+q/+h+TONrbR/EyJqg==
+X-Google-Smtp-Source: AMsMyM7Rkee63nSg/2gdS0CS50T5Pl/67pcZ46Df4oNkssUPC67LGf1C197OZieBViQcm5Z3p64H7Vb6FylDNF6sujA=
+X-Received: by 2002:a17:906:da86:b0:740:7120:c6e6 with SMTP id
+ xh6-20020a170906da8600b007407120c6e6mr7405132ejb.44.1665990777297; Mon, 17
+ Oct 2022 00:12:57 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.2
-Subject: Re: Patch "media: v4l2-ctrls: allocate space for arrays" has been
- added to the 6.0-stable tree
-Content-Language: en-US
-To:     Sasha Levin <sashal@kernel.org>, stable-commits@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>
-References: <20221017022412.2384094-1-sashal@kernel.org>
-From:   Hans Verkuil <hverkuil-cisco@xs4all.nl>
-In-Reply-To: <20221017022412.2384094-1-sashal@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
+References: <20221016064454.327821011@linuxfoundation.org>
+In-Reply-To: <20221016064454.327821011@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 17 Oct 2022 12:42:45 +0530
+Message-ID: <CA+G9fYvH0rYGRX5BUq3Ut+Yk6t+xd-exZdS5CC8E_yhpo9ibFw@mail.gmail.com>
+Subject: Re: [PATCH 5.4 0/4] 5.4.219-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,211 +69,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+On Sun, 16 Oct 2022 at 12:16, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.219 release.
+> There are 4 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Tue, 18 Oct 2022 06:44:46 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.219-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Please don't add this patch: it is not a fix, it is an internal change preparing for
-a new feature (see commit 0975274557d1). So no need to backport this patch.
 
-Regards,
+Results from Linaro's test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-	Hans
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-On 10/17/22 04:24, Sasha Levin wrote:
-> This is a note to let you know that I've just added the patch titled
-> 
->     media: v4l2-ctrls: allocate space for arrays
-> 
-> to the 6.0-stable tree which can be found at:
->     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> 
-> The filename of the patch is:
->      media-v4l2-ctrls-allocate-space-for-arrays.patch
-> and it can be found in the queue-6.0 subdirectory.
-> 
-> If you, or anyone else, feels it should not be added to the stable tree,
-> please let <stable@vger.kernel.org> know about it.
-> 
-> 
-> 
-> commit 5cc036de01c402cf40cccf04dcb95af5e18e8313
-> Author: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-> Date:   Mon Jul 11 12:21:07 2022 +0200
-> 
->     media: v4l2-ctrls: allocate space for arrays
->     
->     [ Upstream commit 5f2c5c69a61dc5411d436c1a422f8a1ee195a924 ]
->     
->     Just like dynamic arrays, also allocate space for regular arrays.
->     
->     This is in preparation for allowing to change the array size from
->     a driver.
->     
->     Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
->     Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
->     Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
->     Stable-dep-of: 211f8304fa21 ("media: exynos4-is: fimc-is: Add of_node_put() when breaking out of loop")
->     Signed-off-by: Sasha Levin <sashal@kernel.org>
-> 
-> diff --git a/drivers/media/v4l2-core/v4l2-ctrls-api.c b/drivers/media/v4l2-core/v4l2-ctrls-api.c
-> index 50d012ba3c02..1b90bd7c4010 100644
-> --- a/drivers/media/v4l2-core/v4l2-ctrls-api.c
-> +++ b/drivers/media/v4l2-core/v4l2-ctrls-api.c
-> @@ -105,8 +105,8 @@ static int user_to_new(struct v4l2_ext_control *c, struct v4l2_ctrl *ctrl)
->  
->  	ctrl->is_new = 0;
->  	if (ctrl->is_dyn_array &&
-> -	    c->size > ctrl->p_dyn_alloc_elems * ctrl->elem_size) {
-> -		void *old = ctrl->p_dyn;
-> +	    c->size > ctrl->p_array_alloc_elems * ctrl->elem_size) {
-> +		void *old = ctrl->p_array;
->  		void *tmp = kvzalloc(2 * c->size, GFP_KERNEL);
->  
->  		if (!tmp)
-> @@ -115,8 +115,8 @@ static int user_to_new(struct v4l2_ext_control *c, struct v4l2_ctrl *ctrl)
->  		memcpy(tmp + c->size, ctrl->p_cur.p, ctrl->elems * ctrl->elem_size);
->  		ctrl->p_new.p = tmp;
->  		ctrl->p_cur.p = tmp + c->size;
-> -		ctrl->p_dyn = tmp;
-> -		ctrl->p_dyn_alloc_elems = c->size / ctrl->elem_size;
-> +		ctrl->p_array = tmp;
-> +		ctrl->p_array_alloc_elems = c->size / ctrl->elem_size;
->  		kvfree(old);
->  	}
->  
-> diff --git a/drivers/media/v4l2-core/v4l2-ctrls-core.c b/drivers/media/v4l2-core/v4l2-ctrls-core.c
-> index 1f85828d6694..9871c77f559b 100644
-> --- a/drivers/media/v4l2-core/v4l2-ctrls-core.c
-> +++ b/drivers/media/v4l2-core/v4l2-ctrls-core.c
-> @@ -1135,14 +1135,14 @@ int req_to_new(struct v4l2_ctrl_ref *ref)
->  
->  	/*
->  	 * Check if the number of elements in the request is more than the
-> -	 * elements in ctrl->p_dyn. If so, attempt to realloc ctrl->p_dyn.
-> -	 * Note that p_dyn is allocated with twice the number of elements
-> +	 * elements in ctrl->p_array. If so, attempt to realloc ctrl->p_array.
-> +	 * Note that p_array is allocated with twice the number of elements
->  	 * in the dynamic array since it has to store both the current and
->  	 * new value of such a control.
->  	 */
-> -	if (ref->p_req_elems > ctrl->p_dyn_alloc_elems) {
-> +	if (ref->p_req_elems > ctrl->p_array_alloc_elems) {
->  		unsigned int sz = ref->p_req_elems * ctrl->elem_size;
-> -		void *old = ctrl->p_dyn;
-> +		void *old = ctrl->p_array;
->  		void *tmp = kvzalloc(2 * sz, GFP_KERNEL);
->  
->  		if (!tmp)
-> @@ -1151,8 +1151,8 @@ int req_to_new(struct v4l2_ctrl_ref *ref)
->  		memcpy(tmp + sz, ctrl->p_cur.p, ctrl->elems * ctrl->elem_size);
->  		ctrl->p_new.p = tmp;
->  		ctrl->p_cur.p = tmp + sz;
-> -		ctrl->p_dyn = tmp;
-> -		ctrl->p_dyn_alloc_elems = ref->p_req_elems;
-> +		ctrl->p_array = tmp;
-> +		ctrl->p_array_alloc_elems = ref->p_req_elems;
->  		kvfree(old);
->  	}
->  
-> @@ -1252,7 +1252,7 @@ void v4l2_ctrl_handler_free(struct v4l2_ctrl_handler *hdl)
->  		list_del(&ctrl->node);
->  		list_for_each_entry_safe(sev, next_sev, &ctrl->ev_subs, node)
->  			list_del(&sev->node);
-> -		kvfree(ctrl->p_dyn);
-> +		kvfree(ctrl->p_array);
->  		kvfree(ctrl);
->  	}
->  	kvfree(hdl->buckets);
-> @@ -1584,11 +1584,10 @@ static struct v4l2_ctrl *v4l2_ctrl_new(struct v4l2_ctrl_handler *hdl,
->  			V4L2_CTRL_FLAG_EXECUTE_ON_WRITE;
->  	else if (type == V4L2_CTRL_TYPE_CTRL_CLASS)
->  		flags |= V4L2_CTRL_FLAG_READ_ONLY;
-> -	else if (!(flags & V4L2_CTRL_FLAG_DYNAMIC_ARRAY) &&
-> +	else if (!is_array &&
->  		 (type == V4L2_CTRL_TYPE_INTEGER64 ||
->  		  type == V4L2_CTRL_TYPE_STRING ||
-> -		  type >= V4L2_CTRL_COMPOUND_TYPES ||
-> -		  is_array))
-> +		  type >= V4L2_CTRL_COMPOUND_TYPES))
->  		sz_extra += 2 * tot_ctrl_size;
->  
->  	if (type >= V4L2_CTRL_COMPOUND_TYPES && p_def.p_const)
-> @@ -1632,14 +1631,14 @@ static struct v4l2_ctrl *v4l2_ctrl_new(struct v4l2_ctrl_handler *hdl,
->  	ctrl->cur.val = ctrl->val = def;
->  	data = &ctrl[1];
->  
-> -	if (ctrl->is_dyn_array) {
-> -		ctrl->p_dyn_alloc_elems = elems;
-> -		ctrl->p_dyn = kvzalloc(2 * elems * elem_size, GFP_KERNEL);
-> -		if (!ctrl->p_dyn) {
-> +	if (ctrl->is_array) {
-> +		ctrl->p_array_alloc_elems = elems;
-> +		ctrl->p_array = kvzalloc(2 * elems * elem_size, GFP_KERNEL);
-> +		if (!ctrl->p_array) {
->  			kvfree(ctrl);
->  			return NULL;
->  		}
-> -		data = ctrl->p_dyn;
-> +		data = ctrl->p_array;
->  	}
->  
->  	if (!ctrl->is_int) {
-> @@ -1651,7 +1650,7 @@ static struct v4l2_ctrl *v4l2_ctrl_new(struct v4l2_ctrl_handler *hdl,
->  	}
->  
->  	if (type >= V4L2_CTRL_COMPOUND_TYPES && p_def.p_const) {
-> -		if (ctrl->is_dyn_array)
-> +		if (ctrl->is_array)
->  			ctrl->p_def.p = &ctrl[1];
->  		else
->  			ctrl->p_def.p = ctrl->p_cur.p + tot_ctrl_size;
-> @@ -1664,7 +1663,7 @@ static struct v4l2_ctrl *v4l2_ctrl_new(struct v4l2_ctrl_handler *hdl,
->  	}
->  
->  	if (handler_new_ref(hdl, ctrl, NULL, false, false)) {
-> -		kvfree(ctrl->p_dyn);
-> +		kvfree(ctrl->p_array);
->  		kvfree(ctrl);
->  		return NULL;
->  	}
-> diff --git a/include/media/v4l2-ctrls.h b/include/media/v4l2-ctrls.h
-> index 00828a4f9404..5ddd506ae7b9 100644
-> --- a/include/media/v4l2-ctrls.h
-> +++ b/include/media/v4l2-ctrls.h
-> @@ -203,7 +203,7 @@ typedef void (*v4l2_ctrl_notify_fnc)(struct v4l2_ctrl *ctrl, void *priv);
->   * @elem_size:	The size in bytes of the control.
->   * @new_elems:	The number of elements in p_new. This is the same as @elems,
->   *		except for dynamic arrays. In that case it is in the range of
-> - *		1 to @p_dyn_alloc_elems.
-> + *		1 to @p_array_alloc_elems.
->   * @dims:	The size of each dimension.
->   * @nr_of_dims:The number of dimensions in @dims.
->   * @menu_skip_mask: The control's skip mask for menu controls. This makes it
-> @@ -227,12 +227,11 @@ typedef void (*v4l2_ctrl_notify_fnc)(struct v4l2_ctrl *ctrl, void *priv);
->   *		not freed when the control is deleted. Should this be needed
->   *		then a new internal bitfield can be added to tell the framework
->   *		to free this pointer.
-> - * @p_dyn:	Pointer to the dynamically allocated array. Only valid if
-> - *		@is_dyn_array is true.
-> - * @p_dyn_alloc_elems: The number of elements in the dynamically allocated
-> - *		array for both the cur and new values. So @p_dyn is actually
-> - *		sized for 2 * @p_dyn_alloc_elems * @elem_size. Only valid if
-> - *		@is_dyn_array is true.
-> + * @p_array:	Pointer to the allocated array. Only valid if @is_array is true.
-> + * @p_array_alloc_elems: The number of elements in the allocated
-> + *		array for both the cur and new values. So @p_array is actually
-> + *		sized for 2 * @p_array_alloc_elems * @elem_size. Only valid if
-> + *		@is_array is true.
->   * @cur:	Structure to store the current value.
->   * @cur.val:	The control's current value, if the @type is represented via
->   *		a u32 integer (see &enum v4l2_ctrl_type).
-> @@ -291,8 +290,8 @@ struct v4l2_ctrl {
->  	};
->  	unsigned long flags;
->  	void *priv;
-> -	void *p_dyn;
-> -	u32 p_dyn_alloc_elems;
-> +	void *p_array;
-> +	u32 p_array_alloc_elems;
->  	s32 val;
->  	struct {
->  		s32 val;
+## Build
+* kernel: 5.4.219-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.4.y
+* git commit: 5a1de46f7e7462992a5dd980fe8d06ea57b4ad17
+* git describe: v5.4.218-5-g5a1de46f7e74
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.218-5-g5a1de46f7e74
+
+## No Test Regressions (compared to v5.4.217-39-g34b618a713e7)
+
+## No Metric Regressions (compared to v5.4.217-39-g34b618a713e7)
+
+## No Test Fixes (compared to v5.4.217-39-g34b618a713e7)
+
+## No Metric Fixes (compared to v5.4.217-39-g34b618a713e7)
+
+## Test result summary
+total: 99448, pass: 84788, fail: 1219, skip: 12965, xfail: 476
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 334 total, 334 passed, 0 failed
+* arm64: 64 total, 59 passed, 5 failed
+* i386: 31 total, 29 passed, 2 failed
+* mips: 56 total, 56 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 63 total, 63 passed, 0 failed
+* riscv: 27 total, 26 passed, 1 failed
+* s390: 15 total, 15 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 57 total, 55 passed, 2 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* perf
+* perf/Zstd-perf.data-compression
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
