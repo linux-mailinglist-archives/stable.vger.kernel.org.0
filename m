@@ -2,125 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF4B60162C
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 20:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C00066016EB
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 21:08:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229815AbiJQSWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 14:22:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53704 "EHLO
+        id S229829AbiJQTIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 15:08:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229742AbiJQSWp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 14:22:45 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 676535E64A
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 11:22:44 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id x1-20020a17090ab00100b001fda21bbc90so15023590pjq.3
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 11:22:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Q6K0fLEBttx8lrk4TTwV2hs18H4QMB+rkLX1+fm4Wis=;
-        b=nxqUGdizsCANm/EpHpz5hqb4AimuiKiL4vxSxSv4+4wYsCrg3ZX2r+R0nalfLws+lo
-         hkpfcpbWLzwK3FjxPPyjYWRoo2eJlZVFqFfN1ttObKYlxV3X/0770D3G8e0NtmrnyM2h
-         NRRQp2E9X5Q+TL0/EC7JOM6GGtX+WIi/eFLLU=
+        with ESMTP id S229597AbiJQTII (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 15:08:08 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FD725FF6E
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 12:08:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1666033685;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ilwCj0pj+SOs8iCCQ1o/T1oYMlaK8E4LhEeUqd7n7xM=;
+        b=NW5Pge8Xl1kI1Uh/4rO8MjPYu02pAnzSkLCvJnPTHK6cn90urCppN5DKnD/jIo8DPbPLlK
+        aoumDxyUWxHaYjU0RmIdrvumPXqSkthexcs9aR/X8Vn7PTLlIAGFQGy5OxkMFTbh8mxx3D
+        Z7EwyOOJLg6cwiqsKnA3MHJ1WZ9A4fg=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-625-08qL-U6sPxyLsqbbHsmL4g-1; Mon, 17 Oct 2022 15:08:04 -0400
+X-MC-Unique: 08qL-U6sPxyLsqbbHsmL4g-1
+Received: by mail-qt1-f198.google.com with SMTP id f19-20020ac84713000000b00397692bdaecso9216494qtp.22
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 12:08:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Q6K0fLEBttx8lrk4TTwV2hs18H4QMB+rkLX1+fm4Wis=;
-        b=MMD8zGGMZUeMMHaMloZlgjvetpYbh4xPChVVggQBjcQXWKDSOnvoz7nMKryvF/ft76
-         K9pMT0BJMo0g042jp6MVAcgaTTvT6RbUPqq3DDDOsVLqGDPHhSo7yoiwfXscFc/NWijY
-         lH8ElOxKE7nK2H12xGDuMlqKp/yKwMTA9dMC7gkcKZP1PScIffhQzZVfgcEVoT2qHCad
-         P7zE7JwWBJf4uXj3b7TWUweZzV7qyeJNbSplrzjaLSh+K8L1hl6QQ/khTQk0pVfuhecj
-         5/27uHZoWxT5cV+sb3f41LxIle3nZ/hlyYV+7ObrokaOe7YBjmVP4bLc6Ap2fIbdZUg2
-         WbPA==
-X-Gm-Message-State: ACrzQf1UB2qRcWLD/JbyI6K1k3YZ8gB+yWIytsy9BdtDHxiCD6fmGA7p
-        Kl83OkUmT76QIk7lBAD0ZyonEgwnz/DSaw==
-X-Google-Smtp-Source: AMsMyM7GLm+6wFeWIABSOhA4Ga3nzDh8hX5DBawB8jbrqm0QCqI77NSN0GrmXH8LNM2NUdHzY7+V7A==
-X-Received: by 2002:a17:903:2342:b0:181:bc30:b02f with SMTP id c2-20020a170903234200b00181bc30b02fmr12928368plh.30.1666030963439;
-        Mon, 17 Oct 2022 11:22:43 -0700 (PDT)
-Received: from smtp.gmail.com ([2620:15c:9d:2:f043:fb90:4576:538b])
-        by smtp.gmail.com with ESMTPSA id n18-20020a170903111200b001782a0d3eeasm7014597plh.115.2022.10.17.11.22.42
+        h=content-transfer-encoding:mime-version:user-agent:organization
+         :references:in-reply-to:date:cc:to:from:subject:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ilwCj0pj+SOs8iCCQ1o/T1oYMlaK8E4LhEeUqd7n7xM=;
+        b=Y/shH/D0QKq11/poFoQFd9OQ7/pt1q+Re5O2HN+A82bhs+i/NceUaUg/BbfJmKGGQZ
+         pETGiFn37p0UWmqruLpCxKgPGv462NmEg+tSKHJoIZG9sPbjmj4qJPqNbMcUqNal2hZv
+         YckGq8Ee2U6gfwdR0ckU8NDnGnNqylIpnhi4nLY5+0roEBNdOjoYLKDkO6Y7En+XZguF
+         qV/wXzoav+SrDjjlAg3JyqHeFsukWK1U65ZIJX4djp/8ASfltil/wF92BX15wiRwBSbc
+         /kEkO/RkVHO2K7QqUNMEVSFdu+kh2KyTMGFVmVTV1gzg3TZ+g25oKhRIAYyezhEyZ0JT
+         Ozqw==
+X-Gm-Message-State: ACrzQf1Lp54kyx98ZFo6qrlBaR47Xsb6bs586bUwtsxUbDKAvISDjd87
+        D49Lg9zqtTnMB+gGJ9JtsIlNb1gq6DzvbQQZMAMD4HrMOhGPwbnBMmRqJZ3rhHhqXN6AfaZz3M4
+        ilqobr5lpfnnXPTjL
+X-Received: by 2002:a05:622a:302:b0:39c:dc1f:db98 with SMTP id q2-20020a05622a030200b0039cdc1fdb98mr10226136qtw.467.1666033683377;
+        Mon, 17 Oct 2022 12:08:03 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM76UvvScj47R2ZY2DxcytExeFmf9uLvqJju8KYn5YNtfF734a6NCoaPe+3Xtd00B4VrB5TRVQ==
+X-Received: by 2002:a05:622a:302:b0:39c:dc1f:db98 with SMTP id q2-20020a05622a030200b0039cdc1fdb98mr10226114qtw.467.1666033683148;
+        Mon, 17 Oct 2022 12:08:03 -0700 (PDT)
+Received: from ?IPv6:2600:4040:5c68:4300::feb? ([2600:4040:5c68:4300::feb])
+        by smtp.gmail.com with ESMTPSA id de38-20020a05620a372600b006ce30a5f892sm439488qkb.102.2022.10.17.12.08.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Oct 2022 11:22:42 -0700 (PDT)
-From:   Stephen Boyd <swboyd@chromium.org>
-To:     stable@vger.kernel.org
-Cc:     Sibi Sankar <sibis@codeaurora.org>, linux-kernel@vger.kernel.org,
-        patches@lists.linux.dev, Evan Green <evgreen@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Alex Elder <elder@linaro.org>
-Subject: [PATCH] arm64: dts: qcom: sc7180-trogdor: Fixup modem memory region
-Date:   Mon, 17 Oct 2022 11:22:41 -0700
-Message-Id: <20221017182241.1086545-1-swboyd@chromium.org>
-X-Mailer: git-send-email 2.38.0.413.g74048e4d9e-goog
+        Mon, 17 Oct 2022 12:08:02 -0700 (PDT)
+Message-ID: <dd44a67411f0fc9065001696f231132ad85d9597.camel@redhat.com>
+Subject: Re: [PATCH 2/2] drm/connector: send hotplug uevent on connector
+ cleanup
+From:   Lyude Paul <lyude@redhat.com>
+To:     Simon Ser <contact@emersion.fr>, dri-devel@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jonas =?ISO-8859-1?Q?=C5dahl?= <jadahl@redhat.com>
+Date:   Mon, 17 Oct 2022 15:08:01 -0400
+In-Reply-To: <20221017153150.60675-2-contact@emersion.fr>
+References: <20221017153150.60675-1-contact@emersion.fr>
+         <20221017153150.60675-2-contact@emersion.fr>
+Organization: Red Hat Inc.
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sibi Sankar <sibis@codeaurora.org>
+LGTM! Thank you for the help with this:
 
-commit ef9a5d188d663753e73a3c8e8910ceab8e9305c4 upstream.
+Reviewed-by: Lyude Paul <lyude@redhat.com>
 
-The modem firmware memory requirements vary between 32M/140M on
-no-lte/lte skus respectively, so fixup the modem memory region
-to reflect the requirements.
+On Mon, 2022-10-17 at 15:32 +0000, Simon Ser wrote:
+> A typical DP-MST unplug removes a KMS connector. However care must
+> be taken to properly synchronize with user-space. The expected
+> sequence of events is the following:
+> 
+> 1. The kernel notices that the DP-MST port is gone.
+> 2. The kernel marks the connector as disconnected, then sends a
+>    uevent to make user-space re-scan the connector list.
+> 3. User-space notices the connector goes from connected to disconnected,
+>    disables it.
+> 4. Kernel handles the the IOCTL disabling the connector. On success,
+>    the very last reference to the struct drm_connector is dropped and
+>    drm_connector_cleanup() is called.
+> 5. The connector is removed from the list, and a uevent is sent to tell
+>    user-space that the connector disappeared.
+> 
+> The very last step was missing. As a result, user-space thought the
+> connector still existed and could try to disable it again. Since the
+> kernel no longer knows about the connector, that would end up with
+> EINVAL and confused user-space.
+> 
+> Fix this by sending a hotplug uevent from drm_connector_cleanup().
+> 
+> Signed-off-by: Simon Ser <contact@emersion.fr>
+> Cc: stable@vger.kernel.org
+> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Cc: Lyude Paul <lyude@redhat.com>
+> Cc: Jonas Ådahl <jadahl@redhat.com>
+> ---
+>  drivers/gpu/drm/drm_connector.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/drm_connector.c b/drivers/gpu/drm/drm_connector.c
+> index e3142c8142b3..90dad87e9ad0 100644
+> --- a/drivers/gpu/drm/drm_connector.c
+> +++ b/drivers/gpu/drm/drm_connector.c
+> @@ -582,6 +582,9 @@ void drm_connector_cleanup(struct drm_connector *connector)
+>  	mutex_destroy(&connector->mutex);
+>  
+>  	memset(connector, 0, sizeof(*connector));
+> +
+> +	if (dev->registered)
+> +		drm_sysfs_hotplug_event(dev);
+>  }
+>  EXPORT_SYMBOL(drm_connector_cleanup);
+>  
 
-Reviewed-by: Evan Green <evgreen@chromium.org>
-Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
-Link: https://lore.kernel.org/r/1602786476-27833-1-git-send-email-sibis@codeaurora.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Acked-by: Alex Elder <elder@linaro.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
----
-
-This fixes boot of the modem on trogdor boards with the DTS from 5.10.y
-stable tree. Without this patch I run into memory assignment errors and
-then the modem fails to boot.
-
- arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi | 4 ++++
- arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi         | 2 +-
- 2 files changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi
-index 44956e3165a1..469aad4e5948 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi
-@@ -9,6 +9,10 @@ &ap_sar_sensor {
- 	label = "proximity-wifi-lte";
- };
- 
-+&mpss_mem {
-+	reg = <0x0 0x86000000 0x0 0x8c00000>;
-+};
-+
- &remoteproc_mpss {
- 	firmware-name = "qcom/sc7180-trogdor/modem/mba.mbn",
- 			"qcom/sc7180-trogdor/modem/qdsp6sw.mbn";
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-index 5b2a616c6257..cb2c47f13a8a 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-@@ -39,7 +39,7 @@ atf_mem: memory@80b00000 {
- 		};
- 
- 		mpss_mem: memory@86000000 {
--			reg = <0x0 0x86000000 0x0 0x8c00000>;
-+			reg = <0x0 0x86000000 0x0 0x2000000>;
- 			no-map;
- 		};
- 
-
-base-commit: 014862eecf03f58066a957027dde73cbecdf4395
 -- 
-https://chromeos.dev
+Cheers,
+ Lyude Paul (she/her)
+ Software Engineer at Red Hat
 
