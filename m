@@ -2,56 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4BC56004DA
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 03:35:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34B566004DD
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 03:38:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229702AbiJQBfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Oct 2022 21:35:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46050 "EHLO
+        id S230019AbiJQBig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Oct 2022 21:38:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229749AbiJQBfs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 21:35:48 -0400
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CB1A32AB3;
-        Sun, 16 Oct 2022 18:35:47 -0700 (PDT)
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4MrKJ515H3zJnTd;
-        Mon, 17 Oct 2022 09:33:09 +0800 (CST)
-Received: from kwepemm600020.china.huawei.com (7.193.23.147) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Mon, 17 Oct 2022 09:35:37 +0800
-Received: from [127.0.0.1] (10.174.178.94) by kwepemm600020.china.huawei.com
- (7.193.23.147) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Mon, 17 Oct
- 2022 09:35:35 +0800
-Message-ID: <cb118b6a-98d5-910f-d12a-f6b2cc096f12@huawei.com>
-Date:   Mon, 17 Oct 2022 09:35:34 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.0
-Subject: Re: [PATCH 5.4 00/38] 5.4.218-rc1 review
-Content-Language: en-US
+        with ESMTP id S229838AbiJQBif (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Oct 2022 21:38:35 -0400
+Received: from gw.atmark-techno.com (gw.atmark-techno.com [13.115.124.170])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 747E532ABC
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 18:38:33 -0700 (PDT)
+Received: from gw.atmark-techno.com (localhost [127.0.0.1])
+        by gw.atmark-techno.com (Postfix) with ESMTP id 5F24A6010C
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 10:38:32 +0900 (JST)
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com [209.85.215.200])
+        by gw.atmark-techno.com (Postfix) with ESMTPS id 7C1236010B
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 10:38:31 +0900 (JST)
+Received: by mail-pg1-f200.google.com with SMTP id h19-20020a63e153000000b00434dfee8dbaso5652566pgk.18
+        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 18:38:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ejOrPid2iedh5wLBJ+KG54VdJNk7zWaVxWTRB+6s3sk=;
+        b=T2nVaw4EB8i40gKOQ2D/slKD9Ifm8MPxJO57+rgcSgazTFkv9tBqtkD1F4nZD1x6uQ
+         hnu2gbiiIq5/956XfQMQGC2yaAT+LeruCMbcLrIa31d+Bpvbm8lLVSiLQir6GGkigDST
+         y4PkS8+UfR4UIrrbkJKRRAj5R32xHULNNczqVS6z5hl3Ia6jheTqIe3y2NPrrxhHmAFn
+         GeW505FtFbDBrA3dDiI9jWYmh1zGmVg8MNmqb0rQb0AA89NPVTPxHlu+kt38WJpTETlT
+         RimtKilRlLBbjI4kZFsKjeuSNYqHiNiK5hReR3FQOOpEVhFJlWz9INw4FCsmeWN9q00R
+         wk3g==
+X-Gm-Message-State: ACrzQf3qmDnFKB/Ti4DCyD2mdQv1FLgRCWCYOEoO9OMUXEnPhIsVij1+
+        T3+FhYkfbadzz+7JtfC3hisKeZocmsqeyrN/8gszHmCZlxPYE1SzpAYy8VQBS0WlNnWsX0YQ/AI
+        EspNwPui7GN+Z8TRx/e9i
+X-Received: by 2002:a17:903:48e:b0:17e:ea4a:394e with SMTP id jj14-20020a170903048e00b0017eea4a394emr9202365plb.48.1665970710533;
+        Sun, 16 Oct 2022 18:38:30 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7VuDJncsqXX+nkIMaBVt5014GXainRn8ZKFtLqWj+pf4REJomD4SNleaWxQ8oERUSmohzSww==
+X-Received: by 2002:a17:903:48e:b0:17e:ea4a:394e with SMTP id jj14-20020a170903048e00b0017eea4a394emr9202353plb.48.1665970710261;
+        Sun, 16 Oct 2022 18:38:30 -0700 (PDT)
+Received: from pc-0115 (76.125.194.35.bc.googleusercontent.com. [35.194.125.76])
+        by smtp.gmail.com with ESMTPSA id a9-20020a1709027e4900b00176ea6ce0efsm5318155pln.109.2022.10.16.18.38.29
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 16 Oct 2022 18:38:29 -0700 (PDT)
+Received: from martinet by pc-0115 with local (Exim 4.96)
+        (envelope-from <martinet@pc-0115>)
+        id 1okF5H-00090e-1D;
+        Mon, 17 Oct 2022 10:38:27 +0900
+From:   Dominique Martinet <dominique.martinet@atmark-techno.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <sudipm.mukherjee@gmail.com>, <srw@sladewatkins.net>
-References: <20221013175144.245431424@linuxfoundation.org>
-From:   zhouzhixiu <zhouzhixiu@huawei.com>
-In-Reply-To: <20221013175144.245431424@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.94]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- kwepemm600020.china.huawei.com (7.193.23.147)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        Lukas Wunner <lukas@wunner.de>, stable@vger.kernel.org
+Cc:     =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Roosen Henri <Henri.Roosen@ginzinger.com>,
+        linux-serial@vger.kernel.org,
+        Lino Sanfilippo <LinoSanfilippo@gmx.de>,
+        Daisuke Mizobuchi <mizo@atmark-techno.com>,
+        Dominique Martinet <dominique.martinet@atmark-techno.com>
+Subject: [PATCH 5.10 0/2] Stable 5.10 backport of RS485 initial polarity fix
+Date:   Mon, 17 Oct 2022 10:38:06 +0900
+Message-Id: <20221017013807.34614-1-dominique.martinet@atmark-techno.com>
+X-Mailer: git-send-email 2.35.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -59,51 +76,44 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-On 2022/10/14 1:52, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.218 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 15 Oct 2022 17:51:33 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.218-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
-> -------------
-Tested on arm64 and x86 for 5.4.218-rc1,
+This is the backport of the RS485 polarity fixes discussed here:
+https://lkml.kernel.org/r/20221010085305.GA32599@wunner.de
 
-Kernel 
-repo:https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.218-rc1
-Commit: 72c6935a2da6775f61b0345fddc80d0a37c66a4f
-Compiler: gcc version 7.3.0 (GCC)
+It fixes RS485 DE initially set wrong on driver init, blocking other
+devices from transmitting on the bus.
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9017
-passed: 9017
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+Mizobuchi-san did the backport and tested on our imx-based platform, but
+we do not have any hardware to test other drivers.
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9017
-passed: 9017
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+
+The commits also apply cleanly on 5.15, and for 5.19 the second commit
+does (first one has already been picked up), but these have not been
+tested so would require more checking.
+
+Kernels older than 5.10 do not have this particular polarity inversion
+problem and do not need this as far as I can see.
+(there might be other problems this addresses that I am not aware of
+though)
+
+
+Thanks,
+
+
+Lino Sanfilippo (1):
+  serial: core: move RS485 configuration tasks from drivers into core
+
+Lukas Wunner (1):
+  serial: Deassert Transmit Enable on probe in driver-specific way
+
+ drivers/tty/serial/8250/8250_omap.c |  3 ++
+ drivers/tty/serial/8250/8250_pci.c  |  9 +----
+ drivers/tty/serial/8250/8250_port.c | 12 +++---
+ drivers/tty/serial/fsl_lpuart.c     |  7 ++--
+ drivers/tty/serial/imx.c            |  8 +---
+ drivers/tty/serial/serial_core.c    | 61 +++++++++++++++++++++++------
+ 6 files changed, 65 insertions(+), 35 deletions(-)
+
+-- 
+2.35.1
+
 
