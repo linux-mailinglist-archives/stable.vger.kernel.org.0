@@ -2,82 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC61601AB5
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 22:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9EAD601ABC
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 22:55:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230280AbiJQUzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 16:55:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40550 "EHLO
+        id S230301AbiJQUze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 16:55:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230274AbiJQUz3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 16:55:29 -0400
-Received: from mail1.bemta33.messagelabs.com (mail1.bemta33.messagelabs.com [67.219.247.2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5465E6C97F;
-        Mon, 17 Oct 2022 13:55:26 -0700 (PDT)
+        with ESMTP id S230320AbiJQUzd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 16:55:33 -0400
+Received: from mail1.bemta35.messagelabs.com (mail1.bemta35.messagelabs.com [67.219.250.3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A46C46E8B2;
+        Mon, 17 Oct 2022 13:55:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=motorola.com;
-        s=Selector; t=1666040125; i=@motorola.com;
-        bh=CCyVpHMdxR921PsDSRTyY9XE1PLOTC+3bCOgY+h5ZEU=;
+        s=Selector; t=1666040128; i=@motorola.com;
+        bh=Ex2jg7i2bG94BEXDOq/m475Z4guiOCxEfIaotzGbp84=;
         h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
          MIME-Version:Content-Transfer-Encoding;
-        b=Cwi+SUutrAX3vQd6zLT1yGVpUEEwlIjIqaie2p/bX/+aIJ03eTdx38BY0XSGC92xK
-         RBysAPX8D4fC3+cXK6uOo9MSa//KgQPzwCaoNxdz1vDtE5JgrFKBrpVdadTWhL7X3l
-         rh9lW2rCbKrs5tbQLTV9ZFRWOzOLG6GWvguGn860uOiFbQHEKzYSEPWboEB86oxUfd
-         fwnVxFO3KVdcXPr6Pw7A7pNQ2Mtlgw3Sf6PC+aWURlbEC1h8JOCOxSHu4fGSOMjc24
-         A9YuHjmeDBdN6uGMjqHB+wPgjuFWByGQfCEaBNsZQq1XorP1svndpyk3SqiObArM6r
-         bAV8yaMth46CQ==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrHIsWRWlGSWpSXmKPExsUyYU+Ds67NQd9
-  kg9X9WhbH2p6wWzw50M5o0btsD5tF8+L1bBadE5ewWyxsW8JicXnXHDaLRctamS22tF1hsvjx
+        b=eK4yvnqPNqKzIF/2PxeF668O/IhpuwLYUVQFsXXIgtfskYjdCNovIx8A/HpHYnMGP
+         rDPjSZ94qT2qJdKnfk+jnKxfkD+z40BqN1ae2cPGj1ws1Skc4VgnqlcmYv3CqpnXPN
+         9lqhcwGkCZRgFuu9TlqVRiw2BQoquIoJPZ4oaGOTvMLNm4C94oi3Txq5tgUiU6eQMw
+         43R4l6yd72fD5UJStN6PNWSLIOmIbNfhbrY6Snc3r+qjvaNj3ye2MaTRBJRbN9eKiF
+         b8+i6t6XKTg538YgwSLlVVTS4JFue0II9QUphuC7FQN7KEpsE8u4v+XPJL7y9371lX
+         1wgOT8pJ2I33Q==
+X-Brightmail-Tracker: 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
-  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
+  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
 X-Env-Sender: w36195@motorola.com
-X-Msg-Ref: server-3.tower-715.messagelabs.com!1666040124!35180!1
-X-Originating-IP: [144.188.128.67]
+X-Msg-Ref: server-12.tower-655.messagelabs.com!1666040126!107223!1
+X-Originating-IP: [104.232.228.21]
 X-SYMC-ESS-Client-Auth: outbound-route-from=pass
 X-StarScan-Received: 
 X-StarScan-Version: 9.87.3; banners=-,-,-
 X-VirusChecked: Checked
-Received: (qmail 27401 invoked from network); 17 Oct 2022 20:55:24 -0000
-Received: from unknown (HELO ilclpfpp01.lenovo.com) (144.188.128.67)
-  by server-3.tower-715.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 17 Oct 2022 20:55:24 -0000
+Received: (qmail 14467 invoked from network); 17 Oct 2022 20:55:27 -0000
+Received: from unknown (HELO va32lpfpp01.lenovo.com) (104.232.228.21)
+  by server-12.tower-655.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 17 Oct 2022 20:55:27 -0000
 Received: from ilclmmrp01.lenovo.com (ilclmmrp01.mot.com [100.65.83.165])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ilclpfpp01.lenovo.com (Postfix) with ESMTPS id 4Mrq581pvxzfBZq;
-        Mon, 17 Oct 2022 20:55:24 +0000 (UTC)
+        by va32lpfpp01.lenovo.com (Postfix) with ESMTPS id 4Mrq5B0bKWzhSZf;
+        Mon, 17 Oct 2022 20:55:26 +0000 (UTC)
 Received: from p1g3.mot.com (unknown [100.64.172.121])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
         (Authenticated sender: w36195)
-        by ilclmmrp01.lenovo.com (Postfix) with ESMTPSA id 4Mrq581dmpzbpxx;
-        Mon, 17 Oct 2022 20:55:24 +0000 (UTC)
+        by ilclmmrp01.lenovo.com (Postfix) with ESMTPSA id 4Mrq596lv4zbpxx;
+        Mon, 17 Oct 2022 20:55:25 +0000 (UTC)
 From:   Dan Vacura <w36195@motorola.com>
 To:     linux-usb@vger.kernel.org
 Cc:     Daniel Scally <dan.scally@ideasonboard.com>,
         Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Jeff Vanhoof <qjv001@motorola.com>,
-        Dan Vacura <w36195@motorola.com>, stable@vger.kernel.org,
+        Jeff Vanhoof <qjv001@motorola.com>, stable@vger.kernel.org,
+        Dan Vacura <w36195@motorola.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jonathan Corbet <corbet@lwn.net>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Felipe Balbi <balbi@kernel.org>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
         Paul Elder <paul.elder@ideasonboard.com>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
         linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: [PATCH] usb: gadget: uvc: fix dropped frame after missed isoc
-Date:   Mon, 17 Oct 2022 15:54:39 -0500
-Message-Id: <20221017205446.523796-2-w36195@motorola.com>
+Subject: [PATCH v3 2/6] usb: dwc3: gadget: cancel requests instead of release after missed isoc
+Date:   Mon, 17 Oct 2022 15:54:40 -0500
+Message-Id: <20221017205446.523796-3-w36195@motorola.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221017205446.523796-1-w36195@motorola.com>
 References: <20221017205446.523796-1-w36195@motorola.com>
@@ -93,36 +93,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-With the re-use of the previous completion status in 0d1c407b1a749
-("usb: dwc3: gadget: Return proper request status") it could be possible
-that the next frame would also get dropped if the current frame has a
-missed isoc error. Ensure that an interrupt is requested for the start
-of a new frame.
+From: Jeff Vanhoof <qjv001@motorola.com>
 
-Fixes: fc78941d8169 ("usb: gadget: uvc: decrease the interrupt load to a quarter")
+arm-smmu related crashes seen after a Missed ISOC interrupt when
+no_interrupt=1 is used. This can happen if the hardware is still using
+the data associated with a TRB after the usb_request's ->complete call
+has been made.  Instead of immediately releasing a request when a Missed
+ISOC interrupt has occurred, this change will add logic to cancel the
+request instead where it will eventually be released when the
+END_TRANSFER command has completed. This logic is similar to some of the
+cleanup done in dwc3_gadget_ep_dequeue.
+
+Fixes: 6d8a019614f3 ("usb: dwc3: gadget: check for Missed Isoc from event status")
 Cc: <stable@vger.kernel.org>
+Signed-off-by: Jeff Vanhoof <qjv001@motorola.com>
+Co-developed-by: Dan Vacura <w36195@motorola.com>
 Signed-off-by: Dan Vacura <w36195@motorola.com>
 ---
 V1 -> V3:
 - no change, new patch in series
 
- drivers/usb/gadget/function/uvc_video.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/core.h   |  1 +
+ drivers/usb/dwc3/gadget.c | 38 ++++++++++++++++++++++++++------------
+ 2 files changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index bb037fcc90e6..323977716f5a 100644
---- a/drivers/usb/gadget/function/uvc_video.c
-+++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -431,7 +431,8 @@ static void uvcg_video_pump(struct work_struct *work)
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index 8f9959ba9fd4..9b005d912241 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -943,6 +943,7 @@ struct dwc3_request {
+ #define DWC3_REQUEST_STATUS_DEQUEUED		3
+ #define DWC3_REQUEST_STATUS_STALLED		4
+ #define DWC3_REQUEST_STATUS_COMPLETED		5
++#define DWC3_REQUEST_STATUS_MISSED_ISOC		6
+ #define DWC3_REQUEST_STATUS_UNKNOWN		-1
  
- 		/* Endpoint now owns the request */
- 		req = NULL;
--		video->req_int_count++;
-+		if (buf->state != UVC_BUF_STATE_DONE)
-+			video->req_int_count++;
- 	}
+ 	u8			epnum;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 079cd333632e..411532c5c378 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2021,6 +2021,9 @@ static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep)
+ 		case DWC3_REQUEST_STATUS_STALLED:
+ 			dwc3_gadget_giveback(dep, req, -EPIPE);
+ 			break;
++		case DWC3_REQUEST_STATUS_MISSED_ISOC:
++			dwc3_gadget_giveback(dep, req, -EXDEV);
++			break;
+ 		default:
+ 			dev_err(dwc->dev, "request cancelled with wrong reason:%d\n", req->status);
+ 			dwc3_gadget_giveback(dep, req, -ECONNRESET);
+@@ -3402,21 +3405,32 @@ static bool dwc3_gadget_endpoint_trbs_complete(struct dwc3_ep *dep,
+ 	struct dwc3		*dwc = dep->dwc;
+ 	bool			no_started_trb = true;
  
- 	if (!req)
+-	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
++	if (status == -EXDEV) {
++		struct dwc3_request *tmp;
++		struct dwc3_request *req;
+ 
+-	if (dep->flags & DWC3_EP_END_TRANSFER_PENDING)
+-		goto out;
++		if (!(dep->flags & DWC3_EP_END_TRANSFER_PENDING))
++			dwc3_stop_active_transfer(dep, true, true);
+ 
+-	if (!dep->endpoint.desc)
+-		return no_started_trb;
++		list_for_each_entry_safe(req, tmp, &dep->started_list, list)
++			dwc3_gadget_move_cancelled_request(req,
++					DWC3_REQUEST_STATUS_MISSED_ISOC);
++	} else {
++		dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
+ 
+-	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
+-		list_empty(&dep->started_list) &&
+-		(list_empty(&dep->pending_list) || status == -EXDEV))
+-		dwc3_stop_active_transfer(dep, true, true);
+-	else if (dwc3_gadget_ep_should_continue(dep))
+-		if (__dwc3_gadget_kick_transfer(dep) == 0)
+-			no_started_trb = false;
++		if (dep->flags & DWC3_EP_END_TRANSFER_PENDING)
++			goto out;
++
++		if (!dep->endpoint.desc)
++			return no_started_trb;
++
++		if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
++			list_empty(&dep->started_list) && list_empty(&dep->pending_list))
++			dwc3_stop_active_transfer(dep, true, true);
++		else if (dwc3_gadget_ep_should_continue(dep))
++			if (__dwc3_gadget_kick_transfer(dep) == 0)
++				no_started_trb = false;
++	}
+ 
+ out:
+ 	/*
 -- 
 2.34.1
 
