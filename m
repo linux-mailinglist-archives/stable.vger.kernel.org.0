@@ -2,175 +2,255 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86E126006B3
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 08:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 639EA60071E
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 08:56:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229898AbiJQG1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 02:27:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35422 "EHLO
+        id S230180AbiJQG4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 02:56:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230104AbiJQG1k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 02:27:40 -0400
-Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2067.outbound.protection.outlook.com [40.107.102.67])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C56732E69B
-        for <stable@vger.kernel.org>; Sun, 16 Oct 2022 23:27:35 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=n8WNbV9jncKcoJdOHYRa0h4GtkbI3zIJyVqXcG1/kNRTENWSYO8tAnz8wYirDFjnln13ZB3OxIQ5NwADB7E8BPfayKzvN3FQelQHTv2Bytxlg08Wyu4iuQIflu3dzIKI1S5o0psP9y6T5voXJvuaTEd72Pz7ZzNRgh6ZXExkXBoIAbG1ldJYNeQS2B9+yvX13swhmuMIXwdKef6zErXwF+KUIs0Bl37Xz4cCVU8wboIJctqR+i3/8R4Y6usCpm9SB+0q2FxZpaTJgyd+OwGwRaeliC6GA1NTnC4SMRPf1xfG2J8A8nFcc+dw7qs1AYFi+hzoze/03kA3kPS4kPAf0A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Js/3646nSXy+XqPC5649fHNlHaRnpikEhhMVa6PBkJM=;
- b=QiNY0ZMZ3TQTpajEM8QOypZ5CMC/isi3Lnm8JBiP4WpB+DMyPOtcmNbRIjzm7M/XT0f9RR3pFfSEox+RLwS8mNtx9s2cL+h0kltiOKQSgUL6Wg6gnmFER+A0tIcxo8RDTp29QJqFwAz4d1OoIeQu+DMC2Z4UbU4ew8nCbiLq+ZcwnKeoaasZy+dpo0zlddg/bwm/fPz5R6u3KZIv35QCBvyI7J98q8LMih1OdEZ9ezzSpcxduciCHWjkCwZkxSefGOyanC23XqulqU6VTmMCJlXtNxtNWoNYk0TrWyhXh8GHLEf6Xorcr4e/ephW4FLig/+MRcYk5Iy4vV/3+EY52Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Js/3646nSXy+XqPC5649fHNlHaRnpikEhhMVa6PBkJM=;
- b=nj7HlJxWERVvl6Lv/lgWyCxEkrzQVZHPS/+2eL7eOc8FWUnIUot0NWctG8L3UoBRL1M2pVymtsoBeQkUgBKR5onetzerPuchFhRdwrxwaQItDaFXGJW3imdpSBDYIixS+6a+mUxLsgmk9kI/iv73OVYiYUY4X0g7uyEwbUdydQo=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from BN8PR12MB3587.namprd12.prod.outlook.com (2603:10b6:408:43::13)
- by MW3PR12MB4505.namprd12.prod.outlook.com (2603:10b6:303:5a::24) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.29; Mon, 17 Oct
- 2022 06:27:33 +0000
-Received: from BN8PR12MB3587.namprd12.prod.outlook.com
- ([fe80::805b:58b6:1f27:d644]) by BN8PR12MB3587.namprd12.prod.outlook.com
- ([fe80::805b:58b6:1f27:d644%6]) with mapi id 15.20.5723.033; Mon, 17 Oct 2022
- 06:27:33 +0000
-Message-ID: <7d482756-b5a0-328c-9e9c-ef0e31c4225a@amd.com>
-Date:   Mon, 17 Oct 2022 08:27:29 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 2/2] drm/amdgpu: use DRM_SCHED_FENCE_DONT_PIPELINE for VM
- updates
-Content-Language: en-US
-To:     Luben Tuikov <luben.tuikov@amd.com>,
-        =?UTF-8?Q?Christian_K=c3=b6nig?= <ckoenig.leichtzumerken@gmail.com>,
-        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-References: <20221014081553.114899-1-christian.koenig@amd.com>
- <20221014081553.114899-2-christian.koenig@amd.com>
- <fd55eef9-1ce1-3f4c-d6ff-a5a230828b8e@amd.com>
-From:   =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-In-Reply-To: <fd55eef9-1ce1-3f4c-d6ff-a5a230828b8e@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR0P281CA0119.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:a8::17) To BN8PR12MB3587.namprd12.prod.outlook.com
- (2603:10b6:408:43::13)
+        with ESMTP id S230212AbiJQG4T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 02:56:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05B0458097;
+        Sun, 16 Oct 2022 23:55:56 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED8FA60F29;
+        Mon, 17 Oct 2022 06:55:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A511C433D6;
+        Mon, 17 Oct 2022 06:55:52 +0000 (UTC)
+Message-ID: <fc03d70e-a97e-57a4-eced-08dc38273052@xs4all.nl>
+Date:   Mon, 17 Oct 2022 08:55:50 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN8PR12MB3587:EE_|MW3PR12MB4505:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1196d3d7-743d-4fc9-6abc-08dab008acfd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: juusRUE8ZmKWTEPOQc86hid7BpS//C2eWiSG6uuODQ3D2qwvEEF+1Jx1QgbDPSYmxf/aNNnTCPKcDvyhe/WhlBWyqut+JSrVWAuHLTQ0EfcO0XYxhco040tkKsdOdKhFKz4F9a0u7Fnd08gg+Ei86aTqx5eaELOjkG11zRwl2BlCykPfXlzpPXNyt83WoL2BspD/cuG+f4Yqq/dQPAipHXY6v8SJUElbhIp4VhcHAI8MbUWkr/hHvZMw8GYENWHG/BnuqjqJ4MCSKuNw0R87L4BRG3/uOl2raFGwvOz/7inz08vj44H61+mwiUtP4tmh3jpK6xQFkKhXP+G1o5cZm9leGOA/j6C28SaptxljC522YsaFCRRG5utdkuLvl5RS4ZKEqBlApaOQUJo0cOgftoVXNqHltMivCVWMXc0uwXtfJ39rzN3tBP6UkSQfjMHBQuu1tUI6vxCMghNuRRlwUz9lKouzhIT/yzKY2EqRgIUejUxvTwhmXno7JVDyUTdf2i881otZv6cqNUk0BpUb0QF0ogYYNJckY/UjmagJ9l+aPaqT348RO8Groy2X9Y1huXxfXxb5GJfBFM3ICGZN9aXadTwB2rrzOmuzqa3BIQ/1aavHbd7gG46jhGHXzVCDOGS1mB8v3rjIccyJMO+da3SrJz4pmUzue/kAXqP4ArNUNlStpBX6nSb6gEWwO38g+UVJPRebyWfSVPqpkxdaYwQ70lJwRhc4xIPg/VyxG83TM6FnvgO4LV4+pCcMry1HEV6ETd+z7wjIq/cVz8XbVd22Ov3lNzRJq3987bUEuB0=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN8PR12MB3587.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(39860400002)(376002)(366004)(346002)(396003)(451199015)(36756003)(31686004)(86362001)(31696002)(2906002)(5660300002)(4001150100001)(38100700002)(2616005)(186003)(83380400001)(66574015)(6506007)(316002)(53546011)(478600001)(6512007)(6486002)(66556008)(66476007)(66946007)(8936002)(41300700001)(15650500001)(4326008)(110136005)(6666004)(8676002)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?dWErRDhZYkVwS0g0YnFtbzFadTlPT3FHQk1pNDFVZXoybGd3QWxlZ3hSN3Ar?=
- =?utf-8?B?NE9hMGo2YnZqSlpOd2ZwZGNKaStaY0V1ZFNGQWp1ejR4aTk2UkVSeU1sK0RQ?=
- =?utf-8?B?TmsvSENHNThON21pc0RIdUNkaE1oajllaWIxZXArd1IzbFNpTHFkOU1xaFUz?=
- =?utf-8?B?OEpMdVRLNE01NjVmSWtOalNoSzY0czhxUHRqdVB6aW1yRVpXcTZ5cTc4dGFj?=
- =?utf-8?B?MWUySXFVTjFUcEk4cmU3QkFSZFlGY2dnNmt4ZUdNNWdZRXR6Qk80bDFvZG9W?=
- =?utf-8?B?T3EzTStpdWc5RFVNdFFlaFJrQXZmbkNNNDF6bFdQdlFwU3lJQ0toUUFhSDBw?=
- =?utf-8?B?eGVJdmhJRExlcStOZmZScHd0NGJCaFhRaWRkVDhDdllQd2JaR1RZMndNTUVl?=
- =?utf-8?B?T0FoRk4yVU8xTFlPemJXVGZrd3FxOXFJaWQwaDNZbG5Nc1AwQTRhL3d5ZlJW?=
- =?utf-8?B?ZXFJV0gwNDAxSW5hZDhmaWpiWEQwbnFTd05PMVZzeVZrQ3Bxcm8wcnlmN2Ev?=
- =?utf-8?B?amJQN1pvVTd0TkpNbWpRM3dCRG5seVlnUUhhcVBUWXRWYVFSNjlhc2N1ZU9m?=
- =?utf-8?B?WXlibllVZnBHSHlQTWdDeEl5Z0doQ1JNYis2WjFWYmlKQ1FDd2RJS3VnQ2l2?=
- =?utf-8?B?ZkxFZDdNc2g5VHMwQUphbzErdnJ6WHFPUnk2c0tVV2o2d3Y5Q1lESldyUVNU?=
- =?utf-8?B?RWJQb0J2N21ybW5OeDBDZ1hZYUZzeGw1ZUNlR1VIQXZIUXptOEsxa0pHVEVi?=
- =?utf-8?B?ZlVWdk53N2Vpekd3WnV5bU9odGNxWlA2RnhXOXRuNnFRR2NmUmE3YjBCM1do?=
- =?utf-8?B?b1NQcVRlak56bnNWQTlSd3Z2RHpmQkhxcE9UNjR6STVRK01iQ2lKT0lvaXV2?=
- =?utf-8?B?d0FVNUV4Qlk5NnNYK3l5ZXg1cEc5MFVhUG9rdTJBRm5uSGpsb2tWQ01udVha?=
- =?utf-8?B?aU1CRS9JeWFPaXVhSjhQOTE0d1ZCeDRGcVJHNThIVXdZY2htK0x5VCtRMkJ0?=
- =?utf-8?B?bkIyM2UyNXFFTmpFM0dtUDBvMlJrSUF6cUpiQ05heUg5VlZwdkZDU1JpdUdX?=
- =?utf-8?B?bU9xMnZZYjEyUWxkL21nSkpZUWp5M1J0NlhPTS9EMDFQVkFadm9MZitKR01r?=
- =?utf-8?B?cS9YelJRMTNUN0JhTWx6N1VWclVFaUtSZ2swOXdXblB5V0ovZ0NqVDZOeXho?=
- =?utf-8?B?R25heS80R0pRalBnWWNSeFdxanphQlhNRlo1VHdIMzJwTkRlRDVOelNQRTU5?=
- =?utf-8?B?OC9DWTdGSlVtNTl6SDk2LzNPN3RBNWVPRGxRUkxuU0FsQmkyZDI0SzdxR0pK?=
- =?utf-8?B?ODF6VVFoTGlzMXN0OHpGMkpGdDVwN0NQWlFQU1kwL25pVUVMWE1DSnZ4MGhr?=
- =?utf-8?B?OW5KRG9QZTQ4emwrOXdPY0NwVHZvaW11TnNOV2xOelZSOEp2dVZMODJ3bnBj?=
- =?utf-8?B?ekoyYnVGemd2Rkd5UC9PZE1ONk42UVhvOXpDSTR6MW9uclBGSHZBaEMxeDI0?=
- =?utf-8?B?THVlMW92Y0tYdXhPTEdYdmQxU3hUYzFBaktrZEpxbGVuY3JoY0w0SUpmY0Js?=
- =?utf-8?B?QkxFSXFzbUdBNS84WkdiTTJveXZoZS9yN0xwQXl6KzQySjM4Sm5NZHNnbjlJ?=
- =?utf-8?B?MXc1VlBHV2VMSDBzQ2UxTnc4NEZpSkUvQXZMNEVGOU9WbFRHNWxJUkp0M2pt?=
- =?utf-8?B?aFk0N1hWZWhhV01SeHYwRUFzdVNyOEIwcm1yeU1nOUFDYlZJRFc5ZFI0aEdF?=
- =?utf-8?B?THNlb3lWZU1TR0RJVDQ4VTQrN0ZMeGRXMWtwaVlnN3NoOThmdDhvaWRzUHpk?=
- =?utf-8?B?Mm5DbWczQWc0UlJKazJ5U0pVZFJuWStuOEJMOGJxb3dNN3NrYndEZTRLaUQ5?=
- =?utf-8?B?encwN1NRKzVHekhyTkZDNTVBdlNMWVZmUHppaEMrM1pPNnFDSXhhTmdxRE1y?=
- =?utf-8?B?dU51d2h2aVhkTUhtclZyYTVvb2xzeUtmY09XU1h0LzZ1L3ZkUUdISkZYc29w?=
- =?utf-8?B?WHFkQURPOTlETThhQ2p6RkhreWlTT3YvNTBJZjJxWTNjc1IydDBhbVg4T2p6?=
- =?utf-8?B?c05MSi9udGtVdXovVG9lSVVtTWl5dWRvelpoV3JXb2p5bUFKU2JQWmY2RDNK?=
- =?utf-8?B?UFJReWsraENJdFN6MDcyaXlhdlZOVWdsdkl6Z3prUzlldDJxcFlrT3BPcDQx?=
- =?utf-8?Q?uTcSdegwCBXMBx97uG+godDTKy8eZot60TPCtEqNITrW?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1196d3d7-743d-4fc9-6abc-08dab008acfd
-X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3587.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Oct 2022 06:27:33.7518
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Ns+pmfSUY/PoUCkmayxYDwKwfqeH8x14BMHXEHTVrX/1f8G3hH0V3Iz7mXUTV2NH
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR12MB4505
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.2
+Subject: Re: Patch "media: v4l2-ctrls: allocate space for arrays" has been
+ added to the 6.0-stable tree
+Content-Language: en-US
+To:     Sasha Levin <sashal@kernel.org>, stable-commits@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>
+References: <20221017022412.2384094-1-sashal@kernel.org>
+From:   Hans Verkuil <hverkuil-cisco@xs4all.nl>
+In-Reply-To: <20221017022412.2384094-1-sashal@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am 17.10.22 um 07:29 schrieb Luben Tuikov:
-> Hi Christian,
->
-> On 2022-10-14 04:15, Christian König wrote:
->> Make sure that we always have a CPU round trip to let the submission
->> code correctly decide if a TLB flush is necessary or not.
->>
->> Signed-off-by: Christian König <christian.koenig@amd.com>
->> CC: stable@vger.kernel.org # 5.19+
->> ---
->>   drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c | 9 ++++++++-
->>   1 file changed, 8 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c
->> index 2b0669c464f6..69e105fa41f6 100644
->> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c
->> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c
->> @@ -116,8 +116,15 @@ static int amdgpu_vm_sdma_commit(struct amdgpu_vm_update_params *p,
->>   				   DMA_RESV_USAGE_BOOKKEEP);
->>   	}
->>   
->> -	if (fence && !p->immediate)
->> +	if (fence && !p->immediate) {
->> +		/*
->> +		 * Most hw generations now have a separate queue for page table
->> +		 * updates, but when the queue is shared with userspace we need
->> +		 * the extra CPU round trip to correctly flush the TLB.
->> +		 */
->> +		set_bit(DRM_SCHED_FENCE_DONT_PIPELINE, &f->flags);
->>   		swap(*fence, f);
->> +	}
-> Do you ever turn that bit off?
+Hi Sasha,
 
-No, I just rely on the fact that the flags are zero initialized.
+Please don't add this patch: it is not a fix, it is an internal change preparing for
+a new feature (see commit 0975274557d1). So no need to backport this patch.
 
 Regards,
-Christian.
 
->
-> Regards
-> Luben
->
->>   	dma_fence_put(f);
->>   	return 0;
->>   
+	Hans
 
+On 10/17/22 04:24, Sasha Levin wrote:
+> This is a note to let you know that I've just added the patch titled
+> 
+>     media: v4l2-ctrls: allocate space for arrays
+> 
+> to the 6.0-stable tree which can be found at:
+>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> 
+> The filename of the patch is:
+>      media-v4l2-ctrls-allocate-space-for-arrays.patch
+> and it can be found in the queue-6.0 subdirectory.
+> 
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
+> 
+> 
+> 
+> commit 5cc036de01c402cf40cccf04dcb95af5e18e8313
+> Author: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+> Date:   Mon Jul 11 12:21:07 2022 +0200
+> 
+>     media: v4l2-ctrls: allocate space for arrays
+>     
+>     [ Upstream commit 5f2c5c69a61dc5411d436c1a422f8a1ee195a924 ]
+>     
+>     Just like dynamic arrays, also allocate space for regular arrays.
+>     
+>     This is in preparation for allowing to change the array size from
+>     a driver.
+>     
+>     Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+>     Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+>     Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+>     Stable-dep-of: 211f8304fa21 ("media: exynos4-is: fimc-is: Add of_node_put() when breaking out of loop")
+>     Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> diff --git a/drivers/media/v4l2-core/v4l2-ctrls-api.c b/drivers/media/v4l2-core/v4l2-ctrls-api.c
+> index 50d012ba3c02..1b90bd7c4010 100644
+> --- a/drivers/media/v4l2-core/v4l2-ctrls-api.c
+> +++ b/drivers/media/v4l2-core/v4l2-ctrls-api.c
+> @@ -105,8 +105,8 @@ static int user_to_new(struct v4l2_ext_control *c, struct v4l2_ctrl *ctrl)
+>  
+>  	ctrl->is_new = 0;
+>  	if (ctrl->is_dyn_array &&
+> -	    c->size > ctrl->p_dyn_alloc_elems * ctrl->elem_size) {
+> -		void *old = ctrl->p_dyn;
+> +	    c->size > ctrl->p_array_alloc_elems * ctrl->elem_size) {
+> +		void *old = ctrl->p_array;
+>  		void *tmp = kvzalloc(2 * c->size, GFP_KERNEL);
+>  
+>  		if (!tmp)
+> @@ -115,8 +115,8 @@ static int user_to_new(struct v4l2_ext_control *c, struct v4l2_ctrl *ctrl)
+>  		memcpy(tmp + c->size, ctrl->p_cur.p, ctrl->elems * ctrl->elem_size);
+>  		ctrl->p_new.p = tmp;
+>  		ctrl->p_cur.p = tmp + c->size;
+> -		ctrl->p_dyn = tmp;
+> -		ctrl->p_dyn_alloc_elems = c->size / ctrl->elem_size;
+> +		ctrl->p_array = tmp;
+> +		ctrl->p_array_alloc_elems = c->size / ctrl->elem_size;
+>  		kvfree(old);
+>  	}
+>  
+> diff --git a/drivers/media/v4l2-core/v4l2-ctrls-core.c b/drivers/media/v4l2-core/v4l2-ctrls-core.c
+> index 1f85828d6694..9871c77f559b 100644
+> --- a/drivers/media/v4l2-core/v4l2-ctrls-core.c
+> +++ b/drivers/media/v4l2-core/v4l2-ctrls-core.c
+> @@ -1135,14 +1135,14 @@ int req_to_new(struct v4l2_ctrl_ref *ref)
+>  
+>  	/*
+>  	 * Check if the number of elements in the request is more than the
+> -	 * elements in ctrl->p_dyn. If so, attempt to realloc ctrl->p_dyn.
+> -	 * Note that p_dyn is allocated with twice the number of elements
+> +	 * elements in ctrl->p_array. If so, attempt to realloc ctrl->p_array.
+> +	 * Note that p_array is allocated with twice the number of elements
+>  	 * in the dynamic array since it has to store both the current and
+>  	 * new value of such a control.
+>  	 */
+> -	if (ref->p_req_elems > ctrl->p_dyn_alloc_elems) {
+> +	if (ref->p_req_elems > ctrl->p_array_alloc_elems) {
+>  		unsigned int sz = ref->p_req_elems * ctrl->elem_size;
+> -		void *old = ctrl->p_dyn;
+> +		void *old = ctrl->p_array;
+>  		void *tmp = kvzalloc(2 * sz, GFP_KERNEL);
+>  
+>  		if (!tmp)
+> @@ -1151,8 +1151,8 @@ int req_to_new(struct v4l2_ctrl_ref *ref)
+>  		memcpy(tmp + sz, ctrl->p_cur.p, ctrl->elems * ctrl->elem_size);
+>  		ctrl->p_new.p = tmp;
+>  		ctrl->p_cur.p = tmp + sz;
+> -		ctrl->p_dyn = tmp;
+> -		ctrl->p_dyn_alloc_elems = ref->p_req_elems;
+> +		ctrl->p_array = tmp;
+> +		ctrl->p_array_alloc_elems = ref->p_req_elems;
+>  		kvfree(old);
+>  	}
+>  
+> @@ -1252,7 +1252,7 @@ void v4l2_ctrl_handler_free(struct v4l2_ctrl_handler *hdl)
+>  		list_del(&ctrl->node);
+>  		list_for_each_entry_safe(sev, next_sev, &ctrl->ev_subs, node)
+>  			list_del(&sev->node);
+> -		kvfree(ctrl->p_dyn);
+> +		kvfree(ctrl->p_array);
+>  		kvfree(ctrl);
+>  	}
+>  	kvfree(hdl->buckets);
+> @@ -1584,11 +1584,10 @@ static struct v4l2_ctrl *v4l2_ctrl_new(struct v4l2_ctrl_handler *hdl,
+>  			V4L2_CTRL_FLAG_EXECUTE_ON_WRITE;
+>  	else if (type == V4L2_CTRL_TYPE_CTRL_CLASS)
+>  		flags |= V4L2_CTRL_FLAG_READ_ONLY;
+> -	else if (!(flags & V4L2_CTRL_FLAG_DYNAMIC_ARRAY) &&
+> +	else if (!is_array &&
+>  		 (type == V4L2_CTRL_TYPE_INTEGER64 ||
+>  		  type == V4L2_CTRL_TYPE_STRING ||
+> -		  type >= V4L2_CTRL_COMPOUND_TYPES ||
+> -		  is_array))
+> +		  type >= V4L2_CTRL_COMPOUND_TYPES))
+>  		sz_extra += 2 * tot_ctrl_size;
+>  
+>  	if (type >= V4L2_CTRL_COMPOUND_TYPES && p_def.p_const)
+> @@ -1632,14 +1631,14 @@ static struct v4l2_ctrl *v4l2_ctrl_new(struct v4l2_ctrl_handler *hdl,
+>  	ctrl->cur.val = ctrl->val = def;
+>  	data = &ctrl[1];
+>  
+> -	if (ctrl->is_dyn_array) {
+> -		ctrl->p_dyn_alloc_elems = elems;
+> -		ctrl->p_dyn = kvzalloc(2 * elems * elem_size, GFP_KERNEL);
+> -		if (!ctrl->p_dyn) {
+> +	if (ctrl->is_array) {
+> +		ctrl->p_array_alloc_elems = elems;
+> +		ctrl->p_array = kvzalloc(2 * elems * elem_size, GFP_KERNEL);
+> +		if (!ctrl->p_array) {
+>  			kvfree(ctrl);
+>  			return NULL;
+>  		}
+> -		data = ctrl->p_dyn;
+> +		data = ctrl->p_array;
+>  	}
+>  
+>  	if (!ctrl->is_int) {
+> @@ -1651,7 +1650,7 @@ static struct v4l2_ctrl *v4l2_ctrl_new(struct v4l2_ctrl_handler *hdl,
+>  	}
+>  
+>  	if (type >= V4L2_CTRL_COMPOUND_TYPES && p_def.p_const) {
+> -		if (ctrl->is_dyn_array)
+> +		if (ctrl->is_array)
+>  			ctrl->p_def.p = &ctrl[1];
+>  		else
+>  			ctrl->p_def.p = ctrl->p_cur.p + tot_ctrl_size;
+> @@ -1664,7 +1663,7 @@ static struct v4l2_ctrl *v4l2_ctrl_new(struct v4l2_ctrl_handler *hdl,
+>  	}
+>  
+>  	if (handler_new_ref(hdl, ctrl, NULL, false, false)) {
+> -		kvfree(ctrl->p_dyn);
+> +		kvfree(ctrl->p_array);
+>  		kvfree(ctrl);
+>  		return NULL;
+>  	}
+> diff --git a/include/media/v4l2-ctrls.h b/include/media/v4l2-ctrls.h
+> index 00828a4f9404..5ddd506ae7b9 100644
+> --- a/include/media/v4l2-ctrls.h
+> +++ b/include/media/v4l2-ctrls.h
+> @@ -203,7 +203,7 @@ typedef void (*v4l2_ctrl_notify_fnc)(struct v4l2_ctrl *ctrl, void *priv);
+>   * @elem_size:	The size in bytes of the control.
+>   * @new_elems:	The number of elements in p_new. This is the same as @elems,
+>   *		except for dynamic arrays. In that case it is in the range of
+> - *		1 to @p_dyn_alloc_elems.
+> + *		1 to @p_array_alloc_elems.
+>   * @dims:	The size of each dimension.
+>   * @nr_of_dims:The number of dimensions in @dims.
+>   * @menu_skip_mask: The control's skip mask for menu controls. This makes it
+> @@ -227,12 +227,11 @@ typedef void (*v4l2_ctrl_notify_fnc)(struct v4l2_ctrl *ctrl, void *priv);
+>   *		not freed when the control is deleted. Should this be needed
+>   *		then a new internal bitfield can be added to tell the framework
+>   *		to free this pointer.
+> - * @p_dyn:	Pointer to the dynamically allocated array. Only valid if
+> - *		@is_dyn_array is true.
+> - * @p_dyn_alloc_elems: The number of elements in the dynamically allocated
+> - *		array for both the cur and new values. So @p_dyn is actually
+> - *		sized for 2 * @p_dyn_alloc_elems * @elem_size. Only valid if
+> - *		@is_dyn_array is true.
+> + * @p_array:	Pointer to the allocated array. Only valid if @is_array is true.
+> + * @p_array_alloc_elems: The number of elements in the allocated
+> + *		array for both the cur and new values. So @p_array is actually
+> + *		sized for 2 * @p_array_alloc_elems * @elem_size. Only valid if
+> + *		@is_array is true.
+>   * @cur:	Structure to store the current value.
+>   * @cur.val:	The control's current value, if the @type is represented via
+>   *		a u32 integer (see &enum v4l2_ctrl_type).
+> @@ -291,8 +290,8 @@ struct v4l2_ctrl {
+>  	};
+>  	unsigned long flags;
+>  	void *priv;
+> -	void *p_dyn;
+> -	u32 p_dyn_alloc_elems;
+> +	void *p_array;
+> +	u32 p_array_alloc_elems;
+>  	s32 val;
+>  	struct {
+>  		s32 val;
