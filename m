@@ -2,239 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3821601715
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 21:11:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E23B60173D
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 21:20:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230137AbiJQTLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 15:11:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57080 "EHLO
+        id S230347AbiJQTUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 15:20:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230027AbiJQTLe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 15:11:34 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 873E76687B;
-        Mon, 17 Oct 2022 12:11:27 -0700 (PDT)
-Date:   Mon, 17 Oct 2022 19:11:23 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1666033885;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=zW1T/83Pu0OQGcVph7cu9a5DhVATEM5PoEDuRUkpZbA=;
-        b=MTZ4NUPg4tl2hp3Uz2hRO7kYt1luwb2VNQ8c0JB9hKu70guBPZuOWer98yVEnL/kBftcGE
-        xlfH3bTXKQ3RTOjwIW0TD9UXFdLtN+z4UHRl8VMqRHF3XQYnDNsveRW4CRAFlCEePHlsOy
-        kqXcrAtcrBOs5ZACb2Yyc7oQ3yVFSex1iNarJi3RkOckYwFzH9BO0gECBVfciZOrrxTjPH
-        fGub2yCT58npw0yNAgvXhhb6a0SrbeqTGJiRLJXYprftpAO/IJItDTDLAi6cnMj9zFH0CM
-        G5ckN2Na/80ZNgW9k8yCyALNv42u8rqVzhf132xTMliZaQUcxqPLo1ULLcNOUQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1666033885;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=zW1T/83Pu0OQGcVph7cu9a5DhVATEM5PoEDuRUkpZbA=;
-        b=XrQqLmJ3wWF0YSv0WOq3aV8WXMsIOGXb6st/v4j9ltNX0krcKEN+xD/rjA3bmWDf/WdMFa
-        OvGfHvbHGqX1ueDg==
-From:   "tip-bot2 for Zhang Rui" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] hwmon/coretemp: Handle large core ID value
-Cc:     Zhang Rui <rui.zhang@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Len Brown <len.brown@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20221014090147.1836-3-rui.zhang@intel.com>
-References: <20221014090147.1836-3-rui.zhang@intel.com>
+        with ESMTP id S230028AbiJQTUT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 15:20:19 -0400
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5A4613E82;
+        Mon, 17 Oct 2022 12:20:14 -0700 (PDT)
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29HITP1C022722;
+        Mon, 17 Oct 2022 19:20:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding;
+ s=corp-2022-7-12; bh=g+CQYC8sMTWhCuqgEiG08pesQ4UF94AC6C5ZFEepKos=;
+ b=QsRvvNDJQyo0NYiDI/w3/PQew7uqZrLlduQc4XYTRYHEvBGrnYCVV094gTlcRwXN85rp
+ aGQ8AGZHrBWOzRcrVvLJnTm2pmBabl6e82UQrNRTe3IdrQlhjO1It7VqtRDUbZ1f+9g2
+ wmwEL5LRLubeO7ZmUTiuhXNF+GdOnhXlxKv6nADMkrRzDT8THx2W6tyjKE2TpjBefRtY
+ DUtP0rgZX7O0OgGuAHJp3DrhZcvGbDbsUM7YX3YyJ7B2Hf+KuxDM5CG84MGNgk47PWw+
+ U/O1ZrG/Bm7+4SlYqTrUihBy5tJA4JZQHE5qKTIVaiyPpWHhSZqA+BlFP0OzmR/uKCP/ xw== 
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3k7mtyvqtu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 17 Oct 2022 19:20:13 +0000
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 29HHgPbI036422;
+        Mon, 17 Oct 2022 19:20:12 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3k8htf4acr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 17 Oct 2022 19:20:12 +0000
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29HJKCYn007860;
+        Mon, 17 Oct 2022 19:20:12 GMT
+Received: from ca-dev112.us.oracle.com (ca-dev112.us.oracle.com [10.147.25.63])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 3k8htf4abs-1;
+        Mon, 17 Oct 2022 19:20:12 +0000
+From:   Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+Cc:     linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        jason@zx2c4.com, saeed.mirzamohammadi@oracle.com
+Subject: [PATCH stable 0/5] Fix missing patches in stable
+Date:   Mon, 17 Oct 2022 12:20:01 -0700
+Message-Id: <20221017192006.36398-1-saeed.mirzamohammadi@oracle.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Message-ID: <166603388384.401.11492904277823836791.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-17_13,2022-10-17_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 phishscore=0
+ suspectscore=0 spamscore=0 adultscore=0 mlxscore=0 malwarescore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210170111
+X-Proofpoint-ORIG-GUID: l07ZT0l-D0fwMcpsemtbLwdOahIw3I6R
+X-Proofpoint-GUID: l07ZT0l-D0fwMcpsemtbLwdOahIw3I6R
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+The following patches has been applied to 6.0 but only patch#2 below
+has been applied to stable. This caused regression with nfs tests in
+all stable releases.
 
-Commit-ID:     7108b80a542b9d65e44b36d64a700a83658c0b73
-Gitweb:        https://git.kernel.org/tip/7108b80a542b9d65e44b36d64a700a83658c0b73
-Author:        Zhang Rui <rui.zhang@intel.com>
-AuthorDate:    Fri, 14 Oct 2022 17:01:45 +08:00
-Committer:     Dave Hansen <dave.hansen@linux.intel.com>
-CommitterDate: Mon, 17 Oct 2022 11:58:52 -07:00
+This patchset backports patches 1 and 3-6 to stable.
 
-hwmon/coretemp: Handle large core ID value
+1. 868941b14441 fs: remove no_llseek
+2. 97ef77c52b78 fs: check FMODE_LSEEK to control internal pipe splicing
+3. 54ef7a47f67d vfio: do not set FMODE_LSEEK flag
+4. c9eb2d427c1c dma-buf: remove useless FMODE_LSEEK flag
+5. 4e3299eaddff fs: do not compare against ->llseek
+6. e7478158e137 fs: clear or set FMODE_LSEEK based on llseek function
 
-The coretemp driver supports up to a hard-coded limit of 128 cores.
+For 5.10.y and 5.4.y only, a revert of patch#2 is already included.
+Please apply patch#2, for 5.4.y and 5.10.y as well.
 
-Today, the driver can not support a core with an ID above that limit.
-Yet, the encoding of core ID's is arbitrary (BIOS APIC-ID) and so they
-may be sparse and they may be large.
+Thanks,
+Saeed
 
-Update the driver to map arbitrary core ID numbers into appropriate
-array indexes so that 128 cores can be supported, no matter the encoding
-of core ID's.
+Jason A. Donenfeld (5):
+  fs: clear or set FMODE_LSEEK based on llseek function
+  fs: do not compare against ->llseek
+  dma-buf: remove useless FMODE_LSEEK flag
+  vfio: do not set FMODE_LSEEK flag
+  fs: remove no_llseek
 
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Len Brown <len.brown@intel.com>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20221014090147.1836-3-rui.zhang@intel.com
----
- drivers/hwmon/coretemp.c | 56 ++++++++++++++++++++++++++++-----------
- 1 file changed, 41 insertions(+), 15 deletions(-)
+ Documentation/filesystems/porting.rst |  8 ++++++++
+ drivers/dma-buf/dma-buf.c             |  1 -
+ drivers/gpu/drm/drm_file.c            |  3 +--
+ drivers/vfio/vfio.c                   |  2 +-
+ fs/coredump.c                         |  4 ++--
+ fs/file_table.c                       |  2 ++
+ fs/open.c                             |  4 ++++
+ fs/overlayfs/copy_up.c                |  3 +--
+ fs/read_write.c                       | 17 +++--------------
+ include/linux/fs.h                    |  2 +-
+ kernel/bpf/bpf_iter.c                 |  3 +--
+ 11 files changed, 24 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
-index ccf0af5..8bf32c6 100644
---- a/drivers/hwmon/coretemp.c
-+++ b/drivers/hwmon/coretemp.c
-@@ -46,9 +46,6 @@ MODULE_PARM_DESC(tjmax, "TjMax value in degrees Celsius");
- #define TOTAL_ATTRS		(MAX_CORE_ATTRS + 1)
- #define MAX_CORE_DATA		(NUM_REAL_CORES + BASE_SYSFS_ATTR_NO)
- 
--#define TO_CORE_ID(cpu)		(cpu_data(cpu).cpu_core_id)
--#define TO_ATTR_NO(cpu)		(TO_CORE_ID(cpu) + BASE_SYSFS_ATTR_NO)
--
- #ifdef CONFIG_SMP
- #define for_each_sibling(i, cpu) \
- 	for_each_cpu(i, topology_sibling_cpumask(cpu))
-@@ -91,6 +88,8 @@ struct temp_data {
- struct platform_data {
- 	struct device		*hwmon_dev;
- 	u16			pkg_id;
-+	u16			cpu_map[NUM_REAL_CORES];
-+	struct ida		ida;
- 	struct cpumask		cpumask;
- 	struct temp_data	*core_data[MAX_CORE_DATA];
- 	struct device_attribute name_attr;
-@@ -441,7 +440,7 @@ static struct temp_data *init_temp_data(unsigned int cpu, int pkg_flag)
- 							MSR_IA32_THERM_STATUS;
- 	tdata->is_pkg_data = pkg_flag;
- 	tdata->cpu = cpu;
--	tdata->cpu_core_id = TO_CORE_ID(cpu);
-+	tdata->cpu_core_id = topology_core_id(cpu);
- 	tdata->attr_size = MAX_CORE_ATTRS;
- 	mutex_init(&tdata->update_lock);
- 	return tdata;
-@@ -454,7 +453,7 @@ static int create_core_data(struct platform_device *pdev, unsigned int cpu,
- 	struct platform_data *pdata = platform_get_drvdata(pdev);
- 	struct cpuinfo_x86 *c = &cpu_data(cpu);
- 	u32 eax, edx;
--	int err, attr_no;
-+	int err, index, attr_no;
- 
- 	/*
- 	 * Find attr number for sysfs:
-@@ -462,14 +461,26 @@ static int create_core_data(struct platform_device *pdev, unsigned int cpu,
- 	 * The attr number is always core id + 2
- 	 * The Pkgtemp will always show up as temp1_*, if available
- 	 */
--	attr_no = pkg_flag ? PKG_SYSFS_ATTR_NO : TO_ATTR_NO(cpu);
-+	if (pkg_flag) {
-+		attr_no = PKG_SYSFS_ATTR_NO;
-+	} else {
-+		index = ida_alloc(&pdata->ida, GFP_KERNEL);
-+		if (index < 0)
-+			return index;
-+		pdata->cpu_map[index] = topology_core_id(cpu);
-+		attr_no = index + BASE_SYSFS_ATTR_NO;
-+	}
- 
--	if (attr_no > MAX_CORE_DATA - 1)
--		return -ERANGE;
-+	if (attr_no > MAX_CORE_DATA - 1) {
-+		err = -ERANGE;
-+		goto ida_free;
-+	}
- 
- 	tdata = init_temp_data(cpu, pkg_flag);
--	if (!tdata)
--		return -ENOMEM;
-+	if (!tdata) {
-+		err = -ENOMEM;
-+		goto ida_free;
-+	}
- 
- 	/* Test if we can access the status register */
- 	err = rdmsr_safe_on_cpu(cpu, tdata->status_reg, &eax, &edx);
-@@ -505,6 +516,9 @@ static int create_core_data(struct platform_device *pdev, unsigned int cpu,
- exit_free:
- 	pdata->core_data[attr_no] = NULL;
- 	kfree(tdata);
-+ida_free:
-+	if (!pkg_flag)
-+		ida_free(&pdata->ida, index);
- 	return err;
- }
- 
-@@ -524,6 +538,9 @@ static void coretemp_remove_core(struct platform_data *pdata, int indx)
- 
- 	kfree(pdata->core_data[indx]);
- 	pdata->core_data[indx] = NULL;
-+
-+	if (indx >= BASE_SYSFS_ATTR_NO)
-+		ida_free(&pdata->ida, indx - BASE_SYSFS_ATTR_NO);
- }
- 
- static int coretemp_probe(struct platform_device *pdev)
-@@ -537,6 +554,7 @@ static int coretemp_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	pdata->pkg_id = pdev->id;
-+	ida_init(&pdata->ida);
- 	platform_set_drvdata(pdev, pdata);
- 
- 	pdata->hwmon_dev = devm_hwmon_device_register_with_groups(dev, DRVNAME,
-@@ -553,6 +571,7 @@ static int coretemp_remove(struct platform_device *pdev)
- 		if (pdata->core_data[i])
- 			coretemp_remove_core(pdata, i);
- 
-+	ida_destroy(&pdata->ida);
- 	return 0;
- }
- 
-@@ -647,7 +666,7 @@ static int coretemp_cpu_offline(unsigned int cpu)
- 	struct platform_device *pdev = coretemp_get_pdev(cpu);
- 	struct platform_data *pd;
- 	struct temp_data *tdata;
--	int indx, target;
-+	int i, indx = -1, target;
- 
- 	/*
- 	 * Don't execute this on suspend as the device remove locks
-@@ -660,12 +679,19 @@ static int coretemp_cpu_offline(unsigned int cpu)
- 	if (!pdev)
- 		return 0;
- 
--	/* The core id is too big, just return */
--	indx = TO_ATTR_NO(cpu);
--	if (indx > MAX_CORE_DATA - 1)
-+	pd = platform_get_drvdata(pdev);
-+
-+	for (i = 0; i < NUM_REAL_CORES; i++) {
-+		if (pd->cpu_map[i] == topology_core_id(cpu)) {
-+			indx = i + BASE_SYSFS_ATTR_NO;
-+			break;
-+		}
-+	}
-+
-+	/* Too many cores and this core is not populated, just return */
-+	if (indx < 0)
- 		return 0;
- 
--	pd = platform_get_drvdata(pdev);
- 	tdata = pd->core_data[indx];
- 
- 	cpumask_clear_cpu(cpu, &pd->cpumask);
+-- 
+2.31.1
+
