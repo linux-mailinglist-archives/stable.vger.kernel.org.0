@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCDEE6008FF
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 10:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3E0600AE2
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 11:34:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230190AbiJQIpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 04:45:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39046 "EHLO
+        id S230182AbiJQJem (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 05:34:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230211AbiJQIox (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 04:44:53 -0400
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8C282D1E1;
-        Mon, 17 Oct 2022 01:44:47 -0700 (PDT)
-Received: from dggpemm500021.china.huawei.com (unknown [172.30.72.54])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4MrVmh3CQRz1P7tQ;
-        Mon, 17 Oct 2022 16:40:04 +0800 (CST)
-Received: from dggpemm100009.china.huawei.com (7.185.36.113) by
- dggpemm500021.china.huawei.com (7.185.36.109) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Mon, 17 Oct 2022 16:44:45 +0800
-Received: from huawei.com (10.175.113.32) by dggpemm100009.china.huawei.com
- (7.185.36.113) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Mon, 17 Oct
- 2022 16:44:44 +0800
-From:   Liu Shixin <liushixin2@huawei.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        "Mike Kravetz" <mike.kravetz@oracle.com>,
-        Liu Zixian <liuzixian4@huawei.com>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Liu Shixin <liushixin2@huawei.com>
-Subject: [PATCH stable 5.10] mm: hugetlb: fix UAF in hugetlb_handle_userfault
-Date:   Mon, 17 Oct 2022 17:33:29 +0800
-Message-ID: <20221017093329.1538465-1-liushixin2@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S230427AbiJQJel (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 05:34:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E65B35FEC
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 02:34:30 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23ED8B81106
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 09:34:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 786E7C433C1;
+        Mon, 17 Oct 2022 09:34:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1665999240;
+        bh=oqWndmiBhH1Z3vpP/pH+CqfBCNzjNBwWczrGJ8Dry5g=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wGVjpNMXjigf1w6TtDlgY3AmF3PtkCD6aFPi7k+QkxsZstSz1GyJJk+XNu3q3/d9h
+         4fVJOXUDn80VBcbwecYrQ/zyyXTDebekLiUGprzK3FJJQG87km6sLW8KsFUelh56+w
+         ZQiWRYwbsEN53csOx2YYYnp3jk3/g8o2Pn8iBeKA=
+Date:   Mon, 17 Oct 2022 11:34:47 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Qu Wenruo <wqu@suse.com>
+Cc:     dsterba@suse.com, nborisov@suse.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] btrfs: enhance unsupported compat RO
+ flags handling" failed to apply to 4.9-stable tree
+Message-ID: <Y00ht3ZPNYzKlLss@kroah.com>
+References: <1665923107172110@kroah.com>
+ <20403694-0d4f-38b3-643b-c09e745f4bd8@suse.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.113.32]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemm100009.china.huawei.com (7.185.36.113)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20403694-0d4f-38b3-643b-c09e745f4bd8@suse.com>
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,122 +50,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 958f32ce832ba781ac20e11bb2d12a9352ea28fc upstream.
+On Mon, Oct 17, 2022 at 06:59:00AM +0800, Qu Wenruo wrote:
+> 
+> 
+> On 2022/10/16 20:25, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 4.9-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> 
+> Thanks for the mail, I'll backport the patch manually.
+> 
+> Just want to praise the new dependency hints.
+> 
+> > 
+> > Possible dependencies:
+> > 
+> > 81d5d61454c3 ("btrfs: enhance unsupported compat RO flags handling")
+> > dfe8aec4520b ("btrfs: add a btrfs_block_group_root() helper")
+> > b6e9f16c5fda ("btrfs: replace open coded while loop with proper construct")
+> > 42437a6386ff ("btrfs: introduce mount option rescue=ignorebadroots")
+> > 68319c18cb21 ("btrfs: show rescue=usebackuproot in /proc/mounts")
+> > ab0b4a3ebf14 ("btrfs: add a helper to print out rescue= options")
+> > ceafe3cc3992 ("btrfs: sysfs: export supported rescue= mount options")
+> > 334c16d82cfe ("btrfs: push the NODATASUM check into btrfs_lookup_bio_sums")
+> > d70bf7484f72 ("btrfs: unify the ro checking for mount options")
+> > 7573df5547c0 ("btrfs: sysfs: export supported send stream version")
+> > 3ef3959b29c4 ("btrfs: don't show full path of bind mounts in subvol=")
+> > 74ef00185eb8 ("btrfs: introduce "rescue=" mount option")
+> > e3ba67a108ff ("btrfs: factor out reading of bg from find_frist_block_group")
+> > 89d7da9bc592 ("btrfs: get mapping tree directly from fsinfo in find_first_block_group")
+> > c730ae0c6bb3 ("btrfs: convert comments to fallthrough annotations")
+> > aeb935a45581 ("btrfs: don't set SHAREABLE flag for data reloc tree")
+> > 92a7cc425223 ("btrfs: rename BTRFS_ROOT_REF_COWS to BTRFS_ROOT_SHAREABLE")
+> > 3be4d8efe3cf ("btrfs: block-group: rename write_one_cache_group()")
+> > 97f4728af888 ("btrfs: block-group: refactor how we insert a block group item")
+> > 7357623a7f4b ("btrfs: block-group: refactor how we delete one block group item")
+> 
+> It looks so awesome!!
+> 
+> I'm wondering how this is implemented? It would definitely help backporting
+> not only to stable, but also some vendor backports branches.
 
-The vma_lock and hugetlb_fault_mutex are dropped before handling
-userfault and reacquire them again after handle_userfault(), but
-reacquire the vma_lock could lead to UAF[1,2] due to the following
-race,
+Sasha's scripts generate these and put them online and you can do:
+	curl --fail --silent https://git.kernel.org/pub/scm/linux/kernel/git/sashal/deps.git/plain/v$STABLE_VERSION/$git_id
 
-hugetlb_fault
-  hugetlb_no_page
-    /*unlock vma_lock */
-    hugetlb_handle_userfault
-      handle_userfault
-        /* unlock mm->mmap_lock*/
-                                           vm_mmap_pgoff
-                                             do_mmap
-                                               mmap_region
-                                                 munmap_vma_range
-                                                   /* clean old vma */
-        /* lock vma_lock again  <--- UAF */
-    /* unlock vma_lock */
+to query the dependancy tree.
 
-Since the vma_lock will unlock immediately after hugetlb_handle_userfault(),
-let's drop the unneeded lock and unlock in hugetlb_handle_userfault() to fix
-the issue.
+thanks,
 
-[1] https://lore.kernel.org/linux-mm/000000000000d5e00a05e834962e@google.com/
-[2] https://lore.kernel.org/linux-mm/20220921014457.1668-1-liuzixian4@huawei.com/
-Reported-by: syzbot+193f9cee8638750b23cf@syzkaller.appspotmail.com
-Reported-by: Liu Zixian <liuzixian4@huawei.com>
-Fixes: 1a1aad8a9b7b ("userfaultfd: hugetlbfs: add userfaultfd hugetlb hook")
-CC: stable@vger.kernel.org # 4.14+
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
----
- mm/hugetlb.c | 29 +++++++++++++++--------------
- 1 file changed, 15 insertions(+), 14 deletions(-)
-
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index c42c76447e10..c57c165bfbbc 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4337,6 +4337,7 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
- 	spinlock_t *ptl;
- 	unsigned long haddr = address & huge_page_mask(h);
- 	bool new_page = false;
-+	u32 hash = hugetlb_fault_mutex_hash(mapping, idx);
- 
- 	/*
- 	 * Currently, we are forced to kill the process in the event the
-@@ -4346,7 +4347,7 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
- 	if (is_vma_resv_set(vma, HPAGE_RESV_UNMAPPED)) {
- 		pr_warn_ratelimited("PID %d killed due to inadequate hugepage pool\n",
- 			   current->pid);
--		return ret;
-+		goto out;
- 	}
- 
- 	/*
-@@ -4365,7 +4366,6 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
- 		 * Check for page in userfault range
- 		 */
- 		if (userfaultfd_missing(vma)) {
--			u32 hash;
- 			struct vm_fault vmf = {
- 				.vma = vma,
- 				.address = haddr,
-@@ -4380,17 +4380,14 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
- 			};
- 
- 			/*
--			 * hugetlb_fault_mutex and i_mmap_rwsem must be
--			 * dropped before handling userfault.  Reacquire
--			 * after handling fault to make calling code simpler.
-+			 * vma_lock and hugetlb_fault_mutex must be dropped
-+			 * before handling userfault. Also mmap_lock will
-+			 * be dropped during handling userfault, any vma
-+			 * operation should be careful from here.
- 			 */
--			hash = hugetlb_fault_mutex_hash(mapping, idx);
- 			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
- 			i_mmap_unlock_read(mapping);
--			ret = handle_userfault(&vmf, VM_UFFD_MISSING);
--			i_mmap_lock_read(mapping);
--			mutex_lock(&hugetlb_fault_mutex_table[hash]);
--			goto out;
-+			return handle_userfault(&vmf, VM_UFFD_MISSING);
- 		}
- 
- 		page = alloc_huge_page(vma, haddr, 0);
-@@ -4497,6 +4494,8 @@ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
- 
- 	unlock_page(page);
- out:
-+	mutex_unlock(&hugetlb_fault_mutex_table[hash]);
-+	i_mmap_unlock_read(mapping);
- 	return ret;
- 
- backout:
-@@ -4592,10 +4591,12 @@ vm_fault_t hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
- 	mutex_lock(&hugetlb_fault_mutex_table[hash]);
- 
- 	entry = huge_ptep_get(ptep);
--	if (huge_pte_none(entry)) {
--		ret = hugetlb_no_page(mm, vma, mapping, idx, address, ptep, flags);
--		goto out_mutex;
--	}
-+	if (huge_pte_none(entry))
-+		/*
-+		 * hugetlb_no_page will drop vma lock and hugetlb fault
-+		 * mutex internally, which make us return immediately.
-+		 */
-+		return hugetlb_no_page(mm, vma, mapping, idx, address, ptep, flags);
- 
- 	ret = 0;
- 
--- 
-2.25.1
-
+greg k-h
