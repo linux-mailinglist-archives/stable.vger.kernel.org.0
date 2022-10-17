@@ -2,63 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72259600C0E
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 12:10:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18B37600C12
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 12:10:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230087AbiJQKKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 06:10:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42316 "EHLO
+        id S230004AbiJQKKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 06:10:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230257AbiJQKKD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 06:10:03 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D005F2BB18
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 03:09:54 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id r17so23704845eja.7
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 03:09:54 -0700 (PDT)
+        with ESMTP id S230016AbiJQKKv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 06:10:51 -0400
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E9E29809
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 03:10:50 -0700 (PDT)
+Received: by mail-lf1-x132.google.com with SMTP id g7so11889036lfv.5
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 03:10:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=ionos.com; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=6DCblaajzz3mwQyFYu391W26ToVOeSQSUoFjijUTHs8=;
-        b=cdP6G3RjL4n4HZoBM6y19Ze4BwZNGN2JB+469S0Njn9VStt6GP8NlYSGS6XwVGtBCU
-         mApJkTsr+XsumQxWnzWxxThw25CoJ3xPnj0x7SrIDMCsqnOVFkOjy1JCxW22Xrna2peA
-         jG1Pec0q90Jw0xNpUc2C9pym+w8c6yQL0Ibj3ygMeiryaU9hDJElCPUHE3tUqu92BHjU
-         oeFfgMjDG3SZ67t/2avI6QmM3HHmm2lbL0DzrDzPeRTwBHI4yDI1iCXpIpigOnb9IWE9
-         rxfaeokwDvh6NNe1/YTS4kpO34KDYSfXA8enMgYh47+sUAoF8gPl0lk++7hWJn/j4vqf
-         g+Qw==
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=46OeGIhIX3eVLk2oUyioaBML+udqJSuV7Lpl7w/A6so=;
+        b=O/UBwTCHsfeEY/cGv4FpOYFnfXTokc51jFoLKOX/Yzb3Ld5MH8HWwCxka7N5Xe3tZL
+         fHMsmuTPV0lz5ff/JdUduZA9YeIYs1mJQPi9KD1yjXjkA88CkA9Pkqq29dxT9n9GPfuR
+         VkV4sQdgGtgqANtUx22Qbgdo1YHoy7Xc3FwHvSNIvMo889P+Fkr8CwnVnpkscY9+mIea
+         YxLDh+eWD/1Q5TrRuLmA0H6syoAoa9G6N2wUiaSyfLTAaDstfluW22lVfv1/h18iy/qG
+         n7Eb4nMeFhhBpeGmvEQpwtYouIbQj6l1mkQqWh2piHgGkFO4LmFO+UPzFk//KE9RSFa2
+         3Z0g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=6DCblaajzz3mwQyFYu391W26ToVOeSQSUoFjijUTHs8=;
-        b=O/dJPANxhQ65D8uICuzBmKvLLItwhzdi1t8jgoEAt1B1nq3S7oAoxyEqH7YyWCTgtA
-         wqXW9uSXtgi3PMEIz5P7+ELs5ofi7xSxgbj2a2SArILzLVkd0xofdpplnxZcvCs/i69K
-         Esan0Er6q/Ta0C9lPEQgdPxX1ugfpMY/osrnNUIv/UTq2w0Q4PfArcfq1TiuRYCzb+qy
-         GS95ENugAWVqRaitsMjEUJsJ1MqVgrQ++AF5cv8b76Ckk09qrPiL1ESY4sLby/rw4IWk
-         e8dT/cCYZnQr+BexEyFaoceiGdFQY/353SZ/+iVX8AGM8leWb8OqKdUmIx+sSKw6dvmu
-         U/dQ==
-X-Gm-Message-State: ACrzQf2z1Zq9+3Auw62vp0/ZDho0LhUkl3Mb0zwpH5b/9BkLhj3t1TZF
-        CEAWKZrqiQwGobopwkU6o2qwXg==
-X-Google-Smtp-Source: AMsMyM7gxAUO068ioP7tvUAylJaKTh59uHW+WkOLVXek9Z5dLzYRVg/Twfkt+NJ0cAfEoEteZ+bQVQ==
-X-Received: by 2002:a17:906:db07:b0:77b:82cf:54af with SMTP id xj7-20020a170906db0700b0077b82cf54afmr8231844ejb.666.1666001393209;
-        Mon, 17 Oct 2022 03:09:53 -0700 (PDT)
-Received: from lb02065.fritz.box ([2001:9e8:142e:f700:8ccf:9069:42be:668e])
-        by smtp.gmail.com with ESMTPSA id b21-20020aa7d495000000b004580862ffdbsm7040594edr.59.2022.10.17.03.09.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Oct 2022 03:09:52 -0700 (PDT)
-From:   Jack Wang <jinpu.wang@ionos.com>
-To:     linux-raid@vger.kernel.org
-Cc:     song@kernel.org,
+        bh=46OeGIhIX3eVLk2oUyioaBML+udqJSuV7Lpl7w/A6so=;
+        b=lLslCAKP7tXTAUNE3qXTOI84NwIetiBPxZLZfnljRNQeIrUPHk9T0d0I69HGDFLlKY
+         fAODeMFvXM0BwyRIW+1g7WcAnF8anD9lOKKHvnErPlJDjDKjuibZT4dhO4gMx4KfSiOG
+         zVPRdj6ehCsCFKzLL98QhHDsc7EuQC3RUwo0TJskh6FTbU1jcZzCVIoOGkeJg1IdXsnK
+         w8gtxpL6A4S581LgKS+78Y5Gov5hX89SZbQWA4gosmQm5hxQhTwI14lR6T9/4mAi991I
+         TxyLDJzhkyjQSo+LWS1Mn85lKqNAGkD1h/48VnINEK6MBa5B+W5TgDjjquD7hfYDsXha
+         +cTA==
+X-Gm-Message-State: ACrzQf2ExGq0jl2JrpKqre/fJoLCaRKIVRxkwOIox18E/hnPsHMm39+O
+        07hQYJF3Y7IyxTl95my175hevsf06AV6SvyWKe0HMw==
+X-Google-Smtp-Source: AMsMyM73F5ITn6LcEKYDVF++1GBPREdyq5163rrlT5r9f3pB4D3msh5qqVqQf+xRjyV/9IONm2aHr0TOOhR95Ux55PI=
+X-Received: by 2002:a05:6512:3404:b0:4a2:c77d:9212 with SMTP id
+ i4-20020a056512340400b004a2c77d9212mr3809647lfr.489.1666001449196; Mon, 17
+ Oct 2022 03:10:49 -0700 (PDT)
+MIME-Version: 1.0
+References: <20221014122032.47784-1-jinpu.wang@ionos.com> <202210171721.bveCQYrI-lkp@intel.com>
+In-Reply-To: <202210171721.bveCQYrI-lkp@intel.com>
+From:   Jinpu Wang <jinpu.wang@ionos.com>
+Date:   Mon, 17 Oct 2022 12:10:38 +0200
+Message-ID: <CAMGffEnqQbGE5npcv9ujkyyLh+LXU1FKhuiiBVK5Q9BiozyQRg@mail.gmail.com>
+Subject: Re: [PATCH] md/bitmap: Fix bitmap chunk size overflow issues.
+To:     kernel test robot <lkp@intel.com>
+Cc:     linux-raid@vger.kernel.org, kbuild-all@lists.01.org,
+        song@kernel.org,
         Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>,
         stable@vger.kernel.org
-Subject: [PATCHv2] md/bitmap: Fix bitmap chunk size overflow issues
-Date:   Mon, 17 Oct 2022 12:09:51 +0200
-Message-Id: <20221017100951.22727-1-jinpu.wang@ionos.com>
-X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
@@ -68,101 +67,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
-
-- limit bitmap chunk size internal u64 variable to values not overflowing
-  the u32 bitmap superblock structure variable stored on persistent media
-- assign bitmap chunk size internal u64 variable from unsigned values to
-  avoid possible sign extension artifacts when assigning from a s32 value
-
-The bug has been there since at least kernel 4.0.
-Steps to reproduce it:
-1: mdadm -C /dev/mdx -l 1 --bitmap=internal --bitmap-chunk=256M -e 1.2
--n2 /dev/rnbd1 /dev/rnbd2
-2 resize member device rnbd1 and rnbd2 to 8 TB
-3 mdadm --grow /dev/mdx --size=max
-
-The bitmap_chunksize will overflow without patch.
-
-Cc: stable@vger.kernel.org
-
-Signed-off-by: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
----
-v1->v2: extend commit message for steps to reproduce the problem.
-        fix the warning reported by buildbot
-
- drivers/md/md-bitmap.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/md/md-bitmap.c b/drivers/md/md-bitmap.c
-index bf6dffadbe6f..d4bf7f603ef6 100644
---- a/drivers/md/md-bitmap.c
-+++ b/drivers/md/md-bitmap.c
-@@ -486,7 +486,7 @@ void md_bitmap_print_sb(struct bitmap *bitmap)
- 	sb = kmap_atomic(bitmap->storage.sb_page);
- 	pr_debug("%s: bitmap file superblock:\n", bmname(bitmap));
- 	pr_debug("         magic: %08x\n", le32_to_cpu(sb->magic));
--	pr_debug("       version: %d\n", le32_to_cpu(sb->version));
-+	pr_debug("       version: %u\n", le32_to_cpu(sb->version));
- 	pr_debug("          uuid: %08x.%08x.%08x.%08x\n",
- 		 le32_to_cpu(*(__le32 *)(sb->uuid+0)),
- 		 le32_to_cpu(*(__le32 *)(sb->uuid+4)),
-@@ -497,11 +497,11 @@ void md_bitmap_print_sb(struct bitmap *bitmap)
- 	pr_debug("events cleared: %llu\n",
- 		 (unsigned long long) le64_to_cpu(sb->events_cleared));
- 	pr_debug("         state: %08x\n", le32_to_cpu(sb->state));
--	pr_debug("     chunksize: %d B\n", le32_to_cpu(sb->chunksize));
--	pr_debug("  daemon sleep: %ds\n", le32_to_cpu(sb->daemon_sleep));
-+	pr_debug("     chunksize: %u B\n", le32_to_cpu(sb->chunksize));
-+	pr_debug("  daemon sleep: %us\n", le32_to_cpu(sb->daemon_sleep));
- 	pr_debug("     sync size: %llu KB\n",
- 		 (unsigned long long)le64_to_cpu(sb->sync_size)/2);
--	pr_debug("max write behind: %d\n", le32_to_cpu(sb->write_behind));
-+	pr_debug("max write behind: %u\n", le32_to_cpu(sb->write_behind));
- 	kunmap_atomic(sb);
- }
- 
-@@ -2105,7 +2105,8 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
- 			bytes = DIV_ROUND_UP(chunks, 8);
- 			if (!bitmap->mddev->bitmap_info.external)
- 				bytes += sizeof(bitmap_super_t);
--		} while (bytes > (space << 9));
-+		} while (bytes > (space << 9) && (chunkshift + BITMAP_BLOCK_SHIFT) <
-+			(BITS_PER_BYTE * sizeof(((bitmap_super_t *)0)->chunksize) - 1));
- 	} else
- 		chunkshift = ffz(~chunksize) - BITMAP_BLOCK_SHIFT;
- 
-@@ -2150,7 +2151,7 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
- 	bitmap->counts.missing_pages = pages;
- 	bitmap->counts.chunkshift = chunkshift;
- 	bitmap->counts.chunks = chunks;
--	bitmap->mddev->bitmap_info.chunksize = 1 << (chunkshift +
-+	bitmap->mddev->bitmap_info.chunksize = 1UL << (chunkshift +
- 						     BITMAP_BLOCK_SHIFT);
- 
- 	blocks = min(old_counts.chunks << old_counts.chunkshift,
-@@ -2176,8 +2177,8 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
- 				bitmap->counts.missing_pages = old_counts.pages;
- 				bitmap->counts.chunkshift = old_counts.chunkshift;
- 				bitmap->counts.chunks = old_counts.chunks;
--				bitmap->mddev->bitmap_info.chunksize = 1 << (old_counts.chunkshift +
--									     BITMAP_BLOCK_SHIFT);
-+				bitmap->mddev->bitmap_info.chunksize =
-+					1UL << (old_counts.chunkshift + BITMAP_BLOCK_SHIFT);
- 				blocks = old_counts.chunks << old_counts.chunkshift;
- 				pr_warn("Could not pre-allocate in-memory bitmap for cluster raid\n");
- 				break;
-@@ -2534,6 +2535,9 @@ chunksize_store(struct mddev *mddev, const char *buf, size_t len)
- 	if (csize < 512 ||
- 	    !is_power_of_2(csize))
- 		return -EINVAL;
-+	if (csize >= (1ULL << (BITS_PER_BYTE *
-+		sizeof(((bitmap_super_t *)0)->chunksize))))
-+		return -EOVERFLOW;
- 	mddev->bitmap_info.chunksize = csize;
- 	return len;
- }
--- 
-2.34.1
-
+On Mon, Oct 17, 2022 at 11:17 AM kernel test robot <lkp@intel.com> wrote:
+>
+> Hi Jack,
+>
+> Thank you for the patch! Perhaps something to improve:
+>
+> [auto build test WARNING on song-md/md-next]
+> [also build test WARNING on linus/master v6.1-rc1 next-20221017]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use '--base' as documented in
+> https://git-scm.com/docs/git-format-patch#_base_tree_information]
+>
+> url:    https://github.com/intel-lab-lkp/linux/commits/Jack-Wang/md-bitmap-Fix-bitmap-chunk-size-overflow-issues/20221017-103245
+> base:   git://git.kernel.org/pub/scm/linux/kernel/git/song/md.git md-next
+> patch link:    https://lore.kernel.org/r/20221014122032.47784-1-jinpu.wang%40ionos.com
+> patch subject: [PATCH] md/bitmap: Fix bitmap chunk size overflow issues.
+> config: microblaze-randconfig-r032-20221017
+> compiler: microblaze-linux-gcc (GCC) 12.1.0
+> reproduce (this is a W=1 build):
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # https://github.com/intel-lab-lkp/linux/commit/68927a99dc7197ea076a3b40d876337073f70a58
+>         git remote add linux-review https://github.com/intel-lab-lkp/linux
+>         git fetch --no-tags linux-review Jack-Wang/md-bitmap-Fix-bitmap-chunk-size-overflow-issues/20221017-103245
+>         git checkout 68927a99dc7197ea076a3b40d876337073f70a58
+>         # save the config file
+>         mkdir build_dir && cp config build_dir/.config
+>         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=microblaze SHELL=/bin/bash drivers/md/
+>
+> If you fix the issue, kindly add following tag where applicable
+> | Reported-by: kernel test robot <lkp@intel.com>
+>
+> All warnings (new ones prefixed by >>):
+>
+>    drivers/md/md-bitmap.c: In function 'chunksize_store':
+> >> drivers/md/md-bitmap.c:2538:27: warning: left shift count >= width of type [-Wshift-count-overflow]
+>     2538 |         if (csize >= (1UL << (BITS_PER_BYTE *
+>          |                           ^~
+>
+Thanks will fix in v2.
+>
+> vim +2538 drivers/md/md-bitmap.c
+>
+>   2523
+>   2524  static ssize_t
+>   2525  chunksize_store(struct mddev *mddev, const char *buf, size_t len)
+>   2526  {
+>   2527          /* Can only be changed when no bitmap is active */
+>   2528          int rv;
+>   2529          unsigned long csize;
+>   2530          if (mddev->bitmap)
+>   2531                  return -EBUSY;
+>   2532          rv = kstrtoul(buf, 10, &csize);
+>   2533          if (rv)
+>   2534                  return rv;
+>   2535          if (csize < 512 ||
+>   2536              !is_power_of_2(csize))
+>   2537                  return -EINVAL;
+> > 2538          if (csize >= (1UL << (BITS_PER_BYTE *
+>   2539                  sizeof(((bitmap_super_t *)0)->chunksize))))
+>   2540                  return -EOVERFLOW;
+>   2541          mddev->bitmap_info.chunksize = csize;
+>   2542          return len;
+>   2543  }
+>   2544
+>
+> --
+> 0-DAY CI Kernel Test Service
+> https://01.org/lkp
