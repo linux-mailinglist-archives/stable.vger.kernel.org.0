@@ -2,105 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEC51600FD0
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 15:03:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F4EC600FFC
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 15:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231142AbiJQNDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 09:03:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58736 "EHLO
+        id S229921AbiJQNMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 09:12:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231231AbiJQNDf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 09:03:35 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2054.outbound.protection.outlook.com [40.107.93.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0278A5FF69;
-        Mon, 17 Oct 2022 06:03:24 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BMQMyR3YLcdCNJlgVxW5F2BB3OC9XntI5DVo14ZMocR2OAE/GzOZiCX8DX9pu5gb5byJGMYVjEl/mUnLPLl3L+qZP8n4DpfU8upve2FQN7aVJzWojkYy/ej3LKKh3hWucDhfLW9E5aEd/J9rAtsFKhYVgnzbHezSKKttpiZxveRNCbgl6X88937OvAMx1IX04Rs7iMdKm6by+6fFB6/Sp99nJPOgfOxl2OIotoxqjQkDzXT4c/5BWFQINtYRLZA5csU53wl9G2g+XzVGDGf7QGcy3a0imxozqBox5mtR5CPtE0modzdWad85FwLRaUAZYPw1cl2YkhpB5HDDWtCy0Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=BYuSInCvIAfCQ55JjQ6IWp5t2y7biL17oocUTqgL/3g=;
- b=BWStdwJI0S+IB3pgBd99tD6wzmFO4FtrPHxHugUVvMQWDGHEpCEFC5X0gDEUQ9eLyS507F7w39JoL43aQOrBDedS04pG8ExPUBtIZaq9U0Eb4ehTP4BLTk7Q685N6R2oG/ALq6PJezyOopQs2zg23u6a/2ljVRtVcN8ewdjhfcqotIWJBGvjdrXchzBaZE8OA41CujEevw2+dm2OJ7KQJY8/2T9HSVZnV3Ai+wH4ihqBMpsmKIw4Hy/pV/cQ5Lo5bsqAA1Y2vdXQcn+rqmGyhdYVBE1V7uUdmjIltau6c++bZAI0+qv169VWnae0fXxtLH1WSDN5PhF8sjpFqP8AVQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=linaro.org smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=BYuSInCvIAfCQ55JjQ6IWp5t2y7biL17oocUTqgL/3g=;
- b=YG/+C/DnvlIYagtqH3x9fY25nc4BJotaQ0jfoqg5fbKfEvvYy3KNR0exBN8rZf+0CuNU/Sku8RSca5Nv8Mvb+jc6lyOhSxr2G7nvTUOtIutI9UC42fuUbNGvvvnGhhhMGb40Bya8QSGdHS3uEy9g+NvK/vtaIGdvkgc1LXVPi2Q=
-Received: from BN9PR03CA0440.namprd03.prod.outlook.com (2603:10b6:408:113::25)
- by SN7PR12MB7022.namprd12.prod.outlook.com (2603:10b6:806:261::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.29; Mon, 17 Oct
- 2022 13:03:20 +0000
-Received: from BN8NAM11FT055.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:113:cafe::6c) by BN9PR03CA0440.outlook.office365.com
- (2603:10b6:408:113::25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.32 via Frontend
- Transport; Mon, 17 Oct 2022 13:03:19 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB03.amd.com; pr=C
-Received: from SATLEXMB03.amd.com (165.204.84.17) by
- BN8NAM11FT055.mail.protection.outlook.com (10.13.177.62) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.5723.20 via Frontend Transport; Mon, 17 Oct 2022 13:03:19 +0000
-Received: from SATLEXMB07.amd.com (10.181.41.45) by SATLEXMB03.amd.com
- (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Mon, 17 Oct
- 2022 08:03:18 -0500
-Received: from SATLEXMB04.amd.com (10.181.40.145) by SATLEXMB07.amd.com
- (10.181.41.45) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Mon, 17 Oct
- 2022 06:03:17 -0700
-Received: from xhdlakshmis40.xilinx.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server id 15.1.2375.31 via Frontend
- Transport; Mon, 17 Oct 2022 08:03:15 -0500
-From:   Sai Krishna Potthuri <sai.krishna.potthuri@amd.com>
-To:     Linus Walleij <linus.walleij@linaro.org>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        "Krzysztof Kozlowski" <krzysztof.kozlowski+dt@linaro.org>
-CC:     <devicetree@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <saikrishna12468@gmail.com>, <git@amd.com>,
-        Sai Krishna Potthuri <sai.krishna.potthuri@amd.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2 2/2] Revert "dt-bindings: pinctrl-zynqmp: Add output-enable configuration"
-Date:   Mon, 17 Oct 2022 18:33:03 +0530
-Message-ID: <20221017130303.21746-3-sai.krishna.potthuri@amd.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20221017130303.21746-1-sai.krishna.potthuri@amd.com>
-References: <20221017130303.21746-1-sai.krishna.potthuri@amd.com>
+        with ESMTP id S230006AbiJQNME (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 09:12:04 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C1702BD4
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 06:11:56 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id s30so15990554eds.1
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 06:11:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=4fQ3Q/lNjEMM/7vPfFc10TtgUuRl15Pk7cTbLoHr+pk=;
+        b=WxIqDhVgkGOLsJhkI8GNrkWhFreLMHeGcyHs3RQmNIxV8A0t4D6FPmQlrZRluxAQlw
+         8Btt+aXhLL5yWUw1NKiXOKJ+JyCY0qf6FMKdGXKHhzpFi268+gUrtWnxuI5L3XuMH7kd
+         y14zxarSbjLuOR/uecWn4AY7iBH7khchW2KztMzgKJdYeq7WHcedZ5AdHJQXRurPxFJB
+         tY8F3Ez1Qjra29EKoclCJYMFLTKs5YwMRhBBOrRo/lbfUxP/7XFmDCvebHOSc0kzrZPs
+         jenaqFxfQ+mXX4nW1PB94xoDECWgblRkS9dSZ6lJDkoisZjuPqC2JsQS8cpuwOlAfq8m
+         FmHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4fQ3Q/lNjEMM/7vPfFc10TtgUuRl15Pk7cTbLoHr+pk=;
+        b=H7hezJ7FOompQfcQpPoI96wbGavWZszCZ32r3FdC4hppvFsYF3+Cog/k6/G744uiwZ
+         4dqo/ipBwqDHuEEwE31euOSrMdl8WxP14BVlK9fEp7hnrPpxKxkXmivV+CNQpKAbAHH2
+         pz1yY+EzafW7fsZXt4MkrbjmqpClpPNhRZf/UeNbh9FzuM3jjf9futPByI5facfAih3n
+         FHuG9EZj045/bBYdvWJjP5KDq+/uJTOdVKDF8QxX8rfOgGOb3tQb92z3fpZZTHscB9/7
+         qD0qMI4AwTTpO92DC5e3RCoGuW6+fzYoung6TWHVZpRWXFpxz+XnQtO/z1s3bSDxnNSq
+         bhPA==
+X-Gm-Message-State: ACrzQf3/AhqBSTb0xqwaRh7iekzeozoH/J7KYIyxLxRioKpi3A76tjrk
+        +hOxRXc/o6d/J5zqeV9RaRI=
+X-Google-Smtp-Source: AMsMyM4egPePxTxRcKZS/zzBZM8DD/QQVb7vT63dWPOqKh1EgLowRoKJBj8KPFfEAyHWn9b+YuWHfA==
+X-Received: by 2002:a05:6402:c45:b0:442:c549:8e6b with SMTP id cs5-20020a0564020c4500b00442c5498e6bmr10235479edb.123.1666012311238;
+        Mon, 17 Oct 2022 06:11:51 -0700 (PDT)
+Received: from [192.168.8.100] (94.196.234.149.threembb.co.uk. [94.196.234.149])
+        by smtp.gmail.com with ESMTPSA id k10-20020a1709062a4a00b007838e332d78sm6105480eje.128.2022.10.17.06.11.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 17 Oct 2022 06:11:50 -0700 (PDT)
+Message-ID: <3b067018-3b79-9be4-455d-e48ae91afee8@gmail.com>
+Date:   Mon, 17 Oct 2022 14:08:57 +0100
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN8NAM11FT055:EE_|SN7PR12MB7022:EE_
-X-MS-Office365-Filtering-Correlation-Id: d51f0c87-5e3f-4c10-4fb4-08dab03ff6ce
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: YSWjF7LWkKO4kCkwUTB4WMwCq5aeuVH+MK2zyZMFK2G83A/QOD+KcH0Rx6Ofiwlphbu8cc7hpy+vTXunvmJhYYyIqHgWldw/n2y5xEU5IOs1ArUV6TCwnedvcXibxOA4CubVJSiyLjqOavENHy/nBHUt1NlgO1oeutNWoYFC5gBOpAy1RIdQw0cqoTLz/QeGs8yV93HsQjqjcE/EscdeMdNdklcRjtkneLPgY/WjXg1hdyYtrYsKiib4JWJjqi+e92y21l6jer0B1nMjpxl7QXc8mptiZenQT8zSIEAdDb3JwY3huymTf0zIqpIYYWdj51nMYrZXlWBZi2zNSWjRmNQRe+hpGm41XBt957a0QtBRxAC4vHMyNRsyHOGXpV1/kRNiA/3OsUfmo43fQD1F2sFq87Qg9dDNxHFjo6CtMQrp640osRMv+QCGQOV4AH/rnS78Eavb7r8R+g2U4XGtDcyIV5Ancvv5JmEWhZgm+//T3CMDn5mhc+GqFJITvFKNDZaFnPFKRbAtSdptuIRPzmGzCib+jpiTl+Gs2rOPiNk4YFHntwKRvUxFLEJVqT6TaKjpN/4h2E0CdkzSJ7dza4G5JJAjaat/h9qr8RErawqPwO1r3FbvL7AyRhzCPSdp7T0fnFDVuA5hWCd3eNmu+3VUV/aIACkrr7vM9bdpv2qwkz+gWaosIKK1SsvcCWN2widQYkJfJ616uSrI2PsWu+dqh3LIhMxUx4ieNBXPetKDjqcEOmbsiU/OmPi9PLwpDr6GtnzTo6nXUlSs/Hoi5EYNPnCr8c0fbSECPDvVGD8dbRWMRW6RBoGvxs+TPv2a
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(396003)(39860400002)(136003)(376002)(346002)(451199015)(40470700004)(46966006)(36840700001)(82310400005)(40460700003)(478600001)(5660300002)(8936002)(8676002)(41300700001)(70206006)(70586007)(54906003)(110136005)(4326008)(40480700001)(316002)(36860700001)(103116003)(2906002)(83380400001)(86362001)(356005)(47076005)(426003)(36756003)(82740400003)(81166007)(26005)(1076003)(336012)(2616005)(186003)(6666004)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Oct 2022 13:03:19.6178
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: d51f0c87-5e3f-4c10-4fb4-08dab03ff6ce
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB03.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT055.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7022
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+Subject: Re: [PATCH stable-5.15 0/5] io_uring backports
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+References: <cover.1665954636.git.asml.silence@gmail.com>
+ <Y00iTiwiIGaIoGhm@kroah.com>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+In-Reply-To: <Y00iTiwiIGaIoGhm@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -108,35 +74,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 133ad0d9af99bdca90705dadd8d31c20bfc9919f.
+On 10/17/22 10:37, Greg KH wrote:
+> On Sun, Oct 16, 2022 at 10:42:53PM +0100, Pavel Begunkov wrote:
+>> io_uring backports for stable 5.15
+> 
+> How about 5.19?
 
-On systems with older PMUFW (Xilinx ZynqMP Platform Management Firmware)
-using these pinctrl properties can cause system hang because there is
-missing feature autodetection.
-When this feature is implemented, support for these two properties should
-bring back.
+Looks there were no conflicts for 5.19 and you applied them
+yesterday.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Sai Krishna Potthuri <sai.krishna.potthuri@amd.com>
----
- .../devicetree/bindings/pinctrl/xlnx,zynqmp-pinctrl.yaml      | 4 ----
- 1 file changed, 4 deletions(-)
+And thanks for queuing all backports!
 
-diff --git a/Documentation/devicetree/bindings/pinctrl/xlnx,zynqmp-pinctrl.yaml b/Documentation/devicetree/bindings/pinctrl/xlnx,zynqmp-pinctrl.yaml
-index 1e2b9b627b12..2722dc7bb03d 100644
---- a/Documentation/devicetree/bindings/pinctrl/xlnx,zynqmp-pinctrl.yaml
-+++ b/Documentation/devicetree/bindings/pinctrl/xlnx,zynqmp-pinctrl.yaml
-@@ -274,10 +274,6 @@ patternProperties:
-           slew-rate:
-             enum: [0, 1]
- 
--          output-enable:
--            description:
--              This will internally disable the tri-state for MIO pins.
--
-           drive-strength:
-             description:
-               Selects the drive strength for MIO pins, in mA.
+> If you wait a week or so, 5.19 will be end-of-life, so maybe we can just
+> not worry about it :)
+
 -- 
-2.17.1
-
+Pavel Begunkov
