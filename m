@@ -2,116 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45EFB6012CB
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 17:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA8DA6012DF
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 17:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229597AbiJQPeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 11:34:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36600 "EHLO
+        id S229673AbiJQPqO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 11:46:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229732AbiJQPet (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 11:34:49 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB23F12D34
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 08:34:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666020886;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=N5Hw3N/yBRvXSb8kCKGLJA5iLp5ZJdPKFLyQnc+d2Vs=;
-        b=U1FrnjWw5prz6irG6FshQ/87Y52T+Hgp/T86CQ919WBAaCAa7CY1PdAgksAVfKuDXEg/U+
-        lgTO5qliPbVSC4BTD5vjZ2jN6I0nvXoBfDeyigmGUKJAYjIstWKPpjN4PIBru02Jm1pf6L
-        g+AeT04ispUAMH+cqk6b0pBjI6R4UyI=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-443-SDPW84E7Nb2Q2NRnQ72iyw-1; Mon, 17 Oct 2022 11:34:43 -0400
-X-MC-Unique: SDPW84E7Nb2Q2NRnQ72iyw-1
-Received: by mail-lf1-f70.google.com with SMTP id p36-20020a05651213a400b004779d806c13so3773882lfa.10
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 08:34:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=N5Hw3N/yBRvXSb8kCKGLJA5iLp5ZJdPKFLyQnc+d2Vs=;
-        b=UyDiu4tjbegyr4a2RYnfk6ztJCViJ+k7TYzYOiBlqlFsM2KOwbYNCJJOxeqEst6lZ+
-         OiAoP27sUm1WrCJEYiyawSfJQHJ+ydwvL/qam0YYkh0tAwrypzKy2gW8ygqdxXEiajM4
-         3ERiC087e7dH0Yigw0WNGy+Qq2RwciMlA5uGxr8UX/on7guI5E64TG8boE3IhFqtpMc8
-         vj4KC465ZLK3Eto7PtYEx/UEk/LW1a8ahB/f729twMDKYh2bYubNpwAniz+jPb4PA+JP
-         ygewVPA5XwXPw4sI6izCs03fUG69J5m4ndlSgKj11nTuzYFI4uBT2jHLDhxn+P3MBPo5
-         5LZA==
-X-Gm-Message-State: ACrzQf0Vnw3tGmefrTCEq3DmAS7oPVO40JY5EAXOevCdc/l5WzBnkOOd
-        eDJjb3WWgo88F7v2+lBsUXD5ymCKmi7Q6h1p4AYPa0ZDNO/z/bVxkRV3irsVMHeHaq0uosiAz6M
-        WPzIzNB94Iv5ye6xT
-X-Received: by 2002:a05:651c:98f:b0:26d:ff18:97c6 with SMTP id b15-20020a05651c098f00b0026dff1897c6mr4533684ljq.375.1666020881549;
-        Mon, 17 Oct 2022 08:34:41 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM57wE364GqH9fWnoe0gYe9cPBp5F/31FMQZv9YAdTOl72+aEIDVZL9AQd9N6JQ0iPqlCe8DDA==
-X-Received: by 2002:a05:651c:98f:b0:26d:ff18:97c6 with SMTP id b15-20020a05651c098f00b0026dff1897c6mr4533677ljq.375.1666020881356;
-        Mon, 17 Oct 2022 08:34:41 -0700 (PDT)
-Received: from redhat.com (host-90-235-3-243.mobileonline.telia.com. [90.235.3.243])
-        by smtp.gmail.com with ESMTPSA id u4-20020a05651c140400b0026fbac7468bsm1490240lje.103.2022.10.17.08.34.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Oct 2022 08:34:39 -0700 (PDT)
-Date:   Mon, 17 Oct 2022 17:34:37 +0200
-From:   Jonas =?iso-8859-1?Q?=C5dahl?= <jadahl@redhat.com>
-To:     Simon Ser <contact@emersion.fr>
-Cc:     dri-devel@lists.freedesktop.org, stable@vger.kernel.org,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Lyude Paul <lyude@redhat.com>
-Subject: Re: [PATCH 2/2] drm/connector: send hotplug uevent on connector
- cleanup
-Message-ID: <Y012DW23jc11f2ZU@redhat.com>
-References: <20221017153150.60675-1-contact@emersion.fr>
- <20221017153150.60675-2-contact@emersion.fr>
+        with ESMTP id S229594AbiJQPqN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 11:46:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBEA0FD3F;
+        Mon, 17 Oct 2022 08:46:12 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 743E1B81913;
+        Mon, 17 Oct 2022 15:46:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27D8FC4347C;
+        Mon, 17 Oct 2022 15:46:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1666021570;
+        bh=9c9EEzyY7oUq22Pd8vm1w2MFf4GstXJ90YPs3mnWmLo=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=AYSVM4vwMV3llm4rCDTm0OzgGQO40L+/twQp/M5dsO8yIR6g3EMA4DmOdFaNGtODx
+         TTexZOultQS63kRoGHhk6Ck0nSF1crSdh6LzxIaqA/U3VQNifxlXcN+agm46PKxvnn
+         DBmVyT13PdRIopBEGqE0Ui1h6AX0IOePMK8W2L2p7j9zDAglKigPF8G6+qMpKCAtpO
+         WNT9PdO8COcagSErSVSLPJ5xYxfkqcwgXTILM1y39NRBM4IFwuF2SUsS0iJyFSfBjf
+         DDdXTImzmTsPjC5+4JOJeLJNwcM2BrJaWhZ+Ccbbz2UkC0pzTYJAThtC3yc/OMSr3p
+         W1vSeu37OAM7g==
+Received: by mail-lj1-f174.google.com with SMTP id r22so14431853ljn.10;
+        Mon, 17 Oct 2022 08:46:10 -0700 (PDT)
+X-Gm-Message-State: ACrzQf1KKyt1AOR2ktHLdZLw50dly/KhO9c389yM2Sv551Av5Op3VOLh
+        aKs8LeLLNHJBzcoS3F2OOhw+wV+Cp0c+tp1WzzQ=
+X-Google-Smtp-Source: AMsMyM7peUSTpBSPbo/vvPo6cWQeSx8q4yW3epDEX81Vp1cXfv9UMJT4N9U2CYjhXT7rI/J+VTkiB62AR3KCHYaAbKU=
+X-Received: by 2002:a2e:b635:0:b0:26e:989e:438f with SMTP id
+ s21-20020a2eb635000000b0026e989e438fmr3934831ljn.189.1666021568087; Mon, 17
+ Oct 2022 08:46:08 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20221017153150.60675-2-contact@emersion.fr>
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220929152010.835906-1-nathan@kernel.org>
+In-Reply-To: <20220929152010.835906-1-nathan@kernel.org>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Mon, 17 Oct 2022 17:45:56 +0200
+X-Gmail-Original-Message-ID: <CAMj1kXFTXV8swyypu9j3rM4u1hO1wyb2atUJm32HB_X29sPBHQ@mail.gmail.com>
+Message-ID: <CAMj1kXFTXV8swyypu9j3rM4u1hO1wyb2atUJm32HB_X29sPBHQ@mail.gmail.com>
+Subject: Re: [PATCH] x86/Kconfig: Drop check for '-mabi=ms' for CONFIG_EFI_STUB
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tom Rix <trix@redhat.com>, linux-kernel@vger.kernel.org,
+        llvm@lists.linux.dev, patches@lists.linux.dev,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 17, 2022 at 03:32:01PM +0000, Simon Ser wrote:
-> A typical DP-MST unplug removes a KMS connector. However care must
-> be taken to properly synchronize with user-space. The expected
-> sequence of events is the following:
-> 
-> 1. The kernel notices that the DP-MST port is gone.
-> 2. The kernel marks the connector as disconnected, then sends a
->    uevent to make user-space re-scan the connector list.
-> 3. User-space notices the connector goes from connected to disconnected,
->    disables it.
-> 4. Kernel handles the the IOCTL disabling the connector. On success,
->    the very last reference to the struct drm_connector is dropped and
->    drm_connector_cleanup() is called.
-> 5. The connector is removed from the list, and a uevent is sent to tell
->    user-space that the connector disappeared.
-> 
-> The very last step was missing. As a result, user-space thought the
-> connector still existed and could try to disable it again. Since the
-> kernel no longer knows about the connector, that would end up with
-> EINVAL and confused user-space.
-> 
-> Fix this by sending a hotplug uevent from drm_connector_cleanup().
-> 
-> Signed-off-by: Simon Ser <contact@emersion.fr>
+On Thu, 29 Sept 2022 at 17:20, Nathan Chancellor <nathan@kernel.org> wrote:
+>
+> A recent change in LLVM made CONFIG_EFI_STUB unselectable because it no
+> longer pretends to support '-mabi=ms', breaking the dependency in
+> Kconfig. Lack of CONFIG_EFI_STUB can prevent kernels from booting via
+> EFI in certain circumstances.
+>
+> This check was added by commit 8f24f8c2fc82 ("efi/libstub: Annotate
+> firmware routines as __efiapi") to ensure that '__attribute__((ms_abi))'
+> was available, as '-mabi=ms' is not actually used in any cflags.
+> According to the GCC documentation, this attribute has been supported
+> since GCC 4.4.7. The kernel currently requires GCC 5.1 so this check is
+> not necessary; even when that change landed in 5.6, the kernel required
+> GCC 4.9 so it was unnecessary then as well.  Clang supports
+> '__attribute__((ms_abi))' for all versions that are supported for
+> building the kernel so no additional check is needed. Remove the
+> 'depends on' line altogether to allow CONFIG_EFI_STUB to be selected
+> when CONFIG_EFI is enabled, regardless of compiler.
+>
 > Cc: stable@vger.kernel.org
-> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Cc: Lyude Paul <lyude@redhat.com>
-> Cc: Jonas Ådahl <jadahl@redhat.com>
+> Fixes: 8f24f8c2fc82 ("efi/libstub: Annotate firmware routines as __efiapi")
+> Link: https://github.com/ClangBuiltLinux/linux/issues/1725
+> Link: https://gcc.gnu.org/onlinedocs/gcc-4.4.7/gcc/Function-Attributes.html
+> Link: https://github.com/llvm/llvm-project/commit/d1ad006a8f64bdc17f618deffa9e7c91d82c444d
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 
-Tested-by: Jonas Ådahl <jadahl@redhat.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
 
+I can take this as a EFI fix as well.
 
-Jonas
-
+> ---
+>  arch/x86/Kconfig | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> index f9920f1341c8..81012154d9ed 100644
+> --- a/arch/x86/Kconfig
+> +++ b/arch/x86/Kconfig
+> @@ -1956,7 +1956,6 @@ config EFI
+>  config EFI_STUB
+>         bool "EFI stub support"
+>         depends on EFI
+> -       depends on $(cc-option,-mabi=ms) || X86_32
+>         select RELOCATABLE
+>         help
+>           This kernel feature allows a bzImage to be loaded directly
+>
+> base-commit: f76349cf41451c5c42a99f18a9163377e4b364ff
+> --
+> 2.37.3
+>
