@@ -2,253 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3536760130A
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 17:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C182E601311
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 17:57:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229762AbiJQPyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 11:54:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46942 "EHLO
+        id S230215AbiJQP5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 11:57:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230471AbiJQPyR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 11:54:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2A5A6DAD0;
-        Mon, 17 Oct 2022 08:54:05 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9672EB819B4;
-        Mon, 17 Oct 2022 15:54:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0984AC433C1;
-        Mon, 17 Oct 2022 15:54:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666022043;
-        bh=3T08mT1Bbq/Sb6lv4Wfkw8cFiUUTtSWBEOIdrFaUVQM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffqy2wdmZGcwEoUsBEyeC1xPdnsqF5paP23kio/yF+hyXIRq6z3+QLkgwmG0CS8wa
-         t1Si4YZs/TedhtC/96cQ450NV1FY1e+eQjDGHdHepHp2imXm0XWONAcP+F7vMQZIos
-         iAIx7lB+TTQ0HFNLOLZABvGfHzJXiVf0yIWKoxy8=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.10.149
-Date:   Mon, 17 Oct 2022 17:53:52 +0200
-Message-Id: <166602203280200@kroah.com>
-X-Mailer: git-send-email 2.38.0
-In-Reply-To: <166602203213529@kroah.com>
-References: <166602203213529@kroah.com>
+        with ESMTP id S229452AbiJQP5F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 11:57:05 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E49F16D860
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 08:57:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1666022222;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=DQ9BSUfDKoJUJ+YyUq4v3/jXsEiShgxTQU4ItDdSgGE=;
+        b=edb92rZ0c7o04VKukdiLfnFNszI+HiuPYRu+tnpI1gyZQ/Omj7s7HzbAP4vJIR2ishCubH
+        OT8XRl6o6d2BUWB3uROGuS0OePKKtZ40MMqpgyKhD7uF9WTJFS+GcwZlZubquxd6vXflnC
+        nX/sd6c+yvxOcqjZRNC8N6NaepYvqOs=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-599-Eg_D1dQUPrqmS8lZ_B8CdA-1; Mon, 17 Oct 2022 11:57:00 -0400
+X-MC-Unique: Eg_D1dQUPrqmS8lZ_B8CdA-1
+Received: by mail-qk1-f199.google.com with SMTP id j13-20020a05620a410d00b006e08208eb31so9874043qko.3
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 08:57:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DQ9BSUfDKoJUJ+YyUq4v3/jXsEiShgxTQU4ItDdSgGE=;
+        b=kolRbSd4crcttFCMqwqK4e9ynHeHCH8SK1NJzKbaPbT7EVGV/najI1NCNYUw6E3lrZ
+         LFvE/9fZoEfkkFoy/yz/fkP0HNjlzD3zlA9H5q7itdFZhCV64T/5Jo/CcKb1IRtTbokE
+         +a1WRvpZE6DUrjDW/hCPa5+IKj+hyz03MGqiXe2JUB1x103TS6ER2hsy0Ha/7KNRAjrE
+         FEv3hF0bqe63V/baUQ5owuaJNuFVc/PPaEclv/LDJWhFe6HmDE/Y72MOxzc4V8cMrsig
+         EzYhSSU/dTAwrzmdhuDosUdlLsoAQznyWlT7HwvJv60P06FzEUfZOa+K2C9aR2/Jb0F2
+         CoHQ==
+X-Gm-Message-State: ACrzQf0Pn8rXZNJFRsVmnkHxFOkDHY/sNd0tGfYmn5b2VSvulul/+k12
+        PHOLTLqOsWxqUnprFUGt/+FxoGmKOtjLzyDjqIc4U4yeG3pZBjAvu1iSlyrDacvKIAgQWDjGzWU
+        UfLDUUxfRM2pKAIcV
+X-Received: by 2002:a05:6214:2aaf:b0:4b1:d684:f724 with SMTP id js15-20020a0562142aaf00b004b1d684f724mr9133426qvb.97.1666022219842;
+        Mon, 17 Oct 2022 08:56:59 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4MXOXDAWK4nrAqUigIaANtf8VLQnL+iRuWPSVrKyXzwp36CNxsgKkJX8PxMceOAIliBF741A==
+X-Received: by 2002:a05:6214:2aaf:b0:4b1:d684:f724 with SMTP id js15-20020a0562142aaf00b004b1d684f724mr9133411qvb.97.1666022219641;
+        Mon, 17 Oct 2022 08:56:59 -0700 (PDT)
+Received: from localhost (ip98-179-76-75.ph.ph.cox.net. [98.179.76.75])
+        by smtp.gmail.com with ESMTPSA id s9-20020a05620a0bc900b006cfc4744589sm57440qki.128.2022.10.17.08.56.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Oct 2022 08:56:59 -0700 (PDT)
+Date:   Mon, 17 Oct 2022 08:56:57 -0700
+From:   Jerry Snitselaar <jsnitsel@redhat.com>
+To:     Fenghua Yu <fenghua.yu@intel.com>
+Cc:     Vinod Koul <vkoul@kernel.org>,
+        Arjan Van De Ven <arjan.van.de.ven@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        dmaengine@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] dmaengine: idxd: Do not enable user type Work Queue
+ without Shared Virtual Addressing
+Message-ID: <20221017155657.kpwvx5jicitoxbzp@cantor>
+References: <20221014222541.3912195-1-fenghua.yu@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221014222541.3912195-1-fenghua.yu@intel.com>
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index c40acf09ce29..b824bdb0457c 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 10
--SUBLEVEL = 148
-+SUBLEVEL = 149
- EXTRAVERSION =
- NAME = Dare mighty things
- 
-diff --git a/fs/splice.c b/fs/splice.c
-index 6610e55c0e2a..866d5c2367b2 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -806,15 +806,17 @@ ssize_t splice_direct_to_actor(struct file *in, struct splice_desc *sd,
- {
- 	struct pipe_inode_info *pipe;
- 	long ret, bytes;
-+	umode_t i_mode;
- 	size_t len;
- 	int i, flags, more;
- 
- 	/*
--	 * We require the input to be seekable, as we don't want to randomly
--	 * drop data for eg socket -> socket splicing. Use the piped splicing
--	 * for that!
-+	 * We require the input being a regular file, as we don't want to
-+	 * randomly drop data for eg socket -> socket splicing. Use the
-+	 * piped splicing for that!
- 	 */
--	if (unlikely(!(in->f_mode & FMODE_LSEEK)))
-+	i_mode = file_inode(in)->i_mode;
-+	if (unlikely(!S_ISREG(i_mode) && !S_ISBLK(i_mode)))
- 		return -EINVAL;
- 
- 	/*
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index bcc94cc1b620..63499db5c63d 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -1485,7 +1485,6 @@ struct ieee802_11_elems {
- 	const u8 *supp_rates;
- 	const u8 *ds_params;
- 	const struct ieee80211_tim_ie *tim;
--	const u8 *challenge;
- 	const u8 *rsn;
- 	const u8 *rsnx;
- 	const u8 *erp_info;
-@@ -1538,7 +1537,6 @@ struct ieee802_11_elems {
- 	u8 ssid_len;
- 	u8 supp_rates_len;
- 	u8 tim_len;
--	u8 challenge_len;
- 	u8 rsn_len;
- 	u8 rsnx_len;
- 	u8 ext_supp_rates_len;
-@@ -1553,6 +1551,8 @@ struct ieee802_11_elems {
- 	u8 country_elem_len;
- 	u8 bssid_index_len;
- 
-+	void *nontx_profile;
-+
- 	/* whether a parse error occurred while retrieving these elements */
- 	bool parse_error;
- };
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 3988403064ab..c52b8eb7fb8a 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -2899,14 +2899,14 @@ static void ieee80211_auth_challenge(struct ieee80211_sub_if_data *sdata,
- {
- 	struct ieee80211_local *local = sdata->local;
- 	struct ieee80211_mgd_auth_data *auth_data = sdata->u.mgd.auth_data;
-+	const struct element *challenge;
- 	u8 *pos;
--	struct ieee802_11_elems elems;
- 	u32 tx_flags = 0;
- 
- 	pos = mgmt->u.auth.variable;
--	ieee802_11_parse_elems(pos, len - (pos - (u8 *)mgmt), false, &elems,
--			       mgmt->bssid, auth_data->bss->bssid);
--	if (!elems.challenge)
-+	challenge = cfg80211_find_elem(WLAN_EID_CHALLENGE, pos,
-+				       len - (pos - (u8 *)mgmt));
-+	if (!challenge)
- 		return;
- 	auth_data->expected_transaction = 4;
- 	drv_mgd_prepare_tx(sdata->local, sdata, 0);
-@@ -2914,7 +2914,8 @@ static void ieee80211_auth_challenge(struct ieee80211_sub_if_data *sdata,
- 		tx_flags = IEEE80211_TX_CTL_REQ_TX_STATUS |
- 			   IEEE80211_TX_INTFL_MLME_CONN_TX;
- 	ieee80211_send_auth(sdata, 3, auth_data->algorithm, 0,
--			    elems.challenge - 2, elems.challenge_len + 2,
-+			    (void *)challenge,
-+			    challenge->datalen + sizeof(*challenge),
- 			    auth_data->bss->bssid, auth_data->bss->bssid,
- 			    auth_data->key, auth_data->key_len,
- 			    auth_data->key_idx, tx_flags);
-@@ -3299,7 +3300,7 @@ static bool ieee80211_assoc_success(struct ieee80211_sub_if_data *sdata,
- 	}
- 	capab_info = le16_to_cpu(mgmt->u.assoc_resp.capab_info);
- 	ieee802_11_parse_elems(pos, len - (pos - (u8 *)mgmt), false, elems,
--			       mgmt->bssid, assoc_data->bss->bssid);
-+			       mgmt->bssid, NULL);
- 
- 	if (elems->aid_resp)
- 		aid = le16_to_cpu(elems->aid_resp->aid);
-@@ -3393,6 +3394,7 @@ static bool ieee80211_assoc_success(struct ieee80211_sub_if_data *sdata,
- 			sdata_info(sdata,
- 				   "AP bug: VHT operation missing from AssocResp\n");
- 		}
-+		kfree(bss_elems.nontx_profile);
- 	}
- 
- 	/*
-@@ -3707,7 +3709,7 @@ static void ieee80211_rx_mgmt_assoc_resp(struct ieee80211_sub_if_data *sdata,
- 		return;
- 
- 	ieee802_11_parse_elems(pos, len - (pos - (u8 *)mgmt), false, &elems,
--			       mgmt->bssid, assoc_data->bss->bssid);
-+			       mgmt->bssid, NULL);
- 
- 	if (status_code == WLAN_STATUS_ASSOC_REJECTED_TEMPORARILY &&
- 	    elems.timeout_int &&
-@@ -4044,6 +4046,7 @@ static void ieee80211_rx_mgmt_beacon(struct ieee80211_sub_if_data *sdata,
- 		ifmgd->assoc_data->timeout = jiffies;
- 		ifmgd->assoc_data->timeout_started = true;
- 		run_again(sdata, ifmgd->assoc_data->timeout);
-+		kfree(elems.nontx_profile);
- 		return;
- 	}
- 
-@@ -4221,7 +4224,7 @@ static void ieee80211_rx_mgmt_beacon(struct ieee80211_sub_if_data *sdata,
- 		ieee80211_report_disconnect(sdata, deauth_buf,
- 					    sizeof(deauth_buf), true,
- 					    WLAN_REASON_DEAUTH_LEAVING);
--		return;
-+		goto free;
- 	}
- 
- 	if (sta && elems.opmode_notif)
-@@ -4236,6 +4239,8 @@ static void ieee80211_rx_mgmt_beacon(struct ieee80211_sub_if_data *sdata,
- 					       elems.cisco_dtpc_elem);
- 
- 	ieee80211_bss_info_change_notify(sdata, changed);
-+free:
-+	kfree(elems.nontx_profile);
- }
- 
- void ieee80211_sta_rx_queued_ext(struct ieee80211_sub_if_data *sdata,
-diff --git a/net/mac80211/scan.c b/net/mac80211/scan.c
-index d6afaacaf7ef..b241ff8c015a 100644
---- a/net/mac80211/scan.c
-+++ b/net/mac80211/scan.c
-@@ -227,6 +227,8 @@ ieee80211_bss_info_update(struct ieee80211_local *local,
- 						rx_status, beacon);
- 	}
- 
-+	kfree(elems.nontx_profile);
-+
- 	return bss;
- }
- 
-diff --git a/net/mac80211/util.c b/net/mac80211/util.c
-index 11d5686893c6..7fa6efa8b83c 100644
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -1124,10 +1124,6 @@ _ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
- 			} else
- 				elem_parse_failed = true;
- 			break;
--		case WLAN_EID_CHALLENGE:
--			elems->challenge = pos;
--			elems->challenge_len = elen;
--			break;
- 		case WLAN_EID_VENDOR_SPECIFIC:
- 			if (elen >= 4 && pos[0] == 0x00 && pos[1] == 0x50 &&
- 			    pos[2] == 0xf2) {
-@@ -1487,6 +1483,11 @@ u32 ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
- 			cfg80211_find_ext_elem(WLAN_EID_EXT_NON_INHERITANCE,
- 					       nontransmitted_profile,
- 					       nontransmitted_profile_len);
-+		if (!nontransmitted_profile_len) {
-+			nontransmitted_profile_len = 0;
-+			kfree(nontransmitted_profile);
-+			nontransmitted_profile = NULL;
-+		}
- 	}
- 
- 	crc = _ieee802_11_parse_elems_crc(start, len, action, elems, filter,
-@@ -1516,7 +1517,7 @@ u32 ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
- 	    offsetofend(struct ieee80211_bssid_index, dtim_count))
- 		elems->dtim_count = elems->bssid_index->dtim_count;
- 
--	kfree(nontransmitted_profile);
-+	elems->nontx_profile = nontransmitted_profile;
- 
- 	return crc;
- }
+On Fri, Oct 14, 2022 at 03:25:41PM -0700, Fenghua Yu wrote:
+> When the idxd_user_drv driver is bound to a Work Queue (WQ) device
+> without IOMMU or with IOMMU Passthrough without Shared Virtual
+> Addressing (SVA), the application gains direct access to physical
+> memory via the device by programming physical address to a submitted
+> descriptor. This allows direct userspace read and write access to
+> arbitrary physical memory. This is inconsistent with the security
+> goals of a good kernel API.
+> 
+> Unlike vfio_pci driver, the IDXD char device driver does not provide any
+> ways to pin user pages and translate the address from user VA to IOVA or
+> PA without IOMMU SVA. Therefore the application has no way to instruct the
+> device to perform DMA function. This makes the char device not usable for
+> normal application usage.
+> 
+> Since user type WQ without SVA cannot be used for normal application usage
+> and presents the security issue, bind idxd_user_drv driver and enable user
+> type WQ only when SVA is enabled (i.e. user PASID is enabled).
+> 
+> Fixes: 448c3de8ac83 ("dmaengine: idxd: create user driver for wq 'device'")
+> Cc: stable@vger.kernel.org
+> Suggested-by: Arjan Van De Ven <arjan.van.de.ven@intel.com>
+> Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+> Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+
+> ---
+> v2:
+> - Update changlog per Dave Hansen's comments
+> 
+>  drivers/dma/idxd/cdev.c   | 18 ++++++++++++++++++
+>  include/uapi/linux/idxd.h |  1 +
+>  2 files changed, 19 insertions(+)
+> 
+> diff --git a/drivers/dma/idxd/cdev.c b/drivers/dma/idxd/cdev.c
+> index c2808fd081d6..a9b96b18772f 100644
+> --- a/drivers/dma/idxd/cdev.c
+> +++ b/drivers/dma/idxd/cdev.c
+> @@ -312,6 +312,24 @@ static int idxd_user_drv_probe(struct idxd_dev *idxd_dev)
+>  	if (idxd->state != IDXD_DEV_ENABLED)
+>  		return -ENXIO;
+>  
+> +	/*
+> +	 * User type WQ is enabled only when SVA is enabled for two reasons:
+> +	 *   - If no IOMMU or IOMMU Passthrough without SVA, userspace
+> +	 *     can directly access physical address through the WQ.
+> +	 *   - The IDXD cdev driver does not provide any ways to pin
+> +	 *     user pages and translate the address from user VA to IOVA or
+> +	 *     PA without IOMMU SVA. Therefore the application has no way
+> +	 *     to instruct the device to perform DMA function. This makes
+> +	 *     the cdev not usable for normal application usage.
+> +	 */
+> +	if (!device_user_pasid_enabled(idxd)) {
+> +		idxd->cmd_status = IDXD_SCMD_WQ_USER_NO_IOMMU;
+> +		dev_dbg(&idxd->pdev->dev,
+> +			"User type WQ cannot be enabled without SVA.\n");
+> +
+> +		return -EOPNOTSUPP;
+> +	}
+> +
+>  	mutex_lock(&wq->wq_lock);
+>  	wq->type = IDXD_WQT_USER;
+>  	rc = drv_enable_wq(wq);
+> diff --git a/include/uapi/linux/idxd.h b/include/uapi/linux/idxd.h
+> index 095299c75828..2b9e7feba3f3 100644
+> --- a/include/uapi/linux/idxd.h
+> +++ b/include/uapi/linux/idxd.h
+> @@ -29,6 +29,7 @@ enum idxd_scmd_stat {
+>  	IDXD_SCMD_WQ_NO_SIZE = 0x800e0000,
+>  	IDXD_SCMD_WQ_NO_PRIV = 0x800f0000,
+>  	IDXD_SCMD_WQ_IRQ_ERR = 0x80100000,
+> +	IDXD_SCMD_WQ_USER_NO_IOMMU = 0x80110000,
+>  };
+>  
+>  #define IDXD_SCMD_SOFTERR_MASK	0x80000000
+> -- 
+> 2.32.0
+> 
+
