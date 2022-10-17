@@ -2,165 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C182E601311
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 17:57:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38949601335
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 18:13:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230215AbiJQP5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 11:57:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56554 "EHLO
+        id S230162AbiJQQND (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 12:13:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229452AbiJQP5F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 11:57:05 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E49F16D860
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 08:57:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666022222;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=DQ9BSUfDKoJUJ+YyUq4v3/jXsEiShgxTQU4ItDdSgGE=;
-        b=edb92rZ0c7o04VKukdiLfnFNszI+HiuPYRu+tnpI1gyZQ/Omj7s7HzbAP4vJIR2ishCubH
-        OT8XRl6o6d2BUWB3uROGuS0OePKKtZ40MMqpgyKhD7uF9WTJFS+GcwZlZubquxd6vXflnC
-        nX/sd6c+yvxOcqjZRNC8N6NaepYvqOs=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-599-Eg_D1dQUPrqmS8lZ_B8CdA-1; Mon, 17 Oct 2022 11:57:00 -0400
-X-MC-Unique: Eg_D1dQUPrqmS8lZ_B8CdA-1
-Received: by mail-qk1-f199.google.com with SMTP id j13-20020a05620a410d00b006e08208eb31so9874043qko.3
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 08:57:00 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=DQ9BSUfDKoJUJ+YyUq4v3/jXsEiShgxTQU4ItDdSgGE=;
-        b=kolRbSd4crcttFCMqwqK4e9ynHeHCH8SK1NJzKbaPbT7EVGV/najI1NCNYUw6E3lrZ
-         LFvE/9fZoEfkkFoy/yz/fkP0HNjlzD3zlA9H5q7itdFZhCV64T/5Jo/CcKb1IRtTbokE
-         +a1WRvpZE6DUrjDW/hCPa5+IKj+hyz03MGqiXe2JUB1x103TS6ER2hsy0Ha/7KNRAjrE
-         FEv3hF0bqe63V/baUQ5owuaJNuFVc/PPaEclv/LDJWhFe6HmDE/Y72MOxzc4V8cMrsig
-         EzYhSSU/dTAwrzmdhuDosUdlLsoAQznyWlT7HwvJv60P06FzEUfZOa+K2C9aR2/Jb0F2
-         CoHQ==
-X-Gm-Message-State: ACrzQf0Pn8rXZNJFRsVmnkHxFOkDHY/sNd0tGfYmn5b2VSvulul/+k12
-        PHOLTLqOsWxqUnprFUGt/+FxoGmKOtjLzyDjqIc4U4yeG3pZBjAvu1iSlyrDacvKIAgQWDjGzWU
-        UfLDUUxfRM2pKAIcV
-X-Received: by 2002:a05:6214:2aaf:b0:4b1:d684:f724 with SMTP id js15-20020a0562142aaf00b004b1d684f724mr9133426qvb.97.1666022219842;
-        Mon, 17 Oct 2022 08:56:59 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM4MXOXDAWK4nrAqUigIaANtf8VLQnL+iRuWPSVrKyXzwp36CNxsgKkJX8PxMceOAIliBF741A==
-X-Received: by 2002:a05:6214:2aaf:b0:4b1:d684:f724 with SMTP id js15-20020a0562142aaf00b004b1d684f724mr9133411qvb.97.1666022219641;
-        Mon, 17 Oct 2022 08:56:59 -0700 (PDT)
-Received: from localhost (ip98-179-76-75.ph.ph.cox.net. [98.179.76.75])
-        by smtp.gmail.com with ESMTPSA id s9-20020a05620a0bc900b006cfc4744589sm57440qki.128.2022.10.17.08.56.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Oct 2022 08:56:59 -0700 (PDT)
-Date:   Mon, 17 Oct 2022 08:56:57 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     Fenghua Yu <fenghua.yu@intel.com>
-Cc:     Vinod Koul <vkoul@kernel.org>,
-        Arjan Van De Ven <arjan.van.de.ven@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        dmaengine@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] dmaengine: idxd: Do not enable user type Work Queue
- without Shared Virtual Addressing
-Message-ID: <20221017155657.kpwvx5jicitoxbzp@cantor>
-References: <20221014222541.3912195-1-fenghua.yu@intel.com>
+        with ESMTP id S229775AbiJQQNB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 12:13:01 -0400
+Received: from mx0a-00230701.pphosted.com (mx0a-00230701.pphosted.com [148.163.156.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 601E565E9
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 09:13:01 -0700 (PDT)
+Received: from pps.filterd (m0297266.ppops.net [127.0.0.1])
+        by mx0a-00230701.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29HF8XxM026263;
+        Mon, 17 Oct 2022 09:12:44 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding;
+ s=pfptdkimsnps; bh=s0XINOAQXbIBhI7TzY3k8hGNCjNSg/n9SIwYo7AVQ9Q=;
+ b=L3gJfnx1uspFWtlTnJXbAXn4/PqqgaMmTdmkKTBdL79elMRRbKr/GrgI0bdlTKpAy+vE
+ mQf08m19v2QIROpZcAKssXra+iwFYKG+JepiYbvv+kbSDSiI0E7a+aq+Bz8l8OQPJDHS
+ WR7D/ZzrB/MAIAsXLp5tQVxGBRLrPDdgKnB8D1UVqkYcgr9XXPq/YLd/dsQSIpX5y7uK
+ /0zDSotckV3JGXyBp3/KxUGBTsq/dbVwWSwvddyvjJXY7uqxGpzbI5SI4C4laKhtGZE2
+ tszVtWPlDZrG2uV3nYP/DHfvG4GHKb1L6Iyhc+FV8/mLXyim8/UQdlBwwONW10lFiCxk Eg== 
+Received: from smtprelay-out1.synopsys.com (smtprelay-out1.synopsys.com [149.117.87.133])
+        by mx0a-00230701.pphosted.com (PPS) with ESMTPS id 3k7v452hh8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 Oct 2022 09:12:44 -0700
+Received: from mailhost.synopsys.com (sv1-mailhost2.synopsys.com [10.205.2.132])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (Client CN "mailhost.synopsys.com", Issuer "SNPSica2" (verified OK))
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 40639C0103;
+        Mon, 17 Oct 2022 16:12:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1666023163; bh=p5wijw1rO0bbKpnIWS6HHP+bomgJdjtj0aFWkbKLQUo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JOIa4HI8Kx7W7w7e+/MHRLjMAt7Ndnlr/tXiIsjuFZ4bZ92iAmp+bm9CS7Wb9BFq0
+         UYoN89s+UgJSZ2YoekQgG5nOv7x0dBtQKsLe0Rsw5G1Upc0S3YRjUNRtqp6Gma0Nge
+         HKATY3QeQMVL6fpANFVZAARa/Yzf27rbUQo7CHelcYoURE0dzfXiOywblhMrbTzUDX
+         PtR3d9GpItBcEgsgEHuL8D5TUhJgPiJsE9UwUn4Buzll4SzQeki0dmIECwY026YbAt
+         TQvw1J0nDBHe6QLzqKMwYG2nYWYQvbekGhRcXEHDaOAyXJxLimtWrPF/5JFEgWpyFf
+         Kjiq3sz82BTyQ==
+Received: from SNPS-o0WHuHJU73.internal.synopsys.com (snps-o0whuhju73.internal.synopsys.com [10.116.107.23])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id 43F09A0078;
+        Mon, 17 Oct 2022 16:12:38 +0000 (UTC)
+X-SNPS-Relay: synopsys.com
+From:   Pavel.Kozlov@synopsys.com
+To:     linux-snps-arc@lists.infradead.org
+Cc:     Pavel Kozlov <Pavel.Kozlov@synopsys.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Mike Rapoport <rppt@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] ARC: mm: fix leakage of memory allocated for PTE
+Date:   Mon, 17 Oct 2022 20:11:27 +0400
+Message-Id: <20221017161127.24351-1-kozlov@synopsys.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221014222541.3912195-1-fenghua.yu@intel.com>
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-GUID: NHSJDF_iY1PTgTcLq7tfPEjkQ6vgUwHo
+X-Proofpoint-ORIG-GUID: NHSJDF_iY1PTgTcLq7tfPEjkQ6vgUwHo
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-17_13,2022-10-17_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_active_cloned_notspam policy=outbound_active_cloned score=0
+ priorityscore=1501 adultscore=0 clxscore=1011 malwarescore=0 bulkscore=0
+ mlxlogscore=999 mlxscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
+ suspectscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2209130000 definitions=main-2210170094
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 14, 2022 at 03:25:41PM -0700, Fenghua Yu wrote:
-> When the idxd_user_drv driver is bound to a Work Queue (WQ) device
-> without IOMMU or with IOMMU Passthrough without Shared Virtual
-> Addressing (SVA), the application gains direct access to physical
-> memory via the device by programming physical address to a submitted
-> descriptor. This allows direct userspace read and write access to
-> arbitrary physical memory. This is inconsistent with the security
-> goals of a good kernel API.
-> 
-> Unlike vfio_pci driver, the IDXD char device driver does not provide any
-> ways to pin user pages and translate the address from user VA to IOVA or
-> PA without IOMMU SVA. Therefore the application has no way to instruct the
-> device to perform DMA function. This makes the char device not usable for
-> normal application usage.
-> 
-> Since user type WQ without SVA cannot be used for normal application usage
-> and presents the security issue, bind idxd_user_drv driver and enable user
-> type WQ only when SVA is enabled (i.e. user PASID is enabled).
-> 
-> Fixes: 448c3de8ac83 ("dmaengine: idxd: create user driver for wq 'device'")
-> Cc: stable@vger.kernel.org
-> Suggested-by: Arjan Van De Ven <arjan.van.de.ven@intel.com>
-> Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
-> Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+From: Pavel Kozlov <pavel.kozlov@synopsys.com>
 
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Since commit d9820ff ("ARC: mm: switch pgtable_t back to struct page *")
+a memory leakage problem occurs. Memory allocated for page table entries
+not released during process termination. This issue can be reproduced by
+a small program that allocates a large amount of memory. After several
+runs, you'll see that the amount of free memory has reduced and will
+continue to reduce after each run. All ARC CPUs are effected by this
+issue. The issue was introduced since the kernel stable release v5.15-rc1.
 
-> ---
-> v2:
-> - Update changlog per Dave Hansen's comments
-> 
->  drivers/dma/idxd/cdev.c   | 18 ++++++++++++++++++
->  include/uapi/linux/idxd.h |  1 +
->  2 files changed, 19 insertions(+)
-> 
-> diff --git a/drivers/dma/idxd/cdev.c b/drivers/dma/idxd/cdev.c
-> index c2808fd081d6..a9b96b18772f 100644
-> --- a/drivers/dma/idxd/cdev.c
-> +++ b/drivers/dma/idxd/cdev.c
-> @@ -312,6 +312,24 @@ static int idxd_user_drv_probe(struct idxd_dev *idxd_dev)
->  	if (idxd->state != IDXD_DEV_ENABLED)
->  		return -ENXIO;
->  
-> +	/*
-> +	 * User type WQ is enabled only when SVA is enabled for two reasons:
-> +	 *   - If no IOMMU or IOMMU Passthrough without SVA, userspace
-> +	 *     can directly access physical address through the WQ.
-> +	 *   - The IDXD cdev driver does not provide any ways to pin
-> +	 *     user pages and translate the address from user VA to IOVA or
-> +	 *     PA without IOMMU SVA. Therefore the application has no way
-> +	 *     to instruct the device to perform DMA function. This makes
-> +	 *     the cdev not usable for normal application usage.
-> +	 */
-> +	if (!device_user_pasid_enabled(idxd)) {
-> +		idxd->cmd_status = IDXD_SCMD_WQ_USER_NO_IOMMU;
-> +		dev_dbg(&idxd->pdev->dev,
-> +			"User type WQ cannot be enabled without SVA.\n");
-> +
-> +		return -EOPNOTSUPP;
-> +	}
-> +
->  	mutex_lock(&wq->wq_lock);
->  	wq->type = IDXD_WQT_USER;
->  	rc = drv_enable_wq(wq);
-> diff --git a/include/uapi/linux/idxd.h b/include/uapi/linux/idxd.h
-> index 095299c75828..2b9e7feba3f3 100644
-> --- a/include/uapi/linux/idxd.h
-> +++ b/include/uapi/linux/idxd.h
-> @@ -29,6 +29,7 @@ enum idxd_scmd_stat {
->  	IDXD_SCMD_WQ_NO_SIZE = 0x800e0000,
->  	IDXD_SCMD_WQ_NO_PRIV = 0x800f0000,
->  	IDXD_SCMD_WQ_IRQ_ERR = 0x80100000,
-> +	IDXD_SCMD_WQ_USER_NO_IOMMU = 0x80110000,
->  };
->  
->  #define IDXD_SCMD_SOFTERR_MASK	0x80000000
-> -- 
-> 2.32.0
-> 
+As described in commit d9820ff after switch pgtable_t back to struct
+page *, a pointer to "struct page" and appropriate functions are used to
+allocate and free a memory page for PTEs, but the pmd_pgtable macro hasn't
+changed and returns the direct virtual address from the PMD (PGD) entry.
+Than this address used as a parameter in the __pte_free() and as a result
+this function couldn't release memory page allocated for PTEs.
+
+Fix this issue by changing the pmd_pgtable macro and returning pointer to
+struct page.
+
+Fixes: d9820ff76f95 ("ARC: mm: switch pgtable_t back to struct page *")
+Signed-off-by: Pavel Kozlov <pavel.kozlov@synopsys.com>
+Cc: Vineet Gupta <vgupta@kernel.org>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: <stable@vger.kernel.org> # 4.15.x
+---
+ arch/arc/include/asm/pgtable-levels.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arc/include/asm/pgtable-levels.h b/arch/arc/include/asm/pgtable-levels.h
+index 64ca25d199be..ef68758b69f7 100644
+--- a/arch/arc/include/asm/pgtable-levels.h
++++ b/arch/arc/include/asm/pgtable-levels.h
+@@ -161,7 +161,7 @@
+ #define pmd_pfn(pmd)		((pmd_val(pmd) & PAGE_MASK) >> PAGE_SHIFT)
+ #define pmd_page(pmd)		virt_to_page(pmd_page_vaddr(pmd))
+ #define set_pmd(pmdp, pmd)	(*(pmdp) = pmd)
+-#define pmd_pgtable(pmd)	((pgtable_t) pmd_page_vaddr(pmd))
++#define pmd_pgtable(pmd)	((pgtable_t) pmd_page(pmd))
+ 
+ /*
+  * 4th level paging: pte
+-- 
+2.25.1
 
