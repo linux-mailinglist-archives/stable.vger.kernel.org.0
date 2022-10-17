@@ -2,138 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C00066016EB
-	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 21:08:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A4FB60170E
+	for <lists+stable@lfdr.de>; Mon, 17 Oct 2022 21:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229829AbiJQTIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 15:08:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46240 "EHLO
+        id S229594AbiJQTLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 15:11:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229597AbiJQTII (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 15:08:08 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FD725FF6E
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 12:08:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666033685;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        with ESMTP id S229577AbiJQTLc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 15:11:32 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99C42760EB;
+        Mon, 17 Oct 2022 12:11:26 -0700 (PDT)
+Date:   Mon, 17 Oct 2022 19:11:21 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1666033884;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ilwCj0pj+SOs8iCCQ1o/T1oYMlaK8E4LhEeUqd7n7xM=;
-        b=NW5Pge8Xl1kI1Uh/4rO8MjPYu02pAnzSkLCvJnPTHK6cn90urCppN5DKnD/jIo8DPbPLlK
-        aoumDxyUWxHaYjU0RmIdrvumPXqSkthexcs9aR/X8Vn7PTLlIAGFQGy5OxkMFTbh8mxx3D
-        Z7EwyOOJLg6cwiqsKnA3MHJ1WZ9A4fg=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-625-08qL-U6sPxyLsqbbHsmL4g-1; Mon, 17 Oct 2022 15:08:04 -0400
-X-MC-Unique: 08qL-U6sPxyLsqbbHsmL4g-1
-Received: by mail-qt1-f198.google.com with SMTP id f19-20020ac84713000000b00397692bdaecso9216494qtp.22
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 12:08:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:user-agent:organization
-         :references:in-reply-to:date:cc:to:from:subject:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ilwCj0pj+SOs8iCCQ1o/T1oYMlaK8E4LhEeUqd7n7xM=;
-        b=Y/shH/D0QKq11/poFoQFd9OQ7/pt1q+Re5O2HN+A82bhs+i/NceUaUg/BbfJmKGGQZ
-         pETGiFn37p0UWmqruLpCxKgPGv462NmEg+tSKHJoIZG9sPbjmj4qJPqNbMcUqNal2hZv
-         YckGq8Ee2U6gfwdR0ckU8NDnGnNqylIpnhi4nLY5+0roEBNdOjoYLKDkO6Y7En+XZguF
-         qV/wXzoav+SrDjjlAg3JyqHeFsukWK1U65ZIJX4djp/8ASfltil/wF92BX15wiRwBSbc
-         /kEkO/RkVHO2K7QqUNMEVSFdu+kh2KyTMGFVmVTV1gzg3TZ+g25oKhRIAYyezhEyZ0JT
-         Ozqw==
-X-Gm-Message-State: ACrzQf1Lp54kyx98ZFo6qrlBaR47Xsb6bs586bUwtsxUbDKAvISDjd87
-        D49Lg9zqtTnMB+gGJ9JtsIlNb1gq6DzvbQQZMAMD4HrMOhGPwbnBMmRqJZ3rhHhqXN6AfaZz3M4
-        ilqobr5lpfnnXPTjL
-X-Received: by 2002:a05:622a:302:b0:39c:dc1f:db98 with SMTP id q2-20020a05622a030200b0039cdc1fdb98mr10226136qtw.467.1666033683377;
-        Mon, 17 Oct 2022 12:08:03 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM76UvvScj47R2ZY2DxcytExeFmf9uLvqJju8KYn5YNtfF734a6NCoaPe+3Xtd00B4VrB5TRVQ==
-X-Received: by 2002:a05:622a:302:b0:39c:dc1f:db98 with SMTP id q2-20020a05622a030200b0039cdc1fdb98mr10226114qtw.467.1666033683148;
-        Mon, 17 Oct 2022 12:08:03 -0700 (PDT)
-Received: from ?IPv6:2600:4040:5c68:4300::feb? ([2600:4040:5c68:4300::feb])
-        by smtp.gmail.com with ESMTPSA id de38-20020a05620a372600b006ce30a5f892sm439488qkb.102.2022.10.17.12.08.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Oct 2022 12:08:02 -0700 (PDT)
-Message-ID: <dd44a67411f0fc9065001696f231132ad85d9597.camel@redhat.com>
-Subject: Re: [PATCH 2/2] drm/connector: send hotplug uevent on connector
- cleanup
-From:   Lyude Paul <lyude@redhat.com>
-To:     Simon Ser <contact@emersion.fr>, dri-devel@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jonas =?ISO-8859-1?Q?=C5dahl?= <jadahl@redhat.com>
-Date:   Mon, 17 Oct 2022 15:08:01 -0400
-In-Reply-To: <20221017153150.60675-2-contact@emersion.fr>
-References: <20221017153150.60675-1-contact@emersion.fr>
-         <20221017153150.60675-2-contact@emersion.fr>
-Organization: Red Hat Inc.
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        bh=vNbzadM4sp0fE1rZcmiFJ3WAhf8ueTO2rJeOjD3VaL0=;
+        b=B6zXLbawfZ53+5RjtVmhT98RNwZUXMwA5Ovn7cIOH+uZM2mEWnrEcDG5/xtk8ZsWBIwrX6
+        iqvsRhzuH32o2XMoky55mtjLNQvF0x/3jITMZrTQdYEOkl9UXDr5LUzvpZ12iYTpSHSXGd
+        /i38ICZvqqNPU+2bMxbMcHHOd6LBz2kmskcf7ZtanD/jeOg1FqeANzX5xbZh1nkWAaXMQK
+        DSS69TglRqDC25h/LtzF3T559cTPMHciyA4ag4XFTb3Naj7WpdMsxwEWOVe8m9uOvH5FjD
+        ydlIIh+nWWAoogVAqWyR52RN3uLkPgu7oLXUjmCTVfJQ1oU2COhyDrUYN9oXYA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1666033884;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=vNbzadM4sp0fE1rZcmiFJ3WAhf8ueTO2rJeOjD3VaL0=;
+        b=CRKALFj7FJHRdF0e7nRXBHgSPbIFYA3qCkBUJGStcLSXNtTXAgpToHPLj3woy/4lyGQEgg
+        OW4bOJO1hlMrKYAA==
+From:   "tip-bot2 for Zhang Rui" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/topology: Fix duplicated core ID within a package
+Cc:     Len Brown <len.brown@intel.com>, Zhang Rui <rui.zhang@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20221014090147.1836-5-rui.zhang@intel.com>
+References: <20221014090147.1836-5-rui.zhang@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Message-ID: <166603388137.401.8014565128947314583.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LGTM! Thank you for the help with this:
+The following commit has been merged into the x86/urgent branch of tip:
 
-Reviewed-by: Lyude Paul <lyude@redhat.com>
+Commit-ID:     71eac7063698b7d7b8fafb1683ac24a034541141
+Gitweb:        https://git.kernel.org/tip/71eac7063698b7d7b8fafb1683ac24a034541141
+Author:        Zhang Rui <rui.zhang@intel.com>
+AuthorDate:    Fri, 14 Oct 2022 17:01:47 +08:00
+Committer:     Dave Hansen <dave.hansen@linux.intel.com>
+CommitterDate: Mon, 17 Oct 2022 11:58:52 -07:00
 
-On Mon, 2022-10-17 at 15:32 +0000, Simon Ser wrote:
-> A typical DP-MST unplug removes a KMS connector. However care must
-> be taken to properly synchronize with user-space. The expected
-> sequence of events is the following:
-> 
-> 1. The kernel notices that the DP-MST port is gone.
-> 2. The kernel marks the connector as disconnected, then sends a
->    uevent to make user-space re-scan the connector list.
-> 3. User-space notices the connector goes from connected to disconnected,
->    disables it.
-> 4. Kernel handles the the IOCTL disabling the connector. On success,
->    the very last reference to the struct drm_connector is dropped and
->    drm_connector_cleanup() is called.
-> 5. The connector is removed from the list, and a uevent is sent to tell
->    user-space that the connector disappeared.
-> 
-> The very last step was missing. As a result, user-space thought the
-> connector still existed and could try to disable it again. Since the
-> kernel no longer knows about the connector, that would end up with
-> EINVAL and confused user-space.
-> 
-> Fix this by sending a hotplug uevent from drm_connector_cleanup().
-> 
-> Signed-off-by: Simon Ser <contact@emersion.fr>
-> Cc: stable@vger.kernel.org
-> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Cc: Lyude Paul <lyude@redhat.com>
-> Cc: Jonas Ådahl <jadahl@redhat.com>
-> ---
->  drivers/gpu/drm/drm_connector.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/drm_connector.c b/drivers/gpu/drm/drm_connector.c
-> index e3142c8142b3..90dad87e9ad0 100644
-> --- a/drivers/gpu/drm/drm_connector.c
-> +++ b/drivers/gpu/drm/drm_connector.c
-> @@ -582,6 +582,9 @@ void drm_connector_cleanup(struct drm_connector *connector)
->  	mutex_destroy(&connector->mutex);
->  
->  	memset(connector, 0, sizeof(*connector));
-> +
-> +	if (dev->registered)
-> +		drm_sysfs_hotplug_event(dev);
->  }
->  EXPORT_SYMBOL(drm_connector_cleanup);
->  
+x86/topology: Fix duplicated core ID within a package
 
--- 
-Cheers,
- Lyude Paul (she/her)
- Software Engineer at Red Hat
+Today, core ID is assumed to be unique within each package.
 
+But an AlderLake-N platform adds a Module level between core and package,
+Linux excludes the unknown modules bits from the core ID, resulting in
+duplicate core ID's.
+
+To keep core ID unique within a package, Linux must include all APIC-ID
+bits for known or unknown levels above the core and below the package
+in the core ID.
+
+It is important to understand that core ID's have always come directly
+from the APIC-ID encoding, which comes from the BIOS. Thus there is no
+guarantee that they start at 0, or that they are contiguous.
+As such, naively using them for array indexes can be problematic.
+
+[ dhansen: un-known -> unknown ]
+
+Fixes: 7745f03eb395 ("x86/topology: Add CPUID.1F multi-die/package support")
+Suggested-by: Len Brown <len.brown@intel.com>
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Len Brown <len.brown@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20221014090147.1836-5-rui.zhang@intel.com
+---
+ arch/x86/kernel/cpu/topology.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/kernel/cpu/topology.c b/arch/x86/kernel/cpu/topology.c
+index f759281..5e868b6 100644
+--- a/arch/x86/kernel/cpu/topology.c
++++ b/arch/x86/kernel/cpu/topology.c
+@@ -141,7 +141,7 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
+ 		sub_index++;
+ 	}
+ 
+-	core_select_mask = (~(-1 << core_plus_mask_width)) >> ht_mask_width;
++	core_select_mask = (~(-1 << pkg_mask_width)) >> ht_mask_width;
+ 	die_select_mask = (~(-1 << die_plus_mask_width)) >>
+ 				core_plus_mask_width;
+ 
