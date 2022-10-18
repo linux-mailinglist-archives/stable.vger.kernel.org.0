@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1E1E601FF1
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:56:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE244601FBF
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:39:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229971AbiJRA4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:56:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60992 "EHLO
+        id S232169AbiJRAji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:39:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229874AbiJRA4I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:56:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE8766470;
-        Mon, 17 Oct 2022 17:56:07 -0700 (PDT)
+        with ESMTP id S232196AbiJRAiz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:38:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 074E55593;
+        Mon, 17 Oct 2022 17:38:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0AAEBB81BF9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B278D612FA;
         Tue, 18 Oct 2022 00:09:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7733C433D7;
-        Tue, 18 Oct 2022 00:09:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 343E5C43470;
+        Tue, 18 Oct 2022 00:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051790;
-        bh=oN6JrRW7HxtTEZenVxRVgLqm+0Dic4qTguzq3ewBC+I=;
+        s=k20201202; t=1666051792;
+        bh=nEDgV+E2F3dMb5DprLqGZgnm9dni2u/OLN3rXlrDET0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JlZEQPHU5Eojtsq7OcZ0RwYgIU2i7qnwmxiI5X0h/Tl3nHOHyxilbBRgSFlsdBavl
-         1Np37eMg0yuP+Mzh+Ll9n6vxKBtkkscMo+fDZJTfUEiaxx89eNooHHSv7nFA3ybGjg
-         qbU79cKBbb5imKEzRjLJWjh6B4J/BFLoAkDYlMjQGlVe1Ojz68rQ3+wdnHRVPshd3/
-         RLDmV7TwaCV1SOmB8wJ3rISQYlVAJrUorWSl6HWD1wZLPHX/Kc7O0Ie7Aes+gac+Rc
-         u7IWmrUcxfvqRzyAiIn6EEhNC/CbKNAYdbTKI96ggnPzDCcRzpnUcEjCpVvITNYiqP
-         en0rxB+NMInpA==
+        b=THYyEnvQYeUYbQunSu8XA4DaVHNiLTkd6O7ducka3YVpU8hsml5n5s5cLkyzfEd01
+         ATcSsU4+wjCQF11B260CBUCo0OQU+kXrJxWsul1zvBQ53xkHtB60V9zFqv8uIgJVL+
+         /Ng1K469Y48xUIsZanq95c8PXh3G7PRBoXOLX5AsQFy3i6glrY1QeQ7SGaQSV/Bdka
+         RRpTbu0881YWBg+FlVHUsBlJiayINca7ylfW1tKhiEScM3bayeHX1G055GLz1/ByBi
+         4OAGzttxxOiG6svLfX9lFqLRRCHFOPAOkXD4DiI60POFHmM48q9w41Ztb7WOyRQ7VE
+         tcUBDolPpyqkA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tejun Heo <tj@kernel.org>,
-        Abhishek Shah <abhishek.shah@columbia.edu>,
-        Gabriel Ryan <gabe@cs.columbia.edu>,
-        Christian Brauner <brauner@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lizefan.x@bytedance.com,
-        hannes@cmpxchg.org, cgroups@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 05/21] cgroup: Remove data-race around cgrp_dfl_visible
-Date:   Mon, 17 Oct 2022 20:09:24 -0400
-Message-Id: <20221018000940.2731329-5-sashal@kernel.org>
+Cc:     Marek Bykowski <marek.bykowski@gmail.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        robh+dt@kernel.org, frowand.list@gmail.com,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 06/21] of/fdt: Don't calculate initrd size from DT if start > end
+Date:   Mon, 17 Oct 2022 20:09:25 -0400
+Message-Id: <20221018000940.2731329-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000940.2731329-1-sashal@kernel.org>
 References: <20221018000940.2731329-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,46 +57,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Marek Bykowski <marek.bykowski@gmail.com>
 
-[ Upstream commit dc79ec1b232ad2c165d381d3dd2626df4ef9b5a4 ]
+[ Upstream commit d5e3050c0feb8bf7b9a75482fafcc31b90257926 ]
 
-There's a seemingly harmless data-race around cgrp_dfl_visible detected by
-kernel concurrency sanitizer. Let's remove it by throwing WRITE/READ_ONCE at
-it.
+If the properties 'linux,initrd-start' and 'linux,initrd-end' of
+the chosen node populated from the bootloader, eg. U-Boot, are so that
+start > end, then the phys_initrd_size calculated from end - start is
+negative that subsequently gets converted to a high positive value for
+being unsigned long long. Then, the memory region with the (invalid)
+size is added to the bootmem and attempted being paged in paging_init()
+that results in the kernel fault.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
-Cc: Gabriel Ryan <gabe@cs.columbia.edu>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Link: https://lore.kernel.org/netdev/20220819072256.fn7ctciefy4fc4cu@wittgenstein/
+For example, on the FVP ARM64 system I'm running, the U-Boot populates
+the 'linux,initrd-start' with 8800_0000 and 'linux,initrd-end' with 0.
+The phys_initrd_size calculated is then ffff_ffff_7800_0000
+(= 0 - 8800_0000 = -8800_0000 + ULLONG_MAX + 1). paging_init() then
+attempts to map the address 8800_0000 + ffff_ffff_7800_0000 and oops'es
+as below.
+
+It should be stressed, it is generally a fault of the bootloader's with
+the kernel relying on it, however we should not allow the bootloader's
+misconfiguration to lead to the kernel oops. Not only the kernel should be
+bullet proof against it but also finding the root cause of the paging
+fault spanning over the bootloader, DT, and kernel may happen is not so
+easy.
+
+  Unable to handle kernel paging request at virtual address fffffffefe43c000
+  Mem abort info:
+    ESR = 0x96000007
+    EC = 0x25: DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+  Data abort info:
+    ISV = 0, ISS = 0x00000007
+    CM = 0, WnR = 0
+  swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000080e3d000
+  [fffffffefe43c000] pgd=0000000080de9003, pud=0000000080de9003
+  Unable to handle kernel paging request at virtual address ffffff8000de9f90
+  Mem abort info:
+    ESR = 0x96000005
+    EC = 0x25: DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+  Data abort info:
+    ISV = 0, ISS = 0x00000005
+    CM = 0, WnR = 0
+  swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000080e3d000
+  [ffffff8000de9f90] pgd=0000000000000000, pud=0000000000000000
+  Internal error: Oops: 96000005 [#1] PREEMPT SMP
+  Modules linked in:
+  CPU: 0 PID: 0 Comm: swapper Not tainted 5.4.51-yocto-standard #1
+  Hardware name: FVP Base (DT)
+  pstate: 60000085 (nZCv daIf -PAN -UAO)
+  pc : show_pte+0x12c/0x1b4
+  lr : show_pte+0x100/0x1b4
+  sp : ffffffc010ce3b30
+  x29: ffffffc010ce3b30 x28: ffffffc010ceed80
+  x27: fffffffefe43c000 x26: fffffffefe43a028
+  x25: 0000000080bf0000 x24: 0000000000000025
+  x23: ffffffc010b8d000 x22: ffffffc010e3d000
+  x23: ffffffc010b8d000 x22: ffffffc010e3d000
+  x21: 0000000080de9000 x20: ffffff7f80000f90
+  x19: fffffffefe43c000 x18: 0000000000000030
+  x17: 0000000000001400 x16: 0000000000001c00
+  x15: ffffffc010cef1b8 x14: ffffffffffffffff
+  x13: ffffffc010df1f40 x12: ffffffc010df1b70
+  x11: ffffffc010ce3b30 x10: ffffffc010ce3b30
+  x9 : 00000000ffffffc8 x8 : 0000000000000000
+  x7 : 000000000000000f x6 : ffffffc010df16e8
+  x5 : 0000000000000000 x4 : 0000000000000000
+  x3 : 00000000ffffffff x2 : 0000000000000000
+  x1 : 0000008080000000 x0 : ffffffc010af1d68
+  Call trace:
+   show_pte+0x12c/0x1b4
+   die_kernel_fault+0x54/0x78
+   __do_kernel_fault+0x11c/0x128
+   do_translation_fault+0x58/0xac
+   do_mem_abort+0x50/0xb0
+   el1_da+0x1c/0x90
+   __create_pgd_mapping+0x348/0x598
+   paging_init+0x3f0/0x70d0
+   setup_arch+0x2c0/0x5d4
+   start_kernel+0x94/0x49c
+  Code: 92748eb5 900052a0 9135a000 cb010294 (f8756a96) 
+
+Signed-off-by: Marek Bykowski <marek.bykowski@gmail.com>
+Link: https://lore.kernel.org/r/20220909023358.76881-1-marek.bykowski@gmail.com
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/of/fdt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index 4b19f7fc4deb..1dd45a1c1acc 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -2152,7 +2152,7 @@ static int cgroup_get_tree(struct fs_context *fc)
- 	struct cgroup_fs_context *ctx = cgroup_fc2context(fc);
- 	int ret;
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index 338171c978cc..bb6c517c137e 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -937,6 +937,8 @@ static void __init early_init_dt_check_for_initrd(unsigned long node)
+ 	if (!prop)
+ 		return;
+ 	end = of_read_number(prop, len/4);
++	if (start > end)
++		return;
  
--	cgrp_dfl_visible = true;
-+	WRITE_ONCE(cgrp_dfl_visible, true);
- 	cgroup_get_live(&cgrp_dfl_root.cgrp);
- 	ctx->root = &cgrp_dfl_root;
- 
-@@ -6067,7 +6067,7 @@ int proc_cgroup_show(struct seq_file *m, struct pid_namespace *ns,
- 		struct cgroup *cgrp;
- 		int ssid, count = 0;
- 
--		if (root == &cgrp_dfl_root && !cgrp_dfl_visible)
-+		if (root == &cgrp_dfl_root && !READ_ONCE(cgrp_dfl_visible))
- 			continue;
- 
- 		seq_printf(m, "%d:", root->hierarchy_id);
+ 	__early_init_dt_declare_initrd(start, end);
+ 	phys_initrd_start = start;
 -- 
 2.35.1
 
