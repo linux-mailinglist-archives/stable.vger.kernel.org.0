@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F01BB601E55
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76EA3601E58
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:09:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231382AbiJRAJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:09:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36422 "EHLO
+        id S230151AbiJRAJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:09:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231432AbiJRAIq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:08:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7345B87F90;
-        Mon, 17 Oct 2022 17:08:11 -0700 (PDT)
+        with ESMTP id S231437AbiJRAIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:08:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C0F287FB8;
+        Mon, 17 Oct 2022 17:08:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B4F2B81BE1;
-        Tue, 18 Oct 2022 00:08:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7281EC433D7;
-        Tue, 18 Oct 2022 00:08:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C79661302;
+        Tue, 18 Oct 2022 00:08:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE2F3C433D6;
+        Tue, 18 Oct 2022 00:08:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051688;
-        bh=YPDuCu2UpB22OWik411oVG7fEymtDedQ6SVGcfxrmDI=;
+        s=k20201202; t=1666051690;
+        bh=cHle/rKV0zuFV5/oUsPF+6blyk2FbZRXAyUsGqr80Ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNrEpRcO3F+6fYsWPlRnV2CmG5dhKfZnS91Ldy32gSgHmje+xM01WyMqc9SyinuME
-         1zDrAd1t/Tqnjih3smQepy86KdtmQe0A+xUv3vBZihGgogTmBjc+8+chFQuoQ/Xbzx
-         /QkAOjBAwhDOaJ6RlQS9K1qYaCnhv23vQ0up5ilA4YxVLPbGH9iA7461LRd90V1Pw8
-         lVYQFGPdm6GXSjxrK9blutAcA01WAtQjAEqHzSIIX/5QeS+8rThrHzcDr5WhI4lkkr
-         Hec5wlCOaB/Iqcc0IVuGaU7b75DQGBbyaqxlDbWnaKpNcaJ6NrYU811K2mNPPLuRf9
-         E/4LvMDHdeOrQ==
+        b=e2huqvdq2wO6sQBm/EZQmUpZIoz6lR/eyWwb0Yp+eOVqFFTQkCzoID/taeL3hXhDg
+         FJ4F8zm7o5HIfEmrCPaHxSxo9seywBkHd9IMywfqyNObeXjR7wOfW+hHlzO7jfI+Af
+         FyApJkfikCSZbU8XVG9caTsNMoNFPu/S8MCWYPZCh5X0pSyBPNgYol4SpN4c1tS8iC
+         tR0SDO/DVqai8ruOPCMGzqfJ6LGQguiv3BTWHx37Bh2MnggYItPO+LGxNEUEQq9VlO
+         YyJZzwk0rHn//5KRVCS8tUYQ+j/JyJfqgsdyzzv/LwsKvIeZi6236VaUbHNUAhWGpV
+         4K4mxWLN01Klw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        robh+dt@kernel.org, frowand.list@gmail.com,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 20/32] of: Fix "dma-ranges" handling for bus controllers
-Date:   Mon, 17 Oct 2022 20:07:17 -0400
-Message-Id: <20221018000729.2730519-20-sashal@kernel.org>
+Cc:     Zhao Liu <zhao1.liu@intel.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        "Fabio M . De Francesco" <fmdefrancesco@gmail.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
+        decui@microsoft.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        linux-hyperv@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 21/32] x86/hyperv: Replace kmap() with kmap_local_page()
+Date:   Mon, 17 Oct 2022 20:07:18 -0400
+Message-Id: <20221018000729.2730519-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000729.2730519-1-sashal@kernel.org>
 References: <20221018000729.2730519-1-sashal@kernel.org>
@@ -57,104 +61,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Zhao Liu <zhao1.liu@intel.com>
 
-[ Upstream commit f1ad5338a4d57fe1fe6475003acb8c70bf9d1bdf ]
+[ Upstream commit 154fb14df7a3c81dea82eca7c0c46590f5ffc3d2 ]
 
-Commit 951d48855d86 ("of: Make of_dma_get_range() work on bus nodes")
-relaxed the handling of "dma-ranges" for any leaf node on the assumption
-that it would still represent a usage error for the property to be
-present on a non-bus leaf node. However there turns out to be a fiddly
-case where a bus also represents a DMA-capable device in its own right,
-such as a PCIe root complex with an integrated DMA engine on its
-platform side. In such cases, "dma-ranges" translation is entirely valid
-for devices discovered behind the bus, but should not be erroneously
-applied to the bus controller device itself which operates in its
-parent's address space. Fix this by restoring the previous behaviour for
-the specific case where a device is configured via its own OF node,
-since it is logical to assume that a device should never represent its
-own parent bus.
+kmap() is being deprecated in favor of kmap_local_page()[1].
 
-Reported-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/112e8f3d3e7c054ecf5e12b5ac0aa5596ec00681.1664455433.git.robin.murphy@arm.com
-Signed-off-by: Rob Herring <robh@kernel.org>
+There are two main problems with kmap(): (1) It comes with an overhead as
+mapping space is restricted and protected by a global lock for
+synchronization and (2) it also requires global TLB invalidation when the
+kmap's pool wraps and it might block when the mapping space is fully
+utilized until a slot becomes available.
+
+With kmap_local_page() the mappings are per thread, CPU local, can take
+page faults, and can be called from any context (including interrupts).
+It is faster than kmap() in kernels with HIGHMEM enabled. Furthermore,
+the tasks can be preempted and, when they are scheduled to run again, the
+kernel virtual addresses are restored and are still valid.
+
+In the fuction hyperv_init() of hyperv/hv_init.c, the mapping is used in a
+single thread and is short live. So, in this case, it's safe to simply use
+kmap_local_page() to create mapping, and this avoids the wasted cost of
+kmap() for global synchronization.
+
+In addtion, the fuction hyperv_init() checks if kmap() fails by BUG_ON().
+From the original discussion[2], the BUG_ON() here is just used to
+explicitly panic NULL pointer. So still keep the BUG_ON() in place to check
+if kmap_local_page() fails. Based on this consideration, memcpy_to_page()
+is not selected here but only kmap_local_page() is used.
+
+Therefore, replace kmap() with kmap_local_page() in hyperv/hv_init.c.
+
+[1]: https://lore.kernel.org/all/20220813220034.806698-1-ira.weiny@intel.com
+[2]: https://lore.kernel.org/lkml/20200915103710.cqmdvzh5lys4wsqo@liuwe-devbox-debian-v2/
+
+Suggested-by: Dave Hansen <dave.hansen@intel.com>
+Suggested-by: Ira Weiny <ira.weiny@intel.com>
+Suggested-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Signed-off-by: Zhao Liu <zhao1.liu@intel.com>
+Link: https://lore.kernel.org/r/20220928095640.626350-1-zhao1.liu@linux.intel.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/address.c    | 4 +++-
- drivers/of/device.c     | 9 ++++++++-
- drivers/of/of_private.h | 5 +++++
- 3 files changed, 16 insertions(+), 2 deletions(-)
+ arch/x86/hyperv/hv_init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/of/address.c b/drivers/of/address.c
-index 96f0a12e507c..c34ac33b7338 100644
---- a/drivers/of/address.c
-+++ b/drivers/of/address.c
-@@ -579,7 +579,8 @@ u64 of_translate_address(struct device_node *dev, const __be32 *in_addr)
- }
- EXPORT_SYMBOL(of_translate_address);
+diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
+index 3de6d8b53367..72fe46eb183f 100644
+--- a/arch/x86/hyperv/hv_init.c
++++ b/arch/x86/hyperv/hv_init.c
+@@ -459,13 +459,13 @@ void __init hyperv_init(void)
+ 		wrmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
  
--static struct device_node *__of_get_dma_parent(const struct device_node *np)
-+#ifdef CONFIG_HAS_DMA
-+struct device_node *__of_get_dma_parent(const struct device_node *np)
- {
- 	struct of_phandle_args args;
- 	int ret, index;
-@@ -596,6 +597,7 @@ static struct device_node *__of_get_dma_parent(const struct device_node *np)
- 
- 	return of_node_get(args.np);
- }
-+#endif
- 
- static struct device_node *of_get_next_dma_parent(struct device_node *np)
- {
-diff --git a/drivers/of/device.c b/drivers/of/device.c
-index 75b6cbffa755..8cefe5a7d04e 100644
---- a/drivers/of/device.c
-+++ b/drivers/of/device.c
-@@ -116,12 +116,19 @@ int of_dma_configure_id(struct device *dev, struct device_node *np,
- {
- 	const struct iommu_ops *iommu;
- 	const struct bus_dma_region *map = NULL;
-+	struct device_node *bus_np;
- 	u64 dma_start = 0;
- 	u64 mask, end, size = 0;
- 	bool coherent;
- 	int ret;
- 
--	ret = of_dma_get_range(np, &map);
-+	if (np == dev->of_node)
-+		bus_np = __of_get_dma_parent(np);
-+	else
-+		bus_np = of_node_get(np);
-+
-+	ret = of_dma_get_range(bus_np, &map);
-+	of_node_put(bus_np);
- 	if (ret < 0) {
- 		/*
- 		 * For legacy reasons, we have to assume some devices need
-diff --git a/drivers/of/of_private.h b/drivers/of/of_private.h
-index 9324483397f6..fb6792d381a6 100644
---- a/drivers/of/of_private.h
-+++ b/drivers/of/of_private.h
-@@ -155,12 +155,17 @@ struct bus_dma_region;
- #if defined(CONFIG_OF_ADDRESS) && defined(CONFIG_HAS_DMA)
- int of_dma_get_range(struct device_node *np,
- 		const struct bus_dma_region **map);
-+struct device_node *__of_get_dma_parent(const struct device_node *np);
- #else
- static inline int of_dma_get_range(struct device_node *np,
- 		const struct bus_dma_region **map)
- {
- 	return -ENODEV;
- }
-+static inline struct device_node *__of_get_dma_parent(const struct device_node *np)
-+{
-+	return of_get_parent(np);
-+}
- #endif
- 
- void fdt_init_reserved_mem(void);
+ 		pg = vmalloc_to_page(hv_hypercall_pg);
+-		dst = kmap(pg);
++		dst = kmap_local_page(pg);
+ 		src = memremap(hypercall_msr.guest_physical_address << PAGE_SHIFT, PAGE_SIZE,
+ 				MEMREMAP_WB);
+ 		BUG_ON(!(src && dst));
+ 		memcpy(dst, src, HV_HYP_PAGE_SIZE);
+ 		memunmap(src);
+-		kunmap(pg);
++		kunmap_local(dst);
+ 	} else {
+ 		hypercall_msr.guest_physical_address = vmalloc_to_pfn(hv_hypercall_pg);
+ 		wrmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
 -- 
 2.35.1
 
