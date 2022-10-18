@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62495601EF0
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:15:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30150601EE7
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231640AbiJRAOv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:14:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57150 "EHLO
+        id S231593AbiJRAOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:14:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231751AbiJRAOP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:14:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29F2082855;
-        Mon, 17 Oct 2022 17:10:51 -0700 (PDT)
+        with ESMTP id S230320AbiJRANI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:13:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C5B24C617;
+        Mon, 17 Oct 2022 17:09:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FC93B81B62;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBC7661321;
+        Tue, 18 Oct 2022 00:09:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 192FFC43140;
         Tue, 18 Oct 2022 00:09:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91C1DC433C1;
-        Tue, 18 Oct 2022 00:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051778;
-        bh=Vjxmb66VuaqnAnWMAKMIkDd5xN7b/uQevVKtAjpZKFQ=;
+        s=k20201202; t=1666051780;
+        bh=roh5/X9env6+feVN+5Uc8QQfbfxb2eEacfNmV5mCZLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lRlD8WMSknZ51Id215UeB3hMlQHcLKLw0fLi8bVxhnjiBA996/o0YXwathgw9ZEcM
-         gMFZ5I7sL7rTbRacd4WXZPbGj0WKTSvgnMQHTqnlFv92UP1ery1d8PVksEgXv7xIGJ
-         ZQpamf2+y4AFDJ7TwdQgdjnme/zus5Yfa62HU1+UDXj8qP9/7FCgBkrzs0WMCV2IGP
-         8aeA20CAW0HMcEg/jL3fPJ4ifP8vA+IZJojoVHzb2lMqA/JWr+dRlwbxdnNsObdm5T
-         /lP5GU50AlwONSvelEgUz6tmT0T8LOk4SBaKm4mMccHCdxlTtJNkVjE1Sb6wyA/Yye
-         F34gJF8MgtMhg==
+        b=ftCCaZVnvZ+F7xuNiO7TWHESKo5/1K5xEuhxJins/5M4qXa4+mZR7VH9GHo+PBL2N
+         boEUVerj7c8GvI0zYWOtbpWB8oTSOjFwQSjzhrhbJaHrFcd4i28m0HSDEiXi9NihTf
+         DgBteDzW9Si6lCfXZ6eFZ+h4yQJniUeWPSph5ZecYdeZDp5p2heDjoQ03HzOhG1Bka
+         qGvoVJ8w6E1oz55jaIrk5H7d/BM1uOWrLI6LNapMVG9+IEXVAO34rnRhYMHLkuOGrp
+         DV6uvFp7uyJOygyN43X9a88nL09ZnlrtMvQ/Ym7kp9rOuNj5H4mJ/x7YCUe+kelzEx
+         LkxVd47lFphPg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Angus Chen <angus.chen@jaguarmicro.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.19 28/29] virtio_pci: don't try to use intxif pin is zero
-Date:   Mon, 17 Oct 2022 20:08:37 -0400
-Message-Id: <20221018000839.2730954-28-sashal@kernel.org>
+Cc:     Enzo Matsumiya <ematsumiya@suse.de>,
+        kernel test robot <oliver.sang@intel.com>,
+        Paulo Alcantara <pc@cjr.nz>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.19 29/29] cifs: replace kfree() with kfree_sensitive() for sensitive data
+Date:   Mon, 17 Oct 2022 20:08:38 -0400
+Message-Id: <20221018000839.2730954-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000839.2730954-1-sashal@kernel.org>
 References: <20221018000839.2730954-1-sashal@kernel.org>
@@ -56,90 +59,322 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angus Chen <angus.chen@jaguarmicro.com>
+From: Enzo Matsumiya <ematsumiya@suse.de>
 
-[ Upstream commit 71491c54eafa318fdd24a1f26a1c82b28e1ac21d ]
+[ Upstream commit a4e430c8c8ba96be8c6ec4f2eb108bb8bcbee069 ]
 
-The background is that we use dpu in cloud computing,the arch is x86,80
-cores. We will have a lots of virtio devices,like 512 or more.
-When we probe about 200 virtio_blk devices,it will fail and
-the stack is printed as follows:
+Replace kfree with kfree_sensitive, or prepend memzero_explicit() in
+other cases, when freeing sensitive material that could still be left
+in memory.
 
-[25338.485128] virtio-pci 0000:b3:00.0: virtio_pci: leaving for legacy driver
-[25338.496174] genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)
-[25338.503822] CPU: 20 PID: 5431 Comm: kworker/20:0 Kdump: loaded Tainted: G           OE    --------- -  - 4.18.0-305.30.1.el8.x86_64
-[25338.516403] Hardware name: Inspur NF5280M5/YZMB-00882-10E, BIOS 4.1.21 08/25/2021
-[25338.523881] Workqueue: events work_for_cpu_fn
-[25338.528235] Call Trace:
-[25338.530687]  dump_stack+0x5c/0x80
-[25338.534000]  __setup_irq.cold.53+0x7c/0xd3
-[25338.538098]  request_threaded_irq+0xf5/0x160
-[25338.542371]  vp_find_vqs+0xc7/0x190
-[25338.545866]  init_vq+0x17c/0x2e0 [virtio_blk]
-[25338.550223]  ? ncpus_cmp_func+0x10/0x10
-[25338.554061]  virtblk_probe+0xe6/0x8a0 [virtio_blk]
-[25338.558846]  virtio_dev_probe+0x158/0x1f0
-[25338.562861]  really_probe+0x255/0x4a0
-[25338.566524]  ? __driver_attach_async_helper+0x90/0x90
-[25338.571567]  driver_probe_device+0x49/0xc0
-[25338.575660]  bus_for_each_drv+0x79/0xc0
-[25338.579499]  __device_attach+0xdc/0x160
-[25338.583337]  bus_probe_device+0x9d/0xb0
-[25338.587167]  device_add+0x418/0x780
-[25338.590654]  register_virtio_device+0x9e/0xe0
-[25338.595011]  virtio_pci_probe+0xb3/0x140
-[25338.598941]  local_pci_probe+0x41/0x90
-[25338.602689]  work_for_cpu_fn+0x16/0x20
-[25338.606443]  process_one_work+0x1a7/0x360
-[25338.610456]  ? create_worker+0x1a0/0x1a0
-[25338.614381]  worker_thread+0x1cf/0x390
-[25338.618132]  ? create_worker+0x1a0/0x1a0
-[25338.622051]  kthread+0x116/0x130
-[25338.625283]  ? kthread_flush_work_fn+0x10/0x10
-[25338.629731]  ret_from_fork+0x1f/0x40
-[25338.633395] virtio_blk: probe of virtio418 failed with error -16
-
-The log :
-"genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)"
-was printed because of the irq 0 is used by timer exclusive,and when
-vp_find_vqs call vp_find_vqs_msix and returns false twice (for
-whatever reason), then it will call vp_find_vqs_intx as a fallback.
-Because vp_dev->pci_dev->irq is zero, we request irq 0 with
-flag IRQF_SHARED, and get a backtrace like above.
-
-According to PCI spec about "Interrupt Pin" Register (Offset 3Dh):
-"The Interrupt Pin register is a read-only register that identifies the
- legacy interrupt Message(s) the Function uses. Valid values are 01h, 02h,
- 03h, and 04h that map to legacy interrupt Messages for INTA,
- INTB, INTC, and INTD respectively. A value of 00h indicates that the
- Function uses no legacy interrupt Message(s)."
-
-So if vp_dev->pci_dev->pin is zero, we should not request legacy
-interrupt.
-
-Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Message-Id: <20220930000915.548-1-angus.chen@jaguarmicro.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Link: https://lore.kernel.org/r/202209201529.ec633796-oliver.sang@intel.com
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_pci_common.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/cifs/cifsencrypt.c | 12 ++++++------
+ fs/cifs/connect.c     |  6 +++---
+ fs/cifs/fs_context.c  | 12 ++++++++++--
+ fs/cifs/misc.c        |  2 +-
+ fs/cifs/sess.c        | 24 +++++++++++++++---------
+ fs/cifs/smb2ops.c     |  6 +++---
+ fs/cifs/smb2pdu.c     | 19 ++++++++++++++-----
+ 7 files changed, 52 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index ca51fcc9daab..8ffa906541e3 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -403,6 +403,9 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- 	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, false, ctx, desc);
- 	if (!err)
- 		return 0;
-+	/* Is there an interrupt pin? If not give up. */
-+	if (!(to_vp_device(vdev)->pci_dev->pin))
-+		return err;
- 	/* Finally fall back to regular interrupts. */
- 	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
+diff --git a/fs/cifs/cifsencrypt.c b/fs/cifs/cifsencrypt.c
+index 663cb9db4908..419cbdadf248 100644
+--- a/fs/cifs/cifsencrypt.c
++++ b/fs/cifs/cifsencrypt.c
+@@ -680,7 +680,7 @@ setup_ntlmv2_rsp(struct cifs_ses *ses, const struct nls_table *nls_cp)
+ unlock:
+ 	cifs_server_unlock(ses->server);
+ setup_ntlmv2_rsp_ret:
+-	kfree(tiblob);
++	kfree_sensitive(tiblob);
+ 
+ 	return rc;
  }
+@@ -754,14 +754,14 @@ cifs_crypto_secmech_release(struct TCP_Server_Info *server)
+ 		server->secmech.ccmaesdecrypt = NULL;
+ 	}
+ 
+-	kfree(server->secmech.sdesccmacaes);
++	kfree_sensitive(server->secmech.sdesccmacaes);
+ 	server->secmech.sdesccmacaes = NULL;
+-	kfree(server->secmech.sdeschmacsha256);
++	kfree_sensitive(server->secmech.sdeschmacsha256);
+ 	server->secmech.sdeschmacsha256 = NULL;
+-	kfree(server->secmech.sdeschmacmd5);
++	kfree_sensitive(server->secmech.sdeschmacmd5);
+ 	server->secmech.sdeschmacmd5 = NULL;
+-	kfree(server->secmech.sdescmd5);
++	kfree_sensitive(server->secmech.sdescmd5);
+ 	server->secmech.sdescmd5 = NULL;
+-	kfree(server->secmech.sdescsha512);
++	kfree_sensitive(server->secmech.sdescsha512);
+ 	server->secmech.sdescsha512 = NULL;
+ }
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index bdc3efdb1221..901d9b232e2c 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -315,7 +315,7 @@ cifs_abort_connection(struct TCP_Server_Info *server)
+ 	}
+ 	server->sequence_number = 0;
+ 	server->session_estab = false;
+-	kfree(server->session_key.response);
++	kfree_sensitive(server->session_key.response);
+ 	server->session_key.response = NULL;
+ 	server->session_key.len = 0;
+ 	server->lstrp = jiffies;
+@@ -1535,7 +1535,7 @@ cifs_put_tcp_session(struct TCP_Server_Info *server, int from_reconnect)
+ 
+ 	cifs_crypto_secmech_release(server);
+ 
+-	kfree(server->session_key.response);
++	kfree_sensitive(server->session_key.response);
+ 	server->session_key.response = NULL;
+ 	server->session_key.len = 0;
+ 	kfree(server->hostname);
+@@ -4059,7 +4059,7 @@ cifs_setup_session(const unsigned int xid, struct cifs_ses *ses,
+ 		if (ses->auth_key.response) {
+ 			cifs_dbg(FYI, "Free previous auth_key.response = %p\n",
+ 				 ses->auth_key.response);
+-			kfree(ses->auth_key.response);
++			kfree_sensitive(ses->auth_key.response);
+ 			ses->auth_key.response = NULL;
+ 			ses->auth_key.len = 0;
+ 		}
+diff --git a/fs/cifs/fs_context.c b/fs/cifs/fs_context.c
+index 8dc0d923ef6a..ff3ad09f2cd4 100644
+--- a/fs/cifs/fs_context.c
++++ b/fs/cifs/fs_context.c
+@@ -790,6 +790,13 @@ do {									\
+ 	cifs_sb->ctx->field = NULL;					\
+ } while (0)
+ 
++#define STEAL_STRING_SENSITIVE(cifs_sb, ctx, field)			\
++do {									\
++	kfree_sensitive(ctx->field);					\
++	ctx->field = cifs_sb->ctx->field;				\
++	cifs_sb->ctx->field = NULL;					\
++} while (0)
++
+ static int smb3_reconfigure(struct fs_context *fc)
+ {
+ 	struct smb3_fs_context *ctx = smb3_fc2context(fc);
+@@ -810,7 +817,7 @@ static int smb3_reconfigure(struct fs_context *fc)
+ 	STEAL_STRING(cifs_sb, ctx, UNC);
+ 	STEAL_STRING(cifs_sb, ctx, source);
+ 	STEAL_STRING(cifs_sb, ctx, username);
+-	STEAL_STRING(cifs_sb, ctx, password);
++	STEAL_STRING_SENSITIVE(cifs_sb, ctx, password);
+ 	STEAL_STRING(cifs_sb, ctx, domainname);
+ 	STEAL_STRING(cifs_sb, ctx, nodename);
+ 	STEAL_STRING(cifs_sb, ctx, iocharset);
+@@ -1154,7 +1161,7 @@ static int smb3_fs_context_parse_param(struct fs_context *fc,
+ 		}
+ 		break;
+ 	case Opt_pass:
+-		kfree(ctx->password);
++		kfree_sensitive(ctx->password);
+ 		ctx->password = NULL;
+ 		if (strlen(param->string) == 0)
+ 			break;
+@@ -1462,6 +1469,7 @@ static int smb3_fs_context_parse_param(struct fs_context *fc,
+ 	return 0;
+ 
+  cifs_parse_mount_err:
++	kfree_sensitive(ctx->password);
+ 	return -EINVAL;
+ }
+ 
+diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
+index 197f3c09d3f3..2baf23b3d572 100644
+--- a/fs/cifs/misc.c
++++ b/fs/cifs/misc.c
+@@ -1129,7 +1129,7 @@ cifs_alloc_hash(const char *name,
+ void
+ cifs_free_hash(struct crypto_shash **shash, struct sdesc **sdesc)
+ {
+-	kfree(*sdesc);
++	kfree_sensitive(*sdesc);
+ 	*sdesc = NULL;
+ 	if (*shash)
+ 		crypto_free_shash(*shash);
+diff --git a/fs/cifs/sess.c b/fs/cifs/sess.c
+index 02c8b2906196..30143d3d0a34 100644
+--- a/fs/cifs/sess.c
++++ b/fs/cifs/sess.c
+@@ -1211,6 +1211,12 @@ sess_alloc_buffer(struct sess_data *sess_data, int wct)
+ static void
+ sess_free_buffer(struct sess_data *sess_data)
+ {
++	int i;
++
++	/* zero the session data before freeing, as it might contain sensitive info (keys, etc) */
++	for (i = 0; i < 3; i++)
++		if (sess_data->iov[i].iov_base)
++			memzero_explicit(sess_data->iov[i].iov_base, sess_data->iov[i].iov_len);
+ 
+ 	free_rsp_buf(sess_data->buf0_type, sess_data->iov[0].iov_base);
+ 	sess_data->buf0_type = CIFS_NO_BUFFER;
+@@ -1372,7 +1378,7 @@ sess_auth_ntlmv2(struct sess_data *sess_data)
+ 	sess_data->result = rc;
+ 	sess_data->func = NULL;
+ 	sess_free_buffer(sess_data);
+-	kfree(ses->auth_key.response);
++	kfree_sensitive(ses->auth_key.response);
+ 	ses->auth_key.response = NULL;
+ }
+ 
+@@ -1511,7 +1517,7 @@ sess_auth_kerberos(struct sess_data *sess_data)
+ 	sess_data->result = rc;
+ 	sess_data->func = NULL;
+ 	sess_free_buffer(sess_data);
+-	kfree(ses->auth_key.response);
++	kfree_sensitive(ses->auth_key.response);
+ 	ses->auth_key.response = NULL;
+ }
+ 
+@@ -1646,7 +1652,7 @@ sess_auth_rawntlmssp_negotiate(struct sess_data *sess_data)
+ 	rc = decode_ntlmssp_challenge(bcc_ptr, blob_len, ses);
+ 
+ out_free_ntlmsspblob:
+-	kfree(ntlmsspblob);
++	kfree_sensitive(ntlmsspblob);
+ out:
+ 	sess_free_buffer(sess_data);
+ 
+@@ -1656,9 +1662,9 @@ sess_auth_rawntlmssp_negotiate(struct sess_data *sess_data)
+ 	}
+ 
+ 	/* Else error. Cleanup */
+-	kfree(ses->auth_key.response);
++	kfree_sensitive(ses->auth_key.response);
+ 	ses->auth_key.response = NULL;
+-	kfree(ses->ntlmssp);
++	kfree_sensitive(ses->ntlmssp);
+ 	ses->ntlmssp = NULL;
+ 
+ 	sess_data->func = NULL;
+@@ -1757,7 +1763,7 @@ sess_auth_rawntlmssp_authenticate(struct sess_data *sess_data)
+ 	}
+ 
+ out_free_ntlmsspblob:
+-	kfree(ntlmsspblob);
++	kfree_sensitive(ntlmsspblob);
+ out:
+ 	sess_free_buffer(sess_data);
+ 
+@@ -1765,9 +1771,9 @@ sess_auth_rawntlmssp_authenticate(struct sess_data *sess_data)
+ 		rc = sess_establish_session(sess_data);
+ 
+ 	/* Cleanup */
+-	kfree(ses->auth_key.response);
++	kfree_sensitive(ses->auth_key.response);
+ 	ses->auth_key.response = NULL;
+-	kfree(ses->ntlmssp);
++	kfree_sensitive(ses->ntlmssp);
+ 	ses->ntlmssp = NULL;
+ 
+ 	sess_data->func = NULL;
+@@ -1843,6 +1849,6 @@ int CIFS_SessSetup(const unsigned int xid, struct cifs_ses *ses,
+ 	rc = sess_data->result;
+ 
+ out:
+-	kfree(sess_data);
++	kfree_sensitive(sess_data);
+ 	return rc;
+ }
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index cc180d37b8ce..340ca57fa361 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -4691,11 +4691,11 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
+ 	if (!rc && enc)
+ 		memcpy(&tr_hdr->Signature, sign, SMB2_SIGNATURE_SIZE);
+ 
+-	kfree(iv);
++	kfree_sensitive(iv);
+ free_sg:
+-	kfree(sg);
++	kfree_sensitive(sg);
+ free_req:
+-	kfree(req);
++	kfree_sensitive(req);
+ 	return rc;
+ }
+ 
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index 31d37afae741..f3032cfafedc 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -1344,6 +1344,13 @@ SMB2_sess_alloc_buffer(struct SMB2_sess_data *sess_data)
+ static void
+ SMB2_sess_free_buffer(struct SMB2_sess_data *sess_data)
+ {
++	int i;
++
++	/* zero the session data before freeing, as it might contain sensitive info (keys, etc) */
++	for (i = 0; i < 2; i++)
++		if (sess_data->iov[i].iov_base)
++			memzero_explicit(sess_data->iov[i].iov_base, sess_data->iov[i].iov_len);
++
+ 	free_rsp_buf(sess_data->buf0_type, sess_data->iov[0].iov_base);
+ 	sess_data->buf0_type = CIFS_NO_BUFFER;
+ }
+@@ -1476,6 +1483,8 @@ SMB2_auth_kerberos(struct SMB2_sess_data *sess_data)
+ out_put_spnego_key:
+ 	key_invalidate(spnego_key);
+ 	key_put(spnego_key);
++	if (rc)
++		kfree_sensitive(ses->auth_key.response);
+ out:
+ 	sess_data->result = rc;
+ 	sess_data->func = NULL;
+@@ -1572,7 +1581,7 @@ SMB2_sess_auth_rawntlmssp_negotiate(struct SMB2_sess_data *sess_data)
+ 	}
+ 
+ out:
+-	kfree(ntlmssp_blob);
++	memzero_explicit(ntlmssp_blob, blob_length);
+ 	SMB2_sess_free_buffer(sess_data);
+ 	if (!rc) {
+ 		sess_data->result = 0;
+@@ -1580,7 +1589,7 @@ SMB2_sess_auth_rawntlmssp_negotiate(struct SMB2_sess_data *sess_data)
+ 		return;
+ 	}
+ out_err:
+-	kfree(ses->ntlmssp);
++	kfree_sensitive(ses->ntlmssp);
+ 	ses->ntlmssp = NULL;
+ 	sess_data->result = rc;
+ 	sess_data->func = NULL;
+@@ -1656,9 +1665,9 @@ SMB2_sess_auth_rawntlmssp_authenticate(struct SMB2_sess_data *sess_data)
+ 	}
+ #endif
+ out:
+-	kfree(ntlmssp_blob);
++	memzero_explicit(ntlmssp_blob, blob_length);
+ 	SMB2_sess_free_buffer(sess_data);
+-	kfree(ses->ntlmssp);
++	kfree_sensitive(ses->ntlmssp);
+ 	ses->ntlmssp = NULL;
+ 	sess_data->result = rc;
+ 	sess_data->func = NULL;
+@@ -1736,7 +1745,7 @@ SMB2_sess_setup(const unsigned int xid, struct cifs_ses *ses,
+ 		cifs_server_dbg(VFS, "signing requested but authenticated as guest\n");
+ 	rc = sess_data->result;
+ out:
+-	kfree(sess_data);
++	kfree_sensitive(sess_data);
+ 	return rc;
+ }
+ 
 -- 
 2.35.1
 
