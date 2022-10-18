@@ -2,144 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E29A8601FC0
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:39:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63787601F97
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:30:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230376AbiJRAjk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:39:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42270 "EHLO
+        id S231938AbiJRA36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:29:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230360AbiJRAi4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:38:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8087857C4;
-        Mon, 17 Oct 2022 17:38:39 -0700 (PDT)
+        with ESMTP id S232125AbiJRA3h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:29:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDD7E7FF8A;
+        Mon, 17 Oct 2022 17:28:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AEA26135F;
-        Tue, 18 Oct 2022 00:12:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 136A9C43145;
-        Tue, 18 Oct 2022 00:12:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60E51B81C08;
+        Tue, 18 Oct 2022 00:12:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39C14C433C1;
+        Tue, 18 Oct 2022 00:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051921;
-        bh=4WiH9hmE57Uofm2X2goOrr7ClljV8IXJ19jH0V3IDb0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fr7j04xRXuJ6UOz0o1MnaNYykQ48upvgQTD+3czgcyXGXv2nbVC0gbWOsh14PUeQP
-         jnq84CiSF8r8qgA4FvVp/+RflzQiDEpOlu7995EOpqUO1rfnoy25v9e2VV8NcNFcm3
-         weMDBK2BiBVtq6vhtPtqg4mHVxij7qq0pXBImastw8zMgFmWuyT+mPuZp6Q88KDNpk
-         pd/9ozByXy85jQhtb2x310iMn4VpORo3tg3cPqk8pbiy26aosP4M/gAZhuxoKSh0mS
-         SulDmhSgr2/nIUY7pMZWg2piE8dRyk+YduO9JpJiD9vax10dlLORc0Fl/yyQ6rqB5u
-         vcqxOLb2U4Y4Q==
+        s=k20201202; t=1666051925;
+        bh=GX9MeIOmSj4IS8x82C0PrDb5RjFNTGbmW/XirqUl7PM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Wj8jQ4QUMvXnPvwEEbeCNCTvwDu8Qby7Yne+uh31cWNeCVgI9Ay7blUmnxIpOYRWD
+         j7sRYmMx4T7ut5X5ZveCD3Dld6USEqg5llX2RS2JEvTs3SU1p/7DVepODWQ3rCxxA/
+         34srb75yHvbqLYpbujuc8sb17qh/Sp5inbJ6bzvi94/27Got6V6OBX3EXiw7fqh5wQ
+         1sdzDxraEplYfPAYCD+03xsuZeP30DqakZK04F+qsWv1NMHPjJxGIa++3f9uUsvwx+
+         6cokv99yaUerxVjVSlIKXc88banxQcBNpO33tA4D5Rf8UY75Ep1SE6DX8N9SfSKVqu
+         EyKsXMWSyA36w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Angus Chen <angus.chen@jaguarmicro.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.14 8/8] virtio_pci: don't try to use intxif pin is zero
-Date:   Mon, 17 Oct 2022 20:11:47 -0400
-Message-Id: <20221018001147.2732350-8-sashal@kernel.org>
+Cc:     Marek Bykowski <marek.bykowski@gmail.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        robh+dt@kernel.org, frowand.list@gmail.com,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 1/8] of/fdt: Don't calculate initrd size from DT if start > end
+Date:   Mon, 17 Oct 2022 20:11:55 -0400
+Message-Id: <20221018001202.2732458-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221018001147.2732350-1-sashal@kernel.org>
-References: <20221018001147.2732350-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEXHASH_WORD,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angus Chen <angus.chen@jaguarmicro.com>
+From: Marek Bykowski <marek.bykowski@gmail.com>
 
-[ Upstream commit 71491c54eafa318fdd24a1f26a1c82b28e1ac21d ]
+[ Upstream commit d5e3050c0feb8bf7b9a75482fafcc31b90257926 ]
 
-The background is that we use dpu in cloud computing,the arch is x86,80
-cores. We will have a lots of virtio devices,like 512 or more.
-When we probe about 200 virtio_blk devices,it will fail and
-the stack is printed as follows:
+If the properties 'linux,initrd-start' and 'linux,initrd-end' of
+the chosen node populated from the bootloader, eg. U-Boot, are so that
+start > end, then the phys_initrd_size calculated from end - start is
+negative that subsequently gets converted to a high positive value for
+being unsigned long long. Then, the memory region with the (invalid)
+size is added to the bootmem and attempted being paged in paging_init()
+that results in the kernel fault.
 
-[25338.485128] virtio-pci 0000:b3:00.0: virtio_pci: leaving for legacy driver
-[25338.496174] genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)
-[25338.503822] CPU: 20 PID: 5431 Comm: kworker/20:0 Kdump: loaded Tainted: G           OE    --------- -  - 4.18.0-305.30.1.el8.x86_64
-[25338.516403] Hardware name: Inspur NF5280M5/YZMB-00882-10E, BIOS 4.1.21 08/25/2021
-[25338.523881] Workqueue: events work_for_cpu_fn
-[25338.528235] Call Trace:
-[25338.530687]  dump_stack+0x5c/0x80
-[25338.534000]  __setup_irq.cold.53+0x7c/0xd3
-[25338.538098]  request_threaded_irq+0xf5/0x160
-[25338.542371]  vp_find_vqs+0xc7/0x190
-[25338.545866]  init_vq+0x17c/0x2e0 [virtio_blk]
-[25338.550223]  ? ncpus_cmp_func+0x10/0x10
-[25338.554061]  virtblk_probe+0xe6/0x8a0 [virtio_blk]
-[25338.558846]  virtio_dev_probe+0x158/0x1f0
-[25338.562861]  really_probe+0x255/0x4a0
-[25338.566524]  ? __driver_attach_async_helper+0x90/0x90
-[25338.571567]  driver_probe_device+0x49/0xc0
-[25338.575660]  bus_for_each_drv+0x79/0xc0
-[25338.579499]  __device_attach+0xdc/0x160
-[25338.583337]  bus_probe_device+0x9d/0xb0
-[25338.587167]  device_add+0x418/0x780
-[25338.590654]  register_virtio_device+0x9e/0xe0
-[25338.595011]  virtio_pci_probe+0xb3/0x140
-[25338.598941]  local_pci_probe+0x41/0x90
-[25338.602689]  work_for_cpu_fn+0x16/0x20
-[25338.606443]  process_one_work+0x1a7/0x360
-[25338.610456]  ? create_worker+0x1a0/0x1a0
-[25338.614381]  worker_thread+0x1cf/0x390
-[25338.618132]  ? create_worker+0x1a0/0x1a0
-[25338.622051]  kthread+0x116/0x130
-[25338.625283]  ? kthread_flush_work_fn+0x10/0x10
-[25338.629731]  ret_from_fork+0x1f/0x40
-[25338.633395] virtio_blk: probe of virtio418 failed with error -16
+For example, on the FVP ARM64 system I'm running, the U-Boot populates
+the 'linux,initrd-start' with 8800_0000 and 'linux,initrd-end' with 0.
+The phys_initrd_size calculated is then ffff_ffff_7800_0000
+(= 0 - 8800_0000 = -8800_0000 + ULLONG_MAX + 1). paging_init() then
+attempts to map the address 8800_0000 + ffff_ffff_7800_0000 and oops'es
+as below.
 
-The log :
-"genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)"
-was printed because of the irq 0 is used by timer exclusive,and when
-vp_find_vqs call vp_find_vqs_msix and returns false twice (for
-whatever reason), then it will call vp_find_vqs_intx as a fallback.
-Because vp_dev->pci_dev->irq is zero, we request irq 0 with
-flag IRQF_SHARED, and get a backtrace like above.
+It should be stressed, it is generally a fault of the bootloader's with
+the kernel relying on it, however we should not allow the bootloader's
+misconfiguration to lead to the kernel oops. Not only the kernel should be
+bullet proof against it but also finding the root cause of the paging
+fault spanning over the bootloader, DT, and kernel may happen is not so
+easy.
 
-According to PCI spec about "Interrupt Pin" Register (Offset 3Dh):
-"The Interrupt Pin register is a read-only register that identifies the
- legacy interrupt Message(s) the Function uses. Valid values are 01h, 02h,
- 03h, and 04h that map to legacy interrupt Messages for INTA,
- INTB, INTC, and INTD respectively. A value of 00h indicates that the
- Function uses no legacy interrupt Message(s)."
+  Unable to handle kernel paging request at virtual address fffffffefe43c000
+  Mem abort info:
+    ESR = 0x96000007
+    EC = 0x25: DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+  Data abort info:
+    ISV = 0, ISS = 0x00000007
+    CM = 0, WnR = 0
+  swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000080e3d000
+  [fffffffefe43c000] pgd=0000000080de9003, pud=0000000080de9003
+  Unable to handle kernel paging request at virtual address ffffff8000de9f90
+  Mem abort info:
+    ESR = 0x96000005
+    EC = 0x25: DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+  Data abort info:
+    ISV = 0, ISS = 0x00000005
+    CM = 0, WnR = 0
+  swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000080e3d000
+  [ffffff8000de9f90] pgd=0000000000000000, pud=0000000000000000
+  Internal error: Oops: 96000005 [#1] PREEMPT SMP
+  Modules linked in:
+  CPU: 0 PID: 0 Comm: swapper Not tainted 5.4.51-yocto-standard #1
+  Hardware name: FVP Base (DT)
+  pstate: 60000085 (nZCv daIf -PAN -UAO)
+  pc : show_pte+0x12c/0x1b4
+  lr : show_pte+0x100/0x1b4
+  sp : ffffffc010ce3b30
+  x29: ffffffc010ce3b30 x28: ffffffc010ceed80
+  x27: fffffffefe43c000 x26: fffffffefe43a028
+  x25: 0000000080bf0000 x24: 0000000000000025
+  x23: ffffffc010b8d000 x22: ffffffc010e3d000
+  x23: ffffffc010b8d000 x22: ffffffc010e3d000
+  x21: 0000000080de9000 x20: ffffff7f80000f90
+  x19: fffffffefe43c000 x18: 0000000000000030
+  x17: 0000000000001400 x16: 0000000000001c00
+  x15: ffffffc010cef1b8 x14: ffffffffffffffff
+  x13: ffffffc010df1f40 x12: ffffffc010df1b70
+  x11: ffffffc010ce3b30 x10: ffffffc010ce3b30
+  x9 : 00000000ffffffc8 x8 : 0000000000000000
+  x7 : 000000000000000f x6 : ffffffc010df16e8
+  x5 : 0000000000000000 x4 : 0000000000000000
+  x3 : 00000000ffffffff x2 : 0000000000000000
+  x1 : 0000008080000000 x0 : ffffffc010af1d68
+  Call trace:
+   show_pte+0x12c/0x1b4
+   die_kernel_fault+0x54/0x78
+   __do_kernel_fault+0x11c/0x128
+   do_translation_fault+0x58/0xac
+   do_mem_abort+0x50/0xb0
+   el1_da+0x1c/0x90
+   __create_pgd_mapping+0x348/0x598
+   paging_init+0x3f0/0x70d0
+   setup_arch+0x2c0/0x5d4
+   start_kernel+0x94/0x49c
+  Code: 92748eb5 900052a0 9135a000 cb010294 (f8756a96) 
 
-So if vp_dev->pci_dev->pin is zero, we should not request legacy
-interrupt.
-
-Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Message-Id: <20220930000915.548-1-angus.chen@jaguarmicro.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Marek Bykowski <marek.bykowski@gmail.com>
+Link: https://lore.kernel.org/r/20220909023358.76881-1-marek.bykowski@gmail.com
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_pci_common.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/of/fdt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 924554b7010d..9f2f215a69b6 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -405,6 +405,9 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, false, ctx, desc);
- 	if (!err)
- 		return 0;
-+	/* Is there an interrupt pin? If not give up. */
-+	if (!(to_vp_device(vdev)->pci_dev->pin))
-+		return err;
- 	/* Finally fall back to regular interrupts. */
- 	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
- }
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index 513558eecfd6..44903f94d0cd 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -917,6 +917,8 @@ static void __init early_init_dt_check_for_initrd(unsigned long node)
+ 	if (!prop)
+ 		return;
+ 	end = of_read_number(prop, len/4);
++	if (start > end)
++		return;
+ 
+ 	__early_init_dt_declare_initrd(start, end);
+ 
 -- 
 2.35.1
 
