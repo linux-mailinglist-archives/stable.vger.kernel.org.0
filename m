@@ -2,268 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5117760201F
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 03:05:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A33602027
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 03:07:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231129AbiJRBFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 21:05:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52352 "EHLO
+        id S230500AbiJRBH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 21:07:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230470AbiJRBFL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 21:05:11 -0400
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC6937B1EC
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 18:05:05 -0700 (PDT)
-Received: by mail-yb1-xb35.google.com with SMTP id k3so15244027ybk.9
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 18:05:05 -0700 (PDT)
+        with ESMTP id S230404AbiJRBHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 21:07:54 -0400
+Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36D5EBAF
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 18:07:53 -0700 (PDT)
+Received: by mail-io1-xd2a.google.com with SMTP id e15so10616637iof.2
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 18:07:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=eQCfqscqzNBxELvowdNNs0ma/7asNhj+qVzhKhnJnDE=;
-        b=jNf1p2CbV+fl61r8bbxrmviDcypw33+1Rz5+FbUa6io+zWENnUt3Sow1fzHwy+qrIg
-         MfF10tohSqggysbYUWAO2d9LPBEa7WVfo4KrfIyHYQtFnfr+ZVBV9asZZR7dl3JI36AZ
-         MOPZrgJC0EECXU7l423ikOUozvyHP1M/6w/91zy69nZccFbLsrkDCV2OdMaPJ2ZOoOAa
-         xzu2IzXwCBuUT8wrgBJN/SaY4oBgsVGnY6rtqQJJMFwRvjC6EINmbXuNmL4RWFOg5JWv
-         UouVbfymwhyRCHTdFhoCk37BqJHHrt8GTWvgoXSvTduIlvbFEZ1AldNXeDGbtxWp0Xye
-         4rmQ==
+        d=linuxfoundation.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=xvNB9WiNIPXKm+fKuntZlQJdCyk9M5Uyh12KK7FhNsk=;
+        b=NT/7KcVoO5PZgXcuH8ykllbEFgzjvh/ZNHuB/JnIoib0REN917mC2yZ3goyv6y2DBX
+         RUDs+3juAcJSYZ0utC1fOtkSAdlQwXpuhx07brqFkmMylMRvyGknwf/S6s2WcBcJLU3e
+         XxEzXiPpeaBHJXa+hUxdRpP51YjyZAxPFks6g=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=eQCfqscqzNBxELvowdNNs0ma/7asNhj+qVzhKhnJnDE=;
-        b=yQ+qWAg5eipWN3V7u5yxc2lkN5MczzIaVec5EmMcuguUyiTmWTaClIXzBZajfx2SBA
-         bjhYysnBdF2kC12fin56ttPsIqRPTUUDdqndo6sTRsINyhBNa8WHK8+utCW8WcEUkbv9
-         dBxmFDFYjHekfzIjNYZiVyOaJ+Sm6USdz/tlcYUHG2n5FmJewE93r+UXlgjoMyr6lBU1
-         IcQY071Ga2OKB51oIz3je/w4yB9il3ASnR6RCGUqmSeD92J6hkVDtWa8FERCoMIkHhSy
-         z1n0lk5T7FQcRrabphxMOm/c0a1tvTDLN4yQ+sxlMWaoLv7i8Sb5mU3NKKP//Wf2Fg4Y
-         np1Q==
-X-Gm-Message-State: ACrzQf2fsPUJv9foRkHLS0nHwp+RAgQ1eJKeSwjwzdrJrK/PB4y2oCMs
-        c6HwlD8qaAx6sRVjnoDxFxjoixhnZWE7+jtMRCoTOg==
-X-Google-Smtp-Source: AMsMyM6R8N6NdW53GBrILF5vH+gQ9kXLIE543YHFar3pJqTF5MZkwHwG2d9E7ZdX1Wx0B3leY2Th6WZUZy1qioVyHTU=
-X-Received: by 2002:a25:c242:0:b0:6b0:1bd:754a with SMTP id
- s63-20020a25c242000000b006b001bd754amr372335ybf.125.1666055104849; Mon, 17
- Oct 2022 18:05:04 -0700 (PDT)
+        bh=xvNB9WiNIPXKm+fKuntZlQJdCyk9M5Uyh12KK7FhNsk=;
+        b=XttElwxlMxhe3rnVEdQDJJxw7aS8ghiymVK1pzQL9dztie76WYxE3SunhDMh68mATd
+         nKe9Ec9bbfQZwNpCU88jO0ThNQhGpKxqOK+dzP0oFSIltaXrBtZuu1hMCEJnk9p2259P
+         AA1LAIA+VzHt+OU1PdOPirwYow4HcgNwNXC3ZQhcF3wmxTUcFODt7xgPyoYhAC/XDhNV
+         UrIQHqN3fYydY1c8z1nWlpxlb0VjCThhopm6FEzK/LNthYfTpyUB/EqRQjOqucasExVk
+         il+pdofEiR8tbU0ts5RuUqiD9z7XFLmp94/YU8dSIccAvybW6IhtHRIAruHaMcTtljXj
+         O8gQ==
+X-Gm-Message-State: ACrzQf04RUEkO+s9AUIzo/befYEhsqaywwL/oQQAjoU3oPKnHijpXtaa
+        4sHwbRarsimYCBSuDiK2tsLRaS7Dm3f2OA==
+X-Google-Smtp-Source: AMsMyM4GPmsilh/d3IUpGo7EM4I5H7QWbMvVzbAVtF8gnhpUk+MFubkgmkUKk+joPxGUkzJq+2dV1w==
+X-Received: by 2002:a05:6638:19c4:b0:363:afc3:b403 with SMTP id bi4-20020a05663819c400b00363afc3b403mr654868jab.144.1666055272626;
+        Mon, 17 Oct 2022 18:07:52 -0700 (PDT)
+Received: from localhost.localdomain ([38.15.45.1])
+        by smtp.gmail.com with ESMTPSA id e6-20020a022106000000b0036377aa5a35sm529499jaa.100.2022.10.17.18.07.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Oct 2022 18:07:52 -0700 (PDT)
+From:   Shuah Khan <skhan@linuxfoundation.org>
+To:     sashal@kernel.org, gregkh@linuxfoundation.org
+Cc:     Shuah Khan <skhan@linuxfoundation.org>, alexander.deucher@amd.com,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] Revert "drm/amdgpu: move nbio sdma_doorbell_range() into sdma code for vega"
+Date:   Mon, 17 Oct 2022 19:07:45 -0600
+Message-Id: <20221018010746.603662-1-skhan@linuxfoundation.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20221018000839.2730954-1-sashal@kernel.org> <20221018000839.2730954-5-sashal@kernel.org>
-In-Reply-To: <20221018000839.2730954-5-sashal@kernel.org>
-From:   Marco Elver <elver@google.com>
-Date:   Mon, 17 Oct 2022 18:04:28 -0700
-Message-ID: <CANpmjNMH9jr4nMpjcq8AZj3K-frtB6=WNbk+EY5-3_89YGrtaA@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.19 05/29] powerpc/hw_breakpoint: Avoid relying
- on caller synchronization
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ian Rogers <irogers@google.com>, mpe@ellerman.id.au,
-        christophe.leroy@csgroup.eu, linuxppc-dev@lists.ozlabs.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 17 Oct 2022 at 17:08, Sasha Levin <sashal@kernel.org> wrote:
->
-> From: Marco Elver <elver@google.com>
->
-> [ Upstream commit f95e5a3d59011eec1257d0e76de1e1f8969d426f ]
->
-> Internal data structures (cpu_bps, task_bps) of powerpc's hw_breakpoint
-> implementation have relied on nr_bp_mutex serializing access to them.
->
-> Before overhauling synchronization of kernel/events/hw_breakpoint.c,
-> introduce 2 spinlocks to synchronize cpu_bps and task_bps respectively,
-> thus avoiding reliance on callers synchronizing powerpc's hw_breakpoint.
->
-> Reported-by: Dmitry Vyukov <dvyukov@google.com>
-> Signed-off-by: Marco Elver <elver@google.com>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Acked-by: Dmitry Vyukov <dvyukov@google.com>
-> Acked-by: Ian Rogers <irogers@google.com>
-> Link: https://lore.kernel.org/r/20220829124719.675715-10-elver@google.com
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+This reverts commit 9f55f36f749a7608eeef57d7d72991a9bd557341.
 
-Backporting this patch seems unnecessary if we're not backporting the
-hw_breakpoint overhaul.
+This commit causes repeated WARN_ONs from
 
-Without the overhaul, nothing will break without this patch.
+drivers/gpu/drm/amd/amdgpu/../display/amdgpu_dm/amd
+gpu_dm.c:7391 amdgpu_dm_atomic_commit_tail+0x23b9/0x2430 [amdgpu]
 
-Thanks,
--- Marco
+dmesg fills up with the following messages and drm initialization takes
+a very long time.
 
-> ---
->  arch/powerpc/kernel/hw_breakpoint.c | 53 ++++++++++++++++++++++-------
->  1 file changed, 40 insertions(+), 13 deletions(-)
->
-> diff --git a/arch/powerpc/kernel/hw_breakpoint.c b/arch/powerpc/kernel/hw_breakpoint.c
-> index 2669f80b3a49..8db1a15d7acb 100644
-> --- a/arch/powerpc/kernel/hw_breakpoint.c
-> +++ b/arch/powerpc/kernel/hw_breakpoint.c
-> @@ -15,6 +15,7 @@
->  #include <linux/kernel.h>
->  #include <linux/sched.h>
->  #include <linux/smp.h>
-> +#include <linux/spinlock.h>
->  #include <linux/debugfs.h>
->  #include <linux/init.h>
->
-> @@ -129,7 +130,14 @@ struct breakpoint {
->         bool ptrace_bp;
->  };
->
-> +/*
-> + * While kernel/events/hw_breakpoint.c does its own synchronization, we cannot
-> + * rely on it safely synchronizing internals here; however, we can rely on it
-> + * not requesting more breakpoints than available.
-> + */
-> +static DEFINE_SPINLOCK(cpu_bps_lock);
->  static DEFINE_PER_CPU(struct breakpoint *, cpu_bps[HBP_NUM_MAX]);
-> +static DEFINE_SPINLOCK(task_bps_lock);
->  static LIST_HEAD(task_bps);
->
->  static struct breakpoint *alloc_breakpoint(struct perf_event *bp)
-> @@ -174,7 +182,9 @@ static int task_bps_add(struct perf_event *bp)
->         if (IS_ERR(tmp))
->                 return PTR_ERR(tmp);
->
-> +       spin_lock(&task_bps_lock);
->         list_add(&tmp->list, &task_bps);
-> +       spin_unlock(&task_bps_lock);
->         return 0;
->  }
->
-> @@ -182,6 +192,7 @@ static void task_bps_remove(struct perf_event *bp)
->  {
->         struct list_head *pos, *q;
->
-> +       spin_lock(&task_bps_lock);
->         list_for_each_safe(pos, q, &task_bps) {
->                 struct breakpoint *tmp = list_entry(pos, struct breakpoint, list);
->
-> @@ -191,6 +202,7 @@ static void task_bps_remove(struct perf_event *bp)
->                         break;
->                 }
->         }
-> +       spin_unlock(&task_bps_lock);
->  }
->
->  /*
-> @@ -200,12 +212,17 @@ static void task_bps_remove(struct perf_event *bp)
->  static bool all_task_bps_check(struct perf_event *bp)
->  {
->         struct breakpoint *tmp;
-> +       bool ret = false;
->
-> +       spin_lock(&task_bps_lock);
->         list_for_each_entry(tmp, &task_bps, list) {
-> -               if (!can_co_exist(tmp, bp))
-> -                       return true;
-> +               if (!can_co_exist(tmp, bp)) {
-> +                       ret = true;
-> +                       break;
-> +               }
->         }
-> -       return false;
-> +       spin_unlock(&task_bps_lock);
-> +       return ret;
->  }
->
->  /*
-> @@ -215,13 +232,18 @@ static bool all_task_bps_check(struct perf_event *bp)
->  static bool same_task_bps_check(struct perf_event *bp)
->  {
->         struct breakpoint *tmp;
-> +       bool ret = false;
->
-> +       spin_lock(&task_bps_lock);
->         list_for_each_entry(tmp, &task_bps, list) {
->                 if (tmp->bp->hw.target == bp->hw.target &&
-> -                   !can_co_exist(tmp, bp))
-> -                       return true;
-> +                   !can_co_exist(tmp, bp)) {
-> +                       ret = true;
-> +                       break;
-> +               }
->         }
-> -       return false;
-> +       spin_unlock(&task_bps_lock);
-> +       return ret;
->  }
->
->  static int cpu_bps_add(struct perf_event *bp)
-> @@ -234,6 +256,7 @@ static int cpu_bps_add(struct perf_event *bp)
->         if (IS_ERR(tmp))
->                 return PTR_ERR(tmp);
->
-> +       spin_lock(&cpu_bps_lock);
->         cpu_bp = per_cpu_ptr(cpu_bps, bp->cpu);
->         for (i = 0; i < nr_wp_slots(); i++) {
->                 if (!cpu_bp[i]) {
-> @@ -241,6 +264,7 @@ static int cpu_bps_add(struct perf_event *bp)
->                         break;
->                 }
->         }
-> +       spin_unlock(&cpu_bps_lock);
->         return 0;
->  }
->
-> @@ -249,6 +273,7 @@ static void cpu_bps_remove(struct perf_event *bp)
->         struct breakpoint **cpu_bp;
->         int i = 0;
->
-> +       spin_lock(&cpu_bps_lock);
->         cpu_bp = per_cpu_ptr(cpu_bps, bp->cpu);
->         for (i = 0; i < nr_wp_slots(); i++) {
->                 if (!cpu_bp[i])
-> @@ -260,19 +285,25 @@ static void cpu_bps_remove(struct perf_event *bp)
->                         break;
->                 }
->         }
-> +       spin_unlock(&cpu_bps_lock);
->  }
->
->  static bool cpu_bps_check(int cpu, struct perf_event *bp)
->  {
->         struct breakpoint **cpu_bp;
-> +       bool ret = false;
->         int i;
->
-> +       spin_lock(&cpu_bps_lock);
->         cpu_bp = per_cpu_ptr(cpu_bps, cpu);
->         for (i = 0; i < nr_wp_slots(); i++) {
-> -               if (cpu_bp[i] && !can_co_exist(cpu_bp[i], bp))
-> -                       return true;
-> +               if (cpu_bp[i] && !can_co_exist(cpu_bp[i], bp)) {
-> +                       ret = true;
-> +                       break;
-> +               }
->         }
-> -       return false;
-> +       spin_unlock(&cpu_bps_lock);
-> +       return ret;
->  }
->
->  static bool all_cpu_bps_check(struct perf_event *bp)
-> @@ -286,10 +317,6 @@ static bool all_cpu_bps_check(struct perf_event *bp)
->         return false;
->  }
->
-> -/*
-> - * We don't use any locks to serialize accesses to cpu_bps or task_bps
-> - * because are already inside nr_bp_mutex.
-> - */
->  int arch_reserve_bp_slot(struct perf_event *bp)
->  {
->         int ret;
-> --
-> 2.35.1
->
+Cc: <stable@vger.kernel.org>    # 5.10
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+---
+ drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c |  5 -----
+ drivers/gpu/drm/amd/amdgpu/soc15.c     | 25 +++++++++++++++++++++++++
+ 2 files changed, 25 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+index a1a8e026b9fa..1f2e2460e121 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+@@ -1475,11 +1475,6 @@ static int sdma_v4_0_start(struct amdgpu_device *adev)
+ 		WREG32_SDMA(i, mmSDMA0_CNTL, temp);
+ 
+ 		if (!amdgpu_sriov_vf(adev)) {
+-			ring = &adev->sdma.instance[i].ring;
+-			adev->nbio.funcs->sdma_doorbell_range(adev, i,
+-				ring->use_doorbell, ring->doorbell_index,
+-				adev->doorbell_index.sdma_doorbell_range);
+-
+ 			/* unhalt engine */
+ 			temp = RREG32_SDMA(i, mmSDMA0_F32_CNTL);
+ 			temp = REG_SET_FIELD(temp, SDMA0_F32_CNTL, HALT, 0);
+diff --git a/drivers/gpu/drm/amd/amdgpu/soc15.c b/drivers/gpu/drm/amd/amdgpu/soc15.c
+index abd649285a22..7212b9900e0a 100644
+--- a/drivers/gpu/drm/amd/amdgpu/soc15.c
++++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
+@@ -1332,6 +1332,25 @@ static int soc15_common_sw_fini(void *handle)
+ 	return 0;
+ }
+ 
++static void soc15_doorbell_range_init(struct amdgpu_device *adev)
++{
++	int i;
++	struct amdgpu_ring *ring;
++
++	/* sdma/ih doorbell range are programed by hypervisor */
++	if (!amdgpu_sriov_vf(adev)) {
++		for (i = 0; i < adev->sdma.num_instances; i++) {
++			ring = &adev->sdma.instance[i].ring;
++			adev->nbio.funcs->sdma_doorbell_range(adev, i,
++				ring->use_doorbell, ring->doorbell_index,
++				adev->doorbell_index.sdma_doorbell_range);
++		}
++
++		adev->nbio.funcs->ih_doorbell_range(adev, adev->irq.ih.use_doorbell,
++						adev->irq.ih.doorbell_index);
++	}
++}
++
+ static int soc15_common_hw_init(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+@@ -1351,6 +1370,12 @@ static int soc15_common_hw_init(void *handle)
+ 
+ 	/* enable the doorbell aperture */
+ 	soc15_enable_doorbell_aperture(adev, true);
++	/* HW doorbell routing policy: doorbell writing not
++	 * in SDMA/IH/MM/ACV range will be routed to CP. So
++	 * we need to init SDMA/IH/MM/ACV doorbell range prior
++	 * to CP ip block init and ring test.
++	 */
++	soc15_doorbell_range_init(adev);
+ 
+ 	return 0;
+ }
+-- 
+2.34.1
+
