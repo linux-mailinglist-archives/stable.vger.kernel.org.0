@@ -2,49 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D43DB601EE9
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:14:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64293601F0B
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:15:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231597AbiJRAOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:14:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56916 "EHLO
+        id S231722AbiJRAP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:15:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231709AbiJRAOJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:14:09 -0400
+        with ESMTP id S231814AbiJRAOY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:14:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EBE417053;
-        Mon, 17 Oct 2022 17:10:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D9B289AD4;
+        Mon, 17 Oct 2022 17:11:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5C26B81BFB;
-        Tue, 18 Oct 2022 00:09:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE3E2C43142;
-        Tue, 18 Oct 2022 00:09:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FE57B81BF5;
+        Tue, 18 Oct 2022 00:09:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57C26C433D6;
+        Tue, 18 Oct 2022 00:09:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051753;
-        bh=cHle/rKV0zuFV5/oUsPF+6blyk2FbZRXAyUsGqr80Ts=;
+        s=k20201202; t=1666051763;
+        bh=cHaRla534Sb2l4lmAMXft5br2im5WECMK7w83i/o3m4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iANEJQ8b/bTJ4wBezD9/5qa/IHE2F7Yf5yamTaXv71ZZRlmyOu4/A520BLAexLkWP
-         iyp1roIQBLqNWUy9WQetR6yt50RVkWsBWFAZvyJ607CdZ06TaysqyKE6zVDsBWzhIM
-         E44JiQHc7CHY7pVH2a6/KeB9Qn6vxnianMhSEdVKFZZuXiKXZeYDIhMz9ihdamG4L1
-         LXzwgLA4OPlMQ1F+BXwONmCrVu1BQxcd+RuYMDRFAQPqj1OQawYLIhkWE0bL7S9IZt
-         /T9YkNwydlhlY/cj+4cIY617DNCGtX3t7BHlhfZiXq/yQkhUxco6WMUpaKE3nJYysq
-         +YQoGAhlEuYCQ==
+        b=n5az0T8WZ1LXr0ClSOyg78TI3ApuJF0odW0LftyuWQit89tx3hETBOYTqkU1gTEa+
+         qSQrfvDY7LiCjRaplATtG2Plc3DIiK6btO7WuS5jkcBoikxJgONG2beMhswXn7VQZK
+         ucSrgEoijMOctrSBwGAtaUpwkc9wU1qqVX8eQadXG7AGMlFmmOFeZVVy4znQ8AXLCD
+         LdLQDe4rcFpcHxzFFb8Uz5v6EuICpr02CwAef2wTxtZRA5+xz0DiT6qUBOMuSg5Sdn
+         4xKD/3lTrbnPUPrdc3pZwgrSEzzmw5rYtmtzah9rwDNKGzWFuJCaY6TFmZHfoK8/F4
+         WKP4qLU5qCjVA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhao Liu <zhao1.liu@intel.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        "Fabio M . De Francesco" <fmdefrancesco@gmail.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
-        decui@microsoft.com, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 19/29] x86/hyperv: Replace kmap() with kmap_local_page()
-Date:   Mon, 17 Oct 2022 20:08:28 -0400
-Message-Id: <20221018000839.2730954-19-sashal@kernel.org>
+Cc:     Alexander Potapenko <glider@google.com>,
+        Marco Elver <elver@google.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+        Christoph Hellwig <hch@lst.de>,
+        Christoph Lameter <cl@linux.com>,
+        David Rientjes <rientjes@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Kees Cook <keescook@chromium.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, ardb@kernel.org,
+        will@kernel.org, jgross@suse.com, christophe.leroy@csgroup.eu,
+        mcgrof@kernel.org, mhiramat@kernel.org, sstabellini@kernel.org,
+        yangtiezhu@loongson.cn, dmitry.torokhov@gmail.com,
+        atomlin@redhat.com, yury.norov@gmail.com, sander@svanheule.net,
+        Jason@zx2c4.com, isabbasso@riseup.net, linux-efi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 20/29] kmsan: disable instrumentation of unsupported common kernel code
+Date:   Mon, 17 Oct 2022 20:08:29 -0400
+Message-Id: <20221018000839.2730954-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000839.2730954-1-sashal@kernel.org>
 References: <20221018000839.2730954-1-sashal@kernel.org>
@@ -61,71 +92,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhao Liu <zhao1.liu@intel.com>
+From: Alexander Potapenko <glider@google.com>
 
-[ Upstream commit 154fb14df7a3c81dea82eca7c0c46590f5ffc3d2 ]
+[ Upstream commit 79dbd006a6d6f51777ba4948046561b6d9270504 ]
 
-kmap() is being deprecated in favor of kmap_local_page()[1].
+EFI stub cannot be linked with KMSAN runtime, so we disable
+instrumentation for it.
 
-There are two main problems with kmap(): (1) It comes with an overhead as
-mapping space is restricted and protected by a global lock for
-synchronization and (2) it also requires global TLB invalidation when the
-kmap's pool wraps and it might block when the mapping space is fully
-utilized until a slot becomes available.
+Instrumenting kcov, stackdepot or lockdep leads to infinite recursion
+caused by instrumentation hooks calling instrumented code again.
 
-With kmap_local_page() the mappings are per thread, CPU local, can take
-page faults, and can be called from any context (including interrupts).
-It is faster than kmap() in kernels with HIGHMEM enabled. Furthermore,
-the tasks can be preempted and, when they are scheduled to run again, the
-kernel virtual addresses are restored and are still valid.
-
-In the fuction hyperv_init() of hyperv/hv_init.c, the mapping is used in a
-single thread and is short live. So, in this case, it's safe to simply use
-kmap_local_page() to create mapping, and this avoids the wasted cost of
-kmap() for global synchronization.
-
-In addtion, the fuction hyperv_init() checks if kmap() fails by BUG_ON().
-From the original discussion[2], the BUG_ON() here is just used to
-explicitly panic NULL pointer. So still keep the BUG_ON() in place to check
-if kmap_local_page() fails. Based on this consideration, memcpy_to_page()
-is not selected here but only kmap_local_page() is used.
-
-Therefore, replace kmap() with kmap_local_page() in hyperv/hv_init.c.
-
-[1]: https://lore.kernel.org/all/20220813220034.806698-1-ira.weiny@intel.com
-[2]: https://lore.kernel.org/lkml/20200915103710.cqmdvzh5lys4wsqo@liuwe-devbox-debian-v2/
-
-Suggested-by: Dave Hansen <dave.hansen@intel.com>
-Suggested-by: Ira Weiny <ira.weiny@intel.com>
-Suggested-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
-Signed-off-by: Zhao Liu <zhao1.liu@intel.com>
-Link: https://lore.kernel.org/r/20220928095640.626350-1-zhao1.liu@linux.intel.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Link: https://lkml.kernel.org/r/20220915150417.722975-13-glider@google.com
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Eric Biggers <ebiggers@google.com>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vegard Nossum <vegard.nossum@oracle.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/hyperv/hv_init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/libstub/Makefile | 1 +
+ kernel/Makefile                       | 1 +
+ kernel/locking/Makefile               | 3 ++-
+ lib/Makefile                          | 3 +++
+ 4 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-index 3de6d8b53367..72fe46eb183f 100644
---- a/arch/x86/hyperv/hv_init.c
-+++ b/arch/x86/hyperv/hv_init.c
-@@ -459,13 +459,13 @@ void __init hyperv_init(void)
- 		wrmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
+diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
+index 2c67f71f2375..2c1eb1fb0f22 100644
+--- a/drivers/firmware/efi/libstub/Makefile
++++ b/drivers/firmware/efi/libstub/Makefile
+@@ -53,6 +53,7 @@ GCOV_PROFILE			:= n
+ # Sanitizer runtimes are unavailable and cannot be linked here.
+ KASAN_SANITIZE			:= n
+ KCSAN_SANITIZE			:= n
++KMSAN_SANITIZE			:= n
+ UBSAN_SANITIZE			:= n
+ OBJECT_FILES_NON_STANDARD	:= y
  
- 		pg = vmalloc_to_page(hv_hypercall_pg);
--		dst = kmap(pg);
-+		dst = kmap_local_page(pg);
- 		src = memremap(hypercall_msr.guest_physical_address << PAGE_SHIFT, PAGE_SIZE,
- 				MEMREMAP_WB);
- 		BUG_ON(!(src && dst));
- 		memcpy(dst, src, HV_HYP_PAGE_SIZE);
- 		memunmap(src);
--		kunmap(pg);
-+		kunmap_local(dst);
- 	} else {
- 		hypercall_msr.guest_physical_address = vmalloc_to_pfn(hv_hypercall_pg);
- 		wrmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
+diff --git a/kernel/Makefile b/kernel/Makefile
+index a7e1f49ab2b3..e47f0526c987 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -38,6 +38,7 @@ KCOV_INSTRUMENT_kcov.o := n
+ KASAN_SANITIZE_kcov.o := n
+ KCSAN_SANITIZE_kcov.o := n
+ UBSAN_SANITIZE_kcov.o := n
++KMSAN_SANITIZE_kcov.o := n
+ CFLAGS_kcov.o := $(call cc-option, -fno-conserve-stack) -fno-stack-protector
+ 
+ # Don't instrument error handlers
+diff --git a/kernel/locking/Makefile b/kernel/locking/Makefile
+index d51cabf28f38..ea925731fa40 100644
+--- a/kernel/locking/Makefile
++++ b/kernel/locking/Makefile
+@@ -5,8 +5,9 @@ KCOV_INSTRUMENT		:= n
+ 
+ obj-y += mutex.o semaphore.o rwsem.o percpu-rwsem.o
+ 
+-# Avoid recursion lockdep -> KCSAN -> ... -> lockdep.
++# Avoid recursion lockdep -> sanitizer -> ... -> lockdep.
+ KCSAN_SANITIZE_lockdep.o := n
++KMSAN_SANITIZE_lockdep.o := n
+ 
+ ifdef CONFIG_FUNCTION_TRACER
+ CFLAGS_REMOVE_lockdep.o = $(CC_FLAGS_FTRACE)
+diff --git a/lib/Makefile b/lib/Makefile
+index f99bf61f8bbc..73fea85b7636 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -272,6 +272,9 @@ obj-$(CONFIG_POLYNOMIAL) += polynomial.o
+ CFLAGS_stackdepot.o += -fno-builtin
+ obj-$(CONFIG_STACKDEPOT) += stackdepot.o
+ KASAN_SANITIZE_stackdepot.o := n
++# In particular, instrumenting stackdepot.c with KMSAN will result in infinite
++# recursion.
++KMSAN_SANITIZE_stackdepot.o := n
+ KCOV_INSTRUMENT_stackdepot.o := n
+ 
+ obj-$(CONFIG_REF_TRACKER) += ref_tracker.o
 -- 
 2.35.1
 
