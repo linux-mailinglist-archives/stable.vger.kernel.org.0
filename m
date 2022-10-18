@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81583601E56
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:09:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F01BB601E55
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230063AbiJRAJY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:09:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36608 "EHLO
+        id S231382AbiJRAJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:09:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231178AbiJRAIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:08:45 -0400
+        with ESMTP id S231432AbiJRAIq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:08:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1E8887F97;
-        Mon, 17 Oct 2022 17:08:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7345B87F90;
+        Mon, 17 Oct 2022 17:08:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 451BCB81B62;
-        Tue, 18 Oct 2022 00:08:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA0D6C43140;
-        Tue, 18 Oct 2022 00:08:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B4F2B81BE1;
+        Tue, 18 Oct 2022 00:08:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7281EC433D7;
+        Tue, 18 Oct 2022 00:08:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051686;
-        bh=wTdpOeAuDGCGPzp3QTYS/asW5Xcif0GKVF3qgzx1J68=;
+        s=k20201202; t=1666051688;
+        bh=YPDuCu2UpB22OWik411oVG7fEymtDedQ6SVGcfxrmDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LCpHoPbjBH9z6GzlP60Nwp1EK7cZjKqyTLRxNAiDNnERQog+G7hg10kQZK4obP8a/
-         TgoPh5M5CWgoXWUtbDzNYT72kMZFH5/8CaAlsrxEBJwuuvoR0+x/tdYJatUarZMt7z
-         Cm57HmNgaPXeXlna03j3ij6mOTEmOZNw2skfEJsFywGISy2wjsrapz1hOEceoHx1K0
-         kzPQSKyZLj60gCLoDVgH3Fxp6pxQ2O3GaHWTqQLN8+mhgxtpOpuatcImEIvJGPf6o9
-         YCwlIMqMeIEk5b83qDHJD2mQfK59DZ1FENiv6DfkYh4IVoyMOCnwoKtT/6+DjoLso/
-         PErXCLX9FFu9g==
+        b=WNrEpRcO3F+6fYsWPlRnV2CmG5dhKfZnS91Ldy32gSgHmje+xM01WyMqc9SyinuME
+         1zDrAd1t/Tqnjih3smQepy86KdtmQe0A+xUv3vBZihGgogTmBjc+8+chFQuoQ/Xbzx
+         /QkAOjBAwhDOaJ6RlQS9K1qYaCnhv23vQ0up5ilA4YxVLPbGH9iA7461LRd90V1Pw8
+         lVYQFGPdm6GXSjxrK9blutAcA01WAtQjAEqHzSIIX/5QeS+8rThrHzcDr5WhI4lkkr
+         Hec5wlCOaB/Iqcc0IVuGaU7b75DQGBbyaqxlDbWnaKpNcaJ6NrYU811K2mNPPLuRf9
+         E/4LvMDHdeOrQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Beau Belgrave <beaub@linux.microsoft.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com
-Subject: [PATCH AUTOSEL 6.0 19/32] tracing/user_events: Ensure user provided strings are safely formatted
-Date:   Mon, 17 Oct 2022 20:07:16 -0400
-Message-Id: <20221018000729.2730519-19-sashal@kernel.org>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        robh+dt@kernel.org, frowand.list@gmail.com,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 20/32] of: Fix "dma-ranges" handling for bus controllers
+Date:   Mon, 17 Oct 2022 20:07:17 -0400
+Message-Id: <20221018000729.2730519-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000729.2730519-1-sashal@kernel.org>
 References: <20221018000729.2730519-1-sashal@kernel.org>
@@ -56,155 +57,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Beau Belgrave <beaub@linux.microsoft.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit e6f89a149872ab0e03cfded97983df74dfb0ef21 ]
+[ Upstream commit f1ad5338a4d57fe1fe6475003acb8c70bf9d1bdf ]
 
-User processes can provide bad strings that may cause issues or leak
-kernel details back out. Don't trust the content of these strings
-when formatting strings for matching.
+Commit 951d48855d86 ("of: Make of_dma_get_range() work on bus nodes")
+relaxed the handling of "dma-ranges" for any leaf node on the assumption
+that it would still represent a usage error for the property to be
+present on a non-bus leaf node. However there turns out to be a fiddly
+case where a bus also represents a DMA-capable device in its own right,
+such as a PCIe root complex with an integrated DMA engine on its
+platform side. In such cases, "dma-ranges" translation is entirely valid
+for devices discovered behind the bus, but should not be erroneously
+applied to the bus controller device itself which operates in its
+parent's address space. Fix this by restoring the previous behaviour for
+the specific case where a device is configured via its own OF node,
+since it is logical to assume that a device should never represent its
+own parent bus.
 
-This also moves to a consistent dynamic length string creation model.
-
-Link: https://lkml.kernel.org/r/20220728233309.1896-4-beaub@linux.microsoft.com
-Link: https://lore.kernel.org/all/2059213643.196683.1648499088753.JavaMail.zimbra@efficios.com/
-
-Reported-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Beau Belgrave <beaub@linux.microsoft.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reported-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/112e8f3d3e7c054ecf5e12b5ac0aa5596ec00681.1664455433.git.robin.murphy@arm.com
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_user.c | 91 +++++++++++++++++++++-----------
- 1 file changed, 59 insertions(+), 32 deletions(-)
+ drivers/of/address.c    | 4 +++-
+ drivers/of/device.c     | 9 ++++++++-
+ drivers/of/of_private.h | 5 +++++
+ 3 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_events_user.c b/kernel/trace/trace_events_user.c
-index b137e1866fbc..a3ee9a618f48 100644
---- a/kernel/trace/trace_events_user.c
-+++ b/kernel/trace/trace_events_user.c
-@@ -45,7 +45,6 @@
- #define MAX_EVENT_DESC 512
- #define EVENT_NAME(user_event) ((user_event)->tracepoint.name)
- #define MAX_FIELD_ARRAY_SIZE 1024
--#define MAX_FIELD_ARG_NAME 256
- 
- static char *register_page_data;
- 
-@@ -483,6 +482,48 @@ static bool user_field_is_dyn_string(const char *type, const char **str_func)
+diff --git a/drivers/of/address.c b/drivers/of/address.c
+index 96f0a12e507c..c34ac33b7338 100644
+--- a/drivers/of/address.c
++++ b/drivers/of/address.c
+@@ -579,7 +579,8 @@ u64 of_translate_address(struct device_node *dev, const __be32 *in_addr)
  }
+ EXPORT_SYMBOL(of_translate_address);
  
- #define LEN_OR_ZERO (len ? len - pos : 0)
-+static int user_dyn_field_set_string(int argc, const char **argv, int *iout,
-+				     char *buf, int len, bool *colon)
-+{
-+	int pos = 0, i = *iout;
-+
-+	*colon = false;
-+
-+	for (; i < argc; ++i) {
-+		if (i != *iout)
-+			pos += snprintf(buf + pos, LEN_OR_ZERO, " ");
-+
-+		pos += snprintf(buf + pos, LEN_OR_ZERO, "%s", argv[i]);
-+
-+		if (strchr(argv[i], ';')) {
-+			++i;
-+			*colon = true;
-+			break;
-+		}
-+	}
-+
-+	/* Actual set, advance i */
-+	if (len != 0)
-+		*iout = i;
-+
-+	return pos + 1;
-+}
-+
-+static int user_field_set_string(struct ftrace_event_field *field,
-+				 char *buf, int len, bool colon)
-+{
-+	int pos = 0;
-+
-+	pos += snprintf(buf + pos, LEN_OR_ZERO, "%s", field->type);
-+	pos += snprintf(buf + pos, LEN_OR_ZERO, " ");
-+	pos += snprintf(buf + pos, LEN_OR_ZERO, "%s", field->name);
-+
-+	if (colon)
-+		pos += snprintf(buf + pos, LEN_OR_ZERO, ";");
-+
-+	return pos + 1;
-+}
-+
- static int user_event_set_print_fmt(struct user_event *user, char *buf, int len)
+-static struct device_node *__of_get_dma_parent(const struct device_node *np)
++#ifdef CONFIG_HAS_DMA
++struct device_node *__of_get_dma_parent(const struct device_node *np)
  {
- 	struct ftrace_event_field *field, *next;
-@@ -926,49 +967,35 @@ static int user_event_free(struct dyn_event *ev)
- static bool user_field_match(struct ftrace_event_field *field, int argc,
- 			     const char **argv, int *iout)
+ 	struct of_phandle_args args;
+ 	int ret, index;
+@@ -596,6 +597,7 @@ static struct device_node *__of_get_dma_parent(const struct device_node *np)
+ 
+ 	return of_node_get(args.np);
+ }
++#endif
+ 
+ static struct device_node *of_get_next_dma_parent(struct device_node *np)
  {
--	char *field_name, *arg_name;
--	int len, pos, i = *iout;
-+	char *field_name = NULL, *dyn_field_name = NULL;
- 	bool colon = false, match = false;
-+	int dyn_len, len;
+diff --git a/drivers/of/device.c b/drivers/of/device.c
+index 75b6cbffa755..8cefe5a7d04e 100644
+--- a/drivers/of/device.c
++++ b/drivers/of/device.c
+@@ -116,12 +116,19 @@ int of_dma_configure_id(struct device *dev, struct device_node *np,
+ {
+ 	const struct iommu_ops *iommu;
+ 	const struct bus_dma_region *map = NULL;
++	struct device_node *bus_np;
+ 	u64 dma_start = 0;
+ 	u64 mask, end, size = 0;
+ 	bool coherent;
+ 	int ret;
  
--	if (i >= argc)
-+	if (*iout >= argc)
- 		return false;
+-	ret = of_dma_get_range(np, &map);
++	if (np == dev->of_node)
++		bus_np = __of_get_dma_parent(np);
++	else
++		bus_np = of_node_get(np);
++
++	ret = of_dma_get_range(bus_np, &map);
++	of_node_put(bus_np);
+ 	if (ret < 0) {
+ 		/*
+ 		 * For legacy reasons, we have to assume some devices need
+diff --git a/drivers/of/of_private.h b/drivers/of/of_private.h
+index 9324483397f6..fb6792d381a6 100644
+--- a/drivers/of/of_private.h
++++ b/drivers/of/of_private.h
+@@ -155,12 +155,17 @@ struct bus_dma_region;
+ #if defined(CONFIG_OF_ADDRESS) && defined(CONFIG_HAS_DMA)
+ int of_dma_get_range(struct device_node *np,
+ 		const struct bus_dma_region **map);
++struct device_node *__of_get_dma_parent(const struct device_node *np);
+ #else
+ static inline int of_dma_get_range(struct device_node *np,
+ 		const struct bus_dma_region **map)
+ {
+ 	return -ENODEV;
+ }
++static inline struct device_node *__of_get_dma_parent(const struct device_node *np)
++{
++	return of_get_parent(np);
++}
+ #endif
  
--	len = MAX_FIELD_ARG_NAME;
--	field_name = kmalloc(len, GFP_KERNEL);
--	arg_name = kmalloc(len, GFP_KERNEL);
-+	dyn_len = user_dyn_field_set_string(argc, argv, iout, dyn_field_name,
-+					    0, &colon);
- 
--	if (!arg_name || !field_name)
--		goto out;
--
--	pos = 0;
--
--	for (; i < argc; ++i) {
--		if (i != *iout)
--			pos += snprintf(arg_name + pos, len - pos, " ");
-+	len = user_field_set_string(field, field_name, 0, colon);
- 
--		pos += snprintf(arg_name + pos, len - pos, argv[i]);
--
--		if (strchr(argv[i], ';')) {
--			++i;
--			colon = true;
--			break;
--		}
--	}
-+	if (dyn_len != len)
-+		return false;
- 
--	pos = 0;
-+	dyn_field_name = kmalloc(dyn_len, GFP_KERNEL);
-+	field_name = kmalloc(len, GFP_KERNEL);
- 
--	pos += snprintf(field_name + pos, len - pos, field->type);
--	pos += snprintf(field_name + pos, len - pos, " ");
--	pos += snprintf(field_name + pos, len - pos, field->name);
-+	if (!dyn_field_name || !field_name)
-+		goto out;
- 
--	if (colon)
--		pos += snprintf(field_name + pos, len - pos, ";");
-+	user_dyn_field_set_string(argc, argv, iout, dyn_field_name,
-+				  dyn_len, &colon);
- 
--	*iout = i;
-+	user_field_set_string(field, field_name, len, colon);
- 
--	match = strcmp(arg_name, field_name) == 0;
-+	match = strcmp(dyn_field_name, field_name) == 0;
- out:
--	kfree(arg_name);
-+	kfree(dyn_field_name);
- 	kfree(field_name);
- 
- 	return match;
+ void fdt_init_reserved_mem(void);
 -- 
 2.35.1
 
