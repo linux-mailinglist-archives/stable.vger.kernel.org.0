@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 200AB601F07
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:15:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DE72601F75
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:20:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231755AbiJRAPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:15:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55038 "EHLO
+        id S231976AbiJRAUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:20:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231809AbiJRAOY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:14:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BECC089AC8;
-        Mon, 17 Oct 2022 17:11:27 -0700 (PDT)
+        with ESMTP id S232204AbiJRATX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:19:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1D5C88DD6;
+        Mon, 17 Oct 2022 17:15:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0655C6134E;
-        Tue, 18 Oct 2022 00:11:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95D59C433C1;
-        Tue, 18 Oct 2022 00:11:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C99FBB81BFA;
+        Tue, 18 Oct 2022 00:11:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56975C433C1;
+        Tue, 18 Oct 2022 00:11:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051873;
-        bh=XuvPXLrd3VRDLS0Rt+7rJqoBhOB8FPwYG2pX+O/1MCk=;
+        s=k20201202; t=1666051876;
+        bh=qc/1fxhkCoJQKN5s/IGlNPN/gIPP99FhAf2TEAhnO9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LadM60cfTl4qtvQ9w0cXOfpkFycxfHQoC4e6vxD/9WBAyH7nHc+gNIZU5gwHjEkYn
-         0lZXV6cdKqnj53Ymg4WoasUylfCueoxQ43oiEX4zwJRI2Oj5qUQa1d7CUq5MrT0lo2
-         u/hJpbpl4m6+9TqgddYL321G9DTEjdL42uSxQ4cjghEZmRNWSn/rC1RoQLlHdeFyYs
-         2Ki7GCM4a02jrX0b+Fbp8PiFRRIcJKqB4KVKO4pAzwUYzDIzfzCGpsQzEaNZHlLzna
-         DAqvn62X1qYNBTfb8aZvlSvSmpZcM9c/6BWOQgY7jhkfjJ/EO3g/5Lczzj6opglFGW
-         kAYoemCR4GVtw==
+        b=jh++9IEoVPd/nELBfBjSHHLcLPMIQ0Ff28/TsOQ6RqGYKy9zNo/aZRcauYz+wCVPr
+         Q5/a7kHLmF14fO5W+0iAUCPpQnvTAGjUFTxcRYpH2NFGLJXIAdlqlgX7qTY7pmurRN
+         Eu11Cce5WvNgIMAP/e0xevjx0Ey9xcJPAiYy5e+jGKUXIOvNKeT0/f6VTELJK91Jvw
+         JXZ/Fs4IOLhXSKLYbaG2RyXfJYXMv91NpDD39ikY00AVJltwoSQ0Jc4q/uJQlxWQbV
+         v853iJKmUuXuHo2jLLty4ZfAX3vN/4m3HbassA0v1ihVHbTT/Zw/aGB1oCfdjBD18p
+         3Qvy/Y6NAjhdQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Price <anprice@redhat.com>,
-        syzbot+dcf33a7aae997956fe06@syzkaller.appspotmail.com,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, rpeterso@redhat.com,
-        cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.4 06/13] gfs2: Check sb_bsize_shift after reading superblock
-Date:   Mon, 17 Oct 2022 20:10:55 -0400
-Message-Id: <20221018001102.2731930-6-sashal@kernel.org>
+Cc:     Yury Norov <yury.norov@gmail.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Sasha Levin <sashal@kernel.org>, mpe@ellerman.id.au,
+        aik@ozlabs.ru, christophe.leroy@csgroup.eu, amodra@au1.ibm.com,
+        dja@axtens.net, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 07/13] powerpc/64: don't refer nr_cpu_ids in asm code when it's undefined
+Date:   Mon, 17 Oct 2022 20:10:56 -0400
+Message-Id: <20221018001102.2731930-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018001102.2731930-1-sashal@kernel.org>
 References: <20221018001102.2731930-1-sashal@kernel.org>
@@ -57,62 +57,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Price <anprice@redhat.com>
+From: Yury Norov <yury.norov@gmail.com>
 
-[ Upstream commit 670f8ce56dd0632dc29a0322e188cc73ce3c6b92 ]
+[ Upstream commit 546a073d628111e3338af689938407e77d5dc38f ]
 
-Fuzzers like to scribble over sb_bsize_shift but in reality it's very
-unlikely that this field would be corrupted on its own. Nevertheless it
-should be checked to avoid the possibility of messy mount errors due to
-bad calculations. It's always a fixed value based on the block size so
-we can just check that it's the expected value.
+generic_secondary_common_init() calls LOAD_REG_ADDR(r7, nr_cpu_ids)
+conditionally on CONFIG_SMP. However, if 'NR_CPUS == 1', kernel doesn't
+use the nr_cpu_ids, and in C code, it's just:
+  #if NR_CPUS == 1
+  #define nr_cpu_ids
+  ...
 
-Tested with:
+This series makes declaration of nr_cpu_ids conditional on NR_CPUS == 1,
+and that reveals the issue, because compiler can't link the
+LOAD_REG_ADDR(r7, nr_cpu_ids) against nonexisting symbol.
 
-    mkfs.gfs2 -O -p lock_nolock /dev/vdb
-    for i in 0 -1 64 65 32 33; do
-        gfs2_edit -p sb field sb_bsize_shift $i /dev/vdb
-        mount /dev/vdb /mnt/test && umount /mnt/test
-    done
+Current code looks unsafe for those who build kernel with CONFIG_SMP=y and
+NR_CPUS == 1. This is weird configuration, but not disallowed.
 
-Before this patch we get a withdraw after
+Fix the linker error by replacing LOAD_REG_ADDR() with LOAD_REG_IMMEDIATE()
+conditionally on NR_CPUS == 1.
 
-[   76.413681] gfs2: fsid=loop0.0: fatal: invalid metadata block
-[   76.413681]   bh = 19 (type: exp=5, found=4)
-[   76.413681]   function = gfs2_meta_buffer, file = fs/gfs2/meta_io.c, line = 492
+As the following patch adds CONFIG_FORCE_NR_CPUS option that has the
+similar effect on nr_cpu_ids, make the generic_secondary_common_init()
+conditional on it too.
 
-and with UBSAN configured we also get complaints like
-
-[   76.373395] UBSAN: shift-out-of-bounds in fs/gfs2/ops_fstype.c:295:19
-[   76.373815] shift exponent 4294967287 is too large for 64-bit type 'long unsigned int'
-
-After the patch, these complaints don't appear, mount fails immediately
-and we get an explanation in dmesg.
-
-Reported-by: syzbot+dcf33a7aae997956fe06@syzkaller.appspotmail.com
-Signed-off-by: Andrew Price <anprice@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Yury Norov <yury.norov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/ops_fstype.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/head_64.S | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index 2841134f7812..2112ff7a0172 100644
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -180,7 +180,10 @@ static int gfs2_check_sb(struct gfs2_sbd *sdp, int silent)
- 		pr_warn("Invalid superblock size\n");
- 		return -EINVAL;
- 	}
--
-+	if (sb->sb_bsize_shift != ffs(sb->sb_bsize) - 1) {
-+		pr_warn("Invalid block size shift\n");
-+		return -EINVAL;
-+	}
- 	return 0;
- }
- 
+diff --git a/arch/powerpc/kernel/head_64.S b/arch/powerpc/kernel/head_64.S
+index 9019f1395d39..be6e94f203c1 100644
+--- a/arch/powerpc/kernel/head_64.S
++++ b/arch/powerpc/kernel/head_64.S
+@@ -395,8 +395,12 @@ generic_secondary_common_init:
+ #else
+ 	LOAD_REG_ADDR(r8, paca_ptrs)	/* Load paca_ptrs pointe	 */
+ 	ld	r8,0(r8)		/* Get base vaddr of array	 */
++#if (NR_CPUS == 1) || defined(CONFIG_FORCE_NR_CPUS)
++	LOAD_REG_IMMEDIATE(r7, NR_CPUS)
++#else
+ 	LOAD_REG_ADDR(r7, nr_cpu_ids)	/* Load nr_cpu_ids address       */
+ 	lwz	r7,0(r7)		/* also the max paca allocated 	 */
++#endif
+ 	li	r5,0			/* logical cpu id                */
+ 1:
+ 	sldi	r9,r5,3			/* get paca_ptrs[] index from cpu id */
 -- 
 2.35.1
 
