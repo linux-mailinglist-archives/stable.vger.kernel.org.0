@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7586601EEB
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:15:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD7BB601FB3
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:39:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231610AbiJRAOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:14:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54666 "EHLO
+        id S229977AbiJRAjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:39:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231178AbiJRANq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:13:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7DBE89949;
-        Mon, 17 Oct 2022 17:10:22 -0700 (PDT)
+        with ESMTP id S231251AbiJRAii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:38:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E393E1A219;
+        Mon, 17 Oct 2022 17:38:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6343B61329;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23A3761328;
+        Tue, 18 Oct 2022 00:10:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A796C433D7;
         Tue, 18 Oct 2022 00:10:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15856C43143;
-        Tue, 18 Oct 2022 00:10:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051821;
-        bh=1ZYxHUyU9NpGZtKaFDyP0j06ZoEkHo2aD97zSqyG0gU=;
+        s=k20201202; t=1666051823;
+        bh=JKfrGWE8c+MBROsa9dx7wyaQPb2zy+OtKWP450bGssE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fmojT7R+ukzv97BLMmoabXJoDXShQvOclPgBAnEZZuvQYRGj8yNtncj4tTSWzVj8c
-         AFhGrfdzVhbyTZgCb3mFhCz2/65h4tbU2yhDMGBYRoBV9sNrDS3rpLnlgkt6jRFJvJ
-         N2nAIiiQtw/LgUmWAzjG0I1mZIrPZcXSLZHA6Ho6xm35SCZjhXLnVgKX21cuV41w3n
-         yxsVZ/K6NFMe060qr/PtsM+0k0ZgNXNBRxth/BX78GoH4QKD2TC0BunV0Z6o4nNxy8
-         HslKmdg86ksTJh4JZO++heDk59Z2LjNsP8xq2MLGq1027eDZ0uovlSZy6ZUaUuJJcH
-         fgOS2K8bH2pNA==
+        b=bYq/eqBqGXWsUVAIW70Ng0/NmqWDGlViA9FLH+JVYcrKFEyXIL/y/TDw9e2zpYtug
+         sWoYPaws+hWfD3wDPUNCcU9RF+OrU4R5bD7TuEZZCc0T3U8GAseDJWs3OVIlPPQLTg
+         SDERRoizGZKRO+Lk/84074QPSEMetm0vvNqBGg9r/CC9ojnngGaavyxK8FDFMs9GHi
+         tKQUuHQnP18JwErpVVJeAyUMHnkamuR6IFgk6Zy0jkO2/s5Bea0xV8Ikmzu9R9A9W1
+         PhdOH8DwcxELnbfAAcxj1CxOcgOoNUfSkVhAlSTJXdF4L96XVhHAal0/qj1ooKHpkd
+         0LKSjz8nivnrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.15 17/21] f2fs: fix to detect corrupted meta ino
-Date:   Mon, 17 Oct 2022 20:09:36 -0400
-Message-Id: <20221018000940.2731329-17-sashal@kernel.org>
+Cc:     Dominique Martinet <asmadeus@codewreck.org>,
+        syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com,
+        Schspa Shi <schspa@gmail.com>, Sasha Levin <sashal@kernel.org>,
+        ericvh@gmail.com, lucho@ionkov.net, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 18/21] 9p: trans_fd/p9_conn_cancel: drop client lock earlier
+Date:   Mon, 17 Oct 2022 20:09:37 -0400
+Message-Id: <20221018000940.2731329-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000940.2731329-1-sashal@kernel.org>
 References: <20221018000940.2731329-1-sashal@kernel.org>
@@ -55,76 +58,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Dominique Martinet <asmadeus@codewreck.org>
 
-[ Upstream commit fcc2d8cc96b2f6141bbbe5b1e8953db990794b44 ]
+[ Upstream commit 52f1c45dde9136f964d63a77d19826c8a74e2c7f ]
 
-It is possible that ino of dirent or orphan inode is corrupted in a
-fuzzed image, occasionally, if corrupted ino is equal to meta ino:
-meta_ino, node_ino or compress_ino, caller of f2fs_iget() from below
-call paths will get meta inode directly, it's not allowed, let's
-add sanity check to detect such cases.
+syzbot reported a double-lock here and we no longer need this
+lock after requests have been moved off to local list:
+just drop the lock earlier.
 
-case #1
-- recover_dentry
- - __f2fs_find_entry
- - f2fs_iget_retry
-
-case #2
-- recover_orphan_inode
- - f2fs_iget_retry
-
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://lkml.kernel.org/r/20220904064028.1305220-1-asmadeus@codewreck.org
+Reported-by: syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Tested-by: Schspa Shi <schspa@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/inode.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ net/9p/trans_fd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index bd8960f4966b..cc91bcebd2ca 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -480,6 +480,12 @@ static int do_read_inode(struct inode *inode)
- 	return 0;
+diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
+index 6fe3719c1fc6..ad4f0e0a25f9 100644
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -207,6 +207,8 @@ static void p9_conn_cancel(struct p9_conn *m, int err)
+ 		list_move(&req->req_list, &cancel_list);
+ 	}
+ 
++	spin_unlock(&m->client->lock);
++
+ 	list_for_each_entry_safe(req, rtmp, &cancel_list, req_list) {
+ 		p9_debug(P9_DEBUG_ERROR, "call back req %p\n", req);
+ 		list_del(&req->req_list);
+@@ -214,7 +216,6 @@ static void p9_conn_cancel(struct p9_conn *m, int err)
+ 			req->t_err = err;
+ 		p9_client_cb(m->client, req, REQ_STATUS_ERROR);
+ 	}
+-	spin_unlock(&m->client->lock);
  }
  
-+static bool is_meta_ino(struct f2fs_sb_info *sbi, unsigned int ino)
-+{
-+	return ino == F2FS_NODE_INO(sbi) || ino == F2FS_META_INO(sbi) ||
-+		ino == F2FS_COMPRESS_INO(sbi);
-+}
-+
- struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
- {
- 	struct f2fs_sb_info *sbi = F2FS_SB(sb);
-@@ -491,16 +497,21 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
- 		return ERR_PTR(-ENOMEM);
- 
- 	if (!(inode->i_state & I_NEW)) {
-+		if (is_meta_ino(sbi, ino)) {
-+			f2fs_err(sbi, "inaccessible inode: %lu, run fsck to repair", ino);
-+			set_sbi_flag(sbi, SBI_NEED_FSCK);
-+			ret = -EFSCORRUPTED;
-+			trace_f2fs_iget_exit(inode, ret);
-+			iput(inode);
-+			return ERR_PTR(ret);
-+		}
-+
- 		trace_f2fs_iget(inode);
- 		return inode;
- 	}
--	if (ino == F2FS_NODE_INO(sbi) || ino == F2FS_META_INO(sbi))
--		goto make_now;
- 
--#ifdef CONFIG_F2FS_FS_COMPRESSION
--	if (ino == F2FS_COMPRESS_INO(sbi))
-+	if (is_meta_ino(sbi, ino))
- 		goto make_now;
--#endif
- 
- 	ret = do_read_inode(inode);
- 	if (ret)
+ static __poll_t
 -- 
 2.35.1
 
