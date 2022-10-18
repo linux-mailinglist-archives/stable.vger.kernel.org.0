@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC04601E21
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:07:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B7FA601E28
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:07:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230086AbiJRAHj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:07:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35872 "EHLO
+        id S230483AbiJRAH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:07:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229982AbiJRAHi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:07:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F91D82742;
-        Mon, 17 Oct 2022 17:07:37 -0700 (PDT)
+        with ESMTP id S230130AbiJRAHr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:07:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94BDB82855;
+        Mon, 17 Oct 2022 17:07:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3D49B81BCF;
-        Tue, 18 Oct 2022 00:07:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DBF4C433D6;
-        Tue, 18 Oct 2022 00:07:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 360ABB81B62;
+        Tue, 18 Oct 2022 00:07:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D7EDC433D6;
+        Tue, 18 Oct 2022 00:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051654;
-        bh=wuuyDBYvbPL4MCDBaOSLH4w3cgZWqfqDfP+1aQFPMG0=;
+        s=k20201202; t=1666051659;
+        bh=8F8gsq3wEiSLz7ZdSR0nDtrQ/AqYVXz1uWIv+7VrN44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbwi6bKt02Ho4j7FBekNQB/jrgic6GVV+GHzBWNmDK8jPSdyhspwJUuVp4XqtP6xq
-         8cKQXVrOCk1/0+/KF8onJZLBzo4xH19WZwYef4rJTVOuPsX5v6uYWVOBbhhMhVagYj
-         9U6xe4dYQCTWOlpAGuJCBnHxjYtYvj0ctxmabjl5aLLodznfU/abM1d+MPRoboQ/fl
-         0fxz9v4QoSY1OePwCTS50DsN2Bj9//wJv+evuwpayI69XqGwRMuNX0Fzh6xzuwcv4/
-         J/kqo6HqG3ogB5N4ImGfmL4RVUbRX93gZ4C5J6Kw5YSuwtHYzg4PVmwXrtGHOHtV8q
-         6yaFexAW7sXSg==
+        b=h46CXipwJ8kjCjSiCT3vYYbEzGCm0ykTVmCnAnRDJtgQbgGkbQlxeo0HsM81qmJ2B
+         QQtfAGbTCS+nSwVSQ/pCwzec2XkI7Eq0GecQ5RK2ChHfXBT7w6wyercG9JVdjRX1tl
+         /uEAGP3qykWmnoIBuQ9ETDnoeb8k8QzK3MRSZfg22KSTDlWEgWl1IabFRwIk9Xpl53
+         CjKnLUluiBwf0J2kXzoUqHdgU+fpu9GgnTcZDAAKMN2S8c4dzxda/0/Zhx0EDwctZ1
+         xY+Vooczg81kwGWOAcq1rY0PVvVZJDY9iJPPqAg0vj2wYB/2SBaLdoVA1W4d6YiXwq
+         KBMqdK6UJAytA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jarkko Sakkinen <jarkko@profian.com>,
-        Harald Hoyer <harald@profian.com>,
+Cc:     Jacky Li <jackyli@google.com>, Peter Gonda <pgonda@google.com>,
+        Alper Gun <alpergun@google.com>,
+        David Rientjes <rientjes@google.com>,
         Tom Lendacky <thomas.lendacky@amd.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, brijesh.singh@amd.com,
-        john.allen@amd.com, davem@davemloft.net,
-        linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 02/32] crypto: ccp - Add a quirk to firmware update
-Date:   Mon, 17 Oct 2022 20:06:59 -0400
-Message-Id: <20221018000729.2730519-2-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, pbonzini@redhat.com,
+        corbet@lwn.net, brijesh.singh@amd.com, john.allen@amd.com,
+        davem@davemloft.net, like.xu.linux@gmail.com, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 03/32] crypto: ccp - Initialize PSP when reading psp data file failed
+Date:   Mon, 17 Oct 2022 20:07:00 -0400
+Message-Id: <20221018000729.2730519-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000729.2730519-1-sashal@kernel.org>
 References: <20221018000729.2730519-1-sashal@kernel.org>
@@ -59,76 +61,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko@profian.com>
+From: Jacky Li <jackyli@google.com>
 
-[ Upstream commit b3b9fdf1a9be4266b01a2063b1f37cdc20806e3b ]
+[ Upstream commit d8da2da21fdb1f5964c11c00f0cc84fb0edf31d0 ]
 
-A quirk for fixing the committed TCB version, when upgrading from a
-firmware version earlier than 1.50. This is a known issue, and the
-documented workaround is to load the firmware twice.
+Currently the OS fails the PSP initialization when the file specified at
+'init_ex_path' does not exist or has invalid content. However the SEV
+spec just requires users to allocate 32KB of 0xFF in the file, which can
+be taken care of by the OS easily.
 
-Currently, this issue requires the  following workaround:
+To improve the robustness during the PSP init, leverage the retry
+mechanism and continue the init process:
 
-sudo modprobe -r kvm_amd
-sudo modprobe -r ccp
-sudo modprobe ccp
-sudo modprobe kvm_amd
+Before the first INIT_EX call, if the content is invalid or missing,
+continue the process by feeding those contents into PSP instead of
+aborting. PSP will then override it with 32KB 0xFF and return
+SEV_RET_SECURE_DATA_INVALID status code. In the second INIT_EX call,
+this 32KB 0xFF content will then be fed and PSP will write the valid
+data to the file.
 
-Implement this workaround inside kernel by checking whether the API
-version is less than 1.50, and if so, download the firmware twice.
-This addresses the TCB version issue.
+In order to do this, sev_read_init_ex_file should only be called once
+for the first INIT_EX call. Calling it again for the second INIT_EX call
+will cause the invalid file content overwriting the valid 32KB 0xFF data
+provided by PSP in the first INIT_EX call.
 
-Link: https://lore.kernel.org/all/de02389f-249d-f565-1136-4af3655fab2a@profian.com/
-Reported-by: Harald Hoyer <harald@profian.com>
-Signed-off-by: Jarkko Sakkinen <jarkko@profian.com>
+Co-developed-by: Peter Gonda <pgonda@google.com>
+Signed-off-by: Peter Gonda <pgonda@google.com>
+Signed-off-by: Jacky Li <jackyli@google.com>
+Reported-by: Alper Gun <alpergun@google.com>
+Acked-by: David Rientjes <rientjes@google.com>
 Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/sev-dev.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ .../virt/kvm/x86/amd-memory-encryption.rst    |  5 ++-
+ drivers/crypto/ccp/sev-dev.c                  | 36 +++++++++++--------
+ 2 files changed, 24 insertions(+), 17 deletions(-)
 
+diff --git a/Documentation/virt/kvm/x86/amd-memory-encryption.rst b/Documentation/virt/kvm/x86/amd-memory-encryption.rst
+index 2d307811978c..935aaeb97fe6 100644
+--- a/Documentation/virt/kvm/x86/amd-memory-encryption.rst
++++ b/Documentation/virt/kvm/x86/amd-memory-encryption.rst
+@@ -89,9 +89,8 @@ context. In a typical workflow, this command should be the first command issued.
+ 
+ The firmware can be initialized either by using its own non-volatile storage or
+ the OS can manage the NV storage for the firmware using the module parameter
+-``init_ex_path``. The file specified by ``init_ex_path`` must exist. To create
+-a new NV storage file allocate the file with 32KB bytes of 0xFF as required by
+-the SEV spec.
++``init_ex_path``. If the file specified by ``init_ex_path`` does not exist or
++is invalid, the OS will create or override the file with output from PSP.
+ 
+ Returns: 0 on success, -negative on error
+ 
 diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
-index 9f588c9728f8..b292641c8a99 100644
+index b292641c8a99..8512101f0bdf 100644
 --- a/drivers/crypto/ccp/sev-dev.c
 +++ b/drivers/crypto/ccp/sev-dev.c
-@@ -744,6 +744,11 @@ static int sev_update_firmware(struct device *dev)
- 	struct page *p;
- 	u64 data_size;
+@@ -211,18 +211,24 @@ static int sev_read_init_ex_file(void)
+ 	if (IS_ERR(fp)) {
+ 		int ret = PTR_ERR(fp);
  
-+	if (!sev_version_greater_or_equal(0, 15)) {
-+		dev_dbg(dev, "DOWNLOAD_FIRMWARE not supported\n");
-+		return -1;
+-		dev_err(sev->dev,
+-			"SEV: could not open %s for read, error %d\n",
+-			init_ex_path, ret);
++		if (ret == -ENOENT) {
++			dev_info(sev->dev,
++				"SEV: %s does not exist and will be created later.\n",
++				init_ex_path);
++			ret = 0;
++		} else {
++			dev_err(sev->dev,
++				"SEV: could not open %s for read, error %d\n",
++				init_ex_path, ret);
++		}
+ 		return ret;
+ 	}
+ 
+ 	nread = kernel_read(fp, sev_init_ex_buffer, NV_LENGTH, NULL);
+ 	if (nread != NV_LENGTH) {
+-		dev_err(sev->dev,
+-			"SEV: failed to read %u bytes to non volatile memory area, ret %ld\n",
++		dev_info(sev->dev,
++			"SEV: could not read %u bytes to non volatile memory area, ret %ld\n",
+ 			NV_LENGTH, nread);
+-		return -EIO;
+ 	}
+ 
+ 	dev_dbg(sev->dev, "SEV: read %ld bytes from NV file\n", nread);
+@@ -410,17 +416,12 @@ static int __sev_init_locked(int *error)
+ static int __sev_init_ex_locked(int *error)
+ {
+ 	struct sev_data_init_ex data;
+-	int ret;
+ 
+ 	memset(&data, 0, sizeof(data));
+ 	data.length = sizeof(data);
+ 	data.nv_address = __psp_pa(sev_init_ex_buffer);
+ 	data.nv_len = NV_LENGTH;
+ 
+-	ret = sev_read_init_ex_file();
+-	if (ret)
+-		return ret;
+-
+ 	if (sev_es_tmr) {
+ 		/*
+ 		 * Do not include the encryption mask on the physical
+@@ -439,7 +440,7 @@ static int __sev_platform_init_locked(int *error)
+ {
+ 	struct psp_device *psp = psp_master;
+ 	struct sev_device *sev;
+-	int rc, psp_ret = -1;
++	int rc = 0, psp_ret = -1;
+ 	int (*init_function)(int *error);
+ 
+ 	if (!psp || !psp->sev_data)
+@@ -450,8 +451,15 @@ static int __sev_platform_init_locked(int *error)
+ 	if (sev->state == SEV_STATE_INIT)
+ 		return 0;
+ 
+-	init_function = sev_init_ex_buffer ? __sev_init_ex_locked :
+-			__sev_init_locked;
++	if (sev_init_ex_buffer) {
++		init_function = __sev_init_ex_locked;
++		rc = sev_read_init_ex_file();
++		if (rc)
++			return rc;
++	} else {
++		init_function = __sev_init_locked;
 +	}
 +
- 	if (sev_get_firmware(dev, &firmware) == -ENOENT) {
- 		dev_dbg(dev, "No SEV firmware file present\n");
- 		return -1;
-@@ -776,6 +781,14 @@ static int sev_update_firmware(struct device *dev)
- 	data->len = firmware->size;
- 
- 	ret = sev_do_cmd(SEV_CMD_DOWNLOAD_FIRMWARE, data, &error);
-+
-+	/*
-+	 * A quirk for fixing the committed TCB version, when upgrading from
-+	 * earlier firmware version than 1.50.
-+	 */
-+	if (!ret && !sev_version_greater_or_equal(1, 50))
-+		ret = sev_do_cmd(SEV_CMD_DOWNLOAD_FIRMWARE, data, &error);
-+
- 	if (ret)
- 		dev_dbg(dev, "Failed to update SEV firmware: %#x\n", error);
- 	else
-@@ -1285,8 +1298,7 @@ void sev_pci_init(void)
- 	if (sev_get_api_version())
- 		goto err;
- 
--	if (sev_version_greater_or_equal(0, 15) &&
--	    sev_update_firmware(sev->dev) == 0)
-+	if (sev_update_firmware(sev->dev) == 0)
- 		sev_get_api_version();
- 
- 	/* If an init_ex_path is provided rely on INIT_EX for PSP initialization
+ 	rc = init_function(&psp_ret);
+ 	if (rc && psp_ret == SEV_RET_SECURE_DATA_INVALID) {
+ 		/*
 -- 
 2.35.1
 
