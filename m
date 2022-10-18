@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F16F601E7A
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:10:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D5ED601E52
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:09:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231474AbiJRAI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:08:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36394 "EHLO
+        id S231301AbiJRAJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:09:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231383AbiJRAIX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:08:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1C5987691;
-        Mon, 17 Oct 2022 17:08:04 -0700 (PDT)
+        with ESMTP id S231320AbiJRAIo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:08:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66726870BA;
+        Mon, 17 Oct 2022 17:08:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BACA612A3;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 993FAB81BD5;
+        Tue, 18 Oct 2022 00:08:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BACDC433C1;
         Tue, 18 Oct 2022 00:08:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48BDBC433D7;
-        Tue, 18 Oct 2022 00:08:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051683;
-        bh=sPuojthYzSXbgbUnAK+0nBav8BXu2IisDBLQN7Eu100=;
+        s=k20201202; t=1666051684;
+        bh=XQU6IxSFDDludMCvBY1NmvN3jKyoAOUTtqBbNtntPgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NyA+y+qaXSYstqcPJP9WlkjFKooy6xufAI7IcZHZHToR0iEbbkgeDLWv3/Th0qLlL
-         2h8smrmj88ACBk7sJMIhlQH5933yNn75KFRQ5ojabNRnjTeJT7zbef20viyjo/3k33
-         sDU02RGNPNsgoVemxIBwX2j/2DCqrSnMaLXyPHThIynEubcNIQnoD+OMywkwp8FgAy
-         uONZjIjyT4i1PqF6Wx7d5YKcU2kbF0fPg7zKiEFV0q0b8+UCiC1Rb7tsySuG4Wh6i+
-         FjKRP54EloFNwnuTSonBc2K8wOO0em9LGiIphhOLX4BaiINtanRiYLyQ0TPoHTNkPO
-         LmOjfnWxrYuAQ==
+        b=k36E5miV/ot0H7SyjulWEC5KlI46sTN1mAk6pH5uq6TZY2PyMntwsnbtmPU5BV63S
+         i+JfTDQ78f9Q3vf7EpHArXJrdTqNvmJhl2i6N/jsxB914nqPCWOvUHglyOiRft0aAy
+         uTEGjEI7OQW0WqEK+EBp8K3dpjZTR5nukMtvuu4v0zfIzcH4C8siGcgA0V/2jA+iTS
+         GsbsY2rcw6yxPNow1dYEa5PHZfTVtC0D0Ko79mxTKQJGhst70c+qwWovVBMwBCKGZ1
+         9XfdH2wk6Es4bajP/h1899OtAHzUwARwe6RKBngM54eHyLC13yLw4SB5QSrJ6ER8dH
+         uTh3ZptpkfZTA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Ungerer <gerg@linux-m68k.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-m68k@lists.linux-m68k.org
-Subject: [PATCH AUTOSEL 6.0 16/32] m68knommu: fix non-mmu classic 68000 legacy timer tick selection
-Date:   Mon, 17 Oct 2022 20:07:13 -0400
-Message-Id: <20221018000729.2730519-16-sashal@kernel.org>
+Cc:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        masahiroy@kernel.org, michal.lkml@markovi.net,
+        linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 17/32] kbuild: take into account DT_SCHEMA_FILES changes while checking dtbs
+Date:   Mon, 17 Oct 2022 20:07:14 -0400
+Message-Id: <20221018000729.2730519-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000729.2730519-1-sashal@kernel.org>
 References: <20221018000729.2730519-1-sashal@kernel.org>
@@ -56,61 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Ungerer <gerg@linux-m68k.org>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 18011e50c497f04a57a8e00122906f04922b30b4 ]
+[ Upstream commit d7c6ea024c08bbdb799768f51ffd9fdd6236d190 ]
 
-The family of classic 68000 parts supported when in non-mmu mode all
-currently use the legacy timer support. Move the selection of that config
-option, LEGACY_TIMER_TICK, into the core CPU configuration.
+It is useful to be able to recheck dtbs files against a limited set of
+DT schema files. This can be accomplished by using differnt
+DT_SCHEMA_FILES argument values while rerunning make dtbs_check. However
+for some reason if_changed_rule doesn't pick up the rule_dtc changes
+(and doesn't retrigger the build).
 
-This fixes compilation if no specific CPU variant is selected, since
-the LEGACY_TIMER_TICK option was only selected in the specific CPU
-variant configurations.
+Fix this by changing if_changed_rule to if_changed_dep and squashing DTC
+and dt-validate into a single new command. Then if_changed_dep triggers
+on DT_SCHEMA_FILES changes and reruns the build/check.
 
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220915114422.79378-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.cpu | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ scripts/Makefile.lib | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/arch/m68k/Kconfig.cpu b/arch/m68k/Kconfig.cpu
-index e0e9e31339c1..b0504b13b089 100644
---- a/arch/m68k/Kconfig.cpu
-+++ b/arch/m68k/Kconfig.cpu
-@@ -46,6 +46,7 @@ config M68000
- 	select GENERIC_CSUM
- 	select CPU_NO_EFFICIENT_FFS
- 	select HAVE_ARCH_HASH
-+	select LEGACY_TIMER_TICK
- 	help
- 	  The Freescale (was Motorola) 68000 CPU is the first generation of
- 	  the well known M68K family of processors. The CPU core as well as
-@@ -97,7 +98,6 @@ config M68060
- config M68328
- 	bool
- 	depends on !MMU
--	select LEGACY_TIMER_TICK
- 	select M68000
- 	help
- 	  Motorola 68328 processor support.
-@@ -105,7 +105,6 @@ config M68328
- config M68EZ328
- 	bool
- 	depends on !MMU
--	select LEGACY_TIMER_TICK
- 	select M68000
- 	help
- 	  Motorola 68EX328 processor support.
-@@ -113,7 +112,6 @@ config M68EZ328
- config M68VZ328
- 	bool
- 	depends on !MMU
--	select LEGACY_TIMER_TICK
- 	select M68000
- 	help
- 	  Motorola 68VZ328 processor support.
+diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+index 3fb6a99e78c4..cec0560f6ac6 100644
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -371,17 +371,15 @@ DT_CHECKER_FLAGS ?= $(if $(DT_SCHEMA_FILES),-l $(DT_SCHEMA_FILES),-m)
+ DT_BINDING_DIR := Documentation/devicetree/bindings
+ DT_TMP_SCHEMA := $(objtree)/$(DT_BINDING_DIR)/processed-schema.json
+ 
+-quiet_cmd_dtb_check =	CHECK   $@
+-      cmd_dtb_check =	$(DT_CHECKER) $(DT_CHECKER_FLAGS) -u $(srctree)/$(DT_BINDING_DIR) -p $(DT_TMP_SCHEMA) $@ || true
++quiet_cmd_dtb =	DTC_CHK $@
++      cmd_dtb =	$(cmd_dtc) ; $(DT_CHECKER) $(DT_CHECKER_FLAGS) -u $(srctree)/$(DT_BINDING_DIR) -p $(DT_TMP_SCHEMA) $@ || true
++else
++quiet_cmd_dtb = $(quiet_cmd_dtc)
++      cmd_dtb = $(cmd_dtc)
+ endif
+ 
+-define rule_dtc
+-	$(call cmd_and_fixdep,dtc)
+-	$(call cmd,dtb_check)
+-endef
+-
+ $(obj)/%.dtb: $(src)/%.dts $(DTC) $(DT_TMP_SCHEMA) FORCE
+-	$(call if_changed_rule,dtc)
++	$(call if_changed_dep,dtb)
+ 
+ $(obj)/%.dtbo: $(src)/%.dts $(DTC) FORCE
+ 	$(call if_changed_dep,dtc)
 -- 
 2.35.1
 
