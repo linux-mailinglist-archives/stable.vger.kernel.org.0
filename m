@@ -2,116 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD1B76029DE
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 13:10:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B863A602A65
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 13:40:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229606AbiJRLK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Oct 2022 07:10:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58618 "EHLO
+        id S230009AbiJRLkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Oct 2022 07:40:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229619AbiJRLK2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 07:10:28 -0400
-Received: from wnew4-smtp.messagingengine.com (wnew4-smtp.messagingengine.com [64.147.123.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F17534D14C;
-        Tue, 18 Oct 2022 04:10:26 -0700 (PDT)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailnew.west.internal (Postfix) with ESMTP id 1A3E52B06811;
-        Tue, 18 Oct 2022 07:10:23 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Tue, 18 Oct 2022 07:10:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm3; t=1666091422; x=1666098622; bh=U8wpPQWEh5
-        8ZbN0yR3/VZpUrmJoyEuxzqpuZ/EhtzXw=; b=FPpwZhiUWWOv/PCuTy9vUJC9m2
-        y4kcMr1P+uImmYjI46Xv92ahLFs8sL+43+uu+mQQDAlnwN++4Z+jlgv2JE+Tdnth
-        57MgL3yzSKmTpdrCOe3jGSD3n64UuzXsEFVEKpcDvrG00w4TAwUgVcJ7bz11U99n
-        zlqng7wZxojKWmfeXk5m4x+xN/F9eTr1Rsj4L1vDLAdTtYWIdCNhN6Yj8GvLQzWa
-        Js/GfNKvRDpYwXt60W+bRsT4F6giIhIjBl/qd1mVKd2fVB9B1Q0GDdPfV+L+U50c
-        42QWmLlXK4yZqL6D4C63EQySC/MN1RO+yRLB153bwyNjfT+coTICwFV913Dg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; t=1666091422; x=1666098622; bh=U8wpPQWEh58ZbN0yR3/VZpUrmJoy
-        EuxzqpuZ/EhtzXw=; b=VZd/2vakzilt25m9+TVR49pb6cHZGnpEUDgXmg/uKH1S
-        ezkNAa1xc4jfe0EASTLeFN8LavMgRgOrFcp4ivE4UY1AxI8uXwE+YmQYJM5FdQJA
-        0zn5bXRIdgELqCXxEu20ZfhNbYNWZ4M88Zl4sep9w1bkK+nsJ5tMDLwlqhlHr+y+
-        mZ7tkc8KlOh6K2Kj0yhRwrj5NDBi5mDBBGCs4cVz4SgLA9hTqO2Rp/gusFDrlhPA
-        /I+TV1yfX1XB9e3jLg22edufBn+N1oYVBaNYW21KAz736Ggv/lsn3D1WPHst3aKc
-        zLFAne1x3g83NLEU3ul7qdnZglOLV397AqYkLKQLTw==
-X-ME-Sender: <xms:nolOY0F7JerDoGIsAmBfxKtLGb2lMYPC8nuTgwVtSpgIyIdWVp59gw>
-    <xme:nolOY9X8k6RJyT4e6Clli2fd7AsGSmz6s25Uu96PNyJGwXUds0Uq8-kR6oYYFNb2X
-    VQvr-s0ZgUGTA>
-X-ME-Received: <xmr:nolOY-Jc5skPz9_8BOH24AnoMMaj-sQw6trDVGMo_8X6m7GJSj16ygWNJvrRtEf-GMdO4WzJONzJ9cbzhomnNNOhiUYL7odu>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrfeelvddgtdekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepheegvd
-    evvdeljeeugfdtudduhfekledtiefhveejkeejuefhtdeufefhgfehkeetnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:nolOY2EExM93ZvaD_0AIHeIYbHSXWgXx7dG8BzN2Vndw_Su6Wr6ktw>
-    <xmx:nolOY6XHFPaCYLD01gF-rJ6vByk2WR_7xZfjErZEyEWN1zyRCldPww>
-    <xmx:nolOY5PbORWxwcMFXp5ILYkgl8d0QxAiVBRNsZl_L75-yHIfg-29wg>
-    <xmx:nolOY9rhQTer_LEwQrjfdRJwEsx99Y8oYxhepeYW1Ft3NYnZOY-DWHbBtAM>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 18 Oct 2022 07:10:22 -0400 (EDT)
-Date:   Tue, 18 Oct 2022 13:10:18 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>, kvalo@kernel.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.19 16/25] wifi: ath10k: reset pointer after
- memory free to avoid potential use-after-free
-Message-ID: <Y06JmkTYlD1qSkvz@kroah.com>
-References: <20221009222436.1219411-1-sashal@kernel.org>
- <20221009222436.1219411-16-sashal@kernel.org>
- <20221018095356.GH1264@duo.ucw.cz>
+        with ESMTP id S230344AbiJRLkf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 07:40:35 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A2758C03E
+        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 04:40:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1666092984;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=0gI9MyQ0B2I4eAIApFlcYq/WtrU7aTjA+O4P8PbTfnw=;
+        b=KQrGdzrxTVSg1B+p7eZJYKpC9z/GNmIfeNiVDB1g9tEiIeNk2WzyvHbmQykIs8OVor9HcC
+        vHNNPC51dqGJ9YPYOTQzvUzE1fXbrrVCSZx/xvaJSd17UnMtgqqOjunGPi0542tGFz4qzp
+        tn0sTl8N5nPpcvuIGAmFNjfoQnMOk2w=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-610-OR57aaCpMRukR07h2z1Eow-1; Tue, 18 Oct 2022 07:36:23 -0400
+X-MC-Unique: OR57aaCpMRukR07h2z1Eow-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AF76285A583;
+        Tue, 18 Oct 2022 11:36:22 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id AA9852166B41;
+        Tue, 18 Oct 2022 11:36:22 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 29IBaMVx005945;
+        Tue, 18 Oct 2022 07:36:22 -0400
+Received: from localhost (mpatocka@localhost)
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 29IBaMkM005941;
+        Tue, 18 Oct 2022 07:36:22 -0400
+X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
+Date:   Tue, 18 Oct 2022 07:36:22 -0400 (EDT)
+From:   Mikulas Patocka <mpatocka@redhat.com>
+X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
+To:     Greg KH <gregkh@linuxfoundation.org>
+cc:     stable@vger.kernel.org
+Subject: Re: backport of patches 8238b4579866b7c1bb99883cfe102a43db5506ff
+ and d6ffe6067a54972564552ea45d320fb98db1ac5e
+In-Reply-To: <Y0U+UkLYiRzvgoF8@kroah.com>
+Message-ID: <alpine.LRH.2.02.2210180733360.5835@file01.intranet.prod.int.rdu2.redhat.com>
+References: <alpine.LRH.2.02.2209301128030.23900@file01.intranet.prod.int.rdu2.redhat.com> <YzflXQMdGLsjPb70@kroah.com> <alpine.LRH.2.02.2210030459050.10514@file01.intranet.prod.int.rdu2.redhat.com> <Yz21dn2vJPOVOffr@kroah.com> <Y0Rtkk7hA4CBwp16@kroah.com>
+ <alpine.LRH.2.02.2210110531260.30193@file01.intranet.prod.int.rdu2.redhat.com> <Y0U+UkLYiRzvgoF8@kroah.com>
+User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221018095356.GH1264@duo.ucw.cz>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 18, 2022 at 11:53:56AM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > From: Wen Gong <quic_wgong@quicinc.com>
-> > 
-> > [ Upstream commit 1e1cb8e0b73e6f39a9d4a7a15d940b1265387eb5 ]
-> > 
-> > When running suspend test, kernel crash happened in ath10k, and it is
-> > fixed by commit b72a4aff947b ("ath10k: skip ath10k_halt during suspend
-> > for driver state RESTARTING").
-> > 
-> > Currently the crash is fixed, but as a common code style, it is better
-> > to set the pointer to NULL after memory is free.
-> > 
-> > This is to address the code style and it will avoid potential bug of
-> > use-after-free.
-> 
-> We don't have this patch in 4.19:
-> 
-> b72a4aff947b ("ath10k: skip ath10k_halt during suspend for driver state RESTARTING").
-> 
-> We probably should take that one, as this may depend on it. On the
-> other hand, we don't need this one as it is just a cleanup...
 
-I've dropped this from all queues now, thanks.
 
-greg k-h
+On Tue, 11 Oct 2022, Greg KH wrote:
+
+> On Tue, Oct 11, 2022 at 05:48:26AM -0400, Mikulas Patocka wrote:
+> > 
+> > 
+> > On Mon, 10 Oct 2022, Greg KH wrote:
+> > 
+> > > Nope, these cause loads of breakages.  See
+> > > https://lore.kernel.org/r/09eca44e-4d91-a060-d48c-d0aa41ac5045@roeck-us.net
+> > > for one such example, and I know kbuild sent you other build problems.
+> > > I'll drop all of these from the stable trees now.  Please feel free to
+> > > resend them when you have the build issues worked out.
+> > > 
+> > > thanks,
+> > > 
+> > > greg k-h
+> > 
+> > I don't have cross compilers for all the architectures that Linux 
+> > supports. Is there some way how to have the patch compile-tested before I 
+> > send it to you?
+> 
+> You can download those compilers from kernel.org, they are all available
+> there.
+
+OK. I downloaded cross compilers from 
+https://mirrors.edge.kernel.org/pub/tools/crosstool/ and compile-tested 
+the patches with all possible architectures.
+
+Here I'm sending new versions.
+
+Mikulas
+
