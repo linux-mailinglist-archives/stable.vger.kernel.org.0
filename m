@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2A50601E30
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:08:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21EDD601E2C
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:08:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230250AbiJRAIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:08:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36224 "EHLO
+        id S231284AbiJRAH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:07:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231158AbiJRAH4 (ORCPT
+        with ESMTP id S229963AbiJRAH4 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:07:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41CC0870A5;
-        Mon, 17 Oct 2022 17:07:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62A73870B0;
+        Mon, 17 Oct 2022 17:07:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEF70612B4;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CB4561313;
+        Tue, 18 Oct 2022 00:07:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B491BC433B5;
         Tue, 18 Oct 2022 00:07:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30DB4C43150;
-        Tue, 18 Oct 2022 00:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051666;
-        bh=Wz6/W8ffwyEXEVYVufTDi1EST1b5dNnFzBabgt1Ya6I=;
+        s=k20201202; t=1666051667;
+        bh=wgrfswB52ozX8stgmZvSTP4kvWV9iIXnksS3RGEamac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JLOcfX3i4etGzwairs9wxsmA9p0A2AlVTJd+gt4RXlZfZEMrfE1FxY2QGyOFgffCG
-         xkHBPLlMA8pD7NBNF9d148mmbspF0xcEOPlVHxUhIw53b5hTKcZFaiIQrOK7AWBjvA
-         TAf2/sUl+yQqBbF8z+DSyE2pQsjkmf6VHMAJRBiqQr8xsu0gGuZaJvELpF/oc9f4Ly
-         4xJXXRrwNtelVluBfZz8CeInqmiBzuQlXhWDh5omdfWQRTqmzK/YMNsnMQx2hCwR/H
-         uog8cF+Jaa5UXsxpkdFFx9Dil4YDUoSYfm7nDhjP4cye0ffuq6lZmVbn/3WkMvhBlW
-         eFtV5p48BYJHA==
+        b=GuuyS2RzUCB9ZLD0X82/p/UZP907ZU7F7aufMt2sP7t671bh+0IPv6eqrRcpJtUYJ
+         d+SWr5ZKjGYFGPF96DYuvDbM4PX0h4OFtPkZFITqMOrARROKO2J+QCuv9J70IBIF9Z
+         0Yk/LmBYj8tDDVdqmVaPCY9mqtub52cjtiRKDw5sl3JuW1UFfG9NoAyfil2ebF5Sd6
+         7UrKRNAk5h4OT56I4Ls0W5FBnLQU92pHRTdhaHGh1qx2Y5HHZLpFg4+bCG+HzcHraQ
+         GCuAy/2KUwK7nSNb5PMbbS9V/Hf9Y2BXgSquVm9bCPIGsx7AUwVEPkt0WemMLlllyt
+         5jQ2jGjLuMTKg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>, dwmw2@infradead.org,
-        baolu.lu@linux.intel.com, joro@8bytes.org, will@kernel.org,
-        iommu@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.0 07/32] iommu/vt-d: Handle race between registration and device probe
-Date:   Mon, 17 Oct 2022 20:07:04 -0400
-Message-Id: <20221018000729.2730519-7-sashal@kernel.org>
+Cc:     Marek Bykowski <marek.bykowski@gmail.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        robh+dt@kernel.org, frowand.list@gmail.com,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 08/32] of/fdt: Don't calculate initrd size from DT if start > end
+Date:   Mon, 17 Oct 2022 20:07:05 -0400
+Message-Id: <20221018000729.2730519-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000729.2730519-1-sashal@kernel.org>
 References: <20221018000729.2730519-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,47 +57,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Marek Bykowski <marek.bykowski@gmail.com>
 
-[ Upstream commit c919739ce4721ecf7b96b99253b032df30fcf19b ]
+[ Upstream commit d5e3050c0feb8bf7b9a75482fafcc31b90257926 ]
 
-Currently we rely on registering all our instances before initially
-allowing any .probe_device calls via bus_set_iommu(). In preparation for
-phasing out the latter, make sure we won't inadvertently return success
-for a device associated with a known but not yet registered instance,
-otherwise we'll run straight into iommu_group_get_for_dev() trying to
-use NULL ops.
+If the properties 'linux,initrd-start' and 'linux,initrd-end' of
+the chosen node populated from the bootloader, eg. U-Boot, are so that
+start > end, then the phys_initrd_size calculated from end - start is
+negative that subsequently gets converted to a high positive value for
+being unsigned long long. Then, the memory region with the (invalid)
+size is added to the bootmem and attempted being paged in paging_init()
+that results in the kernel fault.
 
-That also highlights an issue with intel_iommu_get_resv_regions() taking
-dmar_global_lock from within a section where intel_iommu_init() already
-holds it, which already exists via probe_acpi_namespace_devices() when
-an ANDD device is probed, but gets more obvious with the upcoming change
-to iommu_device_register(). Since they are both read locks it manages
-not to deadlock in practice, and a more in-depth rework of this locking
-is underway, so no attempt is made to address it here.
+For example, on the FVP ARM64 system I'm running, the U-Boot populates
+the 'linux,initrd-start' with 8800_0000 and 'linux,initrd-end' with 0.
+The phys_initrd_size calculated is then ffff_ffff_7800_0000
+(= 0 - 8800_0000 = -8800_0000 + ULLONG_MAX + 1). paging_init() then
+attempts to map the address 8800_0000 + ffff_ffff_7800_0000 and oops'es
+as below.
 
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/579f2692291bcbfc3ac64f7456fcff0d629af131.1660572783.git.robin.murphy@arm.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+It should be stressed, it is generally a fault of the bootloader's with
+the kernel relying on it, however we should not allow the bootloader's
+misconfiguration to lead to the kernel oops. Not only the kernel should be
+bullet proof against it but also finding the root cause of the paging
+fault spanning over the bootloader, DT, and kernel may happen is not so
+easy.
+
+  Unable to handle kernel paging request at virtual address fffffffefe43c000
+  Mem abort info:
+    ESR = 0x96000007
+    EC = 0x25: DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+  Data abort info:
+    ISV = 0, ISS = 0x00000007
+    CM = 0, WnR = 0
+  swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000080e3d000
+  [fffffffefe43c000] pgd=0000000080de9003, pud=0000000080de9003
+  Unable to handle kernel paging request at virtual address ffffff8000de9f90
+  Mem abort info:
+    ESR = 0x96000005
+    EC = 0x25: DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+  Data abort info:
+    ISV = 0, ISS = 0x00000005
+    CM = 0, WnR = 0
+  swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000080e3d000
+  [ffffff8000de9f90] pgd=0000000000000000, pud=0000000000000000
+  Internal error: Oops: 96000005 [#1] PREEMPT SMP
+  Modules linked in:
+  CPU: 0 PID: 0 Comm: swapper Not tainted 5.4.51-yocto-standard #1
+  Hardware name: FVP Base (DT)
+  pstate: 60000085 (nZCv daIf -PAN -UAO)
+  pc : show_pte+0x12c/0x1b4
+  lr : show_pte+0x100/0x1b4
+  sp : ffffffc010ce3b30
+  x29: ffffffc010ce3b30 x28: ffffffc010ceed80
+  x27: fffffffefe43c000 x26: fffffffefe43a028
+  x25: 0000000080bf0000 x24: 0000000000000025
+  x23: ffffffc010b8d000 x22: ffffffc010e3d000
+  x23: ffffffc010b8d000 x22: ffffffc010e3d000
+  x21: 0000000080de9000 x20: ffffff7f80000f90
+  x19: fffffffefe43c000 x18: 0000000000000030
+  x17: 0000000000001400 x16: 0000000000001c00
+  x15: ffffffc010cef1b8 x14: ffffffffffffffff
+  x13: ffffffc010df1f40 x12: ffffffc010df1b70
+  x11: ffffffc010ce3b30 x10: ffffffc010ce3b30
+  x9 : 00000000ffffffc8 x8 : 0000000000000000
+  x7 : 000000000000000f x6 : ffffffc010df16e8
+  x5 : 0000000000000000 x4 : 0000000000000000
+  x3 : 00000000ffffffff x2 : 0000000000000000
+  x1 : 0000008080000000 x0 : ffffffc010af1d68
+  Call trace:
+   show_pte+0x12c/0x1b4
+   die_kernel_fault+0x54/0x78
+   __do_kernel_fault+0x11c/0x128
+   do_translation_fault+0x58/0xac
+   do_mem_abort+0x50/0xb0
+   el1_da+0x1c/0x90
+   __create_pgd_mapping+0x348/0x598
+   paging_init+0x3f0/0x70d0
+   setup_arch+0x2c0/0x5d4
+   start_kernel+0x94/0x49c
+  Code: 92748eb5 900052a0 9135a000 cb010294 (f8756a96) 
+
+Signed-off-by: Marek Bykowski <marek.bykowski@gmail.com>
+Link: https://lore.kernel.org/r/20220909023358.76881-1-marek.bykowski@gmail.com
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/of/fdt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 31bc50e538a3..ed63386b9b60 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -4457,7 +4457,7 @@ static struct iommu_device *intel_iommu_probe_device(struct device *dev)
- 	u8 bus, devfn;
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index 1c573e7a60bc..f2c660a137be 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -936,6 +936,8 @@ static void __init early_init_dt_check_for_initrd(unsigned long node)
+ 	if (!prop)
+ 		return;
+ 	end = of_read_number(prop, len/4);
++	if (start > end)
++		return;
  
- 	iommu = device_to_iommu(dev, &bus, &devfn);
--	if (!iommu)
-+	if (!iommu || !iommu->iommu.ops)
- 		return ERR_PTR(-ENODEV);
- 
- 	info = kzalloc(sizeof(*info), GFP_KERNEL);
+ 	__early_init_dt_declare_initrd(start, end);
+ 	phys_initrd_start = start;
 -- 
 2.35.1
 
