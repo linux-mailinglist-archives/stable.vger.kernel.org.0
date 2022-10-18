@@ -2,540 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A790603180
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 19:20:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 878CC6031DC
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 19:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229751AbiJRRUw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Oct 2022 13:20:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41404 "EHLO
+        id S230114AbiJRR7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Oct 2022 13:59:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229752AbiJRRUv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 13:20:51 -0400
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3456DEE08F
-        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 10:20:47 -0700 (PDT)
+        with ESMTP id S229894AbiJRR7P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 13:59:15 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB22C62E3;
+        Tue, 18 Oct 2022 10:59:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666113647; x=1697649647;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=uGeSWK3W3+KNDJst8Pi5l4uSFrwT18SKlJ5wxJx8W5g=;
-  b=FgIucWIL8hpyCcSq7+McyzITO8OIdNwHB2Q2GMTTGpramaG0Yu7cGgsg
-   hiJg5oxQikzse2Y6A0ULaw2Bt0U63OV2PghkTGWvhmTZ8PJP5+mgku2s7
-   tkak3OlpTWhVNYaYbfnHBhs0NL+0HwutLnEXHahEKsCednz51vrv10JrU
-   cSWlWsBSXpSazgb4+XTQCDJVi71lK2q8PlLrHCmU13cib1pdNzXLVkeno
-   S0x9LYJoAwb055Km5xmkQlLsj0A/k8mUjWQg4hrDkRLhPtwYXDfwLA9Ht
-   ZK3sXTBvGqlVHhSaQnWMvZNECx3wDElbGiLAXsV50wvaUFSVOPYlmlzoP
+  t=1666115951; x=1697651951;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=qG3pPWLpSbglp5R801rTaLLX0yFYxAOeAh4l6wso68g=;
+  b=d+BsUjGZz8Ow/a2qjz6nqsp1b2WUj2XCbyhujrYo1wAEpzT/2sT1kA/n
+   cB5qI5UmsO2tO9wTbHpGaIfalRY2Ym8zhzu1xhtxakOppk6jSv00omQ6J
+   dUzc6+ChP19lVPx5Kq05dfS4R7/g5CtR0q5HIn0tKwqM3+cd/EqN8nFpI
+   MurG8W8sVE5gEK5Ivdw+/+G79tPexK+Jsy/BlShfnGOaPLAh61KR+DVMZ
+   Qg6mxqUD6xcBi90dObS7R795f3vQdlJbIoh40L/YV503LQiopoVy0SKir
+   4m0qzJ9/u1WbaVmIEDNcGHmzk+avbMNHLF9nPOfrFCZx0mpb5eX+R/6I0
    w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10504"; a="303790952"
+X-IronPort-AV: E=McAfee;i="6500,9779,10504"; a="368214487"
 X-IronPort-AV: E=Sophos;i="5.95,193,1661842800"; 
-   d="scan'208";a="303790952"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2022 10:20:46 -0700
-X-IronPort-AV: E=McAfee;i="6500,9779,10504"; a="628818299"
+   d="scan'208";a="368214487"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2022 10:58:54 -0700
+X-IronPort-AV: E=McAfee;i="6500,9779,10504"; a="874017001"
 X-IronPort-AV: E=Sophos;i="5.95,193,1661842800"; 
-   d="scan'208";a="628818299"
-Received: from ideak-desk.fi.intel.com ([10.237.72.175])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2022 10:20:45 -0700
-From:   Imre Deak <imre.deak@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, stable@vger.kernel.org
-Subject: [PATCH 1/3] drm/i915/tgl+: Add locking around DKL PHY register accesses
-Date:   Tue, 18 Oct 2022 20:20:40 +0300
-Message-Id: <20221018172042.1449885-1-imre.deak@intel.com>
-X-Mailer: git-send-email 2.31.1.189.g2e36527f23
+   d="scan'208";a="874017001"
+Received: from ahunter6-mobl1.ger.corp.intel.com (HELO [10.0.2.15]) ([10.252.51.208])
+  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2022 10:58:49 -0700
+Message-ID: <1953691e-4179-92c3-efa9-f10ccd3cad00@intel.com>
+Date:   Tue, 18 Oct 2022 20:58:44 +0300
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Firefox/102.0 Thunderbird/102.4.0
+Subject: Re: [PATCH 1/5] mmc: sdhci-of-arasan: Fix SDHCI_RESET_ALL for CQHCI
+Content-Language: en-US
+To:     Brian Norris <briannorris@chromium.org>
+Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Shawn Lin <shawn.lin@rock-chips.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Haibo Chen <haibo.chen@nxp.com>,
+        Al Cooper <alcooperx@gmail.com>, linux-mmc@vger.kernel.org,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        linux-kernel@vger.kernel.org,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Broadcom internal kernel review list 
+        <bcm-kernel-feedback-list@broadcom.com>, stable@vger.kernel.org
+References: <20221018035724.2061127-1-briannorris@chromium.org>
+ <20221017205610.1.I29f6a2189e84e35ad89c1833793dca9e36c64297@changeid>
+ <e7816e4a-8558-0de0-e25f-d10abd0ef1c3@intel.com>
+ <Y07bgNd7KbLDttsq@google.com>
+From:   Adrian Hunter <adrian.hunter@intel.com>
+Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki,
+ Business Identity Code: 0357606 - 4, Domiciled in Helsinki
+In-Reply-To: <Y07bgNd7KbLDttsq@google.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Accessing the TypeC DKL PHY registers during modeset-commit,
--verification, DP link-retraining and AUX power well toggling is racy
-due to these code paths being concurrent and the PHY register bank
-selection register (HIP_INDEX_REG) being shared between PHY instances
-(aka TC ports) and the bank selection being not atomic wrt. the actual
-PHY register access.
+On 18/10/22 19:59, Brian Norris wrote:
+> Hi Adrian,
+> 
+> On Tue, Oct 18, 2022 at 07:13:28PM +0300, Adrian Hunter wrote:
+>> On 18/10/22 06:57, Brian Norris wrote:
+>>> So like these other patches, deactivate CQHCI when resetting the
+>>> controller. Also, move around the DT/caps handling, because
+>>> sdhci_setup_host() performs resets before we've initialized CQHCI. This
+>>> is the pattern followed in other SDHCI/CQHCI drivers.
+>>
+>> Did you consider just checking host->mmc->cqe_private like
+>> sdhci_cqhci_reset() ?
+> 
+> I did not, although I am doing so now.
+> 
+> My first thought is that this feels a bit too private. Is the host
+> driver supposed to be memorizing the details of the CQHCI layer?
 
-Add the required locking around each PHY register bank selection->
-register access sequence.
+Some drivers need to access CQHCI registers and get the reference
+to cqhci_host from cqe_private, so that is already accepted.
 
-Kudos to Ville for noticing the race conditions.
+> 
+> But on the plus side, that would remove some contortions needed here
+> (and also in sdhci-brcmstb.c).
+> 
+> Here's another option I previously considered: teaching
+> cqhci_deactivate() to check cqe_private itself. That would have the same
+> benefits, while keeping the private details in cqhci-core.c. How do you
+> like that?
 
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v5.5+
-Signed-off-by: Imre Deak <imre.deak@intel.com>
----
- drivers/gpu/drm/i915/display/intel_ddi.c      | 67 ++++++-------
- drivers/gpu/drm/i915/display/intel_display.c  |  2 +
- .../gpu/drm/i915/display/intel_display_core.h |  4 +
- .../i915/display/intel_display_power_well.c   |  6 +-
- drivers/gpu/drm/i915/display/intel_dpll_mgr.c | 58 +++++-------
- drivers/gpu/drm/i915/display/intel_tc.c       | 94 +++++++++++++++++++
- drivers/gpu/drm/i915/display/intel_tc.h       |  9 ++
- drivers/gpu/drm/i915/i915_reg.h               |  3 +
- 8 files changed, 167 insertions(+), 76 deletions(-)
+I don't mind either way.
 
-diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
-index 971356237eca3..8e2b338883858 100644
---- a/drivers/gpu/drm/i915/display/intel_ddi.c
-+++ b/drivers/gpu/drm/i915/display/intel_ddi.c
-@@ -1262,33 +1262,30 @@ static void tgl_dkl_phy_set_signal_levels(struct intel_encoder *encoder,
- 	for (ln = 0; ln < 2; ln++) {
- 		int level;
- 
--		intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--			       HIP_INDEX_VAL(tc_port, ln));
--
--		intel_de_write(dev_priv, DKL_TX_PMD_LANE_SUS(tc_port), 0);
-+		intel_tc_dkl_write(dev_priv, DKL_TX_PMD_LANE_SUS(tc_port), ln, 0);
- 
- 		level = intel_ddi_level(encoder, crtc_state, 2*ln+0);
- 
--		intel_de_rmw(dev_priv, DKL_TX_DPCNTL0(tc_port),
--			     DKL_TX_PRESHOOT_COEFF_MASK |
--			     DKL_TX_DE_EMPAHSIS_COEFF_MASK |
--			     DKL_TX_VSWING_CONTROL_MASK,
--			     DKL_TX_PRESHOOT_COEFF(trans->entries[level].dkl.preshoot) |
--			     DKL_TX_DE_EMPHASIS_COEFF(trans->entries[level].dkl.de_emphasis) |
--			     DKL_TX_VSWING_CONTROL(trans->entries[level].dkl.vswing));
-+		intel_tc_dkl_rmw(dev_priv, DKL_TX_DPCNTL0(tc_port), ln,
-+				 DKL_TX_PRESHOOT_COEFF_MASK |
-+				 DKL_TX_DE_EMPAHSIS_COEFF_MASK |
-+				 DKL_TX_VSWING_CONTROL_MASK,
-+				 DKL_TX_PRESHOOT_COEFF(trans->entries[level].dkl.preshoot) |
-+				 DKL_TX_DE_EMPHASIS_COEFF(trans->entries[level].dkl.de_emphasis) |
-+				 DKL_TX_VSWING_CONTROL(trans->entries[level].dkl.vswing));
- 
- 		level = intel_ddi_level(encoder, crtc_state, 2*ln+1);
- 
--		intel_de_rmw(dev_priv, DKL_TX_DPCNTL1(tc_port),
--			     DKL_TX_PRESHOOT_COEFF_MASK |
--			     DKL_TX_DE_EMPAHSIS_COEFF_MASK |
--			     DKL_TX_VSWING_CONTROL_MASK,
--			     DKL_TX_PRESHOOT_COEFF(trans->entries[level].dkl.preshoot) |
--			     DKL_TX_DE_EMPHASIS_COEFF(trans->entries[level].dkl.de_emphasis) |
--			     DKL_TX_VSWING_CONTROL(trans->entries[level].dkl.vswing));
-+		intel_tc_dkl_rmw(dev_priv, DKL_TX_DPCNTL1(tc_port), ln,
-+				 DKL_TX_PRESHOOT_COEFF_MASK |
-+				 DKL_TX_DE_EMPAHSIS_COEFF_MASK |
-+				 DKL_TX_VSWING_CONTROL_MASK,
-+				 DKL_TX_PRESHOOT_COEFF(trans->entries[level].dkl.preshoot) |
-+				 DKL_TX_DE_EMPHASIS_COEFF(trans->entries[level].dkl.de_emphasis) |
-+				 DKL_TX_VSWING_CONTROL(trans->entries[level].dkl.vswing));
- 
--		intel_de_rmw(dev_priv, DKL_TX_DPCNTL2(tc_port),
--			     DKL_TX_DP20BITMODE, 0);
-+		intel_tc_dkl_rmw(dev_priv, DKL_TX_DPCNTL2(tc_port), ln,
-+				 DKL_TX_DP20BITMODE, 0);
- 
- 		if (IS_ALDERLAKE_P(dev_priv)) {
- 			u32 val;
-@@ -1306,10 +1303,10 @@ static void tgl_dkl_phy_set_signal_levels(struct intel_encoder *encoder,
- 				val |= DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2(0);
- 			}
- 
--			intel_de_rmw(dev_priv, DKL_TX_DPCNTL2(tc_port),
--				     DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX1_MASK |
--				     DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2_MASK,
--				     val);
-+			intel_tc_dkl_rmw(dev_priv, DKL_TX_DPCNTL2(tc_port), ln,
-+					 DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX1_MASK |
-+					 DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2_MASK,
-+					 val);
- 		}
- 	}
- }
-@@ -2019,12 +2016,8 @@ icl_program_mg_dp_mode(struct intel_digital_port *dig_port,
- 		return;
- 
- 	if (DISPLAY_VER(dev_priv) >= 12) {
--		intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--			       HIP_INDEX_VAL(tc_port, 0x0));
--		ln0 = intel_de_read(dev_priv, DKL_DP_MODE(tc_port));
--		intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--			       HIP_INDEX_VAL(tc_port, 0x1));
--		ln1 = intel_de_read(dev_priv, DKL_DP_MODE(tc_port));
-+		ln0 = intel_tc_dkl_read(dev_priv, DKL_DP_MODE(tc_port), 0);
-+		ln1 = intel_tc_dkl_read(dev_priv, DKL_DP_MODE(tc_port), 1);
- 	} else {
- 		ln0 = intel_de_read(dev_priv, MG_DP_MODE(0, tc_port));
- 		ln1 = intel_de_read(dev_priv, MG_DP_MODE(1, tc_port));
-@@ -2085,12 +2078,8 @@ icl_program_mg_dp_mode(struct intel_digital_port *dig_port,
- 	}
- 
- 	if (DISPLAY_VER(dev_priv) >= 12) {
--		intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--			       HIP_INDEX_VAL(tc_port, 0x0));
--		intel_de_write(dev_priv, DKL_DP_MODE(tc_port), ln0);
--		intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--			       HIP_INDEX_VAL(tc_port, 0x1));
--		intel_de_write(dev_priv, DKL_DP_MODE(tc_port), ln1);
-+		intel_tc_dkl_write(dev_priv, DKL_DP_MODE(tc_port), 0, ln0);
-+		intel_tc_dkl_write(dev_priv, DKL_DP_MODE(tc_port), 1, ln1);
- 	} else {
- 		intel_de_write(dev_priv, MG_DP_MODE(0, tc_port), ln0);
- 		intel_de_write(dev_priv, MG_DP_MODE(1, tc_port), ln1);
-@@ -3094,10 +3083,8 @@ static void adlp_tbt_to_dp_alt_switch_wa(struct intel_encoder *encoder)
- 	enum tc_port tc_port = intel_port_to_tc(i915, encoder->port);
- 	int ln;
- 
--	for (ln = 0; ln < 2; ln++) {
--		intel_de_write(i915, HIP_INDEX_REG(tc_port), HIP_INDEX_VAL(tc_port, ln));
--		intel_de_rmw(i915, DKL_PCS_DW5(tc_port), DKL_PCS_DW5_CORE_SOFTRESET, 0);
--	}
-+	for (ln = 0; ln < 2; ln++)
-+		intel_tc_dkl_rmw(i915, DKL_PCS_DW5(tc_port), ln, DKL_PCS_DW5_CORE_SOFTRESET, 0);
- }
- 
- static void intel_ddi_prepare_link_retrain(struct intel_dp *intel_dp,
-diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-index 606f9140d024f..68ebf49e6fdbd 100644
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -7907,6 +7907,8 @@ static void intel_setup_outputs(struct drm_i915_private *dev_priv)
- 
- 	intel_pps_unlock_regs_wa(dev_priv);
- 
-+	spin_lock_init(&dev_priv->display.tc.dkl_lock);
-+
- 	if (!HAS_DISPLAY(dev_priv))
- 		return;
- 
-diff --git a/drivers/gpu/drm/i915/display/intel_display_core.h b/drivers/gpu/drm/i915/display/intel_display_core.h
-index 96cf994b0ad1f..6e8371e8ebdb6 100644
---- a/drivers/gpu/drm/i915/display/intel_display_core.h
-+++ b/drivers/gpu/drm/i915/display/intel_display_core.h
-@@ -394,6 +394,10 @@ struct intel_display {
- 		u32 block_time_us;
- 	} sagv;
- 
-+	struct {
-+		spinlock_t dkl_lock;
-+	} tc;
-+
- 	struct {
- 		/* ordered wq for modesets */
- 		struct workqueue_struct *modeset;
-diff --git a/drivers/gpu/drm/i915/display/intel_display_power_well.c b/drivers/gpu/drm/i915/display/intel_display_power_well.c
-index df7ee4969ef17..c37d2d5bbd983 100644
---- a/drivers/gpu/drm/i915/display/intel_display_power_well.c
-+++ b/drivers/gpu/drm/i915/display/intel_display_power_well.c
-@@ -529,11 +529,9 @@ icl_tc_phy_aux_power_well_enable(struct drm_i915_private *dev_priv,
- 		enum tc_port tc_port;
- 
- 		tc_port = TGL_AUX_PW_TO_TC_PORT(i915_power_well_instance(power_well)->hsw.idx);
--		intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--			       HIP_INDEX_VAL(tc_port, 0x2));
- 
--		if (intel_de_wait_for_set(dev_priv, DKL_CMN_UC_DW_27(tc_port),
--					  DKL_CMN_UC_DW27_UC_HEALTH, 1))
-+		if (wait_for(intel_tc_dkl_read(dev_priv, DKL_CMN_UC_DW_27(tc_port), 2) &
-+			     DKL_CMN_UC_DW27_UC_HEALTH, 1))
- 			drm_warn(&dev_priv->drm,
- 				 "Timeout waiting TC uC health\n");
- 	}
-diff --git a/drivers/gpu/drm/i915/display/intel_dpll_mgr.c b/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-index b63600d8ebeb0..28895e51c9c21 100644
---- a/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-+++ b/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-@@ -3486,15 +3486,12 @@ static bool dkl_pll_get_hw_state(struct drm_i915_private *dev_priv,
- 	 * All registers read here have the same HIP_INDEX_REG even though
- 	 * they are on different building blocks
- 	 */
--	intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--		       HIP_INDEX_VAL(tc_port, 0x2));
--
--	hw_state->mg_refclkin_ctl = intel_de_read(dev_priv,
--						  DKL_REFCLKIN_CTL(tc_port));
-+	hw_state->mg_refclkin_ctl = intel_tc_dkl_read(dev_priv,
-+						      DKL_REFCLKIN_CTL(tc_port), 2);
- 	hw_state->mg_refclkin_ctl &= MG_REFCLKIN_CTL_OD_2_MUX_MASK;
- 
- 	hw_state->mg_clktop2_hsclkctl =
--		intel_de_read(dev_priv, DKL_CLKTOP2_HSCLKCTL(tc_port));
-+		intel_tc_dkl_read(dev_priv, DKL_CLKTOP2_HSCLKCTL(tc_port), 2);
- 	hw_state->mg_clktop2_hsclkctl &=
- 		MG_CLKTOP2_HSCLKCTL_TLINEDRV_CLKSEL_MASK |
- 		MG_CLKTOP2_HSCLKCTL_CORE_INPUTSEL_MASK |
-@@ -3502,32 +3499,32 @@ static bool dkl_pll_get_hw_state(struct drm_i915_private *dev_priv,
- 		MG_CLKTOP2_HSCLKCTL_DSDIV_RATIO_MASK;
- 
- 	hw_state->mg_clktop2_coreclkctl1 =
--		intel_de_read(dev_priv, DKL_CLKTOP2_CORECLKCTL1(tc_port));
-+		intel_tc_dkl_read(dev_priv, DKL_CLKTOP2_CORECLKCTL1(tc_port), 2);
- 	hw_state->mg_clktop2_coreclkctl1 &=
- 		MG_CLKTOP2_CORECLKCTL1_A_DIVRATIO_MASK;
- 
--	hw_state->mg_pll_div0 = intel_de_read(dev_priv, DKL_PLL_DIV0(tc_port));
-+	hw_state->mg_pll_div0 = intel_tc_dkl_read(dev_priv, DKL_PLL_DIV0(tc_port), 2);
- 	val = DKL_PLL_DIV0_MASK;
- 	if (dev_priv->display.vbt.override_afc_startup)
- 		val |= DKL_PLL_DIV0_AFC_STARTUP_MASK;
- 	hw_state->mg_pll_div0 &= val;
- 
--	hw_state->mg_pll_div1 = intel_de_read(dev_priv, DKL_PLL_DIV1(tc_port));
-+	hw_state->mg_pll_div1 = intel_tc_dkl_read(dev_priv, DKL_PLL_DIV1(tc_port), 2);
- 	hw_state->mg_pll_div1 &= (DKL_PLL_DIV1_IREF_TRIM_MASK |
- 				  DKL_PLL_DIV1_TDC_TARGET_CNT_MASK);
- 
--	hw_state->mg_pll_ssc = intel_de_read(dev_priv, DKL_PLL_SSC(tc_port));
-+	hw_state->mg_pll_ssc = intel_tc_dkl_read(dev_priv, DKL_PLL_SSC(tc_port), 2);
- 	hw_state->mg_pll_ssc &= (DKL_PLL_SSC_IREF_NDIV_RATIO_MASK |
- 				 DKL_PLL_SSC_STEP_LEN_MASK |
- 				 DKL_PLL_SSC_STEP_NUM_MASK |
- 				 DKL_PLL_SSC_EN);
- 
--	hw_state->mg_pll_bias = intel_de_read(dev_priv, DKL_PLL_BIAS(tc_port));
-+	hw_state->mg_pll_bias = intel_tc_dkl_read(dev_priv, DKL_PLL_BIAS(tc_port), 2);
- 	hw_state->mg_pll_bias &= (DKL_PLL_BIAS_FRAC_EN_H |
- 				  DKL_PLL_BIAS_FBDIV_FRAC_MASK);
- 
- 	hw_state->mg_pll_tdc_coldst_bias =
--		intel_de_read(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port));
-+		intel_tc_dkl_read(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port), 2);
- 	hw_state->mg_pll_tdc_coldst_bias &= (DKL_PLL_TDC_SSC_STEP_SIZE_MASK |
- 					     DKL_PLL_TDC_FEED_FWD_GAIN_MASK);
- 
-@@ -3715,61 +3712,58 @@ static void dkl_pll_write(struct drm_i915_private *dev_priv,
- 	 * All registers programmed here have the same HIP_INDEX_REG even
- 	 * though on different building block
- 	 */
--	intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--		       HIP_INDEX_VAL(tc_port, 0x2));
--
- 	/* All the registers are RMW */
--	val = intel_de_read(dev_priv, DKL_REFCLKIN_CTL(tc_port));
-+	val = intel_tc_dkl_read(dev_priv, DKL_REFCLKIN_CTL(tc_port), 2);
- 	val &= ~MG_REFCLKIN_CTL_OD_2_MUX_MASK;
- 	val |= hw_state->mg_refclkin_ctl;
--	intel_de_write(dev_priv, DKL_REFCLKIN_CTL(tc_port), val);
-+	intel_tc_dkl_write(dev_priv, DKL_REFCLKIN_CTL(tc_port), 2, val);
- 
--	val = intel_de_read(dev_priv, DKL_CLKTOP2_CORECLKCTL1(tc_port));
-+	val = intel_tc_dkl_read(dev_priv, DKL_CLKTOP2_CORECLKCTL1(tc_port), 2);
- 	val &= ~MG_CLKTOP2_CORECLKCTL1_A_DIVRATIO_MASK;
- 	val |= hw_state->mg_clktop2_coreclkctl1;
--	intel_de_write(dev_priv, DKL_CLKTOP2_CORECLKCTL1(tc_port), val);
-+	intel_tc_dkl_write(dev_priv, DKL_CLKTOP2_CORECLKCTL1(tc_port), 2, val);
- 
--	val = intel_de_read(dev_priv, DKL_CLKTOP2_HSCLKCTL(tc_port));
-+	val = intel_tc_dkl_read(dev_priv, DKL_CLKTOP2_HSCLKCTL(tc_port), 2);
- 	val &= ~(MG_CLKTOP2_HSCLKCTL_TLINEDRV_CLKSEL_MASK |
- 		 MG_CLKTOP2_HSCLKCTL_CORE_INPUTSEL_MASK |
- 		 MG_CLKTOP2_HSCLKCTL_HSDIV_RATIO_MASK |
- 		 MG_CLKTOP2_HSCLKCTL_DSDIV_RATIO_MASK);
- 	val |= hw_state->mg_clktop2_hsclkctl;
--	intel_de_write(dev_priv, DKL_CLKTOP2_HSCLKCTL(tc_port), val);
-+	intel_tc_dkl_write(dev_priv, DKL_CLKTOP2_HSCLKCTL(tc_port), 2, val);
- 
- 	val = DKL_PLL_DIV0_MASK;
- 	if (dev_priv->display.vbt.override_afc_startup)
- 		val |= DKL_PLL_DIV0_AFC_STARTUP_MASK;
--	intel_de_rmw(dev_priv, DKL_PLL_DIV0(tc_port), val,
--		     hw_state->mg_pll_div0);
-+	intel_tc_dkl_rmw(dev_priv, DKL_PLL_DIV0(tc_port), 2, val,
-+			 hw_state->mg_pll_div0);
- 
--	val = intel_de_read(dev_priv, DKL_PLL_DIV1(tc_port));
-+	val = intel_tc_dkl_read(dev_priv, DKL_PLL_DIV1(tc_port), 2);
- 	val &= ~(DKL_PLL_DIV1_IREF_TRIM_MASK |
- 		 DKL_PLL_DIV1_TDC_TARGET_CNT_MASK);
- 	val |= hw_state->mg_pll_div1;
--	intel_de_write(dev_priv, DKL_PLL_DIV1(tc_port), val);
-+	intel_tc_dkl_write(dev_priv, DKL_PLL_DIV1(tc_port), 2, val);
- 
--	val = intel_de_read(dev_priv, DKL_PLL_SSC(tc_port));
-+	val = intel_tc_dkl_read(dev_priv, DKL_PLL_SSC(tc_port), 2);
- 	val &= ~(DKL_PLL_SSC_IREF_NDIV_RATIO_MASK |
- 		 DKL_PLL_SSC_STEP_LEN_MASK |
- 		 DKL_PLL_SSC_STEP_NUM_MASK |
- 		 DKL_PLL_SSC_EN);
- 	val |= hw_state->mg_pll_ssc;
--	intel_de_write(dev_priv, DKL_PLL_SSC(tc_port), val);
-+	intel_tc_dkl_write(dev_priv, DKL_PLL_SSC(tc_port), 2, val);
- 
--	val = intel_de_read(dev_priv, DKL_PLL_BIAS(tc_port));
-+	val = intel_tc_dkl_read(dev_priv, DKL_PLL_BIAS(tc_port), 2);
- 	val &= ~(DKL_PLL_BIAS_FRAC_EN_H |
- 		 DKL_PLL_BIAS_FBDIV_FRAC_MASK);
- 	val |= hw_state->mg_pll_bias;
--	intel_de_write(dev_priv, DKL_PLL_BIAS(tc_port), val);
-+	intel_tc_dkl_write(dev_priv, DKL_PLL_BIAS(tc_port), 2, val);
- 
--	val = intel_de_read(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port));
-+	val = intel_tc_dkl_read(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port), 2);
- 	val &= ~(DKL_PLL_TDC_SSC_STEP_SIZE_MASK |
- 		 DKL_PLL_TDC_FEED_FWD_GAIN_MASK);
- 	val |= hw_state->mg_pll_tdc_coldst_bias;
--	intel_de_write(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port), val);
-+	intel_tc_dkl_write(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port), 2, val);
- 
--	intel_de_posting_read(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port));
-+	intel_tc_dkl_posting_read(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port), 2);
- }
- 
- static void icl_pll_power_enable(struct drm_i915_private *dev_priv,
-diff --git a/drivers/gpu/drm/i915/display/intel_tc.c b/drivers/gpu/drm/i915/display/intel_tc.c
-index 8cecd41ed0033..8123699d3dbfb 100644
---- a/drivers/gpu/drm/i915/display/intel_tc.c
-+++ b/drivers/gpu/drm/i915/display/intel_tc.c
-@@ -5,6 +5,7 @@
- 
- #include "i915_drv.h"
- #include "i915_reg.h"
-+#include "intel_de.h"
- #include "intel_display.h"
- #include "intel_display_power_map.h"
- #include "intel_display_types.h"
-@@ -894,6 +895,99 @@ void intel_tc_port_put_link(struct intel_digital_port *dig_port)
- 	intel_tc_port_flush_work(dig_port);
- }
- 
-+static void dkl_set_hip_idx(struct drm_i915_private *i915, i915_reg_t reg, int idx)
-+{
-+	enum tc_port tc_port = DKL_REG_TC_PORT(reg);
-+
-+	drm_WARN_ON(&i915->drm, tc_port < TC_PORT_1 || tc_port >= I915_MAX_TC_PORTS);
-+
-+	intel_de_write(i915,
-+		       HIP_INDEX_REG(tc_port),
-+		       HIP_INDEX_VAL(tc_port, idx));
-+}
-+
-+/**
-+ * intel_tc_dkl_read - read a Dekel PHY register
-+ * @i915: i915 device instance
-+ * @reg: Dekel PHY register
-+ * @ln: lane instance of @reg
-+ *
-+ * Read the @reg Dekel PHY register.
-+ *
-+ * Returns the read value.
-+ */
-+u32 intel_tc_dkl_read(struct drm_i915_private *i915, i915_reg_t reg, int ln)
-+{
-+	u32 val;
-+
-+	spin_lock(&i915->display.tc.dkl_lock);
-+
-+	dkl_set_hip_idx(i915, reg, ln);
-+	val = intel_de_read(i915, reg);
-+
-+	spin_unlock(&i915->display.tc.dkl_lock);
-+
-+	return val;
-+}
-+
-+/**
-+ * intel_tc_dkl_write - write a Dekel PHY register
-+ * @i915: i915 device instance
-+ * @reg: Dekel PHY register
-+ * @ln: lane instance of @reg
-+ * @val: value to write
-+ *
-+ * Write @val to the @reg Dekel PHY register.
-+ */
-+void intel_tc_dkl_write(struct drm_i915_private *i915, i915_reg_t reg, int ln, u32 val)
-+{
-+	spin_lock(&i915->display.tc.dkl_lock);
-+
-+	dkl_set_hip_idx(i915, reg, ln);
-+	intel_de_write(i915, reg, val);
-+
-+	spin_unlock(&i915->display.tc.dkl_lock);
-+}
-+
-+/**
-+ * intel_tc_dkl_rmw - read-modify-write a Dekel PHY register
-+ * @i915: i915 device instance
-+ * @reg: Dekel PHY register
-+ * @ln: lane instance of @reg
-+ * @clear: mask to clear
-+ * @set: mask to set
-+ *
-+ * Read the @reg Dekel PHY register, clearing then setting the @clear/@set bits in it, and writing
-+ * this value back to the register if the value differs from the read one.
-+ */
-+void intel_tc_dkl_rmw(struct drm_i915_private *i915, i915_reg_t reg, int ln, u32 clear, u32 set)
-+{
-+	spin_lock(&i915->display.tc.dkl_lock);
-+
-+	dkl_set_hip_idx(i915, reg, ln);
-+	intel_de_rmw(i915, reg, clear, set);
-+
-+	spin_unlock(&i915->display.tc.dkl_lock);
-+}
-+
-+/**
-+ * intel_tc_dkl_posting_read - do a posting read from a Dekel PHY register
-+ * @i915: i915 device instance
-+ * @reg: Dekel PHY register
-+ * @ln: lane instance of @reg
-+ *
-+ * Read the @reg Dekel PHY register without returning the read value.
-+ */
-+void intel_tc_dkl_posting_read(struct drm_i915_private *i915, i915_reg_t reg, int ln)
-+{
-+	spin_lock(&i915->display.tc.dkl_lock);
-+
-+	dkl_set_hip_idx(i915, reg, ln);
-+	intel_de_posting_read(i915, reg);
-+
-+	spin_unlock(&i915->display.tc.dkl_lock);
-+}
-+
- static bool
- tc_has_modular_fia(struct drm_i915_private *i915, struct intel_digital_port *dig_port)
- {
-diff --git a/drivers/gpu/drm/i915/display/intel_tc.h b/drivers/gpu/drm/i915/display/intel_tc.h
-index d54082e2d5e8d..330ff0fb12f16 100644
---- a/drivers/gpu/drm/i915/display/intel_tc.h
-+++ b/drivers/gpu/drm/i915/display/intel_tc.h
-@@ -9,6 +9,10 @@
- #include <linux/mutex.h>
- #include <linux/types.h>
- 
-+#include "i915_reg_defs.h"
-+
-+struct drm_i915_private;
-+
- struct intel_digital_port;
- struct intel_encoder;
- 
-@@ -34,6 +38,11 @@ void intel_tc_port_get_link(struct intel_digital_port *dig_port,
- void intel_tc_port_put_link(struct intel_digital_port *dig_port);
- bool intel_tc_port_ref_held(struct intel_digital_port *dig_port);
- 
-+u32 intel_tc_dkl_read(struct drm_i915_private *i915, i915_reg_t reg, int ln);
-+void intel_tc_dkl_write(struct drm_i915_private *i915, i915_reg_t reg, int ln, u32 val);
-+void intel_tc_dkl_rmw(struct drm_i915_private *i915, i915_reg_t reg, int ln, u32 clear, u32 set);
-+void intel_tc_dkl_posting_read(struct drm_i915_private *i915, i915_reg_t reg, int ln);
-+
- void intel_tc_port_init(struct intel_digital_port *dig_port, bool is_legacy);
- 
- bool intel_tc_cold_requires_aux_pw(struct intel_digital_port *dig_port);
-diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
-index 99a8535193957..2b7c019725462 100644
---- a/drivers/gpu/drm/i915/i915_reg.h
-+++ b/drivers/gpu/drm/i915/i915_reg.h
-@@ -7442,6 +7442,9 @@ enum skl_power_gate {
- #define _DKL_PHY5_BASE			0x16C000
- #define _DKL_PHY6_BASE			0x16D000
- 
-+#define _DKL_BANK_SHIFT			12
-+#define DKL_REG_TC_PORT(reg)		(((reg).reg - _DKL_PHY1_BASE) >> _DKL_BANK_SHIFT)
-+
- /* DEKEL PHY MMIO Address = Phy base + (internal address & ~index_mask) */
- #define _DKL_PCS_DW5			0x14
- #define DKL_PCS_DW5(tc_port)		_MMIO(_PORT(tc_port, _DKL_PHY1_BASE, \
--- 
-2.37.1
+> 
+> (Tiny downside: cqhci-core.c got its rename in v5.12, so backporting
+> this to -stable would get slightly more difficult.)
+> 
+> Brian
 
