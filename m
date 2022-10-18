@@ -2,105 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82F3960205C
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 03:21:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77C24602098
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 03:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230055AbiJRBVh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 21:21:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36964 "EHLO
+        id S229993AbiJRBuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 21:50:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230119AbiJRBVd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 21:21:33 -0400
-Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1DED7EFFD;
-        Mon, 17 Oct 2022 18:21:28 -0700 (PDT)
-Received: from mail02.huawei.com (unknown [172.30.67.153])
-        by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4MrwxP0NXNzKHXR;
-        Tue, 18 Oct 2022 09:19:05 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.175.127.227])
-        by APP4 (Coremail) with SMTP id gCh0CgAXCzKR_01jxSkfAA--.17823S7;
-        Tue, 18 Oct 2022 09:21:26 +0800 (CST)
-From:   Yu Kuai <yukuai1@huaweicloud.com>
-To:     gregkh@linuxfoundation.org, axboe@kernel.dk, yukuai3@huawei.com
-Cc:     stable@vger.kernel.org, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org, yukuai1@huaweicloud.com,
-        yi.zhang@hawei.com
-Subject: [PATCH 5.10 3/3] blk-wbt: fix that 'rwb->wc' is always set to 1 in wbt_init()
-Date:   Tue, 18 Oct 2022 09:43:26 +0800
-Message-Id: <20221018014326.467842-4-yukuai1@huaweicloud.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20221018014326.467842-1-yukuai1@huaweicloud.com>
-References: <20221018014326.467842-1-yukuai1@huaweicloud.com>
+        with ESMTP id S230215AbiJRBuK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 21:50:10 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03A827DF72;
+        Mon, 17 Oct 2022 18:50:09 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id d7-20020a17090a2a4700b0020d268b1f02so15951353pjg.1;
+        Mon, 17 Oct 2022 18:50:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=qhrY3CdotIZVTMkH6Zcw3PMbIad7eSnddTb5gX5c0Rs=;
+        b=WdfEuiP0y8N6no6jKIXyX7Wa4XqSFBWD5omQ23v7APA451WzXzTZMBNcTl7ZQfstUt
+         VsPKkPqnrW5RE9330oeDZbrJQem4vmCZqHuhSpDadvi6X8DmLfVq7fiVrpNvvp1pi12U
+         WQ1Ig+pWSUW9s8zzk6bAOcEiP3X9JVFxKFc9LaHtjLFrsFTMwDOiUfPRV4FSZknD+CoC
+         ktSUNfZy5dGvZXqNajFy+EQ2I0SSCmeVC865AZ/YuFkssAvR2Cx5RR+Tz/IsH11uV9iA
+         NKBaKlUAu3HvzZDRckYZXrA2bm/JegUzTsIXast1xnzDJMQfCYMezyC5P1M4Afb1ma7b
+         IUEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=qhrY3CdotIZVTMkH6Zcw3PMbIad7eSnddTb5gX5c0Rs=;
+        b=Iu7NOWKAJHbGO6AFErQv3/KyMfB87Y+689Yy9Ao276gMaZ98JYbUSkjdnE2cKAMeGc
+         dwQ2RvTAm2J79VhJruz3oq6ya0aoW47itfeGkmU9UzTS4fRPvZEOcp3UVKFYwiEOwni9
+         50qJpRlIMlodBoEIMss2D138tKEMdfEZB6kakrIISsvlJf/wbFJwtjiMlRz0TRXTM+/t
+         550gUL6BVWRHnsY7Z32CM91oRbjxyplANFSTCStl2D50Vh4QRVRuWLQ5FhAJaTlrcJM+
+         0Hxp7MzzEsPKzTHv88CWfie0+hhTOvhG6XzwJz/zVzyBon6onoXJMfge/64OM0NpWQhq
+         ecoA==
+X-Gm-Message-State: ACrzQf12pFa28FloIPNPzT2YVxfKtkl5zO4vac97kK0HOqpghD0Y43VV
+        N7gKrdXOlgNkAd/OMhia1sIMEGaY/9v85w==
+X-Google-Smtp-Source: AMsMyM5k6oOkMBOkEAlAtluIlFG2ihNEEjHL5qf9rqGUD0zS3Uq1mFSlHieTdtoLb1QTH/K5FPOeDQ==
+X-Received: by 2002:a17:902:9a07:b0:178:8024:1393 with SMTP id v7-20020a1709029a0700b0017880241393mr578220plp.128.1666057808343;
+        Mon, 17 Oct 2022 18:50:08 -0700 (PDT)
+Received: from [192.168.43.80] (subs02-180-214-232-16.three.co.id. [180.214.232.16])
+        by smtp.gmail.com with ESMTPSA id w29-20020aa7955d000000b0056274716016sm7835206pfq.47.2022.10.17.18.50.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 17 Oct 2022 18:50:07 -0700 (PDT)
+Message-ID: <f7029f41-4f8c-9ba7-3e3b-268a743998d5@gmail.com>
+Date:   Tue, 18 Oct 2022 08:50:03 +0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: gCh0CgAXCzKR_01jxSkfAA--.17823S7
-X-Coremail-Antispam: 1UD129KBjvJXoW7ur1kXw48KrWfJFW8CF4fGrg_yoW8Ar17pa
-        yIk3yUGFWjgr4I93WxGa1ruFWDKan5AFy3Cr43Gw15Zay2vr4Uurs29FWUWrykZrZakFWa
-        vr4furWqvFyUGaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUU9m14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-        rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JrWl82xGYIkIc2
-        x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
-        Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJw
-        A2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS
-        0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2
-        IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0
-        Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCF04k20xvY0x0EwIxGrwCFx2
-        IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v2
-        6r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67
-        AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IY
-        s7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr
-        0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUd8n5UUUUU=
-X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.3
+Subject: Re: [PATCH] usb: gadget: uvc: fix dropped frame after missed isoc
+Content-Language: en-US
+To:     Dan Vacura <w36195@motorola.com>, linux-usb@vger.kernel.org
+Cc:     Daniel Scally <dan.scally@ideasonboard.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Jeff Vanhoof <qjv001@motorola.com>, stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        Paul Elder <paul.elder@ideasonboard.com>,
+        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
+References: <20221017205446.523796-1-w36195@motorola.com>
+ <20221017205446.523796-2-w36195@motorola.com>
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <20221017205446.523796-2-w36195@motorola.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+On 10/18/22 03:54, Dan Vacura wrote:
+> With the re-use of the previous completion status in 0d1c407b1a749
+> ("usb: dwc3: gadget: Return proper request status") it could be possible
+> that the next frame would also get dropped if the current frame has a
+> missed isoc error. Ensure that an interrupt is requested for the start
+> of a new frame.
+> 
 
-commit 285febabac4a16655372d23ff43e89ff6f216691 upstream.
+Shouldn't the subject line says [PATCH v3 1/6]?
 
-commit 8c5035dfbb94 ("blk-wbt: call rq_qos_add() after wb_normal is
-initialized") moves wbt_set_write_cache() before rq_qos_add(), which
-is wrong because wbt_rq_qos() is still NULL.
-
-Fix the problem by removing wbt_set_write_cache() and setting 'rwb->wc'
-directly. Noted that this patch also remove the redundant setting of
-'rab->wc'.
-
-Fixes: 8c5035dfbb94 ("blk-wbt: call rq_qos_add() after wb_normal is initialized")
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Link: https://lore.kernel.org/r/202210081045.77ddf59b-yujie.liu@intel.com
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20221009101038.1692875-1-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- block/blk-wbt.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/block/blk-wbt.c b/block/blk-wbt.c
-index bafdb8098893..6f63920f073c 100644
---- a/block/blk-wbt.c
-+++ b/block/blk-wbt.c
-@@ -838,12 +838,11 @@ int wbt_init(struct request_queue *q)
- 	rwb->last_comp = rwb->last_issue = jiffies;
- 	rwb->win_nsec = RWB_WINDOW_NSEC;
- 	rwb->enable_state = WBT_STATE_ON_DEFAULT;
--	rwb->wc = 1;
-+	rwb->wc = test_bit(QUEUE_FLAG_WC, &q->queue_flags);
- 	rwb->rq_depth.default_depth = RWB_DEF_DEPTH;
- 	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
- 
- 	wbt_queue_depth_changed(&rwb->rqos);
--	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
- 
- 	/*
- 	 * Assign rwb and add the stats callback.
 -- 
-2.31.1
+An old man doll... just what I always wanted! - Clara
 
