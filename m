@@ -2,82 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9D7C603537
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 23:51:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75CE960353F
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 23:51:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229906AbiJRVv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Oct 2022 17:51:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35186 "EHLO
+        id S230004AbiJRVvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Oct 2022 17:51:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229861AbiJRVv1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 17:51:27 -0400
-Received: from mail1.bemta35.messagelabs.com (mail1.bemta35.messagelabs.com [67.219.250.114])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AFC9BE2FA;
-        Tue, 18 Oct 2022 14:51:26 -0700 (PDT)
+        with ESMTP id S229917AbiJRVv2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 17:51:28 -0400
+Received: from mail1.bemta35.messagelabs.com (mail1.bemta35.messagelabs.com [67.219.250.2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2363BBE2F5;
+        Tue, 18 Oct 2022 14:51:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=motorola.com;
-        s=Selector; t=1666129886; i=@motorola.com;
-        bh=sfQAryD/xBgH6Xtqc/fcYqWHp7Ikn2PFWWAT/anYcbM=;
+        s=Selector; t=1666129887; i=@motorola.com;
+        bh=sRQxZis6uCJYVoJAnHknw5dTcE1MWsQ1xSYk7VRSQkM=;
         h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
          MIME-Version:Content-Transfer-Encoding;
-        b=aXiY4dEGkp/dNiF7l4HrWCrfgbEP/IqiSPH15ayVN/gcz93V3SIUcFSvjI52RRP70
-         vGC1S2ysDOyy/JEv884apnHB2b0RsTTqNV6cqnkX70cNAG239aLyBRhsu+tMTsNoF2
-         2NjUunMi9W0McB89Nnea5ofCuzXRouspWTA8R9O4hDTUwRAQ90cncQfCGOZ6RZwQJj
-         bZ8atdeRvhyoj1qu9/KOSMDPXtFW2hHGw8VXZA6GrhCvnuAmPXCdUqsTvnrDH58+k4
-         G92VIchE73JE8M6ORTrTVmvi5u4ya3nQudpiAx8NlOriEwGCOig4woQrmIWH8IYQzd
-         ZmSOiXe5rxFcw==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrMIsWRWlGSWpSXmKPExsWS8eKJhO4def9
-  kgyePDCyOtT1ht3hyoJ3RonfZHjaL5sXr2Sw6Jy5ht1jYtoTF4vKuOWwWi5a1MltsabvCZPHj
-  Tx+zxYKNjxgtVi04wO7A4zG7Yyarx6ZVnWwe++euYfdY3DeZ1aP/r4HHlv2fGT0+b5ILYI9iz
-  cxLyq9IYM3Y9/IgY8E7pYqGi29YGxgvynYxcnEICUxnkjjwqYkFwlnHJDHx0Q0gh5ODTUBNYs
-  HrVcwgtoiArMThK7/BbGaBBhaJzdeCQWxhAXeJS70Tgeo5OFgEVCV2dRqAhHkFLCWWvWllBbE
-  lBOQl9h88C9bKKWAl0fWwDWy8EFDN49YrrBD1ghInZz5hgRgvL9G8dTbzBEbeWUhSs5CkFjAy
-  rWI0LU4tKkst0jXSSyrKTM8oyU3MzNFLrNJN1Cst1i1PLS4ByiSWF+ulFhfrFVfmJuek6OWll
-  mxiBIZ/SlHC/B2MU5f+0TvEKMnBpCTKO+ebX7IQX1J+SmVGYnFGfFFpTmrxIUYZDg4lCV5OKf
-  9kIcGi1PTUirTMHGAswqQlOHiURHjTZIDSvMUFibnFmekQqVOMuhyd+7sOMAux5OXnpUqJ83L
-  LAhUJgBRllObBjYClhUuMslLCvIwMDAxCPAWpRbmZJajyrxjFORiVhHkPgKziycwrgdv0CugI
-  JqAjTLf4gRxRkoiQkmpg6uJmX9uk/uOQ4am/sUsuH3GukV14R0X+/Zut387cZUo6dnNmHFPVX
-  x9/ia9nk85VSHBoMR3bdks/7XO0RflbTc/u8vkSu092pEyZKm6eK8Ia9KNUdkbhSoH1n01FbB
-  fe0mV//NJf+rhqvEySb9j51M07OubHsT01mDxjoafJWd6WAkPuM8cLuBu4X51eFb2nZ/XRbZL
-  2O0+UbKh+Ly/LdIQ5YuuW3Qz8lewibaVbXevyIszk/2xc51l+zu3ERYFPeT3lMZZXrzi8F5Od
-  /uSyio/llG+OlZ8WBnXdfDbTZemDQm/JK5mtl3/cZuesLWZgkd+zkqFLb5ptl9jMyXXPmNmMA
-  xmmbN04yftfvVK8EktxRqKhFnNRcSIATuoq6oYDAAA=
+        b=J8RVRD+t/ZOLfV4xw6PbYaduZsKrrq6d01ANwX8eMn19amTViOxmsz4fMm0HIge/x
+         wjpnv+snKMgESPP1fdjBzbpbCtDMyoYVloGtHOTk1xk5Yja7H3p1s1C9oFLzQ7YY+g
+         OKuOgk+E7fzpbvxNmdk/xFgA7nSy54NUnOu83IulPLP273QHOjm674l5IB9mNHMKwZ
+         I3FfC7F9O9MezRlvKkaX+Iy+AS/74/a2I9SezbevTFZc1Xksf/FcYjZkmRON9VvX2b
+         6TAiPwzvR/de4yAxYMFxJzejSJbJSOSEmE+Alz+JqKacx3ezkcu1NSUMdKOt6+vMOx
+         5jeQNOH5A2rlQ==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrMIsWRWlGSWpSXmKPExsUyYU+Ds+49ef9
+  kg461ZhbH2p6wWzw50M5o0btsD5tF8+L1bBadE5ewWyxsW8JicXnXHDaLRctamS22tF1hsvjx
+  p4/ZYsHGR4wWqxYcYHfg8ZjdMZPVY9OqTjaP/XPXsHss7pvM6tH/18Bjy/7PjB6fN8kFsEexZ
+  uYl5VcksGbsaj7PUvCVq2JZ2y7mBsZNnF2MXBxCAtOYJDbP/MjexcgJ5Kxjkph7wRrEZhNQk1
+  jwehUziC0iICtx+MpvZpAGZoEGFonLPddZuhg5OIQFfCWmTzECMVkEVCUmL00GKecVsJS4cmE
+  1E4gtISAvsf/gWbAxnAJWEl0P21ggVllKPG69wgpRLyhxcuYTsDgzUH3z1tnMExh5ZyFJzUKS
+  WsDItIrRrDi1qCy1SNfQQi+pKDM9oyQ3MTNHL7FKN1GvtFi3PLW4RNdIL7G8WC+1uFivuDI3O
+  SdFLy+1ZBMjMPxTihJ6djBuX/ZH7xCjJAeTkijvnG9+yUJ8SfkplRmJxRnxRaU5qcWHGGU4OJ
+  QkeDml/JOFBItS01Mr0jJzgLEIk5bg4FES4U2TAUrzFhck5hZnpkOkTjHqcnTu7zrALMSSl5+
+  XKiXOyy0LVCQAUpRRmgc3ApYWLjHKSgnzMjIwMAjxFKQW5WaWoMq/YhTnYFQS5j0AsoonM68E
+  btMroCOYgI4w3eIHckRJIkJKqoHJ9u+xvb/2ZVtfvXRGgPP2nrRnzxiNjkWqGQaHuoQ7l3Qy3
+  VSfo8zU2KTExjmBRye09onuzceJStJ/nq650nz/FcdT/tq9Te8Kvc5lrFcs8K/3e5y8onCC4K
+  41TSdre65WPvt5nNcj9sSfyncXf1pN8y/5kth05UjAq8sTt88xkr4t1P9a5+a0lpXZTC7c1mW
+  aHO+slxqKrE1iq3lfPHXjQdv800s/COkqWU7NcT67q3Qqw7fPNxre317C/8VParHoGs55Jw+J
+  HFPNPb/s0yatGVYTTs87ZMqdVu+o4Xd9o/7dHVrOscqLv+72fSLK9C7w62/pqo0vLG1+N5itf
+  2u8huWkmlfY+lqnlwknVnuoK7EUZyQaajEXFScCABQo1EOGAwAA
 X-Env-Sender: w36195@motorola.com
-X-Msg-Ref: server-18.tower-636.messagelabs.com!1666129883!642373!1
-X-Originating-IP: [104.232.228.24]
+X-Msg-Ref: server-19.tower-655.messagelabs.com!1666129886!235534!1
+X-Originating-IP: [144.188.128.67]
 X-SYMC-ESS-Client-Auth: outbound-route-from=pass
 X-StarScan-Received: 
 X-StarScan-Version: 9.87.3; banners=-,-,-
 X-VirusChecked: Checked
-Received: (qmail 30411 invoked from network); 18 Oct 2022 21:51:24 -0000
-Received: from unknown (HELO va32lpfpp04.lenovo.com) (104.232.228.24)
-  by server-18.tower-636.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 18 Oct 2022 21:51:24 -0000
+Received: (qmail 25603 invoked from network); 18 Oct 2022 21:51:26 -0000
+Received: from unknown (HELO ilclpfpp01.lenovo.com) (144.188.128.67)
+  by server-19.tower-655.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 18 Oct 2022 21:51:26 -0000
 Received: from va32lmmrp02.lenovo.com (va32lmmrp02.mot.com [10.62.176.191])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by va32lpfpp04.lenovo.com (Postfix) with ESMTPS id 4MsSHH5HK9zgK7f;
-        Tue, 18 Oct 2022 21:51:23 +0000 (UTC)
+        by ilclpfpp01.lenovo.com (Postfix) with ESMTPS id 4MsSHL0mqwzfBZq;
+        Tue, 18 Oct 2022 21:51:26 +0000 (UTC)
 Received: from p1g3.mot.com (unknown [100.64.172.121])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
         (Authenticated sender: w36195)
-        by va32lmmrp02.lenovo.com (Postfix) with ESMTPSA id 4MsSHH3S9Jzf6WS;
-        Tue, 18 Oct 2022 21:51:23 +0000 (UTC)
+        by va32lmmrp02.lenovo.com (Postfix) with ESMTPSA id 4MsSHK56klzf6WS;
+        Tue, 18 Oct 2022 21:51:25 +0000 (UTC)
 From:   Dan Vacura <w36195@motorola.com>
 To:     linux-usb@vger.kernel.org
 Cc:     Daniel Scally <dan.scally@ideasonboard.com>,
         Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Jeff Vanhoof <qjv001@motorola.com>,
-        Dan Vacura <w36195@motorola.com>, stable@vger.kernel.org,
+        Jeff Vanhoof <qjv001@motorola.com>, stable@vger.kernel.org,
+        Dan Vacura <w36195@motorola.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jonathan Corbet <corbet@lwn.net>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Felipe Balbi <balbi@kernel.org>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
         Paul Elder <paul.elder@ideasonboard.com>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
         linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: [PATCH v4 3/6] usb: gadget: uvc: fix sg handling in error case
-Date:   Tue, 18 Oct 2022 16:50:39 -0500
-Message-Id: <20221018215044.765044-4-w36195@motorola.com>
+Subject: [PATCH v4 4/6] usb: gadget: uvc: fix sg handling during video encode
+Date:   Tue, 18 Oct 2022 16:50:40 -0500
+Message-Id: <20221018215044.765044-5-w36195@motorola.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221018215044.765044-1-w36195@motorola.com>
 References: <20221018215044.765044-1-w36195@motorola.com>
@@ -93,130 +93,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If there is a transmission error the buffer will be returned too early,
-causing a memory fault as subsequent requests for that buffer are still
-queued up to be sent. Refactor the error handling to wait for the final
-request to come in before reporting back the buffer to userspace for all
-transfer types (bulk/isoc/isoc_sg). This ensures userspace knows if the
-frame was successfully sent.
+From: Jeff Vanhoof <qjv001@motorola.com>
+
+In uvc_video_encode_isoc_sg, the uvc_request's sg list is
+incorrectly being populated leading to corrupt video being
+received by the remote end. When building the sg list the
+usage of buf->sg's 'dma_length' field is not correct and
+instead its 'length' field should be used.
 
 Fixes: e81e7f9a0eb9 ("usb: gadget: uvc: add scatter gather support")
 Cc: <stable@vger.kernel.org>
+Signed-off-by: Jeff Vanhoof <qjv001@motorola.com>
 Signed-off-by: Dan Vacura <w36195@motorola.com>
 ---
-V1 -> V2:
-- undo error rename
-- change uvcg_info to uvcg_dbg
-V2 -> V3:
-- no changes
+V1 -> V3:
+- no change, new patch in series
 V3 -> V4:
-- drop extra cc stable cherry-picks, as a request was made to stable
+- no change
 
- drivers/usb/gadget/function/uvc_queue.c |  8 +++++---
- drivers/usb/gadget/function/uvc_video.c | 18 ++++++++++++++----
- 2 files changed, 19 insertions(+), 7 deletions(-)
+ drivers/usb/gadget/function/uvc_video.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
-index ec500ee499ee..0aa3d7e1f3cc 100644
---- a/drivers/usb/gadget/function/uvc_queue.c
-+++ b/drivers/usb/gadget/function/uvc_queue.c
-@@ -304,6 +304,7 @@ int uvcg_queue_enable(struct uvc_video_queue *queue, int enable)
- 
- 		queue->sequence = 0;
- 		queue->buf_used = 0;
-+		queue->flags &= ~UVC_QUEUE_DROP_INCOMPLETE;
- 	} else {
- 		ret = vb2_streamoff(&queue->queue, queue->queue.type);
- 		if (ret < 0)
-@@ -329,10 +330,11 @@ int uvcg_queue_enable(struct uvc_video_queue *queue, int enable)
- void uvcg_complete_buffer(struct uvc_video_queue *queue,
- 					  struct uvc_buffer *buf)
- {
--	if ((queue->flags & UVC_QUEUE_DROP_INCOMPLETE) &&
--	     buf->length != buf->bytesused) {
--		buf->state = UVC_BUF_STATE_QUEUED;
-+	if (queue->flags & UVC_QUEUE_DROP_INCOMPLETE) {
-+		queue->flags &= ~UVC_QUEUE_DROP_INCOMPLETE;
-+		buf->state = UVC_BUF_STATE_ERROR;
- 		vb2_set_plane_payload(&buf->buf.vb2_buf, 0, 0);
-+		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
- 		return;
- 	}
- 
 diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index 323977716f5a..5993e083819c 100644
+index 5993e083819c..dd1c6b2ca7c6 100644
 --- a/drivers/usb/gadget/function/uvc_video.c
 +++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -88,6 +88,7 @@ uvc_video_encode_bulk(struct usb_request *req, struct uvc_video *video,
- 		struct uvc_buffer *buf)
- {
- 	void *mem = req->buf;
-+	struct uvc_request *ureq = req->context;
- 	int len = video->req_size;
- 	int ret;
+@@ -157,10 +157,10 @@ uvc_video_encode_isoc_sg(struct usb_request *req, struct uvc_video *video,
+ 	sg = sg_next(sg);
  
-@@ -113,13 +114,14 @@ uvc_video_encode_bulk(struct usb_request *req, struct uvc_video *video,
- 		video->queue.buf_used = 0;
- 		buf->state = UVC_BUF_STATE_DONE;
- 		list_del(&buf->queue);
--		uvcg_complete_buffer(&video->queue, buf);
- 		video->fid ^= UVC_STREAM_FID;
-+		ureq->last_buf = buf;
+ 	for_each_sg(sg, iter, ureq->sgt.nents - 1, i) {
+-		if (!len || !buf->sg || !sg_dma_len(buf->sg))
++		if (!len || !buf->sg || !buf->sg->length)
+ 			break;
  
- 		video->payload_size = 0;
- 	}
+-		sg_left = sg_dma_len(buf->sg) - buf->offset;
++		sg_left = buf->sg->length - buf->offset;
+ 		part = min_t(unsigned int, len, sg_left);
  
- 	if (video->payload_size == video->max_payload_size ||
-+	    video->queue.flags & UVC_QUEUE_DROP_INCOMPLETE ||
- 	    buf->bytesused == video->queue.buf_used)
- 		video->payload_size = 0;
- }
-@@ -180,7 +182,8 @@ uvc_video_encode_isoc_sg(struct usb_request *req, struct uvc_video *video,
- 	req->length -= len;
- 	video->queue.buf_used += req->length - header_len;
- 
--	if (buf->bytesused == video->queue.buf_used || !buf->sg) {
-+	if (buf->bytesused == video->queue.buf_used || !buf->sg ||
-+			video->queue.flags & UVC_QUEUE_DROP_INCOMPLETE) {
- 		video->queue.buf_used = 0;
- 		buf->state = UVC_BUF_STATE_DONE;
- 		buf->offset = 0;
-@@ -195,6 +198,7 @@ uvc_video_encode_isoc(struct usb_request *req, struct uvc_video *video,
- 		struct uvc_buffer *buf)
- {
- 	void *mem = req->buf;
-+	struct uvc_request *ureq = req->context;
- 	int len = video->req_size;
- 	int ret;
- 
-@@ -209,12 +213,13 @@ uvc_video_encode_isoc(struct usb_request *req, struct uvc_video *video,
- 
- 	req->length = video->req_size - len;
- 
--	if (buf->bytesused == video->queue.buf_used) {
-+	if (buf->bytesused == video->queue.buf_used ||
-+			video->queue.flags & UVC_QUEUE_DROP_INCOMPLETE) {
- 		video->queue.buf_used = 0;
- 		buf->state = UVC_BUF_STATE_DONE;
- 		list_del(&buf->queue);
--		uvcg_complete_buffer(&video->queue, buf);
- 		video->fid ^= UVC_STREAM_FID;
-+		ureq->last_buf = buf;
- 	}
- }
- 
-@@ -255,6 +260,11 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
- 	case 0:
- 		break;
- 
-+	case -EXDEV:
-+		uvcg_dbg(&video->uvc->func, "VS request missed xfer.\n");
-+		queue->flags |= UVC_QUEUE_DROP_INCOMPLETE;
-+		break;
-+
- 	case -ESHUTDOWN:	/* disconnect from host. */
- 		uvcg_dbg(&video->uvc->func, "VS request cancelled.\n");
- 		uvcg_queue_cancel(queue, 1);
+ 		sg_set_page(iter, sg_page(buf->sg), part, buf->offset);
 -- 
 2.34.1
 
