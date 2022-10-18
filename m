@@ -2,75 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C78603052
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 17:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFAB0603093
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 18:13:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230016AbiJRP40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Oct 2022 11:56:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48992 "EHLO
+        id S230270AbiJRQNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Oct 2022 12:13:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231265AbiJRP4T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 11:56:19 -0400
-Received: from mail1.bemta31.messagelabs.com (mail1.bemta31.messagelabs.com [67.219.246.2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78206BECC6
-        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 08:56:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=motorola.com;
-        s=Selector; t=1666108570; i=@motorola.com;
-        bh=c1XQZ8xVGZiucAD/nqtpnHU9sPJttghPjk1kwBfPNMg=;
-        h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type;
-        b=XWuz5Qylse4frUdddOVCV01HDXaWSC2V7/udQK1BrexTgyLKAxJrgjls216x8FkLJ
-         ghTtz92pyXJOumySpEx+UHniqKzzmIMUFjP7Jlsd8ULyeG0cw8tCQmMBOMp688U5NW
-         J9M15VvlygImi2f49ntM0mMl+U4KNc2WUcGWdRWGxrXybfdAdzOsOkGHmuQu1W5LTi
-         Bri5J709JBN8hcNrvIZiOXzw8NfJdtEs9TTgPFmx+PiVthZzr42ouMLD2d6KC4Zohl
-         DYZW6gEQkBSbkMRjINqZQbM7sPOZolesb/yVLGa+PVClzCcF5H14bY0qwPc0OlIYQe
-         2l8bAeNhHmQ5Q==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprAIsWRWlGSWpSXmKPExsWS8eKJqO7MM37
-  JBrs+61g0L17PZrFg4yNGByaP/XPXsHt83iQXwBTFmpmXlF+RwJpx5XoTa8F91ooL33ayNzC+
-  Zeli5OIQEpjKJNF58xoThLOUSWLu/RbmLkZODhYBVYlzB26C2WwCahILXq8Cs0UEjCX6z85iB
-  7GZBaQk1n06xAZiCws4SHyc+4QVxOYVUJbo+vuCCcIWlDg58wkLRL2WxI1/L4HiHEC2tMTyfx
-  wTGLlnIamahaRqFkLVAkbmVYymxalFZalFuuZ6SUWZ6RkluYmZOXqJVbqJeqXFuqmJxSW6hnq
-  J5cV6qcXFesWVuck5KXp5qSWbGIEBlVLEdHUH49Zlf/QOMUpyMCmJ8j465JcsxJeUn1KZkVic
-  EV9UmpNafIhRhoNDSYJ3zSmgnGBRanpqRVpmDjC4YdISHDxKIrwZx4HSvMUFibnFmekQqVOMi
-  lLivM4gfQIgiYzSPLg2WERdYpSVEuZlZGBgEOIpSC3KzSxBlX/FKM7BqCTMmwMyniczrwRu+i
-  ugxUxAi023gC0uSURISTUw6fmu5Urzkz7lt6wz/9IO/q/LLeKyD89UMjihLHu/M8Q2Olf0sP8
-  zHkkelzfJi77O0Xlvu5jp2cJbvS7v+O5fnPKkpy72/OM5s7wuXuQ7lrrKYbZKg0DgHI+JjmUh
-  PEe3ZjO/tGwK+c54rmG2lByH9aHzy84dkZz0tTK6hZPhzb2fIcYzHrjmBlqwHL/+yUtHMPiNh
-  a9Qv3k3q8yj7x7Rl7/aeedKbXM4vEz24+ljVx8HGtTMS+Mwm8Lk0d/dffiizdEVm5icktv6Kz
-  9fv/tU6Va2ipLHn7kKhwTT0marM8+LdX60zmL+i/XXNs5M93mVmyUj5L+cY6+V8rS4AKb+4sU
-  WFT1xvw4oHVrAV/5UiaU4I9FQi7moOBEAtV4jkiMDAAA=
-X-Env-Sender: w36195@motorola.com
-X-Msg-Ref: server-3.tower-706.messagelabs.com!1666108569!99760!1
-X-Originating-IP: [104.232.228.21]
-X-SYMC-ESS-Client-Auth: outbound-route-from=pass
-X-StarScan-Received: 
-X-StarScan-Version: 9.87.3; banners=-,-,-
-X-VirusChecked: Checked
-Received: (qmail 2928 invoked from network); 18 Oct 2022 15:56:09 -0000
-Received: from unknown (HELO va32lpfpp01.lenovo.com) (104.232.228.21)
-  by server-3.tower-706.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 18 Oct 2022 15:56:09 -0000
-Received: from ilclmmrp01.lenovo.com (ilclmmrp01.mot.com [100.65.83.165])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by va32lpfpp01.lenovo.com (Postfix) with ESMTPS id 4MsJPP3rVxzf6mc;
-        Tue, 18 Oct 2022 15:56:09 +0000 (UTC)
-Received: from p1g3 (unknown [100.64.172.121])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: w36195)
-        by ilclmmrp01.lenovo.com (Postfix) with ESMTPSA id 4MsJPP2jWnzbvDd;
-        Tue, 18 Oct 2022 15:56:09 +0000 (UTC)
-Date:   Tue, 18 Oct 2022 10:55:49 -0500
-From:   Dan Vacura <w36195@motorola.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-Subject: usb: gadget: uvc: scatter gather support fixes to 5.15+
-Message-ID: <Y07MhTJpuqr9xA3E@p1g3>
+        with ESMTP id S229698AbiJRQNo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 12:13:44 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D70779E0F4;
+        Tue, 18 Oct 2022 09:13:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1666109623; x=1697645623;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=ezRUfgf//9t3TKkvzi/6tZ+wan0th4HSbw4jvbk3WPM=;
+  b=U3cbkxf6W1vJRh3JUS6JqezjIXoKPdAPhWMr6CKFYTgJCsflVWG9NEyl
+   pGY/6YWf3H2k3nWw+a9d1sLrAzdGMgXLhs4vUZfpzxRfpKh+8kLixG8V/
+   VWvveIUNc761YIAc0A7eRZP8/a92w95o9hWEn0iNkWfJi0NHFZhtM6UUF
+   yMvabtJ6cOdUWmvJdYPrkwYOIvahMu6QyU0DiPCL1X6sJTd/be0dGhphJ
+   U1RRSGgVFVw++i+javf3x3MJGLC0H1KCZno3NuKINWc5vvhkYd9HVxO/l
+   p0kXCtG1bDkoGtjhTT1NXxM3FoP+OW6/uZZWzMf0yeOVTrK4QSrxMaHCa
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10504"; a="304892739"
+X-IronPort-AV: E=Sophos;i="5.95,193,1661842800"; 
+   d="scan'208";a="304892739"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2022 09:13:40 -0700
+X-IronPort-AV: E=McAfee;i="6500,9779,10504"; a="803822798"
+X-IronPort-AV: E=Sophos;i="5.95,193,1661842800"; 
+   d="scan'208";a="803822798"
+Received: from ahunter6-mobl1.ger.corp.intel.com (HELO [10.0.2.15]) ([10.252.51.208])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2022 09:13:33 -0700
+Message-ID: <e7816e4a-8558-0de0-e25f-d10abd0ef1c3@intel.com>
+Date:   Tue, 18 Oct 2022 19:13:28 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Firefox/102.0 Thunderbird/102.4.0
+Subject: Re: [PATCH 1/5] mmc: sdhci-of-arasan: Fix SDHCI_RESET_ALL for CQHCI
+Content-Language: en-US
+To:     Brian Norris <briannorris@chromium.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     Shawn Lin <shawn.lin@rock-chips.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Haibo Chen <haibo.chen@nxp.com>,
+        Al Cooper <alcooperx@gmail.com>, linux-mmc@vger.kernel.org,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        linux-kernel@vger.kernel.org,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Broadcom internal kernel review list 
+        <bcm-kernel-feedback-list@broadcom.com>, stable@vger.kernel.org
+References: <20221018035724.2061127-1-briannorris@chromium.org>
+ <20221017205610.1.I29f6a2189e84e35ad89c1833793dca9e36c64297@changeid>
+From:   Adrian Hunter <adrian.hunter@intel.com>
+Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki,
+ Business Identity Code: 0357606 - 4, Domiciled in Helsinki
+In-Reply-To: <20221017205610.1.I29f6a2189e84e35ad89c1833793dca9e36c64297@changeid>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,25 +82,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On 18/10/22 06:57, Brian Norris wrote:
+> SDHCI_RESET_ALL resets will reset the hardware CQE state, but we aren't
+> tracking that properly in software. When out of sync, we may trigger
+> various timeouts.
+> 
+> It's not typical to perform resets while CQE is enabled, but one
+> particular case I hit commonly enough: mmc_suspend() -> mmc_power_off().
+> Typically we will eventually deactivate CQE (cqhci_suspend() ->
+> cqhci_deactivate()), but that's not guaranteed -- in particular, if
+> we perform a partial (e.g., interrupted) system suspend.
+> 
+> The same bug was already found and fixed for two other drivers, in v5.7
+> and v5.9:
+> 
+> 5cf583f1fb9c mmc: sdhci-msm: Deactivate CQE during SDHC reset
+> df57d73276b8 mmc: sdhci-pci: Fix SDHCI_RESET_ALL for CQHCI for Intel GLK-based controllers
+> 
+> The latter is especially prescient, saying "other drivers using CQHCI
+> might benefit from a similar change, if they also have CQHCI reset by
+> SDHCI_RESET_ALL."
+> 
+> So like these other patches, deactivate CQHCI when resetting the
+> controller. Also, move around the DT/caps handling, because
+> sdhci_setup_host() performs resets before we've initialized CQHCI. This
+> is the pattern followed in other SDHCI/CQHCI drivers.
 
-Requesting for the following patches to be picked to stable 5.15+ where
-the following change was integrated: e81e7f9a0eb9 ("usb: gadget: uvc:
-add scatter gather support")
+Did you consider just checking host->mmc->cqe_private like
+sdhci_cqhci_reset() ?
 
-Without these fixes data corruption and smmu panics will occur in the
-uvc gadget driver.
+> 
+> Fixes: 84362d79f436 ("mmc: sdhci-of-arasan: Add CQHCI support for arasan,sdhci-5.1")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
+> ---
+> 
+>  drivers/mmc/host/sdhci-of-arasan.c | 17 +++++++++++------
+>  1 file changed, 11 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/mmc/host/sdhci-of-arasan.c b/drivers/mmc/host/sdhci-of-arasan.c
+> index 3997cad1f793..1988a703781a 100644
+> --- a/drivers/mmc/host/sdhci-of-arasan.c
+> +++ b/drivers/mmc/host/sdhci-of-arasan.c
+> @@ -366,6 +366,10 @@ static void sdhci_arasan_reset(struct sdhci_host *host, u8 mask)
+>  	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+>  	struct sdhci_arasan_data *sdhci_arasan = sdhci_pltfm_priv(pltfm_host);
+>  
+> +	if ((host->mmc->caps2 & MMC_CAP2_CQE) && (mask & SDHCI_RESET_ALL) &&
+> +	    sdhci_arasan->has_cqe)
+> +		cqhci_deactivate(host->mmc);
+> +
+>  	sdhci_reset(host, mask);
+>  
+>  	if (sdhci_arasan->quirks & SDHCI_ARASAN_QUIRK_FORCE_CDTEST) {
+> @@ -1521,7 +1525,8 @@ static int sdhci_arasan_register_sdclk(struct sdhci_arasan_data *sdhci_arasan,
+>  	return 0;
+>  }
+>  
+> -static int sdhci_arasan_add_host(struct sdhci_arasan_data *sdhci_arasan)
+> +static int sdhci_arasan_add_host(struct sdhci_arasan_data *sdhci_arasan,
+> +				 struct device_node *np)
+>  {
+>  	struct sdhci_host *host = sdhci_arasan->host;
+>  	struct cqhci_host *cq_host;
+> @@ -1549,6 +1554,10 @@ static int sdhci_arasan_add_host(struct sdhci_arasan_data *sdhci_arasan)
+>  	if (dma64)
+>  		cq_host->caps |= CQHCI_TASK_DESC_SZ_128;
+>  
+> +	host->mmc->caps2 |= MMC_CAP2_CQE;
+> +	if (!of_property_read_bool(np, "disable-cqe-dcmd"))
+> +		host->mmc->caps2 |= MMC_CAP2_CQE_DCMD;
+> +
+>  	ret = cqhci_init(cq_host, host->mmc, dma64);
+>  	if (ret)
+>  		goto cleanup;
+> @@ -1705,13 +1714,9 @@ static int sdhci_arasan_probe(struct platform_device *pdev)
+>  		host->mmc_host_ops.start_signal_voltage_switch =
+>  					sdhci_arasan_voltage_switch;
+>  		sdhci_arasan->has_cqe = true;
+> -		host->mmc->caps2 |= MMC_CAP2_CQE;
+> -
+> -		if (!of_property_read_bool(np, "disable-cqe-dcmd"))
+> -			host->mmc->caps2 |= MMC_CAP2_CQE_DCMD;
+>  	}
+>  
+> -	ret = sdhci_arasan_add_host(sdhci_arasan);
+> +	ret = sdhci_arasan_add_host(sdhci_arasan, np);
+>  	if (ret)
+>  		goto err_add_host;
+>  
 
-The fixes to be integrated are:
-
- 859c675d84d4 ("usb: gadget: uvc: consistently use define for headerlen")
- f262ce66d40c  ("usb: gadget: uvc: use on returned header len in video_encode_isoc_sg")
- 61aa709ca58a ("usb: gadget: uvc: rework uvcg_queue_next_buffer to uvcg_complete_buffer")
- 9b969f93bcef ("usb: gadget: uvc: giveback vb2 buffer on req complete")
- aef11279888c ("usb: gadget: uvc: improve sg exit condition")
-
-They apply cleanly on 5.15.y
-
-Thanks,
-
-Dan
