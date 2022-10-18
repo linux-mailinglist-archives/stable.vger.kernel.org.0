@@ -2,55 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F2506023A7
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 07:13:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C9236023AA
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 07:15:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229574AbiJRFMz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Oct 2022 01:12:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36290 "EHLO
+        id S229486AbiJRFPb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Oct 2022 01:15:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229486AbiJRFMy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 01:12:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B672989933;
-        Mon, 17 Oct 2022 22:12:53 -0700 (PDT)
+        with ESMTP id S229895AbiJRFPa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 01:15:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F1BE92F40
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 22:15:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6ECA7B81CD7;
-        Tue, 18 Oct 2022 05:12:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7464DC433D6;
-        Tue, 18 Oct 2022 05:12:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3591D6144F
+        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 05:15:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5D9CC433D6;
+        Tue, 18 Oct 2022 05:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666069971;
-        bh=2lsr5bXa9CV+Fpw3dmizmkB0iZ/EtjWWsMDb21f9zVE=;
+        s=korg; t=1666070127;
+        bh=wazBatLNAoqQ55loXMBj+EGzJDnADkJLwxKlffnoduo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CTpszAlj+EfckPAQ+wZS1eXAiQXX0cc9rQds7XG+Zc+4omn1mhvrwRQnFWDAqYk9M
-         FyeM70mBCDDGwnswZtkKaFpFHW9/RMPeyx6ynDtfNZXUrylJP2ZqNb4z3/qGyJyf/M
-         Mv5nOqnzOauERimyaOxDNAlEJ6XDlHmMx059WsLA=
-Date:   Tue, 18 Oct 2022 07:13:37 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Dan Vacura <w36195@motorola.com>
-Cc:     Bagas Sanjaya <bagasdotme@gmail.com>, linux-usb@vger.kernel.org,
-        Daniel Scally <dan.scally@ideasonboard.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Jeff Vanhoof <qjv001@motorola.com>, stable@vger.kernel.org,
-        Jonathan Corbet <corbet@lwn.net>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        Paul Elder <paul.elder@ideasonboard.com>,
-        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH] usb: gadget: uvc: fix dropped frame after missed isoc
-Message-ID: <Y042AZ2iA05no5U5@kroah.com>
-References: <20221017205446.523796-1-w36195@motorola.com>
- <20221017205446.523796-2-w36195@motorola.com>
- <f7029f41-4f8c-9ba7-3e3b-268a743998d5@gmail.com>
- <Y04MT0+jKApYFfcG@p1g3>
+        b=JT5DQu/mr738VqmSAW7dBjEMy1HNHAN85R/vj6oMHd5ozswx0msREuZe/xI/o3Hwh
+         RG/1BnlpJlBzI628MoiZSIxQNcASQk6IwwrpVWT7f2rKlHVUm7S9tjtYGFSAV7dUL2
+         auJjnJNn1dYYeHnt9Me+CDDllqM9dBg9pP96vTXs=
+Date:   Tue, 18 Oct 2022 07:16:14 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     samitolvanen@google.com, tpgxyz@gmail.com, tzimmermann@suse.de,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] drm/simpledrm: Fix return type of" failed
+ to apply to 6.0-stable tree
+Message-ID: <Y042nnfd2rrfdjQB@kroah.com>
+References: <166593672329153@kroah.com>
+ <Y02acmLNms9UygZL@dev-arch.thelio-3990X>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y04MT0+jKApYFfcG@p1g3>
+In-Reply-To: <Y02acmLNms9UygZL@dev-arch.thelio-3990X>
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -60,26 +51,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 17, 2022 at 09:15:43PM -0500, Dan Vacura wrote:
-> On Tue, Oct 18, 2022 at 08:50:03AM +0700, Bagas Sanjaya wrote:
-> > On 10/18/22 03:54, Dan Vacura wrote:
-> > > With the re-use of the previous completion status in 0d1c407b1a749
-> > > ("usb: dwc3: gadget: Return proper request status") it could be possible
-> > > that the next frame would also get dropped if the current frame has a
-> > > missed isoc error. Ensure that an interrupt is requested for the start
-> > > of a new frame.
-> > > 
+On Mon, Oct 17, 2022 at 11:09:54AM -0700, Nathan Chancellor wrote:
+> On Sun, Oct 16, 2022 at 06:12:03PM +0200, gregkh@linuxfoundation.org wrote:
 > > 
-> > Shouldn't the subject line says [PATCH v3 1/6]?
+> > The patch below does not apply to the 6.0-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > Possible dependencies:
+> > 
+> > f9929f69de94 ("drm/simpledrm: Fix return type of simpledrm_simple_display_pipe_mode_valid()")
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> > From f9929f69de94212f98b3ad72a3e81c3bd3d333e0 Mon Sep 17 00:00:00 2001
+> > From: Nathan Chancellor <nathan@kernel.org>
+> > Date: Mon, 25 Jul 2022 16:36:29 -0700
+> > Subject: [PATCH] drm/simpledrm: Fix return type of
+> >  simpledrm_simple_display_pipe_mode_valid()
 > 
-> Yes. Clerical error on my side not updating this after resolving a
-> check-patch error... Not sure if it matters as this patch can exist on
-> it's own. Or if I can send this again with fixed subject line, but that
-> may confuse others, since there's no code difference.
+> Just for the record, this change is already in the stable trees it is
+> relevant for, as it was a part of 5.19:
+> 
+> 5.19 and 6.0: 0c09bc33aa8e ("drm/simpledrm: Fix return type of simpledrm_simple_display_pipe_mode_valid()")
+> 5.15: 11c1cc3f6e42 ("drm/simpledrm: Fix return type of simpledrm_simple_display_pipe_mode_valid()")
+> 
+> I am not sure how a second copy (f9929f69de94) ended up in the tree
+> during the 6.1 cycle, I am guessing it was cherry picked to a
+> development branch from a fixes branch, rather than backmerged.
+> 
+> TL;DR: Nothing for stable to do here.
 
-Our tools (b4) will complain it can not find patch 1 in the series, so
-yes, please resend with them properly numbered so that we can find them
-all when going to apply them to the tree.
+Thanks, that's how the drm tree works, they like to have multiple copies
+of patches in the tree in places...
 
 thanks,
 
