@@ -2,81 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2E8E601CAF
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 00:55:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74440601E14
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:05:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229833AbiJQWzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 18:55:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59446 "EHLO
+        id S230307AbiJRAFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:05:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229822AbiJQWzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 18:55:50 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 530E4804B6
-        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 15:55:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666047350; x=1697583350;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   in-reply-to;
-  bh=XoUSuw2+PXvTYBtoPJmt7mtCRiWef4NEj6lon4ANn7M=;
-  b=aKwAM8wCnc3L3aHkrgUQlHL0VjgEw6uKUvHeaSDKnxTgoLX2nXDnEckL
-   BVdn2UVHum/F1crWtJUhucOeGnoK3WNITV+lzts1QIedv0Xv5w0Cbt5PR
-   oGvzi4829qS4+ZmmXrnxF9aFCtggk5KqYLOWpHmee5CR4FKq+tWswzrw2
-   g5yC2ZAuYOEB7Sz0hmKI9H9FM+LfI+R/vQgYv5j5ODsxB+f5Ib8Ujoxbs
-   Z7sow6XvMaaXFrhQJxclOOGMOxkRyBhZ7U13lUaXjjOXk8gIC+mnHm5w5
-   572hMW8h8JNR/4nqxZ04jf5JPt2i6W/AkyeATSH8Pz3mNiqHgEwB7nB6W
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10503"; a="307600982"
-X-IronPort-AV: E=Sophos;i="5.95,192,1661842800"; 
-   d="scan'208";a="307600982"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Oct 2022 15:55:49 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10503"; a="957516698"
-X-IronPort-AV: E=Sophos;i="5.95,192,1661842800"; 
-   d="scan'208";a="957516698"
-Received: from lkp-server01.sh.intel.com (HELO 8381f64adc98) ([10.239.97.150])
-  by fmsmga005.fm.intel.com with ESMTP; 17 Oct 2022 15:55:48 -0700
-Received: from kbuild by 8381f64adc98 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1okZ1Q-0000yu-0X;
-        Mon, 17 Oct 2022 22:55:48 +0000
-Date:   Tue, 18 Oct 2022 06:55:29 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     William Breathitt Gray <william.gray@linaro.org>
-Cc:     stable@vger.kernel.org, kbuild-all@lists.01.org
-Subject: Re: [PATCH] counter: microchip-tcb-capture: Handle Signal1 read and
- Synapse
-Message-ID: <Y03dYZzM6mmJ7N64@cbc4ca7ce717>
+        with ESMTP id S230262AbiJRAFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:05:10 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194E02F3B2
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 17:05:08 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id f140so12565550pfa.1
+        for <stable@vger.kernel.org>; Mon, 17 Oct 2022 17:05:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=UbvMCu0XnVUIatC5HjOpWZoBH39srdxVv2oZXv9o6kg=;
+        b=ek41R8j3J6wTdRKFT2MnQ4muQsMMz+T6TNdhkVhnlu8cRmb/CnRGg/YXmcu6scqmCC
+         r3scl4YLlMuMGrLZJPg1LTzFXQDPnQ8ttyHzXFJoXp7gpFIf6yUzrvpiFv3hYiCWIBuE
+         j/1mDG0IoHcBgvUL2mLxt16p55Y+zODpquTYbZld3EmpDWerem0YkwJDan28B2f19SwN
+         hWftzE2O15VP4vgQYWeNZUqWGp3o4yqshTd7bLap1TwroOvIm5FQ/ZqEnK28D88mq2t4
+         43fsWX247vX5Bi6Od37oCunxlm4Qm0pS1aV778oxw8kjl0dYZ9amOQ6FwnMzyMNcK9S7
+         cn3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=UbvMCu0XnVUIatC5HjOpWZoBH39srdxVv2oZXv9o6kg=;
+        b=7Sx6ZZ8G51I174VPCNcQ6dum7LPz2hrMY77xl4wytmvEH2AMqQgPwb9ajitpSz9eMm
+         X5560eOGWAo95Fg3Xfnc9qbfR26TW6OQVtMZPp8otigaS2BQLQcK5mf0wGZ/LkfSLarC
+         cqdXXRYqZQ8ufWhSt2ZCbu4+Divv3nbohk5RiwlUPNjadnYIETjevYXCEjQ+SDRUbIxu
+         7Ugxv9+Qot+eK7lvnlr/mgC9TU2LwONanHZFj44FsEqygCsutLEspVV4gY142Li0AAJz
+         T+Iq6ouaQC4pCR7K4lpwuXUL4HuAhnpV+yPOp7vqMzUlypPreVe0bJ4R3HJHU123WeUk
+         qkZw==
+X-Gm-Message-State: ACrzQf36PO4FmNffP0GqRRQYIifL3yqMwSzuw2VuXMPJvkh5iATWuxQN
+        8qldse2phhLcigCXgpPInr/XbuH0w5wwPC82fCHjhA==
+X-Google-Smtp-Source: AMsMyM6hVsd0XuPZrTHBzn4zdOlZacCWPRU8taK43Sx8zFOnaVmfTWG0mjGTGIJEKfua9jpsDaq/9is3dQ8xuF/d8wI=
+X-Received: by 2002:a62:1a97:0:b0:562:5587:12d6 with SMTP id
+ a145-20020a621a97000000b00562558712d6mr333112pfa.37.1666051507409; Mon, 17
+ Oct 2022 17:05:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221017225404.67127-1-william.gray@linaro.org>
-X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+References: <Y0mSVQCQer7fEKgu@kroah.com> <20221014171040.849726-1-ndesaulniers@google.com>
+ <70a859bc-a33b-79f5-6f44-5cccfb394749@gmail.com>
+In-Reply-To: <70a859bc-a33b-79f5-6f44-5cccfb394749@gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Mon, 17 Oct 2022 17:04:55 -0700
+Message-ID: <CAKwvOd=L7i6iMZ6CRKWpY1yzg5QZj5FM7Rd1HtVFj-6J-qdPtQ@mail.gmail.com>
+Subject: Re: [PATCH v2] Documentation: process: replace outdated LTS table w/ link
+To:     Bagas Sanjaya <bagasdotme@gmail.com>
+Cc:     Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
+        Sasha Levin <sashal@kernel.org>, Tyler Hicks <code@tyhicks.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Fri, Oct 14, 2022 at 7:06 PM Bagas Sanjaya <bagasdotme@gmail.com> wrote:
+>
+> On 10/15/22 00:10, Nick Desaulniers wrote:
+> > The existing table was a bit outdated.
+> >
+> > 3.16 was EOL in 2020.
+> > 4.4 was EOL in 2022.
+> >
+> > 5.10 is new in 2020.
+> > 5.15 is new in 2021.
+> >
+> > We'll see if 6.1 becomes LTS in 2022.
+> >
+> > Rather than keep this table updated, it does duplicate information from
+> > multiple kernel.org pages. Make one less duplication site that needs to
+> > be updated and simply refer to the kernel.org page on releases.
+> >
+> > Suggested-by: Tyler Hicks <code@tyhicks.com>
+> > Suggested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+> > Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>
+> Should this patch be backported to all stable releases? I see Cc: stable
+> on message header, but not in the patch trailer.
 
-Thanks for your patch.
+I don't think so; unless people read stable versions of the
+documentation rather than HEAD?
+Perhaps I didn't need to cc stable, but I think that's ok for
+notifying people who are interested in stable, not necessarily
+strictly for backports?
+Either way, thanks again for the reviews+suggestions.
 
-FYI: kernel test robot notices the stable kernel rule is not satisfied.
+>
+> >  Some kernels are designated "long term" kernels; they will receive support
+> > -for a longer period.  As of this writing, the current long term kernels
+> > -and their maintainers are:
+> > -
+> > -     ======  ================================        =======================
+> > -     3.16    Ben Hutchings                           (very long-term kernel)
+> > -     4.4     Greg Kroah-Hartman & Sasha Levin        (very long-term kernel)
+> > -     4.9     Greg Kroah-Hartman & Sasha Levin
+> > -     4.14    Greg Kroah-Hartman & Sasha Levin
+> > -     4.19    Greg Kroah-Hartman & Sasha Levin
+> > -     5.4     Greg Kroah-Hartman & Sasha Levin
+> > -     ======  ================================        =======================
+> > +for a longer period.  Please refer to the following link for the list of active
+> > +long term kernel versions and their maintainers:
+> > +
+> > +     https://www.kernel.org/category/releases.html
+> >
+>
+> LGTM, thanks.
+>
+> Reviewed-by: Bagas Sanjaya <bagasdotme@gmail.com>
+>
+> --
+> An old man doll... just what I always wanted! - Clara
+>
 
-Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
-Subject: [PATCH] counter: microchip-tcb-capture: Handle Signal1 read and Synapse
-Link: https://lore.kernel.org/stable/20221017225404.67127-1-william.gray%40linaro.org
-
-The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
 
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
-
-
-
+Thanks,
+~Nick Desaulniers
