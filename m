@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5DDE601ED1
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:13:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A78C601EC9
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:13:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231626AbiJRANp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:13:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
+        id S231520AbiJRANU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:13:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231351AbiJRAMj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:12:39 -0400
+        with ESMTP id S230442AbiJRAMd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:12:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08BCA88A1C;
-        Mon, 17 Oct 2022 17:09:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC9FAAE53;
+        Mon, 17 Oct 2022 17:09:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE949B81B62;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60933B81BE2;
+        Tue, 18 Oct 2022 00:09:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26BDAC43140;
         Tue, 18 Oct 2022 00:08:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B91ECC433D6;
-        Tue, 18 Oct 2022 00:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051738;
-        bh=KtSPXtltLaR39nQ58teUKsRR/MN4D9N1XdSowoX1sb0=;
+        s=k20201202; t=1666051740;
+        bh=SgkjwT6v/aZrh3kwyQxdb4EprkFZCGb0ZaVoc8w3ZXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2DJb5S0dnqtVv99jNsT0a++b40zHzP/Klr6C+pdOxjX2kFE3pP8HoXGv6Eri7ua7
-         id0CG6Rz6qAzriff6HT4YNkz9b609CEX8tVaLApt15hDaPbwsa4MyHGlckqdF0MA7K
-         TaaOO18agUXrWnzfno8PVeL6nIkfoc0yUIQLmf5IJwpSltmDyv/qyyM82jPdtn9kr6
-         fn24YAo7VDzbrw+l45KdQusK5CyOwEl35/09YDIOXHt3W1oTD11SK2OcAQvY/mnMcm
-         XQgjP9dGOWXx2HLv1tWjQru8471ZLfTepJJrIXFiF29HpMt7GTVGz1YSNO3zZFXqFh
-         OKc1rPXt5P84g==
+        b=T9maSFZOOOBKkCSED8sLyLn+zwtpLOCEbRPG88rsPh3w53N6tWfzpfTYByOv8hUAB
+         XLmcR+LNjmxPGTuK3EuSENtC+U/wSYcjeS0pahivxncTfeRMy5KYLVv4nyKzy7trRA
+         3LsmwUxRNhQE5Vg6ph8L4/T3Y+Yye1rD/oj43vdCPXsKAdxKLqa/6Qve73RC83bpKp
+         7j+kcxbhTd+kyYduuybjq9X3zjLWYjqPq+LXd5kf+kr9DIQ3yLtRwyb54I5xNuQHRr
+         uzt8pI9aR+/5XetOtDmN+XlQ55M1cQkMPAj8h+PR7OvNpcsChRg9t0xC8dSv5j372P
+         GDfZlWQz42fdw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, jpoimboe@kernel.org,
-        bp@suse.de, fenghua.yu@intel.com, tony.luck@intel.com
-Subject: [PATCH AUTOSEL 5.19 09/29] objtool,x86: Teach decode about LOOP* instructions
-Date:   Mon, 17 Oct 2022 20:08:18 -0400
-Message-Id: <20221018000839.2730954-9-sashal@kernel.org>
+Cc:     Gokul krishna Krishnakumar <quic_gokukris@quicinc.com>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Waiman Long <longman@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        will@kernel.org
+Subject: [PATCH AUTOSEL 5.19 10/29] locking/rwsem: Disable preemption while trying for rwsem lock
+Date:   Mon, 17 Oct 2022 20:08:19 -0400
+Message-Id: <20221018000839.2730954-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000839.2730954-1-sashal@kernel.org>
 References: <20221018000839.2730954-1-sashal@kernel.org>
@@ -56,43 +58,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Gokul krishna Krishnakumar <quic_gokukris@quicinc.com>
 
-[ Upstream commit 7a7621dfa417aa3715d2a3bd1bdd6cf5018274d0 ]
+[ Upstream commit 48dfb5d2560d36fb16c7d430c229d1604ea7d185 ]
 
-When 'discussing' control flow Masami mentioned the LOOP* instructions
-and I realized objtool doesn't decode them properly.
+Make the region inside the rwsem_write_trylock non preemptible.
 
-As it turns out, these instructions are somewhat inefficient and as
-such unlikely to be emitted by the compiler (a few vmlinux.o checks
-can't find a single one) so this isn't critical, but still, best to
-decode them properly.
+We observe RT task is hogging CPU when trying to acquire rwsem lock
+which was acquired by a kworker task but before the rwsem owner was set.
 
-Reported-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Here is the scenario:
+1. CFS task (affined to a particular CPU) takes rwsem lock.
+
+2. CFS task gets preempted by a RT task before setting owner.
+
+3. RT task (FIFO) is trying to acquire the lock, but spinning until
+RT throttling happens for the lock as the lock was taken by CFS task.
+
+This patch attempts to fix the above issue by disabling preemption
+until owner is set for the lock. While at it also fix the issues
+at the places where rwsem_{set,clear}_owner() are called.
+
+This also adds lockdep annotation of preemption disable in
+rwsem_{set,clear}_owner() on Peter Z. suggestion.
+
+Signed-off-by: Gokul krishna Krishnakumar <quic_gokukris@quicinc.com>
+Signed-off-by: Mukesh Ojha <quic_mojha@quicinc.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/Yxhd4EMKyoFoH9y4@hirez.programming.kicks-ass.net
+Reviewed-by: Waiman Long <longman@redhat.com>
+Link: https://lore.kernel.org/r/1662661467-24203-1-git-send-email-quic_mojha@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/arch/x86/decode.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/locking/rwsem.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/tools/objtool/arch/x86/decode.c b/tools/objtool/arch/x86/decode.c
-index c260006106be..1c253b4b7ce0 100644
---- a/tools/objtool/arch/x86/decode.c
-+++ b/tools/objtool/arch/x86/decode.c
-@@ -635,6 +635,12 @@ int arch_decode_instruction(struct objtool_file *file, const struct section *sec
- 		*type = INSN_CONTEXT_SWITCH;
- 		break;
+diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
+index 65f0262f635e..44873594de03 100644
+--- a/kernel/locking/rwsem.c
++++ b/kernel/locking/rwsem.c
+@@ -133,14 +133,19 @@
+  * the owner value concurrently without lock. Read from owner, however,
+  * may not need READ_ONCE() as long as the pointer value is only used
+  * for comparison and isn't being dereferenced.
++ *
++ * Both rwsem_{set,clear}_owner() functions should be in the same
++ * preempt disable section as the atomic op that changes sem->count.
+  */
+ static inline void rwsem_set_owner(struct rw_semaphore *sem)
+ {
++	lockdep_assert_preemption_disabled();
+ 	atomic_long_set(&sem->owner, (long)current);
+ }
  
-+	case 0xe0: /* loopne */
-+	case 0xe1: /* loope */
-+	case 0xe2: /* loop */
-+		*type = INSN_JUMP_CONDITIONAL;
-+		break;
-+
- 	case 0xe8:
- 		*type = INSN_CALL;
- 		/*
+ static inline void rwsem_clear_owner(struct rw_semaphore *sem)
+ {
++	lockdep_assert_preemption_disabled();
+ 	atomic_long_set(&sem->owner, 0);
+ }
+ 
+@@ -251,13 +256,16 @@ static inline bool rwsem_read_trylock(struct rw_semaphore *sem, long *cntp)
+ static inline bool rwsem_write_trylock(struct rw_semaphore *sem)
+ {
+ 	long tmp = RWSEM_UNLOCKED_VALUE;
++	bool ret = false;
+ 
++	preempt_disable();
+ 	if (atomic_long_try_cmpxchg_acquire(&sem->count, &tmp, RWSEM_WRITER_LOCKED)) {
+ 		rwsem_set_owner(sem);
+-		return true;
++		ret = true;
+ 	}
+ 
+-	return false;
++	preempt_enable();
++	return ret;
+ }
+ 
+ /*
+@@ -1352,8 +1360,10 @@ static inline void __up_write(struct rw_semaphore *sem)
+ 	DEBUG_RWSEMS_WARN_ON((rwsem_owner(sem) != current) &&
+ 			    !rwsem_test_oflags(sem, RWSEM_NONSPINNABLE), sem);
+ 
++	preempt_disable();
+ 	rwsem_clear_owner(sem);
+ 	tmp = atomic_long_fetch_add_release(-RWSEM_WRITER_LOCKED, &sem->count);
++	preempt_enable();
+ 	if (unlikely(tmp & RWSEM_FLAG_WAITERS))
+ 		rwsem_wake(sem);
+ }
 -- 
 2.35.1
 
