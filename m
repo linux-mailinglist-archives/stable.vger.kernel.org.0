@@ -2,123 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 878CC6031DC
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 19:59:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7525F603262
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 20:26:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230114AbiJRR7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Oct 2022 13:59:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44738 "EHLO
+        id S229635AbiJRS0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Oct 2022 14:26:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229894AbiJRR7P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 13:59:15 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB22C62E3;
-        Tue, 18 Oct 2022 10:59:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666115951; x=1697651951;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=qG3pPWLpSbglp5R801rTaLLX0yFYxAOeAh4l6wso68g=;
-  b=d+BsUjGZz8Ow/a2qjz6nqsp1b2WUj2XCbyhujrYo1wAEpzT/2sT1kA/n
-   cB5qI5UmsO2tO9wTbHpGaIfalRY2Ym8zhzu1xhtxakOppk6jSv00omQ6J
-   dUzc6+ChP19lVPx5Kq05dfS4R7/g5CtR0q5HIn0tKwqM3+cd/EqN8nFpI
-   MurG8W8sVE5gEK5Ivdw+/+G79tPexK+Jsy/BlShfnGOaPLAh61KR+DVMZ
-   Qg6mxqUD6xcBi90dObS7R795f3vQdlJbIoh40L/YV503LQiopoVy0SKir
-   4m0qzJ9/u1WbaVmIEDNcGHmzk+avbMNHLF9nPOfrFCZx0mpb5eX+R/6I0
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10504"; a="368214487"
-X-IronPort-AV: E=Sophos;i="5.95,193,1661842800"; 
-   d="scan'208";a="368214487"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2022 10:58:54 -0700
-X-IronPort-AV: E=McAfee;i="6500,9779,10504"; a="874017001"
-X-IronPort-AV: E=Sophos;i="5.95,193,1661842800"; 
-   d="scan'208";a="874017001"
-Received: from ahunter6-mobl1.ger.corp.intel.com (HELO [10.0.2.15]) ([10.252.51.208])
-  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2022 10:58:49 -0700
-Message-ID: <1953691e-4179-92c3-efa9-f10ccd3cad00@intel.com>
-Date:   Tue, 18 Oct 2022 20:58:44 +0300
+        with ESMTP id S229848AbiJRSZ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 14:25:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C252497A;
+        Tue, 18 Oct 2022 11:25:57 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA66FB820F0;
+        Tue, 18 Oct 2022 18:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFD99C433D6;
+        Tue, 18 Oct 2022 18:25:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1666117554;
+        bh=om6zFfaFETCR1xyfskk4mBkA8kFqHujPVwRgrXfGQF4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JwJ24DFjc91Q9L6ZYZF72y3vHs6Ub/oxpUupIxWSrAmAVT3/jMXG0s7Bvu33bNnWp
+         WrLv4L84Q+J6kJZC4kCMXdmSpqY544gPXceo8BXLidY+bNfgJ5GA+DF/2TEP5SX56d
+         qnOzzswej9NFDh08t+/AEIcJsTFzv9LOW9vKK4dzGjAW5INN1OL7lSiHy/8b788Uuc
+         PsRtTHY9xgGfGpcbe6ntJrb7X3z5vyuplqu913G3GS306tIko2tY2dljspJN2DD1mX
+         QjvBfTqX+coBrB9CQw3sXTPEw0/wh8u5JVDHxvw20ZzckgYDFV+S1ImmfliBpZODfB
+         RS2IEajKEdAFw==
+From:   Ard Biesheuvel <ardb@kernel.org>
+To:     linux-efi@vger.kernel.org
+Cc:     Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH for-stable] efi: libstub: drop pointless get_memory_map() call
+Date:   Tue, 18 Oct 2022 20:25:45 +0200
+Message-Id: <20221018182545.143757-1-ardb@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.4.0
-Subject: Re: [PATCH 1/5] mmc: sdhci-of-arasan: Fix SDHCI_RESET_ALL for CQHCI
-Content-Language: en-US
-To:     Brian Norris <briannorris@chromium.org>
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Faiz Abbas <faiz_abbas@ti.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Haibo Chen <haibo.chen@nxp.com>,
-        Al Cooper <alcooperx@gmail.com>, linux-mmc@vger.kernel.org,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        linux-kernel@vger.kernel.org,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Broadcom internal kernel review list 
-        <bcm-kernel-feedback-list@broadcom.com>, stable@vger.kernel.org
-References: <20221018035724.2061127-1-briannorris@chromium.org>
- <20221017205610.1.I29f6a2189e84e35ad89c1833793dca9e36c64297@changeid>
- <e7816e4a-8558-0de0-e25f-d10abd0ef1c3@intel.com>
- <Y07bgNd7KbLDttsq@google.com>
-From:   Adrian Hunter <adrian.hunter@intel.com>
-Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki,
- Business Identity Code: 0357606 - 4, Domiciled in Helsinki
-In-Reply-To: <Y07bgNd7KbLDttsq@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1352; i=ardb@kernel.org; h=from:subject; bh=om6zFfaFETCR1xyfskk4mBkA8kFqHujPVwRgrXfGQF4=; b=owEB7QES/pANAwAKAcNPIjmS2Y8kAcsmYgBjTu+oHBZDBr4+fRb+DrsI1FLVPtSHb9P/si31vhNZ MtHylwKJAbMEAAEKAB0WIQT72WJ8QGnJQhU3VynDTyI5ktmPJAUCY07vqAAKCRDDTyI5ktmPJHj6C/ 0ZHMwDnors24aETAKYxdXQ/RTprUyLX33FHBYA0Gd0Hfa1TYcw5HiqieQsP8wPvG3Q4Hz3Dwl3HRoU ggn4FpN5HoIsxLclTN2oE6VutcvC2hUIUJZWHbfeaxO1LcElR/dcxM0yhmIWzUmQZYtGdirKyDD4S2 9Y+I4SmZbc8c/W5pwtFoHcQDg5s5XpD22V1sJu6GnIbCRQY4IcDRnRZnH0UVpzQha/NIi6UAb/swHf qsUaH40yWBlK/2JdTj1z85WSOioIE+Y3fj+W0AX9TzdgXrxPMHr7ynhD0SZ6ngld+1arCmoYyqCPvX Uh42Q7gVIuPqCkiqdSfFNhJKuUeMYdDhXqZOwvTPI/MLyPEGcMqSeqtimXu9Wxdqox++t6g+3O3IFp b8CXKMBb43f1P1fEKSDT/wlEIkz770pC0jSBDpEojA6IuvGt67TSuwUjnrTbYly/u+MVNZKvbyP8xy R+mu/OnGemlP+2xIY1ULimGT7w+lry7mSnjI6vWA7lf8s=
+X-Developer-Key: i=ardb@kernel.org; a=openpgp; fpr=F43D03328115A198C90016883D200E9CA6329909
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 18/10/22 19:59, Brian Norris wrote:
-> Hi Adrian,
-> 
-> On Tue, Oct 18, 2022 at 07:13:28PM +0300, Adrian Hunter wrote:
->> On 18/10/22 06:57, Brian Norris wrote:
->>> So like these other patches, deactivate CQHCI when resetting the
->>> controller. Also, move around the DT/caps handling, because
->>> sdhci_setup_host() performs resets before we've initialized CQHCI. This
->>> is the pattern followed in other SDHCI/CQHCI drivers.
->>
->> Did you consider just checking host->mmc->cqe_private like
->> sdhci_cqhci_reset() ?
-> 
-> I did not, although I am doing so now.
-> 
-> My first thought is that this feels a bit too private. Is the host
-> driver supposed to be memorizing the details of the CQHCI layer?
+commit d80ca810f096ff66f451e7a3ed2f0cd9ef1ff519 upstream
 
-Some drivers need to access CQHCI registers and get the reference
-to cqhci_host from cqe_private, so that is already accepted.
+Currently, the non-x86 stub code calls get_memory_map() redundantly,
+given that the data it returns is never used anywhere. So drop the call.
 
-> 
-> But on the plus side, that would remove some contortions needed here
-> (and also in sdhci-brcmstb.c).
-> 
-> Here's another option I previously considered: teaching
-> cqhci_deactivate() to check cqe_private itself. That would have the same
-> benefits, while keeping the private details in cqhci-core.c. How do you
-> like that?
+Cc: <stable@vger.kernel.org> # v4.14+
+Fixes: 24d7c494ce46 ("efi/arm-stub: Round up FDT allocation to mapping size")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+---
+ drivers/firmware/efi/libstub/fdt.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-I don't mind either way.
+This is a backport for v5.4 and older, where the patch in question did
+not apply cleanly on the first attempt. Please apply.
 
-> 
-> (Tiny downside: cqhci-core.c got its rename in v5.12, so backporting
-> this to -stable would get slightly more difficult.)
-> 
-> Brian
+diff --git a/drivers/firmware/efi/libstub/fdt.c b/drivers/firmware/efi/libstub/fdt.c
+index dba296a44f4e..2a1a587edef9 100644
+--- a/drivers/firmware/efi/libstub/fdt.c
++++ b/drivers/firmware/efi/libstub/fdt.c
+@@ -301,14 +301,6 @@ efi_status_t allocate_new_fdt_and_exit_boot(efi_system_table_t *sys_table,
+ 		goto fail;
+ 	}
+ 
+-	/*
+-	 * Now that we have done our final memory allocation (and free)
+-	 * we can get the memory map key needed for exit_boot_services().
+-	 */
+-	status = efi_get_memory_map(sys_table, &map);
+-	if (status != EFI_SUCCESS)
+-		goto fail_free_new_fdt;
+-
+ 	status = update_fdt(sys_table, (void *)fdt_addr, fdt_size,
+ 			    (void *)*new_fdt_addr, MAX_FDT_SIZE, cmdline_ptr,
+ 			    initrd_addr, initrd_size);
+-- 
+2.35.1
 
