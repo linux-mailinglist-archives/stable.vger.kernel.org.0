@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8631D601ECC
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:13:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A8C5601EBD
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:12:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231622AbiJRANa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:13:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36408 "EHLO
+        id S231553AbiJRAMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:12:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230175AbiJRAMi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:12:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52C6387FB5;
-        Mon, 17 Oct 2022 17:09:17 -0700 (PDT)
+        with ESMTP id S231354AbiJRAKz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:10:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6E1D88DF5;
+        Mon, 17 Oct 2022 17:08:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 954E661302;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2950B61314;
+        Tue, 18 Oct 2022 00:08:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F727C433D7;
         Tue, 18 Oct 2022 00:08:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDE81C433B5;
-        Tue, 18 Oct 2022 00:08:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051733;
-        bh=suO48gKpN6vaGn7ollF2e/6WDrLDFaf4THUYc859unw=;
+        s=k20201202; t=1666051734;
+        bh=MYsXPCCZudwVdMZHgFFQW2l401Y+tXJbW6caoYc4ohE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QqgdIlEgEM/1Q/NVPPtquNcTAiFNkVR91/uFuO9+nIkHWAdmAayxlrKEB2LOUnnxl
-         HkcskpR0nHypMjdIPw5sHaUxGzBUt8Gz9k25Po7MlLsCJEZlfQT1zz2mv11u8yUxRG
-         nihI403tJ7uUl6UfKHTaQ6PtZCGWB99zOwhfqFGDnkNLENyhOYXiNE6kA68mlohUtd
-         Gd7Zz1eF6E9jRWc3Do5lQP2SIqO9jTKrIN6HDTSsh5hXr3AdloEXA9dWLj25vxkGIy
-         UZhEpjg+ZkPyY53+znd3X2JN8nwD8usmw//aCHe2qzYQa2ISpPRwgcAJ3qlgJWs4ad
-         wkwPAFoXP2TyQ==
+        b=D+2BYc6fywgJi/EV4UJ6395U56JGi6Gc7TGgvnNRluriwwEub6emL2YjYTEyttUuu
+         b+e3jbwpX9W7WOlk0BvHIOFv8OObdhX5h9HkPv9piggo1r5mBznnK1u2M6zKtuzK9Q
+         PdzwjAAKQICVCiTkC1Gy2n0MQR5tBPETUNxRWDhi9HHeYzkV1o13KW2+LgXUJzzqOs
+         AYDfmrGgPQBDnlEuqC6w//dEzUqGqoRgQKHcrh3+itYFHrczzMM4LuaWNhDBxv9dzi
+         CKFWmGpTxxkiOQvNFAqAkwxqBJ74rnb1fswkEaQX2p3Gs/Xf255DfsTFTY3gWBjjir
+         rjAKbdDzs1+Gg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tejun Heo <tj@kernel.org>,
-        Abhishek Shah <abhishek.shah@columbia.edu>,
-        Gabriel Ryan <gabe@cs.columbia.edu>,
-        Christian Brauner <brauner@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lizefan.x@bytedance.com,
-        hannes@cmpxchg.org, cgroups@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 06/29] cgroup: Remove data-race around cgrp_dfl_visible
-Date:   Mon, 17 Oct 2022 20:08:15 -0400
-Message-Id: <20221018000839.2730954-6-sashal@kernel.org>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>, dwmw2@infradead.org,
+        baolu.lu@linux.intel.com, joro@8bytes.org, will@kernel.org,
+        iommu@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.19 07/29] iommu/vt-d: Handle race between registration and device probe
+Date:   Mon, 17 Oct 2022 20:08:16 -0400
+Message-Id: <20221018000839.2730954-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000839.2730954-1-sashal@kernel.org>
 References: <20221018000839.2730954-1-sashal@kernel.org>
@@ -58,46 +58,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit dc79ec1b232ad2c165d381d3dd2626df4ef9b5a4 ]
+[ Upstream commit c919739ce4721ecf7b96b99253b032df30fcf19b ]
 
-There's a seemingly harmless data-race around cgrp_dfl_visible detected by
-kernel concurrency sanitizer. Let's remove it by throwing WRITE/READ_ONCE at
-it.
+Currently we rely on registering all our instances before initially
+allowing any .probe_device calls via bus_set_iommu(). In preparation for
+phasing out the latter, make sure we won't inadvertently return success
+for a device associated with a known but not yet registered instance,
+otherwise we'll run straight into iommu_group_get_for_dev() trying to
+use NULL ops.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
-Cc: Gabriel Ryan <gabe@cs.columbia.edu>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Link: https://lore.kernel.org/netdev/20220819072256.fn7ctciefy4fc4cu@wittgenstein/
+That also highlights an issue with intel_iommu_get_resv_regions() taking
+dmar_global_lock from within a section where intel_iommu_init() already
+holds it, which already exists via probe_acpi_namespace_devices() when
+an ANDD device is probed, but gets more obvious with the upcoming change
+to iommu_device_register(). Since they are both read locks it manages
+not to deadlock in practice, and a more in-depth rework of this locking
+is underway, so no attempt is made to address it here.
+
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/579f2692291bcbfc3ac64f7456fcff0d629af131.1660572783.git.robin.murphy@arm.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/intel/iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index 80c23f48f3b4..1969ba9b4090 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -2153,7 +2153,7 @@ static int cgroup_get_tree(struct fs_context *fc)
- 	struct cgroup_fs_context *ctx = cgroup_fc2context(fc);
- 	int ret;
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index 3ed15e8ca677..690fad0d37f8 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -4586,7 +4586,7 @@ static struct iommu_device *intel_iommu_probe_device(struct device *dev)
+ 	u8 bus, devfn;
  
--	cgrp_dfl_visible = true;
-+	WRITE_ONCE(cgrp_dfl_visible, true);
- 	cgroup_get_live(&cgrp_dfl_root.cgrp);
- 	ctx->root = &cgrp_dfl_root;
+ 	iommu = device_to_iommu(dev, &bus, &devfn);
+-	if (!iommu)
++	if (!iommu || !iommu->iommu.ops)
+ 		return ERR_PTR(-ENODEV);
  
-@@ -6068,7 +6068,7 @@ int proc_cgroup_show(struct seq_file *m, struct pid_namespace *ns,
- 		struct cgroup *cgrp;
- 		int ssid, count = 0;
- 
--		if (root == &cgrp_dfl_root && !cgrp_dfl_visible)
-+		if (root == &cgrp_dfl_root && !READ_ONCE(cgrp_dfl_visible))
- 			continue;
- 
- 		seq_printf(m, "%d:", root->hierarchy_id);
+ 	info = kzalloc(sizeof(*info), GFP_KERNEL);
 -- 
 2.35.1
 
