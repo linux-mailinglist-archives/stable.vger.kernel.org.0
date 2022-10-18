@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9FB3601FB6
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:39:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72385601F05
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:15:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231192AbiJRAjG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:39:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47606 "EHLO
+        id S231750AbiJRAPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:15:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232132AbiJRAip (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:38:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4791C6CD0D;
-        Mon, 17 Oct 2022 17:38:39 -0700 (PDT)
+        with ESMTP id S231805AbiJRAOX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:14:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D40889AD8;
+        Mon, 17 Oct 2022 17:11:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E898D61113;
+        by ams.source.kernel.org (Postfix) with ESMTPS id EDA91B81C0B;
+        Tue, 18 Oct 2022 00:11:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFDAAC433D7;
         Tue, 18 Oct 2022 00:11:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F7ECC433C1;
-        Tue, 18 Oct 2022 00:11:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051866;
-        bh=Tw08p9OgUbJ0xLFOE6hicdSar0PmqvZY/9Z23rrACyw=;
+        s=k20201202; t=1666051867;
+        bh=x0y/DlrlGVWqurzJyNaXRKYcomDyO74QFqiGj1H8ra4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsGtVI/69cn79bwrnNNsVbTwoxBRMxtx9+JEaU8Ojhm51E6Ku8UC3FrTdYzENawFl
-         FQOhQXXxmhdlmyp3YP/+ommULzQ+iq2SHOkRGJ3oWiQ9rrSIUz1tpgLI2Y9sfMO1UB
-         9Z1MtKarMOmUK2yjBaEeR9uFIHh7sge6IU3jt4//Xltyc63mTuLCM2GXudx4l40uzv
-         dmN0CmSXFBm+P1D7q2n2pZEkN4L61tH4rjEgIpk0jw1Oi7i4VyEZfwElhm40Nj42h2
-         uYH15y0WMiil+RDtzYmY9pPkf1R6NCtyTRCoEj2Cuj8+kJGep+d5JnGgswcienOJ6v
-         SOcONsawTXvRw==
+        b=D6nZz93arlLlObwq0IultNymp8riYQL9urKwPpSwaPd8g6QFKd/+HHtyLcv45/g+V
+         AMfFaDf0at4sXb/ZAEdXen+cnjqsBLKtxLH1Tfb/GZl3hrXS4saEuZaz/E91pJuDy0
+         4cU4ajq8nvzIzEsVxSg73fmgBOYZ0sgAGhtvfo3z0RD3u+HzRBsbQH2c99GnsWb59C
+         3ofMYgpSu7H66n4h3jkGI/EAzrzsTHNSe5BB4PbYVK7lXGVR9qhaLhgecakseiex35
+         kgkfFR1rS1lpF8jVlmNuQvnf5O6z4yg8thovIBJs2ffF4yTvO78PC0TtKpOckEXcMr
+         0DN6u0ncr4Pxw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Sasha Levin <sashal@kernel.org>, rpeterso@redhat.com,
-        cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.4 02/13] gfs2: Switch from strlcpy to strscpy
-Date:   Mon, 17 Oct 2022 20:10:51 -0400
-Message-Id: <20221018001102.2731930-2-sashal@kernel.org>
+Cc:     Tejun Heo <tj@kernel.org>,
+        Abhishek Shah <abhishek.shah@columbia.edu>,
+        Gabriel Ryan <gabe@cs.columbia.edu>,
+        Christian Brauner <brauner@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lizefan.x@bytedance.com,
+        hannes@cmpxchg.org, cgroups@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 03/13] cgroup: Remove data-race around cgrp_dfl_visible
+Date:   Mon, 17 Oct 2022 20:10:52 -0400
+Message-Id: <20221018001102.2731930-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018001102.2731930-1-sashal@kernel.org>
 References: <20221018001102.2731930-1-sashal@kernel.org>
@@ -56,58 +58,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit 204c0300c4e99707e9fb6e57840aa1127060e63f ]
+[ Upstream commit dc79ec1b232ad2c165d381d3dd2626df4ef9b5a4 ]
 
-Switch from strlcpy to strscpy and make sure that @count is the size of
-the smaller of the source and destination buffers.  This prevents
-reading beyond the end of the source buffer when the source string isn't
-null terminated.
+There's a seemingly harmless data-race around cgrp_dfl_visible detected by
+kernel concurrency sanitizer. Let's remove it by throwing WRITE/READ_ONCE at
+it.
 
-Found by a modified version of syzkaller.
-
-Suggested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
+Cc: Gabriel Ryan <gabe@cs.columbia.edu>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Link: https://lore.kernel.org/netdev/20220819072256.fn7ctciefy4fc4cu@wittgenstein/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/ops_fstype.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ kernel/cgroup/cgroup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index 29b27d769860..2841134f7812 100644
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -377,8 +377,10 @@ static int init_names(struct gfs2_sbd *sdp, int silent)
- 	if (!table[0])
- 		table = sdp->sd_vfs->s_id;
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index d14575c0e464..194060a6492a 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -2178,7 +2178,7 @@ static int cgroup_get_tree(struct fs_context *fc)
+ 	struct cgroup_fs_context *ctx = cgroup_fc2context(fc);
+ 	int ret;
  
--	strlcpy(sdp->sd_proto_name, proto, GFS2_FSNAME_LEN);
--	strlcpy(sdp->sd_table_name, table, GFS2_FSNAME_LEN);
-+	BUILD_BUG_ON(GFS2_LOCKNAME_LEN > GFS2_FSNAME_LEN);
-+
-+	strscpy(sdp->sd_proto_name, proto, GFS2_LOCKNAME_LEN);
-+	strscpy(sdp->sd_table_name, table, GFS2_LOCKNAME_LEN);
+-	cgrp_dfl_visible = true;
++	WRITE_ONCE(cgrp_dfl_visible, true);
+ 	cgroup_get_live(&cgrp_dfl_root.cgrp);
+ 	ctx->root = &cgrp_dfl_root;
  
- 	table = sdp->sd_table_name;
- 	while ((table = strchr(table, '/')))
-@@ -1349,13 +1351,13 @@ static int gfs2_parse_param(struct fs_context *fc, struct fs_parameter *param)
+@@ -6022,7 +6022,7 @@ int proc_cgroup_show(struct seq_file *m, struct pid_namespace *ns,
+ 		struct cgroup *cgrp;
+ 		int ssid, count = 0;
  
- 	switch (o) {
- 	case Opt_lockproto:
--		strlcpy(args->ar_lockproto, param->string, GFS2_LOCKNAME_LEN);
-+		strscpy(args->ar_lockproto, param->string, GFS2_LOCKNAME_LEN);
- 		break;
- 	case Opt_locktable:
--		strlcpy(args->ar_locktable, param->string, GFS2_LOCKNAME_LEN);
-+		strscpy(args->ar_locktable, param->string, GFS2_LOCKNAME_LEN);
- 		break;
- 	case Opt_hostdata:
--		strlcpy(args->ar_hostdata, param->string, GFS2_LOCKNAME_LEN);
-+		strscpy(args->ar_hostdata, param->string, GFS2_LOCKNAME_LEN);
- 		break;
- 	case Opt_spectator:
- 		args->ar_spectator = 1;
+-		if (root == &cgrp_dfl_root && !cgrp_dfl_visible)
++		if (root == &cgrp_dfl_root && !READ_ONCE(cgrp_dfl_visible))
+ 			continue;
+ 
+ 		seq_printf(m, "%d:", root->hierarchy_id);
 -- 
 2.35.1
 
