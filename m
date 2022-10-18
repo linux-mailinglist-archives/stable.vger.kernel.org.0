@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64293601F0B
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:15:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3810D601F2F
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:16:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231722AbiJRAP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:15:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55068 "EHLO
+        id S231577AbiJRAQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:16:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231814AbiJRAOY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:14:24 -0400
+        with ESMTP id S231303AbiJRAOf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:14:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D9B289AD4;
-        Mon, 17 Oct 2022 17:11:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6955789CDB;
+        Mon, 17 Oct 2022 17:12:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7FE57B81BF5;
-        Tue, 18 Oct 2022 00:09:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57C26C433D6;
-        Tue, 18 Oct 2022 00:09:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB634B81BEE;
+        Tue, 18 Oct 2022 00:09:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABD0EC433C1;
+        Tue, 18 Oct 2022 00:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051763;
-        bh=cHaRla534Sb2l4lmAMXft5br2im5WECMK7w83i/o3m4=;
+        s=k20201202; t=1666051767;
+        bh=5KYy7SNoHHzSWSn9CQG5x/Ws1YdhP9QY9vua0YMLkrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5az0T8WZ1LXr0ClSOyg78TI3ApuJF0odW0LftyuWQit89tx3hETBOYTqkU1gTEa+
-         qSQrfvDY7LiCjRaplATtG2Plc3DIiK6btO7WuS5jkcBoikxJgONG2beMhswXn7VQZK
-         ucSrgEoijMOctrSBwGAtaUpwkc9wU1qqVX8eQadXG7AGMlFmmOFeZVVy4znQ8AXLCD
-         LdLQDe4rcFpcHxzFFb8Uz5v6EuICpr02CwAef2wTxtZRA5+xz0DiT6qUBOMuSg5Sdn
-         4xKD/3lTrbnPUPrdc3pZwgrSEzzmw5rYtmtzah9rwDNKGzWFuJCaY6TFmZHfoK8/F4
-         WKP4qLU5qCjVA==
+        b=EGjSDiONCOkuW91oNsztLmFvWDFgTzDfgXwVxA4u+ZiL4GrDDsAGIiwOvtTbZmR3B
+         ip/FkGaPywQS8p/wXvnpSkJJ0r5B5l8+rVCDZIdcsnKbUaeU4XwxoVkxaA/7vLxiGL
+         ZL0Q3xCF/pHOwzby+60cJL+dzY53gFpkuHbnuGeEAx1XcAko2NNY1gVz8T76XR2wa1
+         boQXXILBEuNdIWKtHWXwu3MHo3Int5QMrBy4OXKVf6nvOsJVKhMdURPRS/QEIk7rAa
+         6Dnyiii4Xg6YVWBilrgp1v+QcbMPN79d5NntjJJ9fn883+bToP+iykjkEUVpjyGDpz
+         k1FyauTddUd1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Potapenko <glider@google.com>,
-        Marco Elver <elver@google.com>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         Alexei Starovoitov <ast@kernel.org>,
         Andrey Konovalov <andreyknvl@gmail.com>,
@@ -54,6 +53,7 @@ Cc:     Alexander Potapenko <glider@google.com>,
         Ingo Molnar <mingo@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Joonsoo Kim <iamjoonsoo.kim@lge.com>,
         Kees Cook <keescook@chromium.org>,
+        Marco Elver <elver@google.com>,
         Mark Rutland <mark.rutland@arm.com>,
         Matthew Wilcox <willy@infradead.org>,
         "Michael S . Tsirkin" <mst@redhat.com>,
@@ -67,15 +67,10 @@ Cc:     Alexander Potapenko <glider@google.com>,
         Vegard Nossum <vegard.nossum@oracle.com>,
         Vlastimil Babka <vbabka@suse.cz>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, ardb@kernel.org,
-        will@kernel.org, jgross@suse.com, christophe.leroy@csgroup.eu,
-        mcgrof@kernel.org, mhiramat@kernel.org, sstabellini@kernel.org,
-        yangtiezhu@loongson.cn, dmitry.torokhov@gmail.com,
-        atomlin@redhat.com, yury.norov@gmail.com, sander@svanheule.net,
-        Jason@zx2c4.com, isabbasso@riseup.net, linux-efi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 20/29] kmsan: disable instrumentation of unsupported common kernel code
-Date:   Mon, 17 Oct 2022 20:08:29 -0400
-Message-Id: <20221018000839.2730954-20-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 21/29] kmsan: disable physical page merging in biovec
+Date:   Mon, 17 Oct 2022 20:08:30 -0400
+Message-Id: <20221018000839.2730954-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000839.2730954-1-sashal@kernel.org>
 References: <20221018000839.2730954-1-sashal@kernel.org>
@@ -94,17 +89,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Potapenko <glider@google.com>
 
-[ Upstream commit 79dbd006a6d6f51777ba4948046561b6d9270504 ]
+[ Upstream commit f630a5d0ca59a6e73b61e3f82c371dc230da99ff ]
 
-EFI stub cannot be linked with KMSAN runtime, so we disable
-instrumentation for it.
+KMSAN metadata for adjacent physical pages may not be adjacent, therefore
+accessing such pages together may lead to metadata corruption.  We disable
+merging pages in biovec to prevent such corruptions.
 
-Instrumenting kcov, stackdepot or lockdep leads to infinite recursion
-caused by instrumentation hooks calling instrumented code again.
-
-Link: https://lkml.kernel.org/r/20220915150417.722975-13-glider@google.com
+Link: https://lkml.kernel.org/r/20220915150417.722975-28-glider@google.com
 Signed-off-by: Alexander Potapenko <glider@google.com>
-Reviewed-by: Marco Elver <elver@google.com>
 Cc: Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Alexei Starovoitov <ast@kernel.org>
 Cc: Andrey Konovalov <andreyknvl@gmail.com>
@@ -126,6 +118,7 @@ Cc: Ingo Molnar <mingo@redhat.com>
 Cc: Jens Axboe <axboe@kernel.dk>
 Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
 Cc: Kees Cook <keescook@chromium.org>
+Cc: Marco Elver <elver@google.com>
 Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Matthew Wilcox <willy@infradead.org>
 Cc: Michael S. Tsirkin <mst@redhat.com>
@@ -141,65 +134,27 @@ Cc: Vlastimil Babka <vbabka@suse.cz>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/libstub/Makefile | 1 +
- kernel/Makefile                       | 1 +
- kernel/locking/Makefile               | 3 ++-
- lib/Makefile                          | 3 +++
- 4 files changed, 7 insertions(+), 1 deletion(-)
+ block/blk.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
-index 2c67f71f2375..2c1eb1fb0f22 100644
---- a/drivers/firmware/efi/libstub/Makefile
-+++ b/drivers/firmware/efi/libstub/Makefile
-@@ -53,6 +53,7 @@ GCOV_PROFILE			:= n
- # Sanitizer runtimes are unavailable and cannot be linked here.
- KASAN_SANITIZE			:= n
- KCSAN_SANITIZE			:= n
-+KMSAN_SANITIZE			:= n
- UBSAN_SANITIZE			:= n
- OBJECT_FILES_NON_STANDARD	:= y
+diff --git a/block/blk.h b/block/blk.h
+index 0d6668663ab5..37d24fab1e30 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -93,6 +93,13 @@ static inline bool biovec_phys_mergeable(struct request_queue *q,
+ 	phys_addr_t addr1 = page_to_phys(vec1->bv_page) + vec1->bv_offset;
+ 	phys_addr_t addr2 = page_to_phys(vec2->bv_page) + vec2->bv_offset;
  
-diff --git a/kernel/Makefile b/kernel/Makefile
-index a7e1f49ab2b3..e47f0526c987 100644
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -38,6 +38,7 @@ KCOV_INSTRUMENT_kcov.o := n
- KASAN_SANITIZE_kcov.o := n
- KCSAN_SANITIZE_kcov.o := n
- UBSAN_SANITIZE_kcov.o := n
-+KMSAN_SANITIZE_kcov.o := n
- CFLAGS_kcov.o := $(call cc-option, -fno-conserve-stack) -fno-stack-protector
- 
- # Don't instrument error handlers
-diff --git a/kernel/locking/Makefile b/kernel/locking/Makefile
-index d51cabf28f38..ea925731fa40 100644
---- a/kernel/locking/Makefile
-+++ b/kernel/locking/Makefile
-@@ -5,8 +5,9 @@ KCOV_INSTRUMENT		:= n
- 
- obj-y += mutex.o semaphore.o rwsem.o percpu-rwsem.o
- 
--# Avoid recursion lockdep -> KCSAN -> ... -> lockdep.
-+# Avoid recursion lockdep -> sanitizer -> ... -> lockdep.
- KCSAN_SANITIZE_lockdep.o := n
-+KMSAN_SANITIZE_lockdep.o := n
- 
- ifdef CONFIG_FUNCTION_TRACER
- CFLAGS_REMOVE_lockdep.o = $(CC_FLAGS_FTRACE)
-diff --git a/lib/Makefile b/lib/Makefile
-index f99bf61f8bbc..73fea85b7636 100644
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -272,6 +272,9 @@ obj-$(CONFIG_POLYNOMIAL) += polynomial.o
- CFLAGS_stackdepot.o += -fno-builtin
- obj-$(CONFIG_STACKDEPOT) += stackdepot.o
- KASAN_SANITIZE_stackdepot.o := n
-+# In particular, instrumenting stackdepot.c with KMSAN will result in infinite
-+# recursion.
-+KMSAN_SANITIZE_stackdepot.o := n
- KCOV_INSTRUMENT_stackdepot.o := n
- 
- obj-$(CONFIG_REF_TRACKER) += ref_tracker.o
++	/*
++	 * Merging adjacent physical pages may not work correctly under KMSAN
++	 * if their metadata pages aren't adjacent. Just disable merging.
++	 */
++	if (IS_ENABLED(CONFIG_KMSAN))
++		return false;
++
+ 	if (addr1 + vec1->bv_len != addr2)
+ 		return false;
+ 	if (xen_domain() && !xen_biovec_phys_mergeable(vec1, vec2->bv_page))
 -- 
 2.35.1
 
