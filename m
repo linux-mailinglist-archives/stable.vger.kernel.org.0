@@ -2,89 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3A5602DE6
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 16:06:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 635C3602E56
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 16:23:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229922AbiJROGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Oct 2022 10:06:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44894 "EHLO
+        id S230381AbiJROX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Oct 2022 10:23:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229957AbiJROGl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 10:06:41 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7404AD38D9;
-        Tue, 18 Oct 2022 07:06:30 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 5995333985;
-        Tue, 18 Oct 2022 14:06:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1666101964; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=XTUoLbaIxNZRTNB0cLoZ8ZhWB6ge7EAJaS+BezrKBR0=;
-        b=TZVwT+QG/fICiilrITbzriZizOtWvwEB7GLVQJgGa9eVbWUj47mSNAmch5waij2ebSTe0L
-        QkGesECY2Jegd+hdWj0sC4Gze9PtBpjPFUE3E4S9LDduuJAokqyI/3ioRUw+T+CxdPvpfe
-        ljli4lQmVLU8eYNV0XB8OUt2L17xJlc=
-Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
-        by relay2.suse.de (Postfix) with ESMTP id 4B6632C141;
-        Tue, 18 Oct 2022 14:06:04 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id C90F3DA79B; Tue, 18 Oct 2022 16:05:55 +0200 (CEST)
-From:   David Sterba <dsterba@suse.com>
-To:     linux-btrfs@vger.kernel.org
-Cc:     David Sterba <dsterba@suse.com>, stable@vger.kernel.org
-Subject: [PATCH] btrfs: fix type of parameter generation in btrfs_get_dentry
-Date:   Tue, 18 Oct 2022 16:05:52 +0200
-Message-Id: <20221018140552.3768-1-dsterba@suse.com>
-X-Mailer: git-send-email 2.37.3
+        with ESMTP id S230415AbiJROXZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 10:23:25 -0400
+Received: from mail-qk1-x72a.google.com (mail-qk1-x72a.google.com [IPv6:2607:f8b0:4864:20::72a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDF8D1E715
+        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 07:23:24 -0700 (PDT)
+Received: by mail-qk1-x72a.google.com with SMTP id z30so8679305qkz.13
+        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 07:23:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=toxicpanda-com.20210112.gappssmtp.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=QfJXYu3baHg501W9UORFQ3+1HPvyhnmHtZ0sd9zH7Wo=;
+        b=1RMX/1wJ1KEQEImLqTsjsFyuhFiWFyzbCjnHSWW1F6YQPG/PHA40Rej5DlYBMBr50P
+         4ipsl+YTr4dZ6nkWVesXqyWtYMCS42cIIBZmBoPivCAoMDKnpUN9pR/8EHzt+3qHpQ3Z
+         NQN8pB+qt+fMSFTs9mS5FgfpVRx7n14NLmWAiYfof3spAfwCn82XwCByLAZ2N7CZMvRs
+         hotSvOgZ+F7KZX+qV0bk/2KqH9LH3YHt4uRLB+TJhKTNSSoOPAx7t4xksubPElucRUo7
+         0ONP5EMgiGZ4dFFPjMCghGB8bC74tDwMqcliJnddZZSdwUaYG/DJh+Zk8HBl0ZUf77DH
+         osEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QfJXYu3baHg501W9UORFQ3+1HPvyhnmHtZ0sd9zH7Wo=;
+        b=nlLes3FrQn3+NO660uCFkMAgBn6HndhagGo/mdSm+8vI2JRHJPWb7NEpYIMDd0vn9v
+         uQHp9GfnZq3PpAzKdxffuGXY1OVFToswxEHvA0KevLkYcOP8HqMG6+TK3wZx43KiXnOT
+         g6Z8GvvReKE2mzB9AsZ2V+gRjVB3/jT4b2fqJrJVJ3VFgeBV3N/FV7qrKEHjp+mJRSQ6
+         de0SC/NGVFKHmcIaRQxa38qno85u/7gcdAaeVk+9IuVFd4QAyw+EZBcviF8IpE5lQCYt
+         ZuE0A5bfmS4H8Ak/RUS5iDkDRMkiESAAudLFcTvpiR4xNmia6YpG+n1P1AEdmfRuvlv1
+         BXQA==
+X-Gm-Message-State: ACrzQf0tC++qxAgkQOB5I92Kg5jYa42zQALvgoVT8vcam5YmYC4wmsrE
+        ReWqKFlCqlR3Mc3e/TKPsyKmsDGRmfaVzA==
+X-Google-Smtp-Source: AMsMyM6sQmfhpV7Vi9JF73n8UrHIGsX7SD2FX8Wz3uv2sz3oGEhYy6Y2PSx3epy+zbBp4phQ9iuhlQ==
+X-Received: by 2002:a05:620a:f03:b0:6cf:c0a1:20bc with SMTP id v3-20020a05620a0f0300b006cfc0a120bcmr1986415qkl.663.1666103003708;
+        Tue, 18 Oct 2022 07:23:23 -0700 (PDT)
+Received: from localhost (cpe-174-109-170-245.nc.res.rr.com. [174.109.170.245])
+        by smtp.gmail.com with ESMTPSA id dm54-20020a05620a1d7600b006eeb185c209sm2405035qkb.50.2022.10.18.07.23.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Oct 2022 07:23:23 -0700 (PDT)
+Date:   Tue, 18 Oct 2022 10:23:22 -0400
+From:   Josef Bacik <josef@toxicpanda.com>
+To:     David Sterba <dsterba@suse.com>
+Cc:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] btrfs: fix type of parameter generation in
+ btrfs_get_dentry
+Message-ID: <Y0622mvIwQgdfTPr@localhost.localdomain>
+References: <20221018140552.3768-1-dsterba@suse.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221018140552.3768-1-dsterba@suse.com>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The type of parameter generation has been u32 since the beginning,
-however all callers pass a u64 generation, so unify the types to prevent
-potential loss.
+On Tue, Oct 18, 2022 at 04:05:52PM +0200, David Sterba wrote:
+> The type of parameter generation has been u32 since the beginning,
+> however all callers pass a u64 generation, so unify the types to prevent
+> potential loss.
+> 
+> CC: stable@vger.kernel.org # 4.9+
+> Signed-off-by: David Sterba <dsterba@suse.com>
 
-CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: David Sterba <dsterba@suse.com>
----
- fs/btrfs/export.c | 2 +-
- fs/btrfs/export.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 
-diff --git a/fs/btrfs/export.c b/fs/btrfs/export.c
-index 1d4c2397d0d6..fab7eb76e53b 100644
---- a/fs/btrfs/export.c
-+++ b/fs/btrfs/export.c
-@@ -58,7 +58,7 @@ static int btrfs_encode_fh(struct inode *inode, u32 *fh, int *max_len,
- }
- 
- struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
--				u64 root_objectid, u32 generation,
-+				u64 root_objectid, u64 generation,
- 				int check_generation)
- {
- 	struct btrfs_fs_info *fs_info = btrfs_sb(sb);
-diff --git a/fs/btrfs/export.h b/fs/btrfs/export.h
-index f32f4113c976..5afb7ca42828 100644
---- a/fs/btrfs/export.h
-+++ b/fs/btrfs/export.h
-@@ -19,7 +19,7 @@ struct btrfs_fid {
- } __attribute__ ((packed));
- 
- struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
--				u64 root_objectid, u32 generation,
-+				u64 root_objectid, u64 generation,
- 				int check_generation);
- struct dentry *btrfs_get_parent(struct dentry *child);
- 
--- 
-2.37.3
+Thanks,
 
+Josef
