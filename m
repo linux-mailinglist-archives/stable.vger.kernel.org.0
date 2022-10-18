@@ -2,124 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD746602841
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 11:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BBA8602850
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 11:26:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229552AbiJRJZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Oct 2022 05:25:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60724 "EHLO
+        id S229816AbiJRJ0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Oct 2022 05:26:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229717AbiJRJZJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 05:25:09 -0400
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A506138448
-        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 02:24:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666085099; x=1697621099;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=UMCO5mJkxdgXG8Vg18aqKASsvHeMgG5yqkmJ96uzOXg=;
-  b=EJZhXAlsGmLmg3CVfzqPko+rPHMmjjvi0aC/J1Daaz3YzKs1vc0jpXPb
-   HOqVy/XXmOnNnlVmuipyIQfaxxoeiZXorCsAwL+MAWm1jmKwB+smRV4co
-   kkNYDSVestiB6OvhCEem6JE1oJXNWjiQlUKeNvEVxu7KcINuaUv5PJk7Z
-   DM6zNvM/dV2CoN57RbCynJseyNhvkbf8s3wGFVh00ucltC6vHvF0dXarE
-   eqLXa9VjmaRH0yQ17juH3ziyC0SLb9sgoOvVyXsmlVg5vCTpsQdojslmb
-   SDT+Ge3V5AFOV8ym7O/7JPLuK937wqZZCnjZoMHx8E+0CxB9MkT3Jcgxq
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10503"; a="303663486"
-X-IronPort-AV: E=Sophos;i="5.95,193,1661842800"; 
-   d="scan'208";a="303663486"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2022 02:24:57 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10503"; a="771119489"
-X-IronPort-AV: E=Sophos;i="5.95,193,1661842800"; 
-   d="scan'208";a="771119489"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.191])
-  by fmsmga001.fm.intel.com with SMTP; 18 Oct 2022 02:24:54 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Tue, 18 Oct 2022 12:24:53 +0300
-Date:   Tue, 18 Oct 2022 12:24:53 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Simon Ser <contact@emersion.fr>
-Cc:     dri-devel@lists.freedesktop.org,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jonas =?iso-8859-1?Q?=C5dahl?= <jadahl@redhat.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] drm/connector: send hotplug uevent on connector
- cleanup
-Message-ID: <Y05w5U0CAbrdA10S@intel.com>
-References: <20221017153150.60675-1-contact@emersion.fr>
- <20221017153150.60675-2-contact@emersion.fr>
+        with ESMTP id S229943AbiJRJ0c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 05:26:32 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 749C8AE848;
+        Tue, 18 Oct 2022 02:26:20 -0700 (PDT)
+Date:   Tue, 18 Oct 2022 09:26:15 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1666085177;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=k1t2QP68OmE6u2uzMGPoB8a7JOZ2kIqcFRyJqlQqc6A=;
+        b=jj3zOxKigIdkl2IAmy9jJF1vl1x266TiYq5fuLJonxzG0p7ESzH7issoXhbtk8NrdQKLJj
+        h4t5GEX6a63Dnwrn8LUItSme2k6SWWMvGczSFX+07ogardio19cJG54qmvphl8pgCiEMFX
+        2Iks4dkUDNuLBvue7Sf8ZLA60sd88UcTpLXmGIhrze7I7Ku9Wzh1pheoAsR5WBeztF7stn
+        B1/oqaiNYYtCP+eKcYTNwQptRl7B53pF9EPkDyFeZ4jarWBHWIYikHC8scBBzrb4hOaNci
+        gfKQxn07NA8graJHDFETfxRBSHuqdWEwlsaKQvW/5F/sTiM0cQI7gxG/ldHJCg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1666085177;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=k1t2QP68OmE6u2uzMGPoB8a7JOZ2kIqcFRyJqlQqc6A=;
+        b=iROsh7ZwVQwCQDQeJ5cTvUee+3mqOin302YkbQ489/mj5xLqqfX32DPRo87t+PicTW/QGk
+        M2fgoScgqfpWA0Dg==
+From:   "tip-bot2 for Borislav Petkov" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/microcode/AMD: Apply the patch early on every
+ logical thread
+Cc:     stefantalpalaru@yahoo.com, Borislav Petkov <bp@suse.de>,
+        <stable@vger.kernel.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20221017153150.60675-2-contact@emersion.fr>
-X-Patchwork-Hint: comment
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Message-ID: <166608517523.401.12312055863747452497.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 17, 2022 at 03:32:01PM +0000, Simon Ser wrote:
-> A typical DP-MST unplug removes a KMS connector. However care must
-> be taken to properly synchronize with user-space. The expected
-> sequence of events is the following:
-> 
-> 1. The kernel notices that the DP-MST port is gone.
-> 2. The kernel marks the connector as disconnected, then sends a
->    uevent to make user-space re-scan the connector list.
-> 3. User-space notices the connector goes from connected to disconnected,
->    disables it.
-> 4. Kernel handles the the IOCTL disabling the connector. On success,
->    the very last reference to the struct drm_connector is dropped and
->    drm_connector_cleanup() is called.
-> 5. The connector is removed from the list, and a uevent is sent to tell
->    user-space that the connector disappeared.
-> 
-> The very last step was missing. As a result, user-space thought the
-> connector still existed and could try to disable it again. Since the
-> kernel no longer knows about the connector, that would end up with
-> EINVAL and confused user-space.
+The following commit has been merged into the x86/urgent branch of tip:
 
-So is the uevent sent by the mst delayed destroy work
-useless now, or what is going on there?
+Commit-ID:     e7ad18d1169c62e6c78c01ff693fd362d9d65278
+Gitweb:        https://git.kernel.org/tip/e7ad18d1169c62e6c78c01ff693fd362d9d=
+65278
+Author:        Borislav Petkov <bp@suse.de>
+AuthorDate:    Wed, 05 Oct 2022 12:00:08 +02:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Tue, 18 Oct 2022 11:03:27 +02:00
 
-> 
-> Fix this by sending a hotplug uevent from drm_connector_cleanup().
-> 
-> Signed-off-by: Simon Ser <contact@emersion.fr>
-> Cc: stable@vger.kernel.org
-> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Cc: Lyude Paul <lyude@redhat.com>
-> Cc: Jonas Ådahl <jadahl@redhat.com>
-> ---
->  drivers/gpu/drm/drm_connector.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/drm_connector.c b/drivers/gpu/drm/drm_connector.c
-> index e3142c8142b3..90dad87e9ad0 100644
-> --- a/drivers/gpu/drm/drm_connector.c
-> +++ b/drivers/gpu/drm/drm_connector.c
-> @@ -582,6 +582,9 @@ void drm_connector_cleanup(struct drm_connector *connector)
->  	mutex_destroy(&connector->mutex);
->  
->  	memset(connector, 0, sizeof(*connector));
-> +
-> +	if (dev->registered)
-> +		drm_sysfs_hotplug_event(dev);
->  }
->  EXPORT_SYMBOL(drm_connector_cleanup);
->  
-> -- 
-> 2.38.0
-> 
+x86/microcode/AMD: Apply the patch early on every logical thread
 
--- 
-Ville Syrjälä
-Intel
+Currently, the patch application logic checks whether the revision
+needs to be applied on each logical CPU (SMT thread). Therefore, on SMT
+designs where the microcode engine is shared between the two threads,
+the application happens only on one of them as that is enough to update
+the shared microcode engine.
+
+However, there are microcode patches which do per-thread modification,
+see Link tag below.
+
+Therefore, drop the revision check and try applying on each thread. This
+is what the BIOS does too so this method is very much tested.
+
+Btw, change only the early paths. On the late loading paths, there's no
+point in doing per-thread modification because if is it some case like
+in the bugzilla below - removing a CPUID flag - the kernel cannot go and
+un-use features it has detected are there early. For that, one should
+use early loading anyway.
+
+  [ bp: Fixes does not contain the oldest commit which did check for
+    equality but that is good enough. ]
+
+Fixes: 8801b3fcb574 ("x86/microcode/AMD: Rework container parsing")
+Reported-by:  =C8=98tefan Talpalaru <stefantalpalaru@yahoo.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by:  =C8=98tefan Talpalaru <stefantalpalaru@yahoo.com>
+Cc: <stable@vger.kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D216211
+---
+ arch/x86/kernel/cpu/microcode/amd.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/microcode/amd.c b/arch/x86/kernel/cpu/microc=
+ode/amd.c
+index e7410e9..3a35dec 100644
+--- a/arch/x86/kernel/cpu/microcode/amd.c
++++ b/arch/x86/kernel/cpu/microcode/amd.c
+@@ -440,7 +440,13 @@ apply_microcode_early_amd(u32 cpuid_1_eax, void *ucode, =
+size_t size, bool save_p
+ 		return ret;
+=20
+ 	native_rdmsr(MSR_AMD64_PATCH_LEVEL, rev, dummy);
+-	if (rev >=3D mc->hdr.patch_id)
++
++	/*
++	 * Allow application of the same revision to pick up SMT-specific
++	 * changes even if the revision of the other SMT thread is already
++	 * up-to-date.
++	 */
++	if (rev > mc->hdr.patch_id)
+ 		return ret;
+=20
+ 	if (!__apply_microcode_amd(mc)) {
+@@ -528,8 +534,12 @@ void load_ucode_amd_ap(unsigned int cpuid_1_eax)
+=20
+ 	native_rdmsr(MSR_AMD64_PATCH_LEVEL, rev, dummy);
+=20
+-	/* Check whether we have saved a new patch already: */
+-	if (*new_rev && rev < mc->hdr.patch_id) {
++	/*
++	 * Check whether a new patch has been saved already. Also, allow applicatio=
+n of
++	 * the same revision in order to pick up SMT-thread-specific configuration =
+even
++	 * if the sibling SMT thread already has an up-to-date revision.
++	 */
++	if (*new_rev && rev <=3D mc->hdr.patch_id) {
+ 		if (!__apply_microcode_amd(mc)) {
+ 			*new_rev =3D mc->hdr.patch_id;
+ 			return;
