@@ -2,141 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88DDB602FED
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 17:42:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C78603052
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 17:56:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229890AbiJRPmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Oct 2022 11:42:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42016 "EHLO
+        id S230016AbiJRP40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Oct 2022 11:56:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbiJRPms (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 11:42:48 -0400
-X-Greylist: delayed 601 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 18 Oct 2022 08:42:47 PDT
-Received: from mail.kmu-office.ch (mail.kmu-office.ch [IPv6:2a02:418:6a02::a2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12355B56D1;
-        Tue, 18 Oct 2022 08:42:47 -0700 (PDT)
-Received: from webmail.kmu-office.ch (unknown [IPv6:2a02:418:6a02::a3])
-        by mail.kmu-office.ch (Postfix) with ESMTPSA id 4C1935C37FA;
-        Tue, 18 Oct 2022 17:27:24 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=agner.ch; s=dkim;
-        t=1666106844;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2uOD+QzykYc6f3qCbxD8fcI9NlSj4IUhhFS44dLVNg4=;
-        b=NQ1uJtnKQIOXwNqU4ER7kMis+tRaERSfU2W5KTy8rRVZ/h/ofCrik4U4nbAgF2fdiaQ1M0
-        jZyty46XrHiA0gBnSjqeyoj6COyuVp7bRqXzziZAUnivthYYtrHCTsowkq0NMV8iqivIkS
-        lsrpGjXr/vV1ni/P2zd1EZjXRbJBDdU=
+        with ESMTP id S231265AbiJRP4T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 11:56:19 -0400
+Received: from mail1.bemta31.messagelabs.com (mail1.bemta31.messagelabs.com [67.219.246.2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78206BECC6
+        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 08:56:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=motorola.com;
+        s=Selector; t=1666108570; i=@motorola.com;
+        bh=c1XQZ8xVGZiucAD/nqtpnHU9sPJttghPjk1kwBfPNMg=;
+        h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type;
+        b=XWuz5Qylse4frUdddOVCV01HDXaWSC2V7/udQK1BrexTgyLKAxJrgjls216x8FkLJ
+         ghTtz92pyXJOumySpEx+UHniqKzzmIMUFjP7Jlsd8ULyeG0cw8tCQmMBOMp688U5NW
+         J9M15VvlygImi2f49ntM0mMl+U4KNc2WUcGWdRWGxrXybfdAdzOsOkGHmuQu1W5LTi
+         Bri5J709JBN8hcNrvIZiOXzw8NfJdtEs9TTgPFmx+PiVthZzr42ouMLD2d6KC4Zohl
+         DYZW6gEQkBSbkMRjINqZQbM7sPOZolesb/yVLGa+PVClzCcF5H14bY0qwPc0OlIYQe
+         2l8bAeNhHmQ5Q==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprAIsWRWlGSWpSXmKPExsWS8eKJqO7MM37
+  JBrs+61g0L17PZrFg4yNGByaP/XPXsHt83iQXwBTFmpmXlF+RwJpx5XoTa8F91ooL33ayNzC+
+  Zeli5OIQEpjKJNF58xoThLOUSWLu/RbmLkZODhYBVYlzB26C2WwCahILXq8Cs0UEjCX6z85iB
+  7GZBaQk1n06xAZiCws4SHyc+4QVxOYVUJbo+vuCCcIWlDg58wkLRL2WxI1/L4HiHEC2tMTyfx
+  wTGLlnIamahaRqFkLVAkbmVYymxalFZalFuuZ6SUWZ6RkluYmZOXqJVbqJeqXFuqmJxSW6hnq
+  J5cV6qcXFesWVuck5KXp5qSWbGIEBlVLEdHUH49Zlf/QOMUpyMCmJ8j465JcsxJeUn1KZkVic
+  EV9UmpNafIhRhoNDSYJ3zSmgnGBRanpqRVpmDjC4YdISHDxKIrwZx4HSvMUFibnFmekQqVOMi
+  lLivM4gfQIgiYzSPLg2WERdYpSVEuZlZGBgEOIpSC3KzSxBlX/FKM7BqCTMmwMyniczrwRu+i
+  ugxUxAi023gC0uSURISTUw6fmu5Urzkz7lt6wz/9IO/q/LLeKyD89UMjihLHu/M8Q2Olf0sP8
+  zHkkelzfJi77O0Xlvu5jp2cJbvS7v+O5fnPKkpy72/OM5s7wuXuQ7lrrKYbZKg0DgHI+JjmUh
+  PEe3ZjO/tGwK+c54rmG2lByH9aHzy84dkZz0tTK6hZPhzb2fIcYzHrjmBlqwHL/+yUtHMPiNh
+  a9Qv3k3q8yj7x7Rl7/aeedKbXM4vEz24+ljVx8HGtTMS+Mwm8Lk0d/dffiizdEVm5icktv6Kz
+  9fv/tU6Va2ipLHn7kKhwTT0marM8+LdX60zmL+i/XXNs5M93mVmyUj5L+cY6+V8rS4AKb+4sU
+  WFT1xvw4oHVrAV/5UiaU4I9FQi7moOBEAtV4jkiMDAAA=
+X-Env-Sender: w36195@motorola.com
+X-Msg-Ref: server-3.tower-706.messagelabs.com!1666108569!99760!1
+X-Originating-IP: [104.232.228.21]
+X-SYMC-ESS-Client-Auth: outbound-route-from=pass
+X-StarScan-Received: 
+X-StarScan-Version: 9.87.3; banners=-,-,-
+X-VirusChecked: Checked
+Received: (qmail 2928 invoked from network); 18 Oct 2022 15:56:09 -0000
+Received: from unknown (HELO va32lpfpp01.lenovo.com) (104.232.228.21)
+  by server-3.tower-706.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 18 Oct 2022 15:56:09 -0000
+Received: from ilclmmrp01.lenovo.com (ilclmmrp01.mot.com [100.65.83.165])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by va32lpfpp01.lenovo.com (Postfix) with ESMTPS id 4MsJPP3rVxzf6mc;
+        Tue, 18 Oct 2022 15:56:09 +0000 (UTC)
+Received: from p1g3 (unknown [100.64.172.121])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: w36195)
+        by ilclmmrp01.lenovo.com (Postfix) with ESMTPSA id 4MsJPP2jWnzbvDd;
+        Tue, 18 Oct 2022 15:56:09 +0000 (UTC)
+Date:   Tue, 18 Oct 2022 10:55:49 -0500
+From:   Dan Vacura <w36195@motorola.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+Subject: usb: gadget: uvc: scatter gather support fixes to 5.15+
+Message-ID: <Y07MhTJpuqr9xA3E@p1g3>
 MIME-Version: 1.0
-Date:   Tue, 18 Oct 2022 17:27:24 +0200
-From:   Stefan Agner <stefan@agner.ch>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        stable <stable@kernel.org>, regressions@lists.linux.dev,
-        m.szyprowski@samsung.com, krzk@kernel.org
-Subject: Re: [PATCH stable-5.15 3/3] usb: dwc3: disable USB core PHY
- management
-In-Reply-To: <20220906120702.19219-4-johan@kernel.org>
-References: <20220906120702.19219-1-johan@kernel.org>
- <20220906120702.19219-4-johan@kernel.org>
-Message-ID: <808bdba846bb60456adf10a3016911ee@agner.ch>
-X-Sender: stefan@agner.ch
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Johan,
+Hi Greg,
 
-On 2022-09-06 14:07, Johan Hovold wrote:
-> From: Johan Hovold <johan+linaro@kernel.org>
-> 
-> commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea upstream.
-> 
-> The dwc3 driver manages its PHYs itself so the USB core PHY management
-> needs to be disabled.
-> 
-> Use the struct xhci_plat_priv hack added by commits 46034a999c07 ("usb:
-> host: xhci-plat: add platform data support") and f768e718911e ("usb:
-> host: xhci-plat: add priv quirk for skip PHY initialization") to
-> propagate the setting for now.
+Requesting for the following patches to be picked to stable 5.15+ where
+the following change was integrated: e81e7f9a0eb9 ("usb: gadget: uvc:
+add scatter gather support")
 
-[adding also Samsung/ODROID device tree authors Krzysztof and Marek]
+Without these fixes data corruption and smmu panics will occur in the
+uvc gadget driver.
 
-For some reason, this commit seems to break detection of the USB to
-S-ATA controller on ODROID-HC1 devices (Exynos 5422).
+The fixes to be integrated are:
 
-We have a known to work OS release of v5.15.60, and known to not be
-working of v5.15.67. By reverting suspicious commits, I was able to
-pinpoint the problem to this particular commit.
+ 859c675d84d4 ("usb: gadget: uvc: consistently use define for headerlen")
+ f262ce66d40c  ("usb: gadget: uvc: use on returned header len in video_encode_isoc_sg")
+ 61aa709ca58a ("usb: gadget: uvc: rework uvcg_queue_next_buffer to uvcg_complete_buffer")
+ 9b969f93bcef ("usb: gadget: uvc: giveback vb2 buffer on req complete")
+ aef11279888c ("usb: gadget: uvc: improve sg exit condition")
 
-From what I understand, on that particular hardware the S-ATA controller
-power is controlled via the V-BUS signal VBUSCTRL_U2 (Schematic [1]).
-Presumably this signal is no longer controlled with this change.
+They apply cleanly on 5.15.y
 
-This came up in our HAOS issue #2153 [2].
+Thanks,
 
---
-Stefan
-
-[1]
-https://dn.odroid.com/5422/ODROID-HC1_MC1/Schematics/HC1_MAIN_REV0.1_20170630.pdf
-[2] https://github.com/home-assistant/operating-system/issues/2153
-
-> 
-> Fixes: 4e88d4c08301 ("usb: add a flag to skip PHY initialization to
-> struct usb_hcd")
-> Fixes: 178a0bce05cb ("usb: core: hcd: integrate the PHY wrapper into
-> the HCD core")
-> Tested-by: Matthias Kaehlcke <mka@chromium.org>
-> Cc: stable <stable@kernel.org>
-> Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-> Link: https://lore.kernel.org/r/20220825131836.19769-1-johan+linaro@kernel.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> [ johan: adjust context to 5.15 ]
-> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-> ---
->  drivers/usb/dwc3/host.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/drivers/usb/dwc3/host.c b/drivers/usb/dwc3/host.c
-> index 2078e9d70292..85165a972076 100644
-> --- a/drivers/usb/dwc3/host.c
-> +++ b/drivers/usb/dwc3/host.c
-> @@ -10,8 +10,13 @@
->  #include <linux/acpi.h>
->  #include <linux/platform_device.h>
->  
-> +#include "../host/xhci-plat.h"
->  #include "core.h"
->  
-> +static const struct xhci_plat_priv dwc3_xhci_plat_priv = {
-> +	.quirks = XHCI_SKIP_PHY_INIT,
-> +};
-> +
->  static int dwc3_host_get_irq(struct dwc3 *dwc)
->  {
->  	struct platform_device	*dwc3_pdev = to_platform_device(dwc->dev);
-> @@ -87,6 +92,11 @@ int dwc3_host_init(struct dwc3 *dwc)
->  		goto err;
->  	}
->  
-> +	ret = platform_device_add_data(xhci, &dwc3_xhci_plat_priv,
-> +					sizeof(dwc3_xhci_plat_priv));
-> +	if (ret)
-> +		goto err;
-> +
->  	memset(props, 0, sizeof(struct property_entry) * ARRAY_SIZE(props));
->  
->  	if (dwc->usb3_lpm_capable)
+Dan
