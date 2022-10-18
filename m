@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3415601F1F
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:16:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 828BB601F21
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:16:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231923AbiJRAQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:16:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57022 "EHLO
+        id S231782AbiJRAQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:16:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231846AbiJRAOc (ORCPT
+        with ESMTP id S231848AbiJRAOc (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:14:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E8E189CE8;
-        Mon, 17 Oct 2022 17:11:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9292389AD6;
+        Mon, 17 Oct 2022 17:11:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A2E6B81B62;
-        Tue, 18 Oct 2022 00:11:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE21C433B5;
-        Tue, 18 Oct 2022 00:11:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C965B81C07;
+        Tue, 18 Oct 2022 00:11:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 867F3C433D6;
+        Tue, 18 Oct 2022 00:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051906;
-        bh=2lkXz49jQAZ87PnL2dBuQavwTxWiDifoGRhYhQlz6nY=;
+        s=k20201202; t=1666051907;
+        bh=L5CIX7jXVaY4/avU9mIiG+n3FktWEW58YX4CH1+947I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bVBlMwIKJY3/xV/S7vqsQxEwmVf+jc6uQ2UCbw6xjH+AqjMOh2JFuKfe80aJlpn8u
-         peHJClhCMWESxrqOF/VjdYvC7SK5n+4tDLmyS5MaFphMdEe5me3t2cjaiOFdIR1fiT
-         Edwrpw5xHsl7d378DlcSqucZfffcxdxuadWkbbwWYp7lqv+mKPXyruxiBuELgI+VwG
-         znE8JmESz+ssCQ4GbpXLOWr+rVZgmgtH128cKN9ZnZeBwdUuMzC1AbbSbeDmOxGBCy
-         vZROpbxXglMljkIxO8hQpReEScHIJVoaJwRVarRICovtRrjv8Tp1j23/wmmwWF9iMw
-         Ed4pHLg8f0BjA==
+        b=i63EZ3Tnr0V4Elnu8Y8XejYxXJ0IcTFGCuw5cbPGggnpGNYYDTgG5MTtXgQTDexSI
+         4vPZjhmJAgFidjROowrXN31qXDP/8vqb823dOAMQqfN1GkFBe9FZhPTKVhQwMjv2u8
+         GdpUNXq7YIfmrmRI7n4hxOKOihnE51vni7cr1sQSBmpwiy1V4fi3cTRvonQIMJvceQ
+         +wWnFrOrFgKsBTnPjjEVaHx6gYgqGOETpyY283NM8DTmXEGiDNoi1Wcq3UMzhFFmyt
+         Xk3BJ0zASRuWJbamI26REDUeXA53OSy0RKQhkRut93mf0lohqMY011hkxk96OObA3P
+         43htL3EpYpnkQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>,
-        Christian Schoenebeck <linux_oss@crudebyte.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Sasha Levin <sashal@kernel.org>, ericvh@gmail.com,
-        lucho@ionkov.net, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com,
-        v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 09/10] 9p/trans_fd: always use O_NONBLOCK read/write
-Date:   Mon, 17 Oct 2022 20:11:27 -0400
-Message-Id: <20221018001128.2732162-9-sashal@kernel.org>
+Cc:     Angus Chen <angus.chen@jaguarmicro.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.19 10/10] virtio_pci: don't try to use intxif pin is zero
+Date:   Mon, 17 Oct 2022 20:11:28 -0400
+Message-Id: <20221018001128.2732162-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018001128.2732162-1-sashal@kernel.org>
 References: <20221018001128.2732162-1-sashal@kernel.org>
@@ -60,74 +56,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Angus Chen <angus.chen@jaguarmicro.com>
 
-[ Upstream commit ef575281b21e9a34dfae544a187c6aac2ae424a9 ]
+[ Upstream commit 71491c54eafa318fdd24a1f26a1c82b28e1ac21d ]
 
-syzbot is reporting hung task at p9_fd_close() [1], for p9_mux_poll_stop()
- from p9_conn_destroy() from p9_fd_close() is failing to interrupt already
-started kernel_read() from p9_fd_read() from p9_read_work() and/or
-kernel_write() from p9_fd_write() from p9_write_work() requests.
+The background is that we use dpu in cloud computing,the arch is x86,80
+cores. We will have a lots of virtio devices,like 512 or more.
+When we probe about 200 virtio_blk devices,it will fail and
+the stack is printed as follows:
 
-Since p9_socket_open() sets O_NONBLOCK flag, p9_mux_poll_stop() does not
-need to interrupt kernel_read()/kernel_write(). However, since p9_fd_open()
-does not set O_NONBLOCK flag, but pipe blocks unless signal is pending,
-p9_mux_poll_stop() needs to interrupt kernel_read()/kernel_write() when
-the file descriptor refers to a pipe. In other words, pipe file descriptor
-needs to be handled as if socket file descriptor.
+[25338.485128] virtio-pci 0000:b3:00.0: virtio_pci: leaving for legacy driver
+[25338.496174] genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)
+[25338.503822] CPU: 20 PID: 5431 Comm: kworker/20:0 Kdump: loaded Tainted: G           OE    --------- -  - 4.18.0-305.30.1.el8.x86_64
+[25338.516403] Hardware name: Inspur NF5280M5/YZMB-00882-10E, BIOS 4.1.21 08/25/2021
+[25338.523881] Workqueue: events work_for_cpu_fn
+[25338.528235] Call Trace:
+[25338.530687]  dump_stack+0x5c/0x80
+[25338.534000]  __setup_irq.cold.53+0x7c/0xd3
+[25338.538098]  request_threaded_irq+0xf5/0x160
+[25338.542371]  vp_find_vqs+0xc7/0x190
+[25338.545866]  init_vq+0x17c/0x2e0 [virtio_blk]
+[25338.550223]  ? ncpus_cmp_func+0x10/0x10
+[25338.554061]  virtblk_probe+0xe6/0x8a0 [virtio_blk]
+[25338.558846]  virtio_dev_probe+0x158/0x1f0
+[25338.562861]  really_probe+0x255/0x4a0
+[25338.566524]  ? __driver_attach_async_helper+0x90/0x90
+[25338.571567]  driver_probe_device+0x49/0xc0
+[25338.575660]  bus_for_each_drv+0x79/0xc0
+[25338.579499]  __device_attach+0xdc/0x160
+[25338.583337]  bus_probe_device+0x9d/0xb0
+[25338.587167]  device_add+0x418/0x780
+[25338.590654]  register_virtio_device+0x9e/0xe0
+[25338.595011]  virtio_pci_probe+0xb3/0x140
+[25338.598941]  local_pci_probe+0x41/0x90
+[25338.602689]  work_for_cpu_fn+0x16/0x20
+[25338.606443]  process_one_work+0x1a7/0x360
+[25338.610456]  ? create_worker+0x1a0/0x1a0
+[25338.614381]  worker_thread+0x1cf/0x390
+[25338.618132]  ? create_worker+0x1a0/0x1a0
+[25338.622051]  kthread+0x116/0x130
+[25338.625283]  ? kthread_flush_work_fn+0x10/0x10
+[25338.629731]  ret_from_fork+0x1f/0x40
+[25338.633395] virtio_blk: probe of virtio418 failed with error -16
 
-We somehow need to interrupt kernel_read()/kernel_write() on pipes.
+The log :
+"genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)"
+was printed because of the irq 0 is used by timer exclusive,and when
+vp_find_vqs call vp_find_vqs_msix and returns false twice (for
+whatever reason), then it will call vp_find_vqs_intx as a fallback.
+Because vp_dev->pci_dev->irq is zero, we request irq 0 with
+flag IRQF_SHARED, and get a backtrace like above.
 
-A minimal change, which this patch is doing, is to set O_NONBLOCK flag
- from p9_fd_open(), for O_NONBLOCK flag does not affect reading/writing
-of regular files. But this approach changes O_NONBLOCK flag on userspace-
-supplied file descriptors (which might break userspace programs), and
-O_NONBLOCK flag could be changed by userspace. It would be possible to set
-O_NONBLOCK flag every time p9_fd_read()/p9_fd_write() is invoked, but still
-remains small race window for clearing O_NONBLOCK flag.
+According to PCI spec about "Interrupt Pin" Register (Offset 3Dh):
+"The Interrupt Pin register is a read-only register that identifies the
+ legacy interrupt Message(s) the Function uses. Valid values are 01h, 02h,
+ 03h, and 04h that map to legacy interrupt Messages for INTA,
+ INTB, INTC, and INTD respectively. A value of 00h indicates that the
+ Function uses no legacy interrupt Message(s)."
 
-If we don't want to manipulate O_NONBLOCK flag, we might be able to
-surround kernel_read()/kernel_write() with set_thread_flag(TIF_SIGPENDING)
-and recalc_sigpending(). Since p9_read_work()/p9_write_work() works are
-processed by kernel threads which process global system_wq workqueue,
-signals could not be delivered from remote threads when p9_mux_poll_stop()
- from p9_conn_destroy() from p9_fd_close() is called. Therefore, calling
-set_thread_flag(TIF_SIGPENDING)/recalc_sigpending() every time would be
-needed if we count on signals for making kernel_read()/kernel_write()
-non-blocking.
+So if vp_dev->pci_dev->pin is zero, we should not request legacy
+interrupt.
 
-Link: https://lkml.kernel.org/r/345de429-a88b-7097-d177-adecf9fed342@I-love.SAKURA.ne.jp
-Link: https://syzkaller.appspot.com/bug?extid=8b41a1365f1106fd0f33 [1]
-Reported-by: syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>
-Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-[Dominique: add comment at Christian's suggestion]
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Message-Id: <20220930000915.548-1-angus.chen@jaguarmicro.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_fd.c | 3 +++
+ drivers/virtio/virtio_pci_common.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
-index 7d68b4a63997..7194ffa58d3e 100644
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -836,11 +836,14 @@ static int p9_fd_open(struct p9_client *client, int rfd, int wfd)
- 		goto out_free_ts;
- 	if (!(ts->rd->f_mode & FMODE_READ))
- 		goto out_put_rd;
-+	/* prevent workers from hanging on IO when fd is a pipe */
-+	ts->rd->f_flags |= O_NONBLOCK;
- 	ts->wr = fget(wfd);
- 	if (!ts->wr)
- 		goto out_put_rd;
- 	if (!(ts->wr->f_mode & FMODE_WRITE))
- 		goto out_put_wr;
-+	ts->wr->f_flags |= O_NONBLOCK;
- 
- 	client->trans = ts;
- 	client->status = Connected;
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 40618ccffeb8..8c4500a46662 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -406,6 +406,9 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, false, ctx, desc);
+ 	if (!err)
+ 		return 0;
++	/* Is there an interrupt pin? If not give up. */
++	if (!(to_vp_device(vdev)->pci_dev->pin))
++		return err;
+ 	/* Finally fall back to regular interrupts. */
+ 	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
+ }
 -- 
 2.35.1
 
