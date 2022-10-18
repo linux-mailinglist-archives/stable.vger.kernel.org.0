@@ -2,45 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12847601F6E
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:20:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01297601F68
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:20:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231816AbiJRAUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:20:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44836 "EHLO
+        id S231510AbiJRAUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:20:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232129AbiJRAS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:18:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6EE91FCFB;
-        Mon, 17 Oct 2022 17:14:34 -0700 (PDT)
+        with ESMTP id S232310AbiJRAUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:20:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7649482617;
+        Mon, 17 Oct 2022 17:15:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4D4361347;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AC926131C;
+        Tue, 18 Oct 2022 00:10:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1ABDC43142;
         Tue, 18 Oct 2022 00:10:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 441ADC433B5;
-        Tue, 18 Oct 2022 00:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051852;
-        bh=L334xe73vctSIMKVzoq53f7C3j9T+qJlYFjyILlcjTc=;
+        s=k20201202; t=1666051856;
+        bh=Jw1caU6sBAhifMwTh0ZZAAWGQ+PO+HsATzfdyWn8gG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hRDHAM1yJEDY52jbpIglM1KegHuNjEs+8RtvfZZgJmXdICInrYngKsh7z1GgP/xCC
-         6p/gz8gh6E/qX13gv2kjlcHf5POqpRfIcOWD+ahtnXOPNQpoDnTCl3BtV/mSGL0J6q
-         GUboxnU2UMz/a40C6F++PPk4M8Q+9nxS7EB+nNWyrnCHEaX4LpbZqnY7bQzv8Glpe0
-         EKK+MN6Ai/ipSvYh1h4HvstDQR6Cg+JmmxSA341+wxVasYRX360gX45kbEa1SPzv9a
-         WW5e53ZQV5ZVB4IF3WOt71/UVad/xT3QeNvBt7somRnE6kGRD7Btj6jocRlhbUJrGq
-         KTErBUDdxbJYA==
+        b=h71WnWthRxJ+xfmVsQIAW3rrIouPaCiG0d1v+sUZTN34w10nU0tVbUeEMaj2Ogh7C
+         taT52OGATzDKjDZGASKLhf/6WdjKhO/IK4HgNV7ZI4Fy+gn5GKY2JlLcI0GvyT03fh
+         UdCy3Kx77vithudWshjU9mRAEwxy1urQprw3lJcW2lirTMihLJBWTD42jii93Wl5Ez
+         Om0l3Sl/3IYheG4frdkOf/Wcv1imZ2Knil4ze1zGmJfN9TZds2Tv/6OuQ4DjdOq9Kt
+         CI8eRXwhTf/WBxRfU5hm6vG+NNLQeyGNrBXm167O9vnKnjMTiedV06cmFY9Jwb8LxD
+         99Sbi89yfemlA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        robh+dt@kernel.org, frowand.list@gmail.com,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 12/16] of: Fix "dma-ranges" handling for bus controllers
-Date:   Mon, 17 Oct 2022 20:10:25 -0400
-Message-Id: <20221018001029.2731620-12-sashal@kernel.org>
+Cc:     Alexander Potapenko <glider@google.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+        Christoph Hellwig <hch@lst.de>,
+        Christoph Lameter <cl@linux.com>,
+        David Rientjes <rientjes@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Kees Cook <keescook@chromium.org>,
+        Marco Elver <elver@google.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 13/16] kmsan: disable physical page merging in biovec
+Date:   Mon, 17 Oct 2022 20:10:26 -0400
+Message-Id: <20221018001029.2731620-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018001029.2731620-1-sashal@kernel.org>
 References: <20221018001029.2731620-1-sashal@kernel.org>
@@ -57,104 +87,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Alexander Potapenko <glider@google.com>
 
-[ Upstream commit f1ad5338a4d57fe1fe6475003acb8c70bf9d1bdf ]
+[ Upstream commit f630a5d0ca59a6e73b61e3f82c371dc230da99ff ]
 
-Commit 951d48855d86 ("of: Make of_dma_get_range() work on bus nodes")
-relaxed the handling of "dma-ranges" for any leaf node on the assumption
-that it would still represent a usage error for the property to be
-present on a non-bus leaf node. However there turns out to be a fiddly
-case where a bus also represents a DMA-capable device in its own right,
-such as a PCIe root complex with an integrated DMA engine on its
-platform side. In such cases, "dma-ranges" translation is entirely valid
-for devices discovered behind the bus, but should not be erroneously
-applied to the bus controller device itself which operates in its
-parent's address space. Fix this by restoring the previous behaviour for
-the specific case where a device is configured via its own OF node,
-since it is logical to assume that a device should never represent its
-own parent bus.
+KMSAN metadata for adjacent physical pages may not be adjacent, therefore
+accessing such pages together may lead to metadata corruption.  We disable
+merging pages in biovec to prevent such corruptions.
 
-Reported-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/112e8f3d3e7c054ecf5e12b5ac0aa5596ec00681.1664455433.git.robin.murphy@arm.com
-Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lkml.kernel.org/r/20220915150417.722975-28-glider@google.com
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Eric Biggers <ebiggers@google.com>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Marco Elver <elver@google.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vegard Nossum <vegard.nossum@oracle.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/address.c    | 4 +++-
- drivers/of/device.c     | 9 ++++++++-
- drivers/of/of_private.h | 5 +++++
- 3 files changed, 16 insertions(+), 2 deletions(-)
+ block/blk.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/of/address.c b/drivers/of/address.c
-index 73ddf2540f3f..fdacf6c3c91f 100644
---- a/drivers/of/address.c
-+++ b/drivers/of/address.c
-@@ -626,7 +626,8 @@ u64 of_translate_address(struct device_node *dev, const __be32 *in_addr)
- }
- EXPORT_SYMBOL(of_translate_address);
+diff --git a/block/blk.h b/block/blk.h
+index 997941cd999f..107db0011d4c 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -59,6 +59,13 @@ static inline bool biovec_phys_mergeable(struct request_queue *q,
+ 	phys_addr_t addr1 = page_to_phys(vec1->bv_page) + vec1->bv_offset;
+ 	phys_addr_t addr2 = page_to_phys(vec2->bv_page) + vec2->bv_offset;
  
--static struct device_node *__of_get_dma_parent(const struct device_node *np)
-+#ifdef CONFIG_HAS_DMA
-+struct device_node *__of_get_dma_parent(const struct device_node *np)
- {
- 	struct of_phandle_args args;
- 	int ret, index;
-@@ -643,6 +644,7 @@ static struct device_node *__of_get_dma_parent(const struct device_node *np)
- 
- 	return of_node_get(args.np);
- }
-+#endif
- 
- static struct device_node *of_get_next_dma_parent(struct device_node *np)
- {
-diff --git a/drivers/of/device.c b/drivers/of/device.c
-index 1122daa8e273..f760199abda6 100644
---- a/drivers/of/device.c
-+++ b/drivers/of/device.c
-@@ -93,12 +93,19 @@ int of_dma_configure_id(struct device *dev, struct device_node *np,
- {
- 	const struct iommu_ops *iommu;
- 	const struct bus_dma_region *map = NULL;
-+	struct device_node *bus_np;
- 	u64 dma_start = 0;
- 	u64 mask, end, size = 0;
- 	bool coherent;
- 	int ret;
- 
--	ret = of_dma_get_range(np, &map);
-+	if (np == dev->of_node)
-+		bus_np = __of_get_dma_parent(np);
-+	else
-+		bus_np = of_node_get(np);
++	/*
++	 * Merging adjacent physical pages may not work correctly under KMSAN
++	 * if their metadata pages aren't adjacent. Just disable merging.
++	 */
++	if (IS_ENABLED(CONFIG_KMSAN))
++		return false;
 +
-+	ret = of_dma_get_range(bus_np, &map);
-+	of_node_put(bus_np);
- 	if (ret < 0) {
- 		/*
- 		 * For legacy reasons, we have to assume some devices need
-diff --git a/drivers/of/of_private.h b/drivers/of/of_private.h
-index d9e6a324de0a..ffc2099935f5 100644
---- a/drivers/of/of_private.h
-+++ b/drivers/of/of_private.h
-@@ -161,12 +161,17 @@ struct bus_dma_region;
- #if defined(CONFIG_OF_ADDRESS) && defined(CONFIG_HAS_DMA)
- int of_dma_get_range(struct device_node *np,
- 		const struct bus_dma_region **map);
-+struct device_node *__of_get_dma_parent(const struct device_node *np);
- #else
- static inline int of_dma_get_range(struct device_node *np,
- 		const struct bus_dma_region **map)
- {
- 	return -ENODEV;
- }
-+static inline struct device_node *__of_get_dma_parent(const struct device_node *np)
-+{
-+	return of_get_parent(np);
-+}
- #endif
- 
- #endif /* _LINUX_OF_PRIVATE_H */
+ 	if (addr1 + vec1->bv_len != addr2)
+ 		return false;
+ 	if (xen_domain() && !xen_biovec_phys_mergeable(vec1, vec2->bv_page))
 -- 
 2.35.1
 
