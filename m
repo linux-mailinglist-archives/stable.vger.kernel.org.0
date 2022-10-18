@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE09601F8F
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:27:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47D24601F83
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:21:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231839AbiJRA1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:27:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38370 "EHLO
+        id S232221AbiJRAVR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:21:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231216AbiJRA0v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:26:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 149058BBB3;
-        Mon, 17 Oct 2022 17:24:32 -0700 (PDT)
+        with ESMTP id S232399AbiJRAUU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:20:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D7918C005;
+        Mon, 17 Oct 2022 17:16:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 417046134C;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A4CBB81B62;
+        Tue, 18 Oct 2022 00:11:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 204A1C433D6;
         Tue, 18 Oct 2022 00:11:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0A61C433C1;
-        Tue, 18 Oct 2022 00:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051915;
-        bh=0WRq8MXZM3ZDilDA1bAGWB/EzA7Q30P8KMT3E0nCaJQ=;
+        s=k20201202; t=1666051916;
+        bh=o75o+6oKx5y4PpkAivNhZ9rAwEVjvoYaFDTF8LWXaWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GFq8Qdxw0XgydgtxIv0PyNW11Ou/69mgVeyJQI3bGTmYbWclVASgI9ibxUE5uS0aL
-         6h9SH1Wc2LTu0W9jT07Yn4WRFSpP7folYAXCQ8tmPHJROjU//43q8pxZ/bW/blIv3Q
-         YAsDEvWTjowO2PndBD3TvjY+dyWyb2j6YGm27QDBYqjs7ffqHrOwpHYHE2lISvvaek
-         juObinVipTV8lbk8iqX+WUlXlBcnykE6lwgJ5stuIHy5TH3eDk8j79+7TmZ/wLpvyh
-         PQ6XP3OQ/j02a2xKwIz6CIwcblG60q85ZQEx5hqVepQrFFdMdMqNtNBvNR1F4wuSYw
-         Ohiz8BBJsUKYA==
+        b=OYuKGX512r/83Ux4fxoyG+MwPdy7MiW3OXk6H3mY/VASVc50WqeKLNxi1m42TcUh1
+         EX4d5QTVH4uUasyShGTS3q4jLjDhTUsVjMQatd3bLqoOUH9ihHDYDZJGWfvY8PTRnP
+         q4oUARijwlFIOXKvatnu8+pKYyGeB9QWl4jg85rTx+89rV3NdC3HAjQr+juN0yL5Wq
+         0RgR3co9u2qctvcBUVgKFR+lF36dsDLj9sOFllFepZt+26K/pvoMqBvK2K9qi3M9xB
+         APuKonjqZVkPwJ3yeU9k1Oj2pPFO7QZNTVlkkNlXBQBv2Nj5vLHsblc18TPscpYIHt
+         MfWWyIbNsvLDw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Ungerer <gerg@linux-m68k.org>,
-        kernel test robot <lkp@intel.com>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-m68k@lists.linux-m68k.org
-Subject: [PATCH AUTOSEL 4.14 4/8] m68knommu: fix non-specific 68328 choice interrupt build failure
-Date:   Mon, 17 Oct 2022 20:11:43 -0400
-Message-Id: <20221018001147.2732350-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 5/8] m68knommu: fix non-mmu classic 68000 legacy timer tick selection
+Date:   Mon, 17 Oct 2022 20:11:44 -0400
+Message-Id: <20221018001147.2732350-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018001147.2732350-1-sashal@kernel.org>
 References: <20221018001147.2732350-1-sashal@kernel.org>
@@ -59,56 +58,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Ungerer <gerg@linux-m68k.org>
 
-[ Upstream commit 750321ace9107e103f254bf46900629ff347eb7b ]
+[ Upstream commit 18011e50c497f04a57a8e00122906f04922b30b4 ]
 
-Compiling for a classic m68k non-MMU target with no specific CPU
-selected fails with the following error:
+The family of classic 68000 parts supported when in non-mmu mode all
+currently use the legacy timer support. Move the selection of that config
+option, LEGACY_TIMER_TICK, into the core CPU configuration.
 
-   arch/m68k/68000/ints.c: In function 'process_int':
->> arch/m68k/68000/ints.c:82:30: error: 'ISR' undeclared (first use in this function)
-      82 |         unsigned long pend = ISR;
-         |                              ^~~
+This fixes compilation if no specific CPU variant is selected, since
+the LEGACY_TIMER_TICK option was only selected in the specific CPU
+variant configurations.
 
-This interrupt handling code is specific to the 68328 family of 68000
-parts. There is a couple of variants (68EZ328, 68VZ328) and the common
-ancestor of them the strait 68328.
-
-The code here includes a specific header for each variant type. But if
-none is selected then nothing is included to supply the appropriate
-register and bit flags defines.
-
-Rearrange the includes so that at least one type is always included.
-At the very least the 68328 base type should be the fallback, so make
-that true.
-
-Reported-by: kernel test robot <lkp@intel.com>
 Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/68000/ints.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/m68k/Kconfig.cpu | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/m68k/68000/ints.c b/arch/m68k/68000/ints.c
-index cda49b12d7be..f9a5ec781408 100644
---- a/arch/m68k/68000/ints.c
-+++ b/arch/m68k/68000/ints.c
-@@ -18,12 +18,12 @@
- #include <asm/io.h>
- #include <asm/machdep.h>
- 
--#if defined(CONFIG_M68328)
--#include <asm/MC68328.h>
--#elif defined(CONFIG_M68EZ328)
-+#if defined(CONFIG_M68EZ328)
- #include <asm/MC68EZ328.h>
- #elif defined(CONFIG_M68VZ328)
- #include <asm/MC68VZ328.h>
-+#else
-+#include <asm/MC68328.h>
- #endif
- 
- /* assembler routines */
+diff --git a/arch/m68k/Kconfig.cpu b/arch/m68k/Kconfig.cpu
+index 6f13c53c8dc7..3f5b92f567dc 100644
+--- a/arch/m68k/Kconfig.cpu
++++ b/arch/m68k/Kconfig.cpu
+@@ -43,6 +43,7 @@ config M68000
+ 	select GENERIC_CSUM
+ 	select CPU_NO_EFFICIENT_FFS
+ 	select HAVE_ARCH_HASH
++	select LEGACY_TIMER_TICK
+ 	help
+ 	  The Freescale (was Motorola) 68000 CPU is the first generation of
+ 	  the well known M68K family of processors. The CPU core as well as
 -- 
 2.35.1
 
