@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C50A601F78
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:20:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1681601F73
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:20:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232000AbiJRAUi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:20:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56912 "EHLO
+        id S231948AbiJRAUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:20:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231848AbiJRARV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:17:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61207D139;
-        Mon, 17 Oct 2022 17:14:22 -0700 (PDT)
+        with ESMTP id S231791AbiJRASX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:18:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4EF3C8D1;
+        Mon, 17 Oct 2022 17:14:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6917B81BFE;
-        Tue, 18 Oct 2022 00:10:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE163C43470;
-        Tue, 18 Oct 2022 00:10:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFF1BB81C00;
+        Tue, 18 Oct 2022 00:10:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4432C4347C;
+        Tue, 18 Oct 2022 00:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051827;
-        bh=zAzLBugmPeyM7kjGWWMwXK0do8+dSaRG67LfeQP/j4A=;
+        s=k20201202; t=1666051828;
+        bh=mKb3LAjLh61nv88wsoVeVjj2pYy9qA3Vi19/A3aGjaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WA4LV7yLSpZVSX70IAGrNdBJO3d5cHXM/SP1edxt+dhEfd4THsLv5MNgpljOQchSc
-         HEh/P6Gzie9ERA+bs5GNDq69EGNHeBcynUvoZlxD7ONpgHSArRWKxhSXFRN1w/NEa7
-         2jBV700xWzc3T+UMXa3Xw1pDIzE8QsOa3G5IQq+uK7eLAOSRKc6fVZrQsRlJ6RjC+o
-         o9CkMk/VVR9rR9eMk4iyL+RK62BGtonz6WMK4SmJfHWqFRpctDpaGfV44QImFpQIg8
-         05Z7bxoUGSbU89grGvGgWnuKOxIH2juuMFOFOsMN9154aqiAoGcqEw3A9NM/XP8k9G
-         A8JDG0P4gREqQ==
+        b=boaGwSxBoXeBRSpNoIRtoYUXG/z+s8sYX0AVUn70p7sQCaYBOuevOpTqJyPfpf9fj
+         kp/6X82uQtHkO5zhIvSb3M7CWDxBcGukRC60Cf/lNi9pHtN87WOwDcfCnaNWNpSkDB
+         j5B9M+QYraxAT7hkj8AcJG7d2o/vdbKeFoTBKZc6Sn2MuVwp7crfv4nWLcq5SVObpH
+         vaEV6jEfqR1xFua+pM8YK4n7yxrzZ9DDXp6bZjL8I9H4gMLsk3W1zurhTMC/3yNGoC
+         SDBahgjJ6qyupEg3d4tQQsnzocrVt6gOeo+1nM24RO8CWG6WdU5kwcwBMfCg5l93T2
+         iF43UEV7PJyag==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dominique Martinet <asmadeus@codewreck.org>,
-        syzbot <syzbot+2f20b523930c32c160cc@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Christian Schoenebeck <linux_oss@crudebyte.com>,
-        Sasha Levin <sashal@kernel.org>, ericvh@gmail.com,
-        lucho@ionkov.net, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com,
-        v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 20/21] net/9p: use a dedicated spinlock for trans_fd
-Date:   Mon, 17 Oct 2022 20:09:39 -0400
-Message-Id: <20221018000940.2731329-20-sashal@kernel.org>
+Cc:     Angus Chen <angus.chen@jaguarmicro.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.15 21/21] virtio_pci: don't try to use intxif pin is zero
+Date:   Mon, 17 Oct 2022 20:09:40 -0400
+Message-Id: <20221018000940.2731329-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000940.2731329-1-sashal@kernel.org>
 References: <20221018000940.2731329-1-sashal@kernel.org>
@@ -60,199 +56,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominique Martinet <asmadeus@codewreck.org>
+From: Angus Chen <angus.chen@jaguarmicro.com>
 
-[ Upstream commit 296ab4a813841ba1d5f40b03190fd1bd8f25aab0 ]
+[ Upstream commit 71491c54eafa318fdd24a1f26a1c82b28e1ac21d ]
 
-Shamelessly copying the explanation from Tetsuo Handa's suggested
-patch[1] (slightly reworded):
-syzbot is reporting inconsistent lock state in p9_req_put()[2],
-for p9_tag_remove() from p9_req_put() from IRQ context is using
-spin_lock_irqsave() on "struct p9_client"->lock but trans_fd
-(not from IRQ context) is using spin_lock().
+The background is that we use dpu in cloud computing,the arch is x86,80
+cores. We will have a lots of virtio devices,like 512 or more.
+When we probe about 200 virtio_blk devices,it will fail and
+the stack is printed as follows:
 
-Since the locks actually protect different things in client.c and in
-trans_fd.c, just replace trans_fd.c's lock by a new one specific to the
-transport (client.c's protect the idr for fid/tag allocations,
-while trans_fd.c's protects its own req list and request status field
-that acts as the transport's state machine)
+[25338.485128] virtio-pci 0000:b3:00.0: virtio_pci: leaving for legacy driver
+[25338.496174] genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)
+[25338.503822] CPU: 20 PID: 5431 Comm: kworker/20:0 Kdump: loaded Tainted: G           OE    --------- -  - 4.18.0-305.30.1.el8.x86_64
+[25338.516403] Hardware name: Inspur NF5280M5/YZMB-00882-10E, BIOS 4.1.21 08/25/2021
+[25338.523881] Workqueue: events work_for_cpu_fn
+[25338.528235] Call Trace:
+[25338.530687]  dump_stack+0x5c/0x80
+[25338.534000]  __setup_irq.cold.53+0x7c/0xd3
+[25338.538098]  request_threaded_irq+0xf5/0x160
+[25338.542371]  vp_find_vqs+0xc7/0x190
+[25338.545866]  init_vq+0x17c/0x2e0 [virtio_blk]
+[25338.550223]  ? ncpus_cmp_func+0x10/0x10
+[25338.554061]  virtblk_probe+0xe6/0x8a0 [virtio_blk]
+[25338.558846]  virtio_dev_probe+0x158/0x1f0
+[25338.562861]  really_probe+0x255/0x4a0
+[25338.566524]  ? __driver_attach_async_helper+0x90/0x90
+[25338.571567]  driver_probe_device+0x49/0xc0
+[25338.575660]  bus_for_each_drv+0x79/0xc0
+[25338.579499]  __device_attach+0xdc/0x160
+[25338.583337]  bus_probe_device+0x9d/0xb0
+[25338.587167]  device_add+0x418/0x780
+[25338.590654]  register_virtio_device+0x9e/0xe0
+[25338.595011]  virtio_pci_probe+0xb3/0x140
+[25338.598941]  local_pci_probe+0x41/0x90
+[25338.602689]  work_for_cpu_fn+0x16/0x20
+[25338.606443]  process_one_work+0x1a7/0x360
+[25338.610456]  ? create_worker+0x1a0/0x1a0
+[25338.614381]  worker_thread+0x1cf/0x390
+[25338.618132]  ? create_worker+0x1a0/0x1a0
+[25338.622051]  kthread+0x116/0x130
+[25338.625283]  ? kthread_flush_work_fn+0x10/0x10
+[25338.629731]  ret_from_fork+0x1f/0x40
+[25338.633395] virtio_blk: probe of virtio418 failed with error -16
 
-Link: https://lore.kernel.org/r/20220904112928.1308799-1-asmadeus@codewreck.org
-Link: https://lkml.kernel.org/r/2470e028-9b05-2013-7198-1fdad071d999@I-love.SAKURA.ne.jp [1]
-Link: https://syzkaller.appspot.com/bug?extid=2f20b523930c32c160cc [2]
-Reported-by: syzbot <syzbot+2f20b523930c32c160cc@syzkaller.appspotmail.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+The log :
+"genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)"
+was printed because of the irq 0 is used by timer exclusive,and when
+vp_find_vqs call vp_find_vqs_msix and returns false twice (for
+whatever reason), then it will call vp_find_vqs_intx as a fallback.
+Because vp_dev->pci_dev->irq is zero, we request irq 0 with
+flag IRQF_SHARED, and get a backtrace like above.
+
+According to PCI spec about "Interrupt Pin" Register (Offset 3Dh):
+"The Interrupt Pin register is a read-only register that identifies the
+ legacy interrupt Message(s) the Function uses. Valid values are 01h, 02h,
+ 03h, and 04h that map to legacy interrupt Messages for INTA,
+ INTB, INTC, and INTD respectively. A value of 00h indicates that the
+ Function uses no legacy interrupt Message(s)."
+
+So if vp_dev->pci_dev->pin is zero, we should not request legacy
+interrupt.
+
+Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Message-Id: <20220930000915.548-1-angus.chen@jaguarmicro.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_fd.c | 41 +++++++++++++++++++++++++----------------
- 1 file changed, 25 insertions(+), 16 deletions(-)
+ drivers/virtio/virtio_pci_common.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
-index dfce201d9884..a8c1f742148c 100644
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -93,6 +93,7 @@ struct p9_poll_wait {
-  * @mux_list: list link for mux to manage multiple connections (?)
-  * @client: reference to client instance for this connection
-  * @err: error state
-+ * @req_lock: lock protecting req_list and requests statuses
-  * @req_list: accounting for requests which have been sent
-  * @unsent_req_list: accounting for requests that haven't been sent
-  * @rreq: read request
-@@ -116,6 +117,7 @@ struct p9_conn {
- 	struct list_head mux_list;
- 	struct p9_client *client;
- 	int err;
-+	spinlock_t req_lock;
- 	struct list_head req_list;
- 	struct list_head unsent_req_list;
- 	struct p9_req_t *rreq;
-@@ -191,10 +193,10 @@ static void p9_conn_cancel(struct p9_conn *m, int err)
- 
- 	p9_debug(P9_DEBUG_ERROR, "mux %p err %d\n", m, err);
- 
--	spin_lock(&m->client->lock);
-+	spin_lock(&m->req_lock);
- 
- 	if (m->err) {
--		spin_unlock(&m->client->lock);
-+		spin_unlock(&m->req_lock);
- 		return;
- 	}
- 
-@@ -207,7 +209,7 @@ static void p9_conn_cancel(struct p9_conn *m, int err)
- 		list_move(&req->req_list, &cancel_list);
- 	}
- 
--	spin_unlock(&m->client->lock);
-+	spin_unlock(&m->req_lock);
- 
- 	list_for_each_entry_safe(req, rtmp, &cancel_list, req_list) {
- 		p9_debug(P9_DEBUG_ERROR, "call back req %p\n", req);
-@@ -362,7 +364,7 @@ static void p9_read_work(struct work_struct *work)
- 	if ((m->rreq) && (m->rc.offset == m->rc.capacity)) {
- 		p9_debug(P9_DEBUG_TRANS, "got new packet\n");
- 		m->rreq->rc.size = m->rc.offset;
--		spin_lock(&m->client->lock);
-+		spin_lock(&m->req_lock);
- 		if (m->rreq->status == REQ_STATUS_SENT) {
- 			list_del(&m->rreq->req_list);
- 			p9_client_cb(m->client, m->rreq, REQ_STATUS_RCVD);
-@@ -371,14 +373,14 @@ static void p9_read_work(struct work_struct *work)
- 			p9_debug(P9_DEBUG_TRANS,
- 				 "Ignore replies associated with a cancelled request\n");
- 		} else {
--			spin_unlock(&m->client->lock);
-+			spin_unlock(&m->req_lock);
- 			p9_debug(P9_DEBUG_ERROR,
- 				 "Request tag %d errored out while we were reading the reply\n",
- 				 m->rc.tag);
- 			err = -EIO;
- 			goto error;
- 		}
--		spin_unlock(&m->client->lock);
-+		spin_unlock(&m->req_lock);
- 		m->rc.sdata = NULL;
- 		m->rc.offset = 0;
- 		m->rc.capacity = 0;
-@@ -456,10 +458,10 @@ static void p9_write_work(struct work_struct *work)
- 	}
- 
- 	if (!m->wsize) {
--		spin_lock(&m->client->lock);
-+		spin_lock(&m->req_lock);
- 		if (list_empty(&m->unsent_req_list)) {
- 			clear_bit(Wworksched, &m->wsched);
--			spin_unlock(&m->client->lock);
-+			spin_unlock(&m->req_lock);
- 			return;
- 		}
- 
-@@ -474,7 +476,7 @@ static void p9_write_work(struct work_struct *work)
- 		m->wpos = 0;
- 		p9_req_get(req);
- 		m->wreq = req;
--		spin_unlock(&m->client->lock);
-+		spin_unlock(&m->req_lock);
- 	}
- 
- 	p9_debug(P9_DEBUG_TRANS, "mux %p pos %d size %d\n",
-@@ -591,6 +593,7 @@ static void p9_conn_create(struct p9_client *client)
- 	INIT_LIST_HEAD(&m->mux_list);
- 	m->client = client;
- 
-+	spin_lock_init(&m->req_lock);
- 	INIT_LIST_HEAD(&m->req_list);
- 	INIT_LIST_HEAD(&m->unsent_req_list);
- 	INIT_WORK(&m->rq, p9_read_work);
-@@ -672,10 +675,10 @@ static int p9_fd_request(struct p9_client *client, struct p9_req_t *req)
- 	if (m->err < 0)
- 		return m->err;
- 
--	spin_lock(&client->lock);
-+	spin_lock(&m->req_lock);
- 	req->status = REQ_STATUS_UNSENT;
- 	list_add_tail(&req->req_list, &m->unsent_req_list);
--	spin_unlock(&client->lock);
-+	spin_unlock(&m->req_lock);
- 
- 	if (test_and_clear_bit(Wpending, &m->wsched))
- 		n = EPOLLOUT;
-@@ -690,11 +693,13 @@ static int p9_fd_request(struct p9_client *client, struct p9_req_t *req)
- 
- static int p9_fd_cancel(struct p9_client *client, struct p9_req_t *req)
- {
-+	struct p9_trans_fd *ts = client->trans;
-+	struct p9_conn *m = &ts->conn;
- 	int ret = 1;
- 
- 	p9_debug(P9_DEBUG_TRANS, "client %p req %p\n", client, req);
- 
--	spin_lock(&client->lock);
-+	spin_lock(&m->req_lock);
- 
- 	if (req->status == REQ_STATUS_UNSENT) {
- 		list_del(&req->req_list);
-@@ -702,21 +707,24 @@ static int p9_fd_cancel(struct p9_client *client, struct p9_req_t *req)
- 		p9_req_put(client, req);
- 		ret = 0;
- 	}
--	spin_unlock(&client->lock);
-+	spin_unlock(&m->req_lock);
- 
- 	return ret;
- }
- 
- static int p9_fd_cancelled(struct p9_client *client, struct p9_req_t *req)
- {
-+	struct p9_trans_fd *ts = client->trans;
-+	struct p9_conn *m = &ts->conn;
-+
- 	p9_debug(P9_DEBUG_TRANS, "client %p req %p\n", client, req);
- 
--	spin_lock(&client->lock);
-+	spin_lock(&m->req_lock);
- 	/* Ignore cancelled request if message has been received
- 	 * before lock.
- 	 */
- 	if (req->status == REQ_STATUS_RCVD) {
--		spin_unlock(&client->lock);
-+		spin_unlock(&m->req_lock);
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 1e890ef17687..0b4b3011ff92 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -403,6 +403,9 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, false, ctx, desc);
+ 	if (!err)
  		return 0;
- 	}
- 
-@@ -725,7 +733,8 @@ static int p9_fd_cancelled(struct p9_client *client, struct p9_req_t *req)
- 	 */
- 	list_del(&req->req_list);
- 	req->status = REQ_STATUS_FLSHD;
--	spin_unlock(&client->lock);
-+	spin_unlock(&m->req_lock);
-+
- 	p9_req_put(client, req);
- 
- 	return 0;
++	/* Is there an interrupt pin? If not give up. */
++	if (!(to_vp_device(vdev)->pci_dev->pin))
++		return err;
+ 	/* Finally fall back to regular interrupts. */
+ 	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
+ }
 -- 
 2.35.1
 
