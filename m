@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2CEC601F4A
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DE09601F8F
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:27:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231955AbiJRARO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:17:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55038 "EHLO
+        id S231839AbiJRA1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:27:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231742AbiJRAPR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:15:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A97FD8A1D8;
-        Mon, 17 Oct 2022 17:12:44 -0700 (PDT)
+        with ESMTP id S231216AbiJRA0v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:26:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 149058BBB3;
+        Mon, 17 Oct 2022 17:24:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E08C61357;
-        Tue, 18 Oct 2022 00:11:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9231EC433D6;
-        Tue, 18 Oct 2022 00:11:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 417046134C;
+        Tue, 18 Oct 2022 00:11:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0A61C433C1;
+        Tue, 18 Oct 2022 00:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051914;
-        bh=uB4IEJR3z3JEOlew4AT6t7tNbyQDP84JBM8JXxMTfjo=;
+        s=k20201202; t=1666051915;
+        bh=0WRq8MXZM3ZDilDA1bAGWB/EzA7Q30P8KMT3E0nCaJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aXjhzOqBFZW7vL+FjfqX7/bsFoX3uRyBc9F5O3Zuu3zAPKpGhpgCFl7vpARliu4+O
-         AN/uDNvv6Lx/ZQY9gjZovErDtUKsVskGRo1rL9KGvcC6eq0DEYPfvupfLdMwn5E8EN
-         4fOPbYqYOjkJIN3TL1MflwcdtFmemyhdMU4Y9c1Jm4JuUcK8CJm1uaYkJxp82UzZv3
-         PgFcVCpQSyvIc6/t31ircya+2Ahr5AcW1TsSUvLUxHfjNa5MJGOHSNeUx7LI1HXq+r
-         cn+oFKV7JRiG+3iHgr7LJgqi6ufozg7k7x1xPmpyzreI7uZ4rESMraBkt73/5qH2Xl
-         munIxgy0Ym6DA==
+        b=GFq8Qdxw0XgydgtxIv0PyNW11Ou/69mgVeyJQI3bGTmYbWclVASgI9ibxUE5uS0aL
+         6h9SH1Wc2LTu0W9jT07Yn4WRFSpP7folYAXCQ8tmPHJROjU//43q8pxZ/bW/blIv3Q
+         YAsDEvWTjowO2PndBD3TvjY+dyWyb2j6YGm27QDBYqjs7ffqHrOwpHYHE2lISvvaek
+         juObinVipTV8lbk8iqX+WUlXlBcnykE6lwgJ5stuIHy5TH3eDk8j79+7TmZ/wLpvyh
+         PQ6XP3OQ/j02a2xKwIz6CIwcblG60q85ZQEx5hqVepQrFFdMdMqNtNBvNR1F4wuSYw
+         Ohiz8BBJsUKYA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Price <anprice@redhat.com>,
-        syzbot+dcf33a7aae997956fe06@syzkaller.appspotmail.com,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, rpeterso@redhat.com,
-        cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.14 3/8] gfs2: Check sb_bsize_shift after reading superblock
-Date:   Mon, 17 Oct 2022 20:11:42 -0400
-Message-Id: <20221018001147.2732350-3-sashal@kernel.org>
+Cc:     Greg Ungerer <gerg@linux-m68k.org>,
+        kernel test robot <lkp@intel.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-m68k@lists.linux-m68k.org
+Subject: [PATCH AUTOSEL 4.14 4/8] m68knommu: fix non-specific 68328 choice interrupt build failure
+Date:   Mon, 17 Oct 2022 20:11:43 -0400
+Message-Id: <20221018001147.2732350-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018001147.2732350-1-sashal@kernel.org>
 References: <20221018001147.2732350-1-sashal@kernel.org>
@@ -57,62 +57,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Price <anprice@redhat.com>
+From: Greg Ungerer <gerg@linux-m68k.org>
 
-[ Upstream commit 670f8ce56dd0632dc29a0322e188cc73ce3c6b92 ]
+[ Upstream commit 750321ace9107e103f254bf46900629ff347eb7b ]
 
-Fuzzers like to scribble over sb_bsize_shift but in reality it's very
-unlikely that this field would be corrupted on its own. Nevertheless it
-should be checked to avoid the possibility of messy mount errors due to
-bad calculations. It's always a fixed value based on the block size so
-we can just check that it's the expected value.
+Compiling for a classic m68k non-MMU target with no specific CPU
+selected fails with the following error:
 
-Tested with:
+   arch/m68k/68000/ints.c: In function 'process_int':
+>> arch/m68k/68000/ints.c:82:30: error: 'ISR' undeclared (first use in this function)
+      82 |         unsigned long pend = ISR;
+         |                              ^~~
 
-    mkfs.gfs2 -O -p lock_nolock /dev/vdb
-    for i in 0 -1 64 65 32 33; do
-        gfs2_edit -p sb field sb_bsize_shift $i /dev/vdb
-        mount /dev/vdb /mnt/test && umount /mnt/test
-    done
+This interrupt handling code is specific to the 68328 family of 68000
+parts. There is a couple of variants (68EZ328, 68VZ328) and the common
+ancestor of them the strait 68328.
 
-Before this patch we get a withdraw after
+The code here includes a specific header for each variant type. But if
+none is selected then nothing is included to supply the appropriate
+register and bit flags defines.
 
-[   76.413681] gfs2: fsid=loop0.0: fatal: invalid metadata block
-[   76.413681]   bh = 19 (type: exp=5, found=4)
-[   76.413681]   function = gfs2_meta_buffer, file = fs/gfs2/meta_io.c, line = 492
+Rearrange the includes so that at least one type is always included.
+At the very least the 68328 base type should be the fallback, so make
+that true.
 
-and with UBSAN configured we also get complaints like
-
-[   76.373395] UBSAN: shift-out-of-bounds in fs/gfs2/ops_fstype.c:295:19
-[   76.373815] shift exponent 4294967287 is too large for 64-bit type 'long unsigned int'
-
-After the patch, these complaints don't appear, mount fails immediately
-and we get an explanation in dmesg.
-
-Reported-by: syzbot+dcf33a7aae997956fe06@syzkaller.appspotmail.com
-Signed-off-by: Andrew Price <anprice@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/ops_fstype.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/m68k/68000/ints.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index 0b5c37ceb3ed..2bc1226a0bd9 100644
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -172,7 +172,10 @@ static int gfs2_check_sb(struct gfs2_sbd *sdp, int silent)
- 		pr_warn("Invalid superblock size\n");
- 		return -EINVAL;
- 	}
--
-+	if (sb->sb_bsize_shift != ffs(sb->sb_bsize) - 1) {
-+		pr_warn("Invalid block size shift\n");
-+		return -EINVAL;
-+	}
- 	return 0;
- }
+diff --git a/arch/m68k/68000/ints.c b/arch/m68k/68000/ints.c
+index cda49b12d7be..f9a5ec781408 100644
+--- a/arch/m68k/68000/ints.c
++++ b/arch/m68k/68000/ints.c
+@@ -18,12 +18,12 @@
+ #include <asm/io.h>
+ #include <asm/machdep.h>
  
+-#if defined(CONFIG_M68328)
+-#include <asm/MC68328.h>
+-#elif defined(CONFIG_M68EZ328)
++#if defined(CONFIG_M68EZ328)
+ #include <asm/MC68EZ328.h>
+ #elif defined(CONFIG_M68VZ328)
+ #include <asm/MC68VZ328.h>
++#else
++#include <asm/MC68328.h>
+ #endif
+ 
+ /* assembler routines */
 -- 
 2.35.1
 
