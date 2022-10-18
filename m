@@ -2,232 +2,391 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5A52603320
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 21:13:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6C0960343A
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 22:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229726AbiJRTNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Oct 2022 15:13:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45892 "EHLO
+        id S229651AbiJRUsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Oct 2022 16:48:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229572AbiJRTNf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 15:13:35 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E549F28724
-        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 12:13:33 -0700 (PDT)
-Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mgr@pengutronix.de>)
-        id 1oks1g-0008Oh-7d; Tue, 18 Oct 2022 21:13:20 +0200
-Received: from mgr by ptx.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <mgr@pengutronix.de>)
-        id 1oks1e-0001MU-LA; Tue, 18 Oct 2022 21:13:18 +0200
-Date:   Tue, 18 Oct 2022 21:13:18 +0200
-From:   Michael Grzeschik <mgr@pengutronix.de>
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Cc:     Dan Vacura <w36195@motorola.com>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        Daniel Scally <dan.scally@ideasonboard.com>,
-        Jeff Vanhoof <qjv001@motorola.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Paul Elder <paul.elder@ideasonboard.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
-Subject: Re: [PATCH v3 2/6] usb: dwc3: gadget: cancel requests instead of
- release after missed isoc
-Message-ID: <20221018191318.GB9097@pengutronix.de>
-References: <20221017205446.523796-1-w36195@motorola.com>
- <20221017205446.523796-3-w36195@motorola.com>
- <20221017213031.tqb575hdzli7jlbh@synopsys.com>
- <Y04K/HoUigF5FYBA@p1g3>
- <20221018184535.3g3sm35picdeuajs@synopsys.com>
+        with ESMTP id S229584AbiJRUsC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 16:48:02 -0400
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64847760D9;
+        Tue, 18 Oct 2022 13:48:00 -0700 (PDT)
+Received: by mail-wm1-x32e.google.com with SMTP id bg9-20020a05600c3c8900b003bf249616b0so13191625wmb.3;
+        Tue, 18 Oct 2022 13:48:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=iIh5GB1h39bG/jaye4uCIFy+etQtUhNfMSmF7ZpAHOs=;
+        b=ntuqWDeJkcril6B5PqaE/AADKHlVMPoS5vLYZjSwpgoN2rH/CeY6FTO/IesmB0oYGf
+         A3/pOFOwfZWhrcTfvqFSqED8Cg7x3O8cSl4TSRb7Z6i+jQSdW1WTbGf1iKHKyksjEQJ2
+         zw4TFq8V6+xoFiNXVM6YA4WiiKhJbGYad/R5CJ6XXhpnBhTOD00KoHtiTG8mn+RDJ/3c
+         gGi9JjYmokfKi5vv8xJep8TSw2jQinkhRcmKjMRwWJhVRrCmhjZKj2Od7v7ThmQYckPw
+         UItKGQwAfk8rGQ5ASrKvyCFhOfpZQ/D7ebGf/8NKyBDKaLQ1B8DswJOtlwYub4NsJ6Ir
+         zOEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=iIh5GB1h39bG/jaye4uCIFy+etQtUhNfMSmF7ZpAHOs=;
+        b=1xX4CcGZz0dzBruo1oqQbDwY+mWqGv9slF2F0HHZIJJPnVgrNQDFqn3qvpduY0nL08
+         HT/skBzQlM427+oSr0WeU9W6fU31d3smDp9LeP+KpDiQlp5QXFpbHwtF51s1z9zy/HU4
+         V1WHmJ0Dd1Z53T37eSeZ/dherJ4eRIYr/nIqakG/3vJNHtqGqV2s+Rbnr/eiWkPN/UXs
+         19r3DIy1HjppWxhAiCwgDNFsLaQQAqidbJQkEN/xZUiQWyzXTqmibfyKIwKlzLJwpLIr
+         yJGqXJhN5Dj3HWpk8j9Z79YXKEDJLA/4Aj4qj4ovemR+BGIiPZBIudL4UbK4sQrvZn87
+         J+Bg==
+X-Gm-Message-State: ACrzQf29LYYYgIzeYrILzBeM3v4j50MMrV7SMNut0f/anA3biwMPpORy
+        OGQR4uW2DWY3xmRp5/Gknnk=
+X-Google-Smtp-Source: AMsMyM6Bl/xViSam0VDwUzRHN6mxqVY6fdo6quP6F4sTzMBsv+raJxiEHQgWfs4sYzeQkTWqHAWZSw==
+X-Received: by 2002:a05:600c:3592:b0:3c6:f9db:a954 with SMTP id p18-20020a05600c359200b003c6f9dba954mr3270073wmq.170.1666126078546;
+        Tue, 18 Oct 2022 13:47:58 -0700 (PDT)
+Received: from ?IPV6:2a02:a466:68ed:1:4e5a:6a47:c5da:8ad8? (2a02-a466-68ed-1-4e5a-6a47-c5da-8ad8.fixed6.kpn.net. [2a02:a466:68ed:1:4e5a:6a47:c5da:8ad8])
+        by smtp.gmail.com with ESMTPSA id w16-20020adf8bd0000000b0022f40a2d06esm12180979wra.35.2022.10.18.13.47.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Oct 2022 13:47:58 -0700 (PDT)
+Message-ID: <50218bf7-ee13-87d2-6498-e613220f9931@gmail.com>
+Date:   Tue, 18 Oct 2022 22:47:57 +0200
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="NDin8bjvE/0mNLFQ"
-Content-Disposition: inline
-In-Reply-To: <20221018184535.3g3sm35picdeuajs@synopsys.com>
-X-Sent-From: Pengutronix Hildesheim
-X-URL:  http://www.pengutronix.de/
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
-X-SA-Exim-Mail-From: mgr@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [PATCH v2 2/2] Revert "usb: dwc3: Don't switch OTG -> peripheral
+ if extcon is present"
+Content-Language: en-US
+To:     Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Felipe Balbi <balbi@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20220927155332.10762-1-andriy.shevchenko@linux.intel.com>
+ <20221006021204.hz7iteao65dgsev6@synopsys.com>
+ <d52cc102-6a4f-78e9-6176-b33e2813fd1d@gmail.com>
+ <20221007021122.nnwmqc6sq43e5xbn@synopsys.com>
+ <ade865f1-8ed5-a8e3-e441-cb7688c6d001@gmail.com>
+ <CAHQ1cqGSmNSg73DzURrcP=a-cCd6KdVUtUmnonhP54vWVDmEhw@mail.gmail.com>
+ <4e73bbb9-eae1-6a90-d716-c721a1eeced3@gmail.com>
+ <7e9519c6-f65f-5f83-1d17-a3510103469f@gmail.com>
+ <CAHQ1cqE5=j9i8uYvBwdNUK8TrX3Wxy7iUML6K+gBQx-KRtkS7w@mail.gmail.com>
+ <644adb7b-0438-e37c-222c-71bf261369b0@gmail.com>
+ <CAHQ1cqGSXoUTopwvrQtLww5M0Tf=6F505ziLn+wGHhW_8-JhFQ@mail.gmail.com>
+ <113fe314-0f5c-f53f-db78-c93bd4515260@gmail.com>
+ <CAHQ1cqF_FvG0G2CAQooOVR3E442ApNFf8EKK8PpxcOrUoL5jDA@mail.gmail.com>
+ <bec17559-286c-b006-476f-3c26ae38e70d@gmail.com>
+ <CAHQ1cqFqKv+J1=Qg5_sDUeKQ=64aSiGJq0pPH+OqEieZDM1Mfg@mail.gmail.com>
+ <887510d7-b732-2b0e-e177-615de59cfaf8@gmail.com>
+ <CAHQ1cqFNjy7ddSot5zDekLvnqHpz5xJP+Fi6vnh+6JwVeozjcA@mail.gmail.com>
+From:   Ferry Toth <fntoth@gmail.com>
+In-Reply-To: <CAHQ1cqFNjy7ddSot5zDekLvnqHpz5xJP+Fi6vnh+6JwVeozjcA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
---NDin8bjvE/0mNLFQ
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Thinh,
-
-On Tue, Oct 18, 2022 at 06:45:40PM +0000, Thinh Nguyen wrote:
->On Mon, Oct 17, 2022, Dan Vacura wrote:
->> On Mon, Oct 17, 2022 at 09:30:38PM +0000, Thinh Nguyen wrote:
->> > On Mon, Oct 17, 2022, Dan Vacura wrote:
->> > > From: Jeff Vanhoof <qjv001@motorola.com>
->> > >
->> > > arm-smmu related crashes seen after a Missed ISOC interrupt when
->> > > no_interrupt=3D1 is used. This can happen if the hardware is still u=
-sing
->> > > the data associated with a TRB after the usb_request's ->complete ca=
-ll
->> > > has been made.  Instead of immediately releasing a request when a Mi=
-ssed
->> > > ISOC interrupt has occurred, this change will add logic to cancel the
->> > > request instead where it will eventually be released when the
->> > > END_TRANSFER command has completed. This logic is similar to some of=
- the
->> > > cleanup done in dwc3_gadget_ep_dequeue.
->> >
->> > This doesn't sound right. How did you determine that the hardware is
->> > still using the data associated with the TRB? Did you check the TRB's
->> > HWO bit?
+Op 17-10-2022 om 23:20 schreef Andrey Smirnov:
+> On Sun, Oct 16, 2022 at 1:59 PM Ferry Toth <fntoth@gmail.com> wrote:
 >>
->> The problem we're seeing was mentioned in the summary of this patch
->> series, issue #1. Basically, with the following patch
->> https://urldefense.com/v3/__https://patchwork.kernel.org/project/linux-u=
-sb/patch/20210628155311.16762-6-m.grzeschik@pengutronix.de/__;!!A4F2R9G_pg!=
-aSNZ-IjMcPgL47A4NR5qp9qhVlP91UGTuCxej5NRTv8-FmTrMkKK7CjNToQQVEgtpqbKzLU2HXE=
-T9O226AEN$
->> integrated a smmu panic is occurring on our Android device with the 5.15
->> kernel which is:
+>> Op 15-10-2022 om 21:54 schreef Andrey Smirnov:
+>>> On Thu, Oct 13, 2022 at 12:35 PM Ferry Toth <fntoth@gmail.com> wrote:
+>>>> <SNIP>
+>>>>> My end goal here is to find a way to test vanilla v6.0 with the two
+>>>>> patches reverted on your end. I thought that during my testing I saw
+>>>>> tusb1210 print those timeout messages during its probe and that
+>>>>> disabling the driver worked to break the loop, but I went back to
+>>>>> double check and it doesn't work so scratch that idea. Configuring
+>>>>> extcon as a built-in breaks host functionality with or without patches
+>>>>> on my end, so I'm not sure it could be a path.
+>>>>>
+>>>>> I won't have time to try things with
+>>>>> 0043b-TODO-driver-core-Break-infinite-loop-when-deferred-p.patch until
+>>>>> the weekend, meanwhile can you give this diff a try with vanilla (no
+>>>>> reverts) v6.0:
+>>>>>
+>>> OK, got a chance to try things with that patch. Both v6.0 and v6.0
+>>> with my patches reverted work the same, my Kingston DataTraveller USB
+>>> stick enumerates and works as expected.
+>>>
+>> Iow you don't need the patch at all to get usb to work. There has got to
+>> be a difference in our configs.
 >>
->>     <3>[  718.314900][  T803] arm-smmu 15000000.apps-smmu: Unhandled arm=
--smmu context fault from a600000.dwc3!
->>
->> The uvc gadget driver appears to be the first (and only) gadget that
->> uses the no_interrupt=3D1 logic, so this seems to be a new condition for
->> the dwc3 driver. In our configuration, we have up to 64 requests and the
->> no_interrupt=3D1 for up to 15 requests. The list size of dep->started_li=
-st
->> would get up to that amount when looping through to cleanup the
->> completed requests. From testing and debugging the smmu panic occurs
->> when a -EXDEV status shows up and right after
->> dwc3_gadget_ep_cleanup_completed_request() was visited. The conclusion
->> we had was the requests were getting returned to the gadget too early.
+> My patch? Yeah, it should have zero effect on anything.
+> !DWC3_VER_IS_PRIOR(DWC3, 330A) is false for Merrifield, so the logical
+> change from my patch is a no-op. It's a pure coincidence that it
+> resolved the probe loop that
+> 0043b-TODO-driver-core-Break-infinite-loop-when-deferred-p.patch is
+> for.
 >
->As I mentioned, if the status is updated to missed isoc, that means that
->the controller returned ownership of the TRB to the driver. At least for
->the particular request with -EXDEV, its TRBs are completed. I'm not
->clear on your conclusion.
->
->Do we know where did the crash occur? Is it from dwc3 driver or from uvc
->driver, and at what line? It'd great if we can see the driver log.
->
+>> Did you have a chance to look at mine (here:
+>> https://drive.google.com/file/d/1aKJWMqiAXnReeLCvxshzjKwGxIWQ7eJk/view?usp=sharing)
 >>
->> >
->> > The dwc3 driver would only give back the requests if the TRBs of the
->> > associated requests are completed or when the device is disconnected.
->> > If the TRB indicated missed isoc, that means that the TRB is completed
->> > and its status was updated.
+>> Else, send me yours.
 >>
->> Interesting, the device is not disconnected as we don't get the
->> -ESHUTDOWN status back and with this patch in place things continue
->> after a -EXDEV status is received.
+> I've been using your config in all of the testing.
+>
+>>>>> modified   drivers/phy/ti/phy-tusb1210.c
+>>>>> @@ -127,6 +127,7 @@ static int tusb1210_set_mode(struct phy *phy, enum
+>>>>> phy_mode mode, int submode)
+>>>>>      u8 reg;
+>>>>>
+>>>>>      ret = tusb1210_ulpi_read(tusb, ULPI_OTG_CTRL, &reg);
+>>>>> + WARN_ON(ret < 0);
+>>>>>      if (ret < 0)
+>>>>>      return ret;
+>>>>>
+>>>>> @@ -152,7 +153,10 @@ static int tusb1210_set_mode(struct phy *phy,
+>>>>> enum phy_mode mode, int submode)
+>>>>>      }
+>>>>>
+>>>>>      tusb->otg_ctrl = reg;
+>>>>> - return tusb1210_ulpi_write(tusb, ULPI_OTG_CTRL, reg);
+>>>>> + ret = tusb1210_ulpi_write(tusb, ULPI_OTG_CTRL, reg);
+>>>>> + WARN_ON(ret < 0);
+>>>>> + return ret;
+>>>>> +
+>>>>>     }
+>>>>>
+>>>>>     #ifdef CONFIG_POWER_SUPPLY
+>>>>>
+>>>>> ? I'm curious to see if there's masked errors on your end since dwc3
+>>>>> driver doesn't check for those.
+>>>> root@yuna:~# dmesg | grep -i -E 'warn|assert|error|tusb|dwc3'
+>>>> 8250_mid: probe of 0000:00:04.0 failed with error -16
+>>>> platform regulatory.0: Direct firmware load for regulatory.db failed
+>>>> with error -2
+>>>> brcmfmac mmc2:0001:1: Direct firmware load for
+>>>> brcm/brcmfmac43340-sdio.Intel Corporation-Merrifield.bin failed with
+>>>> error -2
+>>>> sof-audio-pci-intel-tng 0000:00:0d.0: error: I/O region is too small.
+>>>> sof-audio-pci-intel-tng 0000:00:0d.0: error: failed to probe DSP -19
+>>>>
+>>>>
+>>>>>> This is done through configfs only when the switch is set to device mode.
+>>>>> Sure, but can it be disabled? We are looking for unknown variables, so
+>>>>> excluding this would be a reasonable thing to do.
+>>>> It's not enabled until I flip the switch to device mode.
+>>> OK to cut this back and forth short, I think it'd be easier to just
+>>> ask you to run what I run. Here's vanilla v6.0 bzImage and initrd
+>>> (built with your config + CONFIG_PHY_TUSB1210=y) I tested with
+>> What do you mean by this? My config is with
 >>
->
->Actually, minor correction here: a recent change
->b44c0e7fef51 ("usb: dwc3: gadget: conditionally remove requests")
->changed -ESHUTDOWN request status to -ECONNRESET when disable endpoint.
->This doesn't look right.
->
->While disabling endpoint may also apply for other cases such as
->switching alternate interface in addition to disconnect, -ESHUTDOWN
->seems more fitting there.
->
->Hi Michael,
->
->Can you help clarify for the change above? This changed the usage of
->requests. Now requests returned by disconnection won't be returned as
->-ESHUTDOWN.
-
-When writing the patch, I was looking into
-Documentation/driver-api/usb/error-codes.rst.
-
-After looking into it today, I see that ESHUTDOWN should be send on
-ep_disable (device disable) and ECONNRESET on stop_active_transfer.
-So I probably just mixed them up, while writing the patch. :/
-
-The followup patch would then just be to swap the status results of
-__dwc3_gadget_ep_disable and dwc3_stop_active_transfers on the
-dwc3_remove_requests call.
-
-Michael
-
->> >
->> > There's a special case which dwc3 may give back requests early is the
->> > case of the device disconnecting. The requests should be returned with
->> > -ESHUTDOWN, and the gadget driver shouldn't be re-using the requests on
->> > de-initialization anyway.
->> >
->> > We should not issue End Transfer command just because of missed isoc. =
-We
->> > may want issue End Transfer if the gadget driver is too slow and unable
->> > to feed requests in time (causing underrun and missed isoc) to resync
->> > with the host, but we already handle that.
+>> CONFIG_GENERIC_PHY=y
+>> CONFIG_PHY_TUSB1210=y
 >>
->> Hmm, isn't that what happens when we get into this
->> condition in dwc3_gadget_endpoint_trbs_complete():
->>
->> 	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
->> 		list_empty(&dep->started_list) &&
->> 		(list_empty(&dep->pending_list) || status =3D=3D -EXDEV))
->> 		dwc3_stop_active_transfer(dep, true, true);
->>
+> $ cat config-6.0.0-edison-acpi-standard | grep 1210
+> # CONFIG_PHY_TUSB1210 is not set
+> $ md5sum config-6.0.0-edison-acpi-standard
+> 3c989c708302c1f9e73c6113e71aed9d  config-6.0.0-edison-acpi-standard
 >
->Yes, it's being handled there.
+> I had to manually enable it, that's what I meant by my comment.
+
+Unbelievable, seems I uploaded the wrong config. I just double checked 
+to see if any other differences:
+
+scripts/diffconfig config-6.0.0-edison-acpi-standard-bad 
+config-6.0.0-edison-acpi-standard-good
+  GENERIC_PHY n -> y
+  PHY_TUSB1210 n -> y
+
 >
->> >
->> > I'm still not clear what's the problem you're seeing. Do you have the
->> > crash log? Tracepoints?
->> >
+>>> https://drive.google.com/drive/folders/1H28AL1coPPZ2kLTYskDuDdWo-oE7DRPH?usp=sharing
+>>> let's see how it behaves on your setup. There's also the U-Boot binary
+>> Ok, it's getting weirder and weirder. The following is with my U-Boot
+>> and your kernel/initrd
 >>
->> Appreciate the support!
+>> 1) I placed them in /boot which is on my btrfs partition on the emmc (my
+>> U-Boot has btrfs enabled)
 >>
+>> Linux kernel version 6.0.0-edison-acpi-standard
+>> (andreysm@neptunefw-builder) #8 SMP PREEMPT_DYNAMIC Sat Oct 15 18:47:19
+>> UTC 2022
+>> Building boot_params at 0x00090000
+>> Loading bzImage at address 100000 (12064480 bytes)
+>> Initial RAM disk at linear address 0x06000000, size 25165824 bytes
+>> Kernel command line: "quiet root=/dev/mmcblk0p8
+>> rootflags=subvol=@,compress=lzo rootfstype=btrfs console=ttyS2,115200n8
+>> earlyprintk=ttyS2,115200n8,keep loglevel=4 systemd.unit=multi-user.target"
+>> Kernel loaded at 00100000, setup_base=00090000
+>>
+> You shouldn't be using root from you storage since:
+>    a) the initrd I uploaded is self-containing, it doesn't need anything else
+
+Yes I know. With the Yocto image we build our own that does switchroot.
+
+Here I am inside your buildroot initrd, no fs from the emmc are mounted. 
+According to dmesg btrfs module is loaded later then dwc3, and scans 
+(finds) the btrfs partition in all cases without mounting.
+
+>    b) your local data is another variable we don't want to introduce
 >
->Thanks,
->Thinh
+> just "rootfstype=ramfs" should be enough for this and
+>
+>   root=/dev/mmcblk0p8 rootflags=subvol=@,compress=lzo rootfstype=btrfs
+>
+> should be dropped.
 
---=20
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+After some experimenting it appears "rootfstype=btrfs" causes the 
+buildroot rootfs to fail probing tsub1210.
 
---NDin8bjvE/0mNLFQ
-Content-Type: application/pgp-signature; name="signature.asc"
+I think you should be able to reproduce this.
 
------BEGIN PGP SIGNATURE-----
+However, changing "rootfstype=ramfs" for my (yocto) image (which 
+probably should be the right thing to do now I think about it) does not 
+resolve the failing to probe tsub1210. Comparing the dmesg with the 
+buildroot one shows that in my case a lot of stuff happens prior to dwc3:
 
-iQIzBAABCgAdFiEElXvEUs6VPX6mDPT8C+njFXoeLGQFAmNO+swACgkQC+njFXoe
-LGRUPA//VdRHN0Y5t4IiSNNGbrT5CuZ98TI8jKfvSy3kwRBw/dRp9DMlC4GKZZNE
-vMCVXuNJT/uO3bsHaH3aYO/0QMNiQV1tloAbiXx/BPyI60+G5ywC+hwxpwS1k2uD
-FUxvYBznY8ZDmHYy6G/gR7EbUNzispDvFzyZTyjrYT50VUv/JZBJd/x/Y/5jpP5/
-Xy7Cbq8I6s88Y1I3ZfzZMPNOtYYLHcPel72j1Wb/zT/azVDgJjgMpUNxCpIutm+1
-3WhKa9PHd2uIIwbSX+tiOpxMrWo31Dut24mTXz/+9fcPgFCLSFHF25c+9nJcZCK+
-xnuPINxRYKDkPkrPqAZAUZa26c7GR8usxeitTZ7nLLfYZfJNRKZ8A4ToVGlldAEs
-v+uJ22LJ0fx8A+G3QGzDlC2uleZRLhYOm0916ZLk4UGkct+3GQqymI0MrAwfT0oq
-D9ByAXyJ8MCIJamwt31oZ/rN53NGT7QMCLOYoojQUiMwJg9vaxk7yiO+HCdApYUx
-tKeCshYSIsELdQNMRFDpAoIzZZ4LwHnP57nlgIC1CoIgCG1d0K/cPmKskNP6jbtk
-s4sa8SfYNW6gFnC09hE2IxI0moaR6+0tQc2LxH2QMDcEfkswuahTj+OXijPZu0Nk
-olG1QdBlLaJAnYlZXcC/k0Vsd4m2T29Rrv/S3hNs4HsHy/0XTGA=
-=PxEq
------END PGP SIGNATURE-----
+raid6 does speed testing (this is used by btrfs)
 
---NDin8bjvE/0mNLFQ--
+btrfs is loaded
+
+sdhci probed
+
+acpi tables (for edison-arduino) loaded into configfs
+
+external gpio muxes setup
+
+finally xhci (tusb1210 is before this on the buildroot image)
+
+
+>
+>> Usb drive is not detected regardless booting with stick plugged or
+>> plugging later on.
+>>
+>> # lsusb
+>> Bus 001 Device 001: ID 1d6b:0002
+>> Bus 002 Device 001: ID 1d6b:0003
+>>
+>> No TUSB1210 probed
+>>
+>> # dmesg | grep dwc3
+>> #
+>>
+>> 2) I placed them in my vfat rescue partition
+>>
+>> Linux kernel version 6.0.0-edison-acpi-standard
+>> (andreysm@neptunefw-builder) #8 SMP PREEMPT_DYNAMIC Sat Oct 15 18:47:19
+>> UTC 2022
+>> Building boot_params at 0x00090000
+>> Loading bzImage at address 100000 (12064480 bytes)
+>> Initial RAM disk at linear address 0x06000000, size 25165824 bytes
+>> Kernel command line: "debugshell=0 tty1 console=ttyS2,115200n8
+>> root=/dev/mmcblk0p7 rootfstype=vfat systemd.unit=multi-user.target"
+>> Kernel loaded at 00100000, setup_base=00090000
+>>
+>> Usb drive is detected.
+> Yep, that's exactly my point about extra variables. So it looks like
+> something in your root btrfs partition is triggering this issue. I
+> don't really know the contents of your root file system, so don't
+> really have any suggestions there. Maybe old kernel modules are
+> getting picked up? Or something else is interfering ¯\_(ツ)_/¯
+>
+>> # lsusb
+>> Bus 001 Device 001: ID 1d6b:0002
+>> Bus 001 Device 002: ID 125f:312b
+>> Bus 002 Device 001: ID 1d6b:0003
+>>
+>> TUSB1210 probed
+>>
+>> # dmesg | grep dwc3
+>> [    8.605845] tusb1210 dwc3.0.auto.ulpi: GPIO lookup for consumer reset
+>> [    8.605876] tusb1210 dwc3.0.auto.ulpi: using ACPI for GPIO lookup
+>> [    8.605927] tusb1210 dwc3.0.auto.ulpi: using lookup tables for GPIO
+>> lookup
+>> [    8.605941] tusb1210 dwc3.0.auto.ulpi: No GPIO consumer reset found
+>> [    8.605956] tusb1210 dwc3.0.auto.ulpi: GPIO lookup for consumer cs
+>> [    8.605970] tusb1210 dwc3.0.auto.ulpi: using ACPI for GPIO lookup
+>> [    8.606011] tusb1210 dwc3.0.auto.ulpi: using lookup tables for GPIO
+>> lookup
+>> [    8.606024] tusb1210 dwc3.0.auto.ulpi: No GPIO consumer cs found
+>> [    8.669317] tusb1210 dwc3.0.auto.ulpi: error -110 writing val 0x41 to
+>> reg 0x80
+>>
+>> ## note: options debugshell, root and rootfstype are normally handled by
+>> a script in my initrd, so I guess here noop.
+>>
+>>> I use in that folder in case you want to give it a try.
+>>>
+>>> Now on Merrifield dwc3_get_extcon() doesn't do anything but call
+>>> extcon_get_extcon_dev() which doesn't touch any hardware or interact
+>>> with other drivers, so assuming
+>>>
+>>>> So current v6.0 has: dwc3_get_extcon - dwc3_get_dr_mode - ... -
+>>>> dwc3_core_init - .. - dwc3_core_init_mode (not working)
+>>>>
+>>>> I changed to: dwc3_get_dr_mode - dwc3_get_extcon - .. - dwc3_core_init -
+>>>> .. - dwc3_core_init_mode (no change)
+>>>>
+>>>> Then to: dwc3_get_dr_mode - .. - dwc3_core_init - .. - dwc3_get_extcon -
+>>>> dwc3_core_init_mode (works)
+>>> still holds(did you double check that with vanilla v6.0?) the only
+>> I didn't check
+>>> difference that I can see is execution timings. It seems to me it's
+>>> either an extra delay added by execution of  extcon_get_extcon_dev()
+>>> (unlikely) or multiple partial probes that include dwc3_core_init()
+>>> that change things. You can try to check the latter by adding an
+>>> artificial probe deferral point after dwc3_core_init(). Something like
+>>> (didn't test this):
+>>>
+>>> modified   drivers/usb/dwc3/core.c
+>>> @@ -1860,6 +1860,10 @@ static int dwc3_probe(struct platform_device *pdev)
+>>>     goto err3;
+>>>
+>>>     ret = dwc3_core_init(dwc);
+>>> + static int deferral_counter = 0;
+>>> + if (deferral_counter++ < 9) /* I counted 9 deferrals in my testing */
+>>> + ret = -EPROBE_DEFER;
+>>> +
+>>>     if (ret) {
+>>>     dev_err_probe(dev, ret, "failed to initialize core\n");
+>>>     goto err4;
+>> Not sure how you wanted this tested. So I assume on vanilla booting from
+>> btrfs on eemc. It crashes but maybe the trace is usefull. After crash it
+>> continues but no USB appears at all.
+>>
+> I think you'll have to experiment with that code placement to emulate
+> a deferred probe for the old location of "get extcon".  I'd focus on
+> figuring out the root filesystem variable first before trying to get
+> this to work.
+
+Yes, did that as described above. I think that "rootfstype=btrfs" causes 
+some ordering issue, like as if xhci goes to soon. It goes before:
+
+spi_master spi5: GPIO lookup for consumer cs
+
+while tusb1210 when it does probe starts with:
+
+tusb1210 dwc3.0.auto.ulpi: GPIO lookup for consumer reset
+
+and xhci follow later.
+
+> To be explicit, at this point I don't think the revert is really
+> warranted. I'm also happy to reply/help you with suggestions, but you
+> are going to have to start driving this.
+
+I agree that reverting based on a "regression" can not be concluded here 
+as dwc3 on merrifield never worked without an out-of-tree patch. And 
+your patch makes that out-of-tree patch obsolete - that's a good thing.
+
+But I do think your patch is exposing an older issue that makes dwc3 
+sensitive to ordering. I would very much appreciate if you could try 
+"rootfstype=btrfs" to reproduce. It think it would be a good thing to 
+resolve it so that the effort here has not been for nothing.
+
+My next step will be to move around the code placement as you suggest. 
+(I can spend a few hours in the evenings only as this is not my day job, 
+so explains if I'm a bit slow to respond here).
+
