@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B009601FB8
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D3C0601ED6
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231469AbiJRAjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:39:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48032 "EHLO
+        id S231358AbiJRAOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:14:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231993AbiJRAir (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:38:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BE8A31372;
-        Mon, 17 Oct 2022 17:38:31 -0700 (PDT)
+        with ESMTP id S231722AbiJRAOL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:14:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AE50DF26;
+        Mon, 17 Oct 2022 17:10:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 46D0D61325;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F4AEB81BDD;
+        Tue, 18 Oct 2022 00:10:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27488C433D7;
         Tue, 18 Oct 2022 00:10:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9118EC43142;
-        Tue, 18 Oct 2022 00:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051833;
-        bh=+LBArGdX0j3n5IqfNBzHwnlpAdY9FxZUW3+O8Byj3io=;
+        s=k20201202; t=1666051834;
+        bh=PzR8uGBQ/2Q/+FjVcBfhys6fifpKaXDT2ajW+lJBOLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+c7+LOp38c4FGxBdS3CfAvchSeIH+E4ZGGLfaHnm0rujADvqcoOdRmt4eU4mqjzC
-         e5ely9Zo2HocZVeHR+vItEboxcJFWEdvP32CayzT5Pvayi3WdPPLIJ4GhP2Q8RY9Rz
-         Fp31RgpCXcL2AuX831QYwucJjovfoxI/7mjCRYLiSHrZU+bnanGQJMskqIxwYfMQN6
-         robDgkxK1XsULGvxPfJrpwvSvwTwDPpTqQb1r6DlDfjR5585M12+hJKiHRMnJqiI7r
-         5Lh/bbC1tgy0zRdLue6qbE2Mt4QZkMAaEiOUdV/av8PfwR8aO4DHFicEHsvtnII2+F
-         azucW8pUknyCw==
+        b=gSDqqBmh1LEuKU/RfF4e9UmGj/4L3b9rKTBLJlADFIg1DkqviH1n/hIA+r9wXnJnf
+         Y615T7WVFSukDGK0qwrvUz6+LSHGzQym+ZTTVrNwF8cjtNMwHLpKz/CxVqSN6RlDot
+         Z/v1Q6Bh3KyQA4D3c5t3j4IJZcVzCFDImnDvr593m7ARKF8/31QyMQf4nUuYUoSJBx
+         u08lJoeVgvxTeaLISEZrJ9wGoiJXcUZioCWFGOtz7K/EPneC/HjxT+6w3VK89npoBG
+         5XDbDwGMU8inP87CuQHdl7E/1xlPpDWRB+zjeTR+i6kPueDk8C3ic92+1TQX3VbHKa
+         9EJLxf6SIRzIw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jarkko Sakkinen <jarkko@profian.com>,
-        Harald Hoyer <harald@profian.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, brijesh.singh@amd.com,
-        john.allen@amd.com, davem@davemloft.net,
-        linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 02/16] crypto: ccp - Add a quirk to firmware update
-Date:   Mon, 17 Oct 2022 20:10:15 -0400
-Message-Id: <20221018001029.2731620-2-sashal@kernel.org>
+Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Sasha Levin <sashal@kernel.org>, rpeterso@redhat.com,
+        cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.10 03/16] gfs2: Switch from strlcpy to strscpy
+Date:   Mon, 17 Oct 2022 20:10:16 -0400
+Message-Id: <20221018001029.2731620-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018001029.2731620-1-sashal@kernel.org>
 References: <20221018001029.2731620-1-sashal@kernel.org>
@@ -59,76 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko@profian.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit b3b9fdf1a9be4266b01a2063b1f37cdc20806e3b ]
+[ Upstream commit 204c0300c4e99707e9fb6e57840aa1127060e63f ]
 
-A quirk for fixing the committed TCB version, when upgrading from a
-firmware version earlier than 1.50. This is a known issue, and the
-documented workaround is to load the firmware twice.
+Switch from strlcpy to strscpy and make sure that @count is the size of
+the smaller of the source and destination buffers.  This prevents
+reading beyond the end of the source buffer when the source string isn't
+null terminated.
 
-Currently, this issue requires the  following workaround:
+Found by a modified version of syzkaller.
 
-sudo modprobe -r kvm_amd
-sudo modprobe -r ccp
-sudo modprobe ccp
-sudo modprobe kvm_amd
-
-Implement this workaround inside kernel by checking whether the API
-version is less than 1.50, and if so, download the firmware twice.
-This addresses the TCB version issue.
-
-Link: https://lore.kernel.org/all/de02389f-249d-f565-1136-4af3655fab2a@profian.com/
-Reported-by: Harald Hoyer <harald@profian.com>
-Signed-off-by: Jarkko Sakkinen <jarkko@profian.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Suggested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/sev-dev.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ fs/gfs2/ops_fstype.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
-index ed39a22e1b2b..0ea441e82bf9 100644
---- a/drivers/crypto/ccp/sev-dev.c
-+++ b/drivers/crypto/ccp/sev-dev.c
-@@ -528,6 +528,11 @@ static int sev_update_firmware(struct device *dev)
- 	struct page *p;
- 	u64 data_size;
+diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
+index b9ed6a6dbcf5..f7ad3e1b26bb 100644
+--- a/fs/gfs2/ops_fstype.c
++++ b/fs/gfs2/ops_fstype.c
+@@ -381,8 +381,10 @@ static int init_names(struct gfs2_sbd *sdp, int silent)
+ 	if (!table[0])
+ 		table = sdp->sd_vfs->s_id;
  
-+	if (!sev_version_greater_or_equal(0, 15)) {
-+		dev_dbg(dev, "DOWNLOAD_FIRMWARE not supported\n");
-+		return -1;
-+	}
+-	strlcpy(sdp->sd_proto_name, proto, GFS2_FSNAME_LEN);
+-	strlcpy(sdp->sd_table_name, table, GFS2_FSNAME_LEN);
++	BUILD_BUG_ON(GFS2_LOCKNAME_LEN > GFS2_FSNAME_LEN);
 +
- 	if (sev_get_firmware(dev, &firmware) == -ENOENT) {
- 		dev_dbg(dev, "No SEV firmware file present\n");
- 		return -1;
-@@ -560,6 +565,14 @@ static int sev_update_firmware(struct device *dev)
- 	data->len = firmware->size;
++	strscpy(sdp->sd_proto_name, proto, GFS2_LOCKNAME_LEN);
++	strscpy(sdp->sd_table_name, table, GFS2_LOCKNAME_LEN);
  
- 	ret = sev_do_cmd(SEV_CMD_DOWNLOAD_FIRMWARE, data, &error);
-+
-+	/*
-+	 * A quirk for fixing the committed TCB version, when upgrading from
-+	 * earlier firmware version than 1.50.
-+	 */
-+	if (!ret && !sev_version_greater_or_equal(1, 50))
-+		ret = sev_do_cmd(SEV_CMD_DOWNLOAD_FIRMWARE, data, &error);
-+
- 	if (ret)
- 		dev_dbg(dev, "Failed to update SEV firmware: %#x\n", error);
- 	else
-@@ -1074,8 +1087,7 @@ void sev_pci_init(void)
- 	if (sev_get_api_version())
- 		goto err;
+ 	table = sdp->sd_table_name;
+ 	while ((table = strchr(table, '/')))
+@@ -1414,13 +1416,13 @@ static int gfs2_parse_param(struct fs_context *fc, struct fs_parameter *param)
  
--	if (sev_version_greater_or_equal(0, 15) &&
--	    sev_update_firmware(sev->dev) == 0)
-+	if (sev_update_firmware(sev->dev) == 0)
- 		sev_get_api_version();
- 
- 	/* Obtain the TMR memory area for SEV-ES use */
+ 	switch (o) {
+ 	case Opt_lockproto:
+-		strlcpy(args->ar_lockproto, param->string, GFS2_LOCKNAME_LEN);
++		strscpy(args->ar_lockproto, param->string, GFS2_LOCKNAME_LEN);
+ 		break;
+ 	case Opt_locktable:
+-		strlcpy(args->ar_locktable, param->string, GFS2_LOCKNAME_LEN);
++		strscpy(args->ar_locktable, param->string, GFS2_LOCKNAME_LEN);
+ 		break;
+ 	case Opt_hostdata:
+-		strlcpy(args->ar_hostdata, param->string, GFS2_LOCKNAME_LEN);
++		strscpy(args->ar_hostdata, param->string, GFS2_LOCKNAME_LEN);
+ 		break;
+ 	case Opt_spectator:
+ 		args->ar_spectator = 1;
 -- 
 2.35.1
 
