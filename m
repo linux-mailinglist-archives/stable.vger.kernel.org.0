@@ -2,68 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A57F602805
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 11:11:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA0C160281A
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 11:18:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231195AbiJRJLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Oct 2022 05:11:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58706 "EHLO
+        id S230413AbiJRJSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Oct 2022 05:18:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231209AbiJRJLg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 05:11:36 -0400
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 038FCA99D3
-        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 02:11:35 -0700 (PDT)
-Received: by mail-lf1-x12e.google.com with SMTP id b1so21484347lfs.7
-        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 02:11:34 -0700 (PDT)
+        with ESMTP id S229992AbiJRJSH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 05:18:07 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1B538980E
+        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 02:18:05 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id k2so30703901ejr.2
+        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 02:18:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Hs5kolKpC/C8pusTeJANmsAcelkkPgG9+Ckh4D5mS3U=;
-        b=cQ8VS/TMzJ1bSVnAog0nYXSe/HvTh2YhN3SDM1Scm7eOWSVxvVpxkFkmlo251b4uZe
-         o58JpQozt15w1GWyyRhgQla9SHsqzbF34bVct1r16gTPQZVBLH6Y4aFn44JeP0hvqb2z
-         sZtTzv7AMV0Ovc9PX8NqqnQEdVHtHsVJupNkFBGQ76niK/RwG4FigCN0yQ6SZJEcz8x/
-         KGuxDhdMZN17yLgrw6XACbIesW5gBphTFZksraIq0pl+DLpUW0ub69Bu29YU8x3/HAnp
-         GO1yyNPPyNZoEIfEYjWJYGwYlT+5Nz8d8VMDCBe1mIbjMVpQkRMXyGPZhwxKZT8UHxUF
-         3IVQ==
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=oOQqs65wtvxD4dXO4tAoUmo7evjc4ehlCZeveSnwvf0=;
+        b=zb081iMh7QlIU5PcMmIu9rydRddiZCl3sflOebBzziP8ApqyWutpxbxkgnFN7y5pcb
+         kCK5FoPIfZfefyH1k8Hyr5lmpyaQER8R+F6PMP7bIaUR4Qd0uS3iba3OTCi3fZ/Z73R4
+         ow+MCscbaCzzjne6e6dEL7NVLBIS6gIK/rwdHGvt/NPXc3FXM6uaaRHkoo3ydCByNva8
+         i1QZztSRnKv46EYpVK8nPe7M1yPpdA3mA+6nQkB7IfcY5FC3GkfVPYcqZ//dReL5pHSQ
+         j4ZooHa94RjthJqm6dWyhVqylE+VB01KtYEbBIStj/b1WmzhHJUXYryVveINpQiWU0F1
+         gRqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Hs5kolKpC/C8pusTeJANmsAcelkkPgG9+Ckh4D5mS3U=;
-        b=l6WCjJBW+FW3IB0qSnn02yUjBnsMEwlg8Ih4A/W19bD8dNy/C6r3+5etS8t3IUVpDF
-         duH3h1TH1AmpfyT5Xdnqvn18aslVcjkPHhj6V9mwdx+NiD1QMmGKyqeSOMSwhAeLcXNq
-         24iCTnxyoEAr7pbs96T+490cc3qcCP8h1H8/QEgaN4384MdX2di7+PnvOXO6AR6zJTKI
-         BTPLqf5FVgLSgkSSVj/4AkMnYguIFC0vDPqdQmI2XJEFBTwDfnadlyHk3yPvrW91dCnS
-         Kl8FdFMkZS+OCrSVhAvTZTp0Z6aIUbiBuTXqb9uKVDiKtLyJQH6W5eJo7Yimpd+BbtVl
-         8zNQ==
-X-Gm-Message-State: ACrzQf0eRsuMDBYOrmmMDu1wTlkCgZNg4wR02Z332zhXAaSnAREcuAY8
-        rdM0YELlFTgMzJcxItEfRlkFug==
-X-Google-Smtp-Source: AMsMyM7/KXg0yRfat7BbX8yGSAD6lyPNmkWy2TyM/wLC6fRxC6XiC7foevIFxBb/6zZQd41MqOcRew==
-X-Received: by 2002:a19:ac04:0:b0:49a:7253:4a68 with SMTP id g4-20020a19ac04000000b0049a72534a68mr700876lfc.322.1666084293321;
-        Tue, 18 Oct 2022 02:11:33 -0700 (PDT)
-Received: from fedora.. ([85.235.10.72])
-        by smtp.gmail.com with ESMTPSA id k15-20020ac24f0f000000b00498fc3d4d15sm1772701lfr.190.2022.10.18.02.11.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Oct 2022 02:11:32 -0700 (PDT)
-From:   Linus Walleij <linus.walleij@linaro.org>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>
-Cc:     linux-mtd@lists.infradead.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH v2] mtd: parsers: bcm47xxpart: Fix halfblock reads
-Date:   Tue, 18 Oct 2022 11:11:29 +0200
-Message-Id: <20221018091129.280026-1-linus.walleij@linaro.org>
-X-Mailer: git-send-email 2.37.3
+        bh=oOQqs65wtvxD4dXO4tAoUmo7evjc4ehlCZeveSnwvf0=;
+        b=ZB6IlYd13m6zoDg95SsF5sYFnKBH/Y35sMYbk5Yk9ooUBCy+cwJbBp/64puLNQUGFh
+         h52SLh7UgzzfE8UXhkgLVZxOGbhxwmW5oAC7Li//2D/FyGbM8uM+S3Cv2lnIUXbO2rgA
+         ongp2O6XI9WH5eqVFwCljcHg2fopqIJsOIAMlIiK++oDeFJw0AUUIyVAu+z3zYKIBSG2
+         rSm4OThYY6UD7HbMucU3zLuzZA9UOguPhSyVWU+Pbu/O/fV/y8T9uM/FJIedQhWPBoUj
+         VjuynLaCxnus2348Peqw+GAEuNJYUT/VPeimL9p9I5fLzw6NaniytLVdKL9fqAk/A1Gj
+         Uj8g==
+X-Gm-Message-State: ACrzQf2h5Z4UMugi4dmP7A1ROMOwqi7EbXndj3eRkJwx6vbp033h1U0s
+        xDOoF/CGFD/4IJcz6GdWTyTA+IbH0Lfa+uqbxzfGkA==
+X-Google-Smtp-Source: AMsMyM6lZ2+Xt+1NEg2JK7nPwMIv3ssbgjEp/zROqPCRH200jqaALy3oAke4WBt/IhCcXtUVaXfHcVFtSi5ZhtdOnxs=
+X-Received: by 2002:a17:907:7805:b0:780:24fd:c4e8 with SMTP id
+ la5-20020a170907780500b0078024fdc4e8mr1602811ejc.78.1666084684420; Tue, 18
+ Oct 2022 02:18:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20221018021920.3747344-1-bryan.odonoghue@linaro.org> <20221018021920.3747344-2-bryan.odonoghue@linaro.org>
+In-Reply-To: <20221018021920.3747344-2-bryan.odonoghue@linaro.org>
+From:   Robert Foss <robert.foss@linaro.org>
+Date:   Tue, 18 Oct 2022 11:17:53 +0200
+Message-ID: <CAG3jFyuoJGNGHmQFfNsBJfnYbUw+jMCiP5uiLcYspYapYKydpA@mail.gmail.com>
+Subject: Re: [PATCH v3 1/1] i2c: qcom-cci: Fix ordering of pm_runtime_xx and i2c_add_adapter
+To:     "Bryan O'Donoghue" <bryan.odonoghue@linaro.org>
+Cc:     loic.poulain@linaro.org, wsa@kernel.org, linux-i2c@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        vladimir.zapolskiy@linaro.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -73,48 +66,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There is some code in the parser that tries to read 0x8000
-bytes into a block to "read in the middle" of the block. Well
-that only works if the block is also 0x10000 bytes all the time,
-else we get these parse errors as we reach the end of the flash:
+On Tue, 18 Oct 2022 at 04:19, Bryan O'Donoghue
+<bryan.odonoghue@linaro.org> wrote:
+>
+> When we compile-in the CCI along with the imx412 driver and run on the RB5
+> we see that i2c_add_adapter() causes the probe of the imx412 driver to
+> happen.
+>
+> This probe tries to perform an i2c xfer() and the xfer() in i2c-qcom-cci.c
+> fails on pm_runtime_get() because the i2c-qcom-cci.c::probe() function has
+> not completed to pm_runtime_enable(dev).
+>
+> Fix this sequence by ensuring pm_runtime_xxx() calls happen prior to adding
+> the i2c adapter.
+>
+> Fixes: e517526195de ("i2c: Add Qualcomm CCI I2C driver")
+> Reported-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+> Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+> Tested-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+> ---
+>  drivers/i2c/busses/i2c-qcom-cci.c | 13 ++++++++-----
+>  1 file changed, 8 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
+> index 87739fb4388b..a4b97fe3c3a5 100644
+> --- a/drivers/i2c/busses/i2c-qcom-cci.c
+> +++ b/drivers/i2c/busses/i2c-qcom-cci.c
+> @@ -639,6 +639,11 @@ static int cci_probe(struct platform_device *pdev)
+>         if (ret < 0)
+>                 goto error;
+>
+> +       pm_runtime_set_autosuspend_delay(dev, MSEC_PER_SEC);
+> +       pm_runtime_use_autosuspend(dev);
+> +       pm_runtime_set_active(dev);
+> +       pm_runtime_enable(dev);
+> +
+>         for (i = 0; i < cci->data->num_masters; i++) {
+>                 if (!cci->master[i].cci)
+>                         continue;
+> @@ -650,14 +655,12 @@ static int cci_probe(struct platform_device *pdev)
+>                 }
+>         }
+>
+> -       pm_runtime_set_autosuspend_delay(dev, MSEC_PER_SEC);
+> -       pm_runtime_use_autosuspend(dev);
+> -       pm_runtime_set_active(dev);
+> -       pm_runtime_enable(dev);
+> -
+>         return 0;
+>
+>  error_i2c:
+> +       pm_runtime_disable(dev);
+> +       pm_runtime_dont_use_autosuspend(dev);
+> +
+>         for (--i ; i >= 0; i--) {
+>                 if (cci->master[i].cci) {
+>                         i2c_del_adapter(&cci->master[i].adap);
+> --
+> 2.34.1
+>
 
-spi-nor spi0.0: mx25l1606e (2048 Kbytes)
-mtd_read error while parsing (offset: 0x200000): -22
-mtd_read error while parsing (offset: 0x201000): -22
-(...)
-
-Fix the code to do what I think was intended.
-
-Cc: stable@vger.kernel.org
-Fixes: f0501e81fbaa ("mtd: bcm47xxpart: alternative MAGIC for board_data partition")
-Cc: Rafał Miłecki <zajec5@gmail.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
-ChangeLog v1->v2:
-- Add some fixes and stable tags.
----
- drivers/mtd/parsers/bcm47xxpart.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/mtd/parsers/bcm47xxpart.c b/drivers/mtd/parsers/bcm47xxpart.c
-index 50fcf4c2174b..13daf9bffd08 100644
---- a/drivers/mtd/parsers/bcm47xxpart.c
-+++ b/drivers/mtd/parsers/bcm47xxpart.c
-@@ -233,11 +233,11 @@ static int bcm47xxpart_parse(struct mtd_info *master,
- 		}
- 
- 		/* Read middle of the block */
--		err = mtd_read(master, offset + 0x8000, 0x4, &bytes_read,
-+		err = mtd_read(master, offset + (blocksize / 2), 0x4, &bytes_read,
- 			       (uint8_t *)buf);
- 		if (err && !mtd_is_bitflip(err)) {
- 			pr_err("mtd_read error while parsing (offset: 0x%X): %d\n",
--			       offset + 0x8000, err);
-+			       offset + (blocksize / 2), err);
- 			continue;
- 		}
- 
--- 
-2.34.1
-
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
