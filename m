@@ -2,75 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57AC7601FF5
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:56:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7586601EEB
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:15:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbiJRA4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:56:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60996 "EHLO
+        id S231610AbiJRAOq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:14:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229597AbiJRA4I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:56:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38C3656F;
-        Mon, 17 Oct 2022 17:56:07 -0700 (PDT)
+        with ESMTP id S231178AbiJRANq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:13:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7DBE89949;
+        Mon, 17 Oct 2022 17:10:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D405EB81BF7;
-        Tue, 18 Oct 2022 00:10:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6D8DC43470;
-        Tue, 18 Oct 2022 00:10:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6343B61329;
+        Tue, 18 Oct 2022 00:10:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15856C43143;
+        Tue, 18 Oct 2022 00:10:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051820;
-        bh=g+WXfrzA4ISuTyVMiDVrnPZI2xkMfmlnL2F1oUbznow=;
+        s=k20201202; t=1666051821;
+        bh=1ZYxHUyU9NpGZtKaFDyP0j06ZoEkHo2aD97zSqyG0gU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=quQWKCZ7T1/JqJKLKzhWbuhsJ2uwlmEBBESRo++VOSMytb3bEV3o8nnGG+YErxeCl
-         NRhuhrt4RGA9OVQgzQjwACaQ63Qdfi0tn/KQhSb6nHDV+KCvyo4HBvOGG7f+7mw+S1
-         lhegizQHTyrE6b4rGflklPKCOGu3Nv71COkIjIPqmSQ9aerkVhV8VP9L1Rq2Cj9fdh
-         KNG//5ddr8KsGYuEkb4gHcMwuQ9qTvw9+SqZHal2UHkxcUhwy+8PNQ+Qs3T/IRiUZs
-         nsNasTynLfZVbCb3UR7UAvqufy6Lp4t9uDtvYVAxmisfCm4BjWdrvbiuVI2t2PfLik
-         61GONJzAGzonQ==
+        b=fmojT7R+ukzv97BLMmoabXJoDXShQvOclPgBAnEZZuvQYRGj8yNtncj4tTSWzVj8c
+         AFhGrfdzVhbyTZgCb3mFhCz2/65h4tbU2yhDMGBYRoBV9sNrDS3rpLnlgkt6jRFJvJ
+         N2nAIiiQtw/LgUmWAzjG0I1mZIrPZcXSLZHA6Ho6xm35SCZjhXLnVgKX21cuV41w3n
+         yxsVZ/K6NFMe060qr/PtsM+0k0ZgNXNBRxth/BX78GoH4QKD2TC0BunV0Z6o4nNxy8
+         HslKmdg86ksTJh4JZO++heDk59Z2LjNsP8xq2MLGq1027eDZ0uovlSZy6ZUaUuJJcH
+         fgOS2K8bH2pNA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Potapenko <glider@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Lameter <cl@linux.com>,
-        David Rientjes <rientjes@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Marco Elver <elver@google.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vegard Nossum <vegard.nossum@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 16/21] kmsan: disable physical page merging in biovec
-Date:   Mon, 17 Oct 2022 20:09:35 -0400
-Message-Id: <20221018000940.2731329-16-sashal@kernel.org>
+Cc:     Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.15 17/21] f2fs: fix to detect corrupted meta ino
+Date:   Mon, 17 Oct 2022 20:09:36 -0400
+Message-Id: <20221018000940.2731329-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000940.2731329-1-sashal@kernel.org>
 References: <20221018000940.2731329-1-sashal@kernel.org>
@@ -87,74 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit f630a5d0ca59a6e73b61e3f82c371dc230da99ff ]
+[ Upstream commit fcc2d8cc96b2f6141bbbe5b1e8953db990794b44 ]
 
-KMSAN metadata for adjacent physical pages may not be adjacent, therefore
-accessing such pages together may lead to metadata corruption.  We disable
-merging pages in biovec to prevent such corruptions.
+It is possible that ino of dirent or orphan inode is corrupted in a
+fuzzed image, occasionally, if corrupted ino is equal to meta ino:
+meta_ino, node_ino or compress_ino, caller of f2fs_iget() from below
+call paths will get meta inode directly, it's not allowed, let's
+add sanity check to detect such cases.
 
-Link: https://lkml.kernel.org/r/20220915150417.722975-28-glider@google.com
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Eric Biggers <ebiggers@google.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vegard Nossum <vegard.nossum@oracle.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+case #1
+- recover_dentry
+ - __f2fs_find_entry
+ - f2fs_iget_retry
+
+case #2
+- recover_orphan_inode
+ - f2fs_iget_retry
+
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/f2fs/inode.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/block/blk.h b/block/blk.h
-index aab72194d226..e833f606bf63 100644
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -66,6 +66,13 @@ static inline bool biovec_phys_mergeable(struct request_queue *q,
- 	phys_addr_t addr1 = page_to_phys(vec1->bv_page) + vec1->bv_offset;
- 	phys_addr_t addr2 = page_to_phys(vec2->bv_page) + vec2->bv_offset;
+diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+index bd8960f4966b..cc91bcebd2ca 100644
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -480,6 +480,12 @@ static int do_read_inode(struct inode *inode)
+ 	return 0;
+ }
  
-+	/*
-+	 * Merging adjacent physical pages may not work correctly under KMSAN
-+	 * if their metadata pages aren't adjacent. Just disable merging.
-+	 */
-+	if (IS_ENABLED(CONFIG_KMSAN))
-+		return false;
++static bool is_meta_ino(struct f2fs_sb_info *sbi, unsigned int ino)
++{
++	return ino == F2FS_NODE_INO(sbi) || ino == F2FS_META_INO(sbi) ||
++		ino == F2FS_COMPRESS_INO(sbi);
++}
 +
- 	if (addr1 + vec1->bv_len != addr2)
- 		return false;
- 	if (xen_domain() && !xen_biovec_phys_mergeable(vec1, vec2->bv_page))
+ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
+ {
+ 	struct f2fs_sb_info *sbi = F2FS_SB(sb);
+@@ -491,16 +497,21 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	if (!(inode->i_state & I_NEW)) {
++		if (is_meta_ino(sbi, ino)) {
++			f2fs_err(sbi, "inaccessible inode: %lu, run fsck to repair", ino);
++			set_sbi_flag(sbi, SBI_NEED_FSCK);
++			ret = -EFSCORRUPTED;
++			trace_f2fs_iget_exit(inode, ret);
++			iput(inode);
++			return ERR_PTR(ret);
++		}
++
+ 		trace_f2fs_iget(inode);
+ 		return inode;
+ 	}
+-	if (ino == F2FS_NODE_INO(sbi) || ino == F2FS_META_INO(sbi))
+-		goto make_now;
+ 
+-#ifdef CONFIG_F2FS_FS_COMPRESSION
+-	if (ino == F2FS_COMPRESS_INO(sbi))
++	if (is_meta_ino(sbi, ino))
+ 		goto make_now;
+-#endif
+ 
+ 	ret = do_read_inode(inode);
+ 	if (ret)
 -- 
 2.35.1
 
