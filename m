@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1681601F73
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:20:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C3A5601ED8
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:14:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231948AbiJRAUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:20:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57142 "EHLO
+        id S230175AbiJRAOf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:14:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231791AbiJRASX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:18:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4EF3C8D1;
-        Mon, 17 Oct 2022 17:14:35 -0700 (PDT)
+        with ESMTP id S231701AbiJRAOI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:14:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A76E87F95;
+        Mon, 17 Oct 2022 17:10:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFF1BB81C00;
-        Tue, 18 Oct 2022 00:10:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4432C4347C;
-        Tue, 18 Oct 2022 00:10:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C136B612F4;
+        Tue, 18 Oct 2022 00:10:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EE85C433C1;
+        Tue, 18 Oct 2022 00:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051828;
-        bh=mKb3LAjLh61nv88wsoVeVjj2pYy9qA3Vi19/A3aGjaA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=boaGwSxBoXeBRSpNoIRtoYUXG/z+s8sYX0AVUn70p7sQCaYBOuevOpTqJyPfpf9fj
-         kp/6X82uQtHkO5zhIvSb3M7CWDxBcGukRC60Cf/lNi9pHtN87WOwDcfCnaNWNpSkDB
-         j5B9M+QYraxAT7hkj8AcJG7d2o/vdbKeFoTBKZc6Sn2MuVwp7crfv4nWLcq5SVObpH
-         vaEV6jEfqR1xFua+pM8YK4n7yxrzZ9DDXp6bZjL8I9H4gMLsk3W1zurhTMC/3yNGoC
-         SDBahgjJ6qyupEg3d4tQQsnzocrVt6gOeo+1nM24RO8CWG6WdU5kwcwBMfCg5l93T2
-         iF43UEV7PJyag==
+        s=k20201202; t=1666051832;
+        bh=RSGgGtk0YTsjWbz6ye3C8AS4eZR6iyFcHaLNzhOaBv8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=TjUlJHbeevp0M0V1ATg7jJJySCwQqvimcYcTqZplpsBktBDIkX2mNr5aW2jq/L1C3
+         zq1HxOLtYe8YSxSHl5F0LxQS1kE8MAtLROBRxpN3+5IoZHlhJrVhD6tKIPifG1bLlc
+         m18iXu7tlF4cg1hOD+a0ksi9ZaSf2uvAU772SVyv+Jvcim7hq6lBbJa6q7S8AVvzHY
+         NGSN3zWmDuFs28oxsLiV5bBus6TFQvBSQHc1M2Mu0hdrP2Ga/w6Ih7Q3w/Ft1pTVaj
+         WaHjNaUtbnEiPjQnd6r7idoNkb2HlMPmICwXavPWXM5TVC17w6oRfGGA9iIB/wkaDE
+         qkuYDFO6prk7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Angus Chen <angus.chen@jaguarmicro.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.15 21/21] virtio_pci: don't try to use intxif pin is zero
-Date:   Mon, 17 Oct 2022 20:09:40 -0400
-Message-Id: <20221018000940.2731329-21-sashal@kernel.org>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        kernel test robot <lkp@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        agross@kernel.org, andersson@kernel.org, davem@davemloft.net,
+        linux-arm-msm@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 01/16] crypto: qcom-rng - Fix qcom_rng_of_match unused warning
+Date:   Mon, 17 Oct 2022 20:10:14 -0400
+Message-Id: <20221018001029.2731620-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221018000940.2731329-1-sashal@kernel.org>
-References: <20221018000940.2731329-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,90 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angus Chen <angus.chen@jaguarmicro.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 71491c54eafa318fdd24a1f26a1c82b28e1ac21d ]
+[ Upstream commit 882aa6525cabcfa0cea61e1a19c9af4c543118ac ]
 
-The background is that we use dpu in cloud computing,the arch is x86,80
-cores. We will have a lots of virtio devices,like 512 or more.
-When we probe about 200 virtio_blk devices,it will fail and
-the stack is printed as follows:
+Module device tables need to be declared as maybe_unused because
+they will be unused when built-in and the corresponding option is
+also disabled.
 
-[25338.485128] virtio-pci 0000:b3:00.0: virtio_pci: leaving for legacy driver
-[25338.496174] genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)
-[25338.503822] CPU: 20 PID: 5431 Comm: kworker/20:0 Kdump: loaded Tainted: G           OE    --------- -  - 4.18.0-305.30.1.el8.x86_64
-[25338.516403] Hardware name: Inspur NF5280M5/YZMB-00882-10E, BIOS 4.1.21 08/25/2021
-[25338.523881] Workqueue: events work_for_cpu_fn
-[25338.528235] Call Trace:
-[25338.530687]  dump_stack+0x5c/0x80
-[25338.534000]  __setup_irq.cold.53+0x7c/0xd3
-[25338.538098]  request_threaded_irq+0xf5/0x160
-[25338.542371]  vp_find_vqs+0xc7/0x190
-[25338.545866]  init_vq+0x17c/0x2e0 [virtio_blk]
-[25338.550223]  ? ncpus_cmp_func+0x10/0x10
-[25338.554061]  virtblk_probe+0xe6/0x8a0 [virtio_blk]
-[25338.558846]  virtio_dev_probe+0x158/0x1f0
-[25338.562861]  really_probe+0x255/0x4a0
-[25338.566524]  ? __driver_attach_async_helper+0x90/0x90
-[25338.571567]  driver_probe_device+0x49/0xc0
-[25338.575660]  bus_for_each_drv+0x79/0xc0
-[25338.579499]  __device_attach+0xdc/0x160
-[25338.583337]  bus_probe_device+0x9d/0xb0
-[25338.587167]  device_add+0x418/0x780
-[25338.590654]  register_virtio_device+0x9e/0xe0
-[25338.595011]  virtio_pci_probe+0xb3/0x140
-[25338.598941]  local_pci_probe+0x41/0x90
-[25338.602689]  work_for_cpu_fn+0x16/0x20
-[25338.606443]  process_one_work+0x1a7/0x360
-[25338.610456]  ? create_worker+0x1a0/0x1a0
-[25338.614381]  worker_thread+0x1cf/0x390
-[25338.618132]  ? create_worker+0x1a0/0x1a0
-[25338.622051]  kthread+0x116/0x130
-[25338.625283]  ? kthread_flush_work_fn+0x10/0x10
-[25338.629731]  ret_from_fork+0x1f/0x40
-[25338.633395] virtio_blk: probe of virtio418 failed with error -16
+This patch adds the maybe_unused attributes to OF and ACPI.  This
+also allows us to remove the ifdef around the ACPI data structure.
 
-The log :
-"genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)"
-was printed because of the irq 0 is used by timer exclusive,and when
-vp_find_vqs call vp_find_vqs_msix and returns false twice (for
-whatever reason), then it will call vp_find_vqs_intx as a fallback.
-Because vp_dev->pci_dev->irq is zero, we request irq 0 with
-flag IRQF_SHARED, and get a backtrace like above.
-
-According to PCI spec about "Interrupt Pin" Register (Offset 3Dh):
-"The Interrupt Pin register is a read-only register that identifies the
- legacy interrupt Message(s) the Function uses. Valid values are 01h, 02h,
- 03h, and 04h that map to legacy interrupt Messages for INTA,
- INTB, INTC, and INTD respectively. A value of 00h indicates that the
- Function uses no legacy interrupt Message(s)."
-
-So if vp_dev->pci_dev->pin is zero, we should not request legacy
-interrupt.
-
-Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Message-Id: <20220930000915.548-1-angus.chen@jaguarmicro.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_pci_common.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/crypto/qcom-rng.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 1e890ef17687..0b4b3011ff92 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -403,6 +403,9 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, false, ctx, desc);
- 	if (!err)
- 		return 0;
-+	/* Is there an interrupt pin? If not give up. */
-+	if (!(to_vp_device(vdev)->pci_dev->pin))
-+		return err;
- 	/* Finally fall back to regular interrupts. */
- 	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
+diff --git a/drivers/crypto/qcom-rng.c b/drivers/crypto/qcom-rng.c
+index 031b5f701a0a..72dd1a4ebac4 100644
+--- a/drivers/crypto/qcom-rng.c
++++ b/drivers/crypto/qcom-rng.c
+@@ -9,6 +9,7 @@
+ #include <linux/crypto.h>
+ #include <linux/io.h>
+ #include <linux/iopoll.h>
++#include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+@@ -201,15 +202,13 @@ static int qcom_rng_remove(struct platform_device *pdev)
+ 	return 0;
  }
+ 
+-#if IS_ENABLED(CONFIG_ACPI)
+-static const struct acpi_device_id qcom_rng_acpi_match[] = {
++static const struct acpi_device_id __maybe_unused qcom_rng_acpi_match[] = {
+ 	{ .id = "QCOM8160", .driver_data = 1 },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(acpi, qcom_rng_acpi_match);
+-#endif
+ 
+-static const struct of_device_id qcom_rng_of_match[] = {
++static const struct of_device_id __maybe_unused qcom_rng_of_match[] = {
+ 	{ .compatible = "qcom,prng", .data = (void *)0},
+ 	{ .compatible = "qcom,prng-ee", .data = (void *)1},
+ 	{}
 -- 
 2.35.1
 
