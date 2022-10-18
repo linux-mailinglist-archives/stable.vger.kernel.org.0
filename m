@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7400A601EDA
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:14:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2395601EC8
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231518AbiJRAOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:14:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37012 "EHLO
+        id S230527AbiJRANT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:13:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231588AbiJRANK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:13:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7766189835;
-        Mon, 17 Oct 2022 17:09:28 -0700 (PDT)
+        with ESMTP id S230400AbiJRAME (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:12:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75DDA8980E;
+        Mon, 17 Oct 2022 17:09:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 792B5B81BEF;
-        Tue, 18 Oct 2022 00:09:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C865C433C1;
-        Tue, 18 Oct 2022 00:09:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6152B81BEC;
+        Tue, 18 Oct 2022 00:09:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C751C43145;
+        Tue, 18 Oct 2022 00:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051744;
-        bh=o4EPuk4B9Shg79X/Vlpo7frNkPaOH8zHto7ZIXtowqk=;
+        s=k20201202; t=1666051745;
+        bh=0WRq8MXZM3ZDilDA1bAGWB/EzA7Q30P8KMT3E0nCaJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MU6wkLIwh24XWm36eM2JvU4gYx/IYfRutfHY8O4OZZEFzPxMlHRvT/4sEUTcG+l4X
-         MfhmoO63hIY6Q9MNfY0nHNir5bq+zWGwvFI8GvHeV62UZaRIlRfTGrhHZC3K3gk/Zw
-         2sVPaxKXJ40E9UYR+hBpG+TQCbjQf2K1yYFNxN/EmRwm7KwaWsbdIZb6f+S9w17zgU
-         egvQFA5KpFwzb6jqoxxE06hFb/6MzAqukBWwEFRfQIHrW8WydjMDMvoITFkSCuic9Z
-         aEZvcFl+QR15greWcbNKHhNHdL4gMBEE1LjA6IaWH6LWFvWF2/Sd+O/S29zcoApz7p
-         QqiE1ge/iQQrQ==
+        b=nAZTNjg4d42lxO17YAfMW/k+11tXXzb+TPqiUAY85wbusxZ91vPc2Xm41udM7GYOb
+         r5G6bmobhMwh4Nido8I4bpVs1QB/W07kVM9e58AqzU83Gjc3qXNEq9mSWL3cZ8RQAE
+         jRSJewRh4bPmIhVjYsKE5Vi+Im9/YbdsgO9mjXh/BQDXQOP81G/6p+X6mlrOtLaPUA
+         W1hfIQQh7Nkt6HpAbQF+l/8xyNdza0Q+Ymo85lITRacR68WA+7M/MDO4+EYCLsgBLp
+         VkAzDEKH4B6fN7XirZqyrHphzbnMeixDBxplnEkoCRJTmsDmEpP06j2tvA/28xN7fn
+         7eggsg5Cu1zVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yury Norov <yury.norov@gmail.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Sasha Levin <sashal@kernel.org>, mpe@ellerman.id.au,
-        christophe.leroy@csgroup.eu, aik@ozlabs.ru, dja@axtens.net,
-        amodra@au1.ibm.com, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.19 12/29] powerpc/64: don't refer nr_cpu_ids in asm code when it's undefined
-Date:   Mon, 17 Oct 2022 20:08:21 -0400
-Message-Id: <20221018000839.2730954-12-sashal@kernel.org>
+Cc:     Greg Ungerer <gerg@linux-m68k.org>,
+        kernel test robot <lkp@intel.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-m68k@lists.linux-m68k.org
+Subject: [PATCH AUTOSEL 5.19 13/29] m68knommu: fix non-specific 68328 choice interrupt build failure
+Date:   Mon, 17 Oct 2022 20:08:22 -0400
+Message-Id: <20221018000839.2730954-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221018000839.2730954-1-sashal@kernel.org>
 References: <20221018000839.2730954-1-sashal@kernel.org>
@@ -57,55 +57,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yury Norov <yury.norov@gmail.com>
+From: Greg Ungerer <gerg@linux-m68k.org>
 
-[ Upstream commit 546a073d628111e3338af689938407e77d5dc38f ]
+[ Upstream commit 750321ace9107e103f254bf46900629ff347eb7b ]
 
-generic_secondary_common_init() calls LOAD_REG_ADDR(r7, nr_cpu_ids)
-conditionally on CONFIG_SMP. However, if 'NR_CPUS == 1', kernel doesn't
-use the nr_cpu_ids, and in C code, it's just:
-  #if NR_CPUS == 1
-  #define nr_cpu_ids
-  ...
+Compiling for a classic m68k non-MMU target with no specific CPU
+selected fails with the following error:
 
-This series makes declaration of nr_cpu_ids conditional on NR_CPUS == 1,
-and that reveals the issue, because compiler can't link the
-LOAD_REG_ADDR(r7, nr_cpu_ids) against nonexisting symbol.
+   arch/m68k/68000/ints.c: In function 'process_int':
+>> arch/m68k/68000/ints.c:82:30: error: 'ISR' undeclared (first use in this function)
+      82 |         unsigned long pend = ISR;
+         |                              ^~~
 
-Current code looks unsafe for those who build kernel with CONFIG_SMP=y and
-NR_CPUS == 1. This is weird configuration, but not disallowed.
+This interrupt handling code is specific to the 68328 family of 68000
+parts. There is a couple of variants (68EZ328, 68VZ328) and the common
+ancestor of them the strait 68328.
 
-Fix the linker error by replacing LOAD_REG_ADDR() with LOAD_REG_IMMEDIATE()
-conditionally on NR_CPUS == 1.
+The code here includes a specific header for each variant type. But if
+none is selected then nothing is included to supply the appropriate
+register and bit flags defines.
 
-As the following patch adds CONFIG_FORCE_NR_CPUS option that has the
-similar effect on nr_cpu_ids, make the generic_secondary_common_init()
-conditional on it too.
+Rearrange the includes so that at least one type is always included.
+At the very least the 68328 base type should be the fallback, so make
+that true.
 
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/head_64.S | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/m68k/68000/ints.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/head_64.S b/arch/powerpc/kernel/head_64.S
-index d3eea633d11a..8408d3f7f61f 100644
---- a/arch/powerpc/kernel/head_64.S
-+++ b/arch/powerpc/kernel/head_64.S
-@@ -400,8 +400,12 @@ generic_secondary_common_init:
- #else
- 	LOAD_REG_ADDR(r8, paca_ptrs)	/* Load paca_ptrs pointe	 */
- 	ld	r8,0(r8)		/* Get base vaddr of array	 */
-+#if (NR_CPUS == 1) || defined(CONFIG_FORCE_NR_CPUS)
-+	LOAD_REG_IMMEDIATE(r7, NR_CPUS)
+diff --git a/arch/m68k/68000/ints.c b/arch/m68k/68000/ints.c
+index cda49b12d7be..f9a5ec781408 100644
+--- a/arch/m68k/68000/ints.c
++++ b/arch/m68k/68000/ints.c
+@@ -18,12 +18,12 @@
+ #include <asm/io.h>
+ #include <asm/machdep.h>
+ 
+-#if defined(CONFIG_M68328)
+-#include <asm/MC68328.h>
+-#elif defined(CONFIG_M68EZ328)
++#if defined(CONFIG_M68EZ328)
+ #include <asm/MC68EZ328.h>
+ #elif defined(CONFIG_M68VZ328)
+ #include <asm/MC68VZ328.h>
 +#else
- 	LOAD_REG_ADDR(r7, nr_cpu_ids)	/* Load nr_cpu_ids address       */
- 	lwz	r7,0(r7)		/* also the max paca allocated 	 */
-+#endif
- 	li	r5,0			/* logical cpu id                */
- 1:
- 	sldi	r9,r5,3			/* get paca_ptrs[] index from cpu id */
++#include <asm/MC68328.h>
+ #endif
+ 
+ /* assembler routines */
 -- 
 2.35.1
 
