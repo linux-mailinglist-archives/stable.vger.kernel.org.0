@@ -2,46 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D097D601F54
-	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:17:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57315601EED
+	for <lists+stable@lfdr.de>; Tue, 18 Oct 2022 02:15:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232016AbiJRARp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Oct 2022 20:17:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55224 "EHLO
+        id S231666AbiJRAO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Oct 2022 20:14:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231716AbiJRAQ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:16:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0E7F88A01;
-        Mon, 17 Oct 2022 17:13:20 -0700 (PDT)
+        with ESMTP id S231782AbiJRAOU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Oct 2022 20:14:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96F43895D4;
+        Mon, 17 Oct 2022 17:10:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D86661302;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8AF7FB81BEC;
+        Tue, 18 Oct 2022 00:09:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F21C4347C;
         Tue, 18 Oct 2022 00:09:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3880C433D6;
-        Tue, 18 Oct 2022 00:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666051783;
-        bh=RSGgGtk0YTsjWbz6ye3C8AS4eZR6iyFcHaLNzhOaBv8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=QuPnAHINw4SK3eghOPcUUgDn4HmZOYg6Wqf94+6ON3QFpYxadBhSdYS7KLHNDsS5g
-         OaQzI93q3P657inYRM4SBxSJddp8/FMVFVA+gJ/4ghRUgJ4X1+w6a3H3V2Acvr9HXZ
-         1+x2xAIMwDB70/VpnuiOAAlJtvKR2cIFa7P7DzneALO0lcfp2syiWukVSqoimyD9zC
-         1pRvstk81voIvp+TChoL2Irr+Z0FyttjWsPkmtUrMqp7emIOS3TeCS9BQSbL5otIT6
-         lIQWQ8ufKz1Zhx8iA1V93WWs5/WY9m7o9Sz3opsmFdRO0qQv7LE3VgMKvy1Ck5O/52
-         dkiM19hx9zuYg==
+        s=k20201202; t=1666051785;
+        bh=gNh2ld62PA+BgLD+KlU4zLJnyNYOoG3ivBaMi6DyBFo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=o+ejnVCuPOR4+ORwUlts60m0xfgkmqaf87bF8u0ZbA0GVoc1KKgp4PpvZM1u06vhO
+         Vu9T0DDX02ekcX1oh+fwh5d70hi0GSWAS03SCn86ojJ86VOq7D2fVmtD3F4FMb5lRe
+         Q1BoHbpHx8hidJOoUOutZk3ddkk7+JNogYDUHRum+xJg1upAN000UIM8i1CI9wl2ek
+         N5GwCyH1xi0zl0cuv1tKxlT1UYGRDaNAh36RnBNFmFQnt0ZFbe0UVxhgSvQt8dVWne
+         Pt2H+fR7yg55oCo5zrvHGZIr8XUan37lXu+7n+p49IpyBERC+7gt7nK6/GDBmx4GR+
+         QAjPdmaIohNWw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        kernel test robot <lkp@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        agross@kernel.org, andersson@kernel.org, davem@davemloft.net,
-        linux-arm-msm@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 01/21] crypto: qcom-rng - Fix qcom_rng_of_match unused warning
-Date:   Mon, 17 Oct 2022 20:09:20 -0400
-Message-Id: <20221018000940.2731329-1-sashal@kernel.org>
+Cc:     Jarkko Sakkinen <jarkko@profian.com>,
+        Harald Hoyer <harald@profian.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, brijesh.singh@amd.com,
+        john.allen@amd.com, davem@davemloft.net,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 02/21] crypto: ccp - Add a quirk to firmware update
+Date:   Mon, 17 Oct 2022 20:09:21 -0400
+Message-Id: <20221018000940.2731329-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221018000940.2731329-1-sashal@kernel.org>
+References: <20221018000940.2731329-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,56 +59,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Jarkko Sakkinen <jarkko@profian.com>
 
-[ Upstream commit 882aa6525cabcfa0cea61e1a19c9af4c543118ac ]
+[ Upstream commit b3b9fdf1a9be4266b01a2063b1f37cdc20806e3b ]
 
-Module device tables need to be declared as maybe_unused because
-they will be unused when built-in and the corresponding option is
-also disabled.
+A quirk for fixing the committed TCB version, when upgrading from a
+firmware version earlier than 1.50. This is a known issue, and the
+documented workaround is to load the firmware twice.
 
-This patch adds the maybe_unused attributes to OF and ACPI.  This
-also allows us to remove the ifdef around the ACPI data structure.
+Currently, this issue requires the  following workaround:
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
+sudo modprobe -r kvm_amd
+sudo modprobe -r ccp
+sudo modprobe ccp
+sudo modprobe kvm_amd
+
+Implement this workaround inside kernel by checking whether the API
+version is less than 1.50, and if so, download the firmware twice.
+This addresses the TCB version issue.
+
+Link: https://lore.kernel.org/all/de02389f-249d-f565-1136-4af3655fab2a@profian.com/
+Reported-by: Harald Hoyer <harald@profian.com>
+Signed-off-by: Jarkko Sakkinen <jarkko@profian.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qcom-rng.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/crypto/ccp/sev-dev.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/qcom-rng.c b/drivers/crypto/qcom-rng.c
-index 031b5f701a0a..72dd1a4ebac4 100644
---- a/drivers/crypto/qcom-rng.c
-+++ b/drivers/crypto/qcom-rng.c
-@@ -9,6 +9,7 @@
- #include <linux/crypto.h>
- #include <linux/io.h>
- #include <linux/iopoll.h>
-+#include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
-@@ -201,15 +202,13 @@ static int qcom_rng_remove(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
+index 900727b5edda..999a8e38ffe0 100644
+--- a/drivers/crypto/ccp/sev-dev.c
++++ b/drivers/crypto/ccp/sev-dev.c
+@@ -555,6 +555,11 @@ static int sev_update_firmware(struct device *dev)
+ 	struct page *p;
+ 	u64 data_size;
  
--#if IS_ENABLED(CONFIG_ACPI)
--static const struct acpi_device_id qcom_rng_acpi_match[] = {
-+static const struct acpi_device_id __maybe_unused qcom_rng_acpi_match[] = {
- 	{ .id = "QCOM8160", .driver_data = 1 },
- 	{}
- };
- MODULE_DEVICE_TABLE(acpi, qcom_rng_acpi_match);
--#endif
++	if (!sev_version_greater_or_equal(0, 15)) {
++		dev_dbg(dev, "DOWNLOAD_FIRMWARE not supported\n");
++		return -1;
++	}
++
+ 	if (sev_get_firmware(dev, &firmware) == -ENOENT) {
+ 		dev_dbg(dev, "No SEV firmware file present\n");
+ 		return -1;
+@@ -587,6 +592,14 @@ static int sev_update_firmware(struct device *dev)
+ 	data->len = firmware->size;
  
--static const struct of_device_id qcom_rng_of_match[] = {
-+static const struct of_device_id __maybe_unused qcom_rng_of_match[] = {
- 	{ .compatible = "qcom,prng", .data = (void *)0},
- 	{ .compatible = "qcom,prng-ee", .data = (void *)1},
- 	{}
+ 	ret = sev_do_cmd(SEV_CMD_DOWNLOAD_FIRMWARE, data, &error);
++
++	/*
++	 * A quirk for fixing the committed TCB version, when upgrading from
++	 * earlier firmware version than 1.50.
++	 */
++	if (!ret && !sev_version_greater_or_equal(1, 50))
++		ret = sev_do_cmd(SEV_CMD_DOWNLOAD_FIRMWARE, data, &error);
++
+ 	if (ret)
+ 		dev_dbg(dev, "Failed to update SEV firmware: %#x\n", error);
+ 	else
+@@ -1091,8 +1104,7 @@ void sev_pci_init(void)
+ 	if (sev_get_api_version())
+ 		goto err;
+ 
+-	if (sev_version_greater_or_equal(0, 15) &&
+-	    sev_update_firmware(sev->dev) == 0)
++	if (sev_update_firmware(sev->dev) == 0)
+ 		sev_get_api_version();
+ 
+ 	/* Obtain the TMR memory area for SEV-ES use */
 -- 
 2.35.1
 
