@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA8E60475F
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:37:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EBC5604754
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:37:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232605AbiJSNhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:37:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56970 "EHLO
+        id S232019AbiJSNhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:37:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232311AbiJSNgo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:36:44 -0400
+        with ESMTP id S232058AbiJSNgi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:36:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F881633B3;
-        Wed, 19 Oct 2022 06:25:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2855C18B4B5;
+        Wed, 19 Oct 2022 06:25:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2EC9B824EC;
-        Wed, 19 Oct 2022 09:16:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52F35C433C1;
-        Wed, 19 Oct 2022 09:16:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 073EDB824F0;
+        Wed, 19 Oct 2022 09:16:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 687F9C433D6;
+        Wed, 19 Oct 2022 09:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170964;
-        bh=6vbKmmz0ryFxKZLGyy2yrARzgTOezGzvxGBhsplRrh8=;
+        s=korg; t=1666170969;
+        bh=v54vnW+bX4cKUN2tJYHQtuvmIGDk0z24Qkca/Gc9l6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uz5CIb8CLGxofcZm65WllZlfFB0iRtpIBlYGhHEuqCzyrfJOXdfeaGIO5VMTwspqE
-         235mQUwRTHakFhNnDFiDlMM4UbyXOQc47y+nDi4ZBgD+5C++ol++yhHXlN3db2MEKV
-         rqxkAMrJRNVnhszHfJo7EYksyvaVHYl1Pe/otJkw=
+        b=YNYQegpzo/M1LWT5tIeUpfFyWcR5/pKbOskirTQJ5pDxFfjw7qnHExgRRfZC+6kXk
+         IIdA1uxXEoEr4G1QLub463cWZ7qs3WDYj8Q7vMs/BCUEGJvTGgGZAmkZadrCLn6rCE
+         9k/oYnCC4MQ/noSVlddJ9flJUChSRbNyx3xbzrBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, sunghwan jung <onenowy@gmail.com>,
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 822/862] Revert "usb: storage: Add quirk for Samsung Fit flash"
-Date:   Wed, 19 Oct 2022 10:35:09 +0200
-Message-Id: <20221019083326.232981997@linuxfoundation.org>
+Subject: [PATCH 6.0 824/862] staging: rtl8723bs: fix potential memory leak in rtw_init_drv_sw()
+Date:   Wed, 19 Oct 2022 10:35:11 +0200
+Message-Id: <20221019083326.330272358@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,57 +52,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sunghwan jung <onenowy@gmail.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit ad5dbfc123e6ffbbde194e2a4603323e09f741ee ]
+[ Upstream commit 5a5aa9cce621e2c0e25a1e5d72d6be1749167cc0 ]
 
-This reverts commit 86d92f5465958752481269348d474414dccb1552,
-which fix the timeout issue for "Samsung Fit Flash".
+In rtw_init_drv_sw(), there are various init functions are called to
+populate the padapter structure and some checks for their return value.
+However, except for the first one error path, the other five error paths
+do not properly release the previous allocated resources, which leads to
+various memory leaks.
 
-But the commit affects not only "Samsung Fit Flash" but also other usb
-storages that use the same controller and causes severe performance
-regression.
+This patch fixes them and keeps the success and error separate.
+Note that these changes keep the form of `rtw_init_drv_sw()` in
+"drivers/staging/r8188eu/os_dep/os_intfs.c". As there is no proper device
+to test with, no runtime testing was performed.
 
- # hdparm -t /dev/sda (without the quirk)
- Timing buffered disk reads: 622 MB in  3.01 seconds = 206.66 MB/sec
-
- # hdparm -t /dev/sda (with the quirk)
- Timing buffered disk reads: 220 MB in  3.00 seconds =  73.32 MB/sec
-
-The commit author mentioned that "Issue was reproduced after device has
-bad block", so this quirk should be applied when we have the timeout
-issue with a device that has bad blocks.
-
-We revert the commit so that we apply this quirk by adding kernel
-paramters using a bootloader or other ways when we really need it,
-without the performance regression with devices that don't have the
-issue.
-
-Signed-off-by: sunghwan jung <onenowy@gmail.com>
-Link: https://lore.kernel.org/r/20220913114913.3073-1-onenowy@gmail.com
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Link: https://lore.kernel.org/r/tencent_C3B899D2FC3F1BC827F3552E0B0734056006@qq.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_devs.h | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/staging/rtl8723bs/os_dep/os_intfs.c | 60 +++++++++++----------
+ 1 file changed, 31 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index 4993227ab293..20dcbccb290b 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -1275,12 +1275,6 @@ UNUSUAL_DEV( 0x090a, 0x1200, 0x0000, 0x9999,
- 		USB_SC_RBC, USB_PR_BULK, NULL,
- 		0 ),
+diff --git a/drivers/staging/rtl8723bs/os_dep/os_intfs.c b/drivers/staging/rtl8723bs/os_dep/os_intfs.c
+index 380d8c9e1239..68bba3c0e757 100644
+--- a/drivers/staging/rtl8723bs/os_dep/os_intfs.c
++++ b/drivers/staging/rtl8723bs/os_dep/os_intfs.c
+@@ -664,51 +664,36 @@ void rtw_reset_drv_sw(struct adapter *padapter)
  
--UNUSUAL_DEV(0x090c, 0x1000, 0x1100, 0x1100,
--		"Samsung",
--		"Flash Drive FIT",
--		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_MAX_SECTORS_64),
+ u8 rtw_init_drv_sw(struct adapter *padapter)
+ {
+-	u8 ret8 = _SUCCESS;
 -
- /* aeb */
- UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
- 		"Feiya",
+ 	rtw_init_default_value(padapter);
+ 
+ 	rtw_init_hal_com_default_value(padapter);
+ 
+-	if (rtw_init_cmd_priv(&padapter->cmdpriv)) {
+-		ret8 = _FAIL;
+-		goto exit;
+-	}
++	if (rtw_init_cmd_priv(&padapter->cmdpriv))
++		return _FAIL;
+ 
+ 	padapter->cmdpriv.padapter = padapter;
+ 
+-	if (rtw_init_evt_priv(&padapter->evtpriv)) {
+-		ret8 = _FAIL;
+-		goto exit;
+-	}
++	if (rtw_init_evt_priv(&padapter->evtpriv))
++		goto free_cmd_priv;
+ 
+-
+-	if (rtw_init_mlme_priv(padapter) == _FAIL) {
+-		ret8 = _FAIL;
+-		goto exit;
+-	}
++	if (rtw_init_mlme_priv(padapter) == _FAIL)
++		goto free_evt_priv;
+ 
+ 	init_mlme_ext_priv(padapter);
+ 
+-	if (_rtw_init_xmit_priv(&padapter->xmitpriv, padapter) == _FAIL) {
+-		ret8 = _FAIL;
+-		goto exit;
+-	}
++	if (_rtw_init_xmit_priv(&padapter->xmitpriv, padapter) == _FAIL)
++		goto free_mlme_ext;
+ 
+-	if (_rtw_init_recv_priv(&padapter->recvpriv, padapter) == _FAIL) {
+-		ret8 = _FAIL;
+-		goto exit;
+-	}
++	if (_rtw_init_recv_priv(&padapter->recvpriv, padapter) == _FAIL)
++		goto free_xmit_priv;
+ 	/*  add for CONFIG_IEEE80211W, none 11w also can use */
+ 	spin_lock_init(&padapter->security_key_mutex);
+ 
+ 	/*  We don't need to memset padapter->XXX to zero, because adapter is allocated by vzalloc(). */
+ 	/* memset((unsigned char *)&padapter->securitypriv, 0, sizeof (struct security_priv)); */
+ 
+-	if (_rtw_init_sta_priv(&padapter->stapriv) == _FAIL) {
+-		ret8 = _FAIL;
+-		goto exit;
+-	}
++	if (_rtw_init_sta_priv(&padapter->stapriv) == _FAIL)
++		goto free_recv_priv;
+ 
+ 	padapter->stapriv.padapter = padapter;
+ 	padapter->setband = GHZ24_50;
+@@ -719,9 +704,26 @@ u8 rtw_init_drv_sw(struct adapter *padapter)
+ 
+ 	rtw_hal_dm_init(padapter);
+ 
+-exit:
++	return _SUCCESS;
++
++free_recv_priv:
++	_rtw_free_recv_priv(&padapter->recvpriv);
++
++free_xmit_priv:
++	_rtw_free_xmit_priv(&padapter->xmitpriv);
++
++free_mlme_ext:
++	free_mlme_ext_priv(&padapter->mlmeextpriv);
+ 
+-	return ret8;
++	rtw_free_mlme_priv(&padapter->mlmepriv);
++
++free_evt_priv:
++	rtw_free_evt_priv(&padapter->evtpriv);
++
++free_cmd_priv:
++	rtw_free_cmd_priv(&padapter->cmdpriv);
++
++	return _FAIL;
+ }
+ 
+ void rtw_cancel_all_timer(struct adapter *padapter)
 -- 
 2.35.1
 
