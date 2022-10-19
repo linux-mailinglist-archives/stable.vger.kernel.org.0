@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29388603EEC
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:23:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90254604032
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233357AbiJSJXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:23:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55480 "EHLO
+        id S234189AbiJSJmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:42:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233434AbiJSJWw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:22:52 -0400
+        with ESMTP id S234704AbiJSJlI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:41:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20B52A46C;
-        Wed, 19 Oct 2022 02:10:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD6A6F41B7;
+        Wed, 19 Oct 2022 02:17:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C6FC61883;
-        Wed, 19 Oct 2022 09:08:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83DFAC43151;
-        Wed, 19 Oct 2022 09:08:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F6FB6187C;
+        Wed, 19 Oct 2022 09:08:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3E3DC433D6;
+        Wed, 19 Oct 2022 09:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170480;
-        bh=PU8iaCs2iWQxeCCZgNEo4F7oo3UpqlSd8bf4uBmxP6E=;
+        s=korg; t=1666170531;
+        bh=sO3qeFRmk2abLCeiuvM40rE2MlBvScvIuhhFNrA1ZVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f44t+UknV8umQghKnCptTrP4KsBheOel/wepXPv5+QBgwEVzqxOWH5c8B2LBVBLeq
-         gufbUjRv4oqGiyAW8xQmcLkjNU6HBGrKOLbUQajzdwIhqgtbcwzL/Q1iK36pt6rghX
-         FeuPeG1pVASk/kXWJEdQ+t5iyZuxd+bqBV3/LGrA=
+        b=vc77MsHjGvsReZkXN0OSzxOv63afc4eWctSKx5Dl4PYM/lYPxKXx5+oQbvxui/Jlz
+         IyjK3U+xPygGI5q/xycHwJz5fBsY5qiPO2V1BHYSyc18Wox86zfBb57bwchJ3/T9D1
+         zS1rzBYhbgMQj9+Qm4plJK/YdFaZG3uqgx+o2WM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Smythies <dsmythies@telus.net>,
+        stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 670/862] cpufreq: intel_pstate: Add Tigerlake support in no-HWP mode
-Date:   Wed, 19 Oct 2022 10:32:37 +0200
-Message-Id: <20221019083319.564436329@linuxfoundation.org>
+Subject: [PATCH 6.0 673/862] thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash
+Date:   Wed, 19 Oct 2022 10:32:40 +0200
+Message-Id: <20221019083319.696819430@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,42 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Smythies <dsmythies@telus.net>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 71bb5c82aaaea007167f3ba68d3a669c74d7d55d ]
+[ Upstream commit 68b99e94a4a2db6ba9b31fe0485e057b9354a640 ]
 
-Users may disable HWP in firmware, in which case intel_pstate wouldn't load
-unless the CPU model is explicitly supported.
+When CPU 0 is offline and intel_powerclamp is used to inject
+idle, it generates kernel BUG:
 
-Add TIGERLAKE to the list of CPUs that can register intel_pstate while not
-advertising the HWP capability. Without this change, an TIGERLAKE in no-HWP
-mode could only use the acpi_cpufreq frequency scaling driver.
+BUG: using smp_processor_id() in preemptible [00000000] code: bash/15687
+caller is debug_smp_processor_id+0x17/0x20
+CPU: 4 PID: 15687 Comm: bash Not tainted 5.19.0-rc7+ #57
+Call Trace:
+<TASK>
+dump_stack_lvl+0x49/0x63
+dump_stack+0x10/0x16
+check_preemption_disabled+0xdd/0xe0
+debug_smp_processor_id+0x17/0x20
+powerclamp_set_cur_state+0x7f/0xf9 [intel_powerclamp]
+...
+...
 
-See also commits:
-d8de7a44e11f: cpufreq: intel_pstate: Add Skylake servers support
-fbdc21e9b038: cpufreq: intel_pstate: Add Icelake servers support in no-HWP mode
-706c5328851d: cpufreq: intel_pstate: Add Cometlake support in no-HWP mode
+Here CPU 0 is the control CPU by default and changed to the current CPU,
+if CPU 0 offlined. This check has to be performed under cpus_read_lock(),
+hence the above warning.
 
-Reported by: M. Cargi Ari <cagriari@pm.me>
-Signed-off-by: Doug Smythies <dsmythies@telus.net>
+Use get_cpu() instead of smp_processor_id() to avoid this BUG.
+
+Suggested-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+[ rjw: Subject edits ]
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/thermal/intel/intel_powerclamp.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index 57cdb3679885..fc3ebeb0bbe5 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -2416,6 +2416,7 @@ static const struct x86_cpu_id intel_pstate_cpu_ids[] = {
- 	X86_MATCH(SKYLAKE_X,		core_funcs),
- 	X86_MATCH(COMETLAKE,		core_funcs),
- 	X86_MATCH(ICELAKE_X,		core_funcs),
-+	X86_MATCH(TIGERLAKE,		core_funcs),
- 	{}
- };
- MODULE_DEVICE_TABLE(x86cpu, intel_pstate_cpu_ids);
+diff --git a/drivers/thermal/intel/intel_powerclamp.c b/drivers/thermal/intel/intel_powerclamp.c
+index c841ab37e7c6..46cd799af148 100644
+--- a/drivers/thermal/intel/intel_powerclamp.c
++++ b/drivers/thermal/intel/intel_powerclamp.c
+@@ -532,8 +532,10 @@ static int start_power_clamp(void)
+ 
+ 	/* prefer BSP */
+ 	control_cpu = 0;
+-	if (!cpu_online(control_cpu))
+-		control_cpu = smp_processor_id();
++	if (!cpu_online(control_cpu)) {
++		control_cpu = get_cpu();
++		put_cpu();
++	}
+ 
+ 	clamping = true;
+ 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
 -- 
 2.35.1
 
