@@ -2,40 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75B80603DA5
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6990F603DAB
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229675AbiJSJFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:05:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35828 "EHLO
+        id S232343AbiJSJFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:05:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232660AbiJSJEu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17ED9AEA06;
-        Wed, 19 Oct 2022 01:58:24 -0700 (PDT)
+        with ESMTP id S232611AbiJSJEo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA62EE28;
+        Wed, 19 Oct 2022 01:58:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDC96617FB;
-        Wed, 19 Oct 2022 08:54:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2319C433D6;
-        Wed, 19 Oct 2022 08:54:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8A076174B;
+        Wed, 19 Oct 2022 08:56:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63C7C433C1;
+        Wed, 19 Oct 2022 08:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169695;
-        bh=LMiQSmINL+WpJ+Efxa9vMNxwvWoH4bT4QVIx9zBBdls=;
+        s=korg; t=1666169808;
+        bh=nm6Fk68lTXLToM7w7rO0akGlkXWx4flW07EYl2/lIzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQdfVOSnzluhIJDDdAQ9Yqh1293PKrci9G12Jp+mfA/lThUVOgHapc+pSXAw85/Hm
-         cK092En9U4KXBwL78x9LX5DmGzf3YHKCGuLumVtVcdDT/hepHa/R9DV0U8t7C0flC4
-         n7h8lBhZYlYuCn2HavmFQoG9tUIM6RD5Jp/OPpqQ=
+        b=1IL9dqqiM9wCKopoehh9+4J8UF0ofA0Eg1wwR08q/TOLxzIKwjhqBbS5zPoxBXPZU
+         qazA73ea6TW0aXyl+qRVofoKEiadnDeO19o7oU9RxyGGsFALignDTYwEoxt11EeAwZ
+         lgJEL7mJaYUuU7RQVRcG7OnWHcY2tjHxRx/3A+Lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Dillon Min <dillon.minfei@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        dri-devel@lists.freedesktop.org, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 372/862] platform/x86: msi-laptop: Fix resource cleanup
-Date:   Wed, 19 Oct 2022 10:27:39 +0200
-Message-Id: <20221019083306.435244133@linuxfoundation.org>
+Subject: [PATCH 6.0 374/862] drm: fix drm_mipi_dbi build errors
+Date:   Wed, 19 Oct 2022 10:27:41 +0200
+Message-Id: <20221019083306.505648663@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,43 +61,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 5523632aa10f906dfe2eb714ee748590dc7fc6b1 ]
+[ Upstream commit eb7de496451bd969e203f02f66585131228ba4ae ]
 
-Fix the input-device not getting free-ed on probe-errors and
-fix the msi_touchpad_dwork not getting cancelled on neither
-probe-errors nor on remove.
+drm_mipi_dbi needs lots of DRM_KMS_HELPER support, so select
+that Kconfig symbol like it is done is most other uses, and
+the way that it was before MIPS_DBI was moved from tinydrm
+to its core location.
 
-Fixes: 143a4c0284dc ("msi-laptop: send out touchpad on/off key")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220825141336.208597-3-hdegoede@redhat.com
+Fixes these build errors:
+
+ld: drivers/gpu/drm/drm_mipi_dbi.o: in function `mipi_dbi_buf_copy':
+drivers/gpu/drm/drm_mipi_dbi.c:205: undefined reference to `drm_gem_fb_get_obj'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:211: undefined reference to `drm_gem_fb_begin_cpu_access'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:215: undefined reference to `drm_gem_fb_vmap'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:222: undefined reference to `drm_fb_swab'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:224: undefined reference to `drm_fb_memcpy'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:227: undefined reference to `drm_fb_xrgb8888_to_rgb565'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:235: undefined reference to `drm_gem_fb_vunmap'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:237: undefined reference to `drm_gem_fb_end_cpu_access'
+ld: drivers/gpu/drm/drm_mipi_dbi.o: in function `mipi_dbi_dev_init_with_formats':
+ld: drivers/gpu/drm/drm_mipi_dbi.o:/X64/../drivers/gpu/drm/drm_mipi_dbi.c:469: undefined reference to `drm_gem_fb_create_with_dirty'
+
+Fixes: 174102f4de23 ("drm/tinydrm: Move mipi-dbi")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Dillon Min <dillon.minfei@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Noralf Trønnes <noralf@tronnes.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220823004243.11596-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/msi-laptop.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
-index 0960205ee49f..3e935303b143 100644
---- a/drivers/platform/x86/msi-laptop.c
-+++ b/drivers/platform/x86/msi-laptop.c
-@@ -1116,6 +1116,8 @@ static int __init msi_init(void)
- fail_create_group:
- 	if (quirks->load_scm_model) {
- 		i8042_remove_filter(msi_laptop_i8042_filter);
-+		cancel_delayed_work_sync(&msi_touchpad_dwork);
-+		input_unregister_device(msi_laptop_input_dev);
- 		cancel_delayed_work_sync(&msi_rfkill_dwork);
- 		cancel_work_sync(&msi_rfkill_work);
- 		rfkill_cleanup();
-@@ -1136,6 +1138,7 @@ static void __exit msi_cleanup(void)
- {
- 	if (quirks->load_scm_model) {
- 		i8042_remove_filter(msi_laptop_i8042_filter);
-+		cancel_delayed_work_sync(&msi_touchpad_dwork);
- 		input_unregister_device(msi_laptop_input_dev);
- 		cancel_delayed_work_sync(&msi_rfkill_dwork);
- 		cancel_work_sync(&msi_rfkill_work);
+diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+index 6c2256e8474b..679ad054ea4b 100644
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -31,6 +31,7 @@ menuconfig DRM
+ config DRM_MIPI_DBI
+ 	tristate
+ 	depends on DRM
++	select DRM_KMS_HELPER
+ 
+ config DRM_MIPI_DSI
+ 	bool
 -- 
 2.35.1
 
