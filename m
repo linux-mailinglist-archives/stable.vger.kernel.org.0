@@ -2,134 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F97603827
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 04:39:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 478E060396A
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 07:58:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229697AbiJSCjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Oct 2022 22:39:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32828 "EHLO
+        id S229698AbiJSF6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 01:58:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229658AbiJSCjK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Oct 2022 22:39:10 -0400
-Received: from mx0a-00230701.pphosted.com (mx0a-00230701.pphosted.com [148.163.156.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A3CCE4E5D;
-        Tue, 18 Oct 2022 19:39:10 -0700 (PDT)
-Received: from pps.filterd (m0098571.ppops.net [127.0.0.1])
-        by mx0a-00230701.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29INjnfi024169;
-        Tue, 18 Oct 2022 19:39:04 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com; h=date : message-id :
- from : subject : to : cc; s=pfptdkimsnps;
- bh=dj9mD1bvepHzuV6Pg+BqbGv5Ek2OIjw1CCfN+3OxF+4=;
- b=D6ZPZF5LmjcykVTeOt+KWj9P2PsaML9m6ApywPBah2q99lHS/ZrJUcb59L23cGtOZZYe
- wYY7eWIF3VCyt0xpBMOPEtz+eQb1iXHFEFViuMOJWp++resoH4ToDLSMpLy4Fa/A5Q0t
- fh9kfhelQKVqh5jSePQ9fvzd9ycU0BJNkrje3b9LgAZMk+Nlc6UuEOQsGz6LTYcf6uwr
- 5AWj7adZiDEvJd1SG9Ra6gd5N8PZvPidOB3CqMlxXl1tQ025x8Zh7eduYzLE/ZQqGO2W
- gHCYKu8UgFqHKK+IJhn2RTqyRvwwXgmVuJlCSxZ9GNJaVXU81cMoWRLCfl/dpRDh5SaF Kw== 
-Received: from smtprelay-out1.synopsys.com (smtprelay-out1.synopsys.com [149.117.87.133])
-        by mx0a-00230701.pphosted.com (PPS) with ESMTPS id 3k7uvncyty-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Oct 2022 19:39:04 -0700
-Received: from mailhost.synopsys.com (sv1-mailhost2.synopsys.com [10.205.2.132])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (Client CN "mailhost.synopsys.com", Issuer "SNPSica2" (verified OK))
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 60FA7C00FA;
-        Wed, 19 Oct 2022 02:39:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1666147143; bh=tNelLWL7QXJkCEyzfBCRTxhNyWwWhSpAzVYCk1jL6aI=;
-        h=Date:From:Subject:To:Cc:From;
-        b=Y3VjDiT6Ho5dA1OfYMGrYr4UotoSP/OlIzKpFhRSrq7+mEog8O++NlKtQ/BO/HTS6
-         kYjYFnv+FPdKnirlgzBaRBeeQUhS9H88B/ctiWg6MuwTNXhTsu9lqtMWL6xDoN+uXZ
-         PUc6xEDHqcVCvVadl8A6tLgurpr3l/shlLMWgUKnUBLcr2N9d4Lyd0Hd/XB8oUEHdH
-         uHxbIRb93dZTPzTbfqLE+QM8TKTguIDsEvrJ8jLnNzp9UvtKSBxY1pmoFNhdtC9Fmm
-         RY75ceUzJYKiqPPwXXNffijFR7brY1PvDFXtoC+JWNn8mDw3flI57GkSwmAvbFGTFu
-         /hbgsIiQS2aPw==
-Received: from te-lab16-v2 (nanobot.internal.synopsys.com [10.204.48.11])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (Client did not present a certificate)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id 227CEA007F;
-        Wed, 19 Oct 2022 02:39:02 +0000 (UTC)
-Received: by te-lab16-v2 (sSMTP sendmail emulation); Tue, 18 Oct 2022 19:39:01 -0700
-Date:   Tue, 18 Oct 2022 19:39:01 -0700
-Message-Id: <3f9f59e5d74efcbaee444cf4b30ef639cc7b124e.1666146954.git.Thinh.Nguyen@synopsys.com>
-X-SNPS-Relay: synopsys.com
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH v2] usb: dwc3: gadget: Don't delay End Transfer on delayed_status
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Wesley Cheng <quic_wcheng@quicinc.com>
-Cc:     John Youn <John.Youn@synopsys.com>, linux-usb@vger.kernel.org,
-        stable@vger.kernel.org
-X-Proofpoint-ORIG-GUID: -XyR_I40rs6i-xJssBmBjdIY01ytCdmY
-X-Proofpoint-GUID: -XyR_I40rs6i-xJssBmBjdIY01ytCdmY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-18_10,2022-10-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_active_cloned_notspam policy=outbound_active_cloned score=0
- adultscore=0 mlxscore=0 mlxlogscore=999 suspectscore=0 spamscore=0
- clxscore=1015 impostorscore=0 phishscore=0 priorityscore=1501 bulkscore=0
- malwarescore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2209130000 definitions=main-2210190013
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229848AbiJSF6i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 01:58:38 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85EBF537EF
+        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 22:58:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1666159116;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=pqNgzDPaWWHyoLaC733Qdl7ljuE8EbGh7ekgiNrTuhE=;
+        b=Voh8+8or4jLl6HHFsY37sjm0b2zLp6TWy7O3WFs+2xXsDSwNkwSCm8XuEOFoSN+syQFz7B
+        XbARAMWyodMf18DQnnwtTHPoKBXe+ohINBzcqw43HUViINWaESL9pBEkJSor9tKLmMHzdt
+        hap7bFsBxgJFWd9JBUhhi28qj7WpBs0=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-414-JEhZd8PYOFypX6zZsA5bZA-1; Wed, 19 Oct 2022 01:58:35 -0400
+X-MC-Unique: JEhZd8PYOFypX6zZsA5bZA-1
+Received: by mail-wm1-f71.google.com with SMTP id v191-20020a1cacc8000000b003bdf7b78dccso10345410wme.3
+        for <stable@vger.kernel.org>; Tue, 18 Oct 2022 22:58:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=pqNgzDPaWWHyoLaC733Qdl7ljuE8EbGh7ekgiNrTuhE=;
+        b=0eqwIB23Typ++iX9CzrIs80YRjWkctaqZI6GnZMgJjG/3BXkr0SDK7W2p+RgRjftrP
+         WOAKP4tgD60ATK7KLhlTQPjEWBBw/HuXeigx1ptL+XioVBrzfEUjsJPbS0rvFTiJugSa
+         xMyARowm8gfttEULa0/orR/L0BaP8nquJmgLp6gHMJRuvTxxud47JilVOZgsmC6/tnRj
+         +bvG5c5/gNJD9txXP4S0TszOjMEPrK6GRxAkxsmFbsWLhsdVL8oKdle3vfSGwlDDSV+H
+         mkBQKn5a2eqwOeQ5FuVg0xH0X45WJSuaiFCPy4Q2+KHaKz0YyW63qKtcWblBKtiWhkl3
+         0+hQ==
+X-Gm-Message-State: ACrzQf3gqKMSSGyFgdBsuQsNf74+m3gN1h9s04AZHtS2TPXGa+J9xwDf
+        ydfTph0GhOLqmp+apjeto/NacfqMDzTqeN0UneIWPPkk/lKTBQTUd6Y9NR3/FTVgVxiArmqRGBR
+        D1IIXuz/v/JTszau9
+X-Received: by 2002:a5d:410c:0:b0:22e:632a:9bc0 with SMTP id l12-20020a5d410c000000b0022e632a9bc0mr3969818wrp.696.1666159113923;
+        Tue, 18 Oct 2022 22:58:33 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM5ydgSy7J+rRd/x5USsw37lsUYGP8h1BG06y3ia3UhlbPnNx/Sat2sTQ4QAGd4xLnHJpGbqQw==
+X-Received: by 2002:a5d:410c:0:b0:22e:632a:9bc0 with SMTP id l12-20020a5d410c000000b0022e632a9bc0mr3969806wrp.696.1666159113695;
+        Tue, 18 Oct 2022 22:58:33 -0700 (PDT)
+Received: from redhat.com ([2.54.191.184])
+        by smtp.gmail.com with ESMTPSA id i29-20020a1c541d000000b003c41144b3cfsm20704885wmb.20.2022.10.18.22.58.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Oct 2022 22:58:33 -0700 (PDT)
+Date:   Wed, 19 Oct 2022 01:58:30 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Angus Chen <angus.chen@jaguarmicro.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "jasowang@redhat.com" <jasowang@redhat.com>,
+        "virtualization@lists.linux-foundation.org" 
+        <virtualization@lists.linux-foundation.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 4.9 8/8] virtio_pci: don't try to use intxif pin
+ is zero
+Message-ID: <20221019015706-mutt-send-email-mst@kernel.org>
+References: <20221018001202.2732458-1-sashal@kernel.org>
+ <20221018001202.2732458-8-sashal@kernel.org>
+ <TY2PR06MB3424671C418DAEF5E1B7E57C852B9@TY2PR06MB3424.apcprd06.prod.outlook.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <TY2PR06MB3424671C418DAEF5E1B7E57C852B9@TY2PR06MB3424.apcprd06.prod.outlook.com>
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The gadget driver may wait on the request completion when it sets the
-USB_GADGET_DELAYED_STATUS. Make sure that the End Transfer command can
-go through if the dwc->delayed_status is set so that the request can
-complete. When the delayed_status is set, the Setup packet is already
-processed, and the next phase should be either Data or Status. It's
-unlikely that the host would cancel the control transfer and send a new
-Setup packet during End Transfer command. But if that's the case, we can
-try again when ep0state returns to EP0_SETUP_PHASE.
+On Wed, Oct 19, 2022 at 12:27:46AM +0000, Angus Chen wrote:
+> Hi sasha
+> 
+> > -----Original Message-----
+> > From: Sasha Levin <sashal@kernel.org>
+> > Sent: Tuesday, October 18, 2022 8:12 AM
+> > To: linux-kernel@vger.kernel.org; stable@vger.kernel.org
+> > Cc: Angus Chen <angus.chen@jaguarmicro.com>; Michael S . Tsirkin
+> > <mst@redhat.com>; Sasha Levin <sashal@kernel.org>; jasowang@redhat.com;
+> > virtualization@lists.linux-foundation.org
+> > Subject: [PATCH AUTOSEL 4.9 8/8] virtio_pci: don't try to use intxif pin is zero
+> > 
+> > From: Angus Chen <angus.chen@jaguarmicro.com>
+> > 
+> > [ Upstream commit 71491c54eafa318fdd24a1f26a1c82b28e1ac21d ]
+> > 
+> > The background is that we use dpu in cloud computing,the arch is x86,80
+> > cores. We will have a lots of virtio devices,like 512 or more.
+> > When we probe about 200 virtio_blk devices,it will fail and
+> > the stack is printed as follows:
+> > 
+> > [25338.485128] virtio-pci 0000:b3:00.0: virtio_pci: leaving for legacy driver
+> > [25338.496174] genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00
+> > (timer)
+> > [25338.503822] CPU: 20 PID: 5431 Comm: kworker/20:0 Kdump: loaded Tainted:
+> > G           OE    --------- -  - 4.18.0-305.30.1.el8.x86_64
+> > [25338.516403] Hardware name: Inspur NF5280M5/YZMB-00882-10E, BIOS
+> > 4.1.21 08/25/2021
+> > [25338.523881] Workqueue: events work_for_cpu_fn
+> > [25338.528235] Call Trace:
+> > [25338.530687]  dump_stack+0x5c/0x80
+> > [25338.534000]  __setup_irq.cold.53+0x7c/0xd3
+> > [25338.538098]  request_threaded_irq+0xf5/0x160
+> > [25338.542371]  vp_find_vqs+0xc7/0x190
+> > [25338.545866]  init_vq+0x17c/0x2e0 [virtio_blk]
+> > [25338.550223]  ? ncpus_cmp_func+0x10/0x10
+> > [25338.554061]  virtblk_probe+0xe6/0x8a0 [virtio_blk]
+> > [25338.558846]  virtio_dev_probe+0x158/0x1f0
+> > [25338.562861]  really_probe+0x255/0x4a0
+> > [25338.566524]  ? __driver_attach_async_helper+0x90/0x90
+> > [25338.571567]  driver_probe_device+0x49/0xc0
+> > [25338.575660]  bus_for_each_drv+0x79/0xc0
+> > [25338.579499]  __device_attach+0xdc/0x160
+> > [25338.583337]  bus_probe_device+0x9d/0xb0
+> > [25338.587167]  device_add+0x418/0x780
+> > [25338.590654]  register_virtio_device+0x9e/0xe0
+> > [25338.595011]  virtio_pci_probe+0xb3/0x140
+> > [25338.598941]  local_pci_probe+0x41/0x90
+> > [25338.602689]  work_for_cpu_fn+0x16/0x20
+> > [25338.606443]  process_one_work+0x1a7/0x360
+> > [25338.610456]  ? create_worker+0x1a0/0x1a0
+> > [25338.614381]  worker_thread+0x1cf/0x390
+> > [25338.618132]  ? create_worker+0x1a0/0x1a0
+> > [25338.622051]  kthread+0x116/0x130
+> > [25338.625283]  ? kthread_flush_work_fn+0x10/0x10
+> > [25338.629731]  ret_from_fork+0x1f/0x40
+> > [25338.633395] virtio_blk: probe of virtio418 failed with error -16
+> > 
+> > The log :
+> > "genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)"
+> > was printed because of the irq 0 is used by timer exclusive,and when
+> > vp_find_vqs call vp_find_vqs_msix and returns false twice (for
+> > whatever reason), then it will call vp_find_vqs_intx as a fallback.
+> > Because vp_dev->pci_dev->irq is zero, we request irq 0 with
+> > flag IRQF_SHARED, and get a backtrace like above.
+> > 
+> > According to PCI spec about "Interrupt Pin" Register (Offset 3Dh):
+> > "The Interrupt Pin register is a read-only register that identifies the
+> >  legacy interrupt Message(s) the Function uses. Valid values are 01h, 02h,
+> >  03h, and 04h that map to legacy interrupt Messages for INTA,
+> >  INTB, INTC, and INTD respectively. A value of 00h indicates that the
+> >  Function uses no legacy interrupt Message(s)."
+> > 
+> > So if vp_dev->pci_dev->pin is zero, we should not request legacy
+> > interrupt.
+> > 
+> > Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
+> > Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> > Message-Id: <20220930000915.548-1-angus.chen@jaguarmicro.com>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >  drivers/virtio/virtio_pci_common.c | 3 +++
+> >  1 file changed, 3 insertions(+)
+> > 
+> > diff --git a/drivers/virtio/virtio_pci_common.c
+> > b/drivers/virtio/virtio_pci_common.c
+> > index 37e3ba5dadf6..d634eb926a2f 100644
+> > --- a/drivers/virtio/virtio_pci_common.c
+> > +++ b/drivers/virtio/virtio_pci_common.c
+> > @@ -389,6 +389,9 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned
+> > nvqs,
+> >  				 true, false);
+> >  	if (!err)
+> >  		return 0;
+> > +	/* Is there an interrupt pin? If not give up. */
+> > +	if (!(to_vp_device(vdev)->pci_dev->pin))
+> > +		return err;
+> >  	/* Finally fall back to regular interrupts. */
+> >  	return vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
+> >  				  false, false);
+> > --
+> > 2.35.1
+> 
+> the patch 71491c54eafa31 has been fixed by 2145ab513e3b3,
+> It is report by Michael Ellerman <mpe@ellerman.id.au> and suggested by linus.
+> If it is merged in the stable git repo, I worry about powerpc arch.
+> Thans.
 
-Fixes: e1ee843488d5 ("usb: dwc3: gadget: Force sending delayed status during soft disconnect")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
----
- Changes in v2:
- - Fix build issue due to cherry-picking...
+Yes, please either pick up both this and the fixup or none, and
+same for all other stable trees where this was autoselected.
 
- drivers/usb/dwc3/gadget.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+It looks like autoselection basically picks up everything that
+has a Fixes tag in it yes?
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 079cd333632e..dd8ecbe61bec 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1698,6 +1698,16 @@ static int __dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force, bool int
- 	cmd |= DWC3_DEPCMD_PARAM(dep->resource_index);
- 	memset(&params, 0, sizeof(params));
- 	ret = dwc3_send_gadget_ep_cmd(dep, cmd, &params);
-+	/*
-+	 * If the End Transfer command was timed out while the device is
-+	 * not in SETUP phase, it's possible that an incoming Setup packet
-+	 * may prevent the command's completion. Let's retry when the
-+	 * ep0state returns to EP0_SETUP_PHASE.
-+	 */
-+	if (ret == -ETIMEDOUT && dep->dwc->ep0state != EP0_SETUP_PHASE) {
-+		dep->flags |= DWC3_EP_DELAY_STOP;
-+		return 0;
-+	}
- 	WARN_ON_ONCE(ret);
- 	dep->resource_index = 0;
- 
-@@ -3719,7 +3729,7 @@ void dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force,
- 	 * timeout. Delay issuing the End Transfer command until the Setup TRB is
- 	 * prepared.
- 	 */
--	if (dwc->ep0state != EP0_SETUP_PHASE) {
-+	if (dwc->ep0state != EP0_SETUP_PHASE && !dwc->delayed_status) {
- 		dep->flags |= DWC3_EP_DELAY_STOP;
- 		return;
- 	}
-
-base-commit: 9abf2313adc1ca1b6180c508c25f22f9395cc780
 -- 
-2.28.0
+MST
 
