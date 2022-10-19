@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 917116042BE
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:09:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C2A3604241
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:57:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230230AbiJSLJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:09:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33204 "EHLO
+        id S234782AbiJSK5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:57:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230137AbiJSLIv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:08:51 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19E7217D854;
-        Wed, 19 Oct 2022 03:37:25 -0700 (PDT)
+        with ESMTP id S234483AbiJSK4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:56:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DE7127422;
+        Wed, 19 Oct 2022 03:27:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D2732CE21AF;
-        Wed, 19 Oct 2022 09:10:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CABD3C433B5;
-        Wed, 19 Oct 2022 09:10:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 107BDB824B9;
+        Wed, 19 Oct 2022 09:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A278C433D6;
+        Wed, 19 Oct 2022 09:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170637;
-        bh=S/I8Db7hLIbRM3PUf798Ca3ZgHM9rw+HgU88xibN3X0=;
+        s=korg; t=1666170639;
+        bh=QXcBMzebHoL91pIygKKq4BACg8oie/iIyZvGUNaBrXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KzpmpueJJSo8t6jqZvYumt9GshB6PuqtZYZbIb8aGRnVIbeU1z1w9pBPGOmc3flAv
-         WXEMkBDQeUj1GcSeSyixCHW8Kfz/t2rVJGgz7wzJjgn0hDODYgRKM9c/bSmisUZ8pC
-         JWvgX7DzbhKZuJuXOpoT1ibWPcd/8EIqaC0JSbMY=
+        b=r7F1a51XNceMwvil0K9HqrYzvtGor+6pVxKss/lWWTVcDZjUnBVSr7AmH+4KD/OSG
+         LatMGGkGecauApGsa8Q0fVtT4O7MJfXslCkhDU/U2CLVKf+lUHYybc8DF3cbavrxUq
+         YwLs0UTdc4E6VbEIU7WxuJyNBLbnxi6gaOw2/oe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org,
+        Carsten Haitzler <carsten.haitzler@arm.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 730/862] drm: Prevent drm_copy_field() to attempt copying a NULL pointer
-Date:   Wed, 19 Oct 2022 10:33:37 +0200
-Message-Id: <20221019083322.183470346@linuxfoundation.org>
+Subject: [PATCH 6.0 731/862] drm/komeda: Fix handling of atomic commits in the atomic_commit_tail hook
+Date:   Wed, 19 Oct 2022 10:33:38 +0200
+Message-Id: <20221019083322.234974098@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,85 +54,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Liviu Dudau <liviu.dudau@arm.com>
 
-[ Upstream commit f6ee30407e883042482ad4ad30da5eaba47872ee ]
+[ Upstream commit eaa225b6b52233d45457fd33730e1528c604d92d ]
 
-There are some struct drm_driver fields that are required by drivers since
-drm_copy_field() attempts to copy them to user-space via DRM_IOCTL_VERSION.
+Komeda driver relies on the generic DRM atomic helper functions to handle
+commits. It only implements an atomic_commit_tail hook for the
+mode_config_helper_funcs and even that one is pretty close to the generic
+implementation with the exception of additional dma_fence signalling.
 
-But it can be possible that a driver has a bug and did not set some of the
-fields, which leads to drm_copy_field() attempting to copy a NULL pointer:
+What the generic helper framework doesn't do is waiting for the actual
+hardware to signal that the commit parameters have been written into the
+appropriate registers. As we signal CRTC events only on the irq handlers,
+we need to flush the configuration and wait for the hardware to respond.
 
-[ +10.395966] Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
-[  +0.010955] Mem abort info:
-[  +0.002835]   ESR = 0x0000000096000004
-[  +0.003872]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  +0.005395]   SET = 0, FnV = 0
-[  +0.003113]   EA = 0, S1PTW = 0
-[  +0.003182]   FSC = 0x04: level 0 translation fault
-[  +0.004964] Data abort info:
-[  +0.002919]   ISV = 0, ISS = 0x00000004
-[  +0.003886]   CM = 0, WnR = 0
-[  +0.003040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000115dad000
-[  +0.006536] [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
-[  +0.006925] Internal error: Oops: 96000004 [#1] SMP
-...
-[  +0.011113] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  +0.007061] pc : __pi_strlen+0x14/0x150
-[  +0.003895] lr : drm_copy_field+0x30/0x1a4
-[  +0.004156] sp : ffff8000094b3a50
-[  +0.003355] x29: ffff8000094b3a50 x28: ffff8000094b3b70 x27: 0000000000000040
-[  +0.007242] x26: ffff443743c2ba00 x25: 0000000000000000 x24: 0000000000000040
-[  +0.007243] x23: ffff443743c2ba00 x22: ffff8000094b3b70 x21: 0000000000000000
-[  +0.007241] x20: 0000000000000000 x19: ffff8000094b3b90 x18: 0000000000000000
-[  +0.007241] x17: 0000000000000000 x16: 0000000000000000 x15: 0000aaab14b9af40
-[  +0.007241] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
-[  +0.007239] x11: 0000000000000000 x10: 0000000000000000 x9 : ffffa524ad67d4d8
-[  +0.007242] x8 : 0101010101010101 x7 : 7f7f7f7f7f7f7f7f x6 : 6c6e6263606e7141
-[  +0.007239] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000000
-[  +0.007241] x2 : 0000000000000000 x1 : ffff8000094b3b90 x0 : 0000000000000000
-[  +0.007240] Call trace:
-[  +0.002475]  __pi_strlen+0x14/0x150
-[  +0.003537]  drm_version+0x84/0xac
-[  +0.003448]  drm_ioctl_kernel+0xa8/0x16c
-[  +0.003975]  drm_ioctl+0x270/0x580
-[  +0.003448]  __arm64_sys_ioctl+0xb8/0xfc
-[  +0.003978]  invoke_syscall+0x78/0x100
-[  +0.003799]  el0_svc_common.constprop.0+0x4c/0xf4
-[  +0.004767]  do_el0_svc+0x38/0x4c
-[  +0.003357]  el0_svc+0x34/0x100
-[  +0.003185]  el0t_64_sync_handler+0x11c/0x150
-[  +0.004418]  el0t_64_sync+0x190/0x194
-[  +0.003716] Code: 92402c04 b200c3e8 f13fc09f 5400088c (a9400c02)
-[  +0.006180] ---[ end trace 0000000000000000 ]---
+Add the Komeda specific implementation for atomic_commit_hw_done() that
+flushes and waits for flip done before calling drm_atomic_helper_commit_hw_done().
 
-Reported-by: Peter Robinson <pbrobinson@gmail.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220705100215.572498-3-javierm@redhat.com
+The fix was prompted by a patch from Carsten Haitzler where he was trying to
+solve the same issue but in a different way that I think can lead to wrong
+event signaling to userspace.
+
+Reported-by: Carsten Haitzler <carsten.haitzler@arm.com>
+Tested-by: Carsten Haitzler <carsten.haitzler@arm.com>
+Reviewed-by: Carsten Haitzler <carsten.haitzler@arm.com>
+Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220722122139.288486-1-liviu.dudau@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_ioctl.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../gpu/drm/arm/display/komeda/komeda_crtc.c  |  4 ++--
+ .../gpu/drm/arm/display/komeda/komeda_kms.c   | 21 ++++++++++++++++++-
+ .../gpu/drm/arm/display/komeda/komeda_kms.h   |  2 ++
+ 3 files changed, 24 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_ioctl.c b/drivers/gpu/drm/drm_ioctl.c
-index e1b9a03e619c..ca2a6e6101dc 100644
---- a/drivers/gpu/drm/drm_ioctl.c
-+++ b/drivers/gpu/drm/drm_ioctl.c
-@@ -474,6 +474,12 @@ static int drm_copy_field(char __user *buf, size_t *buf_len, const char *value)
- {
- 	size_t len;
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c b/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c
+index 59172acb9738..292f533d8cf0 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c
+@@ -235,7 +235,7 @@ void komeda_crtc_handle_event(struct komeda_crtc   *kcrtc,
+ 			crtc->state->event = NULL;
+ 			drm_crtc_send_vblank_event(crtc, event);
+ 		} else {
+-			DRM_WARN("CRTC[%d]: FLIP happen but no pending commit.\n",
++			DRM_WARN("CRTC[%d]: FLIP happened but no pending commit.\n",
+ 				 drm_crtc_index(&kcrtc->base));
+ 		}
+ 		spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
+@@ -286,7 +286,7 @@ komeda_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	komeda_crtc_do_flush(crtc, old);
+ }
  
-+	/* don't attempt to copy a NULL pointer */
-+	if (WARN_ONCE(!value, "BUG: the value to copy was not set!")) {
-+		*buf_len = 0;
-+		return 0;
-+	}
+-static void
++void
+ komeda_crtc_flush_and_wait_for_flip_done(struct komeda_crtc *kcrtc,
+ 					 struct completion *input_flip_done)
+ {
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_kms.c b/drivers/gpu/drm/arm/display/komeda/komeda_kms.c
+index 93b7f09b96ca..327051bba5b6 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_kms.c
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_kms.c
+@@ -69,6 +69,25 @@ static const struct drm_driver komeda_kms_driver = {
+ 	.minor = 1,
+ };
+ 
++static void komeda_kms_atomic_commit_hw_done(struct drm_atomic_state *state)
++{
++	struct drm_device *dev = state->dev;
++	struct komeda_kms_dev *kms = to_kdev(dev);
++	int i;
 +
- 	/* don't overflow userbuf */
- 	len = strlen(value);
- 	if (len > *buf_len)
++	for (i = 0; i < kms->n_crtcs; i++) {
++		struct komeda_crtc *kcrtc = &kms->crtcs[i];
++
++		if (kcrtc->base.state->active) {
++			struct completion *flip_done = NULL;
++			if (kcrtc->base.state->event)
++				flip_done = kcrtc->base.state->event->base.completion;
++			komeda_crtc_flush_and_wait_for_flip_done(kcrtc, flip_done);
++		}
++	}
++	drm_atomic_helper_commit_hw_done(state);
++}
++
+ static void komeda_kms_commit_tail(struct drm_atomic_state *old_state)
+ {
+ 	struct drm_device *dev = old_state->dev;
+@@ -81,7 +100,7 @@ static void komeda_kms_commit_tail(struct drm_atomic_state *old_state)
+ 
+ 	drm_atomic_helper_commit_modeset_enables(dev, old_state);
+ 
+-	drm_atomic_helper_commit_hw_done(old_state);
++	komeda_kms_atomic_commit_hw_done(old_state);
+ 
+ 	drm_atomic_helper_wait_for_flip_done(dev, old_state);
+ 
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_kms.h b/drivers/gpu/drm/arm/display/komeda/komeda_kms.h
+index 7889e380ab23..7339339ef6b8 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_kms.h
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_kms.h
+@@ -183,6 +183,8 @@ void komeda_kms_cleanup_private_objs(struct komeda_kms_dev *kms);
+ 
+ void komeda_crtc_handle_event(struct komeda_crtc   *kcrtc,
+ 			      struct komeda_events *evts);
++void komeda_crtc_flush_and_wait_for_flip_done(struct komeda_crtc *kcrtc,
++					      struct completion *input_flip_done);
+ 
+ struct komeda_kms_dev *komeda_kms_attach(struct komeda_dev *mdev);
+ void komeda_kms_detach(struct komeda_kms_dev *kms);
 -- 
 2.35.1
 
