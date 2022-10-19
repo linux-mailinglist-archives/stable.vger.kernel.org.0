@@ -2,56 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4B9604531
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:25:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 847316046D5
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:21:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231229AbiJSMZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 08:25:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56572 "EHLO
+        id S232047AbiJSNVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:21:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231512AbiJSMXp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:23:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E7D7E028;
-        Wed, 19 Oct 2022 04:59:10 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EB03617E8;
-        Wed, 19 Oct 2022 09:20:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81634C433D7;
-        Wed, 19 Oct 2022 09:20:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666171219;
-        bh=iEkEwO3dfbGbgLtTVIir5lJP9wDtzb6rk+4abbikf5I=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VkauozMFq7Gsp/OFZ8WjDfm1VbQmIKDIVXr9hIDm75UJ68QwgLxASI7wv3zezLMyu
-         0i8MQlTEmsScSZwI9zrt6I/hmssm5uAlF0JRFc1NjpBqsa4v9NBigNf9/EB0R1B/id
-         mPYfrXJxVDh3TLjsRm4Nu6m2skkJNeNqhZC0aabrhc0GfyDFElexA/yddNUiGlM3bc
-         tAChp4QKfhVa7W5t6X8/OmAiEwIk9hT7rwrLHfeGIW43SgjhaBv/YRpHUqjKDre/p9
-         3nY65GeQBb6YV3ez1nDRTWhYVZ5ZR6uVKMz8/Jl6HE3Ymcuh+grHCiYW4nKk1QKhcD
-         BJKvje4AgXwDQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1ol5F9-00059Q-MO; Wed, 19 Oct 2022 11:20:07 +0200
-Date:   Wed, 19 Oct 2022 11:20:07 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 6.0 585/862] phy: qcom-qmp-pcie: fix resource mapping for
- SDM845 QHP PHY
-Message-ID: <Y0/BR5Qct1LNqPvM@hovoldconsulting.com>
-References: <20221019083249.951566199@linuxfoundation.org>
- <20221019083315.815097879@linuxfoundation.org>
+        with ESMTP id S231767AbiJSNVM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:21:12 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EDF818DAA7;
+        Wed, 19 Oct 2022 06:06:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1666184770;
+        bh=zFDApoDas0uJkB2pTqthBHi/bLKJFfQsKy3mBsM559Y=;
+        h=X-UI-Sender-Class:Date:From:Subject:To:Cc;
+        b=YIH2twBdOjm2WL9TU5DvIGnatP0k9AjTVZWLz9cVCJ5CZc3165WZl+ZziysaxQG+k
+         Uz1cwaZF0on+OfvDSf9KuGXSnnEghzDkbFu4RLzdJRSiF6noTPVS/uDcHmDOTR/4E6
+         FViShCK1DLUtF3PVdxfvyUGa8S5KEgRYDXm9zxCQ=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.100.20] ([46.142.33.106]) by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1McY8T-1pGZT63b4P-00cxv1; Wed, 19
+ Oct 2022 12:17:09 +0200
+Message-ID: <7b06560d-1271-fa17-fef8-f3b5da6a3f8a@gmx.de>
+Date:   Wed, 19 Oct 2022 12:17:09 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221019083315.815097879@linuxfoundation.org>
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+From:   Ronald Warsow <rwarsow@gmx.de>
+Subject: Re: [PATCH 6.0 000/862] 6.0.3-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:x/1Yky7vo0jNz9N4s9Sk3unjF8U50f8x1i1VQHUooN8MtrDBLnG
+ yxXW9P1fHI4OEUQdlY4Yx0iTAEzqbH3Nj53M/sBZ2dhP6OXemSeExtHlv5XPIqyJG+860fq
+ Zl/dC7gPU+51GkKBIOZ+EaS2oRi2yXbYUdbX9yCN3bFKhm8H7zEbh1PLoHwMcTovA78AIgQ
+ jKNpEiTuRg5TnObMA25OA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:JV77/7SUk6s=:ff8Poi6gMMhNwNxRThCjpZ
+ sOA4hmebKLux5DUxjUGk5jNYpz5UWWLjdcukUVAvjgtjjI5DtE09Ac2UHycf/Rx1lExYO4Dv+
+ FMR+ukXJRmEUT6JBWEz4UBsXDUD36c0oi9Ko409H9ZPMoJuWCXo3gXOVg8yv47TAvp8j7scbR
+ BVBCDi55Tua99bpVM3nHAWh6fNcDadKByMMwvlKrcaekC4Eg3snmA/0wOUEW8jGt2hYkNebH9
+ K+aoQi4ELx/akR3mfcCi6qYbYWlULdXV6L/J6Sy3e0C3VuuDZGcmukjFTfaPP1+2hjhpgdlFc
+ WE9GBaA4VZhTf0O+jfddvJOYPyqn9N+gpI51gBj5Vhpugvk1Vkmw5OXqMj0KVdNYq+nGVePyI
+ JFEV9efgbifOE72xfJ52KMoYPGUDK6vFcDTQjce1B9EOdE9eFSnx4lmoK33p7tVZ0dkO2Kp/D
+ uwmgUKwdjvX1xjtj+TSyhlGGS8YayO3m6QTvsvu2DRwoUVfcAHGTrkDmcQ761gG926xWY8oNQ
+ +Fiju/TjxINbs/zlMq4gJMM++xidOH39fGknpVhgpIzH/WNgxizeoGUUTsvT9BBVzjvM2TrxK
+ oPqd6iH6RxPafPLnxaAALA4NqRcrDzc+Q8/QgUd2MfHC2JvaKo48SQftQ/jSN3jNf9l9bzdmX
+ 7JjXRNLon9snVslRfGlTafiM/NR7QxxL6HCo/z7D70861H6bB2Hlrz6bkDKY51grcYxLsrJ0H
+ BaXEddn2vFQaUHXLPKTaHHpLIq9fowC6E+8Es7CYVvGNd0D1FP7Xg38t+9UpMOX9P6/+tzRGC
+ qAKtvgZJ7jb+uWYt0zx29NFYaXX9gk3C9Ra0Ovs5VOHC1DFYXlxlb/jk8DlYIIzmkNmRyccYk
+ oJ7cjqeOF7rTGZGSwIuoaO0mhMl6VeOIOtNgkUOv0/8gzASvf14UDmxfO90PuRiPqbAEKWxCW
+ NhSrPKrWyecmMNhI7F9o1njeDeSO9w1Lcoc0xi7VPCv8ZrFG/XpkBoBqgqbsONAXikqMS2Xfu
+ W9JlAlG4BHqKWllQg/rTATwuscat6cAqFWUgI+hDFr4KNMITfeBy1QS3AGoSXVCscOQu2E0yc
+ ec4l9UHQF25guufQi0ywiBXyycd+bthdBjXh9GqvB16DYWRWkTaYqtatYeH0IpQI2L5FTCuqm
+ Y6FhQND/56vtCnAlZ04pJWM/c2ZmhGMf/PY5QuFR+e2ZlDcI5OXLxXl9I4FxTLhaMT2qMIIx7
+ gIKZirdp+sediTomApcyu510ED4HPUGZ+gHazXhcbIT34NL5N8W3SqZIdYrj+zUf4JW5ZPFPf
+ gLPHAoHthYEuTlG4wbFql1qTNT1pNEkwrUDhJ2XrDnldG4/jDyZDk2Joep2gHI+YgWiqnlaUi
+ zritnxBYslX+LWEVy0m/Bbcvrl2roraOiGIXL/RGvzs5C0xnC2+g+5M9BKk2f/U7wcH4b6Hxa
+ DX4vLeNyZ+6h/MCWkpweBcI/MDEK+106e8L67KyqbIep+TntDsh7WsVgJxyE9Vj0p3Gjw6kN0
+ fGtrJ9m5TOaXsrJAhrt9/p8o9jS49f+At1Ow/KJ9YmY+p
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,26 +73,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 19, 2022 at 10:31:12AM +0200, Greg Kroah-Hartman wrote:
-> From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-> 
-> [ Upstream commit 0a40891b83f257b25a2b983758f72f6813f361cb ]
-> 
-> On SDM845 one of PCIe PHYs (the QHP one) has the same region for TX and
-> RX registers. Since the commit 4be26f695ffa ("phy: qcom-qmp-pcie: fix
-> memleak on probe deferral") added checking that resources are not
-> allocated beforehand, this PHY can not be probed anymore. Fix this by
-> skipping the map of ->rx resource on the QHP PHY and assign it manually.
-> 
-> Fixes: 4be26f695ffa ("phy: qcom-qmp-pcie: fix memleak on probe deferral")
+Hi Greg
 
-This one is not needed in 6.0 since the offending commit should not be
-backported.
+6.0.3-rc1
 
-> Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-> Reviewed-by: Johan Hovold <johan+linaro@kernel.org>
-> Link: https://lore.kernel.org/r/20220926172514.880776-1-dmitry.baryshkov@linaro.org
-> Signed-off-by: Vinod Koul <vkoul@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+compiles, boots and runs here on x86_64
+(Intel i5-11400, Fedora 37 Beta)
 
-Johan
+Thanks
+
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
+
