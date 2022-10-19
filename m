@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 079236044EF
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:19:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36DCB604640
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:03:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231956AbiJSMTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 08:19:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36026 "EHLO
+        id S230236AbiJSNDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:03:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231894AbiJSMSo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:18:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1289136403;
-        Wed, 19 Oct 2022 04:54:11 -0700 (PDT)
+        with ESMTP id S231270AbiJSNDN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:03:13 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3B951D440A;
+        Wed, 19 Oct 2022 05:46:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00F99B822BB;
-        Wed, 19 Oct 2022 09:02:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F77C433D6;
-        Wed, 19 Oct 2022 09:02:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C51E5CE2101;
+        Wed, 19 Oct 2022 09:02:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C416CC433D6;
+        Wed, 19 Oct 2022 09:02:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170148;
-        bh=6A4G5ttVug3XAxhzsOqGeSmvV1mp2WWrcAMaD8Bz/k8=;
+        s=korg; t=1666170167;
+        bh=PxotsaKLlKY7b4HcUMIZ3OuGfX1704mNrjuqwc66VrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abVJlzuzJx3hexX5PeEqOSdur8KO1npIUlD2kkvBdT4nNB2RMvXxK3n5sM1EU9tzV
-         3aXQEuVsHqI+QNyRgk7xhsmgzSf8FpTT70JI5R8Qwpz30JCwJGrUkljC4RiRkIVnIO
-         RnP9OG1SsVGQbhS8T92ldDxxIHdJ1VgCtcWH+kNk=
+        b=rs24cvKHcV+f0JnbBfW7wsPYqCGOtYDgsxRYng/XVx7/tnwwSz/LHgYCh4FBDPldG
+         oXhqe/W4yAzgnKsYs6XwZfPr2RQZW8gwL9ioqqYpCxIDsTyU3CyoWHZBaF+ebjNO8z
+         3P31i3crlpm7aQa3+G9+eeUR1pO1edDAeVUXbcbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dylan Yudaken <dylany@fb.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 545/862] eventfd: guard wake_up in eventfd fs calls as well
-Date:   Wed, 19 Oct 2022 10:30:32 +0200
-Message-Id: <20221019083314.035666345@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Zhang <markzhang@nvidia.com>,
+        Mark Bloch <mbloch@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 551/862] RDMA/cm: Use SLID in the work completion as the DLID in responder side
+Date:   Wed, 19 Oct 2022 10:30:38 +0200
+Message-Id: <20221019083314.320395236@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,112 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dylan Yudaken <dylany@fb.com>
+From: Mark Zhang <markzhang@nvidia.com>
 
-[ Upstream commit 9f0deaa12d832f488500a5afe9b912e9b3cfc432 ]
+[ Upstream commit b7d95040c13f61a4a6a859c5355faf583eff9658 ]
 
-Guard wakeups that the user can trigger, and that may end up triggering a
-call back into eventfd_signal. This is in addition to the current approach
-that only guards in eventfd_signal.
+The responder should always use WC's SLID as the dlid, to follow the
+IB SPEC section "13.5.4.2 COMMON RESPONSE ACTIONS":
+A responder always takes the following actions in constructing a
+response packet:
+- The SLID of the received packet is used as the DLID in the response
+  packet.
 
-Rename in_eventfd_signal -> in_eventfd at the same time to reflect this.
-
-Without this there would be a deadlock in the following code using libaio:
-
-int main()
-{
-	struct io_context *ctx = NULL;
-	struct iocb iocb;
-	struct iocb *iocbs[] = { &iocb };
-	int evfd;
-        uint64_t val = 1;
-
-	evfd = eventfd(0, EFD_CLOEXEC);
-	assert(!io_setup(2, &ctx));
-	io_prep_poll(&iocb, evfd, POLLIN);
-	io_set_eventfd(&iocb, evfd);
-	assert(1 == io_submit(ctx, 1, iocbs));
-        write(evfd, &val, 8);
-}
-
-Signed-off-by: Dylan Yudaken <dylany@fb.com>
-Reviewed-by: Jens Axboe <axboe@kernel.dk>
-Link: https://lore.kernel.org/r/20220816135959.1490641-1-dylany@fb.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: ac3a949fb2ff ("IB/CM: Set appropriate slid and dlid when handling CM request")
+Signed-off-by: Mark Zhang <markzhang@nvidia.com>
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Link: https://lore.kernel.org/r/cd17c240231e059d2fc07c17dfe555d548b917eb.1662631201.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/eventfd.c            |   10 +++++++---
- include/linux/eventfd.h |    2 +-
- include/linux/sched.h   |    2 +-
- 3 files changed, 9 insertions(+), 5 deletions(-)
+ drivers/infiniband/core/cm.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/fs/eventfd.c
-+++ b/fs/eventfd.c
-@@ -69,17 +69,17 @@ __u64 eventfd_signal(struct eventfd_ctx
- 	 * it returns false, the eventfd_signal() call should be deferred to a
- 	 * safe context.
- 	 */
--	if (WARN_ON_ONCE(current->in_eventfd_signal))
-+	if (WARN_ON_ONCE(current->in_eventfd))
- 		return 0;
+diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
+index b985e0d9bc05..5c910f5c01b3 100644
+--- a/drivers/infiniband/core/cm.c
++++ b/drivers/infiniband/core/cm.c
+@@ -1632,14 +1632,13 @@ static void cm_path_set_rec_type(struct ib_device *ib_device, u32 port_num,
  
- 	spin_lock_irqsave(&ctx->wqh.lock, flags);
--	current->in_eventfd_signal = 1;
-+	current->in_eventfd = 1;
- 	if (ULLONG_MAX - ctx->count < n)
- 		n = ULLONG_MAX - ctx->count;
- 	ctx->count += n;
- 	if (waitqueue_active(&ctx->wqh))
- 		wake_up_locked_poll(&ctx->wqh, EPOLLIN);
--	current->in_eventfd_signal = 0;
-+	current->in_eventfd = 0;
- 	spin_unlock_irqrestore(&ctx->wqh.lock, flags);
- 
- 	return n;
-@@ -253,8 +253,10 @@ static ssize_t eventfd_read(struct kiocb
- 		__set_current_state(TASK_RUNNING);
- 	}
- 	eventfd_ctx_do_read(ctx, &ucnt);
-+	current->in_eventfd = 1;
- 	if (waitqueue_active(&ctx->wqh))
- 		wake_up_locked_poll(&ctx->wqh, EPOLLOUT);
-+	current->in_eventfd = 0;
- 	spin_unlock_irq(&ctx->wqh.lock);
- 	if (unlikely(copy_to_iter(&ucnt, sizeof(ucnt), to) != sizeof(ucnt)))
- 		return -EFAULT;
-@@ -301,8 +303,10 @@ static ssize_t eventfd_write(struct file
- 	}
- 	if (likely(res > 0)) {
- 		ctx->count += ucnt;
-+		current->in_eventfd = 1;
- 		if (waitqueue_active(&ctx->wqh))
- 			wake_up_locked_poll(&ctx->wqh, EPOLLIN);
-+		current->in_eventfd = 0;
- 	}
- 	spin_unlock_irq(&ctx->wqh.lock);
- 
---- a/include/linux/eventfd.h
-+++ b/include/linux/eventfd.h
-@@ -46,7 +46,7 @@ void eventfd_ctx_do_read(struct eventfd_
- 
- static inline bool eventfd_signal_allowed(void)
+ static void cm_format_path_lid_from_req(struct cm_req_msg *req_msg,
+ 					struct sa_path_rec *primary_path,
+-					struct sa_path_rec *alt_path)
++					struct sa_path_rec *alt_path,
++					struct ib_wc *wc)
  {
--	return !current->in_eventfd_signal;
-+	return !current->in_eventfd;
+ 	u32 lid;
+ 
+ 	if (primary_path->rec_type != SA_PATH_REC_TYPE_OPA) {
+-		sa_path_set_dlid(primary_path,
+-				 IBA_GET(CM_REQ_PRIMARY_LOCAL_PORT_LID,
+-					 req_msg));
++		sa_path_set_dlid(primary_path, wc->slid);
+ 		sa_path_set_slid(primary_path,
+ 				 IBA_GET(CM_REQ_PRIMARY_REMOTE_PORT_LID,
+ 					 req_msg));
+@@ -1676,7 +1675,8 @@ static void cm_format_path_lid_from_req(struct cm_req_msg *req_msg,
+ 
+ static void cm_format_paths_from_req(struct cm_req_msg *req_msg,
+ 				     struct sa_path_rec *primary_path,
+-				     struct sa_path_rec *alt_path)
++				     struct sa_path_rec *alt_path,
++				     struct ib_wc *wc)
+ {
+ 	primary_path->dgid =
+ 		*IBA_GET_MEM_PTR(CM_REQ_PRIMARY_LOCAL_PORT_GID, req_msg);
+@@ -1734,7 +1734,7 @@ static void cm_format_paths_from_req(struct cm_req_msg *req_msg,
+ 		if (sa_path_is_roce(alt_path))
+ 			alt_path->roce.route_resolved = false;
+ 	}
+-	cm_format_path_lid_from_req(req_msg, primary_path, alt_path);
++	cm_format_path_lid_from_req(req_msg, primary_path, alt_path, wc);
  }
  
- #else /* CONFIG_EVENTFD */
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -936,7 +936,7 @@ struct task_struct {
- #endif
- #ifdef CONFIG_EVENTFD
- 	/* Recursion prevention for eventfd_signal() */
--	unsigned			in_eventfd_signal:1;
-+	unsigned			in_eventfd:1;
- #endif
- #ifdef CONFIG_IOMMU_SVA
- 	unsigned			pasid_activated:1;
+ static u16 cm_get_bth_pkey(struct cm_work *work)
+@@ -2148,7 +2148,7 @@ static int cm_req_handler(struct cm_work *work)
+ 	if (cm_req_has_alt_path(req_msg))
+ 		work->path[1].rec_type = work->path[0].rec_type;
+ 	cm_format_paths_from_req(req_msg, &work->path[0],
+-				 &work->path[1]);
++				 &work->path[1], work->mad_recv_wc->wc);
+ 	if (cm_id_priv->av.ah_attr.type == RDMA_AH_ATTR_TYPE_ROCE)
+ 		sa_path_set_dmac(&work->path[0],
+ 				 cm_id_priv->av.ah_attr.roce.dmac);
+-- 
+2.35.1
+
 
 
