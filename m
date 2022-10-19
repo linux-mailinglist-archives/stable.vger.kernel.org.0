@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03D84604179
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8205260415F
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232299AbiJSKoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:44:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59944 "EHLO
+        id S232622AbiJSKnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:43:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232792AbiJSKoH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:44:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ED3F9411F;
-        Wed, 19 Oct 2022 03:20:49 -0700 (PDT)
+        with ESMTP id S230493AbiJSKms (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:42:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C45451119D8;
+        Wed, 19 Oct 2022 03:20:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21B12B823B8;
-        Wed, 19 Oct 2022 08:53:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77DEDC433C1;
-        Wed, 19 Oct 2022 08:53:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3EECB823AB;
+        Wed, 19 Oct 2022 08:52:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E312C433D6;
+        Wed, 19 Oct 2022 08:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169621;
-        bh=A/aO55xe4WmqYijgeMiod1WeF6BH4BkxrGnVD4eeRn8=;
+        s=korg; t=1666169527;
+        bh=c6jaiSw5Oz8WJHTSZ7ux3MCbsJtx19rEilrmCIVTGds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ckLRt+RgrNYpZGkQiOVFDUISVJJzZtKvFNdNcCubbQemJmgsnngGVW+CXQqP4t2BI
-         ukyNZ2kcvhiOIjrRs0TVJYBJRaKW6mCvvoxPIacgMfJHO0fEwfqF35QvI2b4Z+c40q
-         n8gxx3+TDsahGV9cea9jRCCudBsOIomUMpZm/3yU=
+        b=sDiYYdXa6j2m978GyW7JnJhNhCvVxy7+rPji8h0Crj5B54qAqP+D1m0DL/NzbIaVR
+         AvT9TRMDXwEuhcZNkT+70nn7B3ILCqtCH54HCCPUQboN/G36h2tMtgF9L84oTbUbtr
+         a3eUCTjfqFFITRnM3wldoqnSXaBONtCAzDE1rq4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pu Lehui <pulehui@huawei.com>,
         Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 302/862] bpf, cgroup: Reject prog_attach_flags array when effective query
-Date:   Wed, 19 Oct 2022 10:26:29 +0200
-Message-Id: <20221019083303.339950744@linuxfoundation.org>
+Subject: [PATCH 6.0 303/862] bpftool: Fix wrong cgroup attach flags being assigned to effective progs
+Date:   Wed, 19 Oct 2022 10:26:30 +0200
+Message-Id: <20221019083303.389799738@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,152 +55,172 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pu Lehui <pulehui@huawei.com>
 
-[ Upstream commit 0e426a3ae030a9e891899370229e117158b35de6 ]
+[ Upstream commit bdcee1b0b0834d031c76a12209840afe949b048a ]
+
+When root-cgroup attach multi progs and sub-cgroup attach a override prog,
+bpftool will display incorrectly for the attach flags of the sub-cgroup’s
+effective progs:
+
+$ bpftool cgroup tree /sys/fs/cgroup effective
+CgroupPath
+ID       AttachType      AttachFlags     Name
+/sys/fs/cgroup
+6        cgroup_sysctl   multi           sysctl_tcp_mem
+13       cgroup_sysctl   multi           sysctl_tcp_mem
+/sys/fs/cgroup/cg1
+20       cgroup_sysctl   override        sysctl_tcp_mem
+6        cgroup_sysctl   override        sysctl_tcp_mem <- wrong
+13       cgroup_sysctl   override        sysctl_tcp_mem <- wrong
+/sys/fs/cgroup/cg1/cg2
+20       cgroup_sysctl                   sysctl_tcp_mem
+6        cgroup_sysctl                   sysctl_tcp_mem
+13       cgroup_sysctl                   sysctl_tcp_mem
 
 Attach flags is only valid for attached progs of this layer cgroup,
 but not for effective progs. For querying with EFFECTIVE flags,
-exporting attach flags does not make sense. So when effective query,
-we reject prog_attach_flags array and don't need to populate it.
-Also we limit attach_flags to output 0 during effective query.
+exporting attach flags does not make sense. So let's remove the
+AttachFlags field and the associated logic. After this patch, the
+above effective cgroup tree will show as bellow:
+
+$ bpftool cgroup tree /sys/fs/cgroup effective
+CgroupPath
+ID       AttachType      Name
+/sys/fs/cgroup
+6        cgroup_sysctl   sysctl_tcp_mem
+13       cgroup_sysctl   sysctl_tcp_mem
+/sys/fs/cgroup/cg1
+20       cgroup_sysctl   sysctl_tcp_mem
+6        cgroup_sysctl   sysctl_tcp_mem
+13       cgroup_sysctl   sysctl_tcp_mem
+/sys/fs/cgroup/cg1/cg2
+20       cgroup_sysctl   sysctl_tcp_mem
+6        cgroup_sysctl   sysctl_tcp_mem
+13       cgroup_sysctl   sysctl_tcp_mem
 
 Fixes: b79c9fc9551b ("bpf: implement BPF_PROG_QUERY for BPF_LSM_CGROUP")
+Fixes: a98bf57391a2 ("tools: bpftool: add support for reporting the effective cgroup progs")
 Signed-off-by: Pu Lehui <pulehui@huawei.com>
-Link: https://lore.kernel.org/r/20220921104604.2340580-2-pulehui@huaweicloud.com
+Link: https://lore.kernel.org/r/20220921104604.2340580-3-pulehui@huaweicloud.com
 Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/bpf.h       |  7 +++++--
- kernel/bpf/cgroup.c            | 28 ++++++++++++++++++----------
- tools/include/uapi/linux/bpf.h |  7 +++++--
- 3 files changed, 28 insertions(+), 14 deletions(-)
+ tools/bpf/bpftool/cgroup.c | 54 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 49 insertions(+), 5 deletions(-)
 
-diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
-index 59a217ca2dfd..4eff7fc7ae58 100644
---- a/include/uapi/linux/bpf.h
-+++ b/include/uapi/linux/bpf.h
-@@ -1233,7 +1233,7 @@ enum {
+diff --git a/tools/bpf/bpftool/cgroup.c b/tools/bpf/bpftool/cgroup.c
+index cced668fb2a3..b46a998d8f8d 100644
+--- a/tools/bpf/bpftool/cgroup.c
++++ b/tools/bpf/bpftool/cgroup.c
+@@ -136,8 +136,8 @@ static int show_bpf_prog(int id, enum bpf_attach_type attach_type,
+ 			jsonw_string_field(json_wtr, "attach_type", attach_type_str);
+ 		else
+ 			jsonw_uint_field(json_wtr, "attach_type", attach_type);
+-		jsonw_string_field(json_wtr, "attach_flags",
+-				   attach_flags_str);
++		if (!(query_flags & BPF_F_QUERY_EFFECTIVE))
++			jsonw_string_field(json_wtr, "attach_flags", attach_flags_str);
+ 		jsonw_string_field(json_wtr, "name", prog_name);
+ 		if (attach_btf_name)
+ 			jsonw_string_field(json_wtr, "attach_btf_name", attach_btf_name);
+@@ -150,7 +150,10 @@ static int show_bpf_prog(int id, enum bpf_attach_type attach_type,
+ 			printf("%-15s", attach_type_str);
+ 		else
+ 			printf("type %-10u", attach_type);
+-		printf(" %-15s %-15s", attach_flags_str, prog_name);
++		if (query_flags & BPF_F_QUERY_EFFECTIVE)
++			printf(" %-15s", prog_name);
++		else
++			printf(" %-15s %-15s", attach_flags_str, prog_name);
+ 		if (attach_btf_name)
+ 			printf(" %-15s", attach_btf_name);
+ 		else if (info.attach_btf_id)
+@@ -195,6 +198,32 @@ static int cgroup_has_attached_progs(int cgroup_fd)
  
- /* Query effective (directly attached + inherited from ancestor cgroups)
-  * programs that will be executed for events within a cgroup.
-- * attach_flags with this flag are returned only for directly attached programs.
-+ * attach_flags with this flag are always returned 0.
-  */
- #define BPF_F_QUERY_EFFECTIVE	(1U << 0)
- 
-@@ -1432,7 +1432,10 @@ union bpf_attr {
- 		__u32		attach_flags;
- 		__aligned_u64	prog_ids;
- 		__u32		prog_cnt;
--		__aligned_u64	prog_attach_flags; /* output: per-program attach_flags */
-+		/* output: per-program attach_flags.
-+		 * not allowed to be set during effective query.
-+		 */
-+		__aligned_u64	prog_attach_flags;
- 	} query;
- 
- 	struct { /* anonymous struct used by BPF_RAW_TRACEPOINT_OPEN command */
-diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
-index 4a400cd63731..22888aaa68b6 100644
---- a/kernel/bpf/cgroup.c
-+++ b/kernel/bpf/cgroup.c
-@@ -1020,6 +1020,7 @@ static int __cgroup_bpf_query(struct cgroup *cgrp, const union bpf_attr *attr,
- 			      union bpf_attr __user *uattr)
- {
- 	__u32 __user *prog_attach_flags = u64_to_user_ptr(attr->query.prog_attach_flags);
-+	bool effective_query = attr->query.query_flags & BPF_F_QUERY_EFFECTIVE;
- 	__u32 __user *prog_ids = u64_to_user_ptr(attr->query.prog_ids);
- 	enum bpf_attach_type type = attr->query.attach_type;
- 	enum cgroup_bpf_attach_type from_atype, to_atype;
-@@ -1029,8 +1030,12 @@ static int __cgroup_bpf_query(struct cgroup *cgrp, const union bpf_attr *attr,
- 	int total_cnt = 0;
- 	u32 flags;
- 
-+	if (effective_query && prog_attach_flags)
-+		return -EINVAL;
+ 	return no_prog ? 0 : 1;
+ }
 +
- 	if (type == BPF_LSM_CGROUP) {
--		if (attr->query.prog_cnt && prog_ids && !prog_attach_flags)
-+		if (!effective_query && attr->query.prog_cnt &&
-+		    prog_ids && !prog_attach_flags)
- 			return -EINVAL;
++static int show_effective_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
++				    int level)
++{
++	LIBBPF_OPTS(bpf_prog_query_opts, p);
++	__u32 prog_ids[1024] = {0};
++	__u32 iter;
++	int ret;
++
++	p.query_flags = query_flags;
++	p.prog_cnt = ARRAY_SIZE(prog_ids);
++	p.prog_ids = prog_ids;
++
++	ret = bpf_prog_query_opts(cgroup_fd, type, &p);
++	if (ret)
++		return ret;
++
++	if (p.prog_cnt == 0)
++		return 0;
++
++	for (iter = 0; iter < p.prog_cnt; iter++)
++		show_bpf_prog(prog_ids[iter], type, NULL, level);
++
++	return 0;
++}
++
+ static int show_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
+ 				   int level)
+ {
+@@ -245,6 +274,14 @@ static int show_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
+ 	return 0;
+ }
  
- 		from_atype = CGROUP_LSM_START;
-@@ -1045,7 +1050,7 @@ static int __cgroup_bpf_query(struct cgroup *cgrp, const union bpf_attr *attr,
++static int show_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
++			  int level)
++{
++	return query_flags & BPF_F_QUERY_EFFECTIVE ?
++	       show_effective_bpf_progs(cgroup_fd, type, level) :
++	       show_attached_bpf_progs(cgroup_fd, type, level);
++}
++
+ static int do_show(int argc, char **argv)
+ {
+ 	enum bpf_attach_type type;
+@@ -292,6 +329,8 @@ static int do_show(int argc, char **argv)
+ 
+ 	if (json_output)
+ 		jsonw_start_array(json_wtr);
++	else if (query_flags & BPF_F_QUERY_EFFECTIVE)
++		printf("%-8s %-15s %-15s\n", "ID", "AttachType", "Name");
+ 	else
+ 		printf("%-8s %-15s %-15s %-15s\n", "ID", "AttachType",
+ 		       "AttachFlags", "Name");
+@@ -304,7 +343,7 @@ static int do_show(int argc, char **argv)
+ 		 * If we were able to get the show for at least one
+ 		 * attach type, let's return 0.
+ 		 */
+-		if (show_attached_bpf_progs(cgroup_fd, type, 0) == 0)
++		if (show_bpf_progs(cgroup_fd, type, 0) == 0)
+ 			ret = 0;
  	}
  
- 	for (atype = from_atype; atype <= to_atype; atype++) {
--		if (attr->query.query_flags & BPF_F_QUERY_EFFECTIVE) {
-+		if (effective_query) {
- 			effective = rcu_dereference_protected(cgrp->bpf.effective[atype],
- 							      lockdep_is_held(&cgroup_mutex));
- 			total_cnt += bpf_prog_array_length(effective);
-@@ -1054,6 +1059,8 @@ static int __cgroup_bpf_query(struct cgroup *cgrp, const union bpf_attr *attr,
- 		}
- 	}
+@@ -362,7 +401,7 @@ static int do_show_tree_fn(const char *fpath, const struct stat *sb,
  
-+	/* always output uattr->query.attach_flags as 0 during effective query */
-+	flags = effective_query ? 0 : flags;
- 	if (copy_to_user(&uattr->query.attach_flags, &flags, sizeof(flags)))
- 		return -EFAULT;
- 	if (copy_to_user(&uattr->query.prog_cnt, &total_cnt, sizeof(total_cnt)))
-@@ -1068,7 +1075,7 @@ static int __cgroup_bpf_query(struct cgroup *cgrp, const union bpf_attr *attr,
- 	}
+ 	btf_vmlinux = libbpf_find_kernel_btf();
+ 	for (type = 0; type < __MAX_BPF_ATTACH_TYPE; type++)
+-		show_attached_bpf_progs(cgroup_fd, type, ftw->level);
++		show_bpf_progs(cgroup_fd, type, ftw->level);
  
- 	for (atype = from_atype; atype <= to_atype && total_cnt; atype++) {
--		if (attr->query.query_flags & BPF_F_QUERY_EFFECTIVE) {
-+		if (effective_query) {
- 			effective = rcu_dereference_protected(cgrp->bpf.effective[atype],
- 							      lockdep_is_held(&cgroup_mutex));
- 			cnt = min_t(int, bpf_prog_array_length(effective), total_cnt);
-@@ -1090,15 +1097,16 @@ static int __cgroup_bpf_query(struct cgroup *cgrp, const union bpf_attr *attr,
- 				if (++i == cnt)
- 					break;
- 			}
--		}
+ 	if (errno == EINVAL)
+ 		/* Last attach type does not support query.
+@@ -436,6 +475,11 @@ static int do_show_tree(int argc, char **argv)
  
--		if (prog_attach_flags) {
--			flags = cgrp->bpf.flags[atype];
-+			if (prog_attach_flags) {
-+				flags = cgrp->bpf.flags[atype];
- 
--			for (i = 0; i < cnt; i++)
--				if (copy_to_user(prog_attach_flags + i, &flags, sizeof(flags)))
--					return -EFAULT;
--			prog_attach_flags += cnt;
-+				for (i = 0; i < cnt; i++)
-+					if (copy_to_user(prog_attach_flags + i,
-+							 &flags, sizeof(flags)))
-+						return -EFAULT;
-+				prog_attach_flags += cnt;
-+			}
- 		}
- 
- 		prog_ids += cnt;
-diff --git a/tools/include/uapi/linux/bpf.h b/tools/include/uapi/linux/bpf.h
-index 59a217ca2dfd..4eff7fc7ae58 100644
---- a/tools/include/uapi/linux/bpf.h
-+++ b/tools/include/uapi/linux/bpf.h
-@@ -1233,7 +1233,7 @@ enum {
- 
- /* Query effective (directly attached + inherited from ancestor cgroups)
-  * programs that will be executed for events within a cgroup.
-- * attach_flags with this flag are returned only for directly attached programs.
-+ * attach_flags with this flag are always returned 0.
-  */
- #define BPF_F_QUERY_EFFECTIVE	(1U << 0)
- 
-@@ -1432,7 +1432,10 @@ union bpf_attr {
- 		__u32		attach_flags;
- 		__aligned_u64	prog_ids;
- 		__u32		prog_cnt;
--		__aligned_u64	prog_attach_flags; /* output: per-program attach_flags */
-+		/* output: per-program attach_flags.
-+		 * not allowed to be set during effective query.
-+		 */
-+		__aligned_u64	prog_attach_flags;
- 	} query;
- 
- 	struct { /* anonymous struct used by BPF_RAW_TRACEPOINT_OPEN command */
+ 	if (json_output)
+ 		jsonw_start_array(json_wtr);
++	else if (query_flags & BPF_F_QUERY_EFFECTIVE)
++		printf("%s\n"
++		       "%-8s %-15s %-15s\n",
++		       "CgroupPath",
++		       "ID", "AttachType", "Name");
+ 	else
+ 		printf("%s\n"
+ 		       "%-8s %-15s %-15s %-15s\n",
 -- 
 2.35.1
 
