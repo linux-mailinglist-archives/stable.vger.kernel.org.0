@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CF53603D9E
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 534F9603D9F
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232255AbiJSJFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:05:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56202 "EHLO
+        id S232278AbiJSJF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:05:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232504AbiJSJE0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:26 -0400
+        with ESMTP id S232528AbiJSJEa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6251AC3B0;
-        Wed, 19 Oct 2022 01:57:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEF78AE87D;
+        Wed, 19 Oct 2022 01:57:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 43AE5617D1;
-        Wed, 19 Oct 2022 08:56:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F65CC433D6;
-        Wed, 19 Oct 2022 08:56:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A394161876;
+        Wed, 19 Oct 2022 08:56:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3F21C43142;
+        Wed, 19 Oct 2022 08:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169771;
-        bh=4VSYuPSAObcReK/9L0QMwHxCF101x1ZYOeGQCscVZRU=;
+        s=korg; t=1666169782;
+        bh=sByEGu5DwWG/ZQcSeCd52zZmd43PIsJ/HeVT8zR41nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xA2M8yJfsxEoruSqLaTlbOoIKhz62Lqk3e6YAvnghseeGA4a/W93OBLJL3KwgIAjd
-         6/aUUuIU5KiO7jEp3WaF28Hf9ryNl9nzEMaB+4nWABl6ePGBqOv1hI9wHubKcIEODW
-         TGyqmv1YPrAGS1GFBe7c2qfy9FbHv010bJkMPdlg=
+        b=aX3Cx31B2PUM5CUtZriCaIYs94GevP2Vz0PcHj8DOWRNhCcGrWRPiaDziUc730q7X
+         z5rqfpQ8LjNJSSX8nyvLViDbGe47MnNn+h1FaOw83GtptMhkA1PrQUJyi6ywzmRuGK
+         KTTUG4+eHr10lgJESizbcJ0z4rGSMqIRHrOYL2wM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Olivier Moysan <olivier.moysan@foss.st.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 402/862] ASoC: da7219: Fix an error handling path in da7219_register_dai_clks()
-Date:   Wed, 19 Oct 2022 10:28:09 +0200
-Message-Id: <20221019083307.703059785@linuxfoundation.org>
+Subject: [PATCH 6.0 405/862] ASoC: stm32: dfsdm: Fix PM disable depth imbalance in stm32_adfsdm_probe
+Date:   Wed, 19 Oct 2022 10:28:12 +0200
+Message-Id: <20221019083307.843102826@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,55 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit abb4e4349afe7eecdb0499582f1c777031e3a7c8 ]
+[ Upstream commit b9a0da5b2edcae2a901b85c8cc42efc5bec4bd7b ]
 
-If clk_hw_register() fails, the corresponding clk should not be
-unregistered.
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context. We fix it by moving
+pm_runtime_enable to the endding of stm32_adfsdm_probe.
 
-To handle errors from loops, clean up partial iterations before doing the
-goto.  So add a clk_hw_unregister().
-Then use a while (--i >= 0) loop in the unwind section.
+Fixes:98e500a12f934 ("ASoC: stm32: dfsdm: add pm_runtime support for audio")
 
-Fixes: 78013a1cf297 ("ASoC: da7219: Fix clock handling around codec level probe")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/e4acceab57a0d9e477a8d5890a45c5309e553e7c.1663875789.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Reviewed-by: Olivier Moysan <olivier.moysan@foss.st.com>
+Link: https://lore.kernel.org/r/20220927142601.64266-2-zhangqilong3@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/da7219.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/soc/stm/stm32_adfsdm.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/da7219.c b/sound/soc/codecs/da7219.c
-index 50ecf30e6136..4746c8700451 100644
---- a/sound/soc/codecs/da7219.c
-+++ b/sound/soc/codecs/da7219.c
-@@ -2196,6 +2196,7 @@ static int da7219_register_dai_clks(struct snd_soc_component *component)
- 			dai_clk_lookup = clkdev_hw_create(dai_clk_hw, init.name,
- 							  "%s", dev_name(dev));
- 			if (!dai_clk_lookup) {
-+				clk_hw_unregister(dai_clk_hw);
- 				ret = -ENOMEM;
- 				goto err;
- 			} else {
-@@ -2217,12 +2218,12 @@ static int da7219_register_dai_clks(struct snd_soc_component *component)
- 	return 0;
+diff --git a/sound/soc/stm/stm32_adfsdm.c b/sound/soc/stm/stm32_adfsdm.c
+index 04f2912e1418..643fc8a17018 100644
+--- a/sound/soc/stm/stm32_adfsdm.c
++++ b/sound/soc/stm/stm32_adfsdm.c
+@@ -335,8 +335,6 @@ static int stm32_adfsdm_probe(struct platform_device *pdev)
  
- err:
--	do {
-+	while (--i >= 0) {
- 		if (da7219->dai_clks_lookup[i])
- 			clkdev_drop(da7219->dai_clks_lookup[i]);
+ 	dev_set_drvdata(&pdev->dev, priv);
  
- 		clk_hw_unregister(&da7219->dai_clks_hw[i]);
--	} while (i-- > 0);
+-	pm_runtime_enable(&pdev->dev);
+-
+ 	ret = devm_snd_soc_register_component(&pdev->dev,
+ 					      &stm32_adfsdm_dai_component,
+ 					      &priv->dai_drv, 1);
+@@ -366,9 +364,13 @@ static int stm32_adfsdm_probe(struct platform_device *pdev)
+ #endif
+ 
+ 	ret = snd_soc_add_component(component, NULL, 0);
+-	if (ret < 0)
++	if (ret < 0) {
+ 		dev_err(&pdev->dev, "%s: Failed to register PCM platform\n",
+ 			__func__);
++		return ret;
 +	}
++
++	pm_runtime_enable(&pdev->dev);
  
- 	if (np)
- 		kfree(da7219->clk_hw_data);
+ 	return ret;
+ }
 -- 
 2.35.1
 
