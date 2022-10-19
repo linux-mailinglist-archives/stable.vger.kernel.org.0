@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93F32604739
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DDBA604759
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:37:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230227AbiJSNfA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:35:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42912 "EHLO
+        id S232023AbiJSNhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:37:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232817AbiJSNe0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:34:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EED2310EA2D;
-        Wed, 19 Oct 2022 06:23:44 -0700 (PDT)
+        with ESMTP id S230507AbiJSNgl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:36:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B987715A30F;
+        Wed, 19 Oct 2022 06:25:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54961B82477;
-        Wed, 19 Oct 2022 09:05:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3E00C433C1;
-        Wed, 19 Oct 2022 09:04:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA7A8B8246F;
+        Wed, 19 Oct 2022 09:05:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EB96C433D6;
+        Wed, 19 Oct 2022 09:05:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170299;
-        bh=G9GOzQgt9GJresKgsdu7VVr7HoVOvDNE9KXB4pbcRpE=;
+        s=korg; t=1666170301;
+        bh=3cZfXNGay6xumMtnyc1YClpFLbzGcS3qOU+GZM9G51o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2L8q+z+L5sL2C57Rsis7qqxprbkd8P6Av/8iDpIcHZ+5d8gX9jjuhVelwfESxZdIG
-         xKxaEKH0Y+289O3LEwZzlnOlU3vNwypmxOoHKoXjkRZvt5s8o2MWsYW6BsijnYz0V+
-         xfsQ/6Pv4tW+tDv8apEuTGtHMmEFg00N7ZXdJTWA=
+        b=ZXZ1OPmrFm38tcVxKpOuiVRjU6nFgTuhFS4Rv1XPlp/64X2sKurOlMfhk3jOaKHZx
+         RxatXq7hRVhK1ulPCDrLPnTqctVRlfAXxidf3l+3RGa/gamU+pcRf+OQ1G7Z8wWlLi
+         rHXgAK5xOKjoaDRcvchFZkQrT4qWP9YQP5QV7DQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Yan <yanaijie@huawei.com>,
-        Duoming Zhou <duoming@zju.edu.cn>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        John Garry <john.garry@huawei.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 565/862] scsi: libsas: Fix use-after-free bug in smp_execute_task_sg()
-Date:   Wed, 19 Oct 2022 10:30:52 +0200
-Message-Id: <20221019083314.963185967@linuxfoundation.org>
+Subject: [PATCH 6.0 566/862] scsi: pm8001: Fix running_req for internal abort commands
+Date:   Wed, 19 Oct 2022 10:30:53 +0200
+Message-Id: <20221019083315.004056912@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,52 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit 46ba53c30666717cb06c2b3c5d896301cd00d0c0 ]
+[ Upstream commit d8c22c4697c11ed28062afe3c2b377025be11a23 ]
 
-When executing SMP task failed, the smp_execute_task_sg() calls del_timer()
-to delete "slow_task->timer". However, if the timer handler
-sas_task_internal_timedout() is running, the del_timer() in
-smp_execute_task_sg() will not stop it and a UAF will happen. The process
-is shown below:
+Disabling the remote phy for a SATA disk causes a hang:
 
-      (thread 1)               |        (thread 2)
-smp_execute_task_sg()          | sas_task_internal_timedout()
- ...                           |
- del_timer()                   |
- ...                           |  ...
- sas_free_task(task)           |
-  kfree(task->slow_task) //FREE|
-                               |  task->slow_task->... //USE
+root@(none)$ more /sys/class/sas_phy/phy-0:0:8/target_port_protocols
+sata
+root@(none)$ echo 0 > sys/class/sas_phy/phy-0:0:8/enable
+root@(none)$ [   67.855950] sas: ex 500e004aaaaaaa1f phy08 change count has changed
+[   67.920585] sd 0:0:2:0: [sdc] Synchronizing SCSI cache
+[   67.925780] sd 0:0:2:0: [sdc] Synchronize Cache(10) failed: Result: hostbyte=0x04 driverbyte=DRIVER_OK
+[   67.935094] sd 0:0:2:0: [sdc] Stopping disk
+[   67.939305] sd 0:0:2:0: [sdc] Start/Stop Unit failed: Result: hostbyte=0x04 driverbyte=DRIVER_OK
+...
+[  123.998998] INFO: task kworker/u192:1:642 blocked for more than 30 seconds.
+[  124.005960]   Not tainted 6.0.0-rc1-205202-gf26f8f761e83 #218
+[  124.012049] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[  124.019872] task:kworker/u192:1  state:D stack:0 pid:  642 ppid: 2 flags:0x00000008
+[  124.028223] Workqueue: 0000:04:00.0_event_q sas_port_event_worker
+[  124.034319] Call trace:
+[  124.036758]  __switch_to+0x128/0x278
+[  124.040333]  __schedule+0x434/0xa58
+[  124.043820]  schedule+0x94/0x138
+[  124.047045]  schedule_timeout+0x2fc/0x368
+[  124.051052]  wait_for_completion+0xdc/0x200
+[  124.055234]  __flush_workqueue+0x1a8/0x708
+[  124.059328]  sas_porte_broadcast_rcvd+0xa8/0xc0
+[  124.063858]  sas_port_event_worker+0x60/0x98
+[  124.068126]  process_one_work+0x3f8/0x660
+[  124.072134]  worker_thread+0x70/0x700
+[  124.075793]  kthread+0x1a4/0x1b8
+[  124.079014]  ret_from_fork+0x10/0x20
 
-Fix by calling del_timer_sync() in smp_execute_task_sg(), which makes sure
-the timer handler have finished before the "task->slow_task" is
-deallocated.
+The issue is that the per-device running_req read in
+pm8001_dev_gone_notify() never goes to zero and we never make progress.
+This is caused by missing accounting for running_req for when an internal
+abort command completes.
 
-Link: https://lore.kernel.org/r/20220920144213.10536-1-duoming@zju.edu.cn
-Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+In commit 2cbbf489778e ("scsi: pm8001: Use libsas internal abort support")
+we started to send internal abort commands as a proper sas_task. In this
+when we deliver a sas_task to HW the per-device running_req is incremented
+in pm8001_queue_command(). However it is never decremented for internal
+abort commnds, so decrement in pm8001_mpi_task_abort_resp().
+
+Link: https://lore.kernel.org/r/1663854664-76165-1-git-send-email-john.garry@huawei.com
+Fixes: 2cbbf489778e ("scsi: pm8001: Use libsas internal abort support")
+Acked-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libsas/sas_expander.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
-index fa2209080cc2..5ce251830104 100644
---- a/drivers/scsi/libsas/sas_expander.c
-+++ b/drivers/scsi/libsas/sas_expander.c
-@@ -67,7 +67,7 @@ static int smp_execute_task_sg(struct domain_device *dev,
- 		res = i->dft->lldd_execute_task(task, GFP_KERNEL);
- 
- 		if (res) {
--			del_timer(&task->slow_task->timer);
-+			del_timer_sync(&task->slow_task->timer);
- 			pr_notice("executing SMP task failed:%d\n", res);
- 			break;
- 		}
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index 91d78d0a38fe..628b08ba6770 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -3612,6 +3612,10 @@ int pm8001_mpi_task_abort_resp(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 		pm8001_dbg(pm8001_ha, FAIL, " TASK NULL. RETURNING !!!\n");
+ 		return -1;
+ 	}
++
++	if (t->task_proto == SAS_PROTOCOL_INTERNAL_ABORT)
++		atomic_dec(&pm8001_dev->running_req);
++
+ 	ts = &t->task_status;
+ 	if (status != 0)
+ 		pm8001_dbg(pm8001_ha, FAIL, "task abort failed status 0x%x ,tag = 0x%x, scp= 0x%x\n",
 -- 
 2.35.1
 
