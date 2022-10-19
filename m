@@ -2,67 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84B58605123
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 22:15:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C53DB60517D
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 22:45:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230461AbiJSUPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 16:15:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39222 "EHLO
+        id S230122AbiJSUpM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 16:45:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230393AbiJSUPP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 16:15:15 -0400
-Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0798B118741;
-        Wed, 19 Oct 2022 13:15:06 -0700 (PDT)
-Received: by mail-qk1-x736.google.com with SMTP id x13so11488083qkg.11;
-        Wed, 19 Oct 2022 13:15:06 -0700 (PDT)
+        with ESMTP id S229982AbiJSUpJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 16:45:09 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2422166561
+        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 13:45:07 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id q71so469826pgq.8
+        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 13:45:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=P6ehJmZtaKjHfWDooxLByyg7Qm8nO8821wCtlJKz2+4=;
-        b=TybltSlWY2qkowVbGkbhGUhl8GW5569umxbF7Wp6iG+ZXAuhuOylG8yjLXPo43vTZA
-         dAabbW135Irpmk/ZJVBz1w3a4szDvKd7Dqfim+MtPKw7HA6Q6rElVHH1UEeH+Bwq16qk
-         qtW6K4LiAVNCwVj+YAVZK2AVdn05XYfHM+5Zisi1UnbBb4mgqL/djqPx60S1WgFMFGxf
-         DT8E7ijLIq5TjewGJ6yZvF33qampqKD28bJPN/sHzTIgAu7pKWqfOL0WwZGdiC77iomF
-         uV6PwFQBRaOKse1ujXcu1EBwRjxIiPRbXDvBDCURMMUnwQne/kqKCqQ443yFSL/XonOU
-         vKcA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=QGsz0UZpUHv9DXloNNNIoEreTUVSYBJHhJCi999bTZI=;
+        b=VSGLiJdbQsjsc88L/TCtNji1I9mstz3P5ICoLmo+MSodPTw7qMMK977MIKxLQysLBx
+         d1QSnhBSGkEHjOAqBYOS+RsqDyJsa0PWEx/u3T63ZPpP1NGrot7TRiqFWhz/O76JLrbk
+         DJ9SpocBNhy+W/WAq6Yw8De5McCa7j2lwKJNMHstTlmFBR0RKSMt5AtK+HfXuH9Zl+O6
+         7vqnQF7a50XwWXS5vZY0+rZatZak8QVVbeEp5jgqxInBr8X06ijumVFv/iFMkoscpxAF
+         68pWRf8SPMjdmLvYzoM6WUQezvoW++7tixCSrQDD5hIIAR22waF76A3UJfliVDujhNNK
+         nWrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=P6ehJmZtaKjHfWDooxLByyg7Qm8nO8821wCtlJKz2+4=;
-        b=OJhk5LFjxE3jj6DE/fBEBzVbtLWdj/gNptX5PwYI12o77EF3pP1CUJ3MHLkPBCq3wU
-         kW9A0vMUlcv5l2TFgEjX36sKH1aFfHV58Sf45mWTSw9Loe/jwWbPjmZnYr1e3j828OFH
-         DNdYWaweiZj8JmlXkS+WKnvEk+oO7bd5IJ4zygFCaaIgayspVuWfbwFe/QCRL5E+en2g
-         tmNeTTMiN9lnJ4MIYyzYI6tqnqB+8lGSueCvDJI8ty1F+LZJRrTVtipkE9HyOew18+LL
-         9ugaQAvE1EexNTGMJle46J4ShVnxGYugNVUpYQNZFOEvv4F1Hj5T/hLGf1HPvoQ8LOIm
-         Z54A==
-X-Gm-Message-State: ACrzQf12LKkUiVZteGdV8rpj9fdgY6vzzhDpUZU5jf4rdNzQqcSHilOX
-        L9FgC48/MTlO4K9PbQctLdlJwAL9MdQ=
-X-Google-Smtp-Source: AMsMyM4ZHmOVoj5agvIt9yLlHK+ps82y567FzoPncwvnc5+QX6N88fZlpsF0dCXNDa/n+eOBD4dBCg==
-X-Received: by 2002:a05:620a:3708:b0:6ee:d16f:b780 with SMTP id de8-20020a05620a370800b006eed16fb780mr6861107qkb.144.1666210505337;
-        Wed, 19 Oct 2022 13:15:05 -0700 (PDT)
-Received: from pm2-ws13.praxislan02.com ([2001:470:8:67e:ba27:ebff:fee8:ce27])
-        by smtp.gmail.com with ESMTPSA id bj3-20020a05620a190300b006eeca296c00sm5813448qkb.104.2022.10.19.13.15.04
+        bh=QGsz0UZpUHv9DXloNNNIoEreTUVSYBJHhJCi999bTZI=;
+        b=nGzSXlkSbe/rX1xXt4xCWvA9GZESSJ0N6Bt4YNwaBVSaTuDWiUKBdpacfGjTfffoNQ
+         +pI+CKM8YNdHbKTlGJa547RtaTMGtTtLQi//wMTxOKMJMUupjcg5FEwEtn+VfyH3bbo5
+         17uKFj9W6biXDocwMNKykFke6m6pBFfnKzZ6nY3uOUvk16ryvOrpa2T+BK/TRVsb9QvX
+         wZkeT5Kh2EOg2wNNNDXhlsiO+hbTj52v326BXWydJJuoTJ9NWVMTxu+3E/rva7LJLIti
+         lWReQ74MgapbdDrY+z5zlA91r4xStjwxcTklZaakZcJhzW24OYfqMdiaK1wFwDPSKA9V
+         8Amg==
+X-Gm-Message-State: ACrzQf1ZoIJrsdQCy+6k6qTAargi+JFDhTN3X5Z5AvxK3wJI2tyuNRgD
+        m3fRawk75o0mMD8mIW+I1kgbVIOO1/Icm8Ys
+X-Google-Smtp-Source: AMsMyM6wU+eTitSe8MXfLWH0WHOWXEoDIYM6jExe05QM8nV7zBU5U16U42g/hQJnB3Q5tyDj7jgMRA==
+X-Received: by 2002:a63:5811:0:b0:43c:9d3d:700a with SMTP id m17-20020a635811000000b0043c9d3d700amr9005030pgb.419.1666212307117;
+        Wed, 19 Oct 2022 13:45:07 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c123-20020a624e81000000b005624e2e0508sm11714108pfb.207.2022.10.19.13.45.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Oct 2022 13:15:04 -0700 (PDT)
-From:   Jason Andryuk <jandryuk@gmail.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     xen-devel@lists.xenproject.org, Jason Andryuk <jandryuk@gmail.com>,
-        Phillip Susi <phill@thesusis.net>, stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH] Input: xen-kbdfront - drop keys to shrink modalias
-Date:   Wed, 19 Oct 2022 16:14:57 -0400
-Message-Id: <20221019201458.21803-1-jandryuk@gmail.com>
-X-Mailer: git-send-email 2.37.3
+        Wed, 19 Oct 2022 13:45:06 -0700 (PDT)
+Message-ID: <635061d2.620a0220.bee8a.6524@mx.google.com>
+Date:   Wed, 19 Oct 2022 13:45:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.19.16-780-g145f69d7228f9
+X-Kernelci-Branch: linux-5.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.19.y baseline: 101 runs,
+ 1 regressions (v5.19.16-780-g145f69d7228f9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,59 +71,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-xen kbdfront registers itself as being able to deliver *any* key since
-it doesn't know what keys the backend may produce.
+stable-rc/linux-5.19.y baseline: 101 runs, 1 regressions (v5.19.16-780-g145=
+f69d7228f9)
 
-Unfortunately, the generated modalias gets too large and uevent creation
-fails with -ENOMEM.
+Regressions Summary
+-------------------
 
-This can lead to gdm not using the keyboard since there is no seat
-associated [1] and the debian installer crashing [2].
+platform        | arch | lab           | compiler | defconfig       | regre=
+ssions
+----------------+------+---------------+----------+-----------------+------=
+------
+qemu_mips-malta | mips | lab-collabora | gcc-10   | malta_defconfig | 1    =
+      =
 
-Trim the ranges of key capabilities by removing some BTN_* ranges.
-While doing this, some neighboring undefined ranges are removed to trim
-it further.
 
-This removes:
-BTN_DPAD_UP(0x220)..BTN_DPAD_RIGHT(0x223)
-Empty space 0x224..0x229
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.19.y/ker=
+nel/v5.19.16-780-g145f69d7228f9/plan/baseline/
 
-Emtpy space 0x2bd..0x2bf
-BTN_TRIGGER_HAPPY(0x2c0)..BTN_TRIGGER_HAPPY40(0x2e7)
-Empty space 0x2e8..0x2ff
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.19.y
+  Describe: v5.19.16-780-g145f69d7228f9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      145f69d7228f9126c5352398ef123eef95f0af23 =
 
-The modalias shrinks from 2082 to 1754 bytes.
 
-[1] https://github.com/systemd/systemd/issues/22944
-[2] https://lore.kernel.org/xen-devel/87o8dw52jc.fsf@vps.thesusis.net/T/
 
-Cc: Phillip Susi <phill@thesusis.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
----
- drivers/input/misc/xen-kbdfront.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+Test Regressions
+---------------- =
 
-diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-index 8d8ebdc2039b..23f37211be78 100644
---- a/drivers/input/misc/xen-kbdfront.c
-+++ b/drivers/input/misc/xen-kbdfront.c
-@@ -256,7 +256,14 @@ static int xenkbd_probe(struct xenbus_device *dev,
- 		__set_bit(EV_KEY, kbd->evbit);
- 		for (i = KEY_ESC; i < KEY_UNKNOWN; i++)
- 			__set_bit(i, kbd->keybit);
--		for (i = KEY_OK; i < KEY_MAX; i++)
-+		/* In theory we want to go KEY_OK..KEY_MAX, but that grows the
-+		 * modalias line too long.  KEY_KBD_LCD_MENU5 is the last
-+		 * defined non-button key. There is a gap of buttons from
-+		 * BTN_DPAD_UP..BTN_DPAD_RIGHT and KEY_ALS_TOGGLE is the next
-+		 * defined. */
-+		for (i = KEY_OK; i < BTN_DPAD_UP; i++)
-+			__set_bit(i, kbd->keybit);
-+		for (i = KEY_ALS_TOGGLE; i <= KEY_KBD_LCD_MENU5; i++)
- 			__set_bit(i, kbd->keybit);
- 
- 		ret = input_register_device(kbd);
--- 
-2.37.3
 
+
+platform        | arch | lab           | compiler | defconfig       | regre=
+ssions
+----------------+------+---------------+----------+-----------------+------=
+------
+qemu_mips-malta | mips | lab-collabora | gcc-10   | malta_defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/63502fe94d46f4f2f75e5b7c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: malta_defconfig
+  Compiler:    gcc-10 (mips-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
+6-780-g145f69d7228f9/mips/malta_defconfig/gcc-10/lab-collabora/baseline-qem=
+u_mips-malta.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
+6-780-g145f69d7228f9/mips/malta_defconfig/gcc-10/lab-collabora/baseline-qem=
+u_mips-malta.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221007.0/mipsel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63502fe94d46f4f2f75e5=
+b7d
+        failing since 0 day (last pass: v5.19.16-839-g28b57a08d7fd, first f=
+ail: v5.19.16-800-gfadb31f400c7) =
+
+ =20
