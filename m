@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35161604527
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:22:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A4B9604531
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:25:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233052AbiJSMWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 08:22:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55542 "EHLO
+        id S231229AbiJSMZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 08:25:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232108AbiJSMWm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:22:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E891C5A68;
-        Wed, 19 Oct 2022 04:57:27 -0700 (PDT)
+        with ESMTP id S231512AbiJSMXp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:23:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E7D7E028;
+        Wed, 19 Oct 2022 04:59:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44BA5B823AE;
-        Wed, 19 Oct 2022 09:19:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F05A9C433C1;
-        Wed, 19 Oct 2022 09:19:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EB03617E8;
+        Wed, 19 Oct 2022 09:20:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81634C433D7;
+        Wed, 19 Oct 2022 09:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666171172;
-        bh=vWXcM3OIICH25cHPoU2uv46Vrp8M01gJ70s0hn1R9+o=;
+        s=k20201202; t=1666171219;
+        bh=iEkEwO3dfbGbgLtTVIir5lJP9wDtzb6rk+4abbikf5I=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uzbNN4+erPsU4dHda7XmpSyeltkYFA4ZahpNFpfiDK5jgxLySjvg+2SIhLjWhtoh9
-         pCsAHnsSBQ/8oRrBrbhHr3yw9FJyC7qbWYQovPUlNbp1WPfN6ku9rAOX4Ase4Dfh5+
-         3UWyIr4yrJqpQgOJNcnG/EnSfoiVyaNoV1Kz2NcGyoBB4F4x/r3nDI/CMU9GdigOnS
-         lf7dHWoofjzLy8P7LX78wVBdZweX6sjYsT41PiHUTQgcwc23sPahlmH1B8bnw65F/x
-         rmRutB7z5A15n3dHr/T7EhH/zsJajZxzWWcJe5avU05RHe2Hv9bmuGO4DxStN1rNLk
-         BiECoiocZztJA==
+        b=VkauozMFq7Gsp/OFZ8WjDfm1VbQmIKDIVXr9hIDm75UJ68QwgLxASI7wv3zezLMyu
+         0i8MQlTEmsScSZwI9zrt6I/hmssm5uAlF0JRFc1NjpBqsa4v9NBigNf9/EB0R1B/id
+         mPYfrXJxVDh3TLjsRm4Nu6m2skkJNeNqhZC0aabrhc0GfyDFElexA/yddNUiGlM3bc
+         tAChp4QKfhVa7W5t6X8/OmAiEwIk9hT7rwrLHfeGIW43SgjhaBv/YRpHUqjKDre/p9
+         3nY65GeQBb6YV3ez1nDRTWhYVZ5ZR6uVKMz8/Jl6HE3Ymcuh+grHCiYW4nKk1QKhcD
+         BJKvje4AgXwDQ==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1ol5EO-000596-AX; Wed, 19 Oct 2022 11:19:20 +0200
-Date:   Wed, 19 Oct 2022 11:19:20 +0200
+        id 1ol5F9-00059Q-MO; Wed, 19 Oct 2022 11:20:07 +0200
+Date:   Wed, 19 Oct 2022 11:20:07 +0200
 From:   Johan Hovold <johan@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Johan Hovold <johan+linaro@kernel.org>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 6.0 528/862] phy: qcom-qmp-usb: fix memleak on probe
- deferral
-Message-ID: <Y0/BGJlX7CYylMR+@hovoldconsulting.com>
+Subject: Re: [PATCH 6.0 585/862] phy: qcom-qmp-pcie: fix resource mapping for
+ SDM845 QHP PHY
+Message-ID: <Y0/BR5Qct1LNqPvM@hovoldconsulting.com>
 References: <20221019083249.951566199@linuxfoundation.org>
- <20221019083313.304749902@linuxfoundation.org>
+ <20221019083315.815097879@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221019083313.304749902@linuxfoundation.org>
+In-Reply-To: <20221019083315.815097879@linuxfoundation.org>
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -58,25 +59,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 19, 2022 at 10:30:15AM +0200, Greg Kroah-Hartman wrote:
-> From: Johan Hovold <johan+linaro@kernel.org>
+On Wed, Oct 19, 2022 at 10:31:12AM +0200, Greg Kroah-Hartman wrote:
+> From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 > 
-> [ Upstream commit a5d6b1ac56cbd6b5850a3a54e35f1cb71e8e8cdd ]
+> [ Upstream commit 0a40891b83f257b25a2b983758f72f6813f361cb ]
 > 
-> Switch to using the device-managed of_iomap helper to avoid leaking
-> memory on probe deferral and driver unbind.
+> On SDM845 one of PCIe PHYs (the QHP one) has the same region for TX and
+> RX registers. Since the commit 4be26f695ffa ("phy: qcom-qmp-pcie: fix
+> memleak on probe deferral") added checking that resources are not
+> allocated beforehand, this PHY can not be probed anymore. Fix this by
+> skipping the map of ->rx resource on the QHP PHY and assign it manually.
 > 
-> Note that this helper checks for already reserved regions and may fail
-> if there are multiple devices claiming the same memory.
+> Fixes: 4be26f695ffa ("phy: qcom-qmp-pcie: fix memleak on probe deferral")
 
-Again, because of the above, this should not be backported. Please drop.
- 
-> Two bindings currently rely on overlapping mappings for the PCS region
-> so fallback to non-exclusive mappings for those for now.
-> 
-> Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
-> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-> Link: https://lore.kernel.org/r/20220916102340.11520-7-johan+linaro@kernel.org
+This one is not needed in 6.0 since the offending commit should not be
+backported.
+
+> Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+> Reviewed-by: Johan Hovold <johan+linaro@kernel.org>
+> Link: https://lore.kernel.org/r/20220926172514.880776-1-dmitry.baryshkov@linaro.org
 > Signed-off-by: Vinod Koul <vkoul@kernel.org>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 
