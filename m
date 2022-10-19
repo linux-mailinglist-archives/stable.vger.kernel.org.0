@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3468C60424A
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:57:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49E36604233
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:56:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234726AbiJSK5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:57:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49706 "EHLO
+        id S234673AbiJSK4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:56:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234738AbiJSK4i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:56:38 -0400
+        with ESMTP id S234669AbiJSK4J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:56:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5452B125020;
-        Wed, 19 Oct 2022 03:27:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5AE1106E24;
+        Wed, 19 Oct 2022 03:27:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6AFBB82499;
-        Wed, 19 Oct 2022 09:08:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50C63C43470;
-        Wed, 19 Oct 2022 09:08:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49E51B8249F;
+        Wed, 19 Oct 2022 09:08:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72FB6C433D6;
+        Wed, 19 Oct 2022 09:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170488;
-        bh=5Yd5FDDaRj03dfa4ccEHYsYfRgXcz6zUyLgXc1qtPKY=;
+        s=korg; t=1666170494;
+        bh=Xz/JYnNX+bv4d5sNBNrD5dHf4bfzzM5L7MEjHHLxJTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KXZzLOs1AarKEfiCVyE2FSuvtfXl4vpMnUpC6GC/gQXNWBQtIg4cda2lSYjX8k0aK
-         y9XXR+1fiE3wm29Wtf9yFCWnMc6N7fnEQ24Av3TgLndYPsvYq/4jdd5qudAEEXBIyr
-         Cv0ODjYaf6Arqr0p+9ckFRj5aVX4+/YdGnvqN0nM=
+        b=Bdo2h2kOyIwqT5X3ec7HmtT9zFHkpMZnleKyT7jkUiEJu+z43Xu2Yw/9oIKm0cO4i
+         cqmDXRVxRpIObpH/vtEywOX8ck4+DIwXKBeSWWO744mmGqsdZ+OvlYosLOaLNWeF9c
+         GSkFQTBQvQLKGonxEWHb+f0e9bk2gpud3Ux5nlJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>,
-        John Garry <john.garry@huawei.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 642/862] iommu/iova: Fix module config properly
-Date:   Wed, 19 Oct 2022 10:32:09 +0200
-Message-Id: <20221019083318.289016215@linuxfoundation.org>
+        stable@vger.kernel.org, linux-riscv@lists.infradead.org,
+        mingo@redhat.com, paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, zanussi@kernel.org, liaochang1@huawei.com,
+        chris.zjh@huawei.com, Yipeng Zou <zouyipeng@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 644/862] tracing: kprobe: Make gen test module work in arm and riscv
+Date:   Wed, 19 Oct 2022 10:32:11 +0200
+Message-Id: <20221019083318.377867133@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,41 +57,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Yipeng Zou <zouyipeng@huawei.com>
 
-[ Upstream commit 4f58330fcc8482aa90674e1f40f601e82f18ed4a ]
+[ Upstream commit d8ef45d66c01425ff748e13ef7dd1da7a91cc93c ]
 
-IOMMU_IOVA is intended to be an optional library for users to select as
-and when they desire. Since it can be a module now, this means that
-built-in code which has chosen not to select it should not fail to link
-if it happens to have selected as a module by someone else. Replace
-IS_ENABLED() with IS_REACHABLE() to do the right thing.
+For now, this selftest module can only work in x86 because of the
+kprobe cmd was fixed use of x86 registers.
+This patch adapted to register names under arm and riscv, So that
+this module can be worked on those platform.
 
-CC: Thierry Reding <thierry.reding@gmail.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Fixes: 15bbdec3931e ("iommu: Make the iova library a module")
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/548c2f683ca379aface59639a8f0cccc3a1ac050.1663069227.git.robin.murphy@arm.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://lkml.kernel.org/r/20220919125629.238242-3-zouyipeng@huawei.com
+
+Cc: <linux-riscv@lists.infradead.org>
+Cc: <mingo@redhat.com>
+Cc: <paul.walmsley@sifive.com>
+Cc: <palmer@dabbelt.com>
+Cc: <aou@eecs.berkeley.edu>
+Cc: <zanussi@kernel.org>
+Cc: <liaochang1@huawei.com>
+Cc: <chris.zjh@huawei.com>
+Fixes: 64836248dda2 ("tracing: Add kprobe event command generation test module")
+Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/iova.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/kprobe_event_gen_test.c | 47 +++++++++++++++++++++++++---
+ 1 file changed, 43 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/iova.h b/include/linux/iova.h
-index c6ba6d95d79c..83c00fac2acb 100644
---- a/include/linux/iova.h
-+++ b/include/linux/iova.h
-@@ -75,7 +75,7 @@ static inline unsigned long iova_pfn(struct iova_domain *iovad, dma_addr_t iova)
- 	return iova >> iova_shift(iovad);
- }
+diff --git a/kernel/trace/kprobe_event_gen_test.c b/kernel/trace/kprobe_event_gen_test.c
+index e023154be0f8..80e04a1e1977 100644
+--- a/kernel/trace/kprobe_event_gen_test.c
++++ b/kernel/trace/kprobe_event_gen_test.c
+@@ -35,6 +35,45 @@
+ static struct trace_event_file *gen_kprobe_test;
+ static struct trace_event_file *gen_kretprobe_test;
  
--#if IS_ENABLED(CONFIG_IOMMU_IOVA)
-+#if IS_REACHABLE(CONFIG_IOMMU_IOVA)
- int iova_cache_get(void);
- void iova_cache_put(void);
++#define KPROBE_GEN_TEST_FUNC	"do_sys_open"
++
++/* X86 */
++#if defined(CONFIG_X86_64) || defined(CONFIG_X86_32)
++#define KPROBE_GEN_TEST_ARG0	"dfd=%ax"
++#define KPROBE_GEN_TEST_ARG1	"filename=%dx"
++#define KPROBE_GEN_TEST_ARG2	"flags=%cx"
++#define KPROBE_GEN_TEST_ARG3	"mode=+4($stack)"
++
++/* ARM64 */
++#elif defined(CONFIG_ARM64)
++#define KPROBE_GEN_TEST_ARG0	"dfd=%x0"
++#define KPROBE_GEN_TEST_ARG1	"filename=%x1"
++#define KPROBE_GEN_TEST_ARG2	"flags=%x2"
++#define KPROBE_GEN_TEST_ARG3	"mode=%x3"
++
++/* ARM */
++#elif defined(CONFIG_ARM)
++#define KPROBE_GEN_TEST_ARG0	"dfd=%r0"
++#define KPROBE_GEN_TEST_ARG1	"filename=%r1"
++#define KPROBE_GEN_TEST_ARG2	"flags=%r2"
++#define KPROBE_GEN_TEST_ARG3	"mode=%r3"
++
++/* RISCV */
++#elif defined(CONFIG_RISCV)
++#define KPROBE_GEN_TEST_ARG0	"dfd=%a0"
++#define KPROBE_GEN_TEST_ARG1	"filename=%a1"
++#define KPROBE_GEN_TEST_ARG2	"flags=%a2"
++#define KPROBE_GEN_TEST_ARG3	"mode=%a3"
++
++/* others */
++#else
++#define KPROBE_GEN_TEST_ARG0	NULL
++#define KPROBE_GEN_TEST_ARG1	NULL
++#define KPROBE_GEN_TEST_ARG2	NULL
++#define KPROBE_GEN_TEST_ARG3	NULL
++#endif
++
++
+ /*
+  * Test to make sure we can create a kprobe event, then add more
+  * fields.
+@@ -58,14 +97,14 @@ static int __init test_gen_kprobe_cmd(void)
+ 	 * fields.
+ 	 */
+ 	ret = kprobe_event_gen_cmd_start(&cmd, "gen_kprobe_test",
+-					 "do_sys_open",
+-					 "dfd=%ax", "filename=%dx");
++					 KPROBE_GEN_TEST_FUNC,
++					 KPROBE_GEN_TEST_ARG0, KPROBE_GEN_TEST_ARG1);
+ 	if (ret)
+ 		goto free;
  
+ 	/* Use kprobe_event_add_fields to add the rest of the fields */
+ 
+-	ret = kprobe_event_add_fields(&cmd, "flags=%cx", "mode=+4($stack)");
++	ret = kprobe_event_add_fields(&cmd, KPROBE_GEN_TEST_ARG2, KPROBE_GEN_TEST_ARG3);
+ 	if (ret)
+ 		goto free;
+ 
+@@ -128,7 +167,7 @@ static int __init test_gen_kretprobe_cmd(void)
+ 	 * Define the kretprobe event.
+ 	 */
+ 	ret = kretprobe_event_gen_cmd_start(&cmd, "gen_kretprobe_test",
+-					    "do_sys_open",
++					    KPROBE_GEN_TEST_FUNC,
+ 					    "$retval");
+ 	if (ret)
+ 		goto free;
 -- 
 2.35.1
 
