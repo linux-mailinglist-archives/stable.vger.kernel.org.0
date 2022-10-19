@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3C63604281
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:05:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0905360425E
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:00:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232246AbiJSLFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:05:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42126 "EHLO
+        id S234126AbiJSLAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:00:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234881AbiJSLEL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:04:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B02D215201C;
-        Wed, 19 Oct 2022 03:33:30 -0700 (PDT)
+        with ESMTP id S234864AbiJSK7B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:59:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 618B7169CC1;
+        Wed, 19 Oct 2022 03:28:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA85B61880;
-        Wed, 19 Oct 2022 09:08:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB619C433D6;
-        Wed, 19 Oct 2022 09:08:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 166E0B824A6;
+        Wed, 19 Oct 2022 09:08:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C767C433D6;
+        Wed, 19 Oct 2022 09:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170515;
-        bh=YIPJ25ERBUQJfRKFkqLFPqinasOAti3V9lF/D6mb+20=;
+        s=korg; t=1666170517;
+        bh=F91BAdOXkp+xhwYRMD0QHptsZMxc0ARjOGzeltr8YbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o84krziJgvAJSl08T/Atb2MlDX5og1S+e7s2+OMx0zZBD0uOQCa2luG9TbZ+Du39I
-         m6ctXuRZYrC1ZvI1U6v4q9oSQS393nUPu72bDVIh5n8JRe5zOtSinljirQsadOdV8A
-         0PEaRJ1YrCi1fjY0zkL49no2QFFEZjGBUIy5/AJM=
+        b=ORSPEH+lKHqonU4LO7/hZG2t52IKRnBr8Dy2BGItcLwQQCmT3RLhJ43BAf01or4XA
+         0c20p5pP3OPUL2LTguWZ81aOGV620iC1QdkAIbDWbQcwxZlgk2EUPemuY81io8VLKs
+         4s9PxUjBbir8tXK/kwZXMAaRtL2SwoGXLWcl509Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mike Pattrick <mkp@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 685/862] openvswitch: Fix double reporting of drops in dropwatch
-Date:   Wed, 19 Oct 2022 10:32:52 +0200
-Message-Id: <20221019083320.248592352@linuxfoundation.org>
+Subject: [PATCH 6.0 686/862] openvswitch: Fix overreporting of drops in dropwatch
+Date:   Wed, 19 Oct 2022 10:32:53 +0200
+Message-Id: <20221019083320.298823380@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,48 +55,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Pattrick <mkp@redhat.com>
 
-[ Upstream commit 1100248a5c5ccd57059eb8d02ec077e839a23826 ]
+[ Upstream commit c21ab2afa2c64896a7f0e3cbc6845ec63dcfad2e ]
 
-Frames sent to userspace can be reported as dropped in
-ovs_dp_process_packet, however, if they are dropped in the netlink code
-then netlink_attachskb will report the same frame as dropped.
-
-This patch checks for error codes which indicate that the frame has
-already been freed.
+Currently queue_userspace_packet will call kfree_skb for all frames,
+whether or not an error occurred. This can result in a single dropped
+frame being reported as multiple drops in dropwatch. This functions
+caller may also call kfree_skb in case of an error. This patch will
+consume the skbs instead and allow caller's to use kfree_skb.
 
 Signed-off-by: Mike Pattrick <mkp@redhat.com>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2109946
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2109957
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/datapath.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ net/openvswitch/datapath.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
-index 6c9d153afbee..b68ba3c72519 100644
+index b68ba3c72519..93c596e3b22b 100644
 --- a/net/openvswitch/datapath.c
 +++ b/net/openvswitch/datapath.c
-@@ -252,10 +252,17 @@ void ovs_dp_process_packet(struct sk_buff *skb, struct sw_flow_key *key)
+@@ -558,8 +558,9 @@ static int queue_userspace_packet(struct datapath *dp, struct sk_buff *skb,
+ out:
+ 	if (err)
+ 		skb_tx_error(skb);
+-	kfree_skb(user_skb);
+-	kfree_skb(nskb);
++	consume_skb(user_skb);
++	consume_skb(nskb);
++
+ 	return err;
+ }
  
- 		upcall.mru = OVS_CB(skb)->mru;
- 		error = ovs_dp_upcall(dp, skb, key, &upcall, 0);
--		if (unlikely(error))
--			kfree_skb(skb);
--		else
-+		switch (error) {
-+		case 0:
-+		case -EAGAIN:
-+		case -ERESTARTSYS:
-+		case -EINTR:
- 			consume_skb(skb);
-+			break;
-+		default:
-+			kfree_skb(skb);
-+			break;
-+		}
- 		stats_counter = &stats->n_missed;
- 		goto out;
- 	}
 -- 
 2.35.1
 
