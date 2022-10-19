@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DFFA604485
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:07:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C317B604583
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:39:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231445AbiJSMG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 08:06:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60230 "EHLO
+        id S230020AbiJSMj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 08:39:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232503AbiJSMGi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:06:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FF2DF708B;
-        Wed, 19 Oct 2022 04:43:12 -0700 (PDT)
+        with ESMTP id S233268AbiJSMis (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:38:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5824ED7D;
+        Wed, 19 Oct 2022 05:19:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0AE7B824B8;
-        Wed, 19 Oct 2022 09:10:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70B5BC43470;
-        Wed, 19 Oct 2022 09:10:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 377446178B;
+        Wed, 19 Oct 2022 09:12:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47D2DC433C1;
+        Wed, 19 Oct 2022 09:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170647;
-        bh=DBhVd95XpZutQyzgeXjErPc70e6GrTLKwZc/rk2PCZI=;
+        s=korg; t=1666170748;
+        bh=1FMfPEnSeBy8Q/Qoddf82KOkolHueXSymF+0YgWpJjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAHCO7Jm2Am2p/oqKAlWv+/YzHOp+1l4fIdMie2aSdh5E1D6fxrrsUqMjIdlLAADH
-         oo/YjsFCA9qg8yvA+RTsQNgSvuFcGDAJoKxuZJrDDPVRRhZWpMqHzcFXkSrU/Xul95
-         smrUhZrKQg5OvzQwGuSCaS/1u2l/1WKP96gNZu9k=
+        b=k2FIbALr4RHBPdY2QvJSZkosnXDgwcmNdWb7VCaVdzF7O6FHaF4ZixfyrmkdJng3S
+         8EdsZdCG7Sw2rPErotZSYI9hQfX4MlWDzZexJyWbecLosIccRvJ0KtnjJH9IS2qriu
+         r/N4PPlPrZZkMWFfZNiFajbhmllMIoodt7il87RM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 734/862] ALSA: hda: Fix page fault in snd_hda_codec_shutdown()
-Date:   Wed, 19 Oct 2022 10:33:41 +0200
-Message-Id: <20221019083322.381422903@linuxfoundation.org>
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 772/862] ARM: dts: imx6dl: add missing properties for sram
+Date:   Wed, 19 Oct 2022 10:34:19 +0200
+Message-Id: <20221019083324.020499185@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,106 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit f2bd1c5ae2cb0cf9525c9bffc0038c12dd7e1338 ]
+[ Upstream commit f5848b95633d598bacf0500e0108dc5961af88c0 ]
 
-If early probe of HDAudio bus driver fails e.g.: due to missing
-firmware file, snd_hda_codec_shutdown() ends in manipulating
-uninitialized codec->pcm_list_head causing page fault.
+All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
+sram@900000: '#address-cells' is a required property
+sram@900000: '#size-cells' is a required property
+sram@900000: 'ranges' is a required property
 
-Initialization of HDAudio codec in ASoC is split in two:
-- snd_hda_codec_device_init()
-- snd_hda_codec_device_new()
-
-snd_hda_codec_device_init() is called during probe_codecs() by HDAudio
-bus driver while snd_hda_codec_device_new() is called by
-codec-component's ->probe(). The second call will not happen until all
-components required by related sound card are present within the ASoC
-framework. With firmware failing to load during the PCI's deferred
-initialization i.e.: probe_work(), no platform components are ever
-registered. HDAudio codec enumeration is done at that point though, so
-the codec components became registered to ASoC framework, calling
-snd_hda_codec_device_init() in the process.
-
-Now, during platform reboot snd_hda_codec_shutdown() is called for every
-codec found on the HDAudio bus causing oops if any of them has not
-completed both of their initialization steps. Relocating field
-initialization fixes the issue.
-
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20220816111727.3218543-7-cezary.rojewski@intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_codec.c | 41 +++++++++++++++++++--------------------
- 1 file changed, 20 insertions(+), 21 deletions(-)
+ arch/arm/boot/dts/imx6dl.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
-index 384426d7e9dd..4ae8b9574778 100644
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -931,8 +931,28 @@ snd_hda_codec_device_init(struct hda_bus *bus, unsigned int codec_addr,
- 	}
+diff --git a/arch/arm/boot/dts/imx6dl.dtsi b/arch/arm/boot/dts/imx6dl.dtsi
+index 8e0ed209ede0..dc919e09a505 100644
+--- a/arch/arm/boot/dts/imx6dl.dtsi
++++ b/arch/arm/boot/dts/imx6dl.dtsi
+@@ -84,6 +84,9 @@
+ 		ocram: sram@900000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x00900000 0x20000>;
++			ranges = <0 0x00900000 0x20000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
+ 		};
  
- 	codec->bus = bus;
-+	codec->depop_delay = -1;
-+	codec->fixup_id = HDA_FIXUP_ID_NOT_SET;
-+	codec->core.dev.release = snd_hda_codec_dev_release;
-+	codec->core.exec_verb = codec_exec_verb;
- 	codec->core.type = HDA_DEV_LEGACY;
- 
-+	mutex_init(&codec->spdif_mutex);
-+	mutex_init(&codec->control_mutex);
-+	snd_array_init(&codec->mixers, sizeof(struct hda_nid_item), 32);
-+	snd_array_init(&codec->nids, sizeof(struct hda_nid_item), 32);
-+	snd_array_init(&codec->init_pins, sizeof(struct hda_pincfg), 16);
-+	snd_array_init(&codec->driver_pins, sizeof(struct hda_pincfg), 16);
-+	snd_array_init(&codec->cvt_setups, sizeof(struct hda_cvt_setup), 8);
-+	snd_array_init(&codec->spdif_out, sizeof(struct hda_spdif_out), 16);
-+	snd_array_init(&codec->jacktbl, sizeof(struct hda_jack_tbl), 16);
-+	snd_array_init(&codec->verbs, sizeof(struct hda_verb *), 8);
-+	INIT_LIST_HEAD(&codec->conn_list);
-+	INIT_LIST_HEAD(&codec->pcm_list_head);
-+	INIT_DELAYED_WORK(&codec->jackpoll_work, hda_jackpoll_work);
-+	refcount_set(&codec->pcm_ref, 1);
-+	init_waitqueue_head(&codec->remove_sleep);
-+
- 	return codec;
- }
- EXPORT_SYMBOL_GPL(snd_hda_codec_device_init);
-@@ -985,29 +1005,8 @@ int snd_hda_codec_device_new(struct hda_bus *bus, struct snd_card *card,
- 	if (snd_BUG_ON(codec_addr > HDA_MAX_CODEC_ADDRESS))
- 		return -EINVAL;
- 
--	codec->core.dev.release = snd_hda_codec_dev_release;
--	codec->core.exec_verb = codec_exec_verb;
--
- 	codec->card = card;
- 	codec->addr = codec_addr;
--	mutex_init(&codec->spdif_mutex);
--	mutex_init(&codec->control_mutex);
--	snd_array_init(&codec->mixers, sizeof(struct hda_nid_item), 32);
--	snd_array_init(&codec->nids, sizeof(struct hda_nid_item), 32);
--	snd_array_init(&codec->init_pins, sizeof(struct hda_pincfg), 16);
--	snd_array_init(&codec->driver_pins, sizeof(struct hda_pincfg), 16);
--	snd_array_init(&codec->cvt_setups, sizeof(struct hda_cvt_setup), 8);
--	snd_array_init(&codec->spdif_out, sizeof(struct hda_spdif_out), 16);
--	snd_array_init(&codec->jacktbl, sizeof(struct hda_jack_tbl), 16);
--	snd_array_init(&codec->verbs, sizeof(struct hda_verb *), 8);
--	INIT_LIST_HEAD(&codec->conn_list);
--	INIT_LIST_HEAD(&codec->pcm_list_head);
--	refcount_set(&codec->pcm_ref, 1);
--	init_waitqueue_head(&codec->remove_sleep);
--
--	INIT_DELAYED_WORK(&codec->jackpoll_work, hda_jackpoll_work);
--	codec->depop_delay = -1;
--	codec->fixup_id = HDA_FIXUP_ID_NOT_SET;
- 
- #ifdef CONFIG_PM
- 	codec->power_jiffies = jiffies;
 -- 
 2.35.1
 
