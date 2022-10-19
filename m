@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97B9C604506
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E236044EE
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:19:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231634AbiJSMTs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 08:19:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37876 "EHLO
+        id S231434AbiJSMTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 08:19:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233152AbiJSMTG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:19:06 -0400
+        with ESMTP id S232515AbiJSMSu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:18:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBE2E1781E3;
-        Wed, 19 Oct 2022 04:54:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5EF34057D;
+        Wed, 19 Oct 2022 04:54:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2AD47B821CD;
-        Wed, 19 Oct 2022 08:41:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FA63C433C1;
-        Wed, 19 Oct 2022 08:41:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E018BB822D1;
+        Wed, 19 Oct 2022 08:41:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FD25C433C1;
+        Wed, 19 Oct 2022 08:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168885;
-        bh=z1jpo4UkD4Ly2oimtwNpPZSx9SB4oraktF/ZPcHwwwA=;
+        s=korg; t=1666168893;
+        bh=14mKDapbgbuh31OpS2MIP0VbUg71zVnPdpLmFUC99dY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZZEN9vj5o9yGwIN9cprRgFsC0ZLUoz8Bho7xb+/ap3sQCj76mIY2R6bEENkSUl/2
-         8PZyGYZ0lAMp6iMGtjTnkquILBqWYxIMwFPaMj9OsRBRMJ1n5d9hTh3u3BPq/XnbiO
-         Rl/qJg6PRZ/u4jR+AOWIUdZMye072DfQLXal76Ig=
+        b=CgcDRmfBEb49+QMIR5yQjxQlo65we6mF4NExLEK0DBFXFl1G6mkQUFq2WaitP5+C8
+         cxh8OUphrAIaR6wftULc47DOLv9uxImsDsCToj49EQzrjDOWmvgJvtXSg6c+2+2IKI
+         KhpXOXpiIVIF2jXCRyvr/+5GJepcJSyF6jN5+VCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "M. Vefa Bicakci" <m.v.b@runbox.com>,
-        Demi Marie Obenour <demi@invisiblethingslab.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 6.0 087/862] xen/gntdev: Prevent leaking grants
-Date:   Wed, 19 Oct 2022 10:22:54 +0200
-Message-Id: <20221019083253.776126425@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 6.0 089/862] PCI: Sanitise firmware BAR assignments behind a PCI-PCI bridge
+Date:   Wed, 19 Oct 2022 10:22:56 +0200
+Message-Id: <20221019083253.874350484@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,154 +52,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: M. Vefa Bicakci <m.v.b@runbox.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 0991028cd49567d7016d1b224fe0117c35059f86 upstream.
+commit 0e32818397426a688f598f35d3bc762eca6d7592 upstream.
 
-Prior to this commit, if a grant mapping operation failed partially,
-some of the entries in the map_ops array would be invalid, whereas all
-of the entries in the kmap_ops array would be valid. This in turn would
-cause the following logic in gntdev_map_grant_pages to become invalid:
+When pci_assign_resource() is unable to assign resources to a BAR, it uses
+pci_revert_fw_address() to fall back to a firmware assignment (if any).
+Previously pci_revert_fw_address() assumed all addresses could reach the
+device, but this is not true if the device is below a bridge that only
+forwards addresses within its windows.
 
-  for (i = 0; i < map->count; i++) {
-    if (map->map_ops[i].status == GNTST_okay) {
-      map->unmap_ops[i].handle = map->map_ops[i].handle;
-      if (!use_ptemod)
-        alloced++;
-    }
-    if (use_ptemod) {
-      if (map->kmap_ops[i].status == GNTST_okay) {
-        if (map->map_ops[i].status == GNTST_okay)
-          alloced++;
-        map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
-      }
-    }
-  }
+This problem was observed on a Tyan Tomcat IV S1564D system where the BIOS
+did not assign valid addresses to several bridges and USB devices:
+
+  pci 0000:00:11.0: PCI-to-PCIe bridge to [bus 01-ff]
+  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
+  pci 0000:01:00.0: PCIe Upstream Port to [bus 02-ff]
+  pci 0000:01:00.0:   bridge window [io  0x0000-0x0fff]   # unreachable
+  pci 0000:02:02.0: PCIe Downstream Port to [bus 05-ff]
+  pci 0000:02:02.0:   bridge window [io  0x0000-0x0fff]   # unreachable
+  pci 0000:05:00.0: PCIe-to-PCI bridge to [bus 06-ff]
+  pci 0000:05:00.0:   bridge window [io  0x0000-0x0fff]   # unreachable
+  pci 0000:06:08.0: USB UHCI 1.1
+  pci 0000:06:08.0: BAR 4: [io  0xfce0-0xfcff]            # unreachable
+  pci 0000:06:08.1: USB UHCI 1.1
+  pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff]            # unreachable
+  pci 0000:06:08.0: can't claim BAR 4 [io  0xfce0-0xfcff]: no compatible bridge window
+  pci 0000:06:08.1: can't claim BAR 4 [io  0xfce0-0xfcff]: no compatible bridge window
+
+During the first pass of assigning unassigned resources, there was not
+enough I/O space available, so we couldn't assign the 06:08.0 BAR and
+reverted to the firmware assignment (still unreachable).  Reverting the
+06:08.1 assignment failed because it conflicted with 06:08.0:
+
+  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
+  pci 0000:01:00.0: no space for bridge window [io  size 0x2000]
+  pci 0000:02:02.0: no space for bridge window [io  size 0x1000]
+  pci 0000:05:00.0: no space for bridge window [io  size 0x1000]
+  pci 0000:06:08.0: BAR 4: no space for [io  size 0x0020]
+  pci 0000:06:08.0: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
+  pci 0000:06:08.1: BAR 4: no space for [io  size 0x0020]
+  pci 0000:06:08.1: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
+  pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff] conflicts with 0000:06:08.0 [io  0xfce0-0xfcff]
+
+A subsequent pass assigned valid bridge windows and a valid 06:08.1 BAR,
+but left the 06:08.0 BAR alone, so the UHCI device was still unusable:
+
+  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff] released
+  pci 0000:00:11.0:   bridge window [io  0x1000-0x2fff]   # reassigned
+  pci 0000:01:00.0:   bridge window [io  0x1000-0x2fff]   # reassigned
+  pci 0000:02:02.0:   bridge window [io  0x2000-0x2fff]   # reassigned
+  pci 0000:05:00.0:   bridge window [io  0x2000-0x2fff]   # reassigned
+  pci 0000:06:08.0: BAR 4: assigned [io  0xfce0-0xfcff]   # left alone
+  pci 0000:06:08.1: BAR 4: assigned [io  0x2000-0x201f]
   ...
-  atomic_add(alloced, &map->live_grants);
+  uhci_hcd 0000:06:08.0: host system error, PCI problems?
+  uhci_hcd 0000:06:08.0: host controller process error, something bad happened!
+  uhci_hcd 0000:06:08.0: host controller halted, very bad!
+  uhci_hcd 0000:06:08.0: HCRESET not completed yet!
+  uhci_hcd 0000:06:08.0: HC died; cleaning up
 
-Assume that use_ptemod is true (i.e., the domain mapping the granted
-pages is a paravirtualized domain). In the code excerpt above, note that
-the "alloced" variable is only incremented when both kmap_ops[i].status
-and map_ops[i].status are set to GNTST_okay (i.e., both mapping
-operations are successful).  However, as also noted above, there are
-cases where a grant mapping operation fails partially, breaking the
-assumption of the code excerpt above.
+If the address assigned by firmware is not reachable because it's not
+within upstream bridge windows, fail instead of assigning the unusable
+address from firmware.
 
-The aforementioned causes map->live_grants to be incorrectly set. In
-some cases, all of the map_ops mappings fail, but all of the kmap_ops
-mappings succeed, meaning that live_grants may remain zero. This in turn
-makes it impossible to unmap the successfully grant-mapped pages pointed
-to by kmap_ops, because unmap_grant_pages has the following snippet of
-code at its beginning:
-
-  if (atomic_read(&map->live_grants) == 0)
-    return; /* Nothing to do */
-
-In other cases where only some of the map_ops mappings fail but all
-kmap_ops mappings succeed, live_grants is made positive, but when the
-user requests unmapping the grant-mapped pages, __unmap_grant_pages_done
-will then make map->live_grants negative, because the latter function
-does not check if all of the pages that were requested to be unmapped
-were actually unmapped, and the same function unconditionally subtracts
-"data->count" (i.e., a value that can be greater than map->live_grants)
-from map->live_grants. The side effects of a negative live_grants value
-have not been studied.
-
-The net effect of all of this is that grant references are leaked in one
-of the above conditions. In Qubes OS v4.1 (which uses Xen's grant
-mechanism extensively for X11 GUI isolation), this issue manifests
-itself with warning messages like the following to be printed out by the
-Linux kernel in the VM that had granted pages (that contain X11 GUI
-window data) to dom0: "g.e. 0x1234 still pending", especially after the
-user rapidly resizes GUI VM windows (causing some grant-mapping
-operations to partially or completely fail, due to the fact that the VM
-unshares some of the pages as part of the window resizing, making the
-pages impossible to grant-map from dom0).
-
-The fix for this issue involves counting all successful map_ops and
-kmap_ops mappings separately, and then adding the sum to live_grants.
-During unmapping, only the number of successfully unmapped grants is
-subtracted from live_grants. The code is also modified to check for
-negative live_grants values after the subtraction and warn the user.
-
-Link: https://github.com/QubesOS/qubes-issues/issues/7631
-Fixes: dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
-Cc: stable@vger.kernel.org
-Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
-Acked-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221002222006.2077-2-m.v.b@runbox.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+[bhelgaas: commit log, use pci_upstream_bridge()]
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=16263
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2203012338460.46819@angie.orcam.me.uk
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209211921250.29493@angie.orcam.me.uk
+Fixes: 58c84eda0756 ("PCI: fall back to original BIOS BAR addresses")
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org # v2.6.35+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/gntdev.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/pci/setup-res.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -367,8 +367,7 @@ int gntdev_map_grant_pages(struct gntdev
- 	for (i = 0; i < map->count; i++) {
- 		if (map->map_ops[i].status == GNTST_okay) {
- 			map->unmap_ops[i].handle = map->map_ops[i].handle;
--			if (!use_ptemod)
--				alloced++;
-+			alloced++;
- 		} else if (!err)
- 			err = -EINVAL;
+--- a/drivers/pci/setup-res.c
++++ b/drivers/pci/setup-res.c
+@@ -214,6 +214,17 @@ static int pci_revert_fw_address(struct
  
-@@ -377,8 +376,7 @@ int gntdev_map_grant_pages(struct gntdev
- 
- 		if (use_ptemod) {
- 			if (map->kmap_ops[i].status == GNTST_okay) {
--				if (map->map_ops[i].status == GNTST_okay)
--					alloced++;
-+				alloced++;
- 				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
- 			} else if (!err)
- 				err = -EINVAL;
-@@ -394,8 +392,14 @@ static void __unmap_grant_pages_done(int
- 	unsigned int i;
- 	struct gntdev_grant_map *map = data->data;
- 	unsigned int offset = data->unmap_ops - map->unmap_ops;
-+	int successful_unmaps = 0;
-+	int live_grants;
- 
- 	for (i = 0; i < data->count; i++) {
-+		if (map->unmap_ops[offset + i].status == GNTST_okay &&
-+		    map->unmap_ops[offset + i].handle != INVALID_GRANT_HANDLE)
-+			successful_unmaps++;
+ 	root = pci_find_parent_resource(dev, res);
+ 	if (!root) {
++		/*
++		 * If dev is behind a bridge, accesses will only reach it
++		 * if res is inside the relevant bridge window.
++		 */
++		if (pci_upstream_bridge(dev))
++			return -ENXIO;
 +
- 		WARN_ON(map->unmap_ops[offset + i].status != GNTST_okay &&
- 			map->unmap_ops[offset + i].handle != INVALID_GRANT_HANDLE);
- 		pr_debug("unmap handle=%d st=%d\n",
-@@ -403,6 +407,10 @@ static void __unmap_grant_pages_done(int
- 			map->unmap_ops[offset+i].status);
- 		map->unmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
- 		if (use_ptemod) {
-+			if (map->kunmap_ops[offset + i].status == GNTST_okay &&
-+			    map->kunmap_ops[offset + i].handle != INVALID_GRANT_HANDLE)
-+				successful_unmaps++;
-+
- 			WARN_ON(map->kunmap_ops[offset + i].status != GNTST_okay &&
- 				map->kunmap_ops[offset + i].handle != INVALID_GRANT_HANDLE);
- 			pr_debug("kunmap handle=%u st=%d\n",
-@@ -411,11 +419,15 @@ static void __unmap_grant_pages_done(int
- 			map->kunmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
- 		}
- 	}
-+
- 	/*
- 	 * Decrease the live-grant counter.  This must happen after the loop to
- 	 * prevent premature reuse of the grants by gnttab_mmap().
- 	 */
--	atomic_sub(data->count, &map->live_grants);
-+	live_grants = atomic_sub_return(successful_unmaps, &map->live_grants);
-+	if (WARN_ON(live_grants < 0))
-+		pr_err("%s: live_grants became negative (%d) after unmapping %d pages!\n",
-+		       __func__, live_grants, successful_unmaps);
- 
- 	/* Release reference taken by __unmap_grant_pages */
- 	gntdev_put_map(NULL, map);
++		/*
++		 * On the root bus, assume the host bridge will forward
++		 * everything.
++		 */
+ 		if (res->flags & IORESOURCE_IO)
+ 			root = &ioport_resource;
+ 		else
 
 
