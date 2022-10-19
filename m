@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 150D960400E
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A958604019
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234281AbiJSJnE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:43:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45866 "EHLO
+        id S234094AbiJSJmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:42:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234971AbiJSJl7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:41:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42227F6C17;
-        Wed, 19 Oct 2022 02:18:40 -0700 (PDT)
+        with ESMTP id S234518AbiJSJki (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:40:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4987F0186;
+        Wed, 19 Oct 2022 02:16:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE03961828;
-        Wed, 19 Oct 2022 09:16:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFCF5C433C1;
-        Wed, 19 Oct 2022 09:16:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E089617E8;
+        Wed, 19 Oct 2022 09:16:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ABDBC433C1;
+        Wed, 19 Oct 2022 09:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170980;
-        bh=FYipOXVEh/W6XkjRwrcbJtXg1hEM0/kwaTD3dCXorOM=;
+        s=korg; t=1666170982;
+        bh=nWENc6DvF0ptLyQFnc1HPQI6T98w4ylTIBF7MVi5LmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVwSZxjA/M7QGu+qmO5WiBthuf9anPVXN6HXmomNDUru6DSlau6lhEt5JRVubWxfW
-         g1pdzwsqeVcCsv/TR9RDHglVTs68Py9bcq4JsslMyU9YjjY7X0+Avxgrt58znO222r
-         ZqB/fVBbYNptrX16pPkBOrpzHiFZS0W8/+ZmCH00=
+        b=1cs5caDAQSNgxRdC/6vTdtGTMqy99akFOz4isVSTaKjUTvycHHHhx38LonsgYMK0y
+         tu3AUszACaep5Limq2ksTwOs+b683cRHeW+vFYt1eG6DuaHDZ1+exc+nI55RT4dEQM
+         jbLYCllKW0C7G/Wdbi0uDwTH+BEMobtKq0YzZWsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
         Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 6.0 860/862] Kconfig.debug: simplify the dependency of DEBUG_INFO_DWARF4/5
-Date:   Wed, 19 Oct 2022 10:35:47 +0200
-Message-Id: <20221019083327.899440801@linuxfoundation.org>
+Subject: [PATCH 6.0 861/862] Kconfig.debug: add toolchain checks for DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT
+Date:   Wed, 19 Oct 2022 10:35:48 +0200
+Message-Id: <20221019083327.950968833@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,39 +54,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 4f001a21080ff2e2f0e1c3692f5e119aedbb3bc1 upstream.
+commit bb1435f3f575b5213eaf27434efa3971f51c01de upstream.
 
-Commit c0a5c81ca9be ("Kconfig.debug: drop GCC 5+ version check for
-DWARF5") could have cleaned up the code a bit more.
+CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT does not give explicit
+-gdwarf-* flag. The actual DWARF version is up to the toolchain.
 
-"CC_IS_CLANG &&" is unneeded. No functional change is intended.
+The combination of GCC and GAS works fine, and Clang with the integrated
+assembler is good too.
+
+The combination of Clang and GAS is tricky, but at least, the -g flag
+works for Clang <=13, which defaults to DWARF v4.
+
+Clang 14 switched its default to DWARF v5.
+
+Now, CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT has the same issue as
+addressed by commit 98cd6f521f10 ("Kconfig: allow explicit opt in to
+DWARF v5").
+
+CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT=y for Clang >= 14 and
+GAS < 2.35 produces a ton of errors like follows:
+
+  /tmp/main-c2741c.s: Assembler messages:
+  /tmp/main-c2741c.s:109: Error: junk at end of line, first unrecognized character is `"'
+  /tmp/main-c2741c.s:109: Error: file number less than one
+
+Add 'depends on' to check toolchains.
 
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/Kconfig.debug |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/Kconfig.debug |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/lib/Kconfig.debug
 +++ b/lib/Kconfig.debug
-@@ -264,7 +264,7 @@ config DEBUG_INFO_DWARF_TOOLCHAIN_DEFAUL
- config DEBUG_INFO_DWARF4
- 	bool "Generate DWARF Version 4 debuginfo"
+@@ -253,6 +253,7 @@ config DEBUG_INFO_NONE
+ config DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT
+ 	bool "Rely on the toolchain's implicit default DWARF version"
  	select DEBUG_INFO
--	depends on !CC_IS_CLANG || (CC_IS_CLANG && (AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)))
-+	depends on !CC_IS_CLANG || AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)
++	depends on !CC_IS_CLANG || AS_IS_LLVM || CLANG_VERSION < 140000 || (AS_IS_GNU && AS_VERSION >= 23502)
  	help
- 	  Generate DWARF v4 debug info. This requires gcc 4.5+, binutils 2.35.2
- 	  if using clang without clang's integrated assembler, and gdb 7.0+.
-@@ -276,7 +276,7 @@ config DEBUG_INFO_DWARF4
- config DEBUG_INFO_DWARF5
- 	bool "Generate DWARF Version 5 debuginfo"
- 	select DEBUG_INFO
--	depends on !CC_IS_CLANG || (CC_IS_CLANG && (AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)))
-+	depends on !CC_IS_CLANG || AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)
- 	help
- 	  Generate DWARF v5 debug info. Requires binutils 2.35.2, gcc 5.0+ (gcc
- 	  5.0+ accepts the -gdwarf-5 flag but only had partial support for some
+ 	  The implicit default version of DWARF debug info produced by a
+ 	  toolchain changes over time.
 
 
