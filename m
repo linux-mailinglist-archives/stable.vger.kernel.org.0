@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7FC2603CD9
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:53:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C476B603CDD
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:53:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231646AbiJSIxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:53:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33712 "EHLO
+        id S231846AbiJSIxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:53:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231631AbiJSIwf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:52:35 -0400
+        with ESMTP id S231668AbiJSIwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:52:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8D510DD;
-        Wed, 19 Oct 2022 01:50:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17BA94DB1F;
+        Wed, 19 Oct 2022 01:50:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE38C6174E;
-        Wed, 19 Oct 2022 08:48:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0EBBC433C1;
-        Wed, 19 Oct 2022 08:48:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CF796174F;
+        Wed, 19 Oct 2022 08:48:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C771C433C1;
+        Wed, 19 Oct 2022 08:48:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169326;
-        bh=E8K2O0dMkobnDwehst82URM/QgRsMeOSGBHxTus3uzE=;
+        s=korg; t=1666169328;
+        bh=rJtz2IPxr4c4FRvm1ReK9DxHRJNRCF9AyV1lc/eWQv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=flTulYrbVbounvjNRF/mCmx6vwaeF8XK334nPaB8J6gBhcRSYxxIU2TFj9FfRoyfu
-         06++ixfvDsReX0iGMMlH97/+bLS9QhoqcrrSC8BigzDqxeAStG9yD3q5FB7Tv6bR5G
-         tOKsOaxcyXOwgr2P6Owd/o8Gk3PB+om5cAcQXfpA=
+        b=t/Eb0C1egJZ5d6ZY2Je7l4UBoxqqRrCR8QSHAIbFn94GQVOz3arWk3lEqmRGRptQq
+         eEDv0ImfM6rMHt5wOijfYcKuN/QOB4WsnK7MJfjfIl3LOUwRODnQLbbc3u+c9/fJym
+         NandTvYVjF3pZeaPj9/0EkPjwNFypPTKuG/SeLZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirish S <shirish.s@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
+        stable@vger.kernel.org, Sonny Jiang <sonny.jiang@amd.com>,
+        James Zhu <James.Zhu@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 198/862] drm/amd/display: explicitly disable psr_feature_enable appropriately
-Date:   Wed, 19 Oct 2022 10:24:45 +0200
-Message-Id: <20221019083258.748901590@linuxfoundation.org>
+Subject: [PATCH 6.0 199/862] drm/amdgpu: Enable VCN PG on GC11_0_1
+Date:   Wed, 19 Oct 2022 10:24:46 +0200
+Message-Id: <20221019083258.798479712@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,47 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shirish S <shirish.s@amd.com>
+From: Sonny Jiang <sonny.jiang@amd.com>
 
-commit 6094b9136ca9038b61e9c4b5d25cd5512ce50b34 upstream.
+commit e626d9b9c6e038a6918aad1b5affd38f6b9deaed upstream.
 
-[Why]
-If psr_feature_enable is set to true by default, it continues to be enabled
-for non capable links.
+Enable VCN PG on GC11_0_1
 
-[How]
-explicitly disable the feature on links that are not capable of the same.
-
-Fixes: 8c322309e48e9 ("drm/amd/display: Enable PSR")
-Signed-off-by: Shirish S <shirish.s@amd.com>
-Reviewed-by: Leo Li <sunpeng.li@amd.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Sonny Jiang <sonny.jiang@amd.com>
+Reviewed-by: James Zhu <James.Zhu@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 5.15+
+Cc: stable@vger.kernel.org # 6.0.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/soc21.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
-@@ -60,11 +60,15 @@ static bool link_supports_psrsu(struct d
-  */
- void amdgpu_dm_set_psr_caps(struct dc_link *link)
- {
--	if (!(link->connector_signal & SIGNAL_TYPE_EDP))
-+	if (!(link->connector_signal & SIGNAL_TYPE_EDP)) {
-+		link->psr_settings.psr_feature_enabled = false;
- 		return;
-+	}
- 
--	if (link->type == dc_connection_none)
-+	if (link->type == dc_connection_none) {
-+		link->psr_settings.psr_feature_enabled = false;
- 		return;
-+	}
- 
- 	if (link->dpcd_caps.psr_info.psr_version == 0) {
- 		link->psr_settings.psr_version = DC_PSR_VERSION_UNSUPPORTED;
+--- a/drivers/gpu/drm/amd/amdgpu/soc21.c
++++ b/drivers/gpu/drm/amd/amdgpu/soc21.c
+@@ -625,6 +625,7 @@ static int soc21_common_early_init(void
+ 			AMD_CG_SUPPORT_JPEG_MGCG;
+ 		adev->pg_flags =
+ 			AMD_PG_SUPPORT_GFX_PG |
++			AMD_PG_SUPPORT_VCN |
+ 			AMD_PG_SUPPORT_VCN_DPG |
+ 			AMD_PG_SUPPORT_JPEG;
+ 		adev->external_rev_id = adev->rev_id + 0x1;
 
 
