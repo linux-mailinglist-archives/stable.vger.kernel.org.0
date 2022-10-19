@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5CC603E89
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:16:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6825D603F84
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233145AbiJSJQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:16:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40238 "EHLO
+        id S233763AbiJSJcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:32:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233612AbiJSJP1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:15:27 -0400
+        with ESMTP id S233972AbiJSJaH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:30:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FE32A8794;
-        Wed, 19 Oct 2022 02:06:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28D22EB752;
+        Wed, 19 Oct 2022 02:13:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2ECB61843;
-        Wed, 19 Oct 2022 09:02:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16ED7C4314C;
-        Wed, 19 Oct 2022 09:02:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FA6F617D1;
+        Wed, 19 Oct 2022 09:02:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2203C43470;
+        Wed, 19 Oct 2022 09:02:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170151;
-        bh=pCi2CnpLXCNPWmrEJl7lbBc+7SY2enWuUJG3lZBk1PE=;
+        s=korg; t=1666170154;
+        bh=Fbe3KMtCdsW7s2zZrX5blXwHhz1QzTcZnQm6f1z/NVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n6T9u4iCaSJ5S4q9mdWmNYxNrpxWQCwdgBtgF3XNNS3mQVG+cIfhj9vUF24Pyzl7f
-         bkyGme7uI+SlNqBQ1yK57SgNldaA7V2Jh1wAxyImAm9FvYQHS+1/iUtGJfaiSuQQ9m
-         u9YQjI/pbO2C2R12Dnqk9r+PAboiFLAB/t231AlE=
+        b=qHyfjAamgIDObNW3C+qYaKh5xF9vC8pUq+q4WjLNbbdUT0Ssl+r37FGTZfJXm1+/q
+         lr6wfogzXrKBTH1NCJeV4QekPj/AC+jhAdl5TLVmgQPZYfAH7LYeXxubrCvxTI0tDH
+         ldUC7q1DX/GvZahoSsH/NJTdu2bIKqFidn3WIxbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 546/862] io_uring/fdinfo: fix sqe dumping for IORING_SETUP_SQE128
-Date:   Wed, 19 Oct 2022 10:30:33 +0200
-Message-Id: <20221019083314.075537817@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Guoqing Jiang <guoqing.jiang@linux.dev>,
+        Saurabh Sengar <ssengar@linux.microsoft.com>,
+        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 547/862] md: Replace snprintf with scnprintf
+Date:   Wed, 19 Oct 2022 10:30:34 +0200
+Message-Id: <20221019083314.124312910@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,97 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Saurabh Sengar <ssengar@linux.microsoft.com>
 
-[ Upstream commit 3b8fdd1dc35e395d19efbc8391a809a5b954ecf4 ]
+[ Upstream commit 1727fd5015d8f93474148f94e34cda5aa6ad4a43 ]
 
-If we have doubly sized SQEs, then we need to shift the sq index by 1
-to account for using two entries for a single request. The CQE dumping
-gets this right, but the SQE one does not.
+Current code produces a warning as shown below when total characters
+in the constituent block device names plus the slashes exceeds 200.
+snprintf() returns the number of characters generated from the given
+input, which could cause the expression “200 – len” to wrap around
+to a large positive number. Fix this by using scnprintf() instead,
+which returns the actual number of characters written into the buffer.
 
-Improve the SQE dumping in general, the information dumped is pretty
-sparse and doesn't even cover the whole basic part of the SQE. Include
-information on the extended part of the SQE, if doubly sized SQEs are
-in use. A typical dump now looks like the following:
+[ 1513.267938] ------------[ cut here ]------------
+[ 1513.267943] WARNING: CPU: 15 PID: 37247 at <snip>/lib/vsprintf.c:2509 vsnprintf+0x2c8/0x510
+[ 1513.267944] Modules linked in:  <snip>
+[ 1513.267969] CPU: 15 PID: 37247 Comm: mdadm Not tainted 5.4.0-1085-azure #90~18.04.1-Ubuntu
+[ 1513.267969] Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS Hyper-V UEFI Release v4.1 05/09/2022
+[ 1513.267971] RIP: 0010:vsnprintf+0x2c8/0x510
+<-snip->
+[ 1513.267982] Call Trace:
+[ 1513.267986]  snprintf+0x45/0x70
+[ 1513.267990]  ? disk_name+0x71/0xa0
+[ 1513.267993]  dump_zones+0x114/0x240 [raid0]
+[ 1513.267996]  ? _cond_resched+0x19/0x40
+[ 1513.267998]  raid0_run+0x19e/0x270 [raid0]
+[ 1513.268000]  md_run+0x5e0/0xc50
+[ 1513.268003]  ? security_capable+0x3f/0x60
+[ 1513.268005]  do_md_run+0x19/0x110
+[ 1513.268006]  md_ioctl+0x195e/0x1f90
+[ 1513.268007]  blkdev_ioctl+0x91f/0x9f0
+[ 1513.268010]  block_ioctl+0x3d/0x50
+[ 1513.268012]  do_vfs_ioctl+0xa9/0x640
+[ 1513.268014]  ? __fput+0x162/0x260
+[ 1513.268016]  ksys_ioctl+0x75/0x80
+[ 1513.268017]  __x64_sys_ioctl+0x1a/0x20
+[ 1513.268019]  do_syscall_64+0x5e/0x200
+[ 1513.268021]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-[...]
-SQEs:	32
-   32: opcode:URING_CMD, fd:0, flags:1, off:3225964160, addr:0x0, rw_flags:0x0, buf_index:0 user_data:2721, e0:0x0, e1:0xffffb8041000, e2:0x100000000000, e3:0x5500, e4:0x7, e5:0x0, e6:0x0, e7:0x0
-   33: opcode:URING_CMD, fd:0, flags:1, off:3225964160, addr:0x0, rw_flags:0x0, buf_index:0 user_data:2722, e0:0x0, e1:0xffffb8043000, e2:0x100000000000, e3:0x5508, e4:0x7, e5:0x0, e6:0x0, e7:0x0
-   34: opcode:URING_CMD, fd:0, flags:1, off:3225964160, addr:0x0, rw_flags:0x0, buf_index:0 user_data:2723, e0:0x0, e1:0xffffb8045000, e2:0x100000000000, e3:0x5510, e4:0x7, e5:0x0, e6:0x0, e7:0x0
-[...]
-
-Fixes: ebdeb7c01d02 ("io_uring: add support for 128-byte SQEs")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 766038846e875 ("md/raid0: replace printk() with pr_*()")
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Acked-by: Guoqing Jiang <guoqing.jiang@linux.dev>
+Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/fdinfo.c | 32 ++++++++++++++++++++++++++------
- 1 file changed, 26 insertions(+), 6 deletions(-)
+ drivers/md/raid0.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/io_uring/fdinfo.c b/io_uring/fdinfo.c
-index b29e2d02216f..6d4cc7a92724 100644
---- a/io_uring/fdinfo.c
-+++ b/io_uring/fdinfo.c
-@@ -60,6 +60,7 @@ static __cold void __io_uring_show_fdinfo(struct io_ring_ctx *ctx,
- 	unsigned int cq_head = READ_ONCE(r->cq.head);
- 	unsigned int cq_tail = READ_ONCE(r->cq.tail);
- 	unsigned int cq_shift = 0;
-+	unsigned int sq_shift = 0;
- 	unsigned int sq_entries, cq_entries;
- 	bool has_lock;
- 	bool is_cqe32 = (ctx->flags & IORING_SETUP_CQE32);
-@@ -67,6 +68,8 @@ static __cold void __io_uring_show_fdinfo(struct io_ring_ctx *ctx,
+diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
+index 78addfe4a0c9..857c49399c28 100644
+--- a/drivers/md/raid0.c
++++ b/drivers/md/raid0.c
+@@ -47,7 +47,7 @@ static void dump_zones(struct mddev *mddev)
+ 		int len = 0;
  
- 	if (is_cqe32)
- 		cq_shift = 1;
-+	if (ctx->flags & IORING_SETUP_SQE128)
-+		sq_shift = 1;
+ 		for (k = 0; k < conf->strip_zone[j].nb_dev; k++)
+-			len += snprintf(line+len, 200-len, "%s%pg", k?"/":"",
++			len += scnprintf(line+len, 200-len, "%s%pg", k?"/":"",
+ 				conf->devlist[j * raid_disks + k]->bdev);
+ 		pr_debug("md: zone%d=[%s]\n", j, line);
  
- 	/*
- 	 * we may get imprecise sqe and cqe info if uring is actively running
-@@ -82,19 +85,36 @@ static __cold void __io_uring_show_fdinfo(struct io_ring_ctx *ctx,
- 	seq_printf(m, "CqHead:\t%u\n", cq_head);
- 	seq_printf(m, "CqTail:\t%u\n", cq_tail);
- 	seq_printf(m, "CachedCqTail:\t%u\n", ctx->cached_cq_tail);
--	seq_printf(m, "SQEs:\t%u\n", sq_tail - ctx->cached_sq_head);
-+	seq_printf(m, "SQEs:\t%u\n", sq_tail - sq_head);
- 	sq_entries = min(sq_tail - sq_head, ctx->sq_entries);
- 	for (i = 0; i < sq_entries; i++) {
- 		unsigned int entry = i + sq_head;
--		unsigned int sq_idx = READ_ONCE(ctx->sq_array[entry & sq_mask]);
- 		struct io_uring_sqe *sqe;
-+		unsigned int sq_idx;
- 
-+		sq_idx = READ_ONCE(ctx->sq_array[entry & sq_mask]);
- 		if (sq_idx > sq_mask)
- 			continue;
--		sqe = &ctx->sq_sqes[sq_idx];
--		seq_printf(m, "%5u: opcode:%d, fd:%d, flags:%x, user_data:%llu\n",
--			   sq_idx, sqe->opcode, sqe->fd, sqe->flags,
--			   sqe->user_data);
-+		sqe = &ctx->sq_sqes[sq_idx << 1];
-+		seq_printf(m, "%5u: opcode:%s, fd:%d, flags:%x, off:%llu, "
-+			      "addr:0x%llx, rw_flags:0x%x, buf_index:%d "
-+			      "user_data:%llu",
-+			   sq_idx, io_uring_get_opcode(sqe->opcode), sqe->fd,
-+			   sqe->flags, (unsigned long long) sqe->off,
-+			   (unsigned long long) sqe->addr, sqe->rw_flags,
-+			   sqe->buf_index, sqe->user_data);
-+		if (sq_shift) {
-+			u64 *sqeb = (void *) (sqe + 1);
-+			int size = sizeof(struct io_uring_sqe) / sizeof(u64);
-+			int j;
-+
-+			for (j = 0; j < size; j++) {
-+				seq_printf(m, ", e%d:0x%llx", j,
-+						(unsigned long long) *sqeb);
-+				sqeb++;
-+			}
-+		}
-+		seq_printf(m, "\n");
- 	}
- 	seq_printf(m, "CQEs:\t%u\n", cq_tail - cq_head);
- 	cq_entries = min(cq_tail - cq_head, ctx->cq_entries);
 -- 
 2.35.1
 
