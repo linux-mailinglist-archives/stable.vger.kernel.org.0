@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDFAF603D77
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:02:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C559603F6B
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232260AbiJSJCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:02:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41414 "EHLO
+        id S233731AbiJSJbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:31:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232265AbiJSJBf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:01:35 -0400
+        with ESMTP id S233801AbiJSJ33 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C61AC8E0E8;
-        Wed, 19 Oct 2022 01:55:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65768C4C11;
+        Wed, 19 Oct 2022 02:13:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EA13617E8;
-        Wed, 19 Oct 2022 08:54:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A164FC433D6;
-        Wed, 19 Oct 2022 08:54:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83E61617F2;
+        Wed, 19 Oct 2022 08:54:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95D19C433C1;
+        Wed, 19 Oct 2022 08:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169656;
-        bh=C1rwG8z2GfL29LvFgqELgKitE9ciVJlqDiNdRtp24lY=;
+        s=korg; t=1666169664;
+        bh=KNL1dvvDRYUp9Wdt2G9l0gi4OT7xq1EdMYgKn6rVOhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uskLR9PpRwBmdDUryxzBYZrn1AgMU2WmV2Ly73iF9bFE4BeedQ9yDKkBayLBZ4ZqH
-         75Ngbqi+reJWgWbThZhOUdmOf/gkASwFIfKVjpW4gfs2LCV4Hi/pU5Q65ZfAik2aLg
-         nxTcRKQCoPNkwyJhlouwad8wVycDPN+UXv4aNOcw=
+        b=H0wvTzq7pEPpNq8/JSGf8SNePjkxAKe7VTE76nkLgARyQXGJ9LwtMpZ9Mikm0XXT7
+         IxfDN/xtz7/NiTeLVjSxZemz6kdCZ2yPaLu3FQ3dk3BRV8+KJY4lXj77UFbuDLvle8
+         37lHOutaGZ9cLWsEGoO46GWN0gLsTA1fIvhpg6AU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Ser <contact@emersion.fr>,
-        Lyude Paul <lyude@redhat.com>,
-        Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 358/862] drm/dp_mst: fix drm_dp_dpcd_read return value checks
-Date:   Wed, 19 Oct 2022 10:27:25 +0200
-Message-Id: <20221019083305.822247722@linuxfoundation.org>
+Subject: [PATCH 6.0 361/862] ASoC: amd: acp: add missing platform_device_unregister() in acp_pci_probe()
+Date:   Wed, 19 Oct 2022 10:27:28 +0200
+Message-Id: <20221019083305.944183870@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,55 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Ser <contact@emersion.fr>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 2ac6cdd581f48c8f68747156fde5868486a44985 ]
+[ Upstream commit 6a4ce20fd776d2fd19ffaf85cf34a53761e2c888 ]
 
-drm_dp_dpcd_read returns the number of bytes read. The previous code
-would print garbage on DPCD error, and would exit with on error on
-success.
+Add missing platform_device_unregister() in error path in acp_pci_probe().
 
-Signed-off-by: Simon Ser <contact@emersion.fr>
-Fixes: cb897542c6d2 ("drm/dp_mst: Fix W=1 warnings")
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Benjamin Gaignard <benjamin.gaignard@st.com>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/473500/
+Fixes: c49f5e74a11e ("ASoC: amd: acp: Add error handling cases")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220819073758.1273160-1-yangyingliang@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/display/drm_dp_mst_topology.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/amd/acp/acp-pci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/drm/display/drm_dp_mst_topology.c
-index 57e65423e50d..7a94a5288e8d 100644
---- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
-@@ -4907,14 +4907,14 @@ void drm_dp_mst_dump_topology(struct seq_file *m,
- 		seq_printf(m, "dpcd: %*ph\n", DP_RECEIVER_CAP_SIZE, buf);
- 
- 		ret = drm_dp_dpcd_read(mgr->aux, DP_FAUX_CAP, buf, 2);
--		if (ret) {
-+		if (ret != 2) {
- 			seq_printf(m, "faux/mst read failed\n");
- 			goto out;
- 		}
- 		seq_printf(m, "faux/mst: %*ph\n", 2, buf);
- 
- 		ret = drm_dp_dpcd_read(mgr->aux, DP_MSTM_CTRL, buf, 1);
--		if (ret) {
-+		if (ret != 1) {
- 			seq_printf(m, "mst ctrl read failed\n");
- 			goto out;
- 		}
-@@ -4922,7 +4922,7 @@ void drm_dp_mst_dump_topology(struct seq_file *m,
- 
- 		/* dump the standard OUI branch header */
- 		ret = drm_dp_dpcd_read(mgr->aux, DP_BRANCH_OUI, buf, DP_BRANCH_OUI_HEADER_SIZE);
--		if (ret) {
-+		if (ret != DP_BRANCH_OUI_HEADER_SIZE) {
- 			seq_printf(m, "branch oui read failed\n");
- 			goto out;
- 		}
+diff --git a/sound/soc/amd/acp/acp-pci.c b/sound/soc/amd/acp/acp-pci.c
+index 2c8e960cc9a6..5bb23ebe1216 100644
+--- a/sound/soc/amd/acp/acp-pci.c
++++ b/sound/soc/amd/acp/acp-pci.c
+@@ -104,6 +104,7 @@ static int acp_pci_probe(struct pci_dev *pci, const struct pci_device_id *pci_id
+ 	addr = pci_resource_start(pci, 0);
+ 	chip->base = devm_ioremap(&pci->dev, addr, pci_resource_len(pci, 0));
+ 	if (!chip->base) {
++		platform_device_unregister(dmic_dev);
+ 		ret = -ENOMEM;
+ 		goto release_regions;
+ 	}
 -- 
 2.35.1
 
