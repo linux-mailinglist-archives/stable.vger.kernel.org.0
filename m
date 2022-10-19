@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C476B603CDD
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3DE603CB2
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:51:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231846AbiJSIxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:53:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59326 "EHLO
+        id S231626AbiJSIvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:51:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231668AbiJSIwi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:52:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17BA94DB1F;
-        Wed, 19 Oct 2022 01:50:13 -0700 (PDT)
+        with ESMTP id S231723AbiJSItI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:49:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58FE79185F;
+        Wed, 19 Oct 2022 01:47:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CF796174F;
-        Wed, 19 Oct 2022 08:48:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C771C433C1;
-        Wed, 19 Oct 2022 08:48:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9FD061831;
+        Wed, 19 Oct 2022 08:47:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C911C433C1;
+        Wed, 19 Oct 2022 08:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169328;
-        bh=rJtz2IPxr4c4FRvm1ReK9DxHRJNRCF9AyV1lc/eWQv0=;
+        s=korg; t=1666169222;
+        bh=IfWrrYSMy5ZOVDZlf3ehBiPo9AMi1p4jSVtv16gPtBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t/Eb0C1egJZ5d6ZY2Je7l4UBoxqqRrCR8QSHAIbFn94GQVOz3arWk3lEqmRGRptQq
-         eEDv0ImfM6rMHt5wOijfYcKuN/QOB4WsnK7MJfjfIl3LOUwRODnQLbbc3u+c9/fJym
-         NandTvYVjF3pZeaPj9/0EkPjwNFypPTKuG/SeLZc=
+        b=t1vo3Fbkc7RGb0PJYakkmzHPRtcqXFmiAqAeNIsJgJA3tBVSOsAps8Ox/tfkKyBx0
+         n+4bo59DcxYoImVUpRcxQ0WPp2K0qpKriw7bHYIWdeN38rgiT4dciQMNyUs8FbcPBg
+         JqEr1TxoD+Lo72E31BT2b4enhQDPmPtg0ZF1jY6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sonny Jiang <sonny.jiang@amd.com>,
-        James Zhu <James.Zhu@amd.com>,
+        stable@vger.kernel.org, Ruili Ji <ruiliji2@amd.com>,
+        Yifan Zhang <yifan1.zhang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 199/862] drm/amdgpu: Enable VCN PG on GC11_0_1
-Date:   Wed, 19 Oct 2022 10:24:46 +0200
-Message-Id: <20221019083258.798479712@linuxfoundation.org>
+Subject: [PATCH 6.0 200/862] drm/amdgpu: Enable F32_WPTR_POLL_ENABLE in mqd
+Date:   Wed, 19 Oct 2022 10:24:47 +0200
+Message-Id: <20221019083258.845787699@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,30 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sonny Jiang <sonny.jiang@amd.com>
+From: Ruili Ji <ruiliji2@amd.com>
 
-commit e626d9b9c6e038a6918aad1b5affd38f6b9deaed upstream.
+commit 21a550de5faf9f54013334c9a6a7643b8fd80b36 upstream.
 
-Enable VCN PG on GC11_0_1
+This patch is to fix the SDMA user queue doorbell missing issue on
+SDMA 6.0. F32_WPTR_POLL_ENABLE has to be set if doorbell mode is
+used. Otherwise ringing SDMA user queue doorbell can't wake up
+system from gfxoff.
 
-Signed-off-by: Sonny Jiang <sonny.jiang@amd.com>
-Reviewed-by: James Zhu <James.Zhu@amd.com>
+Signed-off-by: Ruili Ji <ruiliji2@amd.com>
+Reviewed-by: Yifan Zhang <yifan1.zhang@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org # 6.0.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/soc21.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/sdma_v6_0.c           |    3 ++-
+ drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v11.c |    3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/soc21.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc21.c
-@@ -625,6 +625,7 @@ static int soc21_common_early_init(void
- 			AMD_CG_SUPPORT_JPEG_MGCG;
- 		adev->pg_flags =
- 			AMD_PG_SUPPORT_GFX_PG |
-+			AMD_PG_SUPPORT_VCN |
- 			AMD_PG_SUPPORT_VCN_DPG |
- 			AMD_PG_SUPPORT_JPEG;
- 		adev->external_rev_id = adev->rev_id + 0x1;
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v6_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v6_0.c
+@@ -910,7 +910,8 @@ static int sdma_v6_0_mqd_init(struct amd
+ 	m->sdmax_rlcx_rb_cntl =
+ 		order_base_2(prop->queue_size / 4) << SDMA0_QUEUE0_RB_CNTL__RB_SIZE__SHIFT |
+ 		1 << SDMA0_QUEUE0_RB_CNTL__RPTR_WRITEBACK_ENABLE__SHIFT |
+-		4 << SDMA0_QUEUE0_RB_CNTL__RPTR_WRITEBACK_TIMER__SHIFT;
++		4 << SDMA0_QUEUE0_RB_CNTL__RPTR_WRITEBACK_TIMER__SHIFT |
++		1 << SDMA0_QUEUE0_RB_CNTL__F32_WPTR_POLL_ENABLE__SHIFT;
+ 
+ 	m->sdmax_rlcx_rb_base = lower_32_bits(prop->hqd_base_gpu_addr >> 8);
+ 	m->sdmax_rlcx_rb_base_hi = upper_32_bits(prop->hqd_base_gpu_addr >> 8);
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v11.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v11.c
+@@ -375,7 +375,8 @@ static void update_mqd_sdma(struct mqd_m
+ 		<< SDMA0_QUEUE0_RB_CNTL__RB_SIZE__SHIFT |
+ 		q->vmid << SDMA0_QUEUE0_RB_CNTL__RB_VMID__SHIFT |
+ 		1 << SDMA0_QUEUE0_RB_CNTL__RPTR_WRITEBACK_ENABLE__SHIFT |
+-		6 << SDMA0_QUEUE0_RB_CNTL__RPTR_WRITEBACK_TIMER__SHIFT;
++		6 << SDMA0_QUEUE0_RB_CNTL__RPTR_WRITEBACK_TIMER__SHIFT |
++		1 << SDMA0_QUEUE0_RB_CNTL__F32_WPTR_POLL_ENABLE__SHIFT;
+ 
+ 	m->sdmax_rlcx_rb_base = lower_32_bits(q->queue_address >> 8);
+ 	m->sdmax_rlcx_rb_base_hi = upper_32_bits(q->queue_address >> 8);
 
 
