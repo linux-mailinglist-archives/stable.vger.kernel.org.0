@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BB26603F6C
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1F4E603EDD
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:22:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231515AbiJSJbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:31:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46068 "EHLO
+        id S233309AbiJSJWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:22:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233802AbiJSJ33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFF1FE5ED7;
-        Wed, 19 Oct 2022 02:12:52 -0700 (PDT)
+        with ESMTP id S233312AbiJSJUb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:20:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AACF01A39C;
+        Wed, 19 Oct 2022 02:09:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7C056185A;
-        Wed, 19 Oct 2022 09:05:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0185CC433C1;
-        Wed, 19 Oct 2022 09:05:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A25A61840;
+        Wed, 19 Oct 2022 09:05:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3044BC433D7;
+        Wed, 19 Oct 2022 09:05:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170322;
-        bh=5I3kwVes2iD1BRUK93OgLmE9qSZLIgNDQvzyOR7UBEA=;
+        s=korg; t=1666170327;
+        bh=2SjkYBbMahUyEZ8l3HQc8s3wgTMQACh2AITrVhmAKIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1rbBvtwOReNtTxoVO55E93J5g7Ifh1Fpc2JqHI22c4hEAbFdXxNNTlWTqzQgveHB
-         KdMCGtGaT97ueLh934Iir/eMhZfh1SXVglUkhdAkTmNpr0M0GzcbNZJYwFhSrnzJnk
-         MKsp8OTebeNOZb8aiLnhvQzIP8I86lU8SD9Y+LtA=
+        b=zhE0g4rex5B121wUNxxczWI5aXtPfmIqGjbokglSXlmiLWLbRAJvmxreT9U1/7hff
+         jHdmtCFfY3gGmKMyhZSxPxqpNSJZQipCjc3/M3pO8FH38V7MlhWyfydkRV0+0DC/q+
+         +If2mzJx5ynzB4kQf4rxDBvdKMSJyvm25hy6Zwjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anup Patel <apatel@ventanamicro.com>,
-        Andrew Jones <ajones@ventanamicro.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 612/862] cpuidle: riscv-sbi: Fix CPU_PM_CPU_IDLE_ENTER_xyz() macro usage
-Date:   Wed, 19 Oct 2022 10:31:39 +0200
-Message-Id: <20221019083316.963105291@linuxfoundation.org>
+Subject: [PATCH 6.0 614/862] powerpc: dts: turris1x.dts: Fix labels in DSA cpu port nodes
+Date:   Wed, 19 Oct 2022 10:31:41 +0200
+Message-Id: <20221019083317.059255466@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,47 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anup Patel <apatel@ventanamicro.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit cfadbb9df8c4dc917787da4458327e5ec14743d4 ]
+[ Upstream commit 8bf056f57f1d16c561e43f9af37301f23990cd21 ]
 
-Currently, we are using CPU_PM_CPU_IDLE_ENTER_PARAM() for all SBI HSM
-suspend types so retentive suspend types are also treated non-retentive
-and kernel will do redundant additional work for these states.
+DSA cpu port node has to be marked with "cpu" label.
+So fix it for both cpu port nodes.
 
-The BIT[31] of SBI HSM suspend types allows us to differentiate between
-retentive and non-retentive suspend types so we should use this BIT
-to call appropriate CPU_PM_CPU_IDLE_ENTER_xyz() macro.
-
-Fixes: 6abf32f1d9c5 ("cpuidle: Add RISC-V SBI CPU idle driver")
-Signed-off-by: Anup Patel <apatel@ventanamicro.com>
-Link: https://lore.kernel.org/r/20220718084553.2056169-1-apatel@ventanamicro.com/
-Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: 54c15ec3b738 ("powerpc: dts: Add DTS file for CZ.NIC Turris 1.x routers")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220827131538.14577-1-pali@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/cpuidle-riscv-sbi.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/powerpc/boot/dts/turris1x.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpuidle/cpuidle-riscv-sbi.c b/drivers/cpuidle/cpuidle-riscv-sbi.c
-index 862a2876f1c9..05fe2902df9a 100644
---- a/drivers/cpuidle/cpuidle-riscv-sbi.c
-+++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
-@@ -97,8 +97,13 @@ static int sbi_cpuidle_enter_state(struct cpuidle_device *dev,
- 				   struct cpuidle_driver *drv, int idx)
- {
- 	u32 *states = __this_cpu_read(sbi_cpuidle_data.states);
-+	u32 state = states[idx];
+diff --git a/arch/powerpc/boot/dts/turris1x.dts b/arch/powerpc/boot/dts/turris1x.dts
+index 47027b4cebb3..045af668e928 100644
+--- a/arch/powerpc/boot/dts/turris1x.dts
++++ b/arch/powerpc/boot/dts/turris1x.dts
+@@ -147,7 +147,7 @@
  
--	return CPU_PM_CPU_IDLE_ENTER_PARAM(sbi_suspend, idx, states[idx]);
-+	if (state & SBI_HSM_SUSP_NON_RET_BIT)
-+		return CPU_PM_CPU_IDLE_ENTER_PARAM(sbi_suspend, idx, state);
-+	else
-+		return CPU_PM_CPU_IDLE_ENTER_RETENTION_PARAM(sbi_suspend,
-+							     idx, state);
- }
+ 					port@0 {
+ 						reg = <0>;
+-						label = "cpu1";
++						label = "cpu";
+ 						ethernet = <&enet1>;
+ 						phy-mode = "rgmii-id";
  
- static int __sbi_enter_domain_idle_state(struct cpuidle_device *dev,
+@@ -184,7 +184,7 @@
+ 
+ 					port@6 {
+ 						reg = <6>;
+-						label = "cpu0";
++						label = "cpu";
+ 						ethernet = <&enet0>;
+ 						phy-mode = "rgmii-id";
+ 
 -- 
 2.35.1
 
