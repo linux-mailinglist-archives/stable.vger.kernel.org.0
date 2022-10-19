@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 766736047B5
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:44:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D456604856
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231724AbiJSNof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:44:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37456 "EHLO
+        id S231159AbiJSN4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:56:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233358AbiJSNoH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:44:07 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7C0219B649;
-        Wed, 19 Oct 2022 06:31:07 -0700 (PDT)
+        with ESMTP id S233446AbiJSNxU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:53:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7BEB1DB271;
+        Wed, 19 Oct 2022 06:36:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 01F36CE20F9;
-        Wed, 19 Oct 2022 08:47:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8C3DC433C1;
-        Wed, 19 Oct 2022 08:47:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A235B82323;
+        Wed, 19 Oct 2022 08:48:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99325C433C1;
+        Wed, 19 Oct 2022 08:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169248;
-        bh=tsYIEnNeNXBKuktBDiK6adMOHZqbmAxFQCb+rNO0Bnc=;
+        s=korg; t=1666169305;
+        bh=092M7OPnrt1mOCb9Id4pJ6ZjTgDA13Ex/8+A7MU3ylw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqUHxYuC/lfoKUPE460L094NAnvLaJWNetFblinmo6vZGmlBBF00qNDoENCq6b2BD
-         If876I4hrWCVc8akhCp2hjniTN1Y9HKHuzl9pJ8I5kufjncCodVQ0TdUmxJzqeXoZD
-         sZCTqaR1rYxdFZ3RXD3gPaeYyoDTLZBE/tnIhTBM=
+        b=d38KlR/MuYzxPAAbdRNEgBP8Mql75O7n8rJdEqjMQ+DcZdfqx36RTT3/gnMBJN9IJ
+         tBunQN7Q9IRqaD+L7F8AJpkQKO6/yOwB0ijH14fusqOB4sUCHYEg50Wj7u/ZZZDr8B
+         KTLW0leq7EhBdmDDkm3YUDHmnder2HztqtcCadIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 209/862] sh: machvec: Use char[] for section boundaries
-Date:   Wed, 19 Oct 2022 10:24:56 +0200
-Message-Id: <20221019083259.250168421@linuxfoundation.org>
+Subject: [PATCH 6.0 227/862] m68k: Process bootinfo records before saving them
+Date:   Wed, 19 Oct 2022 10:25:14 +0200
+Message-Id: <20221019083300.092742604@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -58,80 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit c5783af354688b24abd359f7086c282ec74de993 ]
+[ Upstream commit 7c236d93c6764dcaca7ab66d76768a044647876d ]
 
-As done for other sections, define the extern as a character array,
-which relaxes many of the compiler-time object size checks, which would
-otherwise assume it's a single long. Solves the following build error:
+The RNG seed boot record is memzeroed after processing, in order to
+preserve forward secrecy. By saving the bootinfo for procfs prior to
+that, forward secrecy is violated, since it becomes possible to recover
+past states. So, save the bootinfo block only after first processing
+them.
 
-arch/sh/kernel/machvec.c: error: array subscript 'struct sh_machine_vector[0]' is partly outside array bounds of 'long int[1]' [-Werror=array-bounds]:  => 105:33
-
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Cc: linux-sh@vger.kernel.org
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/lkml/alpine.DEB.2.22.394.2209050944290.964530@ramsan.of.borg/
-Fixes: 9655ad03af2d ("sh: Fixup machvec support.")
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Acked-by: Rich Felker <dalias@libc.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: a1ee38ab1a75 ("m68k: virt: Use RNG seed from bootinfo block")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/r/20220927130835.1629806-1-Jason@zx2c4.com
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/include/asm/sections.h |  2 +-
- arch/sh/kernel/machvec.c       | 10 +++++-----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ arch/m68k/kernel/setup_mm.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/sh/include/asm/sections.h b/arch/sh/include/asm/sections.h
-index 8edb824049b9..0cb0ca149ac3 100644
---- a/arch/sh/include/asm/sections.h
-+++ b/arch/sh/include/asm/sections.h
-@@ -4,7 +4,7 @@
+diff --git a/arch/m68k/kernel/setup_mm.c b/arch/m68k/kernel/setup_mm.c
+index e62fa8f2149b..7e7ef67cff8b 100644
+--- a/arch/m68k/kernel/setup_mm.c
++++ b/arch/m68k/kernel/setup_mm.c
+@@ -109,10 +109,9 @@ extern void paging_init(void);
  
- #include <asm-generic/sections.h>
+ static void __init m68k_parse_bootinfo(const struct bi_record *record)
+ {
++	const struct bi_record *first_record = record;
+ 	uint16_t tag;
  
--extern long __machvec_start, __machvec_end;
-+extern char __machvec_start[], __machvec_end[];
- extern char __uncached_start, __uncached_end;
- extern char __start_eh_frame[], __stop_eh_frame[];
- 
-diff --git a/arch/sh/kernel/machvec.c b/arch/sh/kernel/machvec.c
-index d606679a211e..57efaf5b82ae 100644
---- a/arch/sh/kernel/machvec.c
-+++ b/arch/sh/kernel/machvec.c
-@@ -20,8 +20,8 @@
- #define MV_NAME_SIZE 32
- 
- #define for_each_mv(mv) \
--	for ((mv) = (struct sh_machine_vector *)&__machvec_start; \
--	     (mv) && (unsigned long)(mv) < (unsigned long)&__machvec_end; \
-+	for ((mv) = (struct sh_machine_vector *)__machvec_start; \
-+	     (mv) && (unsigned long)(mv) < (unsigned long)__machvec_end; \
- 	     (mv)++)
- 
- static struct sh_machine_vector * __init get_mv_byname(const char *name)
-@@ -87,8 +87,8 @@ void __init sh_mv_setup(void)
- 	if (!machvec_selected) {
- 		unsigned long machvec_size;
- 
--		machvec_size = ((unsigned long)&__machvec_end -
--				(unsigned long)&__machvec_start);
-+		machvec_size = ((unsigned long)__machvec_end -
-+				(unsigned long)__machvec_start);
- 
- 		/*
- 		 * Sanity check for machvec section alignment. Ensure
-@@ -102,7 +102,7 @@ void __init sh_mv_setup(void)
- 		 * vector (usually the only one) from .machvec.init.
- 		 */
- 		if (machvec_size >= sizeof(struct sh_machine_vector))
--			sh_mv = *(struct sh_machine_vector *)&__machvec_start;
-+			sh_mv = *(struct sh_machine_vector *)__machvec_start;
+-	save_bootinfo(record);
+-
+ 	while ((tag = be16_to_cpu(record->tag)) != BI_LAST) {
+ 		int unknown = 0;
+ 		const void *data = record->data;
+@@ -182,6 +181,8 @@ static void __init m68k_parse_bootinfo(const struct bi_record *record)
+ 		record = (struct bi_record *)((unsigned long)record + size);
  	}
  
- 	pr_notice("Booting machvec: %s\n", get_system_type());
++	save_bootinfo(first_record);
++
+ 	m68k_realnum_memory = m68k_num_memory;
+ #ifdef CONFIG_SINGLE_MEMORY_CHUNK
+ 	if (m68k_num_memory > 1) {
 -- 
 2.35.1
 
