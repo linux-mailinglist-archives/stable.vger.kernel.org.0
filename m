@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F1760422C
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FE2F604236
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:56:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234612AbiJSK4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:56:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45142 "EHLO
+        id S234674AbiJSK4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:56:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234602AbiJSK4E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:56:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B8CA165514;
-        Wed, 19 Oct 2022 03:27:23 -0700 (PDT)
+        with ESMTP id S234677AbiJSK4J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:56:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C942B76756;
+        Wed, 19 Oct 2022 03:27:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE27EB824BC;
-        Wed, 19 Oct 2022 09:11:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28622C4314A;
-        Wed, 19 Oct 2022 09:11:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41D96B824C1;
+        Wed, 19 Oct 2022 09:11:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2C18C433D7;
+        Wed, 19 Oct 2022 09:11:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170663;
-        bh=wn1Qa7aWt3WxTNBuzagICTdOlbP3jJqAjckgAsaRIkE=;
+        s=korg; t=1666170666;
+        bh=pP8jj1BLaAqsUYAH8uUEPMkH+VEo8jVb7LcvIKD0S1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ucGnItiV9XBNeWRw23GvDVcw94mrF1o/70LYqGmr1kyXkBartZ6ZEbyy5USoT6aB
-         gIJ9+Ldgu5YE5jm9cSZqPcujaye57pWYdavQ6r+93erT1JQvxDl9sWtOol++BX4Rx4
-         8rB8rBnVIDee7Yl5WkWsgf3rw4Cyv+lBTui4Gfag=
+        b=qCprGu7Ba2xwEjihypSobcR9TNEKpi8lspjLhQqW5xNj7ShbK5+2o1IxaKXQrb9ZZ
+         MvJJ/soMtByPPiZa/YGucilwDQnUwoqEI/f3uJ2i7AA6B0ypJTR7MLXhqPw6QdSVRz
+         00CLQJQRCdo1F96LcUJXxYJYyXCOn3NGIrdYYDBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Subject: [PATCH 6.0 739/862] drm: bridge: dw_hdmi: only trigger hotplug event on link change
-Date:   Wed, 19 Oct 2022 10:33:46 +0200
-Message-Id: <20221019083322.612345116@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        sunliming <sunliming@kylinos.cn>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 740/862] drm/amd/display: Fix variable dereferenced before check
+Date:   Wed, 19 Oct 2022 10:33:47 +0200
+Message-Id: <20221019083322.652970141@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,63 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: sunliming <sunliming@kylinos.cn>
 
-[ Upstream commit da09daf881082266e4075657fac53c7966de8e4d ]
+[ Upstream commit 45a92f45f4578ff89da7dc5ef50bab4ef870f3b7 ]
 
-There are two events that signal a real change of the link state: HPD going
-high means the sink is newly connected or wants the source to re-read the
-EDID, RX sense going low is a indication that the link has been disconnected.
+Fixes the following smatch warning:
 
-Ignore the other two events that also trigger interrupts, but don't need
-immediate attention: HPD going low does not necessarily mean the link has
-been lost and should not trigger a immediate read of the status. RX sense
-going high also does not require a detect cycle, as HPD going high is the
-right point in time to read the EDID.
+drivers/gpu/drm/amd/amdgpu/../display/dc/dc_dmub_srv.c:311 dc_dmub_srv_p_state_delegate()
+warn: variable dereferenced before check 'dc' (see line 309)
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com> (v1)
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220826185733.3213248-1-l.stach@pengutronix.de
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: sunliming <sunliming@kylinos.cn>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/synopsys/dw-hdmi.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dc_dmub_srv.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-index 25a60eb4d67c..40d8ca37f5bc 100644
---- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-+++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-@@ -3096,6 +3096,7 @@ static irqreturn_t dw_hdmi_irq(int irq, void *dev_id)
- {
- 	struct dw_hdmi *hdmi = dev_id;
- 	u8 intr_stat, phy_int_pol, phy_pol_mask, phy_stat;
-+	enum drm_connector_status status = connector_status_unknown;
+diff --git a/drivers/gpu/drm/amd/display/dc/dc_dmub_srv.c b/drivers/gpu/drm/amd/display/dc/dc_dmub_srv.c
+index 76c05ff12e95..755c4f9de6da 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc_dmub_srv.c
++++ b/drivers/gpu/drm/amd/display/dc/dc_dmub_srv.c
+@@ -323,11 +323,13 @@ bool dc_dmub_srv_p_state_delegate(struct dc *dc, bool should_manage_pstate, stru
+ 	struct dmub_cmd_fw_assisted_mclk_switch_config *config_data = &cmd.fw_assisted_mclk_switch.config_data;
+ 	int i = 0;
+ 	int ramp_up_num_steps = 1; // TODO: Ramp is currently disabled. Reenable it.
+-	uint8_t visual_confirm_enabled = dc->debug.visual_confirm == VISUAL_CONFIRM_FAMS;
++	uint8_t visual_confirm_enabled;
  
- 	intr_stat = hdmi_readb(hdmi, HDMI_IH_PHY_STAT0);
- 	phy_int_pol = hdmi_readb(hdmi, HDMI_PHY_POL0);
-@@ -3134,13 +3135,15 @@ static irqreturn_t dw_hdmi_irq(int irq, void *dev_id)
- 			cec_notifier_phys_addr_invalidate(hdmi->cec_notifier);
- 			mutex_unlock(&hdmi->cec_notifier_mutex);
- 		}
--	}
+ 	if (dc == NULL)
+ 		return false;
  
--	if (intr_stat & HDMI_IH_PHY_STAT0_HPD) {
--		enum drm_connector_status status = phy_int_pol & HDMI_PHY_HPD
--						 ? connector_status_connected
--						 : connector_status_disconnected;
-+		if (phy_stat & HDMI_PHY_HPD)
-+			status = connector_status_connected;
++	visual_confirm_enabled = dc->debug.visual_confirm == VISUAL_CONFIRM_FAMS;
 +
-+		if (!(phy_stat & (HDMI_PHY_HPD | HDMI_PHY_RX_SENSE)))
-+			status = connector_status_disconnected;
-+	}
- 
-+	if (status != connector_status_unknown) {
- 		dev_dbg(hdmi->dev, "EVENT=%s\n",
- 			status == connector_status_connected ?
- 			"plugin" : "plugout");
+ 	// Format command.
+ 	cmd.fw_assisted_mclk_switch.header.type = DMUB_CMD__FW_ASSISTED_MCLK_SWITCH;
+ 	cmd.fw_assisted_mclk_switch.header.sub_type = DMUB_CMD__FAMS_SETUP_FW_CTRL;
 -- 
 2.35.1
 
