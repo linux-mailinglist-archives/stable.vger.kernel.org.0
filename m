@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EF446043E4
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DC5B604401
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:56:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231841AbiJSLxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:53:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55840 "EHLO
+        id S230408AbiJSL4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:56:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231857AbiJSLwt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:52:49 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C8081ACA84;
-        Wed, 19 Oct 2022 04:31:45 -0700 (PDT)
+        with ESMTP id S232657AbiJSLyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:54:54 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25AE4E85B;
+        Wed, 19 Oct 2022 04:33:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A4F2ECE2170;
-        Wed, 19 Oct 2022 09:04:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C502CC433C1;
-        Wed, 19 Oct 2022 09:04:50 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0926DCE2176;
+        Wed, 19 Oct 2022 09:04:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 073A5C433C1;
+        Wed, 19 Oct 2022 09:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170291;
-        bh=AIPgOlTw2C29CZW+Rcr36Sfqvrn2uqvWjCZRKazOqQQ=;
+        s=korg; t=1666170296;
+        bh=09iG3FKJdgaGX8LMpwgPlfxosKODNCDDfn7JVVuezq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uPyOXGHKxg13vb4UmrEf0/Ue6S6nsUQ82IOUsKUTTnC+Xw0fe1fzPgjIHSTez7OD6
-         V68xrBimGBocJrKx65NZQuXHC1YQdgcvzKJiYpt1rXMLpk8xrrPfSo25+VRvt8ruTc
-         O1Ugx5uVEWhiGjm7wkT3xf3vdNGnyvQCupPsqQIE=
+        b=xNokawkHd8mjdtaK0RAY3tXYkTNUMJqTorjEWhGbssmUNRuhI6aLpu2P/YkVbIQ5t
+         0dZhgj1g2c0VzEjXrbRYjbtAnpVPHRQGVCEq4vp/fKhxpNP8tAR1F7W8nAF5UZ8tQn
+         GfovQf4gw1C6ojulSzUPQC9yjkzdZ6p18eDJBKjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Armstrong <neil.armstrong@linaro.org>,
-        Lin Yujun <linyujun809@huawei.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 562/862] slimbus: qcom-ngd: Add error handling in of_qcom_slim_ngd_register
-Date:   Wed, 19 Oct 2022 10:30:49 +0200
-Message-Id: <20221019083314.815961935@linuxfoundation.org>
+Subject: [PATCH 6.0 564/862] serial: 8250: Fix restoring termios speed after suspend
+Date:   Wed, 19 Oct 2022 10:30:51 +0200
+Message-Id: <20221019083314.914687345@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,43 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Yujun <linyujun809@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 42992cf187e4e4bcfe3c58f8fc7b1832c5652d9f ]
+[ Upstream commit 379a33786d489ab81885ff0b3935cfeb36137fea ]
 
-No error handling is performed when platform_device_add()
-return fails. Refer to the error handling of driver_set_override(),
-add error handling for platform_device_add().
+Since commit edc6afc54968 ("tty: switch to ktermios and new framework")
+termios speed is no longer stored only in c_cflag member but also in new
+additional c_ispeed and c_ospeed members. If BOTHER flag is set in c_cflag
+then termios speed is stored only in these new members.
 
-Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Lin Yujun <linyujun809@huawei.com>
-Link: https://lore.kernel.org/r/20220914031953.94061-1-linyujun809@huawei.com
+Since commit 027b57170bf8 ("serial: core: Fix initializing and restoring
+termios speed") termios speed is available also in struct console.
+
+So properly restore also c_ispeed and c_ospeed members after suspend to fix
+restoring termios speed which is not represented by Bnnn constant.
+
+Fixes: 4516d50aabed ("serial: 8250: Use canary to restart console after suspend")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20220924104324.4035-1-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/slimbus/qcom-ngd-ctrl.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_port.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
-index bacc6af1d51e..d29a1a9cf12f 100644
---- a/drivers/slimbus/qcom-ngd-ctrl.c
-+++ b/drivers/slimbus/qcom-ngd-ctrl.c
-@@ -1470,7 +1470,13 @@ static int of_qcom_slim_ngd_register(struct device *parent,
- 		ngd->pdev->dev.of_node = node;
- 		ctrl->ngd = ngd;
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index ec7dca43619f..2030a92ac66e 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -3319,8 +3319,13 @@ static void serial8250_console_restore(struct uart_8250_port *up)
+ 	unsigned int baud, quot, frac = 0;
  
--		platform_device_add(ngd->pdev);
-+		ret = platform_device_add(ngd->pdev);
-+		if (ret) {
-+			platform_device_put(ngd->pdev);
-+			kfree(ngd);
-+			of_node_put(node);
-+			return ret;
-+		}
- 		ngd->base = ctrl->base + ngd->id * data->offset +
- 					(ngd->id - 1) * data->size;
+ 	termios.c_cflag = port->cons->cflag;
+-	if (port->state->port.tty && termios.c_cflag == 0)
++	termios.c_ispeed = port->cons->ispeed;
++	termios.c_ospeed = port->cons->ospeed;
++	if (port->state->port.tty && termios.c_cflag == 0) {
+ 		termios.c_cflag = port->state->port.tty->termios.c_cflag;
++		termios.c_ispeed = port->state->port.tty->termios.c_ispeed;
++		termios.c_ospeed = port->state->port.tty->termios.c_ospeed;
++	}
  
+ 	baud = serial8250_get_baud_rate(port, &termios, NULL);
+ 	quot = serial8250_get_divisor(port, baud, &frac);
 -- 
 2.35.1
 
