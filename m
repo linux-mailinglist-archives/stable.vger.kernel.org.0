@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AFE36041E3
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:50:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2BE4604299
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:08:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233600AbiJSKuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:50:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59980 "EHLO
+        id S233475AbiJSLH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:07:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234541AbiJSKt1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:49:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09C41900D4;
-        Wed, 19 Oct 2022 03:22:14 -0700 (PDT)
+        with ESMTP id S232316AbiJSLHZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:07:25 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9981C176533;
+        Wed, 19 Oct 2022 03:36:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44BCAB824CE;
-        Wed, 19 Oct 2022 09:11:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2238C433D7;
-        Wed, 19 Oct 2022 09:11:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2E4CCCE21B5;
+        Wed, 19 Oct 2022 09:11:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EB3EC433D6;
+        Wed, 19 Oct 2022 09:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170709;
-        bh=VIlYJ2ErGI6e9UFBzveHWStQsrDkc3EGp6+mnyrVdyw=;
+        s=korg; t=1666170711;
+        bh=92eQYMkXiqh2tRjqU7wqolS9xclS+SWR5TXgeWI09vw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nVcE189Ao3rZe4yYFoLBpq0R/1+6ZKExaDSn5Wu5ZLhcBARw6kegIr3pU0DGi/GsX
-         0jEVDZUjcC+tN8zeu7yAR/Mh8G5/r08A9HmQgVdZX45fALEjRkLWl35145wrCsh/th
-         yF0WruOJTjMnoGmPK9Bi1Svs90NIcLvnclWrdGck=
+        b=wjkqqDX8PXNsjHC3svv8D21Ru4ZL0s62HyXsIAIQ93Q9jWt+qjGqwi1O0aVtQwud2
+         vUmQBfzOhmQVwcPvX4CZ0iEbSFvCJdL+QpmdgymreADyrvaHApHEjF1oI5aiZAcZUD
+         9pyJeUf3+aBy2jhBgJfQ8KF8yc9XqiyMqm+wrUWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoyan Li <lxy.lixiaoyan@gmail.com>,
+        stable@vger.kernel.org, Sebastian S <iam@decentr.al>,
         Mario Limonciello <mario.limonciello@amd.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 758/862] ASoC: amd: yc: Add ASUS UM5302TA into DMI table
-Date:   Wed, 19 Oct 2022 10:34:05 +0200
-Message-Id: <20221019083323.404141151@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        Travis Glenn Hansen <travisghansen@yahoo.com>
+Subject: [PATCH 6.0 759/862] ASoC: amd: yc: Add Lenovo Yoga Slim 7 Pro X to quirks table
+Date:   Wed, 19 Oct 2022 10:34:06 +0200
+Message-Id: <20221019083323.444904947@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,19 +55,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoyan Li <lxy.lixiaoyan@gmail.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 4df5b13dec9e1b5a12db47ee92eb3f7da5c3deb5 ]
+[ Upstream commit 2232b2dd8cd4f1e6d554b2c3f6899ce36f791b67 ]
 
-ASUS Zenbook S 13 OLED (UM5302TA) needs this quirk to get the built-in
-microphone working properly.
+Lenovo Yoga Slim 7 Pro X has an ACP DMIC that isn't specified in the
+ASL or existing quirk list.  Add it to the quirk table to let DMIC
+work on these systems.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216270
-Signed-off-by: Xiaoyan Li <lxy.lixiaoyan@gmail.com>
-Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216299
+Tested-by: Sebastian S <iam@decentr.al>
+Reported-and-tested-by: Travis Glenn Hansen <travisghansen@yahoo.com>
 Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://lore.kernel.org/r/20220920201436.19734-2-mario.limonciello@amd.com
+Link: https://lore.kernel.org/r/20220920201436.19734-3-mario.limonciello@amd.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -74,7 +75,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+)
 
 diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
-index e0b24e1daef3..5eab3baf3573 100644
+index 5eab3baf3573..2cb50d5cf1a9 100644
 --- a/sound/soc/amd/yc/acp6x-mach.c
 +++ b/sound/soc/amd/yc/acp6x-mach.c
 @@ -171,6 +171,13 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
@@ -84,13 +85,13 @@ index e0b24e1daef3..5eab3baf3573 100644
 +	{
 +		.driver_data = &acp6x_card,
 +		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "UM5302TA"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "82"),
 +		}
 +	},
- 	{}
- };
- 
+ 	{
+ 		.driver_data = &acp6x_card,
+ 		.matches = {
 -- 
 2.35.1
 
