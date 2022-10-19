@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E283603F32
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:30:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7276F603F25
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:28:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234141AbiJSJas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:30:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46066 "EHLO
+        id S233641AbiJSJ2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:28:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233510AbiJSJ1T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:27:19 -0400
+        with ESMTP id S233487AbiJSJ0z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:26:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E966E6F6E;
-        Wed, 19 Oct 2022 02:12:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C89EE6F79;
+        Wed, 19 Oct 2022 02:12:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21A966189B;
-        Wed, 19 Oct 2022 09:10:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3097FC43149;
-        Wed, 19 Oct 2022 09:10:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1403B6178B;
+        Wed, 19 Oct 2022 09:10:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25715C433D6;
+        Wed, 19 Oct 2022 09:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170634;
-        bh=utuW3Bx0FnIKs6KiWMfFJsXZhlnXTIJMMLWht0Y6V40=;
+        s=korg; t=1666170642;
+        bh=/7mFFmnD5ORcDhB0aTlr6PsMjGLmulXKt1omuQvE+lQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LUW3NpQN3MCbhnS/HI2m6TvCLLIlnQSeF0CT923/hfxbi6qAIITVuJ3XQh5YHTQZh
-         hpeADh5vW8ND4zUZnyqqp+INlD+0X9cbXFLUsmXCP9v3z03Ebw5nxlaVaytJDLn7KA
-         q0K5lp4DZ3pEtgDcUNJaZgfDMmhKL68qaqywUrYo=
+        b=uNnDSRxqvjLifKyXk3QzyZ1IxZmiz2WHIK96ajaO9Na6v1I7u0GiInrQqq2AaveUb
+         0463bJl4NERKZ5e4kxJo1v8mdSf8OhvYesnJZisz2L3H0nG6DwYi+Cvuo+dUNiD0Ay
+         SLtSnM1v1FKHL2OGRGNeWOO7q1f/CbWJRT3KsciA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Peter Robinson <pbrobinson@gmail.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org, Zeng Jingxiang <linuszeng@tencent.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 729/862] drm: Use size_t type for len variable in drm_copy_field()
-Date:   Wed, 19 Oct 2022 10:33:36 +0200
-Message-Id: <20221019083322.146268079@linuxfoundation.org>
+Subject: [PATCH 6.0 732/862] gpu: lontium-lt9611: Fix NULL pointer dereference in lt9611_connector_init()
+Date:   Wed, 19 Oct 2022 10:33:39 +0200
+Message-Id: <20221019083322.286124999@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,46 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Zeng Jingxiang <linuszeng@tencent.com>
 
-[ Upstream commit 94dc3471d1b2b58b3728558d0e3f264e9ce6ff59 ]
+[ Upstream commit ef8886f321c5dab8124b9153d25afa2a71d05323 ]
 
-The strlen() function returns a size_t which is an unsigned int on 32-bit
-arches and an unsigned long on 64-bit arches. But in the drm_copy_field()
-function, the strlen() return value is assigned to an 'int len' variable.
+A NULL check for bridge->encoder shows that it may be NULL, but it
+already been dereferenced on all paths leading to the check.
+812	if (!bridge->encoder) {
 
-Later, the len variable is passed as copy_from_user() third argument that
-is an unsigned long parameter as well.
+Dereference the pointer bridge->encoder.
+810	drm_connector_attach_encoder(&lt9611->connector, bridge->encoder);
 
-In theory, this can lead to an integer overflow via type conversion. Since
-the assignment happens to a signed int lvalue instead of a size_t lvalue.
-
-In practice though, that's unlikely since the values copied are set by DRM
-drivers and not controlled by userspace. But using a size_t for len is the
-correct thing to do anyways.
-
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Tested-by: Peter Robinson <pbrobinson@gmail.com>
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220705100215.572498-2-javierm@redhat.com
+Signed-off-by: Zeng Jingxiang <linuszeng@tencent.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220727073119.1578972-1-zengjx95@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_ioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/lontium-lt9611.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_ioctl.c b/drivers/gpu/drm/drm_ioctl.c
-index 8faad23dc1d8..e1b9a03e619c 100644
---- a/drivers/gpu/drm/drm_ioctl.c
-+++ b/drivers/gpu/drm/drm_ioctl.c
-@@ -472,7 +472,7 @@ EXPORT_SYMBOL(drm_invalid_op);
-  */
- static int drm_copy_field(char __user *buf, size_t *buf_len, const char *value)
- {
--	int len;
-+	size_t len;
+diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
+index 8a60e83482a0..5fccacc159f0 100644
+--- a/drivers/gpu/drm/bridge/lontium-lt9611.c
++++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
+@@ -813,13 +813,14 @@ static int lt9611_connector_init(struct drm_bridge *bridge, struct lt9611 *lt961
  
- 	/* don't overflow userbuf */
- 	len = strlen(value);
+ 	drm_connector_helper_add(&lt9611->connector,
+ 				 &lt9611_bridge_connector_helper_funcs);
+-	drm_connector_attach_encoder(&lt9611->connector, bridge->encoder);
+ 
+ 	if (!bridge->encoder) {
+ 		DRM_ERROR("Parent encoder object not found");
+ 		return -ENODEV;
+ 	}
+ 
++	drm_connector_attach_encoder(&lt9611->connector, bridge->encoder);
++
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
