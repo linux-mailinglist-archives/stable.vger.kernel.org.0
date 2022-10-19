@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E112603E6F
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:15:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E26E0603D0C
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:56:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229506AbiJSJPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:15:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53384 "EHLO
+        id S231970AbiJSI4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:56:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232903AbiJSJMK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:12:10 -0400
+        with ESMTP id S231905AbiJSI4F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:56:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA4AC8976;
-        Wed, 19 Oct 2022 02:03:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1D5F9B871;
+        Wed, 19 Oct 2022 01:52:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4090561857;
-        Wed, 19 Oct 2022 08:50:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 472FBC433D7;
-        Wed, 19 Oct 2022 08:50:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E35F61868;
+        Wed, 19 Oct 2022 08:50:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25D71C433C1;
+        Wed, 19 Oct 2022 08:50:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169450;
-        bh=mNavhjTu2yfMxnJCyu1lv2P3CIMvrTtMyZ8wrnDm0f4=;
+        s=korg; t=1666169453;
+        bh=5hFsduFDooxb/R2PcYIuH4Pnf/toVcyN16MWoPsuRb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R/MCH9oZqMQ6qDPIA5ZPZdJAuY1eCwawU6kw4ptY9gdpUvXaqeVWNki59iYVGd8Nn
-         2/nopqh3jfBES8auM3FfqZPrreR0Nc2erriTR7QwJx3/cHvgACw3PTqVMNavajgHgl
-         50lnW777kMlbN3Sz2fuJIzSvhuE9xUhjiwDT4/7o=
+        b=kXx78nHoE9zy49Gr21mtFOlB1TpLS4OOe6n6Tc7ASqv93z6gvqBd7rQVnn0YLkqH0
+         BFPqGAaTY60xcPfIyZXcSOpZ91d/q36iv8dNOEt2sAQnPW4Uydj2cd7OFiyJnY1euy
+         CT9Z0lCEF7fmx6AkF+3pVX3mudoQQpm+N597D78Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        YN Chen <yn.chen@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 282/862] wifi: mt76: sdio: fix transmitting packet hangs
-Date:   Wed, 19 Oct 2022 10:26:09 +0200
-Message-Id: <20221019083302.482931288@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 283/862] wifi: mt76: mt7615: add mt7615_mutex_acquire/release in mt7615_sta_set_decap_offload
+Date:   Wed, 19 Oct 2022 10:26:10 +0200
+Message-Id: <20221019083302.521043144@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,35 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YN Chen <yn.chen@mediatek.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 250b1827205846ff346a76044955cb79d4963f70 ]
+[ Upstream commit 765c69d477a44c088e5d19e7758dfa4db418e3ba ]
 
-Fix transmitting packets hangs with continuing to pull the pending packet
-from mac80211 queues when receiving Tx status notification from the device.
+Similar to mt7921 driver, introduce mt7615_mutex_acquire/release in
+mt7615_sta_set_decap_offload in order to avoid sending mcu commands
+while the device is in low-power state.
 
-Fixes: aac5104bf631 ("mt76: sdio: do not run mt76_txq_schedule directly")
-Acked-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: YN Chen <yn.chen@mediatek.com>
+Fixes: d4b98c63d7a77 ("mt76: mt7615: add support for rx decapsulation offload")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/sdio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/sdio.c b/drivers/net/wireless/mediatek/mt76/sdio.c
-index ece4e4bb94a1..0ec308f99af5 100644
---- a/drivers/net/wireless/mediatek/mt76/sdio.c
-+++ b/drivers/net/wireless/mediatek/mt76/sdio.c
-@@ -485,7 +485,7 @@ static void mt76s_status_worker(struct mt76_worker *w)
- 	} while (nframes > 0);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+index 9bf8545c8c17..8d4733f87cda 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+@@ -1195,12 +1195,16 @@ static void mt7615_sta_set_decap_offload(struct ieee80211_hw *hw,
+ 	struct mt7615_dev *dev = mt7615_hw_dev(hw);
+ 	struct mt7615_sta *msta = (struct mt7615_sta *)sta->drv_priv;
  
- 	if (resched)
--		mt76_worker_schedule(&dev->sdio.txrx_worker);
-+		mt76_worker_schedule(&dev->tx_worker);
++	mt7615_mutex_acquire(dev);
++
+ 	if (enabled)
+ 		set_bit(MT_WCID_FLAG_HDR_TRANS, &msta->wcid.flags);
+ 	else
+ 		clear_bit(MT_WCID_FLAG_HDR_TRANS, &msta->wcid.flags);
+ 
+ 	mt7615_mcu_set_sta_decap_offload(dev, vif, sta);
++
++	mt7615_mutex_release(dev);
  }
  
- static void mt76s_tx_status_data(struct work_struct *work)
+ #ifdef CONFIG_PM
 -- 
 2.35.1
 
