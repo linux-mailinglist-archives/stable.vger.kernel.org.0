@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5764F603D9B
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 047B0603DA4
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232218AbiJSJFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:05:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42192 "EHLO
+        id S232320AbiJSJFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:05:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232470AbiJSJEV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:21 -0400
+        with ESMTP id S232561AbiJSJEf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B59A175A2;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 202CBAD992;
         Wed, 19 Oct 2022 01:57:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10A77617E1;
-        Wed, 19 Oct 2022 08:55:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 248F9C433C1;
-        Wed, 19 Oct 2022 08:55:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2568F61866;
+        Wed, 19 Oct 2022 08:56:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37B9BC433C1;
+        Wed, 19 Oct 2022 08:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169758;
-        bh=mVlXKDyloWHczG4w8BODEuzPi+MoNX5tHp/3T8IM120=;
+        s=korg; t=1666169766;
+        bh=t9a02up3UmCRf+tLpcInPigc4BFh75HEwd8CGe1RyE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hA2GAtk56ZECZtxKMh8abaJKz324C/BK7rFfZC1iAcnCkNeUnUlm8iKLaIW+5jxPg
-         7QtODXMUlUAPUMRa7bkhCCOECsPVuGuedUMd7a33KRxGDh0GdvZdTT8TXyK4xeHWxW
-         JYwXXJdfSx2SKz81UNxvkQKbij9C5XHSYRjnlZX8=
+        b=tXcpx7pyg75ZzoT7VTji7YbPPS/CaOzkbW1PdFaOM3bL/cjqsaAT+zsELiKgq4Xbu
+         Gvq5Uj1/W6l28d+DI6rfJbyLJ+hABj9S/B/eDZkETFNgGbT2UJRrVv5nIhnG3YE2sz
+         hulWqaGCURat3SBXgFF4mYbX2PVDgpJ+cHXmHeHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Chia-I Wu <olvaffe@gmail.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 397/862] ALSA: usb-audio: Properly refcounting clock rate
-Date:   Wed, 19 Oct 2022 10:28:04 +0200
-Message-Id: <20221019083307.475460304@linuxfoundation.org>
+Subject: [PATCH 6.0 400/862] virtio-gpu: fix shift wrapping bug in virtio_gpu_fence_event_create()
+Date:   Wed, 19 Oct 2022 10:28:07 +0200
+Message-Id: <20221019083307.607796677@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,68 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 9a737e7f8b371e97eb649904276407cee2c9cf30 ]
+[ Upstream commit 37a78445763a5921bb54e9bad01937d0dfa521c1 ]
 
-We fixed the bug introduced by the patch for managing the shared
-clocks at the commit 809f44a0cc5a ("ALSA: usb-audio: Clear fixed clock
-rate at closing EP"), but it was merely a workaround.  By this change,
-the clock reference rate is cleared at each EP close, hence the still
-remaining EP may need a re-setup of rate unnecessarily.
+The ->ring_idx_mask variable is a u64 so static checkers, Smatch in
+this case, complain if the BIT() is not also a u64.
 
-This patch introduces the proper refcounting for the clock reference
-object so that the clock setup is done only when needed.
+drivers/gpu/drm/virtio/virtgpu_ioctl.c:50 virtio_gpu_fence_event_create()
+warn: should '(1 << ring_idx)' be a 64 bit type?
 
-Fixes: 809f44a0cc5a ("ALSA: usb-audio: Clear fixed clock rate at closing EP")
-Fixes: c11117b634f4 ("ALSA: usb-audio: Refcount multiple accesses on the single clock")
-Link: https://lore.kernel.org/r/20220920181126.4912-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: cd7f5ca33585 ("drm/virtio: implement context init: add virtio_gpu_fence_event")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/YygN7jY0GdUSQSy0@kili
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/endpoint.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -39,6 +39,7 @@ struct snd_usb_iface_ref {
- struct snd_usb_clock_ref {
- 	unsigned char clock;
- 	atomic_t locked;
-+	int opened;
- 	int rate;
- 	struct list_head list;
- };
-@@ -802,6 +803,7 @@ snd_usb_endpoint_open(struct snd_usb_aud
- 				ep = NULL;
- 				goto unlock;
- 			}
-+			ep->clock_ref->opened++;
- 		}
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 3b1701607aae..5d05093014ac 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -47,7 +47,7 @@ static int virtio_gpu_fence_event_create(struct drm_device *dev,
+ 	struct virtio_gpu_fence_event *e = NULL;
+ 	int ret;
  
- 		ep->cur_audiofmt = fp;
-@@ -925,8 +927,10 @@ void snd_usb_endpoint_close(struct snd_u
- 		endpoint_set_interface(chip, ep, false);
+-	if (!(vfpriv->ring_idx_mask & (1 << ring_idx)))
++	if (!(vfpriv->ring_idx_mask & BIT_ULL(ring_idx)))
+ 		return 0;
  
- 	if (!--ep->opened) {
--		if (ep->clock_ref && !atomic_read(&ep->clock_ref->locked))
--			ep->clock_ref->rate = 0;
-+		if (ep->clock_ref) {
-+			if (!--ep->clock_ref->opened)
-+				ep->clock_ref->rate = 0;
-+		}
- 		ep->iface = 0;
- 		ep->altsetting = 0;
- 		ep->cur_audiofmt = NULL;
-@@ -1633,8 +1637,7 @@ void snd_usb_endpoint_stop(struct snd_us
- 			WRITE_ONCE(ep->sync_source->sync_sink, NULL);
- 		stop_urbs(ep, false, keep_pending);
- 		if (ep->clock_ref)
--			if (!atomic_dec_return(&ep->clock_ref->locked))
--				ep->clock_ref->rate = 0;
-+			atomic_dec(&ep->clock_ref->locked);
- 	}
- }
- 
+ 	e = kzalloc(sizeof(*e), GFP_KERNEL);
+-- 
+2.35.1
+
 
 
