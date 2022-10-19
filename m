@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DEA86042B0
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:09:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 383666042EC
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230446AbiJSLIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:08:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59286 "EHLO
+        id S232618AbiJSLMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:12:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230473AbiJSLIW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:08:22 -0400
+        with ESMTP id S232752AbiJSLLM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:11:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 820BF17939E;
-        Wed, 19 Oct 2022 03:37:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51582153835;
+        Wed, 19 Oct 2022 03:38:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B8DAB821CA;
-        Wed, 19 Oct 2022 09:06:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3057C433B5;
-        Wed, 19 Oct 2022 09:06:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF590B82334;
+        Wed, 19 Oct 2022 09:06:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44479C433D7;
+        Wed, 19 Oct 2022 09:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170367;
-        bh=64gELA0nUsV9N2NViMDvTXlYD/PS9XrRDXeAPBJL2d8=;
+        s=korg; t=1666170398;
+        bh=BaI82+rRrrtiUMrTa09afa+nj5px1HQoMoRsf7VXukE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lin7EaOC21SrB+66QrBnZN8oZaxZt/dtb5GU2D5peRTaZTsgKzU4vVypb8o1LVs7E
-         S5nDJAiD8NMZiyUl5hubpiKdYuUshz3lnuAfZe03p7Y5woTHli21HL2577WWO2ilDi
-         ibWKIJ/Wwo5qDjW0czYdfyLzHjEU8fXiBknAzwS4=
+        b=KAcYywsHykvqeM38DgQfXuy2Jqh10AUDY1rgcDnW82sKKRGG8Y8svqd+IPmXU+V7S
+         xD49vCXuHWSdABnSExukc8hN7d5My8TURM4IMVy666jqJ7H9Hk0lZmVHX05Pvni8na
+         24GUobX6hE0aHrEUgwt9QwcFeSswS9TzYwovp3qA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 601/862] clk: ast2600: BCLK comes from EPLL
-Date:   Wed, 19 Oct 2022 10:31:28 +0200
-Message-Id: <20221019083316.500957495@linuxfoundation.org>
+Subject: [PATCH 6.0 605/862] mailbox: bcm-ferxrm-mailbox: Fix error check for dma_map_sg
+Date:   Wed, 19 Oct 2022 10:31:32 +0200
+Message-Id: <20221019083316.678797029@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,36 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Jack Wang <jinpu.wang@ionos.com>
 
-[ Upstream commit b8c1dc9c00b252b3be853720a71b05ed451ddd9f ]
+[ Upstream commit 6b207ce8a96a71e966831e3a13c38143ba9a73c1 ]
 
-This correction was made in the u-boot SDK recently. There are no
-in-tree users of this clock so the impact is minimal.
+dma_map_sg return 0 on error, fix the error check, and return -EIO
+to caller.
 
-Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
-Link: https://github.com/AspeedTech-BMC/u-boot/commit/8ad54a5ae15f27fea5e894cc2539a20d90019717
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Link: https://lore.kernel.org/r/20220421040426.171256-1-joel@jms.id.au
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: dbc049eee730 ("mailbox: Add driver for Broadcom FlexRM ring manager")
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-ast2600.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mailbox/bcm-flexrm-mailbox.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
-index 24dab2312bc6..9c3305bcb27a 100644
---- a/drivers/clk/clk-ast2600.c
-+++ b/drivers/clk/clk-ast2600.c
-@@ -622,7 +622,7 @@ static int aspeed_g6_clk_probe(struct platform_device *pdev)
- 	regmap_write(map, 0x308, 0x12000); /* 3x3 = 9 */
+diff --git a/drivers/mailbox/bcm-flexrm-mailbox.c b/drivers/mailbox/bcm-flexrm-mailbox.c
+index fda16f76401e..bf6e86b0ed09 100644
+--- a/drivers/mailbox/bcm-flexrm-mailbox.c
++++ b/drivers/mailbox/bcm-flexrm-mailbox.c
+@@ -622,15 +622,15 @@ static int flexrm_spu_dma_map(struct device *dev, struct brcm_message *msg)
  
- 	/* P-Bus (BCLK) clock divider */
--	hw = clk_hw_register_divider_table(dev, "bclk", "hpll", 0,
-+	hw = clk_hw_register_divider_table(dev, "bclk", "epll", 0,
- 			scu_g6_base + ASPEED_G6_CLK_SELECTION1, 20, 3, 0,
- 			ast2600_div_table,
- 			&aspeed_g6_clk_lock);
+ 	rc = dma_map_sg(dev, msg->spu.src, sg_nents(msg->spu.src),
+ 			DMA_TO_DEVICE);
+-	if (rc < 0)
+-		return rc;
++	if (!rc)
++		return -EIO;
+ 
+ 	rc = dma_map_sg(dev, msg->spu.dst, sg_nents(msg->spu.dst),
+ 			DMA_FROM_DEVICE);
+-	if (rc < 0) {
++	if (!rc) {
+ 		dma_unmap_sg(dev, msg->spu.src, sg_nents(msg->spu.src),
+ 			     DMA_TO_DEVICE);
+-		return rc;
++		return -EIO;
+ 	}
+ 
+ 	return 0;
 -- 
 2.35.1
 
