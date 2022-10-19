@@ -2,136 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB27B604064
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:54:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD77360401E
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230086AbiJSJyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:54:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52356 "EHLO
+        id S234005AbiJSJmk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:42:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234502AbiJSJyI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:54:08 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9183B2408B;
-        Wed, 19 Oct 2022 02:29:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:
-        Content-Transfer-Encoding:Content-Type:MIME-Version:References:Message-ID:
-        Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=9QVTzazWDl7CzJj27vD1HI3Q5VZZTDlr+MDM1SbII88=; b=C8C6X1bxcCgc5Rb/GOC1LuXMlT
-        BcHsdyxGZAPlU21pw/bgg+tO3EiqRSmP6NLu4FygRRXlzXVGYDIMxHb8mceFCzdF9SK/101bN4l/U
-        4VtIwCAPl8mYIo7gehRXogbtNYFBFzt0B2Ssr9FoLX68HXeNXoqAhXXQMamS8sUq3o+L2HZ7UVKI4
-        HjnNgYWgsSLK/TIp6z7wj7uH9wtk141xrjd3IuEBxwh8gGnf5rbSBzsy27Sroo+lnoliD8FvQxRlb
-        LzohYJpD8DH4wlTHFb3lVcR6Gg9I1l9lAou0USwgUGGTo1loIDTP+dshvLHB6ay9emIg6HK1Ngygp
-        zG/PrYPQ==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:34790)
-        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1ol59Q-0005Q4-Cw; Wed, 19 Oct 2022 10:14:12 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1ol59P-0001yh-6s; Wed, 19 Oct 2022 10:14:11 +0100
-Date:   Wed, 19 Oct 2022 10:14:11 +0100
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
+        with ESMTP id S234423AbiJSJkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:40:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C26F0194;
+        Wed, 19 Oct 2022 02:16:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4143D61820;
+        Wed, 19 Oct 2022 09:15:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8CC5C43470;
+        Wed, 19 Oct 2022 09:15:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1666170943;
+        bh=wGhGFvPXeu6TKdOmijz1r6FBNDIhbNxh8icrTgpThXo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=W7ph51a0d+0vFwfqJJvHvkut2rN0so1Z3epRqGBuGmgAR07AGHKW+IGaL+BOjQC4e
+         eVnutcd2JqAzKEoTryDyNOUjc1G7dtvmxWW2ofm1YI44c7nxIajewB6lF5DZg16kVE
+         wagACZmBfwPaD/HijBYHBmbFCaQ/thu2ipdh2L+wIJvsX4VhfbJjIUbDObvWG1jEN7
+         Bi4nKi/aMvfNlZdjU0vR59vlrqKBc8Az1HuAUWnq6FO275YU7sFo00YOSZu0sfTss9
+         zv5YjwLJDHFbdVq7irA/jovXPe+AMAsWBRCf8n1TDfJ+yvZrB3GHdTTyA6OaqIAZCn
+         FF42Z3fulCAhQ==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1ol5Ah-000551-GH; Wed, 19 Oct 2022 11:15:31 +0200
+Date:   Wed, 19 Oct 2022 11:15:31 +0200
+From:   Johan Hovold <johan@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 6.0 659/862] =?us-ascii?B?PT9V?=
- =?us-ascii?B?VEYtOD9xP0FSTS9kbWEtbWFwcD1EMT05Nm5nOj0yMGRvbnQ9MjBvdmVycmlk?=
- =?us-ascii?B?ZT0yMC0+ZG1hPTVGY29oZT89ID0/VVRGLTg/cT9yZW50PTIwd2hlbj0yMHNl?=
- =?us-ascii?Q?t=3D20from=3D20a=3D20bus=3D20notifier=3F=3D?=
-Message-ID: <Y0+/41/qY8DjVn23@shell.armlinux.org.uk>
+        Johan Hovold <johan+linaro@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 6.0 523/862] phy: qcom-qmp-pcie: add pcs_misc sanity check
+Message-ID: <Y0/AM9F1CmAykhGI@hovoldconsulting.com>
 References: <20221019083249.951566199@linuxfoundation.org>
- <20221019083319.087440003@linuxfoundation.org>
+ <20221019083313.087411998@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20221019083319.087440003@linuxfoundation.org>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20221019083313.087411998@linuxfoundation.org>
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-I'm seeing:
-
-Subject: [PATCH 6.0 659/862]
-        =?UTF-8?q?ARM/dma-mapp=D1=96ng:=20dont=20override=20->dma=5Fcohe?=
-        =?UTF-8?q?rent=20when=20set=20from=20a=20bus=20notifier?=
-
-in mutt, and mutt seems to be unable to decode that. Either a mutt
-bug or a bug in your scripts or git...
-
-Russell.
-
-On Wed, Oct 19, 2022 at 10:32:26AM +0200, Greg Kroah-Hartman wrote:
-> From: Christoph Hellwig <hch@lst.de>
+On Wed, Oct 19, 2022 at 10:30:10AM +0200, Greg Kroah-Hartman wrote:
+> From: Johan Hovold <johan+linaro@kernel.org>
 > 
-> [ Upstream commit 49bc8bebae79c8516cb12f91818f3a7907e3ebce ]
+> [ Upstream commit ecd5507e72ea03659dc2cc3e4393fbf8f4e2e02a ]
 > 
-> Commit ae626eb97376 ("ARM/dma-mapping: use dma-direct unconditionally")
-> caused a regression on the mvebu platform, wherein devices that are
-> dma-coherent are marked as dma-noncoherent, because although
-> mvebu_hwcc_notifier() after that commit still marks then as coherent,
-> the arm_coherent_dma_ops() function, which is called later, overwrites
-> this setting, since it is being called from drivers/of/device.c with
-> coherency parameter determined by of_dma_is_coherent(), and the
-> device-trees do not declare the 'dma-coherent' property.
+> Make sure that the (otherwise) optional pcs_misc IO region has been
+> provided in case the configuration specifies a corresponding
+> initialisation table to avoid crashing with malformed device trees.
 > 
-> Fix this by defaulting never clearing the dma_coherent flag in
-> arm_coherent_dma_ops().
+> Note that the related debug message is now superfluous as the region is
+> only used when the configuration has a pcs_misc table.
 > 
-> Fixes: ae626eb97376 ("ARM/dma-mapping: use dma-direct unconditionally")
-> Reported-by: Marek Behún <kabel@kernel.org>
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-> Tested-by: Marek Behún <kabel@kernel.org>
+> Fixes: 421c9a0e9731 ("phy: qcom: qmp: Add SDM845 PCIe QMP PHY support")
+> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> Link: https://lore.kernel.org/r/20220916102340.11520-2-johan+linaro@kernel.org
+> Signed-off-by: Vinod Koul <vkoul@kernel.org>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+This was added to prevent future bugs when adding support for new
+platforms and did not have a stable tag. Please drop.
+
 > ---
->  arch/arm/mm/dma-mapping.c | 12 ++++++++++--
->  1 file changed, 10 insertions(+), 2 deletions(-)
+>  drivers/phy/qualcomm/phy-qcom-qmp-pcie.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 > 
-> diff --git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c
-> index 089c9c644cce..bfc7476f1411 100644
-> --- a/arch/arm/mm/dma-mapping.c
-> +++ b/arch/arm/mm/dma-mapping.c
-> @@ -1769,8 +1769,16 @@ static void arm_teardown_iommu_dma_ops(struct device *dev) { }
->  void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
->  			const struct iommu_ops *iommu, bool coherent)
->  {
-> -	dev->archdata.dma_coherent = coherent;
-> -	dev->dma_coherent = coherent;
-> +	/*
-> +	 * Due to legacy code that sets the ->dma_coherent flag from a bus
-> +	 * notifier we can't just assign coherent to the ->dma_coherent flag
-> +	 * here, but instead have to make sure we only set but never clear it
-> +	 * for now.
-> +	 */
-> +	if (coherent) {
-> +		dev->archdata.dma_coherent = true;
-> +		dev->dma_coherent = true;
+> diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
+> index 2d65e1f56bfc..0e0f2482827a 100644
+> --- a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
+> +++ b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
+> @@ -2371,8 +2371,10 @@ int qcom_qmp_phy_pcie_create(struct device *dev, struct device_node *np, int id,
+>  	    of_device_is_compatible(dev->of_node, "qcom,ipq6018-qmp-pcie-phy"))
+>  		qphy->pcs_misc = qphy->pcs + 0x400;
+>  
+> -	if (!qphy->pcs_misc)
+> -		dev_vdbg(dev, "PHY pcs_misc-reg not used\n");
+> +	if (!qphy->pcs_misc) {
+> +		if (cfg->pcs_misc_tbl || cfg->pcs_misc_tbl_sec)
+> +			return -EINVAL;
 > +	}
 >  
->  	/*
->  	 * Don't override the dma_ops if they have already been set. Ideally
-> -- 
-> 2.35.1
-> 
-> 
-> 
-> 
+>  	snprintf(prop_name, sizeof(prop_name), "pipe%d", id);
+>  	qphy->pipe_clk = devm_get_clk_from_child(dev, np, prop_name);
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+Johan
