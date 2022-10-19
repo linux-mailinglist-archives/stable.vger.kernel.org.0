@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 547BF603CAE
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:51:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B537F603CB5
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:51:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231574AbiJSIux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:50:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33672 "EHLO
+        id S231663AbiJSIvM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:51:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231986AbiJSIuE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:50:04 -0400
+        with ESMTP id S232106AbiJSIuW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:50:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D15AF2CCBF;
-        Wed, 19 Oct 2022 01:48:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 642848E704;
+        Wed, 19 Oct 2022 01:48:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C47F2617F7;
-        Wed, 19 Oct 2022 08:47:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD1CBC433D6;
-        Wed, 19 Oct 2022 08:47:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABC4461804;
+        Wed, 19 Oct 2022 08:47:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0254C433C1;
+        Wed, 19 Oct 2022 08:47:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169263;
-        bh=cUStqzs1sm90x91UAWNz1rhejrC3JpfXLKWtUpHmuFQ=;
+        s=korg; t=1666169266;
+        bh=zg+p61KItxBrk4fp24Kbh1QhrpK1b7WGZ7RcxpNQlec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5I1Rdoi7xk4jubm3idsEAuvsr8PmZxirfqOenfiktckF0EK6EJxdVVD/uh0UMaSd
-         jlECqsrYQKDKrobBHObzQ2JG5mpoznU9y+Zqw/OgmZkqRm2YEw39w0ns6TiLxd/fNM
-         kledWCmbWQl3PZz6lJrh6GqdIs/D/NLc1XR1EpPU=
+        b=mmnCTUDEdGvdkmM3go/QS+HV2hecDfmXuOImaeLlEJ8eny38JJ1b73459PUblKdN+
+         7r6uFftTha0J+szs87nd3F8eSNrcAXPQ/rjaM/KWylpGv50+BJB/zsP4ebExPYxd1i
+         bBoixQQ9eQVVgkrw3O4o8CANaRe9xXpZA964CXLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jingbo Xu <jefflexu@linux.alibaba.com>,
-        Jia Zhu <zhujia.zj@bytedance.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        linux-arm-kernel@lists.infradead.org,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 213/862] erofs: use kill_anon_super() to kill super in fscache mode
-Date:   Wed, 19 Oct 2022 10:25:00 +0200
-Message-Id: <20221019083259.435616379@linuxfoundation.org>
+Subject: [PATCH 6.0 214/862] ARM: 9243/1: riscpc: Unbreak the build
+Date:   Wed, 19 Oct 2022 10:25:01 +0200
+Message-Id: <20221019083259.482159525@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,37 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia Zhu <zhujia.zj@bytedance.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 1015c1016c231b26d4e2c9b3da65b6c043eb97a3 ]
+[ Upstream commit 32844a8eecaa4a3e65841c53e43e04a9087d1ef6 ]
 
-Use kill_anon_super() instead of generic_shutdown_super() since the
-mount() in erofs fscache mode uses get_tree_nodev() and associated
-anon bdev needs to be freed.
+This patch fixes the following build error:
 
-Fixes: 9c0cc9c729657 ("erofs: add 'fsid' mount option")
-Suggested-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-Signed-off-by: Jia Zhu <zhujia.zj@bytedance.com>
-Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20220918043456.147-2-zhujia.zj@bytedance.com
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+In file included from ./include/linux/io.h:13,
+                 from ./arch/arm/mach-rpc/include/mach/uncompress.h:9,
+                 from arch/arm/boot/compressed/misc.c:31:
+./arch/arm/include/asm/io.h:85:22: error: conflicting types for ‘__raw_writeb’
+   85 | #define __raw_writeb __raw_writeb
+      |                      ^~~~~~~~~~~~
+./arch/arm/include/asm/io.h:86:20: note: in expansion of macro ‘__raw_writeb’
+   86 | static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
+      |                    ^~~~~~~~~~~~
+In file included from arch/arm/boot/compressed/misc.c:26:
+arch/arm/boot/compressed/misc-ep93xx.h:13:20: note: previous definition of ‘__raw_writeb’ was here
+   13 | static inline void __raw_writeb(unsigned char value, unsigned int ptr)
+      |                    ^~~~~~~~~~~~
+
+To: Russell King <linux@armlinux.org.uk>
+
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arm-kernel@lists.infradead.org
+Fixes: 0361c7e504b1 ("ARM: ep93xx: multiplatform support")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/erofs/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/compressed/misc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 3173debeaa5a..9716d355a63e 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -879,7 +879,7 @@ static void erofs_kill_sb(struct super_block *sb)
- 	WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
+diff --git a/arch/arm/boot/compressed/misc.c b/arch/arm/boot/compressed/misc.c
+index cb2e069dc73f..abfed1aa2baa 100644
+--- a/arch/arm/boot/compressed/misc.c
++++ b/arch/arm/boot/compressed/misc.c
+@@ -23,7 +23,9 @@ unsigned int __machine_arch_type;
+ #include <linux/types.h>
+ #include <linux/linkage.h>
+ #include "misc.h"
++#ifdef CONFIG_ARCH_EP93XX
+ #include "misc-ep93xx.h"
++#endif
  
- 	if (erofs_is_fscache_mode(sb))
--		generic_shutdown_super(sb);
-+		kill_anon_super(sb);
- 	else
- 		kill_block_super(sb);
+ static void putstr(const char *ptr);
  
 -- 
 2.35.1
