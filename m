@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 047B0603DA4
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B125C603D9C
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232320AbiJSJFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:05:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34308 "EHLO
+        id S232244AbiJSJFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:05:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232561AbiJSJEf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:35 -0400
+        with ESMTP id S232499AbiJSJEY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 202CBAD992;
-        Wed, 19 Oct 2022 01:57:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65AB49D528;
+        Wed, 19 Oct 2022 01:57:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2568F61866;
-        Wed, 19 Oct 2022 08:56:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37B9BC433C1;
-        Wed, 19 Oct 2022 08:56:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB47261867;
+        Wed, 19 Oct 2022 08:56:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEEE5C433C1;
+        Wed, 19 Oct 2022 08:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169766;
-        bh=t9a02up3UmCRf+tLpcInPigc4BFh75HEwd8CGe1RyE4=;
+        s=korg; t=1666169769;
+        bh=/KXZ6TtpDb4MRpdGoI3eHmCgdlt22zSQ2OvKcABdU/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tXcpx7pyg75ZzoT7VTji7YbPPS/CaOzkbW1PdFaOM3bL/cjqsaAT+zsELiKgq4Xbu
-         Gvq5Uj1/W6l28d+DI6rfJbyLJ+hABj9S/B/eDZkETFNgGbT2UJRrVv5nIhnG3YE2sz
-         hulWqaGCURat3SBXgFF4mYbX2PVDgpJ+cHXmHeHQ=
+        b=QfD59p59AfhoJSwUW4XT3tCcA4y6K3wb9k8KnRQGGjwLHblvDPaRGdCPIp/7Otanz
+         yyNvXfgZ0yapSVqsMpPC9S+Bpn0InhccIBTHvSR069E67CPNXJmZWWnGeaDOdikeNG
+         ZEFhFqWRJGk7bIOFjYxqMVkJ4hK6URMoHd0Z2ghc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Chia-I Wu <olvaffe@gmail.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 400/862] virtio-gpu: fix shift wrapping bug in virtio_gpu_fence_event_create()
-Date:   Wed, 19 Oct 2022 10:28:07 +0200
-Message-Id: <20221019083307.607796677@linuxfoundation.org>
+Subject: [PATCH 6.0 401/862] ASoC: codecs: tx-macro: fix kcontrol put
+Date:   Wed, 19 Oct 2022 10:28:08 +0200
+Message-Id: <20221019083307.651568697@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,39 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 37a78445763a5921bb54e9bad01937d0dfa521c1 ]
+[ Upstream commit c1057a08af438e0cf5450c1d977a3011198ed2f8 ]
 
-The ->ring_idx_mask variable is a u64 so static checkers, Smatch in
-this case, complain if the BIT() is not also a u64.
+tx_macro_tx_mixer_put() and tx_macro_dec_mode_put() currently returns zero
+eventhough it changes the value.
+Fix this, so that change notifications are sent correctly.
 
-drivers/gpu/drm/virtio/virtgpu_ioctl.c:50 virtio_gpu_fence_event_create()
-warn: should '(1 << ring_idx)' be a 64 bit type?
-
-Fixes: cd7f5ca33585 ("drm/virtio: implement context init: add virtio_gpu_fence_event")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/YygN7jY0GdUSQSy0@kili
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Fixes: d207bdea0ca9 ("ASoC: codecs: lpass-tx-macro: add dapm widgets and route")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220906170112.1984-6-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/lpass-tx-macro.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 3b1701607aae..5d05093014ac 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -47,7 +47,7 @@ static int virtio_gpu_fence_event_create(struct drm_device *dev,
- 	struct virtio_gpu_fence_event *e = NULL;
- 	int ret;
+diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
+index 55503ba480bb..e162a08d9945 100644
+--- a/sound/soc/codecs/lpass-tx-macro.c
++++ b/sound/soc/codecs/lpass-tx-macro.c
+@@ -823,17 +823,23 @@ static int tx_macro_tx_mixer_put(struct snd_kcontrol *kcontrol,
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
  
--	if (!(vfpriv->ring_idx_mask & (1 << ring_idx)))
-+	if (!(vfpriv->ring_idx_mask & BIT_ULL(ring_idx)))
- 		return 0;
+ 	if (enable) {
++		if (tx->active_decimator[dai_id] == dec_id)
++			return 0;
++
+ 		set_bit(dec_id, &tx->active_ch_mask[dai_id]);
+ 		tx->active_ch_cnt[dai_id]++;
+ 		tx->active_decimator[dai_id] = dec_id;
+ 	} else {
++		if (tx->active_decimator[dai_id] == -1)
++			return 0;
++
+ 		tx->active_ch_cnt[dai_id]--;
+ 		clear_bit(dec_id, &tx->active_ch_mask[dai_id]);
+ 		tx->active_decimator[dai_id] = -1;
+ 	}
+ 	snd_soc_dapm_mixer_update_power(widget->dapm, kcontrol, enable, update);
  
- 	e = kzalloc(sizeof(*e), GFP_KERNEL);
+-	return 0;
++	return 1;
+ }
+ 
+ static int tx_macro_enable_dec(struct snd_soc_dapm_widget *w,
+@@ -1019,9 +1025,12 @@ static int tx_macro_dec_mode_put(struct snd_kcontrol *kcontrol,
+ 	int path = e->shift_l;
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
+ 
++	if (tx->dec_mode[path] == value)
++		return 0;
++
+ 	tx->dec_mode[path] = value;
+ 
+-	return 0;
++	return 1;
+ }
+ 
+ static int tx_macro_get_bcs(struct snd_kcontrol *kcontrol,
 -- 
 2.35.1
 
