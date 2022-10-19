@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 754446046FD
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:26:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87C526044DD
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:17:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231827AbiJSN0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:26:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45584 "EHLO
+        id S232910AbiJSMRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 08:17:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231824AbiJSN0A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:26:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 306BC1CC74F;
-        Wed, 19 Oct 2022 06:12:23 -0700 (PDT)
+        with ESMTP id S232859AbiJSMQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:16:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5BF192D94;
+        Wed, 19 Oct 2022 04:52:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08DAEB822DF;
-        Wed, 19 Oct 2022 08:43:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6638CC433D7;
-        Wed, 19 Oct 2022 08:43:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 867FDB822EE;
+        Wed, 19 Oct 2022 08:43:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB737C433D6;
+        Wed, 19 Oct 2022 08:43:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168981;
-        bh=+kzFWhmia5w1mBkbgYOwAljW+SBIesxD8Be950Xz91U=;
+        s=korg; t=1666169001;
+        bh=ENqjI30oM3X1HTevosEQ8wfvgkE/7JDm0ZpMwQO+m1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZS6DktjQckPJQyaeNGtVhs7oIbxEhkAc3htuYcOij7KBx0QnyVXOmpeLxTlKYMIX0
-         oVcsLXRtsANu42CeTiidPS5bPgd6FCFm1pmSfPqg5tBqxxDi/vt+naQhWIJg0EFQpx
-         cdKt5xtAXCUU3POSFVj9yYiYTuHRA9g5EV5ArlbQ=
+        b=HOEu3WtBj0F6qrTwxAcQQnGb3MpUwoobjeM0TjPHuaGhPcLYbuV7DnSlPQkqPKFq5
+         3ArQMclZ7kvMBViBzr9KKuTXNrp0838mA5250FRgJr+NbEuNWfvPQ0C0VZlYmOSkd+
+         8JpGyzHvoCSVDOsY0VrRnynM7c9sNXJlGeHfNhS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 6.0 119/862] btrfs: enhance unsupported compat RO flags handling
-Date:   Wed, 19 Oct 2022 10:23:26 +0200
-Message-Id: <20221019083255.205949482@linuxfoundation.org>
+        stable@vger.kernel.org, Aran Dalton <arda@allwinnertech.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 6.0 126/862] f2fs: increase the limit for reserve_root
+Date:   Wed, 19 Oct 2022 10:23:33 +0200
+Message-Id: <20221019083255.521198948@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,86 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit 81d5d61454c365718655cfc87d8200c84e25d596 upstream.
+commit da35fe96d12d15779f3cb74929b7ed03941cf983 upstream.
 
-Currently there are two corner cases not handling compat RO flags
-correctly:
+This patch increases the threshold that limits the reserved root space from 0.2%
+to 12.5% by using simple shift operation.
 
-- Remount
-  We can still mount the fs RO with compat RO flags, then remount it RW.
-  We should not allow any write into a fs with unsupported RO flags.
+Typically Android sets 128MB, but if the storage capacity is 32GB, 0.2% which is
+around 64MB becomes too small. Let's relax it.
 
-- Still try to search block group items
-  In fact, behavior/on-disk format change to extent tree should not
-  need a full incompat flag.
-
-  And since we can ensure fs with unsupported RO flags never got any
-  writes (with above case fixed), then we can even skip block group
-  items search at mount time.
-
-This patch will enhance the unsupported RO compat flags by:
-
-- Reject read-write remount if there are unsupported RO compat flags
-
-- Go dummy block group items directly for unsupported RO compat flags
-  In fact, only changes to chunk/subvolume/root/csum trees should go
-  incompat flags.
-
-The latter part should allow future change to extent tree to be compat
-RO flags.
-
-Thus this patch also needs to be backported to all stable trees.
-
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org
+Reported-by: Aran Dalton <arda@allwinnertech.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/block-group.c |   11 ++++++++++-
- fs/btrfs/super.c       |    9 +++++++++
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ fs/f2fs/super.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -2190,7 +2190,16 @@ int btrfs_read_block_groups(struct btrfs
- 	int need_clear = 0;
- 	u64 cache_gen;
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -301,10 +301,10 @@ static void f2fs_destroy_casefold_cache(
  
--	if (!root)
-+	/*
-+	 * Either no extent root (with ibadroots rescue option) or we have
-+	 * unsupported RO options. The fs can never be mounted read-write, so no
-+	 * need to waste time searching block group items.
-+	 *
-+	 * This also allows new extent tree related changes to be RO compat,
-+	 * no need for a full incompat flag.
-+	 */
-+	if (!root || (btrfs_super_compat_ro_flags(info->super_copy) &
-+		      ~BTRFS_FEATURE_COMPAT_RO_SUPP))
- 		return fill_dummy_bgs(info);
+ static inline void limit_reserve_root(struct f2fs_sb_info *sbi)
+ {
+-	block_t limit = min((sbi->user_block_count << 1) / 1000,
++	block_t limit = min((sbi->user_block_count >> 3),
+ 			sbi->user_block_count - sbi->reserved_blocks);
  
- 	key.objectid = 0;
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -2112,6 +2112,15 @@ static int btrfs_remount(struct super_bl
- 			ret = -EINVAL;
- 			goto restore;
- 		}
-+		if (btrfs_super_compat_ro_flags(fs_info->super_copy) &
-+		    ~BTRFS_FEATURE_COMPAT_RO_SUPP) {
-+			btrfs_err(fs_info,
-+		"can not remount read-write due to unsupported optional flags 0x%llx",
-+				btrfs_super_compat_ro_flags(fs_info->super_copy) &
-+				~BTRFS_FEATURE_COMPAT_RO_SUPP);
-+			ret = -EINVAL;
-+			goto restore;
-+		}
- 		if (fs_info->fs_devices->rw_devices == 0) {
- 			ret = -EACCES;
- 			goto restore;
+-	/* limit is 0.2% */
++	/* limit is 12.5% */
+ 	if (test_opt(sbi, RESERVE_ROOT) &&
+ 			F2FS_OPTION(sbi).root_reserved_blocks > limit) {
+ 		F2FS_OPTION(sbi).root_reserved_blocks = limit;
 
 
