@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6075603E5C
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:13:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A6E1603F53
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233000AbiJSJNG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:13:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51962 "EHLO
+        id S233695AbiJSJb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:31:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232762AbiJSJLF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:11:05 -0400
+        with ESMTP id S233755AbiJSJ3T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56CC44F3BD;
-        Wed, 19 Oct 2022 02:02:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31A5EE8AA6;
+        Wed, 19 Oct 2022 02:12:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27D0F6174B;
-        Wed, 19 Oct 2022 09:02:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36041C433D7;
-        Wed, 19 Oct 2022 09:02:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB24961834;
+        Wed, 19 Oct 2022 09:02:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA55CC433D6;
+        Wed, 19 Oct 2022 09:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170130;
-        bh=g4F35njtKClTm2AcWT7WheFUPbeErkcDnc/IAYofFMo=;
+        s=korg; t=1666170159;
+        bh=iNGubPr7HaKVgh+TiSU6p3K2AlZjj1CtChzrtePmDaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=foGm2pLti9XZRJ4JqtYG1VOz/T7vokLw2J0+2eGLBrd/0XBkUcjSw36R/jhHxIeAF
-         80R2s9MxOQQ8iXIZek2QqztJXQh5UYs6WqJfn2jy/VEDdNuTPKiFSkFpBvK1wWIVM6
-         R9A/gR+IIVFuKGQnXY3QGFLrdHkzpk4TFSg0/+sc=
+        b=RF7zIHnPT90lCwEsULcHIcX6s9xTrAZ9Ik1dafd+wBkmbnPuwW334QP1YHY+tgVJt
+         NWpkdHDyY8yOyUo7R2t87FJFoZfBVQ3ExAbfxY6CZUiGpF1wXqHM0W2HJqmmFzMoCl
+         4l0rpWTs4hoaIxnrAa4K8UAZeDqHNXZ2oZ8474Mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Mukesh Ojha <quic_mojha@quicinc.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 521/862] remoteproc: Harden rproc_handle_vdev() against integer overflow
-Date:   Wed, 19 Oct 2022 10:30:08 +0200
-Message-Id: <20221019083313.006320760@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 522/862] phy: qcom-qmp-usb: disable runtime PM on unbind
+Date:   Wed, 19 Oct 2022 10:30:09 +0200
+Message-Id: <20221019083313.046819184@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,45 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 7d7f8fe4e399519cc9ac68a475fec6d3a996341b ]
+[ Upstream commit e57655e66806750785f9121c98a962404d02395b ]
 
-The struct_size() macro protects against integer overflows but adding
-"+ rsc->config_len" introduces the risk of integer overflows again.
-Use size_add() to be safe.
+Make sure to disable runtime PM also on driver unbind.
 
-Fixes: c87846571587 ("remoteproc: use struct_size() helper")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Link: https://lore.kernel.org/r/YyMyoPoGOJUcEpZT@kili
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Fixes: ac0d239936bd ("phy: qcom-qmp: Add support for runtime PM").
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220907110728.19092-10-johan+linaro@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/remoteproc_core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/phy/qualcomm/phy-qcom-qmp-usb.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-index e5279ed9a8d7..4fc5ce2187ac 100644
---- a/drivers/remoteproc/remoteproc_core.c
-+++ b/drivers/remoteproc/remoteproc_core.c
-@@ -520,12 +520,13 @@ static int rproc_handle_vdev(struct rproc *rproc, void *ptr,
- 	struct fw_rsc_vdev *rsc = ptr;
- 	struct device *dev = &rproc->dev;
- 	struct rproc_vdev *rvdev;
-+	size_t rsc_size;
- 	int i, ret;
- 	char name[16];
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-usb.c b/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
+index 1d270356a97f..1eb4ec576361 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp-usb.c
+@@ -2704,7 +2704,9 @@ static int qcom_qmp_phy_usb_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  
- 	/* make sure resource isn't truncated */
--	if (struct_size(rsc, vring, rsc->num_of_vrings) + rsc->config_len >
--			avail) {
-+	rsc_size = struct_size(rsc, vring, rsc->num_of_vrings);
-+	if (size_add(rsc_size, rsc->config_len) > avail) {
- 		dev_err(dev, "vdev rsc is truncated\n");
- 		return -EINVAL;
- 	}
+ 	pm_runtime_set_active(dev);
+-	pm_runtime_enable(dev);
++	ret = devm_pm_runtime_enable(dev);
++	if (ret)
++		return ret;
+ 	/*
+ 	 * Prevent runtime pm from being ON by default. Users can enable
+ 	 * it using power/control in sysfs.
+@@ -2738,13 +2740,10 @@ static int qcom_qmp_phy_usb_probe(struct platform_device *pdev)
+ 	phy_provider = devm_of_phy_provider_register(dev, of_phy_simple_xlate);
+ 	if (!IS_ERR(phy_provider))
+ 		dev_info(dev, "Registered Qcom-QMP phy\n");
+-	else
+-		pm_runtime_disable(dev);
+ 
+ 	return PTR_ERR_OR_ZERO(phy_provider);
+ 
+ err_node_put:
+-	pm_runtime_disable(dev);
+ 	of_node_put(child);
+ 	return ret;
+ }
 -- 
 2.35.1
 
