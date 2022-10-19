@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37D17604143
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:41:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B17960440C
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:57:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232245AbiJSKle (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:41:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46816 "EHLO
+        id S232010AbiJSL4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:56:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231480AbiJSKkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:40:22 -0400
+        with ESMTP id S231512AbiJSLzo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:55:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6533410EA09;
-        Wed, 19 Oct 2022 03:19:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FE8423E94;
+        Wed, 19 Oct 2022 04:34:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2225B823CC;
-        Wed, 19 Oct 2022 08:55:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25468C433D6;
-        Wed, 19 Oct 2022 08:55:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32A38B823B9;
+        Wed, 19 Oct 2022 08:53:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99B43C433D6;
+        Wed, 19 Oct 2022 08:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169708;
-        bh=LVfDi4HCdgetF0yIHxqNdI6P3WM866A87brlpoCcN4g=;
+        s=korg; t=1666169630;
+        bh=QhYu81M8WtAo05jbsad99FIeUifFSmuabQ0GNCOz7wI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gS2V5IMeBj6EMoNWQOVnIHK90f89dZj3jUAv1ulQIySYbPx6P590cMZd9HzjS5ZR+
-         Yf/Gc0+dG+UkbkY8mZoPH46ejlcNJH56+tTuYHXeMW3xHY3KH3K0FYdpQYvLfajfRR
-         IZ8E1PM7Jaeo2RRqfQ0CFhSsTzv2R7k7VXyv3G0E=
+        b=pZrrTJgjFSvo6CRT8Qu87FCHPcHzS4fFPz+SVWRY//zoXQxIL00kB64cKBy0URuC/
+         vwsBcT9iq5qS0Sj+6J6uQfcFEsqHEoFUWDfpEkebRyG8uPyCgLady0M3dEU8EejUru
+         xbcTNNW40s7j0LymleL82XJevpejdoM2jATjhYRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 345/862] net: mvpp2: fix mvpp2 debugfs leak
-Date:   Wed, 19 Oct 2022 10:27:12 +0200
-Message-Id: <20221019083305.293903036@linuxfoundation.org>
+Subject: [PATCH 6.0 349/862] drm/mipi-dsi: Detach devices when removing the host
+Date:   Wed, 19 Oct 2022 10:27:16 +0200
+Message-Id: <20221019083305.464236614@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,106 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 0152dfee235e87660f52a117fc9f70dc55956bb4 ]
+[ Upstream commit 668a8f17b5290d04ef7343636a5588a0692731a1 ]
 
-When mvpp2 is unloaded, the driver specific debugfs directory is not
-removed, which technically leads to a memory leak. However, this
-directory is only created when the first device is probed, so the
-hardware is present. Removing the module is only something a developer
-would to when e.g. testing out changes, so the module would be
-reloaded. So this memory leak is minor.
+Whenever the MIPI-DSI host is unregistered, the code of
+mipi_dsi_host_unregister() loops over every device currently found on that
+bus and will unregister it.
 
-The original attempt in commit fe2c9c61f668 ("net: mvpp2: debugfs: fix
-memory leak when using debugfs_lookup()") that was labelled as a memory
-leak fix was not, it fixed a refcount leak, but in doing so created a
-problem when the module is reloaded - the directory already exists, but
-mvpp2_root is NULL, so we lose all debugfs entries. This fix has been
-reverted.
+However, it doesn't detach it from the bus first, which leads to all kind
+of resource leaks if the host wants to perform some clean up whenever a
+device is detached.
 
-This is the alternative fix, where we remove the offending directory
-whenever the driver is unloaded.
-
-Fixes: 21da57a23125 ("net: mvpp2: add a debugfs interface for the Header Parser")
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Marcin Wojtas <mw@semihalf.com>
-Link: https://lore.kernel.org/r/E1ofOAB-00CzkG-UO@rmk-PC.armlinux.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 068a00233969 ("drm: Add MIPI DSI bus support")
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20220711173939.1132294-2-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2.h         |  1 +
- drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c | 10 ++++++++--
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c    | 13 ++++++++++++-
- 3 files changed, 21 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/drm_mipi_dsi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-index ad73a488fc5f..11e603686a27 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-@@ -1530,6 +1530,7 @@ u32 mvpp2_read(struct mvpp2 *priv, u32 offset);
- void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name);
+diff --git a/drivers/gpu/drm/drm_mipi_dsi.c b/drivers/gpu/drm/drm_mipi_dsi.c
+index c40bde96cfdf..c317ee9fa445 100644
+--- a/drivers/gpu/drm/drm_mipi_dsi.c
++++ b/drivers/gpu/drm/drm_mipi_dsi.c
+@@ -346,6 +346,7 @@ static int mipi_dsi_remove_device_fn(struct device *dev, void *priv)
+ {
+ 	struct mipi_dsi_device *dsi = to_mipi_dsi_device(dev);
  
- void mvpp2_dbgfs_cleanup(struct mvpp2 *priv);
-+void mvpp2_dbgfs_exit(void);
++	mipi_dsi_detach(dsi);
+ 	mipi_dsi_device_unregister(dsi);
  
- void mvpp23_rx_fifo_fc_en(struct mvpp2 *priv, int port, bool en);
- 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-index 4a3baa7e0142..75e83ea2a926 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-@@ -691,6 +691,13 @@ static int mvpp2_dbgfs_port_init(struct dentry *parent,
  	return 0;
- }
- 
-+static struct dentry *mvpp2_root;
-+
-+void mvpp2_dbgfs_exit(void)
-+{
-+	debugfs_remove(mvpp2_root);
-+}
-+
- void mvpp2_dbgfs_cleanup(struct mvpp2 *priv)
- {
- 	debugfs_remove_recursive(priv->dbgfs_dir);
-@@ -700,10 +707,9 @@ void mvpp2_dbgfs_cleanup(struct mvpp2 *priv)
- 
- void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name)
- {
--	struct dentry *mvpp2_dir, *mvpp2_root;
-+	struct dentry *mvpp2_dir;
- 	int ret, i;
- 
--	mvpp2_root = debugfs_lookup(MVPP2_DRIVER_NAME, NULL);
- 	if (!mvpp2_root)
- 		mvpp2_root = debugfs_create_dir(MVPP2_DRIVER_NAME, NULL);
- 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index b84128b549b4..eaa51cd7456b 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -7706,7 +7706,18 @@ static struct platform_driver mvpp2_driver = {
- 	},
- };
- 
--module_platform_driver(mvpp2_driver);
-+static int __init mvpp2_driver_init(void)
-+{
-+	return platform_driver_register(&mvpp2_driver);
-+}
-+module_init(mvpp2_driver_init);
-+
-+static void __exit mvpp2_driver_exit(void)
-+{
-+	platform_driver_unregister(&mvpp2_driver);
-+	mvpp2_dbgfs_exit();
-+}
-+module_exit(mvpp2_driver_exit);
- 
- MODULE_DESCRIPTION("Marvell PPv2 Ethernet Driver - www.marvell.com");
- MODULE_AUTHOR("Marcin Wojtas <mw@semihalf.com>");
 -- 
 2.35.1
 
