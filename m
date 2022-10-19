@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCAE2603CB0
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:51:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C942603CA4
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:51:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231190AbiJSIur (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:50:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60798 "EHLO
+        id S231472AbiJSIus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:50:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231781AbiJSItP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:49:15 -0400
+        with ESMTP id S231844AbiJSIto (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:49:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CD402937B;
-        Wed, 19 Oct 2022 01:47:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6C048683C;
+        Wed, 19 Oct 2022 01:47:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33920B822E7;
-        Wed, 19 Oct 2022 08:43:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C722C433C1;
-        Wed, 19 Oct 2022 08:43:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F506B822E9;
+        Wed, 19 Oct 2022 08:43:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB5DC433C1;
+        Wed, 19 Oct 2022 08:43:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169028;
-        bh=I5YDn81jI/EDADv6zzlsMUgkxvYfnlhwaafu72TSR3A=;
+        s=korg; t=1666169031;
+        bh=VuYyMPGk/XiYhf3Eu9DcvuFVQbCk7pNap3RucA1IkF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aM6Zfm5TB/Xz7xPYsbQ7V81QFI417R1YTk49FjwJCrX+PtHHkZt4DfsvhcMdQ6Lbx
-         ze70/a/osJXSJ7885yyQDYk65ppcexUpnGbw5HjCTqE4I/FmHTsVSrTbGHfawV/g1c
-         cU57PxeB0d3ke+iecvcx8SJs12oDrAxnQUKPfJY8=
+        b=cgOIAn55qVL0SXZfY29Q2KRs9buuSv1M9IZZEa90qxSBMz9F8yvofz6o5dTUfi+r5
+         V1CvmvfVtSgqVhrMX9FPkIEbgxkYongY2Rx6KsL5fE48cX3q/ei1EK23H/JIh67hbe
+         rZ2yNo0Q+Gk4IIlm+cwyiysjYuozrqXh3cunSHnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+0f2f7e65a3007d39539f@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>,
-        kernel test robot <oliver.sang@intel.com>
-Subject: [PATCH 6.0 134/862] ext2: Add sanity checks for group and filesystem size
-Date:   Wed, 19 Oct 2022 10:23:41 +0200
-Message-Id: <20221019083255.893841253@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        syzbot+bd13648a53ed6933ca49@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Lukas Czerner <lczerner@redhat.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.0 135/862] ext4: avoid crash when inline data creation follows DIO write
+Date:   Wed, 19 Oct 2022 10:23:42 +0200
+Message-Id: <20221019083255.943389214@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,54 +57,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-commit d766f2d1e3e3bd44024a7f971ffcf8b8fbb7c5d2 upstream.
+commit 4bb26f2885ac6930984ee451b952c5a6042f2c0e upstream.
 
-Add sanity check that filesystem size does not exceed the underlying
-device size and that group size is big enough so that metadata can fit
-into it. This avoid trying to mount some crafted filesystems with
-extremely large group counts.
+When inode is created and written to using direct IO, there is nothing
+to clear the EXT4_STATE_MAY_INLINE_DATA flag. Thus when inode gets
+truncated later to say 1 byte and written using normal write, we will
+try to store the data as inline data. This confuses the code later
+because the inode now has both normal block and inline data allocated
+and the confusion manifests for example as:
 
-Reported-by: syzbot+0f2f7e65a3007d39539f@syzkaller.appspotmail.com
-Reported-by: kernel test robot <oliver.sang@intel.com> # Test fixup
-CC: stable@vger.kernel.org
+kernel BUG at fs/ext4/inode.c:2721!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 359 Comm: repro Not tainted 5.19.0-rc8-00001-g31ba1e3b8305-dirty #15
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-1.fc36 04/01/2014
+RIP: 0010:ext4_writepages+0x363d/0x3660
+RSP: 0018:ffffc90000ccf260 EFLAGS: 00010293
+RAX: ffffffff81e1abcd RBX: 0000008000000000 RCX: ffff88810842a180
+RDX: 0000000000000000 RSI: 0000008000000000 RDI: 0000000000000000
+RBP: ffffc90000ccf650 R08: ffffffff81e17d58 R09: ffffed10222c680b
+R10: dfffe910222c680c R11: 1ffff110222c680a R12: ffff888111634128
+R13: ffffc90000ccf880 R14: 0000008410000000 R15: 0000000000000001
+FS:  00007f72635d2640(0000) GS:ffff88811b000000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000565243379180 CR3: 000000010aa74000 CR4: 0000000000150eb0
+Call Trace:
+ <TASK>
+ do_writepages+0x397/0x640
+ filemap_fdatawrite_wbc+0x151/0x1b0
+ file_write_and_wait_range+0x1c9/0x2b0
+ ext4_sync_file+0x19e/0xa00
+ vfs_fsync_range+0x17b/0x190
+ ext4_buffered_write_iter+0x488/0x530
+ ext4_file_write_iter+0x449/0x1b90
+ vfs_write+0xbcd/0xf40
+ ksys_write+0x198/0x2c0
+ __x64_sys_write+0x7b/0x90
+ do_syscall_64+0x3d/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ </TASK>
+
+Fix the problem by clearing EXT4_STATE_MAY_INLINE_DATA when we are doing
+direct IO write to a file.
+
+Cc: stable@kernel.org
+Reported-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Reported-by: syzbot+bd13648a53ed6933ca49@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=a1e89d09bbbcbd5c4cb45db230ee28c822953984
 Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Tested-by: Tadeusz Struk<tadeusz.struk@linaro.org>
+Link: https://lore.kernel.org/r/20220727155753.13969-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext2/super.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ fs/ext4/file.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/ext2/super.c
-+++ b/fs/ext2/super.c
-@@ -1052,6 +1052,13 @@ static int ext2_fill_super(struct super_
- 			sbi->s_blocks_per_group);
- 		goto failed_mount;
+--- a/fs/ext4/file.c
++++ b/fs/ext4/file.c
+@@ -528,6 +528,12 @@ static ssize_t ext4_dio_write_iter(struc
+ 		ret = -EAGAIN;
+ 		goto out;
  	}
-+	/* At least inode table, bitmaps, and sb have to fit in one group */
-+	if (sbi->s_blocks_per_group <= sbi->s_itb_per_group + 3) {
-+		ext2_msg(sb, KERN_ERR,
-+			"error: #blocks per group smaller than metadata size: %lu <= %lu",
-+			sbi->s_blocks_per_group, sbi->s_inodes_per_group + 3);
-+		goto failed_mount;
-+	}
- 	if (sbi->s_frags_per_group > sb->s_blocksize * 8) {
- 		ext2_msg(sb, KERN_ERR,
- 			"error: #fragments per group too big: %lu",
-@@ -1065,9 +1072,14 @@ static int ext2_fill_super(struct super_
- 			sbi->s_inodes_per_group);
- 		goto failed_mount;
- 	}
-+	if (sb_bdev_nr_blocks(sb) < le32_to_cpu(es->s_blocks_count)) {
-+		ext2_msg(sb, KERN_ERR,
-+			 "bad geometry: block count %u exceeds size of device (%u blocks)",
-+			 le32_to_cpu(es->s_blocks_count),
-+			 (unsigned)sb_bdev_nr_blocks(sb));
-+		goto failed_mount;
-+	}
++	/*
++	 * Make sure inline data cannot be created anymore since we are going
++	 * to allocate blocks for DIO. We know the inode does not have any
++	 * inline data now because ext4_dio_supported() checked for that.
++	 */
++	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
  
--	if (EXT2_BLOCKS_PER_GROUP(sb) == 0)
--		goto cantfind_ext2;
- 	sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
- 				le32_to_cpu(es->s_first_data_block) - 1)
- 					/ EXT2_BLOCKS_PER_GROUP(sb)) + 1;
+ 	offset = iocb->ki_pos;
+ 	count = ret;
 
 
