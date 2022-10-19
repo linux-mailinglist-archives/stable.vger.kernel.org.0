@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4E31604154
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:42:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95BCA604137
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:40:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232531AbiJSKmq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:42:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58676 "EHLO
+        id S231806AbiJSKke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:40:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232445AbiJSKl6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:41:58 -0400
+        with ESMTP id S231846AbiJSKjt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:39:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C11DE60490;
-        Wed, 19 Oct 2022 03:19:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA4A9157477;
+        Wed, 19 Oct 2022 03:18:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECD5FB823B1;
-        Wed, 19 Oct 2022 08:53:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60244C433D6;
-        Wed, 19 Oct 2022 08:53:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC3D0B823BD;
+        Wed, 19 Oct 2022 08:54:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 239BAC433D7;
+        Wed, 19 Oct 2022 08:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169600;
-        bh=epD93SGW1hEwjy9oseb8+CuhtM2ecZygpN9U7N9We9Q=;
+        s=korg; t=1666169653;
+        bh=7go1yIvRjCUaDnh/t/n91CkD5U8iI4PuQcrNJySH2nM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQ6FJZq65dO3dLkDvTp9Nzn23H2sZThRxxa1ibLXvQZeNAThM3yHdheo6P5R/NfXy
-         Qb76JqYU9H64UHUxLmrmUt3W51p61epE26/V/7KHARL4LPMVmKomNR6+S3/VCrbZzC
-         cQaLcLsAqj2f1ow7ZPPg8l6TRPhzRwJeIa95RRFI=
+        b=fGJajGsie3uqGMLMhq2tuKo3V9xi7kmEKSjtaC6y24KvmCXVZSPKJbXLBXOrbSbVj
+         4XP2Vv6z/vXNJh/o+sKaaVwZNm/qHmmPwsGfh5LdZX9zfFQSH/8LyZVOrzxK4UkTHv
+         sjpsRoG3s77U4xuCyQvQMVPbkBSVTo3zW9S4mOQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+78c55c7bc6f66e53dce2@syzkaller.appspotmail.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 336/862] net: rds: dont hold sock lock when cancelling work from rds_tcp_reset_callbacks()
-Date:   Wed, 19 Oct 2022 10:27:03 +0200
-Message-Id: <20221019083304.902949554@linuxfoundation.org>
+Subject: [PATCH 6.0 340/862] bnx2x: fix potential memory leak in bnx2x_tpa_stop()
+Date:   Wed, 19 Oct 2022 10:27:07 +0200
+Message-Id: <20221019083305.081784871@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,51 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit a91b750fd6629354460282bbf5146c01b05c4859 ]
+[ Upstream commit b43f9acbb8942b05252be83ac25a81cec70cc192 ]
 
-syzbot is reporting lockdep warning at rds_tcp_reset_callbacks() [1], for
-commit ac3615e7f3cffe2a ("RDS: TCP: Reduce code duplication in
-rds_tcp_reset_callbacks()") added cancel_delayed_work_sync() into a section
-protected by lock_sock() without realizing that rds_send_xmit() might call
-lock_sock().
+bnx2x_tpa_stop() allocates a memory chunk from new_data with
+bnx2x_frag_alloc(). The new_data should be freed when gets some error.
+But when "pad + len > fp->rx_buf_size" is true, bnx2x_tpa_stop() returns
+without releasing the new_data, which will lead to a memory leak.
 
-We don't need to protect cancel_delayed_work_sync() using lock_sock(), for
-even if rds_{send,recv}_worker() re-queued this work while __flush_work()
- from cancel_delayed_work_sync() was waiting for this work to complete,
-retried rds_{send,recv}_worker() is no-op due to the absence of RDS_CONN_UP
-bit.
+We should free the new_data with bnx2x_frag_free() when "pad + len >
+fp->rx_buf_size" is true.
 
-Link: https://syzkaller.appspot.com/bug?extid=78c55c7bc6f66e53dce2 [1]
-Reported-by: syzbot <syzbot+78c55c7bc6f66e53dce2@syzkaller.appspotmail.com>
-Co-developed-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+78c55c7bc6f66e53dce2@syzkaller.appspotmail.com>
-Fixes: ac3615e7f3cffe2a ("RDS: TCP: Reduce code duplication in rds_tcp_reset_callbacks()")
+Fixes: 07b0f00964def8af9321cfd6c4a7e84f6362f728 ("bnx2x: fix possible panic under memory stress")
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/tcp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/rds/tcp.c b/net/rds/tcp.c
-index 73ee2771093d..d0ff413f697c 100644
---- a/net/rds/tcp.c
-+++ b/net/rds/tcp.c
-@@ -166,10 +166,10 @@ void rds_tcp_reset_callbacks(struct socket *sock,
- 	 */
- 	atomic_set(&cp->cp_state, RDS_CONN_RESETTING);
- 	wait_event(cp->cp_waitq, !test_bit(RDS_IN_XMIT, &cp->cp_flags));
--	lock_sock(osock->sk);
- 	/* reset receive side state for rds_tcp_data_recv() for osock  */
- 	cancel_delayed_work_sync(&cp->cp_send_w);
- 	cancel_delayed_work_sync(&cp->cp_recv_w);
-+	lock_sock(osock->sk);
- 	if (tc->t_tinc) {
- 		rds_inc_put(&tc->t_tinc->ti_inc);
- 		tc->t_tinc = NULL;
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+index 712b5595bc39..24bfc65e28e1 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+@@ -789,6 +789,7 @@ static void bnx2x_tpa_stop(struct bnx2x *bp, struct bnx2x_fastpath *fp,
+ 			BNX2X_ERR("skb_put is about to fail...  pad %d  len %d  rx_buf_size %d\n",
+ 				  pad, len, fp->rx_buf_size);
+ 			bnx2x_panic();
++			bnx2x_frag_free(fp, new_data);
+ 			return;
+ 		}
+ #endif
 -- 
 2.35.1
 
