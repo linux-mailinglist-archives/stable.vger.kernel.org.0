@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63FD36047D9
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5B1660474F
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:37:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233048AbiJSNqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:46:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52158 "EHLO
+        id S232371AbiJSNhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:37:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233040AbiJSNp2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:45:28 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDD01BBEE6;
-        Wed, 19 Oct 2022 06:31:53 -0700 (PDT)
+        with ESMTP id S231786AbiJSNgS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:36:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC1C014EC76;
+        Wed, 19 Oct 2022 06:25:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 049F1CE1FD0;
-        Wed, 19 Oct 2022 09:05:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F27C0C433C1;
-        Wed, 19 Oct 2022 09:05:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 112DAB82481;
+        Wed, 19 Oct 2022 09:05:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8097EC433D7;
+        Wed, 19 Oct 2022 09:05:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170335;
-        bh=LmAibi8tOQgHA1R+pSqYNOLnDaLHPsErLVlZKmy2KTg=;
+        s=korg; t=1666170340;
+        bh=87uGXaQ29FHYXgH/kJOHi/LtGmbeg5m3Y9g0xl9SUtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BWzZ0o+g+8ua4pHQkY7v0yxa1pKTWIlh2wcz3zDSLHPMJXOjBR+XSJI1cGfxhXsLx
-         WHJvzVHImWXvNsllmvKuiwIERFLcRiSrOZnXEz3ekq0ALeX0KtQoD/csmVlqeav6EX
-         XYy9pPzl62Ektv/GT3fO+Denhr7Cwmru5lD7hrl4=
+        b=nhK51HPNIoATH1qbakHg0/bIndU2cOmNW8maIJsaNtaJjcbZmr14R4L5RCVcES50e
+         LJw32ou8TzFknosVKqUwiWs9Spo0I6RZDL5wNpc+RJclotlqslFHNf/P1N/zYJY2U/
+         RbmHSD5keV7AwB44p9KLc6wdga+YtxeY/QbJtlnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 617/862] powerpc/64s: Fix GENERIC_CPU build flags for PPC970 / G5
-Date:   Wed, 19 Oct 2022 10:31:44 +0200
-Message-Id: <20221019083317.203428361@linuxfoundation.org>
+Subject: [PATCH 6.0 618/862] powerpc/64/interrupt: Fix false warning in context tracking due to idle state
+Date:   Wed, 19 Oct 2022 10:31:45 +0200
+Message-Id: <20221019083317.242763603@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,37 +55,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 58ec7f06b74e0d6e76c4110afce367c8b5f0837d ]
+[ Upstream commit 56adbb7a8b6cc7fc9b940829c38494e53c9e57d1 ]
 
-Big-endian GENERIC_CPU supports 970, but builds with -mcpu=power5.
-POWER5 is ISA v2.02 whereas 970 is v2.01 plus Altivec. 2.02 added
-the popcntb instruction which a compiler might use.
+Commit 171476775d32 ("context_tracking: Convert state to atomic_t")
+added a CONTEXT_IDLE state which can be encountered by interrupts from
+kernel mode in the idle thread, causing a false positive warning.
 
-Use -mcpu=power4.
-
-Fixes: 471d7ff8b51b ("powerpc/64s: Remove POWER4 support")
+Fixes: 171476775d32 ("context_tracking: Convert state to atomic_t")
 Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220921014103.587954-1-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20220926054305.2671436-2-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/interrupt.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index 02742facf895..140a5e6471fe 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -152,7 +152,7 @@ CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=power8
- CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mtune=power9,-mtune=power8)
- else
- CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mtune=power7,$(call cc-option,-mtune=power5))
--CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mcpu=power5,-mcpu=power4)
-+CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=power4
- endif
- else ifdef CONFIG_PPC_BOOK3E_64
- CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=powerpc64
+diff --git a/arch/powerpc/include/asm/interrupt.h b/arch/powerpc/include/asm/interrupt.h
+index 8069dbc4b8d1..b61555e30c7c 100644
+--- a/arch/powerpc/include/asm/interrupt.h
++++ b/arch/powerpc/include/asm/interrupt.h
+@@ -195,7 +195,8 @@ static inline void interrupt_enter_prepare(struct pt_regs *regs)
+ 		 * so avoid recursion.
+ 		 */
+ 		if (TRAP(regs) != INTERRUPT_PROGRAM) {
+-			CT_WARN_ON(ct_state() != CONTEXT_KERNEL);
++			CT_WARN_ON(ct_state() != CONTEXT_KERNEL &&
++				   ct_state() != CONTEXT_IDLE);
+ 			if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
+ 				BUG_ON(is_implicit_soft_masked(regs));
+ 		}
 -- 
 2.35.1
 
