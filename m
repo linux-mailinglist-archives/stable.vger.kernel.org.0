@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 540A7604861
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:56:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE7A860486D
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:56:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233595AbiJSN4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:56:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53640 "EHLO
+        id S231889AbiJSN43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:56:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234006AbiJSNyf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:54:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0095114BB55;
-        Wed, 19 Oct 2022 06:37:05 -0700 (PDT)
+        with ESMTP id S234248AbiJSNz3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:55:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD98132DFC;
+        Wed, 19 Oct 2022 06:38:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04BACB8231E;
-        Wed, 19 Oct 2022 08:49:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63D28C433C1;
-        Wed, 19 Oct 2022 08:49:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 649DEB82338;
+        Wed, 19 Oct 2022 08:49:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD20AC433D6;
+        Wed, 19 Oct 2022 08:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169365;
-        bh=KTZcokemeTem35PNMjBQHPCVWK2pq04hPNhpZ0yUFtw=;
+        s=korg; t=1666169384;
+        bh=fOZI99R9xfcgoIm40CdSm7/zmpiNb38vJN2fwxj97xQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HtOzV3QA+lcYTwM2ipTPNtmk5+sJtJ9PhpTI3kI2QLhbvXuEjvDCo5A1ugPVbzxHF
-         khFgyIpSD+Nq5wwCH1RyiZb8eFvm4mvfOqHpJv/I54aYt2kxQMrh8tYj3gOxXE8jRT
-         a1WGDl5y2YK4p3btJm+vqxqowUvlD4/RHqXY0OUQ=
+        b=Z6I+mDO5PSD7DvnhvBuLwjUd+IkuOgj78a66Pu3aORz+Alga0SBBHXz4p9MZ7xSpa
+         jxNCgLIjAeSf5VASxlyx/ia/jY3M8zQ6+itaT/IOeTTWvtx4JurKIIgDbrdkkWs7KL
+         3NU8VH6/URODpMPS+droH2WbfnN2gROJzRJ5Xmz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 249/862] spi: mt7621: Fix an error message in mt7621_spi_probe()
-Date:   Wed, 19 Oct 2022 10:25:36 +0200
-Message-Id: <20221019083301.037688171@linuxfoundation.org>
+Subject: [PATCH 6.0 256/862] bpf: Use this_cpu_{inc|dec|inc_return} for bpf_task_storage_busy
+Date:   Wed, 19 Oct 2022 10:25:43 +0200
+Message-Id: <20221019083301.365324583@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,46 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit 2b2bf6b7faa9010fae10dc7de76627a3fdb525b3 ]
+[ Upstream commit 197827a05e13808c60f52632e9887eede63f1c16 ]
 
-'status' is known to be 0 at this point. The expected error code is
-PTR_ERR(clk).
+Now migrate_disable() does not disable preemption and under some
+architectures (e.g. arm64) __this_cpu_{inc|dec|inc_return} are neither
+preemption-safe nor IRQ-safe, so for fully preemptible kernel concurrent
+lookups or updates on the same task local storage and on the same CPU
+may make bpf_task_storage_busy be imbalanced, and
+bpf_task_storage_trylock() on the specific cpu will always fail.
 
-Switch to dev_err_probe() in order to display the expected error code (in a
-human readable way).
-This also filters -EPROBE_DEFER cases, should it happen.
+Fixing it by using this_cpu_{inc|dec|inc_return} when manipulating
+bpf_task_storage_busy.
 
-Fixes: 1ab7f2a43558 ("staging: mt7621-spi: add mt7621 support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Link: https://lore.kernel.org/r/928f3fb507d53ba0774df27cea0bbba4b055993b.1661599671.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: bc235cdb423a ("bpf: Prevent deadlock from recursive bpf_task_storage_[get|delete]")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/r/20220901061938.3789460-2-houtao@huaweicloud.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mt7621.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ kernel/bpf/bpf_local_storage.c | 4 ++--
+ kernel/bpf/bpf_task_storage.c  | 8 ++++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/spi/spi-mt7621.c b/drivers/spi/spi-mt7621.c
-index b4b9b7309b5e..351b0ef52bbc 100644
---- a/drivers/spi/spi-mt7621.c
-+++ b/drivers/spi/spi-mt7621.c
-@@ -340,11 +340,9 @@ static int mt7621_spi_probe(struct platform_device *pdev)
- 		return PTR_ERR(base);
+diff --git a/kernel/bpf/bpf_local_storage.c b/kernel/bpf/bpf_local_storage.c
+index 8ce40fd869f6..d13ffb00e981 100644
+--- a/kernel/bpf/bpf_local_storage.c
++++ b/kernel/bpf/bpf_local_storage.c
+@@ -555,11 +555,11 @@ void bpf_local_storage_map_free(struct bpf_local_storage_map *smap,
+ 				struct bpf_local_storage_elem, map_node))) {
+ 			if (busy_counter) {
+ 				migrate_disable();
+-				__this_cpu_inc(*busy_counter);
++				this_cpu_inc(*busy_counter);
+ 			}
+ 			bpf_selem_unlink(selem, false);
+ 			if (busy_counter) {
+-				__this_cpu_dec(*busy_counter);
++				this_cpu_dec(*busy_counter);
+ 				migrate_enable();
+ 			}
+ 			cond_resched_rcu();
+diff --git a/kernel/bpf/bpf_task_storage.c b/kernel/bpf/bpf_task_storage.c
+index e9014dc62682..6f290623347e 100644
+--- a/kernel/bpf/bpf_task_storage.c
++++ b/kernel/bpf/bpf_task_storage.c
+@@ -26,20 +26,20 @@ static DEFINE_PER_CPU(int, bpf_task_storage_busy);
+ static void bpf_task_storage_lock(void)
+ {
+ 	migrate_disable();
+-	__this_cpu_inc(bpf_task_storage_busy);
++	this_cpu_inc(bpf_task_storage_busy);
+ }
  
- 	clk = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(clk)) {
--		dev_err(&pdev->dev, "unable to get SYS clock, err=%d\n",
--			status);
--		return PTR_ERR(clk);
--	}
-+	if (IS_ERR(clk))
-+		return dev_err_probe(&pdev->dev, PTR_ERR(clk),
-+				     "unable to get SYS clock\n");
+ static void bpf_task_storage_unlock(void)
+ {
+-	__this_cpu_dec(bpf_task_storage_busy);
++	this_cpu_dec(bpf_task_storage_busy);
+ 	migrate_enable();
+ }
  
- 	status = clk_prepare_enable(clk);
- 	if (status)
+ static bool bpf_task_storage_trylock(void)
+ {
+ 	migrate_disable();
+-	if (unlikely(__this_cpu_inc_return(bpf_task_storage_busy) != 1)) {
+-		__this_cpu_dec(bpf_task_storage_busy);
++	if (unlikely(this_cpu_inc_return(bpf_task_storage_busy) != 1)) {
++		this_cpu_dec(bpf_task_storage_busy);
+ 		migrate_enable();
+ 		return false;
+ 	}
 -- 
 2.35.1
 
