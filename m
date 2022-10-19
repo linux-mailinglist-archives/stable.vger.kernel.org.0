@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 894FC603F0E
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:27:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D295603F16
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233520AbiJSJ1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:27:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45408 "EHLO
+        id S233604AbiJSJ1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:27:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233523AbiJSJ0E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:26:04 -0400
+        with ESMTP id S233563AbiJSJ0c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:26:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32224E52C2;
-        Wed, 19 Oct 2022 02:11:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8C76E52F6;
+        Wed, 19 Oct 2022 02:11:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E06161888;
-        Wed, 19 Oct 2022 09:09:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C1B1C433B5;
-        Wed, 19 Oct 2022 09:09:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87866617E9;
+        Wed, 19 Oct 2022 09:09:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2C41C433D7;
+        Wed, 19 Oct 2022 09:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170558;
-        bh=eQuQU7YwXmUE8zmXo83zt+GNgUpqtZ8BhxffiEe7Qfk=;
+        s=korg; t=1666170566;
+        bh=td0Bgb5k/mqBqt6ZeCIVd7jIB7tIe/i82PmDKrXTogw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iYm1VPf22yiUdyQ6sU80oCxwRGyUYoPTFW7JgQKVo/1IqgQnEA56S2RkKxrkVKvQB
-         SnJDNc+bGlixn8cFLSVCTWzLTtjZS35eCGXgxkQNZZh6r/cQ4+5u8r8kx3WU80+MqX
-         U0pVEPhCJsZ2swZOJD16WQpCeMlgI/hGQsA/sT0o=
+        b=DJMH0EtCcgPezfuKSvisfFT6U1EqAVuq3xGnXNLftNOUAOzjRcl+d8K1tX2OKPi+b
+         r49m60TXyi46a53f7gaRW0Mzf33mQ3Rj27fk1s2BfQ2Nvfz4rPBq2oH77VvS96fVkv
+         9IaEcYI/W+aGCFzUL3XReX2+dQEm4cKuJhKQ1ldo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Kiran K <kiran.k@intel.com>,
+        Chethan T N <chethan.tumkur.narayan@intel.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 700/862] iavf: Fix race between iavf_close and iavf_reset_task
-Date:   Wed, 19 Oct 2022 10:33:07 +0200
-Message-Id: <20221019083320.921656361@linuxfoundation.org>
+Subject: [PATCH 6.0 702/862] Bluetooth: btintel: Mark Intel controller to support LE_STATES quirk
+Date:   Wed, 19 Oct 2022 10:33:09 +0200
+Message-Id: <20221019083321.020300983@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,292 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Jaron <michalx.jaron@intel.com>
+From: Kiran K <kiran.k@intel.com>
 
-[ Upstream commit 11c12adcbc1598d91e73ab6ddfa41d25a01478ed ]
+[ Upstream commit dd0a1794f4334ddbf9b7c5e7d642aaffff38c69b ]
 
-During stress tests with adding VF to namespace and changing vf's
-trust there was a race between iavf_reset_task and iavf_close.
-Sometimes when IAVF_FLAG_AQ_DISABLE_QUEUES from iavf_close was sent
-to PF after reset and before IAVF_AQ_GET_CONFIG was sent then PF
-returns error IAVF_NOT_SUPPORTED to disable queues request and
-following requests. There is need to get_config before other
-aq_required will be send but iavf_close clears all flags, if
-get_config was not sent before iavf_close, then it will not be send
-at all.
+HarrrisonPeak, CyclonePeak, SnowFieldPeak and SandyPeak controllers
+are marked to support HCI_QUIRK_LE_STATES.
 
-In case when IAVF_FLAG_AQ_GET_OFFLOAD_VLAN_V2_CAPS was sent before
-IAVF_FLAG_AQ_DISABLE_QUEUES then there was rtnl_lock deadlock
-between iavf_close and iavf_adminq_task until iavf_close timeouts
-and disable queues was sent after iavf_close ends.
-
-There was also a problem with sending delete/add filters.
-Sometimes when filters was not yet added to PF and in
-iavf_close all filters was set to remove there might be a try
-to remove nonexistent filters on PF.
-
-Add aq_required_tmp to save aq_required flags and send them after
-disable_queues will be handled. Clear flags given to iavf_down
-different than IAVF_FLAG_AQ_GET_CONFIG as this flag is necessary
-to sent other aq_required. Remove some flags that we don't
-want to send as we are in iavf_close and we want to disable
-interface. Remove filters which was not yet sent and send del
-filters flags only when there are filters to remove.
-
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Kiran K <kiran.k@intel.com>
+Signed-off-by: Chethan T N <chethan.tumkur.narayan@intel.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 177 ++++++++++++++++----
- 1 file changed, 141 insertions(+), 36 deletions(-)
+ drivers/bluetooth/btintel.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 0c89f16bf1e2..79fef8c59d65 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -1267,66 +1267,138 @@ static void iavf_up_complete(struct iavf_adapter *adapter)
- }
+diff --git a/drivers/bluetooth/btintel.c b/drivers/bluetooth/btintel.c
+index 818681c89db8..d44a96667517 100644
+--- a/drivers/bluetooth/btintel.c
++++ b/drivers/bluetooth/btintel.c
+@@ -2439,15 +2439,20 @@ static int btintel_setup_combined(struct hci_dev *hdev)
+ 					       INTEL_ROM_LEGACY_NO_WBS_SUPPORT))
+ 				set_bit(HCI_QUIRK_WIDEBAND_SPEECH_SUPPORTED,
+ 					&hdev->quirks);
++			if (ver.hw_variant == 0x08 && ver.fw_variant == 0x22)
++				set_bit(HCI_QUIRK_VALID_LE_STATES,
++					&hdev->quirks);
  
- /**
-- * iavf_down - Shutdown the connection processing
-+ * iavf_clear_mac_vlan_filters - Remove mac and vlan filters not sent to PF
-+ * yet and mark other to be removed.
-  * @adapter: board private structure
-- *
-- * Expects to be called while holding the __IAVF_IN_CRITICAL_TASK bit lock.
-  **/
--void iavf_down(struct iavf_adapter *adapter)
-+static void iavf_clear_mac_vlan_filters(struct iavf_adapter *adapter)
- {
--	struct net_device *netdev = adapter->netdev;
--	struct iavf_vlan_filter *vlf;
--	struct iavf_cloud_filter *cf;
--	struct iavf_fdir_fltr *fdir;
--	struct iavf_mac_filter *f;
--	struct iavf_adv_rss *rss;
+ 			err = btintel_legacy_rom_setup(hdev, &ver);
+ 			break;
+ 		case 0x0b:      /* SfP */
+-		case 0x0c:      /* WsP */
+ 		case 0x11:      /* JfP */
+ 		case 0x12:      /* ThP */
+ 		case 0x13:      /* HrP */
+ 		case 0x14:      /* CcP */
++			set_bit(HCI_QUIRK_VALID_LE_STATES, &hdev->quirks);
++			fallthrough;
++		case 0x0c:	/* WsP */
+ 			/* Apply the device specific HCI quirks
+ 			 *
+ 			 * All Legacy bootloader devices support WBS
+@@ -2455,11 +2460,6 @@ static int btintel_setup_combined(struct hci_dev *hdev)
+ 			set_bit(HCI_QUIRK_WIDEBAND_SPEECH_SUPPORTED,
+ 				&hdev->quirks);
+ 
+-			/* Valid LE States quirk for JfP/ThP familiy */
+-			if (ver.hw_variant == 0x11 || ver.hw_variant == 0x12)
+-				set_bit(HCI_QUIRK_VALID_LE_STATES,
+-					&hdev->quirks);
 -
--	if (adapter->state <= __IAVF_DOWN_PENDING)
--		return;
--
--	netif_carrier_off(netdev);
--	netif_tx_disable(netdev);
--	adapter->link_up = false;
--	iavf_napi_disable_all(adapter);
--	iavf_irq_disable(adapter);
-+	struct iavf_vlan_filter *vlf, *vlftmp;
-+	struct iavf_mac_filter *f, *ftmp;
+ 			/* Setup MSFT Extension support */
+ 			btintel_set_msft_opcode(hdev, ver.hw_variant);
  
- 	spin_lock_bh(&adapter->mac_vlan_list_lock);
--
- 	/* clear the sync flag on all filters */
- 	__dev_uc_unsync(adapter->netdev, NULL);
- 	__dev_mc_unsync(adapter->netdev, NULL);
- 
- 	/* remove all MAC filters */
--	list_for_each_entry(f, &adapter->mac_filter_list, list) {
--		f->remove = true;
-+	list_for_each_entry_safe(f, ftmp, &adapter->mac_filter_list,
-+				 list) {
-+		if (f->add) {
-+			list_del(&f->list);
-+			kfree(f);
-+		} else {
-+			f->remove = true;
-+		}
- 	}
- 
- 	/* remove all VLAN filters */
--	list_for_each_entry(vlf, &adapter->vlan_filter_list, list) {
--		vlf->remove = true;
-+	list_for_each_entry_safe(vlf, vlftmp, &adapter->vlan_filter_list,
-+				 list) {
-+		if (vlf->add) {
-+			list_del(&vlf->list);
-+			kfree(vlf);
-+		} else {
-+			vlf->remove = true;
-+		}
- 	}
--
- 	spin_unlock_bh(&adapter->mac_vlan_list_lock);
-+}
-+
-+/**
-+ * iavf_clear_cloud_filters - Remove cloud filters not sent to PF yet and
-+ * mark other to be removed.
-+ * @adapter: board private structure
-+ **/
-+static void iavf_clear_cloud_filters(struct iavf_adapter *adapter)
-+{
-+	struct iavf_cloud_filter *cf, *cftmp;
- 
- 	/* remove all cloud filters */
- 	spin_lock_bh(&adapter->cloud_filter_list_lock);
--	list_for_each_entry(cf, &adapter->cloud_filter_list, list) {
--		cf->del = true;
-+	list_for_each_entry_safe(cf, cftmp, &adapter->cloud_filter_list,
-+				 list) {
-+		if (cf->add) {
-+			list_del(&cf->list);
-+			kfree(cf);
-+			adapter->num_cloud_filters--;
-+		} else {
-+			cf->del = true;
-+		}
- 	}
- 	spin_unlock_bh(&adapter->cloud_filter_list_lock);
-+}
-+
-+/**
-+ * iavf_clear_fdir_filters - Remove fdir filters not sent to PF yet and mark
-+ * other to be removed.
-+ * @adapter: board private structure
-+ **/
-+static void iavf_clear_fdir_filters(struct iavf_adapter *adapter)
-+{
-+	struct iavf_fdir_fltr *fdir, *fdirtmp;
- 
- 	/* remove all Flow Director filters */
- 	spin_lock_bh(&adapter->fdir_fltr_lock);
--	list_for_each_entry(fdir, &adapter->fdir_list_head, list) {
--		fdir->state = IAVF_FDIR_FLTR_DEL_REQUEST;
-+	list_for_each_entry_safe(fdir, fdirtmp, &adapter->fdir_list_head,
-+				 list) {
-+		if (fdir->state == IAVF_FDIR_FLTR_ADD_REQUEST) {
-+			list_del(&fdir->list);
-+			kfree(fdir);
-+			adapter->fdir_active_fltr--;
-+		} else {
-+			fdir->state = IAVF_FDIR_FLTR_DEL_REQUEST;
-+		}
- 	}
- 	spin_unlock_bh(&adapter->fdir_fltr_lock);
-+}
-+
-+/**
-+ * iavf_clear_adv_rss_conf - Remove adv rss conf not sent to PF yet and mark
-+ * other to be removed.
-+ * @adapter: board private structure
-+ **/
-+static void iavf_clear_adv_rss_conf(struct iavf_adapter *adapter)
-+{
-+	struct iavf_adv_rss *rss, *rsstmp;
- 
- 	/* remove all advance RSS configuration */
- 	spin_lock_bh(&adapter->adv_rss_lock);
--	list_for_each_entry(rss, &adapter->adv_rss_list_head, list)
--		rss->state = IAVF_ADV_RSS_DEL_REQUEST;
-+	list_for_each_entry_safe(rss, rsstmp, &adapter->adv_rss_list_head,
-+				 list) {
-+		if (rss->state == IAVF_ADV_RSS_ADD_REQUEST) {
-+			list_del(&rss->list);
-+			kfree(rss);
-+		} else {
-+			rss->state = IAVF_ADV_RSS_DEL_REQUEST;
-+		}
-+	}
- 	spin_unlock_bh(&adapter->adv_rss_lock);
-+}
-+
-+/**
-+ * iavf_down - Shutdown the connection processing
-+ * @adapter: board private structure
-+ *
-+ * Expects to be called while holding the __IAVF_IN_CRITICAL_TASK bit lock.
-+ **/
-+void iavf_down(struct iavf_adapter *adapter)
-+{
-+	struct net_device *netdev = adapter->netdev;
-+
-+	if (adapter->state <= __IAVF_DOWN_PENDING)
-+		return;
-+
-+	netif_carrier_off(netdev);
-+	netif_tx_disable(netdev);
-+	adapter->link_up = false;
-+	iavf_napi_disable_all(adapter);
-+	iavf_irq_disable(adapter);
-+
-+	iavf_clear_mac_vlan_filters(adapter);
-+	iavf_clear_cloud_filters(adapter);
-+	iavf_clear_fdir_filters(adapter);
-+	iavf_clear_adv_rss_conf(adapter);
- 
- 	if (!(adapter->flags & IAVF_FLAG_PF_COMMS_FAILED)) {
- 		/* cancel any current operation */
-@@ -1335,11 +1407,16 @@ void iavf_down(struct iavf_adapter *adapter)
- 		 * here for this to complete. The watchdog is still running
- 		 * and it will take care of this.
+@@ -2530,9 +2530,8 @@ static int btintel_setup_combined(struct hci_dev *hdev)
  		 */
--		adapter->aq_required = IAVF_FLAG_AQ_DEL_MAC_FILTER;
--		adapter->aq_required |= IAVF_FLAG_AQ_DEL_VLAN_FILTER;
--		adapter->aq_required |= IAVF_FLAG_AQ_DEL_CLOUD_FILTER;
--		adapter->aq_required |= IAVF_FLAG_AQ_DEL_FDIR_FILTER;
--		adapter->aq_required |= IAVF_FLAG_AQ_DEL_ADV_RSS_CFG;
-+		if (!list_empty(&adapter->mac_filter_list))
-+			adapter->aq_required |= IAVF_FLAG_AQ_DEL_MAC_FILTER;
-+		if (!list_empty(&adapter->vlan_filter_list))
-+			adapter->aq_required |= IAVF_FLAG_AQ_DEL_VLAN_FILTER;
-+		if (!list_empty(&adapter->cloud_filter_list))
-+			adapter->aq_required |= IAVF_FLAG_AQ_DEL_CLOUD_FILTER;
-+		if (!list_empty(&adapter->fdir_list_head))
-+			adapter->aq_required |= IAVF_FLAG_AQ_DEL_FDIR_FILTER;
-+		if (!list_empty(&adapter->adv_rss_list_head))
-+			adapter->aq_required |= IAVF_FLAG_AQ_DEL_ADV_RSS_CFG;
- 		adapter->aq_required |= IAVF_FLAG_AQ_DISABLE_QUEUES;
- 	}
+ 		set_bit(HCI_QUIRK_WIDEBAND_SPEECH_SUPPORTED, &hdev->quirks);
  
-@@ -4178,6 +4255,7 @@ static int iavf_open(struct net_device *netdev)
- static int iavf_close(struct net_device *netdev)
- {
- 	struct iavf_adapter *adapter = netdev_priv(netdev);
-+	u64 aq_to_restore;
- 	int status;
+-		/* Valid LE States quirk for JfP/ThP familiy */
+-		if (ver.hw_variant == 0x11 || ver.hw_variant == 0x12)
+-			set_bit(HCI_QUIRK_VALID_LE_STATES, &hdev->quirks);
++		/* Set Valid LE States quirk */
++		set_bit(HCI_QUIRK_VALID_LE_STATES, &hdev->quirks);
  
- 	mutex_lock(&adapter->crit_lock);
-@@ -4190,6 +4268,29 @@ static int iavf_close(struct net_device *netdev)
- 	set_bit(__IAVF_VSI_DOWN, adapter->vsi.state);
- 	if (CLIENT_ENABLED(adapter))
- 		adapter->flags |= IAVF_FLAG_CLIENT_NEEDS_CLOSE;
-+	/* We cannot send IAVF_FLAG_AQ_GET_OFFLOAD_VLAN_V2_CAPS before
-+	 * IAVF_FLAG_AQ_DISABLE_QUEUES because in such case there is rtnl
-+	 * deadlock with adminq_task() until iavf_close timeouts. We must send
-+	 * IAVF_FLAG_AQ_GET_CONFIG before IAVF_FLAG_AQ_DISABLE_QUEUES to make
-+	 * disable queues possible for vf. Give only necessary flags to
-+	 * iavf_down and save other to set them right before iavf_close()
-+	 * returns, when IAVF_FLAG_AQ_DISABLE_QUEUES will be already sent and
-+	 * iavf will be in DOWN state.
-+	 */
-+	aq_to_restore = adapter->aq_required;
-+	adapter->aq_required &= IAVF_FLAG_AQ_GET_CONFIG;
-+
-+	/* Remove flags which we do not want to send after close or we want to
-+	 * send before disable queues.
-+	 */
-+	aq_to_restore &= ~(IAVF_FLAG_AQ_GET_CONFIG		|
-+			   IAVF_FLAG_AQ_ENABLE_QUEUES		|
-+			   IAVF_FLAG_AQ_CONFIGURE_QUEUES	|
-+			   IAVF_FLAG_AQ_ADD_VLAN_FILTER		|
-+			   IAVF_FLAG_AQ_ADD_MAC_FILTER		|
-+			   IAVF_FLAG_AQ_ADD_CLOUD_FILTER	|
-+			   IAVF_FLAG_AQ_ADD_FDIR_FILTER		|
-+			   IAVF_FLAG_AQ_ADD_ADV_RSS_CFG);
- 
- 	iavf_down(adapter);
- 	iavf_change_state(adapter, __IAVF_DOWN_PENDING);
-@@ -4213,6 +4314,10 @@ static int iavf_close(struct net_device *netdev)
- 				    msecs_to_jiffies(500));
- 	if (!status)
- 		netdev_warn(netdev, "Device resources not yet released\n");
-+
-+	mutex_lock(&adapter->crit_lock);
-+	adapter->aq_required |= aq_to_restore;
-+	mutex_unlock(&adapter->crit_lock);
- 	return 0;
- }
- 
+ 		/* Setup MSFT Extension support */
+ 		btintel_set_msft_opcode(hdev, ver.hw_variant);
 -- 
 2.35.1
 
