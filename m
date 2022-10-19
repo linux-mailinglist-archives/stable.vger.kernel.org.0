@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDB81603C27
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:44:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CDF6603C2B
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:44:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230359AbiJSIo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:44:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42642 "EHLO
+        id S230526AbiJSIod (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:44:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231308AbiJSInl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:43:41 -0400
+        with ESMTP id S231327AbiJSIn7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:43:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D55589806;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E02335A3F3;
         Wed, 19 Oct 2022 01:41:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27855617EF;
-        Wed, 19 Oct 2022 08:40:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C848C433C1;
-        Wed, 19 Oct 2022 08:40:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4672D617E9;
+        Wed, 19 Oct 2022 08:40:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 109DFC433D6;
+        Wed, 19 Oct 2022 08:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168823;
-        bh=Nyd1WCddx4v9hzlBKLS7JQchgIUTsyH8TfhTYvZVeQc=;
+        s=korg; t=1666168826;
+        bh=c4NL67WudStCz85yeweG+NkIyETz6hxWtl4wxLcqfqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a+37mUAFB6Azjhh5GNnamujL2Y54b6ITFFbt7w548O4vAHNE7mLulJkQ5xHKSEcFq
-         +4ePXIJDRkTpxj2yPGs++u+zkiIgsZw6yXCC2bAUoxVBpXvMmtM18Q5/pED8zCPNVC
-         mS6ZH0ABpUzTpULl2zFGdOVMbc9dANoTCRWrcoBM=
+        b=0Sop+Wj5AZSZiWkbEtCX5TIj4uM2YRS1aK+HX8goYsUNkxSbFqmRPOJZRk73VEpo/
+         wzcPaiT3+vv96Asujdqecf18hqE35WEGSgEAGF2vxI8GOr473VBud2MBL2wWXDbXYb
+         C1oCwYCtwQ7Cr5tP/PCSM+NTJF8BP9sgHhEDOBuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenting Zhang <zephray@outlook.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
+        stable@vger.kernel.org, Fangrui Song <maskray@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
         Conor Dooley <conor.dooley@microchip.com>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.0 064/862] riscv: always honor the CONFIG_CMDLINE_FORCE when parsing dtb
-Date:   Wed, 19 Oct 2022 10:22:31 +0200
-Message-Id: <20221019083252.766502213@linuxfoundation.org>
+Subject: [PATCH 6.0 065/862] riscv: Pass -mno-relax only on lld < 15.0.0
+Date:   Wed, 19 Oct 2022 10:22:32 +0200
+Message-Id: <20221019083252.805123179@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,49 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenting Zhang <zephray@outlook.com>
+From: Fangrui Song <maskray@google.com>
 
-commit 10f6913c548b32ecb73801a16b120e761c6957ea upstream.
+commit 3cebf80e9a0d3adcb174053be32c88a640b3344b upstream.
 
-When CONFIG_CMDLINE_FORCE is enabled, cmdline provided by
-CONFIG_CMDLINE are always used. This allows CONFIG_CMDLINE to be
-used regardless of the result of device tree scanning.
+lld since llvm:6611d58f5bbc ("[ELF] Relax R_RISCV_ALIGN"), which will be
+included in the 15.0.0 release, has implemented some RISC-V linker
+relaxation.  -mno-relax is no longer needed in
+KBUILD_CFLAGS/KBUILD_AFLAGS to suppress R_RISCV_ALIGN which older lld
+can not handle:
 
-This especially fixes the case where a device tree without the
-chosen node is supplied to the kernel. In such cases,
-early_init_dt_scan would return true. But inside
-early_init_dt_scan_chosen, the cmdline won't be updated as there
-is no chosen node in the device tree. As a result, CONFIG_CMDLINE
-is not copied into boot_command_line even if CONFIG_CMDLINE_FORCE
-is enabled. This commit allows properly update boot_command_line
-in this situation.
+    ld.lld: error: capability.c:(.fixup+0x0): relocation R_RISCV_ALIGN
+    requires unimplemented linker relaxation; recompile with -mno-relax
+    but the .o is already compiled with -mno-relax
 
-Fixes: 8fd6e05c7463 ("arch: riscv: support kernel command line forcing when no DTB passed")
-Signed-off-by: Wenting Zhang <zephray@outlook.com>
-Reviewed-by: Björn Töpel <bjorn@kernel.org>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/PSBPR04MB399135DFC54928AB958D0638B1829@PSBPR04MB3991.apcprd04.prod.outlook.com
+Signed-off-by: Fangrui Song <maskray@google.com>
+Link: https://lore.kernel.org/r/20220710071117.446112-1-maskray@google.com/
+Link: https://lore.kernel.org/r/20220918092933.19943-1-palmer@rivosinc.com
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Tested-by: Conor Dooley <conor.dooley@microchip.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/setup.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/riscv/Makefile |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/riscv/kernel/setup.c
-+++ b/arch/riscv/kernel/setup.c
-@@ -252,10 +252,10 @@ static void __init parse_dtb(void)
- 			pr_info("Machine model: %s\n", name);
- 			dump_stack_set_arch_desc("%s (DT)", name);
- 		}
--		return;
-+	} else {
-+		pr_err("No DTB passed to the kernel\n");
- 	}
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -37,6 +37,7 @@ else
+ endif
  
--	pr_err("No DTB passed to the kernel\n");
- #ifdef CONFIG_CMDLINE_FORCE
- 	strscpy(boot_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
- 	pr_info("Forcing kernel command line to: %s\n", boot_command_line);
+ ifeq ($(CONFIG_LD_IS_LLD),y)
++ifeq ($(shell test $(CONFIG_LLD_VERSION) -lt 150000; echo $$?),0)
+ 	KBUILD_CFLAGS += -mno-relax
+ 	KBUILD_AFLAGS += -mno-relax
+ ifndef CONFIG_AS_IS_LLVM
+@@ -44,6 +45,7 @@ ifndef CONFIG_AS_IS_LLVM
+ 	KBUILD_AFLAGS += -Wa,-mno-relax
+ endif
+ endif
++endif
+ 
+ # ISA string setting
+ riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32ima
 
 
