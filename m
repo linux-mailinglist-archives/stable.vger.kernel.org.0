@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80784603CAB
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:51:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4C1C603C98
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:50:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231519AbiJSIuu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:50:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59994 "EHLO
+        id S229854AbiJSIua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:50:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231974AbiJSIuC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:50:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93CFE57E2B;
-        Wed, 19 Oct 2022 01:48:02 -0700 (PDT)
+        with ESMTP id S230127AbiJSIsd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:48:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D34F5900D9;
+        Wed, 19 Oct 2022 01:46:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3D3BB822EC;
-        Wed, 19 Oct 2022 08:43:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E2F0C433C1;
-        Wed, 19 Oct 2022 08:43:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C84F617E9;
+        Wed, 19 Oct 2022 08:44:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A690C433C1;
+        Wed, 19 Oct 2022 08:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169037;
-        bh=0O+iB5m/QXAnOYs1Dmvzn9u6uFowokWOpnnjHiYsCuI=;
+        s=korg; t=1666169046;
+        bh=6BEkaoCyr1a3B8J21YBWZZrVNR7enMef3nl7AAJ8oEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+UhsUx+mXyQrmSySzxi9jUVqloFWhon0o4QDDXA5lm9s1R6nQxyD90W/LIWMtHQ8
-         54emroRZMrrSbPg/YWQpJDPtuHhiXOft76v7mXSQwzRR3+ljNJEgiEw4/6egiLY/LT
-         Swy4nf/NDXqoch/U6O5RMPjc8hl63A0HxnsCQCIQ=
+        b=DVn8V0s2fN39fd0SbmScL7NpbXWg9uySJf5WOQXWFrFTQYR3AXIfgCnzyKP071DaG
+         9t+PfJbLN6XfnpvcV6elGhR7pZDo+JTz870EcNbvkR+rL+Y5wEU4xYZKIYxQCpNJAf
+         fPH+FzeEJAHEMBr5EOJPhXUa434QEXozZ1bqCWrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Lalith Rajendran <lalithkraj@google.com>,
+        Lukas Czerner <lczerner@redhat.com>, Jan Kara <jack@suse.cz>,
+        Jeff Layton <jlayton@kernel.org>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.0 137/862] ext4: make ext4_lazyinit_thread freezable
-Date:   Wed, 19 Oct 2022 10:23:44 +0200
-Message-Id: <20221019083256.037470765@linuxfoundation.org>
+Subject: [PATCH 6.0 139/862] ext4: dont increase iversion counter for ea_inodes
+Date:   Wed, 19 Oct 2022 10:23:46 +0200
+Message-Id: <20221019083256.132228957@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,32 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lalith Rajendran <lalithkraj@google.com>
+From: Lukas Czerner <lczerner@redhat.com>
 
-commit 3b575495ab8dbb4dbe85b4ac7f991693c3668ff5 upstream.
+commit 50f094a5580e6297bf10a807d16f0ee23fa576cf upstream.
 
-ext4_lazyinit_thread is not set freezable. Hence when the thread calls
-try_to_freeze it doesn't freeze during suspend and continues to send
-requests to the storage during suspend, resulting in suspend failures.
+ea_inodes are using i_version for storing part of the reference count so
+we really need to leave it alone.
+
+The problem can be reproduced by xfstest ext4/026 when iversion is
+enabled. Fix it by not calling inode_inc_iversion() for EXT4_EA_INODE_FL
+inodes in ext4_mark_iloc_dirty().
 
 Cc: stable@kernel.org
-Signed-off-by: Lalith Rajendran <lalithkraj@google.com>
-Link: https://lore.kernel.org/r/20220818214049.1519544-1-lalithkraj@google.com
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Link: https://lore.kernel.org/r/20220824160349.39664-1-lczerner@redhat.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/inode.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3767,6 +3767,7 @@ static int ext4_lazyinit_thread(void *ar
- 	unsigned long next_wakeup, cur;
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5731,7 +5731,12 @@ int ext4_mark_iloc_dirty(handle_t *handl
+ 	}
+ 	ext4_fc_track_inode(handle, inode);
  
- 	BUG_ON(NULL == eli);
-+	set_freezable();
+-	if (IS_I_VERSION(inode))
++	/*
++	 * ea_inodes are using i_version for storing reference count, don't
++	 * mess with it
++	 */
++	if (IS_I_VERSION(inode) &&
++	    !(EXT4_I(inode)->i_flags & EXT4_EA_INODE_FL))
+ 		inode_inc_iversion(inode);
  
- cont_thread:
- 	while (true) {
+ 	/* the do_update_inode consumes one bh->b_count */
 
 
