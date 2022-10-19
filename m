@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C362604139
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:40:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46BFF604123
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:38:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232103AbiJSKkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:40:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46986 "EHLO
+        id S231590AbiJSKim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:38:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231855AbiJSKjt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:39:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1D8E15745E;
-        Wed, 19 Oct 2022 03:18:33 -0700 (PDT)
+        with ESMTP id S231500AbiJSKiN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:38:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7CDA15380D;
+        Wed, 19 Oct 2022 03:17:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 354FAB823B2;
-        Wed, 19 Oct 2022 08:52:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81200C433C1;
-        Wed, 19 Oct 2022 08:52:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BBB40B8232E;
+        Wed, 19 Oct 2022 08:52:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 392FEC433D6;
+        Wed, 19 Oct 2022 08:52:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169549;
-        bh=LoFmpQ3886X+NWnu6AizYWHdAbOt4zyiwxpdLya/P7g=;
+        s=korg; t=1666169552;
+        bh=W+SzmJ4+Ai0GJAXfRt/BGB8Dxa/vhps1D+4o/1qiegw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p3ddpY/wQ+mwcN54Lvk0gfa+CEaQu6qV2pokV8j1sRAfVDa9n1Ey3oBeD8k96tOHI
-         /kGeqAG54j6LOqtPGGfc5oVyTKfEn8qsWjJl8cbQzpwg5J4n/WzF3CSB9ogw+uTNNo
-         RRy2UAom/LwwgZOzCwXqcnthdC2CPYIgOLQGhl+A=
+        b=XeQFZf2/OiT1C0LnGV58MKJwGMJ1pFVzLiluQ9TMU1LlLTyzfXcMGMYJVw5OL5Z2s
+         IW9xjvWtCZpzY687K64pnvasy6NVE3vSu5Y75Wemyhg/fzmHDWbrHx1tdAJFos5W/a
+         Cw0iADLW9/7KfmzLlCRWFeHtPiyHDJmm6QUrykGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Khalil Blaiech <kblaiech@nvidia.com>,
+        Asmaa Mnebhi <asmaa@nvidia.com>, Wolfram Sang <wsa@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 319/862] libbpf: Dont require full struct enum64 in UAPI headers
-Date:   Wed, 19 Oct 2022 10:26:46 +0200
-Message-Id: <20221019083304.107157180@linuxfoundation.org>
+Subject: [PATCH 6.0 320/862] i2c: mlxbf: support lock mechanism
+Date:   Wed, 19 Oct 2022 10:26:47 +0200
+Message-Id: <20221019083304.159499469@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,80 +53,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Asmaa Mnebhi <asmaa@nvidia.com>
 
-[ Upstream commit 87dbdc230d162bf9ee1ac77c8ade178b6b1e199e ]
+[ Upstream commit 86067ccfa1424a26491542d6f6d7546d40b61a10 ]
 
-Drop the requirement for system-wide kernel UAPI headers to provide full
-struct btf_enum64 definition. This is an unexpected requirement that
-slipped in libbpf 1.0 and put unnecessary pressure ([0]) on users to have
-a bleeding-edge kernel UAPI header from unreleased Linux 6.0.
+Linux is not the only entity using the BlueField I2C busses so
+support a lock mechanism provided by hardware to avoid issues
+when multiple entities are trying to access the same bus.
 
-To achieve this, we forward declare struct btf_enum64. But that's not
-enough as there is btf_enum64_value() helper that expects to know the
-layout of struct btf_enum64. So we get a bit creative with
-reinterpreting memory layout as array of __u32 and accesing lo32/hi32
-fields as array elements. Alternative way would be to have a local
-pointer variable for anonymous struct with exactly the same layout as
-struct btf_enum64, but that gets us into C++ compiler errors complaining
-about invalid type casts. So play it safe, if ugly.
+The lock is acquired whenever written explicitely or the lock
+register is read. So make sure it is always released at the end
+of a successful or failed transaction.
 
-  [0] Closes: https://github.com/libbpf/libbpf/issues/562
-
-Fixes: d90ec262b35b ("libbpf: Add enum64 support for btf_dump")
-Reported-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Link: https://lore.kernel.org/bpf/20220927042940.147185-1-andrii@kernel.org
+Fixes: b5b5b32081cd206b (i2c: mlxbf: I2C SMBus driver for Mellanox BlueField SoC)
+Reviewed-by: Khalil Blaiech <kblaiech@nvidia.com>
+Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf.h | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-mlxbf.c | 44 ++++++++++++++++++++++++++++++----
+ 1 file changed, 39 insertions(+), 5 deletions(-)
 
-diff --git a/tools/lib/bpf/btf.h b/tools/lib/bpf/btf.h
-index 583760df83b4..d421d656a076 100644
---- a/tools/lib/bpf/btf.h
-+++ b/tools/lib/bpf/btf.h
-@@ -487,6 +487,8 @@ static inline struct btf_enum *btf_enum(const struct btf_type *t)
- 	return (struct btf_enum *)(t + 1);
+diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
+index ad5efd7497d1..0e840eba4fd6 100644
+--- a/drivers/i2c/busses/i2c-mlxbf.c
++++ b/drivers/i2c/busses/i2c-mlxbf.c
+@@ -306,6 +306,7 @@ static u64 mlxbf_i2c_corepll_frequency;
+  * exact.
+  */
+ #define MLXBF_I2C_SMBUS_TIMEOUT   (300 * 1000) /* 300ms */
++#define MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT (300 * 1000) /* 300ms */
+ 
+ /* Encapsulates timing parameters. */
+ struct mlxbf_i2c_timings {
+@@ -514,6 +515,25 @@ static bool mlxbf_smbus_master_wait_for_idle(struct mlxbf_i2c_priv *priv)
+ 	return false;
  }
  
-+struct btf_enum64;
++/*
++ * wait for the lock to be released before acquiring it.
++ */
++static bool mlxbf_i2c_smbus_master_lock(struct mlxbf_i2c_priv *priv)
++{
++	if (mlxbf_smbus_poll(priv->smbus->io, MLXBF_I2C_SMBUS_MASTER_GW,
++			   MLXBF_I2C_MASTER_LOCK_BIT, true,
++			   MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT))
++		return true;
 +
- static inline struct btf_enum64 *btf_enum64(const struct btf_type *t)
++	return false;
++}
++
++static void mlxbf_i2c_smbus_master_unlock(struct mlxbf_i2c_priv *priv)
++{
++	/* Clear the gw to clear the lock */
++	writel(0, priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_GW);
++}
++
+ static bool mlxbf_i2c_smbus_transaction_success(u32 master_status,
+ 						u32 cause_status)
  {
- 	return (struct btf_enum64 *)(t + 1);
-@@ -494,7 +496,28 @@ static inline struct btf_enum64 *btf_enum64(const struct btf_type *t)
+@@ -705,10 +725,19 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 	slave = request->slave & GENMASK(6, 0);
+ 	addr = slave << 1;
  
- static inline __u64 btf_enum64_value(const struct btf_enum64 *e)
- {
--	return ((__u64)e->val_hi32 << 32) | e->val_lo32;
-+	/* struct btf_enum64 is introduced in Linux 6.0, which is very
-+	 * bleeding-edge. Here we are avoiding relying on struct btf_enum64
-+	 * definition coming from kernel UAPI headers to support wider range
-+	 * of system-wide kernel headers.
-+	 *
-+	 * Given this header can be also included from C++ applications, that
-+	 * further restricts C tricks we can use (like using compatible
-+	 * anonymous struct). So just treat struct btf_enum64 as
-+	 * a three-element array of u32 and access second (lo32) and third
-+	 * (hi32) elements directly.
-+	 *
-+	 * For reference, here is a struct btf_enum64 definition:
-+	 *
-+	 * const struct btf_enum64 {
-+	 *	__u32	name_off;
-+	 *	__u32	val_lo32;
-+	 *	__u32	val_hi32;
-+	 * };
+-	/* First of all, check whether the HW is idle. */
+-	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv)))
++	/*
++	 * Try to acquire the smbus gw lock before any reads of the GW register since
++	 * a read sets the lock.
 +	 */
-+	const __u32 *e64 = (const __u32 *)e;
++	if (WARN_ON(!mlxbf_i2c_smbus_master_lock(priv)))
+ 		return -EBUSY;
+ 
++	/* Check whether the HW is idle */
++	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv))) {
++		ret = -EBUSY;
++		goto out_unlock;
++	}
 +
-+	return ((__u64)e64[2] << 32) | e64[1];
+ 	/* Set first byte. */
+ 	data_desc[data_idx++] = addr;
+ 
+@@ -732,8 +761,10 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 			write_en = 1;
+ 			write_len += operation->length;
+ 			if (data_idx + operation->length >
+-					MLXBF_I2C_MASTER_DATA_DESC_SIZE)
+-				return -ENOBUFS;
++					MLXBF_I2C_MASTER_DATA_DESC_SIZE) {
++				ret = -ENOBUFS;
++				goto out_unlock;
++			}
+ 			memcpy(data_desc + data_idx,
+ 			       operation->buffer, operation->length);
+ 			data_idx += operation->length;
+@@ -765,7 +796,7 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 		ret = mlxbf_i2c_smbus_enable(priv, slave, write_len, block_en,
+ 					 pec_en, 0);
+ 		if (ret)
+-			return ret;
++			goto out_unlock;
+ 	}
+ 
+ 	if (read_en) {
+@@ -792,6 +823,9 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 			priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_FSM);
+ 	}
+ 
++out_unlock:
++	mlxbf_i2c_smbus_master_unlock(priv);
++
+ 	return ret;
  }
  
- static inline struct btf_member *btf_members(const struct btf_type *t)
 -- 
 2.35.1
 
