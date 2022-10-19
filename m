@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC15603F57
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A9A1603F7C
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:32:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229911AbiJSJbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:31:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46076 "EHLO
+        id S233750AbiJSJb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:31:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233681AbiJSJ3C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A619EA349;
-        Wed, 19 Oct 2022 02:12:42 -0700 (PDT)
+        with ESMTP id S233876AbiJSJ3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80CD2EC52A;
+        Wed, 19 Oct 2022 02:13:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3512B61807;
-        Wed, 19 Oct 2022 09:12:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 188F9C433D7;
-        Wed, 19 Oct 2022 09:12:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B485617E6;
+        Wed, 19 Oct 2022 09:12:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F7F9C433C1;
+        Wed, 19 Oct 2022 09:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170751;
-        bh=jeM9Fj147OpUgh5L3U33TX8WpT72OBGDIxBglNY+h/M=;
+        s=korg; t=1666170777;
+        bh=wLs1MRVkbxT3b8aKqZEYPEL1jHZDMLOF9qfa9pKqlWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hB3tRo0eh88UM3wgJufxtjTfBuz6e2wdnVwcFGB4jTVmi+n8l0mcN/pCEE+vS9LPJ
-         Txbh3rTwc6u04LYGWcFzQjV8kh5JraNiArriQ9hiTa1O0pqDbCACVA6lzNRm3Ewh/X
-         ijKOH0LJCT3r5zS72URltCJaqkEmNhuvcuWT0VzQ=
+        b=ozFszcnrS6gLMqjii4plqaqLhhJVR79xdKRMs0SIO9zzObwONOJyjd+W82eQGOHcF
+         GxYdO62yjFNVbS4O+HS6LHr+G38g5mTaKx9Z72Ouj3VD6OH0iSMa1mUX1aFJpACadM
+         VFx1m8kG7pc63kJGpVY6SzeLmDaPlGfxQSE6q978=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maya Matuszczyk <maccraft123mc@gmail.com>,
+        stable@vger.kernel.org, Jorge Lopez <jorge.lopez2@hp.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 746/862] drm: panel-orientation-quirks: Add quirk for Aya Neo Air
-Date:   Wed, 19 Oct 2022 10:33:53 +0200
-Message-Id: <20221019083322.900923435@linuxfoundation.org>
+Subject: [PATCH 6.0 748/862] platform/x86: hp-wmi: Setting thermal profile fails with 0x06
+Date:   Wed, 19 Oct 2022 10:33:55 +0200
+Message-Id: <20221019083322.982623777@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,53 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maya Matuszczyk <maccraft123mc@gmail.com>
+From: Jorge Lopez <jorge.lopez2@hp.com>
 
-[ Upstream commit e10ea7b9b90219da305a16b3c1252169715a807b ]
+[ Upstream commit 00b1829294b7c88ecba92c661fbe6fe347b364d2 ]
 
-Yet another x86 gaming handheld.
+Error 0x06 (invalid command parameter) is reported by hp-wmi module
+when reading the current thermal profile and then proceed to set it
+back. The failing condition occurs in Linux NixOS after user
+configures the thermal profile to ‘quiet mode’ in Windows.  Quiet Fan
+Mode is supported in Windows but was not supported in hp-wmi module.
 
-This one has many SKUs with quite a few of DMI strings,
-so let's just use a catchall, just as with Aya Neo Next.
+This fix adds support for PLATFORM_PROFILE_QUIET in hp-wmi module for
+HP notebooks other than HP Omen series.  Quiet thermal profile is not
+supported in HP Omen series notebooks.
 
-Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
+Signed-off-by: Jorge Lopez <jorge.lopez2@hp.com>
+Link: https://lore.kernel.org/r/20220912192603.4001-1-jorge.lopez2@hp.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220825191946.1678798-1-maccraft123mc@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/platform/x86/hp-wmi.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 64b194af003c..8a0c0e0bb5bd 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -103,6 +103,12 @@ static const struct drm_dmi_panel_orientation_data lcd800x1280_rightside_up = {
- 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index bc7020e9df9e..fc8dbbd6fc7c 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -177,7 +177,8 @@ enum hp_thermal_profile_omen_v1 {
+ enum hp_thermal_profile {
+ 	HP_THERMAL_PROFILE_PERFORMANCE	= 0x00,
+ 	HP_THERMAL_PROFILE_DEFAULT		= 0x01,
+-	HP_THERMAL_PROFILE_COOL			= 0x02
++	HP_THERMAL_PROFILE_COOL			= 0x02,
++	HP_THERMAL_PROFILE_QUIET		= 0x03,
  };
  
-+static const struct drm_dmi_panel_orientation_data lcd1080x1920_leftside_up = {
-+	.width = 1080,
-+	.height = 1920,
-+	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
-+};
+ #define IS_HWBLOCKED(x) ((x & HPWMI_POWER_FW_OR_HW) != HPWMI_POWER_FW_OR_HW)
+@@ -1194,6 +1195,9 @@ static int hp_wmi_platform_profile_get(struct platform_profile_handler *pprof,
+ 	case HP_THERMAL_PROFILE_COOL:
+ 		*profile =  PLATFORM_PROFILE_COOL;
+ 		break;
++	case HP_THERMAL_PROFILE_QUIET:
++		*profile = PLATFORM_PROFILE_QUIET;
++		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
+@@ -1216,6 +1220,9 @@ static int hp_wmi_platform_profile_set(struct platform_profile_handler *pprof,
+ 	case PLATFORM_PROFILE_COOL:
+ 		tp =  HP_THERMAL_PROFILE_COOL;
+ 		break;
++	case PLATFORM_PROFILE_QUIET:
++		tp = HP_THERMAL_PROFILE_QUIET;
++		break;
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
+@@ -1263,6 +1270,8 @@ static int thermal_profile_setup(void)
+ 
+ 		platform_profile_handler.profile_get = hp_wmi_platform_profile_get;
+ 		platform_profile_handler.profile_set = hp_wmi_platform_profile_set;
 +
- static const struct drm_dmi_panel_orientation_data lcd1200x1920_rightside_up = {
- 	.width = 1200,
- 	.height = 1920,
-@@ -158,6 +164,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "AYA NEO 2021"),
- 		},
- 		.driver_data = (void *)&lcd800x1280_rightside_up,
-+	}, {	/* AYA NEO AIR */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "AYANEO"),
-+		  DMI_MATCH(DMI_BOARD_NAME, "AIR"),
-+		},
-+		.driver_data = (void *)&lcd1080x1920_leftside_up,
- 	}, {	/* AYA NEO NEXT */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
++		set_bit(PLATFORM_PROFILE_QUIET, platform_profile_handler.choices);
+ 	}
+ 
+ 	set_bit(PLATFORM_PROFILE_COOL, platform_profile_handler.choices);
 -- 
 2.35.1
 
