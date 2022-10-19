@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B96D603D93
+	by mail.lfdr.de (Postfix) with ESMTP id 88299603D94
 	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232126AbiJSJFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:05:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33078 "EHLO
+        id S232088AbiJSJFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:05:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232357AbiJSJED (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:03 -0400
+        with ESMTP id S232353AbiJSJEC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F9BF178AE;
-        Wed, 19 Oct 2022 01:57:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF98FA6C00;
+        Wed, 19 Oct 2022 01:57:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E2DB617E2;
-        Wed, 19 Oct 2022 08:55:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FF75C433C1;
-        Wed, 19 Oct 2022 08:55:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF49F61834;
+        Wed, 19 Oct 2022 08:55:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E6CBC433D7;
+        Wed, 19 Oct 2022 08:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169721;
-        bh=nG8OzVzXN71yzbquDRImDzzcUiikGUcadds2QAZTzD0=;
+        s=korg; t=1666169724;
+        bh=hvGvUU9CEjWIrKx8lFqFQJsfFIqXXtdKrx+cM1+mxxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ys8Yign3WC7rOeETlJShKxjMINcoD/UlBRV7oSq90MqU81AzpEmnT1FWlynpqu8bH
-         W5Xh7EvbCDDZueackhlc9B2VMKx84OIkpOGfLlD3j9/mkugI6HUMI1L6cibfZvUpuL
-         BoiFv0hrfJtOFxorun8VRQMezMPENqUfZPdkSbm4=
+        b=uIDRrTBrWFdGav36awmYBbuhyUrBKHga2rkzBH6Zu72WB1ymOnym7KhFcktL9iTmt
+         78tTQjokZpchU6+i1AfnLsnsSCJV16TDNEU38NHF8dCs22coJvpkM//HLrQxdlHSJc
+         F0TqUn4/lqPoOCTyRtJehqTKPRTsatvbquh4YI4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gerd Hoffmann <kraxel@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 384/862] drm/bochs: fix blanking
-Date:   Wed, 19 Oct 2022 10:27:51 +0200
-Message-Id: <20221019083306.919427450@linuxfoundation.org>
+Subject: [PATCH 6.0 385/862] ASoC: mediatek: mt8195-mt6359: Properly register sound card for SOF
+Date:   Wed, 19 Oct 2022 10:27:52 +0200
+Message-Id: <20221019083306.967386159@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,41 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit e740ceb53e4579a7a4063712cebecac3c343b189 ]
+[ Upstream commit 64ec924c781ee846bd469be8d1d6bbed78c0f439 ]
 
-VGA_IS1_RC is the color mode register (VGA_IS1_RM the one for monochrome
-mode, note C vs. M at the end).  So when using VGA_IS1_RC make sure the
-vga device is actually in color mode and set the corresponding bit in the
-misc register.
+Adding a probe callback on this snd_soc_card is required when
+Sound Open Firmware support is desired, as we need to appropriately
+populate the stream_name for SOF to be able to bind widgets.
+Failing to do so will produce errors when applying the SOF topology
+leading to card registration failure (so, no sound).
+While at it, also make sure to fill the topology_shortname as required.
 
-Reproducible when booting VMs in UEFI mode with some edk2 versions (edk2
-fix is on the way too).  Doesn't happen in BIOS mode because in that
-case the vgabios already flips the bit.
-
-Fixes: 250e743915d4 ("drm/bochs: Add screen blanking support")
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220906142957.2763577-1-kraxel@redhat.com
+Fixes: 0caf1120c583 ("ASoC: mediatek: mt8195: extract SOF common code")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220906092727.37324-2-angelogioacchino.delregno@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tiny/bochs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/mediatek/mt8195/mt8195-mt6359.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index 82364a0a7b18..490fa92a4dce 100644
---- a/drivers/gpu/drm/tiny/bochs.c
-+++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -309,6 +309,8 @@ static void bochs_hw_fini(struct drm_device *dev)
- static void bochs_hw_blank(struct bochs_device *bochs, bool blank)
- {
- 	DRM_DEBUG_DRIVER("hw_blank %d\n", blank);
-+	/* enable color bit (so VGA_IS1_RC access works) */
-+	bochs_vga_writeb(bochs, VGA_MIS_W, VGA_MIS_COLOR);
- 	/* discard ar_flip_flop */
- 	(void)bochs_vga_readb(bochs, VGA_IS1_RC);
- 	/* blank or unblank; we need only update index and set 0x20 */
+diff --git a/sound/soc/mediatek/mt8195/mt8195-mt6359.c b/sound/soc/mediatek/mt8195/mt8195-mt6359.c
+index c530e3fc27e4..961e769602d6 100644
+--- a/sound/soc/mediatek/mt8195/mt8195-mt6359.c
++++ b/sound/soc/mediatek/mt8195/mt8195-mt6359.c
+@@ -1383,7 +1383,13 @@ static int mt8195_mt6359_dev_probe(struct platform_device *pdev)
+ 		sof_priv->num_streams = ARRAY_SIZE(g_sof_conn_streams);
+ 		sof_priv->sof_dai_link_fixup = mt8195_dai_link_fixup;
+ 		soc_card_data->sof_priv = sof_priv;
++		card->probe = mtk_sof_card_probe;
+ 		card->late_probe = mtk_sof_card_late_probe;
++		if (!card->topology_shortname_created) {
++			snprintf(card->topology_shortname, 32, "sof-%s", card->name);
++			card->topology_shortname_created = true;
++		}
++		card->name = card->topology_shortname;
+ 		sof_on = 1;
+ 	}
+ 
 -- 
 2.35.1
 
