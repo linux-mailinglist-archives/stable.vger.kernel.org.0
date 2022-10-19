@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CEF260410D
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:36:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3413C604117
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:37:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230110AbiJSKgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:36:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37086 "EHLO
+        id S231815AbiJSKhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:37:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230120AbiJSKgc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:36:32 -0400
+        with ESMTP id S231818AbiJSKg6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:36:58 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD97DFF8C9;
-        Wed, 19 Oct 2022 03:15:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE58F01B;
+        Wed, 19 Oct 2022 03:15:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9C9ECCE21CB;
-        Wed, 19 Oct 2022 09:13:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A61DC433C1;
-        Wed, 19 Oct 2022 09:13:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 60429CE21B3;
+        Wed, 19 Oct 2022 09:13:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E266C433C1;
+        Wed, 19 Oct 2022 09:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170803;
-        bh=u/bw0MPMS/QV/9IoNFCmnYBw0YZ8rHNhw+FhHjhGJJE=;
+        s=korg; t=1666170811;
+        bh=2vttJVL/wGU2aeD9rhWr5CzNN4oH2sKTlJIu2eSZwmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g8+DaP1h1twAwayRjjQbUPT7pZxig55sFkcmNDrmHgY53rOy1kKISkc6KcDlwYgHE
-         mh14elmOHr99xYWfUyf4hS5gumchndc2oeXqX7dq2+acHvfQ0zczi5YkuhkP/dzabC
-         QpPTeHZ/KaP+e10gU9cTs4/b4Jh/rDV4EQ3Ebj5A=
+        b=1KkITEmOv1iZFOs1p5SurGBmrFbRt6U4LM15r+l/FKUlS73G8qVTgpF9AM0Dz6B+P
+         uE2lV5DggZiWt9+UR2kheqYIjryejgHDNVwJOMP23BW0HcVxZ5W+LorQWxVabjSrBZ
+         JR2y5V6sLcVK1mZ2NCBc3gS4JHnR8dMCJHkQU6zE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org,
+        Daisuke Matsuda <matsuda-daisuke@fujitsu.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 793/862] media: cx88: Fix a null-ptr-deref bug in buffer_prepare()
-Date:   Wed, 19 Oct 2022 10:34:40 +0200
-Message-Id: <20221019083324.959657054@linuxfoundation.org>
+Subject: [PATCH 6.0 796/862] RDMA/rxe: Delete error messages triggered by incoming Read requests
+Date:   Wed, 19 Oct 2022 10:34:43 +0200
+Message-Id: <20221019083325.076112879@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,139 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Daisuke Matsuda <matsuda-daisuke@fujitsu.com>
 
-[ Upstream commit 2b064d91440b33fba5b452f2d1b31f13ae911d71 ]
+[ Upstream commit 2c02249fcbfc066bd33e2a7375c7006d4cb367f6 ]
 
-When the driver calls cx88_risc_buffer() to prepare the buffer, the
-function call may fail, resulting in a empty buffer and null-ptr-deref
-later in buffer_queue().
+An incoming Read request causes multiple Read responses. If a user MR to
+copy data from is unavailable or responder cannot send a reply, then the
+error messages can be printed for each response attempt, resulting in
+message overflow.
 
-The following log can reveal it:
-
-[   41.822762] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN PTI
-[   41.824488] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-[   41.828027] RIP: 0010:buffer_queue+0xc2/0x500
-[   41.836311] Call Trace:
-[   41.836945]  __enqueue_in_driver+0x141/0x360
-[   41.837262]  vb2_start_streaming+0x62/0x4a0
-[   41.838216]  vb2_core_streamon+0x1da/0x2c0
-[   41.838516]  __vb2_init_fileio+0x981/0xbc0
-[   41.839141]  __vb2_perform_fileio+0xbf9/0x1120
-[   41.840072]  vb2_fop_read+0x20e/0x400
-[   41.840346]  v4l2_read+0x215/0x290
-[   41.840603]  vfs_read+0x162/0x4c0
-
-Fix this by checking the return value of cx88_risc_buffer()
-
-[hverkuil: fix coding style issues]
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://lore.kernel.org/r/20220829071218.1639065-1-matsuda-daisuke@fujitsu.com
+Signed-off-by: Daisuke Matsuda <matsuda-daisuke@fujitsu.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx88/cx88-vbi.c   |  9 +++---
- drivers/media/pci/cx88/cx88-video.c | 43 +++++++++++++++--------------
- 2 files changed, 26 insertions(+), 26 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_resp.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/pci/cx88/cx88-vbi.c b/drivers/media/pci/cx88/cx88-vbi.c
-index a075788c64d4..469aeaa725ad 100644
---- a/drivers/media/pci/cx88/cx88-vbi.c
-+++ b/drivers/media/pci/cx88/cx88-vbi.c
-@@ -144,11 +144,10 @@ static int buffer_prepare(struct vb2_buffer *vb)
- 		return -EINVAL;
- 	vb2_set_plane_payload(vb, 0, size);
+diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
+index b36ec5c4d5e0..7c336db5cb54 100644
+--- a/drivers/infiniband/sw/rxe/rxe_resp.c
++++ b/drivers/infiniband/sw/rxe/rxe_resp.c
+@@ -809,10 +809,8 @@ static enum resp_states read_reply(struct rxe_qp *qp,
+ 	if (!skb)
+ 		return RESPST_ERR_RNR;
  
--	cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
--			 0, VBI_LINE_LENGTH * lines,
--			 VBI_LINE_LENGTH, 0,
--			 lines);
--	return 0;
-+	return cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
-+				0, VBI_LINE_LENGTH * lines,
-+				VBI_LINE_LENGTH, 0,
-+				lines);
- }
+-	err = rxe_mr_copy(mr, res->read.va, payload_addr(&ack_pkt),
+-			  payload, RXE_FROM_MR_OBJ);
+-	if (err)
+-		pr_err("Failed copying memory\n");
++	rxe_mr_copy(mr, res->read.va, payload_addr(&ack_pkt),
++		    payload, RXE_FROM_MR_OBJ);
+ 	if (mr)
+ 		rxe_put(mr);
  
- static void buffer_finish(struct vb2_buffer *vb)
-diff --git a/drivers/media/pci/cx88/cx88-video.c b/drivers/media/pci/cx88/cx88-video.c
-index d3729be89252..b509c2a03852 100644
---- a/drivers/media/pci/cx88/cx88-video.c
-+++ b/drivers/media/pci/cx88/cx88-video.c
-@@ -431,6 +431,7 @@ static int queue_setup(struct vb2_queue *q,
- 
- static int buffer_prepare(struct vb2_buffer *vb)
- {
-+	int ret;
- 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
- 	struct cx8800_dev *dev = vb->vb2_queue->drv_priv;
- 	struct cx88_core *core = dev->core;
-@@ -445,35 +446,35 @@ static int buffer_prepare(struct vb2_buffer *vb)
- 
- 	switch (core->field) {
- 	case V4L2_FIELD_TOP:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl, 0, UNSET,
--				 buf->bpl, 0, core->height);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl, 0, UNSET,
-+				       buf->bpl, 0, core->height);
- 		break;
- 	case V4L2_FIELD_BOTTOM:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl, UNSET, 0,
--				 buf->bpl, 0, core->height);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl, UNSET, 0,
-+				       buf->bpl, 0, core->height);
- 		break;
- 	case V4L2_FIELD_SEQ_TB:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl,
--				 0, buf->bpl * (core->height >> 1),
--				 buf->bpl, 0,
--				 core->height >> 1);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl,
-+				       0, buf->bpl * (core->height >> 1),
-+				       buf->bpl, 0,
-+				       core->height >> 1);
- 		break;
- 	case V4L2_FIELD_SEQ_BT:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl,
--				 buf->bpl * (core->height >> 1), 0,
--				 buf->bpl, 0,
--				 core->height >> 1);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl,
-+				       buf->bpl * (core->height >> 1), 0,
-+				       buf->bpl, 0,
-+				       core->height >> 1);
- 		break;
- 	case V4L2_FIELD_INTERLACED:
- 	default:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl, 0, buf->bpl,
--				 buf->bpl, buf->bpl,
--				 core->height >> 1);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl, 0, buf->bpl,
-+				       buf->bpl, buf->bpl,
-+				       core->height >> 1);
- 		break;
+@@ -823,10 +821,8 @@ static enum resp_states read_reply(struct rxe_qp *qp,
  	}
- 	dprintk(2,
-@@ -481,7 +482,7 @@ static int buffer_prepare(struct vb2_buffer *vb)
- 		buf, buf->vb.vb2_buf.index, __func__,
- 		core->width, core->height, dev->fmt->depth, dev->fmt->fourcc,
- 		(unsigned long)buf->risc.dma);
--	return 0;
-+	return ret;
- }
  
- static void buffer_finish(struct vb2_buffer *vb)
+ 	err = rxe_xmit_packet(qp, &ack_pkt, skb);
+-	if (err) {
+-		pr_err("Failed sending RDMA reply.\n");
++	if (err)
+ 		return RESPST_ERR_RNR;
+-	}
+ 
+ 	res->read.va += payload;
+ 	res->read.resid -= payload;
 -- 
 2.35.1
 
