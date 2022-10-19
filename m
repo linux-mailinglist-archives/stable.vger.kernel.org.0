@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB79603D4E
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 325F2603D50
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:00:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232060AbiJSJAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:00:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42198 "EHLO
+        id S232008AbiJSJAW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:00:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232318AbiJSI72 (ORCPT
+        with ESMTP id S232306AbiJSI72 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:59:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 943D01F9CE;
-        Wed, 19 Oct 2022 01:54:44 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFD632316E;
+        Wed, 19 Oct 2022 01:54:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 616F4617E2;
-        Wed, 19 Oct 2022 08:52:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73BA1C433D6;
-        Wed, 19 Oct 2022 08:52:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6840C61840;
+        Wed, 19 Oct 2022 08:52:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79C46C433D6;
+        Wed, 19 Oct 2022 08:52:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169565;
-        bh=5u3kOrzXDHW67/4WydkJbp5+FsobPaSHWftOVuCCVsU=;
+        s=korg; t=1666169568;
+        bh=rMXzGfT+AwXnfRT0f5JD55o8ci30M3mUQCL/5UtoNGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kt3rKgZ6AFc3jlW97jCzZe4DNWRyzQ2Pil3TtOYaN8rDWtzSjN8uV3uuQpJ/0n1RU
-         JuvZ0X9tdEv+MB76wVVDrmZniMwD7hrTgMSA2dxU5iPiXFhS+FZM/fpRTyDEBMPcJl
-         czxjlIH94QlRDFVyK5IJXczamWj202Cmchyzmfw4=
+        b=T1JV272Bjd1wO+SEr9GEbyUjfVqiol4nCf3vZ/hIs3opzAAdCIhxvt+arZpP+/jWk
+         Pd4DzzBZDcZyZsvazB9I2Qo3ueAS26/ghzUMhtBoqQ/d6QMyQ4sav2HfXJMyYTUCgh
+         g0p+QDcg0ficca7rdMtFwuwT/n6kDaBzAk8dyoZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 324/862] spi: s3c64xx: Fix large transfers with DMA
-Date:   Wed, 19 Oct 2022 10:26:51 +0200
-Message-Id: <20221019083304.335658021@linuxfoundation.org>
+Subject: [PATCH 6.0 325/862] Bluetooth: Prevent double register of suspend
+Date:   Wed, 19 Oct 2022 10:26:52 +0200
+Message-Id: <20221019083304.385189903@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,58 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
 
-[ Upstream commit 1224e29572f655facfcd850cf0f0a4784f36a903 ]
+[ Upstream commit 4b8af331bb4d4cc8bb91c284b11b98dd1e265185 ]
 
-The COUNT_VALUE in the PACKET_CNT register is 16-bit so the maximum
-value is 65535.  Asking the driver to transfer a larger size currently
-leads to the DMA transfer timing out.  Implement ->max_transfer_size()
-and have the core split the transfer as needed.
+Suspend notifier should only be registered and unregistered once per
+hdev. Simplify this by only registering during driver registration and
+simply exiting early when HCI_USER_CHANNEL is set.
 
-Fixes: 230d42d422e7 ("spi: Add s3c64xx SPI Controller driver")
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/20220927112117.77599-5-vincent.whitchurch@axis.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: 359ee4f834f5 (Bluetooth: Unregister suspend with userchannel)
+Signed-off-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-s3c64xx.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/bluetooth/hci_core.c | 4 ++++
+ net/bluetooth/hci_sock.c | 3 ---
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-s3c64xx.c b/drivers/spi/spi-s3c64xx.c
-index 651c35dd9124..71d324ec9a70 100644
---- a/drivers/spi/spi-s3c64xx.c
-+++ b/drivers/spi/spi-s3c64xx.c
-@@ -84,6 +84,7 @@
- #define S3C64XX_SPI_ST_TX_FIFORDY		(1<<0)
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index e6be18eb7fe6..6ae5aa5c0927 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -2400,6 +2400,10 @@ static int hci_suspend_notifier(struct notifier_block *nb, unsigned long action,
+ 		container_of(nb, struct hci_dev, suspend_notifier);
+ 	int ret = 0;
  
- #define S3C64XX_SPI_PACKET_CNT_EN		(1<<16)
-+#define S3C64XX_SPI_PACKET_CNT_MASK		GENMASK(15, 0)
- 
- #define S3C64XX_SPI_PND_TX_UNDERRUN_CLR		(1<<4)
- #define S3C64XX_SPI_PND_TX_OVERRUN_CLR		(1<<3)
-@@ -711,6 +712,13 @@ static int s3c64xx_spi_prepare_message(struct spi_master *master,
- 	return 0;
- }
- 
-+static size_t s3c64xx_spi_max_transfer_size(struct spi_device *spi)
-+{
-+	struct spi_controller *ctlr = spi->controller;
++	/* Userspace has full control of this device. Do nothing. */
++	if (hci_dev_test_flag(hdev, HCI_USER_CHANNEL))
++		return NOTIFY_DONE;
 +
-+	return ctlr->can_dma ? S3C64XX_SPI_PACKET_CNT_MASK : SIZE_MAX;
-+}
-+
- static int s3c64xx_spi_transfer_one(struct spi_master *master,
- 				    struct spi_device *spi,
- 				    struct spi_transfer *xfer)
-@@ -1152,6 +1160,7 @@ static int s3c64xx_spi_probe(struct platform_device *pdev)
- 	master->unprepare_transfer_hardware = s3c64xx_spi_unprepare_transfer;
- 	master->prepare_message = s3c64xx_spi_prepare_message;
- 	master->transfer_one = s3c64xx_spi_transfer_one;
-+	master->max_transfer_size = s3c64xx_spi_max_transfer_size;
- 	master->num_chipselect = sci->num_cs;
- 	master->use_gpio_descriptors = true;
- 	master->dma_alignment = 8;
+ 	if (action == PM_SUSPEND_PREPARE)
+ 		ret = hci_suspend_dev(hdev);
+ 	else if (action == PM_POST_SUSPEND)
+diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
+index 0d015d4a8e41..bd8358b44aa4 100644
+--- a/net/bluetooth/hci_sock.c
++++ b/net/bluetooth/hci_sock.c
+@@ -887,7 +887,6 @@ static int hci_sock_release(struct socket *sock)
+ 			 */
+ 			hci_dev_do_close(hdev);
+ 			hci_dev_clear_flag(hdev, HCI_USER_CHANNEL);
+-			hci_register_suspend_notifier(hdev);
+ 			mgmt_index_added(hdev);
+ 		}
+ 
+@@ -1216,7 +1215,6 @@ static int hci_sock_bind(struct socket *sock, struct sockaddr *addr,
+ 		}
+ 
+ 		mgmt_index_removed(hdev);
+-		hci_unregister_suspend_notifier(hdev);
+ 
+ 		err = hci_dev_open(hdev->id);
+ 		if (err) {
+@@ -1231,7 +1229,6 @@ static int hci_sock_bind(struct socket *sock, struct sockaddr *addr,
+ 				err = 0;
+ 			} else {
+ 				hci_dev_clear_flag(hdev, HCI_USER_CHANNEL);
+-				hci_register_suspend_notifier(hdev);
+ 				mgmt_index_added(hdev);
+ 				hci_dev_put(hdev);
+ 				goto done;
 -- 
 2.35.1
 
