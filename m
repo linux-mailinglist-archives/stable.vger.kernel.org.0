@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16853603C4A
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:45:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9209D603C63
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:46:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231414AbiJSIpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:45:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42752 "EHLO
+        id S231500AbiJSIqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:46:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230357AbiJSIo1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:44:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92E780E80;
-        Wed, 19 Oct 2022 01:43:42 -0700 (PDT)
+        with ESMTP id S231357AbiJSIpA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:45:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DE1415828;
+        Wed, 19 Oct 2022 01:43:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54449617D1;
-        Wed, 19 Oct 2022 08:43:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F78BC433D7;
-        Wed, 19 Oct 2022 08:43:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 170826181D;
+        Wed, 19 Oct 2022 08:43:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 274DAC433D6;
+        Wed, 19 Oct 2022 08:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168995;
-        bh=s8nINoBvWRQroC9lS3xWx28VsebvV8KcGjYv6eZNjCw=;
+        s=korg; t=1666168998;
+        bh=ocT89eyYuIuOto2JTfMrtff4SJkzbMfHnpgn7rdRkk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1M9uUKf+lNAZFPizV7YRzibVOybzWrGa/AXGTtGAPCk6FtpPsyPHIdxFaMcuWpnp
-         CGHETbuv5B6+KYYCyrMk6JSh9+9wJn2DTZVQsb3KW8Ip4L7R8LBDa9PWOJPVT27Fdf
-         NkeY1YBndksIZ7cQIQfICdlWQJ6p9QG13g3X6HUs=
+        b=NlBXEw9ZkpGJRg+V8MMDXTqDsyHd77ZyIP+M2TqBw4VvnnpRVf97UAwqDjZGls/m3
+         tlsxFVt4T/FNSmx5fvucHR5SrizAI241lKzg8azayj+FMoOJWhSFtko4X0BenypPCi
+         dzdWNmMW6MuSvhY+WG6JuxBS001tJFKvfyU6OrMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
         Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 6.0 124/862] f2fs: complete checkpoints during remount
-Date:   Wed, 19 Oct 2022 10:23:31 +0200
-Message-Id: <20221019083255.424202400@linuxfoundation.org>
+Subject: [PATCH 6.0 125/862] f2fs: flush pending checkpoints when freezing super
+Date:   Wed, 19 Oct 2022 10:23:32 +0200
+Message-Id: <20221019083255.475244105@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,68 +54,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit 4f99484d27961cb194cebcd917176fa038a5025f upstream.
+commit c7b58576370147833999fd4cc874d0f918bdf9ca upstream.
 
-Otherwise, pending checkpoints can contribute a race condition to give a
-quota warning.
-
-- Thread                      - checkpoint thread
-                              add checkpoints to the list
-do_remount()
- down_write(&sb->s_umount);
- f2fs_remount()
-                              block_operations()
-                               down_read_trylock(&sb->s_umount) = 0
- up_write(&sb->s_umount);
-                               f2fs_quota_sync()
-                                dquot_writeback_dquots()
-                                 WARN_ON_ONCE(!rwsem_is_locked(&sb->s_umount));
-
-Or,
-
-do_remount()
- down_write(&sb->s_umount);
- f2fs_remount()
-                              create a ckpt thread
-                              f2fs_enable_checkpoint() adds checkpoints
-			      wait for f2fs_sync_fs()
-                              trigger another pending checkpoint
-                               block_operations()
-                                down_read_trylock(&sb->s_umount) = 0
- up_write(&sb->s_umount);
-                                f2fs_quota_sync()
-                                 dquot_writeback_dquots()
-                                  WARN_ON_ONCE(!rwsem_is_locked(&sb->s_umount));
+This avoids -EINVAL when trying to freeze f2fs.
 
 Cc: stable@vger.kernel.org
 Reviewed-by: Chao Yu <chao@kernel.org>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/super.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/f2fs/checkpoint.c |   24 ++++++++++++++++++------
+ fs/f2fs/f2fs.h       |    1 +
+ fs/f2fs/super.c      |    5 ++---
+ 3 files changed, 21 insertions(+), 9 deletions(-)
 
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -2181,6 +2181,9 @@ static void f2fs_enable_checkpoint(struc
- 	f2fs_up_write(&sbi->gc_lock);
+--- a/fs/f2fs/checkpoint.c
++++ b/fs/f2fs/checkpoint.c
+@@ -1892,15 +1892,27 @@ int f2fs_start_ckpt_thread(struct f2fs_s
+ void f2fs_stop_ckpt_thread(struct f2fs_sb_info *sbi)
+ {
+ 	struct ckpt_req_control *cprc = &sbi->cprc_info;
++	struct task_struct *ckpt_task;
  
- 	f2fs_sync_fs(sbi->sb, 1);
-+
-+	/* Let's ensure there's no pending checkpoint anymore */
+-	if (cprc->f2fs_issue_ckpt) {
+-		struct task_struct *ckpt_task = cprc->f2fs_issue_ckpt;
++	if (!cprc->f2fs_issue_ckpt)
++		return;
+ 
+-		cprc->f2fs_issue_ckpt = NULL;
+-		kthread_stop(ckpt_task);
++	ckpt_task = cprc->f2fs_issue_ckpt;
++	cprc->f2fs_issue_ckpt = NULL;
++	kthread_stop(ckpt_task);
+ 
+-		flush_remained_ckpt_reqs(sbi, NULL);
+-	}
 +	f2fs_flush_ckpt_thread(sbi);
++}
++
++void f2fs_flush_ckpt_thread(struct f2fs_sb_info *sbi)
++{
++	struct ckpt_req_control *cprc = &sbi->cprc_info;
++
++	flush_remained_ckpt_reqs(sbi, NULL);
++
++	/* Let's wait for the previous dispatched checkpoint. */
++	while (atomic_read(&cprc->queued_ckpt))
++		io_schedule_timeout(DEFAULT_IO_TIMEOUT);
  }
  
- static int f2fs_remount(struct super_block *sb, int *flags, char *data)
-@@ -2346,6 +2349,9 @@ static int f2fs_remount(struct super_blo
- 		f2fs_stop_ckpt_thread(sbi);
- 		need_restart_ckpt = true;
- 	} else {
-+		/* Flush if the prevous checkpoint, if exists. */
-+		f2fs_flush_ckpt_thread(sbi);
-+
- 		err = f2fs_start_ckpt_thread(sbi);
- 		if (err) {
- 			f2fs_err(sbi,
+ void f2fs_init_ckpt_req_control(struct f2fs_sb_info *sbi)
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3707,6 +3707,7 @@ static inline bool f2fs_need_rand_seg(st
+  * checkpoint.c
+  */
+ void f2fs_stop_checkpoint(struct f2fs_sb_info *sbi, bool end_io);
++void f2fs_flush_ckpt_thread(struct f2fs_sb_info *sbi);
+ struct page *f2fs_grab_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
+ struct page *f2fs_get_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
+ struct page *f2fs_get_meta_page_retry(struct f2fs_sb_info *sbi, pgoff_t index);
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1666,9 +1666,8 @@ static int f2fs_freeze(struct super_bloc
+ 	if (is_sbi_flag_set(F2FS_SB(sb), SBI_IS_DIRTY))
+ 		return -EINVAL;
+ 
+-	/* ensure no checkpoint required */
+-	if (!llist_empty(&F2FS_SB(sb)->cprc_info.issue_list))
+-		return -EINVAL;
++	/* Let's flush checkpoints and stop the thread. */
++	f2fs_flush_ckpt_thread(F2FS_SB(sb));
+ 
+ 	/* to avoid deadlock on f2fs_evict_inode->SB_FREEZE_FS */
+ 	set_sbi_flag(F2FS_SB(sb), SBI_IS_FREEZING);
 
 
