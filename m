@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BD38603F66
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 169FF603F68
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231599AbiJSJbg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:31:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45336 "EHLO
+        id S233716AbiJSJbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:31:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233774AbiJSJ3Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:24 -0400
+        with ESMTP id S233786AbiJSJ30 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0299C3564;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0129DEB753;
         Wed, 19 Oct 2022 02:13:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 537A3617EC;
-        Wed, 19 Oct 2022 09:05:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67734C433D6;
-        Wed, 19 Oct 2022 09:05:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50E1061865;
+        Wed, 19 Oct 2022 09:05:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62A90C433C1;
+        Wed, 19 Oct 2022 09:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170332;
-        bh=P6mrvCB9xhdjNaQd5esO9PzJUs/Txx/H4cT1nbvnes4=;
+        s=korg; t=1666170348;
+        bh=l0qQ2lCaxTmpz63zjBz0GZTyNJRYUHWb1NPdjSlk1wE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wMrd4LaIv0Xy4LTwPLTDFIXoxWa01ARrGNMUxvk5z26RUSHiuewy4rtkAxI5eTO5G
-         oTqvjCOCORaYqrZ9GpZSqzf1hSmnRamoTjvaHOa4SsgtwjhIF5EdZdtzZySYAoZa3+
-         EOcn2JEf+0KD6/wFxPp5KVLuS5HJ2doJ3PIMfrY4=
+        b=CAmgL6L4J2CYuZnNKWIUbYBlA/ZNKvYeaFJtiMuomGTf7NHIUru8Jih0jebw+ynSE
+         mTu7RnDjlRLslZV8T4io/k/uk5auCF8WItt9TFDjfSgg2dZMkk4+Z8I1qf/fKmgQ9t
+         Nl5w/vqY+2eGiE7ogj4Jmtta92s5YvOMAH0490Ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 616/862] x86/hyperv: Fix struct hv_enlightened_vmcs definition
-Date:   Wed, 19 Oct 2022 10:31:43 +0200
-Message-Id: <20221019083317.154179867@linuxfoundation.org>
+Subject: [PATCH 6.0 621/862] powerpc: Fix SPE Power ISA properties for e500v1 platforms
+Date:   Wed, 19 Oct 2022 10:31:48 +0200
+Message-Id: <20221019083317.381331836@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,66 +54,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit ea9da788a61e47e7ab9cbad397453e51cd82ac0d ]
+[ Upstream commit 37b9345ce7f4ab17538ea62def6f6d430f091355 ]
 
-Section 1.9 of TLFS v6.0b says:
+Commit 2eb28006431c ("powerpc/e500v2: Add Power ISA properties to comply
+with ePAPR 1.1") introduced new include file e500v2_power_isa.dtsi and
+should have used it for all e500v2 platforms. But apparently it was used
+also for e500v1 platforms mpc8540, mpc8541, mpc8555 and mpc8560.
 
-"All structures are padded in such a way that fields are aligned
-naturally (that is, an 8-byte field is aligned to an offset of 8 bytes
-and so on)".
+e500v1 cores compared to e500v2 do not support double precision floating
+point SPE instructions. Hence power-isa-sp.fd should not be set on e500v1
+platforms, which is in e500v2_power_isa.dtsi include file.
 
-'struct enlightened_vmcs' has a glitch:
+Fix this issue by introducing a new e500v1_power_isa.dtsi include file and
+use it in all e500v1 device tree files.
 
-...
-        struct {
-                u32                nested_flush_hypercall:1; /*   836: 0  4 */
-                u32                msr_bitmap:1;         /*   836: 1  4 */
-                u32                reserved:30;          /*   836: 2  4 */
-        } hv_enlightenments_control;                     /*   836     4 */
-        u32                        hv_vp_id;             /*   840     4 */
-        u64                        hv_vm_id;             /*   844     8 */
-        u64                        partition_assist_page; /*   852     8 */
-...
-
-And the observed values in 'partition_assist_page' make no sense at
-all. Fix the layout by padding the structure properly.
-
-Fixes: 68d1eb72ee99 ("x86/hyper-v: define struct hv_enlightened_vmcs and clean field bits")
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Link: https://lore.kernel.org/r/20220830133737.1539624-2-vkuznets@redhat.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 2eb28006431c ("powerpc/e500v2: Add Power ISA properties to comply with ePAPR 1.1")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220902212103.22534-1-pali@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/hyperv-tlfs.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../boot/dts/fsl/e500v1_power_isa.dtsi        | 51 +++++++++++++++++++
+ arch/powerpc/boot/dts/fsl/mpc8540ads.dts      |  2 +-
+ arch/powerpc/boot/dts/fsl/mpc8541cds.dts      |  2 +-
+ arch/powerpc/boot/dts/fsl/mpc8555cds.dts      |  2 +-
+ arch/powerpc/boot/dts/fsl/mpc8560ads.dts      |  2 +-
+ 5 files changed, 55 insertions(+), 4 deletions(-)
+ create mode 100644 arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi
 
-diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
-index 0a9407dc0859..6f0acc45e67a 100644
---- a/arch/x86/include/asm/hyperv-tlfs.h
-+++ b/arch/x86/include/asm/hyperv-tlfs.h
-@@ -546,7 +546,7 @@ struct hv_enlightened_vmcs {
- 	u64 guest_rip;
+diff --git a/arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi b/arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi
+new file mode 100644
+index 000000000000..7e2a90cde72e
+--- /dev/null
++++ b/arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi
+@@ -0,0 +1,51 @@
++/*
++ * e500v1 Power ISA Device Tree Source (include)
++ *
++ * Copyright 2012 Freescale Semiconductor Inc.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of Freescale Semiconductor nor the
++ *       names of its contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ *
++ * ALTERNATIVELY, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") as published by the Free Software
++ * Foundation, either version 2 of that License or (at your option) any
++ * later version.
++ *
++ * THIS SOFTWARE IS PROVIDED BY Freescale Semiconductor "AS IS" AND ANY
++ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
++ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED. IN NO EVENT SHALL Freescale Semiconductor BE LIABLE FOR ANY
++ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
++ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
++ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
++ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ */
++
++/ {
++	cpus {
++		power-isa-version = "2.03";
++		power-isa-b;		// Base
++		power-isa-e;		// Embedded
++		power-isa-atb;		// Alternate Time Base
++		power-isa-cs;		// Cache Specification
++		power-isa-e.le;		// Embedded.Little-Endian
++		power-isa-e.pm;		// Embedded.Performance Monitor
++		power-isa-ecl;		// Embedded Cache Locking
++		power-isa-mmc;		// Memory Coherence
++		power-isa-sp;		// Signal Processing Engine
++		power-isa-sp.fs;	// SPE.Embedded Float Scalar Single
++		power-isa-sp.fv;	// SPE.Embedded Float Vector
++		mmu-type = "power-embedded";
++	};
++};
+diff --git a/arch/powerpc/boot/dts/fsl/mpc8540ads.dts b/arch/powerpc/boot/dts/fsl/mpc8540ads.dts
+index 18a885130538..e03ae130162b 100644
+--- a/arch/powerpc/boot/dts/fsl/mpc8540ads.dts
++++ b/arch/powerpc/boot/dts/fsl/mpc8540ads.dts
+@@ -7,7 +7,7 @@
  
- 	u32 hv_clean_fields;
--	u32 hv_padding_32;
-+	u32 padding32_1;
- 	u32 hv_synthetic_controls;
- 	struct {
- 		u32 nested_flush_hypercall:1;
-@@ -554,7 +554,7 @@ struct hv_enlightened_vmcs {
- 		u32 reserved:30;
- 	}  __packed hv_enlightenments_control;
- 	u32 hv_vp_id;
--
-+	u32 padding32_2;
- 	u64 hv_vm_id;
- 	u64 partition_assist_page;
- 	u64 padding64_4[4];
+ /dts-v1/;
+ 
+-/include/ "e500v2_power_isa.dtsi"
++/include/ "e500v1_power_isa.dtsi"
+ 
+ / {
+ 	model = "MPC8540ADS";
+diff --git a/arch/powerpc/boot/dts/fsl/mpc8541cds.dts b/arch/powerpc/boot/dts/fsl/mpc8541cds.dts
+index ac381e7b1c60..a2a6c5cf852e 100644
+--- a/arch/powerpc/boot/dts/fsl/mpc8541cds.dts
++++ b/arch/powerpc/boot/dts/fsl/mpc8541cds.dts
+@@ -7,7 +7,7 @@
+ 
+ /dts-v1/;
+ 
+-/include/ "e500v2_power_isa.dtsi"
++/include/ "e500v1_power_isa.dtsi"
+ 
+ / {
+ 	model = "MPC8541CDS";
+diff --git a/arch/powerpc/boot/dts/fsl/mpc8555cds.dts b/arch/powerpc/boot/dts/fsl/mpc8555cds.dts
+index 9f58db2a7e66..901b6ff06dfb 100644
+--- a/arch/powerpc/boot/dts/fsl/mpc8555cds.dts
++++ b/arch/powerpc/boot/dts/fsl/mpc8555cds.dts
+@@ -7,7 +7,7 @@
+ 
+ /dts-v1/;
+ 
+-/include/ "e500v2_power_isa.dtsi"
++/include/ "e500v1_power_isa.dtsi"
+ 
+ / {
+ 	model = "MPC8555CDS";
+diff --git a/arch/powerpc/boot/dts/fsl/mpc8560ads.dts b/arch/powerpc/boot/dts/fsl/mpc8560ads.dts
+index a24722ccaebf..c2f9aea78b29 100644
+--- a/arch/powerpc/boot/dts/fsl/mpc8560ads.dts
++++ b/arch/powerpc/boot/dts/fsl/mpc8560ads.dts
+@@ -7,7 +7,7 @@
+ 
+ /dts-v1/;
+ 
+-/include/ "e500v2_power_isa.dtsi"
++/include/ "e500v1_power_isa.dtsi"
+ 
+ / {
+ 	model = "MPC8560ADS";
 -- 
 2.35.1
 
