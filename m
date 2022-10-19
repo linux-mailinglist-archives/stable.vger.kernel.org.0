@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E9A6049B4
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 16:50:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA43A6048B2
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 16:06:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229602AbiJSOuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 10:50:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50010 "EHLO
+        id S231920AbiJSOGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 10:06:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231357AbiJSOtm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 10:49:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25E57AE6B;
-        Wed, 19 Oct 2022 07:37:36 -0700 (PDT)
+        with ESMTP id S231197AbiJSOFy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 10:05:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ED7E18F0EA;
+        Wed, 19 Oct 2022 06:47:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1352617FF;
-        Wed, 19 Oct 2022 08:45:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E511DC433D7;
-        Wed, 19 Oct 2022 08:45:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53D05B823A6;
+        Wed, 19 Oct 2022 08:53:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACDF9C433C1;
+        Wed, 19 Oct 2022 08:53:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169151;
-        bh=QDgl6VLYGMI6vRVHpkwYOT7zODods6LRMMu+wpec8zM=;
+        s=korg; t=1666169585;
+        bh=jOc7LW7IWzijjP0DhfLG0KzytqA6AuX/PkOEIoEOpsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tu1v46gINz1hQcV3xbqG2V+JDI8iYOfO4AGNfyeA+NCPZIAlKJgDE4CpjjHiTAL/C
-         JR+/elk8b5sqTZtIk5dBv+9iiqWfAWvv26tRjYulOXPehFuLJphxVGmZmkMfZMWzck
-         9UEdolfRoLMnyhLL+ZzIm+Hg+N1G51eVZYloaN5s=
+        b=o3YpWtusGJWny0DDTbl5HgnPAAHms+odBVXZnIn01lPv15rB+fSvr8om7gqMMvI87
+         unj1Haqk01aKYjtCKAi/jh3Kj54Zh8tU3ObitecEjcLOyyAVl2NQOa7bg/psBCQFuD
+         /XHsKuk4s38qWmoey+6bvbnUmYCGN1vgMD8UL6Uw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.0 175/862] KVM: nVMX: Unconditionally purge queued/injected events on nested "exit"
-Date:   Wed, 19 Oct 2022 10:24:22 +0200
-Message-Id: <20221019083257.683809042@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 331/862] sctp: handle the error returned from sctp_auth_asoc_init_active_key
+Date:   Wed, 19 Oct 2022 10:26:58 +0200
+Message-Id: <20221019083304.672045967@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,72 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit d953540430c5af57f5de97ea9e36253908204027 upstream.
+[ Upstream commit 022152aaebe116a25c39818a07e175a8cd3c1e11 ]
 
-Drop pending exceptions and events queued for re-injection when leaving
-nested guest mode, even if the "exit" is due to VM-Fail, SMI, or forced
-by host userspace.  Failure to purge events could result in an event
-belonging to L2 being injected into L1.
+When it returns an error from sctp_auth_asoc_init_active_key(), the
+active_key is actually not updated. The old sh_key will be freeed
+while it's still used as active key in asoc. Then an use-after-free
+will be triggered when sending patckets, as found by syzbot:
 
-This _should_ never happen for VM-Fail as all events should be blocked by
-nested_run_pending, but it's possible if KVM, not the L1 hypervisor, is
-the source of VM-Fail when running vmcs02.
+  sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
+  sctp_set_owner_w net/sctp/socket.c:132 [inline]
+  sctp_sendmsg_to_asoc+0xbd5/0x1a20 net/sctp/socket.c:1863
+  sctp_sendmsg+0x1053/0x1d50 net/sctp/socket.c:2025
+  inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:819
+  sock_sendmsg_nosec net/socket.c:714 [inline]
+  sock_sendmsg+0xcf/0x120 net/socket.c:734
 
-SMI is a nop (barring unknown bugs) as recognition of SMI and thus entry
-to SMM is blocked by pending exceptions and re-injected events.
+This patch is to fix it by not replacing the sh_key when it returns
+errors from sctp_auth_asoc_init_active_key() in sctp_auth_set_key().
+For sctp_auth_set_active_key(), old active_key_id will be set back
+to asoc->active_key_id when the same thing happens.
 
-Forced exit is definitely buggy, but has likely gone unnoticed because
-userspace probably follows the forced exit with KVM_SET_VCPU_EVENTS (or
-some other ioctl() that purges the queue).
-
-Fixes: 4f350c6dbcb9 ("kvm: nVMX: Handle deferred early VMLAUNCH/VMRESUME failure properly")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220830231614.3580124-2-seanjc@google.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 58acd1009226 ("sctp: update active_key for asoc when old key is being replaced")
+Reported-by: syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c |   19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ net/sctp/auth.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4255,14 +4255,6 @@ static void prepare_vmcs12(struct kvm_vc
- 			nested_vmx_abort(vcpu,
- 					 VMX_ABORT_SAVE_GUEST_MSR_FAIL);
+diff --git a/net/sctp/auth.c b/net/sctp/auth.c
+index db6b7373d16c..34964145514e 100644
+--- a/net/sctp/auth.c
++++ b/net/sctp/auth.c
+@@ -863,12 +863,17 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
  	}
--
--	/*
--	 * Drop what we picked up for L2 via vmx_complete_interrupts. It is
--	 * preserved above and would only end up incorrectly in L1.
--	 */
--	vcpu->arch.nmi_injected = false;
--	kvm_clear_exception_queue(vcpu);
--	kvm_clear_interrupt_queue(vcpu);
+ 
+ 	list_del_init(&shkey->key_list);
+-	sctp_auth_shkey_release(shkey);
+ 	list_add(&cur_key->key_list, sh_keys);
+ 
+-	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
+-		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
++	if (asoc && asoc->active_key_id == auth_key->sca_keynumber &&
++	    sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
++		list_del_init(&cur_key->key_list);
++		sctp_auth_shkey_release(cur_key);
++		list_add(&shkey->key_list, sh_keys);
++		return -ENOMEM;
++	}
+ 
++	sctp_auth_shkey_release(shkey);
+ 	return 0;
  }
  
- /*
-@@ -4602,6 +4594,17 @@ void nested_vmx_vmexit(struct kvm_vcpu *
- 		WARN_ON_ONCE(nested_early_check);
- 	}
+@@ -902,8 +907,13 @@ int sctp_auth_set_active_key(struct sctp_endpoint *ep,
+ 		return -EINVAL;
  
-+	/*
-+	 * Drop events/exceptions that were queued for re-injection to L2
-+	 * (picked up via vmx_complete_interrupts()), as well as exceptions
-+	 * that were pending for L2.  Note, this must NOT be hoisted above
-+	 * prepare_vmcs12(), events/exceptions queued for re-injection need to
-+	 * be captured in vmcs12 (see vmcs12_save_pending_event()).
-+	 */
-+	vcpu->arch.nmi_injected = false;
-+	kvm_clear_exception_queue(vcpu);
-+	kvm_clear_interrupt_queue(vcpu);
+ 	if (asoc) {
++		__u16  active_key_id = asoc->active_key_id;
 +
- 	vmx_switch_vmcs(vcpu, &vmx->vmcs01);
+ 		asoc->active_key_id = key_id;
+-		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
++		if (sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
++			asoc->active_key_id = active_key_id;
++			return -ENOMEM;
++		}
+ 	} else
+ 		ep->active_key_id = key_id;
  
- 	/* Update any VMCS fields that might have changed while L2 ran */
+-- 
+2.35.1
+
 
 
