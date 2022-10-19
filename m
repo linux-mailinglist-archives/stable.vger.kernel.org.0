@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B125C603D9C
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CF53603D9E
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232244AbiJSJFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232255AbiJSJFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 19 Oct 2022 05:05:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34954 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232499AbiJSJEY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:24 -0400
+        with ESMTP id S232504AbiJSJE0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65AB49D528;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6251AC3B0;
         Wed, 19 Oct 2022 01:57:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB47261867;
-        Wed, 19 Oct 2022 08:56:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEEE5C433C1;
-        Wed, 19 Oct 2022 08:56:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 43AE5617D1;
+        Wed, 19 Oct 2022 08:56:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F65CC433D6;
+        Wed, 19 Oct 2022 08:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169769;
-        bh=/KXZ6TtpDb4MRpdGoI3eHmCgdlt22zSQ2OvKcABdU/c=;
+        s=korg; t=1666169771;
+        bh=4VSYuPSAObcReK/9L0QMwHxCF101x1ZYOeGQCscVZRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfD59p59AfhoJSwUW4XT3tCcA4y6K3wb9k8KnRQGGjwLHblvDPaRGdCPIp/7Otanz
-         yyNvXfgZ0yapSVqsMpPC9S+Bpn0InhccIBTHvSR069E67CPNXJmZWWnGeaDOdikeNG
-         ZEFhFqWRJGk7bIOFjYxqMVkJ4hK6URMoHd0Z2ghc=
+        b=xA2M8yJfsxEoruSqLaTlbOoIKhz62Lqk3e6YAvnghseeGA4a/W93OBLJL3KwgIAjd
+         6/aUUuIU5KiO7jEp3WaF28Hf9ryNl9nzEMaB+4nWABl6ePGBqOv1hI9wHubKcIEODW
+         TGyqmv1YPrAGS1GFBe7c2qfy9FbHv010bJkMPdlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 401/862] ASoC: codecs: tx-macro: fix kcontrol put
-Date:   Wed, 19 Oct 2022 10:28:08 +0200
-Message-Id: <20221019083307.651568697@linuxfoundation.org>
+Subject: [PATCH 6.0 402/862] ASoC: da7219: Fix an error handling path in da7219_register_dai_clks()
+Date:   Wed, 19 Oct 2022 10:28:09 +0200
+Message-Id: <20221019083307.703059785@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,66 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit c1057a08af438e0cf5450c1d977a3011198ed2f8 ]
+[ Upstream commit abb4e4349afe7eecdb0499582f1c777031e3a7c8 ]
 
-tx_macro_tx_mixer_put() and tx_macro_dec_mode_put() currently returns zero
-eventhough it changes the value.
-Fix this, so that change notifications are sent correctly.
+If clk_hw_register() fails, the corresponding clk should not be
+unregistered.
 
-Fixes: d207bdea0ca9 ("ASoC: codecs: lpass-tx-macro: add dapm widgets and route")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220906170112.1984-6-srinivas.kandagatla@linaro.org
+To handle errors from loops, clean up partial iterations before doing the
+goto.  So add a clk_hw_unregister().
+Then use a while (--i >= 0) loop in the unwind section.
+
+Fixes: 78013a1cf297 ("ASoC: da7219: Fix clock handling around codec level probe")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/e4acceab57a0d9e477a8d5890a45c5309e553e7c.1663875789.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/lpass-tx-macro.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ sound/soc/codecs/da7219.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
-index 55503ba480bb..e162a08d9945 100644
---- a/sound/soc/codecs/lpass-tx-macro.c
-+++ b/sound/soc/codecs/lpass-tx-macro.c
-@@ -823,17 +823,23 @@ static int tx_macro_tx_mixer_put(struct snd_kcontrol *kcontrol,
- 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
+diff --git a/sound/soc/codecs/da7219.c b/sound/soc/codecs/da7219.c
+index 50ecf30e6136..4746c8700451 100644
+--- a/sound/soc/codecs/da7219.c
++++ b/sound/soc/codecs/da7219.c
+@@ -2196,6 +2196,7 @@ static int da7219_register_dai_clks(struct snd_soc_component *component)
+ 			dai_clk_lookup = clkdev_hw_create(dai_clk_hw, init.name,
+ 							  "%s", dev_name(dev));
+ 			if (!dai_clk_lookup) {
++				clk_hw_unregister(dai_clk_hw);
+ 				ret = -ENOMEM;
+ 				goto err;
+ 			} else {
+@@ -2217,12 +2218,12 @@ static int da7219_register_dai_clks(struct snd_soc_component *component)
+ 	return 0;
  
- 	if (enable) {
-+		if (tx->active_decimator[dai_id] == dec_id)
-+			return 0;
-+
- 		set_bit(dec_id, &tx->active_ch_mask[dai_id]);
- 		tx->active_ch_cnt[dai_id]++;
- 		tx->active_decimator[dai_id] = dec_id;
- 	} else {
-+		if (tx->active_decimator[dai_id] == -1)
-+			return 0;
-+
- 		tx->active_ch_cnt[dai_id]--;
- 		clear_bit(dec_id, &tx->active_ch_mask[dai_id]);
- 		tx->active_decimator[dai_id] = -1;
- 	}
- 	snd_soc_dapm_mixer_update_power(widget->dapm, kcontrol, enable, update);
+ err:
+-	do {
++	while (--i >= 0) {
+ 		if (da7219->dai_clks_lookup[i])
+ 			clkdev_drop(da7219->dai_clks_lookup[i]);
  
--	return 0;
-+	return 1;
- }
+ 		clk_hw_unregister(&da7219->dai_clks_hw[i]);
+-	} while (i-- > 0);
++	}
  
- static int tx_macro_enable_dec(struct snd_soc_dapm_widget *w,
-@@ -1019,9 +1025,12 @@ static int tx_macro_dec_mode_put(struct snd_kcontrol *kcontrol,
- 	int path = e->shift_l;
- 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
- 
-+	if (tx->dec_mode[path] == value)
-+		return 0;
-+
- 	tx->dec_mode[path] = value;
- 
--	return 0;
-+	return 1;
- }
- 
- static int tx_macro_get_bcs(struct snd_kcontrol *kcontrol,
+ 	if (np)
+ 		kfree(da7219->clk_hw_data);
 -- 
 2.35.1
 
