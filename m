@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79CE4603D6A
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:02:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 772F4603D76
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:02:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231860AbiJSJB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:01:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59400 "EHLO
+        id S229983AbiJSJCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:02:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231896AbiJSJAG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:00:06 -0400
+        with ESMTP id S232155AbiJSJAh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:00:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA1ED6B67F;
-        Wed, 19 Oct 2022 01:55:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 919296C106;
+        Wed, 19 Oct 2022 01:55:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1218A617EC;
-        Wed, 19 Oct 2022 08:54:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 211B3C433D6;
-        Wed, 19 Oct 2022 08:53:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D94226174B;
+        Wed, 19 Oct 2022 08:54:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC7FAC433D6;
+        Wed, 19 Oct 2022 08:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169640;
-        bh=EEbUB2+t3mQjhUpvR8BIh6PyoINtwoaI6t93TceIrNU=;
+        s=korg; t=1666169648;
+        bh=KtKdx8ciCkHxA71SnFUdpSaQth5te/5OBQ4Stjo6Rlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L2xY8hWvskFnNNIu6U8YF7NJtHb9Zt89RJ95eWHoTLLxGdQbuNnExZ4ejLSt/93rh
-         b8e1KENBRlKin1pxP7r7UXJMLsDKCN8yqhTzMEAmzk83Rt9N4UAInMX7jv0WPraH1W
-         C2gUE5tNW3PvrOqvoD7dKY+Oq88NRNBuld3d4D1E=
+        b=itO6kHUSCXqiLVNs1oYyC8hSdys/dRNxTtXJzdTSrTO1ml82YPYoS0L4HymJ2GT/o
+         vdk/fRZb6GkT2jH3wM0VXKymlLPZNUuaBAaXB6+XuxSQ2esh8MJC9h2oP1OS/d6Q8g
+         oNNlY7PhA8ol1rUkeMZRfB60RIfweIVs3llAaRyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Emil Velikov <emil.l.velikov@gmail.com>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 353/862] drm/virtio: Correct drm_gem_shmem_get_sg_table() error handling
-Date:   Wed, 19 Oct 2022 10:27:20 +0200
-Message-Id: <20221019083305.639563564@linuxfoundation.org>
+Subject: [PATCH 6.0 356/862] drm/bridge: parade-ps8640: Fix regulator supply order
+Date:   Wed, 19 Oct 2022 10:27:23 +0200
+Message-Id: <20221019083305.759061047@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,37 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 64b88afbd92fbf434759d1896a7cf705e1c00e79 ]
+[ Upstream commit fc94224c2e0ae8d83ac511a3ef4962178505469d ]
 
-Previous commit fixed checking of the ERR_PTR value returned by
-drm_gem_shmem_get_sg_table(), but it missed to zero out the shmem->pages,
-which will crash virtio_gpu_cleanup_object(). Add the missing zeroing of
-the shmem->pages.
+The datasheet says that VDD12 must be enabled and at full voltage before
+VDD33 is enabled.
 
-Fixes: c24968734abf ("drm/virtio: Fix NULL vs IS_ERR checking in virtio_gpu_object_shmem_init")
-Reviewed-by: Emil Velikov <emil.l.velikov@gmail.com>
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220630200726.1884320-2-dmitry.osipenko@collabora.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reorder the bulk regulator supply names so that VDD12 is enabled before
+VDD33. Any enable ramp delays should be handled by setting proper
+constraints on the regulators.
+
+Fixes: bc1aee7fc8f0 ("drm/bridge: Add I2C based driver for ps8640 bridge")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220721092258.3397461-1-wenst@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_object.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/bridge/parade-ps8640.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index b38c338211aa..75a159df0af6 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -170,6 +170,7 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
- 	shmem->pages = drm_gem_shmem_get_sg_table(&bo->base);
- 	if (IS_ERR(shmem->pages)) {
- 		drm_gem_shmem_unpin(&bo->base);
-+		shmem->pages = NULL;
- 		return PTR_ERR(shmem->pages);
- 	}
+diff --git a/drivers/gpu/drm/bridge/parade-ps8640.c b/drivers/gpu/drm/bridge/parade-ps8640.c
+index 31e88cb39f8a..49107a6cdac1 100644
+--- a/drivers/gpu/drm/bridge/parade-ps8640.c
++++ b/drivers/gpu/drm/bridge/parade-ps8640.c
+@@ -631,8 +631,8 @@ static int ps8640_probe(struct i2c_client *client)
+ 	if (!ps_bridge)
+ 		return -ENOMEM;
  
+-	ps_bridge->supplies[0].supply = "vdd33";
+-	ps_bridge->supplies[1].supply = "vdd12";
++	ps_bridge->supplies[0].supply = "vdd12";
++	ps_bridge->supplies[1].supply = "vdd33";
+ 	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(ps_bridge->supplies),
+ 				      ps_bridge->supplies);
+ 	if (ret)
 -- 
 2.35.1
 
