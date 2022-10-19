@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B21EB603EC0
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:20:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 589D6603EF7
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:25:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233210AbiJSJUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:20:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40164 "EHLO
+        id S233185AbiJSJZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:25:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233465AbiJSJTT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:19:19 -0400
+        with ESMTP id S233675AbiJSJYZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:24:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED807DCE8D;
-        Wed, 19 Oct 2022 02:08:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDFE2C4D9A;
+        Wed, 19 Oct 2022 02:11:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 720F161825;
-        Wed, 19 Oct 2022 09:07:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A413C433D7;
-        Wed, 19 Oct 2022 09:07:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C597B61750;
+        Wed, 19 Oct 2022 09:07:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD321C433D7;
+        Wed, 19 Oct 2022 09:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170443;
-        bh=BdUT6MVBWP9eWHoam61ekkpWBMFDaB0rW36JYnis4qU=;
+        s=korg; t=1666170449;
+        bh=CDFKxDXed4seug1ukSk9Zm+SmC8qh5flXF0DuqIbwBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kvZXu4Pimo1U3TIJO77OdgYVS9AFruhx/3Yr1lxxGyKwZCUg5Jforx2XqdU0IwlMo
-         fQBIh8uiFEPXvcs8wZ4SEQtj/nxDXutR8/1ZTXGJNk9YZlQerVAArgx2GKnHe+vze3
-         PFIbN6IA+Q3H/xbcKYqx7vs0NOYsInobvtvyGETQ=
+        b=FeNp7U5kpEwGIQSux/oUB7J9rZ1sgOgQJ+3A/cQqS7aS4e13GoNXxTYzfK3Qmz5uT
+         c7G2ThgjRlE1UoZxg3o570gtgCgtXdAW4TsMx6lDTTf31b+K+5hRUp1ezG3uNs+21v
+         6T73J3U44xhRWO4EX8OHrC/fTOHLsdWGKuDGf8tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
-        Wang Wendy <wendy.wang@intel.com>,
-        Len Brown <len.brown@intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 657/862] tools/power turbostat: Use standard Energy Unit for SPR Dram RAPL domain
-Date:   Wed, 19 Oct 2022 10:32:24 +0200
-Message-Id: <20221019083318.988379410@linuxfoundation.org>
+Subject: =?UTF-8?q?=5BPATCH=206=2E0=20659/862=5D=20=3D=3FUTF-8=3Fq=3FARM/dma-mapp=3DD1=3D96ng=3A=3D20dont=3D20override=3D20-=3Edma=3D5Fcohe=3F=3D=20=3D=3FUTF-8=3Fq=3Frent=3D20when=3D20set=3D20from=3D20a=3D20bus=3D20notifier=3F=3D?=
+Date:   Wed, 19 Oct 2022 10:32:26 +0200
+Message-Id: <20221019083319.087440003@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,37 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Rui <rui.zhang@intel.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit b2d433ae637626d44c9d4a75dd3330cf68fed9de ]
+[ Upstream commit 49bc8bebae79c8516cb12f91818f3a7907e3ebce ]
 
-Intel Xeon servers used to use a fixed energy resolution (15.3uj) for
-Dram RAPL domain. But on SPR, Dram RAPL domain follows the standard
-energy resolution as described in MSR_RAPL_POWER_UNIT.
+Commit ae626eb97376 ("ARM/dma-mapping: use dma-direct unconditionally")
+caused a regression on the mvebu platform, wherein devices that are
+dma-coherent are marked as dma-noncoherent, because although
+mvebu_hwcc_notifier() after that commit still marks then as coherent,
+the arm_coherent_dma_ops() function, which is called later, overwrites
+this setting, since it is being called from drivers/of/device.c with
+coherency parameter determined by of_dma_is_coherent(), and the
+device-trees do not declare the 'dma-coherent' property.
 
-Remove the SPR rapl_dram_energy_units quirk.
+Fix this by defaulting never clearing the dma_coherent flag in
+arm_coherent_dma_ops().
 
-Fixes: e7af1ed3fa47 ("tools/power turbostat: Support additional CPU model numbers")
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Tested-by: Wang Wendy <wendy.wang@intel.com>
-Signed-off-by: Len Brown <len.brown@intel.com>
+Fixes: ae626eb97376 ("ARM/dma-mapping: use dma-direct unconditionally")
+Reported-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Tested-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/turbostat/turbostat.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm/mm/dma-mapping.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index 831dc32d45fa..b7d2a0cd0ac2 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -4560,7 +4560,6 @@ static double rapl_dram_energy_units_probe(int model, double rapl_energy_units)
- 	case INTEL_FAM6_SKYLAKE_X:	/* SKX */
- 	case INTEL_FAM6_XEON_PHI_KNL:	/* KNL */
- 	case INTEL_FAM6_ICELAKE_X:	/* ICX */
--	case INTEL_FAM6_SAPPHIRERAPIDS_X:	/* SPR */
- 		return (rapl_dram_energy_units = 15.3 / 1000000);
- 	default:
- 		return (rapl_energy_units);
+diff --git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c
+index 089c9c644cce..bfc7476f1411 100644
+--- a/arch/arm/mm/dma-mapping.c
++++ b/arch/arm/mm/dma-mapping.c
+@@ -1769,8 +1769,16 @@ static void arm_teardown_iommu_dma_ops(struct device *dev) { }
+ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
+ 			const struct iommu_ops *iommu, bool coherent)
+ {
+-	dev->archdata.dma_coherent = coherent;
+-	dev->dma_coherent = coherent;
++	/*
++	 * Due to legacy code that sets the ->dma_coherent flag from a bus
++	 * notifier we can't just assign coherent to the ->dma_coherent flag
++	 * here, but instead have to make sure we only set but never clear it
++	 * for now.
++	 */
++	if (coherent) {
++		dev->archdata.dma_coherent = true;
++		dev->dma_coherent = true;
++	}
+ 
+ 	/*
+ 	 * Don't override the dma_ops if they have already been set. Ideally
 -- 
 2.35.1
 
