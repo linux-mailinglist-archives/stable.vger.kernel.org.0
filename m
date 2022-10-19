@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88044604770
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:39:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08F16604730
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231936AbiJSNjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:39:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37632 "EHLO
+        id S230196AbiJSNeh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:34:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232732AbiJSNi5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:38:57 -0400
+        with ESMTP id S232582AbiJSNeS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:34:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E1531DEC08;
-        Wed, 19 Oct 2022 06:26:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 545F11946CB;
+        Wed, 19 Oct 2022 06:23:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2561EB82474;
-        Wed, 19 Oct 2022 09:04:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E7C1C433C1;
-        Wed, 19 Oct 2022 09:04:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72C7EB8245D;
+        Wed, 19 Oct 2022 09:04:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7186C433D6;
+        Wed, 19 Oct 2022 09:04:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170248;
-        bh=wZRJP6DZHyUxGwtrN/A53yev+G+r02XBhhxY+GvCr8k=;
+        s=korg; t=1666170259;
+        bh=V1yLvhX9zdad2+j+Fwim9g75fpNwO3eUX/S2g7mfUCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EPUtDqQ3NnqPFS0XkejD7Xfr9LDtKD7flCzh3qV1blWRCqq8AteRtTTFLiQ+FEFXF
-         Os7pXmHAtFiNceNKE+nzn+8vZD5+ysGyADAqrDJCGtj0eg+btxYFD7wcD1ympPunGe
-         Exri3Z0CzVM3PZHfF3u/5EZGwQwcUTCmgoUksYb4=
+        b=p3fXCtWwyamrO9mZlC8zlC8zaIPUZOxnijn4/Tq9+XFcGNLnWprdsSMlq4+2xbriM
+         a32KoalkgZ+CC5Fsy7f3C8+dFIAFGO1sschbpCKfVIzsLB2hlgoiDfxXr0ynDBS6EE
+         +/WePULCoIY6UQ70A7H1ViCc5rk8SdFqJG11VcHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 583/862] clk: mediatek: fix unregister function in mtk_clk_register_dividers cleanup
-Date:   Wed, 19 Oct 2022 10:31:10 +0200
-Message-Id: <20221019083315.728009225@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 587/862] dmaengine: ioat: stop mod_timer from resurrecting deleted timer in __cleanup()
+Date:   Wed, 19 Oct 2022 10:31:14 +0200
+Message-Id: <20221019083315.908972896@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,39 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit 20f7a0dba9075fb0e3d645495bc24d7025b58de1 ]
+[ Upstream commit 898ec89dbb55b8294695ad71694a0684e62b2a73 ]
 
-When the cleanup paths for the various clk register APIs in the MediaTek
-clk library were added, the one in the dividers type used the wrong type
-of unregister function. This would result in incorrect dereferencing of
-the clk pointer and freeing of invalid pointers.
+User reports observing timer event report channel halted but no error
+observed in CHANERR register. The driver finished self-test and released
+channel resources. Debug shows that __cleanup() can call
+mod_timer() after the timer has been deleted and thus resurrect the
+timer. While harmless, it causes suprious error message to be emitted.
+Use mod_timer_pending() call to prevent deleted timer from being
+resurrected.
 
-Fix this by switching to the correct type of clk unregistration call.
-
-Fixes: 3c3ba2ab0226 ("clk: mediatek: mtk: Implement error handling in register APIs")
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220926102523.2367530-2-wenst@chromium.org
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Fixes: 3372de5813e4 ("dmaengine: ioatdma: removal of dma_v3.c and relevant ioat3 references")
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/166360672197.3851724.17040290563764838369.stgit@djiang5-desk3.ch.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mediatek/clk-mtk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/ioat/dma.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/mediatek/clk-mtk.c b/drivers/clk/mediatek/clk-mtk.c
-index 05a188c62119..9b82956260d3 100644
---- a/drivers/clk/mediatek/clk-mtk.c
-+++ b/drivers/clk/mediatek/clk-mtk.c
-@@ -393,7 +393,7 @@ int mtk_clk_register_dividers(const struct mtk_clk_divider *mcds, int num,
- 		if (IS_ERR_OR_NULL(clk_data->hws[mcd->id]))
- 			continue;
- 
--		mtk_clk_unregister_composite(clk_data->hws[mcd->id]);
-+		clk_hw_unregister_divider(clk_data->hws[mcd->id]);
- 		clk_data->hws[mcd->id] = ERR_PTR(-ENOENT);
+diff --git a/drivers/dma/ioat/dma.c b/drivers/dma/ioat/dma.c
+index 37ff4ec7db76..e2070df6cad2 100644
+--- a/drivers/dma/ioat/dma.c
++++ b/drivers/dma/ioat/dma.c
+@@ -656,7 +656,7 @@ static void __cleanup(struct ioatdma_chan *ioat_chan, dma_addr_t phys_complete)
+ 	if (active - i == 0) {
+ 		dev_dbg(to_dev(ioat_chan), "%s: cancel completion timeout\n",
+ 			__func__);
+-		mod_timer(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
++		mod_timer_pending(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
  	}
  
+ 	/* microsecond delay by sysfs variable  per pending descriptor */
+@@ -682,7 +682,7 @@ static void ioat_cleanup(struct ioatdma_chan *ioat_chan)
+ 
+ 		if (chanerr &
+ 		    (IOAT_CHANERR_HANDLE_MASK | IOAT_CHANERR_RECOVER_MASK)) {
+-			mod_timer(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
++			mod_timer_pending(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
+ 			ioat_eh(ioat_chan);
+ 		}
+ 	}
+@@ -879,7 +879,7 @@ static void check_active(struct ioatdma_chan *ioat_chan)
+ 	}
+ 
+ 	if (test_and_clear_bit(IOAT_CHAN_ACTIVE, &ioat_chan->state))
+-		mod_timer(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
++		mod_timer_pending(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
+ }
+ 
+ static void ioat_reboot_chan(struct ioatdma_chan *ioat_chan)
 -- 
 2.35.1
 
