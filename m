@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C670603EBF
+	by mail.lfdr.de (Postfix) with ESMTP id B21EB603EC0
 	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:20:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233175AbiJSJUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:20:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41314 "EHLO
+        id S233210AbiJSJUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:20:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233455AbiJSJTR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:19:17 -0400
+        with ESMTP id S233465AbiJSJTT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:19:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB4CFDCACD;
-        Wed, 19 Oct 2022 02:08:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED807DCE8D;
+        Wed, 19 Oct 2022 02:08:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40DE761880;
-        Wed, 19 Oct 2022 09:07:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51B09C433D7;
-        Wed, 19 Oct 2022 09:07:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 720F161825;
+        Wed, 19 Oct 2022 09:07:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A413C433D7;
+        Wed, 19 Oct 2022 09:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170430;
-        bh=EToABdKvy4XhxuhBiW5VUN7zQrDrFjx5hkuwfUdi6NE=;
+        s=korg; t=1666170443;
+        bh=BdUT6MVBWP9eWHoam61ekkpWBMFDaB0rW36JYnis4qU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iSj2wHncG2xXVg5AtClwlA8CZH5HeXyjL0reFSNJLpYckrxHyb1srOCEIQjbiX5Lq
-         jY6AqHnsEwxGfxl1DKPrkGO98NAzN3JklDrQlrOoSH3QVCLT+JDILC0igqRTOrsBLp
-         OgCKmfY+Txhn0KXOCaCrmJN8Pz4uNikR/6hheP8k=
+        b=kvZXu4Pimo1U3TIJO77OdgYVS9AFruhx/3Yr1lxxGyKwZCUg5Jforx2XqdU0IwlMo
+         fQBIh8uiFEPXvcs8wZ4SEQtj/nxDXutR8/1ZTXGJNk9YZlQerVAArgx2GKnHe+vze3
+         PFIbN6IA+Q3H/xbcKYqx7vs0NOYsInobvtvyGETQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Knecht <vincent.knecht@mailoo.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
+        Wang Wendy <wendy.wang@intel.com>,
+        Len Brown <len.brown@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 653/862] thermal/drivers/qcom/tsens-v0_1: Fix MSM8939 fourth sensor hw_id
-Date:   Wed, 19 Oct 2022 10:32:20 +0200
-Message-Id: <20221019083318.788220703@linuxfoundation.org>
+Subject: [PATCH 6.0 657/862] tools/power turbostat: Use standard Energy Unit for SPR Dram RAPL domain
+Date:   Wed, 19 Oct 2022 10:32:24 +0200
+Message-Id: <20221019083318.988379410@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,42 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Knecht <vincent.knecht@mailoo.org>
+From: Zhang Rui <rui.zhang@intel.com>
 
-[ Upstream commit b0c883e900702f408d62cf92b0ef01303ed69be9 ]
+[ Upstream commit b2d433ae637626d44c9d4a75dd3330cf68fed9de ]
 
-Reading temperature from this sensor fails with 'Invalid argument'.
+Intel Xeon servers used to use a fixed energy resolution (15.3uj) for
+Dram RAPL domain. But on SPR, Dram RAPL domain follows the standard
+energy resolution as described in MSR_RAPL_POWER_UNIT.
 
-Looking at old vendor dts [1], its hw_id should be 3 instead of 4.
-Change this hw_id accordingly.
+Remove the SPR rapl_dram_energy_units quirk.
 
-[1] https://github.com/msm8916-mainline/android_kernel_qcom_msm8916/blob/master/arch/arm/boot/dts/qcom/msm8939-common.dtsi#L511
-
-Fixes: 332bc8ebab2c ("thermal: qcom: tsens-v0_1: Add support for MSM8939")
-Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Bjorn Andersson <andersson@kernel.org>
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Link: https://lore.kernel.org/r/20220811105014.7194-1-vincent.knecht@mailoo.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fixes: e7af1ed3fa47 ("tools/power turbostat: Support additional CPU model numbers")
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Tested-by: Wang Wendy <wendy.wang@intel.com>
+Signed-off-by: Len Brown <len.brown@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/qcom/tsens-v0_1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/power/x86/turbostat/turbostat.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/thermal/qcom/tsens-v0_1.c b/drivers/thermal/qcom/tsens-v0_1.c
-index f136cb350238..327f37202c69 100644
---- a/drivers/thermal/qcom/tsens-v0_1.c
-+++ b/drivers/thermal/qcom/tsens-v0_1.c
-@@ -604,7 +604,7 @@ static const struct tsens_ops ops_8939 = {
- struct tsens_plat_data data_8939 = {
- 	.num_sensors	= 10,
- 	.ops		= &ops_8939,
--	.hw_ids		= (unsigned int []){ 0, 1, 2, 4, 5, 6, 7, 8, 9, 10 },
-+	.hw_ids		= (unsigned int []){ 0, 1, 2, 3, 5, 6, 7, 8, 9, 10 },
- 
- 	.feat		= &tsens_v0_1_feat,
- 	.fields	= tsens_v0_1_regfields,
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index 831dc32d45fa..b7d2a0cd0ac2 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -4560,7 +4560,6 @@ static double rapl_dram_energy_units_probe(int model, double rapl_energy_units)
+ 	case INTEL_FAM6_SKYLAKE_X:	/* SKX */
+ 	case INTEL_FAM6_XEON_PHI_KNL:	/* KNL */
+ 	case INTEL_FAM6_ICELAKE_X:	/* ICX */
+-	case INTEL_FAM6_SAPPHIRERAPIDS_X:	/* SPR */
+ 		return (rapl_dram_energy_units = 15.3 / 1000000);
+ 	default:
+ 		return (rapl_energy_units);
 -- 
 2.35.1
 
