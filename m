@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CF2D603C73
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58505603CA0
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:50:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231553AbiJSIrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:47:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44752 "EHLO
+        id S231332AbiJSIul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:50:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231397AbiJSIpw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:45:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2B0E868B9;
-        Wed, 19 Oct 2022 01:44:15 -0700 (PDT)
+        with ESMTP id S231649AbiJSItA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:49:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C1708E9BF;
+        Wed, 19 Oct 2022 01:46:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3690617AC;
-        Wed, 19 Oct 2022 08:44:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1F63C433D6;
-        Wed, 19 Oct 2022 08:44:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A25F8617F7;
+        Wed, 19 Oct 2022 08:44:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A71E3C433C1;
+        Wed, 19 Oct 2022 08:44:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169055;
-        bh=VtFKGsLaErRVzOB9Z09DPYXE6t91wddQ7M2ZiRFgHpo=;
+        s=korg; t=1666169058;
+        bh=hG4656HVgNHfCYkV2W0FvXrC1cK0TQX9tjDFOzCTUWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d36zqZGDmODF1s5zSqRCAvH+CPB9crylxW+0etX7rV1eDtIBejDmZg4mJvbSDLMJ8
-         oDEAM+jvwMNGRX6Fo5BHr4LUR3z0RhFAgBQTWRgvvsqh03/94QZr7VwaVuc9SZdydv
-         JSihO+j11E3Af5wWTIiGhm4vL5KSFCG5pIsKwFM0=
+        b=UZ5g9RbN/see9F1rwHV473LDw9E8lz1DdloE7g/F6S2mydHJ1UiflrvCn3D2+RCsM
+         Ikiq2rWumKcvKmnV2J40Tww6NYaZBPE44yY/Gwmt+Px8UqH2TVnMEY2Ld52mH7Q1LK
+         GlfoRZLXo0SVPDXSiq4LTi8OOrUI7fhRq/gpJbXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Jinke Han <hanjinke.666@bytedance.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.0 142/862] ext4: place buffer head allocation before handle start
-Date:   Wed, 19 Oct 2022 10:23:49 +0200
-Message-Id: <20221019083256.258802162@linuxfoundation.org>
+        Lukas Czerner <lczerner@redhat.com>, Jan Kara <jack@suse.cz>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Jeff Layton <jlayton@kernel.org>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.0 143/862] ext4: fix i_version handling in ext4
+Date:   Wed, 19 Oct 2022 10:23:50 +0200
+Message-Id: <20221019083256.307949361@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,49 +54,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinke Han <hanjinke.666@bytedance.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit d1052d236eddf6aa851434db1897b942e8db9921 upstream.
+commit a642c2c0827f5604a93f9fa1e5701eecdce4ae22 upstream.
 
-In our product environment, we encounter some jbd hung waiting handles to
-stop while several writters were doing memory reclaim for buffer head
-allocation in delay alloc write path. Ext4 do buffer head allocation with
-holding transaction handle which may be blocked too long if the reclaim
-works not so smooth. According to our bcc trace, the reclaim time in
-buffer head allocation can reach 258s and the jbd transaction commit also
-take almost the same time meanwhile. Except for these extreme cases,
-we often see several seconds delays for cgroup memory reclaim on our
-servers. This is more likely to happen considering docker environment.
+ext4 currently updates the i_version counter when the atime is updated
+during a read. This is less than ideal as it can cause unnecessary cache
+invalidations with NFSv4 and unnecessary remeasurements for IMA.
 
-One thing to note, the allocation of buffer heads is as often as page
-allocation or more often when blocksize less than page size. Just like
-page cache allocation, we should also place the buffer head allocation
-before startting the handle.
+The increment in ext4_mark_iloc_dirty is also problematic since it can
+corrupt the i_version counter for ea_inodes. We aren't bumping the file
+times in ext4_mark_iloc_dirty, so changing the i_version there seems
+wrong, and is the cause of both problems.
+
+Remove that callsite and add increments to the setattr, setxattr and
+ioctl codepaths, at the same times that we update the ctime. The
+i_version bump that already happens during timestamp updates should take
+care of the rest.
+
+In ext4_move_extents, increment the i_version on both inodes, and also
+add in missing ctime updates.
+
+[ Some minor updates since we've already enabled the i_version counter
+  unconditionally already via another patch series. -- TYT ]
 
 Cc: stable@kernel.org
-Signed-off-by: Jinke Han <hanjinke.666@bytedance.com>
-Link: https://lore.kernel.org/r/20220903012429.22555-1-hanjinke.666@bytedance.com
+Cc: Lukas Czerner <lczerner@redhat.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Link: https://lore.kernel.org/r/20220908172448.208585-3-jlayton@kernel.org
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/ext4/inode.c |   14 +++++---------
+ fs/ext4/ioctl.c |    4 ++++
+ fs/ext4/xattr.c |    1 +
+ 3 files changed, 10 insertions(+), 9 deletions(-)
 
 --- a/fs/ext4/inode.c
 +++ b/fs/ext4/inode.c
-@@ -1188,6 +1188,13 @@ retry_grab:
- 	page = grab_cache_page_write_begin(mapping, index);
- 	if (!page)
- 		return -ENOMEM;
-+	/*
-+	 * The same as page allocation, we prealloc buffer heads before
-+	 * starting the handle.
-+	 */
-+	if (!page_has_buffers(page))
-+		create_empty_buffers(page, inode->i_sb->s_blocksize, 0);
-+
- 	unlock_page(page);
+@@ -5349,6 +5349,7 @@ int ext4_setattr(struct user_namespace *
+ 	int error, rc = 0;
+ 	int orphan = 0;
+ 	const unsigned int ia_valid = attr->ia_valid;
++	bool inc_ivers = true;
  
- retry_journal:
+ 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
+ 		return -EIO;
+@@ -5432,8 +5433,8 @@ int ext4_setattr(struct user_namespace *
+ 			return -EINVAL;
+ 		}
+ 
+-		if (attr->ia_size != inode->i_size)
+-			inode_inc_iversion(inode);
++		if (attr->ia_size == inode->i_size)
++			inc_ivers = false;
+ 
+ 		if (shrink) {
+ 			if (ext4_should_order_data(inode)) {
+@@ -5535,6 +5536,8 @@ out_mmap_sem:
+ 	}
+ 
+ 	if (!error) {
++		if (inc_ivers)
++			inode_inc_iversion(inode);
+ 		setattr_copy(mnt_userns, inode, attr);
+ 		mark_inode_dirty(inode);
+ 	}
+@@ -5738,13 +5741,6 @@ int ext4_mark_iloc_dirty(handle_t *handl
+ 	}
+ 	ext4_fc_track_inode(handle, inode);
+ 
+-	/*
+-	 * ea_inodes are using i_version for storing reference count, don't
+-	 * mess with it
+-	 */
+-	if (!(EXT4_I(inode)->i_flags & EXT4_EA_INODE_FL))
+-		inode_inc_iversion(inode);
+-
+ 	/* the do_update_inode consumes one bh->b_count */
+ 	get_bh(iloc->bh);
+ 
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -452,6 +452,7 @@ static long swap_inode_boot_loader(struc
+ 	swap_inode_data(inode, inode_bl);
+ 
+ 	inode->i_ctime = inode_bl->i_ctime = current_time(inode);
++	inode_inc_iversion(inode);
+ 
+ 	inode->i_generation = prandom_u32();
+ 	inode_bl->i_generation = prandom_u32();
+@@ -665,6 +666,7 @@ static int ext4_ioctl_setflags(struct in
+ 	ext4_set_inode_flags(inode, false);
+ 
+ 	inode->i_ctime = current_time(inode);
++	inode_inc_iversion(inode);
+ 
+ 	err = ext4_mark_iloc_dirty(handle, inode, &iloc);
+ flags_err:
+@@ -775,6 +777,7 @@ static int ext4_ioctl_setproject(struct
+ 
+ 	EXT4_I(inode)->i_projid = kprojid;
+ 	inode->i_ctime = current_time(inode);
++	inode_inc_iversion(inode);
+ out_dirty:
+ 	rc = ext4_mark_iloc_dirty(handle, inode, &iloc);
+ 	if (!err)
+@@ -1257,6 +1260,7 @@ static long __ext4_ioctl(struct file *fi
+ 		err = ext4_reserve_inode_write(handle, inode, &iloc);
+ 		if (err == 0) {
+ 			inode->i_ctime = current_time(inode);
++			inode_inc_iversion(inode);
+ 			inode->i_generation = generation;
+ 			err = ext4_mark_iloc_dirty(handle, inode, &iloc);
+ 		}
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2412,6 +2412,7 @@ retry_inode:
+ 	if (!error) {
+ 		ext4_xattr_update_super_block(handle, inode->i_sb);
+ 		inode->i_ctime = current_time(inode);
++		inode_inc_iversion(inode);
+ 		if (!value)
+ 			no_expand = 0;
+ 		error = ext4_mark_iloc_dirty(handle, inode, &is.iloc);
 
 
