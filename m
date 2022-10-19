@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A8C760486B
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:56:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20832604700
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:26:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230044AbiJSN4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:56:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48586 "EHLO
+        id S229890AbiJSN03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:26:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234079AbiJSNyr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:54:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D7DE1DDC21;
-        Wed, 19 Oct 2022 06:37:15 -0700 (PDT)
+        with ESMTP id S231406AbiJSN0H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:26:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8DD1D3A5D;
+        Wed, 19 Oct 2022 06:12:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 068E7B82386;
-        Wed, 19 Oct 2022 08:50:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A77BC433D7;
-        Wed, 19 Oct 2022 08:50:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 279F3B8238F;
+        Wed, 19 Oct 2022 08:51:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A43FC433D6;
+        Wed, 19 Oct 2022 08:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169442;
-        bh=NFjboH5Ssva6H4YiEcOPIbsLI+ky7p8zequ7ek/+zBc=;
+        s=korg; t=1666169458;
+        bh=Fe2eaMVMJuai5RAeCwO60IBS5K+pDaQ07JaRfMxVcPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n3pVIZnX0Di40y1c+KHerC/uNdQViD3pLrP+ccidM+IlLY3CLpMK147FHP0N95OYd
-         iXw0OE4F5uFqkaSbKRm1ylYIg+XZp9fpKlFAHs2OUcvfgIePCJxrtvEqQfhzCFGy2V
-         SRiTqkOaA2wZaY0ou9Ocb7CPK+yIY76HNui1jqBA=
+        b=VWNHdvlMI1Za/eZHibwmFmFfUgdZT/gN+Q0Rsz05135v/FdQfAC5saDVgXfByQXpX
+         IIfP/9/3ckys/RZpxhVKRbRCQ45bz032P1IBQhGV6nVR58dM8TMux9Fy+Shqn67k5L
+         V/EXe4LIJ7JxKbZN8r7TGS3Wd67XOjx0ufrRvHCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 279/862] wifi: mt76: sdio: poll sta stat when device transmits data
-Date:   Wed, 19 Oct 2022 10:26:06 +0200
-Message-Id: <20221019083302.353274253@linuxfoundation.org>
+Subject: [PATCH 6.0 285/862] wifi: mt76: connac: fix possible unaligned access in mt76_connac_mcu_add_nested_tlv
+Date:   Wed, 19 Oct 2022 10:26:12 +0200
+Message-Id: <20221019083302.600692455@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,39 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit a323e5f041dd11af5e3de19ed7ea95a97d588c11 ]
+[ Upstream commit 0a4860f627f1f2b2b777f54f993de1638a79da9f ]
 
-It is not meaningful to poll sta stat when there is no data traffic.
-So polling sta stat when the device has transmitted data instead to save
-CPU power.
+Fix possible unaligned pointer in mt76_connac_mcu_add_nested_tlv
+routine.
 
-That implies that it is unallowed the stat_work to work while MCU is being
-initialized in the really early stage to fix the possible time to time MCU
-initialization failure.
-
-Fixes: d39b52e31aa6 ("mt76: introduce mt76_sdio module")
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 25702d9c55dc5 ("mt76: connac: rely on le16_add_cpu in mt76_connac_mcu_add_nested_tlv")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/sdio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/sdio.c b/drivers/net/wireless/mediatek/mt76/sdio.c
-index fb2caeae6dba..ece4e4bb94a1 100644
---- a/drivers/net/wireless/mediatek/mt76/sdio.c
-+++ b/drivers/net/wireless/mediatek/mt76/sdio.c
-@@ -478,7 +478,7 @@ static void mt76s_status_worker(struct mt76_worker *w)
- 		if (ndata_frames > 0)
- 			resched = true;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+index 9b17bd97ec09..13d4722e4186 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+@@ -260,8 +260,10 @@ mt76_connac_mcu_add_nested_tlv(struct sk_buff *skb, int tag, int len,
+ 	ntlv = le16_to_cpu(ntlv_hdr->tlv_num);
+ 	ntlv_hdr->tlv_num = cpu_to_le16(ntlv + 1);
  
--		if (dev->drv->tx_status_data &&
-+		if (dev->drv->tx_status_data && ndata_frames > 0 &&
- 		    !test_and_set_bit(MT76_READING_STATS, &dev->phy.state) &&
- 		    !test_bit(MT76_STATE_SUSPEND, &dev->phy.state))
- 			ieee80211_queue_work(dev->hw, &dev->sdio.stat_work);
+-	if (sta_hdr)
+-		le16_add_cpu(&sta_hdr->len, len);
++	if (sta_hdr) {
++		len += le16_to_cpu(sta_hdr->len);
++		sta_hdr->len = cpu_to_le16(len);
++	}
+ 
+ 	return ptlv;
+ }
 -- 
 2.35.1
 
