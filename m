@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA7CB6042D2
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:10:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5478E60422A
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:56:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233055AbiJSLKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:10:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44328 "EHLO
+        id S234459AbiJSK4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:56:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234639AbiJSLJG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:09:06 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE1717FD72;
-        Wed, 19 Oct 2022 03:37:59 -0700 (PDT)
+        with ESMTP id S234500AbiJSKz4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:55:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C72EA164BEF;
+        Wed, 19 Oct 2022 03:27:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 674B5CE21A8;
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4751B824B5;
+        Wed, 19 Oct 2022 09:10:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09AC8C433D7;
         Wed, 19 Oct 2022 09:10:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61F0FC433D7;
-        Wed, 19 Oct 2022 09:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170626;
-        bh=6I0oFww5l0V1IzzU+8y7drAJe30wzaT6tIKTcnOoUOg=;
+        s=korg; t=1666170629;
+        bh=Q7nL0WEUtaTUZsGTu8PhNbsvfvjXK7qqWWgILZtc6rQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vMJY1SKNMNuAJiDTIVqV2YD7QwVYKTx1FT9qN711DSLfEDw3+PigTrmzQVg92UrNT
-         p5vb5dpVJU2xPJwMLQi0qe87RQTKEOHDFodtZz1d1OmUVcJGdePC8OwmvC6Oc8JLPV
-         yX1pr2vE/UYTvihhuTbR7Q9iyWxHG58vej7k8Y9w=
+        b=XGFDHqgxLKOeq0qN+lTbz+LsweL4Uu+I3W1WLuxtq0GKMQhtFQ0ytQQPvJZtt5pAq
+         l/CRLhCOEFGURDoQXQSMtC71w3j5HjRMYYk9uN31UuW6w9ikLR4JEQJuShj+/0Me1P
+         b23VSmH9Q0g58PYaxQBydGKNKKZKhbZi2ShUW0Pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 726/862] i2c: designware-pci: Group AMD NAVI quirk parts together
-Date:   Wed, 19 Oct 2022 10:33:33 +0200
-Message-Id: <20221019083322.017596727@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Gaul <gaul@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 727/862] r8152: Rate limit overflow messages
+Date:   Wed, 19 Oct 2022 10:33:34 +0200
+Message-Id: <20221019083322.055021094@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,95 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Andrew Gaul <gaul@gaul.org>
 
-[ Upstream commit 65769162ae4b7f2d82e54998be446226b05fcd8f ]
+[ Upstream commit 93e2be344a7db169b7119de21ac1bf253b8c6907 ]
 
-The code is ogranized in a way that all related parts
-to the certain platform quirk go together. This is not
-the case for AMD NAVI. Shuffle code to make it happen.
+My system shows almost 10 million of these messages over a 24-hour
+period which pollutes my logs.
 
-While at it, drop the frequency definition and use
-hard coded value as it's done for other platforms and
-add a comment to the PCI ID list.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Andrew Gaul <gaul@google.com>
+Link: https://lore.kernel.org/r/20221002034128.2026653-1-gaul@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-designware-pcidrv.c | 30 +++++++++++-----------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ drivers/net/usb/r8152.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 608e61209455..ca368482b246 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -27,7 +27,6 @@
- #include "i2c-ccgx-ucsi.h"
- 
- #define DRIVER_NAME "i2c-designware-pci"
--#define AMD_CLK_RATE_HZ	100000
- 
- enum dw_pci_ctl_id_t {
- 	medfield,
-@@ -100,11 +99,6 @@ static u32 mfld_get_clk_rate_khz(struct dw_i2c_dev *dev)
- 	return 25000;
- }
- 
--static u32 navi_amd_get_clk_rate_khz(struct dw_i2c_dev *dev)
--{
--	return AMD_CLK_RATE_HZ;
--}
--
- static int mfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
- {
- 	struct dw_i2c_dev *dev = dev_get_drvdata(&pdev->dev);
-@@ -126,15 +120,6 @@ static int mfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
- 	return -ENODEV;
- }
- 
--static int navi_amd_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
--{
--	struct dw_i2c_dev *dev = dev_get_drvdata(&pdev->dev);
--
--	dev->flags |= MODEL_AMD_NAVI_GPU;
--	dev->timings.bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
--	return 0;
--}
--
- static int mrfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
- {
- 	/*
-@@ -159,6 +144,20 @@ static u32 ehl_get_clk_rate_khz(struct dw_i2c_dev *dev)
- 	return 100000;
- }
- 
-+static u32 navi_amd_get_clk_rate_khz(struct dw_i2c_dev *dev)
-+{
-+	return 100000;
-+}
-+
-+static int navi_amd_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
-+{
-+	struct dw_i2c_dev *dev = dev_get_drvdata(&pdev->dev);
-+
-+	dev->flags |= MODEL_AMD_NAVI_GPU;
-+	dev->timings.bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
-+	return 0;
-+}
-+
- static struct dw_pci_controller dw_pci_controllers[] = {
- 	[medfield] = {
- 		.bus_num = -1,
-@@ -389,6 +388,7 @@ static const struct pci_device_id i2_designware_pci_ids[] = {
- 	{ PCI_VDEVICE(INTEL, 0x4bbe), elkhartlake },
- 	{ PCI_VDEVICE(INTEL, 0x4bbf), elkhartlake },
- 	{ PCI_VDEVICE(INTEL, 0x4bc0), elkhartlake },
-+	/* AMD NAVI */
- 	{ PCI_VDEVICE(ATI,  0x7314), navi_amd },
- 	{ PCI_VDEVICE(ATI,  0x73a4), navi_amd },
- 	{ PCI_VDEVICE(ATI,  0x73e4), navi_amd },
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 688905ea0a6d..e7b0b59e2bc8 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -1874,7 +1874,9 @@ static void intr_callback(struct urb *urb)
+ 			   "Stop submitting intr, status %d\n", status);
+ 		return;
+ 	case -EOVERFLOW:
+-		netif_info(tp, intr, tp->netdev, "intr status -EOVERFLOW\n");
++		if (net_ratelimit())
++			netif_info(tp, intr, tp->netdev,
++				   "intr status -EOVERFLOW\n");
+ 		goto resubmit;
+ 	/* -EPIPE:  should clear the halt */
+ 	default:
 -- 
 2.35.1
 
