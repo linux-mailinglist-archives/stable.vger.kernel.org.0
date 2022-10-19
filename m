@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88CEB604834
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:52:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A9EF6044D3
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:16:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233706AbiJSNw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:52:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33376 "EHLO
+        id S232862AbiJSMQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 08:16:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231347AbiJSNv7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:51:59 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C95106930;
-        Wed, 19 Oct 2022 06:35:51 -0700 (PDT)
+        with ESMTP id S232873AbiJSMQA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:16:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E22A11455;
+        Wed, 19 Oct 2022 04:52:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3BE99CE20ED;
-        Wed, 19 Oct 2022 08:41:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A13FC433D6;
-        Wed, 19 Oct 2022 08:41:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50AB6B822E5;
+        Wed, 19 Oct 2022 08:42:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A56F9C433D6;
+        Wed, 19 Oct 2022 08:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168907;
-        bh=KM5aJ8W23YxmKOBqyJnPA3XBpiJZ3LNYv8qiLaoe1eM=;
+        s=korg; t=1666168948;
+        bh=oIZz2kCGl4WXF7IUGUkjXWSCBViv/dAcbheVseTAqUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PrcnaS1ITy2q32Jr8ey9mH7zDRuZb3tU//5Za3LtbpUd+bn7U2DOvtuZLCFu/dUD+
-         0+qJdTwOcb3w8co7N7N6koumnrob4X1lilTzBzQ8fgFhVnjWSj+Sl6f3sVt7/kCHfh
-         5eWyWwXCZ2T9m+s3JbdHMekomIUDyaM54ugR4Uy8=
+        b=HEn2ioHoQeXIGFsV/qWEOYys4+F9NhEOvJ/9ONmPcvSqvJ0bjbbkgMQ9IbnWxqA0/
+         hShvEHrI/YV6/sqXqF1UPc7wVcOUhpGfBlY7uGnbp6hs8U1dilWhrNCuPlhKzU+P/e
+         HW13g7Hzlju8Dei+1WXfIuC7LskEW2pmbDiXSYRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anders Blomdell <anders.blomdell@control.lth.se>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: [PATCH 6.0 094/862] serial: 8250: Let drivers request full 16550A feature probing
-Date:   Wed, 19 Oct 2022 10:23:01 +0200
-Message-Id: <20221019083254.093554124@linuxfoundation.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 6.0 105/862] slimbus: qcom-ngd: cleanup in probe error path
+Date:   Wed, 19 Oct 2022 10:23:12 +0200
+Message-Id: <20221019083254.560695838@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,62 +53,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 9906890c89e4dbd900ed87ad3040080339a7f411 upstream.
+commit 16f14551d0df9e7cd283545d7d748829594d912f upstream.
 
-A SERIAL_8250_16550A_VARIANTS configuration option has been recently
-defined that lets one request the 8250 driver not to probe for 16550A
-device features so as to reduce the driver's device startup time in
-virtual machines.
+Add proper error path in probe() to cleanup resources previously
+acquired/allocated to fix warnings visible during probe deferral:
 
-Some actual hardware devices require these features to have been fully
-determined however for their driver to work correctly, so define a flag
-to let drivers request full 16550A feature probing on a device-by-device
-basis if required regardless of the SERIAL_8250_16550A_VARIANTS option
-setting chosen.
+  notifier callback qcom_slim_ngd_ssr_notify already registered
+  WARNING: CPU: 6 PID: 70 at kernel/notifier.c:28 notifier_chain_register+0x5c/0x90
+  Modules linked in:
+  CPU: 6 PID: 70 Comm: kworker/u16:1 Not tainted 6.0.0-rc3-next-20220830 #380
+  Call trace:
+   notifier_chain_register+0x5c/0x90
+   srcu_notifier_chain_register+0x44/0x90
+   qcom_register_ssr_notifier+0x38/0x4c
+   qcom_slim_ngd_ctrl_probe+0xd8/0x400
+   platform_probe+0x6c/0xe0
+   really_probe+0xbc/0x2d4
+   __driver_probe_device+0x78/0xe0
+   driver_probe_device+0x3c/0x12c
+   __device_attach_driver+0xb8/0x120
+   bus_for_each_drv+0x78/0xd0
+   __device_attach+0xa8/0x1c0
+   device_initial_probe+0x18/0x24
+   bus_probe_device+0xa0/0xac
+   deferred_probe_work_func+0x88/0xc0
+   process_one_work+0x1d4/0x320
+   worker_thread+0x2cc/0x44c
+   kthread+0x110/0x114
+   ret_from_fork+0x10/0x20
 
-Fixes: dc56ecb81a0a ("serial: 8250: Support disabling mdelay-filled probes of 16550A variants")
-Cc: stable@vger.kernel.org # v5.6+
-Reported-by: Anders Blomdell <anders.blomdell@control.lth.se>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209202357520.41633@angie.orcam.me.uk
+Fixes: e1ae85e1830e ("slimbus: qcom-ngd-ctrl: add Protection Domain Restart Support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220916122910.170730-3-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    3 ++-
- include/linux/serial_core.h         |    3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/slimbus/qcom-ngd-ctrl.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1023,7 +1023,8 @@ static void autoconfig_16550a(struct uar
- 	up->port.type = PORT_16550A;
- 	up->capabilities |= UART_CAP_FIFO;
+--- a/drivers/slimbus/qcom-ngd-ctrl.c
++++ b/drivers/slimbus/qcom-ngd-ctrl.c
+@@ -1576,18 +1576,27 @@ static int qcom_slim_ngd_ctrl_probe(stru
+ 	ctrl->pdr = pdr_handle_alloc(slim_pd_status, ctrl);
+ 	if (IS_ERR(ctrl->pdr)) {
+ 		dev_err(dev, "Failed to init PDR handle\n");
+-		return PTR_ERR(ctrl->pdr);
++		ret = PTR_ERR(ctrl->pdr);
++		goto err_pdr_alloc;
+ 	}
  
--	if (!IS_ENABLED(CONFIG_SERIAL_8250_16550A_VARIANTS))
-+	if (!IS_ENABLED(CONFIG_SERIAL_8250_16550A_VARIANTS) &&
-+	    !(up->port.flags & UPF_FULL_PROBE))
- 		return;
+ 	pds = pdr_add_lookup(ctrl->pdr, "avs/audio", "msm/adsp/audio_pd");
+ 	if (IS_ERR(pds) && PTR_ERR(pds) != -EALREADY) {
+ 		ret = PTR_ERR(pds);
+ 		dev_err(dev, "pdr add lookup failed: %d\n", ret);
+-		return ret;
++		goto err_pdr_lookup;
+ 	}
  
- 	/*
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -422,7 +422,7 @@ struct uart_icount {
- 	__u32	buf_overrun;
- };
+ 	platform_driver_register(&qcom_slim_ngd_driver);
+ 	return of_qcom_slim_ngd_register(dev, ctrl);
++
++err_pdr_alloc:
++	qcom_unregister_ssr_notifier(ctrl->notifier, &ctrl->nb);
++
++err_pdr_lookup:
++	pdr_handle_release(ctrl->pdr);
++
++	return ret;
+ }
  
--typedef unsigned int __bitwise upf_t;
-+typedef u64 __bitwise upf_t;
- typedef unsigned int __bitwise upstat_t;
- 
- struct uart_port {
-@@ -530,6 +530,7 @@ struct uart_port {
- #define UPF_FIXED_PORT		((__force upf_t) (1 << 29))
- #define UPF_DEAD		((__force upf_t) (1 << 30))
- #define UPF_IOREMAP		((__force upf_t) (1 << 31))
-+#define UPF_FULL_PROBE		((__force upf_t) (1ULL << 32))
- 
- #define __UPF_CHANGE_MASK	0x17fff
- #define UPF_CHANGE_MASK		((__force upf_t) __UPF_CHANGE_MASK)
+ static int qcom_slim_ngd_ctrl_remove(struct platform_device *pdev)
 
 
