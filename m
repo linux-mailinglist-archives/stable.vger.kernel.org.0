@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2EFF603F7B
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 372F5603F76
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233675AbiJSJcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:32:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34652 "EHLO
+        id S229610AbiJSJcC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:32:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233921AbiJSJ3w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22A82C354F;
-        Wed, 19 Oct 2022 02:13:30 -0700 (PDT)
+        with ESMTP id S233932AbiJSJ35 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25317ED9A1;
+        Wed, 19 Oct 2022 02:13:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 581D3617EA;
-        Wed, 19 Oct 2022 09:13:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A3B5C433D7;
-        Wed, 19 Oct 2022 09:13:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22970617ED;
+        Wed, 19 Oct 2022 09:13:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3309AC433C1;
+        Wed, 19 Oct 2022 09:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170798;
-        bh=zx+NsFJM2HlrPk63IXXZIbC844ngJf0rvo8h74tKeLo=;
+        s=korg; t=1666170806;
+        bh=YJbnZ0RTeY+t7PcY4eYKEecQAqN2QYIiIc5b5AmosT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N72xUiT8OZk4c8NSRuN+/Pxn92eQcDactv98sAG4yuqFffxi14+UWq59cZa0u2Bij
-         y1kL+AEMaYT+t+mdF/eJsPh996idi72wxuPWnKDFn+TnddBdSXZqsgc5MJoCidJRuO
-         PqFKIgPrZUXIqEIg6NooO+gwB1YJulwgjfDIpfsA=
+        b=ptPSu9/rqSLrVFkZK/gest72IAu/J4FJMkiWleL3Kblw6U6DLUl5Pe2eJNCo/7Ahm
+         paJow7SuQtX1CeBPBqboSe50qRCN6SQOIKeo45gbfsNSpQR6ABxQs7hx5QEZq9beje
+         8/lpXGsJqqTtbz5mEvcn9hIURMBf0C72fFaU83Pg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 791/862] ARM: 9242/1: kasan: Only map modules if CONFIG_KASAN_VMALLOC=n
-Date:   Wed, 19 Oct 2022 10:34:38 +0200
-Message-Id: <20221019083324.863655777@linuxfoundation.org>
+Subject: [PATCH 6.0 794/862] media: platform: fix some double free in meson-ge2d and mtk-jpeg and s5p-mfc
+Date:   Wed, 19 Oct 2022 10:34:41 +0200
+Message-Id: <20221019083324.999230687@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,75 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Sverdlin <alexander.sverdlin@nokia.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 823f606ab6b4759a1faf0388abcf4fb0776710d2 ]
+[ Upstream commit c65c3f3a2cbf21ed429d9b9c725bdb5dc6abf4cf ]
 
-In case CONFIG_KASAN_VMALLOC=y kasan_populate_vmalloc() allocates the
-shadow pages dynamically. But even worse is that kasan_release_vmalloc()
-releases them, which is not compatible with create_mapping() of
-MODULES_VADDR..MODULES_END range:
+video_unregister_device will release device internally. There is no need to
+call video_device_release after video_unregister_device.
 
-BUG: Bad page state in process kworker/9:1  pfn:2068b
-page:e5e06160 refcount:0 mapcount:0 mapping:00000000 index:0x0
-flags: 0x1000(reserved)
-raw: 00001000 e5e06164 e5e06164 00000000 00000000 00000000 ffffffff 00000000
-page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
-bad because of flags: 0x1000(reserved)
-Modules linked in: ip_tables
-CPU: 9 PID: 154 Comm: kworker/9:1 Not tainted 5.4.188-... #1
-Hardware name: LSI Axxia AXM55XX
-Workqueue: events do_free_init
-unwind_backtrace
-show_stack
-dump_stack
-bad_page
-free_pcp_prepare
-free_unref_page
-kasan_depopulate_vmalloc_pte
-__apply_to_page_range
-apply_to_existing_page_range
-kasan_release_vmalloc
-__purge_vmap_area_lazy
-_vm_unmap_aliases.part.0
-__vunmap
-do_free_init
-process_one_work
-worker_thread
-kthread
-
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/kasan_init.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/media/platform/amlogic/meson-ge2d/ge2d.c     | 1 -
+ drivers/media/platform/mediatek/jpeg/mtk_jpeg_core.c | 1 -
+ drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c     | 3 +--
+ 3 files changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/arm/mm/kasan_init.c b/arch/arm/mm/kasan_init.c
-index 29caee9c79ce..46d9f4a622cb 100644
---- a/arch/arm/mm/kasan_init.c
-+++ b/arch/arm/mm/kasan_init.c
-@@ -268,12 +268,17 @@ void __init kasan_init(void)
+diff --git a/drivers/media/platform/amlogic/meson-ge2d/ge2d.c b/drivers/media/platform/amlogic/meson-ge2d/ge2d.c
+index 5e7b319f300d..142d421a8d76 100644
+--- a/drivers/media/platform/amlogic/meson-ge2d/ge2d.c
++++ b/drivers/media/platform/amlogic/meson-ge2d/ge2d.c
+@@ -1030,7 +1030,6 @@ static int ge2d_remove(struct platform_device *pdev)
  
- 	/*
- 	 * 1. The module global variables are in MODULES_VADDR ~ MODULES_END,
--	 *    so we need to map this area.
-+	 *    so we need to map this area if CONFIG_KASAN_VMALLOC=n. With
-+	 *    VMALLOC support KASAN will manage this region dynamically,
-+	 *    refer to kasan_populate_vmalloc() and ARM's implementation of
-+	 *    module_alloc().
- 	 * 2. PKMAP_BASE ~ PKMAP_BASE+PMD_SIZE's shadow and MODULES_VADDR
- 	 *    ~ MODULES_END's shadow is in the same PMD_SIZE, so we can't
- 	 *    use kasan_populate_zero_shadow.
- 	 */
--	create_mapping((void *)MODULES_VADDR, (void *)(PKMAP_BASE + PMD_SIZE));
-+	if (!IS_ENABLED(CONFIG_KASAN_VMALLOC) && IS_ENABLED(CONFIG_MODULES))
-+		create_mapping((void *)MODULES_VADDR, (void *)(MODULES_END));
-+	create_mapping((void *)PKMAP_BASE, (void *)(PKMAP_BASE + PMD_SIZE));
+ 	video_unregister_device(ge2d->vfd);
+ 	v4l2_m2m_release(ge2d->m2m_dev);
+-	video_device_release(ge2d->vfd);
+ 	v4l2_device_unregister(&ge2d->v4l2_dev);
+ 	clk_disable_unprepare(ge2d->clk);
  
- 	/*
- 	 * KAsan may reuse the contents of kasan_early_shadow_pte directly, so
+diff --git a/drivers/media/platform/mediatek/jpeg/mtk_jpeg_core.c b/drivers/media/platform/mediatek/jpeg/mtk_jpeg_core.c
+index 87685a62a5c2..3071b61946c3 100644
+--- a/drivers/media/platform/mediatek/jpeg/mtk_jpeg_core.c
++++ b/drivers/media/platform/mediatek/jpeg/mtk_jpeg_core.c
+@@ -1414,7 +1414,6 @@ static int mtk_jpeg_remove(struct platform_device *pdev)
+ 
+ 	pm_runtime_disable(&pdev->dev);
+ 	video_unregister_device(jpeg->vdev);
+-	video_device_release(jpeg->vdev);
+ 	v4l2_m2m_release(jpeg->m2m_dev);
+ 	v4l2_device_unregister(&jpeg->v4l2_dev);
+ 
+diff --git a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c
+index 761341934925..f85d1eebafac 100644
+--- a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c
++++ b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc.c
+@@ -1399,6 +1399,7 @@ static int s5p_mfc_probe(struct platform_device *pdev)
+ /* Deinit MFC if probe had failed */
+ err_enc_reg:
+ 	video_unregister_device(dev->vfd_dec);
++	dev->vfd_dec = NULL;
+ err_dec_reg:
+ 	video_device_release(dev->vfd_enc);
+ err_enc_alloc:
+@@ -1444,8 +1445,6 @@ static int s5p_mfc_remove(struct platform_device *pdev)
+ 
+ 	video_unregister_device(dev->vfd_enc);
+ 	video_unregister_device(dev->vfd_dec);
+-	video_device_release(dev->vfd_enc);
+-	video_device_release(dev->vfd_dec);
+ 	v4l2_device_unregister(&dev->v4l2_dev);
+ 	s5p_mfc_unconfigure_dma_memory(dev);
+ 
 -- 
 2.35.1
 
