@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C2A3604241
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:57:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FEAB6040A9
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:08:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234782AbiJSK5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:57:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45180 "EHLO
+        id S231526AbiJSKIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234483AbiJSK4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:56:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DE7127422;
-        Wed, 19 Oct 2022 03:27:42 -0700 (PDT)
+        with ESMTP id S231688AbiJSKIP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:08:15 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA45514705A;
+        Wed, 19 Oct 2022 02:46:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 107BDB824B9;
-        Wed, 19 Oct 2022 09:10:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A278C433D6;
-        Wed, 19 Oct 2022 09:10:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 278B5CE21AA;
+        Wed, 19 Oct 2022 09:10:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D834C433D7;
+        Wed, 19 Oct 2022 09:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170639;
-        bh=QXcBMzebHoL91pIygKKq4BACg8oie/iIyZvGUNaBrXc=;
+        s=korg; t=1666170650;
+        bh=IUpuJLyLUQd1BoDEG1IqdNAmx4Mwk+yPRjQw2dQF9bI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r7F1a51XNceMwvil0K9HqrYzvtGor+6pVxKss/lWWTVcDZjUnBVSr7AmH+4KD/OSG
-         LatMGGkGecauApGsa8Q0fVtT4O7MJfXslCkhDU/U2CLVKf+lUHYybc8DF3cbavrxUq
-         YwLs0UTdc4E6VbEIU7WxuJyNBLbnxi6gaOw2/oe4=
+        b=c/10FefHcJOaWnSiPM5OJ75sDvKnqLOFCg9z9IvM6kXv/DNo1FkVAPQ1V/OT+UBGf
+         qeSMdskN2zs2Tpq9rVR3CMJo2J/6uBF3muXh5uPULKEmDssHOOVw7uTpi3EPLduZUo
+         YIAazrciLL/kmRnT/tzc44PDUckcdpHYTuaxCZU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Carsten Haitzler <carsten.haitzler@arm.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 731/862] drm/komeda: Fix handling of atomic commits in the atomic_commit_tail hook
-Date:   Wed, 19 Oct 2022 10:33:38 +0200
-Message-Id: <20221019083322.234974098@linuxfoundation.org>
+        stable@vger.kernel.org, Conner Knox <connerknoxpublic@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 735/862] ALSA: usb-audio: Add quirk to enable Avid Mbox 3 support
+Date:   Wed, 19 Oct 2022 10:33:42 +0200
+Message-Id: <20221019083322.429850866@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,113 +52,428 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liviu Dudau <liviu.dudau@arm.com>
+From: Conner Knox <connerknoxpublic@gmail.com>
 
-[ Upstream commit eaa225b6b52233d45457fd33730e1528c604d92d ]
+[ Upstream commit b01104fc62b6194c852124f6c6df1c0a5c031fc1 ]
 
-Komeda driver relies on the generic DRM atomic helper functions to handle
-commits. It only implements an atomic_commit_tail hook for the
-mode_config_helper_funcs and even that one is pretty close to the generic
-implementation with the exception of additional dma_fence signalling.
+Add support for Avid Mbox3 USB audio interface at 48kHz
 
-What the generic helper framework doesn't do is waiting for the actual
-hardware to signal that the commit parameters have been written into the
-appropriate registers. As we signal CRTC events only on the irq handlers,
-we need to flush the configuration and wait for the hardware to respond.
-
-Add the Komeda specific implementation for atomic_commit_hw_done() that
-flushes and waits for flip done before calling drm_atomic_helper_commit_hw_done().
-
-The fix was prompted by a patch from Carsten Haitzler where he was trying to
-solve the same issue but in a different way that I think can lead to wrong
-event signaling to userspace.
-
-Reported-by: Carsten Haitzler <carsten.haitzler@arm.com>
-Tested-by: Carsten Haitzler <carsten.haitzler@arm.com>
-Reviewed-by: Carsten Haitzler <carsten.haitzler@arm.com>
-Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220722122139.288486-1-liviu.dudau@arm.com
+Signed-off-by: Conner Knox <connerknoxpublic@gmail.com>
+Link: https://lore.kernel.org/r/20220818201433.16360-1-mbarriolinares@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/arm/display/komeda/komeda_crtc.c  |  4 ++--
- .../gpu/drm/arm/display/komeda/komeda_kms.c   | 21 ++++++++++++++++++-
- .../gpu/drm/arm/display/komeda/komeda_kms.h   |  2 ++
- 3 files changed, 24 insertions(+), 3 deletions(-)
+ sound/usb/quirks-table.h |  76 ++++++++++
+ sound/usb/quirks.c       | 302 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 378 insertions(+)
 
-diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c b/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c
-index 59172acb9738..292f533d8cf0 100644
---- a/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c
-+++ b/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c
-@@ -235,7 +235,7 @@ void komeda_crtc_handle_event(struct komeda_crtc   *kcrtc,
- 			crtc->state->event = NULL;
- 			drm_crtc_send_vblank_event(crtc, event);
- 		} else {
--			DRM_WARN("CRTC[%d]: FLIP happen but no pending commit.\n",
-+			DRM_WARN("CRTC[%d]: FLIP happened but no pending commit.\n",
- 				 drm_crtc_index(&kcrtc->base));
+diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
+index f93201a830b5..06dfdd45cff8 100644
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -2985,6 +2985,82 @@ YAMAHA_DEVICE(0x7010, "UB99"),
  		}
- 		spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
-@@ -286,7 +286,7 @@ komeda_crtc_atomic_enable(struct drm_crtc *crtc,
- 	komeda_crtc_do_flush(crtc, old);
- }
- 
--static void
-+void
- komeda_crtc_flush_and_wait_for_flip_done(struct komeda_crtc *kcrtc,
- 					 struct completion *input_flip_done)
- {
-diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_kms.c b/drivers/gpu/drm/arm/display/komeda/komeda_kms.c
-index 93b7f09b96ca..327051bba5b6 100644
---- a/drivers/gpu/drm/arm/display/komeda/komeda_kms.c
-+++ b/drivers/gpu/drm/arm/display/komeda/komeda_kms.c
-@@ -69,6 +69,25 @@ static const struct drm_driver komeda_kms_driver = {
- 	.minor = 1,
- };
- 
-+static void komeda_kms_atomic_commit_hw_done(struct drm_atomic_state *state)
+ 	}
+ },
++/* DIGIDESIGN MBOX 3 */
 +{
-+	struct drm_device *dev = state->dev;
-+	struct komeda_kms_dev *kms = to_kdev(dev);
-+	int i;
-+
-+	for (i = 0; i < kms->n_crtcs; i++) {
-+		struct komeda_crtc *kcrtc = &kms->crtcs[i];
-+
-+		if (kcrtc->base.state->active) {
-+			struct completion *flip_done = NULL;
-+			if (kcrtc->base.state->event)
-+				flip_done = kcrtc->base.state->event->base.completion;
-+			komeda_crtc_flush_and_wait_for_flip_done(kcrtc, flip_done);
++	USB_DEVICE(0x0dba, 0x5000),
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.vendor_name = "Digidesign",
++		.product_name = "Mbox 3",
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = (const struct snd_usb_audio_quirk[]) {
++			{
++				.ifnum = 0,
++				.type = QUIRK_IGNORE_INTERFACE
++			},
++			{
++				.ifnum = 1,
++				.type = QUIRK_IGNORE_INTERFACE
++			},
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
++					.channels = 4,
++					.iface = 2,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.attributes = 0x00,
++					.endpoint = 0x01,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC |
++						USB_ENDPOINT_SYNC_ASYNC,
++					.rates = SNDRV_PCM_RATE_48000,
++					.rate_min = 48000,
++					.rate_max = 48000,
++					.nr_rates = 1,
++					.rate_table = (unsigned int[]) {
++						48000
++					}
++				}
++			},
++			{
++				.ifnum = 3,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
++					.channels = 4,
++					.iface = 3,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.endpoint = 0x81,
++					.attributes = 0x00,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC |
++						USB_ENDPOINT_SYNC_ASYNC,
++					.maxpacksize = 0x009c,
++					.rates = SNDRV_PCM_RATE_48000,
++					.rate_min = 48000,
++					.rate_max = 48000,
++					.nr_rates = 1,
++					.rate_table = (unsigned int[]) {
++						48000
++					}
++				}
++			},
++			{
++				.ifnum = 4,
++				.type = QUIRK_MIDI_FIXED_ENDPOINT,
++				.data = &(const struct snd_usb_midi_endpoint_info) {
++					.out_cables = 0x0001,
++					.in_cables  = 0x0001
++				}
++			},
++			{
++				.ifnum = -1
++			}
 +		}
 +	}
-+	drm_atomic_helper_commit_hw_done(state);
++},
+ {
+ 	/* Tascam US122 MKII - playback-only support */
+ 	USB_DEVICE_VENDOR_SPEC(0x0644, 0x8021),
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index 5b4d8f5eade2..194c75c45628 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1020,6 +1020,304 @@ static int snd_usb_axefx3_boot_quirk(struct usb_device *dev)
+ 	return 0;
+ }
+ 
++static void mbox3_setup_48_24_magic(struct usb_device *dev)
++{
++	/* The Mbox 3 is "little endian" */
++	/* max volume is: 0x0000. */
++	/* min volume is: 0x0080 (shown in little endian form) */
++
++
++	/* Load 48000Hz rate into buffer */
++	u8 com_buff[4] = {0x80, 0xbb, 0x00, 0x00};
++
++	/* Set 48000Hz sample rate */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			0x01, 0x21, 0x0100, 0x0001, &com_buff, 4);  //Is this really needed?
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			0x01, 0x21, 0x0100, 0x8101, &com_buff, 4);
++
++	/* Deactivate Tuner */
++	/* on  = 0x01*/
++	/* off = 0x00*/
++	com_buff[0] = 0x00;
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++		0x01, 0x21, 0x0003, 0x2001, &com_buff, 1);
++
++	/* Set clock source to Internal (as opposed to S/PDIF) */
++	com_buff[0] = 0x01;
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0100, 0x8001, &com_buff, 1);
++
++	/* Mute the hardware loopbacks to start the device in a known state. */
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x80;
++	/* Analogue input 1 left channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0110, 0x4001, &com_buff, 2);
++	/* Analogue input 1 right channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0111, 0x4001, &com_buff, 2);
++	/* Analogue input 2 left channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0114, 0x4001, &com_buff, 2);
++	/* Analogue input 2 right channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0115, 0x4001, &com_buff, 2);
++	/* Analogue input 3 left channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0118, 0x4001, &com_buff, 2);
++	/* Analogue input 3 right channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0119, 0x4001, &com_buff, 2);
++	/* Analogue input 4 left channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x011c, 0x4001, &com_buff, 2);
++	/* Analogue input 4 right channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x011d, 0x4001, &com_buff, 2);
++
++	/* Set software sends to output */
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x00;
++	/* Analogue software return 1 left channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0100, 0x4001, &com_buff, 2);
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x80;
++	/* Analogue software return 1 right channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0101, 0x4001, &com_buff, 2);
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x80;
++	/* Analogue software return 2 left channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0104, 0x4001, &com_buff, 2);
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x00;
++	/* Analogue software return 2 right channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0105, 0x4001, &com_buff, 2);
++
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x80;
++	/* Analogue software return 3 left channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0108, 0x4001, &com_buff, 2);
++	/* Analogue software return 3 right channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0109, 0x4001, &com_buff, 2);
++	/* Analogue software return 4 left channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x010c, 0x4001, &com_buff, 2);
++	/* Analogue software return 4 right channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x010d, 0x4001, &com_buff, 2);
++
++	/* Return to muting sends */
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x80;
++	/* Analogue fx return left channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0120, 0x4001, &com_buff, 2);
++	/* Analogue fx return right channel: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0121, 0x4001, &com_buff, 2);
++
++	/* Analogue software input 1 fx send: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0100, 0x4201, &com_buff, 2);
++	/* Analogue software input 2 fx send: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0101, 0x4201, &com_buff, 2);
++	/* Analogue software input 3 fx send: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0102, 0x4201, &com_buff, 2);
++	/* Analogue software input 4 fx send: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0103, 0x4201, &com_buff, 2);
++	/* Analogue input 1 fx send: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0104, 0x4201, &com_buff, 2);
++	/* Analogue input 2 fx send: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0105, 0x4201, &com_buff, 2);
++	/* Analogue input 3 fx send: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0106, 0x4201, &com_buff, 2);
++	/* Analogue input 4 fx send: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0107, 0x4201, &com_buff, 2);
++
++	/* Toggle allowing host control */
++	com_buff[0] = 0x02;
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			3, 0x21, 0x0000, 0x2001, &com_buff, 1);
++
++	/* Do not dim fx returns */
++	com_buff[0] = 0x00;
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			3, 0x21, 0x0002, 0x2001, &com_buff, 1);
++
++	/* Do not set fx returns to mono */
++	com_buff[0] = 0x00;
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			3, 0x21, 0x0001, 0x2001, &com_buff, 1);
++
++	/* Mute the S/PDIF hardware loopback
++	 * same odd volume logic here as above
++	 */
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x80;
++	/* S/PDIF hardware input 1 left channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0112, 0x4001, &com_buff, 2);
++	/* S/PDIF hardware input 1 right channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0113, 0x4001, &com_buff, 2);
++	/* S/PDIF hardware input 2 left channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0116, 0x4001, &com_buff, 2);
++	/* S/PDIF hardware input 2 right channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0117, 0x4001, &com_buff, 2);
++	/* S/PDIF hardware input 3 left channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x011a, 0x4001, &com_buff, 2);
++	/* S/PDIF hardware input 3 right channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x011b, 0x4001, &com_buff, 2);
++	/* S/PDIF hardware input 4 left channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x011e, 0x4001, &com_buff, 2);
++	/* S/PDIF hardware input 4 right channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x011f, 0x4001, &com_buff, 2);
++	/* S/PDIF software return 1 left channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0102, 0x4001, &com_buff, 2);
++	/* S/PDIF software return 1 right channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0103, 0x4001, &com_buff, 2);
++	/* S/PDIF software return 2 left channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0106, 0x4001, &com_buff, 2);
++	/* S/PDIF software return 2 right channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0107, 0x4001, &com_buff, 2);
++
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x00;
++	/* S/PDIF software return 3 left channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x010a, 0x4001, &com_buff, 2);
++
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x80;
++	/* S/PDIF software return 3 right channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x010b, 0x4001, &com_buff, 2);
++	/* S/PDIF software return 4 left channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x010e, 0x4001, &com_buff, 2);
++
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x00;
++	/* S/PDIF software return 4 right channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x010f, 0x4001, &com_buff, 2);
++
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x80;
++	/* S/PDIF fx returns left channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0122, 0x4001, &com_buff, 2);
++	/* S/PDIF fx returns right channel */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0123, 0x4001, &com_buff, 2);
++
++	/* Set the dropdown "Effect" to the first option */
++	/* Room1  = 0x00 */
++	/* Room2  = 0x01 */
++	/* Room3  = 0x02 */
++	/* Hall 1 = 0x03 */
++	/* Hall 2 = 0x04 */
++	/* Plate  = 0x05 */
++	/* Delay  = 0x06 */
++	/* Echo   = 0x07 */
++	com_buff[0] = 0x00;
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0200, 0x4301, &com_buff, 1);	/* max is 0xff */
++	/* min is 0x00 */
++
++
++	/* Set the effect duration to 0 */
++	/* max is 0xffff */
++	/* min is 0x0000 */
++	com_buff[0] = 0x00;
++	com_buff[1] = 0x00;
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0400, 0x4301, &com_buff, 2);
++
++	/* Set the effect volume and feedback to 0 */
++	/* max is 0xff */
++	/* min is 0x00 */
++	com_buff[0] = 0x00;
++	/* feedback: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0500, 0x4301, &com_buff, 1);
++	/* volume: */
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			1, 0x21, 0x0300, 0x4301, &com_buff, 1);
++
++	/* Set soft button hold duration */
++	/* 0x03 = 250ms */
++	/* 0x05 = 500ms DEFAULT */
++	/* 0x08 = 750ms */
++	/* 0x0a = 1sec */
++	com_buff[0] = 0x05;
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			3, 0x21, 0x0005, 0x2001, &com_buff, 1);
++
++	/* Use dim LEDs for button of state */
++	com_buff[0] = 0x00;
++	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0),
++			3, 0x21, 0x0004, 0x2001, &com_buff, 1);
 +}
 +
- static void komeda_kms_commit_tail(struct drm_atomic_state *old_state)
- {
- 	struct drm_device *dev = old_state->dev;
-@@ -81,7 +100,7 @@ static void komeda_kms_commit_tail(struct drm_atomic_state *old_state)
++#define MBOX3_DESCRIPTOR_SIZE	464
++
++static int snd_usb_mbox3_boot_quirk(struct usb_device *dev)
++{
++	struct usb_host_config *config = dev->actconfig;
++	int err;
++	int descriptor_size;
++
++	descriptor_size = le16_to_cpu(get_cfg_desc(config)->wTotalLength);
++
++	if (descriptor_size != MBOX3_DESCRIPTOR_SIZE) {
++		dev_err(&dev->dev, "Invalid descriptor size=%d.\n", descriptor_size);
++		return -ENODEV;
++	}
++
++	dev_dbg(&dev->dev, "device initialised!\n");
++
++	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0,
++		&dev->descriptor, sizeof(dev->descriptor));
++	config = dev->actconfig;
++	if (err < 0)
++		dev_dbg(&dev->dev, "error usb_get_descriptor: %d\n", err);
++
++	err = usb_reset_configuration(dev);
++	if (err < 0)
++		dev_dbg(&dev->dev, "error usb_reset_configuration: %d\n", err);
++	dev_dbg(&dev->dev, "mbox3_boot: new boot length = %d\n",
++		le16_to_cpu(get_cfg_desc(config)->wTotalLength));
++
++	mbox3_setup_48_24_magic(dev);
++	dev_info(&dev->dev, "Digidesign Mbox 3: 24bit 48kHz");
++
++	return 0; /* Successful boot */
++}
  
- 	drm_atomic_helper_commit_modeset_enables(dev, old_state);
+ #define MICROBOOK_BUF_SIZE 128
  
--	drm_atomic_helper_commit_hw_done(old_state);
-+	komeda_kms_atomic_commit_hw_done(old_state);
+@@ -1324,6 +1622,10 @@ int snd_usb_apply_boot_quirk(struct usb_device *dev,
+ 	case USB_ID(0x0dba, 0x3000):
+ 		/* Digidesign Mbox 2 */
+ 		return snd_usb_mbox2_boot_quirk(dev);
++	case USB_ID(0x0dba, 0x5000):
++		/* Digidesign Mbox 3 */
++		return snd_usb_mbox3_boot_quirk(dev);
++
  
- 	drm_atomic_helper_wait_for_flip_done(dev, old_state);
- 
-diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_kms.h b/drivers/gpu/drm/arm/display/komeda/komeda_kms.h
-index 7889e380ab23..7339339ef6b8 100644
---- a/drivers/gpu/drm/arm/display/komeda/komeda_kms.h
-+++ b/drivers/gpu/drm/arm/display/komeda/komeda_kms.h
-@@ -183,6 +183,8 @@ void komeda_kms_cleanup_private_objs(struct komeda_kms_dev *kms);
- 
- void komeda_crtc_handle_event(struct komeda_crtc   *kcrtc,
- 			      struct komeda_events *evts);
-+void komeda_crtc_flush_and_wait_for_flip_done(struct komeda_crtc *kcrtc,
-+					      struct completion *input_flip_done);
- 
- struct komeda_kms_dev *komeda_kms_attach(struct komeda_dev *mdev);
- void komeda_kms_detach(struct komeda_kms_dev *kms);
+ 	case USB_ID(0x1235, 0x0010): /* Focusrite Novation Saffire 6 USB */
+ 	case USB_ID(0x1235, 0x0018): /* Focusrite Novation Twitch */
 -- 
 2.35.1
 
