@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AA52603F3F
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 448A9603F62
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233528AbiJSJa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:30:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48516 "EHLO
+        id S233679AbiJSJbT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:31:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233379AbiJSJ2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:28:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B222F00B;
-        Wed, 19 Oct 2022 02:12:39 -0700 (PDT)
+        with ESMTP id S233742AbiJSJ3R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C616EA354;
+        Wed, 19 Oct 2022 02:12:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A2F79617FB;
-        Wed, 19 Oct 2022 09:12:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3ABDC433C1;
-        Wed, 19 Oct 2022 09:12:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A815617E9;
+        Wed, 19 Oct 2022 09:12:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CABEC433D6;
+        Wed, 19 Oct 2022 09:12:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170743;
-        bh=JmpHzPt5OzRE48qvSoGUsEyjroleAuSqVfzmL+otnSI=;
+        s=korg; t=1666170745;
+        bh=/UPmvDRbtsBw3+d+730TijZ/pJ3LtWpVfzkxMeoQgAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RdWvhbqMZz2gWm+bkfnUUcuo0xe8D3Za7mAIOArLU2dMV/FrnBQfAlytdssw6ql7Q
-         H8YFQyO3SpYNz0ag6wKj6BK/r6IuLrDMOYEskspMKB+VAU2rfE6pxULiMkOn7ILiEJ
-         EniXwZd59/AtmSQ0TCKhn8pnAYQO9NAWgUp7XwcY=
+        b=eYKFnrHJkwxOQETbU7WSas87+lf/9VLZh0BC6wQdNZMPIUVdfWT7LUifHvm4fw910
+         jR+YacsYLeiYCnbVz+fM0IKjg1ev8Fma16aqszpfeyQysG1Lg23BjYeFX0E/nlVoho
+         WTWfKe+mGTmg8gDLq+s0j7Dm59II0ZNiJvL81X5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        David Heidelberg <david@ixit.cz>,
-        Bjorn Andersson <andersson@kernel.org>,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 770/862] arm64: dts: qcom: sc7280-idp: correct ADC channel node name and unit address
-Date:   Wed, 19 Oct 2022 10:34:17 +0200
-Message-Id: <20221019083323.943895684@linuxfoundation.org>
+Subject: [PATCH 6.0 771/862] ARM: dts: imx6q: add missing properties for sram
+Date:   Wed, 19 Oct 2022 10:34:18 +0200
+Message-Id: <20221019083323.981985955@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,56 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 5589ffb2da2a66988ab3a68334dad3e68b42e3a9 ]
+[ Upstream commit b11d083c5dcec7c42fe982c854706d404ddd3a5f ]
 
-Correct SPMI PMIC VADC channel node name:
-1. Use hyphens instead of underscores,
-2. Add missing unit address.
+All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
+sram@900000: '#address-cells' is a required property
+sram@900000: '#size-cells' is a required property
+sram@900000: 'ranges' is a required property
 
-This fixes `make dtbs_check` warnings like:
-
-  qcom/sc7280-idp.dtb: pmic@0: adc@3100: 'pmk8350_die_temp', 'pmr735a_die_temp' do not match any of the regexes: '^.*@[0-9a-f]+$', 'pinctrl-[0-9]+'
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Reviewed-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220828084341.112146-12-krzysztof.kozlowski@linaro.org
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7280-idp.dts  | 2 +-
- arch/arm64/boot/dts/qcom/sc7280-idp.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6q.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7280-idp.dts b/arch/arm64/boot/dts/qcom/sc7280-idp.dts
-index 6d3ff80582ae..e2e37a0292ad 100644
---- a/arch/arm64/boot/dts/qcom/sc7280-idp.dts
-+++ b/arch/arm64/boot/dts/qcom/sc7280-idp.dts
-@@ -78,7 +78,7 @@
- };
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index 3b77eae40e39..df86049a695b 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -163,6 +163,9 @@
+ 		ocram: sram@900000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x00900000 0x40000>;
++			ranges = <0 0x00900000 0x40000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
+ 		};
  
- &pmk8350_vadc {
--	pmr735a_die_temp {
-+	pmr735a-die-temp@403 {
- 		reg = <PMR735A_ADC7_DIE_TEMP>;
- 		label = "pmr735a_die_temp";
- 		qcom,pre-scaling = <1 1>;
-diff --git a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-index a74e0b730db6..27c47ddbdf02 100644
---- a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-@@ -264,7 +264,7 @@
- };
- 
- &pmk8350_vadc {
--	pmk8350_die_temp {
-+	pmk8350-die-temp@3 {
- 		reg = <PMK8350_ADC7_DIE_TEMP>;
- 		label = "pmk8350_die_temp";
- 		qcom,pre-scaling = <1 1>;
 -- 
 2.35.1
 
