@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC4E8603BBC
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:39:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61E52603BBD
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:39:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230210AbiJSIjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:39:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54318 "EHLO
+        id S230236AbiJSIjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:39:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230247AbiJSIii (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:38:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6373981123;
-        Wed, 19 Oct 2022 01:38:14 -0700 (PDT)
+        with ESMTP id S230078AbiJSIik (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:38:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38EB38112C;
+        Wed, 19 Oct 2022 01:38:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B4FAB822BE;
-        Wed, 19 Oct 2022 08:37:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 828C4C433C1;
-        Wed, 19 Oct 2022 08:37:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9C17617AC;
+        Wed, 19 Oct 2022 08:37:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4B48C43470;
+        Wed, 19 Oct 2022 08:37:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168672;
-        bh=6AAYlz6WMbyiz2zlzUmiFzfmzMYzCpqeoaRixFgbwJM=;
+        s=korg; t=1666168676;
+        bh=72hmIiOc3TIOnfmh7t6u3JsBy/1wx4DTVUeW+p9gm0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pE41ptUGKeM6c75YC0s9BvP+MKPFwWltgJuEAyu+SfzQ45F3X0pW9IZRoikK4pJuj
-         iJ/EnMxbd58dUUudyEJKbmfs1o80zy1ppkPXgBBfSzx1ZCxSegqmNGr0yXKglkQy2T
-         ldB/lMHuk0lQA3Tv+amJBmi0JKuHLkLb/oELkXgU=
+        b=NkIYhfVfVbR4TXah9qmoTWoVzVSwPzhX66EG4VzNFPVJLWdTWeWtQ/EUsvMvdua2L
+         8eRg/iObNtg6PyzwieHahfyICEf24dugIFleWN/wj25Iycw663CmGRYtbDOE7mDoqV
+         eIT2oJNCciQL5NutZWqCSq2W3443JEot21O/oBYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        stable@vger.kernel.org, Aidan Sun <aidansun05@gmail.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.0 017/862] io_uring: limit registration w/ SINGLE_ISSUER
-Date:   Wed, 19 Oct 2022 10:21:44 +0200
-Message-Id: <20221019083250.770950056@linuxfoundation.org>
+Subject: [PATCH 6.0 018/862] io_uring/net: handle -EINPROGRESS correct for IORING_OP_CONNECT
+Date:   Wed, 19 Oct 2022 10:21:45 +0200
+Message-Id: <20221019083250.812246178@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,36 +52,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit d7cce96c449e35bbfd41e830b341b95973891eed upstream.
+commit 3fb1bd68817288729179444caf1fd5c5c4d2d65d upstream.
 
-IORING_SETUP_SINGLE_ISSUER restricts what tasks can submit requests.
-Extend it to registration as well, so non-owning task can't do
-registrations. It's not necessary at the moment but might be useful in
-the future.
+We treat EINPROGRESS like EAGAIN, but if we're retrying post getting
+EINPROGRESS, then we just need to check the socket for errors and
+terminate the request.
 
-Cc: <stable@vger.kernel.org> # 6.0
-Fixes: 97bbdc06a444 ("io_uring: add IORING_SETUP_SINGLE_ISSUER")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/f52a6a9c8a8990d4a831f73c0571e7406aac2bba.1664237592.git.asml.silence@gmail.com
+This was exposed on a bluetooth connection request which ends up
+taking a while and hitting EINPROGRESS, and yields a CQE result of
+-EBADFD because we're retrying a connect on a socket that is now
+connected.
+
+Cc: stable@vger.kernel.org
+Fixes: 87f80d623c6c ("io_uring: handle connect -EINPROGRESS like -EAGAIN")
+Link: https://github.com/axboe/liburing/issues/671
+Reported-by: Aidan Sun <aidansun05@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/io_uring.c |    3 +++
- 1 file changed, 3 insertions(+)
+ io_uring/net.c |   28 ++++++++++++++++++++++------
+ 1 file changed, 22 insertions(+), 6 deletions(-)
 
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -3710,6 +3710,9 @@ static int __io_uring_register(struct io
- 	if (WARN_ON_ONCE(percpu_ref_is_dying(&ctx->refs)))
- 		return -ENXIO;
+--- a/io_uring/net.c
++++ b/io_uring/net.c
+@@ -46,6 +46,7 @@ struct io_connect {
+ 	struct file			*file;
+ 	struct sockaddr __user		*addr;
+ 	int				addr_len;
++	bool				in_progress;
+ };
  
-+	if (ctx->submitter_task && ctx->submitter_task != current)
-+		return -EEXIST;
+ struct io_sr_msg {
+@@ -1263,6 +1264,7 @@ int io_connect_prep(struct io_kiocb *req
+ 
+ 	conn->addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
+ 	conn->addr_len =  READ_ONCE(sqe->addr2);
++	conn->in_progress = false;
+ 	return 0;
+ }
+ 
+@@ -1274,6 +1276,16 @@ int io_connect(struct io_kiocb *req, uns
+ 	int ret;
+ 	bool force_nonblock = issue_flags & IO_URING_F_NONBLOCK;
+ 
++	if (connect->in_progress) {
++		struct socket *socket;
 +
- 	if (ctx->restricted) {
- 		if (opcode >= IORING_REGISTER_LAST)
- 			return -EINVAL;
++		ret = -ENOTSOCK;
++		socket = sock_from_file(req->file);
++		if (socket)
++			ret = sock_error(socket->sk);
++		goto out;
++	}
++
+ 	if (req_has_async_data(req)) {
+ 		io = req->async_data;
+ 	} else {
+@@ -1290,13 +1302,17 @@ int io_connect(struct io_kiocb *req, uns
+ 	ret = __sys_connect_file(req->file, &io->address,
+ 					connect->addr_len, file_flags);
+ 	if ((ret == -EAGAIN || ret == -EINPROGRESS) && force_nonblock) {
+-		if (req_has_async_data(req))
+-			return -EAGAIN;
+-		if (io_alloc_async_data(req)) {
+-			ret = -ENOMEM;
+-			goto out;
++		if (ret == -EINPROGRESS) {
++			connect->in_progress = true;
++		} else {
++			if (req_has_async_data(req))
++				return -EAGAIN;
++			if (io_alloc_async_data(req)) {
++				ret = -ENOMEM;
++				goto out;
++			}
++			memcpy(req->async_data, &__io, sizeof(__io));
+ 		}
+-		memcpy(req->async_data, &__io, sizeof(__io));
+ 		return -EAGAIN;
+ 	}
+ 	if (ret == -ERESTARTSYS)
 
 
