@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4331F604104
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:35:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CEF260410D
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:36:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229853AbiJSKf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:35:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55058 "EHLO
+        id S230110AbiJSKgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:36:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231909AbiJSKeG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:34:06 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99D3125E93;
-        Wed, 19 Oct 2022 03:13:16 -0700 (PDT)
+        with ESMTP id S230120AbiJSKgc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:36:32 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD97DFF8C9;
+        Wed, 19 Oct 2022 03:15:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 47EABCE21C4;
-        Wed, 19 Oct 2022 09:13:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C37FC433D6;
-        Wed, 19 Oct 2022 09:13:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9C9ECCE21CB;
+        Wed, 19 Oct 2022 09:13:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A61DC433C1;
+        Wed, 19 Oct 2022 09:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170795;
-        bh=G8CuIdsxyRmJZ0HZZZ+6AWbhH4w906IufRABNPKTnM0=;
+        s=korg; t=1666170803;
+        bh=u/bw0MPMS/QV/9IoNFCmnYBw0YZ8rHNhw+FhHjhGJJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMnu1Tcf69bedyBPrM3c4kpDxxZwkbw/aegKz5o8Y1pskqr9Lmu1+cS5Y+QwrW7rS
-         2nQhUFT9PB0WM3tah/ok2tr0LgS7owWhiSsot7Tsoqc9vEHaNCpLwAGzPopLFHPt5E
-         gNNIUo3zr8Elg/6Zd2r5c2QsQf0SGc1dMgOjB5f4=
+        b=g8+DaP1h1twAwayRjjQbUPT7pZxig55sFkcmNDrmHgY53rOy1kKISkc6KcDlwYgHE
+         mh14elmOHr99xYWfUyf4hS5gumchndc2oeXqX7dq2+acHvfQ0zczi5YkuhkP/dzabC
+         QpPTeHZ/KaP+e10gU9cTs4/b4Jh/rDV4EQ3Ebj5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
-        Linus Waleij <linus.walleij@linaro.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 790/862] ARM: 9234/1: stacktrace: Avoid duplicate saving of exception PC value
-Date:   Wed, 19 Oct 2022 10:34:37 +0200
-Message-Id: <20221019083324.817190727@linuxfoundation.org>
+Subject: [PATCH 6.0 793/862] media: cx88: Fix a null-ptr-deref bug in buffer_prepare()
+Date:   Wed, 19 Oct 2022 10:34:40 +0200
+Message-Id: <20221019083324.959657054@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,175 +54,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Huafei <lihuafei1@huawei.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 752ec621ef5c30777958cc5eb5f1cf394f7733f4 ]
+[ Upstream commit 2b064d91440b33fba5b452f2d1b31f13ae911d71 ]
 
-Because an exception stack frame is not created in the exception entry,
-save_trace() does special handling for the exception PC, but this is
-only needed when CONFIG_FRAME_POINTER_UNWIND=y. When
-CONFIG_ARM_UNWIND=y, unwind annotations have been added to the exception
-entry and save_trace() will repeatedly save the exception PC:
+When the driver calls cx88_risc_buffer() to prepare the buffer, the
+function call may fail, resulting in a empty buffer and null-ptr-deref
+later in buffer_queue().
 
-    [0x7f000090] hrtimer_hander+0x8/0x10 [hrtimer]
-    [0x8019ec50] __hrtimer_run_queues+0x18c/0x394
-    [0x8019f760] hrtimer_run_queues+0xbc/0xd0
-    [0x8019def0] update_process_times+0x34/0x80
-    [0x801ad2a4] tick_periodic+0x48/0xd0
-    [0x801ad3dc] tick_handle_periodic+0x1c/0x7c
-    [0x8010f2e0] twd_handler+0x30/0x40
-    [0x80177620] handle_percpu_devid_irq+0xa0/0x23c
-    [0x801718d0] generic_handle_domain_irq+0x24/0x34
-    [0x80502d28] gic_handle_irq+0x74/0x88
-    [0x8085817c] generic_handle_arch_irq+0x58/0x78
-    [0x80100ba8] __irq_svc+0x88/0xc8
-    [0x80108114] arch_cpu_idle+0x38/0x3c
-    [0x80108114] arch_cpu_idle+0x38/0x3c    <==== duplicate saved exception PC
-    [0x80861bf8] default_idle_call+0x38/0x130
-    [0x8015d5cc] do_idle+0x150/0x214
-    [0x8015d978] cpu_startup_entry+0x18/0x1c
-    [0x808589c0] rest_init+0xd8/0xdc
-    [0x80c00a44] arch_post_acpi_subsys_init+0x0/0x8
+The following log can reveal it:
 
-We can move the special handling of the exception PC in save_trace() to
-the unwind_frame() of the frame pointer unwinder.
+[   41.822762] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN PTI
+[   41.824488] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+[   41.828027] RIP: 0010:buffer_queue+0xc2/0x500
+[   41.836311] Call Trace:
+[   41.836945]  __enqueue_in_driver+0x141/0x360
+[   41.837262]  vb2_start_streaming+0x62/0x4a0
+[   41.838216]  vb2_core_streamon+0x1da/0x2c0
+[   41.838516]  __vb2_init_fileio+0x981/0xbc0
+[   41.839141]  __vb2_perform_fileio+0xbf9/0x1120
+[   41.840072]  vb2_fop_read+0x20e/0x400
+[   41.840346]  v4l2_read+0x215/0x290
+[   41.840603]  vfs_read+0x162/0x4c0
 
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-Reviewed-by: Linus Waleij <linus.walleij@linaro.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fix this by checking the return value of cx88_risc_buffer()
+
+[hverkuil: fix coding style issues]
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/stacktrace.h |  6 +++++
- arch/arm/kernel/return_address.c  |  1 +
- arch/arm/kernel/stacktrace.c      | 44 +++++++++++++++++++++----------
- 3 files changed, 37 insertions(+), 14 deletions(-)
+ drivers/media/pci/cx88/cx88-vbi.c   |  9 +++---
+ drivers/media/pci/cx88/cx88-video.c | 43 +++++++++++++++--------------
+ 2 files changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/arch/arm/include/asm/stacktrace.h b/arch/arm/include/asm/stacktrace.h
-index 3e78f921b8b2..39be2d1aa27b 100644
---- a/arch/arm/include/asm/stacktrace.h
-+++ b/arch/arm/include/asm/stacktrace.h
-@@ -21,6 +21,9 @@ struct stackframe {
- 	struct llist_node *kr_cur;
- 	struct task_struct *tsk;
- #endif
-+#ifdef CONFIG_UNWINDER_FRAME_POINTER
-+	bool ex_frame;
-+#endif
- };
- 
- static __always_inline
-@@ -34,6 +37,9 @@ void arm_get_current_stackframe(struct pt_regs *regs, struct stackframe *frame)
- 		frame->kr_cur = NULL;
- 		frame->tsk = current;
- #endif
-+#ifdef CONFIG_UNWINDER_FRAME_POINTER
-+		frame->ex_frame = in_entry_text(frame->pc);
-+#endif
- }
- 
- extern int unwind_frame(struct stackframe *frame);
-diff --git a/arch/arm/kernel/return_address.c b/arch/arm/kernel/return_address.c
-index 8aac1e10b117..38f1ea9c724d 100644
---- a/arch/arm/kernel/return_address.c
-+++ b/arch/arm/kernel/return_address.c
-@@ -47,6 +47,7 @@ void *return_address(unsigned int level)
- 	frame.kr_cur = NULL;
- 	frame.tsk = current;
- #endif
-+	frame.ex_frame = false;
- 
- 	walk_stackframe(&frame, save_return_addr, &data);
- 
-diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
-index af87040b0353..85443b5d1922 100644
---- a/arch/arm/kernel/stacktrace.c
-+++ b/arch/arm/kernel/stacktrace.c
-@@ -82,6 +82,27 @@ int notrace unwind_frame(struct stackframe *frame)
- 	if (frame_pointer_check(frame))
+diff --git a/drivers/media/pci/cx88/cx88-vbi.c b/drivers/media/pci/cx88/cx88-vbi.c
+index a075788c64d4..469aeaa725ad 100644
+--- a/drivers/media/pci/cx88/cx88-vbi.c
++++ b/drivers/media/pci/cx88/cx88-vbi.c
+@@ -144,11 +144,10 @@ static int buffer_prepare(struct vb2_buffer *vb)
  		return -EINVAL;
+ 	vb2_set_plane_payload(vb, 0, size);
  
-+	/*
-+	 * When we unwind through an exception stack, include the saved PC
-+	 * value into the stack trace.
-+	 */
-+	if (frame->ex_frame) {
-+		struct pt_regs *regs = (struct pt_regs *)frame->sp;
-+
-+		/*
-+		 * We check that 'regs + sizeof(struct pt_regs)' (that is,
-+		 * &regs[1]) does not exceed the bottom of the stack to avoid
-+		 * accessing data outside the task's stack. This may happen
-+		 * when frame->ex_frame is a false positive.
-+		 */
-+		if ((unsigned long)&regs[1] > ALIGN(frame->sp, THREAD_SIZE))
-+			return -EINVAL;
-+
-+		frame->pc = regs->ARM_pc;
-+		frame->ex_frame = false;
-+		return 0;
-+	}
-+
- 	/* restore the registers from the stack frame */
- #ifdef CONFIG_CC_IS_CLANG
- 	frame->sp = frame->fp;
-@@ -98,6 +119,9 @@ int notrace unwind_frame(struct stackframe *frame)
- 					(void *)frame->fp, &frame->kr_cur);
- #endif
- 
-+	if (in_entry_text(frame->pc))
-+		frame->ex_frame = true;
-+
- 	return 0;
+-	cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
+-			 0, VBI_LINE_LENGTH * lines,
+-			 VBI_LINE_LENGTH, 0,
+-			 lines);
+-	return 0;
++	return cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
++				0, VBI_LINE_LENGTH * lines,
++				VBI_LINE_LENGTH, 0,
++				lines);
  }
- #endif
-@@ -128,7 +152,6 @@ static int save_trace(struct stackframe *frame, void *d)
+ 
+ static void buffer_finish(struct vb2_buffer *vb)
+diff --git a/drivers/media/pci/cx88/cx88-video.c b/drivers/media/pci/cx88/cx88-video.c
+index d3729be89252..b509c2a03852 100644
+--- a/drivers/media/pci/cx88/cx88-video.c
++++ b/drivers/media/pci/cx88/cx88-video.c
+@@ -431,6 +431,7 @@ static int queue_setup(struct vb2_queue *q,
+ 
+ static int buffer_prepare(struct vb2_buffer *vb)
  {
- 	struct stack_trace_data *data = d;
- 	struct stack_trace *trace = data->trace;
--	struct pt_regs *regs;
- 	unsigned long addr = frame->pc;
++	int ret;
+ 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+ 	struct cx8800_dev *dev = vb->vb2_queue->drv_priv;
+ 	struct cx88_core *core = dev->core;
+@@ -445,35 +446,35 @@ static int buffer_prepare(struct vb2_buffer *vb)
  
- 	if (data->no_sched_functions && in_sched_functions(addr))
-@@ -139,19 +162,6 @@ static int save_trace(struct stackframe *frame, void *d)
+ 	switch (core->field) {
+ 	case V4L2_FIELD_TOP:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl, 0, UNSET,
+-				 buf->bpl, 0, core->height);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl, 0, UNSET,
++				       buf->bpl, 0, core->height);
+ 		break;
+ 	case V4L2_FIELD_BOTTOM:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl, UNSET, 0,
+-				 buf->bpl, 0, core->height);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl, UNSET, 0,
++				       buf->bpl, 0, core->height);
+ 		break;
+ 	case V4L2_FIELD_SEQ_TB:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl,
+-				 0, buf->bpl * (core->height >> 1),
+-				 buf->bpl, 0,
+-				 core->height >> 1);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl,
++				       0, buf->bpl * (core->height >> 1),
++				       buf->bpl, 0,
++				       core->height >> 1);
+ 		break;
+ 	case V4L2_FIELD_SEQ_BT:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl,
+-				 buf->bpl * (core->height >> 1), 0,
+-				 buf->bpl, 0,
+-				 core->height >> 1);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl,
++				       buf->bpl * (core->height >> 1), 0,
++				       buf->bpl, 0,
++				       core->height >> 1);
+ 		break;
+ 	case V4L2_FIELD_INTERLACED:
+ 	default:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl, 0, buf->bpl,
+-				 buf->bpl, buf->bpl,
+-				 core->height >> 1);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl, 0, buf->bpl,
++				       buf->bpl, buf->bpl,
++				       core->height >> 1);
+ 		break;
  	}
- 
- 	trace->entries[trace->nr_entries++] = addr;
--
--	if (trace->nr_entries >= trace->max_entries)
--		return 1;
--
--	if (!in_entry_text(frame->pc))
--		return 0;
--
--	regs = (struct pt_regs *)frame->sp;
--	if ((unsigned long)&regs[1] > ALIGN(frame->sp, THREAD_SIZE))
--		return 0;
--
--	trace->entries[trace->nr_entries++] = regs->ARM_pc;
--
- 	return trace->nr_entries >= trace->max_entries;
+ 	dprintk(2,
+@@ -481,7 +482,7 @@ static int buffer_prepare(struct vb2_buffer *vb)
+ 		buf, buf->vb.vb2_buf.index, __func__,
+ 		core->width, core->height, dev->fmt->depth, dev->fmt->fourcc,
+ 		(unsigned long)buf->risc.dma);
+-	return 0;
++	return ret;
  }
  
-@@ -193,6 +203,9 @@ static noinline void __save_stack_trace(struct task_struct *tsk,
- 	frame.kr_cur = NULL;
- 	frame.tsk = tsk;
- #endif
-+#ifdef CONFIG_UNWINDER_FRAME_POINTER
-+	frame.ex_frame = false;
-+#endif
- 
- 	walk_stackframe(&frame, save_trace, &data);
- }
-@@ -214,6 +227,9 @@ void save_stack_trace_regs(struct pt_regs *regs, struct stack_trace *trace)
- 	frame.kr_cur = NULL;
- 	frame.tsk = current;
- #endif
-+#ifdef CONFIG_UNWINDER_FRAME_POINTER
-+	frame.ex_frame = in_entry_text(frame.pc);
-+#endif
- 
- 	walk_stackframe(&frame, save_trace, &data);
- }
+ static void buffer_finish(struct vb2_buffer *vb)
 -- 
 2.35.1
 
