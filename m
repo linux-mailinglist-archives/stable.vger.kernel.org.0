@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 644D1603C84
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4473603C3D
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230315AbiJSIsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:48:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43466 "EHLO
+        id S231387AbiJSIpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:45:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231329AbiJSIry (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:47:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EBD868882;
-        Wed, 19 Oct 2022 01:45:39 -0700 (PDT)
+        with ESMTP id S231488AbiJSIoQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:44:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DED1C167D1;
+        Wed, 19 Oct 2022 01:43:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6004761804;
-        Wed, 19 Oct 2022 08:42:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71665C433D6;
-        Wed, 19 Oct 2022 08:42:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8725A617F7;
+        Wed, 19 Oct 2022 08:42:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94BA8C433C1;
+        Wed, 19 Oct 2022 08:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168961;
-        bh=DKXEvkae9Qlu8kF9vn+0R4ngMyO0P2H39NsbsvQknGY=;
+        s=korg; t=1666168965;
+        bh=al3TEvPjWVGD/y+h+KKD9gzbsKzSiEXqSPPLy5XTUTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pf3+/k5irivnJHcVhHx5pNJDwKxPwej9CzZN6KbU0hieVBgkQD/opq/VbuXA8x+Ur
-         MJ7V1XKlytOiheIkdpReqZbBEcGLnKN0Qy9KB41qkHmac6dr2tWzRBSxyWZaWtHyel
-         S4Zj6OERf8UTgNZ0r2Dg4dMlRCAvfFNYgol0sVF8=
+        b=0NqDg3XWm2GddXjoeMnO6vQmfeYGdxy4oieSa2dFk4XFSxmHnKrOLRmjWY1fMqtlI
+         5Nwdhz1xO215iwE7SgkTbkvbpsEIdWE3WECvAG1EUkywLGD6cMJ19Vz2hxSrtV25D6
+         zhDx3KFmXg2QZ3+mBLjbcFUA8EzxQ1BvGaEvd2fQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Marangi <ansuelsmth@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 6.0 073/862] dmaengine: qcom-adm: fix wrong calling convention for prep_slave_sg
-Date:   Wed, 19 Oct 2022 10:22:40 +0200
-Message-Id: <20221019083253.160008981@linuxfoundation.org>
+        stable@vger.kernel.org, Emil Velikov <emil.l.velikov@gmail.com>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 6.0 074/862] drm/virtio: Check whether transferred 2D BO is shmem
+Date:   Wed, 19 Oct 2022 10:22:41 +0200
+Message-Id: <20221019083253.201327292@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,99 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Marangi <ansuelsmth@gmail.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-commit b9d2140c3badf4107973ad77c5a0ec3075705c85 upstream.
+commit e473216b42aa1fd9fc6b94b608b42c210c655908 upstream.
 
-The calling convention for pre_slave_sg is to return NULL on error and
-provide an error log to the system. Qcom-adm instead provide error
-pointer when an error occur. This indirectly cause kernel panic for
-example for the nandc driver that checks only if the pointer returned by
-device_prep_slave_sg is not NULL. Returning an error pointer makes nandc
-think the device_prep_slave_sg function correctly completed and makes
-the kernel panics later in the code.
+Transferred 2D BO always must be a shmem BO. Add check for that to prevent
+NULL dereference if userspace passes a VRAM BO.
 
-While nandc is the one that makes the kernel crash, it was pointed out
-that the real problem is qcom-adm not following calling convention for
-that function.
-
-To fix this, drop returning error pointer and return NULL with an error
-log.
-
-Fixes: 03de6b273805 ("dmaengine: qcom-adm: stop abusing slave_id config")
-Fixes: 5c9f8c2dbdbe ("dmaengine: qcom: Add ADM driver")
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-Cc: stable@vger.kernel.org # v5.11+
-Link: https://lore.kernel.org/r/20220916041256.7104-1-ansuelsmth@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Emil Velikov <emil.l.velikov@gmail.com>
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220630200726.1884320-3-dmitry.osipenko@collabora.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/qcom/qcom_adm.c |   20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_vq.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/qcom/qcom_adm.c
-+++ b/drivers/dma/qcom/qcom_adm.c
-@@ -379,13 +379,13 @@ static struct dma_async_tx_descriptor *a
- 		if (blk_size < 0) {
- 			dev_err(adev->dev, "invalid burst value: %d\n",
- 				burst);
--			return ERR_PTR(-EINVAL);
-+			return NULL;
- 		}
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -597,7 +597,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(
+ 	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
+ 	struct virtio_gpu_object_shmem *shmem = to_virtio_gpu_shmem(bo);
  
- 		crci = achan->crci & 0xf;
- 		if (!crci || achan->crci > 0x1f) {
- 			dev_err(adev->dev, "invalid crci value\n");
--			return ERR_PTR(-EINVAL);
-+			return NULL;
- 		}
- 	}
+-	if (use_dma_api)
++	if (virtio_gpu_is_shmem(bo) && use_dma_api)
+ 		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
+ 					    shmem->pages, DMA_TO_DEVICE);
  
-@@ -403,8 +403,10 @@ static struct dma_async_tx_descriptor *a
- 	}
- 
- 	async_desc = kzalloc(sizeof(*async_desc), GFP_NOWAIT);
--	if (!async_desc)
--		return ERR_PTR(-ENOMEM);
-+	if (!async_desc) {
-+		dev_err(adev->dev, "not enough memory for async_desc struct\n");
-+		return NULL;
-+	}
- 
- 	async_desc->mux = achan->mux ? ADM_CRCI_CTL_MUX_SEL : 0;
- 	async_desc->crci = crci;
-@@ -414,8 +416,10 @@ static struct dma_async_tx_descriptor *a
- 				sizeof(*cple) + 2 * ADM_DESC_ALIGN;
- 
- 	async_desc->cpl = kzalloc(async_desc->dma_len, GFP_NOWAIT);
--	if (!async_desc->cpl)
-+	if (!async_desc->cpl) {
-+		dev_err(adev->dev, "not enough memory for cpl struct\n");
- 		goto free;
-+	}
- 
- 	async_desc->adev = adev;
- 
-@@ -437,8 +441,10 @@ static struct dma_async_tx_descriptor *a
- 	async_desc->dma_addr = dma_map_single(adev->dev, async_desc->cpl,
- 					      async_desc->dma_len,
- 					      DMA_TO_DEVICE);
--	if (dma_mapping_error(adev->dev, async_desc->dma_addr))
-+	if (dma_mapping_error(adev->dev, async_desc->dma_addr)) {
-+		dev_err(adev->dev, "dma mapping error for cpl\n");
- 		goto free;
-+	}
- 
- 	cple_addr = async_desc->dma_addr + ((void *)cple - async_desc->cpl);
- 
-@@ -454,7 +460,7 @@ static struct dma_async_tx_descriptor *a
- 
- free:
- 	kfree(async_desc);
--	return ERR_PTR(-ENOMEM);
-+	return NULL;
- }
- 
- /**
 
 
