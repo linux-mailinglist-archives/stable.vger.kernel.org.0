@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 219CD603F65
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D73CA603E63
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:13:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233712AbiJSJbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:31:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45530 "EHLO
+        id S232836AbiJSJNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:13:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233789AbiJSJ31 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86138EAC85;
-        Wed, 19 Oct 2022 02:12:51 -0700 (PDT)
+        with ESMTP id S232845AbiJSJLc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:11:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F0EF8E0E8;
+        Wed, 19 Oct 2022 02:02:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE86A61826;
-        Wed, 19 Oct 2022 08:55:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F059C433D6;
-        Wed, 19 Oct 2022 08:55:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E0386181B;
+        Wed, 19 Oct 2022 08:53:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D6EDC433D6;
+        Wed, 19 Oct 2022 08:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169716;
-        bh=94Vil/zmhvmsJ0iy/6ZnYelSEc/3VoLdzE2dwZt/+lw=;
+        s=korg; t=1666169624;
+        bh=XGkmMzPTDEeMhMngRVduxRnock1hXej9ySL7e00w6T0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GS5yOWPNqSSMGvu8AwFZ3YCb8tv7gda4bthxA/1wKG5kZJ7pqjQQE6NsH+a01HRzm
-         6TDhRn/uqtrx51Sn8d88NEXvgM7/PkirNIka8NZFS/GgfNsW8Pfig+n4cIPY18dHMT
-         oqg3Lh6uaofJHidasvUnOqk8BTnJNsviLezFw8S4=
+        b=1qsw4TpI/Vi+CzMiexYPTqPD+5y1LEVEipUdO92Z7k2WOmyytADd98FRJ7eumFAhr
+         MA+EVqnM+A6XQaQg/Ah/ITFE5Zc9/xskttdbF/8sa3B7seps45fcw8dfDiuB6IG3FK
+         E2CF/Gi+GkQbecx8h2+Za941O4RMmvv1JRIyoVJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Taras Chornyi <tchornyi@marvell.com>,
+        stable@vger.kernel.org,
+        Raju Lakkaraju <Raju.Lakkaraju@microchip.com>,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 338/862] net: prestera: acl: Add check for kmemdup
-Date:   Wed, 19 Oct 2022 10:27:05 +0200
-Message-Id: <20221019083304.999767544@linuxfoundation.org>
+Subject: [PATCH 6.0 339/862] eth: lan743x: reject extts for non-pci11x1x devices
+Date:   Wed, 19 Oct 2022 10:27:06 +0200
+Message-Id: <20221019083305.047086672@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,86 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Raju Lakkaraju <Raju.Lakkaraju@microchip.com>
 
-[ Upstream commit 9e6fd874c7bb47b6a4295abc4c81b2f41b97e970 ]
+[ Upstream commit cb4b12071a4b68df323c339f60805834246b3e9e ]
 
-As the kemdup could return NULL, it should be better to check the return
-value and return error if fails.
-Moreover, the return value of prestera_acl_ruleset_keymask_set() should
-be checked by cascade.
+Remove PTP_PF_EXTTS support for non-PCI11x1x devices since they do not support
+the PTP-IO Input event triggered timestamping mechanisms added
 
-Fixes: 604ba230902d ("net: prestera: flower template support")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Taras Chornyi<tchornyi@marvell.com>
+Fixes: 60942c397af6 ("net: lan743x: Add support for PTP-IO Event Input External Timestamp (extts)")
+Signed-off-by: Raju Lakkaraju <Raju.Lakkaraju@microchip.com>
+Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/prestera/prestera_acl.c    | 8 ++++++--
- drivers/net/ethernet/marvell/prestera/prestera_acl.h    | 4 ++--
- drivers/net/ethernet/marvell/prestera/prestera_flower.c | 6 +++++-
- 3 files changed, 13 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/microchip/lan743x_ptp.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/prestera/prestera_acl.c b/drivers/net/ethernet/marvell/prestera/prestera_acl.c
-index 3d4b85f2d541..f6b2933859d0 100644
---- a/drivers/net/ethernet/marvell/prestera/prestera_acl.c
-+++ b/drivers/net/ethernet/marvell/prestera/prestera_acl.c
-@@ -178,10 +178,14 @@ prestera_acl_ruleset_create(struct prestera_acl *acl,
- 	return ERR_PTR(err);
- }
- 
--void prestera_acl_ruleset_keymask_set(struct prestera_acl_ruleset *ruleset,
--				      void *keymask)
-+int prestera_acl_ruleset_keymask_set(struct prestera_acl_ruleset *ruleset,
-+				     void *keymask)
+diff --git a/drivers/net/ethernet/microchip/lan743x_ptp.c b/drivers/net/ethernet/microchip/lan743x_ptp.c
+index 6a11e2ceb013..da3ea905adbb 100644
+--- a/drivers/net/ethernet/microchip/lan743x_ptp.c
++++ b/drivers/net/ethernet/microchip/lan743x_ptp.c
+@@ -1049,6 +1049,10 @@ static int lan743x_ptpci_verify_pin_config(struct ptp_clock_info *ptp,
+ 					   enum ptp_pin_function func,
+ 					   unsigned int chan)
  {
- 	ruleset->keymask = kmemdup(keymask, ACL_KEYMASK_SIZE, GFP_KERNEL);
-+	if (!ruleset->keymask)
-+		return -ENOMEM;
-+
-+	return 0;
- }
++	struct lan743x_ptp *lan_ptp =
++		container_of(ptp, struct lan743x_ptp, ptp_clock_info);
++	struct lan743x_adapter *adapter =
++		container_of(lan_ptp, struct lan743x_adapter, ptp);
+ 	int result = 0;
  
- int prestera_acl_ruleset_offload(struct prestera_acl_ruleset *ruleset)
-diff --git a/drivers/net/ethernet/marvell/prestera/prestera_acl.h b/drivers/net/ethernet/marvell/prestera/prestera_acl.h
-index 03fc5b9dc925..131bfbc87cd7 100644
---- a/drivers/net/ethernet/marvell/prestera/prestera_acl.h
-+++ b/drivers/net/ethernet/marvell/prestera/prestera_acl.h
-@@ -185,8 +185,8 @@ struct prestera_acl_ruleset *
- prestera_acl_ruleset_lookup(struct prestera_acl *acl,
- 			    struct prestera_flow_block *block,
- 			    u32 chain_index);
--void prestera_acl_ruleset_keymask_set(struct prestera_acl_ruleset *ruleset,
--				      void *keymask);
-+int prestera_acl_ruleset_keymask_set(struct prestera_acl_ruleset *ruleset,
-+				     void *keymask);
- bool prestera_acl_ruleset_is_offload(struct prestera_acl_ruleset *ruleset);
- int prestera_acl_ruleset_offload(struct prestera_acl_ruleset *ruleset);
- void prestera_acl_ruleset_put(struct prestera_acl_ruleset *ruleset);
-diff --git a/drivers/net/ethernet/marvell/prestera/prestera_flower.c b/drivers/net/ethernet/marvell/prestera/prestera_flower.c
-index 19d3b55c578e..cf551a8379ac 100644
---- a/drivers/net/ethernet/marvell/prestera/prestera_flower.c
-+++ b/drivers/net/ethernet/marvell/prestera/prestera_flower.c
-@@ -452,7 +452,9 @@ int prestera_flower_tmplt_create(struct prestera_flow_block *block,
- 	}
- 
- 	/* preserve keymask/template to this ruleset */
--	prestera_acl_ruleset_keymask_set(ruleset, rule.re_key.match.mask);
-+	err = prestera_acl_ruleset_keymask_set(ruleset, rule.re_key.match.mask);
-+	if (err)
-+		goto err_ruleset_keymask_set;
- 
- 	/* skip error, as it is not possible to reject template operation,
- 	 * so, keep the reference to the ruleset for rules to be added
-@@ -468,6 +470,8 @@ int prestera_flower_tmplt_create(struct prestera_flow_block *block,
- 	list_add_rcu(&template->list, &block->template_list);
- 	return 0;
- 
-+err_ruleset_keymask_set:
-+	prestera_acl_ruleset_put(ruleset);
- err_ruleset_get:
- 	kfree(template);
- err_malloc:
+ 	/* Confirm the requested function is supported. Parameter
+@@ -1057,7 +1061,10 @@ static int lan743x_ptpci_verify_pin_config(struct ptp_clock_info *ptp,
+ 	switch (func) {
+ 	case PTP_PF_NONE:
+ 	case PTP_PF_PEROUT:
++		break;
+ 	case PTP_PF_EXTTS:
++		if (!adapter->is_pci11x1x)
++			result = -1;
+ 		break;
+ 	case PTP_PF_PHYSYNC:
+ 	default:
 -- 
 2.35.1
 
