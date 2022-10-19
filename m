@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 609BD604806
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:48:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07DCE604732
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:34:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233424AbiJSNsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:48:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55656 "EHLO
+        id S230526AbiJSNej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:34:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233431AbiJSNq6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:46:58 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9613F4E19C;
-        Wed, 19 Oct 2022 06:32:23 -0700 (PDT)
+        with ESMTP id S232754AbiJSNeX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:34:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD5611C69DA;
+        Wed, 19 Oct 2022 06:23:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9D773CE218A;
-        Wed, 19 Oct 2022 09:06:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19E5C433B5;
-        Wed, 19 Oct 2022 09:06:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47B52B8247A;
+        Wed, 19 Oct 2022 09:05:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAE7AC433D6;
+        Wed, 19 Oct 2022 09:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170404;
-        bh=f0I55/u99pGYDq+p5TcYl8mlp27PqkFcOL+TYbcY9o0=;
+        s=korg; t=1666170312;
+        bh=sc+YbobDr/tEqzXPDL3b8fTi2QPNYaqR8xdhG6QRLxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cRBMGWFdzaFS4HuugkV/e4tzFok9/AvkwbfwvCBsJ3K3Ybt3C6AbGcfzpA9cBlPT/
-         r73RsD/EEDIlGR7k0vJoworlQLnHI81ADIAhufrXiFouI1tunIW882q9OxUHDepNkZ
-         oe3FvDpQu+qOCEy+ztihT1YShR0OgbYvRb8Y1VBQ=
+        b=eg1/1pi4iprdSPa4j5lirmjGfV9ZRAN4/cmbHDqanrbQ5L4z20Pgi3y5OO7jYNkbH
+         WB1QXt+h7sdKg2cGqLUNTFh9Y5xUTjfVwa34U8Rmw36Zci9AQdYKgnNFRQ4Hm6+VJp
+         ZqaF1DovZbzLuGI+wInV6b3D2E3UjUPe1pwW4hfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 607/862] powerpc/configs: Properly enable PAPR_SCM in pseries_defconfig
-Date:   Wed, 19 Oct 2022 10:31:34 +0200
-Message-Id: <20221019083316.759918368@linuxfoundation.org>
+Subject: [PATCH 6.0 608/862] powerpc/math_emu/efp: Include module.h
+Date:   Wed, 19 Oct 2022 10:31:35 +0200
+Message-Id: <20221019083316.800426492@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,35 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit aa398d88aea4ec863bd7aea35d5035a37096dc59 ]
+[ Upstream commit cfe0d370e0788625ce0df3239aad07a2506c1796 ]
 
-My commit to add PAPR_SCM to pseries_defconfig failed to add the
-required dependencies, meaning the driver doesn't get built.
+When building with a recent version of clang, there are a couple of
+errors around the call to module_init():
 
-Add the required LIBNVDIMM=m.
+  arch/powerpc/math-emu/math_efp.c:927:1: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+  module_init(spe_mathemu_init);
+  ^
+  int
+  arch/powerpc/math-emu/math_efp.c:927:13: error: a parameter list without types is only allowed in a function definition
+  module_init(spe_mathemu_init);
+              ^
+  2 errors generated.
 
-Fixes: d6481a7195df ("powerpc/configs: Add PAPR_SCM to pseries_defconfig")
+module_init() is a macro, which is not getting expanded because module.h
+is not included in this file. Add the include so that the macro can
+expand properly, clearing up the build failure.
+
+Fixes: ac6f120369ff ("powerpc/85xx: Workaroudn e500 CPU erratum A005")
+[chleroy: added fixes tag]
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220901014253.252927-1-mpe@ellerman.id.au
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Link: https://lore.kernel.org/r/8403854a4c187459b2f4da3537f51227b70b9223.1662134272.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/configs/pseries_defconfig | 1 +
+ arch/powerpc/math-emu/math_efp.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/configs/pseries_defconfig b/arch/powerpc/configs/pseries_defconfig
-index b571d084c148..c05e37af9f1e 100644
---- a/arch/powerpc/configs/pseries_defconfig
-+++ b/arch/powerpc/configs/pseries_defconfig
-@@ -40,6 +40,7 @@ CONFIG_PPC_SPLPAR=y
- CONFIG_DTL=y
- CONFIG_PPC_SMLPAR=y
- CONFIG_IBMEBUS=y
-+CONFIG_LIBNVDIMM=m
- CONFIG_PAPR_SCM=m
- CONFIG_PPC_SVM=y
- # CONFIG_PPC_PMAC is not set
+diff --git a/arch/powerpc/math-emu/math_efp.c b/arch/powerpc/math-emu/math_efp.c
+index 39b84e7452e1..aa3bb8da1cb9 100644
+--- a/arch/powerpc/math-emu/math_efp.c
++++ b/arch/powerpc/math-emu/math_efp.c
+@@ -17,6 +17,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/prctl.h>
++#include <linux/module.h>
+ 
+ #include <linux/uaccess.h>
+ #include <asm/reg.h>
 -- 
 2.35.1
 
