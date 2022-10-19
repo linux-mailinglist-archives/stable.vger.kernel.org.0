@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CD4D603F45
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8347C603F33
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:30:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229697AbiJSJbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:31:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48916 "EHLO
+        id S230381AbiJSJau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:30:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233410AbiJSJ2N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:28:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85205E8AA4;
-        Wed, 19 Oct 2022 02:12:27 -0700 (PDT)
+        with ESMTP id S233540AbiJSJ1U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:27:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68778E4C33;
+        Wed, 19 Oct 2022 02:12:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63DA761890;
-        Wed, 19 Oct 2022 09:11:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79029C433D6;
-        Wed, 19 Oct 2022 09:11:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7EB96174B;
+        Wed, 19 Oct 2022 09:11:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E84E5C433C1;
+        Wed, 19 Oct 2022 09:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170673;
-        bh=nqnzV76i/7+Dexr0VLbVB6a6AGYIYb3csiWZnBgbDck=;
+        s=korg; t=1666170684;
+        bh=Nf/HQ7h/Z5nwQBjoAMYb7EpY/DT/8776VVnjScGaUA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E6EL5pi7bX2FjNV9kQuTzCqH/8kfaXQgi0LRaj6D7woTdt6dIpBASa7Ww2FBLZfJ4
-         HJK+yxFKhZsSDD8yN8O/wBXmoAnsGJvrQvnJ5IYbqqp/7LYo2NLbkNeSYsbQYgUw0T
-         tBkUEwQIwUKXr9lMZtL9cXUengOgJtlMO/BcBg2g=
+        b=Q0R7Rg0MJfcgplWFV8uLphZA6LzaHh6ilyFT+9U+KoM/7IQXgELKrSGTzD4pxzegm
+         FVF3TEE4AG/jkT8HSG6Y7mwnJSCIHAjyn8WPli7nudZjmKLsq5q3XkpVF7Y2O95l+L
+         pyhi4xD9AAKtVSo78VmSVpHc8JwztMHa0eUTFElY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 710/862] Bluetooth: hci_event: Make sure ISO events dont affect non-ISO connections
-Date:   Wed, 19 Oct 2022 10:33:17 +0200
-Message-Id: <20221019083321.320060597@linuxfoundation.org>
+        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 714/862] wifi: rt2x00: dont run Rt5592 IQ calibration on MT7620
+Date:   Wed, 19 Oct 2022 10:33:21 +0200
+Message-Id: <20221019083321.481998077@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,52 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit ed680f925aea76ac666f34d9923cb40558f4e97b ]
+[ Upstream commit d3aad83d05aec0cfd7670cf0028f2ad4b81de92e ]
 
-ISO events (CIS/BIS) shall only be relevant for connection with link
-type of ISO_LINK, otherwise the controller is probably buggy or it is
-the result of fuzzer tools such as syzkaller.
+The function rt2800_iq_calibrate is intended for Rt5592 only.
+Don't call it for MT7620 which has it's own calibration functions.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/31a1c34ddbd296b82f38c18c9ae7339059215fdc.1663445157.git.daniel@makrotopia.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index d6f0e6ca0e7e..ab79a978deb5 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -6778,6 +6778,13 @@ static void hci_le_cis_estabilished_evt(struct hci_dev *hdev, void *data,
- 		goto unlock;
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+index 18102fbe36d6..de81b6060359 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+@@ -4365,7 +4365,8 @@ static void rt2800_config_channel(struct rt2x00_dev *rt2x00dev,
+ 		reg = (rf->channel <= 14 ? 0x1c : 0x24) + 2*rt2x00dev->lna_gain;
+ 		rt2800_bbp_write_with_rx_chain(rt2x00dev, 66, reg);
+ 
+-		rt2800_iq_calibrate(rt2x00dev, rf->channel);
++		if (rt2x00_rt(rt2x00dev, RT5592))
++			rt2800_iq_calibrate(rt2x00dev, rf->channel);
  	}
  
-+	if (conn->type != ISO_LINK) {
-+		bt_dev_err(hdev,
-+			   "Invalid connection link type handle 0x%4.4x",
-+			   handle);
-+		goto unlock;
-+	}
-+
- 	if (conn->role == HCI_ROLE_SLAVE) {
- 		__le32 interval;
- 
-@@ -6898,6 +6905,13 @@ static void hci_le_create_big_complete_evt(struct hci_dev *hdev, void *data,
- 	if (!conn)
- 		goto unlock;
- 
-+	if (conn->type != ISO_LINK) {
-+		bt_dev_err(hdev,
-+			   "Invalid connection link type handle 0x%2.2x",
-+			   ev->handle);
-+		goto unlock;
-+	}
-+
- 	if (ev->num_bis)
- 		conn->handle = __le16_to_cpu(ev->bis_handle[0]);
- 
+ 	bbp = rt2800_bbp_read(rt2x00dev, 4);
 -- 
 2.35.1
 
