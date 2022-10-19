@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B00603F2B
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:28:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CD4D603F45
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230238AbiJSJ2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:28:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45408 "EHLO
+        id S229697AbiJSJbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:31:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233512AbiJSJ1Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:27:16 -0400
+        with ESMTP id S233410AbiJSJ2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:28:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECB00E52E2;
-        Wed, 19 Oct 2022 02:12:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85205E8AA4;
+        Wed, 19 Oct 2022 02:12:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEEA661843;
-        Wed, 19 Oct 2022 09:10:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D390DC433D6;
-        Wed, 19 Oct 2022 09:10:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63DA761890;
+        Wed, 19 Oct 2022 09:11:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79029C433D6;
+        Wed, 19 Oct 2022 09:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170624;
-        bh=C0chszaV7MjF4tzyFjt3te2p553hPsz6RhT2J+josWc=;
+        s=korg; t=1666170673;
+        bh=nqnzV76i/7+Dexr0VLbVB6a6AGYIYb3csiWZnBgbDck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R1AO3kf9aJcUC3sPuAgNf15KISTUcqHGAXDkQehiQaLziBMmQKzCuRBSLT5c+LGK2
-         Hx+Ure/PJD1ClWAUflLgU8DfRMpFyU7pOJaxUIlTtQ6m+0uNcVFtsnioKLzTekSvtB
-         nLFUlhmPfSgFld79UBeknBUSu8/wW8FYJgqq7ddU=
+        b=E6EL5pi7bX2FjNV9kQuTzCqH/8kfaXQgi0LRaj6D7woTdt6dIpBASa7Ww2FBLZfJ4
+         HJK+yxFKhZsSDD8yN8O/wBXmoAnsGJvrQvnJ5IYbqqp/7LYo2NLbkNeSYsbQYgUw0T
+         tBkUEwQIwUKXr9lMZtL9cXUengOgJtlMO/BcBg2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot <syzbot+83672956c7aa6af698b3@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 708/862] Bluetooth: L2CAP: initialize delayed works at l2cap_chan_create()
-Date:   Wed, 19 Oct 2022 10:33:15 +0200
-Message-Id: <20221019083321.252675098@linuxfoundation.org>
+Subject: [PATCH 6.0 710/862] Bluetooth: hci_event: Make sure ISO events dont affect non-ISO connections
+Date:   Wed, 19 Oct 2022 10:33:17 +0200
+Message-Id: <20221019083321.320060597@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,80 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 2d2cb3066f2c90cd8ca540b36ba7a55e7f2406e0 ]
+[ Upstream commit ed680f925aea76ac666f34d9923cb40558f4e97b ]
 
-syzbot is reporting cancel_delayed_work() without INIT_DELAYED_WORK() at
-l2cap_chan_del() [1], for CONF_NOT_COMPLETE flag (which meant to prevent
-l2cap_chan_del() from calling cancel_delayed_work()) is cleared by timer
-which fires before l2cap_chan_del() is called by closing file descriptor
-created by socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_L2CAP).
+ISO events (CIS/BIS) shall only be relevant for connection with link
+type of ISO_LINK, otherwise the controller is probably buggy or it is
+the result of fuzzer tools such as syzkaller.
 
-l2cap_bredr_sig_cmd(L2CAP_CONF_REQ) and l2cap_bredr_sig_cmd(L2CAP_CONF_RSP)
-are calling l2cap_ertm_init(chan), and they call l2cap_chan_ready() (which
-clears CONF_NOT_COMPLETE flag) only when l2cap_ertm_init(chan) succeeded.
-
-l2cap_sock_init() does not call l2cap_ertm_init(chan), and it instead sets
-CONF_NOT_COMPLETE flag by calling l2cap_chan_set_defaults(). However, when
-connect() is requested, "command 0x0409 tx timeout" happens after 2 seconds
- from connect() request, and CONF_NOT_COMPLETE flag is cleared after 4
-seconds from connect() request, for l2cap_conn_start() from
-l2cap_info_timeout() callback scheduled by
-
-  schedule_delayed_work(&conn->info_timer, L2CAP_INFO_TIMEOUT);
-
-in l2cap_connect() is calling l2cap_chan_ready().
-
-Fix this problem by initializing delayed works used by L2CAP_MODE_ERTM
-mode as soon as l2cap_chan_create() allocates a channel, like I did in
-commit be8597239379f0f5 ("Bluetooth: initialize skb_queue_head at
-l2cap_chan_create()").
-
-Link: https://syzkaller.appspot.com/bug?extid=83672956c7aa6af698b3 [1]
-Reported-by: syzbot <syzbot+83672956c7aa6af698b3@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/bluetooth/hci_event.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 2c9de67daadc..770891f68703 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -61,6 +61,9 @@ static void l2cap_send_disconn_req(struct l2cap_chan *chan, int err);
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index d6f0e6ca0e7e..ab79a978deb5 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -6778,6 +6778,13 @@ static void hci_le_cis_estabilished_evt(struct hci_dev *hdev, void *data,
+ 		goto unlock;
+ 	}
  
- static void l2cap_tx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
- 		     struct sk_buff_head *skbs, u8 event);
-+static void l2cap_retrans_timeout(struct work_struct *work);
-+static void l2cap_monitor_timeout(struct work_struct *work);
-+static void l2cap_ack_timeout(struct work_struct *work);
++	if (conn->type != ISO_LINK) {
++		bt_dev_err(hdev,
++			   "Invalid connection link type handle 0x%4.4x",
++			   handle);
++		goto unlock;
++	}
++
+ 	if (conn->role == HCI_ROLE_SLAVE) {
+ 		__le32 interval;
  
- static inline u8 bdaddr_type(u8 link_type, u8 bdaddr_type)
- {
-@@ -476,6 +479,9 @@ struct l2cap_chan *l2cap_chan_create(void)
- 	write_unlock(&chan_list_lock);
+@@ -6898,6 +6905,13 @@ static void hci_le_create_big_complete_evt(struct hci_dev *hdev, void *data,
+ 	if (!conn)
+ 		goto unlock;
  
- 	INIT_DELAYED_WORK(&chan->chan_timer, l2cap_chan_timeout);
-+	INIT_DELAYED_WORK(&chan->retrans_timer, l2cap_retrans_timeout);
-+	INIT_DELAYED_WORK(&chan->monitor_timer, l2cap_monitor_timeout);
-+	INIT_DELAYED_WORK(&chan->ack_timer, l2cap_ack_timeout);
++	if (conn->type != ISO_LINK) {
++		bt_dev_err(hdev,
++			   "Invalid connection link type handle 0x%2.2x",
++			   ev->handle);
++		goto unlock;
++	}
++
+ 	if (ev->num_bis)
+ 		conn->handle = __le16_to_cpu(ev->bis_handle[0]);
  
- 	chan->state = BT_OPEN;
- 
-@@ -3320,10 +3326,6 @@ int l2cap_ertm_init(struct l2cap_chan *chan)
- 	chan->rx_state = L2CAP_RX_STATE_RECV;
- 	chan->tx_state = L2CAP_TX_STATE_XMIT;
- 
--	INIT_DELAYED_WORK(&chan->retrans_timer, l2cap_retrans_timeout);
--	INIT_DELAYED_WORK(&chan->monitor_timer, l2cap_monitor_timeout);
--	INIT_DELAYED_WORK(&chan->ack_timer, l2cap_ack_timeout);
--
- 	skb_queue_head_init(&chan->srej_q);
- 
- 	err = l2cap_seq_list_init(&chan->srej_list, chan->tx_win);
 -- 
 2.35.1
 
