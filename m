@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 525C86042AF
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:09:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A2EE6042E1
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230163AbiJSLIp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:08:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57294 "EHLO
+        id S230437AbiJSLLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:11:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232549AbiJSLI2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:08:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA35F17C55E;
-        Wed, 19 Oct 2022 03:37:07 -0700 (PDT)
+        with ESMTP id S230090AbiJSLKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:10:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44A1517D856;
+        Wed, 19 Oct 2022 03:38:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BFD5FB822DD;
-        Wed, 19 Oct 2022 08:42:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36825C433B5;
-        Wed, 19 Oct 2022 08:42:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5DDCB822E4;
+        Wed, 19 Oct 2022 08:42:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EBF9C433D6;
+        Wed, 19 Oct 2022 08:42:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168932;
-        bh=60PZ+RY33//MRdOs+d0W6qXIbeFiZGLYctjbhfQDJfs=;
+        s=korg; t=1666168935;
+        bh=/vyTLvtjXMq73ygQ+QM9aR5+/yBlM03oiribJFWms2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQZmfMwV6jhX7nNMhuAgAav1UfGjEyrIAqe5nzvMxUIvmL/o6jCAwGqMSJtrPZ1eW
-         pw2e+ZD49aEDP4aDq3uL8WVIQWeFS5+vlBW6tOGDFvV5z37GetiGtOyivwDm3vIgCd
-         AYssaVSuwU7vU3LJwvdF0dZxcbYG+EE05wiru81g=
+        b=oEP68VBmXxn90Zqfav4zafjkq1kmTSd2pb39aXXVqa+JGeiK/TA2/aNNNc37LCc5R
+         YORJw0D7/FIik9gsHwy/oBfaZaulYt4gGqTkLD2WiCFBRzfqlnh8dHFy0GWzRpwIm6
+         SQpGKumCsNPLwSMh53ipuGQXTKvIrUl8lcyHtZ/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
-        Wang Wendy <wendy.wang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 6.0 101/862] powercap: intel_rapl: Use standard Energy Unit for SPR Dram RAPL domain
-Date:   Wed, 19 Oct 2022 10:23:08 +0200
-Message-Id: <20221019083254.368732759@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 6.0 102/862] powerpc/Kconfig: Fix non existing CONFIG_PPC_FSL_BOOKE
+Date:   Wed, 19 Oct 2022 10:23:09 +0200
+Message-Id: <20221019083254.415369614@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,35 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Rui <rui.zhang@intel.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 4c081324df5608b73428662ca54d5221ea03a6bd upstream.
+commit d1203f32d86987a3ccd7de9ba2448ba12d86d125 upstream.
 
-Intel Xeon servers used to use a fixed energy resolution (15.3uj) for
-Dram RAPL domain. But on SPR, Dram RAPL domain follows the standard
-energy resolution as described in MSR_RAPL_POWER_UNIT.
+CONFIG_PPC_FSL_BOOKE doesn't exist. Should be CONFIG_FSL_BOOKE.
 
-Remove the SPR dram_domain_energy_unit quirk.
-
-Fixes: 2d798d9f5967 ("powercap: intel_rapl: add support for Sapphire Rapids")
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Tested-by: Wang Wendy <wendy.wang@intel.com>
-Cc: 5.9+ <stable@vger.kernel.org> # 5.9+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 49e3d8ea6248 ("powerpc/fsl_booke: Enable STRICT_KERNEL_RWX")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/828f6a64eeb51ce9abfa1d4e84c521a02fecebb8.1663606875.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/powercap/intel_rapl_common.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/powercap/intel_rapl_common.c
-+++ b/drivers/powercap/intel_rapl_common.c
-@@ -1035,7 +1035,6 @@ static const struct rapl_defaults rapl_d
- 	.check_unit = rapl_check_unit_core,
- 	.set_floor_freq = set_floor_freq_default,
- 	.compute_time_window = rapl_compute_time_window_core,
--	.dram_domain_energy_unit = 15300,
- 	.psys_domain_energy_unit = 1000000000,
- 	.spr_psys_bits = true,
- };
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -828,7 +828,7 @@ config DATA_SHIFT
+ 	default 24 if STRICT_KERNEL_RWX && PPC64
+ 	range 17 28 if (STRICT_KERNEL_RWX || DEBUG_PAGEALLOC || KFENCE) && PPC_BOOK3S_32
+ 	range 19 23 if (STRICT_KERNEL_RWX || DEBUG_PAGEALLOC || KFENCE) && PPC_8xx
+-	range 20 24 if (STRICT_KERNEL_RWX || DEBUG_PAGEALLOC || KFENCE) && PPC_FSL_BOOKE
++	range 20 24 if (STRICT_KERNEL_RWX || DEBUG_PAGEALLOC || KFENCE) && FSL_BOOKE
+ 	default 22 if STRICT_KERNEL_RWX && PPC_BOOK3S_32
+ 	default 18 if (DEBUG_PAGEALLOC || KFENCE) && PPC_BOOK3S_32
+ 	default 23 if STRICT_KERNEL_RWX && PPC_8xx
 
 
