@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E9DB60401F
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 150D960400E
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234146AbiJSJmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:42:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56606 "EHLO
+        id S234281AbiJSJnE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:43:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234530AbiJSJkj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:40:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62677F018B;
-        Wed, 19 Oct 2022 02:17:11 -0700 (PDT)
+        with ESMTP id S234971AbiJSJl7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:41:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42227F6C17;
+        Wed, 19 Oct 2022 02:18:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6024361834;
-        Wed, 19 Oct 2022 09:16:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73C0EC433B5;
-        Wed, 19 Oct 2022 09:16:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE03961828;
+        Wed, 19 Oct 2022 09:16:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFCF5C433C1;
+        Wed, 19 Oct 2022 09:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666171005;
-        bh=N5Fk36xhWE9Z2gJD+Mj+1ntG8BLl5wzMznG0J3oGd0c=;
+        s=korg; t=1666170980;
+        bh=FYipOXVEh/W6XkjRwrcbJtXg1hEM0/kwaTD3dCXorOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hkwJ06WKwzCUgZIE3YUyZinW4i3eaIPo+U3avds+596YylDvKGna8c1p4JetkyCb9
-         SLI5cTA/i/hiLKBQsEjsLm1yNgadMzgK/fmbiogvMOSqPQJ6dhdxEroo9/+kP329sZ
-         yJ2lWQZLcUInl5pO/cADjJ0mdOiLmi2ngCXm56no=
+        b=kVwSZxjA/M7QGu+qmO5WiBthuf9anPVXN6HXmomNDUru6DSlau6lhEt5JRVubWxfW
+         g1pdzwsqeVcCsv/TR9RDHglVTs68Py9bcq4JsslMyU9YjjY7X0+Avxgrt58znO222r
+         ZqB/fVBbYNptrX16pPkBOrpzHiFZS0W8/+ZmCH00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        syzbot+e5198737e8a2d23d958c@syzkaller.appspotmail.com
-Subject: [PATCH 6.0 858/862] io_uring: fix fdinfo sqe offsets calculation
-Date:   Wed, 19 Oct 2022 10:35:45 +0200
-Message-Id: <20221019083327.799672854@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 6.0 860/862] Kconfig.debug: simplify the dependency of DEBUG_INFO_DWARF4/5
+Date:   Wed, 19 Oct 2022 10:35:47 +0200
+Message-Id: <20221019083327.899440801@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,33 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 00927931cb630bbf8edb6d7f4dadb25139fc5e16 upstream.
+commit 4f001a21080ff2e2f0e1c3692f5e119aedbb3bc1 upstream.
 
-Only with the big sqe feature they take 128 bytes per entry, but we
-unconditionally advance by 128B. Fix it by using sq_shift.
+Commit c0a5c81ca9be ("Kconfig.debug: drop GCC 5+ version check for
+DWARF5") could have cleaned up the code a bit more.
 
-Fixes: 3b8fdd1dc35e3 ("io_uring/fdinfo: fix sqe dumping for IORING_SETUP_SQE128")
-Reported-and-tested-by: syzbot+e5198737e8a2d23d958c@syzkaller.appspotmail.com
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/8b41287cb75d5efb8fcb5cccde845ddbbadd8372.1665449983.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+"CC_IS_CLANG &&" is unneeded. No functional change is intended.
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/fdinfo.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/Kconfig.debug |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/io_uring/fdinfo.c
-+++ b/io_uring/fdinfo.c
-@@ -95,7 +95,7 @@ static __cold void __io_uring_show_fdinf
- 		sq_idx = READ_ONCE(ctx->sq_array[entry & sq_mask]);
- 		if (sq_idx > sq_mask)
- 			continue;
--		sqe = &ctx->sq_sqes[sq_idx << 1];
-+		sqe = &ctx->sq_sqes[sq_idx << sq_shift];
- 		seq_printf(m, "%5u: opcode:%s, fd:%d, flags:%x, off:%llu, "
- 			      "addr:0x%llx, rw_flags:0x%x, buf_index:%d "
- 			      "user_data:%llu",
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -264,7 +264,7 @@ config DEBUG_INFO_DWARF_TOOLCHAIN_DEFAUL
+ config DEBUG_INFO_DWARF4
+ 	bool "Generate DWARF Version 4 debuginfo"
+ 	select DEBUG_INFO
+-	depends on !CC_IS_CLANG || (CC_IS_CLANG && (AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)))
++	depends on !CC_IS_CLANG || AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)
+ 	help
+ 	  Generate DWARF v4 debug info. This requires gcc 4.5+, binutils 2.35.2
+ 	  if using clang without clang's integrated assembler, and gdb 7.0+.
+@@ -276,7 +276,7 @@ config DEBUG_INFO_DWARF4
+ config DEBUG_INFO_DWARF5
+ 	bool "Generate DWARF Version 5 debuginfo"
+ 	select DEBUG_INFO
+-	depends on !CC_IS_CLANG || (CC_IS_CLANG && (AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)))
++	depends on !CC_IS_CLANG || AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)
+ 	help
+ 	  Generate DWARF v5 debug info. Requires binutils 2.35.2, gcc 5.0+ (gcc
+ 	  5.0+ accepts the -gdwarf-5 flag but only had partial support for some
 
 
