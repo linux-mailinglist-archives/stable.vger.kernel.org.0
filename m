@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9AED603D41
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:00:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73DA8603D11
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:56:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231965AbiJSJAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:00:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52142 "EHLO
+        id S231702AbiJSI4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:56:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232078AbiJSI6w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:58:52 -0400
+        with ESMTP id S231942AbiJSI4U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:56:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09EFE33848;
-        Wed, 19 Oct 2022 01:54:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6540E9C7F7;
+        Wed, 19 Oct 2022 01:52:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5304C617F4;
-        Wed, 19 Oct 2022 08:42:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45C97C433C1;
-        Wed, 19 Oct 2022 08:42:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A452F6181B;
+        Wed, 19 Oct 2022 08:44:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9687EC433D6;
+        Wed, 19 Oct 2022 08:44:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168958;
-        bh=zKppyKIbE0qX7a5aCXROzEzRZ7q0XdFQU/ezCKPeOqk=;
+        s=korg; t=1666169097;
+        bh=2W+EnrEqw1ZdduKBQk6+8YZEHNmfS8U/NiyiLPhgklc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qVxwYKkWAmdhbX581XWxi7LN1YKfn4bKksuNeeT0fU0C0Z8wVA9F4wdvrTdOS6Ibq
-         eocDDFXyU3lS/flUDPLEOkt9RkFap4HrOv5uUfyCajleU/hniYjmHU7V4XRd1z3QkI
-         /M3xzQHtkFpyoSXbZDDQSGWMmqDpfiCTOrphjbjQ=
+        b=Str6dWB7KpFM3v9hL6f1POrzr5hpZluShKWFKsxEO7f4YjM8NEc1LBjWd3/JPMAkc
+         SuhuDCf0TKBy1rPPKptcW/khWhwRxvcpbTp5Ihm8cw3HMOti/LYCHNimmYZMPAbJy1
+         elccVrkV5TcGo0dHztOmFj/+KNfuRbzAb1fAuop8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
         Quentin Schulz <quentin.schulz@theobroma-systems.com>,
         Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 6.0 108/862] gpio: rockchip: request GPIO mux to pinctrl when setting direction
-Date:   Wed, 19 Oct 2022 10:23:15 +0200
-Message-Id: <20221019083254.691102670@linuxfoundation.org>
+Subject: [PATCH 6.0 109/862] pinctrl: rockchip: add pinmux_ops.gpio_set_direction callback
+Date:   Wed, 19 Oct 2022 10:23:16 +0200
+Message-Id: <20221019083254.739632849@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,7 +55,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
 
-commit 8ea8af6c8469156ac2042d83d73f6b74eb4b4b45 upstream.
+commit 4635c0e2a7f7f3568cbfccae70121f9835efa62c upstream.
 
 Before the split of gpio and pinctrl sections in their own driver,
 rockchip_set_mux was called in pinmux_ops.gpio_set_direction for
@@ -66,44 +66,47 @@ consumers otherwise the GPIO function is not configured for the pin and
 it does not work. Such was the case for the sysfs/libgpiod userspace
 GPIO handling.
 
-Let's call pinctrl_gpio_direction_input/output when setting the
-direction of a GPIO so that the pinctrl core requests from the rockchip
-pinctrl driver to put the pin in its GPIO function.
+Let's re-implement the pinmux_ops.gpio_set_direction callback so that
+the gpio subsystem can request from the pinctrl driver to put the pin in
+its GPIO function.
 
 Fixes: 9ce9a02039de ("pinctrl/rockchip: drop the gpio related codes")
-Fixes: 936ee2675eee ("gpio/rockchip: add driver for rockchip gpio")
 Cc: stable@vger.kernel.org
 Reviewed-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
-Link: https://lore.kernel.org/r/20220930132033.4003377-3-foss+kernel@0leil.net
+Link: https://lore.kernel.org/r/20220930132033.4003377-2-foss+kernel@0leil.net
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-rockchip.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/pinctrl/pinctrl-rockchip.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/gpio/gpio-rockchip.c
-+++ b/drivers/gpio/gpio-rockchip.c
-@@ -19,6 +19,7 @@
- #include <linux/of_address.h>
- #include <linux/of_device.h>
- #include <linux/of_irq.h>
-+#include <linux/pinctrl/consumer.h>
- #include <linux/pinctrl/pinconf-generic.h>
- #include <linux/regmap.h>
+--- a/drivers/pinctrl/pinctrl-rockchip.c
++++ b/drivers/pinctrl/pinctrl-rockchip.c
+@@ -2393,11 +2393,24 @@ static int rockchip_pmx_set(struct pinct
+ 	return 0;
+ }
  
-@@ -156,6 +157,12 @@ static int rockchip_gpio_set_direction(s
- 	unsigned long flags;
- 	u32 data = input ? 0 : 1;
++static int rockchip_pmx_gpio_set_direction(struct pinctrl_dev *pctldev,
++					   struct pinctrl_gpio_range *range,
++					   unsigned offset,
++					   bool input)
++{
++	struct rockchip_pinctrl *info = pinctrl_dev_get_drvdata(pctldev);
++	struct rockchip_pin_bank *bank;
++
++	bank = pin_to_bank(info, offset);
++	return rockchip_set_mux(bank, offset - bank->pin_base, RK_FUNC_GPIO);
++}
++
+ static const struct pinmux_ops rockchip_pmx_ops = {
+ 	.get_functions_count	= rockchip_pmx_get_funcs_count,
+ 	.get_function_name	= rockchip_pmx_get_func_name,
+ 	.get_function_groups	= rockchip_pmx_get_groups,
+ 	.set_mux		= rockchip_pmx_set,
++	.gpio_set_direction	= rockchip_pmx_gpio_set_direction,
+ };
  
-+
-+	if (input)
-+		pinctrl_gpio_direction_input(bank->pin_base + offset);
-+	else
-+		pinctrl_gpio_direction_output(bank->pin_base + offset);
-+
- 	raw_spin_lock_irqsave(&bank->slock, flags);
- 	rockchip_gpio_writel_bit(bank, offset, data, bank->gpio_regs->port_ddr);
- 	raw_spin_unlock_irqrestore(&bank->slock, flags);
+ /*
 
 
