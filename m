@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49348604197
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C094604183
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233325AbiJSKqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:46:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54848 "EHLO
+        id S231975AbiJSKp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:45:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233332AbiJSKoj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:44:39 -0400
+        with ESMTP id S233050AbiJSKo2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:44:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 330DE112C;
-        Wed, 19 Oct 2022 03:21:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E79159D63;
+        Wed, 19 Oct 2022 03:21:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAA3FB822DE;
-        Wed, 19 Oct 2022 08:46:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E903C433D6;
-        Wed, 19 Oct 2022 08:46:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D65E1B822E2;
+        Wed, 19 Oct 2022 08:46:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36690C433C1;
+        Wed, 19 Oct 2022 08:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169174;
-        bh=Z5u/4kskGVbcyMVpAm9IC/je4fIBuE6fauWq6ihOXDY=;
+        s=korg; t=1666169177;
+        bh=Ax5KO/F8Qs3odERen+hCIo5ZvjrN+avr3X0K3Ob5bsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xodJ1XKq3rHQiKHpq6bpd7xh2/wN1yfVEhQ3vjoPohhznkQCB1Ill2+X/QII4wv4e
-         mTbsfu1DR8j9uHvWVyrhJ7JQxmXkSZfciOVkOpuxcA+9Mudb/z5sBTxrI0QmSuLrnv
-         uKH/XwP3rY+4QyiMzFL5m23WGxbO5XXWtMxE9NnM=
+        b=eU03hgMAWKaHDxsq2kDroILH0QyMy8vrruvoyh3mjNZOiIy5ZSSfCYEI3Wb2c3Z0G
+         8FUJJPLuDRyfB3MiwEd7vCQl6tH57ZZVHnOLOzMG2BOQv1+BMVoumTWJXf1605JJ2R
+         J2JTnoj598IsyD0m1+rRTqEhraU/rkubVXz191ME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris.p.wilson@intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 6.0 182/862] drm/i915/gt: Use i915_vm_put on ppgtt_create error paths
-Date:   Wed, 19 Oct 2022 10:24:29 +0200
-Message-Id: <20221019083257.998774171@linuxfoundation.org>
+        stable@vger.kernel.org, Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        John Harrison <John.C.Harrison@Intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Subject: [PATCH 6.0 183/862] drm/i915/guc: Fix revocation of non-persistent contexts
+Date:   Wed, 19 Oct 2022 10:24:30 +0200
+Message-Id: <20221019083258.048982114@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,204 +54,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris.p.wilson@intel.com>
+From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 
-commit 20e377e7b2e7c327039f10db80ba5bcc1f6c882d upstream.
+commit 7023472834a39341460dae5c9b506c76c5940cad upstream.
 
-Now that the scratch page and page directories have a reference back to
-the i915_address_space, we cannot do an immediate free of the ppgtt upon
-error as those buffer objects will perform a later i915_vm_put in their
-deferred frees.
+Patch which added graceful exit for non-persistent contexts missed the
+fact it is not enough to set the exiting flag on a context and let the
+backend handle it from there.
 
-The downside is that by replacing the onion unwind along the error
-paths, the ppgtt cleanup must handle a partially constructed vm. This
-includes ensuring that the vm->cleanup is set prior to the error path.
+GuC backend cannot handle it because it runs independently in the
+firmware and driver might not see the requests ever again. Patch also
+missed the fact some usages of intel_context_is_banned in the GuC backend
+needed replacing with newly introduced intel_context_is_schedulable.
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6900
-Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
-Fixes: 4d8151ae5329 ("drm/i915: Don't free shared locks while shared")
-Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Cc: Matthew Auld <matthew.auld@intel.com>
-Cc: <stable@vger.kernel.org> # v5.14+
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220926153333.102195-1-matthew.auld@intel.com
-(cherry picked from commit c286558f58535cf97b717b946d6c96d774a09d17)
+Fix the first issue by calling into backend revoke when we know this is
+the last chance to do it. Fix the second issue by replacing
+intel_context_is_banned with intel_context_is_schedulable, which should
+always be safe since latter is a superset of the former.
+
+v2:
+ * Just call ce->ops->revoke unconditionally. (Andrzej)
+
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Fixes: 45c64ecf97ee ("drm/i915: Improve user experience and driver robustness under SIGINT or similar")
+Cc: Andrzej Hajda <andrzej.hajda@intel.com>
+Cc: John Harrison <John.C.Harrison@Intel.com>
+Cc: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Cc: <stable@vger.kernel.org> # v6.0+
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Acked-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221003121630.694249-1-tvrtko.ursulin@linux.intel.com
+(cherry picked from commit 0add082cebac8555ee3972ba768ae5c01db7a498)
 Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gt/gen6_ppgtt.c |   16 ++++-----
- drivers/gpu/drm/i915/gt/gen8_ppgtt.c |   58 ++++++++++++++++++-----------------
- drivers/gpu/drm/i915/gt/intel_gtt.c  |    3 +
- 3 files changed, 41 insertions(+), 36 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_context.c       |    8 ------
+ drivers/gpu/drm/i915/gt/intel_context.c           |    5 +---
+ drivers/gpu/drm/i915/gt/intel_context.h           |    3 --
+ drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c |   26 +++++++++++-----------
+ 4 files changed, 17 insertions(+), 25 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/gen6_ppgtt.c
-+++ b/drivers/gpu/drm/i915/gt/gen6_ppgtt.c
-@@ -247,6 +247,7 @@ err_scratch1:
- 	i915_gem_object_put(vm->scratch[1]);
- err_scratch0:
- 	i915_gem_object_put(vm->scratch[0]);
-+	vm->scratch[0] = NULL;
+--- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+@@ -1387,14 +1387,8 @@ kill_engines(struct i915_gem_engines *en
+ 	 */
+ 	for_each_gem_engine(ce, engines, it) {
+ 		struct intel_engine_cs *engine;
+-		bool skip = false;
+ 
+-		if (exit)
+-			skip = intel_context_set_exiting(ce);
+-		else if (!persistent)
+-			skip = intel_context_exit_nonpersistent(ce, NULL);
+-
+-		if (skip)
++		if ((exit || !persistent) && intel_context_revoke(ce))
+ 			continue; /* Already marked. */
+ 
+ 		/*
+--- a/drivers/gpu/drm/i915/gt/intel_context.c
++++ b/drivers/gpu/drm/i915/gt/intel_context.c
+@@ -614,13 +614,12 @@ bool intel_context_ban(struct intel_cont
  	return ret;
  }
  
-@@ -268,9 +269,10 @@ static void gen6_ppgtt_cleanup(struct i9
- 	gen6_ppgtt_free_pd(ppgtt);
- 	free_scratch(vm);
+-bool intel_context_exit_nonpersistent(struct intel_context *ce,
+-				      struct i915_request *rq)
++bool intel_context_revoke(struct intel_context *ce)
+ {
+ 	bool ret = intel_context_set_exiting(ce);
  
--	mutex_destroy(&ppgtt->flush);
-+	if (ppgtt->base.pd)
-+		free_pd(&ppgtt->base.vm, ppgtt->base.pd);
+ 	if (ce->ops->revoke)
+-		ce->ops->revoke(ce, rq, ce->engine->props.preempt_timeout_ms);
++		ce->ops->revoke(ce, NULL, ce->engine->props.preempt_timeout_ms);
  
--	free_pd(&ppgtt->base.vm, ppgtt->base.pd);
-+	mutex_destroy(&ppgtt->flush);
+ 	return ret;
+ }
+--- a/drivers/gpu/drm/i915/gt/intel_context.h
++++ b/drivers/gpu/drm/i915/gt/intel_context.h
+@@ -329,8 +329,7 @@ static inline bool intel_context_set_exi
+ 	return test_and_set_bit(CONTEXT_EXITING, &ce->flags);
  }
  
- static void pd_vma_bind(struct i915_address_space *vm,
-@@ -449,19 +451,17 @@ struct i915_ppgtt *gen6_ppgtt_create(str
+-bool intel_context_exit_nonpersistent(struct intel_context *ce,
+-				      struct i915_request *rq);
++bool intel_context_revoke(struct intel_context *ce);
  
- 	err = gen6_ppgtt_init_scratch(ppgtt);
- 	if (err)
--		goto err_free;
-+		goto err_put;
+ static inline bool
+ intel_context_force_single_submission(const struct intel_context *ce)
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+@@ -684,7 +684,7 @@ static int __guc_add_request(struct inte
+ 	 * Corner case where requests were sitting in the priority list or a
+ 	 * request resubmitted after the context was banned.
+ 	 */
+-	if (unlikely(intel_context_is_banned(ce))) {
++	if (unlikely(!intel_context_is_schedulable(ce))) {
+ 		i915_request_put(i915_request_mark_eio(rq));
+ 		intel_engine_signal_breadcrumbs(ce->engine);
+ 		return 0;
+@@ -870,15 +870,15 @@ static int guc_wq_item_append(struct int
+ 			      struct i915_request *rq)
+ {
+ 	struct intel_context *ce = request_to_scheduling_context(rq);
+-	int ret = 0;
++	int ret;
  
- 	ppgtt->base.pd = gen6_alloc_top_pd(ppgtt);
- 	if (IS_ERR(ppgtt->base.pd)) {
- 		err = PTR_ERR(ppgtt->base.pd);
--		goto err_scratch;
-+		goto err_put;
+-	if (likely(!intel_context_is_banned(ce))) {
+-		ret = __guc_wq_item_append(rq);
++	if (unlikely(!intel_context_is_schedulable(ce)))
++		return 0;
+ 
+-		if (unlikely(ret == -EBUSY)) {
+-			guc->stalled_request = rq;
+-			guc->submission_stall_reason = STALL_MOVE_LRC_TAIL;
+-		}
++	ret = __guc_wq_item_append(rq);
++	if (unlikely(ret == -EBUSY)) {
++		guc->stalled_request = rq;
++		guc->submission_stall_reason = STALL_MOVE_LRC_TAIL;
  	}
  
- 	return &ppgtt->base;
- 
--err_scratch:
--	free_scratch(&ppgtt->base.vm);
--err_free:
--	kfree(ppgtt);
-+err_put:
-+	i915_vm_put(&ppgtt->base.vm);
- 	return ERR_PTR(err);
- }
---- a/drivers/gpu/drm/i915/gt/gen8_ppgtt.c
-+++ b/drivers/gpu/drm/i915/gt/gen8_ppgtt.c
-@@ -196,7 +196,10 @@ static void gen8_ppgtt_cleanup(struct i9
- 	if (intel_vgpu_active(vm->i915))
- 		gen8_ppgtt_notify_vgt(ppgtt, false);
- 
--	__gen8_ppgtt_cleanup(vm, ppgtt->pd, gen8_pd_top_count(vm), vm->top);
-+	if (ppgtt->pd)
-+		__gen8_ppgtt_cleanup(vm, ppgtt->pd,
-+				     gen8_pd_top_count(vm), vm->top);
-+
- 	free_scratch(vm);
+ 	return ret;
+@@ -897,7 +897,7 @@ static bool multi_lrc_submit(struct i915
+ 	 * submitting all the requests generated in parallel.
+ 	 */
+ 	return test_bit(I915_FENCE_FLAG_SUBMIT_PARALLEL, &rq->fence.flags) ||
+-		intel_context_is_banned(ce);
++	       !intel_context_is_schedulable(ce);
  }
  
-@@ -803,8 +806,10 @@ static int gen8_init_scratch(struct i915
- 		struct drm_i915_gem_object *obj;
+ static int guc_dequeue_one_context(struct intel_guc *guc)
+@@ -966,7 +966,7 @@ register_context:
+ 		struct intel_context *ce = request_to_scheduling_context(last);
  
- 		obj = vm->alloc_pt_dma(vm, I915_GTT_PAGE_SIZE_4K);
--		if (IS_ERR(obj))
-+		if (IS_ERR(obj)) {
-+			ret = PTR_ERR(obj);
- 			goto free_scratch;
-+		}
- 
- 		ret = map_pt_dma(vm, obj);
- 		if (ret) {
-@@ -823,7 +828,8 @@ static int gen8_init_scratch(struct i915
- free_scratch:
- 	while (i--)
- 		i915_gem_object_put(vm->scratch[i]);
--	return -ENOMEM;
-+	vm->scratch[0] = NULL;
-+	return ret;
- }
- 
- static int gen8_preallocate_top_level_pdp(struct i915_ppgtt *ppgtt)
-@@ -901,6 +907,7 @@ err_pd:
- struct i915_ppgtt *gen8_ppgtt_create(struct intel_gt *gt,
- 				     unsigned long lmem_pt_obj_flags)
+ 		if (unlikely(!ctx_id_mapped(guc, ce->guc_id.id) &&
+-			     !intel_context_is_banned(ce))) {
++			     intel_context_is_schedulable(ce))) {
+ 			ret = try_context_registration(ce, false);
+ 			if (unlikely(ret == -EPIPE)) {
+ 				goto deadlk;
+@@ -1576,7 +1576,7 @@ static void guc_reset_state(struct intel
  {
-+	struct i915_page_directory *pd;
- 	struct i915_ppgtt *ppgtt;
- 	int err;
+ 	struct intel_engine_cs *engine = __context_to_physical_engine(ce);
  
-@@ -946,21 +953,7 @@ struct i915_ppgtt *gen8_ppgtt_create(str
- 		ppgtt->vm.alloc_scratch_dma = alloc_pt_dma;
+-	if (intel_context_is_banned(ce))
++	if (!intel_context_is_schedulable(ce))
+ 		return;
+ 
+ 	GEM_BUG_ON(!intel_context_is_pinned(ce));
+@@ -4434,12 +4434,12 @@ static void guc_handle_context_reset(str
+ {
+ 	trace_intel_context_reset(ce);
+ 
+-	if (likely(!intel_context_is_banned(ce))) {
++	if (likely(intel_context_is_schedulable(ce))) {
+ 		capture_error_state(guc, ce);
+ 		guc_context_replay(ce);
+ 	} else {
+ 		drm_info(&guc_to_gt(guc)->i915->drm,
+-			 "Ignoring context reset notification of banned context 0x%04X on %s",
++			 "Ignoring context reset notification of exiting context 0x%04X on %s",
+ 			 ce->guc_id.id, ce->engine->name);
  	}
- 
--	err = gen8_init_scratch(&ppgtt->vm);
--	if (err)
--		goto err_free;
--
--	ppgtt->pd = gen8_alloc_top_pd(&ppgtt->vm);
--	if (IS_ERR(ppgtt->pd)) {
--		err = PTR_ERR(ppgtt->pd);
--		goto err_free_scratch;
--	}
--
--	if (!i915_vm_is_4lvl(&ppgtt->vm)) {
--		err = gen8_preallocate_top_level_pdp(ppgtt);
--		if (err)
--			goto err_free_pd;
--	}
-+	ppgtt->vm.pte_encode = gen8_pte_encode;
- 
- 	ppgtt->vm.bind_async_flags = I915_VMA_LOCAL_BIND;
- 	ppgtt->vm.insert_entries = gen8_ppgtt_insert;
-@@ -971,22 +964,31 @@ struct i915_ppgtt *gen8_ppgtt_create(str
- 	ppgtt->vm.allocate_va_range = gen8_ppgtt_alloc;
- 	ppgtt->vm.clear_range = gen8_ppgtt_clear;
- 	ppgtt->vm.foreach = gen8_ppgtt_foreach;
-+	ppgtt->vm.cleanup = gen8_ppgtt_cleanup;
- 
--	ppgtt->vm.pte_encode = gen8_pte_encode;
-+	err = gen8_init_scratch(&ppgtt->vm);
-+	if (err)
-+		goto err_put;
-+
-+	pd = gen8_alloc_top_pd(&ppgtt->vm);
-+	if (IS_ERR(pd)) {
-+		err = PTR_ERR(pd);
-+		goto err_put;
-+	}
-+	ppgtt->pd = pd;
-+
-+	if (!i915_vm_is_4lvl(&ppgtt->vm)) {
-+		err = gen8_preallocate_top_level_pdp(ppgtt);
-+		if (err)
-+			goto err_put;
-+	}
- 
- 	if (intel_vgpu_active(gt->i915))
- 		gen8_ppgtt_notify_vgt(ppgtt, true);
- 
--	ppgtt->vm.cleanup = gen8_ppgtt_cleanup;
--
- 	return ppgtt;
- 
--err_free_pd:
--	__gen8_ppgtt_cleanup(&ppgtt->vm, ppgtt->pd,
--			     gen8_pd_top_count(&ppgtt->vm), ppgtt->vm.top);
--err_free_scratch:
--	free_scratch(&ppgtt->vm);
--err_free:
--	kfree(ppgtt);
-+err_put:
-+	i915_vm_put(&ppgtt->vm);
- 	return ERR_PTR(err);
- }
---- a/drivers/gpu/drm/i915/gt/intel_gtt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gtt.c
-@@ -405,6 +405,9 @@ void free_scratch(struct i915_address_sp
- {
- 	int i;
- 
-+	if (!vm->scratch[0])
-+		return;
-+
- 	for (i = 0; i <= vm->top; i++)
- 		i915_gem_object_put(vm->scratch[i]);
  }
 
 
