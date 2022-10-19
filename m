@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 682E4604468
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D09060446C
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232428AbiJSMDm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 08:03:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37980 "EHLO
+        id S230482AbiJSMEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 08:04:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231713AbiJSMDO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:03:14 -0400
+        with ESMTP id S229687AbiJSMDf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:03:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFA2B4C627;
-        Wed, 19 Oct 2022 04:39:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53AD550199;
+        Wed, 19 Oct 2022 04:39:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37FE1B8239B;
-        Wed, 19 Oct 2022 08:51:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA378C433D6;
-        Wed, 19 Oct 2022 08:51:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38CDEB82391;
+        Wed, 19 Oct 2022 08:51:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70733C433C1;
+        Wed, 19 Oct 2022 08:51:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169475;
-        bh=HEgbHPH4lSpqw0IoD5a5jolqD6Cro97cGscbSfURixw=;
+        s=korg; t=1666169503;
+        bh=nUoYxlS4P3sUkSZzW3n7UycxsTcJ6Of6LllWPr/hLhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f1ugUAqnjPZykZh2zVV+TFVO09corr+XSB4Z0FxV1IRK8HBkuvJ64cWbqPGBKmMQI
-         l7yY7WAyewahUJnI+iNAtNoQYGAsPpaB8OCNu9HTtdbGkH8wBGpPtChIgbkHQDSbHT
-         s/IvAtaYZ6Lcj7QU5IDp3n5LxOO+4ifAYvRJtaqE=
+        b=ggoYda00wrGE0upzqdwYOJUwwCgthxXevOOu+DTPXEOOrWCpyDocYi0L+MDsVpshT
+         kf4/9NCWIVdbHtBHyeslsheGRboo89CC4FRHW/qPWuiByc1g3mk7PnkJICV18SynsW
+         UYeiBaLB9JL1c9TG6CJRJEz/azAdA8IoQY4+8k1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 290/862] wifi: mt76: fix uninitialized pointer in mt7921_mac_fill_rx
-Date:   Wed, 19 Oct 2022 10:26:17 +0200
-Message-Id: <20221019083302.829350594@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Antoine Tenart <atenart@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 300/862] netfilter: conntrack: fix the gc rescheduling delay
+Date:   Wed, 19 Oct 2022 10:26:27 +0200
+Message-Id: <20221019083303.262065457@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,34 +53,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Antoine Tenart <atenart@kernel.org>
 
-[ Upstream commit 9be57ad73984545d594ed359dac19457bcb9fc27 ]
+[ Upstream commit 95eabdd207024312876d0ebed90b4c977e050e85 ]
 
-Initialize msta pointer to NULL in mt7921_mac_fill_rx() in order to not
-dereference a uninitialized pointer.
+Commit 2cfadb761d3d ("netfilter: conntrack: revisit gc autotuning")
+changed the eviction rescheduling to the use average expiry of scanned
+entries (within 1-60s) by doing:
 
-Fixes: 0880d40871d1d ("mt76: connac: move mt76_connac2_reverse_frag0_hdr_trans in mt76-connac module")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+  for (...) {
+      expires = clamp(nf_ct_expires(tmp), ...);
+      next_run += expires;
+      next_run /= 2;
+  }
+
+The issue is the above will make the average ('next_run' here) more
+dependent on the last expiration values than the firsts (for sets > 2).
+Depending on the expiration values used to compute the average, the
+result can be quite different than what's expected. To fix this we can
+do the following:
+
+  for (...) {
+      expires = clamp(nf_ct_expires(tmp), ...);
+      next_run += (expires - next_run) / ++count;
+  }
+
+Fixes: 2cfadb761d3d ("netfilter: conntrack: revisit gc autotuning")
+Cc: Florian Westphal <fw@strlen.de>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/mac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_core.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-index 6bd9fc9228a2..e8a7a5831782 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-@@ -235,7 +235,7 @@ mt7921_mac_fill_rx(struct mt7921_dev *dev, struct sk_buff *skb)
- 	u32 rxd2 = le32_to_cpu(rxd[2]);
- 	u32 rxd3 = le32_to_cpu(rxd[3]);
- 	u32 rxd4 = le32_to_cpu(rxd[4]);
--	struct mt7921_sta *msta;
-+	struct mt7921_sta *msta = NULL;
- 	u16 seq_ctrl = 0;
- 	__le16 fc = 0;
- 	u8 mode = 0;
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 1357a2729a4b..2e6d5f1e6d63 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -67,6 +67,7 @@ struct conntrack_gc_work {
+ 	struct delayed_work	dwork;
+ 	u32			next_bucket;
+ 	u32			avg_timeout;
++	u32			count;
+ 	u32			start_time;
+ 	bool			exiting;
+ 	bool			early_drop;
+@@ -1466,6 +1467,7 @@ static void gc_worker(struct work_struct *work)
+ 	unsigned int expired_count = 0;
+ 	unsigned long next_run;
+ 	s32 delta_time;
++	long count;
+ 
+ 	gc_work = container_of(work, struct conntrack_gc_work, dwork.work);
+ 
+@@ -1475,10 +1477,12 @@ static void gc_worker(struct work_struct *work)
+ 
+ 	if (i == 0) {
+ 		gc_work->avg_timeout = GC_SCAN_INTERVAL_INIT;
++		gc_work->count = 1;
+ 		gc_work->start_time = start_time;
+ 	}
+ 
+ 	next_run = gc_work->avg_timeout;
++	count = gc_work->count;
+ 
+ 	end_time = start_time + GC_SCAN_MAX_DURATION;
+ 
+@@ -1498,8 +1502,8 @@ static void gc_worker(struct work_struct *work)
+ 
+ 		hlist_nulls_for_each_entry_rcu(h, n, &ct_hash[i], hnnode) {
+ 			struct nf_conntrack_net *cnet;
+-			unsigned long expires;
+ 			struct net *net;
++			long expires;
+ 
+ 			tmp = nf_ct_tuplehash_to_ctrack(h);
+ 
+@@ -1513,6 +1517,7 @@ static void gc_worker(struct work_struct *work)
+ 
+ 				gc_work->next_bucket = i;
+ 				gc_work->avg_timeout = next_run;
++				gc_work->count = count;
+ 
+ 				delta_time = nfct_time_stamp - gc_work->start_time;
+ 
+@@ -1528,8 +1533,8 @@ static void gc_worker(struct work_struct *work)
+ 			}
+ 
+ 			expires = clamp(nf_ct_expires(tmp), GC_SCAN_INTERVAL_MIN, GC_SCAN_INTERVAL_CLAMP);
++			expires = (expires - (long)next_run) / ++count;
+ 			next_run += expires;
+-			next_run /= 2u;
+ 
+ 			if (nf_conntrack_max95 == 0 || gc_worker_skip_ct(tmp))
+ 				continue;
+@@ -1570,6 +1575,7 @@ static void gc_worker(struct work_struct *work)
+ 		delta_time = nfct_time_stamp - end_time;
+ 		if (delta_time > 0 && i < hashsz) {
+ 			gc_work->avg_timeout = next_run;
++			gc_work->count = count;
+ 			gc_work->next_bucket = i;
+ 			next_run = 0;
+ 			goto early_exit;
 -- 
 2.35.1
 
