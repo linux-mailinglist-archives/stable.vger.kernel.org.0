@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3128260418C
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:45:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C362604139
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:40:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232837AbiJSKpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:45:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37266 "EHLO
+        id S232103AbiJSKkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:40:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233150AbiJSKoa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:44:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BDEF1578BD;
-        Wed, 19 Oct 2022 03:20:29 -0700 (PDT)
+        with ESMTP id S231855AbiJSKjt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:39:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1D8E15745E;
+        Wed, 19 Oct 2022 03:18:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C018B823B0;
-        Wed, 19 Oct 2022 08:52:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75ED2C433C1;
-        Wed, 19 Oct 2022 08:52:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 354FAB823B2;
+        Wed, 19 Oct 2022 08:52:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81200C433C1;
+        Wed, 19 Oct 2022 08:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169546;
-        bh=dVDJSEzRrPtFqIsoE3zXwmOWCE8M6Zw0BQZP6LOW0Mw=;
+        s=korg; t=1666169549;
+        bh=LoFmpQ3886X+NWnu6AizYWHdAbOt4zyiwxpdLya/P7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uKqM23aaQh5eGBkp3tyKgTLhQQtBauVikuDueIY3SJdsxmi/vXwM1VynbO/bBGgQu
-         xtXMUUCmxbG6ok1UlwVArRAR7gos7OlEF7+cfhDAfGVSA97lDa6EfNaU5T2vgkshMO
-         25MOW0xomKMxwbFX12AEo/abSYFJbV5DjXGM6c/A=
+        b=p3ddpY/wQ+mwcN54Lvk0gfa+CEaQu6qV2pokV8j1sRAfVDa9n1Ey3oBeD8k96tOHI
+         /kGeqAG54j6LOqtPGGfc5oVyTKfEn8qsWjJl8cbQzpwg5J4n/WzF3CSB9ogw+uTNNo
+         RRy2UAom/LwwgZOzCwXqcnthdC2CPYIgOLQGhl+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 318/862] cw1200: fix incorrect check to determine if no element is found in list
-Date:   Wed, 19 Oct 2022 10:26:45 +0200
-Message-Id: <20221019083304.064274432@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 319/862] libbpf: Dont require full struct enum64 in UAPI headers
+Date:   Wed, 19 Oct 2022 10:26:46 +0200
+Message-Id: <20221019083304.107157180@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,72 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 86df5de5c632d3bd940f59bbb14ae912aa9cc363 ]
+[ Upstream commit 87dbdc230d162bf9ee1ac77c8ade178b6b1e199e ]
 
-The bug is here: "} else if (item) {".
+Drop the requirement for system-wide kernel UAPI headers to provide full
+struct btf_enum64 definition. This is an unexpected requirement that
+slipped in libbpf 1.0 and put unnecessary pressure ([0]) on users to have
+a bleeding-edge kernel UAPI header from unreleased Linux 6.0.
 
-The list iterator value will *always* be set and non-NULL by
-list_for_each_entry(), so it is incorrect to assume that the iterator
-value will be NULL if the list is empty or no element is found in list.
+To achieve this, we forward declare struct btf_enum64. But that's not
+enough as there is btf_enum64_value() helper that expects to know the
+layout of struct btf_enum64. So we get a bit creative with
+reinterpreting memory layout as array of __u32 and accesing lo32/hi32
+fields as array elements. Alternative way would be to have a local
+pointer variable for anonymous struct with exactly the same layout as
+struct btf_enum64, but that gets us into C++ compiler errors complaining
+about invalid type casts. So play it safe, if ugly.
 
-Use a new value 'iter' as the list iterator, while use the old value
-'item' as a dedicated pointer to point to the found element, which
-1. can fix this bug, due to now 'item' is NULL only if it's not found.
-2. do not need to change all the uses of 'item' after the loop.
-3. can also limit the scope of the list iterator 'iter' *only inside*
-   the traversal loop by simply declaring 'iter' inside the loop in the
-   future, as usage of the iterator outside of the list_for_each_entry
-   is considered harmful. https://lkml.org/lkml/2022/2/17/1032
+  [0] Closes: https://github.com/libbpf/libbpf/issues/562
 
-Fixes: a910e4a94f692 ("cw1200: add driver for the ST-E CW1100 & CW1200 WLAN chipsets")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220413091723.17596-1-xiam0nd.tong@gmail.com
+Fixes: d90ec262b35b ("libbpf: Add enum64 support for btf_dump")
+Reported-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Link: https://lore.kernel.org/bpf/20220927042940.147185-1-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/st/cw1200/queue.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ tools/lib/bpf/btf.h | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/st/cw1200/queue.c b/drivers/net/wireless/st/cw1200/queue.c
-index e06da4b3b0d4..805a3c1bf8fe 100644
---- a/drivers/net/wireless/st/cw1200/queue.c
-+++ b/drivers/net/wireless/st/cw1200/queue.c
-@@ -91,23 +91,25 @@ static void __cw1200_queue_gc(struct cw1200_queue *queue,
- 			      bool unlock)
+diff --git a/tools/lib/bpf/btf.h b/tools/lib/bpf/btf.h
+index 583760df83b4..d421d656a076 100644
+--- a/tools/lib/bpf/btf.h
++++ b/tools/lib/bpf/btf.h
+@@ -487,6 +487,8 @@ static inline struct btf_enum *btf_enum(const struct btf_type *t)
+ 	return (struct btf_enum *)(t + 1);
+ }
+ 
++struct btf_enum64;
++
+ static inline struct btf_enum64 *btf_enum64(const struct btf_type *t)
  {
- 	struct cw1200_queue_stats *stats = queue->stats;
--	struct cw1200_queue_item *item = NULL, *tmp;
-+	struct cw1200_queue_item *item = NULL, *iter, *tmp;
- 	bool wakeup_stats = false;
+ 	return (struct btf_enum64 *)(t + 1);
+@@ -494,7 +496,28 @@ static inline struct btf_enum64 *btf_enum64(const struct btf_type *t)
  
--	list_for_each_entry_safe(item, tmp, &queue->queue, head) {
--		if (time_is_after_jiffies(item->queue_timestamp + queue->ttl))
-+	list_for_each_entry_safe(iter, tmp, &queue->queue, head) {
-+		if (time_is_after_jiffies(iter->queue_timestamp + queue->ttl)) {
-+			item = iter;
- 			break;
-+		}
- 		--queue->num_queued;
--		--queue->link_map_cache[item->txpriv.link_id];
-+		--queue->link_map_cache[iter->txpriv.link_id];
- 		spin_lock_bh(&stats->lock);
- 		--stats->num_queued;
--		if (!--stats->link_map_cache[item->txpriv.link_id])
-+		if (!--stats->link_map_cache[iter->txpriv.link_id])
- 			wakeup_stats = true;
- 		spin_unlock_bh(&stats->lock);
- 		cw1200_debug_tx_ttl(stats->priv);
--		cw1200_queue_register_post_gc(head, item);
--		item->skb = NULL;
--		list_move_tail(&item->head, &queue->free_pool);
-+		cw1200_queue_register_post_gc(head, iter);
-+		iter->skb = NULL;
-+		list_move_tail(&iter->head, &queue->free_pool);
- 	}
+ static inline __u64 btf_enum64_value(const struct btf_enum64 *e)
+ {
+-	return ((__u64)e->val_hi32 << 32) | e->val_lo32;
++	/* struct btf_enum64 is introduced in Linux 6.0, which is very
++	 * bleeding-edge. Here we are avoiding relying on struct btf_enum64
++	 * definition coming from kernel UAPI headers to support wider range
++	 * of system-wide kernel headers.
++	 *
++	 * Given this header can be also included from C++ applications, that
++	 * further restricts C tricks we can use (like using compatible
++	 * anonymous struct). So just treat struct btf_enum64 as
++	 * a three-element array of u32 and access second (lo32) and third
++	 * (hi32) elements directly.
++	 *
++	 * For reference, here is a struct btf_enum64 definition:
++	 *
++	 * const struct btf_enum64 {
++	 *	__u32	name_off;
++	 *	__u32	val_lo32;
++	 *	__u32	val_hi32;
++	 * };
++	 */
++	const __u32 *e64 = (const __u32 *)e;
++
++	return ((__u64)e64[2] << 32) | e64[1];
+ }
  
- 	if (wakeup_stats)
+ static inline struct btf_member *btf_members(const struct btf_type *t)
 -- 
 2.35.1
 
