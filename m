@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7762F603C2F
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:44:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B291603C31
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:44:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231205AbiJSIog (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:44:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44754 "EHLO
+        id S231211AbiJSIoi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:44:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231328AbiJSIn7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:43:59 -0400
+        with ESMTP id S231358AbiJSIoC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:44:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F2DC7E812;
-        Wed, 19 Oct 2022 01:41:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 228A28260C;
+        Wed, 19 Oct 2022 01:41:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD7FE617FE;
-        Wed, 19 Oct 2022 08:41:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D06A9C433C1;
-        Wed, 19 Oct 2022 08:41:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1671617F7;
+        Wed, 19 Oct 2022 08:41:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4358C433C1;
+        Wed, 19 Oct 2022 08:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168882;
-        bh=dpVcpzHt1fIFRVKlgbYHP6miojOg+vDegfBehVXCHZk=;
+        s=korg; t=1666168902;
+        bh=qgGQeYsc2Mi+QRQ5XO4mvjem28TQWZFhp/92ecMktAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0SG/Xhwt5Ms0bQKK1Lwg9BIBySuo32lJMygkCO3nnv9x/shG/V95C9obWf7ylErV
-         X6d06LQxCcttmFs/DvpzckG4wQ7cCh17Q5hA2NyMUKtZW33xr5A5gJBxkgLup7qvwl
-         tRMB4Dy4wO56G1UiZoSatnC38js0y5gJF8EIf5b4=
+        b=2mhlpzxWUf+KRl/B5pq4sgecHr+/MlggqPBo0W62wkiQOs+bTOOPt97pAebrYcIXs
+         pn141KihGPci4wjB0CGMtyoTqMlNah+sTyFoCbm2uA/TXgM3dzKDzPyoXjoHwG0rjK
+         OAGhyTVApXuX8eVhCw9qcHunVbZEX78/ssE60oMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carlos Llamas <cmllamas@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Liam Howlett <liam.howlett@oracle.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.0 086/862] mm/mmap: undo ->mmap() when arch_validate_flags() fails
-Date:   Wed, 19 Oct 2022 10:22:53 +0200
-Message-Id: <20221019083253.727286986@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Roosen Henri <Henri.Roosen@ginzinger.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 6.0 092/862] serial: Deassert Transmit Enable on probe in driver-specific way
+Date:   Wed, 19 Oct 2022 10:22:59 +0200
+Message-Id: <20221019083254.011400450@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -58,112 +55,318 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Llamas <cmllamas@google.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit deb0f6562884b5b4beb883d73e66a7d3a1b96d99 upstream.
+commit 7c7f9bc986e698873b489c371a08f206979d06b7 upstream.
 
-Commit c462ac288f2c ("mm: Introduce arch_validate_flags()") added a late
-check in mmap_region() to let architectures validate vm_flags.  The check
-needs to happen after calling ->mmap() as the flags can potentially be
-modified during this callback.
+When a UART port is newly registered, uart_configure_port() seeks to
+deassert RS485 Transmit Enable by setting the RTS bit in port->mctrl.
+However a number of UART drivers interpret a set RTS bit as *assertion*
+instead of deassertion:  Affected drivers include those using
+serial8250_em485_config() (except 8250_bcm2835aux.c) and some using
+mctrl_gpio (e.g. imx.c).
 
-If arch_validate_flags() check fails we unmap and free the vma.  However,
-the error path fails to undo the ->mmap() call that previously succeeded
-and depending on the specific ->mmap() implementation this translates to
-reference increments, memory allocations and other operations what will
-not be cleaned up.
+Since the interpretation of the RTS bit is driver-specific, it is not
+suitable as a means to centrally deassert Transmit Enable in the serial
+core.  Instead, the serial core must call on drivers to deassert it in
+their driver-specific way.  One way to achieve that is to call
+->rs485_config().  It implicitly deasserts Transmit Enable.
 
-There are several places (mainly device drivers) where this is an issue.
-However, one specific example is bpf_map_mmap() which keeps count of the
-mappings in map->writecnt.  The count is incremented on ->mmap() and then
-decremented on vm_ops->close().  When arch_validate_flags() fails this
-count is off since bpf_map_mmap_close() is never called.
+So amend uart_configure_port() and uart_resume_port() to invoke
+uart_rs485_config().  That allows removing calls to uart_rs485_config()
+from drivers' ->probe() hooks and declaring the function static.
 
-One can reproduce this issue in arm64 devices with MTE support.  Here the
-vm_flags are checked to only allow VM_MTE if VM_MTE_ALLOWED has been set
-previously.  From userspace then is enough to pass the PROT_MTE flag to
-mmap() syscall to trigger the arch_validate_flags() failure.
+Skip any invocation of ->set_mctrl() if RS485 is enabled.  RS485 has no
+hardware flow control, so the modem control lines are irrelevant and
+need not be touched.  When leaving RS485 mode, reset the modem control
+lines to the state stored in port->mctrl.  That way, UARTs which are
+muxed between RS485 and RS232 transceivers drive the lines correctly
+when switched to RS232.  (serial8250_do_startup() historically raises
+the OUT1 modem signal because otherwise interrupts are not signaled on
+ancient PC UARTs, but I believe that no longer applies to modern,
+RS485-capable UARTs and is thus safe to be skipped.)
 
-The following program reproduces this issue:
+imx.c modifies port->mctrl whenever Transmit Enable is asserted and
+deasserted.  Stop it from doing that so port->mctrl reflects the RS232
+line state.
 
-  #include <stdio.h>
-  #include <unistd.h>
-  #include <linux/unistd.h>
-  #include <linux/bpf.h>
-  #include <sys/mman.h>
+8250_omap.c deasserts Transmit Enable on ->runtime_resume() by calling
+->set_mctrl().  Because that is now a no-op in RS485 mode, amend the
+function to call serial8250_em485_stop_tx().
 
-  int main(void)
-  {
-	union bpf_attr attr = {
-		.map_type = BPF_MAP_TYPE_ARRAY,
-		.key_size = sizeof(int),
-		.value_size = sizeof(long long),
-		.max_entries = 256,
-		.map_flags = BPF_F_MMAPABLE,
-	};
-	int fd;
+fsl_lpuart.c retrieves and applies the RS485 device tree properties
+after registering the UART port.  Because applying now happens on
+registration in uart_configure_port(), move retrieval of the properties
+ahead of uart_add_one_port().
 
-	fd = syscall(__NR_bpf, BPF_MAP_CREATE, &attr, sizeof(attr));
-	mmap(NULL, 4096, PROT_WRITE | PROT_MTE, MAP_SHARED, fd, 0);
-
-	return 0;
-  }
-
-By manually adding some log statements to the vm_ops callbacks we can
-confirm that when passing PROT_MTE to mmap() the map->writecnt is off upon
-->release():
-
-With PROT_MTE flag:
-  root@debian:~# ./bpf-test
-  [  111.263874] bpf_map_write_active_inc: map=9 writecnt=1
-  [  111.288763] bpf_map_release: map=9 writecnt=1
-
-Without PROT_MTE flag:
-  root@debian:~# ./bpf-test
-  [  157.816912] bpf_map_write_active_inc: map=10 writecnt=1
-  [  157.830442] bpf_map_write_active_dec: map=10 writecnt=0
-  [  157.832396] bpf_map_release: map=10 writecnt=0
-
-This patch fixes the above issue by calling vm_ops->close() when the
-arch_validate_flags() check fails, after this we can proceed to unmap and
-free the vma on the error path.
-
-Link: https://lkml.kernel.org/r/20220930003844.1210987-1-cmllamas@google.com
-Fixes: c462ac288f2c ("mm: Introduce arch_validate_flags()")
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Reviewed-by: Liam Howlett <liam.howlett@oracle.com>
-Cc: Christian Brauner (Microsoft) <brauner@kernel.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: <stable@vger.kernel.org>	[5.10+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://lore.kernel.org/all/20220329085050.311408-1-matthias.schiffer@ew.tq-group.com/
+Link: https://lore.kernel.org/all/8f538a8903795f22f9acc94a9a31b03c9c4ccacb.camel@ginzinger.com/
+Fixes: d3b3404df318 ("serial: Fix incorrect rs485 polarity on uart open")
+Cc: stable@vger.kernel.org # v4.14+
+Reported-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Reported-by: Roosen Henri <Henri.Roosen@ginzinger.com>
+Tested-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/2de36eba3fbe11278d5002e4e501afe0ceaca039.1663863805.git.lukas@wunner.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mmap.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_omap.c |    3 +++
+ drivers/tty/serial/8250/8250_pci.c  |    9 +--------
+ drivers/tty/serial/8250/8250_port.c |   12 +++++++-----
+ drivers/tty/serial/fsl_lpuart.c     |   10 ++++------
+ drivers/tty/serial/imx.c            |    8 ++------
+ drivers/tty/serial/serial_core.c    |   36 ++++++++++++++++++++----------------
+ include/linux/serial_core.h         |    1 -
+ 7 files changed, 37 insertions(+), 42 deletions(-)
 
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1797,7 +1797,7 @@ unsigned long mmap_region(struct file *f
- 	if (!arch_validate_flags(vma->vm_flags)) {
- 		error = -EINVAL;
- 		if (file)
--			goto unmap_and_free_vma;
-+			goto close_and_free_vma;
- 		else
- 			goto free_vma;
- 	}
-@@ -1844,6 +1844,9 @@ out:
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -342,6 +342,9 @@ static void omap8250_restore_regs(struct
+ 	omap8250_update_mdr1(up, priv);
  
- 	return addr;
+ 	up->port.ops->set_mctrl(&up->port, up->port.mctrl);
++
++	if (up->port.rs485.flags & SER_RS485_ENABLED)
++		serial8250_em485_stop_tx(up);
+ }
  
-+close_and_free_vma:
-+	if (vma->vm_ops && vma->vm_ops->close)
-+		vma->vm_ops->close(vma);
- unmap_and_free_vma:
- 	fput(vma->vm_file);
- 	vma->vm_file = NULL;
+ /*
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -1627,7 +1627,6 @@ static int pci_fintek_init(struct pci_de
+ 	resource_size_t bar_data[3];
+ 	u8 config_base;
+ 	struct serial_private *priv = pci_get_drvdata(dev);
+-	struct uart_8250_port *port;
+ 
+ 	if (!(pci_resource_flags(dev, 5) & IORESOURCE_IO) ||
+ 			!(pci_resource_flags(dev, 4) & IORESOURCE_IO) ||
+@@ -1674,13 +1673,7 @@ static int pci_fintek_init(struct pci_de
+ 
+ 		pci_write_config_byte(dev, config_base + 0x06, dev->irq);
+ 
+-		if (priv) {
+-			/* re-apply RS232/485 mode when
+-			 * pciserial_resume_ports()
+-			 */
+-			port = serial8250_get_port(priv->line[i]);
+-			uart_rs485_config(&port->port);
+-		} else {
++		if (!priv) {
+ 			/* First init without port data
+ 			 * force init to RS232 Mode
+ 			 */
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -600,7 +600,7 @@ EXPORT_SYMBOL_GPL(serial8250_rpm_put);
+ static int serial8250_em485_init(struct uart_8250_port *p)
+ {
+ 	if (p->em485)
+-		return 0;
++		goto deassert_rts;
+ 
+ 	p->em485 = kmalloc(sizeof(struct uart_8250_em485), GFP_ATOMIC);
+ 	if (!p->em485)
+@@ -616,7 +616,9 @@ static int serial8250_em485_init(struct
+ 	p->em485->active_timer = NULL;
+ 	p->em485->tx_stopped = true;
+ 
+-	p->rs485_stop_tx(p);
++deassert_rts:
++	if (p->em485->tx_stopped)
++		p->rs485_stop_tx(p);
+ 
+ 	return 0;
+ }
+@@ -2042,6 +2044,9 @@ EXPORT_SYMBOL_GPL(serial8250_do_set_mctr
+ 
+ static void serial8250_set_mctrl(struct uart_port *port, unsigned int mctrl)
+ {
++	if (port->rs485.flags & SER_RS485_ENABLED)
++		return;
++
+ 	if (port->set_mctrl)
+ 		port->set_mctrl(port, mctrl);
+ 	else
+@@ -3187,9 +3192,6 @@ static void serial8250_config_port(struc
+ 	if (flags & UART_CONFIG_TYPE)
+ 		autoconfig(up);
+ 
+-	if (port->rs485.flags & SER_RS485_ENABLED)
+-		uart_rs485_config(port);
+-
+ 	/* if access method is AU, it is a 16550 with a quirk */
+ 	if (port->type == PORT_16550A && port->iotype == UPIO_AU)
+ 		up->bugs |= UART_BUG_NOMSR;
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2729,15 +2729,13 @@ static int lpuart_probe(struct platform_
+ 	if (ret)
+ 		goto failed_reset;
+ 
+-	ret = uart_add_one_port(&lpuart_reg, &sport->port);
+-	if (ret)
+-		goto failed_attach_port;
+-
+ 	ret = uart_get_rs485_mode(&sport->port);
+ 	if (ret)
+ 		goto failed_get_rs485;
+ 
+-	uart_rs485_config(&sport->port);
++	ret = uart_add_one_port(&lpuart_reg, &sport->port);
++	if (ret)
++		goto failed_attach_port;
+ 
+ 	ret = devm_request_irq(&pdev->dev, sport->port.irq, handler, 0,
+ 				DRIVER_NAME, sport);
+@@ -2747,9 +2745,9 @@ static int lpuart_probe(struct platform_
+ 	return 0;
+ 
+ failed_irq_request:
+-failed_get_rs485:
+ 	uart_remove_one_port(&lpuart_reg, &sport->port);
+ failed_attach_port:
++failed_get_rs485:
+ failed_reset:
+ 	lpuart_disable_clks(sport);
+ 	return ret;
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -380,8 +380,7 @@ static void imx_uart_rts_active(struct i
+ {
+ 	*ucr2 &= ~(UCR2_CTSC | UCR2_CTS);
+ 
+-	sport->port.mctrl |= TIOCM_RTS;
+-	mctrl_gpio_set(sport->gpios, sport->port.mctrl);
++	mctrl_gpio_set(sport->gpios, sport->port.mctrl | TIOCM_RTS);
+ }
+ 
+ /* called with port.lock taken and irqs caller dependent */
+@@ -390,8 +389,7 @@ static void imx_uart_rts_inactive(struct
+ 	*ucr2 &= ~UCR2_CTSC;
+ 	*ucr2 |= UCR2_CTS;
+ 
+-	sport->port.mctrl &= ~TIOCM_RTS;
+-	mctrl_gpio_set(sport->gpios, sport->port.mctrl);
++	mctrl_gpio_set(sport->gpios, sport->port.mctrl & ~TIOCM_RTS);
+ }
+ 
+ static void start_hrtimer_ms(struct hrtimer *hrt, unsigned long msec)
+@@ -2347,8 +2345,6 @@ static int imx_uart_probe(struct platfor
+ 		dev_err(&pdev->dev,
+ 			"low-active RTS not possible when receiver is off, enabling receiver\n");
+ 
+-	uart_rs485_config(&sport->port);
+-
+ 	/* Disable interrupts before requesting them */
+ 	ucr1 = imx_uart_readl(sport, UCR1);
+ 	ucr1 &= ~(UCR1_ADEN | UCR1_TRDYEN | UCR1_IDEN | UCR1_RRDYEN | UCR1_RTSDEN);
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -158,15 +158,10 @@ uart_update_mctrl(struct uart_port *port
+ 	unsigned long flags;
+ 	unsigned int old;
+ 
+-	if (port->rs485.flags & SER_RS485_ENABLED) {
+-		set &= ~TIOCM_RTS;
+-		clear &= ~TIOCM_RTS;
+-	}
+-
+ 	spin_lock_irqsave(&port->lock, flags);
+ 	old = port->mctrl;
+ 	port->mctrl = (old & ~clear) | set;
+-	if (old != port->mctrl)
++	if (old != port->mctrl && !(port->rs485.flags & SER_RS485_ENABLED))
+ 		port->ops->set_mctrl(port, port->mctrl);
+ 	spin_unlock_irqrestore(&port->lock, flags);
+ }
+@@ -1391,7 +1386,7 @@ static void uart_set_rs485_termination(s
+ 				 !!(rs485->flags & SER_RS485_TERMINATE_BUS));
+ }
+ 
+-int uart_rs485_config(struct uart_port *port)
++static int uart_rs485_config(struct uart_port *port)
+ {
+ 	struct serial_rs485 *rs485 = &port->rs485;
+ 	int ret;
+@@ -1405,7 +1400,6 @@ int uart_rs485_config(struct uart_port *
+ 
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(uart_rs485_config);
+ 
+ static int uart_get_rs485_config(struct uart_port *port,
+ 			 struct serial_rs485 __user *rs485)
+@@ -1444,8 +1438,13 @@ static int uart_set_rs485_config(struct
+ 
+ 	spin_lock_irqsave(&port->lock, flags);
+ 	ret = port->rs485_config(port, &tty->termios, &rs485);
+-	if (!ret)
++	if (!ret) {
+ 		port->rs485 = rs485;
++
++		/* Reset RTS and other mctrl lines when disabling RS485 */
++		if (!(rs485.flags & SER_RS485_ENABLED))
++			port->ops->set_mctrl(port, port->mctrl);
++	}
+ 	spin_unlock_irqrestore(&port->lock, flags);
+ 	if (ret)
+ 		return ret;
+@@ -2352,7 +2351,8 @@ int uart_suspend_port(struct uart_driver
+ 
+ 		spin_lock_irq(&uport->lock);
+ 		ops->stop_tx(uport);
+-		ops->set_mctrl(uport, 0);
++		if (!(uport->rs485.flags & SER_RS485_ENABLED))
++			ops->set_mctrl(uport, 0);
+ 		/* save mctrl so it can be restored on resume */
+ 		mctrl = uport->mctrl;
+ 		uport->mctrl = 0;
+@@ -2440,7 +2440,8 @@ int uart_resume_port(struct uart_driver
+ 
+ 		uart_change_pm(state, UART_PM_STATE_ON);
+ 		spin_lock_irq(&uport->lock);
+-		ops->set_mctrl(uport, 0);
++		if (!(uport->rs485.flags & SER_RS485_ENABLED))
++			ops->set_mctrl(uport, 0);
+ 		spin_unlock_irq(&uport->lock);
+ 		if (console_suspend_enabled || !uart_console(uport)) {
+ 			/* Protected by port mutex for now */
+@@ -2451,7 +2452,10 @@ int uart_resume_port(struct uart_driver
+ 				if (tty)
+ 					uart_change_speed(tty, state, NULL);
+ 				spin_lock_irq(&uport->lock);
+-				ops->set_mctrl(uport, uport->mctrl);
++				if (!(uport->rs485.flags & SER_RS485_ENABLED))
++					ops->set_mctrl(uport, uport->mctrl);
++				else
++					uart_rs485_config(uport);
+ 				ops->start_tx(uport);
+ 				spin_unlock_irq(&uport->lock);
+ 				tty_port_set_initialized(port, 1);
+@@ -2558,10 +2562,10 @@ uart_configure_port(struct uart_driver *
+ 		 */
+ 		spin_lock_irqsave(&port->lock, flags);
+ 		port->mctrl &= TIOCM_DTR;
+-		if (port->rs485.flags & SER_RS485_ENABLED &&
+-		    !(port->rs485.flags & SER_RS485_RTS_AFTER_SEND))
+-			port->mctrl |= TIOCM_RTS;
+-		port->ops->set_mctrl(port, port->mctrl);
++		if (!(port->rs485.flags & SER_RS485_ENABLED))
++			port->ops->set_mctrl(port, port->mctrl);
++		else
++			uart_rs485_config(port);
+ 		spin_unlock_irqrestore(&port->lock, flags);
+ 
+ 		/*
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -950,5 +950,4 @@ static inline int uart_handle_break(stru
+ 					 !((cflag) & CLOCAL))
+ 
+ int uart_get_rs485_mode(struct uart_port *port);
+-int uart_rs485_config(struct uart_port *port);
+ #endif /* LINUX_SERIAL_CORE_H */
 
 
