@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99DFB6041D6
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:50:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD0E36043FB
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:55:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233413AbiJSKuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:50:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51614 "EHLO
+        id S230436AbiJSLz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:55:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233600AbiJSKrU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:47:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C3EB1382F0;
-        Wed, 19 Oct 2022 03:21:47 -0700 (PDT)
+        with ESMTP id S232300AbiJSLyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:54:54 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C0CDF0E;
+        Wed, 19 Oct 2022 04:33:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15D29B8245A;
-        Wed, 19 Oct 2022 09:01:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B537C433C1;
-        Wed, 19 Oct 2022 09:00:59 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 031D7CE2158;
+        Wed, 19 Oct 2022 09:03:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E88C0C433D6;
+        Wed, 19 Oct 2022 09:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170059;
-        bh=s3BcNo+4Mt/v+RbVxnDPFg5Kc5akKszf8xfXcrWrnLk=;
+        s=korg; t=1666170188;
+        bh=yKJziEW283XpJTXlC22Huxwlr5z6BXBtoJ1k6n5TaWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N3/XSi7jEen4qGSAfwjADgoEUWDsQuu9STf/Ryo158JXkC4YKqrjZrC0aBwb24GEn
-         xEuzY2RlvxeeKD4CwEKKlLGZ+x8DMrtz/D5bPsVis/KOM9lPDd77b1xrU2svi06/gs
-         Xlunq6L1X5fXrxki7098pMyz77ZYv7P8B8VVqL38=
+        b=uT6etYBrfhUkdmLd3ReGPcAFzwVHg1E38D3udNuf6kngqkN3E6QdK7hc32yIN6j0r
+         leQaVIpfSS9175ErM0h2tEfoBSDaD0SktC0wX2FxvTUJPZWSrVJfNgrgRupS9C434o
+         9TCi2DJNJ3efaOgOSfbX2bvaO4dHbSrXpAW0lCzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jie Hai <haijie1@huawei.com>,
-        Zhou Wang <wangzhou1@hisilicon.com>,
+        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 510/862] dmaengine: hisilicon: Add multi-thread support for a DMA channel
-Date:   Wed, 19 Oct 2022 10:29:57 +0200
-Message-Id: <20221019083312.517043549@linuxfoundation.org>
+Subject: [PATCH 6.0 524/862] phy: qcom-qmp-pcie: fix memleak on probe deferral
+Date:   Wed, 19 Oct 2022 10:30:11 +0200
+Message-Id: <20221019083313.126741569@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,100 +52,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Hai <haijie1@huawei.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 2cbb95883c990d0002a77e13d3278913ab26ad79 ]
+[ Upstream commit 4be26f695ffa458b065b7942dbff9393bf0836ea ]
 
-When we get a DMA channel and try to use it in multiple threads it
-will cause oops and hanging the system.
+Switch to using the device-managed of_iomap helper to avoid leaking
+memory on probe deferral and driver unbind.
 
-% echo 100 > /sys/module/dmatest/parameters/threads_per_chan
-% echo 100 > /sys/module/dmatest/parameters/iterations
-% echo 1 > /sys/module/dmatest/parameters/run
-[383493.327077] Unable to handle kernel paging request at virtual
-		address dead000000000108
-[383493.335103] Mem abort info:
-[383493.335103]   ESR = 0x96000044
-[383493.335105]   EC = 0x25: DABT (current EL), IL = 32 bits
-[383493.335107]   SET = 0, FnV = 0
-[383493.335108]   EA = 0, S1PTW = 0
-[383493.335109]   FSC = 0x04: level 0 translation fault
-[383493.335110] Data abort info:
-[383493.335111]   ISV = 0, ISS = 0x00000044
-[383493.364739]   CM = 0, WnR = 1
-[383493.367793] [dead000000000108] address between user and kernel
-		address ranges
-[383493.375021] Internal error: Oops: 96000044 [#1] PREEMPT SMP
-[383493.437574] CPU: 63 PID: 27895 Comm: dma0chan0-copy2 Kdump:
-		loaded Tainted: GO 5.17.0-rc4+ #2
-[383493.457851] pstate: 204000c9 (nzCv daIF +PAN -UAO -TCO -DIT
-		-SSBS BTYPE=--)
-[383493.465331] pc : vchan_tx_submit+0x64/0xa0
-[383493.469957] lr : vchan_tx_submit+0x34/0xa0
+Note that this helper checks for already reserved regions and may fail
+if there are multiple devices claiming the same memory.
 
-This occurs because the transmission timed out, and that's due
-to data race. Each thread rewrite channels's descriptor as soon as
-device_issue_pending is called. It leads to the situation that
-the driver thinks that it uses the right descriptor in interrupt
-handler while channels's descriptor has been changed by other
-thread. The descriptor which in fact reported interrupt will not
-be handled any more, as well as its tx->callback.
-That's why timeout reports.
-
-With current fixes channels' descriptor changes it's value only
-when it has been used. A new descriptor is acquired from
-vc->desc_issued queue that is already filled with descriptors
-that are ready to be sent. Threads have no direct access to DMA
-channel descriptor. In case of channel's descriptor is busy, try
-to submit to HW again when a descriptor is completed. In this case,
-vc->desc_issued may be empty when hisi_dma_start_transfer is called,
-so delete error reporting on this. Now it is just possible to queue
-a descriptor for further processing.
-
-Fixes: e9f08b65250d ("dmaengine: hisilicon: Add Kunpeng DMA engine support")
-Signed-off-by: Jie Hai <haijie1@huawei.com>
-Acked-by: Zhou Wang <wangzhou1@hisilicon.com>
-Link: https://lore.kernel.org/r/20220830062251.52993-4-haijie1@huawei.com
+Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20220916102340.11520-3-johan+linaro@kernel.org
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/hisi_dma.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/phy/qualcomm/phy-qcom-qmp-pcie.c | 34 ++++++++++++------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/dma/hisi_dma.c b/drivers/dma/hisi_dma.c
-index 837f7e4adfa6..0233b42143c7 100644
---- a/drivers/dma/hisi_dma.c
-+++ b/drivers/dma/hisi_dma.c
-@@ -271,7 +271,6 @@ static void hisi_dma_start_transfer(struct hisi_dma_chan *chan)
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
+index 0e0f2482827a..819bcd975ba4 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp-pcie.c
+@@ -2329,17 +2329,17 @@ int qcom_qmp_phy_pcie_create(struct device *dev, struct device_node *np, int id,
+ 	 * For dual lane PHYs: tx2 -> 3, rx2 -> 4, pcs_misc (optional) -> 5
+ 	 * For single lane PHYs: pcs_misc (optional) -> 3.
+ 	 */
+-	qphy->tx = of_iomap(np, 0);
+-	if (!qphy->tx)
+-		return -ENOMEM;
++	qphy->tx = devm_of_iomap(dev, np, 0, NULL);
++	if (IS_ERR(qphy->tx))
++		return PTR_ERR(qphy->tx);
  
- 	vd = vchan_next_desc(&chan->vc);
- 	if (!vd) {
--		dev_err(&hdma_dev->pdev->dev, "no issued task!\n");
- 		chan->desc = NULL;
- 		return;
- 	}
-@@ -303,7 +302,7 @@ static void hisi_dma_issue_pending(struct dma_chan *c)
+-	qphy->rx = of_iomap(np, 1);
+-	if (!qphy->rx)
+-		return -ENOMEM;
++	qphy->rx = devm_of_iomap(dev, np, 1, NULL);
++	if (IS_ERR(qphy->rx))
++		return PTR_ERR(qphy->rx);
  
- 	spin_lock_irqsave(&chan->vc.lock, flags);
+-	qphy->pcs = of_iomap(np, 2);
+-	if (!qphy->pcs)
+-		return -ENOMEM;
++	qphy->pcs = devm_of_iomap(dev, np, 2, NULL);
++	if (IS_ERR(qphy->pcs))
++		return PTR_ERR(qphy->pcs);
  
--	if (vchan_issue_pending(&chan->vc))
-+	if (vchan_issue_pending(&chan->vc) && !chan->desc)
- 		hisi_dma_start_transfer(chan);
+ 	/*
+ 	 * If this is a dual-lane PHY, then there should be registers for the
+@@ -2348,9 +2348,9 @@ int qcom_qmp_phy_pcie_create(struct device *dev, struct device_node *np, int id,
+ 	 * offset from the first lane.
+ 	 */
+ 	if (cfg->is_dual_lane_phy) {
+-		qphy->tx2 = of_iomap(np, 3);
+-		qphy->rx2 = of_iomap(np, 4);
+-		if (!qphy->tx2 || !qphy->rx2) {
++		qphy->tx2 = devm_of_iomap(dev, np, 3, NULL);
++		qphy->rx2 = devm_of_iomap(dev, np, 4, NULL);
++		if (IS_ERR(qphy->tx2) || IS_ERR(qphy->rx2)) {
+ 			dev_warn(dev,
+ 				 "Underspecified device tree, falling back to legacy register regions\n");
  
- 	spin_unlock_irqrestore(&chan->vc.lock, flags);
-@@ -441,11 +440,10 @@ static irqreturn_t hisi_dma_irq(int irq, void *data)
- 				    chan->qp_num, chan->cq_head);
- 		if (FIELD_GET(STATUS_MASK, cqe->w0) == STATUS_SUCC) {
- 			vchan_cookie_complete(&desc->vd);
-+			hisi_dma_start_transfer(chan);
+@@ -2360,20 +2360,20 @@ int qcom_qmp_phy_pcie_create(struct device *dev, struct device_node *np, int id,
+ 			qphy->rx2 = qphy->rx + QMP_PHY_LEGACY_LANE_STRIDE;
+ 
  		} else {
- 			dev_err(&hdma_dev->pdev->dev, "task error!\n");
+-			qphy->pcs_misc = of_iomap(np, 5);
++			qphy->pcs_misc = devm_of_iomap(dev, np, 5, NULL);
  		}
--
--		chan->desc = NULL;
+ 
+ 	} else {
+-		qphy->pcs_misc = of_iomap(np, 3);
++		qphy->pcs_misc = devm_of_iomap(dev, np, 3, NULL);
  	}
  
- 	spin_unlock(&chan->vc.lock);
+-	if (!qphy->pcs_misc &&
++	if (IS_ERR(qphy->pcs_misc) &&
+ 	    of_device_is_compatible(dev->of_node, "qcom,ipq6018-qmp-pcie-phy"))
+ 		qphy->pcs_misc = qphy->pcs + 0x400;
+ 
+-	if (!qphy->pcs_misc) {
++	if (IS_ERR(qphy->pcs_misc)) {
+ 		if (cfg->pcs_misc_tbl || cfg->pcs_misc_tbl_sec)
+-			return -EINVAL;
++			return PTR_ERR(qphy->pcs_misc);
+ 	}
+ 
+ 	snprintf(prop_name, sizeof(prop_name), "pipe%d", id);
 -- 
 2.35.1
 
