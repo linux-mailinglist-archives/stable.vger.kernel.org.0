@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8828A603E82
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28D78603E92
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233079AbiJSJQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:16:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33312 "EHLO
+        id S233098AbiJSJQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:16:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233139AbiJSJOD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:14:03 -0400
+        with ESMTP id S233203AbiJSJOL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:14:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4824096202;
-        Wed, 19 Oct 2022 02:04:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05ACBF57;
+        Wed, 19 Oct 2022 02:04:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A75B61777;
-        Wed, 19 Oct 2022 09:03:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EABCC433C1;
-        Wed, 19 Oct 2022 09:03:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A20C46185F;
+        Wed, 19 Oct 2022 09:03:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA90CC433C1;
+        Wed, 19 Oct 2022 09:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170225;
-        bh=7rNgIZ8t7ZwPJgpss76pj0gV2+cw0OBlIpaZoHxPsnE=;
+        s=korg; t=1666170228;
+        bh=WXxZPIWiyubGD4UyoxgS6nPk1TseZmuCXaYHcZUh6f4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ayhabMHjQrCVibZvyfrJsKFK/KGJO2/obCPoZDZRGGrH7tphrosaD80yI9d/HQbfP
-         QMvd0i+YHm/Xu5c6aqthHlyO1vIC0Xl3c6hL4zz21E6KK+YJxFGy9UDOlI2aGQvj6u
-         BOWoXp2K16LOL5CpYKwTziF1mXCpJO9V7vruZNkE=
+        b=oUi0ZhXFEkVmHWIecD/eeEMxwt7SlHn+vjwTxOQMqZZTrfBtFZYZ0gy7I+vLQAU5w
+         nVZJObeoBDQM23wDxCJ60SkyId465xYqvyWWNA8nOEl4oKRVBCpvv33nt07sBpI428
+         0qiPfJ0RBUP/5+3xVqtoCTO4f14CRdHjQWaQeykw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 575/862] mfd: fsl-imx25: Fix an error handling path in mx25_tsadc_setup_irq()
-Date:   Wed, 19 Oct 2022 10:31:02 +0200
-Message-Id: <20221019083315.382420303@linuxfoundation.org>
+Subject: [PATCH 6.0 576/862] mfd: lp8788: Fix an error handling path in lp8788_probe()
+Date:   Wed, 19 Oct 2022 10:31:03 +0200
+Message-Id: <20221019083315.421760313@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,78 +55,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 3fa9e4cfb55da512ebfd57336fde468830719298 ]
+[ Upstream commit becfdcd75126b20b8ec10066c5e85b34f8994ad5 ]
 
-If devm_of_platform_populate() fails, some resources need to be
-released.
+Should an error occurs in mfd_add_devices(), some resources need to be
+released, as already done in the .remove() function.
 
-Introduce a mx25_tsadc_unset_irq() function that undoes
-mx25_tsadc_setup_irq() and call it both from the new error handling path
-of the probe and in the remove function.
+Add an error handling path and a lp8788_irq_exit() call to undo a previous
+lp8788_irq_init().
 
-Fixes: a55196eff6d6 ("mfd: fsl-imx25: Use devm_of_platform_populate()")
+Fixes: eea6b7cc53aa ("mfd: Add lp8788 mfd driver")
 Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/d404e04828fc06bcfddf81f9f3e9b4babbe35415.1659269156.git.christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/r/18398722da9df9490722d853e4797350189ae79b.1659261275.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/fsl-imx25-tsadc.c | 32 ++++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
+ drivers/mfd/lp8788.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/fsl-imx25-tsadc.c b/drivers/mfd/fsl-imx25-tsadc.c
-index 37e5e02a1d05..85f7982d26d2 100644
---- a/drivers/mfd/fsl-imx25-tsadc.c
-+++ b/drivers/mfd/fsl-imx25-tsadc.c
-@@ -84,6 +84,19 @@ static int mx25_tsadc_setup_irq(struct platform_device *pdev,
- 	return 0;
- }
+diff --git a/drivers/mfd/lp8788.c b/drivers/mfd/lp8788.c
+index c223d2c6a363..998e8cc408a0 100644
+--- a/drivers/mfd/lp8788.c
++++ b/drivers/mfd/lp8788.c
+@@ -195,8 +195,16 @@ static int lp8788_probe(struct i2c_client *cl, const struct i2c_device_id *id)
+ 	if (ret)
+ 		return ret;
  
-+static int mx25_tsadc_unset_irq(struct platform_device *pdev)
-+{
-+	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
-+	int irq = platform_get_irq(pdev, 0);
-+
-+	if (irq) {
-+		irq_set_chained_handler_and_data(irq, NULL, NULL);
-+		irq_domain_remove(tsadc->domain);
-+	}
-+
-+	return 0;
-+}
-+
- static void mx25_tsadc_setup_clk(struct platform_device *pdev,
- 				 struct mx25_tsadc *tsadc)
- {
-@@ -171,18 +184,21 @@ static int mx25_tsadc_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, tsadc);
- 
--	return devm_of_platform_populate(dev);
-+	ret = devm_of_platform_populate(dev);
+-	return mfd_add_devices(lp->dev, -1, lp8788_devs,
+-			       ARRAY_SIZE(lp8788_devs), NULL, 0, NULL);
++	ret = mfd_add_devices(lp->dev, -1, lp8788_devs,
++			      ARRAY_SIZE(lp8788_devs), NULL, 0, NULL);
 +	if (ret)
-+		goto err_irq;
++		goto err_exit_irq;
 +
 +	return 0;
 +
-+err_irq:
-+	mx25_tsadc_unset_irq(pdev);
-+
++err_exit_irq:
++	lp8788_irq_exit(lp);
 +	return ret;
  }
  
- static int mx25_tsadc_remove(struct platform_device *pdev)
- {
--	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
--	int irq = platform_get_irq(pdev, 0);
--
--	if (irq) {
--		irq_set_chained_handler_and_data(irq, NULL, NULL);
--		irq_domain_remove(tsadc->domain);
--	}
-+	mx25_tsadc_unset_irq(pdev);
- 
- 	return 0;
- }
+ static int lp8788_remove(struct i2c_client *cl)
 -- 
 2.35.1
 
