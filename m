@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5332F603DF8
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:08:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4306D603E33
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:11:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232542AbiJSJIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:08:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44538 "EHLO
+        id S232769AbiJSJLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:11:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232524AbiJSJGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:06:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84E0042E74;
-        Wed, 19 Oct 2022 01:59:56 -0700 (PDT)
+        with ESMTP id S233130AbiJSJKN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:10:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F2AAB48AF;
+        Wed, 19 Oct 2022 02:01:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 290FC61840;
-        Wed, 19 Oct 2022 08:58:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A1A0C433D6;
-        Wed, 19 Oct 2022 08:58:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF2DA6182C;
+        Wed, 19 Oct 2022 08:58:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDAF4C433D6;
+        Wed, 19 Oct 2022 08:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169927;
-        bh=daM7vcIsZKr7FdXlFX6dxhQkjn98nSSipw3bhrJuVxY=;
+        s=korg; t=1666169930;
+        bh=JpCuy34NgQIBPH4nCmhFfOaWkoGI7rF0t6tv8fWfAnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XWlX7WMMh27L49mHRolEqZ3/ljOJnWJrjvPYjZt30yN6SraTP9Utgxa17vuiBwhjf
-         WmFqUWXcaXJ6Nv8qiBtxM4VTLQ47VPrM6WNCb3ZphYVzmKSpEyeFJ5FSV0TR+4zZ0e
-         bBg+RcRMbArFfkT85sSU79kWnALAjVADv0MQfqOk=
+        b=EFGNC0ji3Wv0NTi9DPG5IVH4WbUycdpOjcFwZp5BlA1qi1uWnZJuuT1OHdXnbGbFe
+         RwuyTArl+7NqAUpcFOfvgjVmdQ/ClchakZ01SjE1vFcKlq6vuu5Ir56TnDZ4Kfy15Y
+         BLIkyCkEfDjnmbVeOtk8hKY5Ab02SUdra9MMDm6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 462/862] iio: inkern: fix return value in devm_of_iio_channel_get_by_name()
-Date:   Wed, 19 Oct 2022 10:29:09 +0200
-Message-Id: <20221019083310.416092950@linuxfoundation.org>
+Subject: [PATCH 6.0 463/862] iio: ABI: Fix wrong format of differential capacitance channel ABI.
+Date:   Wed, 19 Oct 2022 10:29:10 +0200
+Message-Id: <20221019083310.453771826@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,41 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 9e878dbc0e8322f8b2f5ab0093c1e89926362dbe ]
+[ Upstream commit 1efc41035f1841acf0af2bab153158e27ce94f10 ]
 
-of_iio_channel_get_by_name() can either return NULL or an error pointer
-so that only doing IS_ERR() is not enough. Fix it by checking the NULL
-pointer case and return -ENODEV in that case. Note this is done like this
-so that users of the function (which only check for error pointers) do
-not need to be changed. This is not ideal since we are losing error codes
-and as such, in a follow up change, things will be unified so that
-of_iio_channel_get_by_name() only returns error codes.
+in_ only occurs once in these attributes.
 
-Fixes: 6e39b145cef7 ("iio: provide of_iio_channel_get_by_name() and devm_ version it")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220715122903.332535-3-nuno.sa@analog.com
+Fixes: 0baf29d658c7 ("staging:iio:documentation Add abi docs for capacitance adcs.")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220626122938.582107-3-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/inkern.c | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/ABI/testing/sysfs-bus-iio | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
-index 9d87057794fc..87fd2a0d44f2 100644
---- a/drivers/iio/inkern.c
-+++ b/drivers/iio/inkern.c
-@@ -412,6 +412,8 @@ struct iio_channel *devm_of_iio_channel_get_by_name(struct device *dev,
- 	channel = of_iio_channel_get_by_name(np, channel_name);
- 	if (IS_ERR(channel))
- 		return channel;
-+	if (!channel)
-+		return ERR_PTR(-ENODEV);
+diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
+index e81ba6f5e1c8..6e1b925f30bf 100644
+--- a/Documentation/ABI/testing/sysfs-bus-iio
++++ b/Documentation/ABI/testing/sysfs-bus-iio
+@@ -196,7 +196,7 @@ Description:
+ 		Raw capacitance measurement from channel Y. Units after
+ 		application of scale and offset are nanofarads.
  
- 	ret = devm_add_action_or_reset(dev, devm_iio_channel_free, channel);
- 	if (ret)
+-What:		/sys/.../iio:deviceX/in_capacitanceY-in_capacitanceZ_raw
++What:		/sys/.../iio:deviceX/in_capacitanceY-capacitanceZ_raw
+ KernelVersion:	3.2
+ Contact:	linux-iio@vger.kernel.org
+ Description:
 -- 
 2.35.1
 
