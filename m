@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C81D603F5D
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AA52603F3F
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233612AbiJSJbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:31:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53470 "EHLO
+        id S233528AbiJSJa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:30:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233668AbiJSJ3A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC26E5EEE;
-        Wed, 19 Oct 2022 02:12:37 -0700 (PDT)
+        with ESMTP id S233379AbiJSJ2L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:28:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B222F00B;
+        Wed, 19 Oct 2022 02:12:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76AA5617DE;
-        Wed, 19 Oct 2022 09:12:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F98DC433C1;
-        Wed, 19 Oct 2022 09:12:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2F79617FB;
+        Wed, 19 Oct 2022 09:12:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3ABDC433C1;
+        Wed, 19 Oct 2022 09:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170737;
-        bh=4ee12yKSQ/35Nz7CmDVqwURep8FFoi1o/s/f03kHQTA=;
+        s=korg; t=1666170743;
+        bh=JmpHzPt5OzRE48qvSoGUsEyjroleAuSqVfzmL+otnSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EGhcvJ0OwZCgZYNiFQHgx5GT9ALZK7kuASmNX3U2vH1gPseSqCar7NVqV6spSWHyr
-         P7WG7OUC3d0T3badxkv8rnbd7Bp/kmD0pZDtmZyZ+3uo7JMJLUIV/kK0MW5bOlSaZh
-         RK5iG5H/czclMRSyPESlm5g3Yc7+dAWHb7CGpi2U=
+        b=RdWvhbqMZz2gWm+bkfnUUcuo0xe8D3Za7mAIOArLU2dMV/FrnBQfAlytdssw6ql7Q
+         H8YFQyO3SpYNz0ag6wKj6BK/r6IuLrDMOYEskspMKB+VAU2rfE6pxULiMkOn7ILiEJ
+         EniXwZd59/AtmSQ0TCKhn8pnAYQO9NAWgUp7XwcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+        David Heidelberg <david@ixit.cz>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 768/862] ARM: dts: imx6: delete interrupts property if interrupts-extended is set
-Date:   Wed, 19 Oct 2022 10:34:15 +0200
-Message-Id: <20221019083323.859587766@linuxfoundation.org>
+Subject: [PATCH 6.0 770/862] arm64: dts: qcom: sc7280-idp: correct ADC channel node name and unit address
+Date:   Wed, 19 Oct 2022 10:34:17 +0200
+Message-Id: <20221019083323.943895684@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,167 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit c9d38ff7080b2c4fa6786b82210fa13115895aae ]
+[ Upstream commit 5589ffb2da2a66988ab3a68334dad3e68b42e3a9 ]
 
-In most cases this is related to fsl,err006687-workaround-present, which
-requires a GPIO interrupt next a GIC interrupt.
+Correct SPMI PMIC VADC channel node name:
+1. Use hyphens instead of underscores,
+2. Add missing unit address.
 
-This fixes the dtbs_check warning:
-imx6dl-mba6a.dtb: ethernet@2188000: More than one condition true in oneOf schema:
-        {'$filename': 'Documentation/devicetree/bindings/net/fsl,fec.yaml',
-[...]
+This fixes `make dtbs_check` warnings like:
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+  qcom/sc7280-idp.dtb: pmic@0: adc@3100: 'pmk8350_die_temp', 'pmr735a_die_temp' do not match any of the regexes: '^.*@[0-9a-f]+$', 'pinctrl-[0-9]+'
+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: David Heidelberg <david@ixit.cz>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220828084341.112146-12-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6dl-riotboard.dts        | 1 +
- arch/arm/boot/dts/imx6q-arm2.dts              | 1 +
- arch/arm/boot/dts/imx6q-evi.dts               | 1 +
- arch/arm/boot/dts/imx6q-mccmon6.dts           | 1 +
- arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi      | 1 +
- arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi  | 1 +
- arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi | 1 +
- arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi     | 1 +
- arch/arm/boot/dts/imx6qdl-sabreauto.dtsi      | 1 +
- arch/arm/boot/dts/imx6qdl-tqma6a.dtsi         | 1 +
- arch/arm/boot/dts/imx6qdl-ts7970.dtsi         | 1 +
- 11 files changed, 11 insertions(+)
+ arch/arm64/boot/dts/qcom/sc7280-idp.dts  | 2 +-
+ arch/arm64/boot/dts/qcom/sc7280-idp.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6dl-riotboard.dts b/arch/arm/boot/dts/imx6dl-riotboard.dts
-index e7d9bfbfd0e4..e7be05f205d3 100644
---- a/arch/arm/boot/dts/imx6dl-riotboard.dts
-+++ b/arch/arm/boot/dts/imx6dl-riotboard.dts
-@@ -90,6 +90,7 @@
- 	pinctrl-0 = <&pinctrl_enet>;
- 	phy-mode = "rgmii-id";
- 	phy-handle = <&rgmii_phy>;
-+	/delete-property/ interrupts;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
- 	fsl,err006687-workaround-present;
-diff --git a/arch/arm/boot/dts/imx6q-arm2.dts b/arch/arm/boot/dts/imx6q-arm2.dts
-index 0b40f52268b3..75586299d9ca 100644
---- a/arch/arm/boot/dts/imx6q-arm2.dts
-+++ b/arch/arm/boot/dts/imx6q-arm2.dts
-@@ -178,6 +178,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
- 	phy-mode = "rgmii";
-+	/delete-property/ interrupts;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
- 	fsl,err006687-workaround-present;
-diff --git a/arch/arm/boot/dts/imx6q-evi.dts b/arch/arm/boot/dts/imx6q-evi.dts
-index c63f371ede8b..78d941fef5df 100644
---- a/arch/arm/boot/dts/imx6q-evi.dts
-+++ b/arch/arm/boot/dts/imx6q-evi.dts
-@@ -146,6 +146,7 @@
- 	pinctrl-0 = <&pinctrl_enet>;
- 	phy-mode = "rgmii";
- 	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
-+	/delete-property/ interrupts;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
- 	fsl,err006687-workaround-present;
-diff --git a/arch/arm/boot/dts/imx6q-mccmon6.dts b/arch/arm/boot/dts/imx6q-mccmon6.dts
-index 55692c73943d..64ab01018b71 100644
---- a/arch/arm/boot/dts/imx6q-mccmon6.dts
-+++ b/arch/arm/boot/dts/imx6q-mccmon6.dts
-@@ -100,6 +100,7 @@
- 	pinctrl-0 = <&pinctrl_enet>;
- 	phy-mode = "rgmii";
- 	phy-reset-gpios = <&gpio1 27 GPIO_ACTIVE_LOW>;
-+	/delete-property/ interrupts;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
- 	status = "okay";
-diff --git a/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi b/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
-index 0ad4cb4f1e82..a53a5d0766a5 100644
---- a/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
-@@ -192,6 +192,7 @@
- 	phy-mode = "rgmii";
- 	phy-handle = <&ethphy>;
- 	phy-reset-gpios = <&gpio1 27 GPIO_ACTIVE_LOW>;
-+	/delete-property/ interrupts;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
- 	fsl,err006687-workaround-present;
-diff --git a/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi b/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
-index beaa2dcd436c..57c21a01f126 100644
---- a/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
-@@ -334,6 +334,7 @@
- 	phy-mode = "rgmii";
- 	phy-handle = <&ethphy>;
- 	phy-reset-gpios = <&gpio1 27 GPIO_ACTIVE_LOW>;
-+	/delete-property/ interrupts;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
- 	fsl,err006687-workaround-present;
-diff --git a/arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi b/arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi
-index ee7e2371f94b..000e9dc97b1a 100644
---- a/arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi
-@@ -263,6 +263,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
- 	phy-mode = "rgmii";
-+	/delete-property/ interrupts;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
- 	fsl,err006687-workaround-present;
-diff --git a/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi b/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
-index 904d5d051d63..731759bdd7f5 100644
---- a/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
-@@ -267,6 +267,7 @@
- 	phy-mode = "rgmii";
- 	phy-handle = <&ethphy>;
- 	phy-reset-gpios = <&gpio1 27 GPIO_ACTIVE_LOW>;
-+	/delete-property/ interrupts;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
- 	fsl,err006687-workaround-present;
-diff --git a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
-index 1368a4762037..3dbb460ef102 100644
---- a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
-@@ -295,6 +295,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
- 	phy-mode = "rgmii-id";
-+	/delete-property/ interrupts;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
- 	fsl,err006687-workaround-present;
-diff --git a/arch/arm/boot/dts/imx6qdl-tqma6a.dtsi b/arch/arm/boot/dts/imx6qdl-tqma6a.dtsi
-index 7dc3f0005b0f..0a36e1bce375 100644
---- a/arch/arm/boot/dts/imx6qdl-tqma6a.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-tqma6a.dtsi
-@@ -7,6 +7,7 @@
- #include <dt-bindings/gpio/gpio.h>
+diff --git a/arch/arm64/boot/dts/qcom/sc7280-idp.dts b/arch/arm64/boot/dts/qcom/sc7280-idp.dts
+index 6d3ff80582ae..e2e37a0292ad 100644
+--- a/arch/arm64/boot/dts/qcom/sc7280-idp.dts
++++ b/arch/arm64/boot/dts/qcom/sc7280-idp.dts
+@@ -78,7 +78,7 @@
+ };
  
- &fec {
-+	/delete-property/ interrupts;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
- 	fsl,err006687-workaround-present;
-diff --git a/arch/arm/boot/dts/imx6qdl-ts7970.dtsi b/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
-index d6ba4b2a60f6..c096d25a6f5b 100644
---- a/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
-@@ -192,6 +192,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
- 	phy-mode = "rgmii";
-+	/delete-property/ interrupts;
- 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
- 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
- 	fsl,err006687-workaround-present;
+ &pmk8350_vadc {
+-	pmr735a_die_temp {
++	pmr735a-die-temp@403 {
+ 		reg = <PMR735A_ADC7_DIE_TEMP>;
+ 		label = "pmr735a_die_temp";
+ 		qcom,pre-scaling = <1 1>;
+diff --git a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
+index a74e0b730db6..27c47ddbdf02 100644
+--- a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
+@@ -264,7 +264,7 @@
+ };
+ 
+ &pmk8350_vadc {
+-	pmk8350_die_temp {
++	pmk8350-die-temp@3 {
+ 		reg = <PMK8350_ADC7_DIE_TEMP>;
+ 		label = "pmk8350_die_temp";
+ 		qcom,pre-scaling = <1 1>;
 -- 
 2.35.1
 
