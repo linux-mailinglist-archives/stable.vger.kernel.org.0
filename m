@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B212604512
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3186260451A
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:21:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233070AbiJSMVE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 08:21:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46078 "EHLO
+        id S232729AbiJSMVM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 08:21:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233203AbiJSMTj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:19:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A27D2F385;
-        Wed, 19 Oct 2022 04:54:46 -0700 (PDT)
+        with ESMTP id S232746AbiJSMUM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:20:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A883114DDE;
+        Wed, 19 Oct 2022 04:55:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3DAE3B82300;
-        Wed, 19 Oct 2022 08:45:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51FDAC433D7;
-        Wed, 19 Oct 2022 08:44:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64A86B82311;
+        Wed, 19 Oct 2022 08:45:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5979C433D6;
+        Wed, 19 Oct 2022 08:45:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169101;
-        bh=NugK2xmj4o35+zhTDpcBZCLwYbG8ZWgzp29Lg7nuEwM=;
+        s=korg; t=1666169134;
+        bh=FBSqfGdqenbLRx3kzmze2zovm+J2vRZ3J4A4qSTPPVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TdPg5KRaHQtnAuDbtL9jKIwULVf1uA/5PLqb17eMKcnpUmn4WVXa0MKpGcOFqDmtP
-         ml+Bg634veHiZv9kmOFhSPsDMM7xAGu8vzOGZcaeF+fOnHU7YUv5ldIcQDrqdLVkRZ
-         Z5xnh9mvP7THpP1fpRT2Mbr96j8i6FT/0V0anYvI=
+        b=dCgx+XQ4f+puNdbCmP8pMYJyq4PcYWJXIazRd9rKV86FGu/HA6VhwQ/XFD1JTq87R
+         g33VChmYH5SM8BQkRV4v1ixp46IeUhkj/vMTnFsveZhHSR771UawaqUdd/Wwnn0Nzh
+         mtsQ7Qe/aifSrhBUmgQmmlqaekIduEW9bf5AyN8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.0 151/862] ftrace: Still disable enabled records marked as disabled
-Date:   Wed, 19 Oct 2022 10:23:58 +0200
-Message-Id: <20221019083256.655377841@linuxfoundation.org>
+Subject: [PATCH 6.0 152/862] ring-buffer: Allow splice to read previous partially read pages
+Date:   Wed, 19 Oct 2022 10:23:59 +0200
+Message-Id: <20221019083256.705618045@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,124 +54,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit cf04f2d5df0037741207382ac8fe289e8bf84ced upstream.
+commit fa8f4a89736b654125fb254b0db753ac68a5fced upstream.
 
-Weak functions started causing havoc as they showed up in the
-"available_filter_functions" and this confused people as to why some
-functions marked as "notrace" were listed, but when enabled they did
-nothing. This was because weak functions can still have fentry calls, and
-these addresses get added to the "available_filter_functions" file.
-kallsyms is what converts those addresses to names, and since the weak
-functions are not listed in kallsyms, it would just pick the function
-before that.
+If a page is partially read, and then the splice system call is run
+against the ring buffer, it will always fail to read, no matter how much
+is in the ring buffer. That's because the code path for a partial read of
+the page does will fail if the "full" flag is set.
 
-To solve this, there was a trick to detect weak functions listed, and
-these records would be marked as DISABLED so that they do not get enabled
-and are mostly ignored. As the processing of the list of all functions to
-figure out what is weak or not can take a long time, this process is put
-off into a kernel thread and run in parallel with the rest of start up.
+The splice system call wants full pages, so if the read of the ring buffer
+is not yet full, it should return zero, and the splice will block. But if
+a previous read was done, where the beginning has been consumed, it should
+still be given to the splice caller if the rest of the page has been
+written to.
 
-Now the issue happens whet function tracing is enabled via the kernel
-command line. As it starts very early in boot up, it can be enabled before
-the records that are weak are marked to be disabled. This causes an issue
-in the accounting, as the weak records are enabled by the command line
-function tracing, but after boot up, they are not disabled.
+This caused the splice command to never consume data in this scenario, and
+let the ring buffer just fill up and lose events.
 
-The ftrace records have several accounting flags and a ref count. The
-DISABLED flag is just one. If the record is enabled before it is marked
-DISABLED it will get an ENABLED flag and also have its ref counter
-incremented. After it is marked for DISABLED, neither the ENABLED flag nor
-the ref counter is cleared. There's sanity checks on the records that are
-performed after an ftrace function is registered or unregistered, and this
-detected that there were records marked as ENABLED with ref counter that
-should not have been.
+Link: https://lkml.kernel.org/r/20220927144317.46be6b80@gandalf.local.home
 
-Note, the module loading code uses the DISABLED flag as well to keep its
-functions from being modified while its being loaded and some of these
-flags may get set in this process. So changing the verification code to
-ignore DISABLED records is a no go, as it still needs to verify that the
-module records are working too.
-
-Also, the weak functions still are calling a trampoline. Even though they
-should never be called, it is dangerous to leave these weak functions
-calling a trampoline that is freed, so they should still be set back to
-nops.
-
-There's two places that need to not skip records that have the ENABLED
-and the DISABLED flags set. That is where the ftrace_ops is processed and
-sets the records ref counts, and then later when the function itself is to
-be updated, and the ENABLED flag gets removed. Add a helper function
-"skip_record()" that returns true if the record has the DISABLED flag set
-but not the ENABLED flag.
-
-Link: https://lkml.kernel.org/r/20221005003809.27d2b97b@gandalf.local.home
-
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: stable@vger.kernel.org
-Fixes: b39181f7c6907 ("ftrace: Add FTRACE_MCOUNT_MAX_OFFSET to avoid adding weak function")
+Fixes: 8789a9e7df6bf ("ring-buffer: read page interface")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |   20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ kernel/trace/ring_buffer.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -1644,6 +1644,18 @@ ftrace_find_tramp_ops_any_other(struct d
- static struct ftrace_ops *
- ftrace_find_tramp_ops_next(struct dyn_ftrace *rec, struct ftrace_ops *ops);
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -5616,7 +5616,15 @@ int ring_buffer_read_page(struct trace_b
+ 		unsigned int pos = 0;
+ 		unsigned int size;
  
-+static bool skip_record(struct dyn_ftrace *rec)
-+{
-+	/*
-+	 * At boot up, weak functions are set to disable. Function tracing
-+	 * can be enabled before they are, and they still need to be disabled now.
-+	 * If the record is disabled, still continue if it is marked as already
-+	 * enabled (this is needed to keep the accounting working).
-+	 */
-+	return rec->flags & FTRACE_FL_DISABLED &&
-+		!(rec->flags & FTRACE_FL_ENABLED);
-+}
-+
- static bool __ftrace_hash_rec_update(struct ftrace_ops *ops,
- 				     int filter_hash,
- 				     bool inc)
-@@ -1693,7 +1705,7 @@ static bool __ftrace_hash_rec_update(str
- 		int in_hash = 0;
- 		int match = 0;
+-		if (full)
++		/*
++		 * If a full page is expected, this can still be returned
++		 * if there's been a previous partial read and the
++		 * rest of the page can be read and the commit page is off
++		 * the reader page.
++		 */
++		if (full &&
++		    (!read || (len < (commit - read)) ||
++		     cpu_buffer->reader_page == cpu_buffer->commit_page))
+ 			goto out_unlock;
  
--		if (rec->flags & FTRACE_FL_DISABLED)
-+		if (skip_record(rec))
- 			continue;
- 
- 		if (all) {
-@@ -2126,7 +2138,7 @@ static int ftrace_check_record(struct dy
- 
- 	ftrace_bug_type = FTRACE_BUG_UNKNOWN;
- 
--	if (rec->flags & FTRACE_FL_DISABLED)
-+	if (skip_record(rec))
- 		return FTRACE_UPDATE_IGNORE;
- 
- 	/*
-@@ -2241,7 +2253,7 @@ static int ftrace_check_record(struct dy
- 	if (update) {
- 		/* If there's no more users, clear all flags */
- 		if (!ftrace_rec_count(rec))
--			rec->flags = 0;
-+			rec->flags &= FTRACE_FL_DISABLED;
- 		else
- 			/*
- 			 * Just disable the record, but keep the ops TRAMP
-@@ -2634,7 +2646,7 @@ void __weak ftrace_replace_code(int mod_
- 
- 	do_for_each_ftrace_rec(pg, rec) {
- 
--		if (rec->flags & FTRACE_FL_DISABLED)
-+		if (skip_record(rec))
- 			continue;
- 
- 		failed = __ftrace_replace_code(rec, enable);
+ 		if (len > (commit - read))
 
 
