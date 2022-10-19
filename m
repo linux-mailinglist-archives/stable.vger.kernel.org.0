@@ -2,108 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 123DD604D85
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 18:38:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45104604D89
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 18:39:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230006AbiJSQip (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 12:38:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46068 "EHLO
+        id S229649AbiJSQjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 12:39:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229649AbiJSQio (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 12:38:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A57C107CEC;
-        Wed, 19 Oct 2022 09:38:43 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0987BB8254E;
-        Wed, 19 Oct 2022 16:38:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2530C433D6;
-        Wed, 19 Oct 2022 16:38:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666197520;
-        bh=hWAN4W/Rzw9KgPVsCE2gQRgnd0phSSxJxzE7lCGoioY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TawPkvlnwajRtpZUccEz/raJqSSEkR5n6viMazNe8WRK1EZffnexS4T5CIdsvoAEe
-         x/5VQl89yoYkabEm8Mk+WJ+G5KE1F0WbZegeR9hsITqEVDpbW9rUvneSWhuIu1I7ac
-         ULGMrHZZuWC8r8j383T1XKANGZAux+MS4ukBcLbQTETqdZG4RuPHw9T1LlQxpniLQk
-         /Ur7U4WJCqC3agt1DVCKpCudcMPrTZKqR91AGl/bfluP6I4Ygl0Ao1jShKfB61+nR+
-         K//B1z0ST1JoSA87k+xhjwl2azEl5XiFv5+BmlBBP2eH7RXegD34d3PWdIDdJFgBfh
-         v5LwsnJpcfcgA==
-Date:   Wed, 19 Oct 2022 22:08:36 +0530
-From:   Vinod Koul <vkoul@kernel.org>
-To:     Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc:     peda@axentia.se, du@axentia.se, regressions@leemhuis.info,
-        ludovic.desroches@microchip.com, maciej.sosnowski@intel.com,
-        dan.j.williams@intel.com, nicolas.ferre@microchip.com,
-        mripard@kernel.org, torfl6749@gmail.com,
-        linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Tudor Ambarus <tudor.ambarus@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 07/33] dmaengine: at_hdmac: Fix at_lli struct definition
-Message-ID: <Y1AoDDVoiWDJ2ae2@matsya>
-References: <20220820125717.588722-1-tudor.ambarus@microchip.com>
- <20220820125717.588722-8-tudor.ambarus@microchip.com>
+        with ESMTP id S231258AbiJSQjL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 12:39:11 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 174CC1C97CC;
+        Wed, 19 Oct 2022 09:39:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1666197548; x=1697733548;
+  h=from:to:cc:subject:in-reply-to:references:date:
+   message-id:mime-version;
+  bh=RzoV/sXA1lnNSRuZHUDeu2oqDvaDnWm7/KZazZklHHw=;
+  b=Uf+bp7ZJ/VoI+Qrcx2yr0vn/JdEwxFg6gy9dZ9jr8eoefU5BUyoOMp2X
+   BurCtf0XIX32nSAfDUqpPBDhuRaM3MEJrEpam+3xhuWxT/RHtT04mwvTc
+   Y/2BJ+Tx9cqv5VHwzd0x0R1Prln8g0Kk/3+ApT9dvEGfgIgHr4EG26nty
+   tiGYBm7W3fIfsycD5wRcd/PAsfgxFjea57xiMBDWummqXJwb6EiSFDiGQ
+   lzFCCAdwrHKRI4MzhwqRscyTieB3Id1e4yFU9qcLe+AeDp7nbGlt/Vy8a
+   i3g8TvvZcYLnU4yG7Pxd6FH+7tsmAqqYKhYdtiaKhpw2DQ1rNHFUtCLVZ
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10505"; a="286186489"
+X-IronPort-AV: E=Sophos;i="5.95,196,1661842800"; 
+   d="scan'208";a="286186489"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2022 09:39:07 -0700
+X-IronPort-AV: E=McAfee;i="6500,9779,10505"; a="629339629"
+X-IronPort-AV: E=Sophos;i="5.95,196,1661842800"; 
+   d="scan'208";a="629339629"
+Received: from mosermix-mobl2.ger.corp.intel.com (HELO localhost) ([10.252.50.2])
+  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2022 09:39:05 -0700
+From:   Jani Nikula <jani.nikula@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        ville.syrjala@linux.intel.com
+Subject: Re: v5.19 & v6.0 stable backport request
+In-Reply-To: <Y0+h++6NReFAZhrv@kroah.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <87k04xiedr.fsf@intel.com> <Y0+fex0i0vmBL6QX@kroah.com>
+ <Y0+h++6NReFAZhrv@kroah.com>
+Date:   Wed, 19 Oct 2022 19:39:02 +0300
+Message-ID: <87pmenhiop.fsf@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220820125717.588722-8-tudor.ambarus@microchip.com>
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 20-08-22, 15:56, Tudor Ambarus wrote:
-> From: Tudor Ambarus <tudor.ambarus@gmail.com>
-> 
-> Those hardware registers are all of 32 bits, while dma_addr_t ca be of
-> type u64 or u32 depending on CONFIG_ARCH_DMA_ADDR_T_64BIT. Force u32 to
-> comply with what the hardware expects.
-> 
-> Fixes: dc78baa2b90b ("dmaengine: at_hdmac: new driver for the Atmel AHB DMA Controller")
-> Signed-off-by: Tudor Ambarus <tudor.ambarus@gmail.com>
-> Cc: stable@vger.kernel.org
+On Wed, 19 Oct 2022, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> On Wed, Oct 19, 2022 at 08:55:55AM +0200, Greg Kroah-Hartman wrote:
+>> On Tue, Oct 18, 2022 at 02:02:08PM +0300, Jani Nikula wrote:
+>> > 
+>> > Hello stable team, please backport these two commits to stable kernels
+>> > v5.19 and v6.0:
+>> > 
+>> > 4e78d6023c15 ("drm/i915/bios: Validate fp_timing terminator presence")
+>> 
+>> Does not apply to 5.19.y, can you provide a working backport?
+>> 
+>> > d3a7051841f0 ("drm/i915/bios: Use hardcoded fp_timing size for generating LFP data pointers")
+>> 
+>> Queued up to both trees now, thanks.
+>
+> No, wait, that breaks the build!
+>
+> How did you test this?  I'm dropping both of these now.
+>
+> Please resubmit a set of tested patches if you wish to have them applied
+> to the tree.  These were obviously not even attempted, which just wastes
+> all of our time :(
 
-Okay
+Apologies, misunderstanding on my part about them being applicable
+as-is.
 
-> ---
->  drivers/dma/at_hdmac.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/dma/at_hdmac.c b/drivers/dma/at_hdmac.c
-> index 91e53a590d5f..e89facf14fab 100644
-> --- a/drivers/dma/at_hdmac.c
-> +++ b/drivers/dma/at_hdmac.c
-> @@ -187,13 +187,13 @@
->  /* LLI == Linked List Item; aka DMA buffer descriptor */
->  struct at_lli {
->  	/* values that are not changed by hardware */
-> -	dma_addr_t	saddr;
-> -	dma_addr_t	daddr;
-> +	u32 saddr;
-> +	u32 daddr;
+Ville has provided the backports. Thanks!
 
-I think you should add fixes first in the series and then do header
-move, that way we can backport this and other fixes to stable kernels...
 
->  	/* value that may get written back: */
-> -	u32		ctrla;
-> +	u32 ctrla;
->  	/* more values that are not changed by hardware */
-> -	u32		ctrlb;
-> -	dma_addr_t	dscr;	/* chain to next lli */
-> +	u32 ctrlb;
-> +	u32 dscr;	/* chain to next lli */
->  };
->  
->  /**
-> -- 
-> 2.25.1
+BR,
+Jani.
 
 -- 
-~Vinod
+Jani Nikula, Intel Open Source Graphics Center
