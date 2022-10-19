@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A287060476D
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:39:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37BA86047FA
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230302AbiJSNjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:39:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38370 "EHLO
+        id S233398AbiJSNsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:48:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232692AbiJSNip (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:38:45 -0400
+        with ESMTP id S233095AbiJSNqp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:46:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8087B1CBAB7;
-        Wed, 19 Oct 2022 06:26:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08CECDDE;
+        Wed, 19 Oct 2022 06:32:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7BE38B82434;
-        Wed, 19 Oct 2022 08:57:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA78BC433C1;
-        Wed, 19 Oct 2022 08:57:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02F59B82437;
+        Wed, 19 Oct 2022 08:57:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62CE1C433C1;
+        Wed, 19 Oct 2022 08:57:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169874;
-        bh=J1MCvCXOtGGb8z1wLkUoQIgFojNwqWNgKhhvWtfryGs=;
+        s=korg; t=1666169876;
+        bh=pW7ZV2htvWXgiyX1QUvqOjs93tLozdPizpyCV7uPREA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BMb/ERtvdR7071bxtmagZoyjexHEZeosvYKe9Wxq3LNGxEEB31xWE5BS8+A8nIGHK
-         nc+tJAaqHIaixKwAl83FtpvHda5q6z2OxJiHnIxMbYrSMN55jxjim7Kw8kjpvNYMv1
-         YKaF2wR91fuW7u6WNJ9lxSNzrQk6C9d6Tj3C3i4w=
+        b=DtxdAufgr86HGQERGGCMVFZB7gN/FvrkQ2YoGVGrUGovQKLjoMznn2eLnflyCNwjt
+         xAjYKcGtcSui0nQw+NK0Xe5Hl58Qb7MCfk+hM7vJocO1Qle7lYOZLNX24Z0PeBI3Uu
+         u+Q09MWYxjyadqzEcAT8PDWo2GaWBNqMKskb6SRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 440/862] arm64: dts: qcom: sm8350-sagami: correct TS pin property
-Date:   Wed, 19 Oct 2022 10:28:47 +0200
-Message-Id: <20221019083309.431805724@linuxfoundation.org>
+Subject: [PATCH 6.0 441/862] soc/tegra: fuse: Add missing of_node_put() in tegra_init_fuse()
+Date:   Wed, 19 Oct 2022 10:28:48 +0200
+Message-Id: <20221019083309.480396516@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,36 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit c9c53d1f4329564f98ed0decfe3c377c6639ec5d ]
+[ Upstream commit e941712cccab8a96f03b5d3274159c1ed338efee ]
 
-The pin configuration is selected with "pins", not "pin" property.
+In this function, of_find_matching_node() will return a node pointer
+with refcount incremented. We should use of_node_put() when the "np"
+pointer is not used anymore.
 
-Fixes: 1209e9246632 ("arm64: dts: qcom: sm8350-sagami: Enable and populate I2C/SPI nodes")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220912061746.6311-37-krzysztof.kozlowski@linaro.org
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/tegra/fuse/fuse-tegra.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami.dtsi b/arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami.dtsi
-index cb9bbd234b7b..b702ab1605bb 100644
---- a/arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami.dtsi
-@@ -223,7 +223,7 @@
- 	gpio-reserved-ranges = <44 4>;
- 
- 	ts_int_default: ts-int-default {
--		pin = "gpio23";
-+		pins = "gpio23";
- 		function = "gpio";
- 		drive-strength = <2>;
- 		bias-disable;
--- 
-2.35.1
-
+--- a/drivers/soc/tegra/fuse/fuse-tegra.c
++++ b/drivers/soc/tegra/fuse/fuse-tegra.c
+@@ -568,6 +568,7 @@ static int __init tegra_init_fuse(void)
+ 	np = of_find_matching_node(NULL, car_match);
+ 	if (np) {
+ 		void __iomem *base = of_iomap(np, 0);
++		of_node_put(np);
+ 		if (base) {
+ 			tegra_enable_fuse_clk(base);
+ 			iounmap(base);
 
 
