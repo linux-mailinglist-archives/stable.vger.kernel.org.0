@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08F16604730
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D02760463D
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:03:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230196AbiJSNeh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:34:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56732 "EHLO
+        id S231458AbiJSNDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:03:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232582AbiJSNeS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:34:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 545F11946CB;
-        Wed, 19 Oct 2022 06:23:21 -0700 (PDT)
+        with ESMTP id S231490AbiJSNDC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:03:02 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4601BFFFB0;
+        Wed, 19 Oct 2022 05:46:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72C7EB8245D;
-        Wed, 19 Oct 2022 09:04:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7186C433D6;
-        Wed, 19 Oct 2022 09:04:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CF224CE2166;
+        Wed, 19 Oct 2022 09:04:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C199EC433D6;
+        Wed, 19 Oct 2022 09:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170259;
-        bh=V1yLvhX9zdad2+j+Fwim9g75fpNwO3eUX/S2g7mfUCQ=;
+        s=korg; t=1666170267;
+        bh=Abd8TtgViZsYRoO+q7ZGMnJJBXxq5ckWM858dKQWM9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p3fXCtWwyamrO9mZlC8zlC8zaIPUZOxnijn4/Tq9+XFcGNLnWprdsSMlq4+2xbriM
-         a32KoalkgZ+CC5Fsy7f3C8+dFIAFGO1sschbpCKfVIzsLB2hlgoiDfxXr0ynDBS6EE
-         +/WePULCoIY6UQ70A7H1ViCc5rk8SdFqJG11VcHk=
+        b=kLG3n6M92XoH8R4lHRlqKp+1WUO9S/aH25AkN6hTIuzlsyqeYpHd/vKJxwIw+6uZy
+         /pFB6m4KVf92eie4VwfzeLvGxmjnYi4n7md1xlFKmyMDmAnozXcxWS+L4+64WE3bda
+         26sGHv6dl/G3AHthpB7mW57WQ9zFGJC3aMMUuvSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 587/862] dmaengine: ioat: stop mod_timer from resurrecting deleted timer in __cleanup()
-Date:   Wed, 19 Oct 2022 10:31:14 +0200
-Message-Id: <20221019083315.908972896@linuxfoundation.org>
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Tianping Fang <tianping.fang@mediatek.com>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 589/862] usb: mtu3: fix failed runtime suspend in host only mode
+Date:   Wed, 19 Oct 2022 10:31:16 +0200
+Message-Id: <20221019083315.995498897@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,58 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit 898ec89dbb55b8294695ad71694a0684e62b2a73 ]
+[ Upstream commit 1c703e29da5efac6180e4c189029fa34b7e48e97 ]
 
-User reports observing timer event report channel halted but no error
-observed in CHANERR register. The driver finished self-test and released
-channel resources. Debug shows that __cleanup() can call
-mod_timer() after the timer has been deleted and thus resurrect the
-timer. While harmless, it causes suprious error message to be emitted.
-Use mod_timer_pending() call to prevent deleted timer from being
-resurrected.
+When the dr_mode is "host", after the host enter runtime suspend,
+the mtu3 can't do it, because the mtu3's device wakeup function is
+not enabled, instead it's enabled in gadget init function, to fix
+the issue, init wakeup early in mtu3's probe()
 
-Fixes: 3372de5813e4 ("dmaengine: ioatdma: removal of dma_v3.c and relevant ioat3 references")
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/166360672197.3851724.17040290563764838369.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 6b587394c65c ("usb: mtu3: support suspend/resume for dual-role mode")
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reported-by: Tianping Fang <tianping.fang@mediatek.com>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/20220929064459.32522-1-chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ioat/dma.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/mtu3/mtu3_core.c | 2 --
+ drivers/usb/mtu3/mtu3_plat.c | 2 ++
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/ioat/dma.c b/drivers/dma/ioat/dma.c
-index 37ff4ec7db76..e2070df6cad2 100644
---- a/drivers/dma/ioat/dma.c
-+++ b/drivers/dma/ioat/dma.c
-@@ -656,7 +656,7 @@ static void __cleanup(struct ioatdma_chan *ioat_chan, dma_addr_t phys_complete)
- 	if (active - i == 0) {
- 		dev_dbg(to_dev(ioat_chan), "%s: cancel completion timeout\n",
- 			__func__);
--		mod_timer(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
-+		mod_timer_pending(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
+diff --git a/drivers/usb/mtu3/mtu3_core.c b/drivers/usb/mtu3/mtu3_core.c
+index 0ca173af87bb..a3a6282893d0 100644
+--- a/drivers/usb/mtu3/mtu3_core.c
++++ b/drivers/usb/mtu3/mtu3_core.c
+@@ -978,8 +978,6 @@ int ssusb_gadget_init(struct ssusb_mtk *ssusb)
+ 		goto irq_err;
  	}
  
- 	/* microsecond delay by sysfs variable  per pending descriptor */
-@@ -682,7 +682,7 @@ static void ioat_cleanup(struct ioatdma_chan *ioat_chan)
+-	device_init_wakeup(dev, true);
+-
+ 	/* power down device IP for power saving by default */
+ 	mtu3_stop(mtu);
  
- 		if (chanerr &
- 		    (IOAT_CHANERR_HANDLE_MASK | IOAT_CHANERR_RECOVER_MASK)) {
--			mod_timer(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
-+			mod_timer_pending(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
- 			ioat_eh(ioat_chan);
- 		}
- 	}
-@@ -879,7 +879,7 @@ static void check_active(struct ioatdma_chan *ioat_chan)
- 	}
+diff --git a/drivers/usb/mtu3/mtu3_plat.c b/drivers/usb/mtu3/mtu3_plat.c
+index 4cb65346789d..d78ae52b4e26 100644
+--- a/drivers/usb/mtu3/mtu3_plat.c
++++ b/drivers/usb/mtu3/mtu3_plat.c
+@@ -356,6 +356,8 @@ static int mtu3_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(dev);
+ 	pm_runtime_get_sync(dev);
  
- 	if (test_and_clear_bit(IOAT_CHAN_ACTIVE, &ioat_chan->state))
--		mod_timer(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
-+		mod_timer_pending(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
- }
- 
- static void ioat_reboot_chan(struct ioatdma_chan *ioat_chan)
++	device_init_wakeup(dev, true);
++
+ 	ret = ssusb_rscs_init(ssusb);
+ 	if (ret)
+ 		goto comm_init_err;
 -- 
 2.35.1
 
