@@ -2,54 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92ECA604413
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:57:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 085D2604844
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:53:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229766AbiJSL5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:57:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44344 "EHLO
+        id S233589AbiJSNxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:53:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231923AbiJSL4G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:56:06 -0400
+        with ESMTP id S233732AbiJSNw4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:52:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B619127439;
-        Wed, 19 Oct 2022 04:35:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D81FF1958E1;
+        Wed, 19 Oct 2022 06:36:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07140B8239D;
-        Wed, 19 Oct 2022 11:28:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD4F3C433D7;
-        Wed, 19 Oct 2022 11:28:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666178921;
-        bh=P6rc2HU9YMwHkiSlraPiM2AXBDJ6FbsuiwOqlH0piBg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Plu4m8flQDUSFIFmUq4Jrvv2eR1X4O1XFnfswnpKLStlXciMBe/zTrYVQLXvoRw3w
-         Yyc/rc5Td5iNEWcN1vPYJK5MUV7O5V+c8bUzO+1cHtuEDR/UYz0rXCG9h9WgQGvck8
-         GJF1zq8+bvHU7nVofQm5dyXFgOobPmoZ+W226rNQJwJqxNIPkU7NzoONpDBiJI9pfO
-         8Iz5tpUwcSgG9chBCtoy3vwjGfN6uNKfwHumrqpIkC/WxYbYFm/FdNN/Ay5obIpTai
-         n5Bufq62jhGmtbvV5nbgGbANXQACMbMBv7WTwFBAwy3zJ0bpDAmtyUN4BLsz3tXeER
-         CU7mvQxxUzFPQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1ol7FM-0005jQ-Uw; Wed, 19 Oct 2022 13:28:29 +0200
-Date:   Wed, 19 Oct 2022 13:28:28 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 6.0 523/862] phy: qcom-qmp-pcie: add pcs_misc sanity check
-Message-ID: <Y0/fXL0IHCtgj+mn@hovoldconsulting.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id DCA16B822CD;
+        Wed, 19 Oct 2022 08:40:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0E2C433C1;
+        Wed, 19 Oct 2022 08:40:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1666168829;
+        bh=fb5bovRJE0OE1x/kjgr6r3QY9hhCN3d1H51HtnbhOcY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=rnJTD2NtERibIpsdAqZj+QpRV850KYRkjQHNG08vqh7qUfT7AWUcNXFWpEve1bZ8V
+         cmfCuFgy9MLP2y0aKK55hV1DVH2YhRYncizs30jwktdZC4orfePqBHOI5hsG+h+qRl
+         JBgUCoZj0Z3Bd1JzToXf4kVZOGjvfoAb4ni1KeZI=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 6.0 066/862] UM: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
+Date:   Wed, 19 Oct 2022 10:22:33 +0200
+Message-Id: <20221019083252.842157393@linuxfoundation.org>
+X-Mailer: git-send-email 2.38.0
+In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
- <20221019083313.087411998@linuxfoundation.org>
- <Y0/AM9F1CmAykhGI@hovoldconsulting.com>
- <Y0/UW4QzVmg+zyPY@kroah.com>
+User-Agent: quilt/0.67
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y0/UW4QzVmg+zyPY@kroah.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -59,45 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 19, 2022 at 12:41:31PM +0200, Greg Kroah-Hartman wrote:
-> On Wed, Oct 19, 2022 at 11:15:31AM +0200, Johan Hovold wrote:
-> > On Wed, Oct 19, 2022 at 10:30:10AM +0200, Greg Kroah-Hartman wrote:
-> > > From: Johan Hovold <johan+linaro@kernel.org>
-> > > 
-> > > [ Upstream commit ecd5507e72ea03659dc2cc3e4393fbf8f4e2e02a ]
-> > > 
-> > > Make sure that the (otherwise) optional pcs_misc IO region has been
-> > > provided in case the configuration specifies a corresponding
-> > > initialisation table to avoid crashing with malformed device trees.
-> > > 
-> > > Note that the related debug message is now superfluous as the region is
-> > > only used when the configuration has a pcs_misc table.
-> > > 
-> > > Fixes: 421c9a0e9731 ("phy: qcom: qmp: Add SDM845 PCIe QMP PHY support")
-> > > Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-> > > Link: https://lore.kernel.org/r/20220916102340.11520-2-johan+linaro@kernel.org
-> > > Signed-off-by: Vinod Koul <vkoul@kernel.org>
-> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > 
-> > This was added to prevent future bugs when adding support for new
-> > platforms and did not have a stable tag. Please drop.
-> 
-> Ok, that wasn't obvious at all from the changelog :(
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-Ah, sorry, I misread my own patch. This one does indeed prevent a crash
-with malformed devicetrees as the commit message says.
+commit 16c546e148fa6d14a019431436a6f7b4087dbccd upstream.
 
-But whether that needs backporting or nor is a separate question. I'd
-say either way is fine.
+When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
+cpu_max_bits_warn() generates a runtime warning similar as below while
+we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
+instead of NR_CPUS to iterate CPUs.
 
-> I'll go drop this, and the others you marked as "should not be there"
-> from the queue, thanks.
+[    3.052463] ------------[ cut here ]------------
+[    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
+[    3.070072] Modules linked in: efivarfs autofs4
+[    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
+[    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
+[    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
+[    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
+[    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
+[    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
+[    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
+[    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
+[    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
+[    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
+[    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
+[    3.195868]         ...
+[    3.199917] Call Trace:
+[    3.203941] [<90000000002086d8>] show_stack+0x38/0x14c
+[    3.210666] [<9000000000cf846c>] dump_stack_lvl+0x60/0x88
+[    3.217625] [<900000000023d268>] __warn+0xd0/0x100
+[    3.223958] [<9000000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
+[    3.231150] [<9000000000210220>] show_cpuinfo+0x5e8/0x5f0
+[    3.238080] [<90000000004f578c>] seq_read_iter+0x354/0x4b4
+[    3.245098] [<90000000004c2e90>] new_sync_read+0x17c/0x1c4
+[    3.252114] [<90000000004c5174>] vfs_read+0x138/0x1d0
+[    3.258694] [<90000000004c55f8>] ksys_read+0x70/0x100
+[    3.265265] [<9000000000cfde9c>] do_syscall+0x7c/0x94
+[    3.271820] [<9000000000202fe4>] handle_syscall+0xc4/0x160
+[    3.281824] ---[ end trace 8b484262b4b8c24c ]---
 
-Thanks.
+Cc: stable@vger.kernel.org
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/um/kernel/um_arch.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Maybe next time, don't use a Fixes: tag if the commit really doesn't
-> "fix" anything in the current kernel...
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -96,7 +96,7 @@ static int show_cpuinfo(struct seq_file
+ 
+ static void *c_start(struct seq_file *m, loff_t *pos)
+ {
+-	return *pos < NR_CPUS ? cpu_data + *pos : NULL;
++	return *pos < nr_cpu_ids ? cpu_data + *pos : NULL;
+ }
+ 
+ static void *c_next(struct seq_file *m, void *v, loff_t *pos)
 
-Sorry about the confusion. The Fixes tag is correct in this case.
 
-Johan
