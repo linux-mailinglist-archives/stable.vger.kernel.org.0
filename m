@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9209D603C63
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:46:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 411D0603DC1
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:06:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231500AbiJSIqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:46:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44878 "EHLO
+        id S232463AbiJSJGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:06:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231357AbiJSIpA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:45:00 -0400
+        with ESMTP id S232798AbiJSJFJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:05:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DE1415828;
-        Wed, 19 Oct 2022 01:43:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 759747E80D;
+        Wed, 19 Oct 2022 01:59:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 170826181D;
-        Wed, 19 Oct 2022 08:43:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 274DAC433D6;
-        Wed, 19 Oct 2022 08:43:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F17261807;
+        Wed, 19 Oct 2022 08:43:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BBF6C433D7;
+        Wed, 19 Oct 2022 08:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168998;
-        bh=ocT89eyYuIuOto2JTfMrtff4SJkzbMfHnpgn7rdRkk4=;
+        s=korg; t=1666169005;
+        bh=DGwsmplE8Vkby6OIoLLT0zxoXaCbmjiNeby20xr9kEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NlBXEw9ZkpGJRg+V8MMDXTqDsyHd77ZyIP+M2TqBw4VvnnpRVf97UAwqDjZGls/m3
-         tlsxFVt4T/FNSmx5fvucHR5SrizAI241lKzg8azayj+FMoOJWhSFtko4X0BenypPCi
-         dzdWNmMW6MuSvhY+WG6JuxBS001tJFKvfyU6OrMg=
+        b=zqra7GFO8BR35tA9rN15AZOepq7Ae25+ty/TQNFF+ax1spnPBCsAp7qWT0dgfqxQN
+         1ZwtCvVbNS9LZ9cjyzdgnntJOoOR0s+8d/Q2ngE0wlH64brzfMBsKB8f8TaB0jbSkY
+         XRYVOVOF7R50mwH+IkA2dOk1VKcYfJnUeWRMFbuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 6.0 125/862] f2fs: flush pending checkpoints when freezing super
-Date:   Wed, 19 Oct 2022 10:23:32 +0200
-Message-Id: <20221019083255.475244105@linuxfoundation.org>
+        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 6.0 127/862] f2fs: fix to do sanity check on destination blkaddr during recovery
+Date:   Wed, 19 Oct 2022 10:23:34 +0200
+Message-Id: <20221019083255.569589886@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,81 +52,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Chao Yu <chao@kernel.org>
 
-commit c7b58576370147833999fd4cc874d0f918bdf9ca upstream.
+commit 0ef4ca04a3f9223ff8bc440041c524b2123e09a3 upstream.
 
-This avoids -EINVAL when trying to freeze f2fs.
+As Wenqing Liu reported in bugzilla:
+
+https://bugzilla.kernel.org/show_bug.cgi?id=216456
+
+loop5: detected capacity change from 0 to 131072
+F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
+F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
+F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
+F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
+F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
+F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
+F2FS-fs (loop5): Bitmap was wrongly set, blk:5634
+------------[ cut here ]------------
+WARNING: CPU: 3 PID: 1013 at fs/f2fs/segment.c:2198
+RIP: 0010:update_sit_entry+0xa55/0x10b0 [f2fs]
+Call Trace:
+ <TASK>
+ f2fs_do_replace_block+0xa98/0x1890 [f2fs]
+ f2fs_replace_block+0xeb/0x180 [f2fs]
+ recover_data+0x1a69/0x6ae0 [f2fs]
+ f2fs_recover_fsync_data+0x120d/0x1fc0 [f2fs]
+ f2fs_fill_super+0x4665/0x61e0 [f2fs]
+ mount_bdev+0x2cf/0x3b0
+ legacy_get_tree+0xed/0x1d0
+ vfs_get_tree+0x81/0x2b0
+ path_mount+0x47e/0x19d0
+ do_mount+0xce/0xf0
+ __x64_sys_mount+0x12c/0x1a0
+ do_syscall_64+0x38/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+If we enable CONFIG_F2FS_CHECK_FS config, it will trigger a kernel panic
+instead of warning.
+
+The root cause is: in fuzzed image, SIT table is inconsistent with inode
+mapping table, result in triggering such warning during SIT table update.
+
+This patch introduces a new flag DATA_GENERIC_ENHANCE_UPDATE, w/ this
+flag, data block recovery flow can check destination blkaddr's validation
+in SIT table, and skip f2fs_replace_block() to avoid inconsistent status.
 
 Cc: stable@vger.kernel.org
-Reviewed-by: Chao Yu <chao@kernel.org>
+Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
+Signed-off-by: Chao Yu <chao@kernel.org>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/checkpoint.c |   24 ++++++++++++++++++------
- fs/f2fs/f2fs.h       |    1 +
- fs/f2fs/super.c      |    5 ++---
- 3 files changed, 21 insertions(+), 9 deletions(-)
+ fs/f2fs/checkpoint.c |   10 +++++++++-
+ fs/f2fs/f2fs.h       |    4 ++++
+ fs/f2fs/recovery.c   |    8 ++++++++
+ 3 files changed, 21 insertions(+), 1 deletion(-)
 
 --- a/fs/f2fs/checkpoint.c
 +++ b/fs/f2fs/checkpoint.c
-@@ -1892,15 +1892,27 @@ int f2fs_start_ckpt_thread(struct f2fs_s
- void f2fs_stop_ckpt_thread(struct f2fs_sb_info *sbi)
- {
- 	struct ckpt_req_control *cprc = &sbi->cprc_info;
-+	struct task_struct *ckpt_task;
+@@ -140,7 +140,7 @@ static bool __is_bitmap_valid(struct f2f
+ 	unsigned int segno, offset;
+ 	bool exist;
  
--	if (cprc->f2fs_issue_ckpt) {
--		struct task_struct *ckpt_task = cprc->f2fs_issue_ckpt;
-+	if (!cprc->f2fs_issue_ckpt)
-+		return;
+-	if (type != DATA_GENERIC_ENHANCE && type != DATA_GENERIC_ENHANCE_READ)
++	if (type == DATA_GENERIC)
+ 		return true;
  
--		cprc->f2fs_issue_ckpt = NULL;
--		kthread_stop(ckpt_task);
-+	ckpt_task = cprc->f2fs_issue_ckpt;
-+	cprc->f2fs_issue_ckpt = NULL;
-+	kthread_stop(ckpt_task);
+ 	segno = GET_SEGNO(sbi, blkaddr);
+@@ -148,6 +148,13 @@ static bool __is_bitmap_valid(struct f2f
+ 	se = get_seg_entry(sbi, segno);
  
--		flush_remained_ckpt_reqs(sbi, NULL);
--	}
-+	f2fs_flush_ckpt_thread(sbi);
-+}
+ 	exist = f2fs_test_bit(offset, se->cur_valid_map);
++	if (exist && type == DATA_GENERIC_ENHANCE_UPDATE) {
++		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
++			 blkaddr, exist);
++		set_sbi_flag(sbi, SBI_NEED_FSCK);
++		return exist;
++	}
 +
-+void f2fs_flush_ckpt_thread(struct f2fs_sb_info *sbi)
-+{
-+	struct ckpt_req_control *cprc = &sbi->cprc_info;
-+
-+	flush_remained_ckpt_reqs(sbi, NULL);
-+
-+	/* Let's wait for the previous dispatched checkpoint. */
-+	while (atomic_read(&cprc->queued_ckpt))
-+		io_schedule_timeout(DEFAULT_IO_TIMEOUT);
- }
- 
- void f2fs_init_ckpt_req_control(struct f2fs_sb_info *sbi)
+ 	if (!exist && type == DATA_GENERIC_ENHANCE) {
+ 		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
+ 			 blkaddr, exist);
+@@ -185,6 +192,7 @@ bool f2fs_is_valid_blkaddr(struct f2fs_s
+ 	case DATA_GENERIC:
+ 	case DATA_GENERIC_ENHANCE:
+ 	case DATA_GENERIC_ENHANCE_READ:
++	case DATA_GENERIC_ENHANCE_UPDATE:
+ 		if (unlikely(blkaddr >= MAX_BLKADDR(sbi) ||
+ 				blkaddr < MAIN_BLKADDR(sbi))) {
+ 			f2fs_warn(sbi, "access invalid blkaddr:%u",
 --- a/fs/f2fs/f2fs.h
 +++ b/fs/f2fs/f2fs.h
-@@ -3707,6 +3707,7 @@ static inline bool f2fs_need_rand_seg(st
-  * checkpoint.c
-  */
- void f2fs_stop_checkpoint(struct f2fs_sb_info *sbi, bool end_io);
-+void f2fs_flush_ckpt_thread(struct f2fs_sb_info *sbi);
- struct page *f2fs_grab_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
- struct page *f2fs_get_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
- struct page *f2fs_get_meta_page_retry(struct f2fs_sb_info *sbi, pgoff_t index);
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1666,9 +1666,8 @@ static int f2fs_freeze(struct super_bloc
- 	if (is_sbi_flag_set(F2FS_SB(sb), SBI_IS_DIRTY))
- 		return -EINVAL;
+@@ -266,6 +266,10 @@ enum {
+ 					 * condition of read on truncated area
+ 					 * by extent_cache
+ 					 */
++	DATA_GENERIC_ENHANCE_UPDATE,	/*
++					 * strong check on range and segment
++					 * bitmap for update case
++					 */
+ 	META_GENERIC,
+ };
  
--	/* ensure no checkpoint required */
--	if (!llist_empty(&F2FS_SB(sb)->cprc_info.issue_list))
--		return -EINVAL;
-+	/* Let's flush checkpoints and stop the thread. */
-+	f2fs_flush_ckpt_thread(F2FS_SB(sb));
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -698,6 +698,14 @@ retry_prev:
+ 				goto err;
+ 			}
  
- 	/* to avoid deadlock on f2fs_evict_inode->SB_FREEZE_FS */
- 	set_sbi_flag(F2FS_SB(sb), SBI_IS_FREEZING);
++			if (f2fs_is_valid_blkaddr(sbi, dest,
++					DATA_GENERIC_ENHANCE_UPDATE)) {
++				f2fs_err(sbi, "Inconsistent dest blkaddr:%u, ino:%lu, ofs:%u",
++					dest, inode->i_ino, dn.ofs_in_node);
++				err = -EFSCORRUPTED;
++				goto err;
++			}
++
+ 			/* write dummy data page */
+ 			f2fs_replace_block(sbi, &dn, src, dest,
+ 						ni.version, false, false);
 
 
