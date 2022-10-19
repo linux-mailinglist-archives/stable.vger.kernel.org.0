@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AE99603BF5
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ADC6603BF6
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230208AbiJSIl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:41:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54618 "EHLO
+        id S230460AbiJSIl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:41:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230401AbiJSIko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:40:44 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91BC3816AB;
-        Wed, 19 Oct 2022 01:39:07 -0700 (PDT)
+        with ESMTP id S230399AbiJSIkq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:40:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05B3F80BE0;
+        Wed, 19 Oct 2022 01:39:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 64D77CE20DB;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D4B8B822BE;
+        Wed, 19 Oct 2022 08:39:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E64CAC433D7;
         Wed, 19 Oct 2022 08:39:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A32FBC433D6;
-        Wed, 19 Oct 2022 08:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168741;
-        bh=lVh1oP4UqEge0pFZJpJr/ff3E2QK73mfpro3qwWesks=;
+        s=korg; t=1666168744;
+        bh=HHK5F+bVk5ccs/l91De+g7lQ4jXHY0mt5/MgFWT9rdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pzx7qZ1FKnaVb+FZZL8BkCUVhEdy/JFzDLY5kk5ODpBdK1jQUjj8V5KaTQ48Ui1co
-         REizR/ch8P9jU8acN/4+v5Ziftf5nQIikm7Ho1yRtcQRWytxooS/nTqCGM05yLQYwm
-         pYH+LrT9v4MZ24DpG0psrU+IUh2w2HJJqCSLmGV0=
+        b=OQ6HLMCYEygX4CdoxKB2F1G4qJHJu/aQ8uK6jqMO1pFBxU7V8PpSh9hO4ZAKrU6es
+         Afv4n1aa8+N/gFbK0W5f2LJAdy/d0ogvzFgy11XQAbacMENfEXFLV9fC+K8A0Pcd2z
+         mDbXVtjmkTU1gzJNWlc6xfyDJqB3BNHxbzP95ExY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenchao Chen <wenchao.chen@unisoc.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.0 039/862] mmc: sdhci-sprd: Fix minimum clock limit
-Date:   Wed, 19 Oct 2022 10:22:06 +0200
-Message-Id: <20221019083251.728627024@linuxfoundation.org>
+        stable@vger.kernel.org, Samuel Clark <slc2015@gmail.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 6.0 040/862] i2c: designware: Fix handling of real but unexpected device interrupts
+Date:   Wed, 19 Oct 2022 10:22:07 +0200
+Message-Id: <20221019083251.767513800@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,39 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenchao Chen <wenchao.chen@unisoc.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-commit 6e141772e6465f937458b35ddcfd0a981b6f5280 upstream.
+commit 301c8f5c32c8fb79c67539bc23972dc3ef48024c upstream.
 
-The Spreadtrum controller supports 100KHz minimal clock rate, which means
-that the current value 400KHz is wrong.
+Commit c7b79a752871 ("mfd: intel-lpss: Add Intel Alder Lake PCH-S PCI
+IDs") caused a regression on certain Gigabyte motherboards for Intel
+Alder Lake-S where system crashes to NULL pointer dereference in
+i2c_dw_xfer_msg() when system resumes from S3 sleep state ("deep").
 
-Unfortunately this has also lead to fail to initialize some cards, which
-are allowed to require 100KHz to work. So, let's fix the problem by
-changing the minimal supported clock rate to 100KHz.
+I was able to debug the issue on Gigabyte Z690 AORUS ELITE and made
+following notes:
 
-Signed-off-by: Wenchao Chen <wenchao.chen@unisoc.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: fb8bd90f83c4 ("mmc: sdhci-sprd: Add Spreadtrum's initial host controller")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221011104935.10980-1-wenchao.chen666@gmail.com
-[Ulf: Clarified to commit-message]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+- Issue happens when resuming from S3 but not when resuming from
+  "s2idle"
+- PCI device 00:15.0 == i2c_designware.0 is already in D0 state when
+  system enters into pci_pm_resume_noirq() while all other i2c_designware
+  PCI devices are in D3. Devices were runtime suspended and in D3 prior
+  entering into suspend
+- Interrupt comes after pci_pm_resume_noirq() when device interrupts are
+  re-enabled
+- According to register dump the interrupt really comes from the
+  i2c_designware.0. Controller is enabled, I2C target address register
+  points to a one detectable I2C device address 0x60 and the
+  DW_IC_RAW_INTR_STAT register START_DET, STOP_DET, ACTIVITY and
+  TX_EMPTY bits are set indicating completed I2C transaction.
+
+My guess is that the firmware uses this controller to communicate with
+an on-board I2C device during resume but does not disable the controller
+before giving control to an operating system.
+
+I was told the UEFI update fixes this but never the less it revealed the
+driver is not ready to handle TX_EMPTY (or RX_FULL) interrupt when device
+is supposed to be idle and state variables are not set (especially the
+dev->msgs pointer which may point to NULL or stale old data).
+
+Introduce a new software status flag STATUS_ACTIVE indicating when the
+controller is active in driver point of view. Now treat all interrupts
+that occur when is not set as unexpected and mask all interrupts from
+the controller.
+
+Fixes: c7b79a752871 ("mfd: intel-lpss: Add Intel Alder Lake PCH-S PCI IDs")
+Reported-by: Samuel Clark <slc2015@gmail.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215907
+Cc: stable@vger.kernel.org # v5.12+
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-sprd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-designware-core.h   |    7 +++++--
+ drivers/i2c/busses/i2c-designware-master.c |   13 +++++++++++++
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/sdhci-sprd.c
-+++ b/drivers/mmc/host/sdhci-sprd.c
-@@ -309,7 +309,7 @@ static unsigned int sdhci_sprd_get_max_c
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -126,8 +126,9 @@
+  * status codes
+  */
+ #define STATUS_IDLE			0x0
+-#define STATUS_WRITE_IN_PROGRESS	0x1
+-#define STATUS_READ_IN_PROGRESS		0x2
++#define STATUS_ACTIVE			0x1
++#define STATUS_WRITE_IN_PROGRESS	0x2
++#define STATUS_READ_IN_PROGRESS		0x4
  
- static unsigned int sdhci_sprd_get_min_clock(struct sdhci_host *host)
+ /*
+  * operation modes
+@@ -334,12 +335,14 @@ void i2c_dw_disable_int(struct dw_i2c_de
+ 
+ static inline void __i2c_dw_enable(struct dw_i2c_dev *dev)
  {
--	return 400000;
-+	return 100000;
++	dev->status |= STATUS_ACTIVE;
+ 	regmap_write(dev->map, DW_IC_ENABLE, 1);
  }
  
- static void sdhci_sprd_set_uhs_signaling(struct sdhci_host *host,
+ static inline void __i2c_dw_disable_nowait(struct dw_i2c_dev *dev)
+ {
+ 	regmap_write(dev->map, DW_IC_ENABLE, 0);
++	dev->status &= ~STATUS_ACTIVE;
+ }
+ 
+ void __i2c_dw_disable(struct dw_i2c_dev *dev);
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -716,6 +716,19 @@ static int i2c_dw_irq_handler_master(str
+ 	u32 stat;
+ 
+ 	stat = i2c_dw_read_clear_intrbits(dev);
++
++	if (!(dev->status & STATUS_ACTIVE)) {
++		/*
++		 * Unexpected interrupt in driver point of view. State
++		 * variables are either unset or stale so acknowledge and
++		 * disable interrupts for suppressing further interrupts if
++		 * interrupt really came from this HW (E.g. firmware has left
++		 * the HW active).
++		 */
++		regmap_write(dev->map, DW_IC_INTR_MASK, 0);
++		return 0;
++	}
++
+ 	if (stat & DW_IC_INTR_TX_ABRT) {
+ 		dev->cmd_err |= DW_IC_ERR_TX_ABRT;
+ 		dev->status = STATUS_IDLE;
 
 
