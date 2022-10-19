@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 168B76044D5
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:16:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CED52604658
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:08:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232882AbiJSMQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 08:16:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55654 "EHLO
+        id S231660AbiJSNIM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:08:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbiJSMQB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:16:01 -0400
+        with ESMTP id S231430AbiJSNH4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:07:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9965620982;
-        Wed, 19 Oct 2022 04:52:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B263E1FCF9;
+        Wed, 19 Oct 2022 05:52:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89DDEB82313;
-        Wed, 19 Oct 2022 08:45:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5E90C4314F;
-        Wed, 19 Oct 2022 08:45:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 207D2B822E6;
+        Wed, 19 Oct 2022 08:47:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BB58C433B5;
+        Wed, 19 Oct 2022 08:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169157;
-        bh=b5rhGy6HGSiQ2e/PIO9XZf9ax5EpqjitVWvYpPFEra4=;
+        s=korg; t=1666169218;
+        bh=1w++Q8iRRmqW0MQniOVcUitS0gFwZ1zF0XoxIC59Ds8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZrIltA5guccu0hHy2yx/1x6Fh7tEpnqh3KAOMFQlxc82aEXrNYTqXLk0hs34RWgEH
-         W3EOWq32oaWzLfgFDDhr9Q271/CLJ9gPPJKbknsPuXOs1DwvXy+c0Gdf55IL67R1jP
-         RvrS8QGXcPAUxyhsrQ/XYO4smLwj/kV3ZcAMH/jI=
+        b=I7YSyptQLZu8VBse4TfQ85GTpSatms6480pcS10LRerVRDotvbht4OFydOLgz8+i1
+         9KInWMj4GJuaRf8dKcw8CanFBkbyZMxGNR9JWGSz2FFnV+Ueh5Pmc+6tSBLeLj2dnD
+         Ef6N8wcGFmMCPpu3hfGLUQlrgBWuRRmSOMtzZzUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.0 177/862] KVM: x86: Treat #DBs from the emulator as fault-like (code and DR7.GD=1)
-Date:   Wed, 19 Oct 2022 10:24:24 +0200
-Message-Id: <20221019083257.781526962@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
+        Charlene Liu <Charlene.Liu@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.0 191/862] drm/amd/display: Update PMFW z-state interface for DCN314
+Date:   Wed, 19 Oct 2022 10:24:38 +0200
+Message-Id: <20221019083258.417875595@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,95 +56,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-commit 5623f751bd9c438ed12840e086f33c4646440d19 upstream.
+commit 4f5bdde386d3b8e9317df5562950e1b4fa177599 upstream.
 
-Add a dedicated "exception type" for #DBs, as #DBs can be fault-like or
-trap-like depending the sub-type of #DB, and effectively defer the
-decision of what to do with the #DB to the caller.
+[Why]
+Request from PMFW to change the messaging format to specify whether we
+support z-state via individual bits.
 
-For the emulator's two calls to exception_type(), treat the #DB as
-fault-like, as the emulator handles only code breakpoint and general
-detect #DBs, both of which are fault-like.
+[How]
+Update the args we pass in the support message.
 
-For event injection, which uses exception_type() to determine whether to
-set EFLAGS.RF=1 on the stack, keep the current behavior of not setting
-RF=1 for #DBs.  Intel and AMD explicitly state RF isn't set on code #DBs,
-so exempting by failing the "== EXCPT_FAULT" check is correct.  The only
-other fault-like #DB is General Detect, and despite Intel and AMD both
-strongly implying (through omission) that General Detect #DBs should set
-RF=1, hardware (multiple generations of both Intel and AMD), in fact does
-not.  Through insider knowledge, extreme foresight, sheer dumb luck, or
-some combination thereof, KVM correctly handled RF for General Detect #DBs.
-
-Fixes: 38827dbd3fb8 ("KVM: x86: Do not update EFLAGS on faulting emulation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220830231614.3580124-9-seanjc@google.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: d5c6909e7460 ("drm/amd/display: Add DCN314 clock manager")
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.0
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |   27 +++++++++++++++++++++++++--
- 1 file changed, 25 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c |   11 +++--------
+ drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c    |    3 ++-
+ 2 files changed, 5 insertions(+), 9 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -528,6 +528,7 @@ static int exception_class(int vector)
- #define EXCPT_TRAP		1
- #define EXCPT_ABORT		2
- #define EXCPT_INTERRUPT		3
-+#define EXCPT_DB		4
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c
+@@ -339,29 +339,24 @@ void dcn314_smu_set_zstate_support(struc
+ 	if (!clk_mgr->smu_present)
+ 		return;
  
- static int exception_type(int vector)
- {
-@@ -538,8 +539,14 @@ static int exception_type(int vector)
+-	if (!clk_mgr->base.ctx->dc->debug.enable_z9_disable_interface &&
+-			(support == DCN_ZSTATE_SUPPORT_ALLOW_Z10_ONLY))
+-		support = DCN_ZSTATE_SUPPORT_DISALLOW;
+-
+-
+ 	// Arg[15:0] = 8/9/0 for Z8/Z9/disallow -> existing bits
+ 	// Arg[16] = Disallow Z9 -> new bit
+ 	switch (support) {
  
- 	mask = 1 << vector;
+ 	case DCN_ZSTATE_SUPPORT_ALLOW:
+ 		msg_id = VBIOSSMC_MSG_AllowZstatesEntry;
+-		param = 9;
++		param = (1 << 10) | (1 << 9) | (1 << 8);
+ 		break;
  
--	/* #DB is trap, as instruction watchpoints are handled elsewhere */
--	if (mask & ((1 << DB_VECTOR) | (1 << BP_VECTOR) | (1 << OF_VECTOR)))
-+	/*
-+	 * #DBs can be trap-like or fault-like, the caller must check other CPU
-+	 * state, e.g. DR6, to determine whether a #DB is a trap or fault.
-+	 */
-+	if (mask & (1 << DB_VECTOR))
-+		return EXCPT_DB;
-+
-+	if (mask & ((1 << BP_VECTOR) | (1 << OF_VECTOR)))
- 		return EXCPT_TRAP;
+ 	case DCN_ZSTATE_SUPPORT_DISALLOW:
+ 		msg_id = VBIOSSMC_MSG_AllowZstatesEntry;
+-		param = 8;
++		param = 0;
+ 		break;
  
- 	if (mask & ((1 << DF_VECTOR) | (1 << MC_VECTOR)))
-@@ -8801,6 +8808,12 @@ writeback:
- 		unsigned long rflags = static_call(kvm_x86_get_rflags)(vcpu);
- 		toggle_interruptibility(vcpu, ctxt->interruptibility);
- 		vcpu->arch.emulate_regs_need_sync_to_vcpu = false;
-+
-+		/*
-+		 * Note, EXCPT_DB is assumed to be fault-like as the emulator
-+		 * only supports code breakpoints and general detect #DB, both
-+		 * of which are fault-like.
-+		 */
- 		if (!ctxt->have_exception ||
- 		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
- 			kvm_pmu_trigger_event(vcpu, PERF_COUNT_HW_INSTRUCTIONS);
-@@ -9724,6 +9737,16 @@ static int inject_pending_event(struct k
  
- 	/* try to inject new event if pending */
- 	if (vcpu->arch.exception.pending) {
-+		/*
-+		 * Fault-class exceptions, except #DBs, set RF=1 in the RFLAGS
-+		 * value pushed on the stack.  Trap-like exception and all #DBs
-+		 * leave RF as-is (KVM follows Intel's behavior in this regard;
-+		 * AMD states that code breakpoint #DBs excplitly clear RF=0).
-+		 *
-+		 * Note, most versions of Intel's SDM and AMD's APM incorrectly
-+		 * describe the behavior of General Detect #DBs, which are
-+		 * fault-like.  They do _not_ set RF, a la code breakpoints.
-+		 */
- 		if (exception_type(vcpu->arch.exception.nr) == EXCPT_FAULT)
- 			__kvm_set_rflags(vcpu, kvm_get_rflags(vcpu) |
- 					     X86_EFLAGS_RF);
+ 	case DCN_ZSTATE_SUPPORT_ALLOW_Z10_ONLY:
+ 		msg_id = VBIOSSMC_MSG_AllowZstatesEntry;
+-		param = 0x00010008;
++		param = (1 << 10);
+ 		break;
+ 
+ 	default: //DCN_ZSTATE_SUPPORT_UNKNOWN
+--- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c
+@@ -881,7 +881,8 @@ static const struct dc_plane_cap plane_c
+ };
+ 
+ static const struct dc_debug_options debug_defaults_drv = {
+-	.disable_z10 = true, /*hw not support it*/
++	.disable_z10 = false,
++	.enable_z9_disable_interface = true,
+ 	.disable_dmcu = true,
+ 	.force_abm_enable = false,
+ 	.timing_trace = false,
 
 
