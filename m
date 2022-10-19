@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2A7603C17
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:43:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF339603C14
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:43:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231194AbiJSInP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:43:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55740 "EHLO
+        id S230512AbiJSInO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:43:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231189AbiJSImW (ORCPT
+        with ESMTP id S231186AbiJSImW (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:42:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD8F042AD9;
-        Wed, 19 Oct 2022 01:39:47 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D023A48CBF;
+        Wed, 19 Oct 2022 01:39:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 757E7B82234;
-        Wed, 19 Oct 2022 08:39:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD57BC433C1;
-        Wed, 19 Oct 2022 08:39:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B216B821CD;
+        Wed, 19 Oct 2022 08:39:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9218C433D6;
+        Wed, 19 Oct 2022 08:39:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168784;
-        bh=p5/X/8K03kH+hgzQsYC4VASRtCEOfafEweUf2IKRMd4=;
+        s=korg; t=1666168787;
+        bh=qzNPjTgfZEYYgdxUncWZqKaKdlo8w1SbSuDFg3W8BnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vdc6q2bO5agx1VQa4q/2GrYsfBcNvkOEac1nQGJt214SW2j/GwUY715+dGDTeAsej
-         UNV/3LUODO9kdRqjquYKxdm7JgvzjjhZik1g9sJgcGsNSqo/tLyAYAhyj8qj6C+1Wl
-         a67dE1DW7k6cOT9lspRNwfDWmiLeLuQa44eTog00=
+        b=mUqwV65buO035u8oCYlVYs/sh4QLan3nkLc5vaQYskmLmA86FiUmTBLAx9ErZM0xh
+         l3v3DyLcn48Lg6LJPBoBgwJQRvOqGr/25W26iFvj6wjDGovobBy5YCk0T0Fgaa+1Xj
+         fW4qgCoE5rn7Pwq6cwGp666i1W1aEIr1LUJ9XKk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Mengda Chen <chenmengda2009@163.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 6.0 052/862] hwmon: (gsc-hwmon) Call of_node_get() before of_find_xxx API
-Date:   Wed, 19 Oct 2022 10:22:19 +0200
-Message-Id: <20221019083252.285526333@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 6.0 053/862] net: thunderbolt: Enable DMA paths only after rings are enabled
+Date:   Wed, 19 Oct 2022 10:22:20 +0200
+Message-Id: <20221019083252.323733118@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,35 +53,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit 7f62cf781e6567d59c8935dc8c6068ce2bb904b7 upstream.
+commit ff7cd07f306406493f7b78890475e85b6d0811ed upstream.
 
-In gsc_hwmon_get_devtree_pdata(), we should call of_node_get() before
-the of_find_compatible_node() which will automatically call
-of_node_put() for the 'from' argument.
+If the other host starts sending packets early on it is possible that we
+are still in the middle of populating the initial Rx ring packets to the
+ring. This causes the tbnet_poll() to mess over the queue and causes
+list corruption. This happens specifically when connected with macOS as
+it seems start sending various IP discovery packets as soon as its side
+of the paths are configured.
 
-Fixes: 3bce5377ef66 ("hwmon: Add Gateworks System Controller support")
-Signed-off-by: Liang He <windhl@126.com>
-Co-developed-by: Mengda Chen <chenmengda2009@163.com>
-Signed-off-by: Mengda Chen <chenmengda2009@163.com>
-Link: https://lore.kernel.org/r/20220916154708.3084515-1-chenmengda2009@163.com
+To prevent this we move the DMA path enabling to happen after we have
+primed the Rx ring. This makes sure no incoming packets can arrive
+before we are ready to handle them.
+
+Fixes: e69b6c02b4c3 ("net: Add support for networking over Thunderbolt cable")
 Cc: stable@vger.kernel.org
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/gsc-hwmon.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/thunderbolt.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
---- a/drivers/hwmon/gsc-hwmon.c
-+++ b/drivers/hwmon/gsc-hwmon.c
-@@ -267,6 +267,7 @@ gsc_hwmon_get_devtree_pdata(struct devic
- 	pdata->nchannels = nchannels;
+--- a/drivers/net/thunderbolt.c
++++ b/drivers/net/thunderbolt.c
+@@ -612,18 +612,13 @@ static void tbnet_connected_work(struct
+ 		return;
+ 	}
  
- 	/* fan controller base address */
-+	of_node_get(dev->parent->of_node);
- 	fan = of_find_compatible_node(dev->parent->of_node, NULL, "gw,gsc-fan");
- 	if (fan && of_property_read_u32(fan, "reg", &pdata->fan_base)) {
- 		of_node_put(fan);
+-	/* Both logins successful so enable the high-speed DMA paths and
+-	 * start the network device queue.
++	/* Both logins successful so enable the rings, high-speed DMA
++	 * paths and start the network device queue.
++	 *
++	 * Note we enable the DMA paths last to make sure we have primed
++	 * the Rx ring before any incoming packets are allowed to
++	 * arrive.
+ 	 */
+-	ret = tb_xdomain_enable_paths(net->xd, net->local_transmit_path,
+-				      net->rx_ring.ring->hop,
+-				      net->remote_transmit_path,
+-				      net->tx_ring.ring->hop);
+-	if (ret) {
+-		netdev_err(net->dev, "failed to enable DMA paths\n");
+-		return;
+-	}
+-
+ 	tb_ring_start(net->tx_ring.ring);
+ 	tb_ring_start(net->rx_ring.ring);
+ 
+@@ -635,10 +630,21 @@ static void tbnet_connected_work(struct
+ 	if (ret)
+ 		goto err_free_rx_buffers;
+ 
++	ret = tb_xdomain_enable_paths(net->xd, net->local_transmit_path,
++				      net->rx_ring.ring->hop,
++				      net->remote_transmit_path,
++				      net->tx_ring.ring->hop);
++	if (ret) {
++		netdev_err(net->dev, "failed to enable DMA paths\n");
++		goto err_free_tx_buffers;
++	}
++
+ 	netif_carrier_on(net->dev);
+ 	netif_start_queue(net->dev);
+ 	return;
+ 
++err_free_tx_buffers:
++	tbnet_free_buffers(&net->tx_ring);
+ err_free_rx_buffers:
+ 	tbnet_free_buffers(&net->rx_ring);
+ err_stop_rings:
 
 
