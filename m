@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7D68604361
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:36:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9223604198
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:46:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229722AbiJSLgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:36:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59870 "EHLO
+        id S233355AbiJSKql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:46:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231510AbiJSLfx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:35:53 -0400
+        with ESMTP id S233335AbiJSKoj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:44:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F439DF9C;
-        Wed, 19 Oct 2022 04:13:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D135810C4CE;
+        Wed, 19 Oct 2022 03:21:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54974B82429;
-        Wed, 19 Oct 2022 08:56:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0035C433C1;
-        Wed, 19 Oct 2022 08:56:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9179B82430;
+        Wed, 19 Oct 2022 08:58:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 502CAC433C1;
+        Wed, 19 Oct 2022 08:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169816;
-        bh=OIyPrmQIsCOKB3WtDB3t9YMhRPWseYg73YUNm3OcaiI=;
+        s=korg; t=1666169906;
+        bh=kg9vWgfgfLhzwfynnPlfjczJJacU8XNUQYPZLuLW2uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/bnvQQ1JTeuq02twOXIb6iiWRJFKeB2bYfLpoLzxxsi0u2DGyCY1H1yN+JJGdu1x
-         KTjk7dVBftJHpIf8c2J/v/vmds6PDQBMgFkUkdpKB/SvXw4PsFfoVo7KA+NKmUc47l
-         ignQnY4iaixRzhfZt6YUHe8qRBDEOZlIjMWLrIKw=
+        b=Sy/CDk5r/WiXbpW44md1m7N8UgrerGJukRgfVQS4zs44dQio+Cf3mW5g7RUynxwFb
+         Qk/iQqnE5+rvf11VYNqKA9F5/HDg6ZK+mKOxVLMdmtpJtRPa9ivY2l3QMs9NoDDn7A
+         CfcOrP0KQ1sazEXRvokKP5rlK3b2vK72wiHtc2/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 420/862] soc: qcom: smem_state: Add refcounting for the state->of_node
-Date:   Wed, 19 Oct 2022 10:28:27 +0200
-Message-Id: <20221019083308.525235431@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 446/862] ARM: dts: exynos: correct s5k6a3 reset polarity on Midas family
+Date:   Wed, 19 Oct 2022 10:28:53 +0200
+Message-Id: <20221019083309.679779365@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,44 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 90681f53b9381c23ff7762a3b13826d620c272de ]
+[ Upstream commit 3ba2d4bb9592bf7a6a3fe3dbe711ecfc3d004bab ]
 
-In qcom_smem_state_register() and qcom_smem_state_release(), we
-should better use of_node_get() and of_node_put() for the reference
-creation and destruction of 'device_node'.
+According to s5k6a3 driver code, the reset line for the chip appears to
+be active low. This also matches the typical polarity of reset lines in
+general. Let's fix it up as having correct polarity in DTS is important
+when the driver will be switched over to gpiod API.
 
-Fixes: 9460ae2ff308 ("soc: qcom: Introduce common SMEM state machine code")
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220721135217.1301039-2-windhl@126.com
+Fixes: b4fec64758ab ("ARM: dts: Add camera device nodes for Exynos4412 TRATS2 board")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220913164104.203957-1-dmitry.torokhov@gmail.com
+Link: https://lore.kernel.org/r/20220926104354.118578-2-krzysztof.kozlowski@linaro.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/smem_state.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/exynos4412-midas.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/smem_state.c b/drivers/soc/qcom/smem_state.c
-index 31faf4aa868e..e848cc9a3cf8 100644
---- a/drivers/soc/qcom/smem_state.c
-+++ b/drivers/soc/qcom/smem_state.c
-@@ -136,6 +136,7 @@ static void qcom_smem_state_release(struct kref *ref)
- 	struct qcom_smem_state *state = container_of(ref, struct qcom_smem_state, refcount);
+diff --git a/arch/arm/boot/dts/exynos4412-midas.dtsi b/arch/arm/boot/dts/exynos4412-midas.dtsi
+index b967397a46c5..8e1c19a8ad06 100644
+--- a/arch/arm/boot/dts/exynos4412-midas.dtsi
++++ b/arch/arm/boot/dts/exynos4412-midas.dtsi
+@@ -586,7 +586,7 @@
+ 		clocks = <&camera 1>;
+ 		clock-names = "extclk";
+ 		samsung,camclk-out = <1>;
+-		gpios = <&gpm1 6 GPIO_ACTIVE_HIGH>;
++		gpios = <&gpm1 6 GPIO_ACTIVE_LOW>;
  
- 	list_del(&state->list);
-+	of_node_put(state->of_node);
- 	kfree(state);
- }
- 
-@@ -205,7 +206,7 @@ struct qcom_smem_state *qcom_smem_state_register(struct device_node *of_node,
- 
- 	kref_init(&state->refcount);
- 
--	state->of_node = of_node;
-+	state->of_node = of_node_get(of_node);
- 	state->ops = *ops;
- 	state->priv = priv;
- 
+ 		port {
+ 			is_s5k6a3_ep: endpoint {
 -- 
 2.35.1
 
