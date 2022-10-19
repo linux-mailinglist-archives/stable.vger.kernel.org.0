@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53C8160427F
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:05:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55F25604245
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229968AbiJSLFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:05:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53894 "EHLO
+        id S234789AbiJSK5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:57:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234872AbiJSLEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:04:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 798F59DDB2;
-        Wed, 19 Oct 2022 03:33:26 -0700 (PDT)
+        with ESMTP id S234548AbiJSK4b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:56:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C03FE15708;
+        Wed, 19 Oct 2022 03:27:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91C3BB824B0;
-        Wed, 19 Oct 2022 09:10:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4148C433D6;
-        Wed, 19 Oct 2022 09:10:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A5DDB824B1;
+        Wed, 19 Oct 2022 09:10:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BE4EC433D6;
+        Wed, 19 Oct 2022 09:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170603;
-        bh=rfhGV7N9C6ZVl3JruPAcA6LKfJ3cyhGgcnuyB098JMM=;
+        s=korg; t=1666170605;
+        bh=k3ZzKbC9zNarUtRLUEgprjT0EFS8qIm+is5xwTEYpXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tTLgkvbstUV8N5ULN7WFEghY+nTY4q47uNeWwaB+Db5bISgWOLo1fDIUoc2ryRIro
-         /MCkNlTbYHZYVMhhnhs0X3g4mzuBI+kYJ8br7XQvuvhB5ROxR5tdN+HWzyqz2qEZl3
-         IVZ0L/IhVFCyZHbehfClw2sp1HMEOA2s2XlMizn8=
+        b=Vko1kLCkPNpA4L/G7nh2Mv51uAkqP+FOU7pbc1Pr6BGSiTaDWduVLWhXSEBtxVuPa
+         7ox0QSeHURnfdYPs77do1nHIAPwDeXtCCKqMEB+D1+euUrf+Cc049ppW6e5luGZsFZ
+         oZuiBaB37jB//A52rkwJA3vmv+M2ZOU8jfRXRQoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
-        Daniel Golle <daniel@makrotopia.org>,
-        Stanislaw Gruszka <stf_xl@wp.pl>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 718/862] wifi: rt2x00: correctly set BBP register 86 for MT7620
-Date:   Wed, 19 Oct 2022 10:33:25 +0200
-Message-Id: <20221019083321.671530813@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 719/862] hwmon: (sht4x) do not overflow clamping operation on 32-bit platforms
+Date:   Wed, 19 Oct 2022 10:33:26 +0200
+Message-Id: <20221019083321.710685275@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,38 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit c9aada64fe6493461127f1522d7e2f01792d2424 ]
+[ Upstream commit f9c0cf8f26de367c58e48b02b1cdb9c377626e6f ]
 
-Instead of 0 set the correct value for BBP register 86 for MT7620.
+On 32-bit platforms, long is 32 bits, so (long)UINT_MAX is less than
+(long)SHT4X_MIN_POLL_INTERVAL, which means the clamping operation is
+bogus. Fix this by clamping at INT_MAX, so that the upperbound is the
+same on all platforms.
 
-Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/257267247ee4fa7ebc6a5d0c4948b3f8119c0d77.1663445157.git.daniel@makrotopia.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/r/20220924101151.4168414-1-Jason@zx2c4.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hwmon/sht4x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-index b30b062243bb..1a9e27a6d636 100644
---- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-+++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-@@ -4164,7 +4164,10 @@ static void rt2800_config_channel(struct rt2x00_dev *rt2x00dev,
- 		rt2800_bbp_write(rt2x00dev, 62, 0x37 - rt2x00dev->lna_gain);
- 		rt2800_bbp_write(rt2x00dev, 63, 0x37 - rt2x00dev->lna_gain);
- 		rt2800_bbp_write(rt2x00dev, 64, 0x37 - rt2x00dev->lna_gain);
--		rt2800_bbp_write(rt2x00dev, 86, 0);
-+		if (rt2x00_rt(rt2x00dev, RT6352))
-+			rt2800_bbp_write(rt2x00dev, 86, 0x38);
-+		else
-+			rt2800_bbp_write(rt2x00dev, 86, 0);
- 	}
+diff --git a/drivers/hwmon/sht4x.c b/drivers/hwmon/sht4x.c
+index c19df3ade48e..13ac2d8f22c7 100644
+--- a/drivers/hwmon/sht4x.c
++++ b/drivers/hwmon/sht4x.c
+@@ -129,7 +129,7 @@ static int sht4x_read_values(struct sht4x_data *data)
  
- 	if (rf->channel <= 14) {
+ static ssize_t sht4x_interval_write(struct sht4x_data *data, long val)
+ {
+-	data->update_interval = clamp_val(val, SHT4X_MIN_POLL_INTERVAL, UINT_MAX);
++	data->update_interval = clamp_val(val, SHT4X_MIN_POLL_INTERVAL, INT_MAX);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
