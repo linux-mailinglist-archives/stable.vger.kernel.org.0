@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D5CF604575
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:37:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 393C96047E7
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:47:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230329AbiJSMhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 08:37:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51844 "EHLO
+        id S233484AbiJSNrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:47:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230274AbiJSMhO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:37:14 -0400
+        with ESMTP id S233255AbiJSNqH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:46:07 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5107989828;
-        Wed, 19 Oct 2022 05:17:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF68417252E;
+        Wed, 19 Oct 2022 06:32:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFC31B8242B;
-        Wed, 19 Oct 2022 08:58:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F361C433D6;
-        Wed, 19 Oct 2022 08:58:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29861B82426;
+        Wed, 19 Oct 2022 08:58:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 209A6C433C1;
+        Wed, 19 Oct 2022 08:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169892;
-        bh=Vq582+ZZfZeJ50akCNDAGdJDlR6WOX/d4TZ2XfKNEBA=;
+        s=korg; t=1666169895;
+        bh=VDRe/5Hbi95puk/YwoQKy5coXP8NgEp+rB9ALswaBwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVY7cvALCQEFHCTbIh7abZi8hB6y6U5v/OtIdjILuLX5s4VxRfD3itB+FRfqIDBs5
-         HoN0Ht+d/A/+Y2j09TIjdi9gECuM9H3UoVBMbnfCOIQvupWjpdZae9U8s0Nn3aVKin
-         m42/TDsKj6MKcM6WH7tq94LGRuvjaLq3AST6tJLA=
+        b=EBJT0Xse5jFX3YpfBDtthT07Gf53DyLmZAwH9QKx/GsRxmvqs++/HFIa16ZRFY6U2
+         BO0DAs0ZHS0dG6k2ibTpIuATRlipyQ1M7qCpqnojtqdyndPpvpCw+cTLHUfix6sc77
+         P9uAL10Kzs0G7rbW0q6F0n9zON3nvrMYuNXmgQ2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liang He <windhl@126.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 415/862] memory: pl353-smc: Fix refcount leak bug in pl353_smc_probe()
-Date:   Wed, 19 Oct 2022 10:28:22 +0200
-Message-Id: <20221019083308.294964073@linuxfoundation.org>
+Subject: [PATCH 6.0 416/862] memory: of: Fix refcount leak bug in of_get_ddr_timings()
+Date:   Wed, 19 Oct 2022 10:28:23 +0200
+Message-Id: <20221019083308.335779787@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,37 +55,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liang He <windhl@126.com>
 
-[ Upstream commit 61b3c876c1cbdb1efd1f52a1f348580e6e14efb6 ]
+[ Upstream commit 05215fb32010d4afb68fbdbb4d237df6e2d4567b ]
 
-The break of for_each_available_child_of_node() needs a
-corresponding of_node_put() when the reference 'child' is not
-used anymore. Here we do not need to call of_node_put() in
-fail path as '!match' means no break.
+We should add the of_node_put() when breaking out of
+for_each_child_of_node() as it will automatically increase
+and decrease the refcount.
 
-While the of_platform_device_create() will created a new
-reference by 'child' but it has considered the refcounting.
-
-Fixes: fee10bd22678 ("memory: pl353: Add driver for arm pl353 static memory controller")
+Fixes: e6b42eb6a66c ("memory: emif: add device tree support to emif driver")
 Signed-off-by: Liang He <windhl@126.com>
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220716031324.447680-1-windhl@126.com
+Link: https://lore.kernel.org/r/20220719085640.1210583-1-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/pl353-smc.c | 1 +
+ drivers/memory/of_memory.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/memory/pl353-smc.c b/drivers/memory/pl353-smc.c
-index f84b98278745..d39ee7d06665 100644
---- a/drivers/memory/pl353-smc.c
-+++ b/drivers/memory/pl353-smc.c
-@@ -122,6 +122,7 @@ static int pl353_smc_probe(struct amba_device *adev, const struct amba_id *id)
- 	}
- 
- 	of_platform_device_create(child, NULL, &adev->dev);
-+	of_node_put(child);
- 
- 	return 0;
- 
+diff --git a/drivers/memory/of_memory.c b/drivers/memory/of_memory.c
+index dbdf87bc0b78..8e2ef4bf6b17 100644
+--- a/drivers/memory/of_memory.c
++++ b/drivers/memory/of_memory.c
+@@ -134,6 +134,7 @@ const struct lpddr2_timings *of_get_ddr_timings(struct device_node *np_ddr,
+ 	for_each_child_of_node(np_ddr, np_tim) {
+ 		if (of_device_is_compatible(np_tim, tim_compat)) {
+ 			if (of_do_get_timings(np_tim, &timings[i])) {
++				of_node_put(np_tim);
+ 				devm_kfree(dev, timings);
+ 				goto default_timings;
+ 			}
 -- 
 2.35.1
 
