@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 589D6603EF7
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:25:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E98F0603EC6
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:20:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233185AbiJSJZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:25:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43634 "EHLO
+        id S233319AbiJSJUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:20:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233675AbiJSJYZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:24:25 -0400
+        with ESMTP id S233681AbiJSJTx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:19:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDFE2C4D9A;
-        Wed, 19 Oct 2022 02:11:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EBA8DBE7C;
+        Wed, 19 Oct 2022 02:08:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C597B61750;
-        Wed, 19 Oct 2022 09:07:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD321C433D7;
-        Wed, 19 Oct 2022 09:07:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E5516187F;
+        Wed, 19 Oct 2022 09:07:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8061AC433D6;
+        Wed, 19 Oct 2022 09:07:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170449;
-        bh=CDFKxDXed4seug1ukSk9Zm+SmC8qh5flXF0DuqIbwBM=;
+        s=korg; t=1666170451;
+        bh=vu7rJYj1z+XfoxBx4lR0BrFlu16v+YMPOdlO7pyXxkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FeNp7U5kpEwGIQSux/oUB7J9rZ1sgOgQJ+3A/cQqS7aS4e13GoNXxTYzfK3Qmz5uT
-         c7G2ThgjRlE1UoZxg3o570gtgCgtXdAW4TsMx6lDTTf31b+K+5hRUp1ezG3uNs+21v
-         6T73J3U44xhRWO4EX8OHrC/fTOHLsdWGKuDGf8tk=
+        b=PyXAqdqac90ZmB1MepO//b2fHO5VewApjA0nM1EdRMLgyMBM+NOR9jt7FlypDYvV0
+         FB365IlwZBwif0uMjxkE9XU9jJbEgeP5bhg0jnL+rsHf52Oq96H8dB1wZSbMeZTyfj
+         r0tWp4gSTD4r1JA6305ZH5Jccpb6tgND98xH2s0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
+        Aaron Tomlin <atomlin@redhat.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: =?UTF-8?q?=5BPATCH=206=2E0=20659/862=5D=20=3D=3FUTF-8=3Fq=3FARM/dma-mapp=3DD1=3D96ng=3A=3D20dont=3D20override=3D20-=3Edma=3D5Fcohe=3F=3D=20=3D=3FUTF-8=3Fq=3Frent=3D20when=3D20set=3D20from=3D20a=3D20bus=3D20notifier=3F=3D?=
-Date:   Wed, 19 Oct 2022 10:32:26 +0200
-Message-Id: <20221019083319.087440003@linuxfoundation.org>
+Subject: [PATCH 6.0 660/862] module: tracking: Keep a record of tainted unloaded modules only
+Date:   Wed, 19 Oct 2022 10:32:27 +0200
+Message-Id: <20221019083319.135652075@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,55 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Aaron Tomlin <atomlin@redhat.com>
 
-[ Upstream commit 49bc8bebae79c8516cb12f91818f3a7907e3ebce ]
+[ Upstream commit 47cc75aa92837a9d3f15157d6272ff285585d75d ]
 
-Commit ae626eb97376 ("ARM/dma-mapping: use dma-direct unconditionally")
-caused a regression on the mvebu platform, wherein devices that are
-dma-coherent are marked as dma-noncoherent, because although
-mvebu_hwcc_notifier() after that commit still marks then as coherent,
-the arm_coherent_dma_ops() function, which is called later, overwrites
-this setting, since it is being called from drivers/of/device.c with
-coherency parameter determined by of_dma_is_coherent(), and the
-device-trees do not declare the 'dma-coherent' property.
+This ensures that no module record/or entry is added to the
+unloaded_tainted_modules list if it does not carry a taint.
 
-Fix this by defaulting never clearing the dma_coherent flag in
-arm_coherent_dma_ops().
-
-Fixes: ae626eb97376 ("ARM/dma-mapping: use dma-direct unconditionally")
-Reported-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Tested-by: Marek Behún <kabel@kernel.org>
+Reported-by: Alexey Dobriyan <adobriyan@gmail.com>
+Fixes: 99bd9956551b ("module: Introduce module unload taint tracking")
+Signed-off-by: Aaron Tomlin <atomlin@redhat.com>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/dma-mapping.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ kernel/module/tracking.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c
-index 089c9c644cce..bfc7476f1411 100644
---- a/arch/arm/mm/dma-mapping.c
-+++ b/arch/arm/mm/dma-mapping.c
-@@ -1769,8 +1769,16 @@ static void arm_teardown_iommu_dma_ops(struct device *dev) { }
- void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
- 			const struct iommu_ops *iommu, bool coherent)
- {
--	dev->archdata.dma_coherent = coherent;
--	dev->dma_coherent = coherent;
-+	/*
-+	 * Due to legacy code that sets the ->dma_coherent flag from a bus
-+	 * notifier we can't just assign coherent to the ->dma_coherent flag
-+	 * here, but instead have to make sure we only set but never clear it
-+	 * for now.
-+	 */
-+	if (coherent) {
-+		dev->archdata.dma_coherent = true;
-+		dev->dma_coherent = true;
-+	}
+diff --git a/kernel/module/tracking.c b/kernel/module/tracking.c
+index 7f8133044d09..af52cabfe632 100644
+--- a/kernel/module/tracking.c
++++ b/kernel/module/tracking.c
+@@ -21,6 +21,9 @@ int try_add_tainted_module(struct module *mod)
  
- 	/*
- 	 * Don't override the dma_ops if they have already been set. Ideally
+ 	module_assert_mutex_or_preempt();
+ 
++	if (!mod->taints)
++		goto out;
++
+ 	list_for_each_entry_rcu(mod_taint, &unloaded_tainted_modules, list,
+ 				lockdep_is_held(&module_mutex)) {
+ 		if (!strcmp(mod_taint->name, mod->name) &&
 -- 
 2.35.1
 
