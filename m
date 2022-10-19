@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3272603C09
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0D1B603C1E
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230329AbiJSImm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:42:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55778 "EHLO
+        id S230456AbiJSInk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:43:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230322AbiJSIlp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:41:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5B0911C09;
-        Wed, 19 Oct 2022 01:39:29 -0700 (PDT)
+        with ESMTP id S231132AbiJSIm7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:42:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9638682757;
+        Wed, 19 Oct 2022 01:40:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 720B9617D1;
-        Wed, 19 Oct 2022 08:39:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65550C433D7;
-        Wed, 19 Oct 2022 08:39:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 669F1617D1;
+        Wed, 19 Oct 2022 08:40:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D42FC433D7;
+        Wed, 19 Oct 2022 08:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168768;
-        bh=r6sndrCPLnTm7kILdqqn2LD7psgBrGdbjQMZY6nBT90=;
+        s=korg; t=1666168802;
+        bh=XjTpf1SwUn1ueTangGWnryxHJFIZLLzPWdM8TV5F8/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPH7jBxNwf/TkMy0LMu/vZpKfcUFXv79JFsqr0Ln6HAxVTySCMQDzbJqgWGBHC4XJ
-         yegBzSDtNHhWOkrcJZfotCcHylY3tQnXoF1t0h1hu5fPxQPsiu1ocB+Xig9uYp2rrk
-         eeRVcYHzNwzi2OXy74zwrLtmmZe2RSbS6p3GDqDM=
+        b=0J5glN/LupEAm0mlQ4Qw7k/ulblXfsgXVe4hTgrEyzC/6SSt79SZ6IC44+CMGoslv
+         uHYnXlv5OzO6Rg4zueLYuGABD/jaURBt8RmuAmpEsrtCFdcgnPA3gxo9teHGst9V5R
+         YKRGU5hKKik/aVek+d/KcGCjJ293U1N8oEvx2Tt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 6.0 030/862] usb: gadget: uvc: Fix argument to sizeof() in uvc_register_video()
-Date:   Wed, 19 Oct 2022 10:21:57 +0200
-Message-Id: <20221019083251.346309144@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jean-Francois Le Fillatre <jflf_kernel@gmx.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 6.0 031/862] usb: add quirks for Lenovo OneLink+ Dock
+Date:   Wed, 19 Oct 2022 10:21:58 +0200
+Message-Id: <20221019083251.397602528@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,76 +53,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
 
-commit a15e17acce5aaae54243f55a7349c2225450b9bc upstream.
+commit 37d49519b41405b08748392c6a7f193d9f77ecd2 upstream.
 
-When building s390 allmodconfig after commit 9b91a6523078 ("usb: gadget:
-uvc: increase worker prio to WQ_HIGHPRI"), the following error occurs:
+The Lenovo OneLink+ Dock contains two VL812 USB3.0 controllers:
+17ef:1018 upstream
+17ef:1019 downstream
 
-  In file included from ../include/linux/string.h:253,
-                   from ../include/linux/bitmap.h:11,
-                   from ../include/linux/cpumask.h:12,
-                   from ../include/linux/smp.h:13,
-                   from ../include/linux/lockdep.h:14,
-                   from ../include/linux/rcupdate.h:29,
-                   from ../include/linux/rculist.h:11,
-                   from ../include/linux/pid.h:5,
-                   from ../include/linux/sched.h:14,
-                   from ../include/linux/ratelimit.h:6,
-                   from ../include/linux/dev_printk.h:16,
-                   from ../include/linux/device.h:15,
-                   from ../drivers/usb/gadget/function/f_uvc.c:9:
-  In function ‘fortify_memset_chk’,
-      inlined from ‘uvc_register_video’ at ../drivers/usb/gadget/function/f_uvc.c:424:2:
-  ../include/linux/fortify-string.h:301:25: error: call to ‘__write_overflow_field’ declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror=attribute-warning]
-    301 |                         __write_overflow_field(p_size_field, size);
-        |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These hubs suffer from two separate problems:
 
-This points to the memset() in uvc_register_video(). It is clear that
-the argument to sizeof() is incorrect, as uvc->vdev (a 'struct
-video_device') is being zeroed out but the size of uvc->video (a 'struct
-uvc_video') is being used as the third arugment to memset().
+1) After the host system was suspended and woken up, the hubs appear to
+   be in a random state. Some downstream ports (both internal to the
+   built-in audio and network controllers, and external to USB sockets)
+   may no longer be functional. The exact list of disabled ports (if
+   any) changes from wakeup to wakeup. Ports remain in that state until
+   the dock is power-cycled, or until the laptop is rebooted.
 
-pahole shows that prior to commit 9b91a6523078 ("usb: gadget: uvc:
-increase worker prio to WQ_HIGHPRI"), 'struct video_device' and
-'struct ucv_video' had the same size, meaning that the argument to
-sizeof() is incorrect semantically but there is no visible issue:
+   Wakeup sources connected to the hubs (keyboard, WoL on the integrated
+   gigabit controller) will wake the system up from suspend, but they
+   may no longer work after wakeup (and in that case will no longer work
+   as wakeup source in a subsequent suspend-wakeup cycle).
 
-  $ pahole -s build/drivers/usb/gadget/function/f_uvc.o | grep -E "(uvc_video|video_device)\s+"
-  video_device    1400    4
-  uvc_video       1400    3
+   This issue appears in the logs with messages such as:
 
-After that change, uvc_video becomes slightly larger, meaning that the
-memset() will overwrite by 8 bytes:
+     usb 1-6.1-port4: cannot disable (err = -71)
+     usb 1-6-port2: cannot disable (err = -71)
+     usb 1-6.1: clear tt 1 (80c0) error -71
+     usb 1-6-port4: cannot disable (err = -71)
+     usb 1-6.4: PM: dpm_run_callback(): usb_dev_resume+0x0/0x10 [usbcore] returns -71
+     usb 1-6.4: PM: failed to resume async: error -71
+     usb 1-7: reset full-speed USB device number 5 using xhci_hcd
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: Cannot enable. Maybe the USB cable is bad?
+     usb 1-6.1-port1: cannot disable (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: Cannot enable. Maybe the USB cable is bad?
+     usb 1-6.1-port1: cannot disable (err = -71)
 
-  $ pahole -s build/drivers/usb/gadget/function/f_uvc.o | grep -E "(uvc_video|video_device)\s+"
-  video_device    1400    4
-  uvc_video       1408    3
+2) Some USB devices cannot be enumerated properly. So far I have only
+   seen the issue with USB 3.0 devices. The same devices work without
+   problem directly connected to the host system, to other systems or to
+   other hubs (even when those hubs are connected to the OneLink+ dock).
 
-Fix the arugment to sizeof() so that there is no overwrite.
+   One very reliable reproducer is this USB 3.0 HDD enclosure:
+   152d:9561 JMicron Technology Corp. / JMicron USA Technology Corp. Mobius
 
-Cc: stable@vger.kernel.org
-Fixes: e4ce9ed835bc ("usb: gadget: uvc: ensure the vdev is unset")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220928201921.3152163-1-nathan@kernel.org
+   I have seen it happen sporadically with other USB 3.0 enclosures,
+   with controllers from different manufacturers, all self-powered.
+
+   Typical messages in the logs:
+
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     usb 2-1.4: device not accepting address 6, error -62
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     usb 2-1.4: device not accepting address 7, error -62
+     usb 2-1-port4: attempt power cycle
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     usb 2-1.4: device not accepting address 8, error -62
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     usb 2-1.4: device not accepting address 9, error -62
+     usb 2-1-port4: unable to enumerate USB device
+
+Through trial and error, I found that the USB_QUIRK_RESET_RESUME solved
+the second issue. Further testing then uncovered the first issue. Test
+results are summarized in this table:
+
+=======================================================================================
+Settings                        USB2 hotplug    USB3 hotplug    State after waking up
+---------------------------------------------------------------------------------------
+
+power/control=auto              works           fails           broken
+
+usbcore.autosuspend=-1          works           works           broken
+OR power/control=on
+
+power/control=auto              works (1)       works (1)       works
+and USB_QUIRK_RESET_RESUME
+
+power/control=on                works           works           works
+and USB_QUIRK_RESET_RESUME
+
+HUB_QUIRK_DISABLE_AUTOSUSPEND   works           works           works
+and USB_QUIRK_RESET_RESUME
+
+=======================================================================================
+
+In those results, the power/control settings are applied to both hubs,
+both on the USB2 and USB3 side, before each test.
+
+>From those results, USB_QUIRK_RESET_RESUME is required to reset the hubs
+properly after a suspend-wakeup cycle, and the hubs must not autosuspend
+to work around the USB3 issue.
+
+A secondary effect of USB_QUIRK_RESET_RESUME is to prevent the hubs'
+upstream links from suspending (the downstream ports can still suspend).
+This secondary effect is used in results (1). It is enough to solve the
+USB3 problem.
+
+Setting USB_QUIRK_RESET_RESUME on those hubs is the smallest patch that
+solves both issues.
+
+Prior to creating this patch, I have used the USB_QUIRK_RESET_RESUME via
+the kernel command line for over a year without noticing any side
+effect.
+
+Thanks to Oliver Neukum @Suse for explanations of the operations of
+USB_QUIRK_RESET_RESUME, and requesting more testing.
+
+Signed-off-by: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220927073407.5672-1-jflf_kernel@gmx.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_uvc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/core/quirks.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/gadget/function/f_uvc.c
-+++ b/drivers/usb/gadget/function/f_uvc.c
-@@ -421,7 +421,7 @@ uvc_register_video(struct uvc_device *uv
- 	int ret;
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -437,6 +437,10 @@ static const struct usb_device_id usb_qu
+ 	{ USB_DEVICE(0x1532, 0x0116), .driver_info =
+ 			USB_QUIRK_LINEAR_UFRAME_INTR_BINTERVAL },
  
- 	/* TODO reference counting. */
--	memset(&uvc->vdev, 0, sizeof(uvc->video));
-+	memset(&uvc->vdev, 0, sizeof(uvc->vdev));
- 	uvc->vdev.v4l2_dev = &uvc->v4l2_dev;
- 	uvc->vdev.v4l2_dev->dev = &cdev->gadget->dev;
- 	uvc->vdev.fops = &uvc_v4l2_fops;
++	/* Lenovo ThinkPad OneLink+ Dock twin hub controllers (VIA Labs VL812) */
++	{ USB_DEVICE(0x17ef, 0x1018), .driver_info = USB_QUIRK_RESET_RESUME },
++	{ USB_DEVICE(0x17ef, 0x1019), .driver_info = USB_QUIRK_RESET_RESUME },
++
+ 	/* Lenovo USB-C to Ethernet Adapter RTL8153-04 */
+ 	{ USB_DEVICE(0x17ef, 0x720c), .driver_info = USB_QUIRK_NO_LPM },
+ 
 
 
