@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D02760463D
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:03:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC692604756
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:37:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231458AbiJSNDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:03:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53578 "EHLO
+        id S232174AbiJSNhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:37:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231490AbiJSNDC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:03:02 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4601BFFFB0;
-        Wed, 19 Oct 2022 05:46:29 -0700 (PDT)
+        with ESMTP id S232126AbiJSNgj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:36:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 295AD18B4BF;
+        Wed, 19 Oct 2022 06:25:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CF224CE2166;
-        Wed, 19 Oct 2022 09:04:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C199EC433D6;
-        Wed, 19 Oct 2022 09:04:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3558EB82472;
+        Wed, 19 Oct 2022 09:04:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96D4EC433C1;
+        Wed, 19 Oct 2022 09:04:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170267;
-        bh=Abd8TtgViZsYRoO+q7ZGMnJJBXxq5ckWM858dKQWM9s=;
+        s=korg; t=1666170286;
+        bh=hp2uKnZxl95or/B7zQYyBfDUtgIF706uAcUo2gKA3mI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLG3n6M92XoH8R4lHRlqKp+1WUO9S/aH25AkN6hTIuzlsyqeYpHd/vKJxwIw+6uZy
-         /pFB6m4KVf92eie4VwfzeLvGxmjnYi4n7md1xlFKmyMDmAnozXcxWS+L4+64WE3bda
-         26sGHv6dl/G3AHthpB7mW57WQ9zFGJC3aMMUuvSs=
+        b=UrS/PB5hDDJ4wq3mK42h2SzyLQ3eWWn6fDu6RhvI7qPxtaS+bhpdjGLoANHmmgA9w
+         QGCvgHL0P8CXD04hulq8O9pQQgRHo7sDnGofDUY5l3uKLiGAyt7ita1TiYRop54OoY
+         /aMMcPJwT4FF4axc9aaE1h2A95IZPvSH4PjKWXyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Tianping Fang <tianping.fang@mediatek.com>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        "Ivan T. Ivanov" <iivanov@suse.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 589/862] usb: mtu3: fix failed runtime suspend in host only mode
-Date:   Wed, 19 Oct 2022 10:31:16 +0200
-Message-Id: <20221019083315.995498897@linuxfoundation.org>
+Subject: [PATCH 6.0 596/862] clk: bcm2835: fix bcm2835_clock_rate_from_divisor declaration
+Date:   Wed, 19 Oct 2022 10:31:23 +0200
+Message-Id: <20221019083316.304157786@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,53 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 1c703e29da5efac6180e4c189029fa34b7e48e97 ]
+[ Upstream commit 0b919a3728691c172312dee99ba654055ccd8c84 ]
 
-When the dr_mode is "host", after the host enter runtime suspend,
-the mtu3 can't do it, because the mtu3's device wakeup function is
-not enabled, instead it's enabled in gadget init function, to fix
-the issue, init wakeup early in mtu3's probe()
+The return value of bcm2835_clock_rate_from_divisor is always unsigned
+and also all caller expect this. So fix the declaration accordingly.
 
-Fixes: 6b587394c65c ("usb: mtu3: support suspend/resume for dual-role mode")
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reported-by: Tianping Fang <tianping.fang@mediatek.com>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/20220929064459.32522-1-chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 41691b8862e2 ("clk: bcm2835: Add support for programming the audio domain clocks")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Link: https://lore.kernel.org/r/20220904141037.38816-1-stefan.wahren@i2se.com
+Reviewed-by: Ivan T. Ivanov <iivanov@suse.de>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/mtu3/mtu3_core.c | 2 --
- drivers/usb/mtu3/mtu3_plat.c | 2 ++
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/bcm/clk-bcm2835.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/mtu3/mtu3_core.c b/drivers/usb/mtu3/mtu3_core.c
-index 0ca173af87bb..a3a6282893d0 100644
---- a/drivers/usb/mtu3/mtu3_core.c
-+++ b/drivers/usb/mtu3/mtu3_core.c
-@@ -978,8 +978,6 @@ int ssusb_gadget_init(struct ssusb_mtk *ssusb)
- 		goto irq_err;
- 	}
+diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+index 19de0e83b65d..f1102b4c7e88 100644
+--- a/drivers/clk/bcm/clk-bcm2835.c
++++ b/drivers/clk/bcm/clk-bcm2835.c
+@@ -966,9 +966,9 @@ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
+ 	return div;
+ }
  
--	device_init_wakeup(dev, true);
--
- 	/* power down device IP for power saving by default */
- 	mtu3_stop(mtu);
- 
-diff --git a/drivers/usb/mtu3/mtu3_plat.c b/drivers/usb/mtu3/mtu3_plat.c
-index 4cb65346789d..d78ae52b4e26 100644
---- a/drivers/usb/mtu3/mtu3_plat.c
-+++ b/drivers/usb/mtu3/mtu3_plat.c
-@@ -356,6 +356,8 @@ static int mtu3_probe(struct platform_device *pdev)
- 	pm_runtime_enable(dev);
- 	pm_runtime_get_sync(dev);
- 
-+	device_init_wakeup(dev, true);
-+
- 	ret = ssusb_rscs_init(ssusb);
- 	if (ret)
- 		goto comm_init_err;
+-static long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
+-					    unsigned long parent_rate,
+-					    u32 div)
++static unsigned long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
++						     unsigned long parent_rate,
++						     u32 div)
+ {
+ 	const struct bcm2835_clock_data *data = clock->data;
+ 	u64 temp;
 -- 
 2.35.1
 
