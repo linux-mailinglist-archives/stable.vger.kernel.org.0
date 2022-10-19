@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D249B603EDE
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:22:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5E21603DE4
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:07:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233327AbiJSJWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:22:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57632 "EHLO
+        id S232450AbiJSJHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:07:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230348AbiJSJUd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:20:33 -0400
+        with ESMTP id S232454AbiJSJGS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:06:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19DC91C41E;
-        Wed, 19 Oct 2022 02:09:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DE05CE2C;
+        Wed, 19 Oct 2022 01:59:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 563F96186E;
-        Wed, 19 Oct 2022 08:57:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 554EBC433D7;
-        Wed, 19 Oct 2022 08:57:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1C49617F0;
+        Wed, 19 Oct 2022 08:57:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECB20C433C1;
+        Wed, 19 Oct 2022 08:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169852;
-        bh=ydGjh0C3/rjhYKtzdIX5zVrzBYzbNRasu01fnkBC9AA=;
+        s=korg; t=1666169858;
+        bh=BBEZSL/kEaLKT0nn3CDJDaoaCe8MaFX+1kU7JZ+z9Ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJLc9EuUoJjcGqY3dACCxIjOFhgxcPi5LpGXdhgNDc/HvRbFLpxSNv4gOyLbNgDuo
-         LhLTS6m1tOMHXh2P7W/ajCLMKLoa3zNvVjBF6ksuwP4gk45mQEJ2XeOYxHcT+aQcmx
-         BNBs3zpTetdXcNiFUf0LyPOigVnn9dv+ARwENWCw=
+        b=O410CZe06OIXmwUzCDYg0VM2tlDDP1eCwhy6brQMXDxLOswsWhM4/bGokeQaDiwQK
+         5cYLhFy9JkXTDU8vhm+JR2uMTfppMA1yXCaUJMhHGs4MAm68XGCYB6jWBCnjadczQ6
+         /cs/+cpDfFfvKU08uKG0gksXNBfq9WwpHVSpYoJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 433/862] arm64: dts: qcom: sc7180-trogdor: Keep pm6150_adc enabled for TZ
-Date:   Wed, 19 Oct 2022 10:28:40 +0200
-Message-Id: <20221019083309.103905831@linuxfoundation.org>
+Subject: [PATCH 6.0 435/862] ARM: dts: kirkwood: lsxl: fix serial line
+Date:   Wed, 19 Oct 2022 10:28:42 +0200
+Message-Id: <20221019083309.196961234@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,56 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 144fbd028fdec2deeb3b99d5e60dbf3167950ebe ]
+[ Upstream commit 04eabc6ac10fda9424606d9a7ab6ab9a5d95350a ]
 
-There's still a thermal zone using pm6150_adc in the pm6150.dtsi file,
-pm6150_thermal. It's not super obvious because it indirectly uses the
-adc through an iio channel in pm6150_temp. Let's keep this enabled on
-lazor and coachz so that reading the temperature of the pm6150_thermal
-zone continues to work. Otherwise we get -EINVAL when reading the zone,
-and I suspect the PMIC temperature trip doesn't work properly so we
-don't shutdown when the PMIC overheats.
+Commit 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl
+settings") unknowingly broke the serial output on this board. Before
+this commit, the pinmux was still configured by the bootloader and the
+kernel didn't reconfigured it again. This was an oversight by the
+initial board support where the pinmux for the serial line was never
+configured by the kernel. But with this commit, the serial line will be
+reconfigured to the wrong pins. This is especially confusing, because
+the output still works, but the input doesn't. Presumingly, the input is
+reconfigured to MPP10, but the output is connected to both MPP11 and
+MPP5.
 
-Cc: Matthias Kaehlcke <mka@chromium.org>
-Fixes: b8d1e3d33487 ("arm64: dts: qcom: sc7180-trogdor: Delete ADC config for unused thermistors")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220827004901.511543-1-swboyd@chromium.org
+Override the pinmux in the board device tree.
+
+Fixes: 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl settings")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz-r1.dts | 2 --
- arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi    | 2 --
- 2 files changed, 4 deletions(-)
+ arch/arm/boot/dts/kirkwood-lsxl.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz-r1.dts b/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz-r1.dts
-index 8290d036044a..edfcd47e1a00 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz-r1.dts
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz-r1.dts
-@@ -24,8 +24,6 @@
- };
+diff --git a/arch/arm/boot/dts/kirkwood-lsxl.dtsi b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
+index 7b151acb9984..321a40a98ed2 100644
+--- a/arch/arm/boot/dts/kirkwood-lsxl.dtsi
++++ b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
+@@ -10,6 +10,11 @@
  
- &pm6150_adc {
--	status = "disabled";
--
- 	/delete-node/ skin-temp-thermistor@4e;
- 	/delete-node/ charger-thermistor@4f;
- };
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi
-index 2cf7d5212c61..002663d752da 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi
-@@ -55,8 +55,6 @@ ap_ts_pen_1v8: &i2c4 {
- };
- 
- &pm6150_adc {
--	status = "disabled";
--
- 	/delete-node/ charger-thermistor@4f;
- };
- 
+ 	ocp@f1000000 {
+ 		pinctrl: pin-controller@10000 {
++			/* Non-default UART pins */
++			pmx_uart0: pmx-uart0 {
++				marvell,pins = "mpp4", "mpp5";
++			};
++
+ 			pmx_power_hdd: pmx-power-hdd {
+ 				marvell,pins = "mpp10";
+ 				marvell,function = "gpo";
 -- 
 2.35.1
 
