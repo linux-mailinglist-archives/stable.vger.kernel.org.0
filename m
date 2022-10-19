@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49E36604233
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:56:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0970560427E
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:05:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234673AbiJSK4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:56:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49720 "EHLO
+        id S232949AbiJSLFV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:05:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234669AbiJSK4J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:56:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5AE1106E24;
-        Wed, 19 Oct 2022 03:27:27 -0700 (PDT)
+        with ESMTP id S234880AbiJSLEL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:04:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADB1914DF0B;
+        Wed, 19 Oct 2022 03:33:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49E51B8249F;
-        Wed, 19 Oct 2022 09:08:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72FB6C433D6;
-        Wed, 19 Oct 2022 09:08:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CE8E6187A;
+        Wed, 19 Oct 2022 09:06:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4F4AC433D6;
+        Wed, 19 Oct 2022 09:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170494;
-        bh=Xz/JYnNX+bv4d5sNBNrD5dHf4bfzzM5L7MEjHHLxJTw=;
+        s=korg; t=1666170412;
+        bh=VHFS+tnidvdu/bK8WD7Sf1hdnURQhrZG9a3fUJ2k0dc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bdo2h2kOyIwqT5X3ec7HmtT9zFHkpMZnleKyT7jkUiEJu+z43Xu2Yw/9oIKm0cO4i
-         cqmDXRVxRpIObpH/vtEywOX8ck4+DIwXKBeSWWO744mmGqsdZ+OvlYosLOaLNWeF9c
-         GSkFQTBQvQLKGonxEWHb+f0e9bk2gpud3Ux5nlJs=
+        b=tBHluHFFnEizbPAcmCVtVvFgxgp4GM5i4+UjOkbPIX+EGGWGNOCGiQxYvwjE7q0G+
+         xXbeTztZ0dmt0IPhKWQ3vraNzvwXqXV+7kkGTLECoc5P8No4i294qV539k1BAjgWK6
+         797FTz1uSf7UNI+g813l0QYG7RWPazmPaDF0rpME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-riscv@lists.infradead.org,
-        mingo@redhat.com, paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, zanussi@kernel.org, liaochang1@huawei.com,
-        chris.zjh@huawei.com, Yipeng Zou <zouyipeng@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        stable@vger.kernel.org, Song Liu <song@kernel.org>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 644/862] tracing: kprobe: Make gen test module work in arm and riscv
-Date:   Wed, 19 Oct 2022 10:32:11 +0200
-Message-Id: <20221019083318.377867133@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>
+Subject: [PATCH 6.0 646/862] ftrace: Fix recursive locking direct_mutex in ftrace_modify_direct_caller
+Date:   Wed, 19 Oct 2022 10:32:13 +0200
+Message-Id: <20221019083318.458903314@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -57,111 +54,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yipeng Zou <zouyipeng@huawei.com>
+From: Song Liu <song@kernel.org>
 
-[ Upstream commit d8ef45d66c01425ff748e13ef7dd1da7a91cc93c ]
+[ Upstream commit 9d2ce78ddcee159eb6a97449e9c68b6d60b9cec4 ]
 
-For now, this selftest module can only work in x86 because of the
-kprobe cmd was fixed use of x86 registers.
-This patch adapted to register names under arm and riscv, So that
-this module can be worked on those platform.
+Naveen reported recursive locking of direct_mutex with sample
+ftrace-direct-modify.ko:
 
-Link: https://lkml.kernel.org/r/20220919125629.238242-3-zouyipeng@huawei.com
+[   74.762406] WARNING: possible recursive locking detected
+[   74.762887] 6.0.0-rc6+ #33 Not tainted
+[   74.763216] --------------------------------------------
+[   74.763672] event-sample-fn/1084 is trying to acquire lock:
+[   74.764152] ffffffff86c9d6b0 (direct_mutex){+.+.}-{3:3}, at: \
+    register_ftrace_function+0x1f/0x180
+[   74.764922]
+[   74.764922] but task is already holding lock:
+[   74.765421] ffffffff86c9d6b0 (direct_mutex){+.+.}-{3:3}, at: \
+    modify_ftrace_direct+0x34/0x1f0
+[   74.766142]
+[   74.766142] other info that might help us debug this:
+[   74.766701]  Possible unsafe locking scenario:
+[   74.766701]
+[   74.767216]        CPU0
+[   74.767437]        ----
+[   74.767656]   lock(direct_mutex);
+[   74.767952]   lock(direct_mutex);
+[   74.768245]
+[   74.768245]  *** DEADLOCK ***
+[   74.768245]
+[   74.768750]  May be due to missing lock nesting notation
+[   74.768750]
+[   74.769332] 1 lock held by event-sample-fn/1084:
+[   74.769731]  #0: ffffffff86c9d6b0 (direct_mutex){+.+.}-{3:3}, at: \
+    modify_ftrace_direct+0x34/0x1f0
+[   74.770496]
+[   74.770496] stack backtrace:
+[   74.770884] CPU: 4 PID: 1084 Comm: event-sample-fn Not tainted ...
+[   74.771498] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), ...
+[   74.772474] Call Trace:
+[   74.772696]  <TASK>
+[   74.772896]  dump_stack_lvl+0x44/0x5b
+[   74.773223]  __lock_acquire.cold.74+0xac/0x2b7
+[   74.773616]  lock_acquire+0xd2/0x310
+[   74.773936]  ? register_ftrace_function+0x1f/0x180
+[   74.774357]  ? lock_is_held_type+0xd8/0x130
+[   74.774744]  ? my_tramp2+0x11/0x11 [ftrace_direct_modify]
+[   74.775213]  __mutex_lock+0x99/0x1010
+[   74.775536]  ? register_ftrace_function+0x1f/0x180
+[   74.775954]  ? slab_free_freelist_hook.isra.43+0x115/0x160
+[   74.776424]  ? ftrace_set_hash+0x195/0x220
+[   74.776779]  ? register_ftrace_function+0x1f/0x180
+[   74.777194]  ? kfree+0x3e1/0x440
+[   74.777482]  ? my_tramp2+0x11/0x11 [ftrace_direct_modify]
+[   74.777941]  ? __schedule+0xb40/0xb40
+[   74.778258]  ? register_ftrace_function+0x1f/0x180
+[   74.778672]  ? my_tramp1+0xf/0xf [ftrace_direct_modify]
+[   74.779128]  register_ftrace_function+0x1f/0x180
+[   74.779527]  ? ftrace_set_filter_ip+0x33/0x70
+[   74.779910]  ? __schedule+0xb40/0xb40
+[   74.780231]  ? my_tramp1+0xf/0xf [ftrace_direct_modify]
+[   74.780678]  ? my_tramp2+0x11/0x11 [ftrace_direct_modify]
+[   74.781147]  ftrace_modify_direct_caller+0x5b/0x90
+[   74.781563]  ? 0xffffffffa0201000
+[   74.781859]  ? my_tramp1+0xf/0xf [ftrace_direct_modify]
+[   74.782309]  modify_ftrace_direct+0x1b2/0x1f0
+[   74.782690]  ? __schedule+0xb40/0xb40
+[   74.783014]  ? simple_thread+0x2a/0xb0 [ftrace_direct_modify]
+[   74.783508]  ? __schedule+0xb40/0xb40
+[   74.783832]  ? my_tramp2+0x11/0x11 [ftrace_direct_modify]
+[   74.784294]  simple_thread+0x76/0xb0 [ftrace_direct_modify]
+[   74.784766]  kthread+0xf5/0x120
+[   74.785052]  ? kthread_complete_and_exit+0x20/0x20
+[   74.785464]  ret_from_fork+0x22/0x30
+[   74.785781]  </TASK>
 
-Cc: <linux-riscv@lists.infradead.org>
-Cc: <mingo@redhat.com>
-Cc: <paul.walmsley@sifive.com>
-Cc: <palmer@dabbelt.com>
-Cc: <aou@eecs.berkeley.edu>
-Cc: <zanussi@kernel.org>
-Cc: <liaochang1@huawei.com>
-Cc: <chris.zjh@huawei.com>
-Fixes: 64836248dda2 ("tracing: Add kprobe event command generation test module")
-Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Fix this by using register_ftrace_function_nolock in
+ftrace_modify_direct_caller.
+
+Link: https://lkml.kernel.org/r/20220927004146.1215303-1-song@kernel.org
+
+Fixes: 53cd885bc5c3 ("ftrace: Allow IPMODIFY and DIRECT ops on the same function")
+Reported-and-tested-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/kprobe_event_gen_test.c | 47 +++++++++++++++++++++++++---
- 1 file changed, 43 insertions(+), 4 deletions(-)
+ kernel/trace/ftrace.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/trace/kprobe_event_gen_test.c b/kernel/trace/kprobe_event_gen_test.c
-index e023154be0f8..80e04a1e1977 100644
---- a/kernel/trace/kprobe_event_gen_test.c
-+++ b/kernel/trace/kprobe_event_gen_test.c
-@@ -35,6 +35,45 @@
- static struct trace_event_file *gen_kprobe_test;
- static struct trace_event_file *gen_kretprobe_test;
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 2edda4962367..83362a155791 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -5439,6 +5439,8 @@ static struct ftrace_ops stub_ops = {
+  * it is safe to modify the ftrace record, where it should be
+  * currently calling @old_addr directly, to call @new_addr.
+  *
++ * This is called with direct_mutex locked.
++ *
+  * Safety checks should be made to make sure that the code at
+  * @rec->ip is currently calling @old_addr. And this must
+  * also update entry->direct to @new_addr.
+@@ -5451,6 +5453,8 @@ int __weak ftrace_modify_direct_caller(struct ftrace_func_entry *entry,
+ 	unsigned long ip = rec->ip;
+ 	int ret;
  
-+#define KPROBE_GEN_TEST_FUNC	"do_sys_open"
++	lockdep_assert_held(&direct_mutex);
 +
-+/* X86 */
-+#if defined(CONFIG_X86_64) || defined(CONFIG_X86_32)
-+#define KPROBE_GEN_TEST_ARG0	"dfd=%ax"
-+#define KPROBE_GEN_TEST_ARG1	"filename=%dx"
-+#define KPROBE_GEN_TEST_ARG2	"flags=%cx"
-+#define KPROBE_GEN_TEST_ARG3	"mode=+4($stack)"
-+
-+/* ARM64 */
-+#elif defined(CONFIG_ARM64)
-+#define KPROBE_GEN_TEST_ARG0	"dfd=%x0"
-+#define KPROBE_GEN_TEST_ARG1	"filename=%x1"
-+#define KPROBE_GEN_TEST_ARG2	"flags=%x2"
-+#define KPROBE_GEN_TEST_ARG3	"mode=%x3"
-+
-+/* ARM */
-+#elif defined(CONFIG_ARM)
-+#define KPROBE_GEN_TEST_ARG0	"dfd=%r0"
-+#define KPROBE_GEN_TEST_ARG1	"filename=%r1"
-+#define KPROBE_GEN_TEST_ARG2	"flags=%r2"
-+#define KPROBE_GEN_TEST_ARG3	"mode=%r3"
-+
-+/* RISCV */
-+#elif defined(CONFIG_RISCV)
-+#define KPROBE_GEN_TEST_ARG0	"dfd=%a0"
-+#define KPROBE_GEN_TEST_ARG1	"filename=%a1"
-+#define KPROBE_GEN_TEST_ARG2	"flags=%a2"
-+#define KPROBE_GEN_TEST_ARG3	"mode=%a3"
-+
-+/* others */
-+#else
-+#define KPROBE_GEN_TEST_ARG0	NULL
-+#define KPROBE_GEN_TEST_ARG1	NULL
-+#define KPROBE_GEN_TEST_ARG2	NULL
-+#define KPROBE_GEN_TEST_ARG3	NULL
-+#endif
-+
-+
- /*
-  * Test to make sure we can create a kprobe event, then add more
-  * fields.
-@@ -58,14 +97,14 @@ static int __init test_gen_kprobe_cmd(void)
- 	 * fields.
- 	 */
- 	ret = kprobe_event_gen_cmd_start(&cmd, "gen_kprobe_test",
--					 "do_sys_open",
--					 "dfd=%ax", "filename=%dx");
-+					 KPROBE_GEN_TEST_FUNC,
-+					 KPROBE_GEN_TEST_ARG0, KPROBE_GEN_TEST_ARG1);
+ 	/*
+ 	 * The ftrace_lock was used to determine if the record
+ 	 * had more than one registered user to it. If it did,
+@@ -5473,7 +5477,7 @@ int __weak ftrace_modify_direct_caller(struct ftrace_func_entry *entry,
  	if (ret)
- 		goto free;
+ 		goto out_lock;
  
- 	/* Use kprobe_event_add_fields to add the rest of the fields */
- 
--	ret = kprobe_event_add_fields(&cmd, "flags=%cx", "mode=+4($stack)");
-+	ret = kprobe_event_add_fields(&cmd, KPROBE_GEN_TEST_ARG2, KPROBE_GEN_TEST_ARG3);
- 	if (ret)
- 		goto free;
- 
-@@ -128,7 +167,7 @@ static int __init test_gen_kretprobe_cmd(void)
- 	 * Define the kretprobe event.
- 	 */
- 	ret = kretprobe_event_gen_cmd_start(&cmd, "gen_kretprobe_test",
--					    "do_sys_open",
-+					    KPROBE_GEN_TEST_FUNC,
- 					    "$retval");
- 	if (ret)
- 		goto free;
+-	ret = register_ftrace_function(&stub_ops);
++	ret = register_ftrace_function_nolock(&stub_ops);
+ 	if (ret) {
+ 		ftrace_set_filter_ip(&stub_ops, ip, 1, 0);
+ 		goto out_lock;
 -- 
 2.35.1
 
