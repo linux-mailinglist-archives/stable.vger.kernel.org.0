@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33FE0603F3A
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C81D603F5D
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231578AbiJSJaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:30:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47868 "EHLO
+        id S233612AbiJSJbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:31:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233558AbiJSJ1k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:27:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFCA2E8C62;
-        Wed, 19 Oct 2022 02:12:35 -0700 (PDT)
+        with ESMTP id S233668AbiJSJ3A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC26E5EEE;
+        Wed, 19 Oct 2022 02:12:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED8E261866;
-        Wed, 19 Oct 2022 09:12:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F002C4314D;
-        Wed, 19 Oct 2022 09:12:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76AA5617DE;
+        Wed, 19 Oct 2022 09:12:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F98DC433C1;
+        Wed, 19 Oct 2022 09:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170735;
-        bh=N4wF+6kGYuK5CrjAuFfYgXmfcNsLOqTRoXjZk208taQ=;
+        s=korg; t=1666170737;
+        bh=4ee12yKSQ/35Nz7CmDVqwURep8FFoi1o/s/f03kHQTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L1foq1xk44heBTDK/gigTDPXOFAAMrXpDWWWsHfwoG+Lpr+UvFjymjCTGM11x1ji4
-         ePISaftWb8jz2b+hCs3+mKNNUloGMHM830lRJzUeoO5GqpTGVoyVAOQm7Qn6kgd8d0
-         r9DJ5wZ6Mnjk9i1GPzoLm3YpUb01an3yYs/woJpE=
+        b=EGhcvJ0OwZCgZYNiFQHgx5GT9ALZK7kuASmNX3U2vH1gPseSqCar7NVqV6spSWHyr
+         P7WG7OUC3d0T3badxkv8rnbd7Bp/kmD0pZDtmZyZ+3uo7JMJLUIV/kK0MW5bOlSaZh
+         RK5iG5H/czclMRSyPESlm5g3Yc7+dAWHb7CGpi2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ellis Michael <ellis@ellismichael.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Graham Sider <Graham.Sider@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 767/862] drm/amdkfd: Fix UBSAN shift-out-of-bounds warning
-Date:   Wed, 19 Oct 2022 10:34:14 +0200
-Message-Id: <20221019083323.814976471@linuxfoundation.org>
+Subject: [PATCH 6.0 768/862] ARM: dts: imx6: delete interrupts property if interrupts-extended is set
+Date:   Wed, 19 Oct 2022 10:34:15 +0200
+Message-Id: <20221019083323.859587766@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,104 +54,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit b292cafe2dd02d96a07147e4b160927e8399d5cc ]
+[ Upstream commit c9d38ff7080b2c4fa6786b82210fa13115895aae ]
 
-This was fixed in initialize_cpsch before, but not in initialize_nocpsch.
-Factor sdma bitmap initialization into a helper function to apply the
-correct implementation in both cases without duplicating it.
+In most cases this is related to fsl,err006687-workaround-present, which
+requires a GPIO interrupt next a GIC interrupt.
 
-v2: Added a range check
+This fixes the dtbs_check warning:
+imx6dl-mba6a.dtb: ethernet@2188000: More than one condition true in oneOf schema:
+        {'$filename': 'Documentation/devicetree/bindings/net/fsl,fec.yaml',
+[...]
 
-Reported-by: Ellis Michael <ellis@ellismichael.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Graham Sider <Graham.Sider@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/amdkfd/kfd_device_queue_manager.c | 45 +++++++++----------
- 1 file changed, 21 insertions(+), 24 deletions(-)
+ arch/arm/boot/dts/imx6dl-riotboard.dts        | 1 +
+ arch/arm/boot/dts/imx6q-arm2.dts              | 1 +
+ arch/arm/boot/dts/imx6q-evi.dts               | 1 +
+ arch/arm/boot/dts/imx6q-mccmon6.dts           | 1 +
+ arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi      | 1 +
+ arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi  | 1 +
+ arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi | 1 +
+ arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi     | 1 +
+ arch/arm/boot/dts/imx6qdl-sabreauto.dtsi      | 1 +
+ arch/arm/boot/dts/imx6qdl-tqma6a.dtsi         | 1 +
+ arch/arm/boot/dts/imx6qdl-ts7970.dtsi         | 1 +
+ 11 files changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-index 007a3db69df1..ecb4c3abc629 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-@@ -1242,6 +1242,24 @@ static void init_interrupts(struct device_queue_manager *dqm)
- 			dqm->dev->kfd2kgd->init_interrupts(dqm->dev->adev, i);
- }
+diff --git a/arch/arm/boot/dts/imx6dl-riotboard.dts b/arch/arm/boot/dts/imx6dl-riotboard.dts
+index e7d9bfbfd0e4..e7be05f205d3 100644
+--- a/arch/arm/boot/dts/imx6dl-riotboard.dts
++++ b/arch/arm/boot/dts/imx6dl-riotboard.dts
+@@ -90,6 +90,7 @@
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii-id";
+ 	phy-handle = <&rgmii_phy>;
++	/delete-property/ interrupts;
+ 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
+ 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	fsl,err006687-workaround-present;
+diff --git a/arch/arm/boot/dts/imx6q-arm2.dts b/arch/arm/boot/dts/imx6q-arm2.dts
+index 0b40f52268b3..75586299d9ca 100644
+--- a/arch/arm/boot/dts/imx6q-arm2.dts
++++ b/arch/arm/boot/dts/imx6q-arm2.dts
+@@ -178,6 +178,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii";
++	/delete-property/ interrupts;
+ 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
+ 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	fsl,err006687-workaround-present;
+diff --git a/arch/arm/boot/dts/imx6q-evi.dts b/arch/arm/boot/dts/imx6q-evi.dts
+index c63f371ede8b..78d941fef5df 100644
+--- a/arch/arm/boot/dts/imx6q-evi.dts
++++ b/arch/arm/boot/dts/imx6q-evi.dts
+@@ -146,6 +146,7 @@
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii";
+ 	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
++	/delete-property/ interrupts;
+ 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
+ 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	fsl,err006687-workaround-present;
+diff --git a/arch/arm/boot/dts/imx6q-mccmon6.dts b/arch/arm/boot/dts/imx6q-mccmon6.dts
+index 55692c73943d..64ab01018b71 100644
+--- a/arch/arm/boot/dts/imx6q-mccmon6.dts
++++ b/arch/arm/boot/dts/imx6q-mccmon6.dts
+@@ -100,6 +100,7 @@
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii";
+ 	phy-reset-gpios = <&gpio1 27 GPIO_ACTIVE_LOW>;
++	/delete-property/ interrupts;
+ 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
+ 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	status = "okay";
+diff --git a/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi b/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
+index 0ad4cb4f1e82..a53a5d0766a5 100644
+--- a/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
+@@ -192,6 +192,7 @@
+ 	phy-mode = "rgmii";
+ 	phy-handle = <&ethphy>;
+ 	phy-reset-gpios = <&gpio1 27 GPIO_ACTIVE_LOW>;
++	/delete-property/ interrupts;
+ 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
+ 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	fsl,err006687-workaround-present;
+diff --git a/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi b/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
+index beaa2dcd436c..57c21a01f126 100644
+--- a/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
+@@ -334,6 +334,7 @@
+ 	phy-mode = "rgmii";
+ 	phy-handle = <&ethphy>;
+ 	phy-reset-gpios = <&gpio1 27 GPIO_ACTIVE_LOW>;
++	/delete-property/ interrupts;
+ 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
+ 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	fsl,err006687-workaround-present;
+diff --git a/arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi b/arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi
+index ee7e2371f94b..000e9dc97b1a 100644
+--- a/arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi
+@@ -263,6 +263,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii";
++	/delete-property/ interrupts;
+ 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
+ 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	fsl,err006687-workaround-present;
+diff --git a/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi b/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
+index 904d5d051d63..731759bdd7f5 100644
+--- a/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
+@@ -267,6 +267,7 @@
+ 	phy-mode = "rgmii";
+ 	phy-handle = <&ethphy>;
+ 	phy-reset-gpios = <&gpio1 27 GPIO_ACTIVE_LOW>;
++	/delete-property/ interrupts;
+ 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
+ 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	fsl,err006687-workaround-present;
+diff --git a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
+index 1368a4762037..3dbb460ef102 100644
+--- a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
+@@ -295,6 +295,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii-id";
++	/delete-property/ interrupts;
+ 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
+ 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	fsl,err006687-workaround-present;
+diff --git a/arch/arm/boot/dts/imx6qdl-tqma6a.dtsi b/arch/arm/boot/dts/imx6qdl-tqma6a.dtsi
+index 7dc3f0005b0f..0a36e1bce375 100644
+--- a/arch/arm/boot/dts/imx6qdl-tqma6a.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-tqma6a.dtsi
+@@ -7,6 +7,7 @@
+ #include <dt-bindings/gpio/gpio.h>
  
-+static void init_sdma_bitmaps(struct device_queue_manager *dqm)
-+{
-+	unsigned int num_sdma_queues =
-+		min_t(unsigned int, sizeof(dqm->sdma_bitmap)*8,
-+		      get_num_sdma_queues(dqm));
-+	unsigned int num_xgmi_sdma_queues =
-+		min_t(unsigned int, sizeof(dqm->xgmi_sdma_bitmap)*8,
-+		      get_num_xgmi_sdma_queues(dqm));
-+
-+	if (num_sdma_queues)
-+		dqm->sdma_bitmap = GENMASK_ULL(num_sdma_queues-1, 0);
-+	if (num_xgmi_sdma_queues)
-+		dqm->xgmi_sdma_bitmap = GENMASK_ULL(num_xgmi_sdma_queues-1, 0);
-+
-+	dqm->sdma_bitmap &= ~get_reserved_sdma_queues_bitmap(dqm);
-+	pr_info("sdma_bitmap: %llx\n", dqm->sdma_bitmap);
-+}
-+
- static int initialize_nocpsch(struct device_queue_manager *dqm)
- {
- 	int pipe, queue;
-@@ -1270,11 +1288,7 @@ static int initialize_nocpsch(struct device_queue_manager *dqm)
- 
- 	memset(dqm->vmid_pasid, 0, sizeof(dqm->vmid_pasid));
- 
--	dqm->sdma_bitmap = ~0ULL >> (64 - get_num_sdma_queues(dqm));
--	dqm->sdma_bitmap &= ~(get_reserved_sdma_queues_bitmap(dqm));
--	pr_info("sdma_bitmap: %llx\n", dqm->sdma_bitmap);
--
--	dqm->xgmi_sdma_bitmap = ~0ULL >> (64 - get_num_xgmi_sdma_queues(dqm));
-+	init_sdma_bitmaps(dqm);
- 
- 	return 0;
- }
-@@ -1452,9 +1466,6 @@ static int set_sched_resources(struct device_queue_manager *dqm)
- 
- static int initialize_cpsch(struct device_queue_manager *dqm)
- {
--	uint64_t num_sdma_queues;
--	uint64_t num_xgmi_sdma_queues;
--
- 	pr_debug("num of pipes: %d\n", get_pipes_per_mec(dqm));
- 
- 	mutex_init(&dqm->lock_hidden);
-@@ -1463,24 +1474,10 @@ static int initialize_cpsch(struct device_queue_manager *dqm)
- 	dqm->active_cp_queue_count = 0;
- 	dqm->gws_queue_count = 0;
- 	dqm->active_runlist = false;
--
--	num_sdma_queues = get_num_sdma_queues(dqm);
--	if (num_sdma_queues >= BITS_PER_TYPE(dqm->sdma_bitmap))
--		dqm->sdma_bitmap = ULLONG_MAX;
--	else
--		dqm->sdma_bitmap = (BIT_ULL(num_sdma_queues) - 1);
--
--	dqm->sdma_bitmap &= ~(get_reserved_sdma_queues_bitmap(dqm));
--	pr_info("sdma_bitmap: %llx\n", dqm->sdma_bitmap);
--
--	num_xgmi_sdma_queues = get_num_xgmi_sdma_queues(dqm);
--	if (num_xgmi_sdma_queues >= BITS_PER_TYPE(dqm->xgmi_sdma_bitmap))
--		dqm->xgmi_sdma_bitmap = ULLONG_MAX;
--	else
--		dqm->xgmi_sdma_bitmap = (BIT_ULL(num_xgmi_sdma_queues) - 1);
--
- 	INIT_WORK(&dqm->hw_exception_work, kfd_process_hw_exception);
- 
-+	init_sdma_bitmaps(dqm);
-+
- 	return 0;
- }
- 
+ &fec {
++	/delete-property/ interrupts;
+ 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
+ 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	fsl,err006687-workaround-present;
+diff --git a/arch/arm/boot/dts/imx6qdl-ts7970.dtsi b/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
+index d6ba4b2a60f6..c096d25a6f5b 100644
+--- a/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
+@@ -192,6 +192,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii";
++	/delete-property/ interrupts;
+ 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
+ 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	fsl,err006687-workaround-present;
 -- 
 2.35.1
 
