@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E5BE603C28
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:44:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3249603C33
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:44:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230447AbiJSIo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:44:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43114 "EHLO
+        id S231222AbiJSIok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:44:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231184AbiJSInN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:43:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7F3B1743B;
-        Wed, 19 Oct 2022 01:40:21 -0700 (PDT)
+        with ESMTP id S231229AbiJSInl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:43:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6922457BE4;
+        Wed, 19 Oct 2022 01:41:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B87F617E3;
-        Wed, 19 Oct 2022 08:40:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B36FC4347C;
-        Wed, 19 Oct 2022 08:40:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19EFC617E2;
+        Wed, 19 Oct 2022 08:40:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24831C433C1;
+        Wed, 19 Oct 2022 08:40:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168814;
-        bh=0xP8NJZRqFkAmh8Wb9Hjt2svBmJ+r6ZSDULnSavJM7Y=;
+        s=korg; t=1666168817;
+        bh=u8jCsQTg+AUQ8MfWiYmhRVCIrhrvAtAfKvtbHgYSGJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YG+gze757dmKqYlgI0Dcvt4po/t3Y0Yt60x6FPY2d3h02611s48j5uHJY5yzs5AYD
-         0BfT7Aj+riL/+Dubyi3gD3bZBKbPRWBgiyCqqcWIPLjLrQa2kp/kQKi2XGylEjJTbL
-         7Vsz8P9PdhPO6fSgSyhmDcUlJdhlnQ0onykd6tfI=
+        b=HShpK+/JSNjThVg8MQG+4fpzS29Z0ItC2FWH4UQveGLRSx+BkSzOrbpK6Dacnbczi
+         4MZJ7OGgqaydxGk48agOSprhTSwDJNso2WvqXORJWYxoHwLErPNawFQDvuWMfsnKSn
+         pcsgU+G2fdTl11UU8unXMEcdTZYdS2/VlqyVNzSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jisheng Zhang <jszhang@kernel.org>,
+        stable@vger.kernel.org, Atish Patra <atishp@rivosinc.com>,
+        Andrew Bresticker <abrestic@rivosinc.com>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.0 061/862] riscv: vdso: fix NULL deference in vdso_join_timens() when vfork
-Date:   Wed, 19 Oct 2022 10:22:28 +0200
-Message-Id: <20221019083252.656779179@linuxfoundation.org>
+Subject: [PATCH 6.0 062/862] riscv: Allow PROT_WRITE-only mmap()
+Date:   Wed, 19 Oct 2022 10:22:29 +0200
+Message-Id: <20221019083252.695471466@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,112 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Andrew Bresticker <abrestic@rivosinc.com>
 
-commit a8616d2dc193b6becc36b5f3cfeaa9ac7a5762f9 upstream.
+commit 9e2e6042a7ec6504fe8e366717afa2f40cf16488 upstream.
 
-Testing tools/testing/selftests/timens/vfork_exec.c got below
-kernel log:
+Commit 2139619bcad7 ("riscv: mmap with PROT_WRITE but no PROT_READ is
+invalid") made mmap() return EINVAL if PROT_WRITE was set wihtout
+PROT_READ with the justification that a write-only PTE is considered a
+reserved PTE permission bit pattern in the privileged spec. This check
+is unnecessary since we let VM_WRITE imply VM_READ on RISC-V, and it is
+inconsistent with other architectures that don't support write-only PTEs,
+creating a potential software portability issue. Just remove the check
+altogether and let PROT_WRITE imply PROT_READ as is the case on other
+architectures.
 
-[    6.838454] Unable to handle kernel access to user memory without uaccess routines at virtual address 0000000000000020
-[    6.842255] Oops [#1]
-[    6.842871] Modules linked in:
-[    6.844249] CPU: 1 PID: 64 Comm: vfork_exec Not tainted 6.0.0-rc3-rt15+ #8
-[    6.845861] Hardware name: riscv-virtio,qemu (DT)
-[    6.848009] epc : vdso_join_timens+0xd2/0x110
-[    6.850097]  ra : vdso_join_timens+0xd2/0x110
-[    6.851164] epc : ffffffff8000635c ra : ffffffff8000635c sp : ff6000000181fbf0
-[    6.852562]  gp : ffffffff80cff648 tp : ff60000000fdb700 t0 : 3030303030303030
-[    6.853852]  t1 : 0000000000000030 t2 : 3030303030303030 s0 : ff6000000181fc40
-[    6.854984]  s1 : ff60000001e6c000 a0 : 0000000000000010 a1 : ffffffff8005654c
-[    6.856221]  a2 : 00000000ffffefff a3 : 0000000000000000 a4 : 0000000000000000
-[    6.858114]  a5 : 0000000000000000 a6 : 0000000000000008 a7 : 0000000000000038
-[    6.859484]  s2 : ff60000001e6c068 s3 : ff6000000108abb0 s4 : 0000000000000000
-[    6.860751]  s5 : 0000000000001000 s6 : ffffffff8089dc40 s7 : ffffffff8089dc38
-[    6.862029]  s8 : ffffffff8089dc30 s9 : ff60000000fdbe38 s10: 000000000000005e
-[    6.863304]  s11: ffffffff80cc3510 t3 : ffffffff80d1112f t4 : ffffffff80d1112f
-[    6.864565]  t5 : ffffffff80d11130 t6 : ff6000000181fa00
-[    6.865561] status: 0000000000000120 badaddr: 0000000000000020 cause: 000000000000000d
-[    6.868046] [<ffffffff8008dc94>] timens_commit+0x38/0x11a
-[    6.869089] [<ffffffff8008dde8>] timens_on_fork+0x72/0xb4
-[    6.870055] [<ffffffff80190096>] begin_new_exec+0x3c6/0x9f0
-[    6.871231] [<ffffffff801d826c>] load_elf_binary+0x628/0x1214
-[    6.872304] [<ffffffff8018ee7a>] bprm_execve+0x1f2/0x4e4
-[    6.873243] [<ffffffff8018f90c>] do_execveat_common+0x16e/0x1ee
-[    6.874258] [<ffffffff8018f9c8>] sys_execve+0x3c/0x48
-[    6.875162] [<ffffffff80003556>] ret_from_syscall+0x0/0x2
-[    6.877484] ---[ end trace 0000000000000000 ]---
+Note that this also allows PROT_WRITE|PROT_EXEC mappings which were
+disallowed prior to the aforementioned commit; PROT_READ is implied in
+such mappings as well.
 
-This is because the mm->context.vdso_info is NULL in vfork case. From
-another side, mm->context.vdso_info either points to vdso info
-for RV64 or vdso info for compat, there's no need to bloat riscv's
-mm_context_t, we can handle the difference when setup the additional
-page for vdso.
-
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Suggested-by: Palmer Dabbelt <palmer@rivosinc.com>
-Fixes: 3092eb456375 ("riscv: compat: vdso: Add setup additional pages implementation")
-Link: https://lore.kernel.org/r/20220924070737.3048-1-jszhang@kernel.org
+Fixes: 2139619bcad7 ("riscv: mmap with PROT_WRITE but no PROT_READ is invalid")
+Reviewed-by: Atish Patra <atishp@rivosinc.com>
+Signed-off-by: Andrew Bresticker <abrestic@rivosinc.com>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220915193702.2201018-3-abrestic@rivosinc.com/
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/mmu.h |    1 -
- arch/riscv/kernel/vdso.c     |   13 ++++++++++---
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ arch/riscv/kernel/sys_riscv.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/riscv/include/asm/mmu.h
-+++ b/arch/riscv/include/asm/mmu.h
-@@ -16,7 +16,6 @@ typedef struct {
- 	atomic_long_t id;
- #endif
- 	void *vdso;
--	void *vdso_info;
- #ifdef CONFIG_SMP
- 	/* A local icache flush is needed before user execution can resume. */
- 	cpumask_t icache_stale_mask;
---- a/arch/riscv/kernel/vdso.c
-+++ b/arch/riscv/kernel/vdso.c
-@@ -60,6 +60,11 @@ struct __vdso_info {
- 	struct vm_special_mapping *cm;
- };
+--- a/arch/riscv/kernel/sys_riscv.c
++++ b/arch/riscv/kernel/sys_riscv.c
+@@ -18,9 +18,6 @@ static long riscv_sys_mmap(unsigned long
+ 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
+ 		return -EINVAL;
  
-+static struct __vdso_info vdso_info;
-+#ifdef CONFIG_COMPAT
-+static struct __vdso_info compat_vdso_info;
-+#endif
-+
- static int vdso_mremap(const struct vm_special_mapping *sm,
- 		       struct vm_area_struct *new_vma)
- {
-@@ -114,15 +119,18 @@ int vdso_join_timens(struct task_struct
- {
- 	struct mm_struct *mm = task->mm;
- 	struct vm_area_struct *vma;
--	struct __vdso_info *vdso_info = mm->context.vdso_info;
- 
- 	mmap_read_lock(mm);
- 
- 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
- 		unsigned long size = vma->vm_end - vma->vm_start;
- 
--		if (vma_is_special_mapping(vma, vdso_info->dm))
-+		if (vma_is_special_mapping(vma, vdso_info.dm))
- 			zap_page_range(vma, vma->vm_start, size);
-+#ifdef CONFIG_COMPAT
-+		if (vma_is_special_mapping(vma, compat_vdso_info.dm))
-+			zap_page_range(vma, vma->vm_start, size);
-+#endif
- 	}
- 
- 	mmap_read_unlock(mm);
-@@ -264,7 +272,6 @@ static int __setup_additional_pages(stru
- 
- 	vdso_base += VVAR_SIZE;
- 	mm->context.vdso = (void *)vdso_base;
--	mm->context.vdso_info = (void *)vdso_info;
- 
- 	ret =
- 	   _install_special_mapping(mm, vdso_base, vdso_text_len,
+-	if (unlikely((prot & PROT_WRITE) && !(prot & PROT_READ)))
+-		return -EINVAL;
+-
+ 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
+ 			       offset >> (PAGE_SHIFT - page_shift_offset));
+ }
 
 
