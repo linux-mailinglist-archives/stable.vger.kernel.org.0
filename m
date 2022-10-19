@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 771C1604618
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:58:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28B3C604839
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:52:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231382AbiJSM6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 08:58:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35360 "EHLO
+        id S233731AbiJSNwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:52:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231417AbiJSM6L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:58:11 -0400
+        with ESMTP id S233729AbiJSNwG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:52:06 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD48F2408F;
-        Wed, 19 Oct 2022 05:41:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F147C106E00;
+        Wed, 19 Oct 2022 06:35:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 57213CE2167;
-        Wed, 19 Oct 2022 09:15:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D9EEC433D7;
-        Wed, 19 Oct 2022 09:15:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DB2C0CE2179;
+        Wed, 19 Oct 2022 09:16:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC9B4C4314D;
+        Wed, 19 Oct 2022 09:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170943;
-        bh=2fdLn/QEe5cJvzhuHn+H7MqMQb9Zx1z0xrlir9w8xYE=;
+        s=korg; t=1666170962;
+        bh=1IB80J7gN/8BTd5cQPn7K1RP9SCIs8k6JUiLfMEL1mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uOJjkhEX59WzL8hd+xffoA+Se9tUJOE5uHto+l8krl/umeOCjamRgHAFbunhR/wQx
-         hQOWWhpJzXZGFK3cRUztp704LwHjcg0e0nQYkXFelMNqc/XPSljR/1KdeadRskIzr+
-         k4psaQzFUMk0oNl0jntJMFZIr9yZfDLNIV52uqb8=
+        b=ubxDk+eBo/DlwGCslvszr9BRIX3QJye3+NRKSkbDsgU/4w4rl/2FH/JwDdYjleDAY
+         JYFi+TcU5ia+WmhE4Cl/tsbpyjUjvmBAXsUAmjFlvDTqYBrdkMkvwO8lyUXk49jhgy
+         JljiVRyixac+N8RpPIkVRcLpvReteqAlLzn4FW9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Guo <guoweibin@inspur.com>,
+        stable@vger.kernel.org, Piyush Mehta <piyush.mehta@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 818/862] usb: musb: Fix musb_gadget.c rxstate overflow bug
-Date:   Wed, 19 Oct 2022 10:35:05 +0200
-Message-Id: <20221019083326.051998588@linuxfoundation.org>
+Subject: [PATCH 6.0 821/862] usb: dwc3: core: Enable GUCTL1 bit 10 for fixing termination error after resume bug
+Date:   Wed, 19 Oct 2022 10:35:08 +0200
+Message-Id: <20221019083326.186968148@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,40 +52,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Guo <guoweibin@inspur.com>
+From: Piyush Mehta <piyush.mehta@amd.com>
 
-[ Upstream commit eea4c860c3b366369eff0489d94ee4f0571d467d ]
+[ Upstream commit 63d7f9810a38102cdb8cad214fac98682081e1a7 ]
 
-The usb function device call musb_gadget_queue() adds the passed
-request to musb_ep::req_list,If the (request->length > musb_ep->packet_sz)
-and (is_buffer_mapped(req) return false),the rxstate() will copy all data
-in fifo to request->buf which may cause request->buf out of bounds.
+When configured in HOST mode, after issuing U3/L2 exit controller fails
+to send proper CRC checksum in CRC5 field. Because of this behavior
+Transaction Error is generated, resulting in reset and re-enumeration of
+usb device attached. Enabling chicken bit 10 of GUCTL1 will correct this
+problem.
 
-Fix it by add the length check :
-fifocnt = min_t(unsigned, request->length - request->actual, fifocnt);
+When this bit is set to '1', the UTMI/ULPI opmode will be changed to
+"normal" along with HS terminations, term, and xcvr signals after EOR.
+This option is to support certain legacy UTMI/ULPI PHYs.
 
-Signed-off-by: Robin Guo <guoweibin@inspur.com>
-Link: https://lore.kernel.org/r/20220906102119.1b071d07a8391ff115e6d1ef@inspur.com
+Added "snps,resume-hs-terminations" quirk to resolved the above issue.
+
+Signed-off-by: Piyush Mehta <piyush.mehta@amd.com>
+Link: https://lore.kernel.org/r/20220920052235.194272-3-piyush.mehta@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/musb_gadget.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/dwc3/core.c | 17 +++++++++++++++++
+ drivers/usb/dwc3/core.h |  4 ++++
+ 2 files changed, 21 insertions(+)
 
-diff --git a/drivers/usb/musb/musb_gadget.c b/drivers/usb/musb/musb_gadget.c
-index daada4b66a92..6704a62a1665 100644
---- a/drivers/usb/musb/musb_gadget.c
-+++ b/drivers/usb/musb/musb_gadget.c
-@@ -760,6 +760,9 @@ static void rxstate(struct musb *musb, struct musb_request *req)
- 			musb_writew(epio, MUSB_RXCSR, csr);
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index f7f1952b2901..68d986361c49 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1183,6 +1183,21 @@ static int dwc3_core_init(struct dwc3 *dwc)
+ 		dwc3_writel(dwc->regs, DWC3_GUCTL2, reg);
+ 	}
  
- buffer_aint_mapped:
-+			fifo_count = min_t(unsigned int,
-+					request->length - request->actual,
-+					(unsigned int)fifo_count);
- 			musb_read_fifo(musb_ep->hw_ep, fifo_count, (u8 *)
- 					(request->buf + request->actual));
- 			request->actual += fifo_count;
++	/*
++	 * When configured in HOST mode, after issuing U3/L2 exit controller
++	 * fails to send proper CRC checksum in CRC5 feild. Because of this
++	 * behaviour Transaction Error is generated, resulting in reset and
++	 * re-enumeration of usb device attached. All the termsel, xcvrsel,
++	 * opmode becomes 0 during end of resume. Enabling bit 10 of GUCTL1
++	 * will correct this problem. This option is to support certain
++	 * legacy ULPI PHYs.
++	 */
++	if (dwc->resume_hs_terminations) {
++		reg = dwc3_readl(dwc->regs, DWC3_GUCTL1);
++		reg |= DWC3_GUCTL1_RESUME_OPMODE_HS_HOST;
++		dwc3_writel(dwc->regs, DWC3_GUCTL1, reg);
++	}
++
+ 	if (!DWC3_VER_IS_PRIOR(DWC3, 250A)) {
+ 		reg = dwc3_readl(dwc->regs, DWC3_GUCTL1);
+ 
+@@ -1526,6 +1541,8 @@ static void dwc3_get_properties(struct dwc3 *dwc)
+ 				"snps,dis-del-phy-power-chg-quirk");
+ 	dwc->dis_tx_ipgap_linecheck_quirk = device_property_read_bool(dev,
+ 				"snps,dis-tx-ipgap-linecheck-quirk");
++	dwc->resume_hs_terminations = device_property_read_bool(dev,
++				"snps,resume-hs-terminations");
+ 	dwc->parkmode_disable_ss_quirk = device_property_read_bool(dev,
+ 				"snps,parkmode-disable-ss-quirk");
+ 	dwc->gfladj_refclk_lpm_sel = device_property_read_bool(dev,
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index 11975a03316f..3ac9313e66f9 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -263,6 +263,7 @@
+ #define DWC3_GUCTL1_DEV_FORCE_20_CLK_FOR_30_CLK	BIT(26)
+ #define DWC3_GUCTL1_DEV_L1_EXIT_BY_HW		BIT(24)
+ #define DWC3_GUCTL1_PARKMODE_DISABLE_SS		BIT(17)
++#define DWC3_GUCTL1_RESUME_OPMODE_HS_HOST	BIT(10)
+ 
+ /* Global Status Register */
+ #define DWC3_GSTS_OTG_IP	BIT(10)
+@@ -1097,6 +1098,8 @@ struct dwc3_scratchpad_array {
+  *			change quirk.
+  * @dis_tx_ipgap_linecheck_quirk: set if we disable u2mac linestate
+  *			check during HS transmit.
++ * @resume-hs-terminations: Set if we enable quirk for fixing improper crc
++ *			generation after resume from suspend.
+  * @parkmode_disable_ss_quirk: set if we need to disable all SuperSpeed
+  *			instances in park mode.
+  * @tx_de_emphasis_quirk: set if we enable Tx de-emphasis quirk
+@@ -1312,6 +1315,7 @@ struct dwc3 {
+ 	unsigned		dis_u2_freeclk_exists_quirk:1;
+ 	unsigned		dis_del_phy_power_chg_quirk:1;
+ 	unsigned		dis_tx_ipgap_linecheck_quirk:1;
++	unsigned		resume_hs_terminations:1;
+ 	unsigned		parkmode_disable_ss_quirk:1;
+ 	unsigned		gfladj_refclk_lpm_sel:1;
+ 
 -- 
 2.35.1
 
