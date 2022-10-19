@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9223604198
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:46:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D58E604174
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:44:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233355AbiJSKql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:46:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36072 "EHLO
+        id S231325AbiJSKov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:44:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233335AbiJSKoj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:44:39 -0400
+        with ESMTP id S232709AbiJSKoD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:44:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D135810C4CE;
-        Wed, 19 Oct 2022 03:21:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D010D8E99B;
+        Wed, 19 Oct 2022 03:20:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9179B82430;
-        Wed, 19 Oct 2022 08:58:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 502CAC433C1;
-        Wed, 19 Oct 2022 08:58:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87FDBB82421;
+        Wed, 19 Oct 2022 08:58:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09411C433D7;
+        Wed, 19 Oct 2022 08:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169906;
-        bh=kg9vWgfgfLhzwfynnPlfjczJJacU8XNUQYPZLuLW2uc=;
+        s=korg; t=1666169935;
+        bh=nI9/PSB8ZlgVgtKWfWyJ/67XC9L26+kGdNPFlTXnO0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sy/CDk5r/WiXbpW44md1m7N8UgrerGJukRgfVQS4zs44dQio+Cf3mW5g7RUynxwFb
-         Qk/iQqnE5+rvf11VYNqKA9F5/HDg6ZK+mKOxVLMdmtpJtRPa9ivY2l3QMs9NoDDn7A
-         CfcOrP0KQ1sazEXRvokKP5rlK3b2vK72wiHtc2/Y=
+        b=2Qe9AFgHCjzwnb4DaBeQlrVa0VJba+5gpRvScuDOkBhuw4tulr4/avHW765sIGmVE
+         YLp1BAiw7wZWSrwfxNs8kSHu2Xw18DPp08edPqLXC3mk4V8PhoxOpTzrDxw/SrXcDt
+         N/u0ksJGhaDEA7Sm7kIy+ji1kMl4Ow7VSgXpkkW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 446/862] ARM: dts: exynos: correct s5k6a3 reset polarity on Midas family
-Date:   Wed, 19 Oct 2022 10:28:53 +0200
-Message-Id: <20221019083309.679779365@linuxfoundation.org>
+Subject: [PATCH 6.0 447/862] ARM: Drop CMDLINE_* dependency on ATAGS
+Date:   Wed, 19 Oct 2022 10:28:54 +0200
+Message-Id: <20221019083309.720138618@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,40 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 3ba2d4bb9592bf7a6a3fe3dbe711ecfc3d004bab ]
+[ Upstream commit 136f4b1ec7c962ee37a787e095fd37b058d72bd3 ]
 
-According to s5k6a3 driver code, the reset line for the chip appears to
-be active low. This also matches the typical polarity of reset lines in
-general. Let's fix it up as having correct polarity in DTS is important
-when the driver will be switched over to gpiod API.
+On arm32, the configuration options to specify the kernel command line
+type depend on ATAGS.  However, the actual CMDLINE cofiguration option
+does not depend on ATAGS, and the code that handles this is not specific
+to ATAGS (see drivers/of/fdt.c:early_init_dt_scan_chosen()).
 
-Fixes: b4fec64758ab ("ARM: dts: Add camera device nodes for Exynos4412 TRATS2 board")
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220913164104.203957-1-dmitry.torokhov@gmail.com
-Link: https://lore.kernel.org/r/20220926104354.118578-2-krzysztof.kozlowski@linaro.org'
+Hence users who desire to override the kernel command line on arm32 must
+enable support for ATAGS, even on a pure-DT system.  Other architectures
+(arm64, loongarch, microblaze, nios2, powerpc, and riscv) do not impose
+such a restriction.
+
+Hence drop the dependency on ATAGS.
+
+Fixes: bd51e2f595580fb6 ("ARM: 7506/1: allow for ATAGS to be configured out when DT support is selected")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos4412-midas.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/exynos4412-midas.dtsi b/arch/arm/boot/dts/exynos4412-midas.dtsi
-index b967397a46c5..8e1c19a8ad06 100644
---- a/arch/arm/boot/dts/exynos4412-midas.dtsi
-+++ b/arch/arm/boot/dts/exynos4412-midas.dtsi
-@@ -586,7 +586,7 @@
- 		clocks = <&camera 1>;
- 		clock-names = "extclk";
- 		samsung,camclk-out = <1>;
--		gpios = <&gpm1 6 GPIO_ACTIVE_HIGH>;
-+		gpios = <&gpm1 6 GPIO_ACTIVE_LOW>;
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 87badeae3181..11ecf09aadc8 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1671,7 +1671,6 @@ config CMDLINE
+ choice
+ 	prompt "Kernel command line type" if CMDLINE != ""
+ 	default CMDLINE_FROM_BOOTLOADER
+-	depends on ATAGS
  
- 		port {
- 			is_s5k6a3_ep: endpoint {
+ config CMDLINE_FROM_BOOTLOADER
+ 	bool "Use bootloader kernel arguments if available"
 -- 
 2.35.1
 
