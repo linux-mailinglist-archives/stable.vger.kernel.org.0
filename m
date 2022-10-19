@@ -2,112 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E0A160406D
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:55:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB5AC6042D7
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:11:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234358AbiJSJzY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:55:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54264 "EHLO
+        id S232048AbiJSLLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:11:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234381AbiJSJzC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:55:02 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79FB106935
-        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 02:30:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666171846; x=1697707846;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=dBfBKtwPMIoIidBaSHvXf7Yzdmj0u0uiQGhoY8SkPXA=;
-  b=B899Vd2PxCFywvEt8wDRooce/1QEQXR5PxATYj4v37JrDwlMCzmMAu/e
-   xSA9DY9p5btl5e+7OwCtiYHQ97se5HP9pDZco/iLNpGsoSLWFEcvY9F1l
-   S0W+yQ2hVJ4kcaQdQcFN58UxcfyLWDJzM1Q0App1p5b43kkSyL7FsWLna
-   1rjVlCuy+Ga/NW5/O9n2AIUE3UbtGXL5wPJpAoJyQ6wezrN1e9NXewSDe
-   LB+Hg7H9iOqrBCEInGs/7pvOTOGpO6QJLsy/DtpjZlfsL96ZqqEOTWTbo
-   QTf+Ok13MQUAef+xwTxmHnwYwAkqBickfJG8ryMUmTUNs81V3nDSXwy9U
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10504"; a="305094680"
-X-IronPort-AV: E=Sophos;i="5.95,195,1661842800"; 
-   d="scan'208";a="305094680"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2022 02:30:45 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10504"; a="631579524"
-X-IronPort-AV: E=Sophos;i="5.95,195,1661842800"; 
-   d="scan'208";a="631579524"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.191])
-  by fmsmga007.fm.intel.com with SMTP; 19 Oct 2022 02:30:43 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Wed, 19 Oct 2022 12:30:42 +0300
-Date:   Wed, 19 Oct 2022 12:30:42 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Jani Nikula <jani.nikula@linux.intel.com>
-Cc:     Imre Deak <imre.deak@intel.com>, intel-gfx@lists.freedesktop.org,
-        stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 1/3] drm/i915/tgl+: Add locking around DKL
- PHY register accesses
-Message-ID: <Y0/Dwl3Bct0owF7S@intel.com>
-References: <20221018172042.1449885-1-imre.deak@intel.com>
- <87bkq8i3xp.fsf@intel.com>
- <Y0/BNSKHS+GYkLCw@intel.com>
+        with ESMTP id S232922AbiJSLKI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:10:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D9210A7F5;
+        Wed, 19 Oct 2022 03:38:31 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BB71B822E3;
+        Wed, 19 Oct 2022 08:42:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D6AEC433D7;
+        Wed, 19 Oct 2022 08:42:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1666168955;
+        bh=DuBg9+YDwGfVhiIKCEuJSBEIpdJSRSK0lHMA2+ye9Qk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=PwnBkhXTuDQtJW3DpFhHttJU1ykUo7soO7SMyYCAUp/v6rQsHJFFJBkZuiIdQV96m
+         7bWYVTSgVY2L9LGN8CUWPv5+yg2EI9/A2jlWo9zZRb9ek+xWZ3u2Fw+gzSd4Z/K8FH
+         UaLeAuVNTPPk6oDkII08rMM6lxDwiiTZ24AqJ2T8=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Christian Marangi <ansuelsmth@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 6.0 072/862] dmaengine: qcom-adm: fix wrong sizeof config in slave_config
+Date:   Wed, 19 Oct 2022 10:22:39 +0200
+Message-Id: <20221019083253.109400728@linuxfoundation.org>
+X-Mailer: git-send-email 2.38.0
+In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
+References: <20221019083249.951566199@linuxfoundation.org>
+User-Agent: quilt/0.67
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Y0/BNSKHS+GYkLCw@intel.com>
-X-Patchwork-Hint: comment
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 19, 2022 at 12:19:49PM +0300, Ville Syrjälä wrote:
-> On Wed, Oct 19, 2022 at 12:00:02PM +0300, Jani Nikula wrote:
-> > On Tue, 18 Oct 2022, Imre Deak <imre.deak@intel.com> wrote:
-> > > Accessing the TypeC DKL PHY registers during modeset-commit,
-> > > -verification, DP link-retraining and AUX power well toggling is racy
-> > > due to these code paths being concurrent and the PHY register bank
-> > > selection register (HIP_INDEX_REG) being shared between PHY instances
-> > > (aka TC ports) and the bank selection being not atomic wrt. the actual
-> > > PHY register access.
-> > >
-> > > Add the required locking around each PHY register bank selection->
-> > > register access sequence.
-> > 
-> > I honestly think the abstraction here is at a too low level.
-> > 
-> > Too many places are doing DKL PHY register access to begin with. IMO the
-> > solution should be to abstract DKL PHY better, not to provide low level
-> > DKL PHY register accessors.
-> > 
-> > Indeed, this level of granularity leads to a lot of unnecessary
-> > lock/unlock that could have a longer span otherwise, and the interface
-> > does not lend itself for that.
-> 
-> It's no worse than uncore.lock. No one cares about that in
-> these codepaths either.
-> 
-> > Also requires separate bank selection for
-> > every write, nearly doubling the MMIO writes.
-> 
-> Drop in the ocean. This is all slow modeset stuff anyway.
-> 
-> IMO separate reg accessors is the correct way to handle indexed
-> registers unless you have some very specific performance concerns
-> to deal with.
+From: Christian Marangi <ansuelsmth@gmail.com>
 
-Now, whether those accessors need to be visible everywere is another
-matter. It should certainly be possible to suck all dkl phy stuff
-into one file and keep the accessors static. But currently eveything
-is grouped by function (PLLs in one file, vswing stuff in another,
-etc.). We'd have to flip that around so that all the sub functions
-of of each IP block is in the same file. Is that a better apporach?
-Not sure.
+commit 7c8765308371be30f50c1b5b97618b731514b207 upstream.
 
--- 
-Ville Syrjälä
-Intel
+Fix broken slave_config function that uncorrectly compare the
+peripheral_size with the size of the config pointer instead of the size
+of the config struct. This cause the crci value to be ignored and cause
+a kernel panic on any slave that use adm driver.
+
+To fix this, compare to the size of the struct and NOT the size of the
+pointer.
+
+Fixes: 03de6b273805 ("dmaengine: qcom-adm: stop abusing slave_id config")
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Cc: stable@vger.kernel.org # v5.17+
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220915204844.3838-1-ansuelsmth@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/dma/qcom/qcom_adm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/dma/qcom/qcom_adm.c
++++ b/drivers/dma/qcom/qcom_adm.c
+@@ -494,7 +494,7 @@ static int adm_slave_config(struct dma_c
+ 
+ 	spin_lock_irqsave(&achan->vc.lock, flag);
+ 	memcpy(&achan->slave, cfg, sizeof(struct dma_slave_config));
+-	if (cfg->peripheral_size == sizeof(config))
++	if (cfg->peripheral_size == sizeof(*config))
+ 		achan->crci = config->crci;
+ 	spin_unlock_irqrestore(&achan->vc.lock, flag);
+ 
+
+
