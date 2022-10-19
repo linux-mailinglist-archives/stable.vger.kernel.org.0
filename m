@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01908603CF9
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:55:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8907D603C6E
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:46:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231742AbiJSIzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:55:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47826 "EHLO
+        id S231363AbiJSIqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:46:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231700AbiJSIxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:53:30 -0400
+        with ESMTP id S231433AbiJSIpX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:45:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B97CCB1C7;
-        Wed, 19 Oct 2022 01:50:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 069137FF97;
+        Wed, 19 Oct 2022 01:44:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 091EA617D6;
-        Wed, 19 Oct 2022 08:41:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEDC4C433C1;
-        Wed, 19 Oct 2022 08:41:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D099F617E8;
+        Wed, 19 Oct 2022 08:41:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6FF7C433C1;
+        Wed, 19 Oct 2022 08:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168865;
-        bh=je0W2XLdwrvLTtP83c1MCms7oFNpxun5DNxSf+R8vrU=;
+        s=korg; t=1666168868;
+        bh=ErxrWl722wXIty3H7Pgaq1NO4W94OcHK1F2Tf3zP8vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HUXjKpV8yX6ffgMhn2TCcJzVJBmMryNxHqIDfeQRWDwSV+0/wzHUxrTVgz+oM8/vv
-         QAytusM2xVrS2YzJ9310Pyyj5CAmvroEoZDVXZOILriTY80bEoM5re+os3HGZZOxuO
-         U7C4aLPHCgmOdFoDug4KdichjIPTB4f2uiT2nzPc=
+        b=chd6Fy8dkSMHt+E0lKvxuQVpzJ38q1bI3A254x59LAKoEh9+nILdno5UuTcCiyyDr
+         cOsGjrKKkfW/6BnhEXJEqrD6fjJjcaxm4ShrOZrNivf2stRZhQseoCiPwJQHktdhtL
+         S9pizkB2NYuIhm5raW38T0GjBASkISRb3SMkZA00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        syzbot+c2c79c6d6eddc5262b77@syzkaller.appspotmail.com,
-        Steven Price <steven.price@arm.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 6.0 080/862] arm64: mte: Avoid setting PG_mte_tagged if no tags cleared or restored
-Date:   Wed, 19 Oct 2022 10:22:47 +0200
-Message-Id: <20221019083253.465868363@linuxfoundation.org>
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 6.0 081/862] arm64: errata: Add Cortex-A55 to the repeat tlbi list
+Date:   Wed, 19 Oct 2022 10:22:48 +0200
+Message-Id: <20221019083253.511410995@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,95 +52,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+From: James Morse <james.morse@arm.com>
 
-commit a8e5e5146ad08d794c58252bab00b261045ef16d upstream.
+commit 171df58028bf4649460fb146a56a58dcb0c8f75a upstream.
 
-Prior to commit 69e3b846d8a7 ("arm64: mte: Sync tags for pages where PTE
-is untagged"), mte_sync_tags() was only called for pte_tagged() entries
-(those mapped with PROT_MTE). Therefore mte_sync_tags() could safely use
-test_and_set_bit(PG_mte_tagged, &page->flags) without inadvertently
-setting PG_mte_tagged on an untagged page.
+Cortex-A55 is affected by an erratum where in rare circumstances the
+CPUs may not handle a race between a break-before-make sequence on one
+CPU, and another CPU accessing the same page. This could allow a store
+to a page that has been unmapped.
 
-The above commit was required as guests may enable MTE without any
-control at the stage 2 mapping, nor a PROT_MTE mapping in the VMM.
-However, the side-effect was that any page with a PTE that looked like
-swap (or migration) was getting PG_mte_tagged set automatically. A
-subsequent page copy (e.g. migration) copied the tags to the destination
-page even if the tags were owned by KASAN.
+Work around this by adding the affected CPUs to the list that needs
+TLB sequences to be done twice.
 
-This issue was masked by the page_kasan_tag_reset() call introduced in
-commit e5b8d9218951 ("arm64: mte: reset the page tag in page->flags").
-When this commit was reverted (20794545c146), KASAN started reporting
-access faults because the overriding tags in a page did not match the
-original page->flags (with CONFIG_KASAN_HW_TAGS=y):
-
-  BUG: KASAN: invalid-access in copy_page+0x10/0xd0 arch/arm64/lib/copy_page.S:26
-  Read at addr f5ff000017f2e000 by task syz-executor.1/2218
-  Pointer tag: [f5], memory tag: [f2]
-
-Move the PG_mte_tagged bit setting from mte_sync_tags() to the actual
-place where tags are cleared (mte_sync_page_tags()) or restored
-(mte_restore_tags()).
-
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Reported-by: syzbot+c2c79c6d6eddc5262b77@syzkaller.appspotmail.com
-Fixes: 69e3b846d8a7 ("arm64: mte: Sync tags for pages where PTE is untagged")
-Cc: <stable@vger.kernel.org> # 5.14.x
-Cc: Steven Price <steven.price@arm.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/0000000000004387dc05e5888ae5@google.com/
-Reviewed-by: Steven Price <steven.price@arm.com>
-Link: https://lore.kernel.org/r/20221006163354.3194102-1-catalin.marinas@arm.com
+Signed-off-by: James Morse <james.morse@arm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220930131959.3082594-1-james.morse@arm.com
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/mte.c |    9 +++++++--
- arch/arm64/mm/mteswap.c |    7 ++++++-
- 2 files changed, 13 insertions(+), 3 deletions(-)
+ Documentation/arm64/silicon-errata.rst |    2 ++
+ arch/arm64/Kconfig                     |   17 +++++++++++++++++
+ arch/arm64/kernel/cpu_errata.c         |    5 +++++
+ 3 files changed, 24 insertions(+)
 
---- a/arch/arm64/kernel/mte.c
-+++ b/arch/arm64/kernel/mte.c
-@@ -48,7 +48,12 @@ static void mte_sync_page_tags(struct pa
- 	if (!pte_is_tagged)
- 		return;
+--- a/Documentation/arm64/silicon-errata.rst
++++ b/Documentation/arm64/silicon-errata.rst
+@@ -76,6 +76,8 @@ stable kernels.
+ +----------------+-----------------+-----------------+-----------------------------+
+ | ARM            | Cortex-A55      | #1530923        | ARM64_ERRATUM_1530923       |
+ +----------------+-----------------+-----------------+-----------------------------+
++| ARM            | Cortex-A55      | #2441007        | ARM64_ERRATUM_2441007       |
+++----------------+-----------------+-----------------+-----------------------------+
+ | ARM            | Cortex-A57      | #832075         | ARM64_ERRATUM_832075        |
+ +----------------+-----------------+-----------------+-----------------------------+
+ | ARM            | Cortex-A57      | #852523         | N/A                         |
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -632,6 +632,23 @@ config ARM64_ERRATUM_1530923
+ config ARM64_WORKAROUND_REPEAT_TLBI
+ 	bool
  
--	mte_clear_page_tags(page_address(page));
-+	/*
-+	 * Test PG_mte_tagged again in case it was racing with another
-+	 * set_pte_at().
-+	 */
-+	if (!test_and_set_bit(PG_mte_tagged, &page->flags))
-+		mte_clear_page_tags(page_address(page));
- }
- 
- void mte_sync_tags(pte_t old_pte, pte_t pte)
-@@ -64,7 +69,7 @@ void mte_sync_tags(pte_t old_pte, pte_t
- 
- 	/* if PG_mte_tagged is set, tags have already been initialised */
- 	for (i = 0; i < nr_pages; i++, page++) {
--		if (!test_and_set_bit(PG_mte_tagged, &page->flags))
-+		if (!test_bit(PG_mte_tagged, &page->flags))
- 			mte_sync_page_tags(page, old_pte, check_swap,
- 					   pte_is_tagged);
- 	}
---- a/arch/arm64/mm/mteswap.c
-+++ b/arch/arm64/mm/mteswap.c
-@@ -53,7 +53,12 @@ bool mte_restore_tags(swp_entry_t entry,
- 	if (!tags)
- 		return false;
- 
--	mte_restore_page_tags(page_address(page), tags);
-+	/*
-+	 * Test PG_mte_tagged again in case it was racing with another
-+	 * set_pte_at().
-+	 */
-+	if (!test_and_set_bit(PG_mte_tagged, &page->flags))
-+		mte_restore_page_tags(page_address(page), tags);
- 
- 	return true;
- }
++config ARM64_ERRATUM_2441007
++	bool "Cortex-A55: Completion of affected memory accesses might not be guaranteed by completion of a TLBI"
++	default y
++	select ARM64_WORKAROUND_REPEAT_TLBI
++	help
++	  This option adds a workaround for ARM Cortex-A55 erratum #2441007.
++
++	  Under very rare circumstances, affected Cortex-A55 CPUs
++	  may not handle a race between a break-before-make sequence on one
++	  CPU, and another CPU accessing the same page. This could allow a
++	  store to a page that has been unmapped.
++
++	  Work around this by adding the affected CPUs to the list that needs
++	  TLB sequences to be done twice.
++
++	  If unsure, say Y.
++
+ config ARM64_ERRATUM_1286807
+ 	bool "Cortex-A76: Modification of the translation table for a virtual address might lead to read-after-read ordering violation"
+ 	default y
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -214,6 +214,11 @@ static const struct arm64_cpu_capabiliti
+ 		ERRATA_MIDR_RANGE(MIDR_QCOM_KRYO_4XX_GOLD, 0xc, 0xe, 0xf, 0xe),
+ 	},
+ #endif
++#ifdef CONFIG_ARM64_ERRATUM_2441007
++	{
++		ERRATA_MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
++	},
++#endif
+ #ifdef CONFIG_ARM64_ERRATUM_2441009
+ 	{
+ 		/* Cortex-A510 r0p0 -> r1p1. Fixed in r1p2 */
 
 
