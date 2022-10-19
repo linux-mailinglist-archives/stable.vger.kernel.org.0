@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 716B560427D
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:05:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF69460412D
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:39:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232107AbiJSLFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:05:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53346 "EHLO
+        id S231891AbiJSKju (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:39:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234893AbiJSLEM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:04:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 047D914EC58;
-        Wed, 19 Oct 2022 03:33:29 -0700 (PDT)
+        with ESMTP id S232271AbiJSKjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:39:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA85110D69E;
+        Wed, 19 Oct 2022 03:18:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21874617F2;
-        Wed, 19 Oct 2022 09:15:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39BD2C433D6;
-        Wed, 19 Oct 2022 09:15:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A06AB824E0;
+        Wed, 19 Oct 2022 09:15:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7604C433C1;
+        Wed, 19 Oct 2022 09:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170908;
-        bh=3t7YvvkwEOPmixL8bgqdKSwqQRF35jS7csXR8qeViUw=;
+        s=korg; t=1666170932;
+        bh=6HicgzDugBOerZVbAxSgXH2xBFYBrHxtY5zu4BuDnVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EB2eA8dcYVU9/gkA4zioVNq3W9DNUGAxdsfYwr/gaSNlc2ZN5TfdxObtBwXcru7ar
-         xnWEa0XPqC99FOw0/i/fbA12BbFxLTsvPGoI0jG2nNTKZ33to3EBCc7r4+stEidB1M
-         RSNJzHZUi4gCEdVpoZLLwY5x37a7E9OJPOTqWlOM=
+        b=nqonhaDovym4BaCrV1Gw6FqJVXilEjOwRQpbQRZJUknKhe1nbfwbBXmiPGmtroCJI
+         ReLhR5zzSKhblf6klIFlbPxJG3E4qWzfJNcaF2I4YChFSgCF0BWaG/BmjJnDO+e3+n
+         qG9zndaBjg841Ko4jhZ4e8C68UxfKNUcNEWpYiq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 833/862] hwmon (occ): Retry for checksum failure
-Date:   Wed, 19 Oct 2022 10:35:20 +0200
-Message-Id: <20221019083326.697191417@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 6.0 841/862] perf intel-pt: Fix system_wide dummy event for hybrid
+Date:   Wed, 19 Oct 2022 10:35:28 +0200
+Message-Id: <20221019083327.051777058@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,68 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit dbed963ed62c4c2b8870a02c8b7dcb0c2af3ee0b ]
+commit 6cef7dab3e2e5cb23a13569c3880c0532326748c upstream.
 
-Due to the OCC communication design with a shared SRAM area,
-checkum errors are expected due to corrupted buffer from OCC
-communications with other system components. Therefore, retry
-the command twice in the event of a checksum failure.
+User space tasks can migrate between CPUs, so when tracing selected CPUs,
+system-wide sideband is still needed, however evlist->core.has_user_cpus
+is not set in the hybrid case, so check the target cpu_list instead.
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220426154956.27205-3-eajames@linux.ibm.com
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7d189cadbeebc778 ("perf intel-pt: Track sideband system-wide when needed")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221012082259.22394-3-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/occ/p9_sbe.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ tools/perf/arch/x86/util/intel-pt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/occ/p9_sbe.c b/drivers/hwmon/occ/p9_sbe.c
-index c1e0a1d96cd4..f3791a589b01 100644
---- a/drivers/hwmon/occ/p9_sbe.c
-+++ b/drivers/hwmon/occ/p9_sbe.c
-@@ -14,6 +14,8 @@
+--- a/tools/perf/arch/x86/util/intel-pt.c
++++ b/tools/perf/arch/x86/util/intel-pt.c
+@@ -871,7 +871,7 @@ static int intel_pt_recording_options(st
+ 		 * User space tasks can migrate between CPUs, so when tracing
+ 		 * selected CPUs, sideband for all CPUs is still needed.
+ 		 */
+-		need_system_wide_tracking = evlist->core.has_user_cpus &&
++		need_system_wide_tracking = opts->target.cpu_list &&
+ 					    !intel_pt_evsel->core.attr.exclude_user;
  
- #include "common.h"
- 
-+#define OCC_CHECKSUM_RETRIES	3
-+
- struct p9_sbe_occ {
- 	struct occ occ;
- 	bool sbe_error;
-@@ -80,18 +82,23 @@ static bool p9_sbe_occ_save_ffdc(struct p9_sbe_occ *ctx, const void *resp,
- static int p9_sbe_occ_send_cmd(struct occ *occ, u8 *cmd, size_t len,
- 			       void *resp, size_t resp_len)
- {
-+	size_t original_resp_len = resp_len;
- 	struct p9_sbe_occ *ctx = to_p9_sbe_occ(occ);
--	int rc;
-+	int rc, i;
- 
--	rc = fsi_occ_submit(ctx->sbe, cmd, len, resp, &resp_len);
--	if (rc < 0) {
-+	for (i = 0; i < OCC_CHECKSUM_RETRIES; ++i) {
-+		rc = fsi_occ_submit(ctx->sbe, cmd, len, resp, &resp_len);
-+		if (rc >= 0)
-+			break;
- 		if (resp_len) {
- 			if (p9_sbe_occ_save_ffdc(ctx, resp, resp_len))
- 				sysfs_notify(&occ->bus_dev->kobj, NULL,
- 					     bin_attr_ffdc.attr.name);
-+			return rc;
- 		}
--
--		return rc;
-+		if (rc != -EBADE)
-+			return rc;
-+		resp_len = original_resp_len;
- 	}
- 
- 	switch (((struct occ_response *)resp)->return_status) {
--- 
-2.35.1
-
+ 		tracking_evsel = evlist__add_aux_dummy(evlist, need_system_wide_tracking);
 
 
