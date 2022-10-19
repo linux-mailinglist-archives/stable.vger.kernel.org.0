@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC692604756
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:37:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9170604744
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:36:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232174AbiJSNhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:37:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37866 "EHLO
+        id S231981AbiJSNgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:36:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232126AbiJSNgj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:36:39 -0400
+        with ESMTP id S231997AbiJSNgF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:36:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 295AD18B4BF;
-        Wed, 19 Oct 2022 06:25:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA986157893;
+        Wed, 19 Oct 2022 06:25:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3558EB82472;
-        Wed, 19 Oct 2022 09:04:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96D4EC433C1;
-        Wed, 19 Oct 2022 09:04:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4780B8247F;
+        Wed, 19 Oct 2022 09:05:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25215C433C1;
+        Wed, 19 Oct 2022 09:05:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170286;
-        bh=hp2uKnZxl95or/B7zQYyBfDUtgIF706uAcUo2gKA3mI=;
+        s=korg; t=1666170309;
+        bh=aKUcsa7cZlsRyIMxZGGQkgloTdCqdrQaEUZAYX/1P7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UrS/PB5hDDJ4wq3mK42h2SzyLQ3eWWn6fDu6RhvI7qPxtaS+bhpdjGLoANHmmgA9w
-         QGCvgHL0P8CXD04hulq8O9pQQgRHo7sDnGofDUY5l3uKLiGAyt7ita1TiYRop54OoY
-         /aMMcPJwT4FF4axc9aaE1h2A95IZPvSH4PjKWXyw=
+        b=g1xvTNu8Q0csK+KPQjvKrBVPoL9DAKq/DTa3sa5WeR5f6r2DCM41VGeLY7R0Df1W/
+         ZLFbPoz4wBo9qzhF/rVm3pmYAjvRHT9yCRf+PPxsOOPdbfECplCYR0YZjXhrMdKM7r
+         isgMU52NPj6h0orYd9S2fvSGtuanoUo6DUr1olwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        "Ivan T. Ivanov" <iivanov@suse.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 596/862] clk: bcm2835: fix bcm2835_clock_rate_from_divisor declaration
-Date:   Wed, 19 Oct 2022 10:31:23 +0200
-Message-Id: <20221019083316.304157786@linuxfoundation.org>
+Subject: [PATCH 6.0 599/862] clk: ti: Balance of_node_get() calls for of_find_node_by_name()
+Date:   Wed, 19 Oct 2022 10:31:26 +0200
+Message-Id: <20221019083316.424482657@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,41 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 0b919a3728691c172312dee99ba654055ccd8c84 ]
+[ Upstream commit 058a3996b888ab60eb1857fb4fd28f1b89a9a95a ]
 
-The return value of bcm2835_clock_rate_from_divisor is always unsigned
-and also all caller expect this. So fix the declaration accordingly.
+In ti_find_clock_provider(), of_find_node_by_name() will call
+of_node_put() for the 'from' argument, possibly putting the node one too
+many times. Let's maintain the of_node_get() from the previous search
+and only put when we're exiting the function early. This should avoid a
+misbalanced reference count on the node.
 
-Fixes: 41691b8862e2 ("clk: bcm2835: Add support for programming the audio domain clocks")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/20220904141037.38816-1-stefan.wahren@i2se.com
-Reviewed-by: Ivan T. Ivanov <iivanov@suse.de>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 51f661ef9a10 ("clk: ti: Add ti_find_clock_provider() to use clock-output-names")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220915031121.4003589-1-windhl@126.com
+[sboyd@kernel.org: Rewrite commit text, maintain reference instead of
+get again]
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/ti/clk.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index 19de0e83b65d..f1102b4c7e88 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -966,9 +966,9 @@ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
- 	return div;
- }
+diff --git a/drivers/clk/ti/clk.c b/drivers/clk/ti/clk.c
+index 373e9438b57a..1dc2f15fb75b 100644
+--- a/drivers/clk/ti/clk.c
++++ b/drivers/clk/ti/clk.c
+@@ -140,11 +140,12 @@ static struct device_node *ti_find_clock_provider(struct device_node *from,
+ 			break;
+ 		}
+ 	}
+-	of_node_put(from);
+ 	kfree(tmp);
  
--static long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
--					    unsigned long parent_rate,
--					    u32 div)
-+static unsigned long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
-+						     unsigned long parent_rate,
-+						     u32 div)
- {
- 	const struct bcm2835_clock_data *data = clock->data;
- 	u64 temp;
+-	if (found)
++	if (found) {
++		of_node_put(from);
+ 		return np;
++	}
+ 
+ 	/* Fall back to using old node name base provider name */
+ 	return of_find_node_by_name(from, name);
 -- 
 2.35.1
 
