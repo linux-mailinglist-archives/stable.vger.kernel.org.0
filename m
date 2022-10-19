@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04442603E10
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:10:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F728603EE6
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:22:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232519AbiJSJKp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:10:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41948 "EHLO
+        id S233364AbiJSJWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:22:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232951AbiJSJJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:09:45 -0400
+        with ESMTP id S233455AbiJSJVm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:21:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17C33B56C8;
-        Wed, 19 Oct 2022 02:00:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA4C63ED72;
+        Wed, 19 Oct 2022 02:09:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF67B617E1;
-        Wed, 19 Oct 2022 09:00:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5B8EC43142;
-        Wed, 19 Oct 2022 09:00:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C061E61824;
+        Wed, 19 Oct 2022 09:01:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C35A7C433C1;
+        Wed, 19 Oct 2022 09:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170056;
-        bh=K4roTK2fnCmQiAynGRZx39W2zSKfyzroDBihQQeCMlI=;
+        s=korg; t=1666170083;
+        bh=0einq7fTqgMqNK76jwkzXls/v3g3vDEhp3UU2sIhUVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pw+N8GHsRqCxcGK5wXsJPGC90NdVNOEp63Am0gw3tH3dPV/FXh20AR10kycdm1whc
-         oPu8XJG7t4/B8LXCSSiEGoC9yzOYNBaSHR1oR2icFXhDVb+UBW+Dc3xSwqroJpvxXf
-         6jO7bW7Vp6TMjrIGCcGK0+jOZP7BPXz+z2/XtVPc=
+        b=CWorxAtvdBzEVHPVHtsOqXOFkqFM3a6YnKSQQu/3hvm/vjZwvarQHwr6YuyQsTs0D
+         Uk+Jo9VgkJUH1bCToT52VJ/zLcwclx7VNLFDVrUn89TQfKCZ1VGc9XgXhGapvZk58V
+         PCRsv7/YfwdFpu1D3q3O48mp5R6YpqML3XwCQ/og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Reichel <sre@kernel.org>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Alexey Minnekhanov <alexeymin@postmarketos.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 483/862] HSI: omap_ssi_port: Fix dma_map_sg error check
-Date:   Wed, 19 Oct 2022 10:29:30 +0200
-Message-Id: <20221019083311.299189675@linuxfoundation.org>
+Subject: [PATCH 6.0 484/862] clk: qcom: gcc-sdm660: Use floor ops for SDCC1 clock
+Date:   Wed, 19 Oct 2022 10:29:31 +0200
+Message-Id: <20221019083311.346940026@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,53 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@ionos.com>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit 551e325bbd3fb8b5a686ac1e6cf76e5641461cf2 ]
+[ Upstream commit 6956c18f4ad9200aa945f7ea37d65a05afc49d51 ]
 
-dma_map_sg return 0 on error, in case of error return -EIO
-to caller.
+In commit 3f905469c8ce ("clk: qcom: gcc: Use floor ops for SDCC clocks")
+floor ops were applied to SDCC2 only, but flooring is also required on
+the SDCC1 apps clock which is used by the eMMC card on Sony's Nile
+platform, and otherwise result in the typicial "Card appears
+overclocked" warnings observed on many other platforms before:
 
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: linux-kernel@vger.kernel.org (open list)
-Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+    mmc0: Card appears overclocked; req 52000000 Hz, actual 100000000 Hz
+    mmc0: Card appears overclocked; req 52000000 Hz, actual 100000000 Hz
+    mmc0: Card appears overclocked; req 104000000 Hz, actual 192000000 Hz
+
+Fixes: f2a76a2955c0 ("clk: qcom: Add Global Clock controller (GCC) driver for SDM660")
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Tested-by: Alexey Minnekhanov <alexeymin@postmarketos.org>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220714203822.186448-1-marijn.suijten@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hsi/controllers/omap_ssi_port.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/clk/qcom/gcc-sdm660.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hsi/controllers/omap_ssi_port.c b/drivers/hsi/controllers/omap_ssi_port.c
-index a0cb5be246e1..b9495b720f1b 100644
---- a/drivers/hsi/controllers/omap_ssi_port.c
-+++ b/drivers/hsi/controllers/omap_ssi_port.c
-@@ -230,10 +230,10 @@ static int ssi_start_dma(struct hsi_msg *msg, int lch)
- 	if (msg->ttype == HSI_MSG_READ) {
- 		err = dma_map_sg(&ssi->device, msg->sgt.sgl, msg->sgt.nents,
- 							DMA_FROM_DEVICE);
--		if (err < 0) {
-+		if (!err) {
- 			dev_dbg(&ssi->device, "DMA map SG failed !\n");
- 			pm_runtime_put_autosuspend(omap_port->pdev);
--			return err;
-+			return -EIO;
- 		}
- 		csdp = SSI_DST_BURST_4x32_BIT | SSI_DST_MEMORY_PORT |
- 			SSI_SRC_SINGLE_ACCESS0 | SSI_SRC_PERIPHERAL_PORT |
-@@ -247,10 +247,10 @@ static int ssi_start_dma(struct hsi_msg *msg, int lch)
- 	} else {
- 		err = dma_map_sg(&ssi->device, msg->sgt.sgl, msg->sgt.nents,
- 							DMA_TO_DEVICE);
--		if (err < 0) {
-+		if (!err) {
- 			dev_dbg(&ssi->device, "DMA map SG failed !\n");
- 			pm_runtime_put_autosuspend(omap_port->pdev);
--			return err;
-+			return -EIO;
- 		}
- 		csdp = SSI_SRC_BURST_4x32_BIT | SSI_SRC_MEMORY_PORT |
- 			SSI_DST_SINGLE_ACCESS0 | SSI_DST_PERIPHERAL_PORT |
+diff --git a/drivers/clk/qcom/gcc-sdm660.c b/drivers/clk/qcom/gcc-sdm660.c
+index 9b97425008ce..db918c92a522 100644
+--- a/drivers/clk/qcom/gcc-sdm660.c
++++ b/drivers/clk/qcom/gcc-sdm660.c
+@@ -757,7 +757,7 @@ static struct clk_rcg2 sdcc1_apps_clk_src = {
+ 		.name = "sdcc1_apps_clk_src",
+ 		.parent_data = gcc_parent_data_xo_gpll0_gpll4_gpll0_early_div,
+ 		.num_parents = ARRAY_SIZE(gcc_parent_data_xo_gpll0_gpll4_gpll0_early_div),
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_floor_ops,
+ 	},
+ };
+ 
 -- 
 2.35.1
 
