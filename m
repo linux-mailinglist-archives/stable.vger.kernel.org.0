@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E02EC604639
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ED2960473C
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:35:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231759AbiJSNCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:02:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60778 "EHLO
+        id S232096AbiJSNf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:35:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231755AbiJSNCR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:02:17 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37448630C;
-        Wed, 19 Oct 2022 05:45:41 -0700 (PDT)
+        with ESMTP id S232993AbiJSNed (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:34:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 442781DB898;
+        Wed, 19 Oct 2022 06:23:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 78E06CE215C;
-        Wed, 19 Oct 2022 09:03:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58610C433D6;
-        Wed, 19 Oct 2022 09:03:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BA5DB82470;
+        Wed, 19 Oct 2022 09:03:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D0C4C433C1;
+        Wed, 19 Oct 2022 09:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170230;
-        bh=Ku35vuD17YGpq0QHl+DAKe80YrZ/0TpL18rzyvhTdJ0=;
+        s=korg; t=1666170238;
+        bh=/HIERa100lh8MOJ+VnEm9GMQEByn7+Vm+HFFy4N/aVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CagYI3fh6r38FyflXj4TC2rflExuXnvmtp87s4RFxpALov6+hTXxTtKi+6/ZTDQxy
-         BqKSEAfhT7Y7Ldx6BNBNHsoxtA6EnRa7Mon5icmMdE0YL/ejB6bxqyfutUsKX1FcD8
-         lpa5ar5TOvJIUAc+G9gB1pMe1c36xlk6HL65OSVM=
+        b=gYkU8cKV9C2WyBw9VlhISJV8LsRwTuKAtA4do4DE8Kh0Ubw4EmUUOLBGcikaU5lo5
+         Ys3f98mY2cP6YE0EeOYxxP+JicW3Q5KEJvZjvw1gpC+wUvAHxJBmtxwgmJ/6YLo/2c
+         5nMIQprWEL9s6FlhTSf9NPWwF/9EDK9AQK50voms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 577/862] mfd: lp8788: Fix an error handling path in lp8788_irq_init() and lp8788_irq_init()
-Date:   Wed, 19 Oct 2022 10:31:04 +0200
-Message-Id: <20221019083315.456426694@linuxfoundation.org>
+Subject: [PATCH 6.0 579/862] mfd: sm501: Add check for platform_driver_register()
+Date:   Wed, 19 Oct 2022 10:31:06 +0200
+Message-Id: <20221019083315.537366902@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,45 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 557244f6284f30613f2d61f14b579303165876c3 ]
+[ Upstream commit 8325a6c24ad78b8c1acc3c42b098ee24105d68e5 ]
 
-In lp8788_irq_init(), if an error occurs after a successful
-irq_domain_add_linear() call, it must be undone by a corresponding
-irq_domain_remove() call.
+As platform_driver_register() can return error numbers,
+it should be better to check platform_driver_register()
+and deal with the exception.
 
-irq_domain_remove() should also be called in lp8788_irq_exit() for the same
-reason.
-
-Fixes: eea6b7cc53aa ("mfd: Add lp8788 mfd driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: b6d6454fdb66 ("[PATCH] mfd: SM501 core driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/bcd5a72c9c1c383dd6324680116426e32737655a.1659261275.git.christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/r/20220913091112.1739138-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/lp8788-irq.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mfd/sm501.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/lp8788-irq.c b/drivers/mfd/lp8788-irq.c
-index 348439a3fbbd..39006297f3d2 100644
---- a/drivers/mfd/lp8788-irq.c
-+++ b/drivers/mfd/lp8788-irq.c
-@@ -175,6 +175,7 @@ int lp8788_irq_init(struct lp8788 *lp, int irq)
- 				IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
- 				"lp8788-irq", irqd);
- 	if (ret) {
-+		irq_domain_remove(lp->irqdm);
- 		dev_err(lp->dev, "failed to create a thread for IRQ_N\n");
- 		return ret;
- 	}
-@@ -188,4 +189,6 @@ void lp8788_irq_exit(struct lp8788 *lp)
+diff --git a/drivers/mfd/sm501.c b/drivers/mfd/sm501.c
+index bc0a2c38653e..3ac4508a6742 100644
+--- a/drivers/mfd/sm501.c
++++ b/drivers/mfd/sm501.c
+@@ -1720,7 +1720,12 @@ static struct platform_driver sm501_plat_driver = {
+ 
+ static int __init sm501_base_init(void)
  {
- 	if (lp->irq)
- 		free_irq(lp->irq, lp->irqdm);
-+	if (lp->irqdm)
-+		irq_domain_remove(lp->irqdm);
+-	platform_driver_register(&sm501_plat_driver);
++	int ret;
++
++	ret = platform_driver_register(&sm501_plat_driver);
++	if (ret < 0)
++		return ret;
++
+ 	return pci_register_driver(&sm501_pci_driver);
  }
+ 
 -- 
 2.35.1
 
