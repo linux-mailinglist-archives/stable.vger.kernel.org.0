@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A204060480E
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:48:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EAF3604780
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:40:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233038AbiJSNsp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:48:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57426 "EHLO
+        id S231968AbiJSNkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:40:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233538AbiJSNrl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:47:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1C8EC3564;
-        Wed, 19 Oct 2022 06:32:33 -0700 (PDT)
+        with ESMTP id S232565AbiJSNiy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:38:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB8DEC8950;
+        Wed, 19 Oct 2022 06:26:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43D35B82424;
-        Wed, 19 Oct 2022 08:57:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B25DEC433D6;
-        Wed, 19 Oct 2022 08:57:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF738B82428;
+        Wed, 19 Oct 2022 08:57:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F91EC433C1;
+        Wed, 19 Oct 2022 08:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169850;
-        bh=byYn4hlexYU9ll25yQ+O1Xv+YNlrWSdQs/8nM/fstBM=;
+        s=korg; t=1666169855;
+        bh=QE29W445skf+b67eNF58++sy3X82ljVGxWpQJ0ChOqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bySEsqoOa2IbopnsF5PB5PPZ+ttU55VOg8GnoaDfruY3ydDRUB/IDHtVbM6Y7FiS4
-         TK6512y5CDf+qsdikWVtuvkWaB3A2nXlvZb+/FH2C1VnUo0acWOBwEwKP3FoFyRGJv
-         /KRcSvBngnI71jwBS1B4jWMwIxNlxs5DQRx4hIg0=
+        b=WHLoCBf8JsZaosJNlvfI/JjDw0OwuXN7PYBonePMavyPOJRfo1DfotgDfwPb+r2Qx
+         oBtMk1YtAkgp0hXbAIEoRwlgLvnC+HvavPjEuXRgHwvaVeU81X7dkIZuBPRANxG2ET
+         Cv94GYp35myXiztKsxIwgOQJVy2DyaopLyUjs1HY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 432/862] arm64: dts: qcom: pm8350c: Drop PWM reg declaration
-Date:   Wed, 19 Oct 2022 10:28:39 +0200
-Message-Id: <20221019083309.063570347@linuxfoundation.org>
+Subject: [PATCH 6.0 434/862] ARM: dts: turris-omnia: Fix mpp26 pin name and comment
+Date:   Wed, 19 Oct 2022 10:28:41 +0200
+Message-Id: <20221019083309.154357076@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,39 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit eeca7d46217ccfe9289530e959c0fb29190af0d6 ]
+[ Upstream commit 49e93898f0dc177e645c22d0664813567fd9ec00 ]
 
-The PWM is a part of the SPMI PMIC block and maps several different
-addresses within the SPMI block. It is not accurate to describe as pwm@reg
-as a result.
+There is a bug in Turris Omnia's schematics, whereupon the MPP[26] pin,
+which is routed to CN11 pin header, is documented as SPI CS1, but
+MPP[26] pin does not support this function. Instead it controls chip
+select 2 if in "spi0" mode.
 
-Fixes: 5be66d2dc887 ("arm64: dts: qcom: pm8350c: Add pwm support")
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220828132648.3624126-3-bryan.odonoghue@linaro.org
+Fix the name of the pin node in pinctrl node and fix the comment in SPI
+node.
+
+Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/pm8350c.dtsi | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm/boot/dts/armada-385-turris-omnia.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/pm8350c.dtsi b/arch/arm64/boot/dts/qcom/pm8350c.dtsi
-index e0bbb67717fe..f28e71487d5c 100644
---- a/arch/arm64/boot/dts/qcom/pm8350c.dtsi
-+++ b/arch/arm64/boot/dts/qcom/pm8350c.dtsi
-@@ -30,9 +30,8 @@
- 			#interrupt-cells = <2>;
- 		};
+diff --git a/arch/arm/boot/dts/armada-385-turris-omnia.dts b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+index d1e0db6e5730..a41902e3815c 100644
+--- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
++++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+@@ -476,7 +476,7 @@
+ 		marvell,function = "spi0";
+ 	};
  
--		pm8350c_pwm: pwm@e800 {
-+		pm8350c_pwm: pwm {
- 			compatible = "qcom,pm8350c-pwm";
--			reg = <0xe800>;
- 			#pwm-cells = <2>;
- 			status = "disabled";
+-	spi0cs1_pins: spi0cs1-pins {
++	spi0cs2_pins: spi0cs2-pins {
+ 		marvell,pins = "mpp26";
+ 		marvell,function = "spi0";
+ 	};
+@@ -511,7 +511,7 @@
  		};
+ 	};
+ 
+-	/* MISO, MOSI, SCLK and CS1 are routed to pin header CN11 */
++	/* MISO, MOSI, SCLK and CS2 are routed to pin header CN11 */
+ };
+ 
+ &uart0 {
 -- 
 2.35.1
 
