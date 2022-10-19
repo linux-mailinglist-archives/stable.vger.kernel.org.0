@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ADC6603BF6
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 655DB603BFB
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:42:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230460AbiJSIl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:41:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55858 "EHLO
+        id S230254AbiJSImE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:42:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230399AbiJSIkq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:40:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05B3F80BE0;
-        Wed, 19 Oct 2022 01:39:10 -0700 (PDT)
+        with ESMTP id S230408AbiJSIku (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:40:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1939680F7D;
+        Wed, 19 Oct 2022 01:39:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D4B8B822BE;
-        Wed, 19 Oct 2022 08:39:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E64CAC433D7;
-        Wed, 19 Oct 2022 08:39:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86E12B822D1;
+        Wed, 19 Oct 2022 08:39:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE511C433D7;
+        Wed, 19 Oct 2022 08:39:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168744;
-        bh=HHK5F+bVk5ccs/l91De+g7lQ4jXHY0mt5/MgFWT9rdQ=;
+        s=korg; t=1666168747;
+        bh=jBoTbudxBixvFylnCwkGubpi1p23EEKMHTLT51gJ8yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQ6HLMCYEygX4CdoxKB2F1G4qJHJu/aQ8uK6jqMO1pFBxU7V8PpSh9hO4ZAKrU6es
-         Afv4n1aa8+N/gFbK0W5f2LJAdy/d0ogvzFgy11XQAbacMENfEXFLV9fC+K8A0Pcd2z
-         mDbXVtjmkTU1gzJNWlc6xfyDJqB3BNHxbzP95ExY=
+        b=wrffrh7X06cksoPcc86hWA3se0axooEjBP8G1e6B0cXxnbQBoMrKbKURE2UTyWdMJ
+         AH1vIvL5p5hU16p32zzCTkcDPCyved0+6RyXAUVF5jjDzdwyjZR1HeFTUYLBM7tXTh
+         XZ8LCWr3+gqgRtYXO8YsTOD3Ve6KjY+U048cT24w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Clark <slc2015@gmail.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 6.0 040/862] i2c: designware: Fix handling of real but unexpected device interrupts
-Date:   Wed, 19 Oct 2022 10:22:07 +0200
-Message-Id: <20221019083251.767513800@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>
+Subject: [PATCH 6.0 041/862] fs: dlm: fix race between test_bit() and queue_work()
+Date:   Wed, 19 Oct 2022 10:22:08 +0200
+Message-Id: <20221019083251.817711321@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,109 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit 301c8f5c32c8fb79c67539bc23972dc3ef48024c upstream.
+commit eef6ec9bf390e836a6c4029f3620fe49528aa1fe upstream.
 
-Commit c7b79a752871 ("mfd: intel-lpss: Add Intel Alder Lake PCH-S PCI
-IDs") caused a regression on certain Gigabyte motherboards for Intel
-Alder Lake-S where system crashes to NULL pointer dereference in
-i2c_dw_xfer_msg() when system resumes from S3 sleep state ("deep").
+This patch fixes a race by using ls_cb_mutex around the bit
+operations and conditional code blocks for LSFL_CB_DELAY.
 
-I was able to debug the issue on Gigabyte Z690 AORUS ELITE and made
-following notes:
+The function dlm_callback_stop() expects to stop all callbacks and
+flush all currently queued onces. The set_bit() is not enough because
+there can still be queue_work() after the workqueue was flushed.
+To avoid queue_work() after set_bit(), surround both by ls_cb_mutex.
 
-- Issue happens when resuming from S3 but not when resuming from
-  "s2idle"
-- PCI device 00:15.0 == i2c_designware.0 is already in D0 state when
-  system enters into pci_pm_resume_noirq() while all other i2c_designware
-  PCI devices are in D3. Devices were runtime suspended and in D3 prior
-  entering into suspend
-- Interrupt comes after pci_pm_resume_noirq() when device interrupts are
-  re-enabled
-- According to register dump the interrupt really comes from the
-  i2c_designware.0. Controller is enabled, I2C target address register
-  points to a one detectable I2C device address 0x60 and the
-  DW_IC_RAW_INTR_STAT register START_DET, STOP_DET, ACTIVITY and
-  TX_EMPTY bits are set indicating completed I2C transaction.
-
-My guess is that the firmware uses this controller to communicate with
-an on-board I2C device during resume but does not disable the controller
-before giving control to an operating system.
-
-I was told the UEFI update fixes this but never the less it revealed the
-driver is not ready to handle TX_EMPTY (or RX_FULL) interrupt when device
-is supposed to be idle and state variables are not set (especially the
-dev->msgs pointer which may point to NULL or stale old data).
-
-Introduce a new software status flag STATUS_ACTIVE indicating when the
-controller is active in driver point of view. Now treat all interrupts
-that occur when is not set as unexpected and mask all interrupts from
-the controller.
-
-Fixes: c7b79a752871 ("mfd: intel-lpss: Add Intel Alder Lake PCH-S PCI IDs")
-Reported-by: Samuel Clark <slc2015@gmail.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215907
-Cc: stable@vger.kernel.org # v5.12+
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-designware-core.h   |    7 +++++--
- drivers/i2c/busses/i2c-designware-master.c |   13 +++++++++++++
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ fs/dlm/ast.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -126,8 +126,9 @@
-  * status codes
-  */
- #define STATUS_IDLE			0x0
--#define STATUS_WRITE_IN_PROGRESS	0x1
--#define STATUS_READ_IN_PROGRESS		0x2
-+#define STATUS_ACTIVE			0x1
-+#define STATUS_WRITE_IN_PROGRESS	0x2
-+#define STATUS_READ_IN_PROGRESS		0x4
+--- a/fs/dlm/ast.c
++++ b/fs/dlm/ast.c
+@@ -200,13 +200,13 @@ void dlm_add_cb(struct dlm_lkb *lkb, uin
+ 	if (!prev_seq) {
+ 		kref_get(&lkb->lkb_ref);
  
- /*
-  * operation modes
-@@ -334,12 +335,14 @@ void i2c_dw_disable_int(struct dw_i2c_de
++		mutex_lock(&ls->ls_cb_mutex);
+ 		if (test_bit(LSFL_CB_DELAY, &ls->ls_flags)) {
+-			mutex_lock(&ls->ls_cb_mutex);
+ 			list_add(&lkb->lkb_cb_list, &ls->ls_cb_delay);
+-			mutex_unlock(&ls->ls_cb_mutex);
+ 		} else {
+ 			queue_work(ls->ls_callback_wq, &lkb->lkb_cb_work);
+ 		}
++		mutex_unlock(&ls->ls_cb_mutex);
+ 	}
+  out:
+ 	mutex_unlock(&lkb->lkb_cb_mutex);
+@@ -288,7 +288,9 @@ void dlm_callback_stop(struct dlm_ls *ls
  
- static inline void __i2c_dw_enable(struct dw_i2c_dev *dev)
+ void dlm_callback_suspend(struct dlm_ls *ls)
  {
-+	dev->status |= STATUS_ACTIVE;
- 	regmap_write(dev->map, DW_IC_ENABLE, 1);
- }
++	mutex_lock(&ls->ls_cb_mutex);
+ 	set_bit(LSFL_CB_DELAY, &ls->ls_flags);
++	mutex_unlock(&ls->ls_cb_mutex);
  
- static inline void __i2c_dw_disable_nowait(struct dw_i2c_dev *dev)
- {
- 	regmap_write(dev->map, DW_IC_ENABLE, 0);
-+	dev->status &= ~STATUS_ACTIVE;
- }
- 
- void __i2c_dw_disable(struct dw_i2c_dev *dev);
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -716,6 +716,19 @@ static int i2c_dw_irq_handler_master(str
- 	u32 stat;
- 
- 	stat = i2c_dw_read_clear_intrbits(dev);
-+
-+	if (!(dev->status & STATUS_ACTIVE)) {
-+		/*
-+		 * Unexpected interrupt in driver point of view. State
-+		 * variables are either unset or stale so acknowledge and
-+		 * disable interrupts for suppressing further interrupts if
-+		 * interrupt really came from this HW (E.g. firmware has left
-+		 * the HW active).
-+		 */
-+		regmap_write(dev->map, DW_IC_INTR_MASK, 0);
-+		return 0;
-+	}
-+
- 	if (stat & DW_IC_INTR_TX_ABRT) {
- 		dev->cmd_err |= DW_IC_ERR_TX_ABRT;
- 		dev->status = STATUS_IDLE;
+ 	if (ls->ls_callback_wq)
+ 		flush_workqueue(ls->ls_callback_wq);
 
 
