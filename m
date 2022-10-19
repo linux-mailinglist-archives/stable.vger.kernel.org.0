@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C7760429C
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:08:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A793E60426E
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:02:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233928AbiJSLHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:07:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54880 "EHLO
+        id S234785AbiJSLCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:02:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232185AbiJSLHJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:07:09 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D4759FEB;
-        Wed, 19 Oct 2022 03:36:13 -0700 (PDT)
+        with ESMTP id S234827AbiJSLCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:02:22 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DCD0D2CEA;
+        Wed, 19 Oct 2022 03:31:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2EC90CE2195;
-        Wed, 19 Oct 2022 09:08:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49EB7C433D7;
-        Wed, 19 Oct 2022 09:08:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EA896CE219D;
+        Wed, 19 Oct 2022 09:09:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7257C433D7;
+        Wed, 19 Oct 2022 09:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170533;
-        bh=uFZzpqGeI0F+s1iei+vQqMl4q+FdPp2Sji8X1gj9HgQ=;
+        s=korg; t=1666170545;
+        bh=xklVpIJmlttcbRUn9vRu+iL6LZXyO7Eb5rTig1bQAy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UaFouskbfCQ1j85YJW47pJEvo99Mbvh5NsVF0UX9gvbJixbiQACUZABAFe5RCh2vi
-         fEjGRJ6RvBYup38xYLGjfbldGIWRLbG+jTQOlnn/0nnx3Fz9U3v3hFijnpESkc1mhZ
-         b9O6pdkRfwH8ET3yvfyQAa0V2XcKwVtJJDP4emmk=
+        b=HVaRyJ4bP0O7+a00/ITGSwNF8zCH6EJUAx/qljK0Yd4okQo9zvIHXAMk7eBWdtkJd
+         4F2aPa2N6nyxIXjkXogcUvARNMQRcRAT5qBxhE4mup6zvDUVoKYjuG9+lWSYYp9mOI
+         awAtBjhqOj5D2E7kXlOz/ePACLYCaY9fqmCHeOW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+2ca247c2d60c7023de7f@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Richard Gobert <richardbgobert@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 691/862] wifi: ath9k: avoid uninit memory read in ath9k_htc_rx_msg()
-Date:   Wed, 19 Oct 2022 10:32:58 +0200
-Message-Id: <20221019083320.517498663@linuxfoundation.org>
+Subject: [PATCH 6.0 695/862] net-next: Fix IP_UNICAST_IF option behavior for connected sockets
+Date:   Wed, 19 Oct 2022 10:33:02 +0200
+Message-Id: <20221019083320.684858586@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,147 +54,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Richard Gobert <richardbgobert@gmail.com>
 
-[ Upstream commit b383e8abed41cc6ff1a3b34de75df9397fa4878c ]
+[ Upstream commit 0e4d354762cefd3e16b4cff8988ff276e45effc4 ]
 
-syzbot is reporting uninit value at ath9k_htc_rx_msg() [1], for
-ioctl(USB_RAW_IOCTL_EP_WRITE) can call ath9k_hif_usb_rx_stream() with
-pkt_len = 0 but ath9k_hif_usb_rx_stream() uses
-__dev_alloc_skb(pkt_len + 32, GFP_ATOMIC) based on an assumption that
-pkt_len is valid. As a result, ath9k_hif_usb_rx_stream() allocates skb
-with uninitialized memory and ath9k_htc_rx_msg() is reading from
-uninitialized memory.
+The IP_UNICAST_IF socket option is used to set the outgoing interface
+for outbound packets.
 
-Since bytes accessed by ath9k_htc_rx_msg() is not known until
-ath9k_htc_rx_msg() is called, it would be difficult to check minimal valid
-pkt_len at "if (pkt_len > 2 * MAX_RX_BUF_SIZE) {" line in
-ath9k_hif_usb_rx_stream().
+The IP_UNICAST_IF socket option was added as it was needed by the
+Wine project, since no other existing option (SO_BINDTODEVICE socket
+option, IP_PKTINFO socket option or the bind function) provided the
+needed characteristics needed by the IP_UNICAST_IF socket option. [1]
+The IP_UNICAST_IF socket option works well for unconnected sockets,
+that is, the interface specified by the IP_UNICAST_IF socket option
+is taken into consideration in the route lookup process when a packet
+is being sent. However, for connected sockets, the outbound interface
+is chosen when connecting the socket, and in the route lookup process
+which is done when a packet is being sent, the interface specified by
+the IP_UNICAST_IF socket option is being ignored.
 
-We have two choices. One is to workaround by adding __GFP_ZERO so that
-ath9k_htc_rx_msg() sees 0 if pkt_len is invalid. The other is to let
-ath9k_htc_rx_msg() validate pkt_len before accessing. This patch chose
-the latter.
+This inconsistent behavior was reported and discussed in an issue
+opened on systemd's GitHub project [2]. Also, a bug report was
+submitted in the kernel's bugzilla [3].
 
-Note that I'm not sure threshold condition is correct, for I can't find
-details on possible packet length used by this protocol.
+To understand the problem in more detail, we can look at what happens
+for UDP packets over IPv4 (The same analysis was done separately in
+the referenced systemd issue).
+When a UDP packet is sent the udp_sendmsg function gets called and
+the following happens:
 
-Link: https://syzkaller.appspot.com/bug?extid=2ca247c2d60c7023de7f [1]
-Reported-by: syzbot <syzbot+2ca247c2d60c7023de7f@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/7acfa1be-4b5c-b2ce-de43-95b0593fb3e5@I-love.SAKURA.ne.jp
+1. The oif member of the struct ipcm_cookie ipc (which stores the
+output interface of the packet) is initialized by the ipcm_init_sk
+function to inet->sk.sk_bound_dev_if (the device set by the
+SO_BINDTODEVICE socket option).
+
+2. If the IP_PKTINFO socket option was set, the oif member gets
+overridden by the call to the ip_cmsg_send function.
+
+3. If no output interface was selected yet, the interface specified
+by the IP_UNICAST_IF socket option is used.
+
+4. If the socket is connected and no destination address is
+specified in the send function, the struct ipcm_cookie ipc is not
+taken into consideration and the cached route, that was calculated in
+the connect function is being used.
+
+Thus, for a connected socket, the IP_UNICAST_IF sockopt isn't taken
+into consideration.
+
+This patch corrects the behavior of the IP_UNICAST_IF socket option
+for connect()ed sockets by taking into consideration the
+IP_UNICAST_IF sockopt when connecting the socket.
+
+In order to avoid reconnecting the socket, this option is still
+ignored when applied on an already connected socket until connect()
+is called again by the Richard Gobert.
+
+Change the __ip4_datagram_connect function, which is called during
+socket connection, to take into consideration the interface set by
+the IP_UNICAST_IF socket option, in a similar way to what is done in
+the udp_sendmsg function.
+
+[1] https://lore.kernel.org/netdev/1328685717.4736.4.camel@edumazet-laptop/T/
+[2] https://github.com/systemd/systemd/issues/11935#issuecomment-618691018
+[3] https://bugzilla.kernel.org/show_bug.cgi?id=210255
+
+Signed-off-by: Richard Gobert <richardbgobert@gmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220829111554.GA1771@debian
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_hst.c | 43 +++++++++++++++---------
- 1 file changed, 28 insertions(+), 15 deletions(-)
+ net/ipv4/datagram.c                       |  2 ++
+ tools/testing/selftests/net/fcnal-test.sh | 30 +++++++++++++++++++++++
+ tools/testing/selftests/net/nettest.c     | 16 ++++++++++--
+ 3 files changed, 46 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_hst.c b/drivers/net/wireless/ath/ath9k/htc_hst.c
-index 994ec48b2f66..ca05b07a45e6 100644
---- a/drivers/net/wireless/ath/ath9k/htc_hst.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
-@@ -364,33 +364,27 @@ void ath9k_htc_txcompletion_cb(struct htc_target *htc_handle,
- }
- 
- static void ath9k_htc_fw_panic_report(struct htc_target *htc_handle,
--				      struct sk_buff *skb)
-+				      struct sk_buff *skb, u32 len)
- {
- 	uint32_t *pattern = (uint32_t *)skb->data;
- 
--	switch (*pattern) {
--	case 0x33221199:
--		{
-+	if (*pattern == 0x33221199 && len >= sizeof(struct htc_panic_bad_vaddr)) {
- 		struct htc_panic_bad_vaddr *htc_panic;
- 		htc_panic = (struct htc_panic_bad_vaddr *) skb->data;
- 		dev_err(htc_handle->dev, "ath: firmware panic! "
- 			"exccause: 0x%08x; pc: 0x%08x; badvaddr: 0x%08x.\n",
- 			htc_panic->exccause, htc_panic->pc,
- 			htc_panic->badvaddr);
--		break;
--		}
--	case 0x33221299:
--		{
-+		return;
-+	}
-+	if (*pattern == 0x33221299) {
- 		struct htc_panic_bad_epid *htc_panic;
- 		htc_panic = (struct htc_panic_bad_epid *) skb->data;
- 		dev_err(htc_handle->dev, "ath: firmware panic! "
- 			"bad epid: 0x%08x\n", htc_panic->epid);
--		break;
--		}
--	default:
--		dev_err(htc_handle->dev, "ath: unknown panic pattern!\n");
--		break;
-+		return;
+diff --git a/net/ipv4/datagram.c b/net/ipv4/datagram.c
+index ffd57523331f..405a8c2aea64 100644
+--- a/net/ipv4/datagram.c
++++ b/net/ipv4/datagram.c
+@@ -42,6 +42,8 @@ int __ip4_datagram_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len
+ 			oif = inet->mc_index;
+ 		if (!saddr)
+ 			saddr = inet->mc_addr;
++	} else if (!oif) {
++		oif = inet->uc_index;
  	}
-+	dev_err(htc_handle->dev, "ath: unknown panic pattern!\n");
- }
+ 	fl4 = &inet->cork.fl.u.ip4;
+ 	rt = ip_route_connect(fl4, usin->sin_addr.s_addr, saddr, oif,
+diff --git a/tools/testing/selftests/net/fcnal-test.sh b/tools/testing/selftests/net/fcnal-test.sh
+index 03b586760164..31c3b6ebd388 100755
+--- a/tools/testing/selftests/net/fcnal-test.sh
++++ b/tools/testing/selftests/net/fcnal-test.sh
+@@ -1466,6 +1466,13 @@ ipv4_udp_novrf()
+ 		run_cmd nettest -D -r ${a} -d ${NSA_DEV} -S -0 ${NSA_IP}
+ 		log_test_addr ${a} $? 0 "Client, device bind via IP_UNICAST_IF"
  
- /*
-@@ -411,16 +405,26 @@ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
- 	if (!htc_handle || !skb)
- 		return;
++		log_start
++		run_cmd_nsb nettest -D -s &
++		sleep 1
++		run_cmd nettest -D -r ${a} -d ${NSA_DEV} -S -0 ${NSA_IP} -U
++		log_test_addr ${a} $? 0 "Client, device bind via IP_UNICAST_IF, with connect()"
++
++
+ 		log_start
+ 		show_hint "Should fail 'Connection refused'"
+ 		run_cmd nettest -D -r ${a}
+@@ -1525,6 +1532,13 @@ ipv4_udp_novrf()
+ 	run_cmd nettest -D -d ${NSA_DEV} -S -r ${a}
+ 	log_test_addr ${a} $? 0 "Global server, device client via IP_UNICAST_IF, local connection"
  
-+	/* A valid message requires len >= 8.
-+	 *
-+	 *   sizeof(struct htc_frame_hdr) == 8
-+	 *   sizeof(struct htc_ready_msg) == 8
-+	 *   sizeof(struct htc_panic_bad_vaddr) == 16
-+	 *   sizeof(struct htc_panic_bad_epid) == 8
-+	 */
-+	if (unlikely(len < sizeof(struct htc_frame_hdr)))
-+		goto invalid;
- 	htc_hdr = (struct htc_frame_hdr *) skb->data;
- 	epid = htc_hdr->endpoint_id;
++	log_start
++	run_cmd nettest -s -D &
++	sleep 1
++	run_cmd nettest -D -d ${NSA_DEV} -S -r ${a} -U
++	log_test_addr ${a} $? 0 "Global server, device client via IP_UNICAST_IF, local connection, with connect()"
++
++
+ 	# IPv4 with device bind has really weird behavior - it overrides the
+ 	# fib lookup, generates an rtable and tries to send the packet. This
+ 	# causes failures for local traffic at different places
+@@ -1550,6 +1564,15 @@ ipv4_udp_novrf()
+ 		sleep 1
+ 		run_cmd nettest -D -r ${a} -d ${NSA_DEV} -S
+ 		log_test_addr ${a} $? 1 "Global server, device client via IP_UNICAST_IF, local connection"
++
++		log_start
++		show_hint "Should fail since addresses on loopback are out of device scope"
++		run_cmd nettest -D -s &
++		sleep 1
++		run_cmd nettest -D -r ${a} -d ${NSA_DEV} -S -U
++		log_test_addr ${a} $? 1 "Global server, device client via IP_UNICAST_IF, local connection, with connect()"
++
++
+ 	done
  
- 	if (epid == 0x99) {
--		ath9k_htc_fw_panic_report(htc_handle, skb);
-+		ath9k_htc_fw_panic_report(htc_handle, skb, len);
- 		kfree_skb(skb);
- 		return;
- 	}
+ 	a=${NSA_IP}
+@@ -3157,6 +3180,13 @@ ipv6_udp_novrf()
+ 		sleep 1
+ 		run_cmd nettest -6 -D -r ${a} -d ${NSA_DEV} -S
+ 		log_test_addr ${a} $? 1 "Global server, device client via IP_UNICAST_IF, local connection"
++
++		log_start
++		show_hint "Should fail 'No route to host' since addresses on loopback are out of device scope"
++		run_cmd nettest -6 -D -s &
++		sleep 1
++		run_cmd nettest -6 -D -r ${a} -d ${NSA_DEV} -S -U
++		log_test_addr ${a} $? 1 "Global server, device client via IP_UNICAST_IF, local connection, with connect()"
+ 	done
  
- 	if (epid < 0 || epid >= ENDPOINT_MAX) {
-+invalid:
- 		if (pipe_id != USB_REG_IN_PIPE)
- 			dev_kfree_skb_any(skb);
- 		else
-@@ -432,21 +436,30 @@ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
+ 	a=${NSA_IP6}
+diff --git a/tools/testing/selftests/net/nettest.c b/tools/testing/selftests/net/nettest.c
+index d9a6fd2cd9d3..7900fa98eccb 100644
+--- a/tools/testing/selftests/net/nettest.c
++++ b/tools/testing/selftests/net/nettest.c
+@@ -127,6 +127,9 @@ struct sock_args {
  
- 		/* Handle trailer */
- 		if (htc_hdr->flags & HTC_FLAGS_RECV_TRAILER) {
--			if (be32_to_cpu(*(__be32 *) skb->data) == 0x00C60000)
-+			if (be32_to_cpu(*(__be32 *) skb->data) == 0x00C60000) {
- 				/* Move past the Watchdog pattern */
- 				htc_hdr = (struct htc_frame_hdr *)(skb->data + 4);
-+				len -= 4;
-+			}
+ 	/* ESP in UDP encap test */
+ 	int use_xfrm;
++
++	/* use send() and connect() instead of sendto */
++	int datagram_connect;
+ };
+ 
+ static int server_mode;
+@@ -979,6 +982,11 @@ static int send_msg(int sd, void *addr, socklen_t alen, struct sock_args *args)
+ 			log_err_errno("write failed sending msg to peer");
+ 			return 1;
  		}
++	} else if (args->datagram_connect) {
++		if (send(sd, msg, msglen, 0) < 0) {
++			log_err_errno("send failed sending msg to peer");
++			return 1;
++		}
+ 	} else if (args->ifindex && args->use_cmsg) {
+ 		if (send_msg_cmsg(sd, addr, alen, args->ifindex, args->version))
+ 			return 1;
+@@ -1659,7 +1667,7 @@ static int connectsock(void *addr, socklen_t alen, struct sock_args *args)
+ 	if (args->has_local_ip && bind_socket(sd, args))
+ 		goto err;
  
- 		/* Get the message ID */
-+		if (unlikely(len < sizeof(struct htc_frame_hdr) + sizeof(__be16)))
-+			goto invalid;
- 		msg_id = (__be16 *) ((void *) htc_hdr +
- 				     sizeof(struct htc_frame_hdr));
+-	if (args->type != SOCK_STREAM)
++	if (args->type != SOCK_STREAM && !args->datagram_connect)
+ 		goto out;
  
- 		/* Now process HTC messages */
- 		switch (be16_to_cpu(*msg_id)) {
- 		case HTC_MSG_READY_ID:
-+			if (unlikely(len < sizeof(struct htc_ready_msg)))
-+				goto invalid;
- 			htc_process_target_rdy(htc_handle, htc_hdr);
+ 	if (args->password && tcp_md5sig(sd, addr, alen, args))
+@@ -1854,7 +1862,7 @@ static int ipc_parent(int cpid, int fd, struct sock_args *args)
+ 	return client_status;
+ }
+ 
+-#define GETOPT_STR  "sr:l:c:p:t:g:P:DRn:M:X:m:d:I:BN:O:SCi6xL:0:1:2:3:Fbqf"
++#define GETOPT_STR  "sr:l:c:p:t:g:P:DRn:M:X:m:d:I:BN:O:SUCi6xL:0:1:2:3:Fbqf"
+ #define OPT_FORCE_BIND_KEY_IFINDEX 1001
+ #define OPT_NO_BIND_KEY_IFINDEX 1002
+ 
+@@ -1891,6 +1899,7 @@ static void print_usage(char *prog)
+ 	"    -I dev        bind socket to given device name - server mode\n"
+ 	"    -S            use setsockopt (IP_UNICAST_IF or IP_MULTICAST_IF)\n"
+ 	"                  to set device binding\n"
++	"    -U            Use connect() and send() for datagram sockets\n"
+ 	"    -f            bind socket with the IP[V6]_FREEBIND option\n"
+ 	"    -C            use cmsg and IP_PKTINFO to specify device binding\n"
+ 	"\n"
+@@ -2074,6 +2083,9 @@ int main(int argc, char *argv[])
+ 		case 'x':
+ 			args.use_xfrm = 1;
  			break;
- 		case HTC_MSG_CONNECT_SERVICE_RESPONSE_ID:
-+			if (unlikely(len < sizeof(struct htc_frame_hdr) +
-+				     sizeof(struct htc_conn_svc_rspmsg)))
-+				goto invalid;
- 			htc_process_conn_rsp(htc_handle, htc_hdr);
- 			break;
++		case 'U':
++			args.datagram_connect = 1;
++			break;
  		default:
+ 			print_usage(argv[0]);
+ 			return 1;
 -- 
 2.35.1
 
