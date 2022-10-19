@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B44C6042A8
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:09:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE3AC60423B
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:57:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230473AbiJSLIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:08:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39284 "EHLO
+        id S234730AbiJSK5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:57:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230315AbiJSLIZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:08:25 -0400
+        with ESMTP id S234700AbiJSK4Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:56:25 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF8A517C54B;
-        Wed, 19 Oct 2022 03:37:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB7B166994;
+        Wed, 19 Oct 2022 03:27:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59B99B82330;
-        Wed, 19 Oct 2022 09:06:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A85EBC433D6;
-        Wed, 19 Oct 2022 09:06:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 844B6B82497;
+        Wed, 19 Oct 2022 09:08:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E495BC433D6;
+        Wed, 19 Oct 2022 09:08:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170380;
-        bh=OgPtLTEGfETYUPU1GzT7ZQ6ful3QMszIFbtSxZ1yJ50=;
+        s=korg; t=1666170499;
+        bh=HDYsHqlawLyMenwDf+zZ2I9OXsat/1lMky2g1FD+N7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bEDtTLHPgcTPK0K9Ey5nzF55l7+jGtBDWS56g2ZwsBiDiYjLUeyit8Ue5YYoUb2uT
-         etB7L2Z+DY0QtBHHIYsV/yX1Rr/527NoKhNkxhOw0Ckb1W4Vun5fgnkMhXwpX/I/Uh
-         WBbGSYio/g/jsaJ/7ExKjBaVMezNNvY/X7PGvUs8=
+        b=VdxQxcm6HuDXEtYVpCYY/L3yZ2qc7jeLBrqvbGGzN6wM2220SlbWLKzj0S21L64mX
+         U/YWzD69FFU/IQjc4We4hzwj94PwuIkQZhb88GYiBUJUQoFSELshj/jjMNizxdx9Ay
+         aaef2j4gLKVCLfe1kLosbyVO/qXBJopiKGKyLPn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Weili Qian <qianweili@huawei.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Koba Ko <koba.ko@canonical.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 632/862] crypto: hisilicon/qm - fix missing put dfx access
-Date:   Wed, 19 Oct 2022 10:31:59 +0200
-Message-Id: <20221019083317.852065606@linuxfoundation.org>
+Subject: [PATCH 6.0 636/862] crypto: ccp - Release dma channels before dmaengine unrgister
+Date:   Wed, 19 Oct 2022 10:32:03 +0200
+Message-Id: <20221019083318.037257498@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,39 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weili Qian <qianweili@huawei.com>
+From: Koba Ko <koba.ko@canonical.com>
 
-[ Upstream commit 5afc904f443de2afd31c4e0686ba178beede86fe ]
+[ Upstream commit 68dbe80f5b510c66c800b9e8055235c5b07e37d1 ]
 
-In function qm_cmd_write(), if function returns from
-branch 'atomic_read(&qm->status.flags) == QM_STOP',
-the got dfx access is forgotten to put.
+A warning is shown during shutdown,
 
-Fixes: 607c191b371d ("crypto: hisilicon - support runtime PM for accelerator device")
-Signed-off-by: Weili Qian <qianweili@huawei.com>
+__dma_async_device_channel_unregister called while 2 clients hold a reference
+WARNING: CPU: 15 PID: 1 at drivers/dma/dmaengine.c:1110 __dma_async_device_channel_unregister+0xb7/0xc0
+
+Call dma_release_channel for occupied channles before dma_async_device_unregister.
+
+Fixes: 54cce8ecb925 ("crypto: ccp - ccp_dmaengine_unregister release dma channels")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Koba Ko <koba.ko@canonical.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/qm.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/crypto/ccp/ccp-dmaengine.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/hisilicon/qm.c b/drivers/crypto/hisilicon/qm.c
-index ad83c194d664..9fa2efe60153 100644
---- a/drivers/crypto/hisilicon/qm.c
-+++ b/drivers/crypto/hisilicon/qm.c
-@@ -2245,8 +2245,10 @@ static ssize_t qm_cmd_write(struct file *filp, const char __user *buffer,
- 		return ret;
+diff --git a/drivers/crypto/ccp/ccp-dmaengine.c b/drivers/crypto/ccp/ccp-dmaengine.c
+index 7d4b4ad1db1f..9f753cb4f5f1 100644
+--- a/drivers/crypto/ccp/ccp-dmaengine.c
++++ b/drivers/crypto/ccp/ccp-dmaengine.c
+@@ -641,6 +641,10 @@ static void ccp_dma_release(struct ccp_device *ccp)
+ 	for (i = 0; i < ccp->cmd_q_count; i++) {
+ 		chan = ccp->ccp_dma_chan + i;
+ 		dma_chan = &chan->dma_chan;
++
++		if (dma_chan->client_count)
++			dma_release_channel(dma_chan);
++
+ 		tasklet_kill(&chan->cleanup_tasklet);
+ 		list_del_rcu(&dma_chan->device_node);
+ 	}
+@@ -766,8 +770,8 @@ void ccp_dmaengine_unregister(struct ccp_device *ccp)
+ 	if (!dmaengine)
+ 		return;
  
- 	/* Judge if the instance is being reset. */
--	if (unlikely(atomic_read(&qm->status.flags) == QM_STOP))
--		return 0;
-+	if (unlikely(atomic_read(&qm->status.flags) == QM_STOP)) {
-+		ret = 0;
-+		goto put_dfx_access;
-+	}
+-	dma_async_device_unregister(dma_dev);
+ 	ccp_dma_release(ccp);
++	dma_async_device_unregister(dma_dev);
  
- 	if (count > QM_DBG_WRITE_LEN) {
- 		ret = -ENOSPC;
+ 	kmem_cache_destroy(ccp->dma_desc_cache);
+ 	kmem_cache_destroy(ccp->dma_cmd_cache);
 -- 
 2.35.1
 
