@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50A1D6042D9
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:11:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED6DE6042E9
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230264AbiJSLLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:11:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60850 "EHLO
+        id S231603AbiJSLL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:11:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230137AbiJSLJx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:09:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FED210A7EE;
-        Wed, 19 Oct 2022 03:38:16 -0700 (PDT)
+        with ESMTP id S231702AbiJSLKy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:10:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16643108DC1;
+        Wed, 19 Oct 2022 03:38:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCD35B822D7;
-        Wed, 19 Oct 2022 08:41:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45449C433D6;
-        Wed, 19 Oct 2022 08:41:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 685DCB822DA;
+        Wed, 19 Oct 2022 08:41:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D753CC433D6;
+        Wed, 19 Oct 2022 08:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168899;
-        bh=QoioZ0jqf5sTqzB/x1/0xIS1uWbsoDtDsR033d+gNwc=;
+        s=korg; t=1666168916;
+        bh=3kmaUKiFlPfcYVCduoERC7tchXK2w82pKHJ6gYQ0xiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SmJ+sY1t4XdReK1SUDNFWo9A3rzyWvfz8PBjRDN3N2cghTz68MAEYlcgfl0SLbUjy
-         yXXyvwSvcuNXJgXmlQ/sYeJOR5GRcOzwQyNAA7eKEwG2NTDMVaVIRUgyaY9zZ6ie4y
-         8JNHRVSGN/2yxKBYj6EfRqU6ATJe9Mv87LyMRzDQ=
+        b=L2tVfxXxC3MY2oYxHVsJg4p4Wq4vjHJT4giN7J1BNfoRxwLIKdTClVppdSaIWny0F
+         aI6rq4SxbWycJzcLzsQITvt1uHxD4ACE6C3m2/wU41uo9kBXTFhxlO6svxhWAHjPUY
+         mdelNiGzEqizdVEdLDcFqRVKifJ2uDTsnX1KGeSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 6.0 091/862] serial: stm32: Deassert Transmit Enable on ->rs485_config()
-Date:   Wed, 19 Oct 2022 10:22:58 +0200
-Message-Id: <20221019083253.972281403@linuxfoundation.org>
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Jeff Layton <jlayton@kernel.org>
+Subject: [PATCH 6.0 097/862] NFSD: Protect against send buffer overflow in NFSv2 READ
+Date:   Wed, 19 Oct 2022 10:23:04 +0200
+Message-Id: <20221019083254.216282279@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,163 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit adafbbf6895eb0ce41a313c6ee68870ab9aa93cd upstream.
+commit 401bc1f90874280a80b93f23be33a0e7e2d1f912 upstream.
 
-The STM32 USART can control RS-485 Transmit Enable in hardware.  Since
-commit 7df5081cbf5e ("serial: stm32: Add RS485 RTS GPIO control"),
-it can alternatively be controlled in software.  That was done to allow
-RS-485 even if the RTS pin is unavailable because it's pinmuxed to a
-different function.
+Since before the git era, NFSD has conserved the number of pages
+held by each nfsd thread by combining the RPC receive and send
+buffers into a single array of pages. This works because there are
+no cases where an operation needs a large RPC Call message and a
+large RPC Reply at the same time.
 
-However the commit neglected to deassert Transmit Enable upon invocation
-of the ->rs485_config() callback.  Fix it.
+Once an RPC Call has been received, svc_process() updates
+svc_rqst::rq_res to describe the part of rq_pages that can be
+used for constructing the Reply. This means that the send buffer
+(rq_res) shrinks when the received RPC record containing the RPC
+Call is large.
 
-Avoid forward declarations by moving stm32_usart_tx_empty(),
-stm32_usart_rs485_rts_enable() and stm32_usart_rs485_rts_disable()
-further up in the driver.
+A client can force this shrinkage on TCP by sending a correctly-
+formed RPC Call header contained in an RPC record that is
+excessively large. The full maximum payload size cannot be
+constructed in that case.
 
-Fixes: 7df5081cbf5e ("serial: stm32: Add RS485 RTS GPIO control")
-Cc: stable@vger.kernel.org # v5.9+
-Cc: Marek Vasut <marex@denx.de>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/6059eab35dba394468335ef640df8b0050fd9dbd.1662886616.git.lukas@wunner.de
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/stm32-usart.c |  100 ++++++++++++++++++++-------------------
- 1 file changed, 53 insertions(+), 47 deletions(-)
+ fs/nfsd/nfsproc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -131,6 +131,53 @@ static void stm32_usart_clr_bits(struct
- 	writel_relaxed(val, port->membase + reg);
- }
+--- a/fs/nfsd/nfsproc.c
++++ b/fs/nfsd/nfsproc.c
+@@ -185,6 +185,7 @@ nfsd_proc_read(struct svc_rqst *rqstp)
+ 		argp->count, argp->offset);
  
-+static unsigned int stm32_usart_tx_empty(struct uart_port *port)
-+{
-+	struct stm32_port *stm32_port = to_stm32_port(port);
-+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
-+
-+	if (readl_relaxed(port->membase + ofs->isr) & USART_SR_TC)
-+		return TIOCSER_TEMT;
-+
-+	return 0;
-+}
-+
-+static void stm32_usart_rs485_rts_enable(struct uart_port *port)
-+{
-+	struct stm32_port *stm32_port = to_stm32_port(port);
-+	struct serial_rs485 *rs485conf = &port->rs485;
-+
-+	if (stm32_port->hw_flow_control ||
-+	    !(rs485conf->flags & SER_RS485_ENABLED))
-+		return;
-+
-+	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
-+		mctrl_gpio_set(stm32_port->gpios,
-+			       stm32_port->port.mctrl | TIOCM_RTS);
-+	} else {
-+		mctrl_gpio_set(stm32_port->gpios,
-+			       stm32_port->port.mctrl & ~TIOCM_RTS);
-+	}
-+}
-+
-+static void stm32_usart_rs485_rts_disable(struct uart_port *port)
-+{
-+	struct stm32_port *stm32_port = to_stm32_port(port);
-+	struct serial_rs485 *rs485conf = &port->rs485;
-+
-+	if (stm32_port->hw_flow_control ||
-+	    !(rs485conf->flags & SER_RS485_ENABLED))
-+		return;
-+
-+	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
-+		mctrl_gpio_set(stm32_port->gpios,
-+			       stm32_port->port.mctrl & ~TIOCM_RTS);
-+	} else {
-+		mctrl_gpio_set(stm32_port->gpios,
-+			       stm32_port->port.mctrl | TIOCM_RTS);
-+	}
-+}
-+
- static void stm32_usart_config_reg_rs485(u32 *cr1, u32 *cr3, u32 delay_ADE,
- 					 u32 delay_DDE, u32 baud)
- {
-@@ -214,6 +261,12 @@ static int stm32_usart_config_rs485(stru
+ 	argp->count = min_t(u32, argp->count, NFSSVC_MAXBLKSIZE_V2);
++	argp->count = min_t(u32, argp->count, rqstp->rq_res.buflen);
  
- 	stm32_usart_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
- 
-+	/* Adjust RTS polarity in case it's driven in software */
-+	if (stm32_usart_tx_empty(port))
-+		stm32_usart_rs485_rts_disable(port);
-+	else
-+		stm32_usart_rs485_rts_enable(port);
-+
- 	return 0;
- }
- 
-@@ -529,42 +582,6 @@ static void stm32_usart_tc_interrupt_dis
- 	stm32_usart_clr_bits(port, ofs->cr1, USART_CR1_TCIE);
- }
- 
--static void stm32_usart_rs485_rts_enable(struct uart_port *port)
--{
--	struct stm32_port *stm32_port = to_stm32_port(port);
--	struct serial_rs485 *rs485conf = &port->rs485;
--
--	if (stm32_port->hw_flow_control ||
--	    !(rs485conf->flags & SER_RS485_ENABLED))
--		return;
--
--	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
--		mctrl_gpio_set(stm32_port->gpios,
--			       stm32_port->port.mctrl | TIOCM_RTS);
--	} else {
--		mctrl_gpio_set(stm32_port->gpios,
--			       stm32_port->port.mctrl & ~TIOCM_RTS);
--	}
--}
--
--static void stm32_usart_rs485_rts_disable(struct uart_port *port)
--{
--	struct stm32_port *stm32_port = to_stm32_port(port);
--	struct serial_rs485 *rs485conf = &port->rs485;
--
--	if (stm32_port->hw_flow_control ||
--	    !(rs485conf->flags & SER_RS485_ENABLED))
--		return;
--
--	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
--		mctrl_gpio_set(stm32_port->gpios,
--			       stm32_port->port.mctrl & ~TIOCM_RTS);
--	} else {
--		mctrl_gpio_set(stm32_port->gpios,
--			       stm32_port->port.mctrl | TIOCM_RTS);
--	}
--}
--
- static void stm32_usart_transmit_chars_pio(struct uart_port *port)
- {
- 	struct stm32_port *stm32_port = to_stm32_port(port);
-@@ -807,17 +824,6 @@ static irqreturn_t stm32_usart_threaded_
- 	return IRQ_HANDLED;
- }
- 
--static unsigned int stm32_usart_tx_empty(struct uart_port *port)
--{
--	struct stm32_port *stm32_port = to_stm32_port(port);
--	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
--
--	if (readl_relaxed(port->membase + ofs->isr) & USART_SR_TC)
--		return TIOCSER_TEMT;
--
--	return 0;
--}
--
- static void stm32_usart_set_mctrl(struct uart_port *port, unsigned int mctrl)
- {
- 	struct stm32_port *stm32_port = to_stm32_port(port);
+ 	v = 0;
+ 	len = argp->count;
 
 
