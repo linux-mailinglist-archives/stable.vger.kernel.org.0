@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E03560410B
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:36:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3EC4604176
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:44:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231712AbiJSKgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:36:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38578 "EHLO
+        id S232147AbiJSKot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:44:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231771AbiJSKgT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:36:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 782B1647E2;
-        Wed, 19 Oct 2022 03:15:04 -0700 (PDT)
+        with ESMTP id S232556AbiJSKno (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:43:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99FCB1EC75;
+        Wed, 19 Oct 2022 03:20:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F36BB823C9;
-        Wed, 19 Oct 2022 08:55:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 983D6C433D7;
-        Wed, 19 Oct 2022 08:55:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F1EFB823C5;
+        Wed, 19 Oct 2022 08:55:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A122AC433D7;
+        Wed, 19 Oct 2022 08:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169719;
-        bh=HXWLNBSYweesCtmqEF+DBW6DuBS8+yAnyMRGdDnJ0Lo=;
+        s=korg; t=1666169727;
+        bh=T1lHPrYrwyqqpQ7QyucnPPp8EabRh658GuwlWjh8TFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=px2hEt6LsBLrjF/QZItAz4Ri3R9y4kZWfgMwUX9K/78xuEkId69mfvpQHyEifc+0R
-         S8NL/P+ERgpw1NoKbpAZW4h99LiE5i42AhVurZ/lQ2bTTc1Eu3gAuMNuaQs96MwMBv
-         xtT4vmq3NErhBL9g9gRxUFf259xIKWJUEX+bLfZY=
+        b=y4lV0eDm5/HWtJDgKq+sC0AYJATWPH7757m+RZuDfWuM6jldErDSfoZLs5MENlt9j
+         OBtPROUJV6+VD+j2Oy8vzlXVCKtejJ3/a4eJ6Jpc7n41G2lY+japcnpb0KlUQXOc3G
+         CDj0jBfphAs2UWKwtkfPsqlrL+p0Ppt16cCleqtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prashant Malani <pmalani@chromium.org>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Tzung-Bi Shih <tzungbi@kernel.org>,
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 375/862] platform/chrome: cros_ec_typec: Add bit offset for DP VDO
-Date:   Wed, 19 Oct 2022 10:27:42 +0200
-Message-Id: <20221019083306.548843142@linuxfoundation.org>
+Subject: [PATCH 6.0 386/862] ASoC: SOF: mediatek: mt8195: Import namespace SND_SOC_SOF_MTK_COMMON
+Date:   Wed, 19 Oct 2022 10:27:53 +0200
+Message-Id: <20221019083307.011781861@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,37 +55,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 1903adae0464c1e1c36b132db474cb3aff7bc727 ]
+[ Upstream commit 404bec4c8f6c38ae5fa208344f1086d38026e93d ]
 
-Use the right macro while constructing the DP_PORT_VDO to ensure the Pin
-Assignment offsets are correct.
+Here we're using function mtk_adsp_dump() from mtk-adsp-common:
+explicitly import its namespace.
 
-Fixes: 1ff5d97f070c ("platform/chrome: cros_ec_typec: Register port altmodes")
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
-Link: https://lore.kernel.org/r/20220819190807.1275937-2-pmalani@chromium.org
+Fixes: 3a054f90e955 ("ASoC: SOF: mediatek: Add mt8195 debug dump")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220906092727.37324-3-angelogioacchino.delregno@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_typec.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/sof/mediatek/mt8195/mt8195.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/chrome/cros_ec_typec.c b/drivers/platform/chrome/cros_ec_typec.c
-index de6ee0f926a6..4d81d8d45b73 100644
---- a/drivers/platform/chrome/cros_ec_typec.c
-+++ b/drivers/platform/chrome/cros_ec_typec.c
-@@ -25,7 +25,8 @@
+diff --git a/sound/soc/sof/mediatek/mt8195/mt8195.c b/sound/soc/sof/mediatek/mt8195/mt8195.c
+index 9c146015cd1b..ff575de7e46a 100644
+--- a/sound/soc/sof/mediatek/mt8195/mt8195.c
++++ b/sound/soc/sof/mediatek/mt8195/mt8195.c
+@@ -652,4 +652,5 @@ static struct platform_driver snd_sof_of_mt8195_driver = {
+ module_platform_driver(snd_sof_of_mt8195_driver);
  
- #define DRV_NAME "cros-ec-typec"
- 
--#define DP_PORT_VDO	(BIT(DP_PIN_ASSIGN_C) | BIT(DP_PIN_ASSIGN_D) | DP_CAP_DFP_D)
-+#define DP_PORT_VDO	(DP_CONF_SET_PIN_ASSIGN(BIT(DP_PIN_ASSIGN_C) | BIT(DP_PIN_ASSIGN_D)) | \
-+				DP_CAP_DFP_D)
- 
- /* Supported alt modes. */
- enum {
+ MODULE_IMPORT_NS(SND_SOC_SOF_XTENSA);
++MODULE_IMPORT_NS(SND_SOC_SOF_MTK_COMMON);
+ MODULE_LICENSE("Dual BSD/GPL");
 -- 
 2.35.1
 
