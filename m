@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BCBE604286
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:06:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 716B560427D
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:05:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234793AbiJSLGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:06:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59286 "EHLO
+        id S232107AbiJSLFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:05:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231633AbiJSLFT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:05:19 -0400
+        with ESMTP id S234893AbiJSLEM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:04:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE69D193F5;
-        Wed, 19 Oct 2022 03:34:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 047D914EC58;
+        Wed, 19 Oct 2022 03:33:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3464617F7;
-        Wed, 19 Oct 2022 09:15:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5D59C433D6;
-        Wed, 19 Oct 2022 09:15:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21874617F2;
+        Wed, 19 Oct 2022 09:15:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39BD2C433D6;
+        Wed, 19 Oct 2022 09:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170903;
-        bh=2ZxUg/1wAsgJI7Aj9gDfm/S13ITpUsPEtiIhR3IIIoc=;
+        s=korg; t=1666170908;
+        bh=3t7YvvkwEOPmixL8bgqdKSwqQRF35jS7csXR8qeViUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lN18bBEyMhZ6OsE76f1xj8U5Gib3acWiVgu9MY4cHfT5HcmqjF2OUYYhB0axoCd/i
-         RPrtKiCDnZJZekDOrs6gV3OzmXHQhLIKyenEpGnCmkTfRgqdgThLu08EMhwtSGnKCX
-         XMjGkWnW1jmZji6qMupbYlI7yQqvEntqviB1jqCg=
+        b=EB2eA8dcYVU9/gkA4zioVNq3W9DNUGAxdsfYwr/gaSNlc2ZN5TfdxObtBwXcru7ar
+         xnWEa0XPqC99FOw0/i/fbA12BbFxLTsvPGoI0jG2nNTKZ33to3EBCc7r4+stEidB1M
+         RSNJzHZUi4gCEdVpoZLLwY5x37a7E9OJPOTqWlOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+79832d33eb89fb3cd092@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 831/862] usb: idmouse: fix an uninit-value in idmouse_open
-Date:   Wed, 19 Oct 2022 10:35:18 +0200
-Message-Id: <20221019083326.617645049@linuxfoundation.org>
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 833/862] hwmon (occ): Retry for checksum failure
+Date:   Wed, 19 Oct 2022 10:35:20 +0200
+Message-Id: <20221019083326.697191417@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,57 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-[ Upstream commit bce2b0539933e485d22d6f6f076c0fcd6f185c4c ]
+[ Upstream commit dbed963ed62c4c2b8870a02c8b7dcb0c2af3ee0b ]
 
-In idmouse_create_image, if any ftip_command fails, it will
-go to the reset label. However, this leads to the data in
-bulk_in_buffer[HEADER..IMGSIZE] uninitialized. And the check
-for valid image incurs an uninitialized dereference.
+Due to the OCC communication design with a shared SRAM area,
+checkum errors are expected due to corrupted buffer from OCC
+communications with other system components. Therefore, retry
+the command twice in the event of a checksum failure.
 
-Fix this by moving the check before reset label since this
-check only be valid if the data after bulk_in_buffer[HEADER]
-has concrete data.
-
-Note that this is found by KMSAN, so only kernel compilation
-is tested.
-
-Reported-by: syzbot+79832d33eb89fb3cd092@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20220922134847.1101921-1-dzm91@hust.edu.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20220426154956.27205-3-eajames@linux.ibm.com
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/idmouse.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/hwmon/occ/p9_sbe.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/misc/idmouse.c b/drivers/usb/misc/idmouse.c
-index e9437a176518..ea39243efee3 100644
---- a/drivers/usb/misc/idmouse.c
-+++ b/drivers/usb/misc/idmouse.c
-@@ -177,10 +177,6 @@ static int idmouse_create_image(struct usb_idmouse *dev)
- 		bytes_read += bulk_read;
+diff --git a/drivers/hwmon/occ/p9_sbe.c b/drivers/hwmon/occ/p9_sbe.c
+index c1e0a1d96cd4..f3791a589b01 100644
+--- a/drivers/hwmon/occ/p9_sbe.c
++++ b/drivers/hwmon/occ/p9_sbe.c
+@@ -14,6 +14,8 @@
+ 
+ #include "common.h"
+ 
++#define OCC_CHECKSUM_RETRIES	3
++
+ struct p9_sbe_occ {
+ 	struct occ occ;
+ 	bool sbe_error;
+@@ -80,18 +82,23 @@ static bool p9_sbe_occ_save_ffdc(struct p9_sbe_occ *ctx, const void *resp,
+ static int p9_sbe_occ_send_cmd(struct occ *occ, u8 *cmd, size_t len,
+ 			       void *resp, size_t resp_len)
+ {
++	size_t original_resp_len = resp_len;
+ 	struct p9_sbe_occ *ctx = to_p9_sbe_occ(occ);
+-	int rc;
++	int rc, i;
+ 
+-	rc = fsi_occ_submit(ctx->sbe, cmd, len, resp, &resp_len);
+-	if (rc < 0) {
++	for (i = 0; i < OCC_CHECKSUM_RETRIES; ++i) {
++		rc = fsi_occ_submit(ctx->sbe, cmd, len, resp, &resp_len);
++		if (rc >= 0)
++			break;
+ 		if (resp_len) {
+ 			if (p9_sbe_occ_save_ffdc(ctx, resp, resp_len))
+ 				sysfs_notify(&occ->bus_dev->kobj, NULL,
+ 					     bin_attr_ffdc.attr.name);
++			return rc;
+ 		}
+-
+-		return rc;
++		if (rc != -EBADE)
++			return rc;
++		resp_len = original_resp_len;
  	}
  
--	/* reset the device */
--reset:
--	ftip_command(dev, FTIP_RELEASE, 0, 0);
--
- 	/* check for valid image */
- 	/* right border should be black (0x00) */
- 	for (bytes_read = sizeof(HEADER)-1 + WIDTH-1; bytes_read < IMGSIZE; bytes_read += WIDTH)
-@@ -192,6 +188,10 @@ static int idmouse_create_image(struct usb_idmouse *dev)
- 		if (dev->bulk_in_buffer[bytes_read] != 0xFF)
- 			return -EAGAIN;
- 
-+	/* reset the device */
-+reset:
-+	ftip_command(dev, FTIP_RELEASE, 0, 0);
-+
- 	/* should be IMGSIZE == 65040 */
- 	dev_dbg(&dev->interface->dev, "read %d bytes fingerprint data\n",
- 		bytes_read);
+ 	switch (((struct occ_response *)resp)->return_status) {
 -- 
 2.35.1
 
