@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AA00604843
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0F926046F6
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233744AbiJSNxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:53:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34426 "EHLO
+        id S231345AbiJSNZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:25:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230389AbiJSNwc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:52:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F48E1B8674;
-        Wed, 19 Oct 2022 06:36:22 -0700 (PDT)
+        with ESMTP id S231349AbiJSNZD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:25:03 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36A1912D34;
+        Wed, 19 Oct 2022 06:11:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3926B8232B;
-        Wed, 19 Oct 2022 08:49:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35591C433C1;
-        Wed, 19 Oct 2022 08:49:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EBE86CE20FA;
+        Wed, 19 Oct 2022 08:49:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D606EC433D6;
+        Wed, 19 Oct 2022 08:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169357;
-        bh=Fq5bDuSWq61AfBRYdgTC2qpoeoE4a3r+TcYud3nUcGc=;
+        s=korg; t=1666169360;
+        bh=yVMy2NWsVdNDP54jbBTFxUQN5uZNosG28yGa4Gw8At0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dsa9TLmI8Pzy69uyDQOgF21mloreix7/MUM9hWD5sCYs7nWno6mvdeA+U/2JZo59y
-         qVwilClv8uwvKLIcnpJTOXqdeXEgEohnO3iAS/cDK669alt/YCFzAVW4MseEgf/NQ3
-         sgPfhz0vy5Q0xQG6HXBgxMIKwYtLN+EIuTQ/Kyv4=
+        b=B4xxqNBi8FNH54s9Y/Hjlchqc6mXkxtuAuXjlPsYAq8rKgEN3RjRRfgs5X6tDCVS7
+         +8a9vwbOsM2GCg+GgFHD3MRxDa4Gk0wUlQKjFJtgcXpuAom57LJInVFoiQR0+/0y9P
+         p2tUNLE1Az5pqOHPb/0u/aFgBAi5vI7P4X+I3gG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Guy Briggs <rgb@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 247/862] audit: free audit_proctitle only on task exit
-Date:   Wed, 19 Oct 2022 10:25:34 +0200
-Message-Id: <20221019083300.942268675@linuxfoundation.org>
+Subject: [PATCH 6.0 248/862] esp: choose the correct inner protocol for GSO on inter address family tunnels
+Date:   Wed, 19 Oct 2022 10:25:35 +0200
+Message-Id: <20221019083300.992358478@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,43 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Guy Briggs <rgb@redhat.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit c3f3ea8af44d0c5fba79fe8b198087342d0c7e04 ]
+[ Upstream commit 26dbd66eab8080be51759e48280da04015221e22 ]
 
-Since audit_proctitle is generated at syscall exit time, its value is
-used immediately and cached for the next syscall.  Since this is the
-case, then only clear it at task exit time.  Otherwise, there is no
-point in caching the value OR bearing the overhead of regenerating it.
+Commit 23c7f8d7989e ("net: Fix esp GSO on inter address family
+tunnels.") is incomplete. It passes to skb_eth_gso_segment the
+protocol for the outer IP version, instead of the inner IP version, so
+we end up calling inet_gso_segment on an inner IPv6 packet and
+ipv6_gso_segment on an inner IPv4 packet and the packets are dropped.
 
-Fixes: 12c5e81d3fd0 ("audit: prepare audit_context for use in calling contexts beyond syscalls")
-Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+This patch completes the fix by selecting the correct protocol based
+on the inner mode's family.
+
+Fixes: c35fe4106b92 ("xfrm: Add mode handlers for IPsec on layer 2")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/auditsc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/esp4_offload.c | 5 ++++-
+ net/ipv6/esp6_offload.c | 5 ++++-
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index 0ee09447ad04..63a6fe99aa3a 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -1016,7 +1016,6 @@ static void audit_reset_context(struct audit_context *ctx)
- 	WARN_ON(!list_empty(&ctx->killed_trees));
- 	audit_free_module(ctx);
- 	ctx->fds[0] = -1;
--	audit_proctitle_free(ctx);
- 	ctx->type = 0; /* reset last for audit_free_*() */
+diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
+index 935026f4c807..170152772d33 100644
+--- a/net/ipv4/esp4_offload.c
++++ b/net/ipv4/esp4_offload.c
+@@ -110,7 +110,10 @@ static struct sk_buff *xfrm4_tunnel_gso_segment(struct xfrm_state *x,
+ 						struct sk_buff *skb,
+ 						netdev_features_t features)
+ {
+-	return skb_eth_gso_segment(skb, features, htons(ETH_P_IP));
++	__be16 type = x->inner_mode.family == AF_INET6 ? htons(ETH_P_IPV6)
++						       : htons(ETH_P_IP);
++
++	return skb_eth_gso_segment(skb, features, type);
  }
  
-@@ -1077,6 +1076,7 @@ static inline void audit_free_context(struct audit_context *context)
+ static struct sk_buff *xfrm4_transport_gso_segment(struct xfrm_state *x,
+diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
+index 3a293838a91d..79d43548279c 100644
+--- a/net/ipv6/esp6_offload.c
++++ b/net/ipv6/esp6_offload.c
+@@ -145,7 +145,10 @@ static struct sk_buff *xfrm6_tunnel_gso_segment(struct xfrm_state *x,
+ 						struct sk_buff *skb,
+ 						netdev_features_t features)
  {
- 	/* resetting is extra work, but it is likely just noise */
- 	audit_reset_context(context);
-+	audit_proctitle_free(context);
- 	free_tree_refs(context);
- 	kfree(context->filterkey);
- 	kfree(context);
+-	return skb_eth_gso_segment(skb, features, htons(ETH_P_IPV6));
++	__be16 type = x->inner_mode.family == AF_INET ? htons(ETH_P_IP)
++						      : htons(ETH_P_IPV6);
++
++	return skb_eth_gso_segment(skb, features, type);
+ }
+ 
+ static struct sk_buff *xfrm6_transport_gso_segment(struct xfrm_state *x,
 -- 
 2.35.1
 
