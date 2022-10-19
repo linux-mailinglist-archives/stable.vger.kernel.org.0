@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3804D604112
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:37:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3128260418C
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:45:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231683AbiJSKhL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:37:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38438 "EHLO
+        id S232837AbiJSKpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:45:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231671AbiJSKgk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:36:40 -0400
+        with ESMTP id S233150AbiJSKoa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:44:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89CB0167D1;
-        Wed, 19 Oct 2022 03:15:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BDEF1578BD;
+        Wed, 19 Oct 2022 03:20:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3503B823AD;
-        Wed, 19 Oct 2022 08:52:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3251CC433C1;
-        Wed, 19 Oct 2022 08:52:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C018B823B0;
+        Wed, 19 Oct 2022 08:52:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75ED2C433C1;
+        Wed, 19 Oct 2022 08:52:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169543;
-        bh=84VswrwwfjQvWqlHGuaNrTFLiXO7xcJlvXZBgToTAdI=;
+        s=korg; t=1666169546;
+        bh=dVDJSEzRrPtFqIsoE3zXwmOWCE8M6Zw0BQZP6LOW0Mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ns+QLlvZijcrn6u4w8H1Sodzd2kb+ZALnJBZKizOakRDy5vK6xnb5L4l+ApTckLnQ
-         yKXGRC/DXdBo7JnudAEdp9zcj1gUaKsN2xI9q32Nw2F6Z+i9PNQ8cNZqigJjNM+i4B
-         FBOK/m6uJ/hRHcjHF6RndzioYZF7I6Rdw3VgjCFg=
+        b=uKqM23aaQh5eGBkp3tyKgTLhQQtBauVikuDueIY3SJdsxmi/vXwM1VynbO/bBGgQu
+         xtXMUUCmxbG6ok1UlwVArRAR7gos7OlEF7+cfhDAfGVSA97lDa6EfNaU5T2vgkshMO
+         25MOW0xomKMxwbFX12AEo/abSYFJbV5DjXGM6c/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 317/862] skmsg: Schedule psock work if the cached skb exists on the psock
-Date:   Wed, 19 Oct 2022 10:26:44 +0200
-Message-Id: <20221019083304.026586017@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 318/862] cw1200: fix incorrect check to determine if no element is found in list
+Date:   Wed, 19 Oct 2022 10:26:45 +0200
+Message-Id: <20221019083304.064274432@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,63 +52,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit bec217197b412d74168c6a42fc0f76d0cc9cad00 ]
+[ Upstream commit 86df5de5c632d3bd940f59bbb14ae912aa9cc363 ]
 
-In sk_psock_backlog function, for ingress direction skb, if no new data
-packet arrives after the skb is cached, the cached skb does not have a
-chance to be added to the receive queue of psock. As a result, the cached
-skb cannot be received by the upper-layer application. Fix this by reschedule
-the psock work to dispose the cached skb in sk_msg_recvmsg function.
+The bug is here: "} else if (item) {".
 
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20220907071311.60534-1-liujian56@huawei.com
+The list iterator value will *always* be set and non-NULL by
+list_for_each_entry(), so it is incorrect to assume that the iterator
+value will be NULL if the list is empty or no element is found in list.
+
+Use a new value 'iter' as the list iterator, while use the old value
+'item' as a dedicated pointer to point to the found element, which
+1. can fix this bug, due to now 'item' is NULL only if it's not found.
+2. do not need to change all the uses of 'item' after the loop.
+3. can also limit the scope of the list iterator 'iter' *only inside*
+   the traversal loop by simply declaring 'iter' inside the loop in the
+   future, as usage of the iterator outside of the list_for_each_entry
+   is considered harmful. https://lkml.org/lkml/2022/2/17/1032
+
+Fixes: a910e4a94f692 ("cw1200: add driver for the ST-E CW1100 & CW1200 WLAN chipsets")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220413091723.17596-1-xiam0nd.tong@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skmsg.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/wireless/st/cw1200/queue.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index 188f8558d27d..ca70525621c7 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -434,8 +434,10 @@ int sk_msg_recvmsg(struct sock *sk, struct sk_psock *psock, struct msghdr *msg,
- 			if (copied + copy > len)
- 				copy = len - copied;
- 			copy = copy_page_to_iter(page, sge->offset, copy, iter);
--			if (!copy)
--				return copied ? copied : -EFAULT;
-+			if (!copy) {
-+				copied = copied ? copied : -EFAULT;
-+				goto out;
-+			}
+diff --git a/drivers/net/wireless/st/cw1200/queue.c b/drivers/net/wireless/st/cw1200/queue.c
+index e06da4b3b0d4..805a3c1bf8fe 100644
+--- a/drivers/net/wireless/st/cw1200/queue.c
++++ b/drivers/net/wireless/st/cw1200/queue.c
+@@ -91,23 +91,25 @@ static void __cw1200_queue_gc(struct cw1200_queue *queue,
+ 			      bool unlock)
+ {
+ 	struct cw1200_queue_stats *stats = queue->stats;
+-	struct cw1200_queue_item *item = NULL, *tmp;
++	struct cw1200_queue_item *item = NULL, *iter, *tmp;
+ 	bool wakeup_stats = false;
  
- 			copied += copy;
- 			if (likely(!peek)) {
-@@ -455,7 +457,7 @@ int sk_msg_recvmsg(struct sock *sk, struct sk_psock *psock, struct msghdr *msg,
- 				 * didn't copy the entire length lets just break.
- 				 */
- 				if (copy != sge->length)
--					return copied;
-+					goto out;
- 				sk_msg_iter_var_next(i);
- 			}
- 
-@@ -477,7 +479,9 @@ int sk_msg_recvmsg(struct sock *sk, struct sk_psock *psock, struct msghdr *msg,
- 		}
- 		msg_rx = sk_psock_peek_msg(psock);
+-	list_for_each_entry_safe(item, tmp, &queue->queue, head) {
+-		if (time_is_after_jiffies(item->queue_timestamp + queue->ttl))
++	list_for_each_entry_safe(iter, tmp, &queue->queue, head) {
++		if (time_is_after_jiffies(iter->queue_timestamp + queue->ttl)) {
++			item = iter;
+ 			break;
++		}
+ 		--queue->num_queued;
+-		--queue->link_map_cache[item->txpriv.link_id];
++		--queue->link_map_cache[iter->txpriv.link_id];
+ 		spin_lock_bh(&stats->lock);
+ 		--stats->num_queued;
+-		if (!--stats->link_map_cache[item->txpriv.link_id])
++		if (!--stats->link_map_cache[iter->txpriv.link_id])
+ 			wakeup_stats = true;
+ 		spin_unlock_bh(&stats->lock);
+ 		cw1200_debug_tx_ttl(stats->priv);
+-		cw1200_queue_register_post_gc(head, item);
+-		item->skb = NULL;
+-		list_move_tail(&item->head, &queue->free_pool);
++		cw1200_queue_register_post_gc(head, iter);
++		iter->skb = NULL;
++		list_move_tail(&iter->head, &queue->free_pool);
  	}
--
-+out:
-+	if (psock->work_state.skb && copied > 0)
-+		schedule_work(&psock->work);
- 	return copied;
- }
- EXPORT_SYMBOL_GPL(sk_msg_recvmsg);
+ 
+ 	if (wakeup_stats)
 -- 
 2.35.1
 
