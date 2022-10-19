@@ -2,73 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12DD1604267
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:01:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C563B6042B8
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233759AbiJSLBs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:01:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39916 "EHLO
+        id S231835AbiJSLJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:09:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234834AbiJSLBX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:01:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79E1415DB38;
-        Wed, 19 Oct 2022 03:30:34 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3BE8AB822C8;
-        Wed, 19 Oct 2022 10:28:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71935C433C1;
-        Wed, 19 Oct 2022 10:28:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666175328;
-        bh=w/IbcFExb1CG7kPAuQOgXPWAylkOleczpwhIpQwM1ug=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BiyAP5vLS57K3vzZHTQn52ireMZcxTypPtwIrSK9TstiIs3E+5MOdHgHHoRk2HNXG
-         c41bBKXly5tGbtHZkMw5llUhvT2s+3TLy4wobpAAhnRrs4K1dfj0EeQxmLOANDa3yq
-         6Alz/3nsjgVSPSpeXr6t16tm/Bh3ikH1umJ1IjUI=
-Date:   Wed, 19 Oct 2022 12:28:46 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jiri Olsa <jolsa@kernel.org>
-Cc:     stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        bpf@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin Rodriguez Reboredo <yakoyoku@gmail.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Philip =?iso-8859-1?Q?M=FCller?= <philm@manjaro.org>
-Subject: Re: [PATCH stable 5.10 2/5] kbuild: Quote OBJCOPY var to avoid a
- pahole call break the build
-Message-ID: <Y0/RXjwt6y1Dfh9y@kroah.com>
-References: <20221019085604.1017583-1-jolsa@kernel.org>
- <20221019085604.1017583-3-jolsa@kernel.org>
+        with ESMTP id S229890AbiJSLIh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:08:37 -0400
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2323A133305;
+        Wed, 19 Oct 2022 03:37:34 -0700 (PDT)
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id E1EF468C4E; Wed, 19 Oct 2022 12:36:30 +0200 (CEST)
+Date:   Wed, 19 Oct 2022 12:36:30 +0200
+From:   Christoph Hellwig <hch@lst.de>
+To:     "Russell King (Oracle)" <linux@armlinux.org.uk>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 6.0 659/862] =?us-ascii?B?PT9V?=
+ =?us-ascii?B?VEYtOD9xP0FSTS9kbWEtbWFwcD1EMT05Nm5nOj0yMGRvbnQ9MjBvdmVycmlk?=
+ =?us-ascii?B?ZT0yMC0+ZG1hPTVGY29oZT89ID0/VVRGLTg/cT9yZW50PTIwd2hlbj0yMHNl?=
+ =?us-ascii?Q?t=3D20from=3D20a=3D20bus=3D20notifier=3F=3D?=
+Message-ID: <20221019103630.GA25051@lst.de>
+References: <20221019083249.951566199@linuxfoundation.org> <20221019083319.087440003@linuxfoundation.org> <Y0+/41/qY8DjVn23@shell.armlinux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20221019085604.1017583-3-jolsa@kernel.org>
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Y0+/41/qY8DjVn23@shell.armlinux.org.uk>
+User-Agent: Mutt/1.5.17 (2007-11-01)
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 19, 2022 at 10:56:01AM +0200, Jiri Olsa wrote:
-> From: Javier Martinez Canillas <javierm@redhat.com>
+On Wed, Oct 19, 2022 at 10:14:11AM +0100, Russell King (Oracle) wrote:
+> I'm seeing:
 > 
-> commit ff2e6efda0d5c51b33e2bcc0b0b981ac0a0ef214 upstream.
+> Subject: [PATCH 6.0 659/862]
+>         =?UTF-8?q?ARM/dma-mapp=D1=96ng:=20dont=20override=20->dma=5Fcohe?=
+>         =?UTF-8?q?rent=20when=20set=20from=20a=20bus=20notifier?=
+> 
+> in mutt, and mutt seems to be unable to decode that. Either a mutt
+> bug or a bug in your scripts or git...
 
-I only see patches 2, 3, and 4 of this series, same with
-lore.kernel.org:
-	https://lore.kernel.org/all/20221019085604.1017583-3-jolsa@kernel.org/
-
-Are the remaining ones somewhere else?
-
-thanks,
-
-greg k-h
+The real problem was me fat fingering the comments and adding a non-ASCII
+"і" character instead of and "i" into the Subject.  And then it somehow
+went downhill from there..
