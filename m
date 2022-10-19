@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7324B603E1F
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:11:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51BD3603E12
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:10:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232621AbiJSJK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:10:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39046 "EHLO
+        id S232374AbiJSJKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:10:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232641AbiJSJIA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:08:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5B256A4B0;
+        with ESMTP id S232596AbiJSJIy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:08:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B581F6A49F;
         Wed, 19 Oct 2022 02:00:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6609E61750;
-        Wed, 19 Oct 2022 08:59:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79E8FC433C1;
-        Wed, 19 Oct 2022 08:59:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03E7961807;
+        Wed, 19 Oct 2022 08:59:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17AA8C433C1;
+        Wed, 19 Oct 2022 08:59:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169982;
-        bh=MMAtz0tiIEGxwOeY5liGyCLMqd2w/HCwnE9fieN4BrI=;
+        s=korg; t=1666169985;
+        bh=0aJmXsHy28if5uuppSC/9legPQw0PyWIgSfVD8RR20k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wzYHY1fKA5LhznjeC6Eg4N5AQOGmWiHahOHj3yYxwIu+7pLUCcYUIOm4dwprvIto7
-         y9XQGvq60MhXDGrWvDIFqbetCaEqafkhQ523HwFNIseb+zt/zY02yKN3oNfCFz9xZx
-         VIrSKCWCJfNO+g0TkvLyOfm7DD1hSmCwnI2Byzh0=
+        b=OYzl9gJM0RA+FKx6neBLU66/I97t/VEG/leygw+gXWSIcliV+SAO3ziKvRq54fCVu
+         555/fP8WquK28e8/WYBuREcQljhJ+Ib942MOFygCx/CyJmGvDtPhkd5Mrv6L0sAv7n
+         VwTW+iMfKdyU35B1INzjKhwkF+9Im9haBGS9vMPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Li Huafei <lihuafei1@huawei.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 450/862] arm64: ftrace: fix module PLTs with mcount
-Date:   Wed, 19 Oct 2022 10:28:57 +0200
-Message-Id: <20221019083309.856979002@linuxfoundation.org>
+Subject: [PATCH 6.0 451/862] arm64: dts: exynos: fix polarity of "enable" line of NFC chip in TM2
+Date:   Wed, 19 Oct 2022 10:28:58 +0200
+Message-Id: <20221019083309.901695365@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,127 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 8cfb08575c6d4585f1ce0deeb189e5c824776b04 ]
+[ Upstream commit bd1a665a01b4d65fd8dc6fece4b376fa5c8c55bb ]
 
-Li Huafei reports that mcount-based ftrace with module PLTs was broken
-by commit:
+According to s3fwrn5 driver code the "enable" GPIO line is driven "high"
+when chip is not in use (mode is S3FWRN5_MODE_COLD), and is driven "low"
+when chip is in use.
 
-  a6253579977e4c6f ("arm64: ftrace: consistently handle PLTs.")
+s3fwrn5_phy_power_ctrl():
 
-When a module PLTs are used and a module is loaded sufficiently far away
-from the kernel, we'll create PLTs for any branches which are
-out-of-range. These are separate from the special ftrace trampoline
-PLTs, which the module PLT code doesn't directly manipulate.
+	...
+	gpio_set_value(phy->gpio_en, 1);
+	...
+	if (mode != S3FWRN5_MODE_COLD) {
+		msleep(S3FWRN5_EN_WAIT_TIME);
+		gpio_set_value(phy->gpio_en, 0);
+		msleep(S3FWRN5_EN_WAIT_TIME);
+	}
 
-When mcount is in use this is a problem, as each mcount callsite in a
-module will be initialized to point to a module PLT, but since commit
-a6253579977e4c6f ftrace_make_nop() will assume that the callsite has
-been initialized to point to the special ftrace trampoline PLT, and
-ftrace_find_callable_addr() rejects other cases.
+Therefore the line described by "en-gpios" property should be annotated
+as "active low".
 
-This means that when ftrace tries to initialize a callsite via
-ftrace_make_nop(), the call to ftrace_find_callable_addr() will find
-that the `_mcount` stub is out-of-range and is not handled by the ftrace
-PLT, resulting in a splat:
+The wakeup gpio appears to have correct polarity (active high).
 
-| ftrace_test: loading out-of-tree module taints kernel.
-| ftrace: no module PLT for _mcount
-| ------------[ ftrace bug ]------------
-| ftrace failed to modify
-| [<ffff800029180014>] 0xffff800029180014
-|  actual:   44:00:00:94
-| Initializing ftrace call sites
-| ftrace record flags: 2000000
-|  (0)
-|  expected tramp: ffff80000802eb3c
-| ------------[ cut here ]------------
-| WARNING: CPU: 3 PID: 157 at kernel/trace/ftrace.c:2120 ftrace_bug+0x94/0x270
-| Modules linked in:
-| CPU: 3 PID: 157 Comm: insmod Tainted: G           O       6.0.0-rc6-00151-gcd722513a189-dirty #22
-| Hardware name: linux,dummy-virt (DT)
-| pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-| pc : ftrace_bug+0x94/0x270
-| lr : ftrace_bug+0x21c/0x270
-| sp : ffff80000b2bbaf0
-| x29: ffff80000b2bbaf0 x28: 0000000000000000 x27: ffff0000c4d38000
-| x26: 0000000000000001 x25: ffff800009d7e000 x24: ffff0000c4d86e00
-| x23: 0000000002000000 x22: ffff80000a62b000 x21: ffff8000098ebea8
-| x20: ffff0000c4d38000 x19: ffff80000aa24158 x18: ffffffffffffffff
-| x17: 0000000000000000 x16: 0a0d2d2d2d2d2d2d x15: ffff800009aa9118
-| x14: 0000000000000000 x13: 6333626532303830 x12: 3030303866666666
-| x11: 203a706d61727420 x10: 6465746365707865 x9 : 3362653230383030
-| x8 : c0000000ffffefff x7 : 0000000000017fe8 x6 : 000000000000bff4
-| x5 : 0000000000057fa8 x4 : 0000000000000000 x3 : 0000000000000001
-| x2 : ad2cb14bb5438900 x1 : 0000000000000000 x0 : 0000000000000022
-| Call trace:
-|  ftrace_bug+0x94/0x270
-|  ftrace_process_locs+0x308/0x430
-|  ftrace_module_init+0x44/0x60
-|  load_module+0x15b4/0x1ce8
-|  __do_sys_init_module+0x1ec/0x238
-|  __arm64_sys_init_module+0x24/0x30
-|  invoke_syscall+0x54/0x118
-|  el0_svc_common.constprop.4+0x84/0x100
-|  do_el0_svc+0x3c/0xd0
-|  el0_svc+0x1c/0x50
-|  el0t_64_sync_handler+0x90/0xb8
-|  el0t_64_sync+0x15c/0x160
-| ---[ end trace 0000000000000000 ]---
-| ---------test_init-----------
-
-Fix this by reverting to the old behaviour of ignoring the old
-instruction when initialising an mcount callsite in a module, which was
-the behaviour prior to commit a6253579977e4c6f.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Fixes: a6253579977e ("arm64: ftrace: consistently handle PLTs.")
-Reported-by: Li Huafei <lihuafei1@huawei.com>
-Link: https://lore.kernel.org/linux-arm-kernel/20220929094134.99512-1-lihuafei1@huawei.com
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20220929134525.798593-1-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20220929011557.4165216-1-dmitry.torokhov@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/ftrace.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
-index ea5dc7c90f46..b49ba9a24bcc 100644
---- a/arch/arm64/kernel/ftrace.c
-+++ b/arch/arm64/kernel/ftrace.c
-@@ -217,11 +217,26 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
- 	unsigned long pc = rec->ip;
- 	u32 old = 0, new;
- 
-+	new = aarch64_insn_gen_nop();
-+
-+	/*
-+	 * When using mcount, callsites in modules may have been initalized to
-+	 * call an arbitrary module PLT (which redirects to the _mcount stub)
-+	 * rather than the ftrace PLT we'll use at runtime (which redirects to
-+	 * the ftrace trampoline). We can ignore the old PLT when initializing
-+	 * the callsite.
-+	 *
-+	 * Note: 'mod' is only set at module load time.
-+	 */
-+	if (!IS_ENABLED(CONFIG_DYNAMIC_FTRACE_WITH_REGS) &&
-+	    IS_ENABLED(CONFIG_ARM64_MODULE_PLTS) && mod) {
-+		return aarch64_insn_patch_text_nosync((void *)pc, new);
-+	}
-+
- 	if (!ftrace_find_callable_addr(rec, mod, &addr))
- 		return -EINVAL;
- 
- 	old = aarch64_insn_gen_branch_imm(pc, addr, AARCH64_INSN_BRANCH_LINK);
--	new = aarch64_insn_gen_nop();
- 
- 	return ftrace_modify_code(pc, old, new, true);
- }
--- 
-2.35.1
-
+--- a/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi
++++ b/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi
+@@ -795,7 +795,7 @@
+ 		reg = <0x27>;
+ 		interrupt-parent = <&gpa1>;
+ 		interrupts = <3 IRQ_TYPE_EDGE_RISING>;
+-		en-gpios = <&gpf1 4 GPIO_ACTIVE_HIGH>;
++		en-gpios = <&gpf1 4 GPIO_ACTIVE_LOW>;
+ 		wake-gpios = <&gpj0 2 GPIO_ACTIVE_HIGH>;
+ 	};
+ };
 
 
