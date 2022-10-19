@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12933603C18
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:43:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D2DD603C15
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231270AbiJSInQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:43:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55750 "EHLO
+        id S231267AbiJSInP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:43:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230517AbiJSIma (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:42:30 -0400
+        with ESMTP id S230515AbiJSImk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:42:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF1AD44CE7;
-        Wed, 19 Oct 2022 01:39:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89AC753A63;
+        Wed, 19 Oct 2022 01:39:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A6F3617E4;
-        Wed, 19 Oct 2022 08:39:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0A10C433D7;
-        Wed, 19 Oct 2022 08:39:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25E09617D6;
+        Wed, 19 Oct 2022 08:39:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 177F5C433D6;
+        Wed, 19 Oct 2022 08:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168790;
-        bh=beAhWKXvQm9GjdNfxG+/MZqHkyVEr24AhaspX2hWJsw=;
+        s=korg; t=1666168793;
+        bh=a2KNSKtYiPrIMjccfWprCEzKN1CyLwO/KdoTcBtdja8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yuc6OKj/H6JRXZtzKNw68LL+xG3SpiY0mkEIii5hUZ45i8OOjvHZqqmqA92ixGgx0
-         VNffNx02gzgIonF9tNdfsIT6k8SxAEBIk8114aMojDaGg0UQAjBjcw2Il0OhsoRCNy
-         jPJ99NHH2LbmDBoQGJQp52iz9nfMizsFalx8Dpfg=
+        b=HVk4jeiPGnCNn3FM0SCCBxVOdAUFcIBIvSKI297zOb9WgSYHGf9e9Vti3S+SR+jA6
+         QqFonKqtYd20ngClCeukaCRFNl6OyuLuQ2no8Hy7gqJEOIXSS7WMkKeI81ZAM2nvdd
+         SKt62uvOjXgSlsCVXrU3ARtwg3nwAgAYLz4TpDjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        linux-arm-msm@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 6.0 054/862] regulator: qcom_rpm: Fix circular deferral regression
-Date:   Wed, 19 Oct 2022 10:22:21 +0200
-Message-Id: <20221019083252.370989353@linuxfoundation.org>
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Atish Patra <atishp@rivosinc.com>,
+        Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH 6.0 055/862] arm64: topology: move store_cpu_topology() to shared code
+Date:   Wed, 19 Oct 2022 10:22:22 +0200
+Message-Id: <20221019083252.410045280@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,99 +54,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-commit 8478ed5844588703a1a4c96a004b1525fbdbdd5e upstream.
+commit 456797da792fa7cbf6698febf275fe9b36691f78 upstream.
 
-On recent kernels, the PM8058 L16 (or any other PM8058 LDO-regulator)
-does not come up if they are supplied by an SMPS-regulator. This
-is not very strange since the regulators are registered in a long
-array and the L-regulators are registered before the S-regulators,
-and if an L-regulator defers, it will never get around to registering
-the S-regulator that it needs.
+arm64's method of defining a default cpu topology requires only minimal
+changes to apply to RISC-V also. The current arm64 implementation exits
+early in a uniprocessor configuration by reading MPIDR & claiming that
+uniprocessor can rely on the default values.
 
-See arch/arm/boot/dts/qcom-apq8060-dragonboard.dts:
+This is appears to be a hangover from prior to '3102bc0e6ac7 ("arm64:
+topology: Stop using MPIDR for topology information")', because the
+current code just assigns default values for multiprocessor systems.
 
-pm8058-regulators {
-    (...)
-    vdd_l13_l16-supply = <&pm8058_s4>;
-    (...)
+With the MPIDR references removed, store_cpu_topolgy() can be moved to
+the common arch_topology code.
 
-Ooops.
-
-Fix this by moving the PM8058 S-regulators first in the array.
-
-Do the same for the PM8901 S-regulators (though this is currently
-not causing any problems with out device trees) so that the pattern
-of registration order is the same on all PMnnnn chips.
-
-Fixes: 087a1b5cdd55 ("regulator: qcom: Rework to single platform device")
-Cc: stable@vger.kernel.org
-Cc: Andy Gross <agross@kernel.org>
-Cc: Bjorn Andersson <andersson@kernel.org>
-Cc: Konrad Dybcio <konrad.dybcio@somainline.org>
-Cc: linux-arm-msm@vger.kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220909112529.239143-1-linus.walleij@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Reviewed-by: Atish Patra <atishp@rivosinc.com>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/qcom_rpm-regulator.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ arch/arm64/kernel/topology.c |   40 ----------------------------------------
+ drivers/base/arch_topology.c |   19 +++++++++++++++++++
+ 2 files changed, 19 insertions(+), 40 deletions(-)
 
---- a/drivers/regulator/qcom_rpm-regulator.c
-+++ b/drivers/regulator/qcom_rpm-regulator.c
-@@ -802,6 +802,12 @@ static const struct rpm_regulator_data r
- };
+--- a/arch/arm64/kernel/topology.c
++++ b/arch/arm64/kernel/topology.c
+@@ -22,46 +22,6 @@
+ #include <asm/cputype.h>
+ #include <asm/topology.h>
  
- static const struct rpm_regulator_data rpm_pm8058_regulators[] = {
-+	{ "s0",   QCOM_RPM_PM8058_SMPS0,  &pm8058_smps, "vdd_s0" },
-+	{ "s1",   QCOM_RPM_PM8058_SMPS1,  &pm8058_smps, "vdd_s1" },
-+	{ "s2",   QCOM_RPM_PM8058_SMPS2,  &pm8058_smps, "vdd_s2" },
-+	{ "s3",   QCOM_RPM_PM8058_SMPS3,  &pm8058_smps, "vdd_s3" },
-+	{ "s4",   QCOM_RPM_PM8058_SMPS4,  &pm8058_smps, "vdd_s4" },
-+
- 	{ "l0",   QCOM_RPM_PM8058_LDO0,   &pm8058_nldo, "vdd_l0_l1_lvs"	},
- 	{ "l1",   QCOM_RPM_PM8058_LDO1,   &pm8058_nldo, "vdd_l0_l1_lvs" },
- 	{ "l2",   QCOM_RPM_PM8058_LDO2,   &pm8058_pldo, "vdd_l2_l11_l12" },
-@@ -829,12 +835,6 @@ static const struct rpm_regulator_data r
- 	{ "l24",  QCOM_RPM_PM8058_LDO24,  &pm8058_nldo, "vdd_l23_l24_l25" },
- 	{ "l25",  QCOM_RPM_PM8058_LDO25,  &pm8058_nldo, "vdd_l23_l24_l25" },
- 
--	{ "s0",   QCOM_RPM_PM8058_SMPS0,  &pm8058_smps, "vdd_s0" },
--	{ "s1",   QCOM_RPM_PM8058_SMPS1,  &pm8058_smps, "vdd_s1" },
--	{ "s2",   QCOM_RPM_PM8058_SMPS2,  &pm8058_smps, "vdd_s2" },
--	{ "s3",   QCOM_RPM_PM8058_SMPS3,  &pm8058_smps, "vdd_s3" },
--	{ "s4",   QCOM_RPM_PM8058_SMPS4,  &pm8058_smps, "vdd_s4" },
+-void store_cpu_topology(unsigned int cpuid)
+-{
+-	struct cpu_topology *cpuid_topo = &cpu_topology[cpuid];
+-	u64 mpidr;
 -
- 	{ "lvs0", QCOM_RPM_PM8058_LVS0, &pm8058_switch, "vdd_l0_l1_lvs" },
- 	{ "lvs1", QCOM_RPM_PM8058_LVS1, &pm8058_switch, "vdd_l0_l1_lvs" },
- 
-@@ -843,6 +843,12 @@ static const struct rpm_regulator_data r
- };
- 
- static const struct rpm_regulator_data rpm_pm8901_regulators[] = {
-+	{ "s0",   QCOM_RPM_PM8901_SMPS0, &pm8901_ftsmps, "vdd_s0" },
-+	{ "s1",   QCOM_RPM_PM8901_SMPS1, &pm8901_ftsmps, "vdd_s1" },
-+	{ "s2",   QCOM_RPM_PM8901_SMPS2, &pm8901_ftsmps, "vdd_s2" },
-+	{ "s3",   QCOM_RPM_PM8901_SMPS3, &pm8901_ftsmps, "vdd_s3" },
-+	{ "s4",   QCOM_RPM_PM8901_SMPS4, &pm8901_ftsmps, "vdd_s4" },
-+
- 	{ "l0",   QCOM_RPM_PM8901_LDO0, &pm8901_nldo, "vdd_l0" },
- 	{ "l1",   QCOM_RPM_PM8901_LDO1, &pm8901_pldo, "vdd_l1" },
- 	{ "l2",   QCOM_RPM_PM8901_LDO2, &pm8901_pldo, "vdd_l2" },
-@@ -851,12 +857,6 @@ static const struct rpm_regulator_data r
- 	{ "l5",   QCOM_RPM_PM8901_LDO5, &pm8901_pldo, "vdd_l5" },
- 	{ "l6",   QCOM_RPM_PM8901_LDO6, &pm8901_pldo, "vdd_l6" },
- 
--	{ "s0",   QCOM_RPM_PM8901_SMPS0, &pm8901_ftsmps, "vdd_s0" },
--	{ "s1",   QCOM_RPM_PM8901_SMPS1, &pm8901_ftsmps, "vdd_s1" },
--	{ "s2",   QCOM_RPM_PM8901_SMPS2, &pm8901_ftsmps, "vdd_s2" },
--	{ "s3",   QCOM_RPM_PM8901_SMPS3, &pm8901_ftsmps, "vdd_s3" },
--	{ "s4",   QCOM_RPM_PM8901_SMPS4, &pm8901_ftsmps, "vdd_s4" },
+-	if (cpuid_topo->package_id != -1)
+-		goto topology_populated;
 -
- 	{ "lvs0", QCOM_RPM_PM8901_LVS0, &pm8901_switch, "lvs0_in" },
- 	{ "lvs1", QCOM_RPM_PM8901_LVS1, &pm8901_switch, "lvs1_in" },
- 	{ "lvs2", QCOM_RPM_PM8901_LVS2, &pm8901_switch, "lvs2_in" },
+-	mpidr = read_cpuid_mpidr();
+-
+-	/* Uniprocessor systems can rely on default topology values */
+-	if (mpidr & MPIDR_UP_BITMASK)
+-		return;
+-
+-	/*
+-	 * This would be the place to create cpu topology based on MPIDR.
+-	 *
+-	 * However, it cannot be trusted to depict the actual topology; some
+-	 * pieces of the architecture enforce an artificial cap on Aff0 values
+-	 * (e.g. GICv3's ICC_SGI1R_EL1 limits it to 15), leading to an
+-	 * artificial cycling of Aff1, Aff2 and Aff3 values. IOW, these end up
+-	 * having absolutely no relationship to the actual underlying system
+-	 * topology, and cannot be reasonably used as core / package ID.
+-	 *
+-	 * If the MT bit is set, Aff0 *could* be used to define a thread ID, but
+-	 * we still wouldn't be able to obtain a sane core ID. This means we
+-	 * need to entirely ignore MPIDR for any topology deduction.
+-	 */
+-	cpuid_topo->thread_id  = -1;
+-	cpuid_topo->core_id    = cpuid;
+-	cpuid_topo->package_id = cpu_to_node(cpuid);
+-
+-	pr_debug("CPU%u: cluster %d core %d thread %d mpidr %#016llx\n",
+-		 cpuid, cpuid_topo->package_id, cpuid_topo->core_id,
+-		 cpuid_topo->thread_id, mpidr);
+-
+-topology_populated:
+-	update_siblings_masks(cpuid);
+-}
+-
+ #ifdef CONFIG_ACPI
+ static bool __init acpi_cpu_is_threaded(int cpu)
+ {
+--- a/drivers/base/arch_topology.c
++++ b/drivers/base/arch_topology.c
+@@ -841,4 +841,23 @@ void __init init_cpu_topology(void)
+ 		return;
+ 	}
+ }
++
++void store_cpu_topology(unsigned int cpuid)
++{
++	struct cpu_topology *cpuid_topo = &cpu_topology[cpuid];
++
++	if (cpuid_topo->package_id != -1)
++		goto topology_populated;
++
++	cpuid_topo->thread_id = -1;
++	cpuid_topo->core_id = cpuid;
++	cpuid_topo->package_id = cpu_to_node(cpuid);
++
++	pr_debug("CPU%u: package %d core %d thread %d\n",
++		 cpuid, cpuid_topo->package_id, cpuid_topo->core_id,
++		 cpuid_topo->thread_id);
++
++topology_populated:
++	update_siblings_masks(cpuid);
++}
+ #endif
 
 
