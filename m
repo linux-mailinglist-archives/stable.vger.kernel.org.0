@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0A06603DD2
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:07:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9192603CE8
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:53:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232521AbiJSJGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:06:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42538 "EHLO
+        id S231869AbiJSIxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:53:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232328AbiJSJFf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:05:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B752BFE;
-        Wed, 19 Oct 2022 01:59:19 -0700 (PDT)
+        with ESMTP id S231840AbiJSIxI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:53:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AC8084E6D;
+        Wed, 19 Oct 2022 01:50:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A122A61843;
-        Wed, 19 Oct 2022 08:49:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B308EC433D6;
-        Wed, 19 Oct 2022 08:49:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D19461847;
+        Wed, 19 Oct 2022 08:49:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BFC1C433D6;
+        Wed, 19 Oct 2022 08:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169371;
-        bh=naQsdsUwmv7ZYGgsCmUoqoGlQ8cz+SG8+yoMlmhiWOo=;
+        s=korg; t=1666169373;
+        bh=EQlopx31BUyrGQu0oSTme+DKanTOBlcrCtNgTG0TuYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bxcai6RGK+KkgttwADRHY7cL8r0BC68I0G64G9canfewR63lh6EnzqmfPFH1riQrx
-         aXDMEIkH0Dt3Jx/MQChJi4rbVfl6UUBKyBADJohWUFhjO3lXEVoXObEPJKv+fEXWLH
-         0q7jpdSST45hErgrR2GVm3dWGW1pEE8jWyaNlmKc=
+        b=spyKqjnAMoV7cSajhGgG0miGWeh5vw0bNnC/ztKfEV8jheLQOplUpaLdy+7xV574A
+         4+MseAQeZhGVAoOYNC2oL1MRr7hAlEyPlYL+f/aNd+2a0cZdz4/O3h+qTqvRQEIrgT
+         KJN8BDhCjGjteGN1Ge6d8zmMf9Jo16z5teTbv5qs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
         Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 251/862] xsk: Fix backpressure mechanism on Tx
-Date:   Wed, 19 Oct 2022 10:25:38 +0200
-Message-Id: <20221019083301.126980073@linuxfoundation.org>
+Subject: [PATCH 6.0 252/862] selftests/xsk: Add missing close() on netns fd
+Date:   Wed, 19 Oct 2022 10:25:39 +0200
+Message-Id: <20221019083301.174955152@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -57,167 +57,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit c00c4461689e15ac2cc3b9a595a54e4d8afd3d77 ]
+[ Upstream commit 8a7d61bdc2fac2c460a2f32a062f5c6dbd21a764 ]
 
-Commit d678cbd2f867 ("xsk: Fix handling of invalid descriptors in XSK TX
-batching API") fixed batch API usage against set of descriptors with
-invalid ones but introduced a problem when AF_XDP SW rings are smaller
-than HW ones. Mismatch of reported Tx'ed frames between HW generator and
-user space app was observed. It turned out that backpressure mechanism
-became a bottleneck when the amount of produced descriptors to CQ is
-lower than what we grabbed from XSK Tx ring.
+Commit 1034b03e54ac ("selftests: xsk: Simplify cleanup of ifobjects")
+removed close on netns fd, which is not correct, so let us restore it.
 
-Say that 512 entries had been taken from XSK Tx ring but we had only 490
-free entries in CQ. Then callsite (ZC driver) will produce only 490
-entries onto HW Tx ring but 512 entries will be released from Tx ring
-and this is what will be seen by the user space.
-
-In order to fix this case, mix XSK Tx/CQ ring interractions by moving
-around internal functions and changing call order:
-
-*  pull out xskq_prod_nb_free() from xskq_prod_reserve_addr_batch()
-   up to xsk_tx_peek_release_desc_batch();
-** move xskq_cons_release_n() into xskq_cons_read_desc_batch()
-
-After doing so, algorithm can be described as follows:
-
-1. lookup Tx entries
-2. use value from 1. to reserve space in CQ (*)
-3. Read from Tx ring as much descriptors as value from 2
- 3a. release descriptors from XSK Tx ring (**)
-4. Finally produce addresses to CQ
-
-Fixes: d678cbd2f867 ("xsk: Fix handling of invalid descriptors in XSK TX batching API")
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Fixes: 1034b03e54ac ("selftests: xsk: Simplify cleanup of ifobjects")
 Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220830121705.8618-1-maciej.fijalkowski@intel.com
+Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Link: https://lore.kernel.org/bpf/20220830133905.9945-1-maciej.fijalkowski@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xsk.c       | 22 +++++++++++-----------
- net/xdp/xsk_queue.h | 22 ++++++++++------------
- 2 files changed, 21 insertions(+), 23 deletions(-)
+ tools/testing/selftests/bpf/xskxceiver.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
-index 7bada4e8460b..9f0561b67c12 100644
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -355,16 +355,15 @@ static u32 xsk_tx_peek_release_fallback(struct xsk_buff_pool *pool, u32 max_entr
- 	return nb_pkts;
- }
+diff --git a/tools/testing/selftests/bpf/xskxceiver.c b/tools/testing/selftests/bpf/xskxceiver.c
+index 74d56d971baf..091402dc5390 100644
+--- a/tools/testing/selftests/bpf/xskxceiver.c
++++ b/tools/testing/selftests/bpf/xskxceiver.c
+@@ -1606,6 +1606,8 @@ static struct ifobject *ifobject_create(void)
+ 	if (!ifobj->umem)
+ 		goto out_umem;
  
--u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 max_entries)
-+u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 nb_pkts)
- {
- 	struct xdp_sock *xs;
--	u32 nb_pkts;
- 
- 	rcu_read_lock();
- 	if (!list_is_singular(&pool->xsk_tx_list)) {
- 		/* Fallback to the non-batched version */
- 		rcu_read_unlock();
--		return xsk_tx_peek_release_fallback(pool, max_entries);
-+		return xsk_tx_peek_release_fallback(pool, nb_pkts);
- 	}
- 
- 	xs = list_first_or_null_rcu(&pool->xsk_tx_list, struct xdp_sock, tx_list);
-@@ -373,12 +372,7 @@ u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 max_entries)
- 		goto out;
- 	}
- 
--	max_entries = xskq_cons_nb_entries(xs->tx, max_entries);
--	nb_pkts = xskq_cons_read_desc_batch(xs->tx, pool, max_entries);
--	if (!nb_pkts) {
--		xs->tx->queue_empty_descs++;
--		goto out;
--	}
-+	nb_pkts = xskq_cons_nb_entries(xs->tx, nb_pkts);
- 
- 	/* This is the backpressure mechanism for the Tx path. Try to
- 	 * reserve space in the completion queue for all packets, but
-@@ -386,12 +380,18 @@ u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 max_entries)
- 	 * packets. This avoids having to implement any buffering in
- 	 * the Tx path.
- 	 */
--	nb_pkts = xskq_prod_reserve_addr_batch(pool->cq, pool->tx_descs, nb_pkts);
-+	nb_pkts = xskq_prod_nb_free(pool->cq, nb_pkts);
- 	if (!nb_pkts)
- 		goto out;
- 
--	xskq_cons_release_n(xs->tx, max_entries);
-+	nb_pkts = xskq_cons_read_desc_batch(xs->tx, pool, nb_pkts);
-+	if (!nb_pkts) {
-+		xs->tx->queue_empty_descs++;
-+		goto out;
-+	}
++	ifobj->ns_fd = -1;
 +
- 	__xskq_cons_release(xs->tx);
-+	xskq_prod_write_addr_batch(pool->cq, pool->tx_descs, nb_pkts);
- 	xs->sk.sk_write_space(&xs->sk);
+ 	return ifobj;
  
- out:
-diff --git a/net/xdp/xsk_queue.h b/net/xdp/xsk_queue.h
-index fb20bf7207cf..c6fb6b763658 100644
---- a/net/xdp/xsk_queue.h
-+++ b/net/xdp/xsk_queue.h
-@@ -205,6 +205,11 @@ static inline bool xskq_cons_read_desc(struct xsk_queue *q,
- 	return false;
- }
+ out_umem:
+@@ -1617,6 +1619,8 @@ static struct ifobject *ifobject_create(void)
  
-+static inline void xskq_cons_release_n(struct xsk_queue *q, u32 cnt)
-+{
-+	q->cached_cons += cnt;
-+}
-+
- static inline u32 xskq_cons_read_desc_batch(struct xsk_queue *q, struct xsk_buff_pool *pool,
- 					    u32 max)
+ static void ifobject_delete(struct ifobject *ifobj)
  {
-@@ -226,6 +231,8 @@ static inline u32 xskq_cons_read_desc_batch(struct xsk_queue *q, struct xsk_buff
- 		cached_cons++;
- 	}
- 
-+	/* Release valid plus any invalid entries */
-+	xskq_cons_release_n(q, cached_cons - q->cached_cons);
- 	return nb_entries;
- }
- 
-@@ -291,11 +298,6 @@ static inline void xskq_cons_release(struct xsk_queue *q)
- 	q->cached_cons++;
- }
- 
--static inline void xskq_cons_release_n(struct xsk_queue *q, u32 cnt)
--{
--	q->cached_cons += cnt;
--}
--
- static inline u32 xskq_cons_present_entries(struct xsk_queue *q)
- {
- 	/* No barriers needed since data is not accessed */
-@@ -350,21 +352,17 @@ static inline int xskq_prod_reserve_addr(struct xsk_queue *q, u64 addr)
- 	return 0;
- }
- 
--static inline u32 xskq_prod_reserve_addr_batch(struct xsk_queue *q, struct xdp_desc *descs,
--					       u32 max)
-+static inline void xskq_prod_write_addr_batch(struct xsk_queue *q, struct xdp_desc *descs,
-+					      u32 nb_entries)
- {
- 	struct xdp_umem_ring *ring = (struct xdp_umem_ring *)q->ring;
--	u32 nb_entries, i, cached_prod;
--
--	nb_entries = xskq_prod_nb_free(q, max);
-+	u32 i, cached_prod;
- 
- 	/* A, matches D */
- 	cached_prod = q->cached_prod;
- 	for (i = 0; i < nb_entries; i++)
- 		ring->desc[cached_prod++ & q->ring_mask] = descs[i].addr;
- 	q->cached_prod = cached_prod;
--
--	return nb_entries;
- }
- 
- static inline int xskq_prod_reserve_desc(struct xsk_queue *q,
++	if (ifobj->ns_fd != -1)
++		close(ifobj->ns_fd);
+ 	free(ifobj->umem);
+ 	free(ifobj->xsk_arr);
+ 	free(ifobj);
 -- 
 2.35.1
 
