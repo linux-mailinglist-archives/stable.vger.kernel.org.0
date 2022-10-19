@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46A0C603F5C
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B46F603E58
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:13:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233648AbiJSJbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:31:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47606 "EHLO
+        id S232638AbiJSJM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:12:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233697AbiJSJ3H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B2C1EB746;
-        Wed, 19 Oct 2022 02:12:56 -0700 (PDT)
+        with ESMTP id S232637AbiJSJK5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:10:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E1B0C4DB9;
+        Wed, 19 Oct 2022 02:02:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7455617E1;
-        Wed, 19 Oct 2022 09:02:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D87D0C433D6;
-        Wed, 19 Oct 2022 09:02:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C92161825;
+        Wed, 19 Oct 2022 09:02:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E90CC433C1;
+        Wed, 19 Oct 2022 09:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170125;
-        bh=obz5FPNMsHHx1sO6B0yQTmd5pxFcPPFY4b0ZdeXu71Q=;
+        s=korg; t=1666170127;
+        bh=SVGyauJPlNV9CwUJHeaBYDZmpQHU7dMSWq2bl8Wcheg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SoXg+h68uwHN9yxcnKp+JRJIzYU8jFuOsZtce9+xdF2dm3ANJGLVLvX3kMw13DRAm
-         9HIyhKmdH18pq5Wjtk3EeVlHq+ezUJJ+89B2JK9QNttFfgarkc6DM754LHcfgQfKeE
-         1Gj/dDHfkIhl6Je/AlYEn2hi5hlxPhA19SSeU2z0=
+        b=fCaPBBbxP023kNdTCIlsZDp8DveWT6QXLeEwTFuGGCOgsMt2IYKAnQ4n1Sf1FShV+
+         7I5uyt/VYHvI32vpKh8mETZTcrSd9Q9usGR6n2fK2VbmL7JLLMyoKzyMjI/suDKueO
+         5qKHN3a9FmZn8Q8MPQsJOQgrqcFHBl6eF/xk+rdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bernard Metzler <bmt@zurich.ibm.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 537/862] RDMA/siw: Always consume all skbuf data in sk_data_ready() upcall.
-Date:   Wed, 19 Oct 2022 10:30:24 +0200
-Message-Id: <20221019083313.678213207@linuxfoundation.org>
+Subject: [PATCH 6.0 538/862] RDMA/siw: Fix QP destroy to wait for all references dropped.
+Date:   Wed, 19 Oct 2022 10:30:25 +0200
+Message-Id: <20221019083313.726298309@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,95 +56,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bernard Metzler <bmt@zurich.ibm.com>
 
-[ Upstream commit 754209850df8367c954ac1de7671c7430b1f342c ]
+[ Upstream commit a3c278807a459e6f50afee6971cabe74cccfb490 ]
 
-For header and trailer/padding processing, siw did not consume new
-skb data until minimum amount present to fill current header or trailer
-structure, including potential payload padding. Not consuming any
-data during upcall may cause a receive stall, since tcp_read_sock()
-is not upcalling again if no new data arrive.
-A NFSoRDMA client got stuck at RDMA Write reception of unaligned
-payload, if the current skb did contain only the expected 3 padding
-bytes, but not the 4 bytes CRC trailer. Expecting 4 more bytes already
-arrived in another skb, and not consuming those 3 bytes in the current
-upcall left the Write incomplete, waiting for the CRC forever.
+Delay QP destroy completion until all siw references to QP are
+dropped. The calling RDMA core will free QP structure after
+successful return from siw_qp_destroy() call, so siw must not
+hold any remaining reference to the QP upon return.
+A use-after-free was encountered in xfstest generic/460, while
+testing NFSoRDMA. Here, after a TCP connection drop by peer,
+the triggered siw_cm_work_handler got delayed until after
+QP destroy call, referencing a QP which has already freed.
 
-Fixes: 8b6a361b8c48 ("rdma/siw: receive path")
+Fixes: 303ae1cdfdf7 ("rdma/siw: application interface")
 Reported-by: Olga Kornievskaia <kolga@netapp.com>
-Tested-by: Olga Kornievskaia <kolga@netapp.com>
 Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
-Link: https://lore.kernel.org/r/20220920081202.223629-1-bmt@zurich.ibm.com
+Link: https://lore.kernel.org/r/20220920082503.224189-1-bmt@zurich.ibm.com
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_qp_rx.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ drivers/infiniband/sw/siw/siw.h       | 1 +
+ drivers/infiniband/sw/siw/siw_qp.c    | 2 +-
+ drivers/infiniband/sw/siw/siw_verbs.c | 3 +++
+ 3 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_qp_rx.c b/drivers/infiniband/sw/siw/siw_qp_rx.c
-index 875ea6f1b04a..fd721cc19682 100644
---- a/drivers/infiniband/sw/siw/siw_qp_rx.c
-+++ b/drivers/infiniband/sw/siw/siw_qp_rx.c
-@@ -961,27 +961,28 @@ int siw_proc_terminate(struct siw_qp *qp)
- static int siw_get_trailer(struct siw_qp *qp, struct siw_rx_stream *srx)
- {
- 	struct sk_buff *skb = srx->skb;
-+	int avail = min(srx->skb_new, srx->fpdu_part_rem);
- 	u8 *tbuf = (u8 *)&srx->trailer.crc - srx->pad;
- 	__wsum crc_in, crc_own = 0;
+diff --git a/drivers/infiniband/sw/siw/siw.h b/drivers/infiniband/sw/siw/siw.h
+index df03d84c6868..2f3a9cda3850 100644
+--- a/drivers/infiniband/sw/siw/siw.h
++++ b/drivers/infiniband/sw/siw/siw.h
+@@ -418,6 +418,7 @@ struct siw_qp {
+ 	struct ib_qp base_qp;
+ 	struct siw_device *sdev;
+ 	struct kref ref;
++	struct completion qp_free;
+ 	struct list_head devq;
+ 	int tx_cpu;
+ 	struct siw_qp_attrs attrs;
+diff --git a/drivers/infiniband/sw/siw/siw_qp.c b/drivers/infiniband/sw/siw/siw_qp.c
+index 7e01f2438afc..e6f634971228 100644
+--- a/drivers/infiniband/sw/siw/siw_qp.c
++++ b/drivers/infiniband/sw/siw/siw_qp.c
+@@ -1342,6 +1342,6 @@ void siw_free_qp(struct kref *ref)
+ 	vfree(qp->orq);
  
- 	siw_dbg_qp(qp, "expected %d, available %d, pad %u\n",
- 		   srx->fpdu_part_rem, srx->skb_new, srx->pad);
- 
--	if (srx->skb_new < srx->fpdu_part_rem)
--		return -EAGAIN;
+ 	siw_put_tx_cpu(qp->tx_cpu);
 -
--	skb_copy_bits(skb, srx->skb_offset, tbuf, srx->fpdu_part_rem);
-+	skb_copy_bits(skb, srx->skb_offset, tbuf, avail);
++	complete(&qp->qp_free);
+ 	atomic_dec(&sdev->num_qp);
+ }
+diff --git a/drivers/infiniband/sw/siw/siw_verbs.c b/drivers/infiniband/sw/siw/siw_verbs.c
+index 8dedae7ae79e..3e814cfb298c 100644
+--- a/drivers/infiniband/sw/siw/siw_verbs.c
++++ b/drivers/infiniband/sw/siw/siw_verbs.c
+@@ -480,6 +480,8 @@ int siw_create_qp(struct ib_qp *ibqp, struct ib_qp_init_attr *attrs,
+ 	list_add_tail(&qp->devq, &sdev->qp_list);
+ 	spin_unlock_irqrestore(&sdev->lock, flags);
  
--	if (srx->mpa_crc_hd && srx->pad)
--		crypto_shash_update(srx->mpa_crc_hd, tbuf, srx->pad);
-+	srx->skb_new -= avail;
-+	srx->skb_offset += avail;
-+	srx->skb_copied += avail;
-+	srx->fpdu_part_rem -= avail;
- 
--	srx->skb_new -= srx->fpdu_part_rem;
--	srx->skb_offset += srx->fpdu_part_rem;
--	srx->skb_copied += srx->fpdu_part_rem;
-+	if (srx->fpdu_part_rem)
-+		return -EAGAIN;
- 
- 	if (!srx->mpa_crc_hd)
- 		return 0;
- 
-+	if (srx->pad)
-+		crypto_shash_update(srx->mpa_crc_hd, tbuf, srx->pad);
- 	/*
- 	 * CRC32 is computed, transmitted and received directly in NBO,
- 	 * so there's never a reason to convert byte order.
-@@ -1083,10 +1084,9 @@ static int siw_get_hdr(struct siw_rx_stream *srx)
- 	 * completely received.
- 	 */
- 	if (iwarp_pktinfo[opcode].hdr_len > sizeof(struct iwarp_ctrl_tagged)) {
--		bytes = iwarp_pktinfo[opcode].hdr_len - MIN_DDP_HDR;
-+		int hdrlen = iwarp_pktinfo[opcode].hdr_len;
- 
--		if (srx->skb_new < bytes)
--			return -EAGAIN;
-+		bytes = min_t(int, hdrlen - MIN_DDP_HDR, srx->skb_new);
- 
- 		skb_copy_bits(skb, srx->skb_offset,
- 			      (char *)c_hdr + srx->fpdu_part_rcvd, bytes);
-@@ -1096,6 +1096,9 @@ static int siw_get_hdr(struct siw_rx_stream *srx)
- 		srx->skb_new -= bytes;
- 		srx->skb_offset += bytes;
- 		srx->skb_copied += bytes;
++	init_completion(&qp->qp_free);
 +
-+		if (srx->fpdu_part_rcvd < hdrlen)
-+			return -EAGAIN;
- 	}
+ 	return 0;
  
- 	/*
+ err_out_xa:
+@@ -624,6 +626,7 @@ int siw_destroy_qp(struct ib_qp *base_qp, struct ib_udata *udata)
+ 	qp->scq = qp->rcq = NULL;
+ 
+ 	siw_qp_put(qp);
++	wait_for_completion(&qp->qp_free);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
