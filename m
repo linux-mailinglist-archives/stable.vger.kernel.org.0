@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE489603D35
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:00:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9AED603D41
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:00:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229660AbiJSJAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:00:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60556 "EHLO
+        id S231965AbiJSJAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:00:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231995AbiJSI6d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:58:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F69EA0268;
-        Wed, 19 Oct 2022 01:53:57 -0700 (PDT)
+        with ESMTP id S232078AbiJSI6w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:58:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09EFE33848;
+        Wed, 19 Oct 2022 01:54:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD966617EC;
-        Wed, 19 Oct 2022 08:42:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0D43C433B5;
-        Wed, 19 Oct 2022 08:42:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5304C617F4;
+        Wed, 19 Oct 2022 08:42:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45C97C433C1;
+        Wed, 19 Oct 2022 08:42:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168953;
-        bh=5dmX0BxH8ERt9C6w6xHEfRy2uRICDLXXIjsgURNzIo4=;
+        s=korg; t=1666168958;
+        bh=zKppyKIbE0qX7a5aCXROzEzRZ7q0XdFQU/ezCKPeOqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dBSAjtXwCfUsqoM+ozvppfcJb6m2lQpHKC0UDJx0SDdn1wQ7YHlsVswUEOEHm8h7r
-         Otd7Sp5Wnj9s/qlt8k1HRJFjVXhItSA1uyLE9rqLgERmQJn/ey/bKc4Ooux4UTrC7o
-         H5RwW7SknEb0Skw/auhWYl19MKMGpr2X6HjPQvq4=
+        b=qVxwYKkWAmdhbX581XWxi7LN1YKfn4bKksuNeeT0fU0C0Z8wVA9F4wdvrTdOS6Ibq
+         eocDDFXyU3lS/flUDPLEOkt9RkFap4HrOv5uUfyCajleU/hniYjmHU7V4XRd1z3QkI
+         /M3xzQHtkFpyoSXbZDDQSGWMmqDpfiCTOrphjbjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
-        John Meneghini <jmeneghi@redhat.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 6.0 107/862] scsi: qedf: Populate sysfs attributes for vport
-Date:   Wed, 19 Oct 2022 10:23:14 +0200
-Message-Id: <20221019083254.650883140@linuxfoundation.org>
+        stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
+        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 6.0 108/862] gpio: rockchip: request GPIO mux to pinctrl when setting direction
+Date:   Wed, 19 Oct 2022 10:23:15 +0200
+Message-Id: <20221019083254.691102670@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,54 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
 
-commit 592642e6b11e620e4b43189f8072752429fc8dc3 upstream.
+commit 8ea8af6c8469156ac2042d83d73f6b74eb4b4b45 upstream.
 
-Few vport parameters were displayed by systool as 'Unknown' or 'NULL'.
-Copy speed, supported_speed, frame_size and update port_type for NPIV port.
+Before the split of gpio and pinctrl sections in their own driver,
+rockchip_set_mux was called in pinmux_ops.gpio_set_direction for
+configuring a pin in its GPIO function.
 
-Link: https://lore.kernel.org/r/20220919134434.3513-1-njavali@marvell.com
+This is essential for cases where pinctrl is "bypassed" by gpio
+consumers otherwise the GPIO function is not configured for the pin and
+it does not work. Such was the case for the sysfs/libgpiod userspace
+GPIO handling.
+
+Let's call pinctrl_gpio_direction_input/output when setting the
+direction of a GPIO so that the pinctrl core requests from the rockchip
+pinctrl driver to put the pin in its GPIO function.
+
+Fixes: 9ce9a02039de ("pinctrl/rockchip: drop the gpio related codes")
+Fixes: 936ee2675eee ("gpio/rockchip: add driver for rockchip gpio")
 Cc: stable@vger.kernel.org
-Tested-by: Guangwu Zhang <guazhang@redhat.com>
-Reviewed-by: John Meneghini <jmeneghi@redhat.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20220930132033.4003377-3-foss+kernel@0leil.net
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qedf/qedf_main.c |   21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/gpio/gpio-rockchip.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -1921,6 +1921,27 @@ static int qedf_vport_create(struct fc_v
- 		fc_vport_setlink(vn_port);
- 	}
+--- a/drivers/gpio/gpio-rockchip.c
++++ b/drivers/gpio/gpio-rockchip.c
+@@ -19,6 +19,7 @@
+ #include <linux/of_address.h>
+ #include <linux/of_device.h>
+ #include <linux/of_irq.h>
++#include <linux/pinctrl/consumer.h>
+ #include <linux/pinctrl/pinconf-generic.h>
+ #include <linux/regmap.h>
  
-+	/* Set symbolic node name */
-+	if (base_qedf->pdev->device == QL45xxx)
-+		snprintf(fc_host_symbolic_name(vn_port->host), 256,
-+			 "Marvell FastLinQ 45xxx FCoE v%s", QEDF_VERSION);
-+
-+	if (base_qedf->pdev->device == QL41xxx)
-+		snprintf(fc_host_symbolic_name(vn_port->host), 256,
-+			 "Marvell FastLinQ 41xxx FCoE v%s", QEDF_VERSION);
-+
-+	/* Set supported speed */
-+	fc_host_supported_speeds(vn_port->host) = n_port->link_supported_speeds;
-+
-+	/* Set speed */
-+	vn_port->link_speed = n_port->link_speed;
-+
-+	/* Set port type */
-+	fc_host_port_type(vn_port->host) = FC_PORTTYPE_NPIV;
-+
-+	/* Set maxframe size */
-+	fc_host_maxframe_size(vn_port->host) = n_port->mfs;
-+
- 	QEDF_INFO(&(base_qedf->dbg_ctx), QEDF_LOG_NPIV, "vn_port=%p.\n",
- 		   vn_port);
+@@ -156,6 +157,12 @@ static int rockchip_gpio_set_direction(s
+ 	unsigned long flags;
+ 	u32 data = input ? 0 : 1;
  
++
++	if (input)
++		pinctrl_gpio_direction_input(bank->pin_base + offset);
++	else
++		pinctrl_gpio_direction_output(bank->pin_base + offset);
++
+ 	raw_spin_lock_irqsave(&bank->slock, flags);
+ 	rockchip_gpio_writel_bit(bank, offset, data, bank->gpio_regs->port_ddr);
+ 	raw_spin_unlock_irqrestore(&bank->slock, flags);
 
 
