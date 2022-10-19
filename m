@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49409604121
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:38:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 542B160415B
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230491AbiJSKib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:38:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37436 "EHLO
+        id S232227AbiJSKnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:43:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230210AbiJSKiE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:38:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DA65152C68;
-        Wed, 19 Oct 2022 03:17:05 -0700 (PDT)
+        with ESMTP id S232242AbiJSKmX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:42:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4719BB97A0;
+        Wed, 19 Oct 2022 03:20:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF2CFB822EA;
-        Wed, 19 Oct 2022 08:51:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 226A8C433B5;
-        Wed, 19 Oct 2022 08:51:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6ACB0B82389;
+        Wed, 19 Oct 2022 08:51:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBB19C433C1;
+        Wed, 19 Oct 2022 08:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169472;
-        bh=C8mJs/DW0I+lDN5k5E9k6cEFjftALrJf9Lm2fiFCk6w=;
+        s=korg; t=1666169480;
+        bh=CPeINRe0pEMnOWV5lqV0MslZCm4GwrZoEHYIiNvKaLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sew4FdAMXlO+w7FrWEvy5ZI2Q4pRE5WzS7+Ao7p4qQb2hyd7x9BCozKw57jkbQFfA
-         8EMtPDKKBOb1JNd73t5T4TBCrAE4RwqBgnKQgrl33/n1rQDsxNCqho0bqhQbOOJYUt
-         nEywpRbPEfCWe1fhi01bxL5dQ3hssbiDIS78kRls=
+        b=s19ShQsqy3POhaiw8YauC9RFXT9AqbJXVU92Mt7Q7qt2889cOZ6HaMgKFHlrkwE+x
+         zDUzDv6sAC/gsd4ZvodeRCrwrutoUBO6WvBMV+Fnkyp8aomGgiI2Aucym4cI+FMUDC
+         uV7kFr+Ced1yvDN4It9kLNwb57ZP9AWaYk6ngRH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Howard Hsu <howard-yh.hsu@mediatek.com>,
+        stable@vger.kernel.org, Deren Wu <deren.wu@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 289/862] wifi: mt76: mt7915: fix mcs value in ht mode
-Date:   Wed, 19 Oct 2022 10:26:16 +0200
-Message-Id: <20221019083302.780637133@linuxfoundation.org>
+Subject: [PATCH 6.0 292/862] wifi: mt76: mt7921e: fix rmmod crash in driver reload test
+Date:   Wed, 19 Oct 2022 10:26:19 +0200
+Message-Id: <20221019083302.915300879@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,54 +52,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Howard Hsu <howard-yh.hsu@mediatek.com>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit c6d3e16ad4362502e804a6ca01e955612f3b8222 ]
+[ Upstream commit b5a62d612b7baf6e09884e4de94decb6391d6a9d ]
 
-Fix the error that mcs will be reduced to a range of 0 to 7 in ht mode.
+In insmod/rmmod stress test, the following crash dump shows up immediately.
+The problem is caused by missing mt76_dev in mt7921_pci_remove(). We
+should make sure the drvdata is ready before probe() finished.
 
-Fixes: 70fd1333cd32 ("mt76: mt7915: rework .set_bitrate_mask() to support more options")
-Signed-off-by: Howard Hsu <howard-yh.hsu@mediatek.com>
+[168.862789] ==================================================================
+[168.862797] BUG: KASAN: user-memory-access in try_to_grab_pending+0x59/0x480
+[168.862805] Write of size 8 at addr 0000000000006df0 by task rmmod/5361
+[168.862812] CPU: 7 PID: 5361 Comm: rmmod Tainted: G           OE     5.19.0-rc6 #1
+[168.862816] Hardware name: Intel(R) Client Systems NUC8i7BEH/NUC8BEB, 05/04/2020
+[168.862820] Call Trace:
+[168.862822]  <TASK>
+[168.862825]  dump_stack_lvl+0x49/0x63
+[168.862832]  print_report.cold+0x493/0x6b7
+[168.862845]  kasan_report+0xa7/0x120
+[168.862857]  kasan_check_range+0x163/0x200
+[168.862861]  __kasan_check_write+0x14/0x20
+[168.862866]  try_to_grab_pending+0x59/0x480
+[168.862870]  __cancel_work_timer+0xbb/0x340
+[168.862898]  cancel_work_sync+0x10/0x20
+[168.862902]  mt7921_pci_remove+0x61/0x1c0 [mt7921e]
+[168.862909]  pci_device_remove+0xa3/0x1d0
+[168.862914]  device_remove+0xc4/0x170
+[168.862920]  device_release_driver_internal+0x163/0x300
+[168.862925]  driver_detach+0xc7/0x1a0
+[168.862930]  bus_remove_driver+0xeb/0x2d0
+[168.862935]  driver_unregister+0x71/0xb0
+[168.862939]  pci_unregister_driver+0x30/0x230
+[168.862944]  mt7921_pci_driver_exit+0x10/0x1b [mt7921e]
+[168.862949]  __x64_sys_delete_module+0x2f9/0x4b0
+[168.862968]  do_syscall_64+0x38/0x90
+[168.862973]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Test steps:
+1. insmode
+2. do not ifup
+3. rmmod quickly (within 1 second)
+
+Fixes: 1c71e03afe4b ("mt76: mt7921: move mt7921_init_hw in a dedicated work")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-index f83067961945..e99fdacc11ce 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-@@ -1360,7 +1360,7 @@ mt7915_mcu_add_rate_ctrl_fixed(struct mt7915_dev *dev,
- 	struct sta_phy phy = {};
- 	int ret, nrates = 0;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
+index 2b015dacbba2..e5b1f6249763 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
+@@ -288,6 +288,8 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
+ 		goto err_free_pci_vec;
+ 	}
  
--#define __sta_phy_bitrate_mask_check(_mcs, _gi, _he)				\
-+#define __sta_phy_bitrate_mask_check(_mcs, _gi, _ht, _he)			\
- 	do {									\
- 		u8 i, gi = mask->control[band]._gi;				\
- 		gi = (_he) ? gi : gi == NL80211_TXRATE_FORCE_SGI;		\
-@@ -1373,15 +1373,17 @@ mt7915_mcu_add_rate_ctrl_fixed(struct mt7915_dev *dev,
- 				continue;					\
- 			nrates += hweight16(mask->control[band]._mcs[i]);	\
- 			phy.mcs = ffs(mask->control[band]._mcs[i]) - 1;		\
-+			if (_ht)						\
-+				phy.mcs += 8 * i;				\
- 		}								\
- 	} while (0)
++	pci_set_drvdata(pdev, mdev);
++
+ 	dev = container_of(mdev, struct mt7921_dev, mt76);
+ 	dev->hif_ops = &mt7921_pcie_ops;
  
- 	if (sta->deflink.he_cap.has_he) {
--		__sta_phy_bitrate_mask_check(he_mcs, he_gi, 1);
-+		__sta_phy_bitrate_mask_check(he_mcs, he_gi, 0, 1);
- 	} else if (sta->deflink.vht_cap.vht_supported) {
--		__sta_phy_bitrate_mask_check(vht_mcs, gi, 0);
-+		__sta_phy_bitrate_mask_check(vht_mcs, gi, 0, 0);
- 	} else if (sta->deflink.ht_cap.ht_supported) {
--		__sta_phy_bitrate_mask_check(ht_mcs, gi, 0);
-+		__sta_phy_bitrate_mask_check(ht_mcs, gi, 1, 0);
- 	} else {
- 		nrates = hweight32(mask->control[band].legacy);
- 		phy.mcs = ffs(mask->control[band].legacy) - 1;
 -- 
 2.35.1
 
