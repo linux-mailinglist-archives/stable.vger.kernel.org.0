@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3E0E6047FC
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:48:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6D1A60487A
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:56:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233544AbiJSNrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:47:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52158 "EHLO
+        id S232880AbiJSN4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:56:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233038AbiJSNqT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:46:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B1341C8D5F;
-        Wed, 19 Oct 2022 06:32:00 -0700 (PDT)
+        with ESMTP id S234044AbiJSNyk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:54:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E433F132DD5;
+        Wed, 19 Oct 2022 06:37:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84954B8238E;
-        Wed, 19 Oct 2022 08:56:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6613C433C1;
-        Wed, 19 Oct 2022 08:56:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C427B823FB;
+        Wed, 19 Oct 2022 08:56:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F5CFC433C1;
+        Wed, 19 Oct 2022 08:56:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169774;
-        bh=auWKAyOEcstI5M0Up/N11Wg8er7p4yNk4AWhb3Gv2v4=;
+        s=korg; t=1666169779;
+        bh=HHebO/JQrjiVOVr4n+bmDjcuNofUzDO5209bu/y3qb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TnG5ABJnUqeT0HZMIFowigIm/rbydeqM1wHl7SFcZjppex9hDPgpvKqPqDzJJDupB
-         fjgyueYdP8YyCZr6806z2vHd14F3jEYLtRkmrfzm1tuyMDnlSwLub9jZ1+BkduTmnR
-         EpHrHFD2v3xd4qzPNuN3Lf9Ss/nQY1cAo+4L3Su4=
+        b=L3jvUQLpR7Xl54flkM3dZjrg4z8itK7c2CJ4K+JzVJd+At7v4CFN2HV+qgf6U4tzI
+         2mN9avwKmbmuWMZvVVQOf/SUZFN4EcWNL40Z3H47ldEv6PsYcc4tinVX+MUbLwHeLB
+         jlap0cgdDVsrNvd/bRBrGC/mFBOlL1ppq0otGoyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Pape <apape@de.adit-jv.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 403/862] ALSA: dmaengine: increment buffer pointer atomically
-Date:   Wed, 19 Oct 2022 10:28:10 +0200
-Message-Id: <20221019083307.739428529@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 404/862] mmc: wmt-sdmmc: Fix an error handling path in wmt_mci_probe()
+Date:   Wed, 19 Oct 2022 10:28:11 +0200
+Message-Id: <20221019083307.789744074@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,47 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Pape <apape@de.adit-jv.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d1c442019594692c64a70a86ad88eb5b6db92216 ]
+[ Upstream commit cb58188ad90a61784a56a64f5107faaf2ad323e7 ]
 
-Setting pointer and afterwards checking for wraparound leads
-to the possibility of returning the inconsistent pointer position.
+A dma_free_coherent() call is missing in the error handling path of the
+probe, as already done in the remove function.
 
-This patch increments buffer pointer atomically to avoid this issue.
-
-Fixes: e7f73a1613567a ("ASoC: Add dmaengine PCM helper functions")
-Signed-off-by: Andreas Pape <apape@de.adit-jv.com>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Link: https://lore.kernel.org/r/1664211493-11789-1-git-send-email-erosca@de.adit-jv.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 3a96dff0f828 ("mmc: SD/MMC Host Controller for Wondermedia WM8505/WM8650")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/53fc6ffa5d1c428fefeae7d313cf4a669c3a1e98.1663873255.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_dmaengine.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/mmc/host/wmt-sdmmc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/core/pcm_dmaengine.c b/sound/core/pcm_dmaengine.c
-index 5b2ca028f5aa..494ec0c207fa 100644
---- a/sound/core/pcm_dmaengine.c
-+++ b/sound/core/pcm_dmaengine.c
-@@ -133,12 +133,14 @@ EXPORT_SYMBOL_GPL(snd_dmaengine_pcm_set_config_from_dai_data);
+diff --git a/drivers/mmc/host/wmt-sdmmc.c b/drivers/mmc/host/wmt-sdmmc.c
+index 163ac9df8cca..9b5c503e3a3f 100644
+--- a/drivers/mmc/host/wmt-sdmmc.c
++++ b/drivers/mmc/host/wmt-sdmmc.c
+@@ -846,7 +846,7 @@ static int wmt_mci_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->clk_sdmmc)) {
+ 		dev_err(&pdev->dev, "Error getting clock\n");
+ 		ret = PTR_ERR(priv->clk_sdmmc);
+-		goto fail5;
++		goto fail5_and_a_half;
+ 	}
  
- static void dmaengine_pcm_dma_complete(void *arg)
- {
-+	unsigned int new_pos;
- 	struct snd_pcm_substream *substream = arg;
- 	struct dmaengine_pcm_runtime_data *prtd = substream_to_prtd(substream);
- 
--	prtd->pos += snd_pcm_lib_period_bytes(substream);
--	if (prtd->pos >= snd_pcm_lib_buffer_bytes(substream))
--		prtd->pos = 0;
-+	new_pos = prtd->pos + snd_pcm_lib_period_bytes(substream);
-+	if (new_pos >= snd_pcm_lib_buffer_bytes(substream))
-+		new_pos = 0;
-+	prtd->pos = new_pos;
- 
- 	snd_pcm_period_elapsed(substream);
- }
+ 	ret = clk_prepare_enable(priv->clk_sdmmc);
+@@ -863,6 +863,9 @@ static int wmt_mci_probe(struct platform_device *pdev)
+ 	return 0;
+ fail6:
+ 	clk_put(priv->clk_sdmmc);
++fail5_and_a_half:
++	dma_free_coherent(&pdev->dev, mmc->max_blk_count * 16,
++			  priv->dma_desc_buffer, priv->dma_desc_device_addr);
+ fail5:
+ 	free_irq(dma_irq, priv);
+ fail4:
 -- 
 2.35.1
 
