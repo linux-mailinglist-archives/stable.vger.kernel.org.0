@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF84360416F
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:44:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E47876041B2
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231804AbiJSKop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:44:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57688 "EHLO
+        id S233161AbiJSKrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:47:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232297AbiJSKnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:43:21 -0400
+        with ESMTP id S233167AbiJSKqU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:46:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C311F4D806;
-        Wed, 19 Oct 2022 03:20:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7691C15A304;
+        Wed, 19 Oct 2022 03:21:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 23574B824D6;
-        Wed, 19 Oct 2022 09:12:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FF92C433D6;
-        Wed, 19 Oct 2022 09:12:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D397B824D8;
+        Wed, 19 Oct 2022 09:12:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73C1FC433B5;
+        Wed, 19 Oct 2022 09:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170763;
-        bh=dtWVjWEZNz1q3Y4P/0EdQigzCiC8UA+5Rc0zCDFQZt0=;
+        s=korg; t=1666170771;
+        bh=xlDA8pfPkFAaw/9xQEsxhHEEkQh9btgLLPQGvlm7iec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZBqmh4NSFMcNy8ddqKKt7h2Re8yASxsS3vnqJz3lAeeGdtVhd2/J7EnbjMHfv2+E
-         RT5bNNzbleUamiFod6WpnYGlVm6YeqAaZMf+P0UYL46hR8htKm0Lhfk00a3e0WoL4p
-         EwwU0/BBkJ0leTS5BtkpcaaHx+pD/I7+j3f6pGyw=
+        b=ui9SckBFtthvRN75uh4fZUPkSFwxxilsF6swk5Vr6PM+qKp1eO3NH0Um5LM3zPyNn
+         kU0T75RUc+ILCe4RtwPfO/5/3QwLeJKeTqU9NKX8wymFqEdLfrFFRsrKBxK6XJtE/2
+         f2uwKXdweAPaeR82bPdyB/BIsL6FFlMjL2ApAyoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 776/862] ARM: dts: imx6sx: add missing properties for sram
-Date:   Wed, 19 Oct 2022 10:34:23 +0200
-Message-Id: <20221019083324.195231808@linuxfoundation.org>
+Subject: [PATCH 6.0 779/862] kselftest/arm64: Fix validatation termination record after EXTRA_CONTEXT
+Date:   Wed, 19 Oct 2022 10:34:26 +0200
+Message-Id: <20221019083324.327191199@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,45 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 415432c008b2bce8138841356ba444631cabaa50 ]
+[ Upstream commit 5c152c2f66f9368394b89ac90dc7483476ef7b88 ]
 
-All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
-sram@900000: '#address-cells' is a required property
-sram@900000: '#size-cells' is a required property
-sram@900000: 'ranges' is a required property
+When arm64 signal context data overflows the base struct sigcontext it gets
+placed in an extra buffer pointed to by a record of type EXTRA_CONTEXT in
+the base struct sigcontext which is required to be the last record in the
+base struct sigframe. The current validation code attempts to check this
+by using GET_RESV_NEXT_HEAD() to step forward from the current record to
+the next but that is a macro which assumes it is being provided with a
+struct _aarch64_ctx and uses the size there to skip forward to the next
+record. Instead validate_extra_context() passes it a struct extra_context
+which has a separate size field. This compiles but results in us trying
+to validate a termination record in completely the wrong place, at best
+failing validation and at worst just segfaulting. Fix this by passing
+the struct _aarch64_ctx we meant to into the macro.
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220829160703.874492-4-broonie@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6sx.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/testing/selftests/arm64/signal/testcases/testcases.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
-index 4d075e2bf749..2611eef3b2a2 100644
---- a/arch/arm/boot/dts/imx6sx.dtsi
-+++ b/arch/arm/boot/dts/imx6sx.dtsi
-@@ -164,12 +164,18 @@
- 		ocram_s: sram@8f8000 {
- 			compatible = "mmio-sram";
- 			reg = <0x008f8000 0x4000>;
-+			ranges = <0 0x008f8000 0x4000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 			clocks = <&clks IMX6SX_CLK_OCRAM_S>;
- 		};
+diff --git a/tools/testing/selftests/arm64/signal/testcases/testcases.c b/tools/testing/selftests/arm64/signal/testcases/testcases.c
+index 84c36bee4d82..d98828cb542b 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/testcases.c
++++ b/tools/testing/selftests/arm64/signal/testcases/testcases.c
+@@ -33,7 +33,7 @@ bool validate_extra_context(struct extra_context *extra, char **err)
+ 		return false;
  
- 		ocram: sram@900000 {
- 			compatible = "mmio-sram";
- 			reg = <0x00900000 0x20000>;
-+			ranges = <0 0x00900000 0x20000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 			clocks = <&clks IMX6SX_CLK_OCRAM>;
- 		};
- 
+ 	fprintf(stderr, "Validating EXTRA...\n");
+-	term = GET_RESV_NEXT_HEAD(extra);
++	term = GET_RESV_NEXT_HEAD(&extra->head);
+ 	if (!term || term->magic || term->size) {
+ 		*err = "Missing terminator after EXTRA context";
+ 		return false;
 -- 
 2.35.1
 
