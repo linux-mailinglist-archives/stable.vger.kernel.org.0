@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6B3E604864
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 719FB604851
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:56:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233662AbiJSN4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:56:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49208 "EHLO
+        id S230203AbiJSN4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:56:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233642AbiJSNxl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:53:41 -0400
+        with ESMTP id S233014AbiJSNw7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:52:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE85734994;
-        Wed, 19 Oct 2022 06:36:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D61731ECE;
+        Wed, 19 Oct 2022 06:36:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08AAAB82418;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FA17B823DB;
+        Wed, 19 Oct 2022 08:56:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4121C433D7;
         Wed, 19 Oct 2022 08:56:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66F92C433C1;
-        Wed, 19 Oct 2022 08:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169797;
-        bh=0M6ldLkPIHOA6wq73aLHiYig4mC6FQqYwNyvlLZ3uo0=;
+        s=korg; t=1666169800;
+        bh=EbACe5qacps0SV0GIDnIuKU9lBFLNTXwJE3mpAJw9sE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LfEawwtUz4Brh4yjHOvpNGbEcpC1CaINUqA35vy3t6FrR8J3HJA//XFygg4BcuUzk
-         dw6Z6zLVt6ydqBfcADrJZnrcc+mnbDPAJ0YXBG6dlza6O/1P6OrueGiLSNp2B+yEzD
-         kihrw1VwIutH5QLLoxvot5V1R2n0WND8ziFO9kyg=
+        b=LKgmsxpU3rVnOhUfky4eqUsXkkd9jGaG0A9JhF3ycWLh8l62SEaps0TEonYTmXkFE
+         qupCFsmrDbEZPH//CclTTg6q0BN0dfa4PsiuDEksqeutgFiuMMjon4PcYNi0KbICfU
+         TsAzOKhEthu9jEbAJ44m8GjYvBTyEvugirVEu/hc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        stable@vger.kernel.org,
+        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 380/862] ASoC: rsnd: Add check for rsnd_mod_power_on
-Date:   Wed, 19 Oct 2022 10:27:47 +0200
-Message-Id: <20221019083306.762362511@linuxfoundation.org>
+Subject: [PATCH 6.0 381/862] ASoC: wm_adsp: Handle optional legacy support
+Date:   Wed, 19 Oct 2022 10:27:48 +0200
+Message-Id: <20221019083306.807821695@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,113 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 
-[ Upstream commit 376be51caf8871419bbcbb755e1e615d30dc3153 ]
+[ Upstream commit 35c8ae25c4fdeabf490e005692795a3be17ca5f6 ]
 
-As rsnd_mod_power_on() can return negative numbers,
-it should be better to check the return value and
-deal with the exception.
+The tracing capabilities for the speaker protection fw enabled via
+commit c55b3e46cb99 ("ASoC: wm_adsp: Add trace caps to speaker
+protection FW") are not be available on all platforms, such as the
+Valve's Steam Deck which is based on the Halo Core DSP.
 
-Fixes: e7d850dd10f4 ("ASoC: rsnd: use mod base common method on SSI-parent")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20220902013030.3691266-1-jiasheng@iscas.ac.cn
+As a consequence, whenever the firmware is loaded, a rather misleading
+'Failed to parse legacy: -19' error message is written to the kernel
+ring buffer:
+
+[  288.977412] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: Firmware version: 3
+[  288.978002] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: cs35l41-dsp1-spk-prot.wmfw: Fri 02 Apr 2021 21:03:50 W. Europe Daylight Time
+[  289.094065] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: Firmware: 400a4 vendor: 0x2 v0.33.0, 2 algorithms
+[  289.095073] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: 0: ID cd v29.53.0 XM@94 YM@e
+[  289.095665] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: 1: ID f20b v0.0.1 XM@170 YM@0
+[  289.096275] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: Protection: C:\Users\ocanavan\Desktop\cirrusTune_july2021.bin
+[  291.172383] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: Failed to parse legacy: -19
+
+Update wm_adsp_buffer_init() to print a more descriptive info message
+when wm_adsp_buffer_parse_legacy() returns -ENODEV.
+
+Fixes: c55b3e46cb99 ("ASoC: wm_adsp: Add trace caps to speaker protection FW")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220825220530.1205141-1-cristian.ciocaltea@collabora.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/ctu.c | 6 +++++-
- sound/soc/sh/rcar/dvc.c | 6 +++++-
- sound/soc/sh/rcar/mix.c | 6 +++++-
- sound/soc/sh/rcar/src.c | 5 ++++-
- sound/soc/sh/rcar/ssi.c | 4 +++-
- 5 files changed, 22 insertions(+), 5 deletions(-)
+ sound/soc/codecs/wm_adsp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sh/rcar/ctu.c b/sound/soc/sh/rcar/ctu.c
-index 6156445bcb69..e39eb2ac7e95 100644
---- a/sound/soc/sh/rcar/ctu.c
-+++ b/sound/soc/sh/rcar/ctu.c
-@@ -171,7 +171,11 @@ static int rsnd_ctu_init(struct rsnd_mod *mod,
- 			 struct rsnd_dai_stream *io,
- 			 struct rsnd_priv *priv)
- {
--	rsnd_mod_power_on(mod);
-+	int ret;
-+
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
- 
- 	rsnd_ctu_activation(mod);
- 
-diff --git a/sound/soc/sh/rcar/dvc.c b/sound/soc/sh/rcar/dvc.c
-index 5137e03a9d7c..16befcbc312c 100644
---- a/sound/soc/sh/rcar/dvc.c
-+++ b/sound/soc/sh/rcar/dvc.c
-@@ -186,7 +186,11 @@ static int rsnd_dvc_init(struct rsnd_mod *mod,
- 			 struct rsnd_dai_stream *io,
- 			 struct rsnd_priv *priv)
- {
--	rsnd_mod_power_on(mod);
-+	int ret;
-+
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
- 
- 	rsnd_dvc_activation(mod);
- 
-diff --git a/sound/soc/sh/rcar/mix.c b/sound/soc/sh/rcar/mix.c
-index 3572c2c5686c..1de0e085804c 100644
---- a/sound/soc/sh/rcar/mix.c
-+++ b/sound/soc/sh/rcar/mix.c
-@@ -146,7 +146,11 @@ static int rsnd_mix_init(struct rsnd_mod *mod,
- 			 struct rsnd_dai_stream *io,
- 			 struct rsnd_priv *priv)
- {
--	rsnd_mod_power_on(mod);
-+	int ret;
-+
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
- 
- 	rsnd_mix_activation(mod);
- 
-diff --git a/sound/soc/sh/rcar/src.c b/sound/soc/sh/rcar/src.c
-index 0ea84ae57c6a..f832165e46bc 100644
---- a/sound/soc/sh/rcar/src.c
-+++ b/sound/soc/sh/rcar/src.c
-@@ -463,11 +463,14 @@ static int rsnd_src_init(struct rsnd_mod *mod,
- 			 struct rsnd_priv *priv)
- {
- 	struct rsnd_src *src = rsnd_mod_to_src(mod);
-+	int ret;
- 
- 	/* reset sync convert_rate */
- 	src->sync.val = 0;
- 
--	rsnd_mod_power_on(mod);
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
- 
- 	rsnd_src_activation(mod);
- 
-diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
-index 43c5e27dc5c8..7ade6c5ed96f 100644
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -480,7 +480,9 @@ static int rsnd_ssi_init(struct rsnd_mod *mod,
- 
- 	ssi->usrcnt++;
- 
--	rsnd_mod_power_on(mod);
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
- 
- 	rsnd_ssi_config_init(mod, io);
+diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
+index cfaa45ede916..8a2e9771bb50 100644
+--- a/sound/soc/codecs/wm_adsp.c
++++ b/sound/soc/codecs/wm_adsp.c
+@@ -1602,7 +1602,9 @@ static int wm_adsp_buffer_init(struct wm_adsp *dsp)
+ 	if (list_empty(&dsp->buffer_list)) {
+ 		/* Fall back to legacy support */
+ 		ret = wm_adsp_buffer_parse_legacy(dsp);
+-		if (ret)
++		if (ret == -ENODEV)
++			adsp_info(dsp, "Legacy support not available\n");
++		else if (ret)
+ 			adsp_warn(dsp, "Failed to parse legacy: %d\n", ret);
+ 	}
  
 -- 
 2.35.1
