@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95BCA604137
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:40:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3C11604131
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:40:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231806AbiJSKke (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:40:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38578 "EHLO
+        id S232191AbiJSKkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:40:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231846AbiJSKjt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:39:49 -0400
+        with ESMTP id S230415AbiJSKj1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:39:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA4A9157477;
-        Wed, 19 Oct 2022 03:18:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFD7F15627F;
+        Wed, 19 Oct 2022 03:18:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC3D0B823BD;
-        Wed, 19 Oct 2022 08:54:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 239BAC433D7;
-        Wed, 19 Oct 2022 08:54:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B89DB823C8;
+        Wed, 19 Oct 2022 08:55:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98EB4C433D6;
+        Wed, 19 Oct 2022 08:55:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169653;
-        bh=7go1yIvRjCUaDnh/t/n91CkD5U8iI4PuQcrNJySH2nM=;
+        s=korg; t=1666169703;
+        bh=4skOxrJgX4AfIkPHOIg87BN7DK+WMUVYiGNtnr5td+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fGJajGsie3uqGMLMhq2tuKo3V9xi7kmEKSjtaC6y24KvmCXVZSPKJbXLBXOrbSbVj
-         4XP2Vv6z/vXNJh/o+sKaaVwZNm/qHmmPwsGfh5LdZX9zfFQSH/8LyZVOrzxK4UkTHv
-         sjpsRoG3s77U4xuCyQvQMVPbkBSVTo3zW9S4mOQQ=
+        b=093RJ8ktsEQMpHiblS+LnEmpjvMXUc2QOaZ4OJ6G3IvjWvrocnaQJC7EmmapVvHPX
+         +Fl81fWxUiRslFpOIMv2+NItddXdxH3D3QOR4LmP9k36QfYAWgW0L+56I0tjSNasqc
+         WhSXxUrHiiNJ65DXGlMB0h3q8QDnYnQrNF8ySN2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 340/862] bnx2x: fix potential memory leak in bnx2x_tpa_stop()
-Date:   Wed, 19 Oct 2022 10:27:07 +0200
-Message-Id: <20221019083305.081784871@linuxfoundation.org>
+Subject: [PATCH 6.0 343/862] net/ieee802154: reject zero-sized raw_sendmsg()
+Date:   Wed, 19 Oct 2022 10:27:10 +0200
+Message-Id: <20221019083305.219389595@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,38 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit b43f9acbb8942b05252be83ac25a81cec70cc192 ]
+[ Upstream commit 3a4d061c699bd3eedc80dc97a4b2a2e1af83c6f5 ]
 
-bnx2x_tpa_stop() allocates a memory chunk from new_data with
-bnx2x_frag_alloc(). The new_data should be freed when gets some error.
-But when "pad + len > fp->rx_buf_size" is true, bnx2x_tpa_stop() returns
-without releasing the new_data, which will lead to a memory leak.
+syzbot is hitting skb_assert_len() warning at raw_sendmsg() for ieee802154
+socket. What commit dc633700f00f726e ("net/af_packet: check len when
+min_header_len equals to 0") does also applies to ieee802154 socket.
 
-We should free the new_data with bnx2x_frag_free() when "pad + len >
-fp->rx_buf_size" is true.
-
-Fixes: 07b0f00964def8af9321cfd6c4a7e84f6362f728 ("bnx2x: fix possible panic under memory stress")
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Link: https://syzkaller.appspot.com/bug?extid=5ea725c25d06fb9114c4
+Reported-by: syzbot <syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com>
+Fixes: fd1894224407c484 ("bpf: Don't redirect packets with invalid pkt_len")
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ieee802154/socket.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-index 712b5595bc39..24bfc65e28e1 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-@@ -789,6 +789,7 @@ static void bnx2x_tpa_stop(struct bnx2x *bp, struct bnx2x_fastpath *fp,
- 			BNX2X_ERR("skb_put is about to fail...  pad %d  len %d  rx_buf_size %d\n",
- 				  pad, len, fp->rx_buf_size);
- 			bnx2x_panic();
-+			bnx2x_frag_free(fp, new_data);
- 			return;
- 		}
- #endif
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index 7889e1ef7fad..cbd0e2ac4ffe 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -251,6 +251,9 @@ static int raw_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 		return -EOPNOTSUPP;
+ 	}
+ 
++	if (!size)
++		return -EINVAL;
++
+ 	lock_sock(sk);
+ 	if (!sk->sk_bound_dev_if)
+ 		dev = dev_getfirstbyhwtype(sock_net(sk), ARPHRD_IEEE802154);
 -- 
 2.35.1
 
