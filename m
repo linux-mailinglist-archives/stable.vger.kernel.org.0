@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15BE96047FD
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB29604748
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:36:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233601AbiJSNsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:48:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40932 "EHLO
+        id S230142AbiJSNgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:36:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233441AbiJSNq6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:46:58 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 551A74F64C;
-        Wed, 19 Oct 2022 06:32:23 -0700 (PDT)
+        with ESMTP id S232220AbiJSNgN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:36:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C81865A5;
+        Wed, 19 Oct 2022 06:25:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 577EBCE217D;
-        Wed, 19 Oct 2022 09:05:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F279C433B5;
-        Wed, 19 Oct 2022 09:05:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3FA1EB82478;
+        Wed, 19 Oct 2022 09:05:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0387C433D6;
+        Wed, 19 Oct 2022 09:05:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170343;
-        bh=7iUnay9kotKl5KdpScGWZwxW0SDdUw4cc9DqQlkzRvc=;
+        s=korg; t=1666170354;
+        bh=oN1q5+EkQodGSpeSvWON/bvXRv29YUR6xT4ss1Sevw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nDlQE/NijiG0/iOTfLRd9IRxFpnzmtD6DXaBmMcPYWkf/lFTr4fBtw8NmUAfaJACD
-         EihexMG8S6/63n2nMMa0ycJbSO4QS1ZYzJr7/C9AQyX1xC4WwmVeijKlK0cStq2mSx
-         b5Li1+UEKyX+a45GwOy+6N0M6a/9RiDjtk0/XnbI=
+        b=RZuaasvp38/ChNUy+M6JPlfJ+CQSshkiptKOlBXt++ZBljZKfqsZtJhsRXMd99Qjf
+         jqddsDM5WlMI3rE4STz9QDgp1ZIahGf+VRzXGGGPtfGzBkNFXWR2/XGXcYSZtjqMm7
+         p5r+7WGcZN1JtRoxutK4iLb/EuKoY0rUgoQKWhWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
+        Haren Myneni <haren@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 619/862] powerpc/64: mark irqs hard disabled in boot paca
-Date:   Wed, 19 Oct 2022 10:31:46 +0200
-Message-Id: <20221019083317.283134398@linuxfoundation.org>
+Subject: [PATCH 6.0 623/862] powerpc/pseries/vas: Pass hw_cpu_id to node associativity HCALL
+Date:   Wed, 19 Oct 2022 10:31:50 +0200
+Message-Id: <20221019083317.464743711@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,39 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Haren Myneni <haren@linux.ibm.com>
 
-[ Upstream commit 799f7063c7645f9a751d17f5dfd73b952f962cd2 ]
+[ Upstream commit f3e5d9e53e74d77e711a2c90a91a8b0836a9e0b3 ]
 
-This prevents interrupts in early boot (e.g., program check) from
-enabling MSR[EE], potentially causing endian mismatch or other
-crashes when reporting early boot traps.
+Generally the hypervisor decides to allocate a window on different
+VAS instances. But if user space wishes to allocate on the current VAS
+instance where the process is executing, the kernel has to pass
+associativity domain IDs to allocate VAS window HCALL.
 
-Fixes: 4423eb5ae32ec ("powerpc/64/interrupt: make normal synchronous interrupts enable MSR[EE] if possible")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+To determine the associativity domain IDs for the current CPU,
+smp_processor_id() is passed to node associativity HCALL which may
+return H_P2 (-55) error during DLPAR CPU event. This is because Linux
+CPU numbers (smp_processor_id()) are not the same as the hypervisor's
+view of CPU numbers.
+
+Fix the issue by passing hard_smp_processor_id() with
+VPHN_FLAG_VCPU flag (PAPR 14.11.6.1 H_HOME_NODE_ASSOCIATIVITY).
+
+Fixes: b22f2d88e435 ("powerpc/pseries/vas: Integrate API with open/close windows")
+Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Haren Myneni <haren@linux.ibm.com>
+[mpe: Update change log to mention Linux vs HV CPU numbers]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220926054305.2671436-3-npiggin@gmail.com
+Link: https://lore.kernel.org/r/55380253ea0c11341824cd4c0fc6bbcfc5752689.camel@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/setup_64.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/pseries/vas.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
-index 2b2d0b0fbb30..ce8fc6575eaa 100644
---- a/arch/powerpc/kernel/setup_64.c
-+++ b/arch/powerpc/kernel/setup_64.c
-@@ -182,8 +182,10 @@ static void __init fixup_boot_paca(void)
- 	get_paca()->cpu_start = 1;
- 	/* Allow percpu accesses to work until we setup percpu data */
- 	get_paca()->data_offset = 0;
--	/* Mark interrupts disabled in PACA */
-+	/* Mark interrupts soft and hard disabled in PACA */
- 	irq_soft_mask_set(IRQS_DISABLED);
-+	get_paca()->irq_happened = PACA_IRQ_HARD_DIS;
-+	WARN_ON(mfmsr() & MSR_EE);
- }
- 
- static void __init configure_exceptions(void)
+diff --git a/arch/powerpc/platforms/pseries/vas.c b/arch/powerpc/platforms/pseries/vas.c
+index 7e6e6dd2e33e..1a2cbc156e8f 100644
+--- a/arch/powerpc/platforms/pseries/vas.c
++++ b/arch/powerpc/platforms/pseries/vas.c
+@@ -333,7 +333,7 @@ static struct vas_window *vas_allocate_window(int vas_id, u64 flags,
+ 		 * So no unpacking needs to be done.
+ 		 */
+ 		rc = plpar_hcall9(H_HOME_NODE_ASSOCIATIVITY, domain,
+-				  VPHN_FLAG_VCPU, smp_processor_id());
++				  VPHN_FLAG_VCPU, hard_smp_processor_id());
+ 		if (rc != H_SUCCESS) {
+ 			pr_err("H_HOME_NODE_ASSOCIATIVITY error: %d\n", rc);
+ 			goto out;
 -- 
 2.35.1
 
