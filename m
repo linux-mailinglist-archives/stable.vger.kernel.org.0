@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E345A603D28
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B4D603D25
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232054AbiJSI6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:58:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47846 "EHLO
+        id S231913AbiJSI6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:58:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231951AbiJSI5E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:57:04 -0400
+        with ESMTP id S231942AbiJSI5D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:57:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4225E356F0;
-        Wed, 19 Oct 2022 01:53:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76E0E9E0D1;
+        Wed, 19 Oct 2022 01:53:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6A4A61867;
-        Wed, 19 Oct 2022 08:52:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7C55C433C1;
-        Wed, 19 Oct 2022 08:52:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B0D061877;
+        Wed, 19 Oct 2022 08:52:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91766C433D6;
+        Wed, 19 Oct 2022 08:52:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169530;
-        bh=z8354MLPzt46BjyGsVWJYbQLbpGutp1mNQkt1bEaeCo=;
+        s=korg; t=1666169533;
+        bh=L++NyLPF29P94YsyQAgGB6D++lyuxhHufzqYhYkdOmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F6Oy1KmTEWygE+aLYJNUGLISV6huOfrks9lp9wupjtw6o0lOxX8jf5hkTvEId7ivV
-         LJCLcc7fDH0uo11xtkBigd3My8cOHyKY4nSjF0V4elQx5QIHJaoJAmYh/e9XrX0saX
-         pS+w5Xw45k7C7kxJj+QCtXwJr6uDmSei/yWIL1xE=
+        b=tYbPcJE/qdglMsQRKRRz3cLnodVDnkXApr20n0pn4y3U90WV0yHldxJsUsRaQ+LaN
+         TBgFyewimMSbGhM/l+hxYaRJPx7cdGY2J7E+Sy9iG8dXapENtIZ5PGn29yeKzPOI3P
+         YsrN71BRbNmbAZjoXv2viIFGs00xHrYAx91P0eZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christian Ansuel Marangi <ansuelsmth@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 312/862] wifi: ath11k: fix peer addition/deletion error on sta band migration
-Date:   Wed, 19 Oct 2022 10:26:39 +0200
-Message-Id: <20221019083303.796631363@linuxfoundation.org>
+        =?UTF-8?q?Luciano=20Le=C3=A3o?= <lucianorsleao@gmail.com>,
+        Borislav Petkov <bp@suse.de>,
+        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
+        <n@nfraprado.net>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 313/862] x86/cpu: Include the header of init_ia32_feat_ctl()s prototype
+Date:   Wed, 19 Oct 2022 10:26:40 +0200
+Message-Id: <20221019083303.846947248@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -45,126 +46,71 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian 'Ansuel' Marangi <ansuelsmth@gmail.com>
+From: Luciano Leão <lucianorsleao@gmail.com>
 
-[ Upstream commit d673cb6fe6c03b2be157cc6c5db40481828d282d ]
+[ Upstream commit 30ea703a38ef76ca119673cd8bdd05c6e068e2ac ]
 
-This patch try to fix the following error.
+Include the header containing the prototype of init_ia32_feat_ctl(),
+solving the following warning:
 
-Wed Jun  1 22:19:30 2022 kern.warn kernel: [  119.561227] ath11k c000000.wifi: peer already added vdev id 0 req, vdev id 1 present
-Wed Jun  1 22:19:30 2022 kern.warn kernel: [  119.561282] ath11k c000000.wifi: Failed to add peer: 28:c2:1f:xx:xx:xx for VDEV: 0
-Wed Jun  1 22:19:30 2022 kern.warn kernel: [  119.568053] ath11k c000000.wifi: Failed to add station: 28:c2:1f:xx:xx:xx for VDEV: 0
-Wed Jun  1 22:19:31 2022 daemon.notice hostapd: wlan2: STA 28:c2:1f:xx:xx:xx IEEE 802.11: Could not add STA to kernel driver
-Wed Jun  1 22:19:31 2022 daemon.notice hostapd: wlan2: STA 28:c2:1f:xx:xx:xx IEEE 802.11: did not acknowledge authentication response
-Wed Jun  1 22:19:31 2022 daemon.notice hostapd: wlan1: AP-STA-DISCONNECTED 28:c2:1f:xx:xx:xx
-Wed Jun  1 22:19:31 2022 daemon.info hostapd: wlan1: STA 28:c2:1f:xx:xx:xx IEEE 802.11: disassociated due to inactivity
-Wed Jun  1 22:19:32 2022 daemon.info hostapd: wlan1: STA 28:c2:1f:xx:xx:xx IEEE 802.11: deauthenticated due to inactivity (timer DEAUTH/REMOVE)
+  $ make W=1 arch/x86/kernel/cpu/feat_ctl.o
+  arch/x86/kernel/cpu/feat_ctl.c:112:6: warning: no previous prototype for ‘init_ia32_feat_ctl’ [-Wmissing-prototypes]
+    112 | void init_ia32_feat_ctl(struct cpuinfo_x86 *c)
 
-To repro this:
-- Have 2 Wifi with the same bssid and pass on different band (2.4 and
-5GHz)
-- Enable 802.11r Fast Transaction with same mobility domain
-- FT Protocol: FT over the Air
->From a openwrt system issue the command (with the correct mac)
-ubus call hostapd.wlan1 wnm_disassoc_imminent '{"addr":"28:C2:1F:xx:xx:xx"}'
-Notice the log printing the errors.
+This warning appeared after commit
 
-The cause of this error has been investigated and we found that this is
-related to the WiFi Fast Transaction feature. We observed that this is
-triggered when the router tells the device to change band. In this case
-the device first auth to the other band and then the disconnect path
-from the prev band is triggered.
-This is problematic with the current rhash implementation since the
-addrs is used as key and the logic of "adding first, delete later"
-conflicts with the rhash logic.
-In fact peer addition will fail since the peer is already added and with
-that fixed a peer deletion will cause unitended effect by removing the
-peer just added.
+  5d5103595e9e5 ("x86/cpu: Reinitialize IA32_FEAT_CTL MSR on BSP during wakeup")
 
-Current solution to this is to add additional logic to the peer delete,
-make sure we are deleting the correct peer taken from the rhash
-table (and fallback to the peer list) and for the peer add logic delete
-the peer entry for the rhash list before adding the new one (counting as
-an error only when a peer with the same vlan_id is asked to be added).
+had moved the function init_ia32_feat_ctl()'s prototype from
+arch/x86/kernel/cpu/cpu.h to arch/x86/include/asm/cpu.h.
 
-With this change, a sta can correctly transition from 2.4GHz and 5GHZ
-with no drop and no error are printed.
+Note that, before the commit mentioned above, the header include "cpu.h"
+(arch/x86/kernel/cpu/cpu.h) was added by commit
 
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1-01208-QCAHKSWPL_SILICONZ-1
+  0e79ad863df43 ("x86/cpu: Fix a -Wmissing-prototypes warning for init_ia32_feat_ctl()")
 
-Fixes: 7b0c70d92a43 ("ath11k: Add peer rhash table support")
-Signed-off-by: Christian 'Ansuel' Marangi <ansuelsmth@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220603164559.27769-1-ansuelsmth@gmail.com
+solely to fix init_ia32_feat_ctl()'s missing prototype. So, the header
+include "cpu.h" is no longer necessary.
+
+  [ bp: Massage commit message. ]
+
+Fixes: 5d5103595e9e5 ("x86/cpu: Reinitialize IA32_FEAT_CTL MSR on BSP during wakeup")
+Signed-off-by: Luciano Leão <lucianorsleao@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Nícolas F. R. A. Prado <n@nfraprado.net>
+Link: https://lore.kernel.org/r/20220922200053.1357470-1-lucianorsleao@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/peer.c | 30 ++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
+ arch/x86/kernel/cpu/feat_ctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/peer.c b/drivers/net/wireless/ath/ath11k/peer.c
-index 9e22aaf34b88..1ae7af02c364 100644
---- a/drivers/net/wireless/ath/ath11k/peer.c
-+++ b/drivers/net/wireless/ath/ath11k/peer.c
-@@ -302,6 +302,21 @@ static int __ath11k_peer_delete(struct ath11k *ar, u32 vdev_id, const u8 *addr)
- 	spin_lock_bh(&ab->base_lock);
+diff --git a/arch/x86/kernel/cpu/feat_ctl.c b/arch/x86/kernel/cpu/feat_ctl.c
+index 993697e71854..03851240c3e3 100644
+--- a/arch/x86/kernel/cpu/feat_ctl.c
++++ b/arch/x86/kernel/cpu/feat_ctl.c
+@@ -1,11 +1,11 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <linux/tboot.h>
  
- 	peer = ath11k_peer_find_by_addr(ab, addr);
-+	/* Check if the found peer is what we want to remove.
-+	 * While the sta is transitioning to another band we may
-+	 * have 2 peer with the same addr assigned to different
-+	 * vdev_id. Make sure we are deleting the correct peer.
-+	 */
-+	if (peer && peer->vdev_id == vdev_id)
-+		ath11k_peer_rhash_delete(ab, peer);
-+
-+	/* Fallback to peer list search if the correct peer can't be found.
-+	 * Skip the deletion of the peer from the rhash since it has already
-+	 * been deleted in peer add.
-+	 */
-+	if (!peer)
-+		peer = ath11k_peer_find(ab, vdev_id, addr);
-+
- 	if (!peer) {
- 		spin_unlock_bh(&ab->base_lock);
- 		mutex_unlock(&ab->tbl_mtx_lock);
-@@ -312,8 +327,6 @@ static int __ath11k_peer_delete(struct ath11k *ar, u32 vdev_id, const u8 *addr)
- 		return -EINVAL;
- 	}
++#include <asm/cpu.h>
+ #include <asm/cpufeature.h>
+ #include <asm/msr-index.h>
+ #include <asm/processor.h>
+ #include <asm/vmx.h>
+-#include "cpu.h"
  
--	ath11k_peer_rhash_delete(ab, peer);
--
- 	spin_unlock_bh(&ab->base_lock);
- 	mutex_unlock(&ab->tbl_mtx_lock);
- 
-@@ -372,8 +385,17 @@ int ath11k_peer_create(struct ath11k *ar, struct ath11k_vif *arvif,
- 	spin_lock_bh(&ar->ab->base_lock);
- 	peer = ath11k_peer_find_by_addr(ar->ab, param->peer_addr);
- 	if (peer) {
--		spin_unlock_bh(&ar->ab->base_lock);
--		return -EINVAL;
-+		if (peer->vdev_id == param->vdev_id) {
-+			spin_unlock_bh(&ar->ab->base_lock);
-+			return -EINVAL;
-+		}
-+
-+		/* Assume sta is transitioning to another band.
-+		 * Remove here the peer from rhash.
-+		 */
-+		mutex_lock(&ar->ab->tbl_mtx_lock);
-+		ath11k_peer_rhash_delete(ar->ab, peer);
-+		mutex_unlock(&ar->ab->tbl_mtx_lock);
- 	}
- 	spin_unlock_bh(&ar->ab->base_lock);
- 
+ #undef pr_fmt
+ #define pr_fmt(fmt)	"x86/cpu: " fmt
 -- 
 2.35.1
 
