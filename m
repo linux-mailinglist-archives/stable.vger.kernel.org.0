@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B46F603E58
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:13:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93507603E5E
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:13:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232638AbiJSJM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:12:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54090 "EHLO
+        id S233010AbiJSJNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:13:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232637AbiJSJK5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:10:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E1B0C4DB9;
-        Wed, 19 Oct 2022 02:02:33 -0700 (PDT)
+        with ESMTP id S232776AbiJSJLM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:11:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE326BBF26;
+        Wed, 19 Oct 2022 02:02:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C92161825;
-        Wed, 19 Oct 2022 09:02:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E90CC433C1;
-        Wed, 19 Oct 2022 09:02:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 391C261840;
+        Wed, 19 Oct 2022 09:02:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 517ECC4314E;
+        Wed, 19 Oct 2022 09:02:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170127;
-        bh=SVGyauJPlNV9CwUJHeaBYDZmpQHU7dMSWq2bl8Wcheg=;
+        s=korg; t=1666170135;
+        bh=wgTpcZw6pHeLmUWIFLe8Y+4Afsn152FcGu5DNgbGAyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fCaPBBbxP023kNdTCIlsZDp8DveWT6QXLeEwTFuGGCOgsMt2IYKAnQ4n1Sf1FShV+
-         7I5uyt/VYHvI32vpKh8mETZTcrSd9Q9usGR6n2fK2VbmL7JLLMyoKzyMjI/suDKueO
-         5qKHN3a9FmZn8Q8MPQsJOQgrqcFHBl6eF/xk+rdw=
+        b=iGmgUa7sjOEuH9eFuTkiYUZ5S9qu4B1wGNE9Ib56OXFGmMfueNYNqO6IimginnXQP
+         Mb50I8rWI2J3ei6M1wLgwTkfcLWED9nFC8bMr2ONGmdi3EXdnFffrIUjh7Q0HKWuLu
+         4LkPwtNHn1kFo94dgNFTkeRPApbWKgW5WhuiIcko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 538/862] RDMA/siw: Fix QP destroy to wait for all references dropped.
-Date:   Wed, 19 Oct 2022 10:30:25 +0200
-Message-Id: <20221019083313.726298309@linuxfoundation.org>
+Subject: [PATCH 6.0 540/862] ata: fix ata_id_has_devslp()
+Date:   Wed, 19 Oct 2022 10:30:27 +0200
+Message-Id: <20221019083313.826087970@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,76 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernard Metzler <bmt@zurich.ibm.com>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit a3c278807a459e6f50afee6971cabe74cccfb490 ]
+[ Upstream commit 9c6e09a434e1317e09b78b3b69cd384022ec9a03 ]
 
-Delay QP destroy completion until all siw references to QP are
-dropped. The calling RDMA core will free QP structure after
-successful return from siw_qp_destroy() call, so siw must not
-hold any remaining reference to the QP upon return.
-A use-after-free was encountered in xfstest generic/460, while
-testing NFSoRDMA. Here, after a TCP connection drop by peer,
-the triggered siw_cm_work_handler got delayed until after
-QP destroy call, referencing a QP which has already freed.
+ACS-5 section
+7.13.6.36 Word 78: Serial ATA features supported
+states that:
 
-Fixes: 303ae1cdfdf7 ("rdma/siw: application interface")
-Reported-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
-Link: https://lore.kernel.org/r/20220920082503.224189-1-bmt@zurich.ibm.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+If word 76 is not 0000h or FFFFh, word 78 reports the features supported
+by the device. If this word is not supported, the word shall be cleared
+to zero.
+
+(This text also exists in really old ACS standards, e.g. ACS-3.)
+
+Additionally, move the macro to the other ATA_ID_FEATURE_SUPP macros
+(which already have this check), thus making it more likely that the
+next ATA_ID_FEATURE_SUPP macro that is added will include this check.
+
+Fixes: 65fe1f0f66a5 ("ahci: implement aggressive SATA device sleep support")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw.h       | 1 +
- drivers/infiniband/sw/siw/siw_qp.c    | 2 +-
- drivers/infiniband/sw/siw/siw_verbs.c | 3 +++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ include/linux/ata.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw.h b/drivers/infiniband/sw/siw/siw.h
-index df03d84c6868..2f3a9cda3850 100644
---- a/drivers/infiniband/sw/siw/siw.h
-+++ b/drivers/infiniband/sw/siw/siw.h
-@@ -418,6 +418,7 @@ struct siw_qp {
- 	struct ib_qp base_qp;
- 	struct siw_device *sdev;
- 	struct kref ref;
-+	struct completion qp_free;
- 	struct list_head devq;
- 	int tx_cpu;
- 	struct siw_qp_attrs attrs;
-diff --git a/drivers/infiniband/sw/siw/siw_qp.c b/drivers/infiniband/sw/siw/siw_qp.c
-index 7e01f2438afc..e6f634971228 100644
---- a/drivers/infiniband/sw/siw/siw_qp.c
-+++ b/drivers/infiniband/sw/siw/siw_qp.c
-@@ -1342,6 +1342,6 @@ void siw_free_qp(struct kref *ref)
- 	vfree(qp->orq);
+diff --git a/include/linux/ata.h b/include/linux/ata.h
+index 868bfd503aee..bc136a43689f 100644
+--- a/include/linux/ata.h
++++ b/include/linux/ata.h
+@@ -566,6 +566,10 @@ struct ata_bmdma_prd {
+ 	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
+ 	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
+ 	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 2)))
++#define ata_id_has_devslp(id)	\
++	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
++	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
++	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 8)))
+ #define ata_id_iordy_disable(id) ((id)[ATA_ID_CAPABILITY] & (1 << 10))
+ #define ata_id_has_iordy(id) ((id)[ATA_ID_CAPABILITY] & (1 << 11))
+ #define ata_id_u32(id,n)	\
+@@ -578,7 +582,6 @@ struct ata_bmdma_prd {
  
- 	siw_put_tx_cpu(qp->tx_cpu);
--
-+	complete(&qp->qp_free);
- 	atomic_dec(&sdev->num_qp);
- }
-diff --git a/drivers/infiniband/sw/siw/siw_verbs.c b/drivers/infiniband/sw/siw/siw_verbs.c
-index 8dedae7ae79e..3e814cfb298c 100644
---- a/drivers/infiniband/sw/siw/siw_verbs.c
-+++ b/drivers/infiniband/sw/siw/siw_verbs.c
-@@ -480,6 +480,8 @@ int siw_create_qp(struct ib_qp *ibqp, struct ib_qp_init_attr *attrs,
- 	list_add_tail(&qp->devq, &sdev->qp_list);
- 	spin_unlock_irqrestore(&sdev->lock, flags);
+ #define ata_id_cdb_intr(id)	(((id)[ATA_ID_CONFIG] & 0x60) == 0x20)
+ #define ata_id_has_da(id)	((id)[ATA_ID_SATA_CAPABILITY_2] & (1 << 4))
+-#define ata_id_has_devslp(id)	((id)[ATA_ID_FEATURE_SUPP] & (1 << 8))
+ #define ata_id_has_ncq_autosense(id) \
+ 				((id)[ATA_ID_FEATURE_SUPP] & (1 << 7))
  
-+	init_completion(&qp->qp_free);
-+
- 	return 0;
- 
- err_out_xa:
-@@ -624,6 +626,7 @@ int siw_destroy_qp(struct ib_qp *base_qp, struct ib_udata *udata)
- 	qp->scq = qp->rcq = NULL;
- 
- 	siw_qp_put(qp);
-+	wait_for_completion(&qp->qp_free);
- 
- 	return 0;
- }
 -- 
 2.35.1
 
