@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E42C9603F2D
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:28:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E283603F32
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:30:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233662AbiJSJ2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:28:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45406 "EHLO
+        id S234141AbiJSJas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:30:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231578AbiJSJ1R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:27:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24C05E6F58;
-        Wed, 19 Oct 2022 02:12:12 -0700 (PDT)
+        with ESMTP id S233510AbiJSJ1T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:27:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E966E6F6E;
+        Wed, 19 Oct 2022 02:12:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B66061807;
-        Wed, 19 Oct 2022 09:10:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93925C433D6;
-        Wed, 19 Oct 2022 09:10:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21A966189B;
+        Wed, 19 Oct 2022 09:10:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3097FC43149;
+        Wed, 19 Oct 2022 09:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170631;
-        bh=Pn90kuPbeK/qdV/mITnz331Ur07Ew6mzmpWUpHOoTiM=;
+        s=korg; t=1666170634;
+        bh=utuW3Bx0FnIKs6KiWMfFJsXZhlnXTIJMMLWht0Y6V40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hDtaTrfTX5s5HVvw9yojzucV9cM0XDJ7rwixJu7Fx4NVl2HpkREhdL4SlyLS96iTM
-         p84leraiXaexKpAdhdrNUSOGFWBausy0MJ5ysLt27QTaW3oHearTNIrE+IcLVGKttR
-         g5k+GydlHANQmCplEcVjE4JH34BJC9X8wu+M9HdQ=
+        b=LUW3NpQN3MCbhnS/HI2m6TvCLLIlnQSeF0CT923/hfxbi6qAIITVuJ3XQh5YHTQZh
+         hpeADh5vW8ND4zUZnyqqp+INlD+0X9cbXFLUsmXCP9v3z03Ebw5nxlaVaytJDLn7KA
+         q0K5lp4DZ3pEtgDcUNJaZgfDMmhKL68qaqywUrYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 728/862] drm/nouveau/nouveau_bo: fix potential memory leak in nouveau_bo_alloc()
-Date:   Wed, 19 Oct 2022 10:33:35 +0200
-Message-Id: <20221019083322.097159643@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Peter Robinson <pbrobinson@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 729/862] drm: Use size_t type for len variable in drm_copy_field()
+Date:   Wed, 19 Oct 2022 10:33:36 +0200
+Message-Id: <20221019083322.146268079@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,42 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit 6dc548745d5b5102e3c53dc5097296ac270b6c69 ]
+[ Upstream commit 94dc3471d1b2b58b3728558d0e3f264e9ce6ff59 ]
 
-nouveau_bo_alloc() allocates a memory chunk for "nvbo" with kzalloc().
-When some error occurs, "nvbo" should be released. But when
-WARN_ON(pi < 0)) equals true, the function return ERR_PTR without
-releasing the "nvbo", which will lead to a memory leak.
+The strlen() function returns a size_t which is an unsigned int on 32-bit
+arches and an unsigned long on 64-bit arches. But in the drm_copy_field()
+function, the strlen() return value is assigned to an 'int len' variable.
 
-We should release the "nvbo" with kfree() if WARN_ON(pi < 0)) equals true.
+Later, the len variable is passed as copy_from_user() third argument that
+is an unsigned long parameter as well.
 
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220705094306.2244103-1-niejianglei2021@163.com
+In theory, this can lead to an integer overflow via type conversion. Since
+the assignment happens to a signed int lvalue instead of a size_t lvalue.
+
+In practice though, that's unlikely since the values copied are set by DRM
+drivers and not controlled by userspace. But using a size_t for len is the
+correct thing to do anyways.
+
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Tested-by: Peter Robinson <pbrobinson@gmail.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220705100215.572498-2-javierm@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_bo.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
-index e29175e4b44c..07a327ad5e2a 100644
---- a/drivers/gpu/drm/nouveau/nouveau_bo.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
-@@ -281,8 +281,10 @@ nouveau_bo_alloc(struct nouveau_cli *cli, u64 *size, int *align, u32 domain,
- 			break;
- 	}
+diff --git a/drivers/gpu/drm/drm_ioctl.c b/drivers/gpu/drm/drm_ioctl.c
+index 8faad23dc1d8..e1b9a03e619c 100644
+--- a/drivers/gpu/drm/drm_ioctl.c
++++ b/drivers/gpu/drm/drm_ioctl.c
+@@ -472,7 +472,7 @@ EXPORT_SYMBOL(drm_invalid_op);
+  */
+ static int drm_copy_field(char __user *buf, size_t *buf_len, const char *value)
+ {
+-	int len;
++	size_t len;
  
--	if (WARN_ON(pi < 0))
-+	if (WARN_ON(pi < 0)) {
-+		kfree(nvbo);
- 		return ERR_PTR(-EINVAL);
-+	}
- 
- 	/* Disable compression if suitable settings couldn't be found. */
- 	if (nvbo->comp && !vmm->page[pi].comp) {
+ 	/* don't overflow userbuf */
+ 	len = strlen(value);
 -- 
 2.35.1
 
