@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F728603EE6
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:22:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FC3D603F18
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:27:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233364AbiJSJWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:22:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60706 "EHLO
+        id S233608AbiJSJ1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:27:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233455AbiJSJVm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:21:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA4C63ED72;
-        Wed, 19 Oct 2022 02:09:53 -0700 (PDT)
+        with ESMTP id S233567AbiJSJ0d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:26:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F4133E22F6;
+        Wed, 19 Oct 2022 02:11:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C061E61824;
-        Wed, 19 Oct 2022 09:01:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C35A7C433C1;
-        Wed, 19 Oct 2022 09:01:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50151617FB;
+        Wed, 19 Oct 2022 09:01:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F4EBC433B5;
+        Wed, 19 Oct 2022 09:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170083;
-        bh=0einq7fTqgMqNK76jwkzXls/v3g3vDEhp3UU2sIhUVs=;
+        s=korg; t=1666170085;
+        bh=WTP5UwOckZbMbSXMx2VCri9AardoaYuqySbMaS2HOr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CWorxAtvdBzEVHPVHtsOqXOFkqFM3a6YnKSQQu/3hvm/vjZwvarQHwr6YuyQsTs0D
-         Uk+Jo9VgkJUH1bCToT52VJ/zLcwclx7VNLFDVrUn89TQfKCZ1VGc9XgXhGapvZk58V
-         PCRsv7/YfwdFpu1D3q3O48mp5R6YpqML3XwCQ/og=
+        b=Xj0BKNVM/LLsrBUyqYWo74P1mlxiC8QfCkcy6ZhhmcDf83zoDMt3zcp0m7sy+C3Up
+         nXlKV8XLtxCvwJ+bukYgKu+pKkF8+EMculhga1QFbX62I2JCw9HF2/T67bRDD+tLgR
+         xeCkKveYr9HsSzerjqsrlzkO0aHj8jsizEi9/A9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Alexey Minnekhanov <alexeymin@postmarketos.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 484/862] clk: qcom: gcc-sdm660: Use floor ops for SDCC1 clock
-Date:   Wed, 19 Oct 2022 10:29:31 +0200
-Message-Id: <20221019083311.346940026@linuxfoundation.org>
+Subject: [PATCH 6.0 485/862] media: exynos4-is: fimc-is: Add of_node_put() when breaking out of loop
+Date:   Wed, 19 Oct 2022 10:29:32 +0200
+Message-Id: <20221019083311.396519600@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,44 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 6956c18f4ad9200aa945f7ea37d65a05afc49d51 ]
+[ Upstream commit 211f8304fa21aaedc2c247f0c9d6c7f1aaa61ad7 ]
 
-In commit 3f905469c8ce ("clk: qcom: gcc: Use floor ops for SDCC clocks")
-floor ops were applied to SDCC2 only, but flooring is also required on
-the SDCC1 apps clock which is used by the eMMC card on Sony's Nile
-platform, and otherwise result in the typicial "Card appears
-overclocked" warnings observed on many other platforms before:
+In fimc_is_register_subdevs(), we need to call of_node_put() for
+the reference 'i2c_bus' when breaking out of the
+for_each_compatible_node() which has increased the refcount.
 
-    mmc0: Card appears overclocked; req 52000000 Hz, actual 100000000 Hz
-    mmc0: Card appears overclocked; req 52000000 Hz, actual 100000000 Hz
-    mmc0: Card appears overclocked; req 104000000 Hz, actual 192000000 Hz
-
-Fixes: f2a76a2955c0 ("clk: qcom: Add Global Clock controller (GCC) driver for SDM660")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Tested-by: Alexey Minnekhanov <alexeymin@postmarketos.org>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220714203822.186448-1-marijn.suijten@somainline.org
+Fixes: 9a761e436843 ("[media] exynos4-is: Add Exynos4x12 FIMC-IS driver")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-sdm660.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/samsung/exynos4-is/fimc-is.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/qcom/gcc-sdm660.c b/drivers/clk/qcom/gcc-sdm660.c
-index 9b97425008ce..db918c92a522 100644
---- a/drivers/clk/qcom/gcc-sdm660.c
-+++ b/drivers/clk/qcom/gcc-sdm660.c
-@@ -757,7 +757,7 @@ static struct clk_rcg2 sdcc1_apps_clk_src = {
- 		.name = "sdcc1_apps_clk_src",
- 		.parent_data = gcc_parent_data_xo_gpll0_gpll4_gpll0_early_div,
- 		.num_parents = ARRAY_SIZE(gcc_parent_data_xo_gpll0_gpll4_gpll0_early_div),
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_floor_ops,
- 	},
- };
+diff --git a/drivers/media/platform/samsung/exynos4-is/fimc-is.c b/drivers/media/platform/samsung/exynos4-is/fimc-is.c
+index e3072d69c49f..a7704ff069d6 100644
+--- a/drivers/media/platform/samsung/exynos4-is/fimc-is.c
++++ b/drivers/media/platform/samsung/exynos4-is/fimc-is.c
+@@ -213,6 +213,7 @@ static int fimc_is_register_subdevs(struct fimc_is *is)
  
+ 			if (ret < 0 || index >= FIMC_IS_SENSORS_NUM) {
+ 				of_node_put(child);
++				of_node_put(i2c_bus);
+ 				return ret;
+ 			}
+ 			index++;
 -- 
 2.35.1
 
