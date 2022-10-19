@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E05F8603EAC
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:18:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 168A3603EB5
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:18:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233278AbiJSJRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:17:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43284 "EHLO
+        id S233194AbiJSJSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:18:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233156AbiJSJQT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:16:19 -0400
+        with ESMTP id S233218AbiJSJQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:16:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C30CA59AE;
-        Wed, 19 Oct 2022 02:06:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBB795FAE7;
+        Wed, 19 Oct 2022 02:07:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1531C61825;
-        Wed, 19 Oct 2022 09:06:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23D00C433D6;
-        Wed, 19 Oct 2022 09:06:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CFDC61868;
+        Wed, 19 Oct 2022 09:06:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AE79C433D7;
+        Wed, 19 Oct 2022 09:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170377;
-        bh=vujw5cF2w9ojqX9/fEY6xpNzZwk1Hc103xQkPvbWCdM=;
+        s=korg; t=1666170387;
+        bh=NI1fBXPVYlDZ4B6j6GMBIhhEi5k4CLiLesxDmWTMZN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHplZGMRdqviz9Kqjff3VWgHRkS2QPIi4Uj1PjTOtguDUJJMD080DuZZlDsyl77Pl
-         o+YJwzypXWgzM42YU7lnAKfmWn3w9ZQBrbcJ9sPEcYL0hlGSi0PI8jJkA4S5SubYdu
-         tvJw8qCEJunnkg80tF5x9xdEYl+S7ZdZ/JIIZDcc=
+        b=g/9IqxyFPdEk3n2rhwQIJvPRSNDFkXFPpkM6dwWdhaO/e60kQmwhIm//QcA+LeI20
+         gxOxgswR/pTyliRExviYmqZyG27qMtDHg9w/3zmv2M3yfnHXBQZeOcnYDtYM9k9ZiT
+         G7Gizxd0v8NKxkomjWbv5qTgsmZBquhv9qy2YcG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Lucas Segarra Fernandez <lucas.segarra.fernandez@intel.com>,
+        stable@vger.kernel.org, Ignat Korchagin <ignat@cloudflare.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 631/862] crypto: qat - fix default value of WDT timer
-Date:   Wed, 19 Oct 2022 10:31:58 +0200
-Message-Id: <20221019083317.803319512@linuxfoundation.org>
+Subject: [PATCH 6.0 635/862] crypto: akcipher - default implementation for setting a private key
+Date:   Wed, 19 Oct 2022 10:32:02 +0200
+Message-Id: <20221019083317.996776853@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,39 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Segarra Fernandez <lucas.segarra.fernandez@intel.com>
+From: Ignat Korchagin <ignat@cloudflare.com>
 
-[ Upstream commit cc40b04c08400d86d2d6ea0159e0617e717f729c ]
+[ Upstream commit bc155c6c188c2f0c5749993b1405673d25a80389 ]
 
-The QAT HW supports an hardware mechanism to detect an accelerator hang.
-The reporting of a hang occurs after a watchdog timer (WDT) expires.
+Changes from v1:
+  * removed the default implementation from set_pub_key: it is assumed that
+    an implementation must always have this callback defined as there are
+    no use case for an algorithm, which doesn't need a public key
 
-The value of the WDT set previously was too small and was causing false
-positives.
-Change the default value of the WDT to 0x7000000ULL to avoid this.
+Many akcipher implementations (like ECDSA) support only signature
+verifications, so they don't have all callbacks defined.
 
-Fixes: 1c4d9d5bbb5a ("crypto: qat - enable detection of accelerators hang")
-Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Lucas Segarra Fernandez <lucas.segarra.fernandez@intel.com>
+Commit 78a0324f4a53 ("crypto: akcipher - default implementations for
+request callbacks") introduced default callbacks for sign/verify
+operations, which just return an error code.
+
+However, these are not enough, because before calling sign the caller would
+likely call set_priv_key first on the instantiated transform (as the
+in-kernel testmgr does). This function does not have a default stub, so the
+kernel crashes, when trying to set a private key on an akcipher, which
+doesn't support signature generation.
+
+I've noticed this, when trying to add a KAT vector for ECDSA signature to
+the testmgr.
+
+With this patch the testmgr returns an error in dmesg (as it should)
+instead of crashing the kernel NULL ptr dereference.
+
+Fixes: 78a0324f4a53 ("crypto: akcipher - default implementations for request callbacks")
+Signed-off-by: Ignat Korchagin <ignat@cloudflare.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_gen4_hw_data.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/akcipher.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_gen4_hw_data.h b/drivers/crypto/qat/qat_common/adf_gen4_hw_data.h
-index 43b8f864806b..4fb4b3df5a18 100644
---- a/drivers/crypto/qat/qat_common/adf_gen4_hw_data.h
-+++ b/drivers/crypto/qat/qat_common/adf_gen4_hw_data.h
-@@ -107,7 +107,7 @@ do { \
-  * Timeout is in cycles. Clock speed may vary across products but this
-  * value should be a few milli-seconds.
-  */
--#define ADF_SSM_WDT_DEFAULT_VALUE	0x200000
-+#define ADF_SSM_WDT_DEFAULT_VALUE	0x7000000ULL
- #define ADF_SSM_WDT_PKE_DEFAULT_VALUE	0x8000000
- #define ADF_SSMWDTL_OFFSET		0x54
- #define ADF_SSMWDTH_OFFSET		0x5C
+diff --git a/crypto/akcipher.c b/crypto/akcipher.c
+index f866085c8a4a..ab975a420e1e 100644
+--- a/crypto/akcipher.c
++++ b/crypto/akcipher.c
+@@ -120,6 +120,12 @@ static int akcipher_default_op(struct akcipher_request *req)
+ 	return -ENOSYS;
+ }
+ 
++static int akcipher_default_set_key(struct crypto_akcipher *tfm,
++				     const void *key, unsigned int keylen)
++{
++	return -ENOSYS;
++}
++
+ int crypto_register_akcipher(struct akcipher_alg *alg)
+ {
+ 	struct crypto_alg *base = &alg->base;
+@@ -132,6 +138,8 @@ int crypto_register_akcipher(struct akcipher_alg *alg)
+ 		alg->encrypt = akcipher_default_op;
+ 	if (!alg->decrypt)
+ 		alg->decrypt = akcipher_default_op;
++	if (!alg->set_priv_key)
++		alg->set_priv_key = akcipher_default_set_key;
+ 
+ 	akcipher_prepare_alg(alg);
+ 	return crypto_register_alg(base);
 -- 
 2.35.1
 
