@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9909C603DC4
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5764F603D9B
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232259AbiJSJG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:06:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36582 "EHLO
+        id S232218AbiJSJFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:05:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232243AbiJSJFZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:05:25 -0400
+        with ESMTP id S232470AbiJSJEV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB002A02C2;
-        Wed, 19 Oct 2022 01:59:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B59A175A2;
+        Wed, 19 Oct 2022 01:57:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2C5461811;
-        Wed, 19 Oct 2022 08:55:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C34C433D6;
-        Wed, 19 Oct 2022 08:55:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 10A77617E1;
+        Wed, 19 Oct 2022 08:55:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 248F9C433C1;
+        Wed, 19 Oct 2022 08:55:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169753;
-        bh=z4eMTWqcnGs3mvdT0lsKNRiWvcTHVC0wRPyGnsThfYs=;
+        s=korg; t=1666169758;
+        bh=mVlXKDyloWHczG4w8BODEuzPi+MoNX5tHp/3T8IM120=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BuBtc6lJb19m61pheBKaire+LeNpxlZpYaqLw1bXbGpcjEJBpEwqm4p7W7zNoxuhf
-         OntVfGAG92sLkKXMPznqCIscfNZEd0fCRkKPUrrsytra6qqptz1vmytgzyOQelY3fA
-         NQygZDFSmfTkQzr+nuHDprbihcGe/CgRV3cBG/JU=
+        b=hA2GAtk56ZECZtxKMh8abaJKz324C/BK7rFfZC1iAcnCkNeUnUlm8iKLaIW+5jxPg
+         7QtODXMUlUAPUMRa7bkhCCOECsPVuGuedUMd7a33KRxGDh0GdvZdTT8TXyK4xeHWxW
+         JYwXXJdfSx2SKz81UNxvkQKbij9C5XHSYRjnlZX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 395/862] ALSA: hda/hdmi: change type for the assigned variable
-Date:   Wed, 19 Oct 2022 10:28:02 +0200
-Message-Id: <20221019083307.392603524@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 397/862] ALSA: usb-audio: Properly refcounting clock rate
+Date:   Wed, 19 Oct 2022 10:28:04 +0200
+Message-Id: <20221019083307.475460304@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,92 +52,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaroslav Kysela <perex@perex.cz>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 4053a41282f8aae290d3fe7b8daef4c8c53a4ab8 ]
+[ Upstream commit 9a737e7f8b371e97eb649904276407cee2c9cf30 ]
 
-This change converts the assigned value from int type to
-the bool type to retain consistency with other structure
-members like 'setup', 'non_pcm' etc.
+We fixed the bug introduced by the patch for managing the shared
+clocks at the commit 809f44a0cc5a ("ALSA: usb-audio: Clear fixed clock
+rate at closing EP"), but it was merely a workaround.  By this change,
+the clock reference rate is cleared at each EP close, hence the still
+remaining EP may need a re-setup of rate unnecessarily.
 
-Signed-off-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20220913070307.3234038-1-perex@perex.cz
+This patch introduces the proper refcounting for the clock reference
+object so that the clock setup is done only when needed.
+
+Fixes: 809f44a0cc5a ("ALSA: usb-audio: Clear fixed clock rate at closing EP")
+Fixes: c11117b634f4 ("ALSA: usb-audio: Refcount multiple accesses on the single clock")
+Link: https://lore.kernel.org/r/20220920181126.4912-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Stable-dep-of: fc6f923ecfa2 ("ALSA: hda/hdmi: Fix the converter allocation for the silent stream")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ sound/usb/endpoint.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index c239d9dbbaef..69afea67bf3e 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -53,7 +53,7 @@ MODULE_PARM_DESC(enable_all_pins, "Forcibly enable all pins");
- 
- struct hdmi_spec_per_cvt {
- 	hda_nid_t cvt_nid;
--	int assigned;
-+	bool assigned;		/* the stream has been assigned */
- 	unsigned int channels_min;
- 	unsigned int channels_max;
- 	u32 rates;
-@@ -1204,7 +1204,7 @@ static int hdmi_pcm_open_no_pin(struct hda_pcm_stream *hinfo,
- 		return err;
- 
- 	per_cvt = get_cvt(spec, cvt_idx);
--	per_cvt->assigned = 1;
-+	per_cvt->assigned = true;
- 	hinfo->nid = per_cvt->cvt_nid;
- 
- 	pin_cvt_fixup(codec, NULL, per_cvt->cvt_nid);
-@@ -1273,7 +1273,7 @@ static int hdmi_pcm_open(struct hda_pcm_stream *hinfo,
- 
- 	per_cvt = get_cvt(spec, cvt_idx);
- 	/* Claim converter */
--	per_cvt->assigned = 1;
-+	per_cvt->assigned = true;
- 
- 	set_bit(pcm_idx, &spec->pcm_in_use);
- 	per_pin = get_pin(spec, pin_idx);
-@@ -1308,7 +1308,7 @@ static int hdmi_pcm_open(struct hda_pcm_stream *hinfo,
- 		snd_hdmi_eld_update_pcm_info(&eld->info, hinfo);
- 		if (hinfo->channels_min > hinfo->channels_max ||
- 		    !hinfo->rates || !hinfo->formats) {
--			per_cvt->assigned = 0;
-+			per_cvt->assigned = false;
- 			hinfo->nid = 0;
- 			snd_hda_spdif_ctls_unassign(codec, pcm_idx);
- 			err = -ENODEV;
-@@ -1767,7 +1767,7 @@ static void silent_stream_enable(struct hda_codec *codec,
- 	}
- 
- 	per_cvt = get_cvt(spec, cvt_idx);
--	per_cvt->assigned = 1;
-+	per_cvt->assigned = true;
- 	per_pin->cvt_nid = per_cvt->cvt_nid;
- 	per_pin->silent_stream = true;
- 
-@@ -1827,7 +1827,7 @@ static void silent_stream_disable(struct hda_codec *codec,
- 	cvt_idx = cvt_nid_to_cvt_index(codec, per_pin->cvt_nid);
- 	if (cvt_idx >= 0 && cvt_idx < spec->num_cvts) {
- 		per_cvt = get_cvt(spec, cvt_idx);
--		per_cvt->assigned = 0;
-+		per_cvt->assigned = false;
- 	}
- 
- 	if (spec->silent_stream_type == SILENT_STREAM_I915) {
-@@ -2223,7 +2223,7 @@ static int hdmi_pcm_close(struct hda_pcm_stream *hinfo,
- 			goto unlock;
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -39,6 +39,7 @@ struct snd_usb_iface_ref {
+ struct snd_usb_clock_ref {
+ 	unsigned char clock;
+ 	atomic_t locked;
++	int opened;
+ 	int rate;
+ 	struct list_head list;
+ };
+@@ -802,6 +803,7 @@ snd_usb_endpoint_open(struct snd_usb_aud
+ 				ep = NULL;
+ 				goto unlock;
+ 			}
++			ep->clock_ref->opened++;
  		}
- 		per_cvt = get_cvt(spec, cvt_idx);
--		per_cvt->assigned = 0;
-+		per_cvt->assigned = false;
- 		hinfo->nid = 0;
  
- 		azx_stream(get_azx_dev(substream))->stripe = 0;
--- 
-2.35.1
-
+ 		ep->cur_audiofmt = fp;
+@@ -925,8 +927,10 @@ void snd_usb_endpoint_close(struct snd_u
+ 		endpoint_set_interface(chip, ep, false);
+ 
+ 	if (!--ep->opened) {
+-		if (ep->clock_ref && !atomic_read(&ep->clock_ref->locked))
+-			ep->clock_ref->rate = 0;
++		if (ep->clock_ref) {
++			if (!--ep->clock_ref->opened)
++				ep->clock_ref->rate = 0;
++		}
+ 		ep->iface = 0;
+ 		ep->altsetting = 0;
+ 		ep->cur_audiofmt = NULL;
+@@ -1633,8 +1637,7 @@ void snd_usb_endpoint_stop(struct snd_us
+ 			WRITE_ONCE(ep->sync_source->sync_sink, NULL);
+ 		stop_urbs(ep, false, keep_pending);
+ 		if (ep->clock_ref)
+-			if (!atomic_dec_return(&ep->clock_ref->locked))
+-				ep->clock_ref->rate = 0;
++			atomic_dec(&ep->clock_ref->locked);
+ 	}
+ }
+ 
 
 
