@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 857FD603BE7
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:40:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3B71603BEC
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:41:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230474AbiJSIks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:40:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55856 "EHLO
+        id S230496AbiJSIl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:41:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230252AbiJSIjv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:39:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A0A98110C;
-        Wed, 19 Oct 2022 01:38:59 -0700 (PDT)
+        with ESMTP id S230311AbiJSIkK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:40:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E76C581123;
+        Wed, 19 Oct 2022 01:39:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 263B9B821CD;
-        Wed, 19 Oct 2022 08:38:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11599C433D6;
-        Wed, 19 Oct 2022 08:38:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8E1CACE20EC;
+        Wed, 19 Oct 2022 08:38:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 878DEC433C1;
+        Wed, 19 Oct 2022 08:38:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168694;
-        bh=ueD2SFqWj/bYjwtd+JoqGKckBkUCZOJQi3XXO3Pu9Fk=;
+        s=korg; t=1666168698;
+        bh=LKzotlONbnZIXGa7AgoINdc1KVArDb4wRqS7Xv8qXCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xBdwLJ4986qjZT90lZcH9anBbSifyYFcZkd+HKjXYSXMcR4lR69B5o+73GE3cXq22
-         VpLkWp3kaNWiAgpSCB6M1fzZjSxosnK8lQ3LSHWd2Fpu1yfOya6AEF3R3ZzdcYJIRn
-         xdawRpa6Rz+zfnsCnszzR4tgjgmluFEYpRUkIKes=
+        b=HmLaQ8Eqio0Z8ENHP28QCMObKKQHeI3GxsHhRkU8d9T9ybtiYj+K9f5z84QSZgSz2
+         2Uo76Hx6wlWAlQxD0oRC68lFnIinPMX1cwVocblTlESEatJJS63+eKz6gNiJ6NOL8H
+         QK72+04Mp5EZoV9VddExSm4dfTVJ9+oQaG8+MQVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>, Tom Talpey <tom@talpey.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.0 023/862] cifs: Fix the error length of VALIDATE_NEGOTIATE_INFO message
-Date:   Wed, 19 Oct 2022 10:21:50 +0200
-Message-Id: <20221019083251.029839151@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.0 024/862] iio: dac: ad5593r: Fix i2c read protocol requirements
+Date:   Wed, 19 Oct 2022 10:21:51 +0200
+Message-Id: <20221019083251.069031817@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,45 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-commit e98ecc6e94f4e6d21c06660b0f336df02836694f upstream.
+commit 558a25f903b4af6361b7fbeea08a6446a0745653 upstream.
 
-Commit d5c7076b772a ("smb3: add smb3.1.1 to default dialect list")
-extend the dialects from 3 to 4, but forget to decrease the extended
-length when specific the dialect, then the message length is larger
-than expected.
+For reliable operation across the full range of supported
+interface rates, the AD5593R needs a STOP condition between
+address write, and data read (like show in the datasheet Figure 40)
+so in turn i2c_smbus_read_word_swapped cannot be used.
 
-This maybe leak some info through network because not initialize the
-message body.
+While at it, a simple helper was added to make the code simpler.
 
-After apply this patch, the VALIDATE_NEGOTIATE_INFO message length is
-reduced from 28 bytes to 26 bytes.
-
-Fixes: d5c7076b772a ("smb3: add smb3.1.1 to default dialect list")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Cc: <stable@vger.kernel.org>
-Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 56ca9db862bf ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220913073413.140475-2-nuno.sa@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2pdu.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/dac/ad5593r.c |   46 +++++++++++++++++++++++++++-------------------
+ 1 file changed, 27 insertions(+), 19 deletions(-)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -1169,9 +1169,9 @@ int smb3_validate_negotiate(const unsign
- 		pneg_inbuf->Dialects[0] =
- 			cpu_to_le16(server->vals->protocol_id);
- 		pneg_inbuf->DialectCount = cpu_to_le16(1);
--		/* structure is big enough for 3 dialects, sending only 1 */
-+		/* structure is big enough for 4 dialects, sending only 1 */
- 		inbuflen = sizeof(*pneg_inbuf) -
--				sizeof(pneg_inbuf->Dialects[0]) * 2;
-+				sizeof(pneg_inbuf->Dialects[0]) * 3;
- 	}
+--- a/drivers/iio/dac/ad5593r.c
++++ b/drivers/iio/dac/ad5593r.c
+@@ -13,6 +13,8 @@
+ #include <linux/module.h>
+ #include <linux/mod_devicetable.h>
  
- 	rc = SMB2_ioctl(xid, tcon, NO_FILE_ID, NO_FILE_ID,
++#include <asm/unaligned.h>
++
+ #define AD5593R_MODE_CONF		(0 << 4)
+ #define AD5593R_MODE_DAC_WRITE		(1 << 4)
+ #define AD5593R_MODE_ADC_READBACK	(4 << 4)
+@@ -20,6 +22,24 @@
+ #define AD5593R_MODE_GPIO_READBACK	(6 << 4)
+ #define AD5593R_MODE_REG_READBACK	(7 << 4)
+ 
++static int ad5593r_read_word(struct i2c_client *i2c, u8 reg, u16 *value)
++{
++	int ret;
++	u8 buf[2];
++
++	ret = i2c_smbus_write_byte(i2c, reg);
++	if (ret < 0)
++		return ret;
++
++	ret = i2c_master_recv(i2c, buf, sizeof(buf));
++	if (ret < 0)
++		return ret;
++
++	*value = get_unaligned_be16(buf);
++
++	return 0;
++}
++
+ static int ad5593r_write_dac(struct ad5592r_state *st, unsigned chan, u16 value)
+ {
+ 	struct i2c_client *i2c = to_i2c_client(st->dev);
+@@ -38,13 +58,7 @@ static int ad5593r_read_adc(struct ad559
+ 	if (val < 0)
+ 		return (int) val;
+ 
+-	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_ADC_READBACK);
+-	if (val < 0)
+-		return (int) val;
+-
+-	*value = (u16) val;
+-
+-	return 0;
++	return ad5593r_read_word(i2c, AD5593R_MODE_ADC_READBACK, value);
+ }
+ 
+ static int ad5593r_reg_write(struct ad5592r_state *st, u8 reg, u16 value)
+@@ -58,25 +72,19 @@ static int ad5593r_reg_write(struct ad55
+ static int ad5593r_reg_read(struct ad5592r_state *st, u8 reg, u16 *value)
+ {
+ 	struct i2c_client *i2c = to_i2c_client(st->dev);
+-	s32 val;
+-
+-	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_REG_READBACK | reg);
+-	if (val < 0)
+-		return (int) val;
+ 
+-	*value = (u16) val;
+-
+-	return 0;
++	return ad5593r_read_word(i2c, AD5593R_MODE_REG_READBACK | reg, value);
+ }
+ 
+ static int ad5593r_gpio_read(struct ad5592r_state *st, u8 *value)
+ {
+ 	struct i2c_client *i2c = to_i2c_client(st->dev);
+-	s32 val;
++	u16 val;
++	int ret;
+ 
+-	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_GPIO_READBACK);
+-	if (val < 0)
+-		return (int) val;
++	ret = ad5593r_read_word(i2c, AD5593R_MODE_GPIO_READBACK, &val);
++	if (ret)
++		return ret;
+ 
+ 	*value = (u8) val;
+ 
 
 
