@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BA4604842
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:53:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6508604875
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:56:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233710AbiJSNxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:53:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39882 "EHLO
+        id S232052AbiJSN4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:56:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233749AbiJSNwa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:52:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 030A91946E7;
-        Wed, 19 Oct 2022 06:36:16 -0700 (PDT)
+        with ESMTP id S233975AbiJSNyf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:54:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39BA518542D;
+        Wed, 19 Oct 2022 06:37:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51515B82321;
-        Wed, 19 Oct 2022 08:49:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B421DC433C1;
-        Wed, 19 Oct 2022 08:49:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0FBFB8232A;
+        Wed, 19 Oct 2022 08:49:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C976C433D6;
+        Wed, 19 Oct 2022 08:49:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169347;
-        bh=JD5EGFdbeO8eIPr4yRiMiBSbkCZWKHBuu0ZkMSKqJqA=;
+        s=korg; t=1666169349;
+        bh=boiTHlnuO/TKiwsbBxT4uNEIkYKD57pTRY5XdiRnf60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=loiDd8iKuiaHR5QOwzUrvtcnQcFAvJNjAyi2lpLbciBQYt+EZCC98cvMYISwP+eI0
-         mFxj6ujwlchbvE1l4VGLOYayoC6iPljYm19O/ELQOmkwjnU4hhbr0Y05iUwXybe9UE
-         4P330ApytTdqO1q/aDjwA4CWGcrK/Nq0+VmfxvhY=
+        b=DoukKzLs+mW3AKNP1Guu6XARVf26XA5saEjmy/P98BpSBs0Aca4T1oLHkiVPLRbSI
+         bn2YhYxZZl4Tbr02tEFDimjTC+FZcEElzOsKrCR71ftza1rZUzO+MQO+1zsPDLoGu8
+         WpIlrA4fFwao2CNexndqpEQtOj5vRN9nHkbqoevg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Hari Chandrakanthan <quic_haric@quicinc.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Lam Thai <lamthai@arista.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Quentin Monnet <quentin@isovalent.com>,
+        John Fastabend <john.fastabend@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 243/862] wifi: mac80211: allow bw change during channel switch in mesh
-Date:   Wed, 19 Oct 2022 10:25:30 +0200
-Message-Id: <20221019083300.754397190@linuxfoundation.org>
+Subject: [PATCH 6.0 244/862] bpftool: Fix a wrong type cast in btf_dumper_int
+Date:   Wed, 19 Oct 2022 10:25:31 +0200
+Message-Id: <20221019083300.795945784@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,45 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hari Chandrakanthan <quic_haric@quicinc.com>
+From: Lam Thai <lamthai@arista.com>
 
-[ Upstream commit 6b75f133fe05c36c52d691ff21545d5757fff721 ]
+[ Upstream commit 7184aef9c0f7a81db8fd18d183ee42481d89bf35 ]
 
->From 'IEEE Std 802.11-2020 section 11.8.8.4.1':
-  The mesh channel switch may be triggered by the need to avoid
-  interference to a detected radar signal, or to reassign mesh STA
-  channels to ensure the MBSS connectivity.
+When `data` points to a boolean value, casting it to `int *` is problematic
+and could lead to a wrong value being passed to `jsonw_bool`. Change the
+cast to `bool *` instead.
 
-  A 20/40 MHz MBSS may be changed to a 20 MHz MBSS and a 20 MHz
-  MBSS may be changed to a 20/40 MHz MBSS.
-
-Since the standard allows the change of bandwidth during
-the channel switch in mesh, remove the bandwidth check present in
-ieee80211_set_csa_beacon.
-
-Fixes: c6da674aff94 ("{nl,cfg,mac}80211: enable the triggering of CSA frame in mesh")
-Signed-off-by: Hari Chandrakanthan <quic_haric@quicinc.com>
-Link: https://lore.kernel.org/r/1658903549-21218-1-git-send-email-quic_haric@quicinc.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: b12d6ec09730 ("bpf: btf: add btf print functionality")
+Signed-off-by: Lam Thai <lamthai@arista.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Reviewed-by: Quentin Monnet <quentin@isovalent.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20220824225859.9038-1-lamthai@arista.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/cfg.c | 3 ---
- 1 file changed, 3 deletions(-)
+ tools/bpf/bpftool/btf_dumper.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index a4f6971b7a19..e5239a17a875 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -3597,9 +3597,6 @@ static int ieee80211_set_csa_beacon(struct ieee80211_sub_if_data *sdata,
- 	case NL80211_IFTYPE_MESH_POINT: {
- 		struct ieee80211_if_mesh *ifmsh = &sdata->u.mesh;
- 
--		if (params->chandef.width != sdata->vif.bss_conf.chandef.width)
--			return -EINVAL;
--
- 		/* changes into another band are not supported */
- 		if (sdata->vif.bss_conf.chandef.chan->band !=
- 		    params->chandef.chan->band)
+diff --git a/tools/bpf/bpftool/btf_dumper.c b/tools/bpf/bpftool/btf_dumper.c
+index 125798b0bc5d..19924b6ce796 100644
+--- a/tools/bpf/bpftool/btf_dumper.c
++++ b/tools/bpf/bpftool/btf_dumper.c
+@@ -452,7 +452,7 @@ static int btf_dumper_int(const struct btf_type *t, __u8 bit_offset,
+ 					     *(char *)data);
+ 		break;
+ 	case BTF_INT_BOOL:
+-		jsonw_bool(jw, *(int *)data);
++		jsonw_bool(jw, *(bool *)data);
+ 		break;
+ 	default:
+ 		/* shouldn't happen */
 -- 
 2.35.1
 
