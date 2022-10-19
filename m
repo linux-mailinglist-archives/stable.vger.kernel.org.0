@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC33603D97
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9909C603DC4
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:06:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232161AbiJSJFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41624 "EHLO
+        id S232259AbiJSJG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:06:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232418AbiJSJEN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:13 -0400
+        with ESMTP id S232243AbiJSJFZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:05:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AE89A8363;
-        Wed, 19 Oct 2022 01:57:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB002A02C2;
+        Wed, 19 Oct 2022 01:59:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F70F617F0;
-        Wed, 19 Oct 2022 08:55:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 899C5C433C1;
-        Wed, 19 Oct 2022 08:55:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2C5461811;
+        Wed, 19 Oct 2022 08:55:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C34C433D6;
+        Wed, 19 Oct 2022 08:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169742;
-        bh=qyVRrzAnXyhHl+vIjBS7KPOElJGxhzljzoyLixtMap8=;
+        s=korg; t=1666169753;
+        bh=z4eMTWqcnGs3mvdT0lsKNRiWvcTHVC0wRPyGnsThfYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N4TDzIjnuBlvjU3LpuUQbwlstsc2FPs4OU/b6+sQzMXkal+8Anm1Yb4HDjqGp5WZB
-         iQGb3fbtSdc11viVDQmQ7PZMMyGV/NkG7Di20ofcAkmtKXHYDKAt4aqI9zemlZWW8F
-         5fT4r+3S6lBESan56CkEHqLuLct5ZW3UrHaUR77E=
+        b=BuBtc6lJb19m61pheBKaire+LeNpxlZpYaqLw1bXbGpcjEJBpEwqm4p7W7zNoxuhf
+         OntVfGAG92sLkKXMPznqCIscfNZEd0fCRkKPUrrsytra6qqptz1vmytgzyOQelY3fA
+         NQygZDFSmfTkQzr+nuHDprbihcGe/CgRV3cBG/JU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Yassine Oudjana <y.oudjana@protonmail.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 392/862] drm/msm: lookup the ICC paths in both mdp5/dpu and mdss devices
-Date:   Wed, 19 Oct 2022 10:27:59 +0200
-Message-Id: <20221019083307.267294416@linuxfoundation.org>
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 395/862] ALSA: hda/hdmi: change type for the assigned variable
+Date:   Wed, 19 Oct 2022 10:28:02 +0200
+Message-Id: <20221019083307.392603524@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,128 +52,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Jaroslav Kysela <perex@perex.cz>
 
-[ Upstream commit 5ccdcecaf8f732f593e359ebfb65de96b11bae66 ]
+[ Upstream commit 4053a41282f8aae290d3fe7b8daef4c8c53a4ab8 ]
 
-The commit 6874f48bb8b0 ("drm/msm: make mdp5/dpu devices master
-components") changed the MDP5 driver to look for the interconnect paths
-in the MDSS device rather than in the MDP5 device itself. This was left
-unnoticed since on my testing devices the interconnects probably didn't
-reach the sync state.
+This change converts the assigned value from int type to
+the bool type to retain consistency with other structure
+members like 'setup', 'non_pcm' etc.
 
-Rather than just using the MDP5 device for ICC path lookups for the MDP5
-devices, introduce an additional helper to check both MDP5/DPU and MDSS
-nodes. This will be helpful for the MDP5->DPU conversion, since the
-driver will have to check both nodes.
-
-Fixes: 6874f48bb8b0 ("drm/msm: make mdp5/dpu devices master components")
-Reported-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reported-by: Yassine Oudjana <y.oudjana@protonmail.com>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Tested-by: Marijn Suijten <marijn.suijten@somainline.org> # On sdm630
-Tested-by: Yassine Oudjana <y.oudjana@protonmail.com> # msm8996
-Patchwork: https://patchwork.freedesktop.org/patch/496488/
-Link: https://lore.kernel.org/r/20220805115630.506391-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20220913070307.3234038-1-perex@perex.cz
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Stable-dep-of: fc6f923ecfa2 ("ALSA: hda/hdmi: Fix the converter allocation for the silent stream")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c  |  7 ++-----
- drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c |  9 +++------
- drivers/gpu/drm/msm/msm_drv.h            |  2 ++
- drivers/gpu/drm/msm/msm_io_utils.c       | 22 ++++++++++++++++++++++
- 4 files changed, 29 insertions(+), 11 deletions(-)
+ sound/pci/hda/patch_hdmi.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-index 008e1420e6e5..8646fd0603cb 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-@@ -384,12 +384,9 @@ static int dpu_kms_parse_data_bus_icc_path(struct dpu_kms *dpu_kms)
- 	struct icc_path *path1;
- 	struct drm_device *dev = dpu_kms->dev;
- 	struct device *dpu_dev = dev->dev;
--	struct device *mdss_dev = dpu_dev->parent;
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index c239d9dbbaef..69afea67bf3e 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -53,7 +53,7 @@ MODULE_PARM_DESC(enable_all_pins, "Forcibly enable all pins");
  
--	/* Interconnects are a part of MDSS device tree binding, not the
--	 * MDP/DPU device. */
--	path0 = of_icc_get(mdss_dev, "mdp0-mem");
--	path1 = of_icc_get(mdss_dev, "mdp1-mem");
-+	path0 = msm_icc_get(dpu_dev, "mdp0-mem");
-+	path1 = msm_icc_get(dpu_dev, "mdp1-mem");
+ struct hdmi_spec_per_cvt {
+ 	hda_nid_t cvt_nid;
+-	int assigned;
++	bool assigned;		/* the stream has been assigned */
+ 	unsigned int channels_min;
+ 	unsigned int channels_max;
+ 	u32 rates;
+@@ -1204,7 +1204,7 @@ static int hdmi_pcm_open_no_pin(struct hda_pcm_stream *hinfo,
+ 		return err;
  
- 	if (IS_ERR_OR_NULL(path0))
- 		return PTR_ERR_OR_ZERO(path0);
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-index d2a48caf9d27..b0d21838a134 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-@@ -902,12 +902,9 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
+ 	per_cvt = get_cvt(spec, cvt_idx);
+-	per_cvt->assigned = 1;
++	per_cvt->assigned = true;
+ 	hinfo->nid = per_cvt->cvt_nid;
  
- static int mdp5_setup_interconnect(struct platform_device *pdev)
- {
--	/* Interconnects are a part of MDSS device tree binding, not the
--	 * MDP5 device. */
--	struct device *mdss_dev = pdev->dev.parent;
--	struct icc_path *path0 = of_icc_get(mdss_dev, "mdp0-mem");
--	struct icc_path *path1 = of_icc_get(mdss_dev, "mdp1-mem");
--	struct icc_path *path_rot = of_icc_get(mdss_dev, "rotator-mem");
-+	struct icc_path *path0 = msm_icc_get(&pdev->dev, "mdp0-mem");
-+	struct icc_path *path1 = msm_icc_get(&pdev->dev, "mdp1-mem");
-+	struct icc_path *path_rot = msm_icc_get(&pdev->dev, "rotator-mem");
+ 	pin_cvt_fixup(codec, NULL, per_cvt->cvt_nid);
+@@ -1273,7 +1273,7 @@ static int hdmi_pcm_open(struct hda_pcm_stream *hinfo,
  
- 	if (IS_ERR(path0))
- 		return PTR_ERR(path0);
-diff --git a/drivers/gpu/drm/msm/msm_drv.h b/drivers/gpu/drm/msm/msm_drv.h
-index b3689a2d27d7..80da0d3cfdc1 100644
---- a/drivers/gpu/drm/msm/msm_drv.h
-+++ b/drivers/gpu/drm/msm/msm_drv.h
-@@ -433,6 +433,8 @@ void __iomem *msm_ioremap_size(struct platform_device *pdev, const char *name,
- 		phys_addr_t *size);
- void __iomem *msm_ioremap_quiet(struct platform_device *pdev, const char *name);
+ 	per_cvt = get_cvt(spec, cvt_idx);
+ 	/* Claim converter */
+-	per_cvt->assigned = 1;
++	per_cvt->assigned = true;
  
-+struct icc_path *msm_icc_get(struct device *dev, const char *name);
-+
- #define msm_writel(data, addr) writel((data), (addr))
- #define msm_readl(addr) readl((addr))
+ 	set_bit(pcm_idx, &spec->pcm_in_use);
+ 	per_pin = get_pin(spec, pin_idx);
+@@ -1308,7 +1308,7 @@ static int hdmi_pcm_open(struct hda_pcm_stream *hinfo,
+ 		snd_hdmi_eld_update_pcm_info(&eld->info, hinfo);
+ 		if (hinfo->channels_min > hinfo->channels_max ||
+ 		    !hinfo->rates || !hinfo->formats) {
+-			per_cvt->assigned = 0;
++			per_cvt->assigned = false;
+ 			hinfo->nid = 0;
+ 			snd_hda_spdif_ctls_unassign(codec, pcm_idx);
+ 			err = -ENODEV;
+@@ -1767,7 +1767,7 @@ static void silent_stream_enable(struct hda_codec *codec,
+ 	}
  
-diff --git a/drivers/gpu/drm/msm/msm_io_utils.c b/drivers/gpu/drm/msm/msm_io_utils.c
-index 7b504617833a..d02cd29ce829 100644
---- a/drivers/gpu/drm/msm/msm_io_utils.c
-+++ b/drivers/gpu/drm/msm/msm_io_utils.c
-@@ -5,6 +5,8 @@
-  * Author: Rob Clark <robdclark@gmail.com>
-  */
+ 	per_cvt = get_cvt(spec, cvt_idx);
+-	per_cvt->assigned = 1;
++	per_cvt->assigned = true;
+ 	per_pin->cvt_nid = per_cvt->cvt_nid;
+ 	per_pin->silent_stream = true;
  
-+#include <linux/interconnect.h>
-+
- #include "msm_drv.h"
+@@ -1827,7 +1827,7 @@ static void silent_stream_disable(struct hda_codec *codec,
+ 	cvt_idx = cvt_nid_to_cvt_index(codec, per_pin->cvt_nid);
+ 	if (cvt_idx >= 0 && cvt_idx < spec->num_cvts) {
+ 		per_cvt = get_cvt(spec, cvt_idx);
+-		per_cvt->assigned = 0;
++		per_cvt->assigned = false;
+ 	}
  
- /*
-@@ -124,3 +126,23 @@ void msm_hrtimer_work_init(struct msm_hrtimer_work *work,
- 	work->worker = worker;
- 	kthread_init_work(&work->work, fn);
- }
-+
-+struct icc_path *msm_icc_get(struct device *dev, const char *name)
-+{
-+	struct device *mdss_dev = dev->parent;
-+	struct icc_path *path;
-+
-+	path = of_icc_get(dev, name);
-+	if (path)
-+		return path;
-+
-+	/*
-+	 * If there are no interconnects attached to the corresponding device
-+	 * node, of_icc_get() will return NULL.
-+	 *
-+	 * If the MDP5/DPU device node doesn't have interconnects, lookup the
-+	 * path in the parent (MDSS) device.
-+	 */
-+	return of_icc_get(mdss_dev, name);
-+
-+}
+ 	if (spec->silent_stream_type == SILENT_STREAM_I915) {
+@@ -2223,7 +2223,7 @@ static int hdmi_pcm_close(struct hda_pcm_stream *hinfo,
+ 			goto unlock;
+ 		}
+ 		per_cvt = get_cvt(spec, cvt_idx);
+-		per_cvt->assigned = 0;
++		per_cvt->assigned = false;
+ 		hinfo->nid = 0;
+ 
+ 		azx_stream(get_azx_dev(substream))->stripe = 0;
 -- 
 2.35.1
 
