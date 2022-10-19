@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5E21603DE4
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:07:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5725A603DE6
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:07:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232450AbiJSJHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:07:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33692 "EHLO
+        id S232619AbiJSJHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:07:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232454AbiJSJGS (ORCPT
+        with ESMTP id S232457AbiJSJGS (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:06:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DE05CE2C;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DFCC12D03;
         Wed, 19 Oct 2022 01:59:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1C49617F0;
-        Wed, 19 Oct 2022 08:57:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECB20C433C1;
-        Wed, 19 Oct 2022 08:57:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA53E6181D;
+        Wed, 19 Oct 2022 08:57:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9602C433C1;
+        Wed, 19 Oct 2022 08:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169858;
-        bh=BBEZSL/kEaLKT0nn3CDJDaoaCe8MaFX+1kU7JZ+z9Ck=;
+        s=korg; t=1666169861;
+        bh=RLkQdPDMRCOU/IECOAC2hHaLhoeqjEyfi9vzRWGTaUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O410CZe06OIXmwUzCDYg0VM2tlDDP1eCwhy6brQMXDxLOswsWhM4/bGokeQaDiwQK
-         5cYLhFy9JkXTDU8vhm+JR2uMTfppMA1yXCaUJMhHGs4MAm68XGCYB6jWBCnjadczQ6
-         /cs/+cpDfFfvKU08uKG0gksXNBfq9WwpHVSpYoJM=
+        b=OgqINgEEKis9fm7HMhS5F9N6H9u97gUbWGkMYleSBtyFgoj0Rrh76xD8lb+DRwYKo
+         RXsh/a8MGeK6sgherQZkUnBr+c8yyrj4BJxWmi/y5Cr7BxWEmyQMD7I6dbdoh3eEui
+         WItrI6VCO07JaU3JS6zzAgdzDoRW3ev+hH78/Y8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Lunn <andrew@lunn.ch>,
         Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 435/862] ARM: dts: kirkwood: lsxl: fix serial line
-Date:   Wed, 19 Oct 2022 10:28:42 +0200
-Message-Id: <20221019083309.196961234@linuxfoundation.org>
+Subject: [PATCH 6.0 436/862] ARM: dts: kirkwood: lsxl: remove first ethernet port
+Date:   Wed, 19 Oct 2022 10:28:43 +0200
+Message-Id: <20221019083309.247812811@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,46 +56,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 04eabc6ac10fda9424606d9a7ab6ab9a5d95350a ]
+[ Upstream commit 2d528eda7c96ce5c70f895854ecd5684bd5d80b9 ]
 
-Commit 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl
-settings") unknowingly broke the serial output on this board. Before
-this commit, the pinmux was still configured by the bootloader and the
-kernel didn't reconfigured it again. This was an oversight by the
-initial board support where the pinmux for the serial line was never
-configured by the kernel. But with this commit, the serial line will be
-reconfigured to the wrong pins. This is especially confusing, because
-the output still works, but the input doesn't. Presumingly, the input is
-reconfigured to MPP10, but the output is connected to both MPP11 and
-MPP5.
+Both the Linkstation LS-CHLv2 and the LS-XHL have only one ethernet
+port. This has always been wrong, i.e. the board code used to set up
+both ports, but the driver will play nice and return -ENODEV if the
+assiciated PHY is not found. Nevertheless, it is wrong. Remove it.
 
-Override the pinmux in the board device tree.
-
-Fixes: 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl settings")
+Fixes: 876e23333511 ("ARM: kirkwood: add gigabit ethernet and mvmdio device tree nodes")
 Signed-off-by: Michael Walle <michael@walle.cc>
 Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/kirkwood-lsxl.dtsi | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm/boot/dts/kirkwood-lsxl.dtsi | 11 -----------
+ 1 file changed, 11 deletions(-)
 
 diff --git a/arch/arm/boot/dts/kirkwood-lsxl.dtsi b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-index 7b151acb9984..321a40a98ed2 100644
+index 321a40a98ed2..88b70ba1c8fe 100644
 --- a/arch/arm/boot/dts/kirkwood-lsxl.dtsi
 +++ b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-@@ -10,6 +10,11 @@
+@@ -218,22 +218,11 @@
+ &mdio {
+ 	status = "okay";
  
- 	ocp@f1000000 {
- 		pinctrl: pin-controller@10000 {
-+			/* Non-default UART pins */
-+			pmx_uart0: pmx-uart0 {
-+				marvell,pins = "mpp4", "mpp5";
-+			};
-+
- 			pmx_power_hdd: pmx-power-hdd {
- 				marvell,pins = "mpp10";
- 				marvell,function = "gpo";
+-	ethphy0: ethernet-phy@0 {
+-		reg = <0>;
+-	};
+-
+ 	ethphy1: ethernet-phy@8 {
+ 		reg = <8>;
+ 	};
+ };
+ 
+-&eth0 {
+-	status = "okay";
+-	ethernet0-port@0 {
+-		phy-handle = <&ethphy0>;
+-	};
+-};
+-
+ &eth1 {
+ 	status = "okay";
+ 	ethernet1-port@0 {
 -- 
 2.35.1
 
