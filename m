@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B6B66041DB
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:50:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE2D06041F0
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232062AbiJSKt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:49:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54198 "EHLO
+        id S233848AbiJSKuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:50:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234572AbiJSKta (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:49:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C54C215A335;
-        Wed, 19 Oct 2022 03:22:11 -0700 (PDT)
+        with ESMTP id S234429AbiJSKtC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:49:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1A07120EDC;
+        Wed, 19 Oct 2022 03:22:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D467AB824C5;
-        Wed, 19 Oct 2022 09:11:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FA9CC433C1;
-        Wed, 19 Oct 2022 09:11:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C21EB823A9;
+        Wed, 19 Oct 2022 09:11:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA7D1C433C1;
+        Wed, 19 Oct 2022 09:11:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170681;
-        bh=Cq0O6Lq0YGpcmM8L/xBbBUGYACre6Ya9iOwxDcgfiwU=;
+        s=korg; t=1666170687;
+        bh=OAml6ui7Hgris0BznGN0f8ZBUbQ59U544//4SVvW1go=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKVReiPAVG9Jhd5gqZMiiK0NQFtTU/1fbN5yl/CjRlYiXaAklmkHV9RVz8VZrLMBw
-         HGtDdkdmIa7SWGV7gL40VEXZ/uk2wMolvL8wGKlyorGn3TCHNp9BOx8ycbBP/s7mlv
-         tUohhIzLzCCZRF2eAvURLD/6z/Ww4TEnVxqB5r8M=
+        b=RgvXyWSzPKzB0MPYlLZFhY6iuHYe02VUugFPLtB2/Q2acvstYvDFtham2u/vH5JXE
+         HOmv/WKVM4/9jzn9D8DKgN1rfG5OiGqGXsOgwlww8nFqXX8qHKmL0EwA7d/97sTtSa
+         xOVdNV6EArRUTcXy6ODwWM0fhJikQCDaJVtbHQQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 713/862] can: bcm: check the result of can_send() in bcm_can_tx()
-Date:   Wed, 19 Oct 2022 10:33:20 +0200
-Message-Id: <20221019083321.432851272@linuxfoundation.org>
+        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 715/862] wifi: rt2x00: set correct TX_SW_CFG1 MAC register for MT7620
+Date:   Wed, 19 Oct 2022 10:33:22 +0200
+Message-Id: <20221019083321.533865529@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,51 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit 3fd7bfd28cfd68ae80a2fe92ea1615722cc2ee6e ]
+[ Upstream commit eeb50acf15762b61921f9df18663f839f387c054 ]
 
-If can_send() fail, it should not update frames_abs counter
-in bcm_can_tx(). Add the result check for can_send() in bcm_can_tx().
+Set correct TX_SW_CFG1 MAC register as it is done also in v3 of the
+vendor driver[1].
 
-Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Suggested-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Link: https://lore.kernel.org/all/9851878e74d6d37aee2f1ee76d68361a46f89458.1663206163.git.william.xuanziyang@huawei.com
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+[1]: https://gitlab.com/dm38/padavan-ng/-/blob/master/trunk/proprietary/rt_wifi/rtpci/3.0.X.X/mt76x2/chips/rt6352.c#L531
+Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/4be38975ce600a34249e12d09a3cb758c6e71071.1663445157.git.daniel@makrotopia.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/bcm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/can/bcm.c b/net/can/bcm.c
-index e60161bec850..f16271a7ae2e 100644
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -274,6 +274,7 @@ static void bcm_can_tx(struct bcm_op *op)
- 	struct sk_buff *skb;
- 	struct net_device *dev;
- 	struct canfd_frame *cf = op->frames + op->cfsiz * op->currframe;
-+	int err;
- 
- 	/* no target device? => exit */
- 	if (!op->ifindex)
-@@ -298,11 +299,11 @@ static void bcm_can_tx(struct bcm_op *op)
- 	/* send with loopback */
- 	skb->dev = dev;
- 	can_skb_set_owner(skb, op->sk);
--	can_send(skb, 1);
-+	err = can_send(skb, 1);
-+	if (!err)
-+		op->frames_abs++;
- 
--	/* update statistics */
- 	op->currframe++;
--	op->frames_abs++;
- 
- 	/* reached last frame? */
- 	if (op->currframe >= op->nframes)
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+index de81b6060359..5e7bca935dd4 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+@@ -5868,7 +5868,7 @@ static int rt2800_init_registers(struct rt2x00_dev *rt2x00dev)
+ 		rt2800_register_write(rt2x00dev, TX_SW_CFG0, 0x00000404);
+ 	} else if (rt2x00_rt(rt2x00dev, RT6352)) {
+ 		rt2800_register_write(rt2x00dev, TX_SW_CFG0, 0x00000401);
+-		rt2800_register_write(rt2x00dev, TX_SW_CFG1, 0x000C0000);
++		rt2800_register_write(rt2x00dev, TX_SW_CFG1, 0x000C0001);
+ 		rt2800_register_write(rt2x00dev, TX_SW_CFG2, 0x00000000);
+ 		rt2800_register_write(rt2x00dev, TX_ALC_VGA3, 0x00000000);
+ 		rt2800_register_write(rt2x00dev, TX0_BB_GAIN_ATTEN, 0x0);
 -- 
 2.35.1
 
