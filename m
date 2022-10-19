@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B0F1603D40
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:00:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF77E603C92
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:50:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231950AbiJSJAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:00:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49060 "EHLO
+        id S229990AbiJSIub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:50:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232026AbiJSI6v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:58:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C610A02DD;
-        Wed, 19 Oct 2022 01:54:01 -0700 (PDT)
+        with ESMTP id S231190AbiJSIsn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:48:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B6858A7CC;
+        Wed, 19 Oct 2022 01:46:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8C0E6181A;
-        Wed, 19 Oct 2022 08:44:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B573CC433C1;
-        Wed, 19 Oct 2022 08:44:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9F88B822E8;
+        Wed, 19 Oct 2022 08:43:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5160EC433D6;
+        Wed, 19 Oct 2022 08:43:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169094;
-        bh=qWfX17P49L5XKqrAgUu3S2Ea5UyneqMUz4iGsJL8gUM=;
+        s=korg; t=1666168984;
+        bh=J3hY5Ke9dVOuH+qLSGit5n24qZH/9BcKbPIcxeJC+gA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1TJghh2Vx5WeyLduLM76UPNNn4zEZlNTdFJrV3JnPdY/K4etx2oo+HxNHB4q9dW31
-         SrLojg5gsfqKDBkjVFPqZ2ynRGl5WeDDxfo2UYBYyGLLBUN5Dr3i3/HviQMkUuha4w
-         MxTD5ndi62YNEbOOg7KuBTnvaYJrknUBEBlx6fPI=
+        b=E02MFpItxfWQV/ySY/R0dnXBKrftwD8opc2f+5/PPlLJomyyV0v/SVHCP+ZvNTgTv
+         3oD4CjygG3Zye6dzqqZhsHK3mLu8zzHse+GDs3TgY4PIZlzMKgrGKSWvjxlSnF6F+y
+         P/I/L4BCrsSrpwOwDssvmIAdFrDbZkH+Ga/Kn8QE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Zhu <alexlzhu@fb.com>,
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 6.0 118/862] btrfs: fix alignment of VMA for memory mapped files on THP
-Date:   Wed, 19 Oct 2022 10:23:25 +0200
-Message-Id: <20221019083255.156973302@linuxfoundation.org>
+Subject: [PATCH 6.0 120/862] btrfs: fix race between quota enable and quota rescan ioctl
+Date:   Wed, 19 Oct 2022 10:23:27 +0200
+Message-Id: <20221019083255.255485433@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,67 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Zhu <alexlzhu@fb.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit b0c582233a8563f3c4228df838cdc67a8807ec78 upstream.
+commit 331cd9461412e103d07595a10289de90004ac890 upstream.
 
-With CONFIG_READ_ONLY_THP_FOR_FS, the Linux kernel supports using THPs for
-read-only mmapped files, such as shared libraries. However, the kernel
-makes no attempt to actually align those mappings on 2MB boundaries,
-which makes it impossible to use those THPs most of the time. This issue
-applies to general file mapping THP as well as existing setups using
-CONFIG_READ_ONLY_THP_FOR_FS. This is easily fixed by using
-thp_get_unmapped_area for the unmapped_area function in btrfs, which
-is what ext2, ext4, fuse, and xfs all use.
+When enabling quotas, at btrfs_quota_enable(), after committing the
+transaction, we change fs_info->quota_root to point to the quota root we
+created and set BTRFS_FS_QUOTA_ENABLED at fs_info->flags. Then we try
+to start the qgroup rescan worker, first by initializing it with a call
+to qgroup_rescan_init() - however if that fails we end up freeing the
+quota root but we leave fs_info->quota_root still pointing to it, this
+can later result in a use-after-free somewhere else.
 
-Initially btrfs had been left out in commit 8c07fc452ac0 ("btrfs: fix
-alignment of VMA for memory mapped files on THP") as btrfs does not support
-DAX. However, commit 1854bc6e2420 ("mm/readahead: Align file mappings
-for non-DAX") removed the DAX requirement. We should now be able to call
-thp_get_unmapped_area() for btrfs.
+We have previously set the flags BTRFS_FS_QUOTA_ENABLED and
+BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with -EINPROGRESS at
+btrfs_quota_enable(), which is possible if someone already called the
+quota rescan ioctl, and therefore started the rescan worker.
 
-The problem can be seen in /proc/PID/smaps where THPeligible is set to 0
-on mappings to eligible shared object files as shown below.
+So fix this by ignoring an -EINPROGRESS and asserting we can't get any
+other error.
 
-Before this patch:
-
-  7fc6a7e18000-7fc6a80cc000 r-xp 00000000 00:1e 199856
-  /usr/lib64/libcrypto.so.1.1.1k
-  Size:               2768 kB
-  THPeligible:    0
-  VmFlags: rd ex mr mw me
-
-With this patch the library is mapped at a 2MB aligned address:
-
-  fbdfe200000-7fbdfe4b4000 r-xp 00000000 00:1e 199856
-  /usr/lib64/libcrypto.so.1.1.1k
-  Size:               2768 kB
-  THPeligible:    1
-  VmFlags: rd ex mr mw me
-
-This fixes the alignment of VMAs for any mmap of a file that has the
-rd and ex permissions and size >= 2MB. The VMA alignment and
-THPeligible field for anonymous memory is handled separately and
-is thus not effected by this change.
-
-CC: stable@vger.kernel.org # 5.18+
-Signed-off-by: Alexander Zhu <alexlzhu@fb.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Reported-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/linux-btrfs/20220823015931.421355-1-yebin10@huawei.com/
+CC: stable@vger.kernel.org # 4.19+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/file.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/qgroup.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -3810,6 +3810,7 @@ const struct file_operations btrfs_file_
- 	.mmap		= btrfs_file_mmap,
- 	.open		= btrfs_file_open,
- 	.release	= btrfs_release_file,
-+	.get_unmapped_area = thp_get_unmapped_area,
- 	.fsync		= btrfs_sync_file,
- 	.fallocate	= btrfs_fallocate,
- 	.unlocked_ioctl	= btrfs_ioctl,
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -1174,6 +1174,21 @@ out_add_root:
+ 		fs_info->qgroup_rescan_running = true;
+ 	        btrfs_queue_work(fs_info->qgroup_rescan_workers,
+ 	                         &fs_info->qgroup_rescan_work);
++	} else {
++		/*
++		 * We have set both BTRFS_FS_QUOTA_ENABLED and
++		 * BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with
++		 * -EINPROGRESS. That can happen because someone started the
++		 * rescan worker by calling quota rescan ioctl before we
++		 * attempted to initialize the rescan worker. Failure due to
++		 * quotas disabled in the meanwhile is not possible, because
++		 * we are holding a write lock on fs_info->subvol_sem, which
++		 * is also acquired when disabling quotas.
++		 * Ignore such error, and any other error would need to undo
++		 * everything we did in the transaction we just committed.
++		 */
++		ASSERT(ret == -EINPROGRESS);
++		ret = 0;
+ 	}
+ 
+ out_free_path:
 
 
