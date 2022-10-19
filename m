@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86DCE604404
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:56:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43ACC604425
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231672AbiJSL4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:56:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44270 "EHLO
+        id S229554AbiJSL7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:59:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231533AbiJSLzW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:55:22 -0400
+        with ESMTP id S232224AbiJSL6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:58:42 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCCBC17C578;
-        Wed, 19 Oct 2022 04:34:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BB843B9AF;
+        Wed, 19 Oct 2022 04:36:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 93924CE2174;
-        Wed, 19 Oct 2022 09:05:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91803C433C1;
-        Wed, 19 Oct 2022 09:05:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A7D5ACE215A;
+        Wed, 19 Oct 2022 09:04:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A134C433D6;
+        Wed, 19 Oct 2022 09:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170306;
-        bh=kSZdv4FoXcAAE+q8B1CSVisl+kDNlN8+saXkHJNVcu4=;
+        s=korg; t=1666170261;
+        bh=aG1VmPiSOMKW2hCxcFGQZpli/fWumh5/A/cWuJlqu4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xyd2Dk+llinVED/BK+KIt4uE+hOLfE1iyi3n4D1lG/UJKM8dn9p34n0gSca465gJV
-         8svXBatJxaEeLOmNVYUeKrED8dGw1/X/WMMRdw3T27E8xmhpJtT0uBJQKCPZmv4BXF
-         0I20zWUlykGlpLi/C/baX5NRKh40AJRNjhwbkRRw=
+        b=urwMgiumImtwKnLLjZSeTCtHje+FFMtdJRfxY720kIwBbiKmDbso00KM0wy1rRfFd
+         hmR6mlFEolerOooTMABhl9qf+AawHFNCJt3+zgHtAkpzXAJEXZiWEIb5C+7EVcf+r4
+         CUN4h1fWtTcv6h2rVzoxdcLlasMLzO27bSpQyaCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lennert Buytenhek <buytenh@arista.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 558/862] serial: 8250: Toggle IER bits on only after irq has been set up
-Date:   Wed, 19 Oct 2022 10:30:45 +0200
-Message-Id: <20221019083314.632660731@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Philipp Hortmann <philipp.g.hortmann@gmail.com>,
+        Nam Cao <namcaov@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 561/862] staging: vt6655: fix some erroneous memory clean-up loops
+Date:   Wed, 19 Oct 2022 10:30:48 +0200
+Message-Id: <20221019083314.776142674@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,138 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Nam Cao <namcaov@gmail.com>
 
-[ Upstream commit 039d4926379b1d1c17b51cf21c500a5eed86899e ]
+[ Upstream commit 2a2db520e3ca5aafba7c211abfd397666c9b5f9d ]
 
-Invoking TIOCVHANGUP on 8250_mid port on Ice Lake-D and then reopening
-the port triggers these faults during serial8250_do_startup():
+In some initialization functions of this driver, memory is allocated with
+'i' acting as an index variable and increasing from 0. The commit in
+"Fixes" introduces some clean-up codes in case of allocation failure,
+which free memory in reverse order with 'i' decreasing to 0. However,
+there are some problems:
+  - The case i=0 is left out. Thus memory is leaked.
+  - In case memory allocation fails right from the start, the memory
+    freeing loops will start with i=-1 and invalid memory locations will
+    be accessed.
 
-  DMAR: DRHD: handling fault status reg 3
-  DMAR: [DMA Write NO_PASID] Request device [00:1a.0] fault addr 0x0 [fault reason 0x05] PTE Write access is not set
+One of these loops has been fixed in commit c8ff91535880 ("staging:
+vt6655: fix potential memory leak"). Fix the remaining erroneous loops.
 
-If the IRQ hasn't been set up yet, the UART will have zeroes in its MSI
-address/data registers. Disabling the IRQ at the interrupt controller
-won't stop the UART from performing a DMA write to the address programmed
-in its MSI address register (zero) when it wants to signal an interrupt.
-
-The UARTs (in Ice Lake-D) implement PCI 2.1 style MSI without masking
-capability, so there is no way to mask the interrupt at the source PCI
-function level, except disabling the MSI capability entirely, but that
-would cause it to fall back to INTx# assertion, and the PCI specification
-prohibits disabling the MSI capability as a way to mask a function's
-interrupt service request.
-
-The MSI address register is zeroed by the hangup as the irq is freed.
-The interrupt is signalled during serial8250_do_startup() performing a
-THRE test that temporarily toggles THRI in IER. The THRE test currently
-occurs before UART's irq (and MSI address) is properly set up.
-
-Refactor serial8250_do_startup() such that irq is set up before the
-THRE test. The current irq setup code is intermixed with the timer
-setup code. As THRE test must be performed prior to the timer setup,
-extract it into own function and call it only after the THRE test.
-
-The ->setup_timer() needs to be part of the struct uart_8250_ops in
-order to not create circular dependency between 8250 and 8250_base
-modules.
-
-Fixes: 40b36daad0ac ("[PATCH] 8250 UART backup timer")
-Reported-by: Lennert Buytenhek <buytenh@arista.com>
-Tested-by: Lennert Buytenhek <buytenh@arista.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220922070005.2965-1-ilpo.jarvinen@linux.intel.com
+Link: https://lore.kernel.org/linux-staging/Yx9H1zSpxmNqx6Xc@kadam/
+Fixes: 5341ee0adb17 ("staging: vt6655: check for memory allocation failures")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Tested-by: Philipp Hortmann <philipp.g.hortmann@gmail.com>
+Signed-off-by: Nam Cao <namcaov@gmail.com>
+Link: https://lore.kernel.org/r/20220912170429.29852-1-namcaov@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_core.c | 16 +++++++++++-----
- drivers/tty/serial/8250/8250_port.c |  8 +++++---
- include/linux/serial_8250.h         |  1 +
- 3 files changed, 17 insertions(+), 8 deletions(-)
+ drivers/staging/vt6655/device_main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_core.c b/drivers/tty/serial/8250/8250_core.c
-index 2e83e7367441..94fbf0add2ce 100644
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -298,10 +298,9 @@ static void serial8250_backup_timeout(struct timer_list *t)
- 		jiffies + uart_poll_timeout(&up->port) + HZ / 5);
- }
+diff --git a/drivers/staging/vt6655/device_main.c b/drivers/staging/vt6655/device_main.c
+index bab08a40fe66..d76f65756db8 100644
+--- a/drivers/staging/vt6655/device_main.c
++++ b/drivers/staging/vt6655/device_main.c
+@@ -583,7 +583,7 @@ static int device_init_rd0_ring(struct vnt_private *priv)
+ 	kfree(desc->rd_info);
  
--static int univ8250_setup_irq(struct uart_8250_port *up)
-+static void univ8250_setup_timer(struct uart_8250_port *up)
- {
- 	struct uart_port *port = &up->port;
--	int retval = 0;
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->aRD0Ring[i];
+ 		device_free_rx_buf(priv, desc);
+ 		kfree(desc->rd_info);
+@@ -629,7 +629,7 @@ static int device_init_rd1_ring(struct vnt_private *priv)
+ 	kfree(desc->rd_info);
  
- 	/*
- 	 * The above check will only give an accurate result the first time
-@@ -322,10 +321,16 @@ static int univ8250_setup_irq(struct uart_8250_port *up)
- 	 */
- 	if (!port->irq)
- 		mod_timer(&up->timer, jiffies + uart_poll_timeout(port));
--	else
--		retval = serial_link_irq_chain(up);
-+}
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->aRD1Ring[i];
+ 		device_free_rx_buf(priv, desc);
+ 		kfree(desc->rd_info);
+@@ -734,7 +734,7 @@ static int device_init_td1_ring(struct vnt_private *priv)
+ 	return 0;
  
--	return retval;
-+static int univ8250_setup_irq(struct uart_8250_port *up)
-+{
-+	struct uart_port *port = &up->port;
-+
-+	if (port->irq)
-+		return serial_link_irq_chain(up);
-+
-+	return 0;
- }
- 
- static void univ8250_release_irq(struct uart_8250_port *up)
-@@ -381,6 +386,7 @@ static struct uart_ops univ8250_port_ops;
- static const struct uart_8250_ops univ8250_driver_ops = {
- 	.setup_irq	= univ8250_setup_irq,
- 	.release_irq	= univ8250_release_irq,
-+	.setup_timer	= univ8250_setup_timer,
- };
- 
- static struct uart_8250_port serial8250_ports[UART_NR];
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 6a9d3c8ffa56..ec7dca43619f 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -2300,6 +2300,10 @@ int serial8250_do_startup(struct uart_port *port)
- 	if (port->irq && (up->port.flags & UPF_SHARE_IRQ))
- 		up->port.irqflags |= IRQF_SHARED;
- 
-+	retval = up->ops->setup_irq(up);
-+	if (retval)
-+		goto out;
-+
- 	if (port->irq && !(up->port.flags & UPF_NO_THRE_TEST)) {
- 		unsigned char iir1;
- 
-@@ -2342,9 +2346,7 @@ int serial8250_do_startup(struct uart_port *port)
- 		}
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->apTD1Rings[i];
+ 		kfree(desc->td_info);
  	}
- 
--	retval = up->ops->setup_irq(up);
--	if (retval)
--		goto out;
-+	up->ops->setup_timer(up);
- 
- 	/*
- 	 * Now, initialize the UART
-diff --git a/include/linux/serial_8250.h b/include/linux/serial_8250.h
-index 8c7b793aa4d7..16e3d75a324c 100644
---- a/include/linux/serial_8250.h
-+++ b/include/linux/serial_8250.h
-@@ -74,6 +74,7 @@ struct uart_8250_port;
- struct uart_8250_ops {
- 	int		(*setup_irq)(struct uart_8250_port *);
- 	void		(*release_irq)(struct uart_8250_port *);
-+	void		(*setup_timer)(struct uart_8250_port *);
- };
- 
- struct uart_8250_em485 {
 -- 
 2.35.1
 
