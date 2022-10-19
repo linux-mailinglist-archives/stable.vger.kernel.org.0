@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EE18604A5A
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 17:04:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3DC604A5D
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 17:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229498AbiJSPEL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 11:04:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60682 "EHLO
+        id S229751AbiJSPEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 11:04:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229736AbiJSPC5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 11:02:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60B5915ECE6;
-        Wed, 19 Oct 2022 07:57:47 -0700 (PDT)
+        with ESMTP id S231542AbiJSPDm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 11:03:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A9AF161FE6
+        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 07:58:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 797FAB8224C;
-        Wed, 19 Oct 2022 14:56:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2560C433C1;
-        Wed, 19 Oct 2022 14:56:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24FCF618B4
+        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 14:57:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD53C433C1;
+        Wed, 19 Oct 2022 14:57:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666191393;
-        bh=TM4wgjfRG/tpZ3xsCpLkHBSysgXbD+pBzv+iwSUm6kg=;
+        s=korg; t=1666191432;
+        bh=zHSmA9ohxSbBWYoIRsQzTeHDZKkXbPzCOoJb/lC13lo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Hlsw1Gwy1q7/79w+6D6j6HBbTG13TcCDZAYvv6gU5AroS8Z+SjnpAMdNs1Yuxv2FW
-         WNUr++fT7x1cg0yRThZSaWWywiq3ROpZ+xnyobtCxDH7za5iLD8l2JHJNCtkoETgga
-         oUAUYNhU4hgpb7jTpu7k2dS3oH9KmofD/O26Aus8=
-Date:   Wed, 19 Oct 2022 16:56:30 +0200
+        b=jfChoJSQ5XKzpP2fPcANSQsywXDRvOgBNfxu108hnTkSOgS2V7otKdilp2z+4k1Jb
+         mSZJKqp+jo+51mGGHQDXrqIAUB2D1qnQOXXrp0HpmNlw45VhgS3Dh9Yh/zttQ/WvkC
+         UZnDpCeln7bRfxUngPJtZS1BOuM+e1wsHdasITNs=
+Date:   Wed, 19 Oct 2022 16:57:09 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Quentin Schulz <foss+kernel@0leil.net>
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org,
-        Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] arm64: dts: rockchip: lower rk3399-puma-haikou SD
- controller clock frequency
-Message-ID: <Y1AQHqm+cOmrrveJ@kroah.com>
-References: <20221019-upstream-puma-sd-40mhz-v1-0-754a76421518@theobroma-systems.com>
+To:     Werner Sembach <wse@tuxedocomputers.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] ACPI: video: Force backlight native for more TongFang
+ devices
+Message-ID: <Y1AQRaEvqmVWHusI@kroah.com>
+References: <20221019140142.17558-1-wse@tuxedocomputers.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221019-upstream-puma-sd-40mhz-v1-0-754a76421518@theobroma-systems.com>
+In-Reply-To: <20221019140142.17558-1-wse@tuxedocomputers.com>
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -56,32 +49,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 19, 2022 at 04:27:27PM +0200, Quentin Schulz wrote:
-> From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
-> 
-> From: Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
+On Wed, Oct 19, 2022 at 04:01:42PM +0200, Werner Sembach wrote:
+> commit 3dbc80a3e4c55c4a5b89ef207bed7b7de36157b4 upstream.
 
-You can not have 2 authors :(
+That is not this commit at all :(
 
+> The upstream commit "ACPI: video: Make backlight class device registration
+> a separate step (v2)" changes the logic in a way that these quirks are not
+> required anymore, but kernel <= 6.0 still need these.
 > 
-> CRC errors (code -84 EILSEQ) have been observed for some SanDisk
-> Ultra A1 cards when running at 50MHz.
+> The TongFang GKxNRxx, GMxNGxx, GMxZGxx, and GMxRGxx / TUXEDO
+> Stellaris/Polaris Gen 1-4, have the same problem as the Clevo NL5xRU and
+> NL5xNU / TUXEDO Aura 15 Gen1 and Gen2:
+> They have a working native and video interface for screen backlight.
+> However the default detection mechanism first registers the video interface
+> before unregistering it again and switching to the native interface during
+> boot. This results in a dangling SBIOS request for backlight change for
+> some reason, causing the backlight to switch to ~2% once per boot on the
+> first power cord connect or disconnect event. Setting the native interface
+> explicitly circumvents this buggy behaviour by avoiding the unregistering
+> process.
 > 
-> Waveform analysis suggest that the level shifters that are used on the
-> RK3399-Q7 module for voltage translation between 3.0 and 3.3V don't
-> handle clock rates at or above 48MHz properly. Back off to 40MHz for
-> some safety margin.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 60fd9f72ce8a ("arm64: dts: rockchip: add Haikou baseboard with RK3399-Q7 SoM")
-> Signed-off-by: Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
-> Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+> Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
 > ---
-> We've been carrying this patch downstream for years and completely forgot to
-> upstream it. This is now done.
+>  drivers/acpi/video_detect.c | 64 +++++++++++++++++++++++++++++++++++++
+>  1 file changed, 64 insertions(+)
+> 
 
-It has to be accepted before you are done :)
 
-thanks,
+<formletter>
 
-greg k-h
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
+
+</formletter>
