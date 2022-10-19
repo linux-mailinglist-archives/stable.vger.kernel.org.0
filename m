@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EF71604561
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:34:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E9B9604523
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:22:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231140AbiJSMed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 08:34:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55632 "EHLO
+        id S232486AbiJSMW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 08:22:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231608AbiJSMeO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:34:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4381106923;
-        Wed, 19 Oct 2022 05:14:00 -0700 (PDT)
+        with ESMTP id S233110AbiJSMWL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:22:11 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 303571B8640;
+        Wed, 19 Oct 2022 04:56:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0BF761852;
-        Wed, 19 Oct 2022 09:07:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E195C433B5;
-        Wed, 19 Oct 2022 09:07:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0C7C6CE2185;
+        Wed, 19 Oct 2022 09:08:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7DCBC433D6;
+        Wed, 19 Oct 2022 09:07:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170425;
-        bh=R5xFzSHogEP2NN2e/wL2tnIj+3tgTrpSBrWmiZXApdA=;
+        s=korg; t=1666170478;
+        bh=VV1OpKp2yHPswDsQUvrr44yQuL620U4g+koU7ZS60sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMtQrTq5MwDsvEYRTkXFEQq5DtFqXMgOcdA7LpYhJ51qsL1mIV82P+do+VIATsmzn
-         +emrgSRX/BGMS3hbWEFdEZKwZyqHC+QEgHT2FGin3RVFpI1WYtepcYKJ/nuD2pizss
-         GZkgbeEK7d8bs5W9kbrUP/kFfSNw0CNSoyNdrAlQ=
+        b=jjXQXHSLtSECwJ50G78SSyJpPHk/uxszbqAPEOtezYh9a9U0YuV20t0yzYdhqLqli
+         G9nrL8DOTz0f+sgnYS8ktYofe9aIj2yBvp05gC3YgvCWjPkhdOCKAVWdrk8hIFa7G2
+         grmSs8YJdbQJ4ew9toB/6jP5QPDgo5vFHUQ5W5qA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 651/862] crypto: cavium - prevent integer overflow loading firmware
-Date:   Wed, 19 Oct 2022 10:32:18 +0200
-Message-Id: <20221019083318.699495645@linuxfoundation.org>
+Subject: [PATCH 6.0 669/862] ACPI: tables: FPDT: Dont call acpi_os_map_memory() on invalid phys address
+Date:   Wed, 19 Oct 2022 10:32:36 +0200
+Message-Id: <20221019083319.511522596@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,54 +53,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 2526d6bf27d15054bb0778b2f7bc6625fd934905 ]
+[ Upstream commit 211391bf04b3c74e250c566eeff9cf808156c693 ]
 
-The "code_length" value comes from the firmware file.  If your firmware
-is untrusted realistically there is probably very little you can do to
-protect yourself.  Still we try to limit the damage as much as possible.
-Also Smatch marks any data read from the filesystem as untrusted and
-prints warnings if it not capped correctly.
+On a Packard Bell Dot SC (Intel Atom N2600 model) there is a FPDT table
+which contains invalid physical addresses, with high bits set which fall
+outside the range of the CPU-s supported physical address range.
 
-The "ntohl(ucode->code_length) * 2" multiplication can have an
-integer overflow.
+Calling acpi_os_map_memory() on such an invalid phys address leads to
+the below WARN_ON in ioremap triggering resulting in an oops/stacktrace.
 
-Fixes: 9e2c7d99941d ("crypto: cavium - Add Support for Octeon-tx CPT Engine")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Add code to verify the physical address before calling acpi_os_map_memory()
+to fix / avoid the oops.
+
+[    1.226900] ioremap: invalid physical address 3001000000000000
+[    1.226949] ------------[ cut here ]------------
+[    1.226962] WARNING: CPU: 1 PID: 1 at arch/x86/mm/ioremap.c:200 __ioremap_caller.cold+0x43/0x5f
+[    1.226996] Modules linked in:
+[    1.227016] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.0.0-rc3+ #490
+[    1.227029] Hardware name: Packard Bell dot s/SJE01_CT, BIOS V1.10 07/23/2013
+[    1.227038] RIP: 0010:__ioremap_caller.cold+0x43/0x5f
+[    1.227054] Code: 96 00 00 e9 f8 af 24 ff 89 c6 48 c7 c7 d8 0c 84 99 e8 6a 96 00 00 e9 76 af 24 ff 48 89 fe 48 c7 c7 a8 0c 84 99 e8 56 96 00 00 <0f> 0b e9 60 af 24 ff 48 8b 34 24 48 c7 c7 40 0d 84 99 e8 3f 96 00
+[    1.227067] RSP: 0000:ffffb18c40033d60 EFLAGS: 00010286
+[    1.227084] RAX: 0000000000000032 RBX: 3001000000000000 RCX: 0000000000000000
+[    1.227095] RDX: 0000000000000001 RSI: 00000000ffffdfff RDI: 00000000ffffffff
+[    1.227105] RBP: 3001000000000000 R08: 0000000000000000 R09: ffffb18c40033c18
+[    1.227115] R10: 0000000000000003 R11: ffffffff99d62fe8 R12: 0000000000000008
+[    1.227124] R13: 0003001000000000 R14: 0000000000001000 R15: 3001000000000000
+[    1.227135] FS:  0000000000000000(0000) GS:ffff913a3c080000(0000) knlGS:0000000000000000
+[    1.227146] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.227156] CR2: 0000000000000000 CR3: 0000000018c26000 CR4: 00000000000006e0
+[    1.227167] Call Trace:
+[    1.227176]  <TASK>
+[    1.227185]  ? acpi_os_map_iomem+0x1c9/0x1e0
+[    1.227215]  ? kmem_cache_alloc_trace+0x187/0x370
+[    1.227254]  acpi_os_map_iomem+0x1c9/0x1e0
+[    1.227288]  acpi_init_fpdt+0xa8/0x253
+[    1.227308]  ? acpi_debugfs_init+0x1f/0x1f
+[    1.227339]  do_one_initcall+0x5a/0x300
+[    1.227406]  ? rcu_read_lock_sched_held+0x3f/0x80
+[    1.227442]  kernel_init_freeable+0x28b/0x2cc
+[    1.227512]  ? rest_init+0x170/0x170
+[    1.227538]  kernel_init+0x16/0x140
+[    1.227552]  ret_from_fork+0x1f/0x30
+[    1.227639]  </TASK>
+[    1.227647] irq event stamp: 186819
+[    1.227656] hardirqs last  enabled at (186825): [<ffffffff98184a6e>] __up_console_sem+0x5e/0x70
+[    1.227672] hardirqs last disabled at (186830): [<ffffffff98184a53>] __up_console_sem+0x43/0x70
+[    1.227686] softirqs last  enabled at (186576): [<ffffffff980fbc9d>] __irq_exit_rcu+0xed/0x160
+[    1.227701] softirqs last disabled at (186569): [<ffffffff980fbc9d>] __irq_exit_rcu+0xed/0x160
+[    1.227715] ---[ end trace 0000000000000000 ]---
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/cavium/cpt/cptpf_main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/acpi/acpi_fpdt.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/crypto/cavium/cpt/cptpf_main.c b/drivers/crypto/cavium/cpt/cptpf_main.c
-index 8c32d0eb8fcf..6872ac344001 100644
---- a/drivers/crypto/cavium/cpt/cptpf_main.c
-+++ b/drivers/crypto/cavium/cpt/cptpf_main.c
-@@ -253,6 +253,7 @@ static int cpt_ucode_load_fw(struct cpt_device *cpt, const u8 *fw, bool is_ae)
- 	const struct firmware *fw_entry;
- 	struct device *dev = &cpt->pdev->dev;
- 	struct ucode_header *ucode;
-+	unsigned int code_length;
- 	struct microcode *mcode;
- 	int j, ret = 0;
+diff --git a/drivers/acpi/acpi_fpdt.c b/drivers/acpi/acpi_fpdt.c
+index 6922a44b3ce7..a2056c4c8cb7 100644
+--- a/drivers/acpi/acpi_fpdt.c
++++ b/drivers/acpi/acpi_fpdt.c
+@@ -143,6 +143,23 @@ static const struct attribute_group boot_attr_group = {
  
-@@ -263,11 +264,12 @@ static int cpt_ucode_load_fw(struct cpt_device *cpt, const u8 *fw, bool is_ae)
- 	ucode = (struct ucode_header *)fw_entry->data;
- 	mcode = &cpt->mcode[cpt->next_mc_idx];
- 	memcpy(mcode->version, (u8 *)fw_entry->data, CPT_UCODE_VERSION_SZ);
--	mcode->code_size = ntohl(ucode->code_length) * 2;
--	if (!mcode->code_size) {
-+	code_length = ntohl(ucode->code_length);
-+	if (code_length == 0 || code_length >= INT_MAX / 2) {
- 		ret = -EINVAL;
- 		goto fw_release;
- 	}
-+	mcode->code_size = code_length * 2;
+ static struct kobject *fpdt_kobj;
  
- 	mcode->is_ae = is_ae;
- 	mcode->core_mask = 0ULL;
++#if defined CONFIG_X86 && defined CONFIG_PHYS_ADDR_T_64BIT
++#include <linux/processor.h>
++static bool fpdt_address_valid(u64 address)
++{
++	/*
++	 * On some systems the table contains invalid addresses
++	 * with unsuppored high address bits set, check for this.
++	 */
++	return !(address >> boot_cpu_data.x86_phys_bits);
++}
++#else
++static bool fpdt_address_valid(u64 address)
++{
++	return true;
++}
++#endif
++
+ static int fpdt_process_subtable(u64 address, u32 subtable_type)
+ {
+ 	struct fpdt_subtable_header *subtable_header;
+@@ -151,6 +168,11 @@ static int fpdt_process_subtable(u64 address, u32 subtable_type)
+ 	u32 length, offset;
+ 	int result;
+ 
++	if (!fpdt_address_valid(address)) {
++		pr_info(FW_BUG "invalid physical address: 0x%llx!\n", address);
++		return -EINVAL;
++	}
++
+ 	subtable_header = acpi_os_map_memory(address, sizeof(*subtable_header));
+ 	if (!subtable_header)
+ 		return -ENOMEM;
 -- 
 2.35.1
 
