@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33675604006
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CD5B604024
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233978AbiJSJmd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:42:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57956 "EHLO
+        id S234086AbiJSJms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:42:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234073AbiJSJiD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:38:03 -0400
+        with ESMTP id S234499AbiJSJkf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:40:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA1E31F93;
-        Wed, 19 Oct 2022 02:15:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8857EEA8B;
+        Wed, 19 Oct 2022 02:16:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74752617F1;
-        Wed, 19 Oct 2022 09:14:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D478C433D7;
-        Wed, 19 Oct 2022 09:14:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B82D761824;
+        Wed, 19 Oct 2022 09:16:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D21C2C433C1;
+        Wed, 19 Oct 2022 09:16:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170884;
-        bh=hLea2Hywm1+dsu/QsFYNJPR4Xf8zvgrWQYrpjo5lmFA=;
+        s=korg; t=1666170967;
+        bh=I4JT3s3BD2qLmN9713tI7x6k8PdkiCBRxTyGCGLdTEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QM2g3bEe9YC3tHsZQzvXzlZMJtaU9+vHqhG4woYWAVTaFc2A7wjaVS8rrFqdHLd+X
-         uYEwBMGdU7HOiYa6GNDVN3LXSnOATSLOq44R3VDApbTXe3t/aPhdEgBysUaGQFL8bW
-         DN3xQO/p55U5Kgo8rg8CX3m270kRo4XpsiLfWQsA=
+        b=HwxNMlfGUg85JC9E1XoM6Vo24fEbsa/YwwD3R025KDkk2FcKpICnMyJ+e8wJy9ja6
+         vYfCBuDHOnAFA3SGmf6+AsfQbIKeMP0TXkrtbeDcg3/DpeWI1uy5LI2p427/o4hk3W
+         sZD7QgQgZT/2+mEdDCLYHefDAh7tzrzVGjp3vkm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 816/862] md/raid5: Wait for MD_SB_CHANGE_PENDING in raid5d
-Date:   Wed, 19 Oct 2022 10:35:03 +0200
-Message-Id: <20221019083325.973869233@linuxfoundation.org>
+        stable@vger.kernel.org, Dylan Yudaken <dylany@fb.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 823/862] io_uring: fix CQE reordering
+Date:   Wed, 19 Oct 2022 10:35:10 +0200
+Message-Id: <20221019083326.281411913@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,143 +53,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 5e2cf333b7bd5d3e62595a44d598a254c697cd74 ]
+[ Upstream commit aa1df3a360a0c50e0f0086a785d75c2785c29967 ]
 
-A complicated deadlock exists when using the journal and an elevated
-group_thrtead_cnt. It was found with loop devices, but its not clear
-whether it can be seen with real disks. The deadlock can occur simply
-by writing data with an fio script.
+Overflowing CQEs may result in reordering, which is buggy in case of
+links, F_MORE and so on. If we guarantee that we don't reorder for
+the unlikely event of a CQ ring overflow, then we can further extend
+this to not have to terminate multishot requests if it happens. For
+other operations, like zerocopy sends, we have no choice but to honor
+CQE ordering.
 
-When the deadlock occurs, multiple threads will hang in different ways:
-
- 1) The group threads will hang in the blk-wbt code with bios waiting to
-    be submitted to the block layer:
-
-        io_schedule+0x70/0xb0
-        rq_qos_wait+0x153/0x210
-        wbt_wait+0x115/0x1b0
-        io_schedule+0x70/0xb0
-        rq_qos_wait+0x153/0x210
-        wbt_wait+0x115/0x1b0
-        __rq_qos_throttle+0x38/0x60
-        blk_mq_submit_bio+0x589/0xcd0
-        wbt_wait+0x115/0x1b0
-        __rq_qos_throttle+0x38/0x60
-        blk_mq_submit_bio+0x589/0xcd0
-        __submit_bio+0xe6/0x100
-        submit_bio_noacct_nocheck+0x42e/0x470
-        submit_bio_noacct+0x4c2/0xbb0
-        ops_run_io+0x46b/0x1a30
-        handle_stripe+0xcd3/0x36b0
-        handle_active_stripes.constprop.0+0x6f6/0xa60
-        raid5_do_work+0x177/0x330
-
-    Or:
-        io_schedule+0x70/0xb0
-        rq_qos_wait+0x153/0x210
-        wbt_wait+0x115/0x1b0
-        __rq_qos_throttle+0x38/0x60
-        blk_mq_submit_bio+0x589/0xcd0
-        __submit_bio+0xe6/0x100
-        submit_bio_noacct_nocheck+0x42e/0x470
-        submit_bio_noacct+0x4c2/0xbb0
-        flush_deferred_bios+0x136/0x170
-        raid5_do_work+0x262/0x330
-
- 2) The r5l_reclaim thread will hang in the same way, submitting a
-    bio to the block layer:
-
-        io_schedule+0x70/0xb0
-        rq_qos_wait+0x153/0x210
-        wbt_wait+0x115/0x1b0
-        __rq_qos_throttle+0x38/0x60
-        blk_mq_submit_bio+0x589/0xcd0
-        __submit_bio+0xe6/0x100
-        submit_bio_noacct_nocheck+0x42e/0x470
-        submit_bio_noacct+0x4c2/0xbb0
-        submit_bio+0x3f/0xf0
-        md_super_write+0x12f/0x1b0
-        md_update_sb.part.0+0x7c6/0xff0
-        md_update_sb+0x30/0x60
-        r5l_do_reclaim+0x4f9/0x5e0
-        r5l_reclaim_thread+0x69/0x30b
-
-    However, before hanging, the MD_SB_CHANGE_PENDING flag will be
-    set for sb_flags in r5l_write_super_and_discard_space(). This
-    flag will never be cleared because the submit_bio() call never
-    returns.
-
- 3) Due to the MD_SB_CHANGE_PENDING flag being set, handle_stripe()
-    will do no processing on any pending stripes and re-set
-    STRIPE_HANDLE. This will cause the raid5d thread to enter an
-    infinite loop, constantly trying to handle the same stripes
-    stuck in the queue.
-
-    The raid5d thread has a blk_plug that holds a number of bios
-    that are also stuck waiting seeing the thread is in a loop
-    that never schedules. These bios have been accounted for by
-    blk-wbt thus preventing the other threads above from
-    continuing when they try to submit bios. --Deadlock.
-
-To fix this, add the same wait_event() that is used in raid5_do_work()
-to raid5d() such that if MD_SB_CHANGE_PENDING is set, the thread will
-schedule and wait until the flag is cleared. The schedule action will
-flush the plug which will allow the r5l_reclaim thread to continue,
-thus preventing the deadlock.
-
-However, md_check_recovery() calls can also clear MD_SB_CHANGE_PENDING
-from the same thread and can thus deadlock if the thread is put to
-sleep. So avoid waiting if md_check_recovery() is being called in the
-loop.
-
-It's not clear when the deadlock was introduced, but the similar
-wait_event() call in raid5_do_work() was added in 2017 by this
-commit:
-
-    16d997b78b15 ("md/raid5: simplfy delaying of writes while metadata
-                   is updated.")
-
-Link: https://lore.kernel.org/r/7f3b87b6-b52a-f737-51d7-a4eec5c44112@deltatee.com
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Reported-by: Dylan Yudaken <dylany@fb.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/ec3bc55687b0768bbe20fb62d7d06cfced7d7e70.1663892031.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid5.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ io_uring/io_uring.c | 12 ++++++++++--
+ io_uring/io_uring.h | 12 +++++++++---
+ 2 files changed, 19 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index db149d28f639..caaae10e33f8 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -36,6 +36,7 @@
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index a22a32acf590..c5dd483a7de2 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -567,7 +567,7 @@ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
+ 
+ 	io_cq_lock(ctx);
+ 	while (!list_empty(&ctx->cq_overflow_list)) {
+-		struct io_uring_cqe *cqe = io_get_cqe(ctx);
++		struct io_uring_cqe *cqe = io_get_cqe_overflow(ctx, true);
+ 		struct io_overflow_cqe *ocqe;
+ 
+ 		if (!cqe && !force)
+@@ -694,12 +694,19 @@ bool io_req_cqe_overflow(struct io_kiocb *req)
+  * control dependency is enough as we're using WRITE_ONCE to
+  * fill the cq entry
   */
+-struct io_uring_cqe *__io_get_cqe(struct io_ring_ctx *ctx)
++struct io_uring_cqe *__io_get_cqe(struct io_ring_ctx *ctx, bool overflow)
+ {
+ 	struct io_rings *rings = ctx->rings;
+ 	unsigned int off = ctx->cached_cq_tail & (ctx->cq_entries - 1);
+ 	unsigned int free, queued, len;
  
- #include <linux/blkdev.h>
-+#include <linux/delay.h>
- #include <linux/kthread.h>
- #include <linux/raid/pq.h>
- #include <linux/async_tx.h>
-@@ -6780,7 +6781,18 @@ static void raid5d(struct md_thread *thread)
- 			spin_unlock_irq(&conf->device_lock);
- 			md_check_recovery(mddev);
- 			spin_lock_irq(&conf->device_lock);
++	/*
++	 * Posting into the CQ when there are pending overflowed CQEs may break
++	 * ordering guarantees, which will affect links, F_MORE users and more.
++	 * Force overflow the completion.
++	 */
++	if (!overflow && (ctx->check_cq & BIT(IO_CHECK_CQ_OVERFLOW_BIT)))
++		return NULL;
+ 
+ 	/* userspace may cheat modifying the tail, be safe and do min */
+ 	queued = min(__io_cqring_events(ctx), ctx->cq_entries);
+@@ -2232,6 +2239,7 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+ 
+ 	do {
+ 		io_cqring_overflow_flush(ctx);
 +
-+			/*
-+			 * Waiting on MD_SB_CHANGE_PENDING below may deadlock
-+			 * seeing md_check_recovery() is needed to clear
-+			 * the flag when using mdmon.
-+			 */
-+			continue;
- 		}
-+
-+		wait_event_lock_irq(mddev->sb_wait,
-+			!test_bit(MD_SB_CHANGE_PENDING, &mddev->sb_flags),
-+			conf->device_lock);
+ 		if (io_cqring_events(ctx) >= min_events)
+ 			return 0;
+ 		if (!io_run_task_work())
+diff --git a/io_uring/io_uring.h b/io_uring/io_uring.h
+index 2f73f83af960..45809ae6f64e 100644
+--- a/io_uring/io_uring.h
++++ b/io_uring/io_uring.h
+@@ -24,7 +24,7 @@ enum {
+ 	IOU_STOP_MULTISHOT	= -ECANCELED,
+ };
+ 
+-struct io_uring_cqe *__io_get_cqe(struct io_ring_ctx *ctx);
++struct io_uring_cqe *__io_get_cqe(struct io_ring_ctx *ctx, bool overflow);
+ bool io_req_cqe_overflow(struct io_kiocb *req);
+ int io_run_task_work_sig(void);
+ void io_req_complete_failed(struct io_kiocb *req, s32 res);
+@@ -91,7 +91,8 @@ static inline void io_cq_lock(struct io_ring_ctx *ctx)
+ 
+ void io_cq_unlock_post(struct io_ring_ctx *ctx);
+ 
+-static inline struct io_uring_cqe *io_get_cqe(struct io_ring_ctx *ctx)
++static inline struct io_uring_cqe *io_get_cqe_overflow(struct io_ring_ctx *ctx,
++						       bool overflow)
+ {
+ 	if (likely(ctx->cqe_cached < ctx->cqe_sentinel)) {
+ 		struct io_uring_cqe *cqe = ctx->cqe_cached;
+@@ -103,7 +104,12 @@ static inline struct io_uring_cqe *io_get_cqe(struct io_ring_ctx *ctx)
+ 		return cqe;
  	}
- 	pr_debug("%d stripes handled\n", handled);
  
+-	return __io_get_cqe(ctx);
++	return __io_get_cqe(ctx, overflow);
++}
++
++static inline struct io_uring_cqe *io_get_cqe(struct io_ring_ctx *ctx)
++{
++	return io_get_cqe_overflow(ctx, false);
+ }
+ 
+ static inline bool __io_fill_cqe_req(struct io_ring_ctx *ctx,
 -- 
 2.35.1
 
