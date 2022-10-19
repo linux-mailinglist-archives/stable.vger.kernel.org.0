@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 348C4604189
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:45:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99DFB6041D6
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232972AbiJSKpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:45:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35280 "EHLO
+        id S233413AbiJSKuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:50:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233132AbiJSKo3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:44:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7933112AAC;
-        Wed, 19 Oct 2022 03:21:02 -0700 (PDT)
+        with ESMTP id S233600AbiJSKrU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:47:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C3EB1382F0;
+        Wed, 19 Oct 2022 03:21:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5547BB8244A;
-        Wed, 19 Oct 2022 09:00:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5080C433C1;
-        Wed, 19 Oct 2022 09:00:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15D29B8245A;
+        Wed, 19 Oct 2022 09:01:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B537C433C1;
+        Wed, 19 Oct 2022 09:00:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170051;
-        bh=rMbA6/oW/i/Lu6KasqXn0fbJlBZXxf0bUD+LrqGkdqU=;
+        s=korg; t=1666170059;
+        bh=s3BcNo+4Mt/v+RbVxnDPFg5Kc5akKszf8xfXcrWrnLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c/nm/tmaasT/m97T/0KYYeYynqqDQw/MIV+1ddTXBe6IXJfogRqwyzbjhAh7aeTrG
-         q9xS4qT0zv05+zD/+VcxvShyv6E6ksOB25+NXakzeQwCtJMLjUFLDSAr3yVLXBQbJs
-         b01Sb2NLwe2Ol5g9RTtOhL7Wl6r0gl80YL6DVN0c=
+        b=N3/XSi7jEen4qGSAfwjADgoEUWDsQuu9STf/Ryo158JXkC4YKqrjZrC0aBwb24GEn
+         xEuzY2RlvxeeKD4CwEKKlLGZ+x8DMrtz/D5bPsVis/KOM9lPDd77b1xrU2svi06/gs
+         Xlunq6L1X5fXrxki7098pMyz77ZYv7P8B8VVqL38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jie Hai <haijie1@huawei.com>,
         Zhou Wang <wangzhou1@hisilicon.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 508/862] dmaengine: hisilicon: Disable channels when unregister hisi_dma
-Date:   Wed, 19 Oct 2022 10:29:55 +0200
-Message-Id: <20221019083312.433390135@linuxfoundation.org>
+Subject: [PATCH 6.0 510/862] dmaengine: hisilicon: Add multi-thread support for a DMA channel
+Date:   Wed, 19 Oct 2022 10:29:57 +0200
+Message-Id: <20221019083312.517043549@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,68 +55,98 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jie Hai <haijie1@huawei.com>
 
-[ Upstream commit e3bdaa04ada31f46d0586df83a2789b8913053c5 ]
+[ Upstream commit 2cbb95883c990d0002a77e13d3278913ab26ad79 ]
 
-When hisi_dma is unloaded or unbinded, all of channels should be
-disabled. This patch disables DMA channels when driver is unloaded
-or unbinded.
+When we get a DMA channel and try to use it in multiple threads it
+will cause oops and hanging the system.
+
+% echo 100 > /sys/module/dmatest/parameters/threads_per_chan
+% echo 100 > /sys/module/dmatest/parameters/iterations
+% echo 1 > /sys/module/dmatest/parameters/run
+[383493.327077] Unable to handle kernel paging request at virtual
+		address dead000000000108
+[383493.335103] Mem abort info:
+[383493.335103]   ESR = 0x96000044
+[383493.335105]   EC = 0x25: DABT (current EL), IL = 32 bits
+[383493.335107]   SET = 0, FnV = 0
+[383493.335108]   EA = 0, S1PTW = 0
+[383493.335109]   FSC = 0x04: level 0 translation fault
+[383493.335110] Data abort info:
+[383493.335111]   ISV = 0, ISS = 0x00000044
+[383493.364739]   CM = 0, WnR = 1
+[383493.367793] [dead000000000108] address between user and kernel
+		address ranges
+[383493.375021] Internal error: Oops: 96000044 [#1] PREEMPT SMP
+[383493.437574] CPU: 63 PID: 27895 Comm: dma0chan0-copy2 Kdump:
+		loaded Tainted: GO 5.17.0-rc4+ #2
+[383493.457851] pstate: 204000c9 (nzCv daIF +PAN -UAO -TCO -DIT
+		-SSBS BTYPE=--)
+[383493.465331] pc : vchan_tx_submit+0x64/0xa0
+[383493.469957] lr : vchan_tx_submit+0x34/0xa0
+
+This occurs because the transmission timed out, and that's due
+to data race. Each thread rewrite channels's descriptor as soon as
+device_issue_pending is called. It leads to the situation that
+the driver thinks that it uses the right descriptor in interrupt
+handler while channels's descriptor has been changed by other
+thread. The descriptor which in fact reported interrupt will not
+be handled any more, as well as its tx->callback.
+That's why timeout reports.
+
+With current fixes channels' descriptor changes it's value only
+when it has been used. A new descriptor is acquired from
+vc->desc_issued queue that is already filled with descriptors
+that are ready to be sent. Threads have no direct access to DMA
+channel descriptor. In case of channel's descriptor is busy, try
+to submit to HW again when a descriptor is completed. In this case,
+vc->desc_issued may be empty when hisi_dma_start_transfer is called,
+so delete error reporting on this. Now it is just possible to queue
+a descriptor for further processing.
 
 Fixes: e9f08b65250d ("dmaengine: hisilicon: Add Kunpeng DMA engine support")
 Signed-off-by: Jie Hai <haijie1@huawei.com>
 Acked-by: Zhou Wang <wangzhou1@hisilicon.com>
-Link: https://lore.kernel.org/r/20220830062251.52993-2-haijie1@huawei.com
+Link: https://lore.kernel.org/r/20220830062251.52993-4-haijie1@huawei.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/hisi_dma.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/dma/hisi_dma.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/dma/hisi_dma.c b/drivers/dma/hisi_dma.c
-index 43817ced3a3e..98bc488893cc 100644
+index 837f7e4adfa6..0233b42143c7 100644
 --- a/drivers/dma/hisi_dma.c
 +++ b/drivers/dma/hisi_dma.c
-@@ -180,7 +180,8 @@ static void hisi_dma_reset_qp_point(struct hisi_dma_dev *hdma_dev, u32 index)
- 	hisi_dma_chan_write(hdma_dev->base, HISI_DMA_CQ_HEAD_PTR, index, 0);
- }
+@@ -271,7 +271,6 @@ static void hisi_dma_start_transfer(struct hisi_dma_chan *chan)
  
--static void hisi_dma_reset_hw_chan(struct hisi_dma_chan *chan)
-+static void hisi_dma_reset_or_disable_hw_chan(struct hisi_dma_chan *chan,
-+					      bool disable)
- {
- 	struct hisi_dma_dev *hdma_dev = chan->hdma_dev;
- 	u32 index = chan->qp_num, tmp;
-@@ -201,8 +202,11 @@ static void hisi_dma_reset_hw_chan(struct hisi_dma_chan *chan)
- 	hisi_dma_do_reset(hdma_dev, index);
- 	hisi_dma_reset_qp_point(hdma_dev, index);
- 	hisi_dma_pause_dma(hdma_dev, index, false);
--	hisi_dma_enable_dma(hdma_dev, index, true);
--	hisi_dma_unmask_irq(hdma_dev, index);
-+
-+	if (!disable) {
-+		hisi_dma_enable_dma(hdma_dev, index, true);
-+		hisi_dma_unmask_irq(hdma_dev, index);
-+	}
+ 	vd = vchan_next_desc(&chan->vc);
+ 	if (!vd) {
+-		dev_err(&hdma_dev->pdev->dev, "no issued task!\n");
+ 		chan->desc = NULL;
+ 		return;
+ 	}
+@@ -303,7 +302,7 @@ static void hisi_dma_issue_pending(struct dma_chan *c)
  
- 	ret = readl_relaxed_poll_timeout(hdma_dev->base +
- 		HISI_DMA_Q_FSM_STS + index * HISI_DMA_OFFSET, tmp,
-@@ -218,7 +222,7 @@ static void hisi_dma_free_chan_resources(struct dma_chan *c)
- 	struct hisi_dma_chan *chan = to_hisi_dma_chan(c);
- 	struct hisi_dma_dev *hdma_dev = chan->hdma_dev;
+ 	spin_lock_irqsave(&chan->vc.lock, flags);
  
--	hisi_dma_reset_hw_chan(chan);
-+	hisi_dma_reset_or_disable_hw_chan(chan, false);
- 	vchan_free_chan_resources(&chan->vc);
+-	if (vchan_issue_pending(&chan->vc))
++	if (vchan_issue_pending(&chan->vc) && !chan->desc)
+ 		hisi_dma_start_transfer(chan);
  
- 	memset(chan->sq, 0, sizeof(struct hisi_dma_sqe) * hdma_dev->chan_depth);
-@@ -394,7 +398,7 @@ static void hisi_dma_enable_qp(struct hisi_dma_dev *hdma_dev, u32 qp_index)
+ 	spin_unlock_irqrestore(&chan->vc.lock, flags);
+@@ -441,11 +440,10 @@ static irqreturn_t hisi_dma_irq(int irq, void *data)
+ 				    chan->qp_num, chan->cq_head);
+ 		if (FIELD_GET(STATUS_MASK, cqe->w0) == STATUS_SUCC) {
+ 			vchan_cookie_complete(&desc->vd);
++			hisi_dma_start_transfer(chan);
+ 		} else {
+ 			dev_err(&hdma_dev->pdev->dev, "task error!\n");
+ 		}
+-
+-		chan->desc = NULL;
+ 	}
  
- static void hisi_dma_disable_qp(struct hisi_dma_dev *hdma_dev, u32 qp_index)
- {
--	hisi_dma_reset_hw_chan(&hdma_dev->chan[qp_index]);
-+	hisi_dma_reset_or_disable_hw_chan(&hdma_dev->chan[qp_index], true);
- }
- 
- static void hisi_dma_enable_qps(struct hisi_dma_dev *hdma_dev)
+ 	spin_unlock(&chan->vc.lock);
 -- 
 2.35.1
 
