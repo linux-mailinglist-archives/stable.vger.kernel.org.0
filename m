@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11DAF603C77
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:47:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 045E2603C88
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:48:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231429AbiJSIrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:47:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42640 "EHLO
+        id S231512AbiJSIsq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:48:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231165AbiJSIqk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:46:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DEC22288;
-        Wed, 19 Oct 2022 01:44:40 -0700 (PDT)
+        with ESMTP id S231534AbiJSIsG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:48:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F070A14003;
+        Wed, 19 Oct 2022 01:46:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83225617FF;
-        Wed, 19 Oct 2022 08:42:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93C3CC433D6;
-        Wed, 19 Oct 2022 08:42:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 107FEB822DE;
+        Wed, 19 Oct 2022 08:42:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EBB5C433C1;
+        Wed, 19 Oct 2022 08:42:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168926;
-        bh=VlsoAZyMNoWaMW908pM9s6G3OfDrD2WYDrbzgNPWB8U=;
+        s=korg; t=1666168929;
+        bh=qab0Rnt+T/tqzgVYqDfBj7DaAjjs/8A7KfmD14WqWuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aiZEOP6lyouuZp3Iei/Y8cwMnmlpFKN5Xf7OEyIm1zfz7FeB6nMAAvJ83qC3vjnl/
-         aKkgxsfmI8og6G8jpdvdM26g7e+ebT5VkLyHuloBSJn3h6glyEy/GnlS932dsQqqMe
-         85SMvueYiRDYUS0DmaE6j+UKZKdU5kTIiEDURvYI=
+        b=UvAAavH7mSafJB4pIj6FAcuAh7BHWaLSoJ1Ux3uSMpI/zRkyRwRPLrADTUz7ERZsb
+         m17vWpthamZkcQZ3MISS6GBOIMzM0xABIom9uT3aM64oqwhE3lbcJkX5WD2OV9MyIN
+         xR0Om9/w9gJtt2j6iEpbVM40gUGtWB/D8cac3ecw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 6.0 099/862] cpufreq: qcom-cpufreq-hw: Fix uninitialized throttled_freq warning
-Date:   Wed, 19 Oct 2022 10:23:06 +0200
-Message-Id: <20221019083254.293177390@linuxfoundation.org>
+        stable@vger.kernel.org, Jae Hoon Kim <kimjae@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 6.0 100/862] LoadPin: Fix Kconfig doc about format of file with verity digests
+Date:   Wed, 19 Oct 2022 10:23:07 +0200
+Message-Id: <20221019083254.328176929@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,52 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Matthias Kaehlcke <mka@chromium.org>
 
-commit 91dc90fdb8b8199519a3aac9c46a433b02223c5b upstream.
+commit aafc203bbad4bf6cf394a34ea698c2b0b8affae0 upstream.
 
-Commit 6240aaad75e1 was supposed to drop the reference count to the OPP,
-instead it avoided more stuff if the OPP isn't found. This isn't
-entirely correct. We already have a frequency value available, we just
-couldn't align it with an OPP in case of IS_ERR(opp).
+The doc for CONFIG_SECURITY_LOADPIN_VERITY says that the file with verity
+digests must contain a comma separated list of digests. That was the case
+at some stage of the development, but was changed during the review
+process to one digest per line. Update the Kconfig doc accordingly.
 
-Lets continue with updating thermal pressure, etc, even if we aren't
-able to find an OPP here.
-
-This fixes warning generated by the 'smatch' tool.
-
-Fixes: 6240aaad75e1 ("cpufreq: qcom-hw: fix the opp entries refcounting")
-Cc: v5.18+ <stable@vger.kernel.org> # v5.18+
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Reported-by: Jae Hoon Kim <kimjae@chromium.org>
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Fixes: 3f805f8cc23b ("LoadPin: Enable loading from trusted dm-verity devices")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220829174557.1.I5d202d1344212a3800d9828f936df6511eb2d0d1@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/qcom-cpufreq-hw.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ security/loadpin/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/cpufreq/qcom-cpufreq-hw.c
-+++ b/drivers/cpufreq/qcom-cpufreq-hw.c
-@@ -316,14 +316,14 @@ static void qcom_lmh_dcvs_notify(struct
- 	if (IS_ERR(opp)) {
- 		dev_warn(dev, "Can't find the OPP for throttling: %pe!\n", opp);
- 	} else {
--		throttled_freq = freq_hz / HZ_PER_KHZ;
--
--		/* Update thermal pressure (the boost frequencies are accepted) */
--		arch_update_thermal_pressure(policy->related_cpus, throttled_freq);
--
- 		dev_pm_opp_put(opp);
- 	}
- 
-+	throttled_freq = freq_hz / HZ_PER_KHZ;
-+
-+	/* Update thermal pressure (the boost frequencies are accepted) */
-+	arch_update_thermal_pressure(policy->related_cpus, throttled_freq);
-+
- 	/*
- 	 * In the unlikely case policy is unregistered do not enable
- 	 * polling or h/w interrupt
+--- a/security/loadpin/Kconfig
++++ b/security/loadpin/Kconfig
+@@ -33,4 +33,4 @@ config SECURITY_LOADPIN_VERITY
+ 	  on the LoadPin securityfs entry 'dm-verity'. The ioctl
+ 	  expects a file descriptor of a file with verity digests as
+ 	  parameter. The file must be located on the pinned root and
+-	  contain a comma separated list of digests.
++	  contain one digest per line.
 
 
