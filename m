@@ -2,66 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAE83605B82
-	for <lists+stable@lfdr.de>; Thu, 20 Oct 2022 11:50:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF3E3605E7A
+	for <lists+stable@lfdr.de>; Thu, 20 Oct 2022 13:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbiJTJuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Oct 2022 05:50:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46012 "EHLO
+        id S229616AbiJTLLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Oct 2022 07:11:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229718AbiJTJuC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 05:50:02 -0400
-Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B50E95600D;
-        Thu, 20 Oct 2022 02:49:54 -0700 (PDT)
-Received: from p57b7734d.dip0.t-ipconnect.de ([87.183.115.77] helo=phil.fritz.box)
-        by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <heiko@sntech.de>)
-        id 1olSBM-0005RY-FO; Thu, 20 Oct 2022 11:49:44 +0200
-From:   Heiko Stuebner <heiko@sntech.de>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Quentin Schulz <foss+kernel@0leil.net>
-Cc:     Heiko Stuebner <heiko@sntech.de>,
-        linux-rockchip@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>,
-        devicetree@vger.kernel.org,
-        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arm64: dts: rockchip: lower rk3399-puma-haikou SD controller clock frequency
-Date:   Thu, 20 Oct 2022 11:49:42 +0200
-Message-Id: <166625937155.645772.13090619800244842653.b4-ty@sntech.de>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221019-upstream-puma-sd-40mhz-v1-0-754a76421518@theobroma-systems.com>
-References: <20221019-upstream-puma-sd-40mhz-v1-0-754a76421518@theobroma-systems.com>
+        with ESMTP id S229454AbiJTLLB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 07:11:01 -0400
+X-Greylist: delayed 16874 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 20 Oct 2022 04:10:58 PDT
+Received: from bais.com.tw (60-249-164-131.hinet-ip.hinet.net [60.249.164.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632DB1D5543
+        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 04:10:58 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by bais.com.tw (Postfix) with ESMTP id 61D5858E80;
+        Thu, 20 Oct 2022 05:21:31 +0800 (CST)
+X-Virus-Scanned: Debian amavisd-new at mailsrv.ebais.com.tw
+Received: from bais.com.tw ([127.0.0.1])
+        by localhost (bais.com.tw [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id 7fT85z9o3UgP; Thu, 20 Oct 2022 05:21:22 +0800 (CST)
+Content-Type: text/plain; charset="iso-8859-1"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=bais.com.tw; s=mail;
+        t=1666150140; bh=UhCgquW4/pX67F69E87DKagCwwUEweIbb7MPTZSfOwI=;
+        h=Subject:To:From:Date:Reply-To:From;
+        b=xysIVeLU0z5Nv8Pz8Xr7s469D2ucggvC2kcKQ26C/APagO067aYfVJR0ly2Sw9dhh
+         grr5mZFjFhYYwLUFJq5ETgOq2c9Bkkr0xCtridPoVs+lCBSe5vLbjdYJ8nWaZVH/m+
+         NwY+GosMKBtpdA/NN5IshTjdD0mZmkIVXbMhwnM0=
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_PASS,
-        T_SPF_HELO_TEMPERROR autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: Attn:Please Read
+To:     Recipients <marsach@bais.com.tw>
+From:   "Money Help Finance Loan" <marsach@bais.com.tw>
+Date:   Tue, 18 Oct 2022 20:28:44 -0700
+Reply-To: nikkifenton770@gmail.com
+Message-Id: <20221019212131.61D5858E80@bais.com.tw>
+X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DATE_IN_PAST_12_24,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        FREEMAIL_FORGED_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,PDS_RDNS_DYNAMIC_FP,
+        RCVD_IN_MSPIKE_H2,RDNS_DYNAMIC,SPF_HELO_PASS,SPF_PASS,URIBL_BLOCKED
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 19 Oct 2022 16:27:27 +0200, Quentin Schulz wrote:
-> From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
-> 
-> From: Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
-> 
-> CRC errors (code -84 EILSEQ) have been observed for some SanDisk
-> Ultra A1 cards when running at 50MHz.
-> 
-> [...]
+Good Day To You
 
-Applied, thanks!
+I've viewed your profile on Linkedin regarding a proposal that has somethin=
+g in common with you, kindly reply back for more details on my private emai=
+l: nikkifenton770@gmail.com
 
-[1/1] arm64: dts: rockchip: lower rk3399-puma-haikou SD controller clock frequency
-      commit: 91e8b74fe6381e083f8aa55217bb0562785ab398
-
-Best regards,
--- 
-Heiko Stuebner <heiko@sntech.de>
+Thanks,
+Nikki Fenton,
+nikkifenton770@gmail.com
