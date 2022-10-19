@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28054603E74
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:16:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF803603D8B
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232888AbiJSJPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:15:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33074 "EHLO
+        id S229896AbiJSJEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:04:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232707AbiJSJNC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:13:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 503A4CA8A5;
-        Wed, 19 Oct 2022 02:03:19 -0700 (PDT)
+        with ESMTP id S232266AbiJSJDf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:03:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 861C498CB8;
+        Wed, 19 Oct 2022 01:56:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D3AE617F1;
-        Wed, 19 Oct 2022 08:54:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95FC2C433C1;
-        Wed, 19 Oct 2022 08:54:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C81961800;
+        Wed, 19 Oct 2022 08:54:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75409C433C1;
+        Wed, 19 Oct 2022 08:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169676;
-        bh=a9QnuAj57d0g4YM0AcqhAV4WtYyzOmeBc0b2HC4WlRs=;
+        s=korg; t=1666169684;
+        bh=YmcAU6rlaJOa5yQk68KkohmAuWA7PzhhSpF2Ftv3GYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lunRCWzLYVB2vT0runN1HkG0XOkFa7cLhfkdN3VT7ZkNrNjPEecNhuWMEcdjXcHwt
-         eweu3aPiYJBrrJ3lbnaubLu+iGth2Z3WN+gchiOfLpfsz1R377lj1HUhd45h4BzXBt
-         xK3eeaJzHDluXM2v1DJtd/WPllGdmZIKTzxWjXFc=
+        b=u15ubYZAzC3lWWsVA85Hur+wQcIS/dho1mD0CZtOTOULAnHpuzKMDZwGPqtnQDZuC
+         QBg0I4epZN2wy6TUmSqAJVZN8IyFkwkWYe2lYiQ6dzrV1QNCEmSNRK/bQNM8ychF/C
+         EFvXROILnPG/GIIr+n//Vc7/dWhSuG4r68dywuWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 366/862] drm/virtio: Fix same-context optimization
-Date:   Wed, 19 Oct 2022 10:27:33 +0200
-Message-Id: <20221019083306.183088706@linuxfoundation.org>
+Subject: [PATCH 6.0 368/862] ASoC: tas2764: Allow mono streams
+Date:   Wed, 19 Oct 2022 10:27:35 +0200
+Message-Id: <20221019083306.258711059@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,36 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit 3007dc2af6e86ac00b4daf7414142637fdf50bfa ]
+[ Upstream commit 23204d928a27146d13e11c9383632775345ecca8 ]
 
-When VIRTGPU_EXECBUF_RING_IDX is used, we should be considering the
-timeline that the EB if running on rather than the global driver fence
-context.
+The part is a mono speaker amp, but it can do downmix and switch between
+left and right channel, so the right channel range is 1 to 2.
 
-Fixes: 85c83ea915ed ("drm/virtio: implement context init: allocate an array of fence contexts")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220812224001.2806463-1-robdclark@gmail.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+(This mirrors commit bf54d97a835d ("ASoC: tas2770: Allow mono streams")
+which was a fix to the tas2770 driver.)
+
+Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20220825140241.53963-2-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 2 +-
+ sound/soc/codecs/tas2764.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 9b2702116f93..3b1701607aae 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -168,7 +168,7 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 		 * array contains any fence from a foreign context.
- 		 */
- 		ret = 0;
--		if (!dma_fence_match_context(in_fence, vgdev->fence_drv.context))
-+		if (!dma_fence_match_context(in_fence, fence_ctx + ring_idx))
- 			ret = dma_fence_wait(in_fence, true);
- 
- 		dma_fence_put(in_fence);
+diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
+index 846d9d3ecc9d..0df5d975c3c9 100644
+--- a/sound/soc/codecs/tas2764.c
++++ b/sound/soc/codecs/tas2764.c
+@@ -485,7 +485,7 @@ static struct snd_soc_dai_driver tas2764_dai_driver[] = {
+ 		.id = 0,
+ 		.playback = {
+ 			.stream_name    = "ASI1 Playback",
+-			.channels_min   = 2,
++			.channels_min   = 1,
+ 			.channels_max   = 2,
+ 			.rates      = TAS2764_RATES,
+ 			.formats    = TAS2764_FORMATS,
 -- 
 2.35.1
 
