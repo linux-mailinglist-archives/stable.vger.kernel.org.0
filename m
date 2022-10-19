@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2BE4604299
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:08:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92E006041E6
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233475AbiJSLH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:07:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32902 "EHLO
+        id S233701AbiJSKuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:50:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232316AbiJSLHZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:07:25 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9981C176533;
-        Wed, 19 Oct 2022 03:36:14 -0700 (PDT)
+        with ESMTP id S234519AbiJSKtX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:49:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17D07149DCF;
+        Wed, 19 Oct 2022 03:22:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2E4CCCE21B5;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98C04B824BA;
+        Wed, 19 Oct 2022 09:11:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9C4FC433C1;
         Wed, 19 Oct 2022 09:11:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EB3EC433D6;
-        Wed, 19 Oct 2022 09:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170711;
-        bh=92eQYMkXiqh2tRjqU7wqolS9xclS+SWR5TXgeWI09vw=;
+        s=korg; t=1666170714;
+        bh=5aAshN+FiXLo+cw/dQPsDHOuHlVtKNPBBkoCEdY0WK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wjkqqDX8PXNsjHC3svv8D21Ru4ZL0s62HyXsIAIQ93Q9jWt+qjGqwi1O0aVtQwud2
-         vUmQBfzOhmQVwcPvX4CZ0iEbSFvCJdL+QpmdgymreADyrvaHApHEjF1oI5aiZAcZUD
-         9pyJeUf3+aBy2jhBgJfQ8KF8yc9XqiyMqm+wrUWA=
+        b=Is6fg+Nx9m01jfCmzGnMKVdXkmzSQHUYYL8cHAnl++DQ8pOP3QC1OTt3BbjeD74AR
+         d4d4T7EX8kH6AK3zHuo9rhxTAVhF9jv0WrtT2tadYV99bVSON+S1HvXFdon6k6/X32
+         FSCNsMk7ffwIgneZtGPO0Jy9YajbKS26UgVv4np0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian S <iam@decentr.al>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Travis Glenn Hansen <travisghansen@yahoo.com>
-Subject: [PATCH 6.0 759/862] ASoC: amd: yc: Add Lenovo Yoga Slim 7 Pro X to quirks table
-Date:   Wed, 19 Oct 2022 10:34:06 +0200
-Message-Id: <20221019083323.444904947@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Adri=C3=A1n=20Larumbe?= <adrian.larumbe@collabora.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 760/862] drm/meson: reorder driver deinit sequence to fix use-after-free bug
+Date:   Wed, 19 Oct 2022 10:34:07 +0200
+Message-Id: <20221019083323.493107831@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,43 +54,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Adrián Larumbe <adrian.larumbe@collabora.com>
 
-[ Upstream commit 2232b2dd8cd4f1e6d554b2c3f6899ce36f791b67 ]
+[ Upstream commit 31c519981eb141c7ec39bfd5be25d35f02edb868 ]
 
-Lenovo Yoga Slim 7 Pro X has an ACP DMIC that isn't specified in the
-ASL or existing quirk list.  Add it to the quirk table to let DMIC
-work on these systems.
+Unloading the driver triggers the following KASAN warning:
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216299
-Tested-by: Sebastian S <iam@decentr.al>
-Reported-and-tested-by: Travis Glenn Hansen <travisghansen@yahoo.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://lore.kernel.org/r/20220920201436.19734-3-mario.limonciello@amd.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[  +0.006275] =============================================================
+[  +0.000029] BUG: KASAN: use-after-free in __list_del_entry_valid+0xe0/0x1a0
+[  +0.000026] Read of size 8 at addr ffff000020c395e0 by task rmmod/2695
+
+[  +0.000019] CPU: 5 PID: 2695 Comm: rmmod Tainted: G         C O      5.19.0-rc6-lrmbkasan+ #1
+[  +0.000013] Hardware name: Hardkernel ODROID-N2Plus (DT)
+[  +0.000008] Call trace:
+[  +0.000007]  dump_backtrace+0x1ec/0x280
+[  +0.000013]  show_stack+0x24/0x80
+[  +0.000008]  dump_stack_lvl+0x98/0xd4
+[  +0.000011]  print_address_description.constprop.0+0x80/0x520
+[  +0.000011]  print_report+0x128/0x260
+[  +0.000007]  kasan_report+0xb8/0xfc
+[  +0.000008]  __asan_report_load8_noabort+0x3c/0x50
+[  +0.000010]  __list_del_entry_valid+0xe0/0x1a0
+[  +0.000009]  drm_atomic_private_obj_fini+0x30/0x200 [drm]
+[  +0.000172]  drm_bridge_detach+0x94/0x260 [drm]
+[  +0.000145]  drm_encoder_cleanup+0xa4/0x290 [drm]
+[  +0.000144]  drm_mode_config_cleanup+0x118/0x740 [drm]
+[  +0.000143]  drm_mode_config_init_release+0x1c/0x2c [drm]
+[  +0.000144]  drm_managed_release+0x170/0x414 [drm]
+[  +0.000142]  drm_dev_put.part.0+0xc0/0x124 [drm]
+[  +0.000143]  drm_dev_put+0x20/0x30 [drm]
+[  +0.000142]  meson_drv_unbind+0x1d8/0x2ac [meson_drm]
+[  +0.000028]  take_down_aggregate_device+0xb0/0x160
+[  +0.000016]  component_del+0x18c/0x360
+[  +0.000009]  meson_dw_hdmi_remove+0x28/0x40 [meson_dw_hdmi]
+[  +0.000015]  platform_remove+0x64/0xb0
+[  +0.000009]  device_remove+0xb8/0x154
+[  +0.000009]  device_release_driver_internal+0x398/0x5b0
+[  +0.000009]  driver_detach+0xac/0x1b0
+[  +0.000009]  bus_remove_driver+0x158/0x29c
+[  +0.000009]  driver_unregister+0x70/0xb0
+[  +0.000008]  platform_driver_unregister+0x20/0x2c
+[  +0.000008]  meson_dw_hdmi_platform_driver_exit+0x1c/0x30 [meson_dw_hdmi]
+[  +0.000012]  __do_sys_delete_module+0x288/0x400
+[  +0.000011]  __arm64_sys_delete_module+0x5c/0x80
+[  +0.000009]  invoke_syscall+0x74/0x260
+[  +0.000009]  el0_svc_common.constprop.0+0xcc/0x260
+[  +0.000009]  do_el0_svc+0x50/0x70
+[  +0.000007]  el0_svc+0x68/0x1a0
+[  +0.000012]  el0t_64_sync_handler+0x11c/0x150
+[  +0.000008]  el0t_64_sync+0x18c/0x190
+
+[  +0.000018] Allocated by task 0:
+[  +0.000007] (stack is not available)
+
+[  +0.000011] Freed by task 2695:
+[  +0.000008]  kasan_save_stack+0x2c/0x5c
+[  +0.000011]  kasan_set_track+0x2c/0x40
+[  +0.000008]  kasan_set_free_info+0x28/0x50
+[  +0.000009]  ____kasan_slab_free+0x128/0x1d4
+[  +0.000008]  __kasan_slab_free+0x18/0x24
+[  +0.000007]  slab_free_freelist_hook+0x108/0x230
+[  +0.000011]  kfree+0x110/0x35c
+[  +0.000008]  release_nodes+0xf0/0x16c
+[  +0.000009]  devres_release_group+0x180/0x270
+[  +0.000008]  component_unbind+0x128/0x1e0
+[  +0.000010]  component_unbind_all+0x1b8/0x264
+[  +0.000009]  meson_drv_unbind+0x1a0/0x2ac [meson_drm]
+[  +0.000025]  take_down_aggregate_device+0xb0/0x160
+[  +0.000009]  component_del+0x18c/0x360
+[  +0.000009]  meson_dw_hdmi_remove+0x28/0x40 [meson_dw_hdmi]
+[  +0.000012]  platform_remove+0x64/0xb0
+[  +0.000008]  device_remove+0xb8/0x154
+[  +0.000009]  device_release_driver_internal+0x398/0x5b0
+[  +0.000009]  driver_detach+0xac/0x1b0
+[  +0.000009]  bus_remove_driver+0x158/0x29c
+[  +0.000008]  driver_unregister+0x70/0xb0
+[  +0.000008]  platform_driver_unregister+0x20/0x2c
+[  +0.000008]  meson_dw_hdmi_platform_driver_exit+0x1c/0x30 [meson_dw_hdmi]
+[  +0.000011]  __do_sys_delete_module+0x288/0x400
+[  +0.000010]  __arm64_sys_delete_module+0x5c/0x80
+[  +0.000008]  invoke_syscall+0x74/0x260
+[  +0.000008]  el0_svc_common.constprop.0+0xcc/0x260
+[  +0.000008]  do_el0_svc+0x50/0x70
+[  +0.000007]  el0_svc+0x68/0x1a0
+[  +0.000009]  el0t_64_sync_handler+0x11c/0x150
+[  +0.000009]  el0t_64_sync+0x18c/0x190
+
+[  +0.000014] The buggy address belongs to the object at ffff000020c39000
+               which belongs to the cache kmalloc-4k of size 4096
+[  +0.000008] The buggy address is located 1504 bytes inside of
+               4096-byte region [ffff000020c39000, ffff000020c3a000)
+
+[  +0.000016] The buggy address belongs to the physical page:
+[  +0.000009] page:fffffc0000830e00 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x20c38
+[  +0.000013] head:fffffc0000830e00 order:3 compound_mapcount:0 compound_pincount:0
+[  +0.000008] flags: 0xffff00000010200(slab|head|node=0|zone=0|lastcpupid=0xffff)
+[  +0.000019] raw: 0ffff00000010200 fffffc0000fd4808 fffffc0000126208 ffff000000002e80
+[  +0.000009] raw: 0000000000000000 0000000000020002 00000001ffffffff 0000000000000000
+[  +0.000008] page dumped because: kasan: bad access detected
+
+[  +0.000011] Memory state around the buggy address:
+[  +0.000008]  ffff000020c39480: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  +0.000007]  ffff000020c39500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  +0.000007] >ffff000020c39580: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  +0.000007]                                                        ^
+[  +0.000007]  ffff000020c39600: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  +0.000007]  ffff000020c39680: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  +0.000006] ==================================================================
+
+The reason this is happening is unloading meson-dw-hdmi will cause the
+component API to take down the aggregate device, which in turn will cause
+all devres-managed memory to be freed, including the struct dw_hdmi
+allocated in dw_hdmi_probe. This struct embeds a struct drm_bridge that is
+added at the end of the function, and which is later on picked up in
+meson_encoder_hdmi_init.
+
+However, when attaching the bridge to the encoder created in
+meson_encoder_hdmi_init, it's linked to the encoder's bridge chain, from
+where it never leaves, even after devres_release_group is called when the
+driver's components are unbound and the embedding structure freed.
+
+Then, when calling drm_dev_put in the aggregate driver's unbind function,
+drm_bridge_detach is called for every single bridge linked to the encoder,
+including the one whose memory had already been deallocated.
+
+Fix by calling component_unbind_all after drm_dev_put.
+
+Signed-off-by: Adrián Larumbe <adrian.larumbe@collabora.com>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220919010940.419893-2-adrian.larumbe@collabora.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/yc/acp6x-mach.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/meson/meson_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
-index 5eab3baf3573..2cb50d5cf1a9 100644
---- a/sound/soc/amd/yc/acp6x-mach.c
-+++ b/sound/soc/amd/yc/acp6x-mach.c
-@@ -171,6 +171,13 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21J6"),
- 		}
- 	},
-+	{
-+		.driver_data = &acp6x_card,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "82"),
-+		}
-+	},
- 	{
- 		.driver_data = &acp6x_card,
- 		.matches = {
+diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
+index bd4ca11d3ff5..7df149d42728 100644
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -388,9 +388,9 @@ static void meson_drv_unbind(struct device *dev)
+ 	drm_dev_unregister(drm);
+ 	drm_kms_helper_poll_fini(drm);
+ 	drm_atomic_helper_shutdown(drm);
+-	component_unbind_all(dev, drm);
+ 	free_irq(priv->vsync_irq, drm);
+ 	drm_dev_put(drm);
++	component_unbind_all(dev, drm);
+ 
+ 	if (priv->afbcd.ops)
+ 		priv->afbcd.ops->exit(priv);
 -- 
 2.35.1
 
