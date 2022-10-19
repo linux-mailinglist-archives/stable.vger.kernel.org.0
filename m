@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AEED603F63
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0699603ED6
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233705AbiJSJbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:31:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45408 "EHLO
+        id S233430AbiJSJVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:21:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233783AbiJSJ30 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A98EB754;
-        Wed, 19 Oct 2022 02:13:01 -0700 (PDT)
+        with ESMTP id S233715AbiJSJT6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:19:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22A70CFB;
+        Wed, 19 Oct 2022 02:09:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A5BC617D6;
-        Wed, 19 Oct 2022 09:01:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EDECC433D7;
-        Wed, 19 Oct 2022 09:01:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 948F6617DE;
+        Wed, 19 Oct 2022 09:01:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A69ACC433D6;
+        Wed, 19 Oct 2022 09:01:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170072;
-        bh=sZH1AfOZE2dYsZSEtdB7yfve1BZph91UMlLwjQ5Fm+g=;
+        s=korg; t=1666170078;
+        bh=Gor8ma1Y1JlT4Q8d2TK31fIyEysqMQqMhBeWnc8gzp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sHjNkpa6e5a0u+HJDm5tRpflfcZ+lpB8yBISLUjPU7pSrz+79ZPn853nxRTiocPO+
-         nWDknSZJbbyu6sULJAdTxS6Gnhw5NiSic0EsuPySdABJfgZffXU3ioEtMtwpM/4wWC
-         sUf439e3a2017o8oNbXvdHxHPxwXettmXM6Fgsrw=
+        b=Do2Yej9Go8Yb9vetJKhI6o078LI6hq+OcMKip6+CSeJqMJRc5MR0nIVPT66hfBHP3
+         eDw6Hs3JuSgavQ0UzMZpbpMHIwuxzypg4JDjO0iWbqc8P0TvQUOmYm/QfL/N6zDoWk
+         1uz50f6FIjynpxK9y7DtA740vqRFDpU2A/yEv5gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Baron <jbaron@akamai.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jim Cromie <jim.cromie@gmail.com>,
+        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
+        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 515/862] dyndbg: let query-modname override actual module name
-Date:   Wed, 19 Oct 2022 10:30:02 +0200
-Message-Id: <20221019083312.742710490@linuxfoundation.org>
+Subject: [PATCH 6.0 517/862] sbitmap: Avoid leaving waitqueue in invalid state in __sbq_wake_up()
+Date:   Wed, 19 Oct 2022 10:30:04 +0200
+Message-Id: <20221019083312.840347737@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,78 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Cromie <jim.cromie@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit e75ef56f74965f426dd819a41336b640ffdd8fbc ]
+[ Upstream commit 48c033314f372478548203c583529f53080fd078 ]
 
-dyndbg's control-parser: ddebug_parse_query(), requires that search
-terms: module, func, file, lineno, are used only once in a query; a
-thing cannot be named both foo and bar.
+When __sbq_wake_up() decrements wait_cnt to 0 but races with someone
+else waking the waiter on the waitqueue (so the waitqueue becomes
+empty), it exits without reseting wait_cnt to wake_batch number. Once
+wait_cnt is 0, nobody will ever reset the wait_cnt or wake the new
+waiters resulting in possible deadlocks or busyloops. Fix the problem by
+making sure we reset wait_cnt even if we didn't wake up anybody in the
+end.
 
-The cited commit added an overriding module modname, taken from the
-module loader, which is authoritative.  So it set query.module 1st,
-which disallowed its use in the query-string.
-
-But now, its useful to allow a module-load to enable classes across a
-whole (or part of) a subsystem at once.
-
-  # enable (dynamic-debug in) drm only
-  modprobe drm dyndbg="class DRM_UT_CORE +p"
-
-  # get drm_helper too
-  modprobe drm dyndbg="class DRM_UT_CORE module drm* +p"
-
-  # get everything that knows DRM_UT_CORE
-  modprobe drm dyndbg="class DRM_UT_CORE module * +p"
-
-  # also for boot-args:
-  drm.dyndbg="class DRM_UT_CORE module * +p"
-
-So convert the override into a default, by filling it only when/after
-the query-string omitted the module.
-
-NB: the query class FOO handling is forthcoming.
-
-Fixes: 8e59b5cfb9a6 dynamic_debug: add modname arg to exec_query callchain
-Acked-by: Jason Baron <jbaron@akamai.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
-Link: https://lore.kernel.org/r/20220904214134.408619-8-jim.cromie@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 040b83fcecfb ("sbitmap: fix possible io hung due to lost wakeup")
+Reported-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220908130937.2795-1-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/dynamic_debug.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ lib/sbitmap.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
-index a56c1286ffa4..4d168efcf779 100644
---- a/lib/dynamic_debug.c
-+++ b/lib/dynamic_debug.c
-@@ -384,10 +384,6 @@ static int ddebug_parse_query(char *words[], int nwords,
- 		return -EINVAL;
- 	}
+diff --git a/lib/sbitmap.c b/lib/sbitmap.c
+index 1f31147872e6..bb1970ad4875 100644
+--- a/lib/sbitmap.c
++++ b/lib/sbitmap.c
+@@ -605,6 +605,7 @@ static bool __sbq_wake_up(struct sbitmap_queue *sbq)
+ 	struct sbq_wait_state *ws;
+ 	unsigned int wake_batch;
+ 	int wait_cnt;
++	bool ret;
  
--	if (modname)
--		/* support $modname.dyndbg=<multiple queries> */
--		query->module = modname;
--
- 	for (i = 0; i < nwords; i += 2) {
- 		char *keyword = words[i];
- 		char *arg = words[i+1];
-@@ -428,6 +424,13 @@ static int ddebug_parse_query(char *words[], int nwords,
- 		if (rc)
- 			return rc;
- 	}
-+	if (!query->module && modname)
-+		/*
-+		 * support $modname.dyndbg=<multiple queries>, when
-+		 * not given in the query itself
-+		 */
-+		query->module = modname;
-+
- 	vpr_info_dq(query, "parsed");
- 	return 0;
+ 	ws = sbq_wake_ptr(sbq);
+ 	if (!ws)
+@@ -615,12 +616,23 @@ static bool __sbq_wake_up(struct sbitmap_queue *sbq)
+ 	 * For concurrent callers of this, callers should call this function
+ 	 * again to wakeup a new batch on a different 'ws'.
+ 	 */
+-	if (wait_cnt < 0 || !waitqueue_active(&ws->wait))
++	if (wait_cnt < 0)
+ 		return true;
+ 
++	/*
++	 * If we decremented queue without waiters, retry to avoid lost
++	 * wakeups.
++	 */
+ 	if (wait_cnt > 0)
+-		return false;
++		return !waitqueue_active(&ws->wait);
+ 
++	/*
++	 * When wait_cnt == 0, we have to be particularly careful as we are
++	 * responsible to reset wait_cnt regardless whether we've actually
++	 * woken up anybody. But in case we didn't wakeup anybody, we still
++	 * need to retry.
++	 */
++	ret = !waitqueue_active(&ws->wait);
+ 	wake_batch = READ_ONCE(sbq->wake_batch);
+ 
+ 	/*
+@@ -649,7 +661,7 @@ static bool __sbq_wake_up(struct sbitmap_queue *sbq)
+ 	sbq_index_atomic_inc(&sbq->wake_index);
+ 	atomic_set(&ws->wait_cnt, wake_batch);
+ 
+-	return false;
++	return ret;
  }
+ 
+ void sbitmap_queue_wake_up(struct sbitmap_queue *sbq)
 -- 
 2.35.1
 
