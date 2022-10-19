@@ -2,49 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6990F603DAB
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E208603D99
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232343AbiJSJFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:05:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34954 "EHLO
+        id S232177AbiJSJFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:05:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232611AbiJSJEo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:44 -0400
+        with ESMTP id S232445AbiJSJER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA62EE28;
-        Wed, 19 Oct 2022 01:58:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2871AC3A8;
+        Wed, 19 Oct 2022 01:57:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8A076174B;
-        Wed, 19 Oct 2022 08:56:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63C7C433C1;
-        Wed, 19 Oct 2022 08:56:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1C9761840;
+        Wed, 19 Oct 2022 08:55:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFBABC433D6;
+        Wed, 19 Oct 2022 08:55:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169808;
-        bh=nm6Fk68lTXLToM7w7rO0akGlkXWx4flW07EYl2/lIzY=;
+        s=korg; t=1666169748;
+        bh=BUoZSVtnJYKGm7Y4/4qkfKMhQWKbZhy/Miz88YbtnhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1IL9dqqiM9wCKopoehh9+4J8UF0ofA0Eg1wwR08q/TOLxzIKwjhqBbS5zPoxBXPZU
-         qazA73ea6TW0aXyl+qRVofoKEiadnDeO19o7oU9RxyGGsFALignDTYwEoxt11EeAwZ
-         lgJEL7mJaYUuU7RQVRcG7OnWHcY2tjHxRx/3A+Lg=
+        b=pu1KDnagm5Y+OLIB9G6lmDOL99vSlRYRQK/iQDqsh03mztqwu0zFsrFd2QX/oiucd
+         /EMVy9YWXu2rgrit9NS6yAKrOJvw0J6mx4D41kVULQVmJ6vOGSHYPsg3dk6TNnaCeV
+         NsOTSQlPVMepoyXKF7abCC16/blKyhs6isBw+7sI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Dillon Min <dillon.minfei@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        dri-devel@lists.freedesktop.org, David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
+        stable@vger.kernel.org, Prashant Malani <pmalani@chromium.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 374/862] drm: fix drm_mipi_dbi build errors
-Date:   Wed, 19 Oct 2022 10:27:41 +0200
-Message-Id: <20221019083306.505648663@linuxfoundation.org>
+Subject: [PATCH 6.0 376/862] platform/chrome: cros_ec_typec: Correct alt mode index
+Date:   Wed, 19 Oct 2022 10:27:43 +0200
+Message-Id: <20221019083306.598780576@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -61,60 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Prashant Malani <pmalani@chromium.org>
 
-[ Upstream commit eb7de496451bd969e203f02f66585131228ba4ae ]
+[ Upstream commit 4e477663e396f48c5cfc5f2d75d4b514f409516a ]
 
-drm_mipi_dbi needs lots of DRM_KMS_HELPER support, so select
-that Kconfig symbol like it is done is most other uses, and
-the way that it was before MIPS_DBI was moved from tinydrm
-to its core location.
+Alt mode indices used by USB PD (Power Delivery) start with 1, not 0.
 
-Fixes these build errors:
+Update the alt mdoe registration code to factor this in to the alt mode
+descriptor.
 
-ld: drivers/gpu/drm/drm_mipi_dbi.o: in function `mipi_dbi_buf_copy':
-drivers/gpu/drm/drm_mipi_dbi.c:205: undefined reference to `drm_gem_fb_get_obj'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:211: undefined reference to `drm_gem_fb_begin_cpu_access'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:215: undefined reference to `drm_gem_fb_vmap'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:222: undefined reference to `drm_fb_swab'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:224: undefined reference to `drm_fb_memcpy'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:227: undefined reference to `drm_fb_xrgb8888_to_rgb565'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:235: undefined reference to `drm_gem_fb_vunmap'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:237: undefined reference to `drm_gem_fb_end_cpu_access'
-ld: drivers/gpu/drm/drm_mipi_dbi.o: in function `mipi_dbi_dev_init_with_formats':
-ld: drivers/gpu/drm/drm_mipi_dbi.o:/X64/../drivers/gpu/drm/drm_mipi_dbi.c:469: undefined reference to `drm_gem_fb_create_with_dirty'
-
-Fixes: 174102f4de23 ("drm/tinydrm: Move mipi-dbi")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Dillon Min <dillon.minfei@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Noralf Trønnes <noralf@tronnes.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Thierry Reding <thierry.reding@gmail.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220823004243.11596-1-rdunlap@infradead.org
+Fixes: de0f49487db3 ("platform/chrome: cros_ec_typec: Register partner altmodes")
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
+Link: https://lore.kernel.org/r/20220819190807.1275937-3-pmalani@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/chrome/cros_ec_typec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-index 6c2256e8474b..679ad054ea4b 100644
---- a/drivers/gpu/drm/Kconfig
-+++ b/drivers/gpu/drm/Kconfig
-@@ -31,6 +31,7 @@ menuconfig DRM
- config DRM_MIPI_DBI
- 	tristate
- 	depends on DRM
-+	select DRM_KMS_HELPER
+diff --git a/drivers/platform/chrome/cros_ec_typec.c b/drivers/platform/chrome/cros_ec_typec.c
+index 4d81d8d45b73..dc5722db2066 100644
+--- a/drivers/platform/chrome/cros_ec_typec.c
++++ b/drivers/platform/chrome/cros_ec_typec.c
+@@ -698,7 +698,7 @@ static int cros_typec_register_altmodes(struct cros_typec_data *typec, int port_
+ 		for (j = 0; j < sop_disc->svids[i].mode_count; j++) {
+ 			memset(&desc, 0, sizeof(desc));
+ 			desc.svid = sop_disc->svids[i].svid;
+-			desc.mode = j;
++			desc.mode = j + 1;
+ 			desc.vdo = sop_disc->svids[i].mode_vdo[j];
  
- config DRM_MIPI_DSI
- 	bool
+ 			if (is_partner)
 -- 
 2.35.1
 
