@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9AF3603BC1
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:39:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5CAD603BCA
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:39:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230290AbiJSIjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:39:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54630 "EHLO
+        id S230370AbiJSIj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:39:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230073AbiJSIiv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:38:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7829E7E800;
-        Wed, 19 Oct 2022 01:38:23 -0700 (PDT)
+        with ESMTP id S230325AbiJSIi4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:38:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC8897E31B;
+        Wed, 19 Oct 2022 01:38:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BAC5F617E8;
-        Wed, 19 Oct 2022 08:37:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE86EC433D7;
-        Wed, 19 Oct 2022 08:37:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 365F2617D7;
+        Wed, 19 Oct 2022 08:38:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28C1BC433D7;
+        Wed, 19 Oct 2022 08:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168679;
-        bh=1aSnAgEIxoUXRJjkP+ugGfCVPi0FykL8XuZGEY3ono4=;
+        s=korg; t=1666168685;
+        bh=++2qBMI08ax4Oz0qKL+h8G0hyr/3cH6JH8Jq+qo8nao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=At8c1W+oRhwnBJUueo9CScyrJSuIilfX+gTZTbmG/bjV0tog7++hdqIV1ucXXph7Y
-         MloS5sr4lGhkwEfLy868s00ImwUl/YW6DDuFg4QspUOFib7KW/HevOjozKmQYV50HF
-         H7ReVvfMU1Xpp2BypID5LFgjfD0AwhFYIK8N1F28=
+        b=qgMLAa/q1kjUQPP3TfE0umzY/r4pODjBQ+9CNX8SAMpJRqvcOrSDNrpxIHlQesgFh
+         psoo8pNgoJXjKY8Q88MgNsvABiT8p+JGOm3Og7qts3u2GrrcSpjS5GqPC/H5JDgiGz
+         8JjcUgDmGmbMvhvooZwFkr+/22B2sJDpLBZ1sfEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        David Bouman <dbouman03@gmail.com>
-Subject: [PATCH 6.0 019/862] io_uring/af_unix: defer registered files gc to io_uring release
-Date:   Wed, 19 Oct 2022 10:21:46 +0200
-Message-Id: <20221019083250.847689386@linuxfoundation.org>
+        stable@vger.kernel.org, Stable@vger.kernel.org,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.0 020/862] io_uring: correct pinned_vm accounting
+Date:   Wed, 19 Oct 2022 10:21:47 +0200
+Message-Id: <20221019083250.895836622@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,97 +55,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 0091bfc81741b8d3aeb3b7ab8636f911b2de6e80 upstream.
+commit 42b6419d0aba47c5d8644cdc0b68502254671de5 upstream.
 
-Instead of putting io_uring's registered files in unix_gc() we want it
-to be done by io_uring itself. The trick here is to consider io_uring
-registered files for cycle detection but not actually putting them down.
-Because io_uring can't register other ring instances, this will remove
-all refs to the ring file triggering the ->release path and clean up
-with io_ring_ctx_free().
+->mm_account should be released only after we free all registered
+buffers, otherwise __io_sqe_buffers_unregister() will see a NULL
+->mm_account and skip locked_vm accounting.
 
-Cc: stable@vger.kernel.org
-Fixes: 6b06314c47e1 ("io_uring: add file set registration")
-Reported-and-tested-by: David Bouman <dbouman03@gmail.com>
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-[axboe: add kerneldoc comment to skb, fold in skb leak fix]
+Link: https://lore.kernel.org/r/6d798f65ed4ab8db3664c4d3397d4af16ca98846.1664849932.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h |    2 ++
- io_uring/rsrc.c        |    1 +
- net/unix/garbage.c     |   20 ++++++++++++++++++++
- 3 files changed, 23 insertions(+)
+ io_uring/io_uring.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -796,6 +796,7 @@ typedef unsigned char *sk_buff_data_t;
-  *	@csum_level: indicates the number of consecutive checksums found in
-  *		the packet minus one that have been verified as
-  *		CHECKSUM_UNNECESSARY (max 3)
-+ *	@scm_io_uring: SKB holds io_uring registered files
-  *	@dst_pending_confirm: need to confirm neighbour
-  *	@decrypted: Decrypted SKB
-  *	@slow_gro: state present at GRO time, slower prepare step required
-@@ -975,6 +976,7 @@ struct sk_buff {
- #endif
- 	__u8			slow_gro:1;
- 	__u8			csum_not_inet:1;
-+	__u8			scm_io_uring:1;
- 
- #ifdef CONFIG_NET_SCHED
- 	__u16			tc_index;	/* traffic control index */
---- a/io_uring/rsrc.c
-+++ b/io_uring/rsrc.c
-@@ -855,6 +855,7 @@ int __io_scm_file_account(struct io_ring
- 
- 		UNIXCB(skb).fp = fpl;
- 		skb->sk = sk;
-+		skb->scm_io_uring = 1;
- 		skb->destructor = unix_destruct_scm;
- 		refcount_add(skb->truesize, &sk->sk_wmem_alloc);
- 	}
---- a/net/unix/garbage.c
-+++ b/net/unix/garbage.c
-@@ -204,6 +204,7 @@ void wait_for_unix_gc(void)
- /* The external entry point: unix_gc() */
- void unix_gc(void)
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -2422,12 +2422,6 @@ static void io_req_caches_free(struct io
+ static __cold void io_ring_ctx_free(struct io_ring_ctx *ctx)
  {
-+	struct sk_buff *next_skb, *skb;
- 	struct unix_sock *u;
- 	struct unix_sock *next;
- 	struct sk_buff_head hitlist;
-@@ -297,11 +298,30 @@ void unix_gc(void)
+ 	io_sq_thread_finish(ctx);
+-
+-	if (ctx->mm_account) {
+-		mmdrop(ctx->mm_account);
+-		ctx->mm_account = NULL;
+-	}
+-
+ 	io_rsrc_refs_drop(ctx);
+ 	/* __io_rsrc_put_work() may need uring_lock to progress, wait w/o it */
+ 	io_wait_rsrc_data(ctx->buf_data);
+@@ -2470,6 +2464,10 @@ static __cold void io_ring_ctx_free(stru
+ 	WARN_ON_ONCE(!list_empty(&ctx->ltimeout_list));
+ 	WARN_ON_ONCE(ctx->notif_slots || ctx->nr_notif_slots);
  
- 	spin_unlock(&unix_gc_lock);
- 
-+	/* We need io_uring to clean its registered files, ignore all io_uring
-+	 * originated skbs. It's fine as io_uring doesn't keep references to
-+	 * other io_uring instances and so killing all other files in the cycle
-+	 * will put all io_uring references forcing it to go through normal
-+	 * release.path eventually putting registered files.
-+	 */
-+	skb_queue_walk_safe(&hitlist, skb, next_skb) {
-+		if (skb->scm_io_uring) {
-+			__skb_unlink(skb, &hitlist);
-+			skb_queue_tail(&skb->sk->sk_receive_queue, skb);
-+		}
++	if (ctx->mm_account) {
++		mmdrop(ctx->mm_account);
++		ctx->mm_account = NULL;
 +	}
-+
- 	/* Here we are. Hitlist is filled. Die. */
- 	__skb_queue_purge(&hitlist);
- 
- 	spin_lock(&unix_gc_lock);
- 
-+	/* There could be io_uring registered files, just push them back to
-+	 * the inflight list
-+	 */
-+	list_for_each_entry_safe(u, next, &gc_candidates, link)
-+		list_move_tail(&u->link, &gc_inflight_list);
-+
- 	/* All candidates should have been detached by now. */
- 	BUG_ON(!list_empty(&gc_candidates));
+ 	io_mem_free(ctx->rings);
+ 	io_mem_free(ctx->sq_sqes);
  
 
 
