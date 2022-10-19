@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44DEC604014
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3949604020
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234261AbiJSJnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:43:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33184 "EHLO
+        id S234039AbiJSJmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:42:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234890AbiJSJls (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:41:48 -0400
+        with ESMTP id S234447AbiJSJk1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:40:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A9AEF5CF4;
-        Wed, 19 Oct 2022 02:18:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A44F9B03E5;
+        Wed, 19 Oct 2022 02:16:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5B4161807;
-        Wed, 19 Oct 2022 09:15:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D605CC433D6;
-        Wed, 19 Oct 2022 09:15:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A418761803;
+        Wed, 19 Oct 2022 09:15:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F308C433D6;
+        Wed, 19 Oct 2022 09:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170924;
-        bh=5aitl3GEqiPMweqkIwJxZlH7zJawy7W/BWV5r8LclIQ=;
+        s=korg; t=1666170927;
+        bh=B/vyKcBqRXueM8on2fTuH4rYzLenjFoS2xDfiFPjq0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uO1ifnZnBCUhaOF+j0x8BAOQGx1C4kDRaPjzU23VLZnz//hp+2hmtsJjLPiHl8XfD
-         y/UpEvJ2yGj3DhzWdonQhYQS4o6JXX/rzp26dnuoX1/i+3VKwSnpORujO6cvzgMnU7
-         pfRnwEAgoQkhk9K38lJSQ5MXiM5eDV5grYPz2grk=
+        b=ucTIubPRxAFPwCIGJKN4uTkXcAhKmpHGTQ08Zn5tSqY3xT6FisgqkmYxdji6tO8bR
+         mWkfyklR/09oOkZXXHF8MOeETeNcC+utlhNFeQpVu+wtCTP+Z7UrY4AoTg5crqmW9t
+         DzJOIf1NpEx/4pOZItSLGSvIHi5AyOyH0X7y8NbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>,
-        "Ivan T. Ivanov" <iivanov@suse.de>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 838/862] clk: bcm2835: Round UART input clock up
-Date:   Wed, 19 Oct 2022 10:35:25 +0200
-Message-Id: <20221019083326.915279544@linuxfoundation.org>
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Rob Herring <robh@kernel.org>, Leo Yan <leo.yan@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        James Clark <james.clark@arm.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 6.0 839/862] perf: Skip and warn on unknown format configN attrs
+Date:   Wed, 19 Oct 2022 10:35:26 +0200
+Message-Id: <20221019083326.954245107@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,126 +59,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan T. Ivanov <iivanov@suse.de>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit f690a4d7a8f66430662975511c86819dc9965bcc ]
+commit e552b7be12ed62357df84392efa525ecb01910fb upstream.
 
-It was reported that RPi3[1] and RPi Zero 2W boards have issues with
-the Bluetooth. It turns out that when switching from initial to
-operation speed host and device no longer can talk each other because
-host uses incorrect UART baud rate.
+If the kernel exposes a new perf_event_attr field in a format attr, perf
+will return an error stating the specified PMU can't be found. For
+example, a format attr with 'config3:0-63' causes an error as config3 is
+unknown to perf. This causes a compatibility issue between a newer
+kernel with older perf tool.
 
-The UART driver used in this case is amba-pl011. Original fix, see
-below Github link[2], was inside pl011 module, but somehow it didn't
-look as the right place to fix. Beside that this original rounding
-function is not exactly perfect for all possible clock values. So I
-deiced to move the hack to the platform which actually need it.
+Before this change with a kernel adding 'config3' I get:
 
-The UART clock is initialised to be as close to the requested
-frequency as possible without exceeding it. Now that there is a
-clock manager that returns the actual frequencies, an expected
-48MHz clock is reported as 47999625. If the requested baud rate
-== requested clock/16, there is no headroom and the slight
-reduction in actual clock rate results in failure.
+  $ perf record -e arm_spe// -- true
+  event syntax error: 'arm_spe//'
+                       \___ Cannot find PMU `arm_spe'. Missing kernel support?
+  Run 'perf list' for a list of valid events
 
-If increasing a clock by less than 0.1% changes it from ..999..
-to ..000.., round it up.
+   Usage: perf record [<options>] [<command>]
+      or: perf record [<options>] -- <command> [<options>]
 
-[1] https://bugzilla.suse.com/show_bug.cgi?id=1188238
-[2] https://github.com/raspberrypi/linux/commit/ab3f1b39537f6d3825b8873006fbe2fc5ff057b7
+      -e, --event <event>   event selector. use 'perf list' to list
+  available events
 
-Cc: Phil Elwell <phil@raspberrypi.com>
-Signed-off-by: Ivan T. Ivanov <iivanov@suse.de>
-Reviewed-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/20220912081306.24662-1-iivanov@suse.de
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+After this change, I get:
+
+  $ perf record -e arm_spe// -- true
+  WARNING: 'arm_spe_0' format 'inv_event_filter' requires 'perf_event_attr::config3' which is not supported by this version of perf!
+  [ perf record: Woken up 2 times to write data ]
+  [ perf record: Captured and wrote 0.091 MB perf.data ]
+
+To support unknown configN formats, rework the YACC implementation to
+pass any config[0-9]+ format to perf_pmu__new_format() to handle with a
+warning.
+
+Reviewed-by: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Tested-by: Leo Yan <leo.yan@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: James Clark <james.clark@arm.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220914-arm-perf-tool-spe1-2-v2-v4-1-83c098e6212e@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 35 +++++++++++++++++++++++++++++++++--
- 1 file changed, 33 insertions(+), 2 deletions(-)
+ tools/perf/util/parse-events.c |    3 +++
+ tools/perf/util/pmu.c          |   17 +++++++++++++++++
+ tools/perf/util/pmu.h          |    2 ++
+ tools/perf/util/pmu.l          |    2 --
+ tools/perf/util/pmu.y          |   15 ++++-----------
+ 5 files changed, 26 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index f1102b4c7e88..e74fe6219d14 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -30,6 +30,7 @@
- #include <linux/debugfs.h>
- #include <linux/delay.h>
- #include <linux/io.h>
-+#include <linux/math.h>
- #include <linux/module.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
-@@ -502,6 +503,8 @@ struct bcm2835_clock_data {
- 	bool low_jitter;
+--- a/tools/perf/util/parse-events.c
++++ b/tools/perf/util/parse-events.c
+@@ -254,6 +254,9 @@ __add_event(struct list_head *list, int
+ 	struct perf_cpu_map *cpus = pmu ? perf_cpu_map__get(pmu->cpus) :
+ 			       cpu_list ? perf_cpu_map__new(cpu_list) : NULL;
  
- 	u32 tcnt_mux;
++	if (pmu)
++		perf_pmu__warn_invalid_formats(pmu);
 +
-+	bool round_up;
- };
+ 	if (pmu && attr->type == PERF_TYPE_RAW)
+ 		perf_pmu__warn_invalid_config(pmu, attr->config, name);
  
- struct bcm2835_gate_data {
-@@ -993,12 +996,34 @@ static unsigned long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock
- 	return temp;
+--- a/tools/perf/util/pmu.c
++++ b/tools/perf/util/pmu.c
+@@ -1005,6 +1005,23 @@ err:
+ 	return NULL;
  }
  
-+static unsigned long bcm2835_round_rate(unsigned long rate)
++void perf_pmu__warn_invalid_formats(struct perf_pmu *pmu)
 +{
-+	unsigned long scaler;
-+	unsigned long limit;
++	struct perf_pmu_format *format;
 +
-+	limit = rate / 100000;
++	/* fake pmu doesn't have format list */
++	if (pmu == &perf_pmu__fake)
++		return;
 +
-+	scaler = 1;
-+	while (scaler < limit)
-+		scaler *= 10;
-+
-+	/*
-+	 * If increasing a clock by less than 0.1% changes it
-+	 * from ..999.. to ..000.., round up.
-+	 */
-+	if ((rate + scaler - 1) / scaler % 1000 == 0)
-+		rate = roundup(rate, scaler);
-+
-+	return rate;
++	list_for_each_entry(format, &pmu->format, list)
++		if (format->value >= PERF_PMU_FORMAT_VALUE_CONFIG_END) {
++			pr_warning("WARNING: '%s' format '%s' requires 'perf_event_attr::config%d'"
++				   "which is not supported by this version of perf!\n",
++				   pmu->name, format->name, format->value);
++			return;
++		}
 +}
 +
- static unsigned long bcm2835_clock_get_rate(struct clk_hw *hw,
- 					    unsigned long parent_rate)
+ static struct perf_pmu *pmu_find(const char *name)
  {
- 	struct bcm2835_clock *clock = bcm2835_clock_from_hw(hw);
- 	struct bcm2835_cprman *cprman = clock->cprman;
- 	const struct bcm2835_clock_data *data = clock->data;
-+	unsigned long rate;
- 	u32 div;
+ 	struct perf_pmu *pmu;
+--- a/tools/perf/util/pmu.h
++++ b/tools/perf/util/pmu.h
+@@ -17,6 +17,7 @@ enum {
+ 	PERF_PMU_FORMAT_VALUE_CONFIG,
+ 	PERF_PMU_FORMAT_VALUE_CONFIG1,
+ 	PERF_PMU_FORMAT_VALUE_CONFIG2,
++	PERF_PMU_FORMAT_VALUE_CONFIG_END,
+ };
  
- 	if (data->int_bits == 0 && data->frac_bits == 0)
-@@ -1006,7 +1031,12 @@ static unsigned long bcm2835_clock_get_rate(struct clk_hw *hw,
+ #define PERF_PMU_FORMAT_BITS 64
+@@ -139,6 +140,7 @@ int perf_pmu__caps_parse(struct perf_pmu
  
- 	div = cprman_read(cprman, data->div_reg);
+ void perf_pmu__warn_invalid_config(struct perf_pmu *pmu, __u64 config,
+ 				   const char *name);
++void perf_pmu__warn_invalid_formats(struct perf_pmu *pmu);
  
--	return bcm2835_clock_rate_from_divisor(clock, parent_rate, div);
-+	rate = bcm2835_clock_rate_from_divisor(clock, parent_rate, div);
-+
-+	if (data->round_up)
-+		rate = bcm2835_round_rate(rate);
-+
-+	return rate;
+ bool perf_pmu__has_hybrid(void);
+ int perf_pmu__match(char *pattern, char *name, char *tok);
+--- a/tools/perf/util/pmu.l
++++ b/tools/perf/util/pmu.l
+@@ -27,8 +27,6 @@ num_dec         [0-9]+
+ 
+ {num_dec}	{ return value(10); }
+ config		{ return PP_CONFIG; }
+-config1		{ return PP_CONFIG1; }
+-config2		{ return PP_CONFIG2; }
+ -		{ return '-'; }
+ :		{ return ':'; }
+ ,		{ return ','; }
+--- a/tools/perf/util/pmu.y
++++ b/tools/perf/util/pmu.y
+@@ -20,7 +20,7 @@ do { \
+ 
+ %}
+ 
+-%token PP_CONFIG PP_CONFIG1 PP_CONFIG2
++%token PP_CONFIG
+ %token PP_VALUE PP_ERROR
+ %type <num> PP_VALUE
+ %type <bits> bit_term
+@@ -47,18 +47,11 @@ PP_CONFIG ':' bits
+ 				      $3));
+ }
+ |
+-PP_CONFIG1 ':' bits
++PP_CONFIG PP_VALUE ':' bits
+ {
+ 	ABORT_ON(perf_pmu__new_format(format, name,
+-				      PERF_PMU_FORMAT_VALUE_CONFIG1,
+-				      $3));
+-}
+-|
+-PP_CONFIG2 ':' bits
+-{
+-	ABORT_ON(perf_pmu__new_format(format, name,
+-				      PERF_PMU_FORMAT_VALUE_CONFIG2,
+-				      $3));
++				      $2,
++				      $4));
  }
  
- static void bcm2835_clock_wait_busy(struct bcm2835_clock *clock)
-@@ -2143,7 +2173,8 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
- 		.div_reg = CM_UARTDIV,
- 		.int_bits = 10,
- 		.frac_bits = 12,
--		.tcnt_mux = 28),
-+		.tcnt_mux = 28,
-+		.round_up = true),
- 
- 	/* TV encoder clock.  Only operating frequency is 108Mhz.  */
- 	[BCM2835_CLOCK_VEC]	= REGISTER_PER_CLK(
--- 
-2.35.1
-
+ bits:
 
 
