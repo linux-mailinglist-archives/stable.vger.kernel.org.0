@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E6E66041B7
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BACA460419C
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233336AbiJSKru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:47:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53904 "EHLO
+        id S231329AbiJSKqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:46:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233341AbiJSKqj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:46:39 -0400
+        with ESMTP id S230507AbiJSKom (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:44:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43A9511541D;
-        Wed, 19 Oct 2022 03:21:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C9ADA2879;
+        Wed, 19 Oct 2022 03:21:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E5EEB821A3;
-        Wed, 19 Oct 2022 08:47:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17C36C433C1;
-        Wed, 19 Oct 2022 08:47:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D470B8231F;
+        Wed, 19 Oct 2022 08:47:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE97C433D6;
+        Wed, 19 Oct 2022 08:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169245;
-        bh=yXakOncocmAMdyM9Kp+4spb4pV7+704OueZkYTIj4p4=;
+        s=korg; t=1666169260;
+        bh=93Mwl/CNPEa8olUJJ5MXG4cAm7nEoQMxsfLzscJcT+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mIfRvTTzFSQy2dMutRqgGAM3u2zaJsSQI3p6vLgEVzwYhJl82FTpHOYYVicECo748
-         6PVzMKcPHda+2Fyd5FDHz/3RXvLwd3x4l3v3cXq1h5qJjYTQy0WJg3qKpB9yTfR1dF
-         KME4gSpMaQnMIQBCX1bv+IszxzXbxJDyba7TwoVo=
+        b=bKNzwgB9bCRUdOtwTy96tCLtjBX3LXNlYdrQQZbyjmphOQAXyOhL5csTS7SjiruQJ
+         MAfB0WTZdKFVbFYNke/FL4UW7nQ/voOt9Vu6rh4Y4FkJAzwxJQtPgtGZi2kT0jxjuO
+         uFlJaECiKSeVW5BN1QS1EK+ca3yQYi/Srhrseuqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Rui <ray.huang@amd.com>,
-        Perry Yuan <Perry.Yuan@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        syzbot+f966c13b1b4fc0403b19@syzkaller.appspotmail.com,
+        Yue Hu <huyue2@coolpad.com>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 208/862] cpufreq: amd-pstate: Fix initial highest_perf value
-Date:   Wed, 19 Oct 2022 10:24:55 +0200
-Message-Id: <20221019083259.199144536@linuxfoundation.org>
+Subject: [PATCH 6.0 212/862] erofs: fix order >= MAX_ORDER warning due to crafted negative i_size
+Date:   Wed, 19 Oct 2022 10:24:59 +0200
+Message-Id: <20221019083259.396157131@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,81 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Perry Yuan <Perry.Yuan@amd.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit bedadcfb011fef55273bd686e8893fdd8911dcdb ]
+[ Upstream commit 1dd73601a1cba37a0ed5f89a8662c90191df5873 ]
 
-To avoid some new AMD processors use wrong highest perf when amd pstate
-driver loaded, this fix will query the highest perf from MSR register
-MSR_AMD_CPPC_CAP1 and cppc_acpi interface firstly, then compare with the
-highest perf value got by calling amd_get_highest_perf() function.
+As syzbot reported [1], the root cause is that i_size field is a
+signed type, and negative i_size is also less than EROFS_BLKSIZ.
+As a consequence, it's handled as fast symlink unexpectedly.
 
-The lower value will be the correct highest perf we need to use.
-Otherwise the CPU max MHz will be incorrect if the
-amd_get_highest_perf() did not cover the new process family and model ID.
+Let's fall back to the generic path to deal with such unusual i_size.
 
-Like this lscpu info, the max frequency is incorrect.
+[1] https://lore.kernel.org/r/000000000000ac8efa05e7feaa1f@google.com
 
-Vendor ID:               AuthenticAMD
-    Socket(s):           1
-    Stepping:            2
-    CPU max MHz:         5410.0000
-    CPU min MHz:         400.0000
-    BogoMIPS:            5600.54
-
-Fixes: 3743d55b289c2 (x86, sched: Fix the AMD CPPC maximum performance value on certain AMD Ryzen generations)
-Acked-by: Huang Rui <ray.huang@amd.com>
-Signed-off-by: Perry Yuan <Perry.Yuan@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: syzbot+f966c13b1b4fc0403b19@syzkaller.appspotmail.com
+Fixes: 431339ba9042 ("staging: erofs: add inode operations")
+Reviewed-by: Yue Hu <huyue2@coolpad.com>
+Link: https://lore.kernel.org/r/20220909023948.28925-1-hsiangkao@linux.alibaba.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/amd-pstate.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ fs/erofs/inode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/amd-pstate.c b/drivers/cpufreq/amd-pstate.c
-index 9ac75c1cde9c..365f3ad166a7 100644
---- a/drivers/cpufreq/amd-pstate.c
-+++ b/drivers/cpufreq/amd-pstate.c
-@@ -152,6 +152,7 @@ static inline int amd_pstate_enable(bool enable)
- static int pstate_init_perf(struct amd_cpudata *cpudata)
- {
- 	u64 cap1;
-+	u32 highest_perf;
+diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
+index 95a403720e8c..16cf9a283557 100644
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -214,7 +214,7 @@ static int erofs_fill_symlink(struct inode *inode, void *kaddr,
  
- 	int ret = rdmsrl_safe_on_cpu(cpudata->cpu, MSR_AMD_CPPC_CAP1,
- 				     &cap1);
-@@ -163,7 +164,11 @@ static int pstate_init_perf(struct amd_cpudata *cpudata)
- 	 *
- 	 * CPPC entry doesn't indicate the highest performance in some ASICs.
- 	 */
--	WRITE_ONCE(cpudata->highest_perf, amd_get_highest_perf());
-+	highest_perf = amd_get_highest_perf();
-+	if (highest_perf > AMD_CPPC_HIGHEST_PERF(cap1))
-+		highest_perf = AMD_CPPC_HIGHEST_PERF(cap1);
-+
-+	WRITE_ONCE(cpudata->highest_perf, highest_perf);
- 
- 	WRITE_ONCE(cpudata->nominal_perf, AMD_CPPC_NOMINAL_PERF(cap1));
- 	WRITE_ONCE(cpudata->lowest_nonlinear_perf, AMD_CPPC_LOWNONLIN_PERF(cap1));
-@@ -175,12 +180,17 @@ static int pstate_init_perf(struct amd_cpudata *cpudata)
- static int cppc_init_perf(struct amd_cpudata *cpudata)
- {
- 	struct cppc_perf_caps cppc_perf;
-+	u32 highest_perf;
- 
- 	int ret = cppc_get_perf_caps(cpudata->cpu, &cppc_perf);
- 	if (ret)
- 		return ret;
- 
--	WRITE_ONCE(cpudata->highest_perf, amd_get_highest_perf());
-+	highest_perf = amd_get_highest_perf();
-+	if (highest_perf > cppc_perf.highest_perf)
-+		highest_perf = cppc_perf.highest_perf;
-+
-+	WRITE_ONCE(cpudata->highest_perf, highest_perf);
- 
- 	WRITE_ONCE(cpudata->nominal_perf, cppc_perf.nominal_perf);
- 	WRITE_ONCE(cpudata->lowest_nonlinear_perf,
+ 	/* if it cannot be handled with fast symlink scheme */
+ 	if (vi->datalayout != EROFS_INODE_FLAT_INLINE ||
+-	    inode->i_size >= EROFS_BLKSIZ) {
++	    inode->i_size >= EROFS_BLKSIZ || inode->i_size < 0) {
+ 		inode->i_op = &erofs_symlink_iops;
+ 		return 0;
+ 	}
 -- 
 2.35.1
 
