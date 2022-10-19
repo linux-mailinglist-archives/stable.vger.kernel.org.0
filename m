@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17CBE60420B
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:53:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E2F4604147
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:41:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234622AbiJSKw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:52:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45366 "EHLO
+        id S232038AbiJSKly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:41:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234597AbiJSKwa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:52:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3B63EA364;
-        Wed, 19 Oct 2022 03:23:40 -0700 (PDT)
+        with ESMTP id S232043AbiJSKlA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:41:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C9A06346;
+        Wed, 19 Oct 2022 03:19:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94AEF6173E;
-        Wed, 19 Oct 2022 08:48:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8214C433C1;
-        Wed, 19 Oct 2022 08:48:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 150BEB8239C;
+        Wed, 19 Oct 2022 08:52:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DDE3C433D7;
+        Wed, 19 Oct 2022 08:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169334;
-        bh=tisD/e9ng4fFfYKxVzgUTkB5FFK+ZNC0Xb21FP3iqzw=;
+        s=korg; t=1666169524;
+        bh=0rl2z4tAdKp81nWROTRI1+4Lj05dL4bQD7NiLYtYuRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KZbVgTy1TqOPBvk6FOYXhbL7gCJMDz1GD12+07aog4sEFNOMr1QPqi3Gy3AYpx5Oo
-         MCMTdRERdDg/ZGvsdy5/PabM6UO/1pMX6n+8hLNWxf2L0CsI/29YcBbDWjmVx/4iDY
-         qQgRoAAGFXumrzkL7pbBPl9Du3+P/nYQbcEiaekU=
+        b=lDJz5hR1jIq5fKQh8W6f3zWYkstLZXX/BU6ots9kDonAIXkRAv7RHiGZP2Qioh98F
+         k0lFczFm3Sv4fxZrKi+b/wsfKIo/quU8w0nJ/S+kpDSMrE1Cz42CmhuKJxLW3QKqX+
+         QAXQdHRloYrwjD6DYqbtCVA5T+Qy1AFuqlHQ1zsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Youghandhar Chintala <quic_youghand@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 230/862] wifi: ath10k: Set tx credit to one for WCN3990 snoc based devices
-Date:   Wed, 19 Oct 2022 10:25:17 +0200
-Message-Id: <20221019083300.225040353@linuxfoundation.org>
+Subject: [PATCH 6.0 266/862] wifi: mac80211: mlme: assign link address correctly
+Date:   Wed, 19 Oct 2022 10:25:53 +0200
+Message-Id: <20221019083301.786453547@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,206 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Youghandhar Chintala <quic_youghand@quicinc.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit d81bbb684c250a637186d9286d75b1cb04d2986c ]
+[ Upstream commit acdc3e47881d86dc1cb89d4603e3fed90ab150db ]
 
-Currently host can send two WMI commands at once. There is possibility to
-cause SMMU issues or corruption, if host wants to initiate 2 DMA
-transfers, it is possible when copy complete interrupt for first DMA
-reaches host, CE has already updated SRRI (Source ring read index) for
-both DMA transfers and is in the middle of 2nd DMA. Host uses SRRI
-(Source ring read index) to interpret how many DMA’s have been completed
-and tries to unmap/free both the DMA entries. Hence now it is limiting to
-one.Because CE is  still in the middle of 2nd DMA which can cause these
-issues when handling two DMA transfers.
+Right now, we assign the link address only after we add
+the link to the driver, which is quite obviously wrong.
+It happens to work in many cases because it gets updated
+immediately, and then link_conf updates may update it,
+but it's clearly not really right.
 
-This change will not impact other targets, as it is only for WCN3990.
+Set the link address during ieee80211_mgd_setup_link()
+so it's set before telling the driver about the link.
 
-Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.2.0-01387-QCAHLSWMTPLZ-1
-
-Signed-off-by: Youghandhar Chintala <quic_youghand@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220801134941.15216-1-quic_youghand@quicinc.com
-Stable-dep-of: f020d9570a04 ("wifi: ath10k: add peer map clean up for peer delete in ath10k_sta_state()")
+Fixes: 81151ce462e5 ("wifi: mac80211: support MLO authentication/association with one link")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/core.c | 16 ++++++++++++++++
- drivers/net/wireless/ath/ath10k/htc.c  | 11 ++++++++---
- drivers/net/wireless/ath/ath10k/hw.h   |  2 ++
- 3 files changed, 26 insertions(+), 3 deletions(-)
+ net/mac80211/mlme.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
-index 276954b70d63..d1ac64026cb3 100644
---- a/drivers/net/wireless/ath/ath10k/core.c
-+++ b/drivers/net/wireless/ath/ath10k/core.c
-@@ -98,6 +98,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = true,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA988X_HW_2_0_VERSION,
-@@ -136,6 +137,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = true,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA9887_HW_1_0_VERSION,
-@@ -175,6 +177,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = false,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA6174_HW_3_2_VERSION,
-@@ -209,6 +212,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.supports_peer_stats_info = true,
- 		.dynamic_sar_support = true,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA6174_HW_2_1_VERSION,
-@@ -247,6 +251,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = false,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA6174_HW_2_1_VERSION,
-@@ -285,6 +290,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = false,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA6174_HW_3_0_VERSION,
-@@ -323,6 +329,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = false,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA6174_HW_3_2_VERSION,
-@@ -365,6 +372,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.supports_peer_stats_info = true,
- 		.dynamic_sar_support = true,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA99X0_HW_2_0_DEV_VERSION,
-@@ -409,6 +417,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = false,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA9984_HW_1_0_DEV_VERSION,
-@@ -460,6 +469,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = false,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA9888_HW_2_0_DEV_VERSION,
-@@ -508,6 +518,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = false,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA9377_HW_1_0_DEV_VERSION,
-@@ -546,6 +557,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = false,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA9377_HW_1_1_DEV_VERSION,
-@@ -586,6 +598,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = false,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA9377_HW_1_1_DEV_VERSION,
-@@ -617,6 +630,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.credit_size_workaround = true,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = QCA4019_HW_1_0_DEV_VERSION,
-@@ -662,6 +676,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = false,
- 		.dynamic_sar_support = false,
- 		.hw_restart_disconnect = false,
-+		.use_fw_tx_credits = true,
- 	},
- 	{
- 		.id = WCN3990_HW_1_0_DEV_VERSION,
-@@ -693,6 +708,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.tx_stats_over_pktlog = false,
- 		.dynamic_sar_support = true,
- 		.hw_restart_disconnect = true,
-+		.use_fw_tx_credits = false,
- 	},
- };
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index 76ae6f03d77e..654414caeb71 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -6291,6 +6291,8 @@ void ieee80211_mgd_setup_link(struct ieee80211_link_data *link)
+ 	if (sdata->u.mgd.assoc_data)
+ 		ether_addr_copy(link->conf->addr,
+ 				sdata->u.mgd.assoc_data->link[link_id].addr);
++	else if (!is_valid_ether_addr(link->conf->addr))
++		eth_random_addr(link->conf->addr);
+ }
  
-diff --git a/drivers/net/wireless/ath/ath10k/htc.c b/drivers/net/wireless/ath/ath10k/htc.c
-index fab398046a3f..6d1784f74bea 100644
---- a/drivers/net/wireless/ath/ath10k/htc.c
-+++ b/drivers/net/wireless/ath/ath10k/htc.c
-@@ -947,13 +947,18 @@ int ath10k_htc_wait_target(struct ath10k_htc *htc)
- 		return -ECOMM;
+ /* scan finished notification */
+@@ -6378,9 +6380,6 @@ static int ieee80211_prep_connection(struct ieee80211_sub_if_data *sdata,
+ 		goto out_err;
  	}
  
--	htc->total_transmit_credits = __le16_to_cpu(msg->ready.credit_count);
-+	if (ar->hw_params.use_fw_tx_credits)
-+		htc->total_transmit_credits = __le16_to_cpu(msg->ready.credit_count);
-+	else
-+		htc->total_transmit_credits = 1;
-+
- 	htc->target_credit_size = __le16_to_cpu(msg->ready.credit_size);
- 
- 	ath10k_dbg(ar, ATH10K_DBG_HTC,
--		   "Target ready! transmit resources: %d size:%d\n",
-+		   "Target ready! transmit resources: %d size:%d actual credits:%d\n",
- 		   htc->total_transmit_credits,
--		   htc->target_credit_size);
-+		   htc->target_credit_size,
-+		   msg->ready.credit_count);
- 
- 	if ((htc->total_transmit_credits == 0) ||
- 	    (htc->target_credit_size == 0)) {
-diff --git a/drivers/net/wireless/ath/ath10k/hw.h b/drivers/net/wireless/ath/ath10k/hw.h
-index 93acf0dd580a..1b99f3a39a11 100644
---- a/drivers/net/wireless/ath/ath10k/hw.h
-+++ b/drivers/net/wireless/ath/ath10k/hw.h
-@@ -635,6 +635,8 @@ struct ath10k_hw_params {
- 	bool dynamic_sar_support;
- 
- 	bool hw_restart_disconnect;
-+
-+	bool use_fw_tx_credits;
- };
- 
- struct htt_resp;
+-	if (mlo && !is_valid_ether_addr(link->conf->addr))
+-		eth_random_addr(link->conf->addr);
+-
+ 	if (WARN_ON(!ifmgd->auth_data && !ifmgd->assoc_data)) {
+ 		err = -EINVAL;
+ 		goto out_err;
 -- 
 2.35.1
 
