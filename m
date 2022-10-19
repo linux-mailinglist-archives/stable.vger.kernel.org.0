@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 686FF603EF5
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:25:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F5E603F7D
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:32:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229729AbiJSJZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:25:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58004 "EHLO
+        id S233760AbiJSJcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:32:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233582AbiJSJYJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:24:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8244C512C;
-        Wed, 19 Oct 2022 02:10:54 -0700 (PDT)
+        with ESMTP id S233962AbiJSJaD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:30:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C9B2EE089;
+        Wed, 19 Oct 2022 02:13:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9DBF61881;
-        Wed, 19 Oct 2022 09:08:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCE78C433D6;
-        Wed, 19 Oct 2022 09:08:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FE7761882;
+        Wed, 19 Oct 2022 09:08:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77F79C433D7;
+        Wed, 19 Oct 2022 09:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170523;
-        bh=Kh8Sla+Un1KkjfHIh8LWbAk/NpfHmZyyc25lnnifXUI=;
+        s=korg; t=1666170525;
+        bh=m4KrS+f91Bw2+wpxolcuqnxHD4V0hk/Zrm3h5a6H50c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KZvWdf5fteZLWm92HtK/gkC+EEh8tHLxc5ZWTc3oFGo+UfJU1Wr6taiZJAAfMVpfu
-         qxFz8Pc9m9cEp+5G/Q0OHtCEIHHNaPlmyZJsADwXJ9a/q52aJwQwOHzLSUviPVy9/7
-         NXtreP4JNzTU+11Xe/UaxXss0r+hjOEBiQBefwzk=
+        b=SNMoodGSxgXSrmUXYnu0CBwWyMj5WBP1eX1rrtevsOPUCsVowiRC6M3HPr9r1363w
+         o3Gd35WV2Gwi/v0N/cRcvojzmGJWDttyWDo/Iqpas1zJnfZ2euybW1hH/IP6e0N9a3
+         G83j2Nix4jZssT/UU0Di6D584bnYIqAkRO+P548U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Ray <jerry.ray@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 688/862] micrel: ksz8851: fixes struct pointer issue
-Date:   Wed, 19 Oct 2022 10:32:55 +0200
-Message-Id: <20221019083320.383736530@linuxfoundation.org>
+Subject: [PATCH 6.0 689/862] wifi: mac80211: accept STA changes without link changes
+Date:   Wed, 19 Oct 2022 10:32:56 +0200
+Message-Id: <20221019083320.429793127@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,52 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry Ray <jerry.ray@microchip.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit fef5de753ff01887cfa50990532c3890fccb9338 ]
+[ Upstream commit b303835dabe0340f932ebb4e260d2229f79b0684 ]
 
-Issue found during code review. This bug has no impact as long as the
-ks8851_net structure is the first element of the ks8851_net_spi structure.
-As long as the offset to the ks8851_net struct is zero, the container_of()
-macro is subtracting 0 and therefore no damage done. But if the
-ks8851_net_spi struct is ever modified such that the ks8851_net struct
-within it is no longer the first element of the struct, then the bug would
-manifest itself and cause problems.
+If there's no link ID, then check that there are no changes to
+the link, and if so accept them, unless a new link is created.
+While at it, reject creating a new link without an address.
 
-struct ks8851_net is contained within ks8851_net_spi.
-ks is contained within kss.
-kss is the priv_data of the netdev structure.
+This fixes authorizing an MLD (peer) that has no link 0.
 
-Signed-off-by: Jerry Ray <jerry.ray@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ks8851_spi.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ net/mac80211/cfg.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/net/ethernet/micrel/ks8851_spi.c b/drivers/net/ethernet/micrel/ks8851_spi.c
-index 82d55fc27edc..70bc7253454f 100644
---- a/drivers/net/ethernet/micrel/ks8851_spi.c
-+++ b/drivers/net/ethernet/micrel/ks8851_spi.c
-@@ -413,7 +413,8 @@ static int ks8851_probe_spi(struct spi_device *spi)
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index e5239a17a875..65f34945a767 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -1610,6 +1610,18 @@ static int sta_link_apply_parameters(struct ieee80211_local *local,
+ 		rcu_dereference_protected(sta->link[link_id],
+ 					  lockdep_is_held(&local->sta_mtx));
  
- 	spi->bits_per_word = 8;
++	/*
++	 * If there are no changes, then accept a link that doesn't exist,
++	 * unless it's a new link.
++	 */
++	if (params->link_id < 0 && !new_link &&
++	    !params->link_mac && !params->txpwr_set &&
++	    !params->supported_rates_len &&
++	    !params->ht_capa && !params->vht_capa &&
++	    !params->he_capa && !params->eht_capa &&
++	    !params->opmode_notif_used)
++		return 0;
++
+ 	if (!link || !link_sta)
+ 		return -EINVAL;
  
--	ks = netdev_priv(netdev);
-+	kss = netdev_priv(netdev);
-+	ks = &kss->ks8851;
+@@ -1625,6 +1637,8 @@ static int sta_link_apply_parameters(struct ieee80211_local *local,
+ 					     params->link_mac)) {
+ 			return -EINVAL;
+ 		}
++	} else if (new_link) {
++		return -EINVAL;
+ 	}
  
- 	ks->lock = ks8851_lock_spi;
- 	ks->unlock = ks8851_unlock_spi;
-@@ -433,8 +434,6 @@ static int ks8851_probe_spi(struct spi_device *spi)
- 		 IRQ_RXPSI)	/* RX process stop */
- 	ks->rc_ier = STD_IRQ;
- 
--	kss = to_ks8851_spi(ks);
--
- 	kss->spidev = spi;
- 	mutex_init(&kss->lock);
- 	INIT_WORK(&kss->tx_work, ks8851_tx_work);
+ 	if (params->txpwr_set) {
 -- 
 2.35.1
 
