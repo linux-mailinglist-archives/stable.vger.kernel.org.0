@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 828D2603F77
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B424604017
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233740AbiJSJbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:31:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48516 "EHLO
+        id S234256AbiJSJnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:43:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233866AbiJSJ3m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:42 -0400
+        with ESMTP id S234862AbiJSJlp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:41:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B83CCEC519;
-        Wed, 19 Oct 2022 02:13:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E01F5CD1;
+        Wed, 19 Oct 2022 02:18:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27D2961840;
-        Wed, 19 Oct 2022 09:12:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AE77C433B5;
-        Wed, 19 Oct 2022 09:12:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF852617D7;
+        Wed, 19 Oct 2022 09:14:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03EE2C433D6;
+        Wed, 19 Oct 2022 09:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170766;
-        bh=teLkVvsGmTvEmoonmZOWurIfqTWLncO4ba3j6bGrtxA=;
+        s=korg; t=1666170882;
+        bh=9k1/VbHeguU3yVKC6fiS5SarwOPVXS7nqwlfeyR3xoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BlcWLwtApucbErr4jCxPx+L9vc5p9DbICVw92X9G+DclNdrB1B4zpsN+KHqGbYNid
-         cCbgmTXdxAFWgZ7R6Zt6VYtfIONvDEX+3T4Yt1q4x3vQ4GURKNCHNtMtQ4fi83Af8D
-         04F3TA1Xmir92pDfz4BFLQd+PSuFZGevHOkGJ3Ko=
+        b=ZTJ4CDZMEXjw6/V4ZoGKhDDLc79UCYvihM9g5YG7SfbADT67TVo6F/CtvHooXxvTH
+         dlGP3REa/3SfaVKRlFIC4AdGYYHYqcU2xuCY/8rYA19+h2PFdLEPHfB6yyfa5Cdq2Y
+         ACwVo9hsMLoEf25c+fhtoPeyA+YU2xfYSOZL6ouk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        stable@vger.kernel.org, Heiko Thiery <heiko.thiery@gmail.com>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 777/862] ARM: dts: imx6sl: use tabs for code indent
-Date:   Wed, 19 Oct 2022 10:34:24 +0200
-Message-Id: <20221019083324.235986504@linuxfoundation.org>
+Subject: [PATCH 6.0 780/862] arm64: dts: imx8mm-kontron: Use the VSELECT signal to switch SD card IO voltage
+Date:   Wed, 19 Oct 2022 10:34:27 +0200
+Message-Id: <20221019083324.374869972@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,95 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-[ Upstream commit 218db824a7519856d0eaaeb5c41ca504ed550210 ]
+[ Upstream commit eef2c0217e02b6c7ed5b10b82ea944127145e113 ]
 
-This fixes the following error:
+It turns out that it is not necessary to declare the VSELECT signal as
+GPIO and let the PMIC driver set it to a fixed high level. This switches
+the voltage between 3.3V and 1.8V by setting the PMIC register for LDO5
+accordingly.
 
-arch/arm/boot/dts/imx6sl.dtsi:714: error: code indent should use tabs
-where possible
+Instead we can do it like other boards already do and simply mux the
+VSELECT signal of the USDHC interface to the pin. This makes sure that
+the correct voltage is selected by setting the PMIC's SD_VSEL input
+to high or low accordingly.
 
-Signed-off-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Reported-by: Heiko Thiery <heiko.thiery@gmail.com>
+Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Reviewed-by: Heiko Thiery <heiko.thiery@gmail.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6sl.dtsi | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts    | 3 +++
+ arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi | 2 --
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
-index cfd6b4972ae7..01122ddfdc0d 100644
---- a/arch/arm/boot/dts/imx6sl.dtsi
-+++ b/arch/arm/boot/dts/imx6sl.dtsi
-@@ -61,10 +61,10 @@
- 				<792000  1175000>,
- 				<396000  975000>;
- 			fsl,soc-operating-points =
--				/* ARM kHz      SOC-PU uV */
--				<996000         1225000>,
--				<792000         1175000>,
--				<396000         1175000>;
-+				/* ARM kHz	SOC-PU uV */
-+				<996000		1225000>,
-+				<792000		1175000>,
-+				<396000		1175000>;
- 			clock-latency = <61036>; /* two CLK32 periods */
- 			#cooling-cells = <2>;
- 			clocks = <&clks IMX6SL_CLK_ARM>, <&clks IMX6SL_CLK_PLL2_PFD2>,
-@@ -225,7 +225,7 @@
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
+index 23be1ec538ba..c54536c0a2ba 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
+@@ -321,6 +321,7 @@
+ 			MX8MM_IOMUXC_SD2_DATA2_USDHC2_DATA2		0x1d0
+ 			MX8MM_IOMUXC_SD2_DATA3_USDHC2_DATA3		0x1d0
+ 			MX8MM_IOMUXC_SD2_CD_B_GPIO2_IO12		0x019
++			MX8MM_IOMUXC_GPIO1_IO04_USDHC2_VSELECT		0x1d0
+ 		>;
+ 	};
  
- 				uart5: serial@2018000 {
- 					compatible = "fsl,imx6sl-uart",
--						   "fsl,imx6q-uart", "fsl,imx21-uart";
-+						     "fsl,imx6q-uart", "fsl,imx21-uart";
- 					reg = <0x02018000 0x4000>;
- 					interrupts = <0 30 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clks IMX6SL_CLK_UART>,
-@@ -238,7 +238,7 @@
+@@ -333,6 +334,7 @@
+ 			MX8MM_IOMUXC_SD2_DATA2_USDHC2_DATA2		0x1d4
+ 			MX8MM_IOMUXC_SD2_DATA3_USDHC2_DATA3		0x1d4
+ 			MX8MM_IOMUXC_SD2_CD_B_GPIO2_IO12		0x019
++			MX8MM_IOMUXC_GPIO1_IO04_USDHC2_VSELECT		0x1d0
+ 		>;
+ 	};
  
- 				uart1: serial@2020000 {
- 					compatible = "fsl,imx6sl-uart",
--						   "fsl,imx6q-uart", "fsl,imx21-uart";
-+						     "fsl,imx6q-uart", "fsl,imx21-uart";
- 					reg = <0x02020000 0x4000>;
- 					interrupts = <0 26 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clks IMX6SL_CLK_UART>,
-@@ -251,7 +251,7 @@
+@@ -345,6 +347,7 @@
+ 			MX8MM_IOMUXC_SD2_DATA2_USDHC2_DATA2		0x1d6
+ 			MX8MM_IOMUXC_SD2_DATA3_USDHC2_DATA3		0x1d6
+ 			MX8MM_IOMUXC_SD2_CD_B_GPIO2_IO12		0x019
++			MX8MM_IOMUXC_GPIO1_IO04_USDHC2_VSELECT		0x1d0
+ 		>;
+ 	};
+ };
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
+index 8f90eb02550d..6307af803429 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
+@@ -86,7 +86,6 @@
+ 		pinctrl-0 = <&pinctrl_pmic>;
+ 		interrupt-parent = <&gpio1>;
+ 		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+-		sd-vsel-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
  
- 				uart2: serial@2024000 {
- 					compatible = "fsl,imx6sl-uart",
--						   "fsl,imx6q-uart", "fsl,imx21-uart";
-+						     "fsl,imx6q-uart", "fsl,imx21-uart";
- 					reg = <0x02024000 0x4000>;
- 					interrupts = <0 27 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clks IMX6SL_CLK_UART>,
-@@ -312,7 +312,7 @@
+ 		regulators {
+ 			reg_vdd_soc: BUCK1 {
+@@ -229,7 +228,6 @@
+ 	pinctrl_pmic: pmicgrp {
+ 		fsl,pins = <
+ 			MX8MM_IOMUXC_GPIO1_IO00_GPIO1_IO0		0x141
+-			MX8MM_IOMUXC_GPIO1_IO04_GPIO1_IO4		0x141
+ 		>;
+ 	};
  
- 				uart3: serial@2034000 {
- 					compatible = "fsl,imx6sl-uart",
--						   "fsl,imx6q-uart", "fsl,imx21-uart";
-+						     "fsl,imx6q-uart", "fsl,imx21-uart";
- 					reg = <0x02034000 0x4000>;
- 					interrupts = <0 28 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clks IMX6SL_CLK_UART>,
-@@ -325,7 +325,7 @@
- 
- 				uart4: serial@2038000 {
- 					compatible = "fsl,imx6sl-uart",
--						   "fsl,imx6q-uart", "fsl,imx21-uart";
-+						     "fsl,imx6q-uart", "fsl,imx21-uart";
- 					reg = <0x02038000 0x4000>;
- 					interrupts = <0 29 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clks IMX6SL_CLK_UART>,
-@@ -714,7 +714,7 @@
- 						#power-domain-cells = <0>;
- 						power-supply = <&reg_pu>;
- 						clocks = <&clks IMX6SL_CLK_GPU2D_OVG>,
--						         <&clks IMX6SL_CLK_GPU2D_PODF>;
-+							 <&clks IMX6SL_CLK_GPU2D_PODF>;
- 					};
- 
- 					pd_disp: power-domain@2 {
 -- 
 2.35.1
 
