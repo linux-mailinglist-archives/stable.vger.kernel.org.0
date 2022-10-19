@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 085D2604844
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:53:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CAF36047BF
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:45:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233589AbiJSNxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:53:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47732 "EHLO
+        id S233065AbiJSNpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:45:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233732AbiJSNw4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:52:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D81FF1958E1;
-        Wed, 19 Oct 2022 06:36:17 -0700 (PDT)
+        with ESMTP id S233551AbiJSNoX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:44:23 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 436A31BE1FE;
+        Wed, 19 Oct 2022 06:31:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCA16B822CD;
-        Wed, 19 Oct 2022 08:40:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0E2C433C1;
-        Wed, 19 Oct 2022 08:40:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E2869CE20F0;
+        Wed, 19 Oct 2022 08:41:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E51D6C433C1;
+        Wed, 19 Oct 2022 08:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168829;
-        bh=fb5bovRJE0OE1x/kjgr6r3QY9hhCN3d1H51HtnbhOcY=;
+        s=korg; t=1666168859;
+        bh=gMan5kpbovKahV/1vwN9rBg7BvTH6IpSR+9l0CZ8VNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rnJTD2NtERibIpsdAqZj+QpRV850KYRkjQHNG08vqh7qUfT7AWUcNXFWpEve1bZ8V
-         cmfCuFgy9MLP2y0aKK55hV1DVH2YhRYncizs30jwktdZC4orfePqBHOI5hsG+h+qRl
-         JBgUCoZj0Z3Bd1JzToXf4kVZOGjvfoAb4ni1KeZI=
+        b=neQiCSSCOEvLsfJWN21OS4Qy36XWm48vWD6YRoxZrU0LnpZ3OsJ1qfUVXlSkEcDcf
+         9BO65YJpr9CYwWnkyUacecwCQT4qjpOiW3xjRBbzWtHJjSzmD7k6nTABKuHPm11DSW
+         w0LITC8wrHShXKL8LzXHnC94AQX65DEb34QPeipY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 6.0 066/862] UM: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
-Date:   Wed, 19 Oct 2022 10:22:33 +0200
-Message-Id: <20221019083252.842157393@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Takashi Iwai <tiwai@suse.de>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 6.0 078/862] drm/udl: Restore display mode on resume
+Date:   Wed, 19 Oct 2022 10:22:45 +0200
+Message-Id: <20221019083253.385002253@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,62 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhuacai@loongson.cn>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 16c546e148fa6d14a019431436a6f7b4087dbccd upstream.
+commit 6d6e732835db92e66c28dbcf258a7e3d3c71420d upstream.
 
-When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
-cpu_max_bits_warn() generates a runtime warning similar as below while
-we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
-instead of NR_CPUS to iterate CPUs.
+Restore the display mode whne resuming from suspend. Currently, the
+display remains dark.
 
-[    3.052463] ------------[ cut here ]------------
-[    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
-[    3.070072] Modules linked in: efivarfs autofs4
-[    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
-[    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
-[    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
-[    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
-[    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
-[    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
-[    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
-[    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
-[    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
-[    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
-[    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
-[    3.195868]         ...
-[    3.199917] Call Trace:
-[    3.203941] [<90000000002086d8>] show_stack+0x38/0x14c
-[    3.210666] [<9000000000cf846c>] dump_stack_lvl+0x60/0x88
-[    3.217625] [<900000000023d268>] __warn+0xd0/0x100
-[    3.223958] [<9000000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
-[    3.231150] [<9000000000210220>] show_cpuinfo+0x5e8/0x5f0
-[    3.238080] [<90000000004f578c>] seq_read_iter+0x354/0x4b4
-[    3.245098] [<90000000004c2e90>] new_sync_read+0x17c/0x1c4
-[    3.252114] [<90000000004c5174>] vfs_read+0x138/0x1d0
-[    3.258694] [<90000000004c55f8>] ksys_read+0x70/0x100
-[    3.265265] [<9000000000cfde9c>] do_syscall+0x7c/0x94
-[    3.271820] [<9000000000202fe4>] handle_syscall+0xc4/0x160
-[    3.281824] ---[ end trace 8b484262b4b8c24c ]---
+On resume, the CRTC's mode does not change, but the 'active' flag
+changes to 'true'. Taking this into account when considering a mode
+switch restores the display mode.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+The bug is reproducable by using Gnome with udl and observing the
+adapter's suspend/resume behavior.
+
+Actually, the whole check added in udl_simple_display_pipe_enable()
+about the crtc_state->mode_changed was bogus.  We should drop the
+whole check and always apply the mode change in this function.
+
+[ tiwai -- Drop the mode_changed check entirely instead, per Daniel's
+  suggestion ]
+
+Fixes: 997d33c35618 ("drm/udl: Inline DPMS code into CRTC enable and disable functions")
+Cc: <stable@vger.kernel.org>
+Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220908095115.23396-2-tiwai@suse.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/kernel/um_arch.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/udl/udl_modeset.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/um/kernel/um_arch.c
-+++ b/arch/um/kernel/um_arch.c
-@@ -96,7 +96,7 @@ static int show_cpuinfo(struct seq_file
+--- a/drivers/gpu/drm/udl/udl_modeset.c
++++ b/drivers/gpu/drm/udl/udl_modeset.c
+@@ -382,9 +382,6 @@ udl_simple_display_pipe_enable(struct dr
  
- static void *c_start(struct seq_file *m, loff_t *pos)
- {
--	return *pos < NR_CPUS ? cpu_data + *pos : NULL;
-+	return *pos < nr_cpu_ids ? cpu_data + *pos : NULL;
+ 	udl_handle_damage(fb, &shadow_plane_state->data[0], 0, 0, fb->width, fb->height);
+ 
+-	if (!crtc_state->mode_changed)
+-		return;
+-
+ 	/* enable display */
+ 	udl_crtc_write_mode_to_hw(crtc);
  }
- 
- static void *c_next(struct seq_file *m, void *v, loff_t *pos)
 
 
