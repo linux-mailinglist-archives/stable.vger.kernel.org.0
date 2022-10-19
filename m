@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 168A3603EB5
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:18:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F147603EE8
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:23:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233194AbiJSJSw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:18:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40614 "EHLO
+        id S233460AbiJSJXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:23:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233218AbiJSJQ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:16:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBB795FAE7;
-        Wed, 19 Oct 2022 02:07:07 -0700 (PDT)
+        with ESMTP id S232882AbiJSJV7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:21:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E32372B66;
+        Wed, 19 Oct 2022 02:10:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CFDC61868;
-        Wed, 19 Oct 2022 09:06:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AE79C433D7;
-        Wed, 19 Oct 2022 09:06:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 511C3617F1;
+        Wed, 19 Oct 2022 09:07:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C4F7C433D7;
+        Wed, 19 Oct 2022 09:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170387;
-        bh=NI1fBXPVYlDZ4B6j6GMBIhhEi5k4CLiLesxDmWTMZN8=;
+        s=korg; t=1666170467;
+        bh=RGwrKnkrt+w/nHMKlIsALNrzbvtZrXpoRBaBl2bJTIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/9IqxyFPdEk3n2rhwQIJvPRSNDFkXFPpkM6dwWdhaO/e60kQmwhIm//QcA+LeI20
-         gxOxgswR/pTyliRExviYmqZyG27qMtDHg9w/3zmv2M3yfnHXBQZeOcnYDtYM9k9ZiT
-         G7Gizxd0v8NKxkomjWbv5qTgsmZBquhv9qy2YcG8=
+        b=xjJO+cO7V57mrH7uRl65DC+/Grj18uQxhZuHe8En9ynIYR/06cSjgQWBPhS63aVo0
+         awlksJ1Tr23IOEfUsiWl6iGSvkmf0saegBWu/TaVzeR+4qxa2Tg5L4YgJrrjO1FAb6
+         kUVWVzm8kxQM8L0rEnByeb9JcT8xxYVjfZH2Q0aI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ignat Korchagin <ignat@cloudflare.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Kunkun Jiang <jiangkunkun@huawei.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 635/862] crypto: akcipher - default implementation for setting a private key
-Date:   Wed, 19 Oct 2022 10:32:02 +0200
-Message-Id: <20221019083317.996776853@linuxfoundation.org>
+Subject: [PATCH 6.0 639/862] clocksource/drivers/arm_arch_timer: Fix handling of ARM erratum 858921
+Date:   Wed, 19 Oct 2022 10:32:06 +0200
+Message-Id: <20221019083318.160511306@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,68 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ignat Korchagin <ignat@cloudflare.com>
+From: Kunkun Jiang <jiangkunkun@huawei.com>
 
-[ Upstream commit bc155c6c188c2f0c5749993b1405673d25a80389 ]
+[ Upstream commit 6c3b62d93e195f78c1437c8fa7581e9b2f00886e ]
 
-Changes from v1:
-  * removed the default implementation from set_pub_key: it is assumed that
-    an implementation must always have this callback defined as there are
-    no use case for an algorithm, which doesn't need a public key
+The commit a38b71b0833e ("clocksource/drivers/arm_arch_timer:
+Move system register timer programming over to CVAL") moves the
+programming of the timers from the countdown timer (TVAL) over
+to the comparator (CVAL). This makes it necessary to read the
+counter when programming next event. However, the workaround of
+Cortex-A73 erratum 858921 does not set the corresponding
+set_next_event_phys and set_next_event_virt.
 
-Many akcipher implementations (like ECDSA) support only signature
-verifications, so they don't have all callbacks defined.
+Add the appropriate hooks to apply the erratum mitigation when
+programming the next timer event.
 
-Commit 78a0324f4a53 ("crypto: akcipher - default implementations for
-request callbacks") introduced default callbacks for sign/verify
-operations, which just return an error code.
-
-However, these are not enough, because before calling sign the caller would
-likely call set_priv_key first on the instantiated transform (as the
-in-kernel testmgr does). This function does not have a default stub, so the
-kernel crashes, when trying to set a private key on an akcipher, which
-doesn't support signature generation.
-
-I've noticed this, when trying to add a KAT vector for ECDSA signature to
-the testmgr.
-
-With this patch the testmgr returns an error in dmesg (as it should)
-instead of crashing the kernel NULL ptr dereference.
-
-Fixes: 78a0324f4a53 ("crypto: akcipher - default implementations for request callbacks")
-Signed-off-by: Ignat Korchagin <ignat@cloudflare.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: a38b71b0833e ("clocksource/drivers/arm_arch_timer: Move system register timer programming over to CVAL")
+Signed-off-by: Kunkun Jiang <jiangkunkun@huawei.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
+Link: https://lore.kernel.org/r/20220914061424.1260-1-jiangkunkun@huawei.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/akcipher.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/clocksource/arm_arch_timer.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/crypto/akcipher.c b/crypto/akcipher.c
-index f866085c8a4a..ab975a420e1e 100644
---- a/crypto/akcipher.c
-+++ b/crypto/akcipher.c
-@@ -120,6 +120,12 @@ static int akcipher_default_op(struct akcipher_request *req)
- 	return -ENOSYS;
- }
- 
-+static int akcipher_default_set_key(struct crypto_akcipher *tfm,
-+				     const void *key, unsigned int keylen)
-+{
-+	return -ENOSYS;
-+}
-+
- int crypto_register_akcipher(struct akcipher_alg *alg)
- {
- 	struct crypto_alg *base = &alg->base;
-@@ -132,6 +138,8 @@ int crypto_register_akcipher(struct akcipher_alg *alg)
- 		alg->encrypt = akcipher_default_op;
- 	if (!alg->decrypt)
- 		alg->decrypt = akcipher_default_op;
-+	if (!alg->set_priv_key)
-+		alg->set_priv_key = akcipher_default_set_key;
- 
- 	akcipher_prepare_alg(alg);
- 	return crypto_register_alg(base);
+diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+index 8122a1646925..a7ff77550e17 100644
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -473,6 +473,8 @@ static const struct arch_timer_erratum_workaround ool_workarounds[] = {
+ 		.desc = "ARM erratum 858921",
+ 		.read_cntpct_el0 = arm64_858921_read_cntpct_el0,
+ 		.read_cntvct_el0 = arm64_858921_read_cntvct_el0,
++		.set_next_event_phys = erratum_set_next_event_phys,
++		.set_next_event_virt = erratum_set_next_event_virt,
+ 	},
+ #endif
+ #ifdef CONFIG_SUN50I_ERRATUM_UNKNOWN1
 -- 
 2.35.1
 
