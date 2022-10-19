@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A25B36047D4
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:46:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EF71604561
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233009AbiJSNqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:46:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52170 "EHLO
+        id S231140AbiJSMed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 08:34:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233045AbiJSNp2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:45:28 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 531DA3A154;
-        Wed, 19 Oct 2022 06:31:53 -0700 (PDT)
+        with ESMTP id S231608AbiJSMeO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:34:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4381106923;
+        Wed, 19 Oct 2022 05:14:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 070DACE2182;
-        Wed, 19 Oct 2022 09:06:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DB1DC433D6;
-        Wed, 19 Oct 2022 09:06:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0BF761852;
+        Wed, 19 Oct 2022 09:07:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E195C433B5;
+        Wed, 19 Oct 2022 09:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170409;
-        bh=V158gqfaGOuKvv7mls5uKxEIcANh4s5FzQov9SkR/sc=;
+        s=korg; t=1666170425;
+        bh=R5xFzSHogEP2NN2e/wL2tnIj+3tgTrpSBrWmiZXApdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cs2s97brTX4g9/pdKdnupz9nPUvDqEXXS6R/XjtDnA36nTNNr48/R51zBymsegKGK
-         VoWFLnOKQgy0HaOByK0UbRCPoDjDnwo6BWloNFPPBnocrkkytBObbrQTdTnrkOjE/p
-         +lXpA7ATUAZzgZzrufoBwFDgL8YD0DhMN9pAQzaA=
+        b=WMtQrTq5MwDsvEYRTkXFEQq5DtFqXMgOcdA7LpYhJ51qsL1mIV82P+do+VIATsmzn
+         +emrgSRX/BGMS3hbWEFdEZKwZyqHC+QEgHT2FGin3RVFpI1WYtepcYKJ/nuD2pizss
+         GZkgbeEK7d8bs5W9kbrUP/kFfSNw0CNSoyNdrAlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Harliman Liem <pliem@maxlinear.com>,
-        Antoine Tenart <atenart@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 637/862] crypto: inside-secure - Change swab to swab32
-Date:   Wed, 19 Oct 2022 10:32:04 +0200
-Message-Id: <20221019083318.078529484@linuxfoundation.org>
+Subject: [PATCH 6.0 651/862] crypto: cavium - prevent integer overflow loading firmware
+Date:   Wed, 19 Oct 2022 10:32:18 +0200
+Message-Id: <20221019083318.699495645@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,63 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Harliman Liem <pliem@maxlinear.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 664593407e936b6438fbfaaf98876910fd31cf9a ]
+[ Upstream commit 2526d6bf27d15054bb0778b2f7bc6625fd934905 ]
 
-The use of swab() is causing failures in 64-bit arch, as it
-translates to __swab64() instead of the intended __swab32().
-It eventually causes wrong results in xcbcmac & cmac algo.
+The "code_length" value comes from the firmware file.  If your firmware
+is untrusted realistically there is probably very little you can do to
+protect yourself.  Still we try to limit the damage as much as possible.
+Also Smatch marks any data read from the filesystem as untrusted and
+prints warnings if it not capped correctly.
 
-Fixes: 78cf1c8bfcb8 ("crypto: inside-secure - Move ipad/opad into safexcel_context")
-Signed-off-by: Peter Harliman Liem <pliem@maxlinear.com>
-Acked-by: Antoine Tenart <atenart@kernel.org>
+The "ntohl(ucode->code_length) * 2" multiplication can have an
+integer overflow.
+
+Fixes: 9e2c7d99941d ("crypto: cavium - Add Support for Octeon-tx CPT Engine")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/inside-secure/safexcel_hash.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/crypto/cavium/cpt/cptpf_main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/inside-secure/safexcel_hash.c b/drivers/crypto/inside-secure/safexcel_hash.c
-index bc60b5802256..2124416742f8 100644
---- a/drivers/crypto/inside-secure/safexcel_hash.c
-+++ b/drivers/crypto/inside-secure/safexcel_hash.c
-@@ -383,7 +383,7 @@ static int safexcel_ahash_send_req(struct crypto_async_request *async, int ring,
- 					u32 x;
+diff --git a/drivers/crypto/cavium/cpt/cptpf_main.c b/drivers/crypto/cavium/cpt/cptpf_main.c
+index 8c32d0eb8fcf..6872ac344001 100644
+--- a/drivers/crypto/cavium/cpt/cptpf_main.c
++++ b/drivers/crypto/cavium/cpt/cptpf_main.c
+@@ -253,6 +253,7 @@ static int cpt_ucode_load_fw(struct cpt_device *cpt, const u8 *fw, bool is_ae)
+ 	const struct firmware *fw_entry;
+ 	struct device *dev = &cpt->pdev->dev;
+ 	struct ucode_header *ucode;
++	unsigned int code_length;
+ 	struct microcode *mcode;
+ 	int j, ret = 0;
  
- 					x = ipad[i] ^ ipad[i + 4];
--					cache[i] ^= swab(x);
-+					cache[i] ^= swab32(x);
- 				}
- 			}
- 			cache_len = AES_BLOCK_SIZE;
-@@ -821,7 +821,7 @@ static int safexcel_ahash_final(struct ahash_request *areq)
- 			u32 *result = (void *)areq->result;
+@@ -263,11 +264,12 @@ static int cpt_ucode_load_fw(struct cpt_device *cpt, const u8 *fw, bool is_ae)
+ 	ucode = (struct ucode_header *)fw_entry->data;
+ 	mcode = &cpt->mcode[cpt->next_mc_idx];
+ 	memcpy(mcode->version, (u8 *)fw_entry->data, CPT_UCODE_VERSION_SZ);
+-	mcode->code_size = ntohl(ucode->code_length) * 2;
+-	if (!mcode->code_size) {
++	code_length = ntohl(ucode->code_length);
++	if (code_length == 0 || code_length >= INT_MAX / 2) {
+ 		ret = -EINVAL;
+ 		goto fw_release;
+ 	}
++	mcode->code_size = code_length * 2;
  
- 			/* K3 */
--			result[i] = swab(ctx->base.ipad.word[i + 4]);
-+			result[i] = swab32(ctx->base.ipad.word[i + 4]);
- 		}
- 		areq->result[0] ^= 0x80;			// 10- padding
- 		crypto_cipher_encrypt_one(ctx->kaes, areq->result, areq->result);
-@@ -2106,7 +2106,7 @@ static int safexcel_xcbcmac_setkey(struct crypto_ahash *tfm, const u8 *key,
- 	crypto_cipher_encrypt_one(ctx->kaes, (u8 *)key_tmp + AES_BLOCK_SIZE,
- 		"\x3\x3\x3\x3\x3\x3\x3\x3\x3\x3\x3\x3\x3\x3\x3\x3");
- 	for (i = 0; i < 3 * AES_BLOCK_SIZE / sizeof(u32); i++)
--		ctx->base.ipad.word[i] = swab(key_tmp[i]);
-+		ctx->base.ipad.word[i] = swab32(key_tmp[i]);
- 
- 	crypto_cipher_clear_flags(ctx->kaes, CRYPTO_TFM_REQ_MASK);
- 	crypto_cipher_set_flags(ctx->kaes, crypto_ahash_get_flags(tfm) &
-@@ -2189,7 +2189,7 @@ static int safexcel_cmac_setkey(struct crypto_ahash *tfm, const u8 *key,
- 		return ret;
- 
- 	for (i = 0; i < len / sizeof(u32); i++)
--		ctx->base.ipad.word[i + 8] = swab(aes.key_enc[i]);
-+		ctx->base.ipad.word[i + 8] = swab32(aes.key_enc[i]);
- 
- 	/* precompute the CMAC key material */
- 	crypto_cipher_clear_flags(ctx->kaes, CRYPTO_TFM_REQ_MASK);
+ 	mcode->is_ae = is_ae;
+ 	mcode->core_mask = 0ULL;
 -- 
 2.35.1
 
