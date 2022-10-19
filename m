@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 531186044F3
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:19:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 079236044EF
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:19:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232110AbiJSMTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 08:19:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38322 "EHLO
+        id S231956AbiJSMTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 08:19:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232845AbiJSMSL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:18:11 -0400
+        with ESMTP id S231894AbiJSMSo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:18:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4723E1C39ED;
-        Wed, 19 Oct 2022 04:53:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1289136403;
+        Wed, 19 Oct 2022 04:54:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3BF6B8245E;
-        Wed, 19 Oct 2022 09:02:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2334AC433D7;
-        Wed, 19 Oct 2022 09:02:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00F99B822BB;
+        Wed, 19 Oct 2022 09:02:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F77C433D6;
+        Wed, 19 Oct 2022 09:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170143;
-        bh=7C+xT1rRzPbiCm43+74AUTchCTj9A/0iYrQyNA+gvIg=;
+        s=korg; t=1666170148;
+        bh=6A4G5ttVug3XAxhzsOqGeSmvV1mp2WWrcAMaD8Bz/k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=048A0v4V6PS1Qm/OwDTLkZ8IGI8tt4dlXBcCQPUUtqqWHfiitndLOQ/cjnsFyzVL0
-         2VOyCDCwZEnXQtvnqG2M5JNF5fPUZJQilkqIJns/y3G0OafuQGG1oqb628daiPcZPO
-         AboY4HOpFv4IGGNMYFMcQpMNi2Tv5jfbnC2Kn7qU=
+        b=abVJlzuzJx3hexX5PeEqOSdur8KO1npIUlD2kkvBdT4nNB2RMvXxK3n5sM1EU9tzV
+         3aXQEuVsHqI+QNyRgk7xhsmgzSf8FpTT70JI5R8Qwpz30JCwJGrUkljC4RiRkIVnIO
+         RnP9OG1SsVGQbhS8T92ldDxxIHdJ1VgCtcWH+kNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Liang Yang <liang.yang@amlogic.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 543/862] mtd: rawnand: meson: fix bit map use in meson_nfc_ecc_correct()
-Date:   Wed, 19 Oct 2022 10:30:30 +0200
-Message-Id: <20221019083313.949160914@linuxfoundation.org>
+        stable@vger.kernel.org, Dylan Yudaken <dylany@fb.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 545/862] eventfd: guard wake_up in eventfd fs calls as well
+Date:   Wed, 19 Oct 2022 10:30:32 +0200
+Message-Id: <20221019083314.035666345@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,49 +52,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Dylan Yudaken <dylany@fb.com>
 
-[ Upstream commit 3e4ad3212cf22687410b1e8f4e68feec50646113 ]
+[ Upstream commit 9f0deaa12d832f488500a5afe9b912e9b3cfc432 ]
 
-The meson_nfc_ecc_correct() function accidentally does a right shift
-instead of a left shift so it only works for BIT(0).  Also use
-BIT_ULL() because "correct_bitmap" is a u64 and we want to avoid
-shift wrapping bugs.
+Guard wakeups that the user can trigger, and that may end up triggering a
+call back into eventfd_signal. This is in addition to the current approach
+that only guards in eventfd_signal.
 
-Fixes: 8fae856c5350 ("mtd: rawnand: meson: add support for Amlogic NAND flash controller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Liang Yang <liang.yang@amlogic.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/YuI2zF1hP65+LE7r@kili
+Rename in_eventfd_signal -> in_eventfd at the same time to reflect this.
+
+Without this there would be a deadlock in the following code using libaio:
+
+int main()
+{
+	struct io_context *ctx = NULL;
+	struct iocb iocb;
+	struct iocb *iocbs[] = { &iocb };
+	int evfd;
+        uint64_t val = 1;
+
+	evfd = eventfd(0, EFD_CLOEXEC);
+	assert(!io_setup(2, &ctx));
+	io_prep_poll(&iocb, evfd, POLLIN);
+	io_set_eventfd(&iocb, evfd);
+	assert(1 == io_submit(ctx, 1, iocbs));
+        write(evfd, &val, 8);
+}
+
+Signed-off-by: Dylan Yudaken <dylany@fb.com>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/20220816135959.1490641-1-dylany@fb.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/meson_nand.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/eventfd.c            |   10 +++++++---
+ include/linux/eventfd.h |    2 +-
+ include/linux/sched.h   |    2 +-
+ 3 files changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/meson_nand.c b/drivers/mtd/nand/raw/meson_nand.c
-index 829b76b303aa..ad2ffd0ca800 100644
---- a/drivers/mtd/nand/raw/meson_nand.c
-+++ b/drivers/mtd/nand/raw/meson_nand.c
-@@ -454,7 +454,7 @@ static int meson_nfc_ecc_correct(struct nand_chip *nand, u32 *bitflips,
- 		if (ECC_ERR_CNT(*info) != ECC_UNCORRECTABLE) {
- 			mtd->ecc_stats.corrected += ECC_ERR_CNT(*info);
- 			*bitflips = max_t(u32, *bitflips, ECC_ERR_CNT(*info));
--			*correct_bitmap |= 1 >> i;
-+			*correct_bitmap |= BIT_ULL(i);
- 			continue;
- 		}
- 		if ((nand->options & NAND_NEED_SCRAMBLING) &&
-@@ -800,7 +800,7 @@ static int meson_nfc_read_page_hwecc(struct nand_chip *nand, u8 *buf,
- 			u8 *data = buf + i * ecc->size;
- 			u8 *oob = nand->oob_poi + i * (ecc->bytes + 2);
+--- a/fs/eventfd.c
++++ b/fs/eventfd.c
+@@ -69,17 +69,17 @@ __u64 eventfd_signal(struct eventfd_ctx
+ 	 * it returns false, the eventfd_signal() call should be deferred to a
+ 	 * safe context.
+ 	 */
+-	if (WARN_ON_ONCE(current->in_eventfd_signal))
++	if (WARN_ON_ONCE(current->in_eventfd))
+ 		return 0;
  
--			if (correct_bitmap & (1 << i))
-+			if (correct_bitmap & BIT_ULL(i))
- 				continue;
- 			ret = nand_check_erased_ecc_chunk(data,	ecc->size,
- 							  oob, ecc->bytes + 2,
--- 
-2.35.1
-
+ 	spin_lock_irqsave(&ctx->wqh.lock, flags);
+-	current->in_eventfd_signal = 1;
++	current->in_eventfd = 1;
+ 	if (ULLONG_MAX - ctx->count < n)
+ 		n = ULLONG_MAX - ctx->count;
+ 	ctx->count += n;
+ 	if (waitqueue_active(&ctx->wqh))
+ 		wake_up_locked_poll(&ctx->wqh, EPOLLIN);
+-	current->in_eventfd_signal = 0;
++	current->in_eventfd = 0;
+ 	spin_unlock_irqrestore(&ctx->wqh.lock, flags);
+ 
+ 	return n;
+@@ -253,8 +253,10 @@ static ssize_t eventfd_read(struct kiocb
+ 		__set_current_state(TASK_RUNNING);
+ 	}
+ 	eventfd_ctx_do_read(ctx, &ucnt);
++	current->in_eventfd = 1;
+ 	if (waitqueue_active(&ctx->wqh))
+ 		wake_up_locked_poll(&ctx->wqh, EPOLLOUT);
++	current->in_eventfd = 0;
+ 	spin_unlock_irq(&ctx->wqh.lock);
+ 	if (unlikely(copy_to_iter(&ucnt, sizeof(ucnt), to) != sizeof(ucnt)))
+ 		return -EFAULT;
+@@ -301,8 +303,10 @@ static ssize_t eventfd_write(struct file
+ 	}
+ 	if (likely(res > 0)) {
+ 		ctx->count += ucnt;
++		current->in_eventfd = 1;
+ 		if (waitqueue_active(&ctx->wqh))
+ 			wake_up_locked_poll(&ctx->wqh, EPOLLIN);
++		current->in_eventfd = 0;
+ 	}
+ 	spin_unlock_irq(&ctx->wqh.lock);
+ 
+--- a/include/linux/eventfd.h
++++ b/include/linux/eventfd.h
+@@ -46,7 +46,7 @@ void eventfd_ctx_do_read(struct eventfd_
+ 
+ static inline bool eventfd_signal_allowed(void)
+ {
+-	return !current->in_eventfd_signal;
++	return !current->in_eventfd;
+ }
+ 
+ #else /* CONFIG_EVENTFD */
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -936,7 +936,7 @@ struct task_struct {
+ #endif
+ #ifdef CONFIG_EVENTFD
+ 	/* Recursion prevention for eventfd_signal() */
+-	unsigned			in_eventfd_signal:1;
++	unsigned			in_eventfd:1;
+ #endif
+ #ifdef CONFIG_IOMMU_SVA
+ 	unsigned			pasid_activated:1;
 
 
