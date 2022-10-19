@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B22B6047C4
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:45:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A99A560487C
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:57:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231709AbiJSNpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:45:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44110 "EHLO
+        id S233757AbiJSN4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:56:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230346AbiJSNoe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:44:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0659AD8B;
-        Wed, 19 Oct 2022 06:31:45 -0700 (PDT)
+        with ESMTP id S234401AbiJSNzw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:55:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA34819E938;
+        Wed, 19 Oct 2022 06:38:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 843E3B8241C;
-        Wed, 19 Oct 2022 08:56:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD26FC433D6;
-        Wed, 19 Oct 2022 08:56:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BFACB8241B;
+        Wed, 19 Oct 2022 08:56:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80E2BC433C1;
+        Wed, 19 Oct 2022 08:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169787;
-        bh=mHHiX2Vds7w034Q/10+IvKu6BhX3WEG6qDXMWNVsef8=;
+        s=korg; t=1666169789;
+        bh=G8xADkDPYcWBWUslQAaiMJUF6p8+GO7B2dJtWPf4nTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eIcNm3x04mz+6L+fwf3zcZEzC5J37pUA4zgEcxrJX7ujP6wKuQ/WgYF4iwa55PHCc
-         +2O7EBJ2o2A7kAXQTfT9u3ce52QS8hm225guwQbRWKhFj2u2lZPmfykjn/FVR+2Eub
-         LiBgzOO63/j11GQypFc1vjowgNpUg5RQZD4n/YBI=
+        b=aFcB1uTeve38IFckh1KxMeEfYwJKccu2+s1hUmV6k9AYEGV0saVzcieGeEf48KnPn
+         yIM17KzX2HRXAseqF9Sx2rBglMiuwTueUefBLlLUVYRJyl/sAyJ16GAWp2s1TuZGOv
+         DC//5rV3wKxtCx4YLrnUccn2xqB+LxdzeU4djDkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Olivier Moysan <olivier.moysan@foss.st.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 407/862] ASoC: stm: Fix PM disable depth imbalance in stm32_i2s_probe
-Date:   Wed, 19 Oct 2022 10:28:14 +0200
-Message-Id: <20221019083307.934299755@linuxfoundation.org>
+Subject: [PATCH 6.0 408/862] ASoC: wcd-mbhc-v2: Revert "ASoC: wcd-mbhc-v2: use pm_runtime_resume_and_get()"
+Date:   Wed, 19 Oct 2022 10:28:15 +0200
+Message-Id: <20221019083307.983393057@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,48 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 93618e5e05a3ce4aa6750268c5025bdb4cb7dc6e ]
+[ Upstream commit e18f6bcf8e864ea0e9690691d0d749c662b6a2c7 ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context. We fix it by moving
-pm_runtime_enable to the endding of stm32_i2s_probe.
+This reverts commit ddea4bbf287b6028eaa15a185d0693856956ecf2 ("ASoC:
+wcd-mbhc-v2: use pm_runtime_resume_and_get()"), because it introduced
+double runtime PM put if pm_runtime_get_sync() returns -EACCES:
 
-Fixes:32a956a1fadf ("ASoC: stm32: i2s: add pm_runtime support")
+  wcd934x-codec wcd934x-codec.3.auto: WCD934X Minor:0x1 Version:0x401
+  wcd934x-codec wcd934x-codec.3.auto: Runtime PM usage count underflow!
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Olivier Moysan <olivier.moysan@foss.st.com>
-Link: https://lore.kernel.org/r/20220927142640.64647-1-zhangqilong3@huawei.com
+The commit claimed no changes in functionality except dropping the
+reference on -EACCESS.  This is exactly the change introducing bug
+because function calls unconditionally pm_runtime_put_autosuspend() at
+the end.
+
+Fixes: ddea4bbf287b ("ASoC: wcd-mbhc-v2: use pm_runtime_resume_and_get()")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220929131528.217502-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/stm/stm32_i2s.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/wcd-mbhc-v2.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/stm/stm32_i2s.c b/sound/soc/stm/stm32_i2s.c
-index 6aafe793eec4..ce7f6942308f 100644
---- a/sound/soc/stm/stm32_i2s.c
-+++ b/sound/soc/stm/stm32_i2s.c
-@@ -1136,8 +1136,6 @@ static int stm32_i2s_probe(struct platform_device *pdev)
- 		return dev_err_probe(&pdev->dev, PTR_ERR(i2s->regmap),
- 				     "Regmap init error\n");
+diff --git a/sound/soc/codecs/wcd-mbhc-v2.c b/sound/soc/codecs/wcd-mbhc-v2.c
+index 98baef594bf3..31009283e7d4 100644
+--- a/sound/soc/codecs/wcd-mbhc-v2.c
++++ b/sound/soc/codecs/wcd-mbhc-v2.c
+@@ -714,11 +714,12 @@ static int wcd_mbhc_initialise(struct wcd_mbhc *mbhc)
+ 	struct snd_soc_component *component = mbhc->component;
+ 	int ret;
  
--	pm_runtime_enable(&pdev->dev);
--
- 	ret = snd_dmaengine_pcm_register(&pdev->dev, &stm32_i2s_pcm_config, 0);
- 	if (ret)
- 		return dev_err_probe(&pdev->dev, ret, "PCM DMA register error\n");
-@@ -1180,6 +1178,8 @@ static int stm32_i2s_probe(struct platform_device *pdev)
- 			FIELD_GET(I2S_VERR_MIN_MASK, val));
+-	ret = pm_runtime_resume_and_get(component->dev);
++	ret = pm_runtime_get_sync(component->dev);
+ 	if (ret < 0 && ret != -EACCES) {
+ 		dev_err_ratelimited(component->dev,
+-				    "pm_runtime_resume_and_get failed in %s, ret %d\n",
++				    "pm_runtime_get_sync failed in %s, ret %d\n",
+ 				    __func__, ret);
++		pm_runtime_put_noidle(component->dev);
+ 		return ret;
  	}
  
-+	pm_runtime_enable(&pdev->dev);
-+
- 	return ret;
+@@ -1096,11 +1097,12 @@ static void wcd_correct_swch_plug(struct work_struct *work)
+ 	mbhc = container_of(work, struct wcd_mbhc, correct_plug_swch);
+ 	component = mbhc->component;
  
- error:
+-	ret = pm_runtime_resume_and_get(component->dev);
++	ret = pm_runtime_get_sync(component->dev);
+ 	if (ret < 0 && ret != -EACCES) {
+ 		dev_err_ratelimited(component->dev,
+-				    "pm_runtime_resume_and_get failed in %s, ret %d\n",
++				    "pm_runtime_get_sync failed in %s, ret %d\n",
+ 				    __func__, ret);
++		pm_runtime_put_noidle(component->dev);
+ 		return;
+ 	}
+ 	micbias_mv = wcd_mbhc_get_micbias(mbhc);
 -- 
 2.35.1
 
