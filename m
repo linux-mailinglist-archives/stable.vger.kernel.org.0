@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1108F603EBE
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:20:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81ABE603E96
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:16:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233086AbiJSJUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:20:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41782 "EHLO
+        id S233167AbiJSJQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:16:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233309AbiJSJSQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:18:16 -0400
+        with ESMTP id S233665AbiJSJPg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:15:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01BE7D9977;
-        Wed, 19 Oct 2022 02:07:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7856B1C7;
+        Wed, 19 Oct 2022 02:06:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6588A617F1;
-        Wed, 19 Oct 2022 09:06:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C631C433D7;
-        Wed, 19 Oct 2022 09:06:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C739C61851;
+        Wed, 19 Oct 2022 09:05:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9BDEC433C1;
+        Wed, 19 Oct 2022 09:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170406;
-        bh=1Y7qpSB/p47Zdgo29zn1EKjizf5xN3DqjUZFK+QYqKQ=;
+        s=korg; t=1666170338;
+        bh=3X88PMqkuFvbCL2Lx1FKmQEB2o2cLmNKVi0b2sFtjAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hqrJxjZLYMe32NBRt0lQAHjx5yiltiJGgJWcJdOezvyWXHE8+IHa170HuvW0cGKcB
-         5q1eIiVl3L7NLgW5vKEXxTfdWE0JAC86SYfATMcVVfUCtgMG0GAalm3xe9VtALTV2e
-         FEjocvzD9qKgFTj5uIk3Y5uxO6aT0DkSPCSLdm/E=
+        b=0mLk2CPD40mjPK4qpr8ICu+0FlSn6/tvQtRA1RUHwQmFL8nC9LWmz3+CCOFra1IuT
+         XnYKw0tMMGET/s2Q3VkqmeWsg+aj7DyFgdUFNDzRWAlf3lYEgI2FppGzhfKcC5p7zq
+         Oh9C6ewKWuyfKioqBK+I/8kw+OBaZQudQn2E/Vd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Yujun <linyujun809@huawei.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 598/862] clk: imx: scu: fix memleak on platform_device_add() fails
-Date:   Wed, 19 Oct 2022 10:31:25 +0200
-Message-Id: <20221019083316.386165857@linuxfoundation.org>
+Subject: [PATCH 6.0 600/862] clk: ti: dra7-atl: Fix reference leak in of_dra7_atl_clk_probe
+Date:   Wed, 19 Oct 2022 10:31:27 +0200
+Message-Id: <20221019083316.457225483@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,40 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Yujun <linyujun809@huawei.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 855ae87a2073ebf1b395e020de54fdf9ce7d166f ]
+[ Upstream commit 9c59a01caba26ec06fefd6ca1f22d5fd1de57d63 ]
 
-No error handling is performed when platform_device_add()
-fails. Add error processing before return, and modified
-the return value.
+pm_runtime_get_sync() will increment pm usage counter.
+Forgetting to putting operation will result in reference leak.
+Add missing pm_runtime_put_sync in some error paths.
 
-Fixes: 77d8f3068c63 ("clk: imx: scu: add two cells binding support")
-Signed-off-by: Lin Yujun <linyujun809@huawei.com>
-Link: https://lore.kernel.org/r/20220914033206.98046-1-linyujun809@huawei.com
+Fixes: 9ac33b0ce81f ("CLK: TI: Driver for DRA7 ATL (Audio Tracking Logic)")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220602030838.52057-1-linmq006@gmail.com
+Reviewed-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-scu.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/clk/ti/clk-dra7-atl.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/imx/clk-scu.c b/drivers/clk/imx/clk-scu.c
-index c56e406138db..1e6870f3671f 100644
---- a/drivers/clk/imx/clk-scu.c
-+++ b/drivers/clk/imx/clk-scu.c
-@@ -695,7 +695,11 @@ struct clk_hw *imx_clk_scu_alloc_dev(const char *name,
- 		pr_warn("%s: failed to attached the power domain %d\n",
- 			name, ret);
+diff --git a/drivers/clk/ti/clk-dra7-atl.c b/drivers/clk/ti/clk-dra7-atl.c
+index f0f5bf68b6d2..ff4d6a951681 100644
+--- a/drivers/clk/ti/clk-dra7-atl.c
++++ b/drivers/clk/ti/clk-dra7-atl.c
+@@ -245,14 +245,16 @@ static int of_dra7_atl_clk_probe(struct platform_device *pdev)
+ 		if (rc) {
+ 			pr_err("%s: failed to lookup atl clock %d\n", __func__,
+ 			       i);
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto pm_put;
+ 		}
  
--	platform_device_add(pdev);
-+	ret = platform_device_add(pdev);
-+	if (ret) {
-+		platform_device_put(pdev);
-+		return ERR_PTR(ret);
-+	}
+ 		clk = of_clk_get_from_provider(&clkspec);
+ 		if (IS_ERR(clk)) {
+ 			pr_err("%s: failed to get atl clock %d from provider\n",
+ 			       __func__, i);
+-			return PTR_ERR(clk);
++			ret = PTR_ERR(clk);
++			goto pm_put;
+ 		}
  
- 	/* For API backwards compatiblilty, simply return NULL for success */
- 	return NULL;
+ 		cdesc = to_atl_desc(__clk_get_hw(clk));
+@@ -285,8 +287,9 @@ static int of_dra7_atl_clk_probe(struct platform_device *pdev)
+ 		if (cdesc->enabled)
+ 			atl_clk_enable(__clk_get_hw(clk));
+ 	}
+-	pm_runtime_put_sync(cinfo->dev);
+ 
++pm_put:
++	pm_runtime_put_sync(cinfo->dev);
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
