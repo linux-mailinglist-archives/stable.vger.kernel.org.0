@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 383666042EC
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:12:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A1D6042B6
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232618AbiJSLMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:12:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44366 "EHLO
+        id S230447AbiJSLIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232752AbiJSLLM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:11:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51582153835;
-        Wed, 19 Oct 2022 03:38:50 -0700 (PDT)
+        with ESMTP id S232334AbiJSLI1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:08:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFACC17C54C;
+        Wed, 19 Oct 2022 03:37:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF590B82334;
-        Wed, 19 Oct 2022 09:06:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44479C433D7;
-        Wed, 19 Oct 2022 09:06:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8C59B8239F;
+        Wed, 19 Oct 2022 09:06:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05C54C433B5;
+        Wed, 19 Oct 2022 09:06:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170398;
-        bh=BaI82+rRrrtiUMrTa09afa+nj5px1HQoMoRsf7VXukE=;
+        s=korg; t=1666170401;
+        bh=+NwEIh0CKLU+P0/6RuqD9Lvp0NWwOKt/Z49Pb8qKbWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KAcYywsHykvqeM38DgQfXuy2Jqh10AUDY1rgcDnW82sKKRGG8Y8svqd+IPmXU+V7S
-         xD49vCXuHWSdABnSExukc8hN7d5My8TURM4IMVy666jqJ7H9Hk0lZmVHX05Pvni8na
-         24GUobX6hE0aHrEUgwt9QwcFeSswS9TzYwovp3qA=
+        b=p+T1nxJKfd6c8vze6LZXnj3cEaI7TiDn4PaAlbMlvn9X0P18yGrd21MKJS64oH56i
+         rg2mwdKJZKcyYzOSUp2/Kz2b6v+mVSgucqn3bT2aBtwLlbrrd8Gq/yxY7oQegphEKF
+         /cS4QgrIQ9dOdgrOIPepA0aj0EheDQhUPr0O11Do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 605/862] mailbox: bcm-ferxrm-mailbox: Fix error check for dma_map_sg
-Date:   Wed, 19 Oct 2022 10:31:32 +0200
-Message-Id: <20221019083316.678797029@linuxfoundation.org>
+Subject: [PATCH 6.0 606/862] ipc: mqueue: fix possible memory leak in init_mqueue_fs()
+Date:   Wed, 19 Oct 2022 10:31:33 +0200
+Message-Id: <20221019083316.717671409@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,45 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@ionos.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 6b207ce8a96a71e966831e3a13c38143ba9a73c1 ]
+[ Upstream commit c579d60f0d0cd87552f64fdebe68b5d941d20309 ]
 
-dma_map_sg return 0 on error, fix the error check, and return -EIO
-to caller.
+commit db7cfc380900 ("ipc: Free mq_sysctls if ipc namespace creation
+failed")
 
-Fixes: dbc049eee730 ("mailbox: Add driver for Broadcom FlexRM ring manager")
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Here's a similar memory leak to the one fixed by the patch above.
+retire_mq_sysctls need to be called when init_mqueue_fs fails after
+setup_mq_sysctls.
+
+Fixes: dc55e35f9e81 ("ipc: Store mqueue sysctls in the ipc namespace")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Link: https://lkml.kernel.org/r/20220715062301.19311-1-hbh25y@gmail.com
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/bcm-flexrm-mailbox.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ ipc/mqueue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mailbox/bcm-flexrm-mailbox.c b/drivers/mailbox/bcm-flexrm-mailbox.c
-index fda16f76401e..bf6e86b0ed09 100644
---- a/drivers/mailbox/bcm-flexrm-mailbox.c
-+++ b/drivers/mailbox/bcm-flexrm-mailbox.c
-@@ -622,15 +622,15 @@ static int flexrm_spu_dma_map(struct device *dev, struct brcm_message *msg)
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index f98de32aeea1..9cf314b3f079 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -1746,6 +1746,7 @@ static int __init init_mqueue_fs(void)
+ 	unregister_filesystem(&mqueue_fs_type);
+ out_sysctl:
+ 	kmem_cache_destroy(mqueue_inode_cachep);
++	retire_mq_sysctls(&init_ipc_ns);
+ 	return error;
+ }
  
- 	rc = dma_map_sg(dev, msg->spu.src, sg_nents(msg->spu.src),
- 			DMA_TO_DEVICE);
--	if (rc < 0)
--		return rc;
-+	if (!rc)
-+		return -EIO;
- 
- 	rc = dma_map_sg(dev, msg->spu.dst, sg_nents(msg->spu.dst),
- 			DMA_FROM_DEVICE);
--	if (rc < 0) {
-+	if (!rc) {
- 		dma_unmap_sg(dev, msg->spu.src, sg_nents(msg->spu.src),
- 			     DMA_TO_DEVICE);
--		return rc;
-+		return -EIO;
- 	}
- 
- 	return 0;
 -- 
 2.35.1
 
