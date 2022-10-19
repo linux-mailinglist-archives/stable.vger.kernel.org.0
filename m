@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4206041E7
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:50:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F154A6042C9
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:10:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233834AbiJSKuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:50:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54120 "EHLO
+        id S231153AbiJSLJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:09:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234564AbiJSKt3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:49:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08DBE14BB71;
-        Wed, 19 Oct 2022 03:22:19 -0700 (PDT)
+        with ESMTP id S233181AbiJSLIy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:08:54 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C97D14EC77;
+        Wed, 19 Oct 2022 03:37:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B04CB824C2;
-        Wed, 19 Oct 2022 09:11:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF157C433C1;
-        Wed, 19 Oct 2022 09:11:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 59455CE21B0;
+        Wed, 19 Oct 2022 09:11:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EE53C433D7;
+        Wed, 19 Oct 2022 09:11:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170696;
-        bh=8vlZOH+1gnjwy2xjkBABceLfZcQrgsu6aRHtvXp0IEs=;
+        s=korg; t=1666170698;
+        bh=Syyww4aE/A9q2YbgecUDjN7WhpYEeXohYESQpJiSY+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bzXAUqCc8BDenCN6P9al8XIwEpprm9kxdSK/CJQhV3RJBl0kHCZXq6YRE/2Pk5CDo
-         mwBON4DcKGXc26lp7fbQoQEQc50Wm+VaQu2PryETFPin5P1Jfb9r+3m8pjgelN8P/t
-         j2sav56cpCWxXFABNOFC0663Y+gLbjDVrCHuOUn0=
+        b=gDGk9bT+1mK4aCae/7WPEbGv2qy33SKbiMCdGlJGuNSxv9MEURoYEjRskOKs8OWn6
+         0e7ZCidLaqKTK92/Wf/NxjsVUJwdrdsQ0zJs8k1RtVuvfatAnqoizBjkSmiCGyi8or
+         6qsGSrJzVuX/RQ+h6nQKb8HzpurXNqkcAo+Q1Ljk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
+        Felix Kuehling <felix.kuehling@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 753/862] ASoC: SOF: add quirk to override topology mclk_id
-Date:   Wed, 19 Oct 2022 10:34:00 +0200
-Message-Id: <20221019083323.177619438@linuxfoundation.org>
+Subject: [PATCH 6.0 754/862] drm/amdgpu: SDMA update use unlocked iterator
+Date:   Wed, 19 Oct 2022 10:34:01 +0200
+Message-Id: <20221019083323.217463591@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,103 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Philip Yang <Philip.Yang@amd.com>
 
-[ Upstream commit d136949dd8e2e309dc2f186507486b71cbe9acdb ]
+[ Upstream commit 3913f0179ba366f7d7d160c506ce00de1602bbc4 ]
 
-Some Intel-based platforms rely on a topology file that hard-codes the
-use of MCLK0. This is incorrect in 10% of the cases. Rather than
-generating yet another set of topology files, this patch adds a kernel
-module parameter to override the topology value.
+SDMA update page table may be called from unlocked context, this
+generate below warning. Use unlocked iterator to handle this case.
 
-In hindsight, we should never have allowed mclks to be specified in
-topology, this is a hardware-level information that should not have
-been visible in the topology.
+WARNING: CPU: 0 PID: 1475 at
+drivers/dma-buf/dma-resv.c:483 dma_resv_iter_next
+Call Trace:
+ dma_resv_iter_first+0x43/0xa0
+ amdgpu_vm_sdma_update+0x69/0x2d0 [amdgpu]
+ amdgpu_vm_ptes_update+0x29c/0x870 [amdgpu]
+ amdgpu_vm_update_range+0x2f6/0x6c0 [amdgpu]
+ svm_range_unmap_from_gpus+0x115/0x300 [amdgpu]
+ svm_range_cpu_invalidate_pagetables+0x510/0x5e0 [amdgpu]
+ __mmu_notifier_invalidate_range_start+0x1d3/0x230
+ unmap_vmas+0x140/0x150
+ unmap_region+0xa8/0x110
 
-Future patches will try to set this value automagically, e.g. by
-parsing the NHLT content.
-
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220919115350.43104-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Suggested-by: Felix Kuehling <felix.kuehling@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda.c     | 11 +++++++++++
- sound/soc/sof/ipc3-topology.c |  7 +++++++
- sound/soc/sof/sof-priv.h      |  4 ++++
- 3 files changed, 22 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
-index 6d4ecbe14adf..ada2e6775749 100644
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -376,6 +376,10 @@ static int dmic_num_override = -1;
- module_param_named(dmic_num, dmic_num_override, int, 0444);
- MODULE_PARM_DESC(dmic_num, "SOF HDA DMIC number");
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c
+index 1fd3cbca20a2..718db7d98e5a 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_sdma.c
+@@ -211,12 +211,15 @@ static int amdgpu_vm_sdma_update(struct amdgpu_vm_update_params *p,
+ 	int r;
  
-+static int mclk_id_override = -1;
-+module_param_named(mclk_id, mclk_id_override, int, 0444);
-+MODULE_PARM_DESC(mclk_id, "SOF SSP mclk_id");
-+
- #if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA)
- static bool hda_codec_use_common_hdmi = IS_ENABLED(CONFIG_SND_HDA_CODEC_HDMI);
- module_param_named(use_common_hdmi, hda_codec_use_common_hdmi, bool, 0444);
-@@ -1565,6 +1569,13 @@ struct snd_soc_acpi_mach *hda_machine_select(struct snd_sof_dev *sdev)
- 
- 			sof_pdata->tplg_filename = tplg_filename;
- 		}
-+
-+		/* check if mclk_id should be modified from topology defaults */
-+		if (mclk_id_override >= 0) {
-+			dev_info(sdev->dev, "Overriding topology with MCLK %d from kernel_parameter\n", mclk_id_override);
-+			sdev->mclk_id_override = true;
-+			sdev->mclk_id_quirk = mclk_id_override;
+ 	/* Wait for PD/PT moves to be completed */
+-	dma_resv_for_each_fence(&cursor, bo->tbo.base.resv,
+-				DMA_RESV_USAGE_KERNEL, fence) {
++	dma_resv_iter_begin(&cursor, bo->tbo.base.resv, DMA_RESV_USAGE_KERNEL);
++	dma_resv_for_each_fence_unlocked(&cursor, fence) {
+ 		r = amdgpu_sync_fence(&p->job->sync, fence);
+-		if (r)
++		if (r) {
++			dma_resv_iter_end(&cursor);
+ 			return r;
 +		}
  	}
++	dma_resv_iter_end(&cursor);
  
- 	/*
-diff --git a/sound/soc/sof/ipc3-topology.c b/sound/soc/sof/ipc3-topology.c
-index 65923e7a5976..a39b43850f0e 100644
---- a/sound/soc/sof/ipc3-topology.c
-+++ b/sound/soc/sof/ipc3-topology.c
-@@ -1249,6 +1249,7 @@ static int sof_link_afe_load(struct snd_soc_component *scomp, struct snd_sof_dai
- static int sof_link_ssp_load(struct snd_soc_component *scomp, struct snd_sof_dai_link *slink,
- 			     struct sof_ipc_dai_config *config, struct snd_sof_dai *dai)
- {
-+	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
- 	struct snd_soc_tplg_hw_config *hw_config = slink->hw_configs;
- 	struct sof_dai_private_data *private = dai->private;
- 	u32 size = sizeof(*config);
-@@ -1273,6 +1274,12 @@ static int sof_link_ssp_load(struct snd_soc_component *scomp, struct snd_sof_dai
- 
- 		config[i].hdr.size = size;
- 
-+		if (sdev->mclk_id_override) {
-+			dev_dbg(scomp->dev, "tplg: overriding topology mclk_id %d by quirk %d\n",
-+				config[i].ssp.mclk_id, sdev->mclk_id_quirk);
-+			config[i].ssp.mclk_id = sdev->mclk_id_quirk;
-+		}
-+
- 		/* copy differentiating hw configs to ipc structs */
- 		config[i].ssp.mclk_rate = le32_to_cpu(hw_config[i].mclk_rate);
- 		config[i].ssp.bclk_rate = le32_to_cpu(hw_config[i].bclk_rate);
-diff --git a/sound/soc/sof/sof-priv.h b/sound/soc/sof/sof-priv.h
-index 823583086279..828c74bb75f8 100644
---- a/sound/soc/sof/sof-priv.h
-+++ b/sound/soc/sof/sof-priv.h
-@@ -594,6 +594,10 @@ struct snd_sof_dev {
- 	/* to protect the ipc_rx_handler_list  and  dsp_state_handler_list list */
- 	struct mutex client_event_handler_mutex;
- 
-+	/* quirks to override topology values */
-+	bool mclk_id_override;
-+	u16  mclk_id_quirk; /* same size as in IPC3 definitions */
-+
- 	void *private;			/* core does not touch this */
- };
- 
+ 	do {
+ 		ndw = p->num_dw_left;
 -- 
 2.35.1
 
