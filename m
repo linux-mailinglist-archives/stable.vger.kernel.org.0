@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBE9560413C
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:41:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BCBE604286
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:06:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232089AbiJSKlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:41:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58676 "EHLO
+        id S234793AbiJSLGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:06:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232099AbiJSKkN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:40:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF7A76B8ED;
-        Wed, 19 Oct 2022 03:18:46 -0700 (PDT)
+        with ESMTP id S231633AbiJSLFT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:05:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE69D193F5;
+        Wed, 19 Oct 2022 03:34:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA8D5B824E1;
-        Wed, 19 Oct 2022 09:14:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AC03C433B5;
-        Wed, 19 Oct 2022 09:14:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3464617F7;
+        Wed, 19 Oct 2022 09:15:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5D59C433D6;
+        Wed, 19 Oct 2022 09:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170892;
-        bh=OxUnyWBNF9EL9wIWC7v/GzN4GWanOyfXdgikF9wmzdI=;
+        s=korg; t=1666170903;
+        bh=2ZxUg/1wAsgJI7Aj9gDfm/S13ITpUsPEtiIhR3IIIoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wvti6MUYHhKeYgk7IJVI5kMMeVaJdbxgbkxpf44D47ijnINwZ/7uRcQJPs0uqZXg4
-         wgT4cKdkiP9byPsraAmetbRp0ItRqYcP6JxJxvgbaQlPb0x9fNtkn8R3IygY2scbZv
-         VYf/v4PYqn3BUKDK5YCA4hPPsB2/x5QHkYSx1Ka8=
+        b=lN18bBEyMhZ6OsE76f1xj8U5Gib3acWiVgu9MY4cHfT5HcmqjF2OUYYhB0axoCd/i
+         RPrtKiCDnZJZekDOrs6gV3OzmXHQhLIKyenEpGnCmkTfRgqdgThLu08EMhwtSGnKCX
+         XMjGkWnW1jmZji6qMupbYlI7yQqvEntqviB1jqCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+0f2f7e65a3007d39539f@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 827/862] ext2: Use kvmalloc() for group descriptor array
-Date:   Wed, 19 Oct 2022 10:35:14 +0200
-Message-Id: <20221019083326.446951244@linuxfoundation.org>
+        syzbot+79832d33eb89fb3cd092@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 831/862] usb: idmouse: fix an uninit-value in idmouse_open
+Date:   Wed, 19 Oct 2022 10:35:18 +0200
+Message-Id: <20221019083326.617645049@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,53 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit e7c7fbb9a8574ebd89cc05db49d806c7476863ad ]
+[ Upstream commit bce2b0539933e485d22d6f6f076c0fcd6f185c4c ]
 
-Array of group descriptor block buffers can get rather large. In theory
-in can reach 1MB for perfectly valid filesystem and even more for
-maliciously crafted ones. Use kvmalloc() to allocate the array to avoid
-straining memory allocator with large order allocations unnecessarily.
+In idmouse_create_image, if any ftip_command fails, it will
+go to the reset label. However, this leads to the data in
+bulk_in_buffer[HEADER..IMGSIZE] uninitialized. And the check
+for valid image incurs an uninitialized dereference.
 
-Reported-by: syzbot+0f2f7e65a3007d39539f@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fix this by moving the check before reset label since this
+check only be valid if the data after bulk_in_buffer[HEADER]
+has concrete data.
+
+Note that this is found by KMSAN, so only kernel compilation
+is tested.
+
+Reported-by: syzbot+79832d33eb89fb3cd092@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20220922134847.1101921-1-dzm91@hust.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext2/super.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/misc/idmouse.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ext2/super.c b/fs/ext2/super.c
-index afb31af9302d..03f2af98b1b4 100644
---- a/fs/ext2/super.c
-+++ b/fs/ext2/super.c
-@@ -163,7 +163,7 @@ static void ext2_put_super (struct super_block * sb)
- 	db_count = sbi->s_gdb_count;
- 	for (i = 0; i < db_count; i++)
- 		brelse(sbi->s_group_desc[i]);
--	kfree(sbi->s_group_desc);
-+	kvfree(sbi->s_group_desc);
- 	kfree(sbi->s_debts);
- 	percpu_counter_destroy(&sbi->s_freeblocks_counter);
- 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
-@@ -1092,7 +1092,7 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+diff --git a/drivers/usb/misc/idmouse.c b/drivers/usb/misc/idmouse.c
+index e9437a176518..ea39243efee3 100644
+--- a/drivers/usb/misc/idmouse.c
++++ b/drivers/usb/misc/idmouse.c
+@@ -177,10 +177,6 @@ static int idmouse_create_image(struct usb_idmouse *dev)
+ 		bytes_read += bulk_read;
  	}
- 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
- 		   EXT2_DESC_PER_BLOCK(sb);
--	sbi->s_group_desc = kmalloc_array(db_count,
-+	sbi->s_group_desc = kvmalloc_array(db_count,
- 					   sizeof(struct buffer_head *),
- 					   GFP_KERNEL);
- 	if (sbi->s_group_desc == NULL) {
-@@ -1218,7 +1218,7 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
- 	for (i = 0; i < db_count; i++)
- 		brelse(sbi->s_group_desc[i]);
- failed_mount_group_desc:
--	kfree(sbi->s_group_desc);
-+	kvfree(sbi->s_group_desc);
- 	kfree(sbi->s_debts);
- failed_mount:
- 	brelse(bh);
+ 
+-	/* reset the device */
+-reset:
+-	ftip_command(dev, FTIP_RELEASE, 0, 0);
+-
+ 	/* check for valid image */
+ 	/* right border should be black (0x00) */
+ 	for (bytes_read = sizeof(HEADER)-1 + WIDTH-1; bytes_read < IMGSIZE; bytes_read += WIDTH)
+@@ -192,6 +188,10 @@ static int idmouse_create_image(struct usb_idmouse *dev)
+ 		if (dev->bulk_in_buffer[bytes_read] != 0xFF)
+ 			return -EAGAIN;
+ 
++	/* reset the device */
++reset:
++	ftip_command(dev, FTIP_RELEASE, 0, 0);
++
+ 	/* should be IMGSIZE == 65040 */
+ 	dev_dbg(&dev->interface->dev, "read %d bytes fingerprint data\n",
+ 		bytes_read);
 -- 
 2.35.1
 
