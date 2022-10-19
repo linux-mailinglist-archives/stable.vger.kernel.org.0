@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 542B160415B
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:43:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03A6C604152
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:42:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232227AbiJSKnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:43:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60162 "EHLO
+        id S231698AbiJSKmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:42:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232242AbiJSKmX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:42:23 -0400
+        with ESMTP id S231986AbiJSKlq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:41:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4719BB97A0;
-        Wed, 19 Oct 2022 03:20:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45A5A27DEB;
+        Wed, 19 Oct 2022 03:19:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6ACB0B82389;
-        Wed, 19 Oct 2022 08:51:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBB19C433C1;
-        Wed, 19 Oct 2022 08:51:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19F4DB822E1;
+        Wed, 19 Oct 2022 08:51:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B977C433C1;
+        Wed, 19 Oct 2022 08:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169480;
-        bh=CPeINRe0pEMnOWV5lqV0MslZCm4GwrZoEHYIiNvKaLk=;
+        s=korg; t=1666169482;
+        bh=C6CwbD+x4Djmkf1hfONC+CIP9Mm3gn2aJ3WQUw0pJs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s19ShQsqy3POhaiw8YauC9RFXT9AqbJXVU92Mt7Q7qt2889cOZ6HaMgKFHlrkwE+x
-         zDUzDv6sAC/gsd4ZvodeRCrwrutoUBO6WvBMV+Fnkyp8aomGgiI2Aucym4cI+FMUDC
-         uV7kFr+Ced1yvDN4It9kLNwb57ZP9AWaYk6ngRH8=
+        b=wwmUABvmBIrj2jHgzEuKzwjTuHfGkUBB5k9K4ENhAiCc4RsTbVv10T49UqPu3Dhhh
+         Edh6aRNYHRpj+k1C6/ZTDvKlDRCkAdfmzOK012dga7JWoIt2lEHryYPd+sgoTXGScQ
+         hyCXYP/nCS7WgiHScdHcynufDoDELzAxwgWalUhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Deren Wu <deren.wu@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 292/862] wifi: mt76: mt7921e: fix rmmod crash in driver reload test
-Date:   Wed, 19 Oct 2022 10:26:19 +0200
-Message-Id: <20221019083302.915300879@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 293/862] Bluetooth: RFCOMM: Fix possible deadlock on socket shutdown/release
+Date:   Wed, 19 Oct 2022 10:26:20 +0200
+Message-Id: <20221019083302.963385999@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,68 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Deren Wu <deren.wu@mediatek.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit b5a62d612b7baf6e09884e4de94decb6391d6a9d ]
+[ Upstream commit 812e92b824c1db16c9519f8624d48a9901a0d38f ]
 
-In insmod/rmmod stress test, the following crash dump shows up immediately.
-The problem is caused by missing mt76_dev in mt7921_pci_remove(). We
-should make sure the drvdata is ready before probe() finished.
+Due to change to switch to use lock_sock inside rfcomm_sk_state_change
+the socket shutdown/release procedure can cause a deadlock:
 
-[168.862789] ==================================================================
-[168.862797] BUG: KASAN: user-memory-access in try_to_grab_pending+0x59/0x480
-[168.862805] Write of size 8 at addr 0000000000006df0 by task rmmod/5361
-[168.862812] CPU: 7 PID: 5361 Comm: rmmod Tainted: G           OE     5.19.0-rc6 #1
-[168.862816] Hardware name: Intel(R) Client Systems NUC8i7BEH/NUC8BEB, 05/04/2020
-[168.862820] Call Trace:
-[168.862822]  <TASK>
-[168.862825]  dump_stack_lvl+0x49/0x63
-[168.862832]  print_report.cold+0x493/0x6b7
-[168.862845]  kasan_report+0xa7/0x120
-[168.862857]  kasan_check_range+0x163/0x200
-[168.862861]  __kasan_check_write+0x14/0x20
-[168.862866]  try_to_grab_pending+0x59/0x480
-[168.862870]  __cancel_work_timer+0xbb/0x340
-[168.862898]  cancel_work_sync+0x10/0x20
-[168.862902]  mt7921_pci_remove+0x61/0x1c0 [mt7921e]
-[168.862909]  pci_device_remove+0xa3/0x1d0
-[168.862914]  device_remove+0xc4/0x170
-[168.862920]  device_release_driver_internal+0x163/0x300
-[168.862925]  driver_detach+0xc7/0x1a0
-[168.862930]  bus_remove_driver+0xeb/0x2d0
-[168.862935]  driver_unregister+0x71/0xb0
-[168.862939]  pci_unregister_driver+0x30/0x230
-[168.862944]  mt7921_pci_driver_exit+0x10/0x1b [mt7921e]
-[168.862949]  __x64_sys_delete_module+0x2f9/0x4b0
-[168.862968]  do_syscall_64+0x38/0x90
-[168.862973]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+    rfcomm_sock_shutdown():
+      lock_sock();
+      __rfcomm_sock_close():
+        rfcomm_dlc_close():
+          __rfcomm_dlc_close():
+            rfcomm_dlc_lock();
+            rfcomm_sk_state_change():
+              lock_sock();
 
-Test steps:
-1. insmode
-2. do not ifup
-3. rmmod quickly (within 1 second)
+To fix this when the call __rfcomm_sock_close is now done without
+holding the lock_sock since rfcomm_dlc_lock exists to protect
+the dlc data there is no need to use lock_sock in that code path.
 
-Fixes: 1c71e03afe4b ("mt76: mt7921: move mt7921_init_hw in a dedicated work")
-Signed-off-by: Deren Wu <deren.wu@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/all/CAD+dNTsbuU4w+Y_P7o+VEN7BYCAbZuwZx2+tH+OTzCdcZF82YA@mail.gmail.com/
+Fixes: b7ce436a5d79 ("Bluetooth: switch to lock_sock in RFCOMM")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/bluetooth/rfcomm/sock.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
-index 2b015dacbba2..e5b1f6249763 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
-@@ -288,6 +288,8 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
- 		goto err_free_pci_vec;
- 	}
- 
-+	pci_set_drvdata(pdev, mdev);
+diff --git a/net/bluetooth/rfcomm/sock.c b/net/bluetooth/rfcomm/sock.c
+index 4bf4ea6cbb5e..21e24da4847f 100644
+--- a/net/bluetooth/rfcomm/sock.c
++++ b/net/bluetooth/rfcomm/sock.c
+@@ -902,7 +902,10 @@ static int rfcomm_sock_shutdown(struct socket *sock, int how)
+ 	lock_sock(sk);
+ 	if (!sk->sk_shutdown) {
+ 		sk->sk_shutdown = SHUTDOWN_MASK;
 +
- 	dev = container_of(mdev, struct mt7921_dev, mt76);
- 	dev->hif_ops = &mt7921_pcie_ops;
++		release_sock(sk);
+ 		__rfcomm_sock_close(sk);
++		lock_sock(sk);
  
+ 		if (sock_flag(sk, SOCK_LINGER) && sk->sk_lingertime &&
+ 		    !(current->flags & PF_EXITING))
 -- 
 2.35.1
 
