@@ -2,97 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE2ED603A55
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 09:07:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2C30603A66
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 09:15:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229886AbiJSHHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 03:07:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53072 "EHLO
+        id S229584AbiJSHPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 03:15:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229767AbiJSHHU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 03:07:20 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41B3E7675D
-        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 00:07:18 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id l1-20020a17090a72c100b0020a6949a66aso16195587pjk.1
-        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 00:07:17 -0700 (PDT)
+        with ESMTP id S229559AbiJSHPB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 03:15:01 -0400
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35AAF5E319
+        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 00:14:59 -0700 (PDT)
+Received: by mail-ed1-x532.google.com with SMTP id t16so4621519edd.2
+        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 00:14:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=EvzWN3fulxUTT42Zid+lfDlFWN9IW1sxQRs0JDSSaPs=;
-        b=1oa534Fmx+C99nnI0Mu2xOinanTDtPVmsOqQaOWUPU9tWWOZux9A92dlCOiQYhjZNJ
-         8fyJhqYb40QpDqauxUfTdUaWiPtFWwVinHXD4e23a8qQhaDHl26vZo8o5sxagIL/RZTT
-         n4tHBpjrW4TfpX+5qWnsVC74TqpfvQkKmBboVrF7mfuzj9KGuaytH0DSPHvlEidBW89U
-         CuLMjfbNSf9UpE9SxEC/6rGlTJj9Tu1HCx7VscHpI7jz6bgYZCu8oP7RbDhfop+KRgrP
-         pFPk5VksgS9dJl/BMZtwUXAMbdP6ZlZ+u58qEO9NNXeJpo5OlkGbYfvHX6MgzX3yRg7w
-         Rg0w==
+        d=linaro.org; s=google;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=r2jINxH4BaEr8E+N8SgANtpdn3kmuN94/fThEpE5kKs=;
+        b=xQBkmMDRXSuHBMtgbusX8imr7y+CIm9VjBsTZNI7BW1s7IOSA/zCZKNZST7dJnUBGb
+         7Vx9UF3mKF+JyjAtyDlyuzWjnl+8QA62icFi6qMI+Ksmn82l6mAcgaPgGyrJqWz/84Oz
+         kA4fylkEo4g6MTKrmXgHxmUsEgeeTdkp8Wfjr7n/V4mYHN49fOb44+4lqyT5GdukL6hQ
+         Djib4r6I213E2aGycjD+vEiZlFvvWSLbEDdNsI6pq0ZNFtHuEGsP7nLqTzkr0ve/nwxU
+         dmG/r17Mu1o/EDx7a1IFEcCYvyqK3/OrUjEZsyT279VA+u1VpK8yTYG0sBlFIYw9niWw
+         OIEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=EvzWN3fulxUTT42Zid+lfDlFWN9IW1sxQRs0JDSSaPs=;
-        b=GHDRPeH9Wp1cHszR+cm5TIZoPxPuxBbiQmuEEAzhYk1vlAGheyIkSTymqWI49hJ3k/
-         gKbG5So9ozzaQLlbwLgBMdeUAxjr+rlaYxas7xeADl2VudJ8zd9FLh4FXkMdygDw3H6M
-         WFd1CmhxTTbK1zFrQh/CHtEuZa7SyRR/Cyq9VgjaDbhwzej62vubqVCQzwkH8Cfq1RAG
-         L2hTHexdcpm2Olhu6G16wAL4VODEjETe1rDS8HTWxlR18VG30ztMChJA2q1UwNcw0TNL
-         s0bPudBZ4oMYmXxz3J9RKtUSXMh3in2zpZafesH1CCn/wcXHusVIsoNDaXa2fYlYPpz3
-         w6Sw==
-X-Gm-Message-State: ACrzQf2xwvd8EQ7Lh2Q/rwmm2FfmlXmYUVOyy9YyJanJRlcqIvztakIB
-        c7UWDv4VxW93eKs/DtRt/QfH083Y2NLbZHWX
-X-Google-Smtp-Source: AMsMyM4iWUZgwzcdV4Ch4pp03yEutHWRHs4ioQ9ar3IoHMH0r9UbtmoAmmvN4QDLmZ3zBBXLB9rmfg==
-X-Received: by 2002:a17:90b:1c8b:b0:203:dcf1:128a with SMTP id oo11-20020a17090b1c8b00b00203dcf1128amr42114773pjb.182.1666163236565;
-        Wed, 19 Oct 2022 00:07:16 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id px18-20020a17090b271200b002001c9bf22esm9178320pjb.8.2022.10.19.00.07.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Oct 2022 00:07:16 -0700 (PDT)
-Message-ID: <634fa224.170a0220.c089.0f62@mx.google.com>
-Date:   Wed, 19 Oct 2022 00:07:16 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=r2jINxH4BaEr8E+N8SgANtpdn3kmuN94/fThEpE5kKs=;
+        b=2EHg6kuFECwaF+6BbAWScQyTcX9rpfAWhgjv/696TDxvgq3WPUyY4/kuu+9T00FSGr
+         56tVXTyEhgw5x36oKFYQ2li2EUzCiUP2fnxEwihGoPXdbyGvnVNOmI9tK1fMtJylloc/
+         HQOAlG4YhKv0JB3nUL+h9OZp0/NXmzTUfeKuJFI+ol1niv0DJ7MsbTQflqQXhJvo0qVM
+         rpgqF0HXWP7ATWb3SREC5cWsHd4E0dVktYgVGYV/Np2dwWle4KWdIrVRZE8BsRgcIMTL
+         dPVFLOLZE6ENr0BicABLkGt69REGaCaT6LGySJCqPZaJ+Ly0nhmDnB0YzjBP0k2psRTK
+         PFhQ==
+X-Gm-Message-State: ACrzQf0XyUzZYyYk6TSi5PocAWuXwYBL4mm1tto4J9NZS3GqaaJUimok
+        rmLeLvbHhtgqQPmZhgb5z1ieNTIjn7kYOjJgCaL3grAoLwz/Dw==
+X-Google-Smtp-Source: AMsMyM5/TfY6uQbDuECbyCS71AtAa6X21A4yCp/AqruBpZH79i/M9R/8ss3S7/FPM250AljeiIUqnl2tvrv0uzx2oB0=
+X-Received: by 2002:a05:6402:3c5:b0:45b:55d8:21ff with SMTP id
+ t5-20020a05640203c500b0045b55d821ffmr6053735edw.253.1666163697380; Wed, 19
+ Oct 2022 00:14:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v5.4.219-266-g5eb28a6c7901
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 build: 189 builds: 3 failed,
- 186 passed (v5.4.219-266-g5eb28a6c7901)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 19 Oct 2022 12:44:37 +0530
+Message-ID: <CA+G9fYuxe6KWGt0bkKLZTfhhYdnLqp5ZBarFc4aRvpRR_xJEjg@mail.gmail.com>
+Subject: stable-rc: queue/5.10: drivers/dma/ti/k3-udma.c:666:26: error:
+ 'struct udma_chan' has no member named 'bchan'; did you mean 'tchan'?
+To:     linux-stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 build: 189 builds: 3 failed, 186 passed (v5.4.219-266-g=
-5eb28a6c7901)
+Following build error noticed while building arm64 defconfig on
+stable-rc queue/5.10.
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
-/kernel/v5.4.219-266-g5eb28a6c7901/
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Tree: stable-rc
-Branch: queue/5.4
-Git Describe: v5.4.219-266-g5eb28a6c7901
-Git Commit: 5eb28a6c79012965385f3cac7adfc03fe7021108
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 7 unique architectures
+drivers/dma/ti/k3-udma.c: In function 'udma_decrement_byte_counters':
+drivers/dma/ti/k3-udma.c:666:26: error: 'struct udma_chan' has no
+member named 'bchan'; did you mean 'tchan'?
+  666 |                 if (!uc->bchan)
+      |                          ^~~~~
+      |                          tchan
+make[4]: *** [scripts/Makefile.build:286: drivers/dma/ti/k3-udma.o] Error 1
 
-Build Failures Detected:
 
-arm:
-    rpc_defconfig: (gcc-10) FAIL
-
-mips:
-    ip27_defconfig: (gcc-10) FAIL
-    ip28_defconfig: (gcc-10) FAIL
-
----
-For more info write to <info@kernelci.org>
+--
+Linaro LKFT
+https://lkft.linaro.org
