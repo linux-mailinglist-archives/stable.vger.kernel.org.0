@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6C8D603EEA
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:23:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29388603EEC
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:23:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233471AbiJSJXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:23:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58952 "EHLO
+        id S233357AbiJSJXi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:23:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233507AbiJSJWM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:22:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FA8D63F16;
-        Wed, 19 Oct 2022 02:10:01 -0700 (PDT)
+        with ESMTP id S233434AbiJSJWw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:22:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20B52A46C;
+        Wed, 19 Oct 2022 02:10:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12ADA61843;
-        Wed, 19 Oct 2022 09:07:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26D16C433B5;
-        Wed, 19 Oct 2022 09:07:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C6FC61883;
+        Wed, 19 Oct 2022 09:08:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83DFAC43151;
+        Wed, 19 Oct 2022 09:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170462;
-        bh=XzQgB09SlnH/faR3zeTC49E6Tva+tqGeBKYN7Hl/Dcg=;
+        s=korg; t=1666170480;
+        bh=PU8iaCs2iWQxeCCZgNEo4F7oo3UpqlSd8bf4uBmxP6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1evZLMOG7VafyY5fAG2mUTlRkZPg1BTO/Oe/yhkeLZsV6tNra577xO/RH2wArIYnP
-         Tgk1xUwK0YeRwfnx4vv1sAdDA+JnAPR+6QZ5gBPTMD3fpbS4rLiqirt1Y/Xci3iqLK
-         BvqeOAcfpQvLi5vPVsVsb3HoErtRyoEfFf1CXhdY=
+        b=f44t+UknV8umQghKnCptTrP4KsBheOel/wepXPv5+QBgwEVzqxOWH5c8B2LBVBLeq
+         gufbUjRv4oqGiyAW8xQmcLkjNU6HBGrKOLbUQajzdwIhqgtbcwzL/Q1iK36pt6rghX
+         FeuPeG1pVASk/kXWJEdQ+t5iyZuxd+bqBV3/LGrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zqiang <qiang1.zhang@intel.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Doug Smythies <dsmythies@telus.net>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 664/862] rcu-tasks: Convert RCU_LOCKDEP_WARN() to WARN_ONCE()
-Date:   Wed, 19 Oct 2022 10:32:31 +0200
-Message-Id: <20221019083319.310438424@linuxfoundation.org>
+Subject: [PATCH 6.0 670/862] cpufreq: intel_pstate: Add Tigerlake support in no-HWP mode
+Date:   Wed, 19 Oct 2022 10:32:37 +0200
+Message-Id: <20221019083319.564436329@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,41 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang1.zhang@intel.com>
+From: Doug Smythies <dsmythies@telus.net>
 
-[ Upstream commit fcd53c8a4dfa38bafb89efdd0b0f718f3a03f884 ]
+[ Upstream commit 71bb5c82aaaea007167f3ba68d3a669c74d7d55d ]
 
-Kernels built with CONFIG_PROVE_RCU=y and CONFIG_DEBUG_LOCK_ALLOC=y
-attempt to emit a warning when the synchronize_rcu_tasks_generic()
-function is called during early boot while the rcu_scheduler_active
-variable is RCU_SCHEDULER_INACTIVE.  However the warnings is not
-actually be printed because the debug_lockdep_rcu_enabled() returns
-false, exactly because the rcu_scheduler_active variable is still equal
-to RCU_SCHEDULER_INACTIVE.
+Users may disable HWP in firmware, in which case intel_pstate wouldn't load
+unless the CPU model is explicitly supported.
 
-This commit therefore replaces RCU_LOCKDEP_WARN() with WARN_ONCE()
-to force these warnings to actually be printed.
+Add TIGERLAKE to the list of CPUs that can register intel_pstate while not
+advertising the HWP capability. Without this change, an TIGERLAKE in no-HWP
+mode could only use the acpi_cpufreq frequency scaling driver.
 
-Signed-off-by: Zqiang <qiang1.zhang@intel.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+See also commits:
+d8de7a44e11f: cpufreq: intel_pstate: Add Skylake servers support
+fbdc21e9b038: cpufreq: intel_pstate: Add Icelake servers support in no-HWP mode
+706c5328851d: cpufreq: intel_pstate: Add Cometlake support in no-HWP mode
+
+Reported by: M. Cargi Ari <cagriari@pm.me>
+Signed-off-by: Doug Smythies <dsmythies@telus.net>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tasks.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/intel_pstate.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
-index 83c7e6620d40..469bf2a3b505 100644
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -560,7 +560,7 @@ static int __noreturn rcu_tasks_kthread(void *arg)
- static void synchronize_rcu_tasks_generic(struct rcu_tasks *rtp)
- {
- 	/* Complain if the scheduler has not started.  */
--	RCU_LOCKDEP_WARN(rcu_scheduler_active == RCU_SCHEDULER_INACTIVE,
-+	WARN_ONCE(rcu_scheduler_active == RCU_SCHEDULER_INACTIVE,
- 			 "synchronize_rcu_tasks called too soon");
- 
- 	// If the grace-period kthread is running, use it.
+diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+index 57cdb3679885..fc3ebeb0bbe5 100644
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -2416,6 +2416,7 @@ static const struct x86_cpu_id intel_pstate_cpu_ids[] = {
+ 	X86_MATCH(SKYLAKE_X,		core_funcs),
+ 	X86_MATCH(COMETLAKE,		core_funcs),
+ 	X86_MATCH(ICELAKE_X,		core_funcs),
++	X86_MATCH(TIGERLAKE,		core_funcs),
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(x86cpu, intel_pstate_cpu_ids);
 -- 
 2.35.1
 
