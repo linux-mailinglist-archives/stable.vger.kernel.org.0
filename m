@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE85F603E8E
+	by mail.lfdr.de (Postfix) with ESMTP id 82AE1603E8D
 	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:16:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233188AbiJSJQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:16:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40238 "EHLO
+        id S232676AbiJSJQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:16:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233723AbiJSJPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:15:47 -0400
+        with ESMTP id S232773AbiJSJPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:15:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C703D0192;
-        Wed, 19 Oct 2022 02:06:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A285B274B;
+        Wed, 19 Oct 2022 02:06:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E54086186A;
-        Wed, 19 Oct 2022 09:05:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECD5AC433D7;
-        Wed, 19 Oct 2022 09:05:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C28CE6183D;
+        Wed, 19 Oct 2022 09:05:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D597CC433D6;
+        Wed, 19 Oct 2022 09:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170351;
-        bh=YSgRrx6e5C9KaV05ykt6gXCGLEwA9I+qydBcSRY1t0Q=;
+        s=korg; t=1666170359;
+        bh=M3DKLJs+12a3FysuaTwmQxqFZ8L8sCgQgxofNUcKlY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=du0mcH1CETpgxxiPFA5MGeVq0Wz+74fJO+0muw6dQJ+CMXWKa+ScvSdGG4D8h/k9e
-         LSIRrITK7OmXDLDEXlz7/r8ha+2Dtr8QitFkfT/fKhKfuYBV0mD+gVEuNmGADVpwlJ
-         a07YbM5gaxKq1rhZZDie7xJAf+1OLN7b2ajA2/4A=
+        b=0cdfRC6r0L0tz3EO8UggJEErTN2RDO6qV7erMa2spptTmsNs83cFnwyEXkUAYVBmo
+         2Wif5jC8IdufMwCjWQKyKyzKQJXs3ib6hEfHuD/+sclvvwnCicp4xJJzwYID2jymdF
+         dcglaUJFFbmQKq8u0ttZZ1nqDrJf+y8+VvYLLu5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Ye Weihua <yeweihua4@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 622/862] powerpc/kprobes: Fix null pointer reference in arch_prepare_kprobe()
-Date:   Wed, 19 Oct 2022 10:31:49 +0200
-Message-Id: <20221019083317.425875660@linuxfoundation.org>
+Subject: [PATCH 6.0 625/862] crypto: hisilicon/zip - fix mismatch in get/set sgl_sge_nr
+Date:   Wed, 19 Oct 2022 10:31:52 +0200
+Message-Id: <20221019083317.546497923@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,96 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Huafei <lihuafei1@huawei.com>
+From: Ye Weihua <yeweihua4@huawei.com>
 
-[ Upstream commit 97f88a3d723162781d6cbfdc7b9617eefab55b19 ]
+[ Upstream commit d74f9340097a881869c4c22ca376654cc2516ecc ]
 
-I found a null pointer reference in arch_prepare_kprobe():
+KASAN reported this Bug:
 
-  # echo 'p cmdline_proc_show' > kprobe_events
-  # echo 'p cmdline_proc_show+16' >> kprobe_events
-  Kernel attempted to read user page (0) - exploit attempt? (uid: 0)
-  BUG: Kernel NULL pointer dereference on read at 0x00000000
-  Faulting instruction address: 0xc000000000050bfc
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
-  Modules linked in:
-  CPU: 0 PID: 122 Comm: sh Not tainted 6.0.0-rc3-00007-gdcf8e5633e2e #10
-  NIP:  c000000000050bfc LR: c000000000050bec CTR: 0000000000005bdc
-  REGS: c0000000348475b0 TRAP: 0300   Not tainted  (6.0.0-rc3-00007-gdcf8e5633e2e)
-  MSR:  9000000000009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 88002444  XER: 20040006
-  CFAR: c00000000022d100 DAR: 0000000000000000 DSISR: 40000000 IRQMASK: 0
-  ...
-  NIP arch_prepare_kprobe+0x10c/0x2d0
-  LR  arch_prepare_kprobe+0xfc/0x2d0
-  Call Trace:
-    0xc0000000012f77a0 (unreliable)
-    register_kprobe+0x3c0/0x7a0
-    __register_trace_kprobe+0x140/0x1a0
-    __trace_kprobe_create+0x794/0x1040
-    trace_probe_create+0xc4/0xe0
-    create_or_delete_trace_kprobe+0x2c/0x80
-    trace_parse_run_command+0xf0/0x210
-    probes_write+0x20/0x40
-    vfs_write+0xfc/0x450
-    ksys_write+0x84/0x140
-    system_call_exception+0x17c/0x3a0
-    system_call_vectored_common+0xe8/0x278
-  --- interrupt: 3000 at 0x7fffa5682de0
-  NIP:  00007fffa5682de0 LR: 0000000000000000 CTR: 0000000000000000
-  REGS: c000000034847e80 TRAP: 3000   Not tainted  (6.0.0-rc3-00007-gdcf8e5633e2e)
-  MSR:  900000000280f033 <SF,HV,VEC,VSX,EE,PR,FP,ME,IR,DR,RI,LE>  CR: 44002408  XER: 00000000
+	[17619.659757] BUG: KASAN: global-out-of-bounds in param_get_int+0x34/0x60
+	[17619.673193] Read of size 4 at addr fffff01332d7ed00 by task read_all/1507958
+	...
+	[17619.698934] The buggy address belongs to the variable:
+	[17619.708371]  sgl_sge_nr+0x0/0xffffffffffffa300 [hisi_zip]
 
-The address being probed has some special:
+There is a mismatch in hisi_zip when get/set the variable sgl_sge_nr.
+The type of sgl_sge_nr is u16, and get/set sgl_sge_nr by
+param_get/set_int.
 
-  cmdline_proc_show: Probe based on ftrace
-  cmdline_proc_show+16: Probe for the next instruction at the ftrace location
+Replacing param_get/set_int to param_get/set_ushort can fix this bug.
 
-The ftrace-based kprobe does not generate kprobe::ainsn::insn, it gets
-set to NULL. In arch_prepare_kprobe() it will check for:
-
-  ...
-  prev = get_kprobe(p->addr - 1);
-  preempt_enable_no_resched();
-  if (prev && ppc_inst_prefixed(ppc_inst_read(prev->ainsn.insn))) {
-  ...
-
-If prev is based on ftrace, 'ppc_inst_read(prev->ainsn.insn)' will occur
-with a null pointer reference. At this point prev->addr will not be a
-prefixed instruction, so the check can be skipped.
-
-Check if prev is ftrace-based kprobe before reading 'prev->ainsn.insn'
-to fix this problem.
-
-Fixes: b4657f7650ba ("powerpc/kprobes: Don't allow breakpoints on suffixes")
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-[mpe: Trim oops]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220923093253.177298-1-lihuafei1@huawei.com
+Fixes: f081fda293ffb ("crypto: hisilicon - add sgl_sge_nr module param for zip")
+Signed-off-by: Ye Weihua <yeweihua4@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/kprobes.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/crypto/hisilicon/zip/zip_crypto.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kernel/kprobes.c b/arch/powerpc/kernel/kprobes.c
-index 912d4f8a13be..bd7b1a035459 100644
---- a/arch/powerpc/kernel/kprobes.c
-+++ b/arch/powerpc/kernel/kprobes.c
-@@ -161,7 +161,13 @@ int arch_prepare_kprobe(struct kprobe *p)
- 	preempt_disable();
- 	prev = get_kprobe(p->addr - 1);
- 	preempt_enable_no_resched();
--	if (prev && ppc_inst_prefixed(ppc_inst_read(prev->ainsn.insn))) {
-+
-+	/*
-+	 * When prev is a ftrace-based kprobe, we don't have an insn, and it
-+	 * doesn't probe for prefixed instruction.
-+	 */
-+	if (prev && !kprobe_ftrace(prev) &&
-+	    ppc_inst_prefixed(ppc_inst_read(prev->ainsn.insn))) {
- 		printk("Cannot register a kprobe on the second word of prefixed instruction\n");
- 		ret = -EINVAL;
- 	}
+diff --git a/drivers/crypto/hisilicon/zip/zip_crypto.c b/drivers/crypto/hisilicon/zip/zip_crypto.c
+index ad35434a3fdb..06a2d6e81ae9 100644
+--- a/drivers/crypto/hisilicon/zip/zip_crypto.c
++++ b/drivers/crypto/hisilicon/zip/zip_crypto.c
+@@ -123,12 +123,12 @@ static int sgl_sge_nr_set(const char *val, const struct kernel_param *kp)
+ 	if (ret || n == 0 || n > HISI_ACC_SGL_SGE_NR_MAX)
+ 		return -EINVAL;
+ 
+-	return param_set_int(val, kp);
++	return param_set_ushort(val, kp);
+ }
+ 
+ static const struct kernel_param_ops sgl_sge_nr_ops = {
+ 	.set = sgl_sge_nr_set,
+-	.get = param_get_int,
++	.get = param_get_ushort,
+ };
+ 
+ static u16 sgl_sge_nr = HZIP_SGL_SGE_NR;
 -- 
 2.35.1
 
