@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58505603CA0
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:50:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BD03603F1A
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:27:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231332AbiJSIul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:50:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60260 "EHLO
+        id S233317AbiJSJ1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:27:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231649AbiJSItA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:49:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C1708E9BF;
-        Wed, 19 Oct 2022 01:46:46 -0700 (PDT)
+        with ESMTP id S233172AbiJSJ0d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:26:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C2AE4C20;
+        Wed, 19 Oct 2022 02:11:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A25F8617F7;
-        Wed, 19 Oct 2022 08:44:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A71E3C433C1;
-        Wed, 19 Oct 2022 08:44:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 738BE617D7;
+        Wed, 19 Oct 2022 08:44:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82F2FC433C1;
+        Wed, 19 Oct 2022 08:44:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169058;
-        bh=hG4656HVgNHfCYkV2W0FvXrC1cK0TQX9tjDFOzCTUWk=;
+        s=korg; t=1666169063;
+        bh=C620LoJ1iYClQH8UWros1PqqPG0tOj5qGlc2syb/41g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UZ5g9RbN/see9F1rwHV473LDw9E8lz1DdloE7g/F6S2mydHJ1UiflrvCn3D2+RCsM
-         Ikiq2rWumKcvKmnV2J40Tww6NYaZBPE44yY/Gwmt+Px8UqH2TVnMEY2Ld52mH7Q1LK
-         GlfoRZLXo0SVPDXSiq4LTi8OOrUI7fhRq/gpJbXk=
+        b=qHIuVl85tP3VWCd4c1MuBl7GmOIOtcu05okyAiC913082K+ZVwT0Zi6/385PYAD43
+         lgJMqLdVaPfqIxZJ0tWpe3vFu1jbsqOCU8Pn0nEnD20k0GEyZjnXN/RB7WyLqKrx5J
+         VDwNQi+eHIGMkg9jzKsH3Lt0YCx78UXZGyCH2Zjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Lukas Czerner <lczerner@redhat.com>, Jan Kara <jack@suse.cz>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Jeff Layton <jlayton@kernel.org>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.0 143/862] ext4: fix i_version handling in ext4
-Date:   Wed, 19 Oct 2022 10:23:50 +0200
-Message-Id: <20221019083256.307949361@linuxfoundation.org>
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.0 145/862] ext4: fix miss release buffer head in ext4_fc_write_inode
+Date:   Wed, 19 Oct 2022 10:23:52 +0200
+Message-Id: <20221019083256.394645446@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,131 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Ye Bin <yebin10@huawei.com>
 
-commit a642c2c0827f5604a93f9fa1e5701eecdce4ae22 upstream.
+commit ccbf8eeb39f2ff00b54726a2b20b35d788c4ecb5 upstream.
 
-ext4 currently updates the i_version counter when the atime is updated
-during a read. This is less than ideal as it can cause unnecessary cache
-invalidations with NFSv4 and unnecessary remeasurements for IMA.
-
-The increment in ext4_mark_iloc_dirty is also problematic since it can
-corrupt the i_version counter for ea_inodes. We aren't bumping the file
-times in ext4_mark_iloc_dirty, so changing the i_version there seems
-wrong, and is the cause of both problems.
-
-Remove that callsite and add increments to the setattr, setxattr and
-ioctl codepaths, at the same times that we update the ctime. The
-i_version bump that already happens during timestamp updates should take
-care of the rest.
-
-In ext4_move_extents, increment the i_version on both inodes, and also
-add in missing ctime updates.
-
-[ Some minor updates since we've already enabled the i_version counter
-  unconditionally already via another patch series. -- TYT ]
+In 'ext4_fc_write_inode' function first call 'ext4_get_inode_loc' get 'iloc',
+after use it miss release 'iloc.bh'.
+So just release 'iloc.bh' before 'ext4_fc_write_inode' return.
 
 Cc: stable@kernel.org
-Cc: Lukas Czerner <lczerner@redhat.com>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
 Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Link: https://lore.kernel.org/r/20220908172448.208585-3-jlayton@kernel.org
+Link: https://lore.kernel.org/r/20220914100859.1415196-1-yebin10@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |   14 +++++---------
- fs/ext4/ioctl.c |    4 ++++
- fs/ext4/xattr.c |    1 +
- 3 files changed, 10 insertions(+), 9 deletions(-)
+ fs/ext4/fast_commit.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5349,6 +5349,7 @@ int ext4_setattr(struct user_namespace *
- 	int error, rc = 0;
- 	int orphan = 0;
- 	const unsigned int ia_valid = attr->ia_valid;
-+	bool inc_ivers = true;
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -874,22 +874,25 @@ static int ext4_fc_write_inode(struct in
+ 	tl.fc_tag = cpu_to_le16(EXT4_FC_TAG_INODE);
+ 	tl.fc_len = cpu_to_le16(inode_len + sizeof(fc_inode.fc_ino));
  
- 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
- 		return -EIO;
-@@ -5432,8 +5433,8 @@ int ext4_setattr(struct user_namespace *
- 			return -EINVAL;
- 		}
++	ret = -ECANCELED;
+ 	dst = ext4_fc_reserve_space(inode->i_sb,
+ 			sizeof(tl) + inode_len + sizeof(fc_inode.fc_ino), crc);
+ 	if (!dst)
+-		return -ECANCELED;
++		goto err;
  
--		if (attr->ia_size != inode->i_size)
--			inode_inc_iversion(inode);
-+		if (attr->ia_size == inode->i_size)
-+			inc_ivers = false;
- 
- 		if (shrink) {
- 			if (ext4_should_order_data(inode)) {
-@@ -5535,6 +5536,8 @@ out_mmap_sem:
- 	}
- 
- 	if (!error) {
-+		if (inc_ivers)
-+			inode_inc_iversion(inode);
- 		setattr_copy(mnt_userns, inode, attr);
- 		mark_inode_dirty(inode);
- 	}
-@@ -5738,13 +5741,6 @@ int ext4_mark_iloc_dirty(handle_t *handl
- 	}
- 	ext4_fc_track_inode(handle, inode);
- 
--	/*
--	 * ea_inodes are using i_version for storing reference count, don't
--	 * mess with it
--	 */
--	if (!(EXT4_I(inode)->i_flags & EXT4_EA_INODE_FL))
--		inode_inc_iversion(inode);
+ 	if (!ext4_fc_memcpy(inode->i_sb, dst, &tl, sizeof(tl), crc))
+-		return -ECANCELED;
++		goto err;
+ 	dst += sizeof(tl);
+ 	if (!ext4_fc_memcpy(inode->i_sb, dst, &fc_inode, sizeof(fc_inode), crc))
+-		return -ECANCELED;
++		goto err;
+ 	dst += sizeof(fc_inode);
+ 	if (!ext4_fc_memcpy(inode->i_sb, dst, (u8 *)ext4_raw_inode(&iloc),
+ 					inode_len, crc))
+-		return -ECANCELED;
 -
- 	/* the do_update_inode consumes one bh->b_count */
- 	get_bh(iloc->bh);
+-	return 0;
++		goto err;
++	ret = 0;
++err:
++	brelse(iloc.bh);
++	return ret;
+ }
  
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -452,6 +452,7 @@ static long swap_inode_boot_loader(struc
- 	swap_inode_data(inode, inode_bl);
- 
- 	inode->i_ctime = inode_bl->i_ctime = current_time(inode);
-+	inode_inc_iversion(inode);
- 
- 	inode->i_generation = prandom_u32();
- 	inode_bl->i_generation = prandom_u32();
-@@ -665,6 +666,7 @@ static int ext4_ioctl_setflags(struct in
- 	ext4_set_inode_flags(inode, false);
- 
- 	inode->i_ctime = current_time(inode);
-+	inode_inc_iversion(inode);
- 
- 	err = ext4_mark_iloc_dirty(handle, inode, &iloc);
- flags_err:
-@@ -775,6 +777,7 @@ static int ext4_ioctl_setproject(struct
- 
- 	EXT4_I(inode)->i_projid = kprojid;
- 	inode->i_ctime = current_time(inode);
-+	inode_inc_iversion(inode);
- out_dirty:
- 	rc = ext4_mark_iloc_dirty(handle, inode, &iloc);
- 	if (!err)
-@@ -1257,6 +1260,7 @@ static long __ext4_ioctl(struct file *fi
- 		err = ext4_reserve_inode_write(handle, inode, &iloc);
- 		if (err == 0) {
- 			inode->i_ctime = current_time(inode);
-+			inode_inc_iversion(inode);
- 			inode->i_generation = generation;
- 			err = ext4_mark_iloc_dirty(handle, inode, &iloc);
- 		}
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2412,6 +2412,7 @@ retry_inode:
- 	if (!error) {
- 		ext4_xattr_update_super_block(handle, inode->i_sb);
- 		inode->i_ctime = current_time(inode);
-+		inode_inc_iversion(inode);
- 		if (!value)
- 			no_expand = 0;
- 		error = ext4_mark_iloc_dirty(handle, inode, &is.iloc);
+ /*
 
 
