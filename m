@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C03B603D96
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38436603E71
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:15:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232153AbiJSJFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:05:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56234 "EHLO
+        id S233729AbiJSJPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:15:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232390AbiJSJEI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:08 -0400
+        with ESMTP id S232839AbiJSJMI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:12:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5275F2E690;
-        Wed, 19 Oct 2022 01:57:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C916C1DBB;
+        Wed, 19 Oct 2022 02:02:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3775F6187A;
-        Wed, 19 Oct 2022 08:53:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48B5FC43144;
-        Wed, 19 Oct 2022 08:53:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4370F61877;
+        Wed, 19 Oct 2022 08:53:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D726C433C1;
+        Wed, 19 Oct 2022 08:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169587;
-        bh=EtP+T23VdFQowWwzjB9/ws5vszh9Tjc6/grKZe9yz5M=;
+        s=korg; t=1666169608;
+        bh=vIZuRLYkwg87Qecmw6blftFLy/i13Q/X8wXkEXDp5zY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fS2O/jUcYY6x53pERcsiL5Z/V6Q2Nv9OXf7guhNIZeyOrUYb5XQzVcuLitiPA7pKF
-         YmD+69G/2GDu1NIVBhOfiKcA0PNvAeRRZJGDAbNUi2FFvh2rQAQFLwM7RrMKhDSWdH
-         QauLr4T3AkDVOIkwQB2MTYddHWQ9dFG6kQ5hGleQ=
+        b=D26drXDwsB4EWaWrlyWRfFAkqr7/hlc97k6sTCb89VZstyqBn0kYmEFORKMGWb5nH
+         HhU53J8tyrZI008jlquFDwgn88doWXkbHMBApfDFeuPIoDA2V03J7aHW54qqa7eKV2
+         XC9LJ9cY0G4OY3dp2Uqe3WggJ0Z9InlCCpGhifd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qingqing Yang <qingqing.yang@broadcom.com>,
-        Boris Sukholitko <boris.sukholitko@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 305/862] flow_dissector: Do not count vlan tags inside tunnel payload
-Date:   Wed, 19 Oct 2022 10:26:32 +0200
-Message-Id: <20221019083303.487021389@linuxfoundation.org>
+Subject: [PATCH 6.0 307/862] wifi: ath11k: fix failed to find the peer with peer_id 0 when disconnected
+Date:   Wed, 19 Oct 2022 10:26:34 +0200
+Message-Id: <20221019083303.587170296@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,58 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qingqing Yang <qingqing.yang@broadcom.com>
+From: Wen Gong <quic_wgong@quicinc.com>
 
-[ Upstream commit 9f87eb4246994e32a4e4ea88476b20ab3b412840 ]
+[ Upstream commit a20ed60bb357776301c2dad7b4a4f0db97e143e9 ]
 
-We've met the problem that when there is a vlan tag inside
-GRE encapsulation, the match of num_of_vlans fails.
-It is caused by the vlan tag inside GRE payload has been
-counted into num_of_vlans, which is not expected.
+It has a fail log which is ath11k_dbg in ath11k_dp_rx_process_mon_status(),
+as below, it will not print when debug_mask is not set ATH11K_DBG_DATA.
+	ath11k_dbg(ab, ATH11K_DBG_DATA,
+		  "failed to find the peer with peer_id %d\n",
+		   ppdu_info.peer_id);
 
-One example packet is like this:
-Ethernet II, Src: Broadcom_68:56:07 (00:10:18:68:56:07)
-                   Dst: Broadcom_68:56:08 (00:10:18:68:56:08)
-802.1Q Virtual LAN, PRI: 0, DEI: 0, ID: 100
-Internet Protocol Version 4, Src: 192.168.1.4, Dst: 192.168.1.200
-Generic Routing Encapsulation (Transparent Ethernet bridging)
-Ethernet II, Src: Broadcom_68:58:07 (00:10:18:68:58:07)
-                   Dst: Broadcom_68:58:08 (00:10:18:68:58:08)
-802.1Q Virtual LAN, PRI: 0, DEI: 0, ID: 200
-...
-It should match the (num_of_vlans 1) rule, but it matches
-the (num_of_vlans 2) rule.
+When run scan with station disconnected, the peer_id is 0 for case
+HAL_RX_MPDU_START in ath11k_hal_rx_parse_mon_status_tlv() which called
+from ath11k_dp_rx_process_mon_status(), and the peer_id of ppdu_info is
+reset to 0 in the while loop, so it does not match condition of the
+check "if (ppdu_info->peer_id == HAL_INVALID_PEERID" in the loop, and
+then the log "failed to find the peer with peer_id 0" print after the
+check in the loop, it is below call stack when debug_mask is set
+ATH11K_DBG_DATA.
 
-The vlan tags inside the GRE or other tunnel encapsulated payload
-should not be taken into num_of_vlans.
-The fix is to stop counting the vlan number when the encapsulation
-bit is set.
+The reason is this commit 01d2f285e3e5 ("ath11k: decode HE status tlv")
+add "memset(ppdu_info, 0, sizeof(struct hal_rx_mon_ppdu_info))" in
+ath11k_dp_rx_process_mon_status(), but the commit does not initialize
+the peer_id to HAL_INVALID_PEERID, then lead the check mis-match.
 
-Fixes: 34951fcf26c5 ("flow_dissector: Add number of vlan tags dissector")
-Signed-off-by: Qingqing Yang <qingqing.yang@broadcom.com>
-Reviewed-by: Boris Sukholitko <boris.sukholitko@broadcom.com>
-Link: https://lore.kernel.org/r/20220919074808.136640-1-qingqing.yang@broadcom.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Callstack of the failed log:
+[12335.689072] RIP: 0010:ath11k_dp_rx_process_mon_status+0x9ea/0x1020 [ath11k]
+[12335.689157] Code: 89 ff e8 f9 10 00 00 be 01 00 00 00 4c 89 f7 e8 dc 4b 4e de 48 8b 85 38 ff ff ff c7 80 e4 07 00 00 01 00 00 00 e9 20 f8 ff ff <0f> 0b 41 0f b7 96 be 06 00 00 48 c7 c6 b8 50 44 c1 4c 89 ff e8 fd
+[12335.689180] RSP: 0018:ffffb874001a4ca0 EFLAGS: 00010246
+[12335.689210] RAX: 0000000000000000 RBX: ffff995642cbd100 RCX: 0000000000000000
+[12335.689229] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff99564212cd18
+[12335.689248] RBP: ffffb874001a4dc0 R08: 0000000000000001 R09: 0000000000000000
+[12335.689268] R10: 0000000000000220 R11: ffffb874001a48e8 R12: ffff995642473d40
+[12335.689286] R13: ffff99564212c5b8 R14: ffff9956424736a0 R15: ffff995642120000
+[12335.689303] FS:  0000000000000000(0000) GS:ffff995739000000(0000) knlGS:0000000000000000
+[12335.689323] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[12335.689341] CR2: 00007f43c5d5e039 CR3: 000000011c012005 CR4: 00000000000606e0
+[12335.689360] Call Trace:
+[12335.689377]  <IRQ>
+[12335.689418]  ? rcu_read_lock_held_common+0x12/0x50
+[12335.689447]  ? rcu_read_lock_sched_held+0x25/0x80
+[12335.689471]  ? rcu_read_lock_held_common+0x12/0x50
+[12335.689504]  ath11k_dp_rx_process_mon_rings+0x8d/0x4f0 [ath11k]
+[12335.689578]  ? ath11k_dp_rx_process_mon_rings+0x8d/0x4f0 [ath11k]
+[12335.689653]  ? lock_acquire+0xef/0x360
+[12335.689681]  ? rcu_read_lock_sched_held+0x25/0x80
+[12335.689713]  ath11k_dp_service_mon_ring+0x38/0x60 [ath11k]
+[12335.689784]  ? ath11k_dp_rx_process_mon_rings+0x4f0/0x4f0 [ath11k]
+[12335.689860]  call_timer_fn+0xb2/0x2f0
+[12335.689897]  ? ath11k_dp_rx_process_mon_rings+0x4f0/0x4f0 [ath11k]
+[12335.689970]  run_timer_softirq+0x21f/0x540
+[12335.689999]  ? ktime_get+0xad/0x160
+[12335.690025]  ? lapic_next_deadline+0x2c/0x40
+[12335.690053]  ? clockevents_program_event+0x82/0x100
+[12335.690093]  __do_softirq+0x151/0x4a8
+[12335.690135]  irq_exit_rcu+0xc9/0x100
+[12335.690165]  sysvec_apic_timer_interrupt+0xa8/0xd0
+[12335.690189]  </IRQ>
+[12335.690204]  <TASK>
+[12335.690225]  asm_sysvec_apic_timer_interrupt+0x12/0x20
+
+Reset the default value to HAL_INVALID_PEERID each time after memset
+of ppdu_info as well as others memset which existed in function
+ath11k_dp_rx_process_mon_status(), then the failed log disappeared.
+
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3
+
+Fixes: 01d2f285e3e5 ("ath11k: decode HE status tlv")
+Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220518033556.31940-1-quic_wgong@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/flow_dissector.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath11k/dp_rx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
-index 5dc3860e9fc7..7105529abb0f 100644
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -1173,8 +1173,8 @@ bool __skb_flow_dissect(const struct net *net,
- 			nhoff += sizeof(*vlan);
- 		}
+diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
+index 2148acf37071..e9c56ad1ec9d 100644
+--- a/drivers/net/wireless/ath/ath11k/dp_rx.c
++++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
+@@ -5197,7 +5197,8 @@ int ath11k_dp_rx_process_mon_status(struct ath11k_base *ab, int mac_id,
+ 		if (log_type != ATH11K_PKTLOG_TYPE_INVALID)
+ 			trace_ath11k_htt_rxdesc(ar, skb->data, log_type, rx_buf_sz);
  
--		if (dissector_uses_key(flow_dissector,
--				       FLOW_DISSECTOR_KEY_NUM_OF_VLANS)) {
-+		if (dissector_uses_key(flow_dissector, FLOW_DISSECTOR_KEY_NUM_OF_VLANS) &&
-+		    !(key_control->flags & FLOW_DIS_ENCAPSULATION)) {
- 			struct flow_dissector_key_num_of_vlans *key_nvs;
+-		memset(ppdu_info, 0, sizeof(struct hal_rx_mon_ppdu_info));
++		memset(ppdu_info, 0, sizeof(*ppdu_info));
++		ppdu_info->peer_id = HAL_INVALID_PEERID;
+ 		hal_status = ath11k_hal_rx_parse_mon_status(ab, ppdu_info, skb);
  
- 			key_nvs = skb_flow_dissector_target(flow_dissector,
+ 		if (test_bit(ATH11K_FLAG_MONITOR_STARTED, &ar->monitor_flags) &&
 -- 
 2.35.1
 
