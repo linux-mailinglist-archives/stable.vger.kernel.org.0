@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4479603DC5
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5C32603CF7
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232478AbiJSJGc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:06:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36962 "EHLO
+        id S231710AbiJSIzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:55:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232286AbiJSJF0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:05:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 161209F760;
-        Wed, 19 Oct 2022 01:59:04 -0700 (PDT)
+        with ESMTP id S231901AbiJSIyG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:54:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E675C84E5D;
+        Wed, 19 Oct 2022 01:51:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C4D661824;
-        Wed, 19 Oct 2022 08:47:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F8FC433B5;
-        Wed, 19 Oct 2022 08:47:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B99D961820;
+        Wed, 19 Oct 2022 08:47:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA4D5C433C1;
+        Wed, 19 Oct 2022 08:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169242;
-        bh=1uVmc6hJkhsVlg30rXcmh4sw1hCaTQ5SkWgcWSh8PLA=;
+        s=korg; t=1666169254;
+        bh=kNhHrO3zOwOCwUFqeWaMpjDE+M8BL55uYkKdhNtLPMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h4+76MFUHESST6hc2jYxiMwVGbUVAVDySqVEEIbCtuyzpMeU176PqfzyrFPp/5z14
-         0PFqKm/PVg2ENRpYApeAbHWGYdH+C74HpO903rf5sCiXUqlTr/gqNsfEB1Ytgy1LFw
-         bwGtc2SLkFlMU3xWMipTQchpUP8VC8g645lv3bks=
+        b=yugxtAkXfkrA63j1ZxDumbghendjCBZVGtScWk/Ekdlhrc/4RFYqughHMyEtQVCvu
+         8WS1QivcsNBuO2VXDN3hkOOQdnnZoMx1r1t46FRIA9GAz0cqnAJKSDwzYhWcC3JPkj
+         P+pOvKZKIr4Yl2++PjdeQSSfr5WVDo5UqRDr5Mss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xuewen Yan <xuewen.yan@unisoc.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Lin Yujun <linyujun809@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 207/862] thermal: cpufreq_cooling: Check the policy first in cpufreq_cooling_register()
-Date:   Wed, 19 Oct 2022 10:24:54 +0200
-Message-Id: <20221019083259.160174548@linuxfoundation.org>
+Subject: [PATCH 6.0 210/862] MIPS: SGI-IP30: Fix platform-device leak in bridge_platform_create()
+Date:   Wed, 19 Oct 2022 10:24:57 +0200
+Message-Id: <20221019083259.297704109@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,49 +53,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuewen Yan <xuewen.yan@unisoc.com>
+From: Lin Yujun <linyujun809@huawei.com>
 
-[ Upstream commit cff895277c8558221ba180aefe26799dcb4eec86 ]
+[ Upstream commit 1e6d11fe72e311c1989991ee318d239f650fa318 ]
 
-Since the policy needs to be accessed first when obtaining cpu devices,
-first check whether the policy is legal before this.
+In error case in bridge_platform_create after calling
+platform_device_add()/platform_device_add_data()/
+platform_device_add_resources(), release the failed
+'pdev' or it will be leak, call platform_device_put()
+to fix this problem.
 
-Fixes: 5130802ddbb1 ("thermal: cpu_cooling: Switch to QoS requests for freq limits")
-Signed-off-by: Xuewen Yan <xuewen.yan@unisoc.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Besides, 'pdev' is divided into 'pdev_wd' and 'pdev_bd',
+use platform_device_unregister() to release sgi_w1
+resources when xtalk-bridge registration fails.
+
+Fixes: fd27234f24ae ("MIPS: add support for SGI Octane (IP30)")
+Signed-off-by: Lin Yujun <linyujun809@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/cpufreq_cooling.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/mips/sgi-ip30/ip30-xtalk.c | 70 +++++++++++++++++++++++----------
+ 1 file changed, 50 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
-index b76293cc989c..7838b6e2dba5 100644
---- a/drivers/thermal/cpufreq_cooling.c
-+++ b/drivers/thermal/cpufreq_cooling.c
-@@ -501,17 +501,17 @@ __cpufreq_cooling_register(struct device_node *np,
- 	struct thermal_cooling_device_ops *cooling_ops;
- 	char *name;
+diff --git a/arch/mips/sgi-ip30/ip30-xtalk.c b/arch/mips/sgi-ip30/ip30-xtalk.c
+index 8129524421cb..7ceb2b23ea1c 100644
+--- a/arch/mips/sgi-ip30/ip30-xtalk.c
++++ b/arch/mips/sgi-ip30/ip30-xtalk.c
+@@ -40,12 +40,15 @@ static void bridge_platform_create(int widget, int masterwid)
+ {
+ 	struct xtalk_bridge_platform_data *bd;
+ 	struct sgi_w1_platform_data *wd;
+-	struct platform_device *pdev;
++	struct platform_device *pdev_wd;
++	struct platform_device *pdev_bd;
+ 	struct resource w1_res;
  
-+	if (IS_ERR_OR_NULL(policy)) {
-+		pr_err("%s: cpufreq policy isn't valid: %p\n", __func__, policy);
-+		return ERR_PTR(-EINVAL);
+ 	wd = kzalloc(sizeof(*wd), GFP_KERNEL);
+-	if (!wd)
+-		goto no_mem;
++	if (!wd) {
++		pr_warn("xtalk:%x bridge create out of memory\n", widget);
++		return;
 +	}
-+
- 	dev = get_cpu_device(policy->cpu);
- 	if (unlikely(!dev)) {
- 		pr_warn("No cpu device for cpu %d\n", policy->cpu);
- 		return ERR_PTR(-ENODEV);
+ 
+ 	snprintf(wd->dev_id, sizeof(wd->dev_id), "bridge-%012lx",
+ 		 IP30_SWIN_BASE(widget));
+@@ -56,24 +59,35 @@ static void bridge_platform_create(int widget, int masterwid)
+ 	w1_res.end = w1_res.start + 3;
+ 	w1_res.flags = IORESOURCE_MEM;
+ 
+-	pdev = platform_device_alloc("sgi_w1", PLATFORM_DEVID_AUTO);
+-	if (!pdev) {
+-		kfree(wd);
+-		goto no_mem;
++	pdev_wd = platform_device_alloc("sgi_w1", PLATFORM_DEVID_AUTO);
++	if (!pdev_wd) {
++		pr_warn("xtalk:%x bridge create out of memory\n", widget);
++		goto err_kfree_wd;
++	}
++	if (platform_device_add_resources(pdev_wd, &w1_res, 1)) {
++		pr_warn("xtalk:%x bridge failed to add platform resources.\n", widget);
++		goto err_put_pdev_wd;
++	}
++	if (platform_device_add_data(pdev_wd, wd, sizeof(*wd))) {
++		pr_warn("xtalk:%x bridge failed to add platform data.\n", widget);
++		goto err_put_pdev_wd;
++	}
++	if (platform_device_add(pdev_wd)) {
++		pr_warn("xtalk:%x bridge failed to add platform device.\n", widget);
++		goto err_put_pdev_wd;
+ 	}
+-	platform_device_add_resources(pdev, &w1_res, 1);
+-	platform_device_add_data(pdev, wd, sizeof(*wd));
+ 	/* platform_device_add_data() duplicates the data */
+ 	kfree(wd);
+-	platform_device_add(pdev);
+ 
+ 	bd = kzalloc(sizeof(*bd), GFP_KERNEL);
+-	if (!bd)
+-		goto no_mem;
+-	pdev = platform_device_alloc("xtalk-bridge", PLATFORM_DEVID_AUTO);
+-	if (!pdev) {
+-		kfree(bd);
+-		goto no_mem;
++	if (!bd) {
++		pr_warn("xtalk:%x bridge create out of memory\n", widget);
++		goto err_unregister_pdev_wd;
++	}
++	pdev_bd = platform_device_alloc("xtalk-bridge", PLATFORM_DEVID_AUTO);
++	if (!pdev_bd) {
++		pr_warn("xtalk:%x bridge create out of memory\n", widget);
++		goto err_kfree_bd;
  	}
  
--	if (IS_ERR_OR_NULL(policy)) {
--		pr_err("%s: cpufreq policy isn't valid: %p\n", __func__, policy);
--		return ERR_PTR(-EINVAL);
--	}
--
- 	i = cpufreq_table_count_valid_entries(policy);
- 	if (!i) {
- 		pr_debug("%s: CPUFreq table not found or has no valid entries\n",
+ 	bd->bridge_addr	= IP30_RAW_SWIN_BASE(widget);
+@@ -93,15 +107,31 @@ static void bridge_platform_create(int widget, int masterwid)
+ 	bd->io.flags	= IORESOURCE_IO;
+ 	bd->io_offset	= IP30_SWIN_BASE(widget);
+ 
+-	platform_device_add_data(pdev, bd, sizeof(*bd));
++	if (platform_device_add_data(pdev_bd, bd, sizeof(*bd))) {
++		pr_warn("xtalk:%x bridge failed to add platform data.\n", widget);
++		goto err_put_pdev_bd;
++	}
++	if (platform_device_add(pdev_bd)) {
++		pr_warn("xtalk:%x bridge failed to add platform device.\n", widget);
++		goto err_put_pdev_bd;
++	}
+ 	/* platform_device_add_data() duplicates the data */
+ 	kfree(bd);
+-	platform_device_add(pdev);
+ 	pr_info("xtalk:%x bridge widget\n", widget);
+ 	return;
+ 
+-no_mem:
+-	pr_warn("xtalk:%x bridge create out of memory\n", widget);
++err_put_pdev_bd:
++	platform_device_put(pdev_bd);
++err_kfree_bd:
++	kfree(bd);
++err_unregister_pdev_wd:
++	platform_device_unregister(pdev_wd);
++	return;
++err_put_pdev_wd:
++	platform_device_put(pdev_wd);
++err_kfree_wd:
++	kfree(wd);
++	return;
+ }
+ 
+ static unsigned int __init xbow_widget_active(s8 wid)
 -- 
 2.35.1
 
