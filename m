@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B4D603D25
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26E94603D33
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:00:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231913AbiJSI6D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:58:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49024 "EHLO
+        id S229484AbiJSJAB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:00:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231942AbiJSI5D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:57:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76E0E9E0D1;
-        Wed, 19 Oct 2022 01:53:16 -0700 (PDT)
+        with ESMTP id S229746AbiJSI6b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:58:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285889C7C8;
+        Wed, 19 Oct 2022 01:53:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B0D061877;
-        Wed, 19 Oct 2022 08:52:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91766C433D6;
-        Wed, 19 Oct 2022 08:52:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21A4E61874;
+        Wed, 19 Oct 2022 08:52:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3807EC433D6;
+        Wed, 19 Oct 2022 08:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169533;
-        bh=L++NyLPF29P94YsyQAgGB6D++lyuxhHufzqYhYkdOmI=;
+        s=korg; t=1666169535;
+        bh=/MMQJwUCkSGAQuZsDumh02OKZlu0Vv4GwX0O4ak+tV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tYbPcJE/qdglMsQRKRRz3cLnodVDnkXApr20n0pn4y3U90WV0yHldxJsUsRaQ+LaN
-         TBgFyewimMSbGhM/l+hxYaRJPx7cdGY2J7E+Sy9iG8dXapENtIZ5PGn29yeKzPOI3P
-         YsrN71BRbNmbAZjoXv2viIFGs00xHrYAx91P0eZ0=
+        b=h6dbdmGimpzAsc/ImkadAsQXfpeNiX3MA4hwuJSv4dN71JKnkT1PgiOEZVcoO90Gd
+         xszGq/yldhdCucsWun5ppiaN6DXXCj2DQ28cJlaw0+9kdWTlDt1YaBeN8AQW3pLL9o
+         U1sDxb7DsEaeBlMAK3kGRGyHQgf6XfotxpS0bsos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Luciano=20Le=C3=A3o?= <lucianorsleao@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <n@nfraprado.net>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 313/862] x86/cpu: Include the header of init_ia32_feat_ctl()s prototype
-Date:   Wed, 19 Oct 2022 10:26:40 +0200
-Message-Id: <20221019083303.846947248@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 314/862] spi: cadence-quadspi: Fix PM disable depth imbalance in cqspi_probe
+Date:   Wed, 19 Oct 2022 10:26:41 +0200
+Message-Id: <20221019083303.896654051@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -46,71 +44,54 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luciano Leão <lucianorsleao@gmail.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 30ea703a38ef76ca119673cd8bdd05c6e068e2ac ]
+[ Upstream commit 4d0ef0a1c35189a6e8377d8ee8310ea5ef22c5f3 ]
 
-Include the header containing the prototype of init_ia32_feat_ctl(),
-solving the following warning:
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context.
 
-  $ make W=1 arch/x86/kernel/cpu/feat_ctl.o
-  arch/x86/kernel/cpu/feat_ctl.c:112:6: warning: no previous prototype for ‘init_ia32_feat_ctl’ [-Wmissing-prototypes]
-    112 | void init_ia32_feat_ctl(struct cpuinfo_x86 *c)
+Fixes:73d5fe0462702 ("spi: cadence-quadspi: Remove spi_master_put() in probe failure path")
 
-This warning appeared after commit
-
-  5d5103595e9e5 ("x86/cpu: Reinitialize IA32_FEAT_CTL MSR on BSP during wakeup")
-
-had moved the function init_ia32_feat_ctl()'s prototype from
-arch/x86/kernel/cpu/cpu.h to arch/x86/include/asm/cpu.h.
-
-Note that, before the commit mentioned above, the header include "cpu.h"
-(arch/x86/kernel/cpu/cpu.h) was added by commit
-
-  0e79ad863df43 ("x86/cpu: Fix a -Wmissing-prototypes warning for init_ia32_feat_ctl()")
-
-solely to fix init_ia32_feat_ctl()'s missing prototype. So, the header
-include "cpu.h" is no longer necessary.
-
-  [ bp: Massage commit message. ]
-
-Fixes: 5d5103595e9e5 ("x86/cpu: Reinitialize IA32_FEAT_CTL MSR on BSP during wakeup")
-Signed-off-by: Luciano Leão <lucianorsleao@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nícolas F. R. A. Prado <n@nfraprado.net>
-Link: https://lore.kernel.org/r/20220922200053.1357470-1-lucianorsleao@gmail.com
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20220924121310.78331-2-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/feat_ctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-cadence-quadspi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/feat_ctl.c b/arch/x86/kernel/cpu/feat_ctl.c
-index 993697e71854..03851240c3e3 100644
---- a/arch/x86/kernel/cpu/feat_ctl.c
-+++ b/arch/x86/kernel/cpu/feat_ctl.c
-@@ -1,11 +1,11 @@
- // SPDX-License-Identifier: GPL-2.0
- #include <linux/tboot.h>
+diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-cadence-quadspi.c
+index e12ab5b43f34..447230547945 100644
+--- a/drivers/spi/spi-cadence-quadspi.c
++++ b/drivers/spi/spi-cadence-quadspi.c
+@@ -1645,7 +1645,7 @@ static int cqspi_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(dev);
+ 	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret < 0)
+-		return ret;
++		goto probe_pm_failed;
  
-+#include <asm/cpu.h>
- #include <asm/cpufeature.h>
- #include <asm/msr-index.h>
- #include <asm/processor.h>
- #include <asm/vmx.h>
--#include "cpu.h"
- 
- #undef pr_fmt
- #define pr_fmt(fmt)	"x86/cpu: " fmt
+ 	ret = clk_prepare_enable(cqspi->clk);
+ 	if (ret) {
+@@ -1740,6 +1740,7 @@ static int cqspi_probe(struct platform_device *pdev)
+ 	clk_disable_unprepare(cqspi->clk);
+ probe_clk_failed:
+ 	pm_runtime_put_sync(dev);
++probe_pm_failed:
+ 	pm_runtime_disable(dev);
+ 	return ret;
+ }
 -- 
 2.35.1
 
