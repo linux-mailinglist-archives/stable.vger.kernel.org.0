@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D68EE603D95
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D06D603D8E
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232248AbiJSJFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:05:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40588 "EHLO
+        id S229664AbiJSJFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:05:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232149AbiJSJDt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:03:49 -0400
+        with ESMTP id S232278AbiJSJD6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:03:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D55321658A;
-        Wed, 19 Oct 2022 01:56:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 113EEA5729;
+        Wed, 19 Oct 2022 01:56:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8B4861812;
-        Wed, 19 Oct 2022 08:55:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06DC1C433D6;
-        Wed, 19 Oct 2022 08:54:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98DFA61831;
+        Wed, 19 Oct 2022 08:55:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B183FC433D6;
+        Wed, 19 Oct 2022 08:55:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169700;
-        bh=KNf54MzYOzZQ7PIZ9pF8uzpHZeVH6NK8nEr5MpJ/Xzk=;
+        s=korg; t=1666169711;
+        bh=bf1vPmgo21IJELc6XjmdXWEzqUu73Vv87VkAI1mMerA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qBuk/t0Q1n4pINunZfKttzn1cIZ73BZaO9gkVUc4KsA4qt+qrFzDU7Wd5vQxnZlCN
-         1m7rThqbWm4ev+pirA7zYlYYQ657Z4h8W6zePbsdGTtEHL7oxD6bM31d1xwb2f9uJw
-         WiJ0ewZRNqbPRipDR0WhPCqpVjuPyWMd3ofELgk4=
+        b=vI5Sp7zEL9Z+4sy0lGKUQFyZXdKBK71R10ucwt6jeOxQBk+I3u5R7gg5abF43UcWy
+         Y9vyZ02rHMgd6YsJXbGxY8YtQ4tGiFT5vWD9b8RkzWpWztJMrgvturoInhMDdBdN68
+         QW5izvYtKpwoVzRajeifzDqhAFT07iqR3vz7robY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maxtram95@gmail.com>,
-        M Chetan Kumar <m.chetan.kumar@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 342/862] net: wwan: iosm: Call mutex_init before locking it
-Date:   Wed, 19 Oct 2022 10:27:09 +0200
-Message-Id: <20221019083305.170906285@linuxfoundation.org>
+Subject: [PATCH 6.0 346/862] drm: bridge: adv7511: fix CEC power down control register offset
+Date:   Wed, 19 Oct 2022 10:27:13 +0200
+Message-Id: <20221019083305.334165717@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,48 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maxtram95@gmail.com>
+From: Alvin Šipraga <alsi@bang-olufsen.dk>
 
-[ Upstream commit ba0fbdb95da5ddd8db457ce6ba09d16dd979a294 ]
+[ Upstream commit 1d22b6033ea113a4c3850dfa2c0770885c81aec8 ]
 
-wwan_register_ops calls wwan_create_default_link, which ends up in the
-ipc_wwan_newlink callback that locks ipc_wwan->if_mutex. However, this
-mutex is not yet initialized by that point. Fix it by moving mutex_init
-above the wwan_register_ops call. This also makes the order of
-operations in ipc_wwan_init symmetric to ipc_wwan_deinit.
+The ADV7511_REG_CEC_CTRL = 0xE2 register is part of the main register
+map - not the CEC register map. As such, we shouldn't apply an offset to
+the register address. Doing so will cause us to address a bogus register
+for chips with a CEC register map offset (e.g. ADV7533).
 
-Fixes: 83068395bbfc ("net: iosm: create default link via WWAN core")
-Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
-Reviewed-by: M Chetan Kumar <m.chetan.kumar@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3b1b975003e4 ("drm: adv7511/33: add HDMI CEC support")
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220612144854.2223873-2-alvin@pqrs.dk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wwan/iosm/iosm_ipc_wwan.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511.h     | 5 +----
+ drivers/gpu/drm/bridge/adv7511/adv7511_cec.c | 4 ++--
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wwan/iosm/iosm_ipc_wwan.c b/drivers/net/wwan/iosm/iosm_ipc_wwan.c
-index 27151148c782..4712f01a7e33 100644
---- a/drivers/net/wwan/iosm/iosm_ipc_wwan.c
-+++ b/drivers/net/wwan/iosm/iosm_ipc_wwan.c
-@@ -323,15 +323,16 @@ struct iosm_wwan *ipc_wwan_init(struct iosm_imem *ipc_imem, struct device *dev)
- 	ipc_wwan->dev = dev;
- 	ipc_wwan->ipc_imem = ipc_imem;
- 
-+	mutex_init(&ipc_wwan->if_mutex);
-+
- 	/* WWAN core will create a netdev for the default IP MUX channel */
- 	if (wwan_register_ops(ipc_wwan->dev, &iosm_wwan_ops, ipc_wwan,
- 			      IP_MUX_SESSION_DEFAULT)) {
-+		mutex_destroy(&ipc_wwan->if_mutex);
- 		kfree(ipc_wwan);
- 		return NULL;
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511.h b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+index a031a0cd1f18..94de73cbeb2d 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511.h
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+@@ -394,10 +394,7 @@ void adv7511_cec_irq_process(struct adv7511 *adv7511, unsigned int irq1);
+ #else
+ static inline int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ {
+-	unsigned int offset = adv7511->type == ADV7533 ?
+-						ADV7533_REG_CEC_OFFSET : 0;
+-
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset,
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL,
+ 		     ADV7511_CEC_CTRL_POWER_DOWN);
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c b/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
+index 0b266f28f150..99964f5a5457 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
+@@ -359,7 +359,7 @@ int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ 		goto err_cec_alloc;
  	}
  
--	mutex_init(&ipc_wwan->if_mutex);
--
- 	return ipc_wwan;
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset, 0);
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL, 0);
+ 	/* cec soft reset */
+ 	regmap_write(adv7511->regmap_cec,
+ 		     ADV7511_REG_CEC_SOFT_RESET + offset, 0x01);
+@@ -386,7 +386,7 @@ int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ 	dev_info(dev, "Initializing CEC failed with error %d, disabling CEC\n",
+ 		 ret);
+ err_cec_parse_dt:
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset,
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL,
+ 		     ADV7511_CEC_CTRL_POWER_DOWN);
+ 	return ret == -EPROBE_DEFER ? ret : 0;
  }
- 
 -- 
 2.35.1
 
