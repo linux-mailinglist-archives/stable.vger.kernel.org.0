@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5E43603EF3
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEE1E603F54
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233127AbiJSJZB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:25:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57734 "EHLO
+        id S233703AbiJSJbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:31:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230348AbiJSJXc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:23:32 -0400
+        with ESMTP id S233771AbiJSJ3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06F2AB56F2;
-        Wed, 19 Oct 2022 02:10:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2C26C58BE;
+        Wed, 19 Oct 2022 02:12:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E4C1A6185F;
-        Wed, 19 Oct 2022 09:08:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1B48C433D7;
-        Wed, 19 Oct 2022 09:08:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CEC661886;
+        Wed, 19 Oct 2022 09:08:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 405E4C43144;
+        Wed, 19 Oct 2022 09:08:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170491;
-        bh=G2L0nwBjn5VtTyRobVNartiz1/0xuFjNYrEZ5NJlSKU=;
+        s=korg; t=1666170496;
+        bh=CM0lsX2xNuDhqw6knoqtt6uLkfZ93Q02MCIk5faF5dE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WlS9awD2OpdCmAms7Qro9y4Vr8NcIvMcsX3H7rdw+Wz3+nPn8g235zoZ78XrxsAgt
-         0Z/gjkFMA1AUwVuS7mTGrJRr6wNEM5MMD4m1ifhnXLMCaZLd5K4f4Few9gf4Earxqd
-         kq5h+2q17hjGArztcJHcYJluCRsWtgW9Ma6tDMPw=
+        b=jK84knL91kszEr50fLxA3xwU0z4n7zg4kM9luGiCByChmSXXjsWMmAdjlqFYLhSiQ
+         leeWYjYcx19R3AepVzsLENSzb0igJ8JUsa1li2D/jO4GVGlnjvgSpYQ5Pywdde4a0s
+         Xxgq2ObgCazgC+eYiksLYeSrY8lF6m6nN5CN9n10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-riscv@lists.infradead.org,
-        mingo@redhat.com, paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, zanussi@kernel.org, liaochang1@huawei.com,
-        chris.zjh@huawei.com, Yipeng Zou <zouyipeng@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        stable@vger.kernel.org, Nico Pache <npache@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 643/862] tracing: kprobe: Fix kprobe event gen test module on exit
-Date:   Wed, 19 Oct 2022 10:32:10 +0200
-Message-Id: <20221019083318.337377248@linuxfoundation.org>
+Subject: [PATCH 6.0 645/862] tracing/osnoise: Fix possible recursive locking in stop_per_cpu_kthreads
+Date:   Wed, 19 Oct 2022 10:32:12 +0200
+Message-Id: <20221019083318.425224404@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -57,44 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yipeng Zou <zouyipeng@huawei.com>
+From: Nico Pache <npache@redhat.com>
 
-[ Upstream commit ac48e189527fae87253ef2bf58892e782fb36874 ]
+[ Upstream commit 99ee9317a1305cd5626736785c8cb38b0e47686c ]
 
-Correct gen_kretprobe_test clr event para on module exit.
-This will make it can't to delete.
+There is a recursive lock on the cpu_hotplug_lock.
 
-Link: https://lkml.kernel.org/r/20220919125629.238242-2-zouyipeng@huawei.com
+In kernel/trace/trace_osnoise.c:<start/stop>_per_cpu_kthreads:
+    - start_per_cpu_kthreads calls cpus_read_lock() and if
+	start_kthreads returns a error it will call stop_per_cpu_kthreads.
+    - stop_per_cpu_kthreads then calls cpus_read_lock() again causing
+      deadlock.
 
-Cc: <linux-riscv@lists.infradead.org>
-Cc: <mingo@redhat.com>
-Cc: <paul.walmsley@sifive.com>
-Cc: <palmer@dabbelt.com>
-Cc: <aou@eecs.berkeley.edu>
-Cc: <zanussi@kernel.org>
-Cc: <liaochang1@huawei.com>
-Cc: <chris.zjh@huawei.com>
-Fixes: 64836248dda2 ("tracing: Add kprobe event command generation test module")
-Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Fix this by calling cpus_read_unlock() before calling
+stop_per_cpu_kthreads. This behavior can also be seen in commit
+f46b16520a08 ("trace/hwlat: Implement the per-cpu mode").
+
+This error was noticed during the LTP ftrace-stress-test:
+
+WARNING: possible recursive locking detected
+--------------------------------------------
+sh/275006 is trying to acquire lock:
+ffffffffb02f5400 (cpu_hotplug_lock){++++}-{0:0}, at: stop_per_cpu_kthreads
+
+but task is already holding lock:
+ffffffffb02f5400 (cpu_hotplug_lock){++++}-{0:0}, at: start_per_cpu_kthreads
+
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+      CPU0
+      ----
+ lock(cpu_hotplug_lock);
+ lock(cpu_hotplug_lock);
+
+ *** DEADLOCK ***
+
+May be due to missing lock nesting notation
+
+3 locks held by sh/275006:
+ #0: ffff8881023f0470 (sb_writers#24){.+.+}-{0:0}, at: ksys_write
+ #1: ffffffffb084f430 (trace_types_lock){+.+.}-{3:3}, at: rb_simple_write
+ #2: ffffffffb02f5400 (cpu_hotplug_lock){++++}-{0:0}, at: start_per_cpu_kthreads
+
+Link: https://lkml.kernel.org/r/20220919144932.3064014-1-npache@redhat.com
+
+Fixes: c8895e271f79 ("trace/osnoise: Support hotplug operations")
+Signed-off-by: Nico Pache <npache@redhat.com>
+Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/kprobe_event_gen_test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace_osnoise.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/trace/kprobe_event_gen_test.c b/kernel/trace/kprobe_event_gen_test.c
-index 18b0f1cbb947..e023154be0f8 100644
---- a/kernel/trace/kprobe_event_gen_test.c
-+++ b/kernel/trace/kprobe_event_gen_test.c
-@@ -206,7 +206,7 @@ static void __exit kprobe_event_gen_test_exit(void)
- 	WARN_ON(kprobe_event_delete("gen_kprobe_test"));
- 
- 	/* Disable the event or you can't remove it */
--	WARN_ON(trace_array_set_clr_event(gen_kprobe_test->tr,
-+	WARN_ON(trace_array_set_clr_event(gen_kretprobe_test->tr,
- 					  "kprobes",
- 					  "gen_kretprobe_test", false));
+diff --git a/kernel/trace/trace_osnoise.c b/kernel/trace/trace_osnoise.c
+index 313439920a8c..78d536d3ff3d 100644
+--- a/kernel/trace/trace_osnoise.c
++++ b/kernel/trace/trace_osnoise.c
+@@ -1786,8 +1786,9 @@ static int start_per_cpu_kthreads(void)
+ 	for_each_cpu(cpu, current_mask) {
+ 		retval = start_kthread(cpu);
+ 		if (retval) {
++			cpus_read_unlock();
+ 			stop_per_cpu_kthreads();
+-			break;
++			return retval;
+ 		}
+ 	}
  
 -- 
 2.35.1
