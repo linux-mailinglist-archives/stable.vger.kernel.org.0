@@ -2,75 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A093E603A4D
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 09:06:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3163603A50
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 09:07:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229722AbiJSHGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 03:06:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52144 "EHLO
+        id S229869AbiJSHG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 03:06:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229660AbiJSHGl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 03:06:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFFD074E3A;
-        Wed, 19 Oct 2022 00:06:39 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47D0B61787;
-        Wed, 19 Oct 2022 07:06:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 364B7C433D6;
-        Wed, 19 Oct 2022 07:06:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666163198;
-        bh=2hIj3mPDYaistCfLU1l8eKpPCAGL6nKuwyTSDH03Kqk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=x9D9ukRhqplqwhgEuxkAVqjDnVQGZQ7JLYzrV3Q9Xp5mJgWe4GqAehaA85NjeqpS/
-         Zah8fWGH6lMfa3P2xABL1EqXClos9ZDFMYkK7KM9h5Mo9lxbIsf11jI814SXzYZ+8V
-         p1KF0IYoDCpW7TvpEulwflyUgg1G3Woda6A1QTH0=
-Date:   Wed, 19 Oct 2022 09:06:35 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jani Nikula <jani.nikula@intel.com>
-Cc:     stable@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        ville.syrjala@linux.intel.com
-Subject: Re: v5.19 & v6.0 stable backport request
-Message-ID: <Y0+h++6NReFAZhrv@kroah.com>
-References: <87k04xiedr.fsf@intel.com>
- <Y0+fex0i0vmBL6QX@kroah.com>
+        with ESMTP id S229769AbiJSHG6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 03:06:58 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E4B7549D
+        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 00:06:55 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id c24so16107668plo.3
+        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 00:06:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=ERNLQo/LHlcjLcS9hvMmRlM0aFZCtBSGR2KhWHung6E=;
+        b=gYN/TEgGyWBL7EOlcnBWw9YvHnqJU+3ngjQuBGeSwQZy8/ptjHFF9kx6DRYEcB3lBB
+         MiEkxo/kaGoXrQ2pEzuwaLPK0o/sFS6ITam2Vxixc9ta67/0unIAL7oYjTM9SiGgC8bL
+         qKWvfws8I6zo78WKZungDvdv4a3ECSIpAycNmz1d0SDguT3Rs2ZnlqHmxabXw/1mbRsn
+         +PpbgurrobOSrYSGwzlCa8tzZ/Z7vHn2eFRZBuml/EUD1iP/in6PDriaBBkVLgAs+Qc/
+         M1IbkexBC1AQ0Oobvfpx2QFWVx8fzsQpVKV8VPgMKGmv5YQu5tEdO/Kb1+OfFkzM5Gm4
+         V1tg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ERNLQo/LHlcjLcS9hvMmRlM0aFZCtBSGR2KhWHung6E=;
+        b=B4mo1Nz9p0Pol9YNQCiNJriRG4tSVD1OcLnCQ5OWYaXtG9pxHDQ6/Hh9Cr9OlV7iEe
+         IIxPyemvbMZoDCpvals4j7ibekHUsfqYL7o0Ug3MASrGX6oKO82hwQYAp3O4/Mi8sQMy
+         wzoY8Q4HAesCvL3YbQX058MSA8Yhvvc1VBEpmOKIoPIaiN2q8rc8yWir1BGNJh+iQJjI
+         mPpc+wno0y6T1ved830xtc+rOecvuKUSc52hTi3ky3zWYcfj5+NwvcinsUaqR3goYTRP
+         VnstU8NMovmP5wEpDO2xx7lIGYGT4a6H4DEeXv8PSY5y571CWxnBZBrMauSAlyOfxuo5
+         wQKw==
+X-Gm-Message-State: ACrzQf3SO1uA6KVZUdPz4Am2zgo5hmAbdotfkeBb2JRJZhZHksrYn9MX
+        R6BJ8Gf11KnJ8JzdLngl1My1EF+exd/mGIG4
+X-Google-Smtp-Source: AMsMyM5HLMBWAjnyLxNCva+cxSNgi2K0Y+Xa3cFOH5eHJzv2bOzmlgCEauTKXq+GM4Ke8pz8/OKUwA==
+X-Received: by 2002:a17:90a:c90c:b0:20a:7179:b14f with SMTP id v12-20020a17090ac90c00b0020a7179b14fmr7935456pjt.58.1666163214434;
+        Wed, 19 Oct 2022 00:06:54 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j5-20020a170903024500b001853e6d6179sm10005310plh.162.2022.10.19.00.06.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Oct 2022 00:06:54 -0700 (PDT)
+Message-ID: <634fa20e.170a0220.ee5f.2ba9@mx.google.com>
+Date:   Wed, 19 Oct 2022 00:06:54 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y0+fex0i0vmBL6QX@kroah.com>
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v5.15.74-600-g23ade3cda2fe
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.15
+Subject: stable-rc/queue/5.15 build: 180 builds: 4 failed,
+ 176 passed (v5.15.74-600-g23ade3cda2fe)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 19, 2022 at 08:55:55AM +0200, Greg Kroah-Hartman wrote:
-> On Tue, Oct 18, 2022 at 02:02:08PM +0300, Jani Nikula wrote:
-> > 
-> > Hello stable team, please backport these two commits to stable kernels
-> > v5.19 and v6.0:
-> > 
-> > 4e78d6023c15 ("drm/i915/bios: Validate fp_timing terminator presence")
-> 
-> Does not apply to 5.19.y, can you provide a working backport?
-> 
-> > d3a7051841f0 ("drm/i915/bios: Use hardcoded fp_timing size for generating LFP data pointers")
-> 
-> Queued up to both trees now, thanks.
+stable-rc/queue/5.15 build: 180 builds: 4 failed, 176 passed (v5.15.74-600-=
+g23ade3cda2fe)
 
-No, wait, that breaks the build!
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+5/kernel/v5.15.74-600-g23ade3cda2fe/
 
-How did you test this?  I'm dropping both of these now.
+Tree: stable-rc
+Branch: queue/5.15
+Git Describe: v5.15.74-600-g23ade3cda2fe
+Git Commit: 23ade3cda2fea45f82e070d74ba41df7a1e390c1
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
-Please resubmit a set of tested patches if you wish to have them applied
-to the tree.  These were obviously not even attempted, which just wastes
-all of our time :(
+Build Failures Detected:
 
-greg k-h
+arm:
+    rpc_defconfig: (gcc-10) FAIL
+
+mips:
+    decstation_64_defconfig: (gcc-10) FAIL
+    ip27_defconfig: (gcc-10) FAIL
+    ip28_defconfig: (gcc-10) FAIL
+
+---
+For more info write to <info@kernelci.org>
