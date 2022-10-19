@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F5D603D49
+	by mail.lfdr.de (Postfix) with ESMTP id 23E76603D47
 	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:00:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232049AbiJSJAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:00:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41392 "EHLO
+        id S229648AbiJSJAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:00:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232211AbiJSI7Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:59:16 -0400
+        with ESMTP id S232138AbiJSI7A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:59:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64DF5B1DB;
-        Wed, 19 Oct 2022 01:54:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E429D8768D;
+        Wed, 19 Oct 2022 01:54:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88F7F61826;
-        Wed, 19 Oct 2022 08:46:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 923C7C433D6;
-        Wed, 19 Oct 2022 08:46:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D82F61806;
+        Wed, 19 Oct 2022 08:46:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78188C433D6;
+        Wed, 19 Oct 2022 08:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169162;
-        bh=qggspGbhOEEOUW1EbtqAEooo2tGTIcHxBbJIIDo0yxU=;
+        s=korg; t=1666169168;
+        bh=K0yeZ7/w3WHo2Xyl6Af/+8v2ksebm86re6HjFd/ClSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ry50gBDxajch4Qi/yys3d6u99hBIxkn/PWYehJmxTOSjW6A3fZHedaxDIMIww4Vzh
-         jX2PvP4KqOcihShqpngxNNCsq253bFw2A1xUofW58SaQ4YyhXHs304OBsYIh+I2Pj7
-         YFEUwE9t5IQebfmXI0x6jrud4wV+fUDd20Y/dq8A=
+        b=uzkOxZYPdj8VTU5ClK4hzY7C8Wr7XZtTtXGo0KUYY7FvcOsG1UgonxfF5S/6oznrM
+         eteF9y6wbtaZQReMoQyi9Lo/E7eFXErh7PTzAFaT7Asep4m9jnPKkroi8MjOE1EAJU
+         nUR+wIp2xCBvakaAZ5QIu50LfpZx/40P7rGdpu2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Alex Elder <elder@kernel.org>, stable <stable@kernel.org>
-Subject: [PATCH 6.0 179/862] staging: greybus: audio_helper: remove unused and wrong debugfs usage
-Date:   Wed, 19 Oct 2022 10:24:26 +0200
-Message-Id: <20221019083257.863955888@linuxfoundation.org>
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>
+Subject: [PATCH 6.0 180/862] drm/nouveau/kms/nv140-: Disable interlacing
+Date:   Wed, 19 Oct 2022 10:24:27 +0200
+Message-Id: <20221019083257.911104683@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,66 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Lyude Paul <lyude@redhat.com>
 
-commit d517cdeb904ddc0cbebcc959d43596426cac40b0 upstream.
+commit 8ba9249396bef37cb68be9e8dee7847f1737db9d upstream.
 
-In the greybus audio_helper code, the debugfs file for the dapm has the
-potential to be removed and memory will be leaked.  There is also the
-very real potential for this code to remove ALL debugfs entries from the
-system, and it seems like this is what will really happen if this code
-ever runs.  This all is very wrong as the greybus audio driver did not
-create this debugfs file, the sound core did and controls the lifespan
-of it.
+As it turns out: while Nvidia does actually have interlacing knobs on their
+GPU still pretty much no current GPUs since Volta actually support it.
+Trying interlacing on these GPUs will result in NVDisplay being quite
+unhappy like so:
 
-So remove all of the debugfs logic from the audio_helper code as there's
-no way it could be correct.  If this really is needed, it can come back
-with a fixup for the incorrect usage of the debugfs_lookup() call which
-is what caused this to be noticed at all.
+nouveau 0000:1f:00.0: disp: chid 0 stat 00004802 reason 4 [INVALID_ARG] mthd 2008 data 00000001 code 00080000
+nouveau 0000:1f:00.0: disp: chid 0 stat 10005080 reason 5 [INVALID_STATE] mthd 0200 data 00000001 code 00000001
 
-Cc: Johan Hovold <johan@kernel.org>
-Cc: Alex Elder <elder@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20220902143715.320500-1-gregkh@linuxfoundation.org
+So let's fix this by following the same behavior Nvidia's driver does and
+disable interlacing entirely.
+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220816180436.156310-1-lyude@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/greybus/audio_helper.c |   11 -----------
- 1 file changed, 11 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_connector.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/greybus/audio_helper.c
-+++ b/drivers/staging/greybus/audio_helper.c
-@@ -3,7 +3,6 @@
-  * Greybus Audio Sound SoC helper APIs
-  */
- 
--#include <linux/debugfs.h>
- #include <sound/core.h>
- #include <sound/soc.h>
- #include <sound/soc-dapm.h>
-@@ -116,10 +115,6 @@ int gbaudio_dapm_free_controls(struct sn
- {
- 	int i;
- 	struct snd_soc_dapm_widget *w, *tmp_w;
--#ifdef CONFIG_DEBUG_FS
--	struct dentry *parent = dapm->debugfs_dapm;
--	struct dentry *debugfs_w = NULL;
--#endif
- 
- 	mutex_lock(&dapm->card->dapm_mutex);
- 	for (i = 0; i < num; i++) {
-@@ -139,12 +134,6 @@ int gbaudio_dapm_free_controls(struct sn
- 			continue;
- 		}
- 		widget++;
--#ifdef CONFIG_DEBUG_FS
--		if (!parent)
--			debugfs_w = debugfs_lookup(w->name, parent);
--		debugfs_remove(debugfs_w);
--		debugfs_w = NULL;
--#endif
- 		gbaudio_dapm_free_widget(w);
- 	}
- 	mutex_unlock(&dapm->card->dapm_mutex);
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -504,7 +504,8 @@ nouveau_connector_set_encoder(struct drm
+ 			connector->interlace_allowed =
+ 				nv_encoder->caps.dp_interlace;
+ 		else
+-			connector->interlace_allowed = true;
++			connector->interlace_allowed =
++				drm->client.device.info.family < NV_DEVICE_INFO_V0_VOLTA;
+ 		connector->doublescan_allowed = true;
+ 	} else
+ 	if (nv_encoder->dcb->type == DCB_OUTPUT_LVDS ||
 
 
