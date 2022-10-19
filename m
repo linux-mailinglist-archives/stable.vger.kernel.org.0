@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DEEA603F03
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C670603EBF
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:20:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233549AbiJSJ01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:26:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46112 "EHLO
+        id S233175AbiJSJUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233791AbiJSJY6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:24:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9925E09FA;
-        Wed, 19 Oct 2022 02:11:18 -0700 (PDT)
+        with ESMTP id S233455AbiJSJTR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:19:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB4CFDCACD;
+        Wed, 19 Oct 2022 02:08:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FB216186A;
-        Wed, 19 Oct 2022 09:07:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B708DC433D6;
-        Wed, 19 Oct 2022 09:07:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40DE761880;
+        Wed, 19 Oct 2022 09:07:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51B09C433D7;
+        Wed, 19 Oct 2022 09:07:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170428;
-        bh=3Gfi9agU9cU+uff4O12IY+gLmC0ZvLn3iv815Gceu7s=;
+        s=korg; t=1666170430;
+        bh=EToABdKvy4XhxuhBiW5VUN7zQrDrFjx5hkuwfUdi6NE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yk1vgJG3QqXONevtsnu0Q2QKCmVG0dHDb4rrKGcUU6wsR3/G5Rb8uw07rFODAVVuf
-         Q6J2ISnjT4T1VSN5Qd97NJEPTNpuR5MCLeSAYISdpW+7EHJ63bHEJVJ3Sz2B3i+uHN
-         NFp50uSFb6sY3+N/Tdgx2d58D/YO94Q1uupmSse0=
+        b=iSj2wHncG2xXVg5AtClwlA8CZH5HeXyjL0reFSNJLpYckrxHyb1srOCEIQjbiX5Lq
+         jY6AqHnsEwxGfxl1DKPrkGO98NAzN3JklDrQlrOoSH3QVCLT+JDILC0igqRTOrsBLp
+         OgCKmfY+Txhn0KXOCaCrmJN8Pz4uNikR/6hheP8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Sultan Alsawaf <sultan@kerneltoast.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        stable@vger.kernel.org, Vincent Knecht <vincent.knecht@mailoo.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 652/862] random: schedule jitter credit for next jiffy, not in two jiffies
-Date:   Wed, 19 Oct 2022 10:32:19 +0200
-Message-Id: <20221019083318.739414078@linuxfoundation.org>
+Subject: [PATCH 6.0 653/862] thermal/drivers/qcom/tsens-v0_1: Fix MSM8939 fourth sensor hw_id
+Date:   Wed, 19 Oct 2022 10:32:20 +0200
+Message-Id: <20221019083318.788220703@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,48 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Vincent Knecht <vincent.knecht@mailoo.org>
 
-[ Upstream commit 122733471384be8c23f019fbbd46bdf7be561dcd ]
+[ Upstream commit b0c883e900702f408d62cf92b0ef01303ed69be9 ]
 
-Counterintuitively, mod_timer(..., jiffies + 1) will cause the timer to
-fire not in the next jiffy, but in two jiffies. The way to cause
-the timer to fire in the next jiffy is with mod_timer(..., jiffies).
-Doing so then lets us bump the upper bound back up again.
+Reading temperature from this sensor fails with 'Invalid argument'.
 
-Fixes: 50ee7529ec45 ("random: try to actively add entropy rather than passively wait for it")
-Fixes: 829d680e82a9 ("random: cap jitter samples per bit to factor of HZ")
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Sultan Alsawaf <sultan@kerneltoast.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Looking at old vendor dts [1], its hw_id should be 3 instead of 4.
+Change this hw_id accordingly.
+
+[1] https://github.com/msm8916-mainline/android_kernel_qcom_msm8916/blob/master/arch/arm/boot/dts/qcom/msm8939-common.dtsi#L511
+
+Fixes: 332bc8ebab2c ("thermal: qcom: tsens-v0_1: Add support for MSM8939")
+Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Bjorn Andersson <andersson@kernel.org>
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Link: https://lore.kernel.org/r/20220811105014.7194-1-vincent.knecht@mailoo.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/thermal/qcom/tsens-v0_1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index 060f999dcffb..46d6100fa3a7 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1195,7 +1195,7 @@ static void __cold entropy_timer(struct timer_list *timer)
-  */
- static void __cold try_to_generate_entropy(void)
- {
--	enum { NUM_TRIAL_SAMPLES = 8192, MAX_SAMPLES_PER_BIT = HZ / 30 };
-+	enum { NUM_TRIAL_SAMPLES = 8192, MAX_SAMPLES_PER_BIT = HZ / 15 };
- 	struct entropy_timer_state stack;
- 	unsigned int i, num_different = 0;
- 	unsigned long last = random_get_entropy();
-@@ -1214,7 +1214,7 @@ static void __cold try_to_generate_entropy(void)
- 	timer_setup_on_stack(&stack.timer, entropy_timer, 0);
- 	while (!crng_ready() && !signal_pending(current)) {
- 		if (!timer_pending(&stack.timer))
--			mod_timer(&stack.timer, jiffies + 1);
-+			mod_timer(&stack.timer, jiffies);
- 		mix_pool_bytes(&stack.entropy, sizeof(stack.entropy));
- 		schedule();
- 		stack.entropy = random_get_entropy();
+diff --git a/drivers/thermal/qcom/tsens-v0_1.c b/drivers/thermal/qcom/tsens-v0_1.c
+index f136cb350238..327f37202c69 100644
+--- a/drivers/thermal/qcom/tsens-v0_1.c
++++ b/drivers/thermal/qcom/tsens-v0_1.c
+@@ -604,7 +604,7 @@ static const struct tsens_ops ops_8939 = {
+ struct tsens_plat_data data_8939 = {
+ 	.num_sensors	= 10,
+ 	.ops		= &ops_8939,
+-	.hw_ids		= (unsigned int []){ 0, 1, 2, 4, 5, 6, 7, 8, 9, 10 },
++	.hw_ids		= (unsigned int []){ 0, 1, 2, 3, 5, 6, 7, 8, 9, 10 },
+ 
+ 	.feat		= &tsens_v0_1_feat,
+ 	.fields	= tsens_v0_1_regfields,
 -- 
 2.35.1
 
