@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BD03603F1A
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:27:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7AF3603CAC
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:51:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233317AbiJSJ1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:27:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47870 "EHLO
+        id S231499AbiJSIus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:50:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233172AbiJSJ0d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:26:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C2AE4C20;
-        Wed, 19 Oct 2022 02:11:56 -0700 (PDT)
+        with ESMTP id S231888AbiJSItt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:49:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1CBC89CFB;
+        Wed, 19 Oct 2022 01:48:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 738BE617D7;
-        Wed, 19 Oct 2022 08:44:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82F2FC433C1;
-        Wed, 19 Oct 2022 08:44:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 73C2C61805;
+        Wed, 19 Oct 2022 08:44:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73C99C433D6;
+        Wed, 19 Oct 2022 08:44:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169063;
-        bh=C620LoJ1iYClQH8UWros1PqqPG0tOj5qGlc2syb/41g=;
+        s=korg; t=1666169069;
+        bh=H2f0utUE260eE+Vd88zICS6WI0lF7gGGbPGRjwWNoew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHIuVl85tP3VWCd4c1MuBl7GmOIOtcu05okyAiC913082K+ZVwT0Zi6/385PYAD43
-         lgJMqLdVaPfqIxZJ0tWpe3vFu1jbsqOCU8Pn0nEnD20k0GEyZjnXN/RB7WyLqKrx5J
-         VDwNQi+eHIGMkg9jzKsH3Lt0YCx78UXZGyCH2Zjw=
+        b=kc/ZFTGTfghIZgblZew14UZ6RyuxX/LvsPhRg2U7V0BbV8qcVSIVYc2VvkG2GjMhk
+         +5D9DmGsgwNLxpeneZaTW1pxMLgWiZbHFK1E6br2eQk1TnN9brgkUVts4lbFlM9YD3
+         ykqfldsQUAD6Y99yYFekQDPEhHpO8kKTM4dCpJZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
         Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.0 145/862] ext4: fix miss release buffer head in ext4_fc_write_inode
-Date:   Wed, 19 Oct 2022 10:23:52 +0200
-Message-Id: <20221019083256.394645446@linuxfoundation.org>
+Subject: [PATCH 6.0 147/862] ext4: fix potential memory leak in ext4_fc_record_regions()
+Date:   Wed, 19 Oct 2022 10:23:54 +0200
+Message-Id: <20221019083256.486598993@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,55 +55,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ye Bin <yebin10@huawei.com>
 
-commit ccbf8eeb39f2ff00b54726a2b20b35d788c4ecb5 upstream.
+commit 7069d105c1f15c442b68af43f7fde784f3126739 upstream.
 
-In 'ext4_fc_write_inode' function first call 'ext4_get_inode_loc' get 'iloc',
-after use it miss release 'iloc.bh'.
-So just release 'iloc.bh' before 'ext4_fc_write_inode' return.
+As krealloc may return NULL, in this case 'state->fc_regions' may not be
+freed by krealloc, but 'state->fc_regions' already set NULL. Then will
+lead to 'state->fc_regions' memory leak.
 
 Cc: stable@kernel.org
 Signed-off-by: Ye Bin <yebin10@huawei.com>
 Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220914100859.1415196-1-yebin10@huawei.com
+Link: https://lore.kernel.org/r/20220921064040.3693255-3-yebin10@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ fs/ext4/fast_commit.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
 --- a/fs/ext4/fast_commit.c
 +++ b/fs/ext4/fast_commit.c
-@@ -874,22 +874,25 @@ static int ext4_fc_write_inode(struct in
- 	tl.fc_tag = cpu_to_le16(EXT4_FC_TAG_INODE);
- 	tl.fc_len = cpu_to_le16(inode_len + sizeof(fc_inode.fc_ino));
- 
-+	ret = -ECANCELED;
- 	dst = ext4_fc_reserve_space(inode->i_sb,
- 			sizeof(tl) + inode_len + sizeof(fc_inode.fc_ino), crc);
- 	if (!dst)
--		return -ECANCELED;
-+		goto err;
- 
- 	if (!ext4_fc_memcpy(inode->i_sb, dst, &tl, sizeof(tl), crc))
--		return -ECANCELED;
-+		goto err;
- 	dst += sizeof(tl);
- 	if (!ext4_fc_memcpy(inode->i_sb, dst, &fc_inode, sizeof(fc_inode), crc))
--		return -ECANCELED;
-+		goto err;
- 	dst += sizeof(fc_inode);
- 	if (!ext4_fc_memcpy(inode->i_sb, dst, (u8 *)ext4_raw_inode(&iloc),
- 					inode_len, crc))
--		return -ECANCELED;
--
--	return 0;
-+		goto err;
-+	ret = 0;
-+err:
-+	brelse(iloc.bh);
-+	return ret;
- }
- 
- /*
+@@ -1687,15 +1687,17 @@ int ext4_fc_record_regions(struct super_
+ 	if (replay && state->fc_regions_used != state->fc_regions_valid)
+ 		state->fc_regions_used = state->fc_regions_valid;
+ 	if (state->fc_regions_used == state->fc_regions_size) {
++		struct ext4_fc_alloc_region *fc_regions;
++
+ 		state->fc_regions_size +=
+ 			EXT4_FC_REPLAY_REALLOC_INCREMENT;
+-		state->fc_regions = krealloc(
+-					state->fc_regions,
+-					state->fc_regions_size *
+-					sizeof(struct ext4_fc_alloc_region),
+-					GFP_KERNEL);
+-		if (!state->fc_regions)
++		fc_regions = krealloc(state->fc_regions,
++				      state->fc_regions_size *
++				      sizeof(struct ext4_fc_alloc_region),
++				      GFP_KERNEL);
++		if (!fc_regions)
+ 			return -ENOMEM;
++		state->fc_regions = fc_regions;
+ 	}
+ 	region = &state->fc_regions[state->fc_regions_used++];
+ 	region->ino = ino;
 
 
