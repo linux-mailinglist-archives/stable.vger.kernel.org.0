@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 181D560411B
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:38:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21990604208
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230527AbiJSKiE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:38:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33030 "EHLO
+        id S234510AbiJSKwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:52:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230429AbiJSKhb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:37:31 -0400
+        with ESMTP id S234550AbiJSKw2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:52:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17B2B108254;
-        Wed, 19 Oct 2022 03:16:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAFAC15DB36;
+        Wed, 19 Oct 2022 03:23:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D0C5B8238A;
-        Wed, 19 Oct 2022 08:51:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBE0BC433D6;
-        Wed, 19 Oct 2022 08:51:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3F66B82390;
+        Wed, 19 Oct 2022 08:51:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DF16C433D6;
+        Wed, 19 Oct 2022 08:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169493;
-        bh=cSXhoQQnS0sgrIV1JzC+sZBN08NptzZPX3j/Utqtc7Y=;
+        s=korg; t=1666169498;
+        bh=7h9aWcGCfgx2rKr3+DGUU7gZV0M1EwXuVeR7W2iK1KQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xKjD8QTLm/a+WfkIty0SGGd/vBQn+xADypRod55e0jZl1FYDODChzbeIXb3ELnTrr
-         /qOW162DDPuYSapBV7B4tME2mRifdMVRK+kZGGIluhFNodWdYToBZHBu9TFq/pIduC
-         pXJrK3UsAKf5OBzfjMwEs2ZRbfdYX4NdSrvLnh6Q=
+        b=1Mb57gMi8Zzw+vx0lh0NZZ1XWGIowbwIVVwpLD8EQYaZMjke31LhZ8ntiNMtI5D9+
+         fEn1tf5E72VzLjNq6rtGIXKYHyPvQgFhp4EAsYXfn43SG+zTt05e6zGI8I41B5fZn0
+         gmgH/lT8KzNE5XZ4BZKzvQamthMI7M9tgZDfgeiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+576dfca25381fb6fbc5f@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 296/862] libbpf: Fix crash if SEC("freplace") programs dont have attach_prog_fd set
-Date:   Wed, 19 Oct 2022 10:26:23 +0200
-Message-Id: <20221019083303.081773927@linuxfoundation.org>
+Subject: [PATCH 6.0 298/862] Bluetooth: hci_{ldisc,serdev}: check percpu_init_rwsem() failure
+Date:   Wed, 19 Oct 2022 10:26:25 +0200
+Message-Id: <20221019083303.176643973@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,58 +55,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 749c202cb6ea40f4d7ac95c4a1217a7b506f43a8 ]
+[ Upstream commit 3124d320c22f3f4388d9ac5c8f37eaad0cefd6b1 ]
 
-Fix SIGSEGV caused by libbpf trying to find attach type in vmlinux BTF
-for freplace programs. It's wrong to search in vmlinux BTF and libbpf
-doesn't even mark vmlinux BTF as required for freplace programs. So
-trying to search anything in obj->vmlinux_btf might cause NULL
-dereference if nothing else in BPF object requires vmlinux BTF.
+syzbot is reporting NULL pointer dereference at hci_uart_tty_close() [1],
+for rcu_sync_enter() is called without rcu_sync_init() due to
+hci_uart_tty_open() ignoring percpu_init_rwsem() failure.
 
-Instead, error out if freplace (EXT) program doesn't specify
-attach_prog_fd during at the load time.
+While we are at it, fix that hci_uart_register_device() ignores
+percpu_init_rwsem() failure and hci_uart_unregister_device() does not
+call percpu_free_rwsem().
 
-Fixes: 91abb4a6d79d ("libbpf: Support attachment of BPF tracing programs to kernel modules")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220909193053.577111-3-andrii@kernel.org
+Link: https://syzkaller.appspot.com/bug?extid=576dfca25381fb6fbc5f [1]
+Reported-by: syzbot <syzbot+576dfca25381fb6fbc5f@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 67d2f8781b9f00d1 ("Bluetooth: hci_ldisc: Allow sleeping while proto locks are held.")
+Fixes: d73e172816652772 ("Bluetooth: hci_serdev: Init hci_uart proto_lock to avoid oops")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/bluetooth/hci_ldisc.c  |  7 +++++--
+ drivers/bluetooth/hci_serdev.c | 10 +++++++---
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -9056,11 +9056,15 @@ static int libbpf_find_attach_btf_id(str
- 	int err = 0;
+diff --git a/drivers/bluetooth/hci_ldisc.c b/drivers/bluetooth/hci_ldisc.c
+index f537673ede17..865112e96ff9 100644
+--- a/drivers/bluetooth/hci_ldisc.c
++++ b/drivers/bluetooth/hci_ldisc.c
+@@ -493,6 +493,11 @@ static int hci_uart_tty_open(struct tty_struct *tty)
+ 		BT_ERR("Can't allocate control structure");
+ 		return -ENFILE;
+ 	}
++	if (percpu_init_rwsem(&hu->proto_lock)) {
++		BT_ERR("Can't allocate semaphore structure");
++		kfree(hu);
++		return -ENOMEM;
++	}
  
- 	/* BPF program's BTF ID */
--	if (attach_prog_fd) {
-+	if (prog->type == BPF_PROG_TYPE_EXT || attach_prog_fd) {
-+		if (!attach_prog_fd) {
-+			pr_warn("prog '%s': attach program FD is not set\n", prog->name);
-+			return -EINVAL;
-+		}
- 		err = libbpf_find_prog_btf_id(attach_name, attach_prog_fd);
- 		if (err < 0) {
--			pr_warn("failed to find BPF program (FD %d) BTF ID for '%s': %d\n",
--				 attach_prog_fd, attach_name, err);
-+			pr_warn("prog '%s': failed to find BPF program (FD %d) BTF ID for '%s': %d\n",
-+				 prog->name, attach_prog_fd, attach_name, err);
- 			return err;
- 		}
- 		*btf_obj_fd = 0;
-@@ -9077,7 +9081,8 @@ static int libbpf_find_attach_btf_id(str
- 		err = find_kernel_btf_id(prog->obj, attach_name, attach_type, btf_obj_fd, btf_type_id);
+ 	tty->disc_data = hu;
+ 	hu->tty = tty;
+@@ -505,8 +510,6 @@ static int hci_uart_tty_open(struct tty_struct *tty)
+ 	INIT_WORK(&hu->init_ready, hci_uart_init_work);
+ 	INIT_WORK(&hu->write_work, hci_uart_write_work);
+ 
+-	percpu_init_rwsem(&hu->proto_lock);
+-
+ 	/* Flush any pending characters in the driver */
+ 	tty_driver_flush_buffer(tty);
+ 
+diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
+index c0e5f42ec6b7..f16fd79bc02b 100644
+--- a/drivers/bluetooth/hci_serdev.c
++++ b/drivers/bluetooth/hci_serdev.c
+@@ -310,11 +310,12 @@ int hci_uart_register_device(struct hci_uart *hu,
+ 
+ 	serdev_device_set_client_ops(hu->serdev, &hci_serdev_client_ops);
+ 
++	if (percpu_init_rwsem(&hu->proto_lock))
++		return -ENOMEM;
++
+ 	err = serdev_device_open(hu->serdev);
+ 	if (err)
+-		return err;
+-
+-	percpu_init_rwsem(&hu->proto_lock);
++		goto err_rwsem;
+ 
+ 	err = p->open(hu);
+ 	if (err)
+@@ -389,6 +390,8 @@ int hci_uart_register_device(struct hci_uart *hu,
+ 	p->close(hu);
+ err_open:
+ 	serdev_device_close(hu->serdev);
++err_rwsem:
++	percpu_free_rwsem(&hu->proto_lock);
+ 	return err;
+ }
+ EXPORT_SYMBOL_GPL(hci_uart_register_device);
+@@ -410,5 +413,6 @@ void hci_uart_unregister_device(struct hci_uart *hu)
+ 		clear_bit(HCI_UART_PROTO_READY, &hu->flags);
+ 		serdev_device_close(hu->serdev);
  	}
- 	if (err) {
--		pr_warn("failed to find kernel BTF type ID of '%s': %d\n", attach_name, err);
-+		pr_warn("prog '%s': failed to find kernel BTF type ID of '%s': %d\n",
-+			prog->name, attach_name, err);
- 		return err;
- 	}
- 	return 0;
++	percpu_free_rwsem(&hu->proto_lock);
+ }
+ EXPORT_SYMBOL_GPL(hci_uart_unregister_device);
+-- 
+2.35.1
+
 
 
