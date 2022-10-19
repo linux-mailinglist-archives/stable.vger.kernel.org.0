@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61002603F69
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B339E603E85
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:16:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233724AbiJSJbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:31:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45406 "EHLO
+        id S233108AbiJSJQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:16:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233785AbiJSJ30 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:26 -0400
+        with ESMTP id S233225AbiJSJOP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:14:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF0D6BD57;
-        Wed, 19 Oct 2022 02:13:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F42811820;
+        Wed, 19 Oct 2022 02:04:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74BB661857;
-        Wed, 19 Oct 2022 09:03:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 808E7C433D6;
-        Wed, 19 Oct 2022 09:03:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32680617EC;
+        Wed, 19 Oct 2022 09:04:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B917C433D6;
+        Wed, 19 Oct 2022 09:04:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170235;
-        bh=qWqlig6IlzpHHxfd14zNaM8RXMalHFwmu12oJV+HDCI=;
+        s=korg; t=1666170243;
+        bh=Fjt2jIwBgVzTGqtp7I6RkWwJ6PuwF/5JIKJ4axJCIgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RE4wFPHlsVGZWDPYocoyd2cwcSGvp2mmdHwwl8niUJWKFmr8dPWpQqplnQX8V/X2/
-         QfPYC29kWS4Cc3rX678ZDj4EBEiXutqQEEcGh7zoc8C2wSkVE2BeQ087V1xw+0o2gG
-         mm2iledHzDt+Ppx50Z8OC+yFDKA4m2NfIL2VCydY=
+        b=u6mvTUYiHLo0YqOU+JWukgaIUh/6bfwgT8gxlmVnWXZPvHtKzja1y1rO36gu7l9O9
+         0w4T1VKiQjKEeq3kgPWli1X/bpRZdJCrcX1YPpsMFJAeKoKn8JU2/sLiAqAEUfj9Fu
+         eYs70PidoS6mY9WPNFsSclEJrSZ+7ktNWtzTE6Y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Martin Kaiser <martin@kaiser.cx>, Lee Jones <lee@kernel.org>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 578/862] mfd: fsl-imx25: Fix check for platform_get_irq() errors
-Date:   Wed, 19 Oct 2022 10:31:05 +0200
-Message-Id: <20221019083315.496182277@linuxfoundation.org>
+Subject: [PATCH 6.0 581/862] clk: mediatek: mt8183: mfgcfg: Propagate rate changes to parent
+Date:   Wed, 19 Oct 2022 10:31:08 +0200
+Message-Id: <20221019083315.630905870@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,47 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 75db7907355ca5e2ff606e9dd3e86b6c3a455fe2 ]
+[ Upstream commit 9f94f545f258b15bfa6357eb62e1e307b712851e ]
 
-The mx25_tsadc_remove() function assumes all non-zero returns are success
-but the platform_get_irq() function returns negative on error and
-positive non-zero values on success.  It never returns zero, but if it
-did then treat that as a success.
+The only clock in the MT8183 MFGCFG block feeds the GPU. Propagate its
+rate change requests to its parent, so that DVFS for the GPU can work
+properly.
 
-Fixes: 18f773937968 ("mfd: fsl-imx25: Clean up irq settings during removal")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Martin Kaiser <martin@kaiser.cx>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/YvTfkbVQWYKMKS/t@kili
+Fixes: acddfc2c261b ("clk: mediatek: Add MT8183 clock support")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220927101128.44758-3-angelogioacchino.delregno@collabora.com
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/fsl-imx25-tsadc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/mediatek/clk-mt8183-mfgcfg.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/fsl-imx25-tsadc.c b/drivers/mfd/fsl-imx25-tsadc.c
-index 85f7982d26d2..823595bcc9b7 100644
---- a/drivers/mfd/fsl-imx25-tsadc.c
-+++ b/drivers/mfd/fsl-imx25-tsadc.c
-@@ -69,7 +69,7 @@ static int mx25_tsadc_setup_irq(struct platform_device *pdev,
- 	int irq;
+diff --git a/drivers/clk/mediatek/clk-mt8183-mfgcfg.c b/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
+index d774edaf760b..230299728859 100644
+--- a/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
++++ b/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
+@@ -18,9 +18,9 @@ static const struct mtk_gate_regs mfg_cg_regs = {
+ 	.sta_ofs = 0x0,
+ };
  
- 	irq = platform_get_irq(pdev, 0);
--	if (irq <= 0)
-+	if (irq < 0)
- 		return irq;
+-#define GATE_MFG(_id, _name, _parent, _shift)			\
+-	GATE_MTK(_id, _name, _parent, &mfg_cg_regs, _shift,	\
+-		&mtk_clk_gate_ops_setclr)
++#define GATE_MFG(_id, _name, _parent, _shift)				\
++	GATE_MTK_FLAGS(_id, _name, _parent, &mfg_cg_regs, _shift,	\
++		       &mtk_clk_gate_ops_setclr, CLK_SET_RATE_PARENT)
  
- 	tsadc->domain = irq_domain_add_simple(np, 2, 0, &mx25_tsadc_domain_ops,
-@@ -89,7 +89,7 @@ static int mx25_tsadc_unset_irq(struct platform_device *pdev)
- 	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
- 	int irq = platform_get_irq(pdev, 0);
- 
--	if (irq) {
-+	if (irq >= 0) {
- 		irq_set_chained_handler_and_data(irq, NULL, NULL);
- 		irq_domain_remove(tsadc->domain);
- 	}
+ static const struct mtk_gate mfg_clks[] = {
+ 	GATE_MFG(CLK_MFG_BG3D, "mfg_bg3d", "mfg_sel", 0)
 -- 
 2.35.1
 
