@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4B8603D01
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:56:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60A6C603DCD
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230220AbiJSIzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:55:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49098 "EHLO
+        id S232311AbiJSJGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:06:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232151AbiJSIys (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:54:48 -0400
+        with ESMTP id S232315AbiJSJFb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:05:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2797797EFB;
-        Wed, 19 Oct 2022 01:51:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53D7A19030;
+        Wed, 19 Oct 2022 01:59:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 287F56183D;
-        Wed, 19 Oct 2022 08:50:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AA5DC433C1;
-        Wed, 19 Oct 2022 08:50:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9388E61753;
+        Wed, 19 Oct 2022 08:49:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A45F8C433D6;
+        Wed, 19 Oct 2022 08:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169429;
-        bh=HBbeeWj5cCSDh5GVLlnZ/XVO+E/RGuJ2akvlL/0LNDQ=;
+        s=korg; t=1666169392;
+        bh=S+sbTEDYc7LdQZqL5XUaQKN6bnRZYGsQGEYT/s9QyC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uvmWQSCUOzlvjBCFL2qs0fqZ4xT3QsuAZ3EfdpHrNKH8p6k3NFJTr8He4JoobnNHv
-         0+grZVAuAZu4ibt+TdagXPHgWsw997tImiaQLDdR1SdzYkSGR1FjbXejS1fFrNnwa1
-         WJym1NPmrSpcbomD1XWy31MK/izWwggB01uUNaXE=
+        b=y3W+2dCVjBmqILKYoTouH3dflOpALXUooQ26DLOQH/qVirccZKeDZfvPvjPAPa8xs
+         TeHw7RiyptiVa9pSb4+H5EQN5rbrP8a5CjTHBRqKvJMsRY9QUwtyey32Bv8+h4zJ9v
+         ySeBoyfSBj8KavccJWuWas2THk0hd/p7xVgLMjDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 229/862] wifi: rtlwifi: 8192de: correct checking of IQK reload
-Date:   Wed, 19 Oct 2022 10:25:16 +0200
-Message-Id: <20221019083300.185899884@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Marchevsky <davemarchevsky@fb.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Joanne Koong <joannelkoong@gmail.com>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 232/862] bpf: Cleanup check_refcount_ok
+Date:   Wed, 19 Oct 2022 10:25:19 +0200
+Message-Id: <20221019083300.297463177@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,50 +56,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Dave Marchevsky <davemarchevsky@fb.com>
 
-[ Upstream commit 93fbc1ebd978cf408ef5765e9c1630fce9a8621b ]
+[ Upstream commit b2d8ef19c6e7ed71ba5092feb0710063a751834f ]
 
-Since IQK could spend time, we make a cache of IQK result matrix that looks
-like iqk_matrix[channel_idx].val[x][y], and we can reload the matrix if we
-have made a cache. To determine a cache is made, we check
-iqk_matrix[channel_idx].val[0][0].
+Discussion around a recently-submitted patch provided historical
+context for check_refcount_ok [0]. Specifically, the function and its
+helpers - may_be_acquire_function and arg_type_may_be_refcounted -
+predate the OBJ_RELEASE type flag and the addition of many more helpers
+with acquire/release semantics.
 
-The initial commit 7274a8c22980 ("rtlwifi: rtl8192de: Merge phy routines")
-make a mistake that checks incorrect iqk_matrix[channel_idx].val[0] that
-is always true, and this mistake is found by commit ee3db469dd31
-("wifi: rtlwifi: remove always-true condition pointed out by GCC 12"), so
-I recall the vendor driver to find fix and apply the correctness.
+The purpose of check_refcount_ok is to ensure:
+  1) Helper doesn't have multiple uses of return reg's ref_obj_id
+  2) Helper with release semantics only has one arg needing to be
+  released, since that's tracked using meta->ref_obj_id
 
-Fixes: 7274a8c22980 ("rtlwifi: rtl8192de: Merge phy routines")
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220801113345.42016-1-pkshih@realtek.com
+With current verifier, it's safe to remove check_refcount_ok and its
+helpers. Since addition of OBJ_RELEASE type flag, case 2) has been
+handled by the arg_type_is_release check in check_func_arg. To ensure
+case 1) won't result in verifier silently prioritizing one use of
+ref_obj_id, this patch adds a helper_multiple_ref_obj_use check which
+fails loudly if a helper passes > 1 test for use of ref_obj_id.
+
+  [0]: lore.kernel.org/bpf/20220713234529.4154673-1-davemarchevsky@fb.com
+
+Signed-off-by: Dave Marchevsky <davemarchevsky@fb.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Acked-by: Joanne Koong <joannelkoong@gmail.com>
+Acked-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Link: https://lore.kernel.org/r/20220808171559.3251090-1-davemarchevsky@fb.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Stable-dep-of: 883743422ced ("bpf: Fix ref_obj_id for dynptr data slices in verifier")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ kernel/bpf/verifier.c | 74 +++++++++++++++++--------------------------
+ 1 file changed, 29 insertions(+), 45 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c
-index 15e6a6aded31..d18c092b6142 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c
-@@ -2386,11 +2386,10 @@ void rtl92d_phy_reload_iqk_setting(struct ieee80211_hw *hw, u8 channel)
- 			rtl_dbg(rtlpriv, COMP_SCAN, DBG_LOUD,
- 				"Just Read IQK Matrix reg for channel:%d....\n",
- 				channel);
--			_rtl92d_phy_patha_fill_iqk_matrix(hw, true,
--					rtlphy->iqk_matrix[
--					indexforchannel].value,	0,
--					(rtlphy->iqk_matrix[
--					indexforchannel].value[0][2] == 0));
-+			if (rtlphy->iqk_matrix[indexforchannel].value[0][0] != 0)
-+				_rtl92d_phy_patha_fill_iqk_matrix(hw, true,
-+					rtlphy->iqk_matrix[indexforchannel].value, 0,
-+					rtlphy->iqk_matrix[indexforchannel].value[0][2] == 0);
- 			if (IS_92D_SINGLEPHY(rtlhal->version)) {
- 				if ((rtlphy->iqk_matrix[
- 					indexforchannel].value[0][4] != 0)
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 3eadb14e090b..1141a35216a7 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -467,25 +467,11 @@ static bool type_is_rdonly_mem(u32 type)
+ 	return type & MEM_RDONLY;
+ }
+ 
+-static bool arg_type_may_be_refcounted(enum bpf_arg_type type)
+-{
+-	return type == ARG_PTR_TO_SOCK_COMMON;
+-}
+-
+ static bool type_may_be_null(u32 type)
+ {
+ 	return type & PTR_MAYBE_NULL;
+ }
+ 
+-static bool may_be_acquire_function(enum bpf_func_id func_id)
+-{
+-	return func_id == BPF_FUNC_sk_lookup_tcp ||
+-		func_id == BPF_FUNC_sk_lookup_udp ||
+-		func_id == BPF_FUNC_skc_lookup_tcp ||
+-		func_id == BPF_FUNC_map_lookup_elem ||
+-	        func_id == BPF_FUNC_ringbuf_reserve;
+-}
+-
+ static bool is_acquire_function(enum bpf_func_id func_id,
+ 				const struct bpf_map *map)
+ {
+@@ -518,6 +504,26 @@ static bool is_ptr_cast_function(enum bpf_func_id func_id)
+ 		func_id == BPF_FUNC_skc_to_tcp_request_sock;
+ }
+ 
++static bool is_dynptr_acquire_function(enum bpf_func_id func_id)
++{
++	return func_id == BPF_FUNC_dynptr_data;
++}
++
++static bool helper_multiple_ref_obj_use(enum bpf_func_id func_id,
++					const struct bpf_map *map)
++{
++	int ref_obj_uses = 0;
++
++	if (is_ptr_cast_function(func_id))
++		ref_obj_uses++;
++	if (is_acquire_function(func_id, map))
++		ref_obj_uses++;
++	if (is_dynptr_acquire_function(func_id))
++		ref_obj_uses++;
++
++	return ref_obj_uses > 1;
++}
++
+ static bool is_cmpxchg_insn(const struct bpf_insn *insn)
+ {
+ 	return BPF_CLASS(insn->code) == BPF_STX &&
+@@ -6456,33 +6462,6 @@ static bool check_arg_pair_ok(const struct bpf_func_proto *fn)
+ 	return true;
+ }
+ 
+-static bool check_refcount_ok(const struct bpf_func_proto *fn, int func_id)
+-{
+-	int count = 0;
+-
+-	if (arg_type_may_be_refcounted(fn->arg1_type))
+-		count++;
+-	if (arg_type_may_be_refcounted(fn->arg2_type))
+-		count++;
+-	if (arg_type_may_be_refcounted(fn->arg3_type))
+-		count++;
+-	if (arg_type_may_be_refcounted(fn->arg4_type))
+-		count++;
+-	if (arg_type_may_be_refcounted(fn->arg5_type))
+-		count++;
+-
+-	/* A reference acquiring function cannot acquire
+-	 * another refcounted ptr.
+-	 */
+-	if (may_be_acquire_function(func_id) && count)
+-		return false;
+-
+-	/* We only support one arg being unreferenced at the moment,
+-	 * which is sufficient for the helper functions we have right now.
+-	 */
+-	return count <= 1;
+-}
+-
+ static bool check_btf_id_ok(const struct bpf_func_proto *fn)
+ {
+ 	int i;
+@@ -6506,8 +6485,7 @@ static int check_func_proto(const struct bpf_func_proto *fn, int func_id,
+ {
+ 	return check_raw_mode_ok(fn) &&
+ 	       check_arg_pair_ok(fn) &&
+-	       check_btf_id_ok(fn) &&
+-	       check_refcount_ok(fn, func_id) ? 0 : -EINVAL;
++	       check_btf_id_ok(fn) ? 0 : -EINVAL;
+ }
+ 
+ /* Packet data might have moved, any old PTR_TO_PACKET[_META,_END]
+@@ -7460,6 +7438,12 @@ static int check_helper_call(struct bpf_verifier_env *env, struct bpf_insn *insn
+ 	if (type_may_be_null(regs[BPF_REG_0].type))
+ 		regs[BPF_REG_0].id = ++env->id_gen;
+ 
++	if (helper_multiple_ref_obj_use(func_id, meta.map_ptr)) {
++		verbose(env, "verifier internal error: func %s#%d sets ref_obj_id more than once\n",
++			func_id_name(func_id), func_id);
++		return -EFAULT;
++	}
++
+ 	if (is_ptr_cast_function(func_id)) {
+ 		/* For release_reference() */
+ 		regs[BPF_REG_0].ref_obj_id = meta.ref_obj_id;
+@@ -7472,10 +7456,10 @@ static int check_helper_call(struct bpf_verifier_env *env, struct bpf_insn *insn
+ 		regs[BPF_REG_0].id = id;
+ 		/* For release_reference() */
+ 		regs[BPF_REG_0].ref_obj_id = id;
+-	} else if (func_id == BPF_FUNC_dynptr_data) {
++	} else if (is_dynptr_acquire_function(func_id)) {
+ 		int dynptr_id = 0, i;
+ 
+-		/* Find the id of the dynptr we're acquiring a reference to */
++		/* Find the id of the dynptr we're tracking the reference of */
+ 		for (i = 0; i < MAX_BPF_FUNC_REG_ARGS; i++) {
+ 			if (arg_type_is_dynptr(fn->arg_type[i])) {
+ 				if (dynptr_id) {
 -- 
 2.35.1
 
