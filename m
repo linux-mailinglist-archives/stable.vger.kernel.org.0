@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23E76603D47
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:00:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12FF4603C9C
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:50:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229648AbiJSJAM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:00:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49322 "EHLO
+        id S230389AbiJSIug (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:50:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232138AbiJSI7A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:59:00 -0400
+        with ESMTP id S231527AbiJSIsw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:48:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E429D8768D;
-        Wed, 19 Oct 2022 01:54:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C0D08991A;
+        Wed, 19 Oct 2022 01:46:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D82F61806;
-        Wed, 19 Oct 2022 08:46:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78188C433D6;
-        Wed, 19 Oct 2022 08:46:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6270861828;
+        Wed, 19 Oct 2022 08:46:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70BCAC433D6;
+        Wed, 19 Oct 2022 08:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169168;
-        bh=K0yeZ7/w3WHo2Xyl6Af/+8v2ksebm86re6HjFd/ClSI=;
+        s=korg; t=1666169171;
+        bh=KqCEdkhPcHZPtHS5XUueyb73weNWSVVYIaiahVplhzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uzkOxZYPdj8VTU5ClK4hzY7C8Wr7XZtTtXGo0KUYY7FvcOsG1UgonxfF5S/6oznrM
-         eteF9y6wbtaZQReMoQyi9Lo/E7eFXErh7PTzAFaT7Asep4m9jnPKkroi8MjOE1EAJU
-         nUR+wIp2xCBvakaAZ5QIu50LfpZx/40P7rGdpu2Q=
+        b=CW39fem43/Fg3UnYqbn8fJ/LnBnVXfwkqEtkyB2X1jQPsDNGsC4eTYeZYmed8le7h
+         Fx7IAPrK8QVBTfb/e17TwJ/Y5U/vXPwsH22+y981dEMYTGi/EIjisQLnJO5xIYye9F
+         WoNJHoHRzZhLFHmeM3wDbvzt7ubMNUwVdwqhNPA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>
-Subject: [PATCH 6.0 180/862] drm/nouveau/kms/nv140-: Disable interlacing
-Date:   Wed, 19 Oct 2022 10:24:27 +0200
-Message-Id: <20221019083257.911104683@linuxfoundation.org>
+        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 6.0 181/862] drm/nouveau: fix a use-after-free in nouveau_gem_prime_import_sg_table()
+Date:   Wed, 19 Oct 2022 10:24:28 +0200
+Message-Id: <20221019083257.955316963@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,41 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-commit 8ba9249396bef37cb68be9e8dee7847f1737db9d upstream.
+commit 540dfd188ea2940582841c1c220bd035a7db0e51 upstream.
 
-As it turns out: while Nvidia does actually have interlacing knobs on their
-GPU still pretty much no current GPUs since Volta actually support it.
-Trying interlacing on these GPUs will result in NVDisplay being quite
-unhappy like so:
+nouveau_bo_init() is backed by ttm_bo_init() and ferries its return code
+back to the caller. On failures, ttm will call nouveau_bo_del_ttm() and
+free the memory.Thus, when nouveau_bo_init() returns an error, the gem
+object has already been released. Then the call to nouveau_bo_ref() will
+use the freed "nvbo->bo" and lead to a use-after-free bug.
 
-nouveau 0000:1f:00.0: disp: chid 0 stat 00004802 reason 4 [INVALID_ARG] mthd 2008 data 00000001 code 00080000
-nouveau 0000:1f:00.0: disp: chid 0 stat 10005080 reason 5 [INVALID_STATE] mthd 0200 data 00000001 code 00000001
+We should delete the call to nouveau_bo_ref() to avoid the use-after-free.
 
-So let's fix this by following the same behavior Nvidia's driver does and
-disable interlacing entirely.
-
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
 Signed-off-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Karol Herbst <kherbst@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220816180436.156310-1-lyude@redhat.com
+Fixes: 019cbd4a4feb ("drm/nouveau: Initialize GEM object before TTM object")
+Cc: Thierry Reding <treding@nvidia.com>
+Cc: <stable@vger.kernel.org> # v5.4+
+Link: https://patchwork.freedesktop.org/patch/msgid/20220705132546.2247677-1-niejianglei2021@163.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_connector.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nouveau_prime.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/gpu/drm/nouveau/nouveau_connector.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
-@@ -504,7 +504,8 @@ nouveau_connector_set_encoder(struct drm
- 			connector->interlace_allowed =
- 				nv_encoder->caps.dp_interlace;
- 		else
--			connector->interlace_allowed = true;
-+			connector->interlace_allowed =
-+				drm->client.device.info.family < NV_DEVICE_INFO_V0_VOLTA;
- 		connector->doublescan_allowed = true;
- 	} else
- 	if (nv_encoder->dcb->type == DCB_OUTPUT_LVDS ||
+--- a/drivers/gpu/drm/nouveau/nouveau_prime.c
++++ b/drivers/gpu/drm/nouveau/nouveau_prime.c
+@@ -71,7 +71,6 @@ struct drm_gem_object *nouveau_gem_prime
+ 	ret = nouveau_bo_init(nvbo, size, align, NOUVEAU_GEM_DOMAIN_GART,
+ 			      sg, robj);
+ 	if (ret) {
+-		nouveau_bo_ref(NULL, &nvbo);
+ 		obj = ERR_PTR(ret);
+ 		goto unlock;
+ 	}
 
 
