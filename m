@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93507603E5E
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:13:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D2E9603F5F
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233010AbiJSJNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:13:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52014 "EHLO
+        id S233698AbiJSJb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:31:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232776AbiJSJLM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:11:12 -0400
+        with ESMTP id S233772AbiJSJ3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE326BBF26;
-        Wed, 19 Oct 2022 02:02:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA4E267C9F;
+        Wed, 19 Oct 2022 02:12:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 391C261840;
-        Wed, 19 Oct 2022 09:02:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 517ECC4314E;
-        Wed, 19 Oct 2022 09:02:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB04E6183C;
+        Wed, 19 Oct 2022 09:02:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E99D0C433C1;
+        Wed, 19 Oct 2022 09:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170135;
-        bh=wgTpcZw6pHeLmUWIFLe8Y+4Afsn152FcGu5DNgbGAyI=;
+        s=korg; t=1666170138;
+        bh=RqMptm6VErJfkdlk9lLnznG/cTGLaJPV5tVwTLdwaP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGmgUa7sjOEuH9eFuTkiYUZ5S9qu4B1wGNE9Ib56OXFGmMfueNYNqO6IimginnXQP
-         Mb50I8rWI2J3ei6M1wLgwTkfcLWED9nFC8bMr2ONGmdi3EXdnFffrIUjh7Q0HKWuLu
-         4LkPwtNHn1kFo94dgNFTkeRPApbWKgW5WhuiIcko=
+        b=rjPsJYtmb7AmL6Ss2dlNct7Q/nuMHWOMjqeE/HPcyKMTWO+ikSXDYUiIPueCoQrFH
+         2/XqIPJLg0HH4lhiZ+Qe4ghQgN7APoLmv5BxlvQMg9GHBQaCTPehfcFWvNF7x+sfVk
+         FhPqrsVdD16z4J8jz+g6hvnh5mLM2Wz9at0b1tsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
         Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 540/862] ata: fix ata_id_has_devslp()
-Date:   Wed, 19 Oct 2022 10:30:27 +0200
-Message-Id: <20221019083313.826087970@linuxfoundation.org>
+Subject: [PATCH 6.0 541/862] ata: fix ata_id_has_ncq_autosense()
+Date:   Wed, 19 Oct 2022 10:30:28 +0200
+Message-Id: <20221019083313.873459729@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,7 +55,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit 9c6e09a434e1317e09b78b3b69cd384022ec9a03 ]
+[ Upstream commit a5fb6bf853148974dbde092ec1bde553bea5e49f ]
 
 ACS-5 section
 7.13.6.36 Word 78: Serial ATA features supported
@@ -71,37 +71,38 @@ Additionally, move the macro to the other ATA_ID_FEATURE_SUPP macros
 (which already have this check), thus making it more likely that the
 next ATA_ID_FEATURE_SUPP macro that is added will include this check.
 
-Fixes: 65fe1f0f66a5 ("ahci: implement aggressive SATA device sleep support")
+Fixes: 5b01e4b9efa0 ("libata: Implement NCQ autosense")
 Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
 Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ata.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/linux/ata.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/include/linux/ata.h b/include/linux/ata.h
-index 868bfd503aee..bc136a43689f 100644
+index bc136a43689f..4845443e0f08 100644
 --- a/include/linux/ata.h
 +++ b/include/linux/ata.h
-@@ -566,6 +566,10 @@ struct ata_bmdma_prd {
+@@ -570,6 +570,10 @@ struct ata_bmdma_prd {
  	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
  	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
- 	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 2)))
-+#define ata_id_has_devslp(id)	\
+ 	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 8)))
++#define ata_id_has_ncq_autosense(id) \
 +	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
 +	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
-+	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 8)))
++	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 7)))
  #define ata_id_iordy_disable(id) ((id)[ATA_ID_CAPABILITY] & (1 << 10))
  #define ata_id_has_iordy(id) ((id)[ATA_ID_CAPABILITY] & (1 << 11))
  #define ata_id_u32(id,n)	\
-@@ -578,7 +582,6 @@ struct ata_bmdma_prd {
+@@ -582,8 +586,6 @@ struct ata_bmdma_prd {
  
  #define ata_id_cdb_intr(id)	(((id)[ATA_ID_CONFIG] & 0x60) == 0x20)
  #define ata_id_has_da(id)	((id)[ATA_ID_SATA_CAPABILITY_2] & (1 << 4))
--#define ata_id_has_devslp(id)	((id)[ATA_ID_FEATURE_SUPP] & (1 << 8))
- #define ata_id_has_ncq_autosense(id) \
- 				((id)[ATA_ID_FEATURE_SUPP] & (1 << 7))
+-#define ata_id_has_ncq_autosense(id) \
+-				((id)[ATA_ID_FEATURE_SUPP] & (1 << 7))
  
+ static inline bool ata_id_has_hipm(const u16 *id)
+ {
 -- 
 2.35.1
 
