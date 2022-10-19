@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6AED603F5E
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:31:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C93B603E81
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233671AbiJSJbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:31:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47902 "EHLO
+        id S232992AbiJSJQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:16:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233706AbiJSJ3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B03FEE9840;
-        Wed, 19 Oct 2022 02:12:58 -0700 (PDT)
+        with ESMTP id S233130AbiJSJOC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:14:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C56595E72;
+        Wed, 19 Oct 2022 02:04:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98B5E6170D;
-        Wed, 19 Oct 2022 09:03:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE16BC433D6;
-        Wed, 19 Oct 2022 09:03:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC94161838;
+        Wed, 19 Oct 2022 09:03:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1864C433C1;
+        Wed, 19 Oct 2022 09:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170183;
-        bh=7DGMLTKFsU7+7Ad+NpWJf8+q3b2TJwi8QfsrxUDd5oo=;
+        s=korg; t=1666170204;
+        bh=fAy0ykRhta6WOpnptsIYEneB62jrJUa3Q4PxHr2dY7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ckOTFgtcUZD80Rai45v3NCemAHznQ9lL6rqElUH8/scEYfm/CyVN3nyrI5P70hYTH
-         cVIBTC2Mh7Lze7YpvjBnce2IfUUz0hh3cd5Ss/kAo/Lmx7/Ok232KQkE9Ugz/2i2Oc
-         GnEFqn2T/EXf69o69y4PkdTAqNv2gvgQ1PI+tYLw=
+        b=fyy005wh/SNPsyc/Ji1XhUlXYQvCep3KAoe/UwSw8waCR75/HpG84qnRHHlF85UAx
+         BLz4uMkFVB6V2qey1ICcLZCwvVe4Qq0fWrqxInFamEeVzUZGCGx9hzvkvrRl1XivdM
+         LhSfiqWG+kYkm2y6oAH5Odimfw/YPHhG+8pMIuHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Thara Gopinath <tgopinath@microsoft.com>,
+        Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 557/862] drivers: serial: jsm: fix some leaks in probe
-Date:   Wed, 19 Oct 2022 10:30:44 +0200
-Message-Id: <20221019083314.583713096@linuxfoundation.org>
+Subject: [PATCH 6.0 559/862] tty: serial: fsl_lpuart: disable dma rx/tx use flags in lpuart_dma_shutdown
+Date:   Wed, 19 Oct 2022 10:30:46 +0200
+Message-Id: <20221019083314.679827840@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,35 +55,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 1d5859ef229e381f4db38dce8ed58e4bf862006b ]
+[ Upstream commit 316ae95c175a7d770d1bfe4c011192712f57aa4a ]
 
-This error path needs to unwind instead of just returning directly.
+lpuart_dma_shutdown tears down lpuart dma, but lpuart_flush_buffer can
+still occur which in turn tries to access dma apis if lpuart_dma_tx_use
+flag is true. At this point since dma is torn down, these dma apis can
+abort. Set lpuart_dma_tx_use and the corresponding rx flag
+lpuart_dma_rx_use to false in lpuart_dma_shutdown so that dmas are not
+accessed after they are relinquished.
 
-Fixes: 03a8482c17dd ("drivers: serial: jsm: Enable support for Digi Classic adapters")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YyxFh1+lOeZ9WfKO@kili
+Otherwise, when try to kill btattach, kernel may panic. This patch may
+fix this issue.
+root@imx8ulpevk:~# btattach -B /dev/ttyLP2 -S 115200
+^C[   90.182296] Internal error: synchronous external abort: 96000210 [#1] PREEMPT SMP
+[   90.189806] Modules linked in: moal(O) mlan(O)
+[   90.194258] CPU: 0 PID: 503 Comm: btattach Tainted: G           O      5.15.32-06136-g34eecdf2f9e4 #37
+[   90.203554] Hardware name: NXP i.MX8ULP 9X9 EVK (DT)
+[   90.208513] pstate: 600000c5 (nZCv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[   90.215470] pc : fsl_edma3_disable_request+0x8/0x60
+[   90.220358] lr : fsl_edma3_terminate_all+0x34/0x20c
+[   90.225237] sp : ffff800013f0bac0
+[   90.228548] x29: ffff800013f0bac0 x28: 0000000000000001 x27: ffff000008404800
+[   90.235681] x26: ffff000008404960 x25: ffff000008404a08 x24: ffff000008404a00
+[   90.242813] x23: ffff000008404a60 x22: 0000000000000002 x21: 0000000000000000
+[   90.249946] x20: ffff800013f0baf8 x19: ffff00000559c800 x18: 0000000000000000
+[   90.257078] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+[   90.264211] x14: 0000000000000003 x13: 0000000000000000 x12: 0000000000000040
+[   90.271344] x11: ffff00000600c248 x10: ffff800013f0bb10 x9 : ffff000057bcb090
+[   90.278477] x8 : fffffc0000241a08 x7 : ffff00000534ee00 x6 : ffff000008404804
+[   90.285609] x5 : 0000000000000000 x4 : 0000000000000000 x3 : ffff0000055b3480
+[   90.292742] x2 : ffff8000135c0000 x1 : ffff00000534ee00 x0 : ffff00000559c800
+[   90.299876] Call trace:
+[   90.302321]  fsl_edma3_disable_request+0x8/0x60
+[   90.306851]  lpuart_flush_buffer+0x40/0x160
+[   90.311037]  uart_flush_buffer+0x88/0x120
+[   90.315050]  tty_driver_flush_buffer+0x20/0x30
+[   90.319496]  hci_uart_flush+0x44/0x90
+[   90.323162]  +0x34/0x12c
+[   90.327253]  tty_ldisc_close+0x38/0x70
+[   90.331005]  tty_ldisc_release+0xa8/0x190
+[   90.335018]  tty_release_struct+0x24/0x8c
+[   90.339022]  tty_release+0x3ec/0x4c0
+[   90.342593]  __fput+0x70/0x234
+[   90.345652]  ____fput+0x14/0x20
+[   90.348790]  task_work_run+0x84/0x17c
+[   90.352455]  do_exit+0x310/0x96c
+[   90.355688]  do_group_exit+0x3c/0xa0
+[   90.359259]  __arm64_sys_exit_group+0x1c/0x20
+[   90.363609]  invoke_syscall+0x48/0x114
+[   90.367362]  el0_svc_common.constprop.0+0xd4/0xfc
+[   90.372068]  do_el0_svc+0x2c/0x94
+[   90.375379]  el0_svc+0x28/0x80
+[   90.378438]  el0t_64_sync_handler+0xa8/0x130
+[   90.382711]  el0t_64_sync+0x1a0/0x1a4
+[   90.386376] Code: 17ffffda d503201f d503233f f9409802 (b9400041)
+[   90.392467] ---[ end trace 2f60524b4a43f1f6 ]---
+[   90.397073] note: btattach[503] exited with preempt_count 1
+[   90.402636] Fixing recursive fault but reboot is needed!
+
+Fixes: 6250cc30c4c4 ("tty: serial: fsl_lpuart: Use scatter/gather DMA for Tx")
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Thara Gopinath <tgopinath@microsoft.com>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20220920111703.1532-1-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/jsm/jsm_driver.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/serial/fsl_lpuart.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/jsm/jsm_driver.c b/drivers/tty/serial/jsm/jsm_driver.c
-index 0ea799bf8dbb..417a5b6bffc3 100644
---- a/drivers/tty/serial/jsm/jsm_driver.c
-+++ b/drivers/tty/serial/jsm/jsm_driver.c
-@@ -211,7 +211,8 @@ static int jsm_probe_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- 		break;
- 	default:
--		return -ENXIO;
-+		rc = -ENXIO;
-+		goto out_kfree_brd;
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 6eb3d6c62458..34990901c805 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -1776,6 +1776,7 @@ static void lpuart_dma_shutdown(struct lpuart_port *sport)
+ 	if (sport->lpuart_dma_rx_use) {
+ 		del_timer_sync(&sport->lpuart_timer);
+ 		lpuart_dma_rx_free(&sport->port);
++		sport->lpuart_dma_rx_use = false;
  	}
  
- 	rc = request_irq(brd->irq, brd->bd_ops->intr, IRQF_SHARED, "JSM", brd);
+ 	if (sport->lpuart_dma_tx_use) {
+@@ -1784,6 +1785,7 @@ static void lpuart_dma_shutdown(struct lpuart_port *sport)
+ 			sport->dma_tx_in_progress = false;
+ 			dmaengine_terminate_all(sport->dma_tx_chan);
+ 		}
++		sport->lpuart_dma_tx_use = false;
+ 	}
+ 
+ 	if (sport->dma_tx_chan)
 -- 
 2.35.1
 
