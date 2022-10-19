@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EA19603E98
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:16:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC175603D26
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233160AbiJSJQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:16:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54008 "EHLO
+        id S232036AbiJSI6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:58:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232984AbiJSJM6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:12:58 -0400
+        with ESMTP id S231949AbiJSI5E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:57:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02F78C97D9;
-        Wed, 19 Oct 2022 02:03:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 051EC193EE;
+        Wed, 19 Oct 2022 01:53:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9052E617DF;
-        Wed, 19 Oct 2022 08:51:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 970FEC433C1;
-        Wed, 19 Oct 2022 08:51:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20F016186B;
+        Wed, 19 Oct 2022 08:52:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34B58C433C1;
+        Wed, 19 Oct 2022 08:51:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169516;
-        bh=Vhqc/iSSYlAG2gq4WdkPUvCQWXXp99Pauwt3oN6zyPk=;
+        s=korg; t=1666169519;
+        bh=lpoonZ2TlVs0iMtpGE/VUE4JhkN9JsM8I1mBYYrYK/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zR0Tt6N3Ep4KHyvI1fvvl2EvmcMa8V8KDgxScm6DMwHugTpeAL+5pCBhb8aZtpmw7
-         kkbaMAqpapIEqqvKXp5+h2lgfWzofNDUhSxCW5hMmpyt8YnIPS5Utv0QsdtpTyWedY
-         mtcc/VCWk3ZZUi2oOzTn1eR1eW4gIDyTOKqXkDOU=
+        b=hv1P2c1d6yK2aanKopY2Cd7BD4nIncDvU2xdaTF6zk+px/W/zQBE8vqmIe/oXWZuq
+         AO5ggzH+Io5MbO1JBM85rfsqX9pxANId0dhMNIYKXF+/ZU9K0gPOXJ1jKL0tFlkvP7
+         A3mZW9oCZIJia03Wj0wEuWjrScpDFWapcTyJovPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 273/862] wifi: rtl8xxxu: Remove copy-paste leftover in gen2_update_rate_mask
-Date:   Wed, 19 Oct 2022 10:26:00 +0200
-Message-Id: <20221019083302.098577605@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+844c7bf1b1aa4119c5de@syzkaller.appspotmail.com,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 274/862] Bluetooth: avoid hci_dev_test_and_set_flag() in mgmt_init_hdev()
+Date:   Wed, 19 Oct 2022 10:26:01 +0200
+Message-Id: <20221019083302.138874417@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,47 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit d5350756c03cdf18696295c6b11d7acc4dbf825c ]
+[ Upstream commit f74ca25d6d6629ffd4fd80a1a73037253b57d06b ]
 
-It looks like a leftover from copying rtl8xxxu_update_rate_mask,
-which is used with the gen1 chips.
+syzbot is again reporting attempt to cancel uninitialized work
+at mgmt_index_removed() [1], for setting of HCI_MGMT flag from
+mgmt_init_hdev() from hci_mgmt_cmd() from hci_sock_sendmsg() can
+race with testing of HCI_MGMT flag from mgmt_index_removed() from
+hci_sock_bind() due to lack of serialization via hci_dev_lock().
 
-It wasn't causing any problems for my RTL8188FU test device, but it's
-clearly a mistake, so remove it.
+Since mgmt_init_hdev() is called with mgmt_chan_list_lock held, we can
+safely split hci_dev_test_and_set_flag() into hci_dev_test_flag() and
+hci_dev_set_flag(). Thus, in order to close this race, set HCI_MGMT flag
+after INIT_DELAYED_WORK() completed.
 
-Fixes: f653e69009c6 ("rtl8xxxu: Implement basic 8723b specific update_rate_mask() function")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/d5544fe8-9798-28f1-54bd-6839a1974b10@gmail.com
+This is a local fix based on mgmt_chan_list_lock. Lack of serialization
+via hci_dev_lock() might be causing different race conditions somewhere
+else. But a global fix based on hci_dev_lock() should deserve a future
+patch.
+
+Link: https://syzkaller.appspot.com/bug?extid=844c7bf1b1aa4119c5de
+Reported-by: syzbot+844c7bf1b1aa4119c5de@syzkaller.appspotmail.com
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 3f2893d3c142986a ("Bluetooth: don't try to cancel uninitialized works at mgmt_index_removed()")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ net/bluetooth/mgmt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index 7a1ea4a59569..41d46c54444f 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -4353,15 +4353,14 @@ void rtl8xxxu_gen2_update_rate_mask(struct rtl8xxxu_priv *priv,
- 	h2c.b_macid_cfg.ramask2 = (ramask >> 16) & 0xff;
- 	h2c.b_macid_cfg.ramask3 = (ramask >> 24) & 0xff;
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index 72e6595a71cc..3d1cd0666968 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -1050,7 +1050,7 @@ static void discov_off(struct work_struct *work)
  
--	h2c.ramask.arg = 0x80;
- 	h2c.b_macid_cfg.data1 = rateid;
- 	if (sgi)
- 		h2c.b_macid_cfg.data1 |= BIT(7);
+ static void mgmt_init_hdev(struct sock *sk, struct hci_dev *hdev)
+ {
+-	if (hci_dev_test_and_set_flag(hdev, HCI_MGMT))
++	if (hci_dev_test_flag(hdev, HCI_MGMT))
+ 		return;
  
- 	h2c.b_macid_cfg.data2 = bw;
- 
--	dev_dbg(&priv->udev->dev, "%s: rate mask %08x, arg %02x, size %zi\n",
--		__func__, ramask, h2c.ramask.arg, sizeof(h2c.b_macid_cfg));
-+	dev_dbg(&priv->udev->dev, "%s: rate mask %08x, rateid %02x, sgi %d, size %zi\n",
-+		__func__, ramask, rateid, sgi, sizeof(h2c.b_macid_cfg));
- 	rtl8xxxu_gen2_h2c_cmd(priv, &h2c, sizeof(h2c.b_macid_cfg));
+ 	BT_INFO("MGMT ver %d.%d", MGMT_VERSION, MGMT_REVISION);
+@@ -1065,6 +1065,8 @@ static void mgmt_init_hdev(struct sock *sk, struct hci_dev *hdev)
+ 	 * it
+ 	 */
+ 	hci_dev_clear_flag(hdev, HCI_BONDABLE);
++
++	hci_dev_set_flag(hdev, HCI_MGMT);
  }
  
+ static int read_controller_info(struct sock *sk, struct hci_dev *hdev,
 -- 
 2.35.1
 
