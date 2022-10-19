@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF0586048B6
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 16:06:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62B4D60499B
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 16:46:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232173AbiJSOGw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 10:06:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40592 "EHLO
+        id S230333AbiJSOqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 10:46:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232353AbiJSOGd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 10:06:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E31D172B64;
-        Wed, 19 Oct 2022 06:48:21 -0700 (PDT)
+        with ESMTP id S230384AbiJSOqP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 10:46:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0260DF5F;
+        Wed, 19 Oct 2022 07:32:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6A8BB823AC;
-        Wed, 19 Oct 2022 08:53:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D3DCC433D6;
-        Wed, 19 Oct 2022 08:53:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE6BF6177D;
+        Wed, 19 Oct 2022 09:06:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EA3EC433D7;
+        Wed, 19 Oct 2022 09:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169595;
-        bh=0KkmT5SgT36Ll04Lwr9o7RYoOWeWFnvdMbc5wTRsvb0=;
+        s=korg; t=1666170364;
+        bh=Oez0xSkPvwxIgWUhwxsQd8h6OI5hQd7QDtdeIIXp/vc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RsdyRXQFU62y3KRlku0zMPRsg41cEw+uxanDm+pgSPdZ3+WFHP8lMLGAE7OyGXL1I
-         rH8tFL8MwziEYU1kVYnFLd6fafw2Dyip2hqH84qn4JjOm4xbqUWjVNeDdZnFX/lX/y
-         Tj+1o6Vy5pn6Y18UR31myAkMzUXUha6b+kM4CjcU=
+        b=m9UHvTasj6dlWCzd90IDPgDcANHzSWjtdkCDTRWS/DolJIYUt/J8VPSxtA09EgxZh
+         elOJJGZnP6bIHBLMV44D7AmG0xBMCayoZZjE/+RCtDaQfJaBQ4EuGdtY4jAAQL4X17
+         oIdqzIeEOHL5Tm7IYoreYiQnv+EA793zaeK2YdtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Tedd Ho-Jeong An <tedd.an@intel.com>,
+        stable@vger.kernel.org, Peter Gonda <pgonda@google.com>,
+        kernel test robot <lkp@intel.com>,
+        Jacky Li <jackyli@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 334/862] Bluetooth: hci_sync: Fix not indicating power state
-Date:   Wed, 19 Oct 2022 10:27:01 +0200
-Message-Id: <20221019083304.805307471@linuxfoundation.org>
+Subject: [PATCH 6.0 627/862] crypto: ccp - Fail the PSP initialization when writing psp data file failed
+Date:   Wed, 19 Oct 2022 10:31:54 +0200
+Message-Id: <20221019083317.625376706@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,35 +57,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Jacky Li <jackyli@google.com>
 
-[ Upstream commit 6abf0dae8c3c927f54e62c46faf8aba580ba0d04 ]
+[ Upstream commit efb4b01c1c993d245e6608076684ff2162cf9dc6 ]
 
-When setting power state using legacy/non-mgmt API
-(e.g hcitool hci0 up) the likes of mgmt_set_powered_complete won't be
-called causing clients of the MGMT API to not be notified of the change
-of the state.
+Currently the OS continues the PSP initialization when there is a write
+failure to the init_ex_file. Therefore, the userspace would be told that
+SEV is properly INIT'd even though the psp data file is not updated.
+This is problematic because later when asked for the SEV data, the OS
+won't be able to provide it.
 
-Fixes: cf75ad8b41d2 ("Bluetooth: hci_sync: Convert MGMT_SET_POWERED")
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Tested-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Fixes: 3d725965f836 ("crypto: ccp - Add SEV_INIT_EX support")
+Reported-by: Peter Gonda <pgonda@google.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Jacky Li <jackyli@google.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sync.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/ccp/sev-dev.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index fbd5613eebfc..f70798589bf5 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -4355,6 +4355,7 @@ int hci_dev_open_sync(struct hci_dev *hdev)
- 		    hci_dev_test_flag(hdev, HCI_MGMT) &&
- 		    hdev->dev_type == HCI_PRIMARY) {
- 			ret = hci_powered_update_sync(hdev);
-+			mgmt_power_on(hdev, ret);
- 		}
+diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
+index 9f588c9728f8..6c49e6d06114 100644
+--- a/drivers/crypto/ccp/sev-dev.c
++++ b/drivers/crypto/ccp/sev-dev.c
+@@ -231,7 +231,7 @@ static int sev_read_init_ex_file(void)
+ 	return 0;
+ }
+ 
+-static void sev_write_init_ex_file(void)
++static int sev_write_init_ex_file(void)
+ {
+ 	struct sev_device *sev = psp_master->sev_data;
+ 	struct file *fp;
+@@ -241,14 +241,16 @@ static void sev_write_init_ex_file(void)
+ 	lockdep_assert_held(&sev_cmd_mutex);
+ 
+ 	if (!sev_init_ex_buffer)
+-		return;
++		return 0;
+ 
+ 	fp = open_file_as_root(init_ex_path, O_CREAT | O_WRONLY, 0600);
+ 	if (IS_ERR(fp)) {
++		int ret = PTR_ERR(fp);
++
+ 		dev_err(sev->dev,
+-			"SEV: could not open file for write, error %ld\n",
+-			PTR_ERR(fp));
+-		return;
++			"SEV: could not open file for write, error %d\n",
++			ret);
++		return ret;
+ 	}
+ 
+ 	nwrite = kernel_write(fp, sev_init_ex_buffer, NV_LENGTH, &offset);
+@@ -259,18 +261,20 @@ static void sev_write_init_ex_file(void)
+ 		dev_err(sev->dev,
+ 			"SEV: failed to write %u bytes to non volatile memory area, ret %ld\n",
+ 			NV_LENGTH, nwrite);
+-		return;
++		return -EIO;
+ 	}
+ 
+ 	dev_dbg(sev->dev, "SEV: write successful to NV file\n");
++
++	return 0;
+ }
+ 
+-static void sev_write_init_ex_file_if_required(int cmd_id)
++static int sev_write_init_ex_file_if_required(int cmd_id)
+ {
+ 	lockdep_assert_held(&sev_cmd_mutex);
+ 
+ 	if (!sev_init_ex_buffer)
+-		return;
++		return 0;
+ 
+ 	/*
+ 	 * Only a few platform commands modify the SPI/NV area, but none of the
+@@ -285,10 +289,10 @@ static void sev_write_init_ex_file_if_required(int cmd_id)
+ 	case SEV_CMD_PEK_GEN:
+ 		break;
+ 	default:
+-		return;
++		return 0;
+ 	}
+ 
+-	sev_write_init_ex_file();
++	return sev_write_init_ex_file();
+ }
+ 
+ static int __sev_do_cmd_locked(int cmd, void *data, int *psp_ret)
+@@ -361,7 +365,7 @@ static int __sev_do_cmd_locked(int cmd, void *data, int *psp_ret)
+ 			cmd, reg & PSP_CMDRESP_ERR_MASK);
+ 		ret = -EIO;
  	} else {
- 		/* Init failed, cleanup */
+-		sev_write_init_ex_file_if_required(cmd);
++		ret = sev_write_init_ex_file_if_required(cmd);
+ 	}
+ 
+ 	print_hex_dump_debug("(out): ", DUMP_PREFIX_OFFSET, 16, 2, data,
 -- 
 2.35.1
 
