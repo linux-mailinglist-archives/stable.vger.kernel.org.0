@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73B53603BFE
+	by mail.lfdr.de (Postfix) with ESMTP id 079C2603BFD
 	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230166AbiJSImN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:42:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54078 "EHLO
+        id S230499AbiJSImM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:42:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230294AbiJSIl3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:41:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C758A7EFFB;
-        Wed, 19 Oct 2022 01:39:17 -0700 (PDT)
+        with ESMTP id S230495AbiJSIl2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:41:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E94E28D;
+        Wed, 19 Oct 2022 01:39:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF652617E8;
-        Wed, 19 Oct 2022 08:39:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95E69C433D7;
-        Wed, 19 Oct 2022 08:39:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EEA6617D1;
+        Wed, 19 Oct 2022 08:39:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C053CC433D7;
+        Wed, 19 Oct 2022 08:39:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168756;
-        bh=CJh7BEGtcX3x0wey5F8aR0SgwStg4GuMXPmHzzulGjc=;
+        s=korg; t=1666168759;
+        bh=GgGuYB/cFi90xrtwqmYT0ptnVlghrdpQ68XgLT2iUHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xp8LemG4PfsYLsu6Nl8h/LFAFYI0FSYHGf1gVquXAaZqlPLVnj/kuxunZ5SHiZ6xm
-         AHyanN3gfFXtHLVJqE4w7jrPYEoOlx1z8x696lce1g0co0USNT92VTYKFTEM65H/do
-         aDl07haLg4G8KvH3N7z5CBemyp8tfcfcmO07Bui0=
+        b=IsMCmNa9fP15fyRMooNA3BnuO/cKaPWGH9f9UfV0QS1lpUqlP8XklDlqcrAqZQ5n4
+         uqZAdHgpXzvnqI+KmhHjY+8ANF5XRDyOShhBs4KU58hQUSiY/33s7GWplNmlxPBmle
+         TwOkQVB129+JMpgDD7k7/KnAmu5OO4ZG/ISrXolU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joanne Koong <joannelkoong@gmail.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Yonghong Song <yhs@fb.com>, KP Singh <kpsingh@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 6.0 044/862] btf: Export bpf_dynptr definition
-Date:   Wed, 19 Oct 2022 10:22:11 +0200
-Message-Id: <20221019083251.945344355@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Mike Galbraith <efault@gmx.de>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.0 045/862] mbcache: Avoid nesting of cache->c_list_lock under bit locks
+Date:   Wed, 19 Oct 2022 10:22:12 +0200
+Message-Id: <20221019083251.985522115@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,59 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 00f146413ccb6c84308e559281449755c83f54c5 upstream.
+commit 5fc4cbd9fde5d4630494fd6ffc884148fb618087 upstream.
 
-eBPF dynamic pointers is a new feature recently added to upstream. It binds
-together a pointer to a memory area and its size. The internal kernel
-structure bpf_dynptr_kern is not accessible by eBPF programs in user space.
-They instead see bpf_dynptr, which is then translated to the internal
-kernel structure by the eBPF verifier.
+Commit 307af6c87937 ("mbcache: automatically delete entries from cache
+on freeing") started nesting cache->c_list_lock under the bit locks
+protecting hash buckets of the mbcache hash table in
+mb_cache_entry_create(). This causes problems for real-time kernels
+because there spinlocks are sleeping locks while bitlocks stay atomic.
+Luckily the nesting is easy to avoid by holding entry reference until
+the entry is added to the LRU list. This makes sure we cannot race with
+entry deletion.
 
-The problem is that it is not possible to include at the same time the uapi
-include linux/bpf.h and the vmlinux BTF vmlinux.h, as they both contain the
-definition of some structures/enums. The compiler complains saying that the
-structures/enums are redefined.
-
-As bpf_dynptr is defined in the uapi include linux/bpf.h, this makes it
-impossible to include vmlinux.h. However, in some cases, e.g. when using
-kfuncs, vmlinux.h has to be included. The only option until now was to
-include vmlinux.h and add the definition of bpf_dynptr directly in the eBPF
-program source code from linux/bpf.h.
-
-Solve the problem by using the same approach as for bpf_timer (which also
-follows the same scheme with the _kern suffix for the internal kernel
-structure).
-
-Add the following line in one of the dynamic pointer helpers,
-bpf_dynptr_from_mem():
-
-BTF_TYPE_EMIT(struct bpf_dynptr);
-
-Cc: stable@vger.kernel.org
-Cc: Joanne Koong <joannelkoong@gmail.com>
-Fixes: 97e03f521050c ("bpf: Add verifier support for dynptrs")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Tested-by: KP Singh <kpsingh@kernel.org>
-Link: https://lore.kernel.org/r/20220920075951.929132-3-roberto.sassu@huaweicloud.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Cc: stable@kernel.org
+Fixes: 307af6c87937 ("mbcache: automatically delete entries from cache on freeing")
+Reported-by: Mike Galbraith <efault@gmx.de>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220908091032.10513-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/helpers.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/mbcache.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
---- a/kernel/bpf/helpers.c
-+++ b/kernel/bpf/helpers.c
-@@ -1468,6 +1468,8 @@ BPF_CALL_4(bpf_dynptr_from_mem, void *,
- {
- 	int err;
+diff --git a/fs/mbcache.c b/fs/mbcache.c
+index 47ccfcbe0a22..e272ad738faf 100644
+--- a/fs/mbcache.c
++++ b/fs/mbcache.c
+@@ -90,8 +90,14 @@ int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
+ 		return -ENOMEM;
  
-+	BTF_TYPE_EMIT(struct bpf_dynptr);
-+
- 	err = bpf_dynptr_check_size(size);
- 	if (err)
- 		goto error;
+ 	INIT_LIST_HEAD(&entry->e_list);
+-	/* Initial hash reference */
+-	atomic_set(&entry->e_refcnt, 1);
++	/*
++	 * We create entry with two references. One reference is kept by the
++	 * hash table, the other reference is used to protect us from
++	 * mb_cache_entry_delete_or_get() until the entry is fully setup. This
++	 * avoids nesting of cache->c_list_lock into hash table bit locks which
++	 * is problematic for RT.
++	 */
++	atomic_set(&entry->e_refcnt, 2);
+ 	entry->e_key = key;
+ 	entry->e_value = value;
+ 	entry->e_reusable = reusable;
+@@ -106,15 +112,12 @@ int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
+ 		}
+ 	}
+ 	hlist_bl_add_head(&entry->e_hash_list, head);
+-	/*
+-	 * Add entry to LRU list before it can be found by
+-	 * mb_cache_entry_delete() to avoid races
+-	 */
++	hlist_bl_unlock(head);
+ 	spin_lock(&cache->c_list_lock);
+ 	list_add_tail(&entry->e_list, &cache->c_list);
+ 	cache->c_entry_count++;
+ 	spin_unlock(&cache->c_list_lock);
+-	hlist_bl_unlock(head);
++	mb_cache_entry_put(cache, entry);
+ 
+ 	return 0;
+ }
+-- 
+2.38.0
+
 
 
