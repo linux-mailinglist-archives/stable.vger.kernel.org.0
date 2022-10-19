@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CAF36047BF
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:45:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97B9C604506
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 14:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233065AbiJSNpa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:45:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56204 "EHLO
+        id S231634AbiJSMTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 08:19:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233551AbiJSNoX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:44:23 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 436A31BE1FE;
-        Wed, 19 Oct 2022 06:31:42 -0700 (PDT)
+        with ESMTP id S233152AbiJSMTG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 08:19:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBE2E1781E3;
+        Wed, 19 Oct 2022 04:54:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E2869CE20F0;
-        Wed, 19 Oct 2022 08:41:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E51D6C433C1;
-        Wed, 19 Oct 2022 08:40:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AD47B821CD;
+        Wed, 19 Oct 2022 08:41:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FA63C433C1;
+        Wed, 19 Oct 2022 08:41:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168859;
-        bh=gMan5kpbovKahV/1vwN9rBg7BvTH6IpSR+9l0CZ8VNw=;
+        s=korg; t=1666168885;
+        bh=z1jpo4UkD4Ly2oimtwNpPZSx9SB4oraktF/ZPcHwwwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=neQiCSSCOEvLsfJWN21OS4Qy36XWm48vWD6YRoxZrU0LnpZ3OsJ1qfUVXlSkEcDcf
-         9BO65YJpr9CYwWnkyUacecwCQT4qjpOiW3xjRBbzWtHJjSzmD7k6nTABKuHPm11DSW
-         w0LITC8wrHShXKL8LzXHnC94AQX65DEb34QPeipY=
+        b=WZZEN9vj5o9yGwIN9cprRgFsC0ZLUoz8Bho7xb+/ap3sQCj76mIY2R6bEENkSUl/2
+         8PZyGYZ0lAMp6iMGtjTnkquILBqWYxIMwFPaMj9OsRBRMJ1n5d9hTh3u3BPq/XnbiO
+         Rl/qJg6PRZ/u4jR+AOWIUdZMye072DfQLXal76Ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Takashi Iwai <tiwai@suse.de>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 6.0 078/862] drm/udl: Restore display mode on resume
-Date:   Wed, 19 Oct 2022 10:22:45 +0200
-Message-Id: <20221019083253.385002253@linuxfoundation.org>
+        stable@vger.kernel.org, "M. Vefa Bicakci" <m.v.b@runbox.com>,
+        Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 6.0 087/862] xen/gntdev: Prevent leaking grants
+Date:   Wed, 19 Oct 2022 10:22:54 +0200
+Message-Id: <20221019083253.776126425@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,50 +53,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: M. Vefa Bicakci <m.v.b@runbox.com>
 
-commit 6d6e732835db92e66c28dbcf258a7e3d3c71420d upstream.
+commit 0991028cd49567d7016d1b224fe0117c35059f86 upstream.
 
-Restore the display mode whne resuming from suspend. Currently, the
-display remains dark.
+Prior to this commit, if a grant mapping operation failed partially,
+some of the entries in the map_ops array would be invalid, whereas all
+of the entries in the kmap_ops array would be valid. This in turn would
+cause the following logic in gntdev_map_grant_pages to become invalid:
 
-On resume, the CRTC's mode does not change, but the 'active' flag
-changes to 'true'. Taking this into account when considering a mode
-switch restores the display mode.
+  for (i = 0; i < map->count; i++) {
+    if (map->map_ops[i].status == GNTST_okay) {
+      map->unmap_ops[i].handle = map->map_ops[i].handle;
+      if (!use_ptemod)
+        alloced++;
+    }
+    if (use_ptemod) {
+      if (map->kmap_ops[i].status == GNTST_okay) {
+        if (map->map_ops[i].status == GNTST_okay)
+          alloced++;
+        map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
+      }
+    }
+  }
+  ...
+  atomic_add(alloced, &map->live_grants);
 
-The bug is reproducable by using Gnome with udl and observing the
-adapter's suspend/resume behavior.
+Assume that use_ptemod is true (i.e., the domain mapping the granted
+pages is a paravirtualized domain). In the code excerpt above, note that
+the "alloced" variable is only incremented when both kmap_ops[i].status
+and map_ops[i].status are set to GNTST_okay (i.e., both mapping
+operations are successful).  However, as also noted above, there are
+cases where a grant mapping operation fails partially, breaking the
+assumption of the code excerpt above.
 
-Actually, the whole check added in udl_simple_display_pipe_enable()
-about the crtc_state->mode_changed was bogus.  We should drop the
-whole check and always apply the mode change in this function.
+The aforementioned causes map->live_grants to be incorrectly set. In
+some cases, all of the map_ops mappings fail, but all of the kmap_ops
+mappings succeed, meaning that live_grants may remain zero. This in turn
+makes it impossible to unmap the successfully grant-mapped pages pointed
+to by kmap_ops, because unmap_grant_pages has the following snippet of
+code at its beginning:
 
-[ tiwai -- Drop the mode_changed check entirely instead, per Daniel's
-  suggestion ]
+  if (atomic_read(&map->live_grants) == 0)
+    return; /* Nothing to do */
 
-Fixes: 997d33c35618 ("drm/udl: Inline DPMS code into CRTC enable and disable functions")
-Cc: <stable@vger.kernel.org>
-Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220908095115.23396-2-tiwai@suse.de
+In other cases where only some of the map_ops mappings fail but all
+kmap_ops mappings succeed, live_grants is made positive, but when the
+user requests unmapping the grant-mapped pages, __unmap_grant_pages_done
+will then make map->live_grants negative, because the latter function
+does not check if all of the pages that were requested to be unmapped
+were actually unmapped, and the same function unconditionally subtracts
+"data->count" (i.e., a value that can be greater than map->live_grants)
+from map->live_grants. The side effects of a negative live_grants value
+have not been studied.
+
+The net effect of all of this is that grant references are leaked in one
+of the above conditions. In Qubes OS v4.1 (which uses Xen's grant
+mechanism extensively for X11 GUI isolation), this issue manifests
+itself with warning messages like the following to be printed out by the
+Linux kernel in the VM that had granted pages (that contain X11 GUI
+window data) to dom0: "g.e. 0x1234 still pending", especially after the
+user rapidly resizes GUI VM windows (causing some grant-mapping
+operations to partially or completely fail, due to the fact that the VM
+unshares some of the pages as part of the window resizing, making the
+pages impossible to grant-map from dom0).
+
+The fix for this issue involves counting all successful map_ops and
+kmap_ops mappings separately, and then adding the sum to live_grants.
+During unmapping, only the number of successfully unmapped grants is
+subtracted from live_grants. The code is also modified to check for
+negative live_grants values after the subtraction and warn the user.
+
+Link: https://github.com/QubesOS/qubes-issues/issues/7631
+Fixes: dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
+Cc: stable@vger.kernel.org
+Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+Acked-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20221002222006.2077-2-m.v.b@runbox.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/udl/udl_modeset.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/xen/gntdev.c |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/udl/udl_modeset.c
-+++ b/drivers/gpu/drm/udl/udl_modeset.c
-@@ -382,9 +382,6 @@ udl_simple_display_pipe_enable(struct dr
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -367,8 +367,7 @@ int gntdev_map_grant_pages(struct gntdev
+ 	for (i = 0; i < map->count; i++) {
+ 		if (map->map_ops[i].status == GNTST_okay) {
+ 			map->unmap_ops[i].handle = map->map_ops[i].handle;
+-			if (!use_ptemod)
+-				alloced++;
++			alloced++;
+ 		} else if (!err)
+ 			err = -EINVAL;
  
- 	udl_handle_damage(fb, &shadow_plane_state->data[0], 0, 0, fb->width, fb->height);
+@@ -377,8 +376,7 @@ int gntdev_map_grant_pages(struct gntdev
  
--	if (!crtc_state->mode_changed)
--		return;
--
- 	/* enable display */
- 	udl_crtc_write_mode_to_hw(crtc);
- }
+ 		if (use_ptemod) {
+ 			if (map->kmap_ops[i].status == GNTST_okay) {
+-				if (map->map_ops[i].status == GNTST_okay)
+-					alloced++;
++				alloced++;
+ 				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
+ 			} else if (!err)
+ 				err = -EINVAL;
+@@ -394,8 +392,14 @@ static void __unmap_grant_pages_done(int
+ 	unsigned int i;
+ 	struct gntdev_grant_map *map = data->data;
+ 	unsigned int offset = data->unmap_ops - map->unmap_ops;
++	int successful_unmaps = 0;
++	int live_grants;
+ 
+ 	for (i = 0; i < data->count; i++) {
++		if (map->unmap_ops[offset + i].status == GNTST_okay &&
++		    map->unmap_ops[offset + i].handle != INVALID_GRANT_HANDLE)
++			successful_unmaps++;
++
+ 		WARN_ON(map->unmap_ops[offset + i].status != GNTST_okay &&
+ 			map->unmap_ops[offset + i].handle != INVALID_GRANT_HANDLE);
+ 		pr_debug("unmap handle=%d st=%d\n",
+@@ -403,6 +407,10 @@ static void __unmap_grant_pages_done(int
+ 			map->unmap_ops[offset+i].status);
+ 		map->unmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
+ 		if (use_ptemod) {
++			if (map->kunmap_ops[offset + i].status == GNTST_okay &&
++			    map->kunmap_ops[offset + i].handle != INVALID_GRANT_HANDLE)
++				successful_unmaps++;
++
+ 			WARN_ON(map->kunmap_ops[offset + i].status != GNTST_okay &&
+ 				map->kunmap_ops[offset + i].handle != INVALID_GRANT_HANDLE);
+ 			pr_debug("kunmap handle=%u st=%d\n",
+@@ -411,11 +419,15 @@ static void __unmap_grant_pages_done(int
+ 			map->kunmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
+ 		}
+ 	}
++
+ 	/*
+ 	 * Decrease the live-grant counter.  This must happen after the loop to
+ 	 * prevent premature reuse of the grants by gnttab_mmap().
+ 	 */
+-	atomic_sub(data->count, &map->live_grants);
++	live_grants = atomic_sub_return(successful_unmaps, &map->live_grants);
++	if (WARN_ON(live_grants < 0))
++		pr_err("%s: live_grants became negative (%d) after unmapping %d pages!\n",
++		       __func__, live_grants, successful_unmaps);
+ 
+ 	/* Release reference taken by __unmap_grant_pages */
+ 	gntdev_put_map(NULL, map);
 
 
