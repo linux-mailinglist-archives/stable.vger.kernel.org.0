@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 008CF604132
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E762604105
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:35:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232213AbiJSKkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:40:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53676 "EHLO
+        id S230060AbiJSKf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:35:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230429AbiJSKj2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:39:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22AA36587;
-        Wed, 19 Oct 2022 03:18:18 -0700 (PDT)
+        with ESMTP id S232103AbiJSKe3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:34:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AD26E4E46;
+        Wed, 19 Oct 2022 03:13:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E7E7B823B7;
-        Wed, 19 Oct 2022 08:53:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB032C433D7;
-        Wed, 19 Oct 2022 08:53:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 822B3B823AF;
+        Wed, 19 Oct 2022 08:53:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECD19C433C1;
+        Wed, 19 Oct 2022 08:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169606;
-        bh=TCo4by4CCbBMMGpHCxdYLBrGbgOCt+MtL6GXRYTS2bA=;
+        s=korg; t=1666169611;
+        bh=ocXP7p6k+F8ZylaxYyqY5HxHpFjlyhStwz5dqTrHkEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cvapa5nimW2xavZQR9eQ9IzMhCGWpb0WVRCR1/D5MEqoDtGlKtxePEWfyhBl+zWvi
-         7m4ly8fS+TSXELAel6phdSq/zcnoJu9oCvs5yMnJppQfnKdqj8MKGviQNf9Buy4fji
-         zOGxHWYWy7Hnzju5NeAlATdCjDgiaonDhvn0120A=
+        b=ddUxmY9p9/TUb1OtthEZfaIpvAnZFThYLtZD+lgQ/9h04VdL2h8YtL01fGGeUD8U0
+         K7ueGdkU2v57hvrqCWIDBmMLs9Q/kFOOx//9utQmmtwifb6Xe/anDjMIpAyrN9f8TV
+         7oQ8jubuAE2c+VIzUDpToY/n4kFdRptD6G2OxrlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 306/862] mwifiex: fix sleep in atomic context bugs caused by dev_coredumpv
-Date:   Wed, 19 Oct 2022 10:26:33 +0200
-Message-Id: <20221019083303.537673194@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jesus Fernandez Manzano <jesus.manzano@galgus.net>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 308/862] wifi: ath11k: fix number of VHT beamformee spatial streams
+Date:   Wed, 19 Oct 2022 10:26:35 +0200
+Message-Id: <20221019083303.635120026@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,172 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Jesus Fernandez Manzano <jesus.manzano@galgus.net>
 
-[ Upstream commit 551e4745c7f218da7070b36a06318592913676ff ]
+[ Upstream commit 55b5ee3357d7bb98ee578cf9b84a652e7a1bc199 ]
 
-There are sleep in atomic context bugs when uploading device dump
-data in mwifiex. The root cause is that dev_coredumpv could not
-be used in atomic contexts, because it calls dev_set_name which
-include operations that may sleep. The call tree shows execution
-paths that could lead to bugs:
+The number of spatial streams used when acting as a beamformee in VHT
+mode are reported by the firmware as 7 (8 sts - 1) both in IPQ6018 and
+IPQ8074 which respectively have 2 and 4 sts each. So the firmware should
+report 1 (2 - 1) and 3 (4 - 1).
 
-   (Interrupt context)
-fw_dump_timer_fn
-  mwifiex_upload_device_dump
-    dev_coredumpv(..., GFP_KERNEL)
-      dev_coredumpm()
-        kzalloc(sizeof(*devcd), gfp); //may sleep
-        dev_set_name
-          kobject_set_name_vargs
-            kvasprintf_const(GFP_KERNEL, ...); //may sleep
-            kstrdup(s, GFP_KERNEL); //may sleep
+Fix this by checking that the number of VHT beamformee sts reported by
+the firmware is not greater than the number of receiving antennas - 1.
+The fix is based on the same approach used in this same function for
+sanitizing the number of sounding dimensions reported by the firmware.
 
-The corresponding fail log is shown below:
+Without this change, acting as a beamformee in VHT mode is not working
+properly.
 
-[  135.275938] usb 1-1: == mwifiex dump information to /sys/class/devcoredump start
-[  135.281029] BUG: sleeping function called from invalid context at include/linux/sched/mm.h:265
-...
-[  135.293613] Call Trace:
-[  135.293613]  <IRQ>
-[  135.293613]  dump_stack_lvl+0x57/0x7d
-[  135.293613]  __might_resched.cold+0x138/0x173
-[  135.293613]  ? dev_coredumpm+0xca/0x2e0
-[  135.293613]  kmem_cache_alloc_trace+0x189/0x1f0
-[  135.293613]  ? devcd_match_failing+0x30/0x30
-[  135.293613]  dev_coredumpm+0xca/0x2e0
-[  135.293613]  ? devcd_freev+0x10/0x10
-[  135.293613]  dev_coredumpv+0x1c/0x20
-[  135.293613]  ? devcd_match_failing+0x30/0x30
-[  135.293613]  mwifiex_upload_device_dump+0x65/0xb0
-[  135.293613]  ? mwifiex_dnld_fw+0x1b0/0x1b0
-[  135.293613]  call_timer_fn+0x122/0x3d0
-[  135.293613]  ? msleep_interruptible+0xb0/0xb0
-[  135.293613]  ? lock_downgrade+0x3c0/0x3c0
-[  135.293613]  ? __next_timer_interrupt+0x13c/0x160
-[  135.293613]  ? lockdep_hardirqs_on_prepare+0xe/0x220
-[  135.293613]  ? mwifiex_dnld_fw+0x1b0/0x1b0
-[  135.293613]  __run_timers.part.0+0x3f8/0x540
-[  135.293613]  ? call_timer_fn+0x3d0/0x3d0
-[  135.293613]  ? arch_restore_msi_irqs+0x10/0x10
-[  135.293613]  ? lapic_next_event+0x31/0x40
-[  135.293613]  run_timer_softirq+0x4f/0xb0
-[  135.293613]  __do_softirq+0x1c2/0x651
-...
-[  135.293613] RIP: 0010:default_idle+0xb/0x10
-[  135.293613] RSP: 0018:ffff888006317e68 EFLAGS: 00000246
-[  135.293613] RAX: ffffffff82ad8d10 RBX: ffff888006301cc0 RCX: ffffffff82ac90e1
-[  135.293613] RDX: ffffed100d9ff1b4 RSI: ffffffff831ad140 RDI: ffffffff82ad8f20
-[  135.293613] RBP: 0000000000000003 R08: 0000000000000000 R09: ffff88806cff8d9b
-[  135.293613] R10: ffffed100d9ff1b3 R11: 0000000000000001 R12: ffffffff84593410
-[  135.293613] R13: 0000000000000000 R14: 0000000000000000 R15: 1ffff11000c62fd2
-...
-[  135.389205] usb 1-1: == mwifiex dump information to /sys/class/devcoredump end
+Tested-on: IPQ6018 hw1.0 AHB WLAN.HK.2.5.0.1-01208-QCAHKSWPL_SILICONZ-1
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1-01208-QCAHKSWPL_SILICONZ-1
 
-This patch uses delayed work to replace timer and moves the operations
-that may sleep into a delayed work in order to mitigate bugs, it was
-tested on Marvell 88W8801 chip whose port is usb and the firmware is
-usb8801_uapsta.bin. The following is the result after using delayed
-work to replace timer.
-
-[  134.936453] usb 1-1: == mwifiex dump information to /sys/class/devcoredump start
-[  135.043344] usb 1-1: == mwifiex dump information to /sys/class/devcoredump end
-
-As we can see, there is no bug now.
-
-Fixes: f5ecd02a8b20 ("mwifiex: device dump support for usb interface")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/5cfa5c473ff6d069cb67760ffa04a2f84ef450a8.1661252818.git.duoming@zju.edu.cn
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Signed-off-by: Jesus Fernandez Manzano <jesus.manzano@galgus.net>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220616173947.21901-1-jesus.manzano@galgus.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/init.c      | 9 +++++----
- drivers/net/wireless/marvell/mwifiex/main.h      | 3 ++-
- drivers/net/wireless/marvell/mwifiex/sta_event.c | 6 +++---
- 3 files changed, 10 insertions(+), 8 deletions(-)
+ drivers/net/wireless/ath/ath11k/mac.c | 25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/init.c b/drivers/net/wireless/marvell/mwifiex/init.c
-index fc77489cc511..7dddb4b5dea1 100644
---- a/drivers/net/wireless/marvell/mwifiex/init.c
-+++ b/drivers/net/wireless/marvell/mwifiex/init.c
-@@ -51,9 +51,10 @@ static void wakeup_timer_fn(struct timer_list *t)
- 		adapter->if_ops.card_reset(adapter);
- }
- 
--static void fw_dump_timer_fn(struct timer_list *t)
-+static void fw_dump_work(struct work_struct *work)
- {
--	struct mwifiex_adapter *adapter = from_timer(adapter, t, devdump_timer);
-+	struct mwifiex_adapter *adapter =
-+		container_of(work, struct mwifiex_adapter, devdump_work.work);
- 
- 	mwifiex_upload_device_dump(adapter);
- }
-@@ -309,7 +310,7 @@ static void mwifiex_init_adapter(struct mwifiex_adapter *adapter)
- 	adapter->active_scan_triggered = false;
- 	timer_setup(&adapter->wakeup_timer, wakeup_timer_fn, 0);
- 	adapter->devdump_len = 0;
--	timer_setup(&adapter->devdump_timer, fw_dump_timer_fn, 0);
-+	INIT_DELAYED_WORK(&adapter->devdump_work, fw_dump_work);
- }
- 
- /*
-@@ -388,7 +389,7 @@ static void
- mwifiex_adapter_cleanup(struct mwifiex_adapter *adapter)
- {
- 	del_timer(&adapter->wakeup_timer);
--	del_timer_sync(&adapter->devdump_timer);
-+	cancel_delayed_work_sync(&adapter->devdump_work);
- 	mwifiex_cancel_all_pending_cmd(adapter);
- 	wake_up_interruptible(&adapter->cmd_wait_q.wait);
- 	wake_up_interruptible(&adapter->hs_activate_wait_q);
-diff --git a/drivers/net/wireless/marvell/mwifiex/main.h b/drivers/net/wireless/marvell/mwifiex/main.h
-index 87729d251fed..63f861e6b28a 100644
---- a/drivers/net/wireless/marvell/mwifiex/main.h
-+++ b/drivers/net/wireless/marvell/mwifiex/main.h
-@@ -37,6 +37,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/slab.h>
- #include <linux/of_irq.h>
-+#include <linux/workqueue.h>
- 
- #include "decl.h"
- #include "ioctl.h"
-@@ -1043,7 +1044,7 @@ struct mwifiex_adapter {
- 	/* Device dump data/length */
- 	void *devdump_data;
- 	int devdump_len;
--	struct timer_list devdump_timer;
-+	struct delayed_work devdump_work;
- 
- 	bool ignore_btcoex_events;
- };
-diff --git a/drivers/net/wireless/marvell/mwifiex/sta_event.c b/drivers/net/wireless/marvell/mwifiex/sta_event.c
-index b95e90a7d124..e80e372cce8c 100644
---- a/drivers/net/wireless/marvell/mwifiex/sta_event.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sta_event.c
-@@ -611,8 +611,8 @@ mwifiex_fw_dump_info_event(struct mwifiex_private *priv,
- 		 * transmission event get lost, in this cornel case,
- 		 * user would still get partial of the dump.
- 		 */
--		mod_timer(&adapter->devdump_timer,
--			  jiffies + msecs_to_jiffies(MWIFIEX_TIMER_10S));
-+		schedule_delayed_work(&adapter->devdump_work,
-+				      msecs_to_jiffies(MWIFIEX_TIMER_10S));
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index 7e91e347c9ff..7f6521314b2d 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -4954,6 +4954,8 @@ static int ath11k_mac_set_txbf_conf(struct ath11k_vif *arvif)
+ 	if (vht_cap & (IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE)) {
+ 		nsts = vht_cap & IEEE80211_VHT_CAP_BEAMFORMEE_STS_MASK;
+ 		nsts >>= IEEE80211_VHT_CAP_BEAMFORMEE_STS_SHIFT;
++		if (nsts > (ar->num_rx_chains - 1))
++			nsts = ar->num_rx_chains - 1;
+ 		value |= SM(nsts, WMI_TXBF_STS_CAP_OFFSET);
  	}
  
- 	/* Overflow check */
-@@ -631,7 +631,7 @@ mwifiex_fw_dump_info_event(struct mwifiex_private *priv,
- 	return;
+@@ -4994,7 +4996,7 @@ static int ath11k_mac_set_txbf_conf(struct ath11k_vif *arvif)
+ static void ath11k_set_vht_txbf_cap(struct ath11k *ar, u32 *vht_cap)
+ {
+ 	bool subfer, subfee;
+-	int sound_dim = 0;
++	int sound_dim = 0, nsts = 0;
  
- upload_dump:
--	del_timer_sync(&adapter->devdump_timer);
-+	cancel_delayed_work_sync(&adapter->devdump_work);
- 	mwifiex_upload_device_dump(adapter);
+ 	subfer = !!(*vht_cap & (IEEE80211_VHT_CAP_SU_BEAMFORMER_CAPABLE));
+ 	subfee = !!(*vht_cap & (IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE));
+@@ -5004,6 +5006,11 @@ static void ath11k_set_vht_txbf_cap(struct ath11k *ar, u32 *vht_cap)
+ 		subfer = false;
+ 	}
+ 
++	if (ar->num_rx_chains < 2) {
++		*vht_cap &= ~(IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE);
++		subfee = false;
++	}
++
+ 	/* If SU Beaformer is not set, then disable MU Beamformer Capability */
+ 	if (!subfer)
+ 		*vht_cap &= ~(IEEE80211_VHT_CAP_MU_BEAMFORMER_CAPABLE);
+@@ -5016,7 +5023,9 @@ static void ath11k_set_vht_txbf_cap(struct ath11k *ar, u32 *vht_cap)
+ 	sound_dim >>= IEEE80211_VHT_CAP_SOUNDING_DIMENSIONS_SHIFT;
+ 	*vht_cap &= ~IEEE80211_VHT_CAP_SOUNDING_DIMENSIONS_MASK;
+ 
+-	/* TODO: Need to check invalid STS and Sound_dim values set by FW? */
++	nsts = (*vht_cap & IEEE80211_VHT_CAP_BEAMFORMEE_STS_MASK);
++	nsts >>= IEEE80211_VHT_CAP_BEAMFORMEE_STS_SHIFT;
++	*vht_cap &= ~IEEE80211_VHT_CAP_BEAMFORMEE_STS_MASK;
+ 
+ 	/* Enable Sounding Dimension Field only if SU BF is enabled */
+ 	if (subfer) {
+@@ -5028,9 +5037,15 @@ static void ath11k_set_vht_txbf_cap(struct ath11k *ar, u32 *vht_cap)
+ 		*vht_cap |= sound_dim;
+ 	}
+ 
+-	/* Use the STS advertised by FW unless SU Beamformee is not supported*/
+-	if (!subfee)
+-		*vht_cap &= ~(IEEE80211_VHT_CAP_BEAMFORMEE_STS_MASK);
++	/* Enable Beamformee STS Field only if SU BF is enabled */
++	if (subfee) {
++		if (nsts > (ar->num_rx_chains - 1))
++			nsts = ar->num_rx_chains - 1;
++
++		nsts <<= IEEE80211_VHT_CAP_BEAMFORMEE_STS_SHIFT;
++		nsts &=  IEEE80211_VHT_CAP_BEAMFORMEE_STS_MASK;
++		*vht_cap |= nsts;
++	}
  }
  
+ static struct ieee80211_sta_vht_cap
 -- 
 2.35.1
 
