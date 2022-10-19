@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE1B3603BCF
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:39:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6B37603BD0
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:39:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230224AbiJSIjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:39:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54224 "EHLO
+        id S230217AbiJSIjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:39:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229971AbiJSIjD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:39:03 -0400
+        with ESMTP id S230250AbiJSIjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:39:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A62787F0B1;
-        Wed, 19 Oct 2022 01:38:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C98257FE48;
+        Wed, 19 Oct 2022 01:38:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D481E617DF;
-        Wed, 19 Oct 2022 08:38:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0186C433D7;
-        Wed, 19 Oct 2022 08:38:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 091F5617E7;
+        Wed, 19 Oct 2022 08:38:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1F3AC433C1;
+        Wed, 19 Oct 2022 08:38:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168713;
-        bh=nqOrFT/Y66TGULVPHHQkkVqwTkFRjIX6uhUPep+lG1U=;
+        s=korg; t=1666168716;
+        bh=c3J8aS+0mHc2rC1YOQ+gpl9CPH8bxkvxWZbbf19llkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=elwc1a/Qav0Bmc5YpjsPcpseSSsUR6H7omx5rMuLpRarq1jvseELMvXyJNJjVWVz/
-         qkggq1G2jSWkzGWLmgmB4gq+x3g5p0moDNQOKFYt03HgwVx8eYY5T8G6kYI4O7RN8s
-         Si0ei6z1E8ycp0o3R8W4iTXgazL3gnIzd9jRK+YM=
+        b=Fbqjh4ZJtRwZkcB0/d2AfaqSkBCD3jLkBWkp2d5BcN3mbIjSLgfXlsbxUN/5zMx64
+         WQ/Xv1vhlVAOrt/jolO+PPtf01X/4qPARyU29Zt+RnZQGZ4U1wr2cEaw9CH3+WwZlE
+         1LzbQW3rU/0WjtLeWFBxBBSk71E76MZspQOilq1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Sabri N. Ferreiro" <snferreiro1@gmail.com>,
+        Callum Osmotherly <callum.osmotherly@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.0 004/862] ALSA: usb-audio: Fix NULL dererence at error path
-Date:   Wed, 19 Oct 2022 10:21:31 +0200
-Message-Id: <20221019083250.187859993@linuxfoundation.org>
+Subject: [PATCH 6.0 005/862] ALSA: hda/realtek: remove ALC289_FIXUP_DUAL_SPK for Dell 5530
+Date:   Wed, 19 Oct 2022 10:21:32 +0200
+Message-Id: <20221019083250.237245212@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,43 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Callum Osmotherly <callum.osmotherly@gmail.com>
 
-commit 568be8aaf8a535f79c4db76cabe17b035aa2584d upstream.
+commit 417b9c51f59734d852e47252476fadc293ad994a upstream.
 
-At an error path to release URB buffers and contexts, the driver might
-hit a NULL dererence for u->urb pointer, when u->buffer_size has been
-already set but the actual URB allocation failed.
+After some feedback from users with Dell Precision 5530 machines, this
+patch reverts the previous change to add ALC289_FIXUP_DUAL_SPK.
+While it improved the speaker output quality, it caused the headphone
+jack to have an audible "pop" sound when power saving was toggled.
 
-Fix it by adding the NULL check of urb.  Also, make sure that
-buffer_size is cleared after the error path or the close.
-
+Fixes: 1885ff13d4c4 ("ALSA: hda/realtek: Enable 4-speaker output Dell Precision 5530 laptop")
+Signed-off-by: Callum Osmotherly <callum.osmotherly@gmail.com>
 Cc: <stable@vger.kernel.org>
-Reported-by: Sabri N. Ferreiro <snferreiro1@gmail.com>
-Link: https://lore.kernel.org/r/CAKG+3NRjTey+fFfUEGwuxL-pi_=T4cUskYG9OzpzHytF+tzYng@mail.gmail.com
-Link: https://lore.kernel.org/r/20220930100129.19445-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/Yz0uyN1zwZhnyRD6@piranha
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/endpoint.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -93,12 +93,13 @@ static inline unsigned get_usb_high_spee
-  */
- static void release_urb_ctx(struct snd_urb_ctx *u)
- {
--	if (u->buffer_size)
-+	if (u->urb && u->buffer_size)
- 		usb_free_coherent(u->ep->chip->dev, u->buffer_size,
- 				  u->urb->transfer_buffer,
- 				  u->urb->transfer_dma);
- 	usb_free_urb(u->urb);
- 	u->urb = NULL;
-+	u->buffer_size = 0;
- }
- 
- static const char *usb_error_string(int err)
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9186,7 +9186,6 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1028, 0x0871, "Dell Precision 3630", ALC255_FIXUP_DELL_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0872, "Dell Precision 3630", ALC255_FIXUP_DELL_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0873, "Dell Precision 3930", ALC255_FIXUP_DUMMY_LINEOUT_VERB),
+-	SND_PCI_QUIRK(0x1028, 0x087d, "Dell Precision 5530", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x08ad, "Dell WYSE AIO", ALC225_FIXUP_DELL_WYSE_AIO_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x08ae, "Dell WYSE NB", ALC225_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x0935, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB),
 
 
