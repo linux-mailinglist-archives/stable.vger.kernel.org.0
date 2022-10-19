@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3413C604117
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:37:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 199AA6040DA
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231815AbiJSKhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:37:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46750 "EHLO
+        id S231577AbiJSKZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:25:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231818AbiJSKg6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:36:58 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE58F01B;
-        Wed, 19 Oct 2022 03:15:56 -0700 (PDT)
+        with ESMTP id S230370AbiJSKYm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:24:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06446D57FF;
+        Wed, 19 Oct 2022 03:04:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 60429CE21B3;
-        Wed, 19 Oct 2022 09:13:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E266C433C1;
-        Wed, 19 Oct 2022 09:13:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77529617D6;
+        Wed, 19 Oct 2022 09:13:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82329C433C1;
+        Wed, 19 Oct 2022 09:13:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170811;
-        bh=2vttJVL/wGU2aeD9rhWr5CzNN4oH2sKTlJIu2eSZwmQ=;
+        s=korg; t=1666170816;
+        bh=1TJHyyfg+QsA6U78R8mxqIahZXicXXqn1XHvFq8xnAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1KkITEmOv1iZFOs1p5SurGBmrFbRt6U4LM15r+l/FKUlS73G8qVTgpF9AM0Dz6B+P
-         uE2lV5DggZiWt9+UR2kheqYIjryejgHDNVwJOMP23BW0HcVxZ5W+LorQWxVabjSrBZ
-         JR2y5V6sLcVK1mZ2NCBc3gS4JHnR8dMCJHkQU6zE=
+        b=H5xrFcZnm2Qy4qQ2wR8+Du7Atjx8ecqV0u1OAkLh4pdkSTnDWKFff/oN6a9v3lV/K
+         SF6DlOZYko/RE1INgRcGz+F/orSwAIscH2pKN9vyoAAl3Z1ApryBemRb0CDxO/4cfh
+         9J7AyKqqewnincnZsj95nHYkEx3vJaa0aL5xEdTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Daisuke Matsuda <matsuda-daisuke@fujitsu.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Justin Chen <justinpopo6@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 796/862] RDMA/rxe: Delete error messages triggered by incoming Read requests
-Date:   Wed, 19 Oct 2022 10:34:43 +0200
-Message-Id: <20221019083325.076112879@linuxfoundation.org>
+Subject: [PATCH 6.0 798/862] usb: host: xhci-plat: suspend/resume clks for brcm
+Date:   Wed, 19 Oct 2022 10:34:45 +0200
+Message-Id: <20221019083325.155292107@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,52 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daisuke Matsuda <matsuda-daisuke@fujitsu.com>
+From: Justin Chen <justinpopo6@gmail.com>
 
-[ Upstream commit 2c02249fcbfc066bd33e2a7375c7006d4cb367f6 ]
+[ Upstream commit c69400b09e471a3f1167adead55a808f0da6534a ]
 
-An incoming Read request causes multiple Read responses. If a user MR to
-copy data from is unavailable or responder cannot send a reply, then the
-error messages can be printed for each response attempt, resulting in
-message overflow.
+The xhci_plat_brcm xhci block can enter suspend with clock disabled to save
+power and re-enable them on resume. Make use of the XHCI_SUSPEND_RESUME_CLKS
+quirk to do so.
 
-Link: https://lore.kernel.org/r/20220829071218.1639065-1-matsuda-daisuke@fujitsu.com
-Signed-off-by: Daisuke Matsuda <matsuda-daisuke@fujitsu.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+Link: https://lore.kernel.org/r/1660170455-15781-3-git-send-email-justinpopo6@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_resp.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/usb/host/xhci-plat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
-index b36ec5c4d5e0..7c336db5cb54 100644
---- a/drivers/infiniband/sw/rxe/rxe_resp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_resp.c
-@@ -809,10 +809,8 @@ static enum resp_states read_reply(struct rxe_qp *qp,
- 	if (!skb)
- 		return RESPST_ERR_RNR;
+diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
+index ef10982ad482..5fb55bf19493 100644
+--- a/drivers/usb/host/xhci-plat.c
++++ b/drivers/usb/host/xhci-plat.c
+@@ -123,7 +123,7 @@ static const struct xhci_plat_priv xhci_plat_renesas_rcar_gen3 = {
+ };
  
--	err = rxe_mr_copy(mr, res->read.va, payload_addr(&ack_pkt),
--			  payload, RXE_FROM_MR_OBJ);
--	if (err)
--		pr_err("Failed copying memory\n");
-+	rxe_mr_copy(mr, res->read.va, payload_addr(&ack_pkt),
-+		    payload, RXE_FROM_MR_OBJ);
- 	if (mr)
- 		rxe_put(mr);
+ static const struct xhci_plat_priv xhci_plat_brcm = {
+-	.quirks = XHCI_RESET_ON_RESUME,
++	.quirks = XHCI_RESET_ON_RESUME | XHCI_SUSPEND_RESUME_CLKS,
+ };
  
-@@ -823,10 +821,8 @@ static enum resp_states read_reply(struct rxe_qp *qp,
- 	}
- 
- 	err = rxe_xmit_packet(qp, &ack_pkt, skb);
--	if (err) {
--		pr_err("Failed sending RDMA reply.\n");
-+	if (err)
- 		return RESPST_ERR_RNR;
--	}
- 
- 	res->read.va += payload;
- 	res->read.resid -= payload;
+ static const struct of_device_id usb_xhci_of_match[] = {
 -- 
 2.35.1
 
