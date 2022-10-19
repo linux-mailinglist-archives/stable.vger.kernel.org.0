@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 130D7603EB9
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:20:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DEEA603F03
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:26:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233065AbiJSJUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:20:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42904 "EHLO
+        id S233549AbiJSJ01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:26:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233072AbiJSJSx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:18:53 -0400
+        with ESMTP id S233791AbiJSJY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:24:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F8EDAC75;
-        Wed, 19 Oct 2022 02:07:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9925E09FA;
+        Wed, 19 Oct 2022 02:11:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2613661888;
-        Wed, 19 Oct 2022 09:07:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 356CDC433D7;
-        Wed, 19 Oct 2022 09:07:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FB216186A;
+        Wed, 19 Oct 2022 09:07:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B708DC433D6;
+        Wed, 19 Oct 2022 09:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170422;
-        bh=tzkFWHdBR1QJkTnAVZrUmtw9WJSWAiTSqmAiaamAgSg=;
+        s=korg; t=1666170428;
+        bh=3Gfi9agU9cU+uff4O12IY+gLmC0ZvLn3iv815Gceu7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jdKqn1AHvAz7x5CL0OCQMf4yLrXtjvvYjz/2PD4sFqgQ92KXALrxXrpXVdbPnZ2y/
-         ZEqLwvYbB5TxkVihPznK+jIzQKteTfSK41b5sCHraUs1mXA1XSWO7RIQ7z3BvqE0Xu
-         AJ1JCUdVsiS6r0G+cGNTQK07BGF28WnJJcE/fTz0=
+        b=Yk1vgJG3QqXONevtsnu0Q2QKCmVG0dHDb4rrKGcUU6wsR3/G5Rb8uw07rFODAVVuf
+         Q6J2ISnjT4T1VSN5Qd97NJEPTNpuR5MCLeSAYISdpW+7EHJ63bHEJVJ3Sz2B3i+uHN
+         NFp50uSFb6sY3+N/Tdgx2d58D/YO94Q1uupmSse0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Sultan Alsawaf <sultan@kerneltoast.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 650/862] crypto: marvell/octeontx - prevent integer overflows
-Date:   Wed, 19 Oct 2022 10:32:17 +0200
-Message-Id: <20221019083318.650728241@linuxfoundation.org>
+Subject: [PATCH 6.0 652/862] random: schedule jitter credit for next jiffy, not in two jiffies
+Date:   Wed, 19 Oct 2022 10:32:19 +0200
+Message-Id: <20221019083318.739414078@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,77 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit caca37cf6c749ff0303f68418cfe7b757a4e0697 ]
+[ Upstream commit 122733471384be8c23f019fbbd46bdf7be561dcd ]
 
-The "code_length" value comes from the firmware file.  If your firmware
-is untrusted realistically there is probably very little you can do to
-protect yourself.  Still we try to limit the damage as much as possible.
-Also Smatch marks any data read from the filesystem as untrusted and
-prints warnings if it not capped correctly.
+Counterintuitively, mod_timer(..., jiffies + 1) will cause the timer to
+fire not in the next jiffy, but in two jiffies. The way to cause
+the timer to fire in the next jiffy is with mod_timer(..., jiffies).
+Doing so then lets us bump the upper bound back up again.
 
-The "code_length * 2" can overflow.  The round_up(ucode_size, 16) +
-sizeof() expression can overflow too.  Prevent these overflows.
-
-Fixes: d9110b0b01ff ("crypto: marvell - add support for OCTEON TX CPT engine")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 50ee7529ec45 ("random: try to actively add entropy rather than passively wait for it")
+Fixes: 829d680e82a9 ("random: cap jitter samples per bit to factor of HZ")
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Sultan Alsawaf <sultan@kerneltoast.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../crypto/marvell/octeontx/otx_cptpf_ucode.c  | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ drivers/char/random.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/marvell/octeontx/otx_cptpf_ucode.c b/drivers/crypto/marvell/octeontx/otx_cptpf_ucode.c
-index 40b482198ebc..a765eefb18c2 100644
---- a/drivers/crypto/marvell/octeontx/otx_cptpf_ucode.c
-+++ b/drivers/crypto/marvell/octeontx/otx_cptpf_ucode.c
-@@ -286,6 +286,7 @@ static int process_tar_file(struct device *dev,
- 	struct tar_ucode_info_t *tar_info;
- 	struct otx_cpt_ucode_hdr *ucode_hdr;
- 	int ucode_type, ucode_size;
-+	unsigned int code_length;
- 
- 	/*
- 	 * If size is less than microcode header size then don't report
-@@ -303,7 +304,13 @@ static int process_tar_file(struct device *dev,
- 	if (get_ucode_type(ucode_hdr, &ucode_type))
- 		return 0;
- 
--	ucode_size = ntohl(ucode_hdr->code_length) * 2;
-+	code_length = ntohl(ucode_hdr->code_length);
-+	if (code_length >= INT_MAX / 2) {
-+		dev_err(dev, "Invalid code_length %u\n", code_length);
-+		return -EINVAL;
-+	}
-+
-+	ucode_size = code_length * 2;
- 	if (!ucode_size || (size < round_up(ucode_size, 16) +
- 	    sizeof(struct otx_cpt_ucode_hdr) + OTX_CPT_UCODE_SIGN_LEN)) {
- 		dev_err(dev, "Ucode %s invalid size\n", filename);
-@@ -886,6 +893,7 @@ static int ucode_load(struct device *dev, struct otx_cpt_ucode *ucode,
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index 060f999dcffb..46d6100fa3a7 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1195,7 +1195,7 @@ static void __cold entropy_timer(struct timer_list *timer)
+  */
+ static void __cold try_to_generate_entropy(void)
  {
- 	struct otx_cpt_ucode_hdr *ucode_hdr;
- 	const struct firmware *fw;
-+	unsigned int code_length;
- 	int ret;
- 
- 	set_ucode_filename(ucode, ucode_filename);
-@@ -896,7 +904,13 @@ static int ucode_load(struct device *dev, struct otx_cpt_ucode *ucode,
- 	ucode_hdr = (struct otx_cpt_ucode_hdr *) fw->data;
- 	memcpy(ucode->ver_str, ucode_hdr->ver_str, OTX_CPT_UCODE_VER_STR_SZ);
- 	ucode->ver_num = ucode_hdr->ver_num;
--	ucode->size = ntohl(ucode_hdr->code_length) * 2;
-+	code_length = ntohl(ucode_hdr->code_length);
-+	if (code_length >= INT_MAX / 2) {
-+		dev_err(dev, "Ucode invalid code_length %u\n", code_length);
-+		ret = -EINVAL;
-+		goto release_fw;
-+	}
-+	ucode->size = code_length * 2;
- 	if (!ucode->size || (fw->size < round_up(ucode->size, 16)
- 	    + sizeof(struct otx_cpt_ucode_hdr) + OTX_CPT_UCODE_SIGN_LEN)) {
- 		dev_err(dev, "Ucode %s invalid size\n", ucode_filename);
+-	enum { NUM_TRIAL_SAMPLES = 8192, MAX_SAMPLES_PER_BIT = HZ / 30 };
++	enum { NUM_TRIAL_SAMPLES = 8192, MAX_SAMPLES_PER_BIT = HZ / 15 };
+ 	struct entropy_timer_state stack;
+ 	unsigned int i, num_different = 0;
+ 	unsigned long last = random_get_entropy();
+@@ -1214,7 +1214,7 @@ static void __cold try_to_generate_entropy(void)
+ 	timer_setup_on_stack(&stack.timer, entropy_timer, 0);
+ 	while (!crng_ready() && !signal_pending(current)) {
+ 		if (!timer_pending(&stack.timer))
+-			mod_timer(&stack.timer, jiffies + 1);
++			mod_timer(&stack.timer, jiffies);
+ 		mix_pool_bytes(&stack.entropy, sizeof(stack.entropy));
+ 		schedule();
+ 		stack.entropy = random_get_entropy();
 -- 
 2.35.1
 
