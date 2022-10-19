@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B84B603DD5
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:07:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 547BF603CAE
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:51:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232397AbiJSJGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:06:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34066 "EHLO
+        id S231574AbiJSIux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:50:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232374AbiJSJFt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:05:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5804617435;
-        Wed, 19 Oct 2022 01:59:33 -0700 (PDT)
+        with ESMTP id S231986AbiJSIuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:50:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D15AF2CCBF;
+        Wed, 19 Oct 2022 01:48:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C58E461738;
-        Wed, 19 Oct 2022 08:47:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAC00C433D6;
-        Wed, 19 Oct 2022 08:47:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C47F2617F7;
+        Wed, 19 Oct 2022 08:47:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD1CBC433D6;
+        Wed, 19 Oct 2022 08:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169257;
-        bh=HOZhK5nwydeR/Bd8FjHVUeZa+EqAKfMdTpBZvPcFDdk=;
+        s=korg; t=1666169263;
+        bh=cUStqzs1sm90x91UAWNz1rhejrC3JpfXLKWtUpHmuFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wvd+6VYnDkoB3Vg026+K5vSsMsQ+RcqxH38k6wxAHAFtCWogMC0QRlyL4dlOz/YUM
-         IACWcmpJVJNp8dmyyxTtD9ziJWEadtIiX7hCf1zkdAZ0dZoqmNlz3hejv/3W76H7rO
-         +Tr9OLATzAEvBxh5QsoIyM+19mkTNn1A3WTXol6M=
+        b=z5I1Rdoi7xk4jubm3idsEAuvsr8PmZxirfqOenfiktckF0EK6EJxdVVD/uh0UMaSd
+         jlECqsrYQKDKrobBHObzQ2JG5mpoznU9y+Zqw/OgmZkqRm2YEw39w0ns6TiLxd/fNM
+         kledWCmbWQl3PZz6lJrh6GqdIs/D/NLc1XR1EpPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Yujun <linyujun809@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Jingbo Xu <jefflexu@linux.alibaba.com>,
+        Jia Zhu <zhujia.zj@bytedance.com>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 211/862] MIPS: SGI-IP27: Fix platform-device leak in bridge_platform_create()
-Date:   Wed, 19 Oct 2022 10:24:58 +0200
-Message-Id: <20221019083259.348244532@linuxfoundation.org>
+Subject: [PATCH 6.0 213/862] erofs: use kill_anon_super() to kill super in fscache mode
+Date:   Wed, 19 Oct 2022 10:25:00 +0200
+Message-Id: <20221019083259.435616379@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,139 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Yujun <linyujun809@huawei.com>
+From: Jia Zhu <zhujia.zj@bytedance.com>
 
-[ Upstream commit 11bec9cba4de06b3c0e9e4041453c2caaa1cbec1 ]
+[ Upstream commit 1015c1016c231b26d4e2c9b3da65b6c043eb97a3 ]
 
-In error case in bridge_platform_create after calling
-platform_device_add()/platform_device_add_data()/
-platform_device_add_resources(), release the failed
-'pdev' or it will be leak, call platform_device_put()
-to fix this problem.
+Use kill_anon_super() instead of generic_shutdown_super() since the
+mount() in erofs fscache mode uses get_tree_nodev() and associated
+anon bdev needs to be freed.
 
-Besides, 'pdev' is divided into 'pdev_wd' and 'pdev_bd',
-use platform_device_unregister() to release sgi_w1
-resources when xtalk-bridge registration fails.
-
-Fixes: 5dc76a96e95a ("MIPS: PCI: use information from 1-wire PROM for IOC3 detection")
-Signed-off-by: Lin Yujun <linyujun809@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 9c0cc9c729657 ("erofs: add 'fsid' mount option")
+Suggested-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Signed-off-by: Jia Zhu <zhujia.zj@bytedance.com>
+Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20220918043456.147-2-zhujia.zj@bytedance.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/sgi-ip27/ip27-xtalk.c | 70 +++++++++++++++++++++++----------
- 1 file changed, 50 insertions(+), 20 deletions(-)
+ fs/erofs/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/sgi-ip27/ip27-xtalk.c b/arch/mips/sgi-ip27/ip27-xtalk.c
-index e762886d1dda..5143d1cf8984 100644
---- a/arch/mips/sgi-ip27/ip27-xtalk.c
-+++ b/arch/mips/sgi-ip27/ip27-xtalk.c
-@@ -27,15 +27,18 @@ static void bridge_platform_create(nasid_t nasid, int widget, int masterwid)
- {
- 	struct xtalk_bridge_platform_data *bd;
- 	struct sgi_w1_platform_data *wd;
--	struct platform_device *pdev;
-+	struct platform_device *pdev_wd;
-+	struct platform_device *pdev_bd;
- 	struct resource w1_res;
- 	unsigned long offset;
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 3173debeaa5a..9716d355a63e 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -879,7 +879,7 @@ static void erofs_kill_sb(struct super_block *sb)
+ 	WARN_ON(sb->s_magic != EROFS_SUPER_MAGIC);
  
- 	offset = NODE_OFFSET(nasid);
+ 	if (erofs_is_fscache_mode(sb))
+-		generic_shutdown_super(sb);
++		kill_anon_super(sb);
+ 	else
+ 		kill_block_super(sb);
  
- 	wd = kzalloc(sizeof(*wd), GFP_KERNEL);
--	if (!wd)
--		goto no_mem;
-+	if (!wd) {
-+		pr_warn("xtalk:n%d/%x bridge create out of memory\n", nasid, widget);
-+		return;
-+	}
- 
- 	snprintf(wd->dev_id, sizeof(wd->dev_id), "bridge-%012lx",
- 		 offset + (widget << SWIN_SIZE_BITS));
-@@ -46,24 +49,35 @@ static void bridge_platform_create(nasid_t nasid, int widget, int masterwid)
- 	w1_res.end = w1_res.start + 3;
- 	w1_res.flags = IORESOURCE_MEM;
- 
--	pdev = platform_device_alloc("sgi_w1", PLATFORM_DEVID_AUTO);
--	if (!pdev) {
--		kfree(wd);
--		goto no_mem;
-+	pdev_wd = platform_device_alloc("sgi_w1", PLATFORM_DEVID_AUTO);
-+	if (!pdev_wd) {
-+		pr_warn("xtalk:n%d/%x bridge create out of memory\n", nasid, widget);
-+		goto err_kfree_wd;
-+	}
-+	if (platform_device_add_resources(pdev_wd, &w1_res, 1)) {
-+		pr_warn("xtalk:n%d/%x bridge failed to add platform resources.\n", nasid, widget);
-+		goto err_put_pdev_wd;
-+	}
-+	if (platform_device_add_data(pdev_wd, wd, sizeof(*wd))) {
-+		pr_warn("xtalk:n%d/%x bridge failed to add platform data.\n", nasid, widget);
-+		goto err_put_pdev_wd;
-+	}
-+	if (platform_device_add(pdev_wd)) {
-+		pr_warn("xtalk:n%d/%x bridge failed to add platform device.\n", nasid, widget);
-+		goto err_put_pdev_wd;
- 	}
--	platform_device_add_resources(pdev, &w1_res, 1);
--	platform_device_add_data(pdev, wd, sizeof(*wd));
- 	/* platform_device_add_data() duplicates the data */
- 	kfree(wd);
--	platform_device_add(pdev);
- 
- 	bd = kzalloc(sizeof(*bd), GFP_KERNEL);
--	if (!bd)
--		goto no_mem;
--	pdev = platform_device_alloc("xtalk-bridge", PLATFORM_DEVID_AUTO);
--	if (!pdev) {
--		kfree(bd);
--		goto no_mem;
-+	if (!bd) {
-+		pr_warn("xtalk:n%d/%x bridge create out of memory\n", nasid, widget);
-+		goto err_unregister_pdev_wd;
-+	}
-+	pdev_bd = platform_device_alloc("xtalk-bridge", PLATFORM_DEVID_AUTO);
-+	if (!pdev_bd) {
-+		pr_warn("xtalk:n%d/%x bridge create out of memory\n", nasid, widget);
-+		goto err_kfree_bd;
- 	}
- 
- 
-@@ -84,15 +98,31 @@ static void bridge_platform_create(nasid_t nasid, int widget, int masterwid)
- 	bd->io.flags	= IORESOURCE_IO;
- 	bd->io_offset	= offset;
- 
--	platform_device_add_data(pdev, bd, sizeof(*bd));
-+	if (platform_device_add_data(pdev_bd, bd, sizeof(*bd))) {
-+		pr_warn("xtalk:n%d/%x bridge failed to add platform data.\n", nasid, widget);
-+		goto err_put_pdev_bd;
-+	}
-+	if (platform_device_add(pdev_bd)) {
-+		pr_warn("xtalk:n%d/%x bridge failed to add platform device.\n", nasid, widget);
-+		goto err_put_pdev_bd;
-+	}
- 	/* platform_device_add_data() duplicates the data */
- 	kfree(bd);
--	platform_device_add(pdev);
- 	pr_info("xtalk:n%d/%x bridge widget\n", nasid, widget);
- 	return;
- 
--no_mem:
--	pr_warn("xtalk:n%d/%x bridge create out of memory\n", nasid, widget);
-+err_put_pdev_bd:
-+	platform_device_put(pdev_bd);
-+err_kfree_bd:
-+	kfree(bd);
-+err_unregister_pdev_wd:
-+	platform_device_unregister(pdev_wd);
-+	return;
-+err_put_pdev_wd:
-+	platform_device_put(pdev_wd);
-+err_kfree_wd:
-+	kfree(wd);
-+	return;
- }
- 
- static int probe_one_port(nasid_t nasid, int widget, int masterwid)
 -- 
 2.35.1
 
