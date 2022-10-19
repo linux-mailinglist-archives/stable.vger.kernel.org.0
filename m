@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D34E6041D8
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:50:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60F9C6041A7
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232835AbiJSKuA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:50:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54656 "EHLO
+        id S233565AbiJSKrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:47:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234275AbiJSKs3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:48:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 776F611F494;
-        Wed, 19 Oct 2022 03:22:02 -0700 (PDT)
+        with ESMTP id S232556AbiJSKpa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:45:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94F4715A30D;
+        Wed, 19 Oct 2022 03:21:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21D7CB82459;
-        Wed, 19 Oct 2022 09:00:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CFF3C43143;
-        Wed, 19 Oct 2022 09:00:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7362FB82457;
+        Wed, 19 Oct 2022 09:00:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9181C433C1;
+        Wed, 19 Oct 2022 09:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170011;
-        bh=lU1rMge4AvOB32EqEc1cYUnGuxCTzQQf26R06XK4qiY=;
+        s=korg; t=1666170022;
+        bh=abjXBVOG+cxNl04C7+6if84CIxXflluCsmaCoO0qdos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4ynn39eImlDyJG4z3aiBnDvSTz3RwfNQ1bf5ad3Q77VWURqQPBrFAP3YiuYPCCaS
-         IEp5PllsHrkbg7yOrQxjXn11A6oSGLVV6w5G9rt1zfCmzOCMR/ZRt8ocq6YwSX1qnZ
-         MFh5IATmH8BqoF9AwcJ50UhcoyWYc9TV3vLOkZfA=
+        b=grG3kNljpn6Ds0+Oq18ekcV2g+ZV4jTStEXpZfndH/2oauq+zO7WM+ovugcmoovYG
+         Cxj2r5vO8VeR291Zqr7TPkM9ngsJ1dy3yo4BMiGHqlOAVSVoyJezfXb9e4JtUnk+bV
+         IbMHAc7A/fZHFiEUFktb32VzRWZI7fYP2HQvmoLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+ab99dc4c6e961eed8b8e@syzkaller.appspotmail.com,
+        Zhu Yanjun <yanjun.zhu@linux.dev>,
+        Li Zhijian <lizhijian@fujitsu.com>,
+        Bob Pearson <rpearsonhpe@gmail.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 494/862] media: meson: vdec: add missing clk_disable_unprepare on error in vdec_hevc_start()
-Date:   Wed, 19 Oct 2022 10:29:41 +0200
-Message-Id: <20221019083311.804252411@linuxfoundation.org>
+Subject: [PATCH 6.0 498/862] RDMA/rxe: Fix "kernel NULL pointer dereference" error
+Date:   Wed, 19 Oct 2022 10:29:45 +0200
+Message-Id: <20221019083311.980763099@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,41 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Qiang <xuqiang36@huawei.com>
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
 
-[ Upstream commit 4029372233e13e281f8c387f279f9f064ced3810 ]
+[ Upstream commit a625ca30eff806395175ebad3ac1399014bdb280 ]
 
-Add the missing clk_disable_unprepare() before return
-from vdec_hevc_start() in the error handling case.
+When rxe_queue_init in the function rxe_qp_init_req fails,
+both qp->req.task.func and qp->req.task.arg are not initialized.
 
-Fixes: 823a7300340e (“media: meson: vdec: add common HEVC decoder support”)
-Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Because of creation of qp fails, the function rxe_create_qp will
+call rxe_qp_do_cleanup to handle allocated resource.
+
+Before calling __rxe_do_task, both qp->req.task.func and
+qp->req.task.arg should be checked.
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20220822011615.805603-2-yanjun.zhu@linux.dev
+Reported-by: syzbot+ab99dc4c6e961eed8b8e@syzkaller.appspotmail.com
+Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
+Reviewed-by: Li Zhijian <lizhijian@fujitsu.com>
+Reviewed-by: Bob Pearson <rpearsonhpe@gmail.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/meson/vdec/vdec_hevc.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/meson/vdec/vdec_hevc.c b/drivers/staging/media/meson/vdec/vdec_hevc.c
-index 9530e580e57a..afced435c907 100644
---- a/drivers/staging/media/meson/vdec/vdec_hevc.c
-+++ b/drivers/staging/media/meson/vdec/vdec_hevc.c
-@@ -167,8 +167,12 @@ static int vdec_hevc_start(struct amvdec_session *sess)
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index 516bf9b95e48..fda03f9f03ed 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -797,7 +797,9 @@ static void rxe_qp_do_cleanup(struct work_struct *work)
+ 	rxe_cleanup_task(&qp->comp.task);
  
- 	clk_set_rate(core->vdec_hevc_clk, 666666666);
- 	ret = clk_prepare_enable(core->vdec_hevc_clk);
--	if (ret)
-+	if (ret) {
-+		if (core->platform->revision == VDEC_REVISION_G12A ||
-+		    core->platform->revision == VDEC_REVISION_SM1)
-+			clk_disable_unprepare(core->vdec_hevcf_clk);
- 		return ret;
-+	}
- 
- 	if (core->platform->revision == VDEC_REVISION_SM1)
- 		regmap_update_bits(core->regmap_ao, AO_RTI_GEN_PWR_SLEEP0,
+ 	/* flush out any receive wr's or pending requests */
+-	__rxe_do_task(&qp->req.task);
++	if (qp->req.task.func)
++		__rxe_do_task(&qp->req.task);
++
+ 	if (qp->sq.queue) {
+ 		__rxe_do_task(&qp->comp.task);
+ 		__rxe_do_task(&qp->req.task);
 -- 
 2.35.1
 
