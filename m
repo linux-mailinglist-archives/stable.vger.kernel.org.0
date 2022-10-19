@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FC3D603F18
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:27:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8774603EE2
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:22:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233608AbiJSJ1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:27:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46926 "EHLO
+        id S231608AbiJSJWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:22:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233567AbiJSJ0d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:26:33 -0400
+        with ESMTP id S233420AbiJSJVZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:21:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F4133E22F6;
-        Wed, 19 Oct 2022 02:11:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6D4D3C16F;
+        Wed, 19 Oct 2022 02:09:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50151617FB;
-        Wed, 19 Oct 2022 09:01:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F4EBC433B5;
-        Wed, 19 Oct 2022 09:01:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F143261807;
+        Wed, 19 Oct 2022 09:01:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F0EC433D6;
+        Wed, 19 Oct 2022 09:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170085;
-        bh=WTP5UwOckZbMbSXMx2VCri9AardoaYuqySbMaS2HOr4=;
+        s=korg; t=1666170088;
+        bh=9IY8itcj0UntKkJNFI/Iu3RvzWtyhrIob2EbC+YLLxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xj0BKNVM/LLsrBUyqYWo74P1mlxiC8QfCkcy6ZhhmcDf83zoDMt3zcp0m7sy+C3Up
-         nXlKV8XLtxCvwJ+bukYgKu+pKkF8+EMculhga1QFbX62I2JCw9HF2/T67bRDD+tLgR
-         xeCkKveYr9HsSzerjqsrlzkO0aHj8jsizEi9/A9c=
+        b=ifqvi3Te3cGp3CQx6+NZ1Oao+aiG4jhHPvNmy7U44XpeLQIZnmRkgSbuKc1Wg7AW6
+         IBProP9Uc5CWOe9o+CEz98Pq3P0eYcxnrzzle1AH0Ec8maYyDuVtB5a0NH7ASMLV7/
+         ubcu2u7QzaIF+hIk3iPE41blr57xEyU2Jkoy11I0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        stable@vger.kernel.org,
+        syzbot+bb25f85e5aa482864dc0@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Tommaso Merciai <tommaso.merciai@amarulasolution.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 485/862] media: exynos4-is: fimc-is: Add of_node_put() when breaking out of loop
-Date:   Wed, 19 Oct 2022 10:29:32 +0200
-Message-Id: <20221019083311.396519600@linuxfoundation.org>
+Subject: [PATCH 6.0 486/862] media: airspy: fix memory leak in airspy probe
+Date:   Wed, 19 Oct 2022 10:29:33 +0200
+Message-Id: <20221019083311.448540730@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,35 +57,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 211f8304fa21aaedc2c247f0c9d6c7f1aaa61ad7 ]
+[ Upstream commit 23bc5eb55f8c9607965c20d9ddcc13cb1ae59568 ]
 
-In fimc_is_register_subdevs(), we need to call of_node_put() for
-the reference 'i2c_bus' when breaking out of the
-for_each_compatible_node() which has increased the refcount.
+The commit ca9dc8d06ab6 ("media: airspy: respect the DMA coherency
+ rules") moves variable buf from stack to heap, however, it only frees
+buf in the error handling code, missing deallocation in the success
+path.
 
-Fixes: 9a761e436843 ("[media] exynos4-is: Add Exynos4x12 FIMC-IS driver")
-Signed-off-by: Liang He <windhl@126.com>
+Fix this by freeing buf in the success path since this variable does not
+have any references in other code.
+
+Fixes: ca9dc8d06ab6 ("media: airspy: respect the DMA coherency rules")
+Reported-by: syzbot+bb25f85e5aa482864dc0@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Reviewed-by: Tommaso Merciai <tommaso.merciai@amarulasolution.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/samsung/exynos4-is/fimc-is.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/airspy/airspy.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/platform/samsung/exynos4-is/fimc-is.c b/drivers/media/platform/samsung/exynos4-is/fimc-is.c
-index e3072d69c49f..a7704ff069d6 100644
---- a/drivers/media/platform/samsung/exynos4-is/fimc-is.c
-+++ b/drivers/media/platform/samsung/exynos4-is/fimc-is.c
-@@ -213,6 +213,7 @@ static int fimc_is_register_subdevs(struct fimc_is *is)
- 
- 			if (ret < 0 || index >= FIMC_IS_SENSORS_NUM) {
- 				of_node_put(child);
-+				of_node_put(i2c_bus);
- 				return ret;
- 			}
- 			index++;
+diff --git a/drivers/media/usb/airspy/airspy.c b/drivers/media/usb/airspy/airspy.c
+index 240a7cc56777..7b1c40132555 100644
+--- a/drivers/media/usb/airspy/airspy.c
++++ b/drivers/media/usb/airspy/airspy.c
+@@ -1070,6 +1070,10 @@ static int airspy_probe(struct usb_interface *intf,
+ 				ret);
+ 		goto err_free_controls;
+ 	}
++
++	/* Free buf if success*/
++	kfree(buf);
++
+ 	dev_info(s->dev, "Registered as %s\n",
+ 			video_device_node_name(&s->vdev));
+ 	dev_notice(s->dev, "SDR API is still slightly experimental and functionality changes may follow\n");
 -- 
 2.35.1
 
