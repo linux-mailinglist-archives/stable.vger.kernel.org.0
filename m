@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 029F66041B4
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:47:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1595D604382
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:41:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233862AbiJSKrq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:47:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53730 "EHLO
+        id S230415AbiJSLko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 07:40:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232308AbiJSKqe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:46:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A44CDD887;
-        Wed, 19 Oct 2022 03:21:31 -0700 (PDT)
+        with ESMTP id S231518AbiJSLkA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:40:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1217618F908;
+        Wed, 19 Oct 2022 04:18:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9F3BB8244D;
-        Wed, 19 Oct 2022 09:00:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23F58C433D6;
-        Wed, 19 Oct 2022 09:00:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 495BB61805;
+        Wed, 19 Oct 2022 09:00:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59B96C433D6;
+        Wed, 19 Oct 2022 09:00:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170035;
-        bh=K97j+I7L9AaRvIOBnMiDgOiubOBBSINEGKUsqgcayO4=;
+        s=korg; t=1666170040;
+        bh=vcaLK0lvNkR+XV77RCpMih3ZdGG56S+uibkBqrOTXyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D6ePb1g2+4lEMC8gQt5NON75X8E7AJO7DpIVeUff/TOuRF2f9lg7GM7LKI0KjtT7E
-         beM2pUaer7aCW0E+t0SqucA/4mwsGpmMYHAViV8o86lyE8e0FSH0S9C1ucI8acd1+5
-         U0aGbcek5xwS2I08unJZRsPdemuVZurFMnZwUXbE=
+        b=WLP9JvLF4ESpMGQcJqB2WAVqZHcRLdhIi6tDunJNA3DBxkeEHz/aTZxqNRXWu0G2I
+         dvJLeSaWNPoBV2YfmKuk8MJ+gz+eP8zaVP3QvzFIrpo3/YdoiRafuAc5Oj5CtUXedA
+         6v1MEIo+l+gDUoi9Rvsg7G5KN2AJU/5e9vgRSCAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        Matthew Gerlach <matthew.gerlach@linux.intel.com>,
+        Tianfei Zhang <tianfei.zhang@intel.com>,
+        Marco Pagani <marpagan@redhat.com>, Tom Rix <trix@redhat.com>,
+        Wu Hao <hao.wu@intel.com>, Xu Yilun <yilun.xu@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 502/862] clk: mediatek: mt8195-infra_ao: Set pwrmcu clocks as critical
-Date:   Wed, 19 Oct 2022 10:29:49 +0200
-Message-Id: <20221019083312.178174715@linuxfoundation.org>
+Subject: [PATCH 6.0 504/862] fpga: dfl-pci: Add IDs for Intel N6000, N6001 and C6100 cards
+Date:   Wed, 19 Oct 2022 10:29:51 +0200
+Message-Id: <20221019083312.264626205@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -47,74 +47,76 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75 autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Matthew Gerlach <matthew.gerlach@linux.intel.com>
 
-[ Upstream commit 3f10f49cd9f8ab6471639d4ca2c6db9451121779 ]
+[ Upstream commit 65f5c01033ab85f8d385d65c4b51fe31459da603 ]
 
-The pwrmcu is responsible for power management and idle states in SSPM:
-on older SoCs this was managed in Linux drivers like sspm/mcupm/eemgpu
-but, at least on MT8195, this functionality was transferred to the ATF
-firmware.
-For this reason, turning off the pwrmcu related clocks from the kernel
-will lead to unability to resume the platform after suspend and other
-currently unknown PM related side-effects.
+Add pci_dev_table entries supporting the Intel N6000, N6001
+and C6100 cards to the dfl-pci driver.
 
-Set the PWRMCU and PWRMCU_BUS_H clocks as critical to prevent the
-kernel from turning them off, fixing the aforementioned issue.
-
-Fixes: e2edf59dec0b ("clk: mediatek: Add MT8195 infrastructure clock support")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220719093316.37253-1-angelogioacchino.delregno@collabora.com
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Matthew Gerlach <matthew.gerlach@linux.intel.com>
+Signed-off-by: Tianfei Zhang <tianfei.zhang@intel.com>
+Tested-by: Marco Pagani <marpagan@redhat.com>
+Reviewed-by: Tom Rix <trix@redhat.com>
+Acked-by: Wu Hao <hao.wu@intel.com>
+Acked-by: Xu Yilun <yilun.xu@intel.com>
+Link: https://lore.kernel.org/r/20220719145644.242481-1-matthew.gerlach@linux.intel.com
+Signed-off-by: Xu Yilun <yilun.xu@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/mediatek/clk-mt8195-infra_ao.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/fpga/dfl-pci.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/clk/mediatek/clk-mt8195-infra_ao.c b/drivers/clk/mediatek/clk-mt8195-infra_ao.c
-index 97657f255618..832160c92996 100644
---- a/drivers/clk/mediatek/clk-mt8195-infra_ao.c
-+++ b/drivers/clk/mediatek/clk-mt8195-infra_ao.c
-@@ -55,8 +55,12 @@ static const struct mtk_gate_regs infra_ao4_cg_regs = {
- #define GATE_INFRA_AO1(_id, _name, _parent, _shift)	\
- 	GATE_INFRA_AO1_FLAGS(_id, _name, _parent, _shift, 0)
+--- a/drivers/fpga/dfl-pci.c
++++ b/drivers/fpga/dfl-pci.c
+@@ -77,12 +77,18 @@ static void cci_pci_free_irq(struct pci_
+ #define PCIE_DEVICE_ID_INTEL_PAC_D5005		0x0B2B
+ #define PCIE_DEVICE_ID_SILICOM_PAC_N5010	0x1000
+ #define PCIE_DEVICE_ID_SILICOM_PAC_N5011	0x1001
++#define PCIE_DEVICE_ID_INTEL_DFL		0xbcce
++/* PCI Subdevice ID for PCIE_DEVICE_ID_INTEL_DFL */
++#define PCIE_SUBDEVICE_ID_INTEL_N6000		0x1770
++#define PCIE_SUBDEVICE_ID_INTEL_N6001		0x1771
++#define PCIE_SUBDEVICE_ID_INTEL_C6100		0x17d4
  
-+#define GATE_INFRA_AO2_FLAGS(_id, _name, _parent, _shift, _flag)	\
-+	GATE_MTK_FLAGS(_id, _name, _parent, &infra_ao2_cg_regs, _shift,	\
-+		       &mtk_clk_gate_ops_setclr, _flag)
-+
- #define GATE_INFRA_AO2(_id, _name, _parent, _shift)			\
--	GATE_MTK(_id, _name, _parent, &infra_ao2_cg_regs, _shift, &mtk_clk_gate_ops_setclr)
-+	GATE_INFRA_AO2_FLAGS(_id, _name, _parent, _shift, 0)
+ /* VF Device */
+ #define PCIE_DEVICE_ID_VF_INT_5_X		0xBCBF
+ #define PCIE_DEVICE_ID_VF_INT_6_X		0xBCC1
+ #define PCIE_DEVICE_ID_VF_DSC_1_X		0x09C5
+ #define PCIE_DEVICE_ID_INTEL_PAC_D5005_VF	0x0B2C
++#define PCIE_DEVICE_ID_INTEL_DFL_VF		0xbccf
  
- #define GATE_INFRA_AO3_FLAGS(_id, _name, _parent, _shift, _flag)		\
- 	GATE_MTK_FLAGS(_id, _name, _parent, &infra_ao3_cg_regs, _shift,	\
-@@ -136,8 +140,11 @@ static const struct mtk_gate infra_ao_clks[] = {
- 	GATE_INFRA_AO2(CLK_INFRA_AO_UNIPRO_SYS, "infra_ao_unipro_sys", "top_ufs", 11),
- 	GATE_INFRA_AO2(CLK_INFRA_AO_UNIPRO_TICK, "infra_ao_unipro_tick", "top_ufs_tick1us", 12),
- 	GATE_INFRA_AO2(CLK_INFRA_AO_UFS_MP_SAP_B, "infra_ao_ufs_mp_sap_b", "top_ufs_mp_sap_cfg", 13),
--	GATE_INFRA_AO2(CLK_INFRA_AO_PWRMCU, "infra_ao_pwrmcu", "top_pwrmcu", 15),
--	GATE_INFRA_AO2(CLK_INFRA_AO_PWRMCU_BUS_H, "infra_ao_pwrmcu_bus_h", "top_axi", 17),
-+	/* pwrmcu is used by ATF for platform PM: clocks must never be disabled by the kernel */
-+	GATE_INFRA_AO2_FLAGS(CLK_INFRA_AO_PWRMCU, "infra_ao_pwrmcu", "top_pwrmcu", 15,
-+			     CLK_IS_CRITICAL),
-+	GATE_INFRA_AO2_FLAGS(CLK_INFRA_AO_PWRMCU_BUS_H, "infra_ao_pwrmcu_bus_h", "top_axi", 17,
-+			     CLK_IS_CRITICAL),
- 	GATE_INFRA_AO2(CLK_INFRA_AO_APDMA_B, "infra_ao_apdma_b", "top_axi", 18),
- 	GATE_INFRA_AO2(CLK_INFRA_AO_SPI4, "infra_ao_spi4", "top_spi", 25),
- 	GATE_INFRA_AO2(CLK_INFRA_AO_SPI5, "infra_ao_spi5", "top_spi", 26),
--- 
-2.35.1
-
+ static struct pci_device_id cci_pcie_id_tbl[] = {
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCIE_DEVICE_ID_PF_INT_5_X),},
+@@ -96,6 +102,18 @@ static struct pci_device_id cci_pcie_id_
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCIE_DEVICE_ID_INTEL_PAC_D5005_VF),},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_SILICOM_DENMARK, PCIE_DEVICE_ID_SILICOM_PAC_N5010),},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_SILICOM_DENMARK, PCIE_DEVICE_ID_SILICOM_PAC_N5011),},
++	{PCI_DEVICE_SUB(PCI_VENDOR_ID_INTEL, PCIE_DEVICE_ID_INTEL_DFL,
++			PCI_VENDOR_ID_INTEL, PCIE_SUBDEVICE_ID_INTEL_N6000),},
++	{PCI_DEVICE_SUB(PCI_VENDOR_ID_INTEL, PCIE_DEVICE_ID_INTEL_DFL_VF,
++			PCI_VENDOR_ID_INTEL, PCIE_SUBDEVICE_ID_INTEL_N6000),},
++	{PCI_DEVICE_SUB(PCI_VENDOR_ID_INTEL, PCIE_DEVICE_ID_INTEL_DFL,
++			PCI_VENDOR_ID_INTEL, PCIE_SUBDEVICE_ID_INTEL_N6001),},
++	{PCI_DEVICE_SUB(PCI_VENDOR_ID_INTEL, PCIE_DEVICE_ID_INTEL_DFL_VF,
++			PCI_VENDOR_ID_INTEL, PCIE_SUBDEVICE_ID_INTEL_N6001),},
++	{PCI_DEVICE_SUB(PCI_VENDOR_ID_INTEL, PCIE_DEVICE_ID_INTEL_DFL,
++			PCI_VENDOR_ID_INTEL, PCIE_SUBDEVICE_ID_INTEL_C6100),},
++	{PCI_DEVICE_SUB(PCI_VENDOR_ID_INTEL, PCIE_DEVICE_ID_INTEL_DFL_VF,
++			PCI_VENDOR_ID_INTEL, PCIE_SUBDEVICE_ID_INTEL_C6100),},
+ 	{0,}
+ };
+ MODULE_DEVICE_TABLE(pci, cci_pcie_id_tbl);
 
 
