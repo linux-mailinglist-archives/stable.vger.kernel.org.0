@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7AF3603CAC
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:51:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65ED9603EDC
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231499AbiJSIus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:50:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33734 "EHLO
+        id S233199AbiJSJWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:22:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231888AbiJSItt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:49:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1CBC89CFB;
-        Wed, 19 Oct 2022 01:48:01 -0700 (PDT)
+        with ESMTP id S233230AbiJSJUT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:20:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C4F51B9C8;
+        Wed, 19 Oct 2022 02:09:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 73C2C61805;
-        Wed, 19 Oct 2022 08:44:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73C99C433D6;
-        Wed, 19 Oct 2022 08:44:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54C6B61803;
+        Wed, 19 Oct 2022 08:44:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43EE1C433D6;
+        Wed, 19 Oct 2022 08:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169069;
-        bh=H2f0utUE260eE+Vd88zICS6WI0lF7gGGbPGRjwWNoew=;
+        s=korg; t=1666169078;
+        bh=muXk5+zb//UYPKqFzeIirwUDgkQcWmRmo0xZyDuWdZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kc/ZFTGTfghIZgblZew14UZ6RyuxX/LvsPhRg2U7V0BbV8qcVSIVYc2VvkG2GjMhk
-         +5D9DmGsgwNLxpeneZaTW1pxMLgWiZbHFK1E6br2eQk1TnN9brgkUVts4lbFlM9YD3
-         ykqfldsQUAD6Y99yYFekQDPEhHpO8kKTM4dCpJZ4=
+        b=pX1e9vLYAhCTExT6L00cCq5cXAtIRmrHzoi/Mj2m85Ames4X23+gGcmaamvCJ+L/w
+         YHIPSAffp4ExNj7gwvag8Z6snyYSCkhFfs4RAm44mtqz6mTvWwPfz8x7/qYZfTHWYP
+         CHvgaaLYdhbMCpto/R0Mmn02ct2WPOt4Ik4Ptfgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.0 147/862] ext4: fix potential memory leak in ext4_fc_record_regions()
-Date:   Wed, 19 Oct 2022 10:23:54 +0200
-Message-Id: <20221019083256.486598993@linuxfoundation.org>
+        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
+        Breno Leitao <leitao@debian.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>, stable@kernel.org
+Subject: [PATCH 6.0 149/862] livepatch: fix race between fork and KLP transition
+Date:   Wed, 19 Oct 2022 10:23:56 +0200
+Message-Id: <20221019083256.575534522@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,49 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Rik van Riel <riel@surriel.com>
 
-commit 7069d105c1f15c442b68af43f7fde784f3126739 upstream.
+commit 747f7a2901174c9afa805dddfb7b24db6f65e985 upstream.
 
-As krealloc may return NULL, in this case 'state->fc_regions' may not be
-freed by krealloc, but 'state->fc_regions' already set NULL. Then will
-lead to 'state->fc_regions' memory leak.
+The KLP transition code depends on the TIF_PATCH_PENDING and
+the task->patch_state to stay in sync. On a normal (forward)
+transition, TIF_PATCH_PENDING will be set on every task in
+the system, while on a reverse transition (after a failed
+forward one) first TIF_PATCH_PENDING will be cleared from
+every task, followed by it being set on tasks that need to
+be transitioned back to the original code.
 
+However, the fork code copies over the TIF_PATCH_PENDING flag
+from the parent to the child early on, in dup_task_struct and
+setup_thread_stack. Much later, klp_copy_process will set
+child->patch_state to match that of the parent.
+
+However, the parent's patch_state may have been changed by KLP loading
+or unloading since it was initially copied over into the child.
+
+This results in the KLP code occasionally hitting this warning in
+klp_complete_transition:
+
+        for_each_process_thread(g, task) {
+                WARN_ON_ONCE(test_tsk_thread_flag(task, TIF_PATCH_PENDING));
+                task->patch_state = KLP_UNDEFINED;
+        }
+
+Set, or clear, the TIF_PATCH_PENDING flag in the child task
+depending on whether or not it is needed at the time
+klp_copy_process is called, at a point in copy_process where the
+tasklist_lock is held exclusively, preventing races with the KLP
+code.
+
+The KLP code does have a few places where the state is changed
+without the tasklist_lock held, but those should not cause
+problems because klp_update_patch_state(current) cannot be
+called while the current task is in the middle of fork,
+klp_check_and_switch_task() which is called under the pi_lock,
+which prevents rescheduling, and manipulation of the patch
+state of idle tasks, which do not fork.
+
+This should prevent this warning from triggering again in the
+future, and close the race for both normal and reverse transitions.
+
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reported-by: Breno Leitao <leitao@debian.org>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Fixes: d83a7cb375ee ("livepatch: change to a per-task consistency model")
 Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220921064040.3693255-3-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20220808150019.03d6a67b@imladris.surriel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ kernel/livepatch/transition.c |   18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -1687,15 +1687,17 @@ int ext4_fc_record_regions(struct super_
- 	if (replay && state->fc_regions_used != state->fc_regions_valid)
- 		state->fc_regions_used = state->fc_regions_valid;
- 	if (state->fc_regions_used == state->fc_regions_size) {
-+		struct ext4_fc_alloc_region *fc_regions;
+--- a/kernel/livepatch/transition.c
++++ b/kernel/livepatch/transition.c
+@@ -610,9 +610,23 @@ void klp_reverse_transition(void)
+ /* Called from copy_process() during fork */
+ void klp_copy_process(struct task_struct *child)
+ {
+-	child->patch_state = current->patch_state;
+ 
+-	/* TIF_PATCH_PENDING gets copied in setup_thread_stack() */
++	/*
++	 * The parent process may have gone through a KLP transition since
++	 * the thread flag was copied in setup_thread_stack earlier. Bring
++	 * the task flag up to date with the parent here.
++	 *
++	 * The operation is serialized against all klp_*_transition()
++	 * operations by the tasklist_lock. The only exception is
++	 * klp_update_patch_state(current), but we cannot race with
++	 * that because we are current.
++	 */
++	if (test_tsk_thread_flag(current, TIF_PATCH_PENDING))
++		set_tsk_thread_flag(child, TIF_PATCH_PENDING);
++	else
++		clear_tsk_thread_flag(child, TIF_PATCH_PENDING);
 +
- 		state->fc_regions_size +=
- 			EXT4_FC_REPLAY_REALLOC_INCREMENT;
--		state->fc_regions = krealloc(
--					state->fc_regions,
--					state->fc_regions_size *
--					sizeof(struct ext4_fc_alloc_region),
--					GFP_KERNEL);
--		if (!state->fc_regions)
-+		fc_regions = krealloc(state->fc_regions,
-+				      state->fc_regions_size *
-+				      sizeof(struct ext4_fc_alloc_region),
-+				      GFP_KERNEL);
-+		if (!fc_regions)
- 			return -ENOMEM;
-+		state->fc_regions = fc_regions;
- 	}
- 	region = &state->fc_regions[state->fc_regions_used++];
- 	region->ino = ino;
++	child->patch_state = current->patch_state;
+ }
+ 
+ /*
 
 
