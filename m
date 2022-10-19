@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EC8460400C
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:42:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EBF5604026
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233937AbiJSJmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:42:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33702 "EHLO
+        id S234322AbiJSJnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:43:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234363AbiJSJkN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:40:13 -0400
+        with ESMTP id S235118AbiJSJmP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:42:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B6BFCF87C;
-        Wed, 19 Oct 2022 02:16:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C8BCD73F0;
+        Wed, 19 Oct 2022 02:19:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD3E761800;
-        Wed, 19 Oct 2022 09:15:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCC92C433D6;
-        Wed, 19 Oct 2022 09:15:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF0B7617FB;
+        Wed, 19 Oct 2022 09:15:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13464C433C1;
+        Wed, 19 Oct 2022 09:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170911;
-        bh=GmRUeDbFgkpqIs8eExCjyoabv5cVnd0mR8YC0z3X1xw=;
+        s=korg; t=1666170916;
+        bh=Wn3oSxO3heTPfc3NTmNAvwL+9w/ee0D9B9DE8PlDHrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ejAue5POvMRwis+kv4YijXWlaSBWyeCytmGtNZUueeClKpnn+/D9reqxG8kh/UClT
-         5+ykOoLymFkmBPw37ZdQL3i39I06Hw7sui122Z3COZ7PaFR7qfXgXLfpV+QIcVhzem
-         1U5NaqsoElirOqtmEvl1pnzU3W1TX1zu+WdwOSEA=
+        b=BvCILIrPnb7zHIYGP+v/Ktt27NvAoudo9I76oee7foDhDrJAPVVBavazlgg4HiM1d
+         TADpQ+SZ8pKaWqNk3DH1AXmnZrdhk8w2UBu6fZ3Ro0OppEi0TXafGrD7cIt5lbHbVm
+         cf42O33UQdHodtkKOcSW3Z69AfqLbKKeq7F3BF5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 834/862] fsi: occ: Prevent use after free
-Date:   Wed, 19 Oct 2022 10:35:21 +0200
-Message-Id: <20221019083326.738514785@linuxfoundation.org>
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>, Joel Stanley <joel@jms.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 835/862] fsi: master-ast-cf: Fix missing of_node_put in fsi_master_acf_probe
+Date:   Wed, 19 Oct 2022 10:35:22 +0200
+Message-Id: <20221019083326.777737679@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,82 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit d3e1e24604031b0d83b6c2d38f54eeea265cfcc0 ]
+[ Upstream commit 182d98e00e4745fe253cb0c24c63bbac253464a2 ]
 
-Use get_device and put_device in the open and close functions to
-make sure the device doesn't get freed while a file descriptor is
-open.
-Also, lock around the freeing of the device buffer and check the
-buffer before using it in the submit function.
+of_parse_phandle returns node pointer with refcount incremented, use
+of_node_put() on it when done.
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220513194424.53468-1-eajames@linux.ibm.com
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Link: https://lore.kernel.org/r/20220407085911.2491719-1-lv.ruyi@zte.com.cn
 Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-occ.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/fsi/fsi-master-ast-cf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/fsi/fsi-occ.c b/drivers/fsi/fsi-occ.c
-index c9cc75fbdfb9..28c176d038a2 100644
---- a/drivers/fsi/fsi-occ.c
-+++ b/drivers/fsi/fsi-occ.c
-@@ -94,6 +94,7 @@ static int occ_open(struct inode *inode, struct file *file)
- 	client->occ = occ;
- 	mutex_init(&client->lock);
- 	file->private_data = client;
-+	get_device(occ->dev);
- 
- 	/* We allocate a 1-page buffer, make sure it all fits */
- 	BUILD_BUG_ON((OCC_CMD_DATA_BYTES + 3) > PAGE_SIZE);
-@@ -197,6 +198,7 @@ static int occ_release(struct inode *inode, struct file *file)
- {
- 	struct occ_client *client = file->private_data;
- 
-+	put_device(client->occ->dev);
- 	free_page((unsigned long)client->buffer);
- 	kfree(client);
- 
-@@ -493,12 +495,19 @@ int fsi_occ_submit(struct device *dev, const void *request, size_t req_len,
- 	for (i = 1; i < req_len - 2; ++i)
- 		checksum += byte_request[i];
- 
--	mutex_lock(&occ->occ_lock);
-+	rc = mutex_lock_interruptible(&occ->occ_lock);
-+	if (rc)
-+		return rc;
- 
- 	occ->client_buffer = response;
- 	occ->client_buffer_size = user_resp_len;
- 	occ->client_response_size = 0;
- 
-+	if (!occ->buffer) {
-+		rc = -ENOENT;
-+		goto done;
-+	}
-+
- 	/*
- 	 * Get a sequence number and update the counter. Avoid a sequence
- 	 * number of 0 which would pass the response check below even if the
-@@ -671,10 +680,13 @@ static int occ_remove(struct platform_device *pdev)
- {
- 	struct occ *occ = platform_get_drvdata(pdev);
- 
--	kvfree(occ->buffer);
--
- 	misc_deregister(&occ->mdev);
- 
-+	mutex_lock(&occ->occ_lock);
-+	kvfree(occ->buffer);
-+	occ->buffer = NULL;
-+	mutex_unlock(&occ->occ_lock);
-+
- 	device_for_each_child(&pdev->dev, NULL, occ_unregister_child);
- 
- 	ida_simple_remove(&occ_ida, occ->idx);
+diff --git a/drivers/fsi/fsi-master-ast-cf.c b/drivers/fsi/fsi-master-ast-cf.c
+index 24292acdbaf8..5f608ef8b53c 100644
+--- a/drivers/fsi/fsi-master-ast-cf.c
++++ b/drivers/fsi/fsi-master-ast-cf.c
+@@ -1324,12 +1324,14 @@ static int fsi_master_acf_probe(struct platform_device *pdev)
+ 		}
+ 		master->cvic = devm_of_iomap(&pdev->dev, np, 0, NULL);
+ 		if (IS_ERR(master->cvic)) {
++			of_node_put(np);
+ 			rc = PTR_ERR(master->cvic);
+ 			dev_err(&pdev->dev, "Error %d mapping CVIC\n", rc);
+ 			goto err_free;
+ 		}
+ 		rc = of_property_read_u32(np, "copro-sw-interrupts",
+ 					  &master->cvic_sw_irq);
++		of_node_put(np);
+ 		if (rc) {
+ 			dev_err(&pdev->dev, "Can't find coprocessor SW interrupt\n");
+ 			goto err_free;
 -- 
 2.35.1
 
