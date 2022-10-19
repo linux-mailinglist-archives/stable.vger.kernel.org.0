@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81C9B60400A
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:42:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00460604033
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233853AbiJSJmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:42:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33510 "EHLO
+        id S233982AbiJSJmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:42:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234348AbiJSJkK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:40:10 -0400
+        with ESMTP id S234377AbiJSJkS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:40:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56DBBEEAA9;
-        Wed, 19 Oct 2022 02:16:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84748E8C49;
+        Wed, 19 Oct 2022 02:16:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B713617EC;
-        Wed, 19 Oct 2022 09:14:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EC5CC433D6;
-        Wed, 19 Oct 2022 09:14:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C5D7617F4;
+        Wed, 19 Oct 2022 09:15:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 298F7C433C1;
+        Wed, 19 Oct 2022 09:15:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170898;
-        bh=5qt8H4mypo9d3J9EVjpniftXE2g7dQ0BL2h2ZP4cgy0=;
+        s=korg; t=1666170900;
+        bh=dwDcdLbwsITSd0znTm2jm+ojffy7JRp4bA5tasq8cI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HMgcIrRGdTULaoW/ZNmkf9oAJ6XbOb5uXiJRDHd+mI3wevSn1TZllVrN0g4E4LHaZ
-         RKnHEmhjwH1WslLluKpikppMboNtAa/fKBeKTZKuDOXwdY81XXtcU093jPqvB70SoE
-         ks1OtwLgztiWJh8UHf10gABcITPEZZplmfZdjXx8=
+        b=aOhI13vOZ4rtf3CTUG8ErM3fBuZSFIcxLAIwWag2rAmIPMw89BE3ujxF2aHbE0GjF
+         5OGMGhf1pvBCgS/PS5fAYmKYLZaL8H0I83T7wjkAXX4Q/ry2Cu/2FgIeSXOqs4nQ5e
+         uL0dMc4hXw0pAV1V8t02j5RXUygh0ctPSXCc5vIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Lien <jeff.lien@wdc.com>,
-        Keith Busch <kbusch@kernel.org>,
+        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
         Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Chao Leng <lengchao@huawei.com>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 829/862] nvme: copy firmware_rev on each init
-Date:   Wed, 19 Oct 2022 10:35:16 +0200
-Message-Id: <20221019083326.533671790@linuxfoundation.org>
+Subject: [PATCH 6.0 830/862] nvmet-tcp: add bounds check on Transfer Tag
+Date:   Wed, 19 Oct 2022 10:35:17 +0200
+Message-Id: <20221019083326.575072658@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -56,46 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Varun Prakash <varun@chelsio.com>
 
-[ Upstream commit a8eb6c1ba48bddea82e8d74cbe6e119f006be97d ]
+[ Upstream commit b6a545ffa2c192b1e6da4a7924edac5ba9f4ea2b ]
 
-The firmware revision can change on after a reset so copy the most
-recent info each time instead of just the first time, otherwise the
-sysfs firmware_rev entry may contain stale data.
+ttag is used as an index to get cmd in nvmet_tcp_handle_h2c_data_pdu(),
+add a bounds check to avoid out-of-bounds access.
 
-Reported-by: Jeff Lien <jeff.lien@wdc.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Varun Prakash <varun@chelsio.com>
 Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Chao Leng <lengchao@huawei.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nvme/target/tcp.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 7991d28e6a6a..59e4b188fc71 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -2889,7 +2889,6 @@ static int nvme_init_subsystem(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
- 	nvme_init_subnqn(subsys, ctrl, id);
- 	memcpy(subsys->serial, id->sn, sizeof(subsys->serial));
- 	memcpy(subsys->model, id->mn, sizeof(subsys->model));
--	memcpy(subsys->firmware_rev, id->fr, sizeof(subsys->firmware_rev));
- 	subsys->vendor_id = le16_to_cpu(id->vid);
- 	subsys->cmic = id->cmic;
+diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
+index a3694a32f6d5..7dcf88cde189 100644
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -935,10 +935,17 @@ static int nvmet_tcp_handle_h2c_data_pdu(struct nvmet_tcp_queue *queue)
+ 	struct nvme_tcp_data_pdu *data = &queue->pdu.data;
+ 	struct nvmet_tcp_cmd *cmd;
  
-@@ -3108,6 +3107,8 @@ static int nvme_init_identify(struct nvme_ctrl *ctrl)
- 				ctrl->quirks |= core_quirks[i].quirks;
- 		}
- 	}
-+	memcpy(ctrl->subsys->firmware_rev, id->fr,
-+	       sizeof(ctrl->subsys->firmware_rev));
+-	if (likely(queue->nr_cmds))
++	if (likely(queue->nr_cmds)) {
++		if (unlikely(data->ttag >= queue->nr_cmds)) {
++			pr_err("queue %d: received out of bound ttag %u, nr_cmds %u\n",
++				queue->idx, data->ttag, queue->nr_cmds);
++			nvmet_tcp_fatal_error(queue);
++			return -EPROTO;
++		}
+ 		cmd = &queue->cmds[data->ttag];
+-	else
++	} else {
+ 		cmd = &queue->connect;
++	}
  
- 	if (force_apst && (ctrl->quirks & NVME_QUIRK_NO_DEEPEST_PS)) {
- 		dev_warn(ctrl->device, "forcibly allowing all power states due to nvme_core.force_apst -- use at your own risk\n");
+ 	if (le32_to_cpu(data->data_offset) != cmd->rbytes_done) {
+ 		pr_err("ttag %u unexpected data offset %u (expected %u)\n",
 -- 
 2.35.1
 
