@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFB29604748
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:36:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE74C60472C
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:33:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230142AbiJSNgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:36:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57002 "EHLO
+        id S231439AbiJSNdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:33:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232220AbiJSNgN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:36:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C81865A5;
-        Wed, 19 Oct 2022 06:25:06 -0700 (PDT)
+        with ESMTP id S231440AbiJSNdb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:33:31 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CFF318DAAA;
+        Wed, 19 Oct 2022 06:21:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3FA1EB82478;
-        Wed, 19 Oct 2022 09:05:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0387C433D6;
-        Wed, 19 Oct 2022 09:05:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 452FDCE2180;
+        Wed, 19 Oct 2022 09:06:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43972C433D7;
+        Wed, 19 Oct 2022 09:06:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170354;
-        bh=oN1q5+EkQodGSpeSvWON/bvXRv29YUR6xT4ss1Sevw4=;
+        s=korg; t=1666170382;
+        bh=cWRamBsDNvVDBJ3mqQVRbJszxwtXNpzWGuAkpTyTjgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RZuaasvp38/ChNUy+M6JPlfJ+CQSshkiptKOlBXt++ZBljZKfqsZtJhsRXMd99Qjf
-         jqddsDM5WlMI3rE4STz9QDgp1ZIahGf+VRzXGGGPtfGzBkNFXWR2/XGXcYSZtjqMm7
-         p5r+7WGcZN1JtRoxutK4iLb/EuKoY0rUgoQKWhWw=
+        b=FPpydNgLf5yW54q/TgUcDrQ2uf7W5FiSxkNDEe0L/7jRs17ZqgC60VZUx3a1lUHxt
+         Fl9iznih5SC5e/4SudnyMtwz7+atdMlEJ/eklAhe3vrD3JmP6ykFHzmXlhGi72657h
+         Z8ud8QQqh2D05VutxGkMFIxsB1eTTPToQxW9mUb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Haren Myneni <haren@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 623/862] powerpc/pseries/vas: Pass hw_cpu_id to node associativity HCALL
-Date:   Wed, 19 Oct 2022 10:31:50 +0200
-Message-Id: <20221019083317.464743711@linuxfoundation.org>
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 633/862] cgroup/cpuset: Enable update_tasks_cpumask() on top_cpuset
+Date:   Wed, 19 Oct 2022 10:32:00 +0200
+Message-Id: <20221019083317.900394427@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,48 +52,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haren Myneni <haren@linux.ibm.com>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit f3e5d9e53e74d77e711a2c90a91a8b0836a9e0b3 ]
+[ Upstream commit ec5fbdfb99d18482619ac42605cb80fbb56068ee ]
 
-Generally the hypervisor decides to allocate a window on different
-VAS instances. But if user space wishes to allocate on the current VAS
-instance where the process is executing, the kernel has to pass
-associativity domain IDs to allocate VAS window HCALL.
+Previously, update_tasks_cpumask() is not supposed to be called with
+top cpuset. With cpuset partition that takes CPUs away from the top
+cpuset, adjusting the cpus_mask of the tasks in the top cpuset is
+necessary. Percpu kthreads, however, are ignored.
 
-To determine the associativity domain IDs for the current CPU,
-smp_processor_id() is passed to node associativity HCALL which may
-return H_P2 (-55) error during DLPAR CPU event. This is because Linux
-CPU numbers (smp_processor_id()) are not the same as the hypervisor's
-view of CPU numbers.
-
-Fix the issue by passing hard_smp_processor_id() with
-VPHN_FLAG_VCPU flag (PAPR 14.11.6.1 H_HOME_NODE_ASSOCIATIVITY).
-
-Fixes: b22f2d88e435 ("powerpc/pseries/vas: Integrate API with open/close windows")
-Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Haren Myneni <haren@linux.ibm.com>
-[mpe: Update change log to mention Linux vs HV CPU numbers]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/55380253ea0c11341824cd4c0fc6bbcfc5752689.camel@linux.ibm.com
+Fixes: ee8dde0cd2ce ("cpuset: Add new v2 cpuset.sched.partition flag")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/vas.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cgroup/cpuset.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/vas.c b/arch/powerpc/platforms/pseries/vas.c
-index 7e6e6dd2e33e..1a2cbc156e8f 100644
---- a/arch/powerpc/platforms/pseries/vas.c
-+++ b/arch/powerpc/platforms/pseries/vas.c
-@@ -333,7 +333,7 @@ static struct vas_window *vas_allocate_window(int vas_id, u64 flags,
- 		 * So no unpacking needs to be done.
- 		 */
- 		rc = plpar_hcall9(H_HOME_NODE_ASSOCIATIVITY, domain,
--				  VPHN_FLAG_VCPU, smp_processor_id());
-+				  VPHN_FLAG_VCPU, hard_smp_processor_id());
- 		if (rc != H_SUCCESS) {
- 			pr_err("H_HOME_NODE_ASSOCIATIVITY error: %d\n", rc);
- 			goto out;
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 1f3a55297f39..50bf837571ac 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -33,6 +33,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+ #include <linux/kmod.h>
++#include <linux/kthread.h>
+ #include <linux/list.h>
+ #include <linux/mempolicy.h>
+ #include <linux/mm.h>
+@@ -1127,10 +1128,18 @@ static void update_tasks_cpumask(struct cpuset *cs)
+ {
+ 	struct css_task_iter it;
+ 	struct task_struct *task;
++	bool top_cs = cs == &top_cpuset;
+ 
+ 	css_task_iter_start(&cs->css, 0, &it);
+-	while ((task = css_task_iter_next(&it)))
++	while ((task = css_task_iter_next(&it))) {
++		/*
++		 * Percpu kthreads in top_cpuset are ignored
++		 */
++		if (top_cs && (task->flags & PF_KTHREAD) &&
++		    kthread_is_per_cpu(task))
++			continue;
+ 		set_cpus_allowed_ptr(task, cs->effective_cpus);
++	}
+ 	css_task_iter_end(&it);
+ }
+ 
+@@ -2092,12 +2101,7 @@ static int update_prstate(struct cpuset *cs, int new_prs)
+ 		update_flag(CS_CPU_EXCLUSIVE, cs, 0);
+ 	}
+ 
+-	/*
+-	 * Update cpumask of parent's tasks except when it is the top
+-	 * cpuset as some system daemons cannot be mapped to other CPUs.
+-	 */
+-	if (parent != &top_cpuset)
+-		update_tasks_cpumask(parent);
++	update_tasks_cpumask(parent);
+ 
+ 	if (parent->child_ecpus_count)
+ 		update_sibling_cpumasks(parent, cs, &tmpmask);
 -- 
 2.35.1
 
