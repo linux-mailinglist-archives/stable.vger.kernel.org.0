@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8205260415F
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 008CF604132
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:40:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232622AbiJSKnj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:43:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37654 "EHLO
+        id S232213AbiJSKkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:40:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230493AbiJSKms (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:42:48 -0400
+        with ESMTP id S230429AbiJSKj2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:39:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C45451119D8;
-        Wed, 19 Oct 2022 03:20:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22AA36587;
+        Wed, 19 Oct 2022 03:18:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3EECB823AB;
-        Wed, 19 Oct 2022 08:52:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E312C433D6;
-        Wed, 19 Oct 2022 08:52:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E7E7B823B7;
+        Wed, 19 Oct 2022 08:53:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB032C433D7;
+        Wed, 19 Oct 2022 08:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169527;
-        bh=c6jaiSw5Oz8WJHTSZ7ux3MCbsJtx19rEilrmCIVTGds=;
+        s=korg; t=1666169606;
+        bh=TCo4by4CCbBMMGpHCxdYLBrGbgOCt+MtL6GXRYTS2bA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sDiYYdXa6j2m978GyW7JnJhNhCvVxy7+rPji8h0Crj5B54qAqP+D1m0DL/NzbIaVR
-         AvT9TRMDXwEuhcZNkT+70nn7B3ILCqtCH54HCCPUQboN/G36h2tMtgF9L84oTbUbtr
-         a3eUCTjfqFFITRnM3wldoqnSXaBONtCAzDE1rq4s=
+        b=Cvapa5nimW2xavZQR9eQ9IzMhCGWpb0WVRCR1/D5MEqoDtGlKtxePEWfyhBl+zWvi
+         7m4ly8fS+TSXELAel6phdSq/zcnoJu9oCvs5yMnJppQfnKdqj8MKGviQNf9Buy4fji
+         zOGxHWYWy7Hnzju5NeAlATdCjDgiaonDhvn0120A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pu Lehui <pulehui@huawei.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 303/862] bpftool: Fix wrong cgroup attach flags being assigned to effective progs
-Date:   Wed, 19 Oct 2022 10:26:30 +0200
-Message-Id: <20221019083303.389799738@linuxfoundation.org>
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Brian Norris <briannorris@chromium.org>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 306/862] mwifiex: fix sleep in atomic context bugs caused by dev_coredumpv
+Date:   Wed, 19 Oct 2022 10:26:33 +0200
+Message-Id: <20221019083303.537673194@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,174 +53,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pu Lehui <pulehui@huawei.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit bdcee1b0b0834d031c76a12209840afe949b048a ]
+[ Upstream commit 551e4745c7f218da7070b36a06318592913676ff ]
 
-When root-cgroup attach multi progs and sub-cgroup attach a override prog,
-bpftool will display incorrectly for the attach flags of the sub-cgroup’s
-effective progs:
+There are sleep in atomic context bugs when uploading device dump
+data in mwifiex. The root cause is that dev_coredumpv could not
+be used in atomic contexts, because it calls dev_set_name which
+include operations that may sleep. The call tree shows execution
+paths that could lead to bugs:
 
-$ bpftool cgroup tree /sys/fs/cgroup effective
-CgroupPath
-ID       AttachType      AttachFlags     Name
-/sys/fs/cgroup
-6        cgroup_sysctl   multi           sysctl_tcp_mem
-13       cgroup_sysctl   multi           sysctl_tcp_mem
-/sys/fs/cgroup/cg1
-20       cgroup_sysctl   override        sysctl_tcp_mem
-6        cgroup_sysctl   override        sysctl_tcp_mem <- wrong
-13       cgroup_sysctl   override        sysctl_tcp_mem <- wrong
-/sys/fs/cgroup/cg1/cg2
-20       cgroup_sysctl                   sysctl_tcp_mem
-6        cgroup_sysctl                   sysctl_tcp_mem
-13       cgroup_sysctl                   sysctl_tcp_mem
+   (Interrupt context)
+fw_dump_timer_fn
+  mwifiex_upload_device_dump
+    dev_coredumpv(..., GFP_KERNEL)
+      dev_coredumpm()
+        kzalloc(sizeof(*devcd), gfp); //may sleep
+        dev_set_name
+          kobject_set_name_vargs
+            kvasprintf_const(GFP_KERNEL, ...); //may sleep
+            kstrdup(s, GFP_KERNEL); //may sleep
 
-Attach flags is only valid for attached progs of this layer cgroup,
-but not for effective progs. For querying with EFFECTIVE flags,
-exporting attach flags does not make sense. So let's remove the
-AttachFlags field and the associated logic. After this patch, the
-above effective cgroup tree will show as bellow:
+The corresponding fail log is shown below:
 
-$ bpftool cgroup tree /sys/fs/cgroup effective
-CgroupPath
-ID       AttachType      Name
-/sys/fs/cgroup
-6        cgroup_sysctl   sysctl_tcp_mem
-13       cgroup_sysctl   sysctl_tcp_mem
-/sys/fs/cgroup/cg1
-20       cgroup_sysctl   sysctl_tcp_mem
-6        cgroup_sysctl   sysctl_tcp_mem
-13       cgroup_sysctl   sysctl_tcp_mem
-/sys/fs/cgroup/cg1/cg2
-20       cgroup_sysctl   sysctl_tcp_mem
-6        cgroup_sysctl   sysctl_tcp_mem
-13       cgroup_sysctl   sysctl_tcp_mem
+[  135.275938] usb 1-1: == mwifiex dump information to /sys/class/devcoredump start
+[  135.281029] BUG: sleeping function called from invalid context at include/linux/sched/mm.h:265
+...
+[  135.293613] Call Trace:
+[  135.293613]  <IRQ>
+[  135.293613]  dump_stack_lvl+0x57/0x7d
+[  135.293613]  __might_resched.cold+0x138/0x173
+[  135.293613]  ? dev_coredumpm+0xca/0x2e0
+[  135.293613]  kmem_cache_alloc_trace+0x189/0x1f0
+[  135.293613]  ? devcd_match_failing+0x30/0x30
+[  135.293613]  dev_coredumpm+0xca/0x2e0
+[  135.293613]  ? devcd_freev+0x10/0x10
+[  135.293613]  dev_coredumpv+0x1c/0x20
+[  135.293613]  ? devcd_match_failing+0x30/0x30
+[  135.293613]  mwifiex_upload_device_dump+0x65/0xb0
+[  135.293613]  ? mwifiex_dnld_fw+0x1b0/0x1b0
+[  135.293613]  call_timer_fn+0x122/0x3d0
+[  135.293613]  ? msleep_interruptible+0xb0/0xb0
+[  135.293613]  ? lock_downgrade+0x3c0/0x3c0
+[  135.293613]  ? __next_timer_interrupt+0x13c/0x160
+[  135.293613]  ? lockdep_hardirqs_on_prepare+0xe/0x220
+[  135.293613]  ? mwifiex_dnld_fw+0x1b0/0x1b0
+[  135.293613]  __run_timers.part.0+0x3f8/0x540
+[  135.293613]  ? call_timer_fn+0x3d0/0x3d0
+[  135.293613]  ? arch_restore_msi_irqs+0x10/0x10
+[  135.293613]  ? lapic_next_event+0x31/0x40
+[  135.293613]  run_timer_softirq+0x4f/0xb0
+[  135.293613]  __do_softirq+0x1c2/0x651
+...
+[  135.293613] RIP: 0010:default_idle+0xb/0x10
+[  135.293613] RSP: 0018:ffff888006317e68 EFLAGS: 00000246
+[  135.293613] RAX: ffffffff82ad8d10 RBX: ffff888006301cc0 RCX: ffffffff82ac90e1
+[  135.293613] RDX: ffffed100d9ff1b4 RSI: ffffffff831ad140 RDI: ffffffff82ad8f20
+[  135.293613] RBP: 0000000000000003 R08: 0000000000000000 R09: ffff88806cff8d9b
+[  135.293613] R10: ffffed100d9ff1b3 R11: 0000000000000001 R12: ffffffff84593410
+[  135.293613] R13: 0000000000000000 R14: 0000000000000000 R15: 1ffff11000c62fd2
+...
+[  135.389205] usb 1-1: == mwifiex dump information to /sys/class/devcoredump end
 
-Fixes: b79c9fc9551b ("bpf: implement BPF_PROG_QUERY for BPF_LSM_CGROUP")
-Fixes: a98bf57391a2 ("tools: bpftool: add support for reporting the effective cgroup progs")
-Signed-off-by: Pu Lehui <pulehui@huawei.com>
-Link: https://lore.kernel.org/r/20220921104604.2340580-3-pulehui@huaweicloud.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+This patch uses delayed work to replace timer and moves the operations
+that may sleep into a delayed work in order to mitigate bugs, it was
+tested on Marvell 88W8801 chip whose port is usb and the firmware is
+usb8801_uapsta.bin. The following is the result after using delayed
+work to replace timer.
+
+[  134.936453] usb 1-1: == mwifiex dump information to /sys/class/devcoredump start
+[  135.043344] usb 1-1: == mwifiex dump information to /sys/class/devcoredump end
+
+As we can see, there is no bug now.
+
+Fixes: f5ecd02a8b20 ("mwifiex: device dump support for usb interface")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/5cfa5c473ff6d069cb67760ffa04a2f84ef450a8.1661252818.git.duoming@zju.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/cgroup.c | 54 ++++++++++++++++++++++++++++++++++----
- 1 file changed, 49 insertions(+), 5 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/init.c      | 9 +++++----
+ drivers/net/wireless/marvell/mwifiex/main.h      | 3 ++-
+ drivers/net/wireless/marvell/mwifiex/sta_event.c | 6 +++---
+ 3 files changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/tools/bpf/bpftool/cgroup.c b/tools/bpf/bpftool/cgroup.c
-index cced668fb2a3..b46a998d8f8d 100644
---- a/tools/bpf/bpftool/cgroup.c
-+++ b/tools/bpf/bpftool/cgroup.c
-@@ -136,8 +136,8 @@ static int show_bpf_prog(int id, enum bpf_attach_type attach_type,
- 			jsonw_string_field(json_wtr, "attach_type", attach_type_str);
- 		else
- 			jsonw_uint_field(json_wtr, "attach_type", attach_type);
--		jsonw_string_field(json_wtr, "attach_flags",
--				   attach_flags_str);
-+		if (!(query_flags & BPF_F_QUERY_EFFECTIVE))
-+			jsonw_string_field(json_wtr, "attach_flags", attach_flags_str);
- 		jsonw_string_field(json_wtr, "name", prog_name);
- 		if (attach_btf_name)
- 			jsonw_string_field(json_wtr, "attach_btf_name", attach_btf_name);
-@@ -150,7 +150,10 @@ static int show_bpf_prog(int id, enum bpf_attach_type attach_type,
- 			printf("%-15s", attach_type_str);
- 		else
- 			printf("type %-10u", attach_type);
--		printf(" %-15s %-15s", attach_flags_str, prog_name);
-+		if (query_flags & BPF_F_QUERY_EFFECTIVE)
-+			printf(" %-15s", prog_name);
-+		else
-+			printf(" %-15s %-15s", attach_flags_str, prog_name);
- 		if (attach_btf_name)
- 			printf(" %-15s", attach_btf_name);
- 		else if (info.attach_btf_id)
-@@ -195,6 +198,32 @@ static int cgroup_has_attached_progs(int cgroup_fd)
- 
- 	return no_prog ? 0 : 1;
- }
-+
-+static int show_effective_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
-+				    int level)
-+{
-+	LIBBPF_OPTS(bpf_prog_query_opts, p);
-+	__u32 prog_ids[1024] = {0};
-+	__u32 iter;
-+	int ret;
-+
-+	p.query_flags = query_flags;
-+	p.prog_cnt = ARRAY_SIZE(prog_ids);
-+	p.prog_ids = prog_ids;
-+
-+	ret = bpf_prog_query_opts(cgroup_fd, type, &p);
-+	if (ret)
-+		return ret;
-+
-+	if (p.prog_cnt == 0)
-+		return 0;
-+
-+	for (iter = 0; iter < p.prog_cnt; iter++)
-+		show_bpf_prog(prog_ids[iter], type, NULL, level);
-+
-+	return 0;
-+}
-+
- static int show_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
- 				   int level)
- {
-@@ -245,6 +274,14 @@ static int show_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
- 	return 0;
+diff --git a/drivers/net/wireless/marvell/mwifiex/init.c b/drivers/net/wireless/marvell/mwifiex/init.c
+index fc77489cc511..7dddb4b5dea1 100644
+--- a/drivers/net/wireless/marvell/mwifiex/init.c
++++ b/drivers/net/wireless/marvell/mwifiex/init.c
+@@ -51,9 +51,10 @@ static void wakeup_timer_fn(struct timer_list *t)
+ 		adapter->if_ops.card_reset(adapter);
  }
  
-+static int show_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
-+			  int level)
-+{
-+	return query_flags & BPF_F_QUERY_EFFECTIVE ?
-+	       show_effective_bpf_progs(cgroup_fd, type, level) :
-+	       show_attached_bpf_progs(cgroup_fd, type, level);
-+}
-+
- static int do_show(int argc, char **argv)
+-static void fw_dump_timer_fn(struct timer_list *t)
++static void fw_dump_work(struct work_struct *work)
  {
- 	enum bpf_attach_type type;
-@@ -292,6 +329,8 @@ static int do_show(int argc, char **argv)
+-	struct mwifiex_adapter *adapter = from_timer(adapter, t, devdump_timer);
++	struct mwifiex_adapter *adapter =
++		container_of(work, struct mwifiex_adapter, devdump_work.work);
  
- 	if (json_output)
- 		jsonw_start_array(json_wtr);
-+	else if (query_flags & BPF_F_QUERY_EFFECTIVE)
-+		printf("%-8s %-15s %-15s\n", "ID", "AttachType", "Name");
- 	else
- 		printf("%-8s %-15s %-15s %-15s\n", "ID", "AttachType",
- 		       "AttachFlags", "Name");
-@@ -304,7 +343,7 @@ static int do_show(int argc, char **argv)
- 		 * If we were able to get the show for at least one
- 		 * attach type, let's return 0.
+ 	mwifiex_upload_device_dump(adapter);
+ }
+@@ -309,7 +310,7 @@ static void mwifiex_init_adapter(struct mwifiex_adapter *adapter)
+ 	adapter->active_scan_triggered = false;
+ 	timer_setup(&adapter->wakeup_timer, wakeup_timer_fn, 0);
+ 	adapter->devdump_len = 0;
+-	timer_setup(&adapter->devdump_timer, fw_dump_timer_fn, 0);
++	INIT_DELAYED_WORK(&adapter->devdump_work, fw_dump_work);
+ }
+ 
+ /*
+@@ -388,7 +389,7 @@ static void
+ mwifiex_adapter_cleanup(struct mwifiex_adapter *adapter)
+ {
+ 	del_timer(&adapter->wakeup_timer);
+-	del_timer_sync(&adapter->devdump_timer);
++	cancel_delayed_work_sync(&adapter->devdump_work);
+ 	mwifiex_cancel_all_pending_cmd(adapter);
+ 	wake_up_interruptible(&adapter->cmd_wait_q.wait);
+ 	wake_up_interruptible(&adapter->hs_activate_wait_q);
+diff --git a/drivers/net/wireless/marvell/mwifiex/main.h b/drivers/net/wireless/marvell/mwifiex/main.h
+index 87729d251fed..63f861e6b28a 100644
+--- a/drivers/net/wireless/marvell/mwifiex/main.h
++++ b/drivers/net/wireless/marvell/mwifiex/main.h
+@@ -37,6 +37,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
+ #include <linux/of_irq.h>
++#include <linux/workqueue.h>
+ 
+ #include "decl.h"
+ #include "ioctl.h"
+@@ -1043,7 +1044,7 @@ struct mwifiex_adapter {
+ 	/* Device dump data/length */
+ 	void *devdump_data;
+ 	int devdump_len;
+-	struct timer_list devdump_timer;
++	struct delayed_work devdump_work;
+ 
+ 	bool ignore_btcoex_events;
+ };
+diff --git a/drivers/net/wireless/marvell/mwifiex/sta_event.c b/drivers/net/wireless/marvell/mwifiex/sta_event.c
+index b95e90a7d124..e80e372cce8c 100644
+--- a/drivers/net/wireless/marvell/mwifiex/sta_event.c
++++ b/drivers/net/wireless/marvell/mwifiex/sta_event.c
+@@ -611,8 +611,8 @@ mwifiex_fw_dump_info_event(struct mwifiex_private *priv,
+ 		 * transmission event get lost, in this cornel case,
+ 		 * user would still get partial of the dump.
  		 */
--		if (show_attached_bpf_progs(cgroup_fd, type, 0) == 0)
-+		if (show_bpf_progs(cgroup_fd, type, 0) == 0)
- 			ret = 0;
+-		mod_timer(&adapter->devdump_timer,
+-			  jiffies + msecs_to_jiffies(MWIFIEX_TIMER_10S));
++		schedule_delayed_work(&adapter->devdump_work,
++				      msecs_to_jiffies(MWIFIEX_TIMER_10S));
  	}
  
-@@ -362,7 +401,7 @@ static int do_show_tree_fn(const char *fpath, const struct stat *sb,
+ 	/* Overflow check */
+@@ -631,7 +631,7 @@ mwifiex_fw_dump_info_event(struct mwifiex_private *priv,
+ 	return;
  
- 	btf_vmlinux = libbpf_find_kernel_btf();
- 	for (type = 0; type < __MAX_BPF_ATTACH_TYPE; type++)
--		show_attached_bpf_progs(cgroup_fd, type, ftw->level);
-+		show_bpf_progs(cgroup_fd, type, ftw->level);
+ upload_dump:
+-	del_timer_sync(&adapter->devdump_timer);
++	cancel_delayed_work_sync(&adapter->devdump_work);
+ 	mwifiex_upload_device_dump(adapter);
+ }
  
- 	if (errno == EINVAL)
- 		/* Last attach type does not support query.
-@@ -436,6 +475,11 @@ static int do_show_tree(int argc, char **argv)
- 
- 	if (json_output)
- 		jsonw_start_array(json_wtr);
-+	else if (query_flags & BPF_F_QUERY_EFFECTIVE)
-+		printf("%s\n"
-+		       "%-8s %-15s %-15s\n",
-+		       "CgroupPath",
-+		       "ID", "AttachType", "Name");
- 	else
- 		printf("%s\n"
- 		       "%-8s %-15s %-15s %-15s\n",
 -- 
 2.35.1
 
