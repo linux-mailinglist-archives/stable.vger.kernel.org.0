@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8405603C7A
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82E29603C26
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231508AbiJSIrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:47:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43920 "EHLO
+        id S229658AbiJSIoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:44:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231503AbiJSIrO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:47:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E6E05F10C;
-        Wed, 19 Oct 2022 01:44:59 -0700 (PDT)
+        with ESMTP id S231389AbiJSIoF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:44:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FDA080F58;
+        Wed, 19 Oct 2022 01:41:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15500617E2;
-        Wed, 19 Oct 2022 08:41:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CF7BC433D7;
-        Wed, 19 Oct 2022 08:41:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E354F617F0;
+        Wed, 19 Oct 2022 08:41:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01394C433D7;
+        Wed, 19 Oct 2022 08:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168910;
-        bh=4utioZOXlyo9oAiwlzw67riLL6LaXsoNJjJMJzcvKEs=;
+        s=korg; t=1666168913;
+        bh=h3+uSWwiOmr3NWvZgRpyVR7rxSNYaUIg45Onin/ZWNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FvGJBOb5Q4quKApFD4NsAiVMPvAjOGW+j/4f5XznF8hJoXZvJxl5iyzrbsmSYYBUU
-         muWjDKMgbz781ssWk4zAZhh9W/lY3V7Q/uPqviQsRg5ucXs6fGg08g5mSKvL5qGZ8/
-         rwcC/iC2PYO6wDtw1Ks78zjIm1a1OTlZ6+jKomxs=
+        b=YW5rqpOfH9eEvo3jMpr76Hz9bpFP1aVSIHaubI2uPNYg6WjtQ/UbHevT9AZtzJvXp
+         70aGSJZmM/0OFOqeI/hzeZmUn82l4AqmVHLOQA4HUOdDttVz5FM2k/kYdHbmpPuevm
+         M4o29nhV64YRLZU7u1o7yhaCgFbFzILy3rVypOnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anders Blomdell <anders.blomdell@control.lth.se>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: [PATCH 6.0 095/862] serial: 8250: Request full 16550A feature probing for OxSemi PCIe devices
-Date:   Wed, 19 Oct 2022 10:23:02 +0200
-Message-Id: <20221019083254.144209988@linuxfoundation.org>
+        Ben Ronallo <Benjamin.Ronallo@synopsys.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Jeff Layton <jlayton@kernel.org>
+Subject: [PATCH 6.0 096/862] NFSD: Protect against send buffer overflow in NFSv3 READDIR
+Date:   Wed, 19 Oct 2022 10:23:03 +0200
+Message-Id: <20221019083254.182334043@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,50 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 00b7a4d4ee42be1c515e56cb1e8ba0f25e271d8e upstream.
+commit 640f87c190e0d1b2a0fcb2ecf6d2cd53b1c41991 upstream.
 
-Oxford Semiconductor PCIe (Tornado) 950 serial port devices need to
-operate in the enhanced mode via the EFR register for the Divide-by-M
-N/8 baud rate generator prescaler to be used in their native UART mode.
-Otherwise the prescaler is fixed at 1 causing grossly incorrect baud
-rates to be programmed.
+Since before the git era, NFSD has conserved the number of pages
+held by each nfsd thread by combining the RPC receive and send
+buffers into a single array of pages. This works because there are
+no cases where an operation needs a large RPC Call message and a
+large RPC Reply message at the same time.
 
-Accessing the EFR register requires 16550A features to have been probed
-for, so request this to happen regardless of SERIAL_8250_16550A_VARIANTS
-by setting UPF_FULL_PROBE in port flags.
+Once an RPC Call has been received, svc_process() updates
+svc_rqst::rq_res to describe the part of rq_pages that can be
+used for constructing the Reply. This means that the send buffer
+(rq_res) shrinks when the received RPC record containing the RPC
+Call is large.
 
-Fixes: 366f6c955d4d ("serial: 8250: Add proper clock handling for OxSemi PCIe devices")
-Cc: stable@vger.kernel.org # v5.19+
-Reported-by: Anders Blomdell <anders.blomdell@control.lth.se>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209210005040.41633@angie.orcam.me.uk
+A client can force this shrinkage on TCP by sending a correctly-
+formed RPC Call header contained in an RPC record that is
+excessively large. The full maximum payload size cannot be
+constructed in that case.
+
+Thanks to Aleksi Illikainen and Kari Hulkko for uncovering this
+issue.
+
+Reported-by: Ben Ronallo <Benjamin.Ronallo@synopsys.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_pci.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/nfsd/nfs3proc.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -1232,6 +1232,10 @@ static void pci_oxsemi_tornado_set_mctrl
- 	serial8250_do_set_mctrl(port, mctrl);
- }
+--- a/fs/nfsd/nfs3proc.c
++++ b/fs/nfsd/nfs3proc.c
+@@ -563,13 +563,14 @@ static void nfsd3_init_dirlist_pages(str
+ {
+ 	struct xdr_buf *buf = &resp->dirlist;
+ 	struct xdr_stream *xdr = &resp->xdr;
+-
+-	count = clamp(count, (u32)(XDR_UNIT * 2), svc_max_payload(rqstp));
++	unsigned int sendbuf = min_t(unsigned int, rqstp->rq_res.buflen,
++				     svc_max_payload(rqstp));
  
-+/*
-+ * We require EFR features for clock programming, so set UPF_FULL_PROBE
-+ * for full probing regardless of CONFIG_SERIAL_8250_16550A_VARIANTS setting.
-+ */
- static int pci_oxsemi_tornado_setup(struct serial_private *priv,
- 				    const struct pciserial_board *board,
- 				    struct uart_8250_port *up, int idx)
-@@ -1239,6 +1243,7 @@ static int pci_oxsemi_tornado_setup(stru
- 	struct pci_dev *dev = priv->dev;
+ 	memset(buf, 0, sizeof(*buf));
  
- 	if (pci_oxsemi_tornado_p(dev)) {
-+		up->port.flags |= UPF_FULL_PROBE;
- 		up->port.get_divisor = pci_oxsemi_tornado_get_divisor;
- 		up->port.set_divisor = pci_oxsemi_tornado_set_divisor;
- 		up->port.set_mctrl = pci_oxsemi_tornado_set_mctrl;
+ 	/* Reserve room for the NULL ptr & eof flag (-2 words) */
+-	buf->buflen = count - XDR_UNIT * 2;
++	buf->buflen = clamp(count, (u32)(XDR_UNIT * 2), sendbuf);
++	buf->buflen -= XDR_UNIT * 2;
+ 	buf->pages = rqstp->rq_next_page;
+ 	rqstp->rq_next_page += (buf->buflen + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 
 
 
