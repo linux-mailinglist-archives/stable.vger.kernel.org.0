@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 719FB604851
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:56:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C7D3604876
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:56:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230203AbiJSN4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:56:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37384 "EHLO
+        id S231204AbiJSN4n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:56:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233014AbiJSNw7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:52:59 -0400
+        with ESMTP id S233675AbiJSNxM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:53:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D61731ECE;
-        Wed, 19 Oct 2022 06:36:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 331C714EC51;
+        Wed, 19 Oct 2022 06:36:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7FA17B823DB;
-        Wed, 19 Oct 2022 08:56:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4121C433D7;
-        Wed, 19 Oct 2022 08:56:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43F15B82420;
+        Wed, 19 Oct 2022 08:56:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD5ABC433B5;
+        Wed, 19 Oct 2022 08:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169800;
-        bh=EbACe5qacps0SV0GIDnIuKU9lBFLNTXwJE3mpAJw9sE=;
+        s=korg; t=1666169803;
+        bh=uLP/v4pPCuxso/vuU6PoxkZFMFw+IoE4hCq+BrnMAP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LKgmsxpU3rVnOhUfky4eqUsXkkd9jGaG0A9JhF3ycWLh8l62SEaps0TEonYTmXkFE
-         qupCFsmrDbEZPH//CclTTg6q0BN0dfa4PsiuDEksqeutgFiuMMjon4PcYNi0KbICfU
-         TsAzOKhEthu9jEbAJ44m8GjYvBTyEvugirVEu/hc=
+        b=OwKvzjgAHCtNSYLJCCPbwrnCGztonVPf/LF1RsawlNTiKW/e1EFV1Dhykqvki/cev
+         Xc4KUnaMPu/IY7jAjUvQlS2tCSPw88982Xfybr2S/19GuUd3A1q4n17+osZeBogUE2
+         3MzS0657/ERPKj3RTLcPinlGhJryiGnL5CsB0Y4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 381/862] ASoC: wm_adsp: Handle optional legacy support
-Date:   Wed, 19 Oct 2022 10:27:48 +0200
-Message-Id: <20221019083306.807821695@linuxfoundation.org>
+Subject: [PATCH 6.0 382/862] ALSA: hda: beep: Simplify keep-power-at-enable behavior
+Date:   Wed, 19 Oct 2022 10:27:49 +0200
+Message-Id: <20221019083306.839571567@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,54 +52,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 35c8ae25c4fdeabf490e005692795a3be17ca5f6 ]
+[ Upstream commit 4c8d695cb9bc5f6fd298a586602947b2fc099a64 ]
 
-The tracing capabilities for the speaker protection fw enabled via
-commit c55b3e46cb99 ("ASoC: wm_adsp: Add trace caps to speaker
-protection FW") are not be available on all platforms, such as the
-Valve's Steam Deck which is based on the Halo Core DSP.
+The recent fix for IDT codecs to keep the power up while the beep is
+enabled can be better integrated into the beep helper code.
+This patch cleans up the code with refactoring.
 
-As a consequence, whenever the firmware is loaded, a rather misleading
-'Failed to parse legacy: -19' error message is written to the kernel
-ring buffer:
-
-[  288.977412] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: Firmware version: 3
-[  288.978002] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: cs35l41-dsp1-spk-prot.wmfw: Fri 02 Apr 2021 21:03:50 W. Europe Daylight Time
-[  289.094065] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: Firmware: 400a4 vendor: 0x2 v0.33.0, 2 algorithms
-[  289.095073] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: 0: ID cd v29.53.0 XM@94 YM@e
-[  289.095665] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: 1: ID f20b v0.0.1 XM@170 YM@0
-[  289.096275] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: Protection: C:\Users\ocanavan\Desktop\cirrusTune_july2021.bin
-[  291.172383] steamdeck kernel: cs35l41 spi-VLV1776:01: DSP1: Failed to parse legacy: -19
-
-Update wm_adsp_buffer_init() to print a more descriptive info message
-when wm_adsp_buffer_parse_legacy() returns -ENODEV.
-
-Fixes: c55b3e46cb99 ("ASoC: wm_adsp: Add trace caps to speaker protection FW")
-Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220825220530.1205141-1-cristian.ciocaltea@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 414d38ba8710 ("ALSA: hda/sigmatel: Keep power up while beep is enabled")
+Link: https://lore.kernel.org/r/20220906092306.26183-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm_adsp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/pci/hda/hda_beep.c       | 15 +++++++++++++--
+ sound/pci/hda/hda_beep.h       |  1 +
+ sound/pci/hda/patch_sigmatel.c | 25 ++-----------------------
+ 3 files changed, 16 insertions(+), 25 deletions(-)
 
-diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
-index cfaa45ede916..8a2e9771bb50 100644
---- a/sound/soc/codecs/wm_adsp.c
-+++ b/sound/soc/codecs/wm_adsp.c
-@@ -1602,7 +1602,9 @@ static int wm_adsp_buffer_init(struct wm_adsp *dsp)
- 	if (list_empty(&dsp->buffer_list)) {
- 		/* Fall back to legacy support */
- 		ret = wm_adsp_buffer_parse_legacy(dsp);
--		if (ret)
-+		if (ret == -ENODEV)
-+			adsp_info(dsp, "Legacy support not available\n");
-+		else if (ret)
- 			adsp_warn(dsp, "Failed to parse legacy: %d\n", ret);
+diff --git a/sound/pci/hda/hda_beep.c b/sound/pci/hda/hda_beep.c
+index 53a2b89f8983..e63621bcb214 100644
+--- a/sound/pci/hda/hda_beep.c
++++ b/sound/pci/hda/hda_beep.c
+@@ -118,6 +118,12 @@ static int snd_hda_beep_event(struct input_dev *dev, unsigned int type,
+ 	return 0;
+ }
+ 
++static void turn_on_beep(struct hda_beep *beep)
++{
++	if (beep->keep_power_at_enable)
++		snd_hda_power_up_pm(beep->codec);
++}
++
+ static void turn_off_beep(struct hda_beep *beep)
+ {
+ 	cancel_work_sync(&beep->beep_work);
+@@ -125,6 +131,8 @@ static void turn_off_beep(struct hda_beep *beep)
+ 		/* turn off beep */
+ 		generate_tone(beep, 0);
  	}
++	if (beep->keep_power_at_enable)
++		snd_hda_power_down_pm(beep->codec);
+ }
+ 
+ /**
+@@ -140,7 +148,9 @@ int snd_hda_enable_beep_device(struct hda_codec *codec, int enable)
+ 	enable = !!enable;
+ 	if (beep->enabled != enable) {
+ 		beep->enabled = enable;
+-		if (!enable)
++		if (enable)
++			turn_on_beep(beep);
++		else
+ 			turn_off_beep(beep);
+ 		return 1;
+ 	}
+@@ -167,7 +177,8 @@ static int beep_dev_disconnect(struct snd_device *device)
+ 		input_unregister_device(beep->dev);
+ 	else
+ 		input_free_device(beep->dev);
+-	turn_off_beep(beep);
++	if (beep->enabled)
++		turn_off_beep(beep);
+ 	return 0;
+ }
+ 
+diff --git a/sound/pci/hda/hda_beep.h b/sound/pci/hda/hda_beep.h
+index a25358a4807a..db76e3ddba65 100644
+--- a/sound/pci/hda/hda_beep.h
++++ b/sound/pci/hda/hda_beep.h
+@@ -25,6 +25,7 @@ struct hda_beep {
+ 	unsigned int enabled:1;
+ 	unsigned int linear_tone:1;	/* linear tone for IDT/STAC codec */
+ 	unsigned int playing:1;
++	unsigned int keep_power_at_enable:1;	/* set by driver */
+ 	struct work_struct beep_work; /* scheduled task for beep event */
+ 	struct mutex mutex;
+ 	void (*power_hook)(struct hda_beep *beep, bool on);
+diff --git a/sound/pci/hda/patch_sigmatel.c b/sound/pci/hda/patch_sigmatel.c
+index 7f340f18599c..a794a01a68ca 100644
+--- a/sound/pci/hda/patch_sigmatel.c
++++ b/sound/pci/hda/patch_sigmatel.c
+@@ -4311,6 +4311,8 @@ static int stac_parse_auto_config(struct hda_codec *codec)
+ 		if (codec->beep) {
+ 			/* IDT/STAC codecs have linear beep tone parameter */
+ 			codec->beep->linear_tone = spec->linear_tone_beep;
++			/* keep power up while beep is enabled */
++			codec->beep->keep_power_at_enable = 1;
+ 			/* if no beep switch is available, make its own one */
+ 			caps = query_amp_caps(codec, nid, HDA_OUTPUT);
+ 			if (!(caps & AC_AMPCAP_MUTE)) {
+@@ -4444,28 +4446,6 @@ static int stac_suspend(struct hda_codec *codec)
+ 
+ 	return 0;
+ }
+-
+-static int stac_check_power_status(struct hda_codec *codec, hda_nid_t nid)
+-{
+-#ifdef CONFIG_SND_HDA_INPUT_BEEP
+-	struct sigmatel_spec *spec = codec->spec;
+-#endif
+-	int ret = snd_hda_gen_check_power_status(codec, nid);
+-
+-#ifdef CONFIG_SND_HDA_INPUT_BEEP
+-	if (nid == spec->gen.beep_nid && codec->beep) {
+-		if (codec->beep->enabled != spec->beep_power_on) {
+-			spec->beep_power_on = codec->beep->enabled;
+-			if (spec->beep_power_on)
+-				snd_hda_power_up_pm(codec);
+-			else
+-				snd_hda_power_down_pm(codec);
+-		}
+-		ret |= spec->beep_power_on;
+-	}
+-#endif
+-	return ret;
+-}
+ #else
+ #define stac_suspend		NULL
+ #endif /* CONFIG_PM */
+@@ -4478,7 +4458,6 @@ static const struct hda_codec_ops stac_patch_ops = {
+ 	.unsol_event = snd_hda_jack_unsol_event,
+ #ifdef CONFIG_PM
+ 	.suspend = stac_suspend,
+-	.check_power_status = stac_check_power_status,
+ #endif
+ };
  
 -- 
 2.35.1
