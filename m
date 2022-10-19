@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAAF9603E38
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:11:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B360603E22
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:11:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232616AbiJSJLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:11:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38632 "EHLO
+        id S232647AbiJSJK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:10:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232387AbiJSJH6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:07:58 -0400
+        with ESMTP id S232698AbiJSJIx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:08:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3E771ADBD;
-        Wed, 19 Oct 2022 02:00:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C31232124C;
+        Wed, 19 Oct 2022 02:00:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59AD5617FB;
-        Wed, 19 Oct 2022 08:58:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CAC5C433C1;
-        Wed, 19 Oct 2022 08:58:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 196336186A;
+        Wed, 19 Oct 2022 08:59:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B4EDC433D6;
+        Wed, 19 Oct 2022 08:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169932;
-        bh=9PXW0jD/9VCb+BHX7rIhISiFRilpbAWDGc1l+7xT2L4=;
+        s=korg; t=1666169940;
+        bh=JzLGeM6MnEL8NtCa+37sOxVlXwkKAQTWwUnH0CUDFaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r5Rsczci9CaitFDER9yY5r1Ma62xlL2GGOzWn5gd0yIAuR9t5zcUMLONduQ1XtN2Z
-         6k43CbhY9KypdBLg/ax1voZ/A5aDlaYnaDzM/OJyJs0V76Hyai4bWOqTrelVMfef+9
-         2QsiuL/eIQoVOudjDcKOMEGRIaYr2/fvLkyAAF1U=
+        b=PN11t2IrZSkKqsGSImnrX3SNXe4m0HJhZDQohGpj37xA2C2g45BSIaDWlYSkoC1Au
+         hK8oqcpajz5UHKyHJltWU7BzAcoGpnHihaf3TiB2/kbaH6kd0bznhyIlDmiGuYcWb6
+         r+7eyUkHe9Mt/HYxwBsphqXAoPEn3dcFScC64E3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakob Hauser <jahau@rocketmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 464/862] iio: magnetometer: yas530: Change data type of hard_offsets to signed
-Date:   Wed, 19 Oct 2022 10:29:11 +0200
-Message-Id: <20221019083310.493893259@linuxfoundation.org>
+Subject: [PATCH 6.0 466/862] usb: common: usb-conn-gpio: Simplify some error message
+Date:   Wed, 19 Oct 2022 10:29:13 +0200
+Message-Id: <20221019083310.563809290@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,41 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Hauser <jahau@rocketmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit e137fafc8985cf152a4bb6f18ae83ebb06816df1 ]
+[ Upstream commit d80f4ecb95270d0ecd6646aca44f4c180d3140b0 ]
 
-The "hard_offsets" are currently unsigned u8 but they should be signed as they
-can get negative. They are signed in function yas5xx_meaure_offsets() and in the
-Yamaha drivers [1][2].
+dev_err_probe() already prints the error code in a human readable way, so
+there is no need to duplicate it as a numerical value at the end of the
+message.
 
-[1] https://github.com/NovaFusion/android_kernel_samsung_golden/blob/cm-12.1/drivers/sensor/compass/yas.h#L156
-[2] https://github.com/msm8916-mainline/android_kernel_qcom_msm8916/blob/GT-I9195I/drivers/iio/magnetometer/yas_mag_drv-yas532.c#L91
-
-Fixes: de8860b1ed47 ("iio: magnetometer: Add driver for Yamaha YAS530")
-Signed-off-by: Jakob Hauser <jahau@rocketmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/40f052bf6491457d0c5c0ed4c3534dc6fa251c3c.1660337264.git.jahau@rocketmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/7505a9dfa1e097070c492d6f6f84afa2a490b040.1659763173.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: b6155eaf6b05 ("usb: common: debug: Check non-standard control requests")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/magnetometer/yamaha-yas530.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/common/usb-conn-gpio.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/magnetometer/yamaha-yas530.c b/drivers/iio/magnetometer/yamaha-yas530.c
-index aeaa4da6923b..d1f16729c60e 100644
---- a/drivers/iio/magnetometer/yamaha-yas530.c
-+++ b/drivers/iio/magnetometer/yamaha-yas530.c
-@@ -132,7 +132,7 @@ struct yas5xx {
- 	unsigned int version;
- 	char name[16];
- 	struct yas5xx_calibration calibration;
--	u8 hard_offsets[3];
-+	s8 hard_offsets[3];
- 	struct iio_mount_matrix orientation;
- 	struct regmap *map;
- 	struct regulator_bulk_data regs[2];
+diff --git a/drivers/usb/common/usb-conn-gpio.c b/drivers/usb/common/usb-conn-gpio.c
+index b39c9f1c375d..e20874caba36 100644
+--- a/drivers/usb/common/usb-conn-gpio.c
++++ b/drivers/usb/common/usb-conn-gpio.c
+@@ -208,10 +208,8 @@ static int usb_conn_probe(struct platform_device *pdev)
+ 	if (PTR_ERR(info->vbus) == -ENODEV)
+ 		info->vbus = NULL;
+ 
+-	if (IS_ERR(info->vbus)) {
+-		ret = PTR_ERR(info->vbus);
+-		return dev_err_probe(dev, ret, "failed to get vbus :%d\n", ret);
+-	}
++	if (IS_ERR(info->vbus))
++		return dev_err_probe(dev, PTR_ERR(info->vbus), "failed to get vbus\n");
+ 
+ 	info->role_sw = usb_role_switch_get(dev);
+ 	if (IS_ERR(info->role_sw))
 -- 
 2.35.1
 
