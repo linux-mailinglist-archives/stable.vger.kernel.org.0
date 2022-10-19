@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E67603CA7
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:51:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01908603CF9
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:55:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231564AbiJSIuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:50:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33616 "EHLO
+        id S231742AbiJSIzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:55:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231977AbiJSIuD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:50:03 -0400
+        with ESMTP id S231700AbiJSIxa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:53:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 674B27E820;
-        Wed, 19 Oct 2022 01:48:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B97CCB1C7;
+        Wed, 19 Oct 2022 01:50:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 112AE617D4;
-        Wed, 19 Oct 2022 08:41:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 045F8C4314E;
-        Wed, 19 Oct 2022 08:41:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 091EA617D6;
+        Wed, 19 Oct 2022 08:41:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEDC4C433C1;
+        Wed, 19 Oct 2022 08:41:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666168862;
-        bh=B3Gc/Ox7Kvpw0MAEuv2peOAmDbDxIk82ntLd8mN+vlw=;
+        s=korg; t=1666168865;
+        bh=je0W2XLdwrvLTtP83c1MCms7oFNpxun5DNxSf+R8vrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g1kgd/xYWXEizTgjau2to9c/GlqCvLIJYiQi2HeYywxbrm8vJsX0NQvcDBXMejVVU
-         JfGsgYArIQRedVE1cLevy513bbc0s9vMwnGHMkqtoLSiTUBTnXglep/yhlm3hAa0k7
-         M1dolTavTSluU9YiTIFc7maD2i5RxjZpaTdVWraE=
+        b=HUXjKpV8yX6ffgMhn2TCcJzVJBmMryNxHqIDfeQRWDwSV+0/wzHUxrTVgz+oM8/vv
+         QAytusM2xVrS2YzJ9310Pyyj5CAmvroEoZDVXZOILriTY80bEoM5re+os3HGZZOxuO
+         U7C4aLPHCgmOdFoDug4KdichjIPTB4f2uiT2nzPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
-        Evgenii Stepanov <eugenis@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 6.0 079/862] arm64: mte: move register initialization to C
-Date:   Wed, 19 Oct 2022 10:22:46 +0200
-Message-Id: <20221019083253.425125732@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        syzbot+c2c79c6d6eddc5262b77@syzkaller.appspotmail.com,
+        Steven Price <steven.price@arm.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 6.0 080/862] arm64: mte: Avoid setting PG_mte_tagged if no tags cleared or restored
+Date:   Wed, 19 Oct 2022 10:22:47 +0200
+Message-Id: <20221019083253.465868363@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,227 +56,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Collingbourne <pcc@google.com>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-commit 973b9e37330656dec719ede508e4dc40e5c2d80c upstream.
+commit a8e5e5146ad08d794c58252bab00b261045ef16d upstream.
 
-If FEAT_MTE2 is disabled via the arm64.nomte command line argument on a
-CPU that claims to support FEAT_MTE2, the kernel will use Tagged Normal
-in the MAIR. If we interpret arm64.nomte to mean that the CPU does not
-in fact implement FEAT_MTE2, setting the system register like this may
-lead to UNSPECIFIED behavior. Fix it by arranging for MAIR to be set
-in the C function cpu_enable_mte which is called based on the sanitized
-version of the system register.
+Prior to commit 69e3b846d8a7 ("arm64: mte: Sync tags for pages where PTE
+is untagged"), mte_sync_tags() was only called for pte_tagged() entries
+(those mapped with PROT_MTE). Therefore mte_sync_tags() could safely use
+test_and_set_bit(PG_mte_tagged, &page->flags) without inadvertently
+setting PG_mte_tagged on an untagged page.
 
-There is no need for the rest of the MTE-related system register
-initialization to happen from assembly, with the exception of TCR_EL1,
-which must be set to include at least TBI1 because the secondary CPUs
-access KASan-allocated data structures early. Therefore, make the TCR_EL1
-initialization unconditional and move the rest of the initialization to
-cpu_enable_mte so that we no longer have a dependency on the unsanitized
-ID register value.
+The above commit was required as guests may enable MTE without any
+control at the stage 2 mapping, nor a PROT_MTE mapping in the VMM.
+However, the side-effect was that any page with a PTE that looked like
+swap (or migration) was getting PG_mte_tagged set automatically. A
+subsequent page copy (e.g. migration) copied the tags to the destination
+page even if the tags were owned by KASAN.
 
-Co-developed-by: Evgenii Stepanov <eugenis@google.com>
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Signed-off-by: Evgenii Stepanov <eugenis@google.com>
-Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 3b714d24ef17 ("arm64: mte: CPU feature detection and initial sysreg configuration")
-Cc: <stable@vger.kernel.org> # 5.10.x
-Link: https://lore.kernel.org/r/20220915222053.3484231-1-eugenis@google.com
+This issue was masked by the page_kasan_tag_reset() call introduced in
+commit e5b8d9218951 ("arm64: mte: reset the page tag in page->flags").
+When this commit was reverted (20794545c146), KASAN started reporting
+access faults because the overriding tags in a page did not match the
+original page->flags (with CONFIG_KASAN_HW_TAGS=y):
+
+  BUG: KASAN: invalid-access in copy_page+0x10/0xd0 arch/arm64/lib/copy_page.S:26
+  Read at addr f5ff000017f2e000 by task syz-executor.1/2218
+  Pointer tag: [f5], memory tag: [f2]
+
+Move the PG_mte_tagged bit setting from mte_sync_tags() to the actual
+place where tags are cleared (mte_sync_page_tags()) or restored
+(mte_restore_tags()).
+
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Reported-by: syzbot+c2c79c6d6eddc5262b77@syzkaller.appspotmail.com
+Fixes: 69e3b846d8a7 ("arm64: mte: Sync tags for pages where PTE is untagged")
+Cc: <stable@vger.kernel.org> # 5.14.x
+Cc: Steven Price <steven.price@arm.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/0000000000004387dc05e5888ae5@google.com/
+Reviewed-by: Steven Price <steven.price@arm.com>
+Link: https://lore.kernel.org/r/20221006163354.3194102-1-catalin.marinas@arm.com
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/mte.h   |    5 ++++
- arch/arm64/kernel/cpufeature.c |    3 +-
- arch/arm64/kernel/mte.c        |   51 +++++++++++++++++++++++++++++++++++++++++
- arch/arm64/kernel/suspend.c    |    2 +
- arch/arm64/mm/proc.S           |   46 ++++--------------------------------
- 5 files changed, 65 insertions(+), 42 deletions(-)
+ arch/arm64/kernel/mte.c |    9 +++++++--
+ arch/arm64/mm/mteswap.c |    7 ++++++-
+ 2 files changed, 13 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/include/asm/mte.h
-+++ b/arch/arm64/include/asm/mte.h
-@@ -42,7 +42,9 @@ void mte_sync_tags(pte_t old_pte, pte_t
- void mte_copy_page_tags(void *kto, const void *kfrom);
- void mte_thread_init_user(void);
- void mte_thread_switch(struct task_struct *next);
-+void mte_cpu_setup(void);
- void mte_suspend_enter(void);
-+void mte_suspend_exit(void);
- long set_mte_ctrl(struct task_struct *task, unsigned long arg);
- long get_mte_ctrl(struct task_struct *task);
- int mte_ptrace_copy_tags(struct task_struct *child, long request,
-@@ -72,6 +74,9 @@ static inline void mte_thread_switch(str
- static inline void mte_suspend_enter(void)
- {
- }
-+static inline void mte_suspend_exit(void)
-+{
-+}
- static inline long set_mte_ctrl(struct task_struct *task, unsigned long arg)
- {
- 	return 0;
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -2034,7 +2034,8 @@ static void bti_enable(const struct arm6
- static void cpu_enable_mte(struct arm64_cpu_capabilities const *cap)
- {
- 	sysreg_clear_set(sctlr_el1, 0, SCTLR_ELx_ATA | SCTLR_EL1_ATA0);
--	isb();
-+
-+	mte_cpu_setup();
- 
- 	/*
- 	 * Clear the tags in the zero page. This needs to be done via the
 --- a/arch/arm64/kernel/mte.c
 +++ b/arch/arm64/kernel/mte.c
-@@ -285,6 +285,49 @@ void mte_thread_switch(struct task_struc
- 	mte_check_tfsr_el1();
+@@ -48,7 +48,12 @@ static void mte_sync_page_tags(struct pa
+ 	if (!pte_is_tagged)
+ 		return;
+ 
+-	mte_clear_page_tags(page_address(page));
++	/*
++	 * Test PG_mte_tagged again in case it was racing with another
++	 * set_pte_at().
++	 */
++	if (!test_and_set_bit(PG_mte_tagged, &page->flags))
++		mte_clear_page_tags(page_address(page));
  }
  
-+void mte_cpu_setup(void)
-+{
-+	u64 rgsr;
-+
+ void mte_sync_tags(pte_t old_pte, pte_t pte)
+@@ -64,7 +69,7 @@ void mte_sync_tags(pte_t old_pte, pte_t
+ 
+ 	/* if PG_mte_tagged is set, tags have already been initialised */
+ 	for (i = 0; i < nr_pages; i++, page++) {
+-		if (!test_and_set_bit(PG_mte_tagged, &page->flags))
++		if (!test_bit(PG_mte_tagged, &page->flags))
+ 			mte_sync_page_tags(page, old_pte, check_swap,
+ 					   pte_is_tagged);
+ 	}
+--- a/arch/arm64/mm/mteswap.c
++++ b/arch/arm64/mm/mteswap.c
+@@ -53,7 +53,12 @@ bool mte_restore_tags(swp_entry_t entry,
+ 	if (!tags)
+ 		return false;
+ 
+-	mte_restore_page_tags(page_address(page), tags);
 +	/*
-+	 * CnP must be enabled only after the MAIR_EL1 register has been set
-+	 * up. Inconsistent MAIR_EL1 between CPUs sharing the same TLB may
-+	 * lead to the wrong memory type being used for a brief window during
-+	 * CPU power-up.
-+	 *
-+	 * CnP is not a boot feature so MTE gets enabled before CnP, but let's
-+	 * make sure that is the case.
++	 * Test PG_mte_tagged again in case it was racing with another
++	 * set_pte_at().
 +	 */
-+	BUG_ON(read_sysreg(ttbr0_el1) & TTBR_CNP_BIT);
-+	BUG_ON(read_sysreg(ttbr1_el1) & TTBR_CNP_BIT);
-+
-+	/* Normal Tagged memory type at the corresponding MAIR index */
-+	sysreg_clear_set(mair_el1,
-+			 MAIR_ATTRIDX(MAIR_ATTR_MASK, MT_NORMAL_TAGGED),
-+			 MAIR_ATTRIDX(MAIR_ATTR_NORMAL_TAGGED,
-+				      MT_NORMAL_TAGGED));
-+
-+	write_sysreg_s(KERNEL_GCR_EL1, SYS_GCR_EL1);
-+
-+	/*
-+	 * If GCR_EL1.RRND=1 is implemented the same way as RRND=0, then
-+	 * RGSR_EL1.SEED must be non-zero for IRG to produce
-+	 * pseudorandom numbers. As RGSR_EL1 is UNKNOWN out of reset, we
-+	 * must initialize it.
-+	 */
-+	rgsr = (read_sysreg(CNTVCT_EL0) & SYS_RGSR_EL1_SEED_MASK) <<
-+	       SYS_RGSR_EL1_SEED_SHIFT;
-+	if (rgsr == 0)
-+		rgsr = 1 << SYS_RGSR_EL1_SEED_SHIFT;
-+	write_sysreg_s(rgsr, SYS_RGSR_EL1);
-+
-+	/* clear any pending tag check faults in TFSR*_EL1 */
-+	write_sysreg_s(0, SYS_TFSR_EL1);
-+	write_sysreg_s(0, SYS_TFSRE0_EL1);
-+
-+	local_flush_tlb_all();
-+}
-+
- void mte_suspend_enter(void)
- {
- 	if (!system_supports_mte())
-@@ -301,6 +344,14 @@ void mte_suspend_enter(void)
- 	mte_check_tfsr_el1();
++	if (!test_and_set_bit(PG_mte_tagged, &page->flags))
++		mte_restore_page_tags(page_address(page), tags);
+ 
+ 	return true;
  }
- 
-+void mte_suspend_exit(void)
-+{
-+	if (!system_supports_mte())
-+		return;
-+
-+	mte_cpu_setup();
-+}
-+
- long set_mte_ctrl(struct task_struct *task, unsigned long arg)
- {
- 	u64 mte_ctrl = (~((arg & PR_MTE_TAG_MASK) >> PR_MTE_TAG_SHIFT) &
---- a/arch/arm64/kernel/suspend.c
-+++ b/arch/arm64/kernel/suspend.c
-@@ -43,6 +43,8 @@ void notrace __cpu_suspend_exit(void)
- {
- 	unsigned int cpu = smp_processor_id();
- 
-+	mte_suspend_exit();
-+
- 	/*
- 	 * We are resuming from reset with the idmap active in TTBR0_EL1.
- 	 * We must uninstall the idmap and restore the expected MMU
---- a/arch/arm64/mm/proc.S
-+++ b/arch/arm64/mm/proc.S
-@@ -48,17 +48,19 @@
- 
- #ifdef CONFIG_KASAN_HW_TAGS
- #define TCR_MTE_FLAGS TCR_TCMA1 | TCR_TBI1 | TCR_TBID1
--#else
-+#elif defined(CONFIG_ARM64_MTE)
- /*
-  * The mte_zero_clear_page_tags() implementation uses DC GZVA, which relies on
-  * TBI being enabled at EL1.
-  */
- #define TCR_MTE_FLAGS TCR_TBI1 | TCR_TBID1
-+#else
-+#define TCR_MTE_FLAGS 0
- #endif
- 
- /*
-  * Default MAIR_EL1. MT_NORMAL_TAGGED is initially mapped as Normal memory and
-- * changed during __cpu_setup to Normal Tagged if the system supports MTE.
-+ * changed during mte_cpu_setup to Normal Tagged if the system supports MTE.
-  */
- #define MAIR_EL1_SET							\
- 	(MAIR_ATTRIDX(MAIR_ATTR_DEVICE_nGnRnE, MT_DEVICE_nGnRnE) |	\
-@@ -426,46 +428,8 @@ SYM_FUNC_START(__cpu_setup)
- 	mov_q	mair, MAIR_EL1_SET
- 	mov_q	tcr, TCR_TxSZ(VA_BITS) | TCR_CACHE_FLAGS | TCR_SMP_FLAGS | \
- 			TCR_TG_FLAGS | TCR_KASLR_FLAGS | TCR_ASID16 | \
--			TCR_TBI0 | TCR_A1 | TCR_KASAN_SW_FLAGS
--
--#ifdef CONFIG_ARM64_MTE
--	/*
--	 * Update MAIR_EL1, GCR_EL1 and TFSR*_EL1 if MTE is supported
--	 * (ID_AA64PFR1_EL1[11:8] > 1).
--	 */
--	mrs	x10, ID_AA64PFR1_EL1
--	ubfx	x10, x10, #ID_AA64PFR1_MTE_SHIFT, #4
--	cmp	x10, #ID_AA64PFR1_MTE
--	b.lt	1f
--
--	/* Normal Tagged memory type at the corresponding MAIR index */
--	mov	x10, #MAIR_ATTR_NORMAL_TAGGED
--	bfi	mair, x10, #(8 *  MT_NORMAL_TAGGED), #8
-+			TCR_TBI0 | TCR_A1 | TCR_KASAN_SW_FLAGS | TCR_MTE_FLAGS
- 
--	mov	x10, #KERNEL_GCR_EL1
--	msr_s	SYS_GCR_EL1, x10
--
--	/*
--	 * If GCR_EL1.RRND=1 is implemented the same way as RRND=0, then
--	 * RGSR_EL1.SEED must be non-zero for IRG to produce
--	 * pseudorandom numbers. As RGSR_EL1 is UNKNOWN out of reset, we
--	 * must initialize it.
--	 */
--	mrs	x10, CNTVCT_EL0
--	ands	x10, x10, #SYS_RGSR_EL1_SEED_MASK
--	csinc	x10, x10, xzr, ne
--	lsl	x10, x10, #SYS_RGSR_EL1_SEED_SHIFT
--	msr_s	SYS_RGSR_EL1, x10
--
--	/* clear any pending tag check faults in TFSR*_EL1 */
--	msr_s	SYS_TFSR_EL1, xzr
--	msr_s	SYS_TFSRE0_EL1, xzr
--
--	/* set the TCR_EL1 bits */
--	mov_q	x10, TCR_MTE_FLAGS
--	orr	tcr, tcr, x10
--1:
--#endif
- 	tcr_clear_errata_bits tcr, x9, x5
- 
- #ifdef CONFIG_ARM64_VA_BITS_52
 
 
