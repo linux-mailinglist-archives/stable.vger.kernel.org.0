@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A304603A56
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 09:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A093E603A4D
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 09:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229910AbiJSHH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 03:07:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53406 "EHLO
+        id S229722AbiJSHGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 03:06:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229912AbiJSHHY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 03:07:24 -0400
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE58374E3A
-        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 00:07:22 -0700 (PDT)
-Received: from dggpemm500023.china.huawei.com (unknown [172.30.72.56])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4MshWK3blMz1P76t;
-        Wed, 19 Oct 2022 15:02:37 +0800 (CST)
-Received: from dggpemm500007.china.huawei.com (7.185.36.183) by
- dggpemm500023.china.huawei.com (7.185.36.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Wed, 19 Oct 2022 15:07:19 +0800
-Received: from huawei.com (10.175.103.91) by dggpemm500007.china.huawei.com
- (7.185.36.183) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Wed, 19 Oct
- 2022 15:07:19 +0800
-From:   Yang Yingliang <yangyingliang@huawei.com>
-To:     <amd-gfx@lists.freedesktop.org>
-CC:     <alexander.deucher@amd.com>, <luben.tuikov@amd.com>,
-        <yangyingliang@huawei.com>, <stable@vger.kernel.org>
-Subject: [PATCH] drm/amdgpu/discovery: fix possible memory leak
-Date:   Wed, 19 Oct 2022 15:06:28 +0800
-Message-ID: <20221019070628.3242386-1-yangyingliang@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229660AbiJSHGl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 03:06:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFFD074E3A;
+        Wed, 19 Oct 2022 00:06:39 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 47D0B61787;
+        Wed, 19 Oct 2022 07:06:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 364B7C433D6;
+        Wed, 19 Oct 2022 07:06:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1666163198;
+        bh=2hIj3mPDYaistCfLU1l8eKpPCAGL6nKuwyTSDH03Kqk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=x9D9ukRhqplqwhgEuxkAVqjDnVQGZQ7JLYzrV3Q9Xp5mJgWe4GqAehaA85NjeqpS/
+         Zah8fWGH6lMfa3P2xABL1EqXClos9ZDFMYkK7KM9h5Mo9lxbIsf11jI814SXzYZ+8V
+         p1KF0IYoDCpW7TvpEulwflyUgg1G3Woda6A1QTH0=
+Date:   Wed, 19 Oct 2022 09:06:35 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jani Nikula <jani.nikula@intel.com>
+Cc:     stable@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        ville.syrjala@linux.intel.com
+Subject: Re: v5.19 & v6.0 stable backport request
+Message-ID: <Y0+h++6NReFAZhrv@kroah.com>
+References: <87k04xiedr.fsf@intel.com>
+ <Y0+fex0i0vmBL6QX@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.103.91]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpemm500007.china.huawei.com (7.185.36.183)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y0+fex0i0vmBL6QX@kroah.com>
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,48 +51,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If kset_register() fails, the refcount of kobject is not 0,
-the name allocated in kobject_set_name(&kset.kobj, ...) is
-leaked. Fix this by calling kset_put(), so that it will be
-freed in callback function kobject_cleanup().
+On Wed, Oct 19, 2022 at 08:55:55AM +0200, Greg Kroah-Hartman wrote:
+> On Tue, Oct 18, 2022 at 02:02:08PM +0300, Jani Nikula wrote:
+> > 
+> > Hello stable team, please backport these two commits to stable kernels
+> > v5.19 and v6.0:
+> > 
+> > 4e78d6023c15 ("drm/i915/bios: Validate fp_timing terminator presence")
+> 
+> Does not apply to 5.19.y, can you provide a working backport?
+> 
+> > d3a7051841f0 ("drm/i915/bios: Use hardcoded fp_timing size for generating LFP data pointers")
+> 
+> Queued up to both trees now, thanks.
 
-Cc: stable@vger.kernel.org
-Fixes: a6c40b178092 ("drm/amdgpu: Show IP discovery in sysfs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
----
- drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+No, wait, that breaks the build!
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c
-index 3993e6134914..638edcf70227 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c
-@@ -863,7 +863,7 @@ static int amdgpu_discovery_sysfs_ips(struct amdgpu_device *adev,
- 				res = kset_register(&ip_hw_id->hw_id_kset);
- 				if (res) {
- 					DRM_ERROR("Couldn't register ip_hw_id kset");
--					kfree(ip_hw_id);
-+					kset_put(&ip_hw_id->hw_id_kset);
- 					return res;
- 				}
- 				if (hw_id_names[ii]) {
-@@ -954,7 +954,7 @@ static int amdgpu_discovery_sysfs_recurse(struct amdgpu_device *adev)
- 		res = kset_register(&ip_die_entry->ip_kset);
- 		if (res) {
- 			DRM_ERROR("Couldn't register ip_die_entry kset");
--			kfree(ip_die_entry);
-+			kset_put(&ip_die_entry->ip_kset);
- 			return res;
- 		}
- 
-@@ -989,6 +989,7 @@ static int amdgpu_discovery_sysfs_init(struct amdgpu_device *adev)
- 	res = kset_register(&adev->ip_top->die_kset);
- 	if (res) {
- 		DRM_ERROR("Couldn't register die_kset");
-+		kset_put(&adev->ip_top->die_kset);
- 		goto Err;
- 	}
- 
--- 
-2.25.1
+How did you test this?  I'm dropping both of these now.
 
+Please resubmit a set of tested patches if you wish to have them applied
+to the tree.  These were obviously not even attempted, which just wastes
+all of our time :(
+
+greg k-h
