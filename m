@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC99A604270
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:03:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0094D604244
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234775AbiJSLDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:03:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42284 "EHLO
+        id S234597AbiJSK5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:57:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234791AbiJSLCj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:02:39 -0400
+        with ESMTP id S234711AbiJSK4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:56:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DCD0AE86A;
-        Wed, 19 Oct 2022 03:32:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8A47D2CD5;
+        Wed, 19 Oct 2022 03:27:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81632B824AC;
-        Wed, 19 Oct 2022 09:09:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D94EAC433D7;
-        Wed, 19 Oct 2022 09:09:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF064B824A8;
+        Wed, 19 Oct 2022 09:08:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B83CC433D6;
+        Wed, 19 Oct 2022 09:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170590;
-        bh=ViUItGQxEFe5clm+nOnl0yUEomw7O/ntvn4zFXwEoTs=;
+        s=korg; t=1666170504;
+        bh=xtM5s+f3529j7nQlyo4YPIfMABIDOHknGrVRtsueMpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/wul6mNsT4M/WLJKotjcoXs18B+ZrXfyZNIODJpDMRxg0Y4wt+YYVh/Gvv6Q7C8F
-         kgAVWYwlGZPjG0lOLFRXZoQTbARXDVYkJ0FEjdSczZKlFz+/Jjkys5M/aqN/0KyUn+
-         rXnOxkkZNZqvZH/3mCI5FkvbfMYxCLHct4exXcSg=
+        b=IDTwW+07U3G+7kEbANJmwQ5E8u1Bg6O5yL5UpcH1ZMjS3VjdVMivFdP4Y4lOsAAXr
+         1b8QQm6WM9//uOpXhWjI52uyJN1vv4Wc4KhV5o10bLHP8oOkLfNzjtzdHRM2aVd/G3
+         yf5qUo/Idnkp6F+ZkvM3EM+QoKTFZY00gznAjWHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Goro Fuji <goro@fastly.com>,
-        Hengqi Chen <hengqi.chen@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 680/862] libbpf: Do not require executable permission for shared libraries
-Date:   Wed, 19 Oct 2022 10:32:47 +0200
-Message-Id: <20221019083320.022071682@linuxfoundation.org>
+        stable@vger.kernel.org, Zong-Zhe Yang <kevin_yang@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 681/862] wifi: rtw88: phy: fix warning of possible buffer overflow
+Date:   Wed, 19 Oct 2022 10:32:48 +0200
+Message-Id: <20221019083320.063888989@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,56 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hengqi Chen <hengqi.chen@gmail.com>
+From: Zong-Zhe Yang <kevin_yang@realtek.com>
 
-[ Upstream commit 9e32084ef1c33a87a736d6ce3fcb95b60dac9aa1 ]
+[ Upstream commit 86331c7e0cd819bf0c1d0dcf895e0c90b0aa9a6f ]
 
-Currently, resolve_full_path() requires executable permission for both
-programs and shared libraries. This causes failures on distos like Debian
-since the shared libraries are not installed executable and Linux is not
-requiring shared libraries to have executable permissions. Let's remove
-executable permission check for shared libraries.
+reported by smatch
 
-Reported-by: Goro Fuji <goro@fastly.com>
-Signed-off-by: Hengqi Chen <hengqi.chen@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220806102021.3867130-1-hengqi.chen@gmail.com
+phy.c:854 rtw_phy_linear_2_db() error: buffer overflow 'db_invert_table[i]'
+8 <= 8 (assuming for loop doesn't break)
+
+However, it seems to be a false alarm because we prevent it originally via
+       if (linear >= db_invert_table[11][7])
+               return 96; /* maximum 96 dB */
+
+Still, we adjust the code to be more readable and avoid smatch warning.
+
+Signed-off-by: Zong-Zhe Yang <kevin_yang@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220727065003.28340-5-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/wireless/realtek/rtw88/phy.c | 21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
 
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -10667,15 +10667,17 @@ static const char *arch_specific_lib_pat
- static int resolve_full_path(const char *file, char *result, size_t result_sz)
- {
- 	const char *search_paths[3] = {};
--	int i;
-+	int i, perm;
+diff --git a/drivers/net/wireless/realtek/rtw88/phy.c b/drivers/net/wireless/realtek/rtw88/phy.c
+index 8982e0c98dac..da1efec0aa85 100644
+--- a/drivers/net/wireless/realtek/rtw88/phy.c
++++ b/drivers/net/wireless/realtek/rtw88/phy.c
+@@ -816,23 +816,18 @@ static u8 rtw_phy_linear_2_db(u64 linear)
+ 	u8 j;
+ 	u32 dB;
  
- 	if (str_has_sfx(file, ".so") || strstr(file, ".so.")) {
- 		search_paths[0] = getenv("LD_LIBRARY_PATH");
- 		search_paths[1] = "/usr/lib64:/usr/lib";
- 		search_paths[2] = arch_specific_lib_paths();
-+		perm = R_OK;
- 	} else {
- 		search_paths[0] = getenv("PATH");
- 		search_paths[1] = "/usr/bin:/usr/sbin";
-+		perm = R_OK | X_OK;
+-	if (linear >= db_invert_table[11][7])
+-		return 96; /* maximum 96 dB */
+-
+ 	for (i = 0; i < 12; i++) {
+-		if (i <= 2 && (linear << FRAC_BITS) <= db_invert_table[i][7])
+-			break;
+-		else if (i > 2 && linear <= db_invert_table[i][7])
+-			break;
++		for (j = 0; j < 8; j++) {
++			if (i <= 2 && (linear << FRAC_BITS) <= db_invert_table[i][j])
++				goto cnt;
++			else if (i > 2 && linear <= db_invert_table[i][j])
++				goto cnt;
++		}
  	}
  
- 	for (i = 0; i < ARRAY_SIZE(search_paths); i++) {
-@@ -10694,8 +10696,8 @@ static int resolve_full_path(const char
- 			if (!seg_len)
- 				continue;
- 			snprintf(result, result_sz, "%.*s/%s", seg_len, s, file);
--			/* ensure it is an executable file/link */
--			if (access(result, R_OK | X_OK) < 0)
-+			/* ensure it has required permissions */
-+			if (access(result, perm) < 0)
- 				continue;
- 			pr_debug("resolved '%s' to '%s'\n", file, result);
- 			return 0;
+-	for (j = 0; j < 8; j++) {
+-		if (i <= 2 && (linear << FRAC_BITS) <= db_invert_table[i][j])
+-			break;
+-		else if (i > 2 && linear <= db_invert_table[i][j])
+-			break;
+-	}
++	return 96; /* maximum 96 dB */
+ 
++cnt:
+ 	if (j == 0 && i == 0)
+ 		goto end;
+ 
+-- 
+2.35.1
+
 
 
