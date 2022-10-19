@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A5E6604102
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:35:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F98360409B
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:06:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229731AbiJSKfY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:35:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49866 "EHLO
+        id S230359AbiJSKGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:06:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229994AbiJSKdv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:33:51 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAD85FC1F7;
-        Wed, 19 Oct 2022 03:12:58 -0700 (PDT)
+        with ESMTP id S231200AbiJSKFy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:05:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFE29229;
+        Wed, 19 Oct 2022 02:44:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E9CE8CE21B8;
-        Wed, 19 Oct 2022 09:13:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E64D7C433D7;
-        Wed, 19 Oct 2022 09:13:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B957617EB;
+        Wed, 19 Oct 2022 09:13:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F2E3C433B5;
+        Wed, 19 Oct 2022 09:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170827;
-        bh=Es5nmzJdT+oW3VwkRSQOa1PJ6ac1UPOFRjBXyXVSk/o=;
+        s=korg; t=1666170837;
+        bh=PyVuP224LTfOgKeY7PGhWDcswJIc+RIZ/ujbhn1tRm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7N2ATsQ+4ddQXpbFSIsouTFiPPbE3AX/HAllpgov+NbVgoDL2C78GqzByjtXfUJL
-         tVlxABd8x/jdaFAccYYZME7ET6waLx+k0KeQ//p0XzpTp7/1Gxi9ftEyIhzZ9STmMP
-         QzNfdCn1CWhFnk8Qi/xqe1RcVsn97IBgFvNaVqlM=
+        b=VJ6uXsN0P5w7KkgvZN2wCYMpmIPGwPYvL/iKnjPgzGgvbqEXhYPB4jH4tBfmsx2E6
+         f8nE7DiNxjQ1byFgzCdr8/IHEN/5LbQVvy5r7cjf5pCzeG28fM9kn5dqbiyNcldXPv
+         ZAMHwVjcXSH8D7h6RnIEAucV6ZNLotlvcS8qofaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Letu Ren <fantasquex@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 801/862] scsi: 3w-9xxx: Avoid disabling device if failing to enable it
-Date:   Wed, 19 Oct 2022 10:34:48 +0200
-Message-Id: <20221019083325.291693919@linuxfoundation.org>
+Subject: [PATCH 6.0 805/862] power: supply: adp5061: fix out-of-bounds read in adp5061_get_chg_type()
+Date:   Wed, 19 Oct 2022 10:34:52 +0200
+Message-Id: <20221019083325.471951056@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,40 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 7eff437b5ee1309b34667844361c6bbb5c97df05 ]
+[ Upstream commit 9d47e01b9d807808224347935562f7043a358054 ]
 
-The original code will "goto out_disable_device" and call
-pci_disable_device() if pci_enable_device() fails. The kernel will generate
-a warning message like "3w-9xxx 0000:00:05.0: disabling already-disabled
-device".
+ADP5061_CHG_STATUS_1_CHG_STATUS is masked with 0x07, which means a length
+of 8, but adp5061_chg_type array size is 4, may end up reading 4 elements
+beyond the end of the adp5061_chg_type[] array.
 
-We shouldn't disable a device that failed to be enabled. A simple return is
-fine.
-
-Link: https://lore.kernel.org/r/20220829110115.38789-1-fantasquex@gmail.com
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/3w-9xxx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/power/supply/adp5061.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/3w-9xxx.c b/drivers/scsi/3w-9xxx.c
-index cd823ff5deab..6cb9cca9565b 100644
---- a/drivers/scsi/3w-9xxx.c
-+++ b/drivers/scsi/3w-9xxx.c
-@@ -2006,7 +2006,7 @@ static int twa_probe(struct pci_dev *pdev, const struct pci_device_id *dev_id)
- 	retval = pci_enable_device(pdev);
- 	if (retval) {
- 		TW_PRINTK(host, TW_DRIVER, 0x34, "Failed to enable pci device");
--		goto out_disable_device;
-+		return -ENODEV;
- 	}
+diff --git a/drivers/power/supply/adp5061.c b/drivers/power/supply/adp5061.c
+index 003557043ab3..daee1161c305 100644
+--- a/drivers/power/supply/adp5061.c
++++ b/drivers/power/supply/adp5061.c
+@@ -427,11 +427,11 @@ static int adp5061_get_chg_type(struct adp5061_state *st,
+ 	if (ret < 0)
+ 		return ret;
  
- 	pci_set_master(pdev);
+-	chg_type = adp5061_chg_type[ADP5061_CHG_STATUS_1_CHG_STATUS(status1)];
+-	if (chg_type > ADP5061_CHG_FAST_CV)
++	chg_type = ADP5061_CHG_STATUS_1_CHG_STATUS(status1);
++	if (chg_type >= ARRAY_SIZE(adp5061_chg_type))
+ 		val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
+ 	else
+-		val->intval = chg_type;
++		val->intval = adp5061_chg_type[chg_type];
+ 
+ 	return ret;
+ }
 -- 
 2.35.1
 
