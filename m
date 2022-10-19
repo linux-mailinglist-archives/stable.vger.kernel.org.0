@@ -2,213 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01E1B605119
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 22:13:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84B58605123
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 22:15:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229525AbiJSUNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 16:13:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34606 "EHLO
+        id S230461AbiJSUPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 16:15:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229498AbiJSUNA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 16:13:00 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C4D71B2BA9
-        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 13:12:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666210379; x=1697746379;
-  h=date:from:to:cc:subject:message-id:reply-to:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=St73ZqXrFg6jpq6tzl6wsAnS3lOpAT2cGNAdsqwD2vE=;
-  b=d6mUhJxVQnboD+SDMcwt4RfEiuopvUEwSGC66mcazmPnrc2t3Rv/JgwZ
-   2MLtcu8NIg+oVEq+H9r/3fnkMcle6QQPIS/z2RxMg1FLpM/4MhMASgul5
-   F2F8h6EJOkbtax+iLa4wDWP9aowcTTuJTl23yGHRSCh7ERJ6hSWplEwKs
-   o8d+qYndfs1Oekg35n/sze6xYmR0wMGiiF9m+rbfK1+w6vclxWiTWFaQk
-   Ij4L4qTpEXFWOcs/qyPgvgBgrxXf+J3YcMKADrIOuitlYKCatZXQik+W1
-   TpnTewK7/84d0vvlyOGVg4/sVVus/DUyVCgX1IlIrtmXvIOBDS0JPrY9c
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10505"; a="368568696"
-X-IronPort-AV: E=Sophos;i="5.95,196,1661842800"; 
-   d="scan'208";a="368568696"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2022 13:12:58 -0700
-X-IronPort-AV: E=McAfee;i="6500,9779,10505"; a="771953094"
-X-IronPort-AV: E=Sophos;i="5.95,196,1661842800"; 
-   d="scan'208";a="771953094"
-Received: from ideak-desk.fi.intel.com ([10.237.72.175])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2022 13:12:57 -0700
-Date:   Wed, 19 Oct 2022 23:12:53 +0300
-From:   Imre Deak <imre.deak@intel.com>
-To:     Jani Nikula <jani.nikula@linux.intel.com>
-Cc:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>, intel-gfx@lists.freedesktop.org,
-        stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 1/3] drm/i915/tgl+: Add locking around DKL
- PHY register accesses
-Message-ID: <Y1BaRfTAH/l+XLqc@ideak-desk.fi.intel.com>
-Reply-To: imre.deak@intel.com
-References: <20221018172042.1449885-1-imre.deak@intel.com>
- <87bkq8i3xp.fsf@intel.com>
- <Y0/BNSKHS+GYkLCw@intel.com>
- <Y0/Dwl3Bct0owF7S@intel.com>
- <8735bkhu65.fsf@intel.com>
- <Y0/9Et5mQ5K/Tnsl@ideak-desk.fi.intel.com>
- <87wn8vhndx.fsf@intel.com>
+        with ESMTP id S230393AbiJSUPP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 16:15:15 -0400
+Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0798B118741;
+        Wed, 19 Oct 2022 13:15:06 -0700 (PDT)
+Received: by mail-qk1-x736.google.com with SMTP id x13so11488083qkg.11;
+        Wed, 19 Oct 2022 13:15:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=P6ehJmZtaKjHfWDooxLByyg7Qm8nO8821wCtlJKz2+4=;
+        b=TybltSlWY2qkowVbGkbhGUhl8GW5569umxbF7Wp6iG+ZXAuhuOylG8yjLXPo43vTZA
+         dAabbW135Irpmk/ZJVBz1w3a4szDvKd7Dqfim+MtPKw7HA6Q6rElVHH1UEeH+Bwq16qk
+         qtW6K4LiAVNCwVj+YAVZK2AVdn05XYfHM+5Zisi1UnbBb4mgqL/djqPx60S1WgFMFGxf
+         DT8E7ijLIq5TjewGJ6yZvF33qampqKD28bJPN/sHzTIgAu7pKWqfOL0WwZGdiC77iomF
+         uV6PwFQBRaOKse1ujXcu1EBwRjxIiPRbXDvBDCURMMUnwQne/kqKCqQ443yFSL/XonOU
+         vKcA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=P6ehJmZtaKjHfWDooxLByyg7Qm8nO8821wCtlJKz2+4=;
+        b=OJhk5LFjxE3jj6DE/fBEBzVbtLWdj/gNptX5PwYI12o77EF3pP1CUJ3MHLkPBCq3wU
+         kW9A0vMUlcv5l2TFgEjX36sKH1aFfHV58Sf45mWTSw9Loe/jwWbPjmZnYr1e3j828OFH
+         DNdYWaweiZj8JmlXkS+WKnvEk+oO7bd5IJ4zygFCaaIgayspVuWfbwFe/QCRL5E+en2g
+         tmNeTTMiN9lnJ4MIYyzYI6tqnqB+8lGSueCvDJI8ty1F+LZJRrTVtipkE9HyOew18+LL
+         9ugaQAvE1EexNTGMJle46J4ShVnxGYugNVUpYQNZFOEvv4F1Hj5T/hLGf1HPvoQ8LOIm
+         Z54A==
+X-Gm-Message-State: ACrzQf12LKkUiVZteGdV8rpj9fdgY6vzzhDpUZU5jf4rdNzQqcSHilOX
+        L9FgC48/MTlO4K9PbQctLdlJwAL9MdQ=
+X-Google-Smtp-Source: AMsMyM4ZHmOVoj5agvIt9yLlHK+ps82y567FzoPncwvnc5+QX6N88fZlpsF0dCXNDa/n+eOBD4dBCg==
+X-Received: by 2002:a05:620a:3708:b0:6ee:d16f:b780 with SMTP id de8-20020a05620a370800b006eed16fb780mr6861107qkb.144.1666210505337;
+        Wed, 19 Oct 2022 13:15:05 -0700 (PDT)
+Received: from pm2-ws13.praxislan02.com ([2001:470:8:67e:ba27:ebff:fee8:ce27])
+        by smtp.gmail.com with ESMTPSA id bj3-20020a05620a190300b006eeca296c00sm5813448qkb.104.2022.10.19.13.15.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Oct 2022 13:15:04 -0700 (PDT)
+From:   Jason Andryuk <jandryuk@gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     xen-devel@lists.xenproject.org, Jason Andryuk <jandryuk@gmail.com>,
+        Phillip Susi <phill@thesusis.net>, stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org
+Subject: [PATCH] Input: xen-kbdfront - drop keys to shrink modalias
+Date:   Wed, 19 Oct 2022 16:14:57 -0400
+Message-Id: <20221019201458.21803-1-jandryuk@gmail.com>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <87wn8vhndx.fsf@intel.com>
-X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 19, 2022 at 05:57:30PM +0300, Jani Nikula wrote:
-> On Wed, 19 Oct 2022, Imre Deak <imre.deak@intel.com> wrote:
-> > On Wed, Oct 19, 2022 at 03:30:58PM +0300, Jani Nikula wrote:
-> >> On Wed, 19 Oct 2022, Ville Syrjälä <ville.syrjala@linux.intel.com> wrote:
-> >> > On Wed, Oct 19, 2022 at 12:19:49PM +0300, Ville Syrjälä wrote:
-> >> >> On Wed, Oct 19, 2022 at 12:00:02PM +0300, Jani Nikula wrote:
-> >> >> > On Tue, 18 Oct 2022, Imre Deak <imre.deak@intel.com> wrote:
-> >> >> > > Accessing the TypeC DKL PHY registers during modeset-commit,
-> >> >> > > -verification, DP link-retraining and AUX power well toggling is racy
-> >> >> > > due to these code paths being concurrent and the PHY register bank
-> >> >> > > selection register (HIP_INDEX_REG) being shared between PHY instances
-> >> >> > > (aka TC ports) and the bank selection being not atomic wrt. the actual
-> >> >> > > PHY register access.
-> >> >> > >
-> >> >> > > Add the required locking around each PHY register bank selection->
-> >> >> > > register access sequence.
-> >> >> > 
-> >> >> > I honestly think the abstraction here is at a too low level.
-> >> >> > 
-> >> >> > Too many places are doing DKL PHY register access to begin with. IMO the
-> >> >> > solution should be to abstract DKL PHY better, not to provide low level
-> >> >> > DKL PHY register accessors.
-> >> >> > 
-> >> >> > Indeed, this level of granularity leads to a lot of unnecessary
-> >> >> > lock/unlock that could have a longer span otherwise, and the interface
-> >> >> > does not lend itself for that.
-> >> >> 
-> >> >> It's no worse than uncore.lock. No one cares about that in
-> >> >> these codepaths either.
-> >> >> 
-> >> >> > Also requires separate bank selection for
-> >> >> > every write, nearly doubling the MMIO writes.
-> >> >> 
-> >> >> Drop in the ocean. This is all slow modeset stuff anyway.
-> >> >> 
-> >> >> IMO separate reg accessors is the correct way to handle indexed
-> >> >> registers unless you have some very specific performance concerns
-> >> >> to deal with.
-> >> 
-> >> Fair enough.
-> >> 
-> >> > Now, whether those accessors need to be visible everywere is another
-> >> > matter. It should certainly be possible to suck all dkl phy stuff
-> >> > into one file and keep the accessors static. But currently eveything
-> >> > is grouped by function (PLLs in one file, vswing stuff in another,
-> >> > etc.). We'd have to flip that around so that all the sub functions
-> >> > of of each IP block is in the same file. Is that a better apporach?
-> >> > Not sure.
-> >> 
-> >> I'm often interested in the precedent a change makes. What's the
-> >> direction we want to go to?
-> >> 
-> >> So here, we're saying the DKL PHY registers are special, and need to be
-> >> accessed via dedicated register accessors. To enforce this, we create
-> >> strong typing for DKL PHY registers. We go out of our way to make it
-> >> safe to access DKL PHY registers anywhere in the driver.
-> >> 
-> >> Do we want to add more and more register types in the future? And
-> >> duplicate the accessors for each? Oops, looks like we're already on our
-> >> way [1].
-> >
-> > Making the DKL PHY accesses type safe was just a bonus, the main reason
-> > for adding the dkl_phy_reg struct (in a later refactoring patch) is that
-> > defining those registers only makes sense to me specifying all the
-> > attributes (both MMIO and the bank index) of the register at one place.
-> > That's instead of the current way of having to pass these separately to
-> > each accessor functions. For instance to be able to call
-> >
-> > read(DKL_PLL_DIV0(tc_port))
-> >
-> > instead of having to remember the index of each (non lane-instanced)
-> > register and call
-> >
-> > read(DKL_PLL_DIV0(tc_port), 2)
-> >
-> > It also makes more sense to me that the register itself is parametric
-> > if that's needed (lane-instanced registers), for instance
-> >
-> > read(DKL_TX_DPCNTL0(tc_port, 0))
-> >
-> > instead of this being a separate parameter of each accessor function:
-> >
-> > read(DKL_TX_DPCNTL0(tc_port), 0)
-> 
-> This is actually a very good point.
-> 
-> An alternative to this that I've been pondering separately, before these
-> patches, is expanding i915_reg_t to encode things like "display
-> register", "mcr register", etc.
-> 
-> So you'd still have only one i915_reg_t type, and only one set of
-> accessors, but they could be smarter behind the scenes. But I don't like
-> teaching intel uncore about stuff like dkl either. And the main point
-> would be avoiding all the duplication that C type safety requires.
-> 
-> But it's a moot point anyway because we also need something to backport
-> to stable, and I acknowledge your approach makes a lot of sense for that
-> too.
-> 
-> >> My argument is that maybe access to such a hardware block should instead
-> >> be limited to a module (.c file) that abstracts the details. Abstract
-> >> hardware blocks and function, not registers. How many files need big
-> >> changes to add a new PHY?
-> >
-> > I think the accessors could be added to a new intel_tc_phy.c file
-> > instead? (That would still allow further refactoring of both the MG and
-> > DKL functionality as a follow-up to this change for -stable.)
-> 
-> So, why intel_tc_anything? Why not just intel_dkl_phy.[ch],
-> intel_dkl_phy_regs.h? Even if initially limited to the register
-> accessors, you could easily move things like
-> tgl_dkl_phy_set_signal_levels() there, just like
-> intel_snps_phy_set_signal_levels() is in intel_snps_phy.c. And you could
-> have intel_mg_phy.c for MG stuff.
+xen kbdfront registers itself as being able to deliver *any* key since
+it doesn't know what keys the backend may produce.
 
-MG and DKL share some register flags and programming sequences
-(calculating PLL params, setting pin assignments for instance), hence
-thought to have one file for both PHY implementations. But there are
-also differences and sharing code would also be possible between the
-MG and DKL files, so ok if no objections I can add the accessors to
-intel_dkl_phy.[ch].
+Unfortunately, the generated modalias gets too large and uevent creation
+fails with -ENOMEM.
 
-> I guess intel_tc_phy_regs.h would mostly be split to
-> intel_dkl_phy_regs.h and intel_mg_phy_regs.h.
+This can lead to gdm not using the keyboard since there is no seat
+associated [1] and the debian installer crashing [2].
 
-Ok, so I suppose this means renaming the current intel_tc_phy_regs.h to
-intel_mg_phy_regs.h, move the DKL regs to intel_dkl_phy_regs.h and
-copy/rename the shared MG_* flags in the former to DKL_* in the latter.
+Trim the ranges of key capabilities by removing some BTN_* ranges.
+While doing this, some neighboring undefined ranges are removed to trim
+it further.
 
---Imre
+This removes:
+BTN_DPAD_UP(0x220)..BTN_DPAD_RIGHT(0x223)
+Empty space 0x224..0x229
 
-> BR,
-> Jani.
-> >
-> >> BR,
-> >> Jani.
-> >> 
-> >> [1] https://lore.kernel.org/r/20221014230239.1023689-13-matthew.d.roper@intel.com
-> >> 
-> >> -- 
-> >> Jani Nikula, Intel Open Source Graphics Center
-> 
-> -- 
-> Jani Nikula, Intel Open Source Graphics Center
+Emtpy space 0x2bd..0x2bf
+BTN_TRIGGER_HAPPY(0x2c0)..BTN_TRIGGER_HAPPY40(0x2e7)
+Empty space 0x2e8..0x2ff
+
+The modalias shrinks from 2082 to 1754 bytes.
+
+[1] https://github.com/systemd/systemd/issues/22944
+[2] https://lore.kernel.org/xen-devel/87o8dw52jc.fsf@vps.thesusis.net/T/
+
+Cc: Phillip Susi <phill@thesusis.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
+---
+ drivers/input/misc/xen-kbdfront.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index 8d8ebdc2039b..23f37211be78 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -256,7 +256,14 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 		__set_bit(EV_KEY, kbd->evbit);
+ 		for (i = KEY_ESC; i < KEY_UNKNOWN; i++)
+ 			__set_bit(i, kbd->keybit);
+-		for (i = KEY_OK; i < KEY_MAX; i++)
++		/* In theory we want to go KEY_OK..KEY_MAX, but that grows the
++		 * modalias line too long.  KEY_KBD_LCD_MENU5 is the last
++		 * defined non-button key. There is a gap of buttons from
++		 * BTN_DPAD_UP..BTN_DPAD_RIGHT and KEY_ALS_TOGGLE is the next
++		 * defined. */
++		for (i = KEY_OK; i < BTN_DPAD_UP; i++)
++			__set_bit(i, kbd->keybit);
++		for (i = KEY_ALS_TOGGLE; i <= KEY_KBD_LCD_MENU5; i++)
+ 			__set_bit(i, kbd->keybit);
+ 
+ 		ret = input_register_device(kbd);
+-- 
+2.37.3
+
