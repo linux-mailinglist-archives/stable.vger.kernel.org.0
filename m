@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C66B60428A
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 13:06:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4331F604104
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:35:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233871AbiJSLGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 07:06:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48060 "EHLO
+        id S229853AbiJSKf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:35:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233526AbiJSLFY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 07:05:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AEF21DF0B;
-        Wed, 19 Oct 2022 03:34:35 -0700 (PDT)
+        with ESMTP id S231909AbiJSKeG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:34:06 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99D3125E93;
+        Wed, 19 Oct 2022 03:13:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3105617EA;
-        Wed, 19 Oct 2022 09:14:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEA1FC433C1;
-        Wed, 19 Oct 2022 09:14:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 47EABCE21C4;
+        Wed, 19 Oct 2022 09:13:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C37FC433D6;
+        Wed, 19 Oct 2022 09:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170877;
-        bh=DyF7cFPBhyiKKwMWomnIA0DO1L1nyUDi+UAHcYqsMI0=;
+        s=korg; t=1666170795;
+        bh=G8CuIdsxyRmJZ0HZZZ+6AWbhH4w906IufRABNPKTnM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAto0vey2tthbgMIVtbLsXgSb8FOLO7y+Tb0LEAbijJAP5wSRv+oTaxuRlubqpQQ4
-         G2s8rOTRDXeDaijFfYn04O9cJYia8Tk9Cet5hXGo8m2WUCR4NKDRSKujaZAva46NTV
-         qgzsUzO52IzFCs9d8N6YBbbP8qvjBGICtvGolk8c=
+        b=EMnu1Tcf69bedyBPrM3c4kpDxxZwkbw/aegKz5o8Y1pskqr9Lmu1+cS5Y+QwrW7rS
+         2nQhUFT9PB0WM3tah/ok2tr0LgS7owWhiSsot7Tsoqc9vEHaNCpLwAGzPopLFHPt5E
+         gNNIUo3zr8Elg/6Zd2r5c2QsQf0SGc1dMgOjB5f4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 788/862] arm64: dts: uniphier: Add USB-device support for PXs3 reference board
-Date:   Wed, 19 Oct 2022 10:34:35 +0200
-Message-Id: <20221019083324.721603131@linuxfoundation.org>
+        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
+        Linus Waleij <linus.walleij@linaro.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 790/862] ARM: 9234/1: stacktrace: Avoid duplicate saving of exception PC value
+Date:   Wed, 19 Oct 2022 10:34:37 +0200
+Message-Id: <20221019083324.817190727@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,160 +54,175 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Li Huafei <lihuafei1@huawei.com>
 
-[ Upstream commit 19fee1a1096d21ab1f1e712148b5417bda2939a2 ]
+[ Upstream commit 752ec621ef5c30777958cc5eb5f1cf394f7733f4 ]
 
-PXs3 reference board can change each USB port 0 and 1 to device mode
-with jumpers. Prepare devicetree sources for USB port 0 and 1.
+Because an exception stack frame is not created in the exception entry,
+save_trace() does special handling for the exception PC, but this is
+only needed when CONFIG_FRAME_POINTER_UNWIND=y. When
+CONFIG_ARM_UNWIND=y, unwind annotations have been added to the exception
+entry and save_trace() will repeatedly save the exception PC:
 
-This specifies dr_mode, pinctrl, and some quirks and removes nodes for
-unused phys and vbus-supply properties.
+    [0x7f000090] hrtimer_hander+0x8/0x10 [hrtimer]
+    [0x8019ec50] __hrtimer_run_queues+0x18c/0x394
+    [0x8019f760] hrtimer_run_queues+0xbc/0xd0
+    [0x8019def0] update_process_times+0x34/0x80
+    [0x801ad2a4] tick_periodic+0x48/0xd0
+    [0x801ad3dc] tick_handle_periodic+0x1c/0x7c
+    [0x8010f2e0] twd_handler+0x30/0x40
+    [0x80177620] handle_percpu_devid_irq+0xa0/0x23c
+    [0x801718d0] generic_handle_domain_irq+0x24/0x34
+    [0x80502d28] gic_handle_irq+0x74/0x88
+    [0x8085817c] generic_handle_arch_irq+0x58/0x78
+    [0x80100ba8] __irq_svc+0x88/0xc8
+    [0x80108114] arch_cpu_idle+0x38/0x3c
+    [0x80108114] arch_cpu_idle+0x38/0x3c    <==== duplicate saved exception PC
+    [0x80861bf8] default_idle_call+0x38/0x130
+    [0x8015d5cc] do_idle+0x150/0x214
+    [0x8015d978] cpu_startup_entry+0x18/0x1c
+    [0x808589c0] rest_init+0xd8/0xdc
+    [0x80c00a44] arch_post_acpi_subsys_init+0x0/0x8
 
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Link: https://lore.kernel.org/r/20220913042321.4817-8-hayashi.kunihiko@socionext.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+We can move the special handling of the exception PC in save_trace() to
+the unwind_frame() of the frame pointer unwinder.
+
+Signed-off-by: Li Huafei <lihuafei1@huawei.com>
+Reviewed-by: Linus Waleij <linus.walleij@linaro.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/uniphier-pinctrl.dtsi       | 10 +++++
- arch/arm64/boot/dts/socionext/Makefile        |  4 +-
- .../socionext/uniphier-pxs3-ref-gadget0.dts   | 41 +++++++++++++++++++
- .../socionext/uniphier-pxs3-ref-gadget1.dts   | 40 ++++++++++++++++++
- 4 files changed, 94 insertions(+), 1 deletion(-)
- create mode 100644 arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget0.dts
- create mode 100644 arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget1.dts
+ arch/arm/include/asm/stacktrace.h |  6 +++++
+ arch/arm/kernel/return_address.c  |  1 +
+ arch/arm/kernel/stacktrace.c      | 44 +++++++++++++++++++++----------
+ 3 files changed, 37 insertions(+), 14 deletions(-)
 
-diff --git a/arch/arm/boot/dts/uniphier-pinctrl.dtsi b/arch/arm/boot/dts/uniphier-pinctrl.dtsi
-index c0fd029b37e5..f909ec2e5333 100644
---- a/arch/arm/boot/dts/uniphier-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/uniphier-pinctrl.dtsi
-@@ -196,11 +196,21 @@
- 		function = "usb0";
- 	};
+diff --git a/arch/arm/include/asm/stacktrace.h b/arch/arm/include/asm/stacktrace.h
+index 3e78f921b8b2..39be2d1aa27b 100644
+--- a/arch/arm/include/asm/stacktrace.h
++++ b/arch/arm/include/asm/stacktrace.h
+@@ -21,6 +21,9 @@ struct stackframe {
+ 	struct llist_node *kr_cur;
+ 	struct task_struct *tsk;
+ #endif
++#ifdef CONFIG_UNWINDER_FRAME_POINTER
++	bool ex_frame;
++#endif
+ };
  
-+	pinctrl_usb0_device: usb0-device {
-+		groups = "usb0_device";
-+		function = "usb0";
-+	};
-+
- 	pinctrl_usb1: usb1 {
- 		groups = "usb1";
- 		function = "usb1";
- 	};
+ static __always_inline
+@@ -34,6 +37,9 @@ void arm_get_current_stackframe(struct pt_regs *regs, struct stackframe *frame)
+ 		frame->kr_cur = NULL;
+ 		frame->tsk = current;
+ #endif
++#ifdef CONFIG_UNWINDER_FRAME_POINTER
++		frame->ex_frame = in_entry_text(frame->pc);
++#endif
+ }
  
-+	pinctrl_usb1_device: usb1-device {
-+		groups = "usb1_device";
-+		function = "usb1";
-+	};
+ extern int unwind_frame(struct stackframe *frame);
+diff --git a/arch/arm/kernel/return_address.c b/arch/arm/kernel/return_address.c
+index 8aac1e10b117..38f1ea9c724d 100644
+--- a/arch/arm/kernel/return_address.c
++++ b/arch/arm/kernel/return_address.c
+@@ -47,6 +47,7 @@ void *return_address(unsigned int level)
+ 	frame.kr_cur = NULL;
+ 	frame.tsk = current;
+ #endif
++	frame.ex_frame = false;
+ 
+ 	walk_stackframe(&frame, save_return_addr, &data);
+ 
+diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
+index af87040b0353..85443b5d1922 100644
+--- a/arch/arm/kernel/stacktrace.c
++++ b/arch/arm/kernel/stacktrace.c
+@@ -82,6 +82,27 @@ int notrace unwind_frame(struct stackframe *frame)
+ 	if (frame_pointer_check(frame))
+ 		return -EINVAL;
+ 
++	/*
++	 * When we unwind through an exception stack, include the saved PC
++	 * value into the stack trace.
++	 */
++	if (frame->ex_frame) {
++		struct pt_regs *regs = (struct pt_regs *)frame->sp;
 +
- 	pinctrl_usb2: usb2 {
- 		groups = "usb2";
- 		function = "usb2";
-diff --git a/arch/arm64/boot/dts/socionext/Makefile b/arch/arm64/boot/dts/socionext/Makefile
-index dda3da33614b..33989a9643ac 100644
---- a/arch/arm64/boot/dts/socionext/Makefile
-+++ b/arch/arm64/boot/dts/socionext/Makefile
-@@ -5,4 +5,6 @@ dtb-$(CONFIG_ARCH_UNIPHIER) += \
- 	uniphier-ld20-akebi96.dtb \
- 	uniphier-ld20-global.dtb \
- 	uniphier-ld20-ref.dtb \
--	uniphier-pxs3-ref.dtb
-+	uniphier-pxs3-ref.dtb \
-+	uniphier-pxs3-ref-gadget0.dtb \
-+	uniphier-pxs3-ref-gadget1.dtb
-diff --git a/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget0.dts b/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget0.dts
-new file mode 100644
-index 000000000000..7069f51bc120
---- /dev/null
-+++ b/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget0.dts
-@@ -0,0 +1,41 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
-+//
-+// Device Tree Source for UniPhier PXs3 Reference Board (for USB-Device #0)
-+//
-+// Copyright (C) 2021 Socionext Inc.
-+//   Author: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
++		/*
++		 * We check that 'regs + sizeof(struct pt_regs)' (that is,
++		 * &regs[1]) does not exceed the bottom of the stack to avoid
++		 * accessing data outside the task's stack. This may happen
++		 * when frame->ex_frame is a false positive.
++		 */
++		if ((unsigned long)&regs[1] > ALIGN(frame->sp, THREAD_SIZE))
++			return -EINVAL;
 +
-+/dts-v1/;
-+#include "uniphier-pxs3-ref.dts"
++		frame->pc = regs->ARM_pc;
++		frame->ex_frame = false;
++		return 0;
++	}
 +
-+/ {
-+	model = "UniPhier PXs3 Reference Board (USB-Device #0)";
-+};
+ 	/* restore the registers from the stack frame */
+ #ifdef CONFIG_CC_IS_CLANG
+ 	frame->sp = frame->fp;
+@@ -98,6 +119,9 @@ int notrace unwind_frame(struct stackframe *frame)
+ 					(void *)frame->fp, &frame->kr_cur);
+ #endif
+ 
++	if (in_entry_text(frame->pc))
++		frame->ex_frame = true;
 +
-+/* I2C3 pinctrl is shared with USB*VBUSIN */
-+&i2c3 {
-+	status = "disabled";
-+};
-+
-+&usb0 {
-+	status = "okay";
-+	dr_mode = "peripheral";
-+	pinctrl-0 = <&pinctrl_usb0_device>;
-+	snps,dis_enblslpm_quirk;
-+	snps,dis_u2_susphy_quirk;
-+	snps,dis_u3_susphy_quirk;
-+	snps,usb2_gadget_lpm_disable;
-+	phy-names = "usb2-phy", "usb3-phy";
-+	phys = <&usb0_hsphy0>, <&usb0_ssphy0>;
-+};
-+
-+&usb0_hsphy0 {
-+	/delete-property/ vbus-supply;
-+};
-+
-+&usb0_ssphy0 {
-+	/delete-property/ vbus-supply;
-+};
-+
-+/delete-node/ &usb0_hsphy1;
-+/delete-node/ &usb0_ssphy1;
-diff --git a/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget1.dts b/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget1.dts
-new file mode 100644
-index 000000000000..a3cfa8113ffb
---- /dev/null
-+++ b/arch/arm64/boot/dts/socionext/uniphier-pxs3-ref-gadget1.dts
-@@ -0,0 +1,40 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
-+//
-+// Device Tree Source for UniPhier PXs3 Reference Board (for USB-Device #1)
-+//
-+// Copyright (C) 2021 Socionext Inc.
-+//   Author: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-+
-+/dts-v1/;
-+#include "uniphier-pxs3-ref.dts"
-+
-+/ {
-+	model = "UniPhier PXs3 Reference Board (USB-Device #1)";
-+};
-+
-+/* I2C3 pinctrl is shared with USB*VBUSIN */
-+&i2c3 {
-+	status = "disabled";
-+};
-+
-+&usb1 {
-+	status = "okay";
-+	dr_mode = "peripheral";
-+	pinctrl-0 = <&pinctrl_usb1_device>;
-+	snps,dis_enblslpm_quirk;
-+	snps,dis_u2_susphy_quirk;
-+	snps,dis_u3_susphy_quirk;
-+	snps,usb2_gadget_lpm_disable;
-+	phy-names = "usb2-phy", "usb3-phy";
-+	phys = <&usb1_hsphy0>, <&usb1_ssphy0>;
-+};
-+
-+&usb1_hsphy0 {
-+	/delete-property/ vbus-supply;
-+};
-+
-+&usb1_ssphy0 {
-+	/delete-property/ vbus-supply;
-+};
-+
-+/delete-node/ &usb1_hsphy1;
+ 	return 0;
+ }
+ #endif
+@@ -128,7 +152,6 @@ static int save_trace(struct stackframe *frame, void *d)
+ {
+ 	struct stack_trace_data *data = d;
+ 	struct stack_trace *trace = data->trace;
+-	struct pt_regs *regs;
+ 	unsigned long addr = frame->pc;
+ 
+ 	if (data->no_sched_functions && in_sched_functions(addr))
+@@ -139,19 +162,6 @@ static int save_trace(struct stackframe *frame, void *d)
+ 	}
+ 
+ 	trace->entries[trace->nr_entries++] = addr;
+-
+-	if (trace->nr_entries >= trace->max_entries)
+-		return 1;
+-
+-	if (!in_entry_text(frame->pc))
+-		return 0;
+-
+-	regs = (struct pt_regs *)frame->sp;
+-	if ((unsigned long)&regs[1] > ALIGN(frame->sp, THREAD_SIZE))
+-		return 0;
+-
+-	trace->entries[trace->nr_entries++] = regs->ARM_pc;
+-
+ 	return trace->nr_entries >= trace->max_entries;
+ }
+ 
+@@ -193,6 +203,9 @@ static noinline void __save_stack_trace(struct task_struct *tsk,
+ 	frame.kr_cur = NULL;
+ 	frame.tsk = tsk;
+ #endif
++#ifdef CONFIG_UNWINDER_FRAME_POINTER
++	frame.ex_frame = false;
++#endif
+ 
+ 	walk_stackframe(&frame, save_trace, &data);
+ }
+@@ -214,6 +227,9 @@ void save_stack_trace_regs(struct pt_regs *regs, struct stack_trace *trace)
+ 	frame.kr_cur = NULL;
+ 	frame.tsk = current;
+ #endif
++#ifdef CONFIG_UNWINDER_FRAME_POINTER
++	frame.ex_frame = in_entry_text(frame.pc);
++#endif
+ 
+ 	walk_stackframe(&frame, save_trace, &data);
+ }
 -- 
 2.35.1
 
