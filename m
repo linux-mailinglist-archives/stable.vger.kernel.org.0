@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F3D2603F73
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:32:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36DBE603E8C
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:16:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232141AbiJSJbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:31:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48326 "EHLO
+        id S233015AbiJSJQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:16:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233853AbiJSJ3j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:29:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F291DC58B2;
-        Wed, 19 Oct 2022 02:13:14 -0700 (PDT)
+        with ESMTP id S233295AbiJSJOf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:14:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A112524086;
+        Wed, 19 Oct 2022 02:04:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18F2C61828;
-        Wed, 19 Oct 2022 09:04:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 286F3C433D7;
-        Wed, 19 Oct 2022 09:04:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC90861851;
+        Wed, 19 Oct 2022 09:04:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC41AC433C1;
+        Wed, 19 Oct 2022 09:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170272;
-        bh=j+D3BSRw6K3WPL1upC13NhG7/06VKOHGGwiFpM2s2cY=;
+        s=korg; t=1666170275;
+        bh=hDIWTXnFPYaCL2NW+LTf3CWQC5jgrfHnhKhZtQhXzUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iI4d7Z0psptg7GsWobXlDuAr0eIxIPW3VBCIfnLmiJIU7zyUZxjEKTCcebzq/y8/e
-         alIKvO4+O91BXJo8Vn+93ZOZZ2xQgFYnfGXIiSQb3HQepbIsniS7+k0fMBIFL2abOt
-         yfImzWYRZnBmApjQsb1gZOsZ+6Wy3VxSs3/hKMJk=
+        b=dUom+EiSxchyIh/C3tbm/zI0WXlqEnC0SEC5cr6j4Ing0MFs5DIdzqckCVhP4+7qa
+         B524G68Wf3jHh3pj9vLGTe5ge4YVuBBE4FERym8ox3/zcDUXI/kK9IHAW9t4+gjjTr
+         o+SmhVTfKYY5vQUct7R7IWnnzQ7jkvqcqC8qXH4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Luca Ceresoli <luca@lucaceresoli.net>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 591/862] clk: vc5: Fix 5P49V6901 outputs disabling when enabling FOD
-Date:   Wed, 19 Oct 2022 10:31:18 +0200
-Message-Id: <20221019083316.087044841@linuxfoundation.org>
+Subject: [PATCH 6.0 592/862] clk: baikal-t1: Fix invalid xGMAC PTP clock divider
+Date:   Wed, 19 Oct 2022 10:31:19 +0200
+Message-Id: <20221019083316.126804263@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -57,51 +56,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit c388cc804016cf0f65afdc2362b120aa594ff3e6 ]
+[ Upstream commit 3c742088686ce922704aec5b11d09bcc5a396589 ]
 
-We have discovered random glitches during the system boot up procedure.
-The problem investigation led us to the weird outcomes: when none of the
-Renesas 5P49V6901 ports are explicitly enabled by the kernel driver, the
-glitches disappeared. It was a mystery since the SoC external clock
-domains were fed with different 5P49V6901 outputs. The driver code didn't
-seem like bogus either. We almost despaired to find out a root cause when
-the solution has been found for a more modern revision of the chip. It
-turned out the 5P49V6901 clock generator stopped its output for a short
-period of time during the VC5_OUT_DIV_CONTROL register writing. The same
-problem was found for the 5P49V6965 revision of the chip and was
-successfully fixed in commit fc336ae622df ("clk: vc5: fix output disabling
-when enabling a FOD") by enabling the "bypass_sync" flag hidden inside
-"Unused Factory Reserved Register". Even though the 5P49V6901 registers
-description and programming guide doesn't provide any intel regarding that
-flag, setting it up anyway in the officially unused register completely
-eliminated the denoted glitches. Thus let's activate the functionality
-submitted in commit fc336ae622df ("clk: vc5: fix output disabling when
-enabling a FOD") for the Renesas 5P49V6901 chip too in order to remove the
-ports implicit inter-dependency.
+Most likely due to copy-paste mistake the divider has been set to 10 while
+according to the SoC reference manual it's supposed to be 8 thus having
+PTP clock frequency of 156.25 MHz.
 
-Fixes: dbf6b16f5683 ("clk: vc5: Add support for IDT VersaClock 5P49V6901")
+Fixes: 353afa3a8d2e ("clk: Add Baikal-T1 CCU Dividers driver")
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
-Link: https://lore.kernel.org/r/20220929225402.9696-2-Sergey.Semin@baikalelectronics.ru
+Link: https://lore.kernel.org/r/20220929225402.9696-3-Sergey.Semin@baikalelectronics.ru
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-versaclock5.c | 2 +-
+ drivers/clk/baikal-t1/clk-ccu-div.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-versaclock5.c b/drivers/clk/clk-versaclock5.c
-index e7be3e54b9be..03cfef494b49 100644
---- a/drivers/clk/clk-versaclock5.c
-+++ b/drivers/clk/clk-versaclock5.c
-@@ -1204,7 +1204,7 @@ static const struct vc5_chip_info idt_5p49v6901_info = {
- 	.model = IDT_VC6_5P49V6901,
- 	.clk_fod_cnt = 4,
- 	.clk_out_cnt = 5,
--	.flags = VC5_HAS_PFD_FREQ_DBL,
-+	.flags = VC5_HAS_PFD_FREQ_DBL | VC5_HAS_BYPASS_SYNC_BIT,
- };
- 
- static const struct vc5_chip_info idt_5p49v6965_info = {
+diff --git a/drivers/clk/baikal-t1/clk-ccu-div.c b/drivers/clk/baikal-t1/clk-ccu-div.c
+index f141fda12b09..ea77eec40ddd 100644
+--- a/drivers/clk/baikal-t1/clk-ccu-div.c
++++ b/drivers/clk/baikal-t1/clk-ccu-div.c
+@@ -207,7 +207,7 @@ static const struct ccu_div_info sys_info[] = {
+ 	CCU_DIV_GATE_INFO(CCU_SYS_XGMAC_REF_CLK, "sys_xgmac_ref_clk",
+ 			  "eth_clk", CCU_SYS_XGMAC_BASE, 8),
+ 	CCU_DIV_FIXED_INFO(CCU_SYS_XGMAC_PTP_CLK, "sys_xgmac_ptp_clk",
+-			   "eth_clk", 10),
++			   "eth_clk", 8),
+ 	CCU_DIV_GATE_INFO(CCU_SYS_USB_CLK, "sys_usb_clk",
+ 			  "eth_clk", CCU_SYS_USB_BASE, 10),
+ 	CCU_DIV_VAR_INFO(CCU_SYS_PVT_CLK, "sys_pvt_clk",
 -- 
 2.35.1
 
