@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BA97603DAF
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC830603DA9
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:05:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232354AbiJSJFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:05:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56204 "EHLO
+        id S232298AbiJSJF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:05:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232517AbiJSJE2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:28 -0400
+        with ESMTP id S232529AbiJSJEa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:04:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3CCDAF1BC;
-        Wed, 19 Oct 2022 01:57:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04923AC3B6;
+        Wed, 19 Oct 2022 01:57:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E9646182C;
-        Wed, 19 Oct 2022 08:56:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD034C43470;
-        Wed, 19 Oct 2022 08:56:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA2176186B;
+        Wed, 19 Oct 2022 08:56:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 677B2C433D7;
+        Wed, 19 Oct 2022 08:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666169793;
-        bh=scqpA+ha7SzlbjXpyjkq6PnxKVFNnwZoNtO5fqgmj+I=;
+        s=k20201202; t=1666169806;
+        bh=FHplcX8F9FjqJEVgQ0myqZXIIqUdUA+fWPAh3k3STBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UEo3G+RClphBrxr72vNpX2vPrejo35VbzycOkLHYEL23oO57LelB9Vr+wXn3tkL9A
-         /gWvmcTiGhe6XYhUwdUow55Q/WxMT5g0zTdGDLz5WWiD4UbYbcyXpBn/T4hQquEeqr
-         LGmTeBBmEqGS1pMve40cbjxbM0wY5//DSaGKjnNi9pAScR0lHCJj+7yUM3NjL7Ao/L
-         6o35DE7EONjiPhE1XFn17bP8LR64JcQy8UhdL5+v3CzPp9YNXjBxPCMJI8DbNxRcTC
-         FzjOJB/Ls1CEqCaiDaaaYWYGrgvK6QJQuRLZ3025WJruBMBGToVj74xSh9Hywis7be
-         TvI2SCTrbGiMA==
+        b=nMbc1Id9QkMtEDL5f3VdQu/JF7COp9SBHborA0lIktnilsvzVRFJ2Aa2Go55ZLjlq
+         5wpm3b6BQEdKwAA+VccyvB6sH3zTsAgQVPWFR4DSHZRarpWweRlIHiZInteaJmB2oN
+         qD2CACWFrarMmgdVuMFy7N7GGG3pY0r2wi6CF+cNjOGbF2b0vgiZkMEkgbFd7FK0XN
+         9T88abcmWKhoph3awtxGLOrG8gFjFbrVpOVVj4owi5JQqPDvio8rPMSmbeRNbfii+e
+         EEH9xrecU681XGCHWAOf3t+wAuvU4oSgjvFUM6tcxludwucvagDTMIj2y+VbT8zFXY
+         u+gmnnkukgogA==
 From:   Jiri Olsa <jolsa@kernel.org>
 To:     stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andrii@kernel.org>,
+Cc:     Mel Gorman <mgorman@techsingularity.net>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
-        bpf@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Hao Luo <haoluo@google.com>,
+        Michal Suchanek <msuchanek@suse.de>, bpf@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Martin Rodriguez Reboredo <yakoyoku@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Javier Martinez Canillas <javierm@redhat.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>,
         Nathan Chancellor <nathan@kernel.org>,
         =?UTF-8?q?Philip=20M=C3=BCller?= <philm@manjaro.org>
-Subject: [PATCH stable 5.10 2/5] kbuild: Quote OBJCOPY var to avoid a pahole call break the build
-Date:   Wed, 19 Oct 2022 10:56:01 +0200
-Message-Id: <20221019085604.1017583-3-jolsa@kernel.org>
+Subject: [PATCH stable 5.10 3/5] kbuild: skip per-CPU BTF generation for pahole v1.18-v1.21
+Date:   Wed, 19 Oct 2022 10:56:02 +0200
+Message-Id: <20221019085604.1017583-4-jolsa@kernel.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221019085604.1017583-1-jolsa@kernel.org>
 References: <20221019085604.1017583-1-jolsa@kernel.org>
@@ -59,68 +62,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-commit ff2e6efda0d5c51b33e2bcc0b0b981ac0a0ef214 upstream.
+commit a0b8200d06ad6450c179407baa5f0f52f8cfcc97 upstream.
 
-[backported for dependency, skipped Makefile.modfinal change,
-because module BTF is not supported in 5.10]
+[small context changes due to missing floats support in 5.10]
 
-The ccache tool can be used to speed up cross-compilation, by calling the
-compiler and binutils through ccache. For example, following should work:
+Commit "mm/page_alloc: convert per-cpu list protection to local_lock" will
+introduce a zero-sized per-CPU variable, which causes pahole to generate
+invalid BTF.  Only pahole versions 1.18 through 1.21 are impacted, as
+before 1.18 pahole doesn't know anything about per-CPU variables, and 1.22
+contains the proper fix for the issue.
 
-    $ export ARCH=arm64 CROSS_COMPILE="ccache aarch64-linux-gnu-"
+Luckily, pahole 1.18 got --skip_encoding_btf_vars option disabling BTF
+generation for per-CPU variables in anticipation of some unanticipated
+problems.  So use this escape hatch to disable per-CPU var BTF info on
+those problematic pahole versions.  Users relying on availability of
+per-CPU var BTFs would need to upgrade to pahole 1.22+, but everyone won't
+notice any regressions.
 
-    $ make M=drivers/gpu/drm/rockchip/
-
-but pahole fails to extract the BTF info from DWARF, breaking the build:
-
-      CC [M]  drivers/gpu/drm/rockchip//rockchipdrm.mod.o
-      LD [M]  drivers/gpu/drm/rockchip//rockchipdrm.ko
-      BTF [M] drivers/gpu/drm/rockchip//rockchipdrm.ko
-    aarch64-linux-gnu-objcopy: invalid option -- 'J'
-    Usage: aarch64-linux-gnu-objcopy [option(s)] in-file [out-file]
-     Copies a binary file, possibly transforming it in the process
-    ...
-    make[1]: *** [scripts/Makefile.modpost:156: __modpost] Error 2
-    make: *** [Makefile:1866: modules] Error 2
-
-this fails because OBJCOPY is set to "ccache aarch64-linux-gnu-copy" and
-later pahole is executed with the following command line:
-
-    LLVM_OBJCOPY=$(OBJCOPY) $(PAHOLE) -J --btf_base vmlinux $@
-
-which gets expanded to:
-
-    LLVM_OBJCOPY=ccache aarch64-linux-gnu-objcopy pahole -J ...
-
-instead of:
-
-    LLVM_OBJCOPY="ccache aarch64-linux-gnu-objcopy" pahole -J ...
-
-Fixes: 5f9ae91f7c0d ("kbuild: Build kernel module BTFs if BTF is enabled and pahole supports it")
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Link: https://lkml.kernel.org/r/20210530002536.3193829-1-andrii@kernel.org
 Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Link: https://lore.kernel.org/bpf/20210526215228.3729875-1-javierm@redhat.com
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Hao Luo <haoluo@google.com>
+Cc: Michal Suchanek <msuchanek@suse.de>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
 ---
- scripts/link-vmlinux.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/link-vmlinux.sh | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/scripts/link-vmlinux.sh b/scripts/link-vmlinux.sh
-index cdfccbfed452..72bf14df6903 100755
+index 72bf14df6903..bbb22be4c8f1 100755
 --- a/scripts/link-vmlinux.sh
 +++ b/scripts/link-vmlinux.sh
-@@ -162,7 +162,7 @@ gen_btf()
+@@ -161,6 +161,11 @@ gen_btf()
+ 
  	vmlinux_link ${1}
  
++	if [ "${pahole_ver}" -ge "118" ] && [ "${pahole_ver}" -le "121" ]; then
++		# pahole 1.18 through 1.21 can't handle zero-sized per-CPU vars
++		extra_paholeopt="${extra_paholeopt} --skip_encoding_btf_vars"
++	fi
++
  	info "BTF" ${2}
--	LLVM_OBJCOPY=${OBJCOPY} ${PAHOLE} -J ${extra_paholeopt} ${1}
-+	LLVM_OBJCOPY="${OBJCOPY}" ${PAHOLE} -J ${extra_paholeopt} ${1}
+ 	LLVM_OBJCOPY="${OBJCOPY}" ${PAHOLE} -J ${extra_paholeopt} ${1}
  
- 	# Create ${2} which contains just .BTF section but no symbols. Add
- 	# SHF_ALLOC because .BTF will be part of the vmlinux image. --strip-all
 -- 
 2.37.3
 
