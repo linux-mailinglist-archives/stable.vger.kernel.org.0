@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89CD0603D06
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:56:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E112603E6F
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:15:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231944AbiJSI4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:56:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54266 "EHLO
+        id S229506AbiJSJPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:15:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232221AbiJSIzF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:55:05 -0400
+        with ESMTP id S232903AbiJSJMK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:12:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D17C9AFB3;
-        Wed, 19 Oct 2022 01:52:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA4AC8976;
+        Wed, 19 Oct 2022 02:03:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9040C6181D;
-        Wed, 19 Oct 2022 08:50:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4324C433D6;
-        Wed, 19 Oct 2022 08:50:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4090561857;
+        Wed, 19 Oct 2022 08:50:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 472FBC433D7;
+        Wed, 19 Oct 2022 08:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169448;
-        bh=8V/2WBaxDidT9ubYw7k2req5w3xsG1WRMgg2TbhCdpU=;
+        s=korg; t=1666169450;
+        bh=mNavhjTu2yfMxnJCyu1lv2P3CIMvrTtMyZ8wrnDm0f4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f86j4q0izFUzIqYktpMc9gBd4kRY72gnov2TxABdZBSfwuNC75SLBKhFI/ZhpMwY4
-         SjkE0BpQedmLiaw5EeamVKbTiZh13O7QLyAOh28XWHWNEPwGcaoa5HjU0EJM0VtueA
-         mC0g1vCC/ECkL4yns9wI7i/0anDg0EDS/oS8xoT0=
+        b=R/MCH9oZqMQ6qDPIA5ZPZdJAuY1eCwawU6kw4ptY9gdpUvXaqeVWNki59iYVGd8Nn
+         2/nopqh3jfBES8auM3FfqZPrreR0Nc2erriTR7QwJx3/cHvgACw3PTqVMNavajgHgl
+         50lnW777kMlbN3Sz2fuJIzSvhuE9xUhjiwDT4/7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 281/862] wifi: mt76: mt7921: fix use after free in mt7921_acpi_read()
-Date:   Wed, 19 Oct 2022 10:26:08 +0200
-Message-Id: <20221019083302.440733021@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        YN Chen <yn.chen@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 282/862] wifi: mt76: sdio: fix transmitting packet hangs
+Date:   Wed, 19 Oct 2022 10:26:09 +0200
+Message-Id: <20221019083302.482931288@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -52,45 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: YN Chen <yn.chen@mediatek.com>
 
-[ Upstream commit e7de4b4979bd8d313ec837931dde936653ca82ea ]
+[ Upstream commit 250b1827205846ff346a76044955cb79d4963f70 ]
 
-Don't dereference "sar_root" after it has been freed.
+Fix transmitting packets hangs with continuing to pull the pending packet
+from mac80211 queues when receiving Tx status notification from the device.
 
-Fixes: f965333e491e ("mt76: mt7921: introduce ACPI SAR support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: aac5104bf631 ("mt76: sdio: do not run mt76_txq_schedule directly")
+Acked-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: YN Chen <yn.chen@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/acpi_sar.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/sdio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/acpi_sar.c b/drivers/net/wireless/mediatek/mt76/mt7921/acpi_sar.c
-index be4f07ad3af9..47e034a9b003 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/acpi_sar.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/acpi_sar.c
-@@ -13,6 +13,7 @@ mt7921_acpi_read(struct mt7921_dev *dev, u8 *method, u8 **tbl, u32 *len)
- 	acpi_handle root, handle;
- 	acpi_status status;
- 	u32 i = 0;
-+	int ret;
+diff --git a/drivers/net/wireless/mediatek/mt76/sdio.c b/drivers/net/wireless/mediatek/mt76/sdio.c
+index ece4e4bb94a1..0ec308f99af5 100644
+--- a/drivers/net/wireless/mediatek/mt76/sdio.c
++++ b/drivers/net/wireless/mediatek/mt76/sdio.c
+@@ -485,7 +485,7 @@ static void mt76s_status_worker(struct mt76_worker *w)
+ 	} while (nframes > 0);
  
- 	root = ACPI_HANDLE(mdev->dev);
- 	if (!root)
-@@ -52,9 +53,11 @@ mt7921_acpi_read(struct mt7921_dev *dev, u8 *method, u8 **tbl, u32 *len)
- 		*(*tbl + i) = (u8)sar_unit->integer.value;
- 	}
- free:
-+	ret = (i == sar_root->package.count) ? 0 : -EINVAL;
-+
- 	kfree(sar_root);
- 
--	return (i == sar_root->package.count) ? 0 : -EINVAL;
-+	return ret;
+ 	if (resched)
+-		mt76_worker_schedule(&dev->sdio.txrx_worker);
++		mt76_worker_schedule(&dev->tx_worker);
  }
  
- /* MTCL : Country List Table for 6G band */
+ static void mt76s_tx_status_data(struct work_struct *work)
 -- 
 2.35.1
 
