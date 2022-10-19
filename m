@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 199AA6040DA
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5E6604102
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 12:35:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231577AbiJSKZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 06:25:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46964 "EHLO
+        id S229731AbiJSKfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 06:35:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230370AbiJSKYm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:24:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06446D57FF;
-        Wed, 19 Oct 2022 03:04:13 -0700 (PDT)
+        with ESMTP id S229994AbiJSKdv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 06:33:51 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAD85FC1F7;
+        Wed, 19 Oct 2022 03:12:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77529617D6;
-        Wed, 19 Oct 2022 09:13:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82329C433C1;
-        Wed, 19 Oct 2022 09:13:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E9CE8CE21B8;
+        Wed, 19 Oct 2022 09:13:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E64D7C433D7;
+        Wed, 19 Oct 2022 09:13:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170816;
-        bh=1TJHyyfg+QsA6U78R8mxqIahZXicXXqn1XHvFq8xnAo=;
+        s=korg; t=1666170827;
+        bh=Es5nmzJdT+oW3VwkRSQOa1PJ6ac1UPOFRjBXyXVSk/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H5xrFcZnm2Qy4qQ2wR8+Du7Atjx8ecqV0u1OAkLh4pdkSTnDWKFff/oN6a9v3lV/K
-         SF6DlOZYko/RE1INgRcGz+F/orSwAIscH2pKN9vyoAAl3Z1ApryBemRb0CDxO/4cfh
-         9J7AyKqqewnincnZsj95nHYkEx3vJaa0aL5xEdTU=
+        b=Z7N2ATsQ+4ddQXpbFSIsouTFiPPbE3AX/HAllpgov+NbVgoDL2C78GqzByjtXfUJL
+         tVlxABd8x/jdaFAccYYZME7ET6waLx+k0KeQ//p0XzpTp7/1Gxi9ftEyIhzZ9STmMP
+         QzNfdCn1CWhFnk8Qi/xqe1RcVsn97IBgFvNaVqlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Justin Chen <justinpopo6@gmail.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Letu Ren <fantasquex@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 798/862] usb: host: xhci-plat: suspend/resume clks for brcm
-Date:   Wed, 19 Oct 2022 10:34:45 +0200
-Message-Id: <20221019083325.155292107@linuxfoundation.org>
+Subject: [PATCH 6.0 801/862] scsi: 3w-9xxx: Avoid disabling device if failing to enable it
+Date:   Wed, 19 Oct 2022 10:34:48 +0200
+Message-Id: <20221019083325.291693919@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,36 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Chen <justinpopo6@gmail.com>
+From: Letu Ren <fantasquex@gmail.com>
 
-[ Upstream commit c69400b09e471a3f1167adead55a808f0da6534a ]
+[ Upstream commit 7eff437b5ee1309b34667844361c6bbb5c97df05 ]
 
-The xhci_plat_brcm xhci block can enter suspend with clock disabled to save
-power and re-enable them on resume. Make use of the XHCI_SUSPEND_RESUME_CLKS
-quirk to do so.
+The original code will "goto out_disable_device" and call
+pci_disable_device() if pci_enable_device() fails. The kernel will generate
+a warning message like "3w-9xxx 0000:00:05.0: disabling already-disabled
+device".
 
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Link: https://lore.kernel.org/r/1660170455-15781-3-git-send-email-justinpopo6@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We shouldn't disable a device that failed to be enabled. A simple return is
+fine.
+
+Link: https://lore.kernel.org/r/20220829110115.38789-1-fantasquex@gmail.com
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-plat.c | 2 +-
+ drivers/scsi/3w-9xxx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
-index ef10982ad482..5fb55bf19493 100644
---- a/drivers/usb/host/xhci-plat.c
-+++ b/drivers/usb/host/xhci-plat.c
-@@ -123,7 +123,7 @@ static const struct xhci_plat_priv xhci_plat_renesas_rcar_gen3 = {
- };
+diff --git a/drivers/scsi/3w-9xxx.c b/drivers/scsi/3w-9xxx.c
+index cd823ff5deab..6cb9cca9565b 100644
+--- a/drivers/scsi/3w-9xxx.c
++++ b/drivers/scsi/3w-9xxx.c
+@@ -2006,7 +2006,7 @@ static int twa_probe(struct pci_dev *pdev, const struct pci_device_id *dev_id)
+ 	retval = pci_enable_device(pdev);
+ 	if (retval) {
+ 		TW_PRINTK(host, TW_DRIVER, 0x34, "Failed to enable pci device");
+-		goto out_disable_device;
++		return -ENODEV;
+ 	}
  
- static const struct xhci_plat_priv xhci_plat_brcm = {
--	.quirks = XHCI_RESET_ON_RESUME,
-+	.quirks = XHCI_RESET_ON_RESUME | XHCI_SUSPEND_RESUME_CLKS,
- };
- 
- static const struct of_device_id usb_xhci_of_match[] = {
+ 	pci_set_master(pdev);
 -- 
 2.35.1
 
