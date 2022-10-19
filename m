@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C8D60472E
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:33:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 609BD604806
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 15:48:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229905AbiJSNdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 09:33:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56920 "EHLO
+        id S233424AbiJSNsL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 09:48:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231460AbiJSNde (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:33:34 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B54A21E0441;
-        Wed, 19 Oct 2022 06:21:36 -0700 (PDT)
+        with ESMTP id S233431AbiJSNq6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 09:46:58 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9613F4E19C;
+        Wed, 19 Oct 2022 06:32:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E85EBCE2186;
-        Wed, 19 Oct 2022 09:06:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA402C433D7;
-        Wed, 19 Oct 2022 09:06:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9D773CE218A;
+        Wed, 19 Oct 2022 09:06:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19E5C433B5;
+        Wed, 19 Oct 2022 09:06:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170393;
-        bh=QG5TJidSSe20q6w/U96C+IpsB/oyzh/jpVsc0UJamV0=;
+        s=korg; t=1666170404;
+        bh=f0I55/u99pGYDq+p5TcYl8mlp27PqkFcOL+TYbcY9o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbZZJzHxcNAgrorvcauFWJ4jaedn352qUbbE2k6hU1gbbpQ4nbUgQEK1dIYNYdU/k
-         jVRqfhhxYLUrvWf6dXnjGcELKgbiWrsJ6e2/XZ2800wAghADWwrE7M1TuGiYKNlbEW
-         P4OroIrT+wasAsKTOQdw9N0RXCAQD213B9w5/nyI=
+        b=cRBMGWFdzaFS4HuugkV/e4tzFok9/AvkwbfwvCBsJ3K3Ybt3C6AbGcfzpA9cBlPT/
+         r73RsD/EEDIlGR7k0vJoworlQLnHI81ADIAhufrXiFouI1tunIW882q9OxUHDepNkZ
+         oe3FvDpQu+qOCEy+ztihT1YShR0OgbYvRb8Y1VBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Conor Dooley <conor.dooley@microchip.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 603/862] mailbox: mpfs: fix handling of the reg property
-Date:   Wed, 19 Oct 2022 10:31:30 +0200
-Message-Id: <20221019083316.588729360@linuxfoundation.org>
+Subject: [PATCH 6.0 607/862] powerpc/configs: Properly enable PAPR_SCM in pseries_defconfig
+Date:   Wed, 19 Oct 2022 10:31:34 +0200
+Message-Id: <20221019083316.759918368@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -53,111 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 2e10289d1f304f5082a4dda55a677b72b3bdb581 ]
+[ Upstream commit aa398d88aea4ec863bd7aea35d5035a37096dc59 ]
 
-The "data" region of the PolarFire SoC's system controller mailbox is
-not one continuous register space - the system controller's QSPI sits
-between the control and data registers. Split the "data" reg into two
-parts: "data" & "control". Optionally get the "data" register address
-from the 3rd reg property in the devicetree & fall back to using the
-old base + MAILBOX_REG_OFFSET that the current code uses.
+My commit to add PAPR_SCM to pseries_defconfig failed to add the
+required dependencies, meaning the driver doesn't get built.
 
-Fixes: 83d7b1560810 ("mbox: add polarfire soc system controller mailbox")
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Add the required LIBNVDIMM=m.
+
+Fixes: d6481a7195df ("powerpc/configs: Add PAPR_SCM to pseries_defconfig")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220901014253.252927-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/mailbox-mpfs.c | 24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ arch/powerpc/configs/pseries_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mailbox/mailbox-mpfs.c b/drivers/mailbox/mailbox-mpfs.c
-index 4e34854d1238..e432a8f0d148 100644
---- a/drivers/mailbox/mailbox-mpfs.c
-+++ b/drivers/mailbox/mailbox-mpfs.c
-@@ -62,6 +62,7 @@ struct mpfs_mbox {
- 	struct mbox_controller controller;
- 	struct device *dev;
- 	int irq;
-+	void __iomem *ctrl_base;
- 	void __iomem *mbox_base;
- 	void __iomem *int_reg;
- 	struct mbox_chan chans[1];
-@@ -73,7 +74,7 @@ static bool mpfs_mbox_busy(struct mpfs_mbox *mbox)
- {
- 	u32 status;
- 
--	status = readl_relaxed(mbox->mbox_base + SERVICES_SR_OFFSET);
-+	status = readl_relaxed(mbox->ctrl_base + SERVICES_SR_OFFSET);
- 
- 	return status & SCB_STATUS_BUSY_MASK;
- }
-@@ -99,14 +100,13 @@ static int mpfs_mbox_send_data(struct mbox_chan *chan, void *data)
- 
- 		for (index = 0; index < (msg->cmd_data_size / 4); index++)
- 			writel_relaxed(word_buf[index],
--				       mbox->mbox_base + MAILBOX_REG_OFFSET + index * 0x4);
-+				       mbox->mbox_base + index * 0x4);
- 		if (extra_bits) {
- 			u8 i;
- 			u8 byte_off = ALIGN_DOWN(msg->cmd_data_size, 4);
- 			u8 *byte_buf = msg->cmd_data + byte_off;
- 
--			val = readl_relaxed(mbox->mbox_base +
--					    MAILBOX_REG_OFFSET + index * 0x4);
-+			val = readl_relaxed(mbox->mbox_base + index * 0x4);
- 
- 			for (i = 0u; i < extra_bits; i++) {
- 				val &= ~(0xffu << (i * 8u));
-@@ -114,14 +114,14 @@ static int mpfs_mbox_send_data(struct mbox_chan *chan, void *data)
- 			}
- 
- 			writel_relaxed(val,
--				       mbox->mbox_base + MAILBOX_REG_OFFSET + index * 0x4);
-+				       mbox->mbox_base + index * 0x4);
- 		}
- 	}
- 
- 	opt_sel = ((msg->mbox_offset << 7u) | (msg->cmd_opcode & 0x7fu));
- 	tx_trigger = (opt_sel << SCB_CTRL_POS) & SCB_CTRL_MASK;
- 	tx_trigger |= SCB_CTRL_REQ_MASK | SCB_STATUS_NOTIFY_MASK;
--	writel_relaxed(tx_trigger, mbox->mbox_base + SERVICES_CR_OFFSET);
-+	writel_relaxed(tx_trigger, mbox->ctrl_base + SERVICES_CR_OFFSET);
- 
- 	return 0;
- }
-@@ -141,7 +141,7 @@ static void mpfs_mbox_rx_data(struct mbox_chan *chan)
- 	if (!mpfs_mbox_busy(mbox)) {
- 		for (i = 0; i < num_words; i++) {
- 			response->resp_msg[i] =
--				readl_relaxed(mbox->mbox_base + MAILBOX_REG_OFFSET
-+				readl_relaxed(mbox->mbox_base
- 					      + mbox->resp_offset + i * 0x4);
- 		}
- 	}
-@@ -200,14 +200,18 @@ static int mpfs_mbox_probe(struct platform_device *pdev)
- 	if (!mbox)
- 		return -ENOMEM;
- 
--	mbox->mbox_base = devm_platform_get_and_ioremap_resource(pdev, 0, &regs);
--	if (IS_ERR(mbox->mbox_base))
--		return PTR_ERR(mbox->mbox_base);
-+	mbox->ctrl_base = devm_platform_get_and_ioremap_resource(pdev, 0, &regs);
-+	if (IS_ERR(mbox->ctrl_base))
-+		return PTR_ERR(mbox->ctrl_base);
- 
- 	mbox->int_reg = devm_platform_get_and_ioremap_resource(pdev, 1, &regs);
- 	if (IS_ERR(mbox->int_reg))
- 		return PTR_ERR(mbox->int_reg);
- 
-+	mbox->mbox_base = devm_platform_get_and_ioremap_resource(pdev, 2, &regs);
-+	if (IS_ERR(mbox->mbox_base)) // account for the old dt-binding w/ 2 regs
-+		mbox->mbox_base = mbox->ctrl_base + MAILBOX_REG_OFFSET;
-+
- 	mbox->irq = platform_get_irq(pdev, 0);
- 	if (mbox->irq < 0)
- 		return mbox->irq;
+diff --git a/arch/powerpc/configs/pseries_defconfig b/arch/powerpc/configs/pseries_defconfig
+index b571d084c148..c05e37af9f1e 100644
+--- a/arch/powerpc/configs/pseries_defconfig
++++ b/arch/powerpc/configs/pseries_defconfig
+@@ -40,6 +40,7 @@ CONFIG_PPC_SPLPAR=y
+ CONFIG_DTL=y
+ CONFIG_PPC_SMLPAR=y
+ CONFIG_IBMEBUS=y
++CONFIG_LIBNVDIMM=m
+ CONFIG_PAPR_SCM=m
+ CONFIG_PPC_SVM=y
+ # CONFIG_PPC_PMAC is not set
 -- 
 2.35.1
 
