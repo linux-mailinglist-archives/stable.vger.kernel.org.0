@@ -2,206 +2,225 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30F69604A60
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 17:04:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62713604AFB
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 17:16:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229872AbiJSPEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 11:04:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35754 "EHLO
+        id S232256AbiJSPQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 11:16:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231317AbiJSPDl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 11:03:41 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D8CEDBBDE
-        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 07:57:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666191478; x=1697727478;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version:content-transfer-encoding;
-  bh=7LsV+0pP/htYJCm1IC5zGKdLThuZykYXnZRen0ZLpKM=;
-  b=D9ltwUqP6RpCM7oWNIzPBz+YE8IGskpOKwb8o0NMbRmnBX/ireJDTnKX
-   s1pbz3uA9T1SHEc5/UMUZMyT6IwhFGx4sQeDltZiE6fuTeJajwF6c2VW9
-   giG4D20su8KQnfzSKNo3zChWXq3HN3C8dYjSp4NMikzbLPs7nZ30IjUit
-   wmu7mhvwGe6DebNa5S2xtnwkPTyyA25Uem8mrIHvuuADj1ox79widFnXO
-   WBcp64skSWn7nAp3WQ0xfNJZ6X+pMge2TocQeqGSRIcpC6gwC/qqeU4rs
-   D97MCWaqwA9OlpBnUD6hFfMBWMLxCIxRvjVoq366i2/VGbfSEtXR149mg
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10505"; a="289749801"
-X-IronPort-AV: E=Sophos;i="5.95,196,1661842800"; 
-   d="scan'208";a="289749801"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2022 07:57:35 -0700
-X-IronPort-AV: E=McAfee;i="6500,9779,10505"; a="698110707"
-X-IronPort-AV: E=Sophos;i="5.95,196,1661842800"; 
-   d="scan'208";a="698110707"
-Received: from mosermix-mobl2.ger.corp.intel.com (HELO localhost) ([10.252.50.2])
-  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2022 07:57:33 -0700
-From:   Jani Nikula <jani.nikula@linux.intel.com>
-To:     imre.deak@intel.com
-Cc:     Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 1/3] drm/i915/tgl+: Add locking around DKL
- PHY register accesses
-In-Reply-To: <Y0/9Et5mQ5K/Tnsl@ideak-desk.fi.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20221018172042.1449885-1-imre.deak@intel.com>
- <87bkq8i3xp.fsf@intel.com> <Y0/BNSKHS+GYkLCw@intel.com>
- <Y0/Dwl3Bct0owF7S@intel.com> <8735bkhu65.fsf@intel.com>
- <Y0/9Et5mQ5K/Tnsl@ideak-desk.fi.intel.com>
-Date:   Wed, 19 Oct 2022 17:57:30 +0300
-Message-ID: <87wn8vhndx.fsf@intel.com>
+        with ESMTP id S232243AbiJSPQD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 11:16:03 -0400
+Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5122A196082
+        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 08:09:07 -0700 (PDT)
+Received: by mail-oi1-x234.google.com with SMTP id u15so19563360oie.2
+        for <stable@vger.kernel.org>; Wed, 19 Oct 2022 08:09:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=3ay+FMyDJ6mrCFfmDeqeDYg/OUapBZxlc0xVY9+qqxc=;
+        b=UdOSJ/n8yfsYhzLSqIYsFOfh8GSjAaZhtcRzKDgVJWldd9wCjYvvKegxlJvJ7svK6G
+         8Bd1VBPOy2xVIU7wItLjuIa0v9RCtzTb5UaU87AU5iarWSX/jeo0Q8Sju90E0S78bP36
+         ytZboSINkcXkwmy8ZyQZLtaRAT6fkcXJmUg/QCSvrVGRuxF9Xlad0Pm6A5QJUwhe3RlN
+         iXGFVpjKYYMeYW8C9dbzHxHn5xOz8Kldrn0rMjoWdD2G6VtZX8PoeFWNB9Yl8ocvMV2C
+         n33/kIn5Ky1BTh442zAxwihjvojosOHQJzY6Kw+aJF6CGhpeKglEQnZA27Pt00Qd/BGt
+         M8lg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=3ay+FMyDJ6mrCFfmDeqeDYg/OUapBZxlc0xVY9+qqxc=;
+        b=Vb1SYELjr3wkzB3PmLbSs8QqNsfxW03AoTPlXj/q2N//eJR0BeO6DrGchvp3mOHGgj
+         GFWj2vG1GZ229d6uRQ3h1ZVQIvmADIFoV9wxx25GOCkfD+vrN3e39IlQav1cJiY3h65f
+         FP8Uge9ajISmVxrJDfqQQQU/WNKgViYpAwXsNW0uHxfbsxNZ61BPbH7wSvGxfbrpPzAJ
+         xIwcCM0+/HNrGLJNIiLRrKSNwNEaZRP0cZ3yHcDjaO5H9YaFzAv+sGiKklE3zCQSFYer
+         KD480QtkzPQKQm7XyptpdZM5PerzYYMQwNnaKwq99vtjTfBLyczOROhMK6DCCwjr42Sq
+         pAhQ==
+X-Gm-Message-State: ACrzQf3NkwUF/OMKYGy73vh23s8rlVdY0a0srQSioFpcnJ7oNGuF0Uc0
+        Vm+h8BKeWWxtzLxxAZKq1SjQww==
+X-Google-Smtp-Source: AMsMyM5vr3f8E3wG/TwBM0lhVIbvGK4VxAN1rNww5cccyMGDxuaUmlUxhVRCfTsIY2pkxFHLZLODBw==
+X-Received: by 2002:aca:120e:0:b0:354:ae0d:e063 with SMTP id 14-20020aca120e000000b00354ae0de063mr4421804ois.250.1666191998315;
+        Wed, 19 Oct 2022 08:06:38 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id k4-20020a9d7604000000b0066194b13fe9sm7041703otl.73.2022.10.19.08.06.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Oct 2022 08:06:37 -0700 (PDT)
+Date:   Wed, 19 Oct 2022 08:06:26 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Yu Kuai <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: Re: [PATCH 6.0 479/862] sbitmap: fix possible io hung due to lost
+ wakeup
+In-Reply-To: <20221019083311.114449669@linuxfoundation.org>
+Message-ID: <174a196-5473-4e93-a52a-5e26eb37949@google.com>
+References: <20221019083249.951566199@linuxfoundation.org> <20221019083311.114449669@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 19 Oct 2022, Imre Deak <imre.deak@intel.com> wrote:
-> On Wed, Oct 19, 2022 at 03:30:58PM +0300, Jani Nikula wrote:
->> On Wed, 19 Oct 2022, Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.=
-com> wrote:
->> > On Wed, Oct 19, 2022 at 12:19:49PM +0300, Ville Syrj=C3=A4l=C3=A4 wrot=
-e:
->> >> On Wed, Oct 19, 2022 at 12:00:02PM +0300, Jani Nikula wrote:
->> >> > On Tue, 18 Oct 2022, Imre Deak <imre.deak@intel.com> wrote:
->> >> > > Accessing the TypeC DKL PHY registers during modeset-commit,
->> >> > > -verification, DP link-retraining and AUX power well toggling is =
-racy
->> >> > > due to these code paths being concurrent and the PHY register bank
->> >> > > selection register (HIP_INDEX_REG) being shared between PHY insta=
-nces
->> >> > > (aka TC ports) and the bank selection being not atomic wrt. the a=
-ctual
->> >> > > PHY register access.
->> >> > >
->> >> > > Add the required locking around each PHY register bank selection->
->> >> > > register access sequence.
->> >> >=20
->> >> > I honestly think the abstraction here is at a too low level.
->> >> >=20
->> >> > Too many places are doing DKL PHY register access to begin with. IM=
-O the
->> >> > solution should be to abstract DKL PHY better, not to provide low l=
-evel
->> >> > DKL PHY register accessors.
->> >> >=20
->> >> > Indeed, this level of granularity leads to a lot of unnecessary
->> >> > lock/unlock that could have a longer span otherwise, and the interf=
-ace
->> >> > does not lend itself for that.
->> >>=20
->> >> It's no worse than uncore.lock. No one cares about that in
->> >> these codepaths either.
->> >>=20
->> >> > Also requires separate bank selection for
->> >> > every write, nearly doubling the MMIO writes.
->> >>=20
->> >> Drop in the ocean. This is all slow modeset stuff anyway.
->> >>=20
->> >> IMO separate reg accessors is the correct way to handle indexed
->> >> registers unless you have some very specific performance concerns
->> >> to deal with.
->>=20
->> Fair enough.
->>=20
->> > Now, whether those accessors need to be visible everywere is another
->> > matter. It should certainly be possible to suck all dkl phy stuff
->> > into one file and keep the accessors static. But currently eveything
->> > is grouped by function (PLLs in one file, vswing stuff in another,
->> > etc.). We'd have to flip that around so that all the sub functions
->> > of of each IP block is in the same file. Is that a better apporach?
->> > Not sure.
->>=20
->> I'm often interested in the precedent a change makes. What's the
->> direction we want to go to?
->>=20
->> So here, we're saying the DKL PHY registers are special, and need to be
->> accessed via dedicated register accessors. To enforce this, we create
->> strong typing for DKL PHY registers. We go out of our way to make it
->> safe to access DKL PHY registers anywhere in the driver.
->>=20
->> Do we want to add more and more register types in the future? And
->> duplicate the accessors for each? Oops, looks like we're already on our
->> way [1].
->
-> Making the DKL PHY accesses type safe was just a bonus, the main reason
-> for adding the dkl_phy_reg struct (in a later refactoring patch) is that
-> defining those registers only makes sense to me specifying all the
-> attributes (both MMIO and the bank index) of the register at one place.
-> That's instead of the current way of having to pass these separately to
-> each accessor functions. For instance to be able to call
->
-> read(DKL_PLL_DIV0(tc_port))
->
-> instead of having to remember the index of each (non lane-instanced)
-> register and call
->
-> read(DKL_PLL_DIV0(tc_port), 2)
->
-> It also makes more sense to me that the register itself is parametric
-> if that's needed (lane-instanced registers), for instance
->
-> read(DKL_TX_DPCNTL0(tc_port, 0))
->
-> instead of this being a separate parameter of each accessor function:
->
-> read(DKL_TX_DPCNTL0(tc_port), 0)
+On Wed, 19 Oct 2022, Greg Kroah-Hartman wrote:
 
-This is actually a very good point.
+> From: Yu Kuai <yukuai3@huawei.com>
+> 
+> [ Upstream commit 040b83fcecfb86f3225d3a5de7fd9b3fbccf83b4 ]
+> 
+> There are two problems can lead to lost wakeup:
+> 
+> 1) invalid wakeup on the wrong waitqueue:
+> 
+> For example, 2 * wake_batch tags are put, while only wake_batch threads
+> are woken:
+> 
+> __sbq_wake_up
+>  atomic_cmpxchg -> reset wait_cnt
+> 			__sbq_wake_up -> decrease wait_cnt
+> 			...
+> 			__sbq_wake_up -> wait_cnt is decreased to 0 again
+> 			 atomic_cmpxchg
+> 			 sbq_index_atomic_inc -> increase wake_index
+> 			 wake_up_nr -> wake up and waitqueue might be empty
+>  sbq_index_atomic_inc -> increase again, one waitqueue is skipped
+>  wake_up_nr -> invalid wake up because old wakequeue might be empty
+> 
+> To fix the problem, increasing 'wake_index' before resetting 'wait_cnt'.
+> 
+> 2) 'wait_cnt' can be decreased while waitqueue is empty
+> 
+> As pointed out by Jan Kara, following race is possible:
+> 
+> CPU1				CPU2
+> __sbq_wake_up			 __sbq_wake_up
+>  sbq_wake_ptr()			 sbq_wake_ptr() -> the same
+>  wait_cnt = atomic_dec_return()
+>  /* decreased to 0 */
+>  sbq_index_atomic_inc()
+>  /* move to next waitqueue */
+>  atomic_set()
+>  /* reset wait_cnt */
+>  wake_up_nr()
+>  /* wake up on the old waitqueue */
+> 				 wait_cnt = atomic_dec_return()
+> 				 /*
+> 				  * decrease wait_cnt in the old
+> 				  * waitqueue, while it can be
+> 				  * empty.
+> 				  */
+> 
+> Fix the problem by waking up before updating 'wake_index' and
+> 'wait_cnt'.
+> 
+> With this patch, noted that 'wait_cnt' is still decreased in the old
+> empty waitqueue, however, the wakeup is redirected to a active waitqueue,
+> and the extra decrement on the old empty waitqueue is not handled.
+> 
+> Fixes: 88459642cba4 ("blk-mq: abstract tag allocation out into sbitmap library")
+> Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+> Reviewed-by: Jan Kara <jack@suse.cz>
+> Link: https://lore.kernel.org/r/20220803121504.212071-1-yukuai1@huaweicloud.com
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-An alternative to this that I've been pondering separately, before these
-patches, is expanding i915_reg_t to encode things like "display
-register", "mcr register", etc.
+I have no authority on linux-block, but I'll say NAK to this one
+(and 517/862), and let Jens and Jan overrule me if they disagree.
 
-So you'd still have only one i915_reg_t type, and only one set of
-accessors, but they could be smarter behind the scenes. But I don't like
-teaching intel uncore about stuff like dkl either. And the main point
-would be avoiding all the duplication that C type safety requires.
+This was the first of several 6.1-rc1 commits which had given me lost
+wakeups never suffered before; was not tagged Cc stable; and (unless I've
+missed it on lore) never had AUTOSEL posted to linux-block or linux-kernel.
 
-But it's a moot point anyway because we also need something to backport
-to stable, and I acknowledge your approach makes a lot of sense for that
-too.
+Hugh
 
->> My argument is that maybe access to such a hardware block should instead
->> be limited to a module (.c file) that abstracts the details. Abstract
->> hardware blocks and function, not registers. How many files need big
->> changes to add a new PHY?
->
-> I think the accessors could be added to a new intel_tc_phy.c file
-> instead? (That would still allow further refactoring of both the MG and
-> DKL functionality as a follow-up to this change for -stable.)
-
-So, why intel_tc_anything? Why not just intel_dkl_phy.[ch],
-intel_dkl_phy_regs.h? Even if initially limited to the register
-accessors, you could easily move things like
-tgl_dkl_phy_set_signal_levels() there, just like
-intel_snps_phy_set_signal_levels() is in intel_snps_phy.c. And you could
-have intel_mg_phy.c for MG stuff.
-
-I guess intel_tc_phy_regs.h would mostly be split to
-intel_dkl_phy_regs.h and intel_mg_phy_regs.h.
-
-
-BR,
-Jani.
-
-
->
->> BR,
->> Jani.
->>=20
->> [1] https://lore.kernel.org/r/20221014230239.1023689-13-matthew.d.roper@=
-intel.com
->>=20
->> --=20
->> Jani Nikula, Intel Open Source Graphics Center
-
---=20
-Jani Nikula, Intel Open Source Graphics Center
+> ---
+>  lib/sbitmap.c | 55 ++++++++++++++++++++++++++++++---------------------
+>  1 file changed, 33 insertions(+), 22 deletions(-)
+> 
+> diff --git a/lib/sbitmap.c b/lib/sbitmap.c
+> index 29eb0484215a..1f31147872e6 100644
+> --- a/lib/sbitmap.c
+> +++ b/lib/sbitmap.c
+> @@ -611,32 +611,43 @@ static bool __sbq_wake_up(struct sbitmap_queue *sbq)
+>  		return false;
+>  
+>  	wait_cnt = atomic_dec_return(&ws->wait_cnt);
+> -	if (wait_cnt <= 0) {
+> -		int ret;
+> +	/*
+> +	 * For concurrent callers of this, callers should call this function
+> +	 * again to wakeup a new batch on a different 'ws'.
+> +	 */
+> +	if (wait_cnt < 0 || !waitqueue_active(&ws->wait))
+> +		return true;
+>  
+> -		wake_batch = READ_ONCE(sbq->wake_batch);
+> +	if (wait_cnt > 0)
+> +		return false;
+>  
+> -		/*
+> -		 * Pairs with the memory barrier in sbitmap_queue_resize() to
+> -		 * ensure that we see the batch size update before the wait
+> -		 * count is reset.
+> -		 */
+> -		smp_mb__before_atomic();
+> +	wake_batch = READ_ONCE(sbq->wake_batch);
+>  
+> -		/*
+> -		 * For concurrent callers of this, the one that failed the
+> -		 * atomic_cmpxhcg() race should call this function again
+> -		 * to wakeup a new batch on a different 'ws'.
+> -		 */
+> -		ret = atomic_cmpxchg(&ws->wait_cnt, wait_cnt, wake_batch);
+> -		if (ret == wait_cnt) {
+> -			sbq_index_atomic_inc(&sbq->wake_index);
+> -			wake_up_nr(&ws->wait, wake_batch);
+> -			return false;
+> -		}
+> +	/*
+> +	 * Wake up first in case that concurrent callers decrease wait_cnt
+> +	 * while waitqueue is empty.
+> +	 */
+> +	wake_up_nr(&ws->wait, wake_batch);
+>  
+> -		return true;
+> -	}
+> +	/*
+> +	 * Pairs with the memory barrier in sbitmap_queue_resize() to
+> +	 * ensure that we see the batch size update before the wait
+> +	 * count is reset.
+> +	 *
+> +	 * Also pairs with the implicit barrier between decrementing wait_cnt
+> +	 * and checking for waitqueue_active() to make sure waitqueue_active()
+> +	 * sees result of the wakeup if atomic_dec_return() has seen the result
+> +	 * of atomic_set().
+> +	 */
+> +	smp_mb__before_atomic();
+> +
+> +	/*
+> +	 * Increase wake_index before updating wait_cnt, otherwise concurrent
+> +	 * callers can see valid wait_cnt in old waitqueue, which can cause
+> +	 * invalid wakeup on the old waitqueue.
+> +	 */
+> +	sbq_index_atomic_inc(&sbq->wake_index);
+> +	atomic_set(&ws->wait_cnt, wake_batch);
+>  
+>  	return false;
+>  }
+> -- 
+> 2.35.1
+> 
+> 
+> 
+> 
