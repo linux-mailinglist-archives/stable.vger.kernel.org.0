@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABA95603EEF
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:25:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E05F8603EAC
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233126AbiJSJXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:23:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33402 "EHLO
+        id S233278AbiJSJRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:17:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233083AbiJSJXH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:23:07 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E110B6008;
-        Wed, 19 Oct 2022 02:10:25 -0700 (PDT)
+        with ESMTP id S233156AbiJSJQT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:16:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C30CA59AE;
+        Wed, 19 Oct 2022 02:06:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A8D98CE2175;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1531C61825;
+        Wed, 19 Oct 2022 09:06:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23D00C433D6;
         Wed, 19 Oct 2022 09:06:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8902DC433B5;
-        Wed, 19 Oct 2022 09:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170374;
-        bh=3qOQ4Jb42O8ZGVhsLpe/7X8WWC3+fEostx++8jWyCwQ=;
+        s=korg; t=1666170377;
+        bh=vujw5cF2w9ojqX9/fEY6xpNzZwk1Hc103xQkPvbWCdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3ldRHvFzgiycj4IgLirOPXUKCGuPua8JBsK8BRFEmqh1A+WJXUOgTEcWxNeWZIrE
-         EYdMry0sYcRETf/xUYgrVKz5d1CsG1I0gY8xmyGv34tDMzwNRsbuFO2TRL7f857PFH
-         vV1liarTdXdaZ9jlE0jnBEaxIjIpP0iWTiehaQPs=
+        b=PHplZGMRdqviz9Kqjff3VWgHRkS2QPIi4Uj1PjTOtguDUJJMD080DuZZlDsyl77Pl
+         o+YJwzypXWgzM42YU7lnAKfmWn3w9ZQBrbcJ9sPEcYL0hlGSi0PI8jJkA4S5SubYdu
+         tvJw8qCEJunnkg80tF5x9xdEYl+S7ZdZ/JIIZDcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kshitiz Varshney <kshitiz.varshney@nxp.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Lucas Segarra Fernandez <lucas.segarra.fernandez@intel.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 630/862] hwrng: imx-rngc - Moving IRQ handler registering after imx_rngc_irq_mask_clear()
-Date:   Wed, 19 Oct 2022 10:31:57 +0200
-Message-Id: <20221019083317.756212832@linuxfoundation.org>
+Subject: [PATCH 6.0 631/862] crypto: qat - fix default value of WDT timer
+Date:   Wed, 19 Oct 2022 10:31:58 +0200
+Message-Id: <20221019083317.803319512@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -54,58 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kshitiz Varshney <kshitiz.varshney@nxp.com>
+From: Lucas Segarra Fernandez <lucas.segarra.fernandez@intel.com>
 
-[ Upstream commit 10a2199caf437e893d9027d97700b3c6010048b7 ]
+[ Upstream commit cc40b04c08400d86d2d6ea0159e0617e717f729c ]
 
-Issue:
-While servicing interrupt, if the IRQ happens to be because of a SEED_DONE
-due to a previous boot stage, you end up completing the completion
-prematurely, hence causing kernel to crash while booting.
+The QAT HW supports an hardware mechanism to detect an accelerator hang.
+The reporting of a hang occurs after a watchdog timer (WDT) expires.
 
-Fix:
-Moving IRQ handler registering after imx_rngc_irq_mask_clear()
+The value of the WDT set previously was too small and was causing false
+positives.
+Change the default value of the WDT to 0x7000000ULL to avoid this.
 
-Fixes: 1d5449445bd0 (hwrng: mx-rngc - add a driver for Freescale RNGC)
-Signed-off-by: Kshitiz Varshney <kshitiz.varshney@nxp.com>
+Fixes: 1c4d9d5bbb5a ("crypto: qat - enable detection of accelerators hang")
+Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Lucas Segarra Fernandez <lucas.segarra.fernandez@intel.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/imx-rngc.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/crypto/qat/qat_common/adf_gen4_hw_data.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/hw_random/imx-rngc.c b/drivers/char/hw_random/imx-rngc.c
-index e32c52c10d4d..1d7ce7443586 100644
---- a/drivers/char/hw_random/imx-rngc.c
-+++ b/drivers/char/hw_random/imx-rngc.c
-@@ -264,13 +264,6 @@ static int imx_rngc_probe(struct platform_device *pdev)
- 	if (rng_type != RNGC_TYPE_RNGC && rng_type != RNGC_TYPE_RNGB)
- 		return -ENODEV;
- 
--	ret = devm_request_irq(&pdev->dev,
--			irq, imx_rngc_irq, 0, pdev->name, (void *)rngc);
--	if (ret) {
--		dev_err(rngc->dev, "Can't get interrupt working.\n");
--		return ret;
--	}
--
- 	init_completion(&rngc->rng_op_done);
- 
- 	rngc->rng.name = pdev->name;
-@@ -284,6 +277,13 @@ static int imx_rngc_probe(struct platform_device *pdev)
- 
- 	imx_rngc_irq_mask_clear(rngc);
- 
-+	ret = devm_request_irq(&pdev->dev,
-+			irq, imx_rngc_irq, 0, pdev->name, (void *)rngc);
-+	if (ret) {
-+		dev_err(rngc->dev, "Can't get interrupt working.\n");
-+		return ret;
-+	}
-+
- 	if (self_test) {
- 		ret = imx_rngc_self_test(rngc);
- 		if (ret) {
+diff --git a/drivers/crypto/qat/qat_common/adf_gen4_hw_data.h b/drivers/crypto/qat/qat_common/adf_gen4_hw_data.h
+index 43b8f864806b..4fb4b3df5a18 100644
+--- a/drivers/crypto/qat/qat_common/adf_gen4_hw_data.h
++++ b/drivers/crypto/qat/qat_common/adf_gen4_hw_data.h
+@@ -107,7 +107,7 @@ do { \
+  * Timeout is in cycles. Clock speed may vary across products but this
+  * value should be a few milli-seconds.
+  */
+-#define ADF_SSM_WDT_DEFAULT_VALUE	0x200000
++#define ADF_SSM_WDT_DEFAULT_VALUE	0x7000000ULL
+ #define ADF_SSM_WDT_PKE_DEFAULT_VALUE	0x8000000
+ #define ADF_SSMWDTL_OFFSET		0x54
+ #define ADF_SSMWDTH_OFFSET		0x5C
 -- 
 2.35.1
 
