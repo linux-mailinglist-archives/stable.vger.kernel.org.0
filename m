@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB43603C9F
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:50:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 664BC603C9A
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 10:50:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230478AbiJSIuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 04:50:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44880 "EHLO
+        id S231328AbiJSIuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 04:50:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231657AbiJSItA (ORCPT
+        with ESMTP id S231653AbiJSItA (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 04:49:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D061814C0;
-        Wed, 19 Oct 2022 01:46:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0BC23BF2;
+        Wed, 19 Oct 2022 01:46:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17E5B6183D;
-        Wed, 19 Oct 2022 08:46:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D08EBC433D7;
-        Wed, 19 Oct 2022 08:46:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 149E661804;
+        Wed, 19 Oct 2022 08:46:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 126F2C433C1;
+        Wed, 19 Oct 2022 08:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666169201;
-        bh=b8MlR2uiSgcn2sfEO2O+eztyP0E+QW2yZ9/nitKtF8o=;
+        s=korg; t=1666169204;
+        bh=tWoOO/LZBB6eOZofEyhGg+yRNm/CjZobcH/Luks7w2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TdEO1GpDwPg7DlGi5O4JVH3GJpvjeLcb5Z742a1W8BVjwUUn66/EPknkecp/0Fcmg
-         r3B3ReEM401ifl9g2jCcksacK+O+n1Mg4UfOyvTACSiPtwYdNCbMHQhZUatx0NFvXJ
-         82DDpqiHy6wNZxmq5DExJWxR+y2BOZb9cQ2N23Lw=
+        b=P3XiM7xyQ+IeWZhkkzGTGcKUjfXuPHVY+w7QHE16upt9LkClmBIIAIEqOtbAbSLYw
+         OgKXuXuaWkg+5Dkt4BI3O2tsth8kBrkVjNXy6mfzh/48tZXITAYckLNX3yYW0VqPhc
+         /wCnQHDrpdj/tPx6184ybKR87Yp9nVpNNnPci5lM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
+        "Jiazi.Li" <jiazi.li@transsion.com>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.0 155/862] ring-buffer: Add ring_buffer_wake_waiters()
-Date:   Wed, 19 Oct 2022 10:24:02 +0200
-Message-Id: <20221019083256.828194839@linuxfoundation.org>
+Subject: [PATCH 6.0 156/862] ring-buffer: Fix race between reset page and reading page
+Date:   Wed, 19 Oct 2022 10:24:03 +0200
+Message-Id: <20221019083256.868185709@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,114 +56,113 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 7e9fbbb1b776d8d7969551565bc246f74ec53b27 upstream.
+commit a0fcaaed0c46cf9399d3a2d6e0c87ddb3df0e044 upstream.
 
-On closing of a file that represents a ring buffer or flushing the file,
-there may be waiters on the ring buffer that needs to be woken up and exit
-the ring_buffer_wait() function.
+The ring buffer is broken up into sub buffers (currently of page size).
+Each sub buffer has a pointer to its "tail" (the last event written to the
+sub buffer). When a new event is requested, the tail is locally
+incremented to cover the size of the new event. This is done in a way that
+there is no need for locking.
 
-Add ring_buffer_wake_waiters() to wake up the waiters on the ring buffer
-and allow them to exit the wait loop.
+If the tail goes past the end of the sub buffer, the process of moving to
+the next sub buffer takes place. After setting the current sub buffer to
+the next one, the previous one that had the tail go passed the end of the
+sub buffer needs to be reset back to the original tail location (before
+the new event was requested) and the rest of the sub buffer needs to be
+"padded".
 
-Link: https://lkml.kernel.org/r/20220928133938.28dc2c27@gandalf.local.home
+The race happens when a reader takes control of the sub buffer. As readers
+do a "swap" of sub buffers from the ring buffer to get exclusive access to
+the sub buffer, it replaces the "head" sub buffer with an empty sub buffer
+that goes back into the writable portion of the ring buffer. This swap can
+happen as soon as the writer moves to the next sub buffer and before it
+updates the last sub buffer with padding.
 
-Cc: stable@vger.kernel.org
+Because the sub buffer can be released to the reader while the writer is
+still updating the padding, it is possible for the reader to see the event
+that goes past the end of the sub buffer. This can cause obvious issues.
+
+To fix this, add a few memory barriers so that the reader definitely sees
+the updates to the sub buffer, and also waits until the writer has put
+back the "tail" of the sub buffer back to the last event that was written
+on it.
+
+To be paranoid, it will only spin for 1 second, otherwise it will
+warn and shutdown the ring buffer code. 1 second should be enough as
+the writer does have preemption disabled. If the writer doesn't move
+within 1 second (with preemption disabled) something is horribly
+wrong. No interrupt should last 1 second!
+
+Link: https://lore.kernel.org/all/20220830120854.7545-1-jiazi.li@transsion.com/
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216369
+Link: https://lkml.kernel.org/r/20220929104909.0650a36c@gandalf.local.home
+
 Cc: Ingo Molnar <mingo@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>
-Fixes: 15693458c4bc0 ("tracing/ring-buffer: Move poll wake ups into ring buffer code")
+Cc: stable@vger.kernel.org
+Fixes: c7b0930857e22 ("ring-buffer: prevent adding write in discarded area")
+Reported-by: Jiazi.Li <jiazi.li@transsion.com>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/ring_buffer.h |    2 +-
- kernel/trace/ring_buffer.c  |   39 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 40 insertions(+), 1 deletion(-)
+ kernel/trace/ring_buffer.c |   33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
---- a/include/linux/ring_buffer.h
-+++ b/include/linux/ring_buffer.h
-@@ -101,7 +101,7 @@ __ring_buffer_alloc(unsigned long size,
- int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full);
- __poll_t ring_buffer_poll_wait(struct trace_buffer *buffer, int cpu,
- 			  struct file *filp, poll_table *poll_table);
--
-+void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu);
- 
- #define RING_BUFFER_ALL_CPUS -1
- 
 --- a/kernel/trace/ring_buffer.c
 +++ b/kernel/trace/ring_buffer.c
-@@ -413,6 +413,7 @@ struct rb_irq_work {
- 	struct irq_work			work;
- 	wait_queue_head_t		waiters;
- 	wait_queue_head_t		full_waiters;
-+	long				wait_index;
- 	bool				waiters_pending;
- 	bool				full_waiters_pending;
- 	bool				wakeup_full;
-@@ -925,6 +926,37 @@ static void rb_wake_up_waiters(struct ir
- }
+@@ -2648,6 +2648,9 @@ rb_reset_tail(struct ring_buffer_per_cpu
+ 		/* Mark the rest of the page with padding */
+ 		rb_event_set_padding(event);
  
- /**
-+ * ring_buffer_wake_waiters - wake up any waiters on this ring buffer
-+ * @buffer: The ring buffer to wake waiters on
-+ *
-+ * In the case of a file that represents a ring buffer is closing,
-+ * it is prudent to wake up any waiters that are on this.
-+ */
-+void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu)
-+{
-+	struct ring_buffer_per_cpu *cpu_buffer;
-+	struct rb_irq_work *rbwork;
++		/* Make sure the padding is visible before the write update */
++		smp_wmb();
 +
-+	if (cpu == RING_BUFFER_ALL_CPUS) {
-+
-+		/* Wake up individual ones too. One level recursion */
-+		for_each_buffer_cpu(buffer, cpu)
-+			ring_buffer_wake_waiters(buffer, cpu);
-+
-+		rbwork = &buffer->irq_work;
-+	} else {
-+		cpu_buffer = buffer->buffers[cpu];
-+		rbwork = &cpu_buffer->irq_work;
-+	}
-+
-+	rbwork->wait_index++;
-+	/* make sure the waiters see the new index */
+ 		/* Set the write back to the previous setting */
+ 		local_sub(length, &tail_page->write);
+ 		return;
+@@ -2659,6 +2662,9 @@ rb_reset_tail(struct ring_buffer_per_cpu
+ 	/* time delta must be non zero */
+ 	event->time_delta = 1;
+ 
++	/* Make sure the padding is visible before the tail_page->write update */
 +	smp_wmb();
 +
-+	rb_wake_up_waiters(&rbwork->work);
-+}
-+
-+/**
-  * ring_buffer_wait - wait for input to the ring buffer
-  * @buffer: buffer to wait on
-  * @cpu: the cpu buffer to wait on
-@@ -939,6 +971,7 @@ int ring_buffer_wait(struct trace_buffer
- 	struct ring_buffer_per_cpu *cpu_buffer;
- 	DEFINE_WAIT(wait);
- 	struct rb_irq_work *work;
-+	long wait_index;
- 	int ret = 0;
+ 	/* Set write to end of buffer */
+ 	length = (tail + length) - BUF_PAGE_SIZE;
+ 	local_sub(length, &tail_page->write);
+@@ -4627,6 +4633,33 @@ rb_get_reader_page(struct ring_buffer_pe
+ 	arch_spin_unlock(&cpu_buffer->lock);
+ 	local_irq_restore(flags);
  
- 	/*
-@@ -957,6 +990,7 @@ int ring_buffer_wait(struct trace_buffer
- 		work = &cpu_buffer->irq_work;
- 	}
- 
-+	wait_index = READ_ONCE(work->wait_index);
- 
- 	while (true) {
- 		if (full)
-@@ -1021,6 +1055,11 @@ int ring_buffer_wait(struct trace_buffer
- 		}
- 
- 		schedule();
-+
-+		/* Make sure to see the new wait index */
-+		smp_rmb();
-+		if (wait_index != work->wait_index)
++	/*
++	 * The writer has preempt disable, wait for it. But not forever
++	 * Although, 1 second is pretty much "forever"
++	 */
++#define USECS_WAIT	1000000
++        for (nr_loops = 0; nr_loops < USECS_WAIT; nr_loops++) {
++		/* If the write is past the end of page, a writer is still updating it */
++		if (likely(!reader || rb_page_write(reader) <= BUF_PAGE_SIZE))
 +			break;
- 	}
++
++		udelay(1);
++
++		/* Get the latest version of the reader write value */
++		smp_rmb();
++	}
++
++	/* The writer is not moving forward? Something is wrong */
++	if (RB_WARN_ON(cpu_buffer, nr_loops == USECS_WAIT))
++		reader = NULL;
++
++	/*
++	 * Make sure we see any padding after the write update
++	 * (see rb_reset_tail())
++	 */
++	smp_rmb();
++
++
+ 	return reader;
+ }
  
- 	if (full)
 
 
