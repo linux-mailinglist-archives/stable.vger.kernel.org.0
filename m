@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2E10604030
-	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33675604006
+	for <lists+stable@lfdr.de>; Wed, 19 Oct 2022 11:42:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234090AbiJSJmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 05:42:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55330 "EHLO
+        id S233978AbiJSJmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Oct 2022 05:42:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234510AbiJSJkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:40:37 -0400
+        with ESMTP id S234073AbiJSJiD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 05:38:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC3DEF5A0;
-        Wed, 19 Oct 2022 02:16:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA1E31F93;
+        Wed, 19 Oct 2022 02:15:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D52A7617D1;
-        Wed, 19 Oct 2022 09:16:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE5DC433D6;
-        Wed, 19 Oct 2022 09:16:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 74752617F1;
+        Wed, 19 Oct 2022 09:14:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D478C433D7;
+        Wed, 19 Oct 2022 09:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666170972;
-        bh=oJ6qJGlAT422qVkxzq0How+tDhfPxj4z7/qt5SBB8uE=;
+        s=korg; t=1666170884;
+        bh=hLea2Hywm1+dsu/QsFYNJPR4Xf8zvgrWQYrpjo5lmFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ecJYFlw0KxivWM+pLOGoUXLozGfVz5gJrc7hehZrB+GgNJElZjKPSxhfGVIBztJdX
-         KjiOi1pKbgZu+FhbMLNKdJ0qhdQhHmV/eD/EGX8f2I8Anb1iEMGtdLuUSZbe0QlNFW
-         vL7axSsn2VIZr5KJs3g7NBr2YmlYxufglj+NUXzM=
+        b=QM2g3bEe9YC3tHsZQzvXzlZMJtaU9+vHqhG4woYWAVTaFc2A7wjaVS8rrFqdHLd+X
+         uYEwBMGdU7HOiYa6GNDVN3LXSnOATSLOq44R3VDApbTXe3t/aPhdEgBysUaGQFL8bW
+         DN3xQO/p55U5Kgo8rg8CX3m270kRo4XpsiLfWQsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johnothan King <johnothanking@protonmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Arne Wendt <arne.wendt@tuhh.de>
-Subject: [PATCH 6.0 815/862] HID: nintendo: check analog user calibration for plausibility
-Date:   Wed, 19 Oct 2022 10:35:02 +0200
-Message-Id: <20221019083325.930357791@linuxfoundation.org>
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 816/862] md/raid5: Wait for MD_SB_CHANGE_PENDING in raid5d
+Date:   Wed, 19 Oct 2022 10:35:03 +0200
+Message-Id: <20221019083325.973869233@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
 References: <20221019083249.951566199@linuxfoundation.org>
@@ -55,125 +52,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johnothan King <johnothanking@protonmail.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 50503e360eeb968a3d00234c9cc4057d774c3e9a ]
+[ Upstream commit 5e2cf333b7bd5d3e62595a44d598a254c697cd74 ]
 
-Arne Wendt writes:
-  Cheap clone controllers may (falsely) report as having a user
-  calibration for the analog sticks in place, but return
-  wrong/impossible values for the actual calibration data.
-  In the present case at mine, the controller reports having a
-  user calibration in place and successfully executes the read
-  commands. The reported user calibration however is
-  min = center = max = 0.
+A complicated deadlock exists when using the journal and an elevated
+group_thrtead_cnt. It was found with loop devices, but its not clear
+whether it can be seen with real disks. The deadlock can occur simply
+by writing data with an fio script.
 
-  This pull request addresses problems of this kind by checking the
-  provided user calibration-data for plausibility (min < center < max)
-  and falling back to the default values if implausible.
+When the deadlock occurs, multiple threads will hang in different ways:
 
-I'll note that I was experiencing a crash because of this bug when using
-the GuliKit KingKong 2 controller. The crash manifests as a divide by
-zero error in the kernel logs:
-kernel: divide error: 0000 [#1] PREEMPT SMP NOPTI
+ 1) The group threads will hang in the blk-wbt code with bios waiting to
+    be submitted to the block layer:
 
-Link: https://github.com/nicman23/dkms-hid-nintendo/pull/25
-Link: https://github.com/DanielOgorchock/linux/issues/36
-Co-authored-by: Arne Wendt <arne.wendt@tuhh.de>
-Signed-off-by: Johnothan King <johnothanking@protonmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/gvpL2G6VwXGJPvxX5KRiu9pVjvTivgayug_jdKDY6zfuAaAqncP9BkKLosjwUXNlgVVTMfJSKfwPF1K79cKAkwGComyC21vCV3q9B3EXNkE=@protonmail.com
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        ops_run_io+0x46b/0x1a30
+        handle_stripe+0xcd3/0x36b0
+        handle_active_stripes.constprop.0+0x6f6/0xa60
+        raid5_do_work+0x177/0x330
+
+    Or:
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        flush_deferred_bios+0x136/0x170
+        raid5_do_work+0x262/0x330
+
+ 2) The r5l_reclaim thread will hang in the same way, submitting a
+    bio to the block layer:
+
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        submit_bio+0x3f/0xf0
+        md_super_write+0x12f/0x1b0
+        md_update_sb.part.0+0x7c6/0xff0
+        md_update_sb+0x30/0x60
+        r5l_do_reclaim+0x4f9/0x5e0
+        r5l_reclaim_thread+0x69/0x30b
+
+    However, before hanging, the MD_SB_CHANGE_PENDING flag will be
+    set for sb_flags in r5l_write_super_and_discard_space(). This
+    flag will never be cleared because the submit_bio() call never
+    returns.
+
+ 3) Due to the MD_SB_CHANGE_PENDING flag being set, handle_stripe()
+    will do no processing on any pending stripes and re-set
+    STRIPE_HANDLE. This will cause the raid5d thread to enter an
+    infinite loop, constantly trying to handle the same stripes
+    stuck in the queue.
+
+    The raid5d thread has a blk_plug that holds a number of bios
+    that are also stuck waiting seeing the thread is in a loop
+    that never schedules. These bios have been accounted for by
+    blk-wbt thus preventing the other threads above from
+    continuing when they try to submit bios. --Deadlock.
+
+To fix this, add the same wait_event() that is used in raid5_do_work()
+to raid5d() such that if MD_SB_CHANGE_PENDING is set, the thread will
+schedule and wait until the flag is cleared. The schedule action will
+flush the plug which will allow the r5l_reclaim thread to continue,
+thus preventing the deadlock.
+
+However, md_check_recovery() calls can also clear MD_SB_CHANGE_PENDING
+from the same thread and can thus deadlock if the thread is put to
+sleep. So avoid waiting if md_check_recovery() is being called in the
+loop.
+
+It's not clear when the deadlock was introduced, but the similar
+wait_event() call in raid5_do_work() was added in 2017 by this
+commit:
+
+    16d997b78b15 ("md/raid5: simplfy delaying of writes while metadata
+                   is updated.")
+
+Link: https://lore.kernel.org/r/7f3b87b6-b52a-f737-51d7-a4eec5c44112@deltatee.com
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-nintendo.c | 55 +++++++++++++++++++++-----------------
- 1 file changed, 30 insertions(+), 25 deletions(-)
+ drivers/md/raid5.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index 6028af3c3aae..c3774a468b22 100644
---- a/drivers/hid/hid-nintendo.c
-+++ b/drivers/hid/hid-nintendo.c
-@@ -760,12 +760,31 @@ static int joycon_read_stick_calibration(struct joycon_ctlr *ctlr, u16 cal_addr,
- 	cal_y->max = cal_y->center + y_max_above;
- 	cal_y->min = cal_y->center - y_min_below;
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index db149d28f639..caaae10e33f8 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -36,6 +36,7 @@
+  */
  
--	return 0;
-+	/* check if calibration values are plausible */
-+	if (cal_x->min >= cal_x->center || cal_x->center >= cal_x->max ||
-+	    cal_y->min >= cal_y->center || cal_y->center >= cal_y->max)
-+		ret = -EINVAL;
+ #include <linux/blkdev.h>
++#include <linux/delay.h>
+ #include <linux/kthread.h>
+ #include <linux/raid/pq.h>
+ #include <linux/async_tx.h>
+@@ -6780,7 +6781,18 @@ static void raid5d(struct md_thread *thread)
+ 			spin_unlock_irq(&conf->device_lock);
+ 			md_check_recovery(mddev);
+ 			spin_lock_irq(&conf->device_lock);
 +
-+	return ret;
- }
- 
- static const u16 DFLT_STICK_CAL_CEN = 2000;
- static const u16 DFLT_STICK_CAL_MAX = 3500;
- static const u16 DFLT_STICK_CAL_MIN = 500;
-+static void joycon_use_default_calibration(struct hid_device *hdev,
-+					   struct joycon_stick_cal *cal_x,
-+					   struct joycon_stick_cal *cal_y,
-+					   const char *stick, int ret)
-+{
-+	hid_warn(hdev,
-+		 "Failed to read %s stick cal, using defaults; e=%d\n",
-+		 stick, ret);
++			/*
++			 * Waiting on MD_SB_CHANGE_PENDING below may deadlock
++			 * seeing md_check_recovery() is needed to clear
++			 * the flag when using mdmon.
++			 */
++			continue;
+ 		}
 +
-+	cal_x->center = cal_y->center = DFLT_STICK_CAL_CEN;
-+	cal_x->max = cal_y->max = DFLT_STICK_CAL_MAX;
-+	cal_x->min = cal_y->min = DFLT_STICK_CAL_MIN;
-+}
-+
- static int joycon_request_calibration(struct joycon_ctlr *ctlr)
- {
- 	u16 left_stick_addr = JC_CAL_FCT_DATA_LEFT_ADDR;
-@@ -793,38 +812,24 @@ static int joycon_request_calibration(struct joycon_ctlr *ctlr)
- 					    &ctlr->left_stick_cal_x,
- 					    &ctlr->left_stick_cal_y,
- 					    true);
--	if (ret) {
--		hid_warn(ctlr->hdev,
--			 "Failed to read left stick cal, using dflts; e=%d\n",
--			 ret);
--
--		ctlr->left_stick_cal_x.center = DFLT_STICK_CAL_CEN;
--		ctlr->left_stick_cal_x.max = DFLT_STICK_CAL_MAX;
--		ctlr->left_stick_cal_x.min = DFLT_STICK_CAL_MIN;
++		wait_event_lock_irq(mddev->sb_wait,
++			!test_bit(MD_SB_CHANGE_PENDING, &mddev->sb_flags),
++			conf->device_lock);
+ 	}
+ 	pr_debug("%d stripes handled\n", handled);
  
--		ctlr->left_stick_cal_y.center = DFLT_STICK_CAL_CEN;
--		ctlr->left_stick_cal_y.max = DFLT_STICK_CAL_MAX;
--		ctlr->left_stick_cal_y.min = DFLT_STICK_CAL_MIN;
--	}
-+	if (ret)
-+		joycon_use_default_calibration(ctlr->hdev,
-+					       &ctlr->left_stick_cal_x,
-+					       &ctlr->left_stick_cal_y,
-+					       "left", ret);
- 
- 	/* read the right stick calibration data */
- 	ret = joycon_read_stick_calibration(ctlr, right_stick_addr,
- 					    &ctlr->right_stick_cal_x,
- 					    &ctlr->right_stick_cal_y,
- 					    false);
--	if (ret) {
--		hid_warn(ctlr->hdev,
--			 "Failed to read right stick cal, using dflts; e=%d\n",
--			 ret);
--
--		ctlr->right_stick_cal_x.center = DFLT_STICK_CAL_CEN;
--		ctlr->right_stick_cal_x.max = DFLT_STICK_CAL_MAX;
--		ctlr->right_stick_cal_x.min = DFLT_STICK_CAL_MIN;
- 
--		ctlr->right_stick_cal_y.center = DFLT_STICK_CAL_CEN;
--		ctlr->right_stick_cal_y.max = DFLT_STICK_CAL_MAX;
--		ctlr->right_stick_cal_y.min = DFLT_STICK_CAL_MIN;
--	}
-+	if (ret)
-+		joycon_use_default_calibration(ctlr->hdev,
-+					       &ctlr->right_stick_cal_x,
-+					       &ctlr->right_stick_cal_y,
-+					       "right", ret);
- 
- 	hid_dbg(ctlr->hdev, "calibration:\n"
- 			    "l_x_c=%d l_x_max=%d l_x_min=%d\n"
 -- 
 2.35.1
 
