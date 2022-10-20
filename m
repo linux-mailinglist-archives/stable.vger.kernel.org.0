@@ -2,60 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3E3605E7A
-	for <lists+stable@lfdr.de>; Thu, 20 Oct 2022 13:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A2A7605E26
+	for <lists+stable@lfdr.de>; Thu, 20 Oct 2022 12:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229616AbiJTLLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Oct 2022 07:11:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60900 "EHLO
+        id S229776AbiJTKsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Oct 2022 06:48:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229454AbiJTLLB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 07:11:01 -0400
-X-Greylist: delayed 16874 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 20 Oct 2022 04:10:58 PDT
-Received: from bais.com.tw (60-249-164-131.hinet-ip.hinet.net [60.249.164.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632DB1D5543
-        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 04:10:58 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by bais.com.tw (Postfix) with ESMTP id 61D5858E80;
-        Thu, 20 Oct 2022 05:21:31 +0800 (CST)
-X-Virus-Scanned: Debian amavisd-new at mailsrv.ebais.com.tw
-Received: from bais.com.tw ([127.0.0.1])
-        by localhost (bais.com.tw [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id 7fT85z9o3UgP; Thu, 20 Oct 2022 05:21:22 +0800 (CST)
-Content-Type: text/plain; charset="iso-8859-1"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=bais.com.tw; s=mail;
-        t=1666150140; bh=UhCgquW4/pX67F69E87DKagCwwUEweIbb7MPTZSfOwI=;
-        h=Subject:To:From:Date:Reply-To:From;
-        b=xysIVeLU0z5Nv8Pz8Xr7s469D2ucggvC2kcKQ26C/APagO067aYfVJR0ly2Sw9dhh
-         grr5mZFjFhYYwLUFJq5ETgOq2c9Bkkr0xCtridPoVs+lCBSe5vLbjdYJ8nWaZVH/m+
-         NwY+GosMKBtpdA/NN5IshTjdD0mZmkIVXbMhwnM0=
+        with ESMTP id S229491AbiJTKr7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 06:47:59 -0400
+X-Greylist: delayed 1060 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 20 Oct 2022 03:47:58 PDT
+Received: from level.ms.sapientia.ro (level.ms.sapientia.ro [193.16.218.95])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6DC861C7124
+        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 03:47:58 -0700 (PDT)
+Received: from localhost (level.ms.sapientia.ro [127.0.0.1])
+        by level.ms.sapientia.ro (Postfix) with ESMTP id EFA8A5E84578;
+        Thu, 20 Oct 2022 13:21:45 +0300 (EEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 level.ms.sapientia.ro EFA8A5E84578
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ms.sapientia.ro;
+        s=default; t=1666261306;
+        bh=1iYwqtjHRQ8c22/evwAFD3L0nsEfp8iq1XhS+tgelCw=;
+        h=Date:From:To:Subject:Reply-To:From;
+        b=hLkrva/fkD5+b8ILCAnkHZv9RUo0RML3w1WB5PIAtK0D/vce9q6MeB5sU97wTaNJb
+         4zq32zMUL/NsG6sErXIFSb//1GbVgpcSZdrOQAJrvABjvLUBjOLYFZ5VfpG/JVAboC
+         fYUd/BI7p56KODzUd38GwOLyM2qaoTUT+wXKCbVM=
+X-Virus-Scanned: by B3 SapScan
+Received: from level.ms.sapientia.ro ([127.0.0.1])
+        by localhost (level.ms.sapientia.ro [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id zss8GR28flQB; Thu, 20 Oct 2022 13:21:44 +0300 (EEST)
+Received: from level.ms.sapientia.ro (level.ms.sapientia.ro [127.0.0.1])
+        by level.ms.sapientia.ro (Postfix) with ESMTPSA id 024EA5C69FF5;
+        Thu, 20 Oct 2022 13:21:38 +0300 (EEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 level.ms.sapientia.ro 024EA5C69FF5
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ms.sapientia.ro;
+        s=default; t=1666261300;
+        bh=1iYwqtjHRQ8c22/evwAFD3L0nsEfp8iq1XhS+tgelCw=;
+        h=Date:From:To:Subject:Reply-To:From;
+        b=b07dfcX1vLVi7x68DiR8fiXqB2BwIyeTIP0g6uZmkkFZ0T+hYoEPuH+vpPXFzle/u
+         ZqTtMq5j3Q2vjMptn7yXOFpwoiOFY141dxqnILDnv0AmGvlu+A2BtavmjARNMBUclO
+         pytcC7MMegDqf/e9BWny9d0a4LWipVNhECS0bQ64=
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Attn:Please Read
-To:     Recipients <marsach@bais.com.tw>
-From:   "Money Help Finance Loan" <marsach@bais.com.tw>
-Date:   Tue, 18 Oct 2022 20:28:44 -0700
-Reply-To: nikkifenton770@gmail.com
-Message-Id: <20221019212131.61D5858E80@bais.com.tw>
-X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DATE_IN_PAST_12_24,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_FORGED_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,PDS_RDNS_DYNAMIC_FP,
-        RCVD_IN_MSPIKE_H2,RDNS_DYNAMIC,SPF_HELO_PASS,SPF_PASS,URIBL_BLOCKED
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Thu, 20 Oct 2022 12:21:38 +0200
+From:   Evan <molnarkati@ms.sapientia.ro>
+To:     undisclosed-recipients:;
+Subject: Hi Gorgeous,
+Reply-To: bakker.evan01@gmail.com
+Mail-Reply-To: bakker.evan01@gmail.com
+Message-ID: <4412d21e98eada0316f01a047b07ebd1@ms.sapientia.ro>
+X-Sender: molnarkati@ms.sapientia.ro
+User-Agent: Roundcube Webmail/1.3.4
+X-Spam-Status: Yes, score=6.0 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_REPLYTO,
+        FREEMAIL_REPLYTO_END_DIGIT,ODD_FREEM_REPTO,SPF_HELO_PASS,SPF_PASS,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: *  0.0 URIBL_BLOCKED ADMINISTRATOR NOTICE: The query to URIBL was
+        *      blocked.  See
+        *      http://wiki.apache.org/spamassassin/DnsBlocklists#dnsbl-block
+        *      for more information.
+        *      [URIs: sapientia.ro]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        * -0.0 SPF_HELO_PASS SPF: HELO matches SPF record
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [bakker.evan01[at]gmail.com]
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  2.9 ODD_FREEM_REPTO Has unusual reply-to header
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good Day To You
-
-I've viewed your profile on Linkedin regarding a proposal that has somethin=
-g in common with you, kindly reply back for more details on my private emai=
-l: nikkifenton770@gmail.com
-
-Thanks,
-Nikki Fenton,
-nikkifenton770@gmail.com
+Hi Gorgeous,
+Am sorry to bother you, but I am single and lonely in need of a caring, 
+loving and romantic companion.
+I am a secret admirer and would like to explore the opportunity to learn 
+more about each other.
+Hopefully it will be the beginning of a long term communication between 
+the both of us.
+Please let me know what you think. will be glad to hear from you again.
+Hugs and kisses,
+Evan.
