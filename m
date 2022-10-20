@@ -2,73 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11AC8606383
-	for <lists+stable@lfdr.de>; Thu, 20 Oct 2022 16:48:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B3F6064A4
+	for <lists+stable@lfdr.de>; Thu, 20 Oct 2022 17:34:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230254AbiJTOs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Oct 2022 10:48:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52260 "EHLO
+        id S229835AbiJTPeW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Oct 2022 11:34:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230280AbiJTOs1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 10:48:27 -0400
-Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 146AF61127
-        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 07:48:25 -0700 (PDT)
-Received: by mail-io1-xd31.google.com with SMTP id y80so17342862iof.3
-        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 07:48:25 -0700 (PDT)
+        with ESMTP id S230492AbiJTPeK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 11:34:10 -0400
+Received: from mail-qv1-xf2a.google.com (mail-qv1-xf2a.google.com [IPv6:2607:f8b0:4864:20::f2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A03E51B4C42
+        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 08:34:09 -0700 (PDT)
+Received: by mail-qv1-xf2a.google.com with SMTP id l19so13753036qvu.4
+        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 08:34:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=xyEdOXlSndo4uPk0KrVGETvK2q5egPgUditt+XNxMhY=;
-        b=OR/n+1S46f9Lbwdl/bgTk3mD6NamxcPNZRk3ZIHZ5tJM3eBKfya/KL7bwJ8DBc02bM
-         wy+c1jHW/LJnGfAvqETtwqd8B8V222mpUAPfT8IvsA118iY4NcNnpneGkU19DEfgKab4
-         xZrpZ01PcEHUdttIvcdgNJq21ocLQIm4MOvhw=
+        d=google.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=cLdV6PnMuiKqKn7gplx6uvtLf96oiQWdR0P2i4ykuy0=;
+        b=TQT2+C3O9UUEZA+1iAGO7fXFxtjW15uivVF5CNBDmGN2z0KWp+O2blljq7h9DyKSc5
+         EvOMFs/UY84ParhE3rIwN9cVgLml7iv7F4mLfv+Cs0ujLRmntlZx1rtpA3jabG4i6fWI
+         bJZ1faD95NoNYmNvr8lopzIUTC1s/fp08cBi2jq9MSen0qEwKRL/YXOsSthHh6udKfvi
+         /KOIKnc+V+AZlCCynwrOiofsJ9i38TmXK72rP0fejJL+yJJq+n6SluNS6E+Qx73zVhRo
+         mP7PsUSvMOwz4hfXsHZruD04/bMBgDjfHKX62X1CV66rqnJG7w5xhdF+LqyuZwUi0s7w
+         kq9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xyEdOXlSndo4uPk0KrVGETvK2q5egPgUditt+XNxMhY=;
-        b=zK45N3TEM8YCjzCTNLXymlrlg2UjHjuFOdRshVSgxJ+b7hrTHNdGyaM8inbXhAmUH+
-         eevqP3i8lR8fUk2cymny2E9aaSPOgdqfF3qjQmWuAvHTCUnaZlMIyYr2iEyUIOr2RFM+
-         FYhaN2utv7x0lFhCeo1FL4WftiNpAhMcq6YgS4g2V3fBv9j7YFT9Owdgf+WnR2+wj3zq
-         gS+9KzU/fC6LX6CRD4tqXN2vKtCJ/2FekBHmmLczAlGyoGZPa+E8N1R5mAAkurNEx2gi
-         DmO3MywgdAHCp+sk3J03xTSh8/KMnShEnwTvD6W4l7tlL9mkE6nvYInKIZFao9ADBA3F
-         td2Q==
-X-Gm-Message-State: ACrzQf3BSCKumEIL7guCJ5Cg3UhfiKWD7smddZZic7EF5jREjFeyH0XU
-        1A3D9/J75csS0/G+xXQiPhz6Pg==
-X-Google-Smtp-Source: AMsMyM6he7Y1M5zvSAzivZb5Bof1fIpsetVQw2snw3rRtp0M4glmp6g2HZ+ju3wV9Zth78xTjuZsUw==
-X-Received: by 2002:a05:6602:134f:b0:6a4:cd04:7842 with SMTP id i15-20020a056602134f00b006a4cd047842mr10252219iov.172.1666277304428;
-        Thu, 20 Oct 2022 07:48:24 -0700 (PDT)
-Received: from [192.168.1.128] ([38.15.45.1])
-        by smtp.gmail.com with ESMTPSA id m21-20020a023c15000000b0035a40af60fcsm3350204jaa.86.2022.10.20.07.48.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 20 Oct 2022 07:48:23 -0700 (PDT)
-Message-ID: <8612a1aa-4920-e069-b252-137c51c6b04f@linuxfoundation.org>
-Date:   Thu, 20 Oct 2022 08:48:23 -0600
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=cLdV6PnMuiKqKn7gplx6uvtLf96oiQWdR0P2i4ykuy0=;
+        b=viZcBzjSO1QvZitIULg9w/wYDw/Mz+bfk0M+zSuZfpTfno+J06FMrB8VPeb/x/9FTn
+         Oe7/ER7BNR2QqNRC3jC4pDJc40WOND+kdsjMeEXnMGVvSOXZemF/46SgokhoSeCg3kSy
+         L5nLFfHcDnS47+DYMGl7QzKq5sZQD8Xbdaii4pwa6UWcIwuv5mP73JOikdHDbTRjXXn8
+         kYoFs0FYvoYOLP62rc0eSGahpGYjBpW9MTB/KeLNTf3fURnLcYBdIdc9WEUxoU0doU9b
+         LWgWO1EFpr02KYmd8QQ0SnhbwrPKoOkDPo7P+eNqYbdp5QD1OMDw8+fOarwtfN6T+EIs
+         B6yg==
+X-Gm-Message-State: ACrzQf3x5qOxfPKGzamy3ysxg4NJW2aAyvkN829XWT+ICZkf24S5vZh5
+        P15i26QeFpUhdG8kjMGxOxqw0+JfDKp7hw==
+X-Google-Smtp-Source: AMsMyM4SAjheRdafoKSz7GuP3WqVBUXFdEVhBe4c4GJ/YHF97KUpwVnjB7h5dCGblkpUFxePss9bpQ==
+X-Received: by 2002:a17:902:9a07:b0:178:8024:1393 with SMTP id v7-20020a1709029a0700b0017880241393mr14554070plp.128.1666280038382;
+        Thu, 20 Oct 2022 08:33:58 -0700 (PDT)
+Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
+        by smtp.gmail.com with ESMTPSA id l1-20020a63f301000000b00440416463fesm11770926pgh.27.2022.10.20.08.33.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Oct 2022 08:33:54 -0700 (PDT)
+Date:   Thu, 20 Oct 2022 15:33:50 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Maxim Levitsky <mlevitsk@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@redhat.com>,
+        x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 4/4] KVM: x86: forcibly leave nested mode on vCPU reset
+Message-ID: <Y1FqXiBB7Bqzj8eh@google.com>
+References: <20221020093055.224317-1-mlevitsk@redhat.com>
+ <20221020093055.224317-5-mlevitsk@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH v1] selftests: Use optional USERCFLAGS and USERLDFLAGS
-Content-Language: en-US
-To:     =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-Cc:     Anders Roxell <anders.roxell@linaro.org>,
-        Guillaume Tucker <guillaume.tucker@collabora.com>,
-        Mark Brown <broonie@kernel.org>,
-        linux-kselftest@vger.kernel.org,
-        linux-security-module@vger.kernel.org, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20220909103901.1503436-1-mic@digikod.net>
- <80053942-2e24-b31a-8795-1f81d4b52e67@digikod.net>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-In-Reply-To: <80053942-2e24-b31a-8795-1f81d4b52e67@digikod.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221020093055.224317-5-mlevitsk@redhat.com>
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -76,52 +76,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/20/22 08:17, Mickaël Salaün wrote:
-> Hi Shuah, what do you think about this patch?
+On Thu, Oct 20, 2022, Maxim Levitsky wrote:
+> While not obivous, kvm_vcpu_reset leaves the nested mode by
+
+Please add () when referencing function, and wrap closer to ~75 chars.
+
+> clearing 'vcpu->arch.hflags' but it does so without all the
+> required housekeeping.
 > 
+> This makes SVM and VMX continue to use vmcs02/vmcb02 while
 
-Thanks for the ping.
+This bug should be impossible to hit on VMX as INIT and TRIPLE_FAULT unconditionally
+cause VM-Exit, i.e. will always be forwarded to L1.
 
-> On 09/09/2022 12:39, Mickaël Salaün wrote:
->> This change enables to extend CFLAGS and LDFLAGS from command line, e.g.
->> to extend compiler checks: make USERCFLAGS=-Werror USERLDFLAGS=-static
->>
->> USERCFLAGS and USERLDFLAGS are documented in
->> Documentation/kbuild/makefiles.rst and Documentation/kbuild/kbuild.rst
->>
->> This should be backported (down to 5.10) to improve previous kernel
->> versions testing as well.
->>
->> Cc: Shuah Khan <skhan@linuxfoundation.org>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Mickaël Salaün <mic@digikod.net>
->> Link: https://lore.kernel.org/r/20220909103901.1503436-1-mic@digikod.net
->> ---
->>   tools/testing/selftests/lib.mk | 5 +++++
->>   1 file changed, 5 insertions(+)
->>
->> diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
->> index d44c72b3abe3..da47a0257165 100644
->> --- a/tools/testing/selftests/lib.mk
->> +++ b/tools/testing/selftests/lib.mk
->> @@ -119,6 +119,11 @@ endef
->>   clean:
->>       $(CLEAN)
->> +# Enables to extend CFLAGS and LDFLAGS from command line, e.g.
->> +# make USERCFLAGS=-Werror USERLDFLAGS=-static
->> +CFLAGS += $(USERCFLAGS)
->> +LDFLAGS += $(USERLDFLAGS)
->> +
->>   # When make O= with kselftest target from main level
->>   # the following aren't defined.
->>   #
->>
->> base-commit: 7e18e42e4b280c85b76967a9106a13ca61c16179
+> the cpu is not in nested mode.
 
-Sorry for the delay. Looks good to me. I will apply to next to get
-some soak time and get this into 6.2.
+Can you add a blurb to call out exactly how this bug can be triggered?  Doesn't
+take much effort to suss out the "how", but it'd be nice to capture that info in
+the changelog.
 
-thanks,
--- Shuah
+> In particular, in SVM code, it makes the 'svm_free_nested'
+> free the vmcb02, while still in use, which later triggers
+> use after free and a kernel crash.
+> 
+> This issue is assigned CVE-2022-3344
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+> ---
+>  arch/x86/kvm/x86.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index d86a8aae1471d3..313c4a6dc65e45 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -11931,6 +11931,7 @@ void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
+>  	WARN_ON_ONCE(!init_event &&
+>  		     (old_cr0 || kvm_read_cr3(vcpu) || kvm_read_cr4(vcpu)));
+>  
+> +	kvm_leave_nested(vcpu);
+
+Not a big deal, especially if/when nested_ops are turned into static_calls, but
+at the same time it's quite easy to do:
+
+	if (is_guest_mode(vcpu))
+		kvm_leave_nested(vcpu);
+
+I think it's worth adding a comment explaining how this can happen, and to also
+call out that EFER is cleared on INIT, i.e. that virtualization is disabled due
+to EFER.SVME=0.  Unsurprisingly, I don't see anything in the APM that explicitly
+states what happens if INIT occurs in guest mode, i.e. it's not immediately obvious
+that forcing the vCPU back to L1 is architecturally correct.
 
 
+>  	kvm_lapic_reset(vcpu, init_event);
+>  
+>  	vcpu->arch.hflags = 0;
+
+Maybe add a WARN above this to try and detect other potential issues?  Kinda silly,
+but it'd at least help draw attention to the importance of hflags.
+
+E.g. this?
+
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 4bd5f8a751de..c50fa0751a0b 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -11915,6 +11915,15 @@ void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
+        unsigned long old_cr0 = kvm_read_cr0(vcpu);
+        unsigned long new_cr0;
+ 
++       /*
++        * SVM doesn't unconditionally VM-Exit on INIT and SHUTDOWN, thus it's
++        * possible to INIT the vCPU while L2 is active.  Force the vCPU back
++        * into L1 as EFER.SVME is cleared on INIT (along with all other EFER
++        * bits), i.e. virtualization is disabled.
++        */
++       if (is_guest_mode(vcpu))
++               kvm_leave_nested(vcpu);
++
+        /*
+         * Several of the "set" flows, e.g. ->set_cr0(), read other registers
+         * to handle side effects.  RESET emulation hits those flows and relies
+@@ -11927,6 +11936,7 @@ void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
+ 
+        kvm_lapic_reset(vcpu, init_event);
+ 
++       WARN_ON_ONCE(is_guest_mode(vcpu) || is_smm(vcpu));
+        vcpu->arch.hflags = 0;
+ 
+        vcpu->arch.smi_pending = 0;
