@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E944606BD9
-	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 01:01:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64F3D606BDC
+	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 01:01:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230115AbiJTXBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Oct 2022 19:01:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40490 "EHLO
+        id S229747AbiJTXBm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Oct 2022 19:01:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230015AbiJTXBZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 19:01:25 -0400
-Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A52B224A99;
-        Thu, 20 Oct 2022 16:01:23 -0700 (PDT)
-Received: by mail-qk1-x72b.google.com with SMTP id s17so943644qkj.12;
-        Thu, 20 Oct 2022 16:01:23 -0700 (PDT)
+        with ESMTP id S230046AbiJTXB2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 19:01:28 -0400
+Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88EAC224AA7;
+        Thu, 20 Oct 2022 16:01:26 -0700 (PDT)
+Received: by mail-qt1-x82f.google.com with SMTP id f22so629580qto.3;
+        Thu, 20 Oct 2022 16:01:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=7QZvPvCxEhu7aitvrhTnFQy1p76C1y/0hTZTgoD/Edc=;
-        b=FyfMfjc5VRzTp+1xVF34JueDogQfjyG+DTCcd1Rh4jukrEW2+EFkqC2eBsr5pj+DFc
-         11g7+ExAUjU21dqiSOJMusY646OfOaCtdrdbBJVvtQuks4+jaAcE6Ox1otBtKdl8hx6I
-         1Eu3eMPto+Ry0sTzmng94F7e+T7eQciTKNnmmn9RkCv5ks9p1vdmTNZPbxvghkXaplQ8
-         eWn6aPBPk1FhBrujl4Ua4hb2+Yvz1PGAWChF6zst6WN20dNj/AC5Nyav2JQraKDL+s/X
-         NbLXtwEBg3KMqrBMTj1pAVllZ65fYTSi2pjXUVmxZV5iNnmHzqWugzNXGAIP1zKJUdPW
-         GBjg==
+        bh=8il+GzVxf6Yepe7odbbprtDusIWgD9SzvIXjKHN9jPA=;
+        b=NyVyYYsPtxeinxCI3IZ3o9YsElBL+XLPhE3oaF5jWPkjc0COxMswkhlrbsUgc7J60Q
+         /Lzty3dYtWt3yuAThf8OTRQOVm0Az1SwuKUuaY+RkZKpi2jUHcoFjdAXEATaX2SbDZQw
+         27sPNH6ACMIZQuz5RI+FhQaVT5T7kaazT5L2bRZVmVBUqB4JyZapP3/j6ntAB7XWyz7Y
+         RM5CXwWRjEVkTbNQwWzh+6K9OoQyZTu4h6WSdBAZTvSpNavbFBpNlTOjkYP/MTZ3zvat
+         6HLTmfnNDDqXuIL5HCuKEF/UFn81keiiVmKu1lnQDmKYUUeHO9/yz2MWKgDqrQUcsQRk
+         4GhA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=7QZvPvCxEhu7aitvrhTnFQy1p76C1y/0hTZTgoD/Edc=;
-        b=fL3ViV0lG7ylXTcZZ785KEBkDSKCNKh0fSMf4RRCOKKvBpp1iqXQMoflkdHpbXiNr2
-         EfdYsobVYrqpMxLdFsOHkXr7TeMwQkgtz1n+01GY6yb89LOpCDvw32aulOEU44FE03kT
-         E6fBHQvztUl2oigRf2Bh0SaiUBSzyo0h+zDkx2UJ5OlvbzmrnSSTFocetQLiqgoMDDHW
-         zCuG5MufsMkvpS7PVl6Hf5t/IouciOsFwfx2NbI39hE7ZXKc5q69w5qsB+swgXVC6zgQ
-         01TaY5G0koeHx0TgTuApBqWQELW51oK46BN/C04Jn8uBmLxl/CO6r9uNUdVYPV6aMs/8
-         feew==
-X-Gm-Message-State: ACrzQf1O64OWvXsMytxgLTW0mw9WAfYhqrdNFyoOFUyNgKEEyAkXVG6K
-        maGvLC1X6uThaiZ10giL68ERACYXFMcuPQ==
-X-Google-Smtp-Source: AMsMyM5sA5gIKRwX+iPEwbAGAE+qLn4RsbFmuBuZ3qgP6wq7BC5Ha7+NJroKmkvRNeCmMXowktluig==
-X-Received: by 2002:a05:620a:244e:b0:6c6:f3b8:9c3 with SMTP id h14-20020a05620a244e00b006c6f3b809c3mr11467057qkn.218.1666306881711;
-        Thu, 20 Oct 2022 16:01:21 -0700 (PDT)
+        bh=8il+GzVxf6Yepe7odbbprtDusIWgD9SzvIXjKHN9jPA=;
+        b=4mMliuYIZEtcQtqlPaDcjQxqATYbKNfo7X3AiT+wBHmLOPrzn7DkBBkMR7TMKJ0H3o
+         bTJpoh6np0e612nDFSCnfm8zPIAxIkb3yklbQT3VPH6e2jTl81DJSrjSC2oSFieUzKcx
+         nbBlxONXXagvgSZVutKX9kLrQNaPJQZxSwMaew/MLMhUMb8PdZQ7Sb5y9bqe3KLVucpi
+         jgiXaJtteO6yCDsuSfFIL8IwKFV6/xZLvevzO0/CfFRlBn43ah9aXfcn3bQgD+2+WYjI
+         hNSBbopZwJrE6b9QYkkr1W3uQfgKLXD4qYGJ/Ho2KahXDpjCH/rCZHNIL2HagtYy5p1y
+         qDHA==
+X-Gm-Message-State: ACrzQf2y+GrYYrSH4Hy1GgSR/zm4sQ+r+WVkfiYuxDKBqvSVbGp3e6st
+        b73vhZWD5+PeU0+0dsMbdaX9XvuQfHQxhQ==
+X-Google-Smtp-Source: AMsMyM4yzGYLoHuKBTXKh7ipdOVP+7ogpYM54DdJbKhLWJKjSC7tfeDR6LCKfyUGyKXttaDNPVunCg==
+X-Received: by 2002:ac8:7fc6:0:b0:39c:fdf3:6540 with SMTP id b6-20020ac87fc6000000b0039cfdf36540mr8850096qtk.185.1666306885068;
+        Thu, 20 Oct 2022 16:01:25 -0700 (PDT)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id de20-20020a05620a371400b006ef1a8f1b81sm669343qkb.5.2022.10.20.16.01.19
+        by smtp.gmail.com with ESMTPSA id de20-20020a05620a371400b006ef1a8f1b81sm669343qkb.5.2022.10.20.16.01.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Oct 2022 16:01:21 -0700 (PDT)
+        Thu, 20 Oct 2022 16:01:24 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     James Morse <james.morse@arm.com>,
@@ -69,9 +69,9 @@ Cc:     James Morse <james.morse@arm.com>,
         linux-doc@vger.kernel.org (open list:DOCUMENTATION),
         linux-kernel@vger.kernel.org (open list),
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH stable 4.19] arm64: errata: Remove AES hwcap for COMPAT tasks
-Date:   Thu, 20 Oct 2022 16:01:07 -0700
-Message-Id: <20221020230110.1255660-3-f.fainelli@gmail.com>
+Subject: [PATCH stable 5.4] arm64: errata: Remove AES hwcap for COMPAT tasks
+Date:   Thu, 20 Oct 2022 16:01:08 -0700
+Message-Id: <20221020230110.1255660-4-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20221020230110.1255660-1-f.fainelli@gmail.com>
 References: <20221020230110.1255660-1-f.fainelli@gmail.com>
@@ -109,34 +109,36 @@ Link: https://lore.kernel.org/r/20220714161523.279570-3-james.morse@arm.com
 Signed-off-by: Will Deacon <will@kernel.org>
 [florian: resolved conflicts in arch/arm64/tools/cpucaps and cpu_errata.c]
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Change-Id: I651a0db2e9d2f304d210ae979ae586e7dcc9744d
 ---
- Documentation/arm64/silicon-errata.txt |  2 ++
+ Documentation/arm64/silicon-errata.rst |  4 ++++
  arch/arm64/Kconfig                     | 16 ++++++++++++++++
  arch/arm64/include/asm/cpucaps.h       |  3 ++-
- arch/arm64/kernel/cpu_errata.c         | 17 +++++++++++++++++
+ arch/arm64/kernel/cpu_errata.c         | 16 ++++++++++++++++
  arch/arm64/kernel/cpufeature.c         | 13 ++++++++++++-
- 5 files changed, 49 insertions(+), 2 deletions(-)
+ 5 files changed, 50 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/arm64/silicon-errata.txt b/Documentation/arm64/silicon-errata.txt
-index 667ea906266e..5329e3e00e04 100644
---- a/Documentation/arm64/silicon-errata.txt
-+++ b/Documentation/arm64/silicon-errata.txt
-@@ -55,7 +55,9 @@ stable kernels.
- | ARM            | Cortex-A57      | #832075         | ARM64_ERRATUM_832075        |
- | ARM            | Cortex-A57      | #852523         | N/A                         |
+diff --git a/Documentation/arm64/silicon-errata.rst b/Documentation/arm64/silicon-errata.rst
+index 59daa4c21816..36a8c01191a0 100644
+--- a/Documentation/arm64/silicon-errata.rst
++++ b/Documentation/arm64/silicon-errata.rst
+@@ -70,8 +70,12 @@ stable kernels.
+ +----------------+-----------------+-----------------+-----------------------------+
  | ARM            | Cortex-A57      | #834220         | ARM64_ERRATUM_834220        |
+ +----------------+-----------------+-----------------+-----------------------------+
 +| ARM            | Cortex-A57      | #1742098        | ARM64_ERRATUM_1742098       |
+++----------------+-----------------+-----------------+-----------------------------+
  | ARM            | Cortex-A72      | #853709         | N/A                         |
+ +----------------+-----------------+-----------------+-----------------------------+
 +| ARM            | Cortex-A72      | #1655431        | ARM64_ERRATUM_1742098       |
+++----------------+-----------------+-----------------+-----------------------------+
  | ARM            | Cortex-A73      | #858921         | ARM64_ERRATUM_858921        |
+ +----------------+-----------------+-----------------+-----------------------------+
  | ARM            | Cortex-A55      | #1024718        | ARM64_ERRATUM_1024718       |
- | ARM            | Cortex-A76      | #1463225        | ARM64_ERRATUM_1463225       |
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index a101f5d2fbed..e16f0d45b47a 100644
+index 6b73143f0cf8..384b1bf56667 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
-@@ -515,6 +515,22 @@ config ARM64_ERRATUM_1542419
+@@ -574,6 +574,22 @@ config ARM64_ERRATUM_1542419
  
  	  If unsure, say Y.
  
@@ -160,25 +162,25 @@ index a101f5d2fbed..e16f0d45b47a 100644
  	bool "Cavium erratum 22375, 24313"
  	default y
 diff --git a/arch/arm64/include/asm/cpucaps.h b/arch/arm64/include/asm/cpucaps.h
-index 64ae14371cae..61fd28522d74 100644
+index 4ffa86149d28..3b16cbc945cf 100644
 --- a/arch/arm64/include/asm/cpucaps.h
 +++ b/arch/arm64/include/asm/cpucaps.h
-@@ -55,7 +55,8 @@
- #define ARM64_SSBS				34
- #define ARM64_WORKAROUND_1542419		35
- #define ARM64_SPECTRE_BHB			36
-+#define ARM64_WORKAROUND_1742098		37
+@@ -56,7 +56,8 @@
+ #define ARM64_WORKAROUND_CAVIUM_TX2_219_PRFM	46
+ #define ARM64_WORKAROUND_1542419		47
+ #define ARM64_SPECTRE_BHB			48
++#define ARM64_WORKAROUND_1742098		49
  
--#define ARM64_NCAPS				37
-+#define ARM64_NCAPS				38
+-#define ARM64_NCAPS				49
++#define ARM64_NCAPS				50
  
  #endif /* __ASM_CPUCAPS_H */
 diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index d0b7dd60861b..5435550d1c9b 100644
+index 33b33416fea4..4c7545cf5a02 100644
 --- a/arch/arm64/kernel/cpu_errata.c
 +++ b/arch/arm64/kernel/cpu_errata.c
-@@ -683,6 +683,15 @@ static const struct midr_range arm64_harden_el2_vectors[] = {
- 
+@@ -817,6 +817,14 @@ static const struct arm64_cpu_capabilities erratum_843419_list[] = {
+ };
  #endif
  
 +#ifdef CONFIG_ARM64_ERRATUM_1742098
@@ -189,11 +191,10 @@ index d0b7dd60861b..5435550d1c9b 100644
 +};
 +#endif
 +
-+
  const struct arm64_cpu_capabilities arm64_errata[] = {
- #if	defined(CONFIG_ARM64_ERRATUM_826319) || \
- 	defined(CONFIG_ARM64_ERRATUM_827319) || \
-@@ -883,6 +892,14 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+ #ifdef CONFIG_ARM64_WORKAROUND_CLEAN_CACHE
+ 	{
+@@ -997,6 +1005,14 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
  		.matches = has_neoverse_n1_erratum_1542419,
  		.cpu_enable = cpu_enable_trap_ctr_access,
  	},
@@ -209,10 +210,10 @@ index d0b7dd60861b..5435550d1c9b 100644
  	{
  	}
 diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 03b0fdccaf05..d7e73a7963d1 100644
+index d07dadd6b8ff..396d96224b48 100644
 --- a/arch/arm64/kernel/cpufeature.c
 +++ b/arch/arm64/kernel/cpufeature.c
-@@ -31,6 +31,7 @@
+@@ -21,6 +21,7 @@
  #include <asm/cpufeature.h>
  #include <asm/cpu_ops.h>
  #include <asm/fpsimd.h>
@@ -220,9 +221,9 @@ index 03b0fdccaf05..d7e73a7963d1 100644
  #include <asm/mmu_context.h>
  #include <asm/processor.h>
  #include <asm/sysreg.h>
-@@ -1154,6 +1155,14 @@ static void cpu_enable_ssbs(const struct arm64_cpu_capabilities *__unused)
+@@ -1280,6 +1281,14 @@ static bool can_use_gic_priorities(const struct arm64_cpu_capabilities *entry,
  }
- #endif /* CONFIG_ARM64_SSBD */
+ #endif
  
 +static void elf_hwcap_fixup(void)
 +{
@@ -235,7 +236,7 @@ index 03b0fdccaf05..d7e73a7963d1 100644
  static const struct arm64_cpu_capabilities arm64_features[] = {
  	{
  		.desc = "GIC system register CPU interface",
-@@ -1802,8 +1811,10 @@ void __init setup_cpu_features(void)
+@@ -2103,8 +2112,10 @@ void __init setup_cpu_features(void)
  	mark_const_caps_ready();
  	setup_elf_hwcaps(arm64_elf_hwcaps);
  
