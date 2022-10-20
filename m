@@ -2,131 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E73F606C14
-	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 01:31:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDA9C606C37
+	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 01:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229652AbiJTXbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Oct 2022 19:31:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52062 "EHLO
+        id S229692AbiJTXy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Oct 2022 19:54:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229558AbiJTXbH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 19:31:07 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27438169CDD
-        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 16:31:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666308664;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=iPieb0tsDLFBeZTiM6Uz+jwJtSKMmEglyuNepcIKOVY=;
-        b=fx3V6tflob3a677iUed7RPDeiy5jnrxTApHVziw7GrrdA07Ye8G8Bsh5vBl3NkqJC/SWyf
-        sMzxHpdu7UMURpaFFR6yDXHkiIoUquAgWYb3pcxe2+WhqJcUPTBGl1cdYVK3e7fFOjfvS7
-        4f+QEwiMt2mhq3Scxg91WS9Xqub3amI=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-329-Vp6pzAmFOPuYzUraIZKcIg-1; Thu, 20 Oct 2022 19:31:02 -0400
-X-MC-Unique: Vp6pzAmFOPuYzUraIZKcIg-1
-Received: by mail-ed1-f71.google.com with SMTP id y14-20020a056402270e00b0045d1baf4951so759499edd.11
-        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 16:31:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=iPieb0tsDLFBeZTiM6Uz+jwJtSKMmEglyuNepcIKOVY=;
-        b=ij8IH9OVN+ty/Hwf70Yptl/iKDnFQ0BnpSrUNzjo0zluagbsSk+T0t86pKOKXLna35
-         edcXfHlYN5BT4LbPv7wJwOYPxHYulPH6jQOLhTAjRCme05fdkclwJAXvP0CPoZyHXAM3
-         lUe1YmOOdsCnD0GKChI9G8AYX9mBUYep0VrcvXBBqeX1jO7QCzYzGMLi+EHdsibgYTcZ
-         atkNnD26vnmcRV4+MmUGF9Sf3Zw/Lqqqy1J7Fb0/F0Va5KHQE0mI31l6ZBhlFc3apzPG
-         CJ2pG4kNDDtsRw3eFgtg5anpDMgYSUdvG4np5HCGvHHsy+8XafmWoCEvRuffPATbPUjU
-         ntSQ==
-X-Gm-Message-State: ACrzQf3wC7+Lr3rh/SyHptq/rwvun2bbYAaeB0kp+ZtnLTi9smbwGttD
-        cYqdnOiH/kPdCYZJQVbRDTa7BtDKV49Fanymy6ood1fTBDaob/LUfylSN8SIouqRaWJef8iwAVt
-        oCjhFgk2rdtPnkYzJvWHlwxf2L5ZlP+Nt
-X-Received: by 2002:a05:6402:358e:b0:45c:aa8b:f7e9 with SMTP id y14-20020a056402358e00b0045caa8bf7e9mr14550689edc.33.1666308661868;
-        Thu, 20 Oct 2022 16:31:01 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM5zMBdE1IrhG+4dy7/hpSNpD2HQ7Mx3uBoPyJsAEj7xdtMGAeGiick2hckAkksaFixU8hM0e3rxpQgxOcDL/GI=
-X-Received: by 2002:a05:6402:358e:b0:45c:aa8b:f7e9 with SMTP id
- y14-20020a056402358e00b0045caa8bf7e9mr14550673edc.33.1666308661708; Thu, 20
- Oct 2022 16:31:01 -0700 (PDT)
+        with ESMTP id S229460AbiJTXy6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 19:54:58 -0400
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32550688A1;
+        Thu, 20 Oct 2022 16:54:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1666310098; x=1697846098;
+  h=subject:from:to:cc:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=jMRKQdTw1ohaKpE/lNW6EvKLDyv+u1hBguYWhqbep6M=;
+  b=K9btm6GV2HeZgy9hiqt9sQZFJKq21Uz4bP73kz5PBQAEjdjh5ZucSnx3
+   KvynH5xluPkhvx8zpXhsx5cwI5YDxG5X0q/RZLSuiu+iHDaP3Mf2w+Das
+   kYIOsa5kI0PKwyl+r8Rp+qXVPiSceqHWdfmqGRihytN0xnc1IwilyXlsa
+   sT1NW71WaflrviWjx0RJBU6GQ+Arw1IoCkKwIWkA0IJTrNYXpQfJIPU7H
+   9+3rUTKGYqRoOTl4dzaBfMSbdFDsc5/TEx9VYxQqX5KrNdPHk5TbIF1Bt
+   ncfoCi7ZOT6ASCOfrSmuCDHsG6uR6ZYQ/5TmKRAQDm1K0XoN8K0a+nxDv
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10506"; a="393167139"
+X-IronPort-AV: E=Sophos;i="5.95,200,1661842800"; 
+   d="scan'208";a="393167139"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Oct 2022 16:54:57 -0700
+X-IronPort-AV: E=McAfee;i="6500,9779,10506"; a="772689011"
+X-IronPort-AV: E=Sophos;i="5.95,200,1661842800"; 
+   d="scan'208";a="772689011"
+Received: from amwalker-mobl1.amr.corp.intel.com (HELO dwillia2-xfh.jf.intel.com) ([10.209.42.205])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Oct 2022 16:54:56 -0700
+Subject: [PATCH] ACPI: NUMA: Add CXL CFMWS 'nodes' to the possible nodes set
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     linux-cxl@vger.kernel.org
+Cc:     stable@vger.kernel.org,
+        Alison Schofield <alison.schofield@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        linux-acpi@vger.kernel.org
+Date:   Thu, 20 Oct 2022 16:54:55 -0700
+Message-ID: <166631003537.1167078.9373680312035292395.stgit@dwillia2-xfh.jf.intel.com>
+User-Agent: StGit/0.18-3-g996c
 MIME-Version: 1.0
-References: <20221020142535.1038885-1-miquel.raynal@bootlin.com>
-In-Reply-To: <20221020142535.1038885-1-miquel.raynal@bootlin.com>
-From:   Alexander Aring <aahringo@redhat.com>
-Date:   Thu, 20 Oct 2022 19:30:50 -0400
-Message-ID: <CAK-6q+g4LMVGVYprX+f18-K=8HxTKtCJJu3YR+QoPVjHP_NpTA@mail.gmail.com>
-Subject: Re: [PATCH wpan] mac802154: Fix LQI recording
-To:     Miquel Raynal <miquel.raynal@bootlin.com>
-Cc:     Alexander Aring <alex.aring@gmail.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        linux-wpan@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org,
-        David Girault <david.girault@qorvo.com>,
-        Romuald Despres <romuald.despres@qorvo.com>,
-        Frederic Blain <frederic.blain@qorvo.com>,
-        Nicolas Schodet <nico@ni.fr.eu.org>,
-        Guilhem Imberton <guilhem.imberton@qorvo.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+The ACPI CEDT.CFMWS indicates a range of possible address where new CXL
+regions can appear. Each range is associated with a QTG id (QoS
+Throttling Group id). For each range + QTG pair that is not covered by a proximity
+domain in the SRAT, Linux creates a new NUMA node. However, the commit
+that added the new ranges missed updating the node_possible mask which
+causes memory_group_register() to fail. Add the new nodes to the
+nodes_possible mask.
 
-On Thu, Oct 20, 2022 at 10:25 AM Miquel Raynal
-<miquel.raynal@bootlin.com> wrote:
->
-> Back in 2014, the LQI was saved in the skb control buffer (skb->cb, or
-> mac_cb(skb)) without any actual reset of this area prior to its use.
->
-> As part of a useful rework of the use of this region, 32edc40ae65c
-> ("ieee802154: change _cb handling slightly") introduced mac_cb_init() to
-> basically memset the cb field to 0. In particular, this new function got
-> called at the beginning of mac802154_parse_frame_start(), right before
-> the location where the buffer got actually filled.
->
-> What went through unnoticed however, is the fact that the very first
-> helper called by device drivers in the receive path already used this
-> area to save the LQI value for later extraction. Resetting the cb field
-> "so late" led to systematically zeroing the LQI.
->
-> If we consider the reset of the cb field needed, we can make it as soon
-> as we get an skb from a device driver, right before storing the LQI,
-> as is the very first time we need to write something there.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 32edc40ae65c ("ieee802154: change _cb handling slightly")
-> Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: <stable@vger.kernel.org>
+Fixes: fd49f99c1809 ("ACPI: NUMA: Add a node and memblk for each CFMWS not in SRAT")
+Cc: Alison Schofield <alison.schofield@intel.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: Vishal Verma <vishal.l.verma@intel.com>
+Tested-by: Vishal Verma <vishal.l.verma@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+---
+Rafael, I can take this through the CXL tree with some other pending
+fixes.
 
-Acked-by: Alexander Aring <aahringo@redhat.com>
+ drivers/acpi/numa/srat.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-> ---
->
-> Hello,
->
-> I am surprised the LQI was gone for all those years and nobody
-> noticed it, so perhaps I did misinterpret slightly the situation, but I
-> am pretty sure the cb area reset was erasing the LQI.
->
-
-probably because nobody was really using those values before. There
-were some patches years ago to add them into af802154 cmsg but
-probably not well tested and so far it's the only upstream user.
-
-However, thanks for fixing it.
-
-- Alex
+diff --git a/drivers/acpi/numa/srat.c b/drivers/acpi/numa/srat.c
+index 3b818ab186be..1f4fc5f8a819 100644
+--- a/drivers/acpi/numa/srat.c
++++ b/drivers/acpi/numa/srat.c
+@@ -327,6 +327,7 @@ static int __init acpi_parse_cfmws(union acpi_subtable_headers *header,
+ 		pr_warn("ACPI NUMA: Failed to add memblk for CFMWS node %d [mem %#llx-%#llx]\n",
+ 			node, start, end);
+ 	}
++	node_set(node, numa_nodes_parsed);
+ 
+ 	/* Set the next available fake_pxm value */
+ 	(*fake_pxm)++;
 
