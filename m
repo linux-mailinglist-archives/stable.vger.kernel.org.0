@@ -2,70 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7DDD605E13
-	for <lists+stable@lfdr.de>; Thu, 20 Oct 2022 12:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98062605F10
+	for <lists+stable@lfdr.de>; Thu, 20 Oct 2022 13:38:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229720AbiJTKnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Oct 2022 06:43:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51690 "EHLO
+        id S231357AbiJTLiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Oct 2022 07:38:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229716AbiJTKnj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 06:43:39 -0400
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 311F01DE3DC;
-        Thu, 20 Oct 2022 03:43:38 -0700 (PDT)
-Received: by mail-wr1-x433.google.com with SMTP id a3so33643473wrt.0;
-        Thu, 20 Oct 2022 03:43:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=8by0Y4Eoa0kr85uGkSh6id4MSxKcFJ3fiBsqOvDMlAE=;
-        b=Dg6FZMiKOpS+wPxYXYMQwJb3ghZ5Ne0C127VSEeSn3UKizE7cW7LRh12OvEHacm+qZ
-         KhNtypoje0v5fsvDtzKGq72NbjfASL/e8+ZM74dESE7QDnCfxXD8h0wzc+Z9plxtyPvM
-         ou19svqJ0A6hZ3+zB6SG+EzdbxbVkw1PVVSvGywkkhCgtsKIc3pN2QzNSHb1AB8as2b+
-         n4sI7lxtpfrHU+x9plYF108oFAYbulyky+Gn5iWZjryOTHbpcXViHhDlmXmAQl4xDv7H
-         zxu5jPFvwf9+5oJ/GMizcfHZZPpWZI4+IEslAbikejLDq2AeOzP1eZixTEDn6Ytu+ntG
-         U42Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8by0Y4Eoa0kr85uGkSh6id4MSxKcFJ3fiBsqOvDMlAE=;
-        b=amckc+jKBblgOFQjB8pInDYbLoFyZcTMCmn4/noY5OR7tWOBfqWBrmn4JexApj2tQu
-         xo/kI6WEuJzCdV+xamNA2+gg7+6PfJiVy2SRj5hqDgNpG0IqKpMOdxB2M6YPE1Co967f
-         T+aWaE5VQWNeWJDjOcWxauLS0e+MorbVaUzkZXCerKdeUh83L2K5M42DjvEsSovstpbD
-         QnwKTWcUQDlwbVQisoGdM24sphQzf4ghupzLukcAnS21N3Gm9J6lFtZomNXiQVKAcLx/
-         pnsXL05eduZycUfKnS0ljpbntc0gb4ammN07q8wjmCaMZHD7/CxjXFMObVB+h14Ka/Vu
-         JOew==
-X-Gm-Message-State: ACrzQf00tk/oMlWOuej2E5H1RgEkggoVXY8UHmlgNK+wpguKxDGFDO5N
-        HhbA8PXfCjWYFNOE9Dt3+Ys=
-X-Google-Smtp-Source: AMsMyM6G/XskeXiqSWkNXzfremvJ9+c3oqzjPfthvFDcEEEWjq5GY/l8JArMbaaY5BR7Q0M6TODDVg==
-X-Received: by 2002:a5d:6485:0:b0:230:b6db:d41c with SMTP id o5-20020a5d6485000000b00230b6dbd41cmr7786324wri.709.1666262616595;
-        Thu, 20 Oct 2022 03:43:36 -0700 (PDT)
-Received: from debian (host-78-150-37-98.as13285.net. [78.150.37.98])
-        by smtp.gmail.com with ESMTPSA id p26-20020a1c741a000000b003c6b70a4d69sm2357806wmc.42.2022.10.20.03.43.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Oct 2022 03:43:36 -0700 (PDT)
-Date:   Thu, 20 Oct 2022 11:43:34 +0100
-From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, srw@sladewatkins.net
-Subject: Re: [PATCH 6.0 000/862] 6.0.3-rc1 review
-Message-ID: <Y1EmVsftX4MYH8TS@debian>
-References: <20221019083249.951566199@linuxfoundation.org>
+        with ESMTP id S231126AbiJTLiX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 07:38:23 -0400
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2053.outbound.protection.outlook.com [40.107.237.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C16451DD886;
+        Thu, 20 Oct 2022 04:38:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WZo6azMXzi6XNVSN11rZvkneqXOGZz+us1eNJ8YhvPULnMrZUwK4a/ndHIUGmIY0c0d03SHRfb8cn4aMGdzpTcA8MgF1nG/MiPoMiUwqvEq2nIRX9Zt/My6+AXYdZU5AfGXa2667yIE9LC6+anrUmFsnOwBQ1fqvbk4ENi9tsx2UivQ7uyWgfDvUm/PdNN2FuUlsM8IacRvERjRYhwPadhKI1RnEDcRxRuFs2KfzbrP1pAsatExR1jtvOTwOa8UqjTR4hAtWajHSKEDrWqHiQ2fycQ4Yfv86iEqXerNhHageA+oPZ0bRX8Gme/FLLanL7UPDr7SfemAWkV06xpm0Mw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=uWntC2YRhQIVdEG1NgGpJeQZ6rY8Tjk+0Q+cXb/3DkU=;
+ b=PrAC/HoqPeBuaDqeFbqVZnFKS/Mmc38Ah06qzXBlwl0aMENiQ+iveHrjlAJrq2VQw54/VpWYJIcPWOo/5AET+GKPDEeOVzocq97Atx8ADQIQFjqNpXw+/eJF6MzK4rAF3fTcuZNDGn+Kf98X2Fm+09onEYyddJ4fr+TyTxOnyiRlbHVcoMZEjUYBUxV/xses5mhb/1moZ2/lO+yE8Ej4QuN3m4AwKIjEo+FV1bVgSNQ4vJq/wCX/uFar+MhfmgGTNnhoZcYtwPV25XM9yhhI9453z9+qow7oefKCsKSDApZuLzLiKX1XfsIERUHc8kMj56Dvi5J+uXhXnAkr6pttmg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=uWntC2YRhQIVdEG1NgGpJeQZ6rY8Tjk+0Q+cXb/3DkU=;
+ b=SyWBUB8SRmSwePvmILxU/ui389YRf2vlV68JAnwsp6GVPQ9j7fyNbYYSUSm4tENthb5/O4mlWNyb9ITV5v5LFArkDUFMEfFzMyHvymQAcmb3pkkY9YZqGi/WxaxL4ytH9OXf5BNc1K0RuihBdTwK+2tmj6CMG9rSbNWyXcCCLSw=
+Received: from BN9PR03CA0780.namprd03.prod.outlook.com (2603:10b6:408:13a::35)
+ by PH7PR12MB6633.namprd12.prod.outlook.com (2603:10b6:510:1ff::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.32; Thu, 20 Oct
+ 2022 11:37:58 +0000
+Received: from BN8NAM11FT018.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:13a:cafe::a3) by BN9PR03CA0780.outlook.office365.com
+ (2603:10b6:408:13a::35) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.34 via Frontend
+ Transport; Thu, 20 Oct 2022 11:37:58 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ BN8NAM11FT018.mail.protection.outlook.com (10.13.176.89) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.5746.16 via Frontend Transport; Thu, 20 Oct 2022 11:37:58 +0000
+Received: from AUS-LX-MLIMONCI.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Thu, 20 Oct
+ 2022 06:37:57 -0500
+From:   Mario Limonciello <mario.limonciello@amd.com>
+To:     <mario.limonciello@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Hans de Goede <hdegoede@redhat.com>
+CC:     Anson Tsao <anson.tsao@amd.com>,
+        You-Sheng Yang <vicamo.yang@canonical.com>,
+        <stable@vger.kernel.org>, Mark Gross <markgross@kernel.org>,
+        <platform-driver-x86@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/1] platform/x86/amd: pmc: Read SMU version during suspend on Cezanne systems
+Date:   Thu, 20 Oct 2022 06:37:49 -0500
+Message-ID: <20221020113749.6621-2-mario.limonciello@amd.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221020113749.6621-1-mario.limonciello@amd.com>
+References: <20221020113749.6621-1-mario.limonciello@amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN8NAM11FT018:EE_|PH7PR12MB6633:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8dec384d-04e1-4992-cc25-08dab28f89c0
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: AEq8mnK07nMIiavuleNoOmZ3oQSGFWfPC2FcHNgmJRb3UFn3VrSvPfhZ0oeYfgaFmSdf7Q1K12NMvsnRnN27DbKlT1NOv6btKz3NHsz8QIVB+ym96FiP6K0WEZJRnd3drjlgxSNH5+3gjec34cIV1iy6/7DMt/GAz1ouAoIz5d9dHZXO3L9KJllcVrabs3ygBsIsgguRVBH6CXUg8C7vwbMWbSfWfnYqvWXYBxBtUKb6RwJ2J86mft3rHfZqZ+lh6Rxnbms1R3QuWkZzMN4WxjPB9IvVFULSBph5rH49rYfBFEkihuMOI9iF3OIMn6efgydLKtV7DUTGUVlZw6EtuDGvveqG7ZM8TMke0hMfigVTrynjhzt0LgYxEqdXlCjtVEZ4fs3Q3GTo764SJ1U94+//tCOxJ89mQotU0FEMxljb8sL1LlDPJleKaIPG2XISdsConcJD4I9v5yPEOBdFX0AECs0/4/UYML+YnDb9OKdf8a3NPm5Nu7OdurnCI90AUbu5fdv4f/iee1dNbH00+6iFK3yzdzbddCHuE4vBcBYXXnRA6A1XkM0EHuieRsLlc25a9afr/AUDbZpZGughX7OkPl0Sh4K8gqCjvPwfBcksHfgBAtSBMkJseY8ILeMFEurF9587gq6HEFr3sewgjTPkBnhbwcqtaqaV8CvUbONC/+qj4riihTJKAAVGT5O6lXSVcOowWyU/W2mRhNORdKBWzWyunoidXtoL4e8/s3SwpG4zeiADTDJQ6ioLPpbR/th/JbCjrt8whnstmvy5MfhwKi9TXh7t5wN01RnLGTlV0W2t/sJMAZRgcLjOG05o
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(376002)(136003)(39860400002)(346002)(396003)(451199015)(40470700004)(36840700001)(46966006)(44832011)(8936002)(4326008)(70206006)(8676002)(316002)(70586007)(86362001)(82740400003)(356005)(5660300002)(81166007)(41300700001)(2906002)(40460700003)(15650500001)(478600001)(6666004)(336012)(2616005)(1076003)(426003)(36756003)(26005)(36860700001)(83380400001)(54906003)(110136005)(40480700001)(82310400005)(47076005)(7696005)(16526019)(186003)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Oct 2022 11:37:58.7058
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8dec384d-04e1-4992-cc25-08dab28f89c0
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT018.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6633
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,URIBL_BLOCKED autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -73,37 +103,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+commit b0c07116c8943 ("platform/x86: amd-pmc: Avoid reading SMU version at
+probe time") adjusted the behavior for amd-pmc to avoid reading the SMU version
+at startup but rather on first use to improve boot time.
 
-On Wed, Oct 19, 2022 at 10:21:27AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.3 release.
-> There are 862 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 21 Oct 2022 08:30:19 +0000.
-> Anything received after that time might be too late.
+However the SMU version is also used to decide whether to place a timer based
+wakeup in the OS_HINT message.  If the idlemask hasn't been read before this
+message was sent then the SMU version will not have been cached.
 
-Build test (gcc version 12.2.1 20221016):
-mips: 52 configs -> no failure
-arm: 100 configs -> no failure
-arm64: 3 configs -> no failure
-x86_64: 4 configs -> no failure
-alpha allmodconfig -> no failure
-csky allmodconfig -> no failure
-powerpc allmodconfig -> no failure
-riscv allmodconfig -> no failure
-s390 allmodconfig -> no failure
-xtensa allmodconfig -> no failure
+Ensure the SMU version has been read before deciding whether or not to run this
+codepath.
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
+Cc: stable@vger.kernel.org # 6.0
+Reported-by: You-Sheng Yang <vicamo.yang@canonical.com>
+Tested-by: Anson Tsao <anson.tsao@amd.com>
+Fixes: b0c07116c8943 ("platform/x86: amd-pmc: Avoid reading SMU version at probe time")
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+---
+ drivers/platform/x86/amd/pmc.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-[1]. https://openqa.qa.codethink.co.uk/tests/2018
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
+diff --git a/drivers/platform/x86/amd/pmc.c b/drivers/platform/x86/amd/pmc.c
+index ce859b300712b..96e790e639a21 100644
+--- a/drivers/platform/x86/amd/pmc.c
++++ b/drivers/platform/x86/amd/pmc.c
+@@ -663,6 +663,13 @@ static int amd_pmc_verify_czn_rtc(struct amd_pmc_dev *pdev, u32 *arg)
+ 	struct rtc_time tm;
+ 	int rc;
+ 
++	/* we haven't yet read SMU version */
++	if (!pdev->major) {
++		rc = amd_pmc_get_smu_version(pdev);
++		if (rc)
++			return rc;
++	}
++
+ 	if (pdev->major < 64 || (pdev->major == 64 && pdev->minor < 53))
+ 		return 0;
+ 
 -- 
-Regards
-Sudip
+2.34.1
+
