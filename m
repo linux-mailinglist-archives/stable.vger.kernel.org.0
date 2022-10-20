@@ -2,111 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A5F6605625
-	for <lists+stable@lfdr.de>; Thu, 20 Oct 2022 05:56:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33EB6605674
+	for <lists+stable@lfdr.de>; Thu, 20 Oct 2022 06:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229736AbiJTD4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Oct 2022 23:56:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59134 "EHLO
+        id S229674AbiJTEs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Oct 2022 00:48:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229705AbiJTD4M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Oct 2022 23:56:12 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEA9B18F0E9;
-        Wed, 19 Oct 2022 20:56:10 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id 128so18115552pga.1;
-        Wed, 19 Oct 2022 20:56:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=AV9TkL64f8EryzYSWR+XKMRafaeWR3q9mnusUL28onA=;
-        b=qFkD9UoQQelTumN4QL6xP3gSR7E/uVxIxg2E8nRGK+E5+UdNVajNiQIc/DPlU4bJ6A
-         VV3UN93YE5+rK1OOYMnwf3QuP3VtwTlmXRV7ukaR7H2LZPMYbFhRWKDuGySzS6Gm9EUV
-         lQATsGaN623adi94t8DTFWHHqdK5Ag6tE0eWHKapztopoeDBSXanyssts/6Xj7VYD762
-         JIOVVMuD4CBMzY5kHsQqnuX6vjJi/GH53vhj22O0QtCtS3b9avYG7GlfD576maGZypWX
-         uWrPW9VoaieV3xyjG13P5g+hN604U0wXNa0Yn6n5yV0dCdITF7dqegINAI/q86Fng0R4
-         FzPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=AV9TkL64f8EryzYSWR+XKMRafaeWR3q9mnusUL28onA=;
-        b=kO+VKOPFenP2P/cpWCwd+E8O+DXPU/EPKKIIs+Pd39UD8NEuB485SZjLHP//ZNmtw4
-         efvrCs2PIyCbNHgT33xxdChtSJIJ63V0v5FVmMY4oO9KwkrXuQgplOOgIU/3YrXWNoyR
-         5jNztq/HgF5CM94M11QkACdTSW0o5lO3bHXOF4TS9pFNjXfdEWhRIev5WdBv5zRMw/ZZ
-         9pg+RpDyZ5IwpZktC303e/UzL/yeN617HeO23dH7syJ+BKJ2ljkI+cjRd1pjOeh1OjJa
-         RoFewPTAyPjqMqNGmZ+M2zC590V9lb7x0MVJ9YqkrPzecwhUvA7dSMc9VG/cnOcJVBxN
-         whww==
-X-Gm-Message-State: ACrzQf0KQFilvTfvTl7Icmp0WgSJ4L2rjlRjfanm55Nc8MgxprlMXeRz
-        vvcHdiueRJ2Ou1dMUIitiJ4=
-X-Google-Smtp-Source: AMsMyM6NFpoW0vVh7ctCoRMLGFB8G5hxPu4ELdM1Sgn80+S35orjkyRnj5jSa7ADCHnBl1GidI1ZZQ==
-X-Received: by 2002:a62:a512:0:b0:536:e2bd:e15e with SMTP id v18-20020a62a512000000b00536e2bde15emr12017967pfm.1.1666238169878;
-        Wed, 19 Oct 2022 20:56:09 -0700 (PDT)
-Received: from debian.me (subs03-180-214-233-92.three.co.id. [180.214.233.92])
-        by smtp.gmail.com with ESMTPSA id x22-20020a170902821600b00178b77b7e71sm11372081pln.188.2022.10.19.20.56.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Oct 2022 20:56:09 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id B044E104199; Thu, 20 Oct 2022 10:56:06 +0700 (WIB)
-Date:   Thu, 20 Oct 2022 10:56:06 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        with ESMTP id S229658AbiJTEs0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 00:48:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4FF71B6C8D;
+        Wed, 19 Oct 2022 21:48:25 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6178D619FC;
+        Thu, 20 Oct 2022 04:48:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AFFCC433D6;
+        Thu, 20 Oct 2022 04:48:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1666241304;
+        bh=yHjM7sdsctYMfU1Z/rjrmi77RVaXah2T8Djn1lp/JJ8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lcdOydVv2xqbmYt3ApeKUq6FQ/Ar3ORNKykwMDoWgYe3eKT+Nddra6SlB2dshXfaK
+         SkH+QUUAJDS5uHycN1XGYEpzkSxU8V3YXn/ya/ML6RvYOw10ZMPpesWtzYP96hjYk8
+         gW7fWPetZw3qVhmsLQQsGxlRE3X1lg3nnDDK/KJd2ntpYBm9Ch/SaIPkXEDafDYq3o
+         ooZqTuUFbO3849gwE3n+7ae5OlBRAylMHhfrb7NEFe5zJeWlDyY7UE40LKdch1CLvH
+         MbmQ+97OyCLQ1QuFX6pgqr7ko1Tx1QFJ+GWoY5s84ElUhBilajEf7PPGa1Ts4iD74k
+         Ihr6GGVmLROVA==
+Date:   Wed, 19 Oct 2022 21:48:22 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: Re: [PATCH 6.0 000/862] 6.0.3-rc1 review
-Message-ID: <Y1DG1ksysoftm/0p@debian.me>
-References: <20221019083249.951566199@linuxfoundation.org>
+        Hamza Mahfooz <hamza.mahfooz@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, guchun.chen@amd.com, aurabindo.pillai@amd.com,
+        evan.quan@amd.com, seanpaul@chromium.org, contact@emersion.fr,
+        greenfoo@u92.eu, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH AUTOSEL 5.19 07/16] drm/amdgpu: use dirty framebuffer
+ helper
+Message-ID: <Y1DTFiP12ws04eOM@sol.localdomain>
+References: <20220921155332.234913-1-sashal@kernel.org>
+ <20220921155332.234913-7-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="WZ8734L5XWBrSw5m"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <20220921155332.234913-7-sashal@kernel.org>
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Sep 21, 2022 at 11:53:23AM -0400, Sasha Levin wrote:
+> From: Hamza Mahfooz <hamza.mahfooz@amd.com>
+> 
+> [ Upstream commit 66f99628eb24409cb8feb5061f78283c8b65f820 ]
+> 
+> Currently, we aren't handling DRM_IOCTL_MODE_DIRTYFB. So, use
+> drm_atomic_helper_dirtyfb() as the dirty callback in the amdgpu_fb_funcs
+> struct.
+> 
+> Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
+> Acked-by: Alex Deucher <alexander.deucher@amd.com>
+> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
---WZ8734L5XWBrSw5m
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I just spent a long time bisecting a hard-to-reproduce regression to this
+commit, only to find that a revert was just queued this week.
 
-On Wed, Oct 19, 2022 at 10:21:27AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.3 release.
-> There are 862 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+Why was this commit backported to stable in the first place?  It didn't have Cc
+stable, and it didn't claim to be fixing anything.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.1.0).
-
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
---=20
-An old man doll... just what I always wanted! - Clara
-
---WZ8734L5XWBrSw5m
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY1DG1gAKCRD2uYlJVVFO
-o2UqAQDcTRPaWijtQH6myMU2loohCmaj4Z+oyITVACcSwkWIqAD/WQAGNpn/bECU
-4mhFooqe9oWLvpN8HqmgtKSdrCZLqw4=
-=U236
------END PGP SIGNATURE-----
-
---WZ8734L5XWBrSw5m--
+- Eric
