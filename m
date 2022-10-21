@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D73F9607D2C
-	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 19:07:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D588607D2D
+	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 19:07:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229987AbiJURHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Oct 2022 13:07:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47426 "EHLO
+        id S230016AbiJURHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Oct 2022 13:07:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229565AbiJURHI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 13:07:08 -0400
+        with ESMTP id S229999AbiJURHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 13:07:09 -0400
 Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DCAC27E2C3
-        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 10:07:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E935A27E2CA
+        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 10:07:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666372028; x=1697908028;
+  t=1666372029; x=1697908029;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=9g7VJPzZR4Tk/JgWT8ugLgg1jxp2wRTDTshTcRCuEvo=;
-  b=WFzw04Ao8jfUk3YHHsAH63iHUaYu5+t3o5BwWzwbxG+q8TfwcNI1J1iL
-   m1/bV66/6HCheHnHHTgrOgprUzXnf+lSfvuJ9bBcIe8tXO0VYEIV+nlG6
-   k77krynU2bDJLkhHITM2YDsXxATSAYcw22L5V/RrUXbb2CqBv2w8NnsMb
-   uZy/xSTBnBURagX1ZBwLvQ+GhaZusK6OBxwaXRpcUd0zsPgqqEL8hBnQ2
-   IcJfUKVQFJ1mTU3b/ELpluZzExCPpnuhIe8WkbG2212MtgsCJ/xH10kKY
-   Hut9EilExE42I1bo6zq5uBstNOUh2JpzoXmXXWGd8e34rPefJLiqzBIp3
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10507"; a="308151183"
+  bh=moIC3q3P673yLM//IrCmElY7B7NL/DF9ZAlXqMkZIsA=;
+  b=C2wPegrnlQbFgPpRFIlZExDeotRTf4xpDykuQPSYyyBGUf9BJQWXeUtD
+   UhdYY9JTpRLkJeIm7c4TDN30xLXxsT7HdLsbBkJgvgjf2cDJVEHLDfIN5
+   nBFS09FtzRqstZko60xQJ0EE7Tpp50SLpHUuKeLPEJZyjDqZQOmPiJBTi
+   mYNXXFOoX35rPfuKYlyqTDu4IcEYnrooDXoagHnxIyNysjcZxQpsiu7t7
+   3w59npqP0+cD7cesaXTkQjL9W4pakns4+Ov0kK3s/7JbDWdiGngejQU6u
+   KZWscV3sNWuMC/jQiBL5b+EZyZh4VJTE5qdsvCLzCsXHFT5cbSa6ei8sL
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10507"; a="308151185"
 X-IronPort-AV: E=Sophos;i="5.95,202,1661842800"; 
-   d="scan'208";a="308151183"
+   d="scan'208";a="308151185"
 Received: from orsmga004.jf.intel.com ([10.7.209.38])
   by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Oct 2022 10:06:46 -0700
-X-IronPort-AV: E=McAfee;i="6500,9779,10507"; a="755889203"
+X-IronPort-AV: E=McAfee;i="6500,9779,10507"; a="755889206"
 X-IronPort-AV: E=Sophos;i="5.95,202,1661842800"; 
-   d="scan'208";a="755889203"
+   d="scan'208";a="755889206"
 Received: from tlkirkha-mobl2.amr.corp.intel.com (HELO guptapa-desk.intel.com) ([10.212.190.207])
   by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Oct 2022 10:06:46 -0700
 From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
@@ -43,9 +43,9 @@ To:     scott.d.constable@intel.com, dave.hansen@intel.com,
 Cc:     antonio.gomez.iglesias@linux.intel.com,
         Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
         stable@vger.kernel.org
-Subject: [PATCH v2 1/2] nospec: Add a generic barrier_nospec()
-Date:   Fri, 21 Oct 2022 10:06:39 -0700
-Message-Id: <c6d575974d1de8f60bc417c4e801e050cd368bc9.1666371873.git.pawan.kumar.gupta@linux.intel.com>
+Subject: [PATCH v2 2/2] minstrel_ht: Mitigate minstrel_ht_get_expected_throughput() for BTI
+Date:   Fri, 21 Oct 2022 10:06:40 -0700
+Message-Id: <25bc92d99c5cd492ebceb4c7e0c79a608c4bcc1b.1666371873.git.pawan.kumar.gupta@linux.intel.com>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <cover.1666371873.git.pawan.kumar.gupta@linux.intel.com>
 References: <cover.1666371873.git.pawan.kumar.gupta@linux.intel.com>
@@ -61,36 +61,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-barrier_nospec() is a speculation barrier with arch dependent
-implementation. To be able to use barrier_nospec() in non-architecture
-code add a generic version that does nothing. Architectures that don't
-have a use case for speculation barrier shouldn't need to define an arch
-specific version.
+Static analysis tools indicate that indirect target
+minstrel_ht_get_expected_throughput() could be used as a disclosure
+gadget for Intra-mode Branch Target Injection (IMBTI) or Branch History
+Injection (BHI).
 
-Architectures needing speculation barrier can override the generic
-version in their asm/barrier.h.
+ASM generated by compilers indicate a construct of a typical disclosure
+gadget, where function arguments can be used to speculatively access and
+transmit the contents of an arbitrary memory location.
 
+Mitigate it by adding a speculation barrier.
+
+Reported-by: Scott D. Constable <scott.d.constable@intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 ---
- include/linux/nospec.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/mac80211/rc80211_minstrel_ht.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/include/linux/nospec.h b/include/linux/nospec.h
-index c1e79f72cd89..60e040a5df27 100644
---- a/include/linux/nospec.h
-+++ b/include/linux/nospec.h
-@@ -60,6 +60,10 @@ static inline unsigned long array_index_mask_nospec(unsigned long index,
- 	(typeof(_i)) (_i & _mask);					\
- })
+diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
+index 788a82f9c74d..af66e5c8dcfa 100644
+--- a/net/mac80211/rc80211_minstrel_ht.c
++++ b/net/mac80211/rc80211_minstrel_ht.c
+@@ -11,6 +11,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/ieee80211.h>
+ #include <linux/minmax.h>
++#include <linux/nospec.h>
+ #include <net/mac80211.h>
+ #include "rate.h"
+ #include "sta_info.h"
+@@ -1998,6 +1999,14 @@ static u32 minstrel_ht_get_expected_throughput(void *priv_sta)
+ 	struct minstrel_ht_sta *mi = priv_sta;
+ 	int i, j, prob, tp_avg;
  
-+#ifndef barrier_nospec
-+#define barrier_nospec()	do { } while (0)
-+#endif
++	/*
++	 * Protect against IMBTI/BHI.
++	 *
++	 * Transiently executing this function with an adversary controlled
++	 * argument may disclose secrets. Speculation barrier prevents that.
++	 */
++	barrier_nospec();
 +
- /* Speculation control prctl */
- int arch_prctl_spec_ctrl_get(struct task_struct *task, unsigned long which);
- int arch_prctl_spec_ctrl_set(struct task_struct *task, unsigned long which,
+ 	i = MI_RATE_GROUP(mi->max_tp_rate[0]);
+ 	j = MI_RATE_IDX(mi->max_tp_rate[0]);
+ 	prob = mi->groups[i].rates[j].prob_avg;
 -- 
 2.37.3
 
