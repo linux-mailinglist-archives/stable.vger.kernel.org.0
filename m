@@ -2,100 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F98C607DFA
-	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 19:56:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4AC4607E18
+	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 20:09:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230133AbiJUR4i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Oct 2022 13:56:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47140 "EHLO
+        id S229955AbiJUSJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Oct 2022 14:09:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229808AbiJUR4h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 13:56:37 -0400
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F1B26551F;
-        Fri, 21 Oct 2022 10:56:36 -0700 (PDT)
-Received: by mail-qk1-f170.google.com with SMTP id t25so2527144qkm.2;
-        Fri, 21 Oct 2022 10:56:36 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=fPM8TKWkSeLqibh2gUQQQJJ62C2z9/V7mCcM5ffseGA=;
-        b=E/TT4g9vzADOh0eObO52uw8qMBxC/bLr7aLszGzr4wsIV0FC1fUUrRyJfb2u7Y9F30
-         jcsXZpbhswI/rzKTZNALWFKW2esNjeKRnZRPP07YardnHZUSp/8RcTb3QTEl8dobL2Kf
-         /a8ez2OGT2Id2SbBxo0rVoeRknIs7PM4IGLpiELZMColewhtWPNL+3tX5H9isZzyc2lg
-         q4VytRBx6MCgCJKnmg+f4gh/JqkvcHZKJJASTtVC9aufwNpVP7jSlYesYES9L1YGrqTl
-         R/cU8xbzs/LXd8qQcdNfYUVLZ6HpkLVyl44c//fOtXR5AQ3ado5FPJcvuNP40V6Q5Im3
-         l5ow==
-X-Gm-Message-State: ACrzQf1GWsY46Cb9j7zCwuv3wpmedpWBr7U8Xtsm/uJvUuWjTqJKzVTk
-        9sil8aER7rMnjv1t8VgwT5CJOTIa8UjN8cXdW9Be1X33
-X-Google-Smtp-Source: AMsMyM4Vt3ZrjuCWRNdfpBz4Z4erUW6gWVRGf1sCjzxago2tQ+T/Zjocx2cLM1a9t7oqLSOgGxTJmNdTg1oZaPwgClY=
-X-Received: by 2002:a05:620a:450c:b0:6ee:af91:60b2 with SMTP id
- t12-20020a05620a450c00b006eeaf9160b2mr15639967qkp.480.1666374995779; Fri, 21
- Oct 2022 10:56:35 -0700 (PDT)
-MIME-Version: 1.0
-References: <166631003537.1167078.9373680312035292395.stgit@dwillia2-xfh.jf.intel.com>
-In-Reply-To: <166631003537.1167078.9373680312035292395.stgit@dwillia2-xfh.jf.intel.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Fri, 21 Oct 2022 19:56:24 +0200
-Message-ID: <CAJZ5v0iGz0Z=WFyStEB4Dj2fpjyy9r6aBYK1SKjBcayhGa=sWA@mail.gmail.com>
-Subject: Re: [PATCH] ACPI: NUMA: Add CXL CFMWS 'nodes' to the possible nodes set
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     linux-cxl@vger.kernel.org, stable@vger.kernel.org,
-        Alison Schofield <alison.schofield@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        linux-acpi@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+        with ESMTP id S230038AbiJUSJA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 14:09:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A19FF26B4BF;
+        Fri, 21 Oct 2022 11:08:59 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0929361E43;
+        Fri, 21 Oct 2022 18:08:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68869C433D6;
+        Fri, 21 Oct 2022 18:08:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1666375738;
+        bh=ya2i1BGerPY7oRYU45apweeFf04fDn3vk6rclZZxgsU=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=ZQqceF3ZiCq7uFfuUiBuabJ4eYJ6ZzEN5n5fTRFHpUuu0dXRcAHiVHm3rjw0FUwmT
+         hZq6CsCW0++LVPP/FoIuYpfBP4XOsMrf5nAihewaQs3DKeslLO4I+xqr3TO7Z4a6Th
+         POLdyrXBUR9/Nhj4XrDXlx+iURCgcPNvTXKbzhgnO4afo8j/0KrnfquAC6L4TuyThv
+         fdV1kKAYIau+dxvhymRodF1+hRKY7LDTlQk1LIkbIUMlbdCNYN6G6QjeQArsWswr0H
+         nk682eqXz8BhtXw6aFZHUQGWaoJYiSfA9jgywzjsfe37bF3hEqrHve5T/3qQP5he8p
+         mq4robKotUtew==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1olwS0-000ahu-4F;
+        Fri, 21 Oct 2022 19:08:56 +0100
+Date:   Fri, 21 Oct 2022 19:08:50 +0100
+Message-ID: <864jvxnj65.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Joe Korty <joe.korty@concurrent-rt.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] arm64: arch_timer: XGene-1 has 31 bit, not 32 bit, arch timer.
+In-Reply-To: <20221021153424.GA25677@zipoli.concurrent-rt.com>
+References: <20221021153424.GA25677@zipoli.concurrent-rt.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: joe.korty@concurrent-rt.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 21, 2022 at 1:55 AM Dan Williams <dan.j.williams@intel.com> wrote:
->
-> The ACPI CEDT.CFMWS indicates a range of possible address where new CXL
-> regions can appear. Each range is associated with a QTG id (QoS
-> Throttling Group id). For each range + QTG pair that is not covered by a proximity
-> domain in the SRAT, Linux creates a new NUMA node. However, the commit
-> that added the new ranges missed updating the node_possible mask which
-> causes memory_group_register() to fail. Add the new nodes to the
-> nodes_possible mask.
->
-> Cc: <stable@vger.kernel.org>
-> Fixes: fd49f99c1809 ("ACPI: NUMA: Add a node and memblk for each CFMWS not in SRAT")
-> Cc: Alison Schofield <alison.schofield@intel.com>
-> Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Reported-by: Vishal Verma <vishal.l.verma@intel.com>
-> Tested-by: Vishal Verma <vishal.l.verma@intel.com>
-> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-> ---
-> Rafael, I can take this through the CXL tree with some other pending
-> fixes.
+On Fri, 21 Oct 2022 16:34:24 +0100,
+Joe Korty <joe.korty@concurrent-rt.com> wrote:
+> 
+> arm64: XGene-1 has a 31 bit, not a 32 bit, arch timer.
+> 
+> Fixes: 012f188504528b8cb32f441ac3bd9ea2eba39c9e ("clocksource/drivers/arm_arch_timer:
+>   Work around broken CVAL implementations")
 
-Sure.
+Sorry, but you'll have to provide a bit more of an analysis here. As
+far as I can tell, you're just changing a parameter without properly
+describing what breaks and how.
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+>
+> Testing:
+>   On an 8-cpu Mustang, the following sequence no longer locks up the system:
+> 
+>      echo 0 >/proc/sys/kernel/watchdog
+>      for i in {0..7}; do taskset -c $i echo hi there $i; done
+> 
+> Stable:
+>   To be applied to 5.16 and above, once accepted by mainline.
+> 
+> Signed-off-by: Joe Korty <joe.korty@concurrent-rt.com>
+> 
+> Index: b/drivers/clocksource/arm_arch_timer.c
+> ===================================================================
+> --- a/drivers/clocksource/arm_arch_timer.c
+> +++ b/drivers/clocksource/arm_arch_timer.c
+> @@ -805,7 +805,7 @@ static u64 __arch_timer_check_delta(void
+>  	const struct midr_range broken_cval_midrs[] = {
+>  		/*
+>  		 * XGene-1 implements CVAL in terms of TVAL, meaning
+> -		 * that the maximum timer range is 32bit. Shame on them.
+> +		 * that the maximum timer range is 31bit. Shame on them.
+>  		 */
+>  		MIDR_ALL_VERSIONS(MIDR_CPU_MODEL(ARM_CPU_IMP_APM,
+>  						 APM_CPU_PART_POTENZA)),
+> @@ -813,8 +813,8 @@ static u64 __arch_timer_check_delta(void
+>  	};
+>  
+>  	if (is_midr_in_range_list(read_cpuid_id(), broken_cval_midrs)) {
+> -		pr_warn_once("Broken CNTx_CVAL_EL1, limiting width to 32bits");
+> -		return CLOCKSOURCE_MASK(32);
+> +		pr_warn_once("Broken CNTx_CVAL_EL1, limiting width to 31bits");
+> +		return CLOCKSOURCE_MASK(31);
+>  	}
+>  #endif
+>  	return CLOCKSOURCE_MASK(arch_counter_get_width());
+> 
 
->  drivers/acpi/numa/srat.c |    1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/acpi/numa/srat.c b/drivers/acpi/numa/srat.c
-> index 3b818ab186be..1f4fc5f8a819 100644
-> --- a/drivers/acpi/numa/srat.c
-> +++ b/drivers/acpi/numa/srat.c
-> @@ -327,6 +327,7 @@ static int __init acpi_parse_cfmws(union acpi_subtable_headers *header,
->                 pr_warn("ACPI NUMA: Failed to add memblk for CFMWS node %d [mem %#llx-%#llx]\n",
->                         node, start, end);
->         }
-> +       node_set(node, numa_nodes_parsed);
->
->         /* Set the next available fake_pxm value */
->         (*fake_pxm)++;
->
+Also, this isn't much of a patch. Please see the documentation on how
+to properly submit one.
+
+Thanks,
+
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
