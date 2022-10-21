@@ -2,508 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35443607F08
-	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 21:27:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F0DC607F43
+	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 21:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229645AbiJUT13 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Oct 2022 15:27:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37896 "EHLO
+        id S230316AbiJUTsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Oct 2022 15:48:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229765AbiJUT12 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 15:27:28 -0400
-Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16CCF26DB12;
-        Fri, 21 Oct 2022 12:27:26 -0700 (PDT)
-Received: by mail-il1-x136.google.com with SMTP id d14so2193352ilf.2;
-        Fri, 21 Oct 2022 12:27:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=user-agent:in-reply-to:content-disposition:mime-version:references
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=AeAcvnCp34WaD1JZXaevQkrzww3ohn3wI62c5E4HGas=;
-        b=UfJVebsKRyGKqbBeSTAKKTQ2KEgG4kyQq/jl9bXXfMSplRLwXj4Cc0i0vv7Giv/RD1
-         7yQLO8+UmBBUyn7DM2iFfSQ48U804mkOcWXbWChe5SMvewOr0i2j94bApgTMvT9eZijk
-         3DO0HUXGGBMJ4CrQZRc/L6DKYptfmo8m9c/mwIytAj1SRPcUCAT5n6e46dPQuZysAF39
-         qeFkDbl87MTzFte1FWwNyF3w/4yviuaKOYpGTw2p32ZDL2jVJMppKcmH4d98qpBvK+ge
-         4kr149sqQn0XltGbEFqEAw4lbrfDbD8A90ORcalkNAx4G70BmhgqcNu/Mp9HBtDhPaNm
-         0lAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=user-agent:in-reply-to:content-disposition:mime-version:references
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=AeAcvnCp34WaD1JZXaevQkrzww3ohn3wI62c5E4HGas=;
-        b=o+fvWh8H9QCbzfl4r6zhRBSz4EokoQH1CF3hvrl/la/DOuBbhnl7V92WBaywWbI+8Y
-         CHmujTN/hBPsvQ4JOu7uvxjVV7mwuEkuwlFbSEOce74Ep48Hs614tnXDRqTLYr4sNdHI
-         +8rnsDxX0EozFXhUBMiEIKiJGZY8ASlGvO8iHqNnH9nJMvVu+A4I0CIHQufdOHagQr10
-         /NXLMQGJT/JmbIoG+qQAHlvwBxIxaY6MuJpmKmnd7/Lqqt5NYkfHXugBDJ3+TN1/qpi+
-         A1Aa+SX1YVPl76EfBk6/yXcqr0qGdh9XFAYPr9Er5/zVnZNcQLXKvMUEOlyuuq7DFSWK
-         jEYw==
-X-Gm-Message-State: ACrzQf2RmUhZaxaeloESLk5Jo09psQFrx3GG/jmYW3fA6V7JmClmr1hB
-        ECIaFDS290iCuj5A7mKOg8VifVLYDPrVSCXZ
-X-Google-Smtp-Source: AMsMyM4ubY9KEWkRqD6y7j/FXM42OTY6d19RFpGsRgIhlqJ37RtKBQL3mfUo7Iy8b6Zn7udTBWW49g==
-X-Received: by 2002:a05:6e02:12ec:b0:2fa:9024:b513 with SMTP id l12-20020a056e0212ec00b002fa9024b513mr14236135iln.120.1666380445086;
-        Fri, 21 Oct 2022 12:27:25 -0700 (PDT)
-Received: from qjv001-XeonWs (c-67-167-199-249.hsd1.il.comcast.net. [67.167.199.249])
-        by smtp.gmail.com with ESMTPSA id n17-20020a02a191000000b003637fc54f79sm4452631jah.59.2022.10.21.12.27.24
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 21 Oct 2022 12:27:24 -0700 (PDT)
-Date:   Fri, 21 Oct 2022 14:27:22 -0500
-From:   Jeff Vanhoof <jdv1029@gmail.com>
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Cc:     Jeffrey Vanhoof <jvanhoof@motorola.com>,
-        "balbi@kernel.org" <balbi@kernel.org>,
-        "corbet@lwn.net" <corbet@lwn.net>,
-        "dan.scally@ideasonboard.com" <dan.scally@ideasonboard.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "laurent.pinchart@ideasonboard.com" 
-        <laurent.pinchart@ideasonboard.com>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
-        "paul.elder@ideasonboard.com" <paul.elder@ideasonboard.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Dan Vacura <W36195@motorola.com>
-Subject: Re: [PATCH v3 2/6] usb: dwc3: gadget: cancel requests instead of
- release after missed isoc
-Message-ID: <20221021192720.GA7112@qjv001-XeonWs>
-References: <20221019190819.m35ai5fm3g5qpgqj@synopsys.com>
- <20221019213410.GA17789@qjv001-XeonWs>
- <20221019230555.gwovdtmnopwacirt@synopsys.com>
- <20221020164732.GA25496@qjv001-XeonWs>
- <20221020224714.6v7djacqvl5xkc2w@synopsys.com>
- <20221021005537.3vbtair35umh6vo2@synopsys.com>
- <20221021093956.GA25599@qjv001-XeonWs>
- <20221021164349.fft4yqnxuztsqdeu@synopsys.com>
- <20221021182841.GA25288@qjv001-XeonWs>
- <20221021190948.onxwtz3lo5c3xbrv@synopsys.com>
-MIME-Version: 1.0
+        with ESMTP id S230398AbiJUTrz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 15:47:55 -0400
+Received: from EUR03-AM7-obe.outbound.protection.outlook.com (mail-am7eur03on2134.outbound.protection.outlook.com [40.107.105.134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672F217F640;
+        Fri, 21 Oct 2022 12:47:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=a+UmVE5yq5y92OxGMFUh6q04rEPM+djfm4LhP1dmhoee5YbjZPMUn0aJayy//Yu3dUwMCFc901kTWmR8Vctr7weBUx5YQpq5dO/GgeKFqUyuYrqyc5Q8GFZHCCG+JULfsizz3zTqM52qhQCQMJpymwsrx28G5BL9xtbtv3G2Uh3UkR+/7TuW1YBYGE9Gx4g3EX5h/THOq3hM8lHYDDIFTh2VAbnphAmOn68LB7idUClr3osAyr3qSW1nYR+o/O/K/VwouV7D5TKBRvJZ52pQNtO9RA7G090OCiV74X1H8yaTVHkynlw843vJ7Ae2TwvyhzeuT7YMpzIZ0zdouEmnzQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tYJvJoeqmzA+wbsGxQgSLJ6zwFV8PjIUyjQ0cOVypjA=;
+ b=gZPJQ99lZaUJsTIsE+Hm6CWhgdehRD9WSN23b5l0wBrjt+zneTVGnPFjuAMN2IHqwZGAmryWpEk04qeEGekPW5qJdmyfppqjnED3oYktMHg/7vILl/VLsE2o60AIzlmkhvLbVVaVgd2bmGPSz7W1etncIiZBSxyjMahYD97+uQ11TULoG6RUh1w7HOeYYD0EIqH0zpDRrfpxsnT3hb9yrHH15+x1A/h2IYoy+Ras7josiIwFZCOJNX0wG7Fw+IcWQt6jGY7D2zIo4uFZNSFJTDqC6efSbSvbVc753c51aHGk/iDu0DVdpPQ0JxYEvn2Z2XJozNnvAdmfZ54Fq2UpAQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=concurrent-rt.com; dmarc=pass action=none
+ header.from=concurrent-rt.com; dkim=pass header.d=concurrent-rt.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bksv.onmicrosoft.com;
+ s=selector1-bksv-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tYJvJoeqmzA+wbsGxQgSLJ6zwFV8PjIUyjQ0cOVypjA=;
+ b=mEqXJ21d3LViAulKSWruGiAYgyYZoJi4I7FkO/Nwy2aYyStsQANWfYcHxrCUMGUVva84QUMPixHhNG3GpieEHUQW2heM0Zjv5tGVLhbRyuhBNQz2bGoKr+NgZ4yOn3p3wEBZ0TQl7/9UFSZ9s9OVyEnyYZ9P8b/Xyy3OLrKAbw0=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=concurrent-rt.com;
+Received: from DB8PR09MB3580.eurprd09.prod.outlook.com (2603:10a6:10:119::23)
+ by DU0PR09MB5906.eurprd09.prod.outlook.com (2603:10a6:10:3e9::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.33; Fri, 21 Oct
+ 2022 19:47:51 +0000
+Received: from DB8PR09MB3580.eurprd09.prod.outlook.com
+ ([fe80::c48e:11a3:c89c:f655]) by DB8PR09MB3580.eurprd09.prod.outlook.com
+ ([fe80::c48e:11a3:c89c:f655%7]) with mapi id 15.20.5723.033; Fri, 21 Oct 2022
+ 19:47:51 +0000
+Date:   Fri, 21 Oct 2022 15:47:46 -0400
+From:   Joe Korty <joe.korty@concurrent-rt.com>
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] arm64: arch_timer: XGene-1 has 31 bit, not 32 bit, arch
+ timer.
+Message-ID: <20221021194746.GA5830@zipoli.concurrent-rt.com>
+Reply-To: Joe Korty <joe.korty@concurrent-rt.com>
+References: <20221021153424.GA25677@zipoli.concurrent-rt.com>
+ <864jvxnj65.wl-maz@kernel.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221021190948.onxwtz3lo5c3xbrv@synopsys.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <864jvxnj65.wl-maz@kernel.org>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-ClientProxiedBy: BN9PR03CA0179.namprd03.prod.outlook.com
+ (2603:10b6:408:f4::34) To DB8PR09MB3580.eurprd09.prod.outlook.com
+ (2603:10a6:10:119::23)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DB8PR09MB3580:EE_|DU0PR09MB5906:EE_
+X-MS-Office365-Filtering-Correlation-Id: 72ea1dab-e3b2-45dd-6cdb-08dab39d23b1
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Aj3hSm0OWP/lQ7fxtRZkhRFO4m7S7Vnz/c0KfvwIBtKxIX+BTQEH6uBUC77UumfAiLikSYEMgTc/tz0uk57OO9gtM92q1xwBn3Psl/7Ek5yC3LnqfJ+BboQJ/5yGLtHVheXFJ/TytkHPXqFKyO0En0A3MimZ5PyATyoCNbiPMIHxfIOEUEwmycYmfskZMGG/vRZ9BZYqwryIex8qWAobyhqXuGfdn6JAP6A7GtcVsClAAKStXYbAZF5ABvckDd6SBMrNKOyv1uDWuwjcBgVzS2apMFiW8W+F8ZRf0CbFbL3brfMtw7gcmFMrSQhUmknWXwqWUGy9ObYT1p/FKq43VrL/llcFb2nU6KGjO877z89R+ajUcTq4FYlGskaMZgVhp0hggIVBDFgOjbEcP2WlaalVZ24rTpRpKrUAn/E1j8CPFjF3+DDvQGSFHnF/ksthKucnViOS90z5nhd9oIykaloHJ33ZUzVXPvc4MQWCznKdt9FIlN58PQkwL9phYWYcKoZY2PrOpuqPwlBiQsNW4fZG/U/r1U+m+LaCura28HIG/YDHPo+qv50QnXOuQEBuxGX8lQ0++u9TMTNlp0EVj9CM/tWl43hxdfTgCYfjomKpWuJe0xTDGkcfruHKV8hH5s8/TJwMZDwfWCMb/ohsejZ7CcxwjVVtsXz6lD9YttNAZeSmMZtxQUL80hkEXe+MTjM8Q2WDFYdmC6ovbtUynQvfri261+k60YvDSQQatxXgJMihcj8uOs7xOaOzmlWV
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB8PR09MB3580.eurprd09.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(376002)(39860400002)(396003)(366004)(136003)(346002)(451199015)(6512007)(1076003)(186003)(6666004)(83380400001)(26005)(5660300002)(3450700001)(44832011)(6506007)(52116002)(6486002)(8936002)(66556008)(478600001)(41300700001)(6916009)(66476007)(66946007)(8676002)(316002)(4326008)(2906002)(86362001)(33656002)(38350700002)(38100700002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?mM5qYkIy/goyhhwa0esG2uWU1xzG9ynB/1SFUJZpkRyUdwRhc5pc3yuUFEVK?=
+ =?us-ascii?Q?dAkBopNZHNot1rw9tWDngoOdtN9dWuBCayMGiMJ1bbmeLlIHalRFr2Ewy85I?=
+ =?us-ascii?Q?OpFUEcweJ9Q6rLDjmk/WnEtUXyy8ydx5gxGW+NJ/kn13tOx0grqUXP1hvNVT?=
+ =?us-ascii?Q?wz5Ps6Nw0MTQ2h2iInnApeTuZvOdU6YgFUHa/ZvbhCbx05uyGtWdsxzhe/Ua?=
+ =?us-ascii?Q?ZbduM6zrVlnBtz9XR8KV9LqVLCadDRQx6LcJls4vb8To1TXAAd7kqVRmcphC?=
+ =?us-ascii?Q?qOHsNI6Br8IzRCVUkHeAxslJII2YzxNq2OMZ/gqXTy0w4hKBQifZ8g4epWu/?=
+ =?us-ascii?Q?9LoLs6E8pFNovH79+Pqyuz921gTw3c2z00aqn7O1nf8K4gnEooYiXojeC95s?=
+ =?us-ascii?Q?0Y2RewQpY84MiSqUiWGqj+icrhFbKIZ+x/WjbQbPtOfXThtZ4LMNf69i9y8U?=
+ =?us-ascii?Q?e/7PR8ZfYdz/kROyQYWD88kgHc1yuYFQT5pHIWho9QHl4hxHadvJkqbOehwP?=
+ =?us-ascii?Q?jVHbpUmLbJijKmQFfklFKKrYExYR3bTl10HbamfLpS9SHXo6JML6C7NTHHkD?=
+ =?us-ascii?Q?609V5LkVQgkRCAQDs7p+oYmYV5KxzU7T08A/0hHBRZK6rYefsapdlPIMYUTq?=
+ =?us-ascii?Q?vOqEgaMbnkuPGt+YgtSMXQjxy1ETwZPWabdK4T10HI4vhq1FVl/8f8WKCb9V?=
+ =?us-ascii?Q?ziwDy5PjjeezZMajJZPpxjfhl+kX1Tyz2nrUvNIZTow3UBpzQR4yJrkdoXDp?=
+ =?us-ascii?Q?+U+WEaBu5InhLrOKhRURWqCqFjt5JBHrU5yFTEPpCevxsyOJYncTx9zuExmA?=
+ =?us-ascii?Q?ggqRTGlR9Dz5d1cnbkgHsiU2O3yfXiSNw/WFlOOYSvdVJJ8lZr4+Vaedi1LW?=
+ =?us-ascii?Q?kuiLZwCVRY0DoZkJHHL5rFAWRAB+m/117yJ/ZUM9do28DmmHJsoqUQ04gIt9?=
+ =?us-ascii?Q?X60cPH7kEXYAv+wH/DOt+WmosIaG8NThgdWL2ahwPxyut/kcD2qyWbVmIQZk?=
+ =?us-ascii?Q?9MsCVDEM8E8j3lYFANpctiFDqhVR8czNU2WzLbY0bLgsA67iq1pmJ3Nlk5OM?=
+ =?us-ascii?Q?n8WfiZ6jGlNne8QgH26ngGPr3WpeJT9KQNg2rZZOyU1mtme7uYBXuOl6O3sf?=
+ =?us-ascii?Q?qR5BcOy8mPs1jGwYSUZm/0ApsicUP3ia/UFN8SznE9WBupghRH3DSxECTcSd?=
+ =?us-ascii?Q?U81ItAfSScQy0lJJJVRDt+LLWv9jJaEjNHXXuC5Tr6fLE12QNyvcHEuwFtK4?=
+ =?us-ascii?Q?JirF7qPnsoNu+AQpDktygOxXWOR3Ryo87Oxa9+2Qy2B9PagGkAwhBfTVnTO/?=
+ =?us-ascii?Q?qlVJVPdDII6JUFAylX8c/ytEpw3HXfwsWzi6EO4XXm5C0ddyCuKC3ConCW1i?=
+ =?us-ascii?Q?RpJhFY0bavydSaJovv/Y02seKlEm7iQ/cEhswkD7JjGBvEK3K0jamtMTYG7S?=
+ =?us-ascii?Q?CyuDoy3Xktwu7JvGM3tHLq2EHeJk0skQIdxJTlZkoYgE4mOfaW+lv593aKEz?=
+ =?us-ascii?Q?q+o7GfmmeP7PMbsikbMDWvjvvb7srSZULgCazBLYC9C4arNcLyKGjm3HfInj?=
+ =?us-ascii?Q?9K3tz/vMT+Wx8pzWeoD8I6a5bVhhDONhTsjaIs6lOMrwKH/4BU4P9hhTbPls?=
+ =?us-ascii?Q?Ng=3D=3D?=
+X-OriginatorOrg: concurrent-rt.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 72ea1dab-e3b2-45dd-6cdb-08dab39d23b1
+X-MS-Exchange-CrossTenant-AuthSource: DB8PR09MB3580.eurprd09.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Oct 2022 19:47:51.7351
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 6cce74a3-3975-45e0-9893-b072988b30b6
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 590R4Bb5C2hox1xEC+ocyVO5m/i8YJI97l1iYe2z7TgHV1CYivwHcivG6MIjNAEOugvmev3rywsVgJ6HarAn9zCEIGl4EWFZgGFFnSLqONQ=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR09MB5906
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 21, 2022 at 07:09:55PM +0000, Thinh Nguyen wrote:
-> On Fri, Oct 21, 2022, Jeff Vanhoof wrote:
-> > Hi Thinh,
-> > 
-> > On Fri, Oct 21, 2022 at 04:43:52PM +0000, Thinh Nguyen wrote:
-> > > On Fri, Oct 21, 2022, Jeff Vanhoof wrote:
-> > > > Hi Thinh,
-> > > > 
-> > > > On Fri, Oct 21, 2022 at 12:55:51AM +0000, Thinh Nguyen wrote:
-> > > > > On Thu, Oct 20, 2022, Thinh Nguyen wrote:
-> > > > > > On Thu, Oct 20, 2022, Jeff Vanhoof wrote:
-> > > > > > > Hi Thinh,
-> > > > > > > 
-> > > > > > > On Wed, Oct 19, 2022 at 11:06:08PM +0000, Thinh Nguyen wrote:
-> > > > > > > > Hi,
-> > > > > > > > 
-> > > > > > > > On Wed, Oct 19, 2022, Jeff Vanhoof wrote:
-> > > > > > > > > Hi Thinh,
-> > > > > > > > > On Wed, Oct 19, 2022 at 07:08:27PM +0000, Thinh Nguyen wrote:
-> > > > > > > > > > On Wed, Oct 19, 2022, Jeff Vanhoof wrote:
-> > > > > > > > 
-> > > > > > > > <snip>
-> > > > > > > > 
-> > > > > > > > > > > 
-> > > > > > > > > > > From what I can gather from the log, with the current changes it seems that
-> > > > > > > > > > > after a missed isoc event few requests are staying longer than expected in the
-> > > > > > > > > > > started_list (not getting reclaimed) and this is preventing the transmission
-> > > > > > > > > > > from stopping/starting again, and opening the door for continuous stream of
-> > > > > > > > > > > missed isoc events that cause what appears to the user as a frozen video.
-> > > > > > > > > > > 
-> > > > > > > > > > > So one thought, if IOC bit is not set every frame, but IMI bit is, when a
-> > > > > > > > > > > missed isoc related interrupt occurs it seems likely that more than one trb
-> > > > > > > > > > > request will need to be reclaimed, but the current set of changes is not
-> > > > > > > > > > > handling this.
-> > > > > > > > > > > 
-> > > > > > > > > > > In the good transfer case this issue seems to be taken care of since the IOC
-> > > > > > > > > > > bit is not set every frame and the reclaimation will loop through every item in
-> > > > > > > > > > > the started_list and only stop if there are no additional trbs or if one has
-> > > > > > > > > > 
-> > > > > > > > > > It should stop at the request that associated with the interrupt event,
-> > > > > > > > > > whether it's because of IMI or IOC.
-> > > > > > > > > 
-> > > > > > > > > In this case I was concerned that if multipled queued reqs did not have IOC bit
-> > > > > > > > > set, but there was a missed isoc on one of the last reqs, whether or not we would
-> > > > > > > > > reclaim all of the requests up to the missed isoc related req. I'm not sure if
-> > > > > > > > > my concern is valid or not.
-> > > > > > > > > 
-> > > > > > > > 
-> > > > > > > > There should be no problem. If there's an interrupt event indicating a
-> > > > > > > > TRB completion, the driver will give back all the requests up to the
-> > > > > > > > request associated with the interrupt event, and the controller will
-> > > > > > > > continue processing the remaining TRBs. On the next TRB completion
-> > > > > > > > event, the driver will again give back all the requests up to the
-> > > > > > > > request associated with that event.
-> > > > > > > >
-> > > > > > > 
-> > > > > > > I was testing with the following patch you suggested:
-> > > > > > > 
-> > > > > > > > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-> > > > > > > > index 61fba2b7389b..8352f4b5dd9f 100644
-> > > > > > > > --- a/drivers/usb/dwc3/gadget.c
-> > > > > > > > +++ b/drivers/usb/dwc3/gadget.c
-> > > > > > > > @@ -3657,6 +3657,10 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
-> > > > > > > >  	if (event->status & DEPEVT_STATUS_SHORT && !chain)
-> > > > > > > >  		return 1;
-> > > > > > > >  
-> > > > > > > > +	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
-> > > > > > > > +	    (event->status & DEPEVT_STATUS_MISSED_ISOC) && !chain)
-> > > > > > > > +		return 1;
-> > > > > > > > +
-> > > > > > > >  	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
-> > > > > > > >  	    (trb->ctrl & DWC3_TRB_CTRL_LST))
-> > > > > > > >  		return 1;
-> > > > > > > >
-> > > > > > > 
-> > > > > > > At this time the IMI bit was set for every frame. With these changes it
-> > > > > > > appeared in case of missed isoc that sometimes not all requests would be
-> > > > > > > reclaimed (enqueued != dequeued even 100ms after the last interrupt was
-> > > > > > > handled). If the 1st req in the started_list was fine (IMI set, but not IOC),
-> > > > > > > and a later req was the one actually missed, because of this status check the
-> > > > > > > reclaimation could stop early and not clean up to the appropriate req. As
-> > > > > > 
-> > > > > > Oops. You're right.
-> > > > > > 
-> > > > > > > suggested yesterday, I also tried only setting the IMI bit when no_interrupt is
-> > > > > > > not set, however I was still seeing the complete freezes. After analyzing this
-> > > > > > > issue a bit, I have updated the diff to look more like this:
-> > > > > > > 
-> > > > > > > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-> > > > > > > index dfaf9ac24c4f..bb800a81815b 100644
-> > > > > > > --- a/drivers/usb/dwc3/gadget.c
-> > > > > > > +++ b/drivers/usb/dwc3/gadget.c
-> > > > > > > @@ -1230,8 +1230,9 @@ static void __dwc3_prepare_one_trb(struct dwc3_ep *dep, struct dwc3_trb *trb,
-> > > > > > >  			trb->ctrl = DWC3_TRBCTL_ISOCHRONOUS;
-> > > > > > >  		}
-> > > > > > >  
-> > > > > > > -		/* always enable Interrupt on Missed ISOC */
-> > > > > > > -		trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
-> > > > > > > +		/* enable Interrupt on Missed ISOC */
-> > > > > > > +		if ((!no_interrupt && !chain) || must_interrupt)
-> > > > > > > +		    trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
-> > > > > > >  		break;
-> > > > > > 
-> > > > > > Either all or none of the TRBs of a request is set with IMI, and not
-> > > > > > some.
-> > > > > > 
-> > > > > > >  
-> > > > > > >  	case USB_ENDPOINT_XFER_BULK:
-> > > > > > > @@ -3195,6 +3196,11 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
-> > > > > > >  	if (event->status & DEPEVT_STATUS_SHORT && !chain)
-> > > > > > >  		return 1;
-> > > > > > >  
-> > > > > > > +	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
-> > > > > > > +		(event->status & DEPEVT_STATUS_MISSED_ISOC) && !chain
-> > > > > > > +		&& (trb->ctrl & DWC3_TRB_CTRL_ISP_IMI))
-> > > > > > > +		return 1;
-> > > > > > > +
-> > > > > > >  	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
-> > > > > > >  	    (trb->ctrl & DWC3_TRB_CTRL_LST))
-> > > > > > >  		return 1;
-> > > > > > > 
-> > > > > > > Where the trb must have the IMI set before returning early. This seemed to make
-> > > > > > > the freezes recoverable.
-> > > > > > 
-> > > > > > Can you try this revised change:
-> > > > > > 
-> > > > > > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-> > > > > > index 61fba2b7389b..a69d8c28d86b 100644
-> > > > > > --- a/drivers/usb/dwc3/gadget.c
-> > > > > > +++ b/drivers/usb/dwc3/gadget.c
-> > > > > > @@ -3654,7 +3654,7 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
-> > > > > >  	if ((trb->ctrl & DWC3_TRB_CTRL_HWO) && status != -ESHUTDOWN)
-> > > > > >  		return 1;
-> > > > > >  
-> > > > > > -	if (event->status & DEPEVT_STATUS_SHORT && !chain)
-> > > > > 
-> > > > > I accidentally deleted a couple of lines here.
-> > > > > 
-> > > > > > +	if (DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC && !chain)
-> > > > > >  		return 1;
-> > > > > >  
-> > > > > >  	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
-> > > > > 
-> > > > > I meant to do this:
-> > > > > 
-> > > > > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-> > > > > index 61fba2b7389b..cb65371572ee 100644
-> > > > > --- a/drivers/usb/dwc3/gadget.c
-> > > > > +++ b/drivers/usb/dwc3/gadget.c
-> > > > > @@ -3657,6 +3657,9 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
-> > > > >  	if (event->status & DEPEVT_STATUS_SHORT && !chain)
-> > > > >  		return 1;
-> > > > >  
-> > > > > +	if (DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC && !chain)
-> > > > > +		return 1;
-> > > > > +
-> > > > >  	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
-> > > > >  	    (trb->ctrl & DWC3_TRB_CTRL_LST))
-> > > > >  		return 1;
-> > > > > @@ -3673,6 +3676,7 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
-> > > > >  	struct scatterlist *s;
-> > > > >  	unsigned int num_queued = req->num_queued_sgs;
-> > > > >  	unsigned int i;
-> > > > > +	bool missed_isoc = false;
-> > > > >  	int ret = 0;
-> > > > >  
-> > > > >  	for_each_sg(sg, s, num_queued, i) {
-> > > > > @@ -3681,12 +3685,18 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
-> > > > >  		req->sg = sg_next(s);
-> > > > >  		req->num_queued_sgs--;
-> > > > >  
-> > > > > +		if (DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC)
-> > > > > +			missed_isoc = true;
-> > > > > +
-> > > > >  		ret = dwc3_gadget_ep_reclaim_completed_trb(dep, req,
-> > > > >  				trb, event, status, true);
-> > > > >  		if (ret)
-> > > > >  			break;
-> > > > >  	}
-> > > > >  
-> > > > > +	if (missed_isoc)
-> > > > > +		ret = 1;
-> > > > > +
-> > > > >  	return ret;
-> > > > >  }
-> > > > >  
-> > > > > 
-> > > > > BR,
-> > > > > Thinh
-> > > > 
-> > > > I tried out the following patch diff you provided and I did not see any iommu
-> > > > related crashes with these changes:
-> > > > 
-> > > > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-> > > > index dfaf9ac24c4f..50287437d6de 100644
-> > > > --- a/drivers/usb/dwc3/gadget.c
-> > > > +++ b/drivers/usb/dwc3/gadget.c
-> > > > @@ -3195,6 +3195,9 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
-> > > >         if (event->status & DEPEVT_STATUS_SHORT && !chain)
-> > > >                 return 1;
-> > > >  
-> > > > +       if (DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC && !chain)
-> > > > +               return 1;
-> > > > +
-> > > >         if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
-> > > >             (trb->ctrl & DWC3_TRB_CTRL_LST))
-> > > >                 return 1;
-> > > > @@ -3211,6 +3214,7 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
-> > > >         struct scatterlist *s;
-> > > >         unsigned int num_queued = req->num_queued_sgs;
-> > > >         unsigned int i;
-> > > > +       bool missed_isoc = false;
-> > > >         int ret = 0;
-> > > >  
-> > > >         for_each_sg(sg, s, num_queued, i) {
-> > > > @@ -3219,12 +3223,18 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
-> > > >                 req->sg = sg_next(s);
-> > > >                 req->num_queued_sgs--;
-> > > >  
-> > > > +               if (DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC)
-> > > > +                       missed_isoc = true;
-> > > > +
-> > > >                 ret = dwc3_gadget_ep_reclaim_completed_trb(dep, req,
-> > > >                                 trb, event, status, true);
-> > > >                 if (ret)
-> > > >                         break;
-> > > >         }
-> > > >  
-> > > > +       if (missed_isoc)
-> > > > +               ret = 1;
-> > > > +
-> > > >         return ret;
-> > > >  }
-> > > >  
-> > > > 
-> > > > As we discussed earlier, when uvc's complete function is called, if an -EXDEV
-> > > > is returned in the request's status, the uvc driver will begin to cancel its
-> > > > queue. With the current skip interrupt implementation in the uvc driver, if
-> > > > this occurs while the uvc driver is pumping the current frame, then there is no
-> > > > guarentee that the last request(s) will have had 'no_interrupt=0'. If the last
-> > > > requests passed to dwc3 had 'no_interrupt=1', these requests would eventually
-> > > > be placed at the end of the started_list. Since the IOC bit will not be set,
-> > > > and if no missed isoc event occurs on these requests, then the dwc3 driver will
-> > > > not be interrupted, leaving those remaining requests sitting in the
-> > > > started_list, and dwc3 will not perform an 'End Transfer' as expected. Once the
-> > > > uvc driver begins to pump the requests for the next frame, then it most likely
-> > > > will result in additional missed isoc events, with the result being an extended
-> > > > video freeze seen by the user.
-> > > > 
-> > > > I hope that other uvc driver maintainers can chime in here to help determine the
-> > > > correct path forward. With the skip interrupt implementation, the uvc driver should
-> > > > guarentee that the last request sent to dwc3 has 'no_interrupt=0', otherwise
-> > > 
-> > > Rather than guarenteeing no_interrupt or not, it's more important that
-> > > the UVC maintains a constant queue of requests to the controller driver.
-> > > Isoc transfers are meant to be sent at a constant rate which the
-> > > endpoint is configured.
-> > >
-> > 
-> > I agree with you on this, but it will probably always be a race with uvc
-> > queuing up one req at a time and dwc3 starting to transmit almost immediately.
-> > We can configure the streaming_interval on a product to kind of slow down or
-> 
-> No, it doesn't work that way. The controller would only send the data
-> when the host requests for it. The host will request for data every
-> 125us. So a UVC request will complete roughly every 125us. There should
-> be no race with uvc.
->
+Hi Marc,
 
-I wasn't very clear here. I was talking about the UVC Gadget Driver, about how
-uvcg_video_pump queues up requests to the dwc3 driver via uvcg_video_ep_queue
-(->usb_ep_queue->dwc3_gadget_ep_queue).
+On Fri, Oct 21, 2022 at 07:08:50PM +0100, Marc Zyngier wrote:
+> Sorry, but you'll have to provide a bit more of an analysis here. As
+> far as I can tell, you're just changing a parameter without properly
+> describing what breaks and how.
 
-> > delay the usb transfers, but between dwc3 and uvc driver it would be nice to
-> > have an interface that would allow pre-queuing a certain number of reqs before
-> > the transfer is actually started. If that is not possible, then uvc could
-> > instead prepare a number of reqs ahead of time and attempt to queue them each
-> > as fast a possible in a very tight loop.
-> 
-> All UVC gadget driver has to do is to maintain multiple requests
-> prepared ahead of time and don't starve the controller driver. That is,
-> don't let the queue reaches 0. Let's say uvc can only pump 16 requests
-> at a time, split at least every 8 request with no_interrupt=0. So that
-> uvc will have time to feed more requests when it gets the notification
-> of 8 requests completed. It would have roughly 8x125us to queue more
-> requests before underrun.
->
+There isn't much to analyse.  For ages, 0x7fffffff (31 bits) was the
+declared width of 'arch timer' for all arm architures, and that worked.
+Your patch series made the declared width vary according to which chipset
+was in use, which is good, but that rewrite changed the above mask for
+the XGene-1 from 0x7fffffff to 0xffffffff.  That change broke timers
+for the XGene-1 since it seems that, in actuality, it has only a 31 bit
+wide arch timer.  Thus declaring that arch timer has 32-bits is wrong.
+This mismatch between the actual and declared sizes would cause arithmetic
+errors in the calculation of timer deltas which more than accounts for
+the hrtimer failures I am seeing when running 5.16+ on my Mustang XGene1.
 
-I think we are saying the same thing. I'll try to be more clear going forward. :)
+Only one line need change, the rest are fluff:
 
-> >  
-> > > I recalled Dan mentioned that UVC gadget driver can queue up to 64
-> > > requests with no_interrupt=1 up to 15 requests. But I keep seeing that
-> > > the gadget driver only "pumps" 16 requests and doesn't continue until
-> > > they are completed. We can almost guarantee that it's going to be
-> > > underrun. Can UVC "pumps" multiple times at once?
-> > > 
-> > 
-> > uvc will usually pump when new frames comes in or when a req's complete gets
-> > called. uvc should fill up front all the reqs required to transfer a frame (up
-> > to 64), but once the available reqs are filled or the frame completely queued
-> > up, it would take a new incoming frame or a kick via the complete call to have
-> > it attempt to fill any remaining reqs in the queue again. To me this looks
-> > ok to do, but for heavy transfers we have a somewhat smaller queue as a buffer,
-> > 48 reqs vs 64 reqs (64 - 16).
-> > 
-> > To note, for the very last request of a frame/buffer (the end of it) the uvc
-> > driver does set the no_interrupt to 0 for this request.
-> > 
-> > > > if a missed isoc error occurs, it becomes very likely that the next immediate set of
-> > > > frames could be dropped/cancelled because the dwc3 driver could not perform a timely
-> > > > 'End Transfer'.
-> > > > 
-> > > > For testing I implemented the following changes to see what I could do for this
-> > > > issue. Note that I am on an older implementation and it's missing a lot of the
-> > > 
-> > > Please use the latest kernel, there are a lot of fixes/improvement to
-> > > dwc3 every kernel version.
-> > >
-> > 
-> > I've been debugging the sg implementation and the skip interrupt implementation
-> > seperately, backporting what can be backported. I'm working off of a 5.10
-> > kernel debugging various issues Dan Vacura was seeing on a 5.15 kernel on a
-> > newer product. What we had on our 5.10 based kernel was stable for uvc/dwc3, so
-> > we needed to understand what came in since that time that broke stability.
-> >  
-> > > > sg related implementation. The idea here is that if the queue is empty, and that
-> > > > req_int_count is non-zero then the last request likely had 'no_interrupt=1' set.
-> > > > And if this is the case then we will want to send some dummy request to dwc3 with
-> > > > 'no_interrupt=0' set to make sure that no requests get stuck in its started_list.
-> > > 
-> > > This is not efficient and unnecessary.
-> > >
-> > 
-> > Agree, but to fix this in the uvc driver the correct way seemed a bit more
-> > complicated at first. I was thinking that the driver would always send one last
-> > request of the frame buffer once an error is seen, but I'm now thinking of a
-> > simpler solution. If we can update the uvc pump to prepare a number of requests
-> > and make sure that the last request has no_interrupt set to 0 before queuing
-> > them all up in a tight loop to the dwc3 driver, this would effectively solve
-> > this problem too. A bit of extra smarts this area might also address some
-> > of your concerns about uvc not pumping a lot of data at once (especially for
-> > the beginning of a frame). I believe we should prepare more reqs up front
-> > if the req queue is empty and less reqs if its already busy.
-> > 
-> > I'm hoping that someone can step up to help here :). If not, then this will be
-> > my next activity.
-> >  
-> > > <snip>
-> > > 
-> > > > 
-> > > > 
-> > > > Alternatively we may just not want to cancel the queue upon receiving -EXDEV
-> > > > and this could solve the problem too, but I don't think that it's such a great
-> > > > idea, especially if things start falling behind.
-> > > > 
-> > > > I hope that someone more fluent in this area of code can take a crack at
-> > > > improving/fixing this issue. 
-> > > > 
-> > > > The changes above do seem to help dwc3 timely end its transfers, but mainly for
-> > > > cases where some requests are missed but the next immediate ones are not (i'm
-> > > > talking within a couple of hundred microseconds). Most of the time if missed
-> > > > isocs occurs for a frame that the remaining reqs in the started_list will
-> > > > likely also error out and the list will be emptied and dwc3 will still timely
-> > > > send 'End Transfer'. In reality this is to cover a corner case that can
-> > > > adversely affect the quality of the video being watched. Just wanted to be
-> > > > upfront with these details.
-> > > > 
-> > > > Thinh, any pointers on how we should proceed from here? It looks like your
-> > > > changes are working well.
-> > > > 
-> > > 
-> > > You can add the underrun detection check to dwc3 whenever it receives a
-> > > new request.
-> > > 
-> > > ie. When the new request comes, check if the last prepared TRB's HWO bit
-> > > is cleared and if the endpoint is started, send End Transfer command to
-> > > reschedule the isoc transfers for the incoming requests.
-> > > 
-> > > This is probably the simpler workaround to the underrun issue of UVC.
-> > > 
-> > 
-> > This sounds like a good optimization too by itself. Would it be possible for
-> > you to implement something here to help get me started? Even if it's not
-> > perfect, I'll take what I can get. We are running up against the clock for
-> > trying to close things out (changes must be released to mainline and backported
-> > to 5.15 for Android).
-> > 
-> 
-> At the moment, I have very limited bandwidth to implement and run tests.
-> However, if you or someone provide a patch, I can help review.
-> 
-> It should look something like this (pseudo code):
-> 
-> ep_queue(request) {
-> 	add_pending_list(request)
-> 	if (ep is isoc and enabled) {
-> 		if (prev_trb.HWO == 0) {
-> 			send_cmd(End Transfer)
-> 			return;
-> 		}
-> 	}
-> }
-> 
-> On End Transfer command completion:
-> 	reclaim_and_giveback_requests(started_list)
-> 
-> BR,
-> Thinh
+-             return CLOCKSOURCE_MASK(32);
++             return CLOCKSOURCE_MASK(31);
 
-Thanks,
-Jeff
+> Also, this isn't much of a patch.
 
+I don't know what this means.  The patch contains all that is needed for
+the fix, no more.  I could add more comments as to _why_ it is 31 bits
+not 32, but I don't know why.  I only know that the motherboard behaves
+as if 31 bits is all that is available in the hardware.
+
+> Please see the documentation on how to properly submit one.
+
+AFAICS, the only submission mistake is that the 'Cc: stable@vger.kernel.org'
+line is missing.
+
+Regards,
+Joe
