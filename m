@@ -2,87 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 658BF6071DC
-	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 10:16:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96353607287
+	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 10:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229770AbiJUIQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Oct 2022 04:16:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45168 "EHLO
+        id S230151AbiJUIia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Oct 2022 04:38:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230027AbiJUIQq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 04:16:46 -0400
-X-Greylist: delayed 124 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 21 Oct 2022 01:16:39 PDT
-Received: from mx.socionext.com (mx.socionext.com [202.248.49.38])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 011B31A5252
-        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 01:16:37 -0700 (PDT)
-Received: from unknown (HELO kinkan2-ex.css.socionext.com) ([172.31.9.52])
-  by mx.socionext.com with ESMTP; 21 Oct 2022 17:13:16 +0900
-Received: from mail.mfilter.local (m-filter-2 [10.213.24.62])
-        by kinkan2-ex.css.socionext.com (Postfix) with ESMTP id A9D992059027;
-        Fri, 21 Oct 2022 17:13:16 +0900 (JST)
-Received: from 172.31.9.51 (172.31.9.51) by m-FILTER with ESMTP; Fri, 21 Oct 2022 17:13:16 +0900
-Received: from [10.212.242.61] (unknown [10.212.242.61])
-        by kinkan2.css.socionext.com (Postfix) with ESMTP id 1063DB62A4;
-        Fri, 21 Oct 2022 17:13:16 +0900 (JST)
-Subject: Re: [PATCH AUTOSEL 4.19 10/11] arm64: dts: uniphier: Add USB-device
- support for PXs3 reference board
-To:     Greg KH <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
-Cc:     Pavel Machek <pavel@denx.de>, Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-References: <20221011145358.1624959-1-sashal@kernel.org>
- <20221011145358.1624959-10-sashal@kernel.org>
- <20221017112315.GA23442@duo.ucw.cz>
- <cc2cef78-52e1-4da5-8739-375dd7bfe499@app.fastmail.com>
- <Y1JCPp4yW43/eGhH@kroah.com>
-From:   Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Message-ID: <405af811-4113-45ad-d380-6b73d5bd0cf1@socionext.com>
-Date:   Fri, 21 Oct 2022 17:13:16 +0900
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        with ESMTP id S230076AbiJUIi2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 04:38:28 -0400
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF09296218
+        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 01:38:16 -0700 (PDT)
+Received: by mail-lf1-x132.google.com with SMTP id d6so3855305lfs.10
+        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 01:38:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=qYZYbXbI2mcjAn9NVDsmb+aO90EEBxaGk4Wi/Rwt0M0=;
+        b=DSE0su34rNBYYaUYKb1G/ttcMOyOBa5xDFgJr91gRnrX63jo/p2tJCUGhJ01bqTwyo
+         cjqEKC73T3hmEVJC0XRNllMQajZEEIdBOVn/pFyM3YzGUqs7SV7GkLLmTRpgUJGK6Mr1
+         rCjDA+jwKsXYdHXeBLT/mT84N9k/0dKdnfZoQZbTU15lI0BUlEORMxTUK90gJqumqfHQ
+         lZsCEeeBEPOYcWiC1xEUL7xdFbbpeY+TlcT94jJaQ9HfJBzYjS6MvRVvD7NyvOZZhBgT
+         8AcWY3DqR4yCoy7HLxhIY4qdLLPIjTKSszLiqJRJDMxRZAzBgeO26L4H49gBFBrs1G5w
+         oFBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=qYZYbXbI2mcjAn9NVDsmb+aO90EEBxaGk4Wi/Rwt0M0=;
+        b=pcKiZLUIj5sudLVdlj15tzv7vnLx7GNBrYJ6K1hkzHcyyFdNXrR+lC7OoQ/hdFjG8J
+         /V9WdfuySgIoTIuTCcFJmpL04mK14hhDUfQSfcQTu1bryVe+Njm4u7ZeqPblpHV8F36l
+         b23yhLg9zDYGwxi5z5q1Oph4ueOX1aBDwkpL9BheYyWCndfVPKJ2XirHlU2kIq4iUz4p
+         eWLFKqKXHscTJ1Yn8ZJNBFs6LvAqsVZa/W3A7TCn5Njl35UwwNgymSOqGftelVTtfGL/
+         VEoJ4S+2BDG6qaGrCibernTQNwEjTmdO/Cxcl4+OG2kedqS6XwdddUcZwKKVW5mY1ktX
+         apKA==
+X-Gm-Message-State: ACrzQf0HMq5N27oiDUm4JtslIvVRTu1s1Bb0MP/Yupf1nyEg9rOLGL6a
+        VXGDetXLuxRrNmeR5Ati6PWqYREbDtU0dojehJdAsMW2ZSrtSA==
+X-Google-Smtp-Source: AMsMyM7tCNG8t9SEw4e3xdKCodUmbdY1kJ+5xBZP/drdzfWEoWiyYZyqIpM7AJGnTSbMJqGboIQriznKMC3QfL/EGzU=
+X-Received: by 2002:ac2:5a5d:0:b0:4a2:3d64:8ad3 with SMTP id
+ r29-20020ac25a5d000000b004a23d648ad3mr6538667lfn.530.1666341494934; Fri, 21
+ Oct 2022 01:38:14 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <Y1JCPp4yW43/eGhH@kroah.com>
-Content-Type: text/plain; charset=iso-2022-jp; format=flowed; delsp=yes
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+References: <20221020083910.1902009-1-ardb@kernel.org> <20221020083910.1902009-3-ardb@kernel.org>
+In-Reply-To: <20221020083910.1902009-3-ardb@kernel.org>
+From:   Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Date:   Fri, 21 Oct 2022 11:37:38 +0300
+Message-ID: <CAC_iWjLcP_DpxcY5q7w=_Am-Ky4h_7A199a-HjPbuGfyfN-L3w@mail.gmail.com>
+Subject: Re: [PATCH v3 2/3] efi: random: Use 'ACPI reclaim' memory for random seed
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     linux-efi@vger.kernel.org, "Jason A . Donenfeld" <Jason@zx2c4.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022/10/21 15:54, Greg KH wrote:
-> On Fri, Oct 21, 2022 at 08:29:30AM +0200, Arnd Bergmann wrote:
->> On Mon, Oct 17, 2022, at 13:23, Pavel Machek wrote:
->>> Hi!
->>>
->>>> From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
->>>>
->>>> [ Upstream commit 19fee1a1096d21ab1f1e712148b5417bda2939a2 ]
->>>>
->>>> PXs3 reference board can change each USB port 0 and 1 to device mode
->>>> with jumpers. Prepare devicetree sources for USB port 0 and 1.
->>>>
->>>> This specifies dr_mode, pinctrl, and some quirks and removes nodes
-> for
->>>> unused phys and vbus-supply properties.
->>>
->>> Why was this autoselected? It is a new feature, not a bugfix.
->>
->> It also caused a regression now according to the build bots. I
->> have not checked, but I assume there are some other patches that
->> this depends on.
-> 
-> Ok, let me go drop this from all trees now, thanks.
-Sorry for late.
-Right, this is not a "fixes" patch, so please drop it from stable.
+Hi Ard,
 
-Thank you,
+On Thu, 20 Oct 2022 at 11:40, Ard Biesheuvel <ardb@kernel.org> wrote:
+>
+> EFI runtime services data is guaranteed to be preserved by the OS,
+> making it a suitable candidate for the EFI random seed table, which may
+> be passed to kexec kernels as well (after refreshing the seed), and so
+> we need to ensure that the memory is preserved without support from the
+> OS itself.
+>
+> However, runtime services data is intended for allocations that are
+> relevant to the implementations of the runtime services themselves, and
+> so they are unmapped from the kernel linear map, and mapped into the EFI
+> page tables that are active while runtime service invocations are in
+> progress. None of this is needed for the RNG seed.
+>
+> So let's switch to EFI 'ACPI reclaim' memory: in spite of the name,
+> there is nothing exclusively ACPI about it, it is simply a type of
+> allocation that carries firmware provided data which may or may not be
+> relevant to the OS, and it is left up to the OS to decide whether to
+> reclaim it after having consumed its contents.
+>
+> Given that in Linux, we never reclaim these allocations, it is a good
+> choice for the EFI RNG seed, as the allocation is guaranteed to survive
+> kexec reboots.
 
----
-Best Regards
-Kunihiko Hayashi
+Can we add this as a comment right above the efi_bs_call()
+
+>
+> One additional reason for changing this now is to align it with the
+> upcoming recommendation for EFI bootloader provided RNG seeds, which
+> must not use EFI runtime services code/data allocations.
+>
+> Cc: <stable@vger.kernel.org> # v4.14+
+> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> ---
+>  drivers/firmware/efi/libstub/random.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/firmware/efi/libstub/random.c b/drivers/firmware/efi/libstub/random.c
+> index 24aa37535372..183dc5cdb8ed 100644
+> --- a/drivers/firmware/efi/libstub/random.c
+> +++ b/drivers/firmware/efi/libstub/random.c
+> @@ -75,7 +75,7 @@ efi_status_t efi_random_get_seed(void)
+>         if (status != EFI_SUCCESS)
+>                 return status;
+>
+> -       status = efi_bs_call(allocate_pool, EFI_RUNTIME_SERVICES_DATA,
+> +       status = efi_bs_call(allocate_pool, EFI_ACPI_RECLAIM_MEMORY,
+>                              sizeof(*seed) + EFI_RANDOM_SEED_SIZE,
+>                              (void **)&seed);
+>         if (status != EFI_SUCCESS)
+> --
+> 2.35.1
+>
+
+Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
