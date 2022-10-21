@@ -2,98 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA9C606C37
-	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 01:55:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5FEB606C5C
+	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 02:04:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229692AbiJTXy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Oct 2022 19:54:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49482 "EHLO
+        id S229558AbiJUAE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Oct 2022 20:04:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229460AbiJTXy6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 19:54:58 -0400
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32550688A1;
-        Thu, 20 Oct 2022 16:54:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666310098; x=1697846098;
-  h=subject:from:to:cc:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=jMRKQdTw1ohaKpE/lNW6EvKLDyv+u1hBguYWhqbep6M=;
-  b=K9btm6GV2HeZgy9hiqt9sQZFJKq21Uz4bP73kz5PBQAEjdjh5ZucSnx3
-   KvynH5xluPkhvx8zpXhsx5cwI5YDxG5X0q/RZLSuiu+iHDaP3Mf2w+Das
-   kYIOsa5kI0PKwyl+r8Rp+qXVPiSceqHWdfmqGRihytN0xnc1IwilyXlsa
-   sT1NW71WaflrviWjx0RJBU6GQ+Arw1IoCkKwIWkA0IJTrNYXpQfJIPU7H
-   9+3rUTKGYqRoOTl4dzaBfMSbdFDsc5/TEx9VYxQqX5KrNdPHk5TbIF1Bt
-   ncfoCi7ZOT6ASCOfrSmuCDHsG6uR6ZYQ/5TmKRAQDm1K0XoN8K0a+nxDv
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10506"; a="393167139"
-X-IronPort-AV: E=Sophos;i="5.95,200,1661842800"; 
-   d="scan'208";a="393167139"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Oct 2022 16:54:57 -0700
-X-IronPort-AV: E=McAfee;i="6500,9779,10506"; a="772689011"
-X-IronPort-AV: E=Sophos;i="5.95,200,1661842800"; 
-   d="scan'208";a="772689011"
-Received: from amwalker-mobl1.amr.corp.intel.com (HELO dwillia2-xfh.jf.intel.com) ([10.209.42.205])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Oct 2022 16:54:56 -0700
-Subject: [PATCH] ACPI: NUMA: Add CXL CFMWS 'nodes' to the possible nodes set
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     linux-cxl@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        Alison Schofield <alison.schofield@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        linux-acpi@vger.kernel.org
-Date:   Thu, 20 Oct 2022 16:54:55 -0700
-Message-ID: <166631003537.1167078.9373680312035292395.stgit@dwillia2-xfh.jf.intel.com>
-User-Agent: StGit/0.18-3-g996c
+        with ESMTP id S229738AbiJUAE2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 20:04:28 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA1AB0F
+        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 17:04:22 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id f37so2250040lfv.8
+        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 17:04:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=cc:to:subject:message-id:date:user-agent:from:references
+         :in-reply-to:mime-version:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=gVbYG5UIGEz3Lg7e/hjecpq/3zDJltuDah5cSWiqG7U=;
+        b=Ht625h2x7cRN1vOTiwnyJrd17NSuVMl9D1WNcAqLBxkRZTYFPIJZ/iLgki/gezWcw7
+         hpYyJ3pV7oU4+hKbrEUbHo4ZZXnIhemszhy6woUyaVuyX4rrmNoF2L+0fYWA3h351ncc
+         WgAK9Vjj3KoST4JrLmjqmcRZoKAotkbzo1/lU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:user-agent:from:references
+         :in-reply-to:mime-version:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gVbYG5UIGEz3Lg7e/hjecpq/3zDJltuDah5cSWiqG7U=;
+        b=vRhqUA6Y7yvPKI8r+u8tAFP8P13cPBJXPg1eESmdceez5C8sBKnjex9TJBBgpPyIFa
+         Q+v9K+UhZF0yqCb/N9Uc+qfeEK2XOQ0VZA5OtheQLlgYG19aLSZrhjhj5AmtGXlOs+gJ
+         8QVM3oY8ySQSaCZwktMvxDfrA7YpMAkk8iNnFwN411WDw9qM7TOH6CGUqIapSs9YAVxj
+         dtWrldIG1WqAaWFQ7GcBdYojgUaBw2gcyLDmxwLcMVKJVlvpRsQr7+dzDb6zmyXHbaLr
+         ZH76yhbGfGIyN43C8QbcXi1k85PZ5cAs4U7ade0KbtwBg5gjTtWkYSFy63g1wqb4MlMy
+         cKVw==
+X-Gm-Message-State: ACrzQf2HPYo1D4ehspSwXN8X8R30RBIfovZQ76j4hljoSWbzIVIr012M
+        28nt6Wb5MfylCBTuZQFTk7CHfDuO2KhwUcgUEvUbSg==
+X-Google-Smtp-Source: AMsMyM4HXNyo2IvqSwgaiJEBsszN3xOy6E1ki9bKIjI0CAZc+n1UJoYsog2t98VQIYsuOdhuy6lTqs9dUSjGPtHanu8=
+X-Received: by 2002:a05:6512:3dac:b0:4a4:8044:9c3 with SMTP id
+ k44-20020a0565123dac00b004a4804409c3mr5429553lfv.145.1666310660814; Thu, 20
+ Oct 2022 17:04:20 -0700 (PDT)
+Received: from 753933720722 named unknown by gmailapi.google.com with
+ HTTPREST; Thu, 20 Oct 2022 20:04:19 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20221019180934.1.If29e167d8a4771b0bf4a39c89c6946ed764817b9@changeid>
+References: <20221019180934.1.If29e167d8a4771b0bf4a39c89c6946ed764817b9@changeid>
+From:   Stephen Boyd <swboyd@chromium.org>
+User-Agent: alot/0.10
+Date:   Thu, 20 Oct 2022 20:04:19 -0400
+Message-ID: <CAE-0n53L9c5fTC9vut6+at583qoi2ecs29uQZF=6fAmZX2r2qA@mail.gmail.com>
+Subject: Re: [PATCH] firmware: coreboot: Register bus in module init
+To:     Brian Norris <briannorris@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Benson Leung <bleung@chromium.org>,
+        chrome-platform@lists.linux.dev, linux-kernel@vger.kernel.org,
+        Samuel Holland <samuel@sholland.org>,
+        Julius Werner <jwerner@chromium.org>,
+        Guenter Roeck <linux@roeck-us.net>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The ACPI CEDT.CFMWS indicates a range of possible address where new CXL
-regions can appear. Each range is associated with a QTG id (QoS
-Throttling Group id). For each range + QTG pair that is not covered by a proximity
-domain in the SRAT, Linux creates a new NUMA node. However, the commit
-that added the new ranges missed updating the node_possible mask which
-causes memory_group_register() to fail. Add the new nodes to the
-nodes_possible mask.
+Quoting Brian Norris (2022-10-19 18:10:53)
+[...]
+> [    0.114560]  do_initcall_level+0x134/0x160
+> [    0.114571]  do_initcalls+0x60/0xa0
+> [    0.114579]  do_basic_setup+0x28/0x34
+> [    0.114588]  kernel_init_freeable+0xf8/0x150
+> [    0.114596]  kernel_init+0x2c/0x12c
+> [    0.114607]  ret_from_fork+0x10/0x20
+> [    0.114624] Code: 5280002b 1100054a b900092a f9800011 (885ffc01)
+> [    0.114631] ---[ end trace 0000000000000000 ]---
+>
+> Fixes: b81e3140e412 ("firmware: coreboot: Make bus registration symmetric")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
+> ---
 
-Cc: <stable@vger.kernel.org>
-Fixes: fd49f99c1809 ("ACPI: NUMA: Add a node and memblk for each CFMWS not in SRAT")
-Cc: Alison Schofield <alison.schofield@intel.com>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reported-by: Vishal Verma <vishal.l.verma@intel.com>
-Tested-by: Vishal Verma <vishal.l.verma@intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
----
-Rafael, I can take this through the CXL tree with some other pending
-fixes.
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
 
- drivers/acpi/numa/srat.c |    1 +
- 1 file changed, 1 insertion(+)
+> diff --git a/drivers/firmware/google/coreboot_table.c b/drivers/firmware/google/coreboot_table.c
+> index c52bcaa9def6..9ca21feb9d45 100644
+> --- a/drivers/firmware/google/coreboot_table.c
+> +++ b/drivers/firmware/google/coreboot_table.c
+> @@ -199,6 +194,32 @@ static struct platform_driver coreboot_table_driver = {
+>                 .of_match_table = of_match_ptr(coreboot_of_match),
+>         },
+>  };
+> -module_platform_driver(coreboot_table_driver);
+> +
+> +static int __init coreboot_table_driver_init(void)
+> +{
+> +       int ret;
+> +
+> +       ret = bus_register(&coreboot_bus_type);
+> +       if (ret)
+> +               return ret;
+> +
+> +       ret = platform_driver_register(&coreboot_table_driver);
+> +       if (ret) {
+> +               bus_unregister(&coreboot_bus_type);
+> +               return ret;
+> +       }
+> +
+> +       return 0;
 
-diff --git a/drivers/acpi/numa/srat.c b/drivers/acpi/numa/srat.c
-index 3b818ab186be..1f4fc5f8a819 100644
---- a/drivers/acpi/numa/srat.c
-+++ b/drivers/acpi/numa/srat.c
-@@ -327,6 +327,7 @@ static int __init acpi_parse_cfmws(union acpi_subtable_headers *header,
- 		pr_warn("ACPI NUMA: Failed to add memblk for CFMWS node %d [mem %#llx-%#llx]\n",
- 			node, start, end);
- 	}
-+	node_set(node, numa_nodes_parsed);
- 
- 	/* Set the next available fake_pxm value */
- 	(*fake_pxm)++;
-
+This could be 'return ret' and two lines could be saved, but that is
+super nitpick so whatever.
