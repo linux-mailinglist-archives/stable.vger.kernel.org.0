@@ -2,65 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 627F6607E3D
-	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 20:22:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59EF6607E45
+	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 20:29:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230048AbiJUSWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Oct 2022 14:22:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58592 "EHLO
+        id S230219AbiJUS2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Oct 2022 14:28:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229779AbiJUSWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 14:22:31 -0400
-Received: from mail-pg1-x549.google.com (mail-pg1-x549.google.com [IPv6:2607:f8b0:4864:20::549])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57D4E253BE0
-        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 11:22:28 -0700 (PDT)
-Received: by mail-pg1-x549.google.com with SMTP id l185-20020a6388c2000000b004610d11faddso1701832pgd.1
-        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 11:22:28 -0700 (PDT)
+        with ESMTP id S230091AbiJUS2u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 14:28:50 -0400
+Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 733F3285B5C;
+        Fri, 21 Oct 2022 11:28:47 -0700 (PDT)
+Received: by mail-il1-x130.google.com with SMTP id u10so2093017ilm.5;
+        Fri, 21 Oct 2022 11:28:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=AGwQKEsC1dZ5/YGwXQmnIMelTHWuXJkIBMYqKFwfR7w=;
-        b=ImeayfPWwR8l4PcCcs7KS/vMa38B8BXbmnVjEIGxqMfbrq3oGYCUc7/RPBftjzMkws
-         oC1X3tDrX8EW2ZJPd2X88vHI5M1le7AfKLLpZZ0fguDu7Z+HAuHkEuRt0GIRaZnlCzL1
-         lWWP221VEDULrAtDrAnazYY6lKzZ13l08MR88K+WtcKFECYov/6A1JEDjJ03OvtxuB5z
-         BgA7nRX0Cz5Ic7oTBFGxIlIN2o4E9vRokt/7qbmMBJj0S/cf30mciVsUC6J/W2NwhEYE
-         +cQdMlMuVe/1TyFIqk+uuPDs0s0WfsT5B3vGsBbdUcx/2DWEvD2Tbe/Qsl0K9RRBTLxm
-         WTmg==
+        d=gmail.com; s=20210112;
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+77dB5QEYN7EKEY9tZSHaU2iIjE2ua9xcyG0qk2TXaQ=;
+        b=V7C0xKGTF9YRFwGz2KxL3sZyop3MnZGkHSm/SpgH7bZLKKapB/QD7lEs132mMuFv3O
+         sAbuLCtfkAr9BEH6qc/yX5cJaYRIt5x85924iNut1KScUcHIUU0PpTaGhEPB8TyK76oS
+         n/Ettic26IJlsv/IOHmjuSDk/4fJBBJf5zxC+opYh4WSHoj4/fkdQKey+EuUXSYs6Kd+
+         FWiZDVZbu0aJcjUrXTwx9DYAB98pXjXOUayNlXUl0/JgJts/TPkQk2eLp4RqdYxBYVyn
+         UJsLC8xe3NhaKNFF4H1Oloxb5YpAbtkWN5hGAcjlLT9r1ZhZ6StS5a9MC1dn14DtFYil
+         aLnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=AGwQKEsC1dZ5/YGwXQmnIMelTHWuXJkIBMYqKFwfR7w=;
-        b=uAELHQWUpJxT51yVcpFT5yLOYSDLBGDgXVQRjjzC63lPLL+Etlqe2xc21QrwFEdNTU
-         vzgKC/d/w75oucpVI3UFAp0uMZsaV84ExBjXgLT+9KNHqWPF2AErgOVdx29w3Udw8nrv
-         ejLjYeOfrh69EsTXZ8q2+1ZBF2WtsRNWo5Kr57128n4NTjWdmH3sJBgnhv56o8zCdLYe
-         avgfQh2lUR0isLsI5AQZQv3sE2BJ67e66jaMHAzPskQZIAh3KpKrOmWJ3i5G3nRJrqLB
-         533K37eWGARs/gt0wU1tyLrigiUOOLSzqsnN7+XB9cI2PqOsBYtR/kjxghOVcTiufZY7
-         O9dQ==
-X-Gm-Message-State: ACrzQf0/1LBfMjmfzS4gqYdhVbqMmIL5sZS2ivmiQjwO3tbOJOQxUuZo
-        SbwSYqgd2YslCjjVKhhPpF+MeojPmg0+MhDxbBFAPelZN+e9r/54+WwPuH049cRuzqoRiftWbep
-        UOHQWjKycxfUsRWJQy7CBTFrPdRX93nAv1iteaJUHbSWogYhn5ojnWGVvWwCNKZMLySA=
-X-Google-Smtp-Source: AMsMyM6ZqPdj4/5XtqTGXF6xdWWRQ5iYOLRA7vzrrjMwVYr36SN1Glz7051+VCOpBKgkINYo9USVdQbOcZpEMA==
-X-Received: from xllamas.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5070])
- (user=cmllamas job=sendgmr) by 2002:a62:b501:0:b0:557:d887:20ee with SMTP id
- y1-20020a62b501000000b00557d88720eemr20490033pfe.8.1666376547509; Fri, 21 Oct
- 2022 11:22:27 -0700 (PDT)
-Date:   Fri, 21 Oct 2022 18:22:23 +0000
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.38.0.135.g90850a2211-goog
-Message-ID: <20221021182223.3270269-1-cmllamas@google.com>
-Subject: [PATCH 4.9] inet: fully convert sk->sk_rx_dst to RCU rules
-From:   Carlos Llamas <cmllamas@google.com>
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        kernel-team@android.com, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Carlos Llamas <cmllamas@google.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+77dB5QEYN7EKEY9tZSHaU2iIjE2ua9xcyG0qk2TXaQ=;
+        b=GoRQCAWh0IkCzOlePwNGgCPlnyP9mnuFUj+LsaASVKmUZerDJxu20MHJAege/rxmze
+         lBvgYaz+xxhRIT87OaZ11iYrddTFQJM1c6OnSBV7CmboOHUik6wDTjqq3tK+15uj7GOu
+         X0kfFvSVMQlgf7VYJhz5XeO2un3N+68i+E9tpJMZiU8I85jU29ILUdeRVTp/fcTX5nVW
+         dpkW8Rqfq/IqqwDRFXi1rQjJjywnE5NHkBBLHvR3SNpAIGlM2Tj73Qk9AVxRHgPLrDy7
+         IqUA6zZXIInvw9YrrDPu6H6Ln3V1Md8vE3HugLLPfwB1uwBZWddi7UspDG6fMDToScwC
+         DSYQ==
+X-Gm-Message-State: ACrzQf1j6BvWAAODJCO7I34KSAIMfwza1oSNDYNKs/+6Wo3ojCg+F2kJ
+        bx9dedBpzv+g4vuIcfPWvvo=
+X-Google-Smtp-Source: AMsMyM42N8lU6JOn2nF1SVxM4MQ5gwSptbHpAcTLkLQkFEvN3F3KRl78UCVMkVJasASakeXMhQovYg==
+X-Received: by 2002:a92:c24e:0:b0:2fc:3482:a438 with SMTP id k14-20020a92c24e000000b002fc3482a438mr15445100ilo.145.1666376926518;
+        Fri, 21 Oct 2022 11:28:46 -0700 (PDT)
+Received: from qjv001-XeonWs (c-67-167-199-249.hsd1.il.comcast.net. [67.167.199.249])
+        by smtp.gmail.com with ESMTPSA id p8-20020a92d688000000b002fa40226722sm4261538iln.84.2022.10.21.11.28.45
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 21 Oct 2022 11:28:46 -0700 (PDT)
+Date:   Fri, 21 Oct 2022 13:28:43 -0500
+From:   Jeff Vanhoof <jdv1029@gmail.com>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Cc:     Jeffrey Vanhoof <jvanhoof@motorola.com>,
+        "balbi@kernel.org" <balbi@kernel.org>,
+        "corbet@lwn.net" <corbet@lwn.net>,
+        "dan.scally@ideasonboard.com" <dan.scally@ideasonboard.com>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "laurent.pinchart@ideasonboard.com" 
+        <laurent.pinchart@ideasonboard.com>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "m.grzeschik@pengutronix.de" <m.grzeschik@pengutronix.de>,
+        "paul.elder@ideasonboard.com" <paul.elder@ideasonboard.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Dan Vacura <W36195@motorola.com>
+Subject: Re: [PATCH v3 2/6] usb: dwc3: gadget: cancel requests instead of
+ release after missed isoc
+Message-ID: <20221021182841.GA25288@qjv001-XeonWs>
+References: <20221019020240.exujmo7uvae4xfdi@synopsys.com>
+ <20221019074043.GA19727@qjv001-XeonWs>
+ <20221019190819.m35ai5fm3g5qpgqj@synopsys.com>
+ <20221019213410.GA17789@qjv001-XeonWs>
+ <20221019230555.gwovdtmnopwacirt@synopsys.com>
+ <20221020164732.GA25496@qjv001-XeonWs>
+ <20221020224714.6v7djacqvl5xkc2w@synopsys.com>
+ <20221021005537.3vbtair35umh6vo2@synopsys.com>
+ <20221021093956.GA25599@qjv001-XeonWs>
+ <20221021164349.fft4yqnxuztsqdeu@synopsys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221021164349.fft4yqnxuztsqdeu@synopsys.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -68,425 +94,372 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+Hi Thinh,
 
-commit 8f905c0e7354ef261360fb7535ea079b1082c105 upstream.
+On Fri, Oct 21, 2022 at 04:43:52PM +0000, Thinh Nguyen wrote:
+> On Fri, Oct 21, 2022, Jeff Vanhoof wrote:
+> > Hi Thinh,
+> > 
+> > On Fri, Oct 21, 2022 at 12:55:51AM +0000, Thinh Nguyen wrote:
+> > > On Thu, Oct 20, 2022, Thinh Nguyen wrote:
+> > > > On Thu, Oct 20, 2022, Jeff Vanhoof wrote:
+> > > > > Hi Thinh,
+> > > > > 
+> > > > > On Wed, Oct 19, 2022 at 11:06:08PM +0000, Thinh Nguyen wrote:
+> > > > > > Hi,
+> > > > > > 
+> > > > > > On Wed, Oct 19, 2022, Jeff Vanhoof wrote:
+> > > > > > > Hi Thinh,
+> > > > > > > On Wed, Oct 19, 2022 at 07:08:27PM +0000, Thinh Nguyen wrote:
+> > > > > > > > On Wed, Oct 19, 2022, Jeff Vanhoof wrote:
+> > > > > > 
+> > > > > > <snip>
+> > > > > > 
+> > > > > > > > > 
+> > > > > > > > > From what I can gather from the log, with the current changes it seems that
+> > > > > > > > > after a missed isoc event few requests are staying longer than expected in the
+> > > > > > > > > started_list (not getting reclaimed) and this is preventing the transmission
+> > > > > > > > > from stopping/starting again, and opening the door for continuous stream of
+> > > > > > > > > missed isoc events that cause what appears to the user as a frozen video.
+> > > > > > > > > 
+> > > > > > > > > So one thought, if IOC bit is not set every frame, but IMI bit is, when a
+> > > > > > > > > missed isoc related interrupt occurs it seems likely that more than one trb
+> > > > > > > > > request will need to be reclaimed, but the current set of changes is not
+> > > > > > > > > handling this.
+> > > > > > > > > 
+> > > > > > > > > In the good transfer case this issue seems to be taken care of since the IOC
+> > > > > > > > > bit is not set every frame and the reclaimation will loop through every item in
+> > > > > > > > > the started_list and only stop if there are no additional trbs or if one has
+> > > > > > > > 
+> > > > > > > > It should stop at the request that associated with the interrupt event,
+> > > > > > > > whether it's because of IMI or IOC.
+> > > > > > > 
+> > > > > > > In this case I was concerned that if multipled queued reqs did not have IOC bit
+> > > > > > > set, but there was a missed isoc on one of the last reqs, whether or not we would
+> > > > > > > reclaim all of the requests up to the missed isoc related req. I'm not sure if
+> > > > > > > my concern is valid or not.
+> > > > > > > 
+> > > > > > 
+> > > > > > There should be no problem. If there's an interrupt event indicating a
+> > > > > > TRB completion, the driver will give back all the requests up to the
+> > > > > > request associated with the interrupt event, and the controller will
+> > > > > > continue processing the remaining TRBs. On the next TRB completion
+> > > > > > event, the driver will again give back all the requests up to the
+> > > > > > request associated with that event.
+> > > > > >
+> > > > > 
+> > > > > I was testing with the following patch you suggested:
+> > > > > 
+> > > > > > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+> > > > > > index 61fba2b7389b..8352f4b5dd9f 100644
+> > > > > > --- a/drivers/usb/dwc3/gadget.c
+> > > > > > +++ b/drivers/usb/dwc3/gadget.c
+> > > > > > @@ -3657,6 +3657,10 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
+> > > > > >  	if (event->status & DEPEVT_STATUS_SHORT && !chain)
+> > > > > >  		return 1;
+> > > > > >  
+> > > > > > +	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
+> > > > > > +	    (event->status & DEPEVT_STATUS_MISSED_ISOC) && !chain)
+> > > > > > +		return 1;
+> > > > > > +
+> > > > > >  	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
+> > > > > >  	    (trb->ctrl & DWC3_TRB_CTRL_LST))
+> > > > > >  		return 1;
+> > > > > >
+> > > > > 
+> > > > > At this time the IMI bit was set for every frame. With these changes it
+> > > > > appeared in case of missed isoc that sometimes not all requests would be
+> > > > > reclaimed (enqueued != dequeued even 100ms after the last interrupt was
+> > > > > handled). If the 1st req in the started_list was fine (IMI set, but not IOC),
+> > > > > and a later req was the one actually missed, because of this status check the
+> > > > > reclaimation could stop early and not clean up to the appropriate req. As
+> > > > 
+> > > > Oops. You're right.
+> > > > 
+> > > > > suggested yesterday, I also tried only setting the IMI bit when no_interrupt is
+> > > > > not set, however I was still seeing the complete freezes. After analyzing this
+> > > > > issue a bit, I have updated the diff to look more like this:
+> > > > > 
+> > > > > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+> > > > > index dfaf9ac24c4f..bb800a81815b 100644
+> > > > > --- a/drivers/usb/dwc3/gadget.c
+> > > > > +++ b/drivers/usb/dwc3/gadget.c
+> > > > > @@ -1230,8 +1230,9 @@ static void __dwc3_prepare_one_trb(struct dwc3_ep *dep, struct dwc3_trb *trb,
+> > > > >  			trb->ctrl = DWC3_TRBCTL_ISOCHRONOUS;
+> > > > >  		}
+> > > > >  
+> > > > > -		/* always enable Interrupt on Missed ISOC */
+> > > > > -		trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
+> > > > > +		/* enable Interrupt on Missed ISOC */
+> > > > > +		if ((!no_interrupt && !chain) || must_interrupt)
+> > > > > +		    trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
+> > > > >  		break;
+> > > > 
+> > > > Either all or none of the TRBs of a request is set with IMI, and not
+> > > > some.
+> > > > 
+> > > > >  
+> > > > >  	case USB_ENDPOINT_XFER_BULK:
+> > > > > @@ -3195,6 +3196,11 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
+> > > > >  	if (event->status & DEPEVT_STATUS_SHORT && !chain)
+> > > > >  		return 1;
+> > > > >  
+> > > > > +	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
+> > > > > +		(event->status & DEPEVT_STATUS_MISSED_ISOC) && !chain
+> > > > > +		&& (trb->ctrl & DWC3_TRB_CTRL_ISP_IMI))
+> > > > > +		return 1;
+> > > > > +
+> > > > >  	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
+> > > > >  	    (trb->ctrl & DWC3_TRB_CTRL_LST))
+> > > > >  		return 1;
+> > > > > 
+> > > > > Where the trb must have the IMI set before returning early. This seemed to make
+> > > > > the freezes recoverable.
+> > > > 
+> > > > Can you try this revised change:
+> > > > 
+> > > > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+> > > > index 61fba2b7389b..a69d8c28d86b 100644
+> > > > --- a/drivers/usb/dwc3/gadget.c
+> > > > +++ b/drivers/usb/dwc3/gadget.c
+> > > > @@ -3654,7 +3654,7 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
+> > > >  	if ((trb->ctrl & DWC3_TRB_CTRL_HWO) && status != -ESHUTDOWN)
+> > > >  		return 1;
+> > > >  
+> > > > -	if (event->status & DEPEVT_STATUS_SHORT && !chain)
+> > > 
+> > > I accidentally deleted a couple of lines here.
+> > > 
+> > > > +	if (DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC && !chain)
+> > > >  		return 1;
+> > > >  
+> > > >  	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
+> > > 
+> > > I meant to do this:
+> > > 
+> > > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+> > > index 61fba2b7389b..cb65371572ee 100644
+> > > --- a/drivers/usb/dwc3/gadget.c
+> > > +++ b/drivers/usb/dwc3/gadget.c
+> > > @@ -3657,6 +3657,9 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
+> > >  	if (event->status & DEPEVT_STATUS_SHORT && !chain)
+> > >  		return 1;
+> > >  
+> > > +	if (DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC && !chain)
+> > > +		return 1;
+> > > +
+> > >  	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
+> > >  	    (trb->ctrl & DWC3_TRB_CTRL_LST))
+> > >  		return 1;
+> > > @@ -3673,6 +3676,7 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
+> > >  	struct scatterlist *s;
+> > >  	unsigned int num_queued = req->num_queued_sgs;
+> > >  	unsigned int i;
+> > > +	bool missed_isoc = false;
+> > >  	int ret = 0;
+> > >  
+> > >  	for_each_sg(sg, s, num_queued, i) {
+> > > @@ -3681,12 +3685,18 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
+> > >  		req->sg = sg_next(s);
+> > >  		req->num_queued_sgs--;
+> > >  
+> > > +		if (DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC)
+> > > +			missed_isoc = true;
+> > > +
+> > >  		ret = dwc3_gadget_ep_reclaim_completed_trb(dep, req,
+> > >  				trb, event, status, true);
+> > >  		if (ret)
+> > >  			break;
+> > >  	}
+> > >  
+> > > +	if (missed_isoc)
+> > > +		ret = 1;
+> > > +
+> > >  	return ret;
+> > >  }
+> > >  
+> > > 
+> > > BR,
+> > > Thinh
+> > 
+> > I tried out the following patch diff you provided and I did not see any iommu
+> > related crashes with these changes:
+> > 
+> > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+> > index dfaf9ac24c4f..50287437d6de 100644
+> > --- a/drivers/usb/dwc3/gadget.c
+> > +++ b/drivers/usb/dwc3/gadget.c
+> > @@ -3195,6 +3195,9 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
+> >         if (event->status & DEPEVT_STATUS_SHORT && !chain)
+> >                 return 1;
+> >  
+> > +       if (DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC && !chain)
+> > +               return 1;
+> > +
+> >         if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
+> >             (trb->ctrl & DWC3_TRB_CTRL_LST))
+> >                 return 1;
+> > @@ -3211,6 +3214,7 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
+> >         struct scatterlist *s;
+> >         unsigned int num_queued = req->num_queued_sgs;
+> >         unsigned int i;
+> > +       bool missed_isoc = false;
+> >         int ret = 0;
+> >  
+> >         for_each_sg(sg, s, num_queued, i) {
+> > @@ -3219,12 +3223,18 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
+> >                 req->sg = sg_next(s);
+> >                 req->num_queued_sgs--;
+> >  
+> > +               if (DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC)
+> > +                       missed_isoc = true;
+> > +
+> >                 ret = dwc3_gadget_ep_reclaim_completed_trb(dep, req,
+> >                                 trb, event, status, true);
+> >                 if (ret)
+> >                         break;
+> >         }
+> >  
+> > +       if (missed_isoc)
+> > +               ret = 1;
+> > +
+> >         return ret;
+> >  }
+> >  
+> > 
+> > As we discussed earlier, when uvc's complete function is called, if an -EXDEV
+> > is returned in the request's status, the uvc driver will begin to cancel its
+> > queue. With the current skip interrupt implementation in the uvc driver, if
+> > this occurs while the uvc driver is pumping the current frame, then there is no
+> > guarentee that the last request(s) will have had 'no_interrupt=0'. If the last
+> > requests passed to dwc3 had 'no_interrupt=1', these requests would eventually
+> > be placed at the end of the started_list. Since the IOC bit will not be set,
+> > and if no missed isoc event occurs on these requests, then the dwc3 driver will
+> > not be interrupted, leaving those remaining requests sitting in the
+> > started_list, and dwc3 will not perform an 'End Transfer' as expected. Once the
+> > uvc driver begins to pump the requests for the next frame, then it most likely
+> > will result in additional missed isoc events, with the result being an extended
+> > video freeze seen by the user.
+> > 
+> > I hope that other uvc driver maintainers can chime in here to help determine the
+> > correct path forward. With the skip interrupt implementation, the uvc driver should
+> > guarentee that the last request sent to dwc3 has 'no_interrupt=0', otherwise
+> 
+> Rather than guarenteeing no_interrupt or not, it's more important that
+> the UVC maintains a constant queue of requests to the controller driver.
+> Isoc transfers are meant to be sent at a constant rate which the
+> endpoint is configured.
+>
 
-syzbot reported various issues around early demux,
-one being included in this changelog [1]
+I agree with you on this, but it will probably always be a race with uvc
+queuing up one req at a time and dwc3 starting to transmit almost immediately.
+We can configure the streaming_interval on a product to kind of slow down or
+delay the usb transfers, but between dwc3 and uvc driver it would be nice to
+have an interface that would allow pre-queuing a certain number of reqs before
+the transfer is actually started. If that is not possible, then uvc could
+instead prepare a number of reqs ahead of time and attempt to queue them each
+as fast a possible in a very tight loop.
+ 
+> I recalled Dan mentioned that UVC gadget driver can queue up to 64
+> requests with no_interrupt=1 up to 15 requests. But I keep seeing that
+> the gadget driver only "pumps" 16 requests and doesn't continue until
+> they are completed. We can almost guarantee that it's going to be
+> underrun. Can UVC "pumps" multiple times at once?
+> 
 
-sk->sk_rx_dst is using RCU protection without clearly
-documenting it.
+uvc will usually pump when new frames comes in or when a req's complete gets
+called. uvc should fill up front all the reqs required to transfer a frame (up
+to 64), but once the available reqs are filled or the frame completely queued
+up, it would take a new incoming frame or a kick via the complete call to have
+it attempt to fill any remaining reqs in the queue again. To me this looks
+ok to do, but for heavy transfers we have a somewhat smaller queue as a buffer,
+48 reqs vs 64 reqs (64 - 16).
 
-And following sequences in tcp_v4_do_rcv()/tcp_v6_do_rcv()
-are not following standard RCU rules.
+To note, for the very last request of a frame/buffer (the end of it) the uvc
+driver does set the no_interrupt to 0 for this request.
 
-[a]    dst_release(dst);
-[b]    sk->sk_rx_dst = NULL;
+> > if a missed isoc error occurs, it becomes very likely that the next immediate set of
+> > frames could be dropped/cancelled because the dwc3 driver could not perform a timely
+> > 'End Transfer'.
+> > 
+> > For testing I implemented the following changes to see what I could do for this
+> > issue. Note that I am on an older implementation and it's missing a lot of the
+> 
+> Please use the latest kernel, there are a lot of fixes/improvement to
+> dwc3 every kernel version.
+>
 
-They look wrong because a delete operation of RCU protected
-pointer is supposed to clear the pointer before
-the call_rcu()/synchronize_rcu() guarding actual memory freeing.
+I've been debugging the sg implementation and the skip interrupt implementation
+seperately, backporting what can be backported. I'm working off of a 5.10
+kernel debugging various issues Dan Vacura was seeing on a 5.15 kernel on a
+newer product. What we had on our 5.10 based kernel was stable for uvc/dwc3, so
+we needed to understand what came in since that time that broke stability.
+ 
+> > sg related implementation. The idea here is that if the queue is empty, and that
+> > req_int_count is non-zero then the last request likely had 'no_interrupt=1' set.
+> > And if this is the case then we will want to send some dummy request to dwc3 with
+> > 'no_interrupt=0' set to make sure that no requests get stuck in its started_list.
+> 
+> This is not efficient and unnecessary.
+>
 
-In some cases indeed, dst could be freed before [b] is done.
+Agree, but to fix this in the uvc driver the correct way seemed a bit more
+complicated at first. I was thinking that the driver would always send one last
+request of the frame buffer once an error is seen, but I'm now thinking of a
+simpler solution. If we can update the uvc pump to prepare a number of requests
+and make sure that the last request has no_interrupt set to 0 before queuing
+them all up in a tight loop to the dwc3 driver, this would effectively solve
+this problem too. A bit of extra smarts this area might also address some
+of your concerns about uvc not pumping a lot of data at once (especially for
+the beginning of a frame). I believe we should prepare more reqs up front
+if the req queue is empty and less reqs if its already busy.
 
-We could cheat by clearing sk_rx_dst before calling
-dst_release(), but this seems the right time to stick
-to standard RCU annotations and debugging facilities.
+I'm hoping that someone can step up to help here :). If not, then this will be
+my next activity.
+ 
+> <snip>
+> 
+> > 
+> > 
+> > Alternatively we may just not want to cancel the queue upon receiving -EXDEV
+> > and this could solve the problem too, but I don't think that it's such a great
+> > idea, especially if things start falling behind.
+> > 
+> > I hope that someone more fluent in this area of code can take a crack at
+> > improving/fixing this issue. 
+> > 
+> > The changes above do seem to help dwc3 timely end its transfers, but mainly for
+> > cases where some requests are missed but the next immediate ones are not (i'm
+> > talking within a couple of hundred microseconds). Most of the time if missed
+> > isocs occurs for a frame that the remaining reqs in the started_list will
+> > likely also error out and the list will be emptied and dwc3 will still timely
+> > send 'End Transfer'. In reality this is to cover a corner case that can
+> > adversely affect the quality of the video being watched. Just wanted to be
+> > upfront with these details.
+> > 
+> > Thinh, any pointers on how we should proceed from here? It looks like your
+> > changes are working well.
+> > 
+> 
+> You can add the underrun detection check to dwc3 whenever it receives a
+> new request.
+> 
+> ie. When the new request comes, check if the last prepared TRB's HWO bit
+> is cleared and if the endpoint is started, send End Transfer command to
+> reschedule the isoc transfers for the incoming requests.
+> 
+> This is probably the simpler workaround to the underrun issue of UVC.
+> 
 
-[1]
-BUG: KASAN: use-after-free in dst_check include/net/dst.h:470 [inline]
-BUG: KASAN: use-after-free in tcp_v4_early_demux+0x95b/0x960 net/ipv4/tcp_ipv4.c:1792
-Read of size 2 at addr ffff88807f1cb73a by task syz-executor.5/9204
+This sounds like a good optimization too by itself. Would it be possible for
+you to implement something here to help get me started? Even if it's not
+perfect, I'll take what I can get. We are running up against the clock for
+trying to close things out (changes must be released to mainline and backported
+to 5.15 for Android).
 
-CPU: 0 PID: 9204 Comm: syz-executor.5 Not tainted 5.16.0-rc5-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0x8d/0x320 mm/kasan/report.c:247
- __kasan_report mm/kasan/report.c:433 [inline]
- kasan_report.cold+0x83/0xdf mm/kasan/report.c:450
- dst_check include/net/dst.h:470 [inline]
- tcp_v4_early_demux+0x95b/0x960 net/ipv4/tcp_ipv4.c:1792
- ip_rcv_finish_core.constprop.0+0x15de/0x1e80 net/ipv4/ip_input.c:340
- ip_list_rcv_finish.constprop.0+0x1b2/0x6e0 net/ipv4/ip_input.c:583
- ip_sublist_rcv net/ipv4/ip_input.c:609 [inline]
- ip_list_rcv+0x34e/0x490 net/ipv4/ip_input.c:644
- __netif_receive_skb_list_ptype net/core/dev.c:5508 [inline]
- __netif_receive_skb_list_core+0x549/0x8e0 net/core/dev.c:5556
- __netif_receive_skb_list net/core/dev.c:5608 [inline]
- netif_receive_skb_list_internal+0x75e/0xd80 net/core/dev.c:5699
- gro_normal_list net/core/dev.c:5853 [inline]
- gro_normal_list net/core/dev.c:5849 [inline]
- napi_complete_done+0x1f1/0x880 net/core/dev.c:6590
- virtqueue_napi_complete drivers/net/virtio_net.c:339 [inline]
- virtnet_poll+0xca2/0x11b0 drivers/net/virtio_net.c:1557
- __napi_poll+0xaf/0x440 net/core/dev.c:7023
- napi_poll net/core/dev.c:7090 [inline]
- net_rx_action+0x801/0xb40 net/core/dev.c:7177
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
- invoke_softirq kernel/softirq.c:432 [inline]
- __irq_exit_rcu+0x123/0x180 kernel/softirq.c:637
- irq_exit_rcu+0x5/0x20 kernel/softirq.c:649
- common_interrupt+0x52/0xc0 arch/x86/kernel/irq.c:240
- asm_common_interrupt+0x1e/0x40 arch/x86/include/asm/idtentry.h:629
-RIP: 0033:0x7f5e972bfd57
-Code: 39 d1 73 14 0f 1f 80 00 00 00 00 48 8b 50 f8 48 83 e8 08 48 39 ca 77 f3 48 39 c3 73 3e 48 89 13 48 8b 50 f8 48 89 38 49 8b 0e <48> 8b 3e 48 83 c3 08 48 83 c6 08 eb bc 48 39 d1 72 9e 48 39 d0 73
-RSP: 002b:00007fff8a413210 EFLAGS: 00000283
-RAX: 00007f5e97108990 RBX: 00007f5e97108338 RCX: ffffffff81d3aa45
-RDX: ffffffff81d3aa45 RSI: 00007f5e97108340 RDI: ffffffff81d3aa45
-RBP: 00007f5e97107eb8 R08: 00007f5e97108d88 R09: 0000000093c2e8d9
-R10: 0000000000000000 R11: 0000000000000000 R12: 00007f5e97107eb0
-R13: 00007f5e97108338 R14: 00007f5e97107ea8 R15: 0000000000000019
- </TASK>
+> BR,
+> Thinh
 
-Allocated by task 13:
- kasan_save_stack+0x1e/0x50 mm/kasan/common.c:38
- kasan_set_track mm/kasan/common.c:46 [inline]
- set_alloc_info mm/kasan/common.c:434 [inline]
- __kasan_slab_alloc+0x90/0xc0 mm/kasan/common.c:467
- kasan_slab_alloc include/linux/kasan.h:259 [inline]
- slab_post_alloc_hook mm/slab.h:519 [inline]
- slab_alloc_node mm/slub.c:3234 [inline]
- slab_alloc mm/slub.c:3242 [inline]
- kmem_cache_alloc+0x202/0x3a0 mm/slub.c:3247
- dst_alloc+0x146/0x1f0 net/core/dst.c:92
- rt_dst_alloc+0x73/0x430 net/ipv4/route.c:1613
- ip_route_input_slow+0x1817/0x3a20 net/ipv4/route.c:2340
- ip_route_input_rcu net/ipv4/route.c:2470 [inline]
- ip_route_input_noref+0x116/0x2a0 net/ipv4/route.c:2415
- ip_rcv_finish_core.constprop.0+0x288/0x1e80 net/ipv4/ip_input.c:354
- ip_list_rcv_finish.constprop.0+0x1b2/0x6e0 net/ipv4/ip_input.c:583
- ip_sublist_rcv net/ipv4/ip_input.c:609 [inline]
- ip_list_rcv+0x34e/0x490 net/ipv4/ip_input.c:644
- __netif_receive_skb_list_ptype net/core/dev.c:5508 [inline]
- __netif_receive_skb_list_core+0x549/0x8e0 net/core/dev.c:5556
- __netif_receive_skb_list net/core/dev.c:5608 [inline]
- netif_receive_skb_list_internal+0x75e/0xd80 net/core/dev.c:5699
- gro_normal_list net/core/dev.c:5853 [inline]
- gro_normal_list net/core/dev.c:5849 [inline]
- napi_complete_done+0x1f1/0x880 net/core/dev.c:6590
- virtqueue_napi_complete drivers/net/virtio_net.c:339 [inline]
- virtnet_poll+0xca2/0x11b0 drivers/net/virtio_net.c:1557
- __napi_poll+0xaf/0x440 net/core/dev.c:7023
- napi_poll net/core/dev.c:7090 [inline]
- net_rx_action+0x801/0xb40 net/core/dev.c:7177
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
-
-Freed by task 13:
- kasan_save_stack+0x1e/0x50 mm/kasan/common.c:38
- kasan_set_track+0x21/0x30 mm/kasan/common.c:46
- kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
- ____kasan_slab_free mm/kasan/common.c:366 [inline]
- ____kasan_slab_free mm/kasan/common.c:328 [inline]
- __kasan_slab_free+0xff/0x130 mm/kasan/common.c:374
- kasan_slab_free include/linux/kasan.h:235 [inline]
- slab_free_hook mm/slub.c:1723 [inline]
- slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1749
- slab_free mm/slub.c:3513 [inline]
- kmem_cache_free+0xbd/0x5d0 mm/slub.c:3530
- dst_destroy+0x2d6/0x3f0 net/core/dst.c:127
- rcu_do_batch kernel/rcu/tree.c:2506 [inline]
- rcu_core+0x7ab/0x1470 kernel/rcu/tree.c:2741
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
-
-Last potentially related work creation:
- kasan_save_stack+0x1e/0x50 mm/kasan/common.c:38
- __kasan_record_aux_stack+0xf5/0x120 mm/kasan/generic.c:348
- __call_rcu kernel/rcu/tree.c:2985 [inline]
- call_rcu+0xb1/0x740 kernel/rcu/tree.c:3065
- dst_release net/core/dst.c:177 [inline]
- dst_release+0x79/0xe0 net/core/dst.c:167
- tcp_v4_do_rcv+0x612/0x8d0 net/ipv4/tcp_ipv4.c:1712
- sk_backlog_rcv include/net/sock.h:1030 [inline]
- __release_sock+0x134/0x3b0 net/core/sock.c:2768
- release_sock+0x54/0x1b0 net/core/sock.c:3300
- tcp_sendmsg+0x36/0x40 net/ipv4/tcp.c:1441
- inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:819
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:724
- sock_write_iter+0x289/0x3c0 net/socket.c:1057
- call_write_iter include/linux/fs.h:2162 [inline]
- new_sync_write+0x429/0x660 fs/read_write.c:503
- vfs_write+0x7cd/0xae0 fs/read_write.c:590
- ksys_write+0x1ee/0x250 fs/read_write.c:643
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The buggy address belongs to the object at ffff88807f1cb700
- which belongs to the cache ip_dst_cache of size 176
-The buggy address is located 58 bytes inside of
- 176-byte region [ffff88807f1cb700, ffff88807f1cb7b0)
-The buggy address belongs to the page:
-page:ffffea0001fc72c0 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x7f1cb
-flags: 0xfff00000000200(slab|node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000000200 dead000000000100 dead000000000122 ffff8881413bb780
-raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-page_owner tracks the page as allocated
-page last allocated via order 0, migratetype Unmovable, gfp_mask 0x112a20(GFP_ATOMIC|__GFP_NOWARN|__GFP_NORETRY|__GFP_HARDWALL), pid 5, ts 108466983062, free_ts 108048976062
- prep_new_page mm/page_alloc.c:2418 [inline]
- get_page_from_freelist+0xa72/0x2f50 mm/page_alloc.c:4149
- __alloc_pages+0x1b2/0x500 mm/page_alloc.c:5369
- alloc_pages+0x1a7/0x300 mm/mempolicy.c:2191
- alloc_slab_page mm/slub.c:1793 [inline]
- allocate_slab mm/slub.c:1930 [inline]
- new_slab+0x32d/0x4a0 mm/slub.c:1993
- ___slab_alloc+0x918/0xfe0 mm/slub.c:3022
- __slab_alloc.constprop.0+0x4d/0xa0 mm/slub.c:3109
- slab_alloc_node mm/slub.c:3200 [inline]
- slab_alloc mm/slub.c:3242 [inline]
- kmem_cache_alloc+0x35c/0x3a0 mm/slub.c:3247
- dst_alloc+0x146/0x1f0 net/core/dst.c:92
- rt_dst_alloc+0x73/0x430 net/ipv4/route.c:1613
- __mkroute_output net/ipv4/route.c:2564 [inline]
- ip_route_output_key_hash_rcu+0x921/0x2d00 net/ipv4/route.c:2791
- ip_route_output_key_hash+0x18b/0x300 net/ipv4/route.c:2619
- __ip_route_output_key include/net/route.h:126 [inline]
- ip_route_output_flow+0x23/0x150 net/ipv4/route.c:2850
- ip_route_output_key include/net/route.h:142 [inline]
- geneve_get_v4_rt+0x3a6/0x830 drivers/net/geneve.c:809
- geneve_xmit_skb drivers/net/geneve.c:899 [inline]
- geneve_xmit+0xc4a/0x3540 drivers/net/geneve.c:1082
- __netdev_start_xmit include/linux/netdevice.h:4994 [inline]
- netdev_start_xmit include/linux/netdevice.h:5008 [inline]
- xmit_one net/core/dev.c:3590 [inline]
- dev_hard_start_xmit+0x1eb/0x920 net/core/dev.c:3606
- __dev_queue_xmit+0x299a/0x3650 net/core/dev.c:4229
-page last free stack trace:
- reset_page_owner include/linux/page_owner.h:24 [inline]
- free_pages_prepare mm/page_alloc.c:1338 [inline]
- free_pcp_prepare+0x374/0x870 mm/page_alloc.c:1389
- free_unref_page_prepare mm/page_alloc.c:3309 [inline]
- free_unref_page+0x19/0x690 mm/page_alloc.c:3388
- qlink_free mm/kasan/quarantine.c:146 [inline]
- qlist_free_all+0x5a/0xc0 mm/kasan/quarantine.c:165
- kasan_quarantine_reduce+0x180/0x200 mm/kasan/quarantine.c:272
- __kasan_slab_alloc+0xa2/0xc0 mm/kasan/common.c:444
- kasan_slab_alloc include/linux/kasan.h:259 [inline]
- slab_post_alloc_hook mm/slab.h:519 [inline]
- slab_alloc_node mm/slub.c:3234 [inline]
- kmem_cache_alloc_node+0x255/0x3f0 mm/slub.c:3270
- __alloc_skb+0x215/0x340 net/core/skbuff.c:414
- alloc_skb include/linux/skbuff.h:1126 [inline]
- alloc_skb_with_frags+0x93/0x620 net/core/skbuff.c:6078
- sock_alloc_send_pskb+0x783/0x910 net/core/sock.c:2575
- mld_newpack+0x1df/0x770 net/ipv6/mcast.c:1754
- add_grhead+0x265/0x330 net/ipv6/mcast.c:1857
- add_grec+0x1053/0x14e0 net/ipv6/mcast.c:1995
- mld_send_initial_cr.part.0+0xf6/0x230 net/ipv6/mcast.c:2242
- mld_send_initial_cr net/ipv6/mcast.c:1232 [inline]
- mld_dad_work+0x1d3/0x690 net/ipv6/mcast.c:2268
- process_one_work+0x9b2/0x1690 kernel/workqueue.c:2298
- worker_thread+0x658/0x11f0 kernel/workqueue.c:2445
-
-Memory state around the buggy address:
- ffff88807f1cb600: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88807f1cb680: fb fb fb fb fb fb fc fc fc fc fc fc fc fc fc fc
->ffff88807f1cb700: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                                        ^
- ffff88807f1cb780: fb fb fb fb fb fb fc fc fc fc fc fc fc fc fc fc
- ffff88807f1cb800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-
-Fixes: 41063e9dd119 ("ipv4: Early TCP socket demux.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20211220143330.680945-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[cmllamas: backported to 4.9; dropped irrelevant hunks in ipv6/udp.c;
- added rcu_access_pointer(sk->sk_rx_dst) in tcp_prequeue().]
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
----
- include/net/sock.h   |  2 +-
- net/ipv4/af_inet.c   |  2 +-
- net/ipv4/tcp.c       |  3 +--
- net/ipv4/tcp_input.c |  2 +-
- net/ipv4/tcp_ipv4.c  | 13 ++++++++-----
- net/ipv4/udp.c       |  6 +++---
- net/ipv6/tcp_ipv6.c  | 11 +++++++----
- 7 files changed, 22 insertions(+), 17 deletions(-)
-
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 78c292f15ffc..efb7c0ff30d8 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -378,7 +378,7 @@ struct sock {
- #ifdef CONFIG_XFRM
- 	struct xfrm_policy __rcu *sk_policy[2];
- #endif
--	struct dst_entry	*sk_rx_dst;
-+	struct dst_entry __rcu	*sk_rx_dst;
- 	struct dst_entry __rcu	*sk_dst_cache;
- 	/* Note: 32bit hole on 64bit arches */
- 	atomic_t		sk_wmem_alloc;
-diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index 970a498c1166..c897d3fd457e 100644
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -156,7 +156,7 @@ void inet_sock_destruct(struct sock *sk)
- 
- 	kfree(rcu_dereference_protected(inet->inet_opt, 1));
- 	dst_release(rcu_dereference_check(sk->sk_dst_cache, 1));
--	dst_release(sk->sk_rx_dst);
-+	dst_release(rcu_dereference_protected(sk->sk_rx_dst, 1));
- 	sk_refcnt_debug_dec(sk);
- }
- EXPORT_SYMBOL(inet_sock_destruct);
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 6dfb964e1ad8..7a1519be7c8f 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -2316,8 +2316,7 @@ int tcp_disconnect(struct sock *sk, int flags)
- 	tcp_init_send_head(sk);
- 	memset(&tp->rx_opt, 0, sizeof(tp->rx_opt));
- 	__sk_dst_reset(sk);
--	dst_release(sk->sk_rx_dst);
--	sk->sk_rx_dst = NULL;
-+	dst_release(xchg((__force struct dst_entry **)&sk->sk_rx_dst, NULL));
- 	tcp_saved_syn_free(tp);
- 	tp->segs_in = 0;
- 	tp->segs_out = 0;
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 2029e7a36cbb..9c7f716aab44 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5481,7 +5481,7 @@ void tcp_rcv_established(struct sock *sk, struct sk_buff *skb,
- {
- 	struct tcp_sock *tp = tcp_sk(sk);
- 
--	if (unlikely(!sk->sk_rx_dst))
-+	if (unlikely(!rcu_access_pointer(sk->sk_rx_dst)))
- 		inet_csk(sk)->icsk_af_ops->sk_rx_dst_set(sk, skb);
- 	/*
- 	 *	Header prediction.
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index 6f895694cca1..1fd1d590fa2b 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -1404,15 +1404,18 @@ int tcp_v4_do_rcv(struct sock *sk, struct sk_buff *skb)
- 	struct sock *rsk;
- 
- 	if (sk->sk_state == TCP_ESTABLISHED) { /* Fast path */
--		struct dst_entry *dst = sk->sk_rx_dst;
-+		struct dst_entry *dst;
-+
-+		dst = rcu_dereference_protected(sk->sk_rx_dst,
-+						lockdep_sock_is_held(sk));
- 
- 		sock_rps_save_rxhash(sk, skb);
- 		sk_mark_napi_id(sk, skb);
- 		if (dst) {
- 			if (inet_sk(sk)->rx_dst_ifindex != skb->skb_iif ||
- 			    !dst->ops->check(dst, 0)) {
-+				RCU_INIT_POINTER(sk->sk_rx_dst, NULL);
- 				dst_release(dst);
--				sk->sk_rx_dst = NULL;
- 			}
- 		}
- 		tcp_rcv_established(sk, skb, tcp_hdr(skb), skb->len);
-@@ -1489,7 +1492,7 @@ void tcp_v4_early_demux(struct sk_buff *skb)
- 		skb->sk = sk;
- 		skb->destructor = sock_edemux;
- 		if (sk_fullsock(sk)) {
--			struct dst_entry *dst = READ_ONCE(sk->sk_rx_dst);
-+			struct dst_entry *dst = rcu_dereference(sk->sk_rx_dst);
- 
- 			if (dst)
- 				dst = dst_check(dst, 0);
-@@ -1524,7 +1527,7 @@ bool tcp_prequeue(struct sock *sk, struct sk_buff *skb)
- 	 * Instead of doing full sk_rx_dst validity here, let's perform
- 	 * an optimistic check.
- 	 */
--	if (likely(sk->sk_rx_dst))
-+	if (likely(rcu_access_pointer(sk->sk_rx_dst)))
- 		skb_dst_drop(skb);
- 	else
- 		skb_dst_force_safe(skb);
-@@ -1818,7 +1821,7 @@ void inet_sk_rx_dst_set(struct sock *sk, const struct sk_buff *skb)
- 	struct dst_entry *dst = skb_dst(skb);
- 
- 	if (dst && dst_hold_safe(dst)) {
--		sk->sk_rx_dst = dst;
-+		rcu_assign_pointer(sk->sk_rx_dst, dst);
- 		inet_sk(sk)->rx_dst_ifindex = skb->skb_iif;
- 	}
- }
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index 8770966a564b..888c6eb8f0a0 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -1630,7 +1630,7 @@ static void udp_sk_rx_dst_set(struct sock *sk, struct dst_entry *dst)
- 	struct dst_entry *old;
- 
- 	dst_hold(dst);
--	old = xchg(&sk->sk_rx_dst, dst);
-+	old = xchg((__force struct dst_entry **)&sk->sk_rx_dst, dst);
- 	dst_release(old);
- }
- 
-@@ -1815,7 +1815,7 @@ int __udp4_lib_rcv(struct sk_buff *skb, struct udp_table *udptable,
- 		struct dst_entry *dst = skb_dst(skb);
- 		int ret;
- 
--		if (unlikely(sk->sk_rx_dst != dst))
-+		if (unlikely(rcu_dereference(sk->sk_rx_dst) != dst))
- 			udp_sk_rx_dst_set(sk, dst);
- 
- 		ret = udp_unicast_rcv_skb(sk, skb, uh);
-@@ -1974,7 +1974,7 @@ void udp_v4_early_demux(struct sk_buff *skb)
- 
- 	skb->sk = sk;
- 	skb->destructor = sock_efree;
--	dst = READ_ONCE(sk->sk_rx_dst);
-+	dst = rcu_dereference(sk->sk_rx_dst);
- 
- 	if (dst)
- 		dst = dst_check(dst, 0);
-diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
-index 6b8da8d4d1cc..d8b907910cc9 100644
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -95,7 +95,7 @@ static void inet6_sk_rx_dst_set(struct sock *sk, const struct sk_buff *skb)
- 	if (dst && dst_hold_safe(dst)) {
- 		const struct rt6_info *rt = (const struct rt6_info *)dst;
- 
--		sk->sk_rx_dst = dst;
-+		rcu_assign_pointer(sk->sk_rx_dst, dst);
- 		inet_sk(sk)->rx_dst_ifindex = skb->skb_iif;
- 		inet6_sk(sk)->rx_dst_cookie = rt6_get_cookie(rt);
- 	}
-@@ -1285,15 +1285,18 @@ static int tcp_v6_do_rcv(struct sock *sk, struct sk_buff *skb)
- 		opt_skb = skb_clone(skb, sk_gfp_mask(sk, GFP_ATOMIC));
- 
- 	if (sk->sk_state == TCP_ESTABLISHED) { /* Fast path */
--		struct dst_entry *dst = sk->sk_rx_dst;
-+		struct dst_entry *dst;
-+
-+		dst = rcu_dereference_protected(sk->sk_rx_dst,
-+						lockdep_sock_is_held(sk));
- 
- 		sock_rps_save_rxhash(sk, skb);
- 		sk_mark_napi_id(sk, skb);
- 		if (dst) {
- 			if (inet_sk(sk)->rx_dst_ifindex != skb->skb_iif ||
- 			    dst->ops->check(dst, np->rx_dst_cookie) == NULL) {
-+				RCU_INIT_POINTER(sk->sk_rx_dst, NULL);
- 				dst_release(dst);
--				sk->sk_rx_dst = NULL;
- 			}
- 		}
- 
-@@ -1621,7 +1624,7 @@ static void tcp_v6_early_demux(struct sk_buff *skb)
- 		skb->sk = sk;
- 		skb->destructor = sock_edemux;
- 		if (sk_fullsock(sk)) {
--			struct dst_entry *dst = READ_ONCE(sk->sk_rx_dst);
-+			struct dst_entry *dst = rcu_dereference(sk->sk_rx_dst);
- 
- 			if (dst)
- 				dst = dst_check(dst, inet6_sk(sk)->rx_dst_cookie);
--- 
-2.38.0.135.g90850a2211-goog
+Thanks,
+Jeff
 
