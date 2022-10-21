@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23A45606EF0
-	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 06:35:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09CD3606EF2
+	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 06:35:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229854AbiJUEfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Oct 2022 00:35:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35348 "EHLO
+        id S229796AbiJUEfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Oct 2022 00:35:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229835AbiJUEev (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 00:34:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 721922AC7B;
-        Thu, 20 Oct 2022 21:34:48 -0700 (PDT)
+        with ESMTP id S229872AbiJUEew (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 00:34:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 513F234DDA;
+        Thu, 20 Oct 2022 21:34:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01C48B82989;
-        Fri, 21 Oct 2022 04:34:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9453CC433C1;
-        Fri, 21 Oct 2022 04:34:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55961B82A38;
+        Fri, 21 Oct 2022 04:34:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA33EC43470;
+        Fri, 21 Oct 2022 04:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1666326885;
-        bh=1N7zGsW3gYmXheKNujPnJk8zrFAbnQoEKOuzJShX5ok=;
+        s=korg; t=1666326887;
+        bh=p+HP2bSq7DAV5HIKBpIzq3vG/0va0j04Tlf0mBRSEVo=;
         h=Date:To:From:Subject:From;
-        b=kZDc20LfzShpHTq0juAK+LEUmE80rVXBL12Q8a1GpgSGh7XvBmlrUpjDhy789Dje6
-         oynyxl5jwwYPsU7OYUAg5hwxHg5ta7HQk961z0BSvuVrRPTujWUwXPi/4HeEiHts+v
-         PfDbxUFEU50fEdY0d//aSf2V9QmcLgXwjzjjU6d8=
-Date:   Thu, 20 Oct 2022 21:34:44 -0700
+        b=wli4wqwkGmbZf6h46ei21EQk89wc6nAFgst3apEnnfq4QpF8SF6xGif4QnkzhbJaF
+         3S/t8JlgyJbp7Aov67l973vQgl7KaVDWrG1ZTrFYk00/WGQl8OS2Fp5C4nnhBMPnP8
+         bk/mR6rn6morGZUi4x48lrgkCcOSS1e3rsYDZ718=
+Date:   Thu, 20 Oct 2022 21:34:46 -0700
 To:     mm-commits@vger.kernel.org, wangyan122@huawei.com,
         stable@vger.kernel.org, piaojun@huawei.com, mark@fasheh.com,
         junxiao.bi@oracle.com, jlbec@evilplan.org, ghe@suse.com,
         gechangwei@live.cn, joseph.qi@linux.alibaba.com,
         akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] ocfs2-fix-bug-when-iput-after-ocfs2_mknod-fails.patch removed from -mm tree
-Message-Id: <20221021043445.9453CC433C1@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] ocfs2-clear-dinode-links-count-in-case-of-error.patch removed from -mm tree
+Message-Id: <20221021043446.EA33EC43470@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
@@ -48,32 +48,27 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: ocfs2: fix BUG when iput after ocfs2_mknod fails
+     Subject: ocfs2: clear dinode links count in case of error
 has been removed from the -mm tree.  Its filename was
-     ocfs2-fix-bug-when-iput-after-ocfs2_mknod-fails.patch
+     ocfs2-clear-dinode-links-count-in-case-of-error.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
 From: Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: ocfs2: fix BUG when iput after ocfs2_mknod fails
-Date: Mon, 17 Oct 2022 21:02:26 +0800
+Subject: ocfs2: clear dinode links count in case of error
+Date: Mon, 17 Oct 2022 21:02:27 +0800
 
-Commit b1529a41f777 "ocfs2: should reclaim the inode if
-'__ocfs2_mknod_locked' returns an error" tried to reclaim the claimed
-inode if __ocfs2_mknod_locked() fails later.  But this introduce a race,
-the freed bit may be reused immediately by another thread, which will
-update dinode, e.g.  i_generation.  Then iput this inode will lead to BUG:
-inode->i_generation != le32_to_cpu(fe->i_generation)
+In ocfs2_mknod(), if error occurs after dinode successfully allocated,
+ocfs2 i_links_count will not be 0.
 
-We could make this inode as bad, but we did want to do operations like
-wipe in some cases.  Since the claimed inode bit can only affect that an
-dinode is missing and will return back after fsck, it seems not a big
-problem.  So just leave it as is by revert the reclaim logic.
+So even though we clear inode i_nlink before iput in error handling, it
+still won't wipe inode since we'll refresh inode from dinode during inode
+lock.  So just like clear inode i_nlink, we clear ocfs2 i_links_count as
+well.  Also do the same change for ocfs2_symlink().
 
-Link: https://lkml.kernel.org/r/20221017130227.234480-1-joseph.qi@linux.alibaba.com
-Fixes: b1529a41f777 ("ocfs2: should reclaim the inode if '__ocfs2_mknod_locked' returns an error")
+Link: https://lkml.kernel.org/r/20221017130227.234480-2-joseph.qi@linux.alibaba.com
 Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
 Reported-by: Yan Wang <wangyan122@huawei.com>
 Cc: Mark Fasheh <mark@fasheh.com>
@@ -86,31 +81,53 @@ Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/ocfs2/namei.c |   11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ fs/ocfs2/namei.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/fs/ocfs2/namei.c~ocfs2-fix-bug-when-iput-after-ocfs2_mknod-fails
+--- a/fs/ocfs2/namei.c~ocfs2-clear-dinode-links-count-in-case-of-error
 +++ a/fs/ocfs2/namei.c
-@@ -632,18 +632,9 @@ static int ocfs2_mknod_locked(struct ocf
- 		return status;
+@@ -232,6 +232,7 @@ static int ocfs2_mknod(struct user_names
+ 	handle_t *handle = NULL;
+ 	struct ocfs2_super *osb;
+ 	struct ocfs2_dinode *dirfe;
++	struct ocfs2_dinode *fe = NULL;
+ 	struct buffer_head *new_fe_bh = NULL;
+ 	struct inode *inode = NULL;
+ 	struct ocfs2_alloc_context *inode_ac = NULL;
+@@ -382,6 +383,7 @@ static int ocfs2_mknod(struct user_names
+ 		goto leave;
  	}
  
--	status = __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
-+	return __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
- 				    parent_fe_bh, handle, inode_ac,
- 				    fe_blkno, suballoc_loc, suballoc_bit);
--	if (status < 0) {
--		u64 bg_blkno = ocfs2_which_suballoc_group(fe_blkno, suballoc_bit);
--		int tmp = ocfs2_free_suballoc_bits(handle, inode_ac->ac_inode,
--				inode_ac->ac_bh, suballoc_bit, bg_blkno, 1);
--		if (tmp)
--			mlog_errno(tmp);
--	}
--
--	return status;
- }
++	fe = (struct ocfs2_dinode *) new_fe_bh->b_data;
+ 	if (S_ISDIR(mode)) {
+ 		status = ocfs2_fill_new_dir(osb, handle, dir, inode,
+ 					    new_fe_bh, data_ac, meta_ac);
+@@ -454,8 +456,11 @@ roll_back:
+ leave:
+ 	if (status < 0 && did_quota_inode)
+ 		dquot_free_inode(inode);
+-	if (handle)
++	if (handle) {
++		if (status < 0 && fe)
++			ocfs2_set_links_count(fe, 0);
+ 		ocfs2_commit_trans(osb, handle);
++	}
  
- static int ocfs2_mkdir(struct user_namespace *mnt_userns,
+ 	ocfs2_inode_unlock(dir, 1);
+ 	if (did_block_signals)
+@@ -2019,8 +2024,11 @@ bail:
+ 					ocfs2_clusters_to_bytes(osb->sb, 1));
+ 	if (status < 0 && did_quota_inode)
+ 		dquot_free_inode(inode);
+-	if (handle)
++	if (handle) {
++		if (status < 0 && fe)
++			ocfs2_set_links_count(fe, 0);
+ 		ocfs2_commit_trans(osb, handle);
++	}
+ 
+ 	ocfs2_inode_unlock(dir, 1);
+ 	if (did_block_signals)
 _
 
 Patches currently in -mm which might be from joseph.qi@linux.alibaba.com are
