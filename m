@@ -2,118 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5FEB606C5C
-	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 02:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59ACE606C69
+	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 02:13:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229558AbiJUAE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Oct 2022 20:04:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44980 "EHLO
+        id S229736AbiJUANB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Oct 2022 20:13:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229738AbiJUAE2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 20:04:28 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA1AB0F
-        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 17:04:22 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id f37so2250040lfv.8
-        for <stable@vger.kernel.org>; Thu, 20 Oct 2022 17:04:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=cc:to:subject:message-id:date:user-agent:from:references
-         :in-reply-to:mime-version:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=gVbYG5UIGEz3Lg7e/hjecpq/3zDJltuDah5cSWiqG7U=;
-        b=Ht625h2x7cRN1vOTiwnyJrd17NSuVMl9D1WNcAqLBxkRZTYFPIJZ/iLgki/gezWcw7
-         hpYyJ3pV7oU4+hKbrEUbHo4ZZXnIhemszhy6woUyaVuyX4rrmNoF2L+0fYWA3h351ncc
-         WgAK9Vjj3KoST4JrLmjqmcRZoKAotkbzo1/lU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:user-agent:from:references
-         :in-reply-to:mime-version:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gVbYG5UIGEz3Lg7e/hjecpq/3zDJltuDah5cSWiqG7U=;
-        b=vRhqUA6Y7yvPKI8r+u8tAFP8P13cPBJXPg1eESmdceez5C8sBKnjex9TJBBgpPyIFa
-         Q+v9K+UhZF0yqCb/N9Uc+qfeEK2XOQ0VZA5OtheQLlgYG19aLSZrhjhj5AmtGXlOs+gJ
-         8QVM3oY8ySQSaCZwktMvxDfrA7YpMAkk8iNnFwN411WDw9qM7TOH6CGUqIapSs9YAVxj
-         dtWrldIG1WqAaWFQ7GcBdYojgUaBw2gcyLDmxwLcMVKJVlvpRsQr7+dzDb6zmyXHbaLr
-         ZH76yhbGfGIyN43C8QbcXi1k85PZ5cAs4U7ade0KbtwBg5gjTtWkYSFy63g1wqb4MlMy
-         cKVw==
-X-Gm-Message-State: ACrzQf2HPYo1D4ehspSwXN8X8R30RBIfovZQ76j4hljoSWbzIVIr012M
-        28nt6Wb5MfylCBTuZQFTk7CHfDuO2KhwUcgUEvUbSg==
-X-Google-Smtp-Source: AMsMyM4HXNyo2IvqSwgaiJEBsszN3xOy6E1ki9bKIjI0CAZc+n1UJoYsog2t98VQIYsuOdhuy6lTqs9dUSjGPtHanu8=
-X-Received: by 2002:a05:6512:3dac:b0:4a4:8044:9c3 with SMTP id
- k44-20020a0565123dac00b004a4804409c3mr5429553lfv.145.1666310660814; Thu, 20
- Oct 2022 17:04:20 -0700 (PDT)
-Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Thu, 20 Oct 2022 20:04:19 -0400
+        with ESMTP id S229509AbiJUANA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Oct 2022 20:13:00 -0400
+Received: from rtits2.realtek.com.tw (rtits2.realtek.com [211.75.126.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1689D1826D3;
+        Thu, 20 Oct 2022 17:12:40 -0700 (PDT)
+Authenticated-By: 
+X-SpamFilter-By: ArmorX SpamTrap 5.77 with qID 29L0BvLP2016494, This message is accepted by code: ctloc85258
+Received: from mail.realtek.com (rtexh36505.realtek.com.tw[172.21.6.25])
+        by rtits2.realtek.com.tw (8.15.2/2.81/5.90) with ESMTPS id 29L0BvLP2016494
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=FAIL);
+        Fri, 21 Oct 2022 08:11:57 +0800
+Received: from RTEXMBS06.realtek.com.tw (172.21.6.99) by
+ RTEXH36505.realtek.com.tw (172.21.6.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.32; Fri, 21 Oct 2022 08:12:30 +0800
+Received: from RTEXMBS04.realtek.com.tw (172.21.6.97) by
+ RTEXMBS06.realtek.com.tw (172.21.6.99) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.32; Fri, 21 Oct 2022 08:12:29 +0800
+Received: from RTEXMBS04.realtek.com.tw ([fe80::add3:284:fd3d:8adb]) by
+ RTEXMBS04.realtek.com.tw ([fe80::add3:284:fd3d:8adb%5]) with mapi id
+ 15.01.2375.007; Fri, 21 Oct 2022 08:12:29 +0800
+From:   Ping-Ke Shih <pkshih@realtek.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Kevin Yang <kevin_yang@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: RE: [PATCH 6.0 681/862] wifi: rtw88: phy: fix warning of possible buffer overflow
+Thread-Topic: [PATCH 6.0 681/862] wifi: rtw88: phy: fix warning of possible
+ buffer overflow
+Thread-Index: AQHY45pdBM12yKu7+0eLe2tpBuSzlq4W+0XQ
+Date:   Fri, 21 Oct 2022 00:12:29 +0000
+Message-ID: <1ab422def27d43e1866b470a3f9d24aa@realtek.com>
+References: <20221019083249.951566199@linuxfoundation.org>
+ <20221019083320.063888989@linuxfoundation.org>
+In-Reply-To: <20221019083320.063888989@linuxfoundation.org>
+Accept-Language: en-US, zh-TW
+Content-Language: zh-TW
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [172.21.69.188]
+x-kse-serverinfo: RTEXMBS06.realtek.com.tw, 9
+x-kse-attachmentfiltering-interceptor-info: no applicable attachment filtering
+ rules found
+x-kse-antivirus-interceptor-info: scan successful
+x-kse-antivirus-info: =?utf-8?B?Q2xlYW4sIGJhc2VzOiAyMDIyLzEwLzIwIOS4i+WNiCAxMDo0MTowMA==?=
+x-kse-bulkmessagesfiltering-scan-result: protection disabled
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <20221019180934.1.If29e167d8a4771b0bf4a39c89c6946ed764817b9@changeid>
-References: <20221019180934.1.If29e167d8a4771b0bf4a39c89c6946ed764817b9@changeid>
-From:   Stephen Boyd <swboyd@chromium.org>
-User-Agent: alot/0.10
-Date:   Thu, 20 Oct 2022 20:04:19 -0400
-Message-ID: <CAE-0n53L9c5fTC9vut6+at583qoi2ecs29uQZF=6fAmZX2r2qA@mail.gmail.com>
-Subject: Re: [PATCH] firmware: coreboot: Register bus in module init
-To:     Brian Norris <briannorris@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Benson Leung <bleung@chromium.org>,
-        chrome-platform@lists.linux.dev, linux-kernel@vger.kernel.org,
-        Samuel Holland <samuel@sholland.org>,
-        Julius Werner <jwerner@chromium.org>,
-        Guenter Roeck <linux@roeck-us.net>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-KSE-ServerInfo: RTEXH36505.realtek.com.tw, 9
+X-KSE-AntiSpam-Interceptor-Info: fallback
+X-KSE-Antivirus-Interceptor-Info: fallback
+X-KSE-AntiSpam-Interceptor-Info: fallback
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Brian Norris (2022-10-19 18:10:53)
-[...]
-> [    0.114560]  do_initcall_level+0x134/0x160
-> [    0.114571]  do_initcalls+0x60/0xa0
-> [    0.114579]  do_basic_setup+0x28/0x34
-> [    0.114588]  kernel_init_freeable+0xf8/0x150
-> [    0.114596]  kernel_init+0x2c/0x12c
-> [    0.114607]  ret_from_fork+0x10/0x20
-> [    0.114624] Code: 5280002b 1100054a b900092a f9800011 (885ffc01)
-> [    0.114631] ---[ end trace 0000000000000000 ]---
->
-> Fixes: b81e3140e412 ("firmware: coreboot: Make bus registration symmetric")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Brian Norris <briannorris@chromium.org>
-> ---
-
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-
-> diff --git a/drivers/firmware/google/coreboot_table.c b/drivers/firmware/google/coreboot_table.c
-> index c52bcaa9def6..9ca21feb9d45 100644
-> --- a/drivers/firmware/google/coreboot_table.c
-> +++ b/drivers/firmware/google/coreboot_table.c
-> @@ -199,6 +194,32 @@ static struct platform_driver coreboot_table_driver = {
->                 .of_match_table = of_match_ptr(coreboot_of_match),
->         },
->  };
-> -module_platform_driver(coreboot_table_driver);
-> +
-> +static int __init coreboot_table_driver_init(void)
-> +{
-> +       int ret;
-> +
-> +       ret = bus_register(&coreboot_bus_type);
-> +       if (ret)
-> +               return ret;
-> +
-> +       ret = platform_driver_register(&coreboot_table_driver);
-> +       if (ret) {
-> +               bus_unregister(&coreboot_bus_type);
-> +               return ret;
-> +       }
-> +
-> +       return 0;
-
-This could be 'return ret' and two lines could be saved, but that is
-super nitpick so whatever.
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogR3JlZyBLcm9haC1IYXJ0
+bWFuIDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz4NCj4gU2VudDogV2VkbmVzZGF5LCBPY3Rv
+YmVyIDE5LCAyMDIyIDQ6MzMgUE0NCj4gVG86IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcN
+Cj4gQ2M6IEdyZWcgS3JvYWgtSGFydG1hbiA8Z3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc+OyBz
+dGFibGVAdmdlci5rZXJuZWwub3JnOyBLZXZpbiBZYW5nDQo+IDxrZXZpbl95YW5nQHJlYWx0ZWsu
+Y29tPjsgUGluZy1LZSBTaGloIDxwa3NoaWhAcmVhbHRlay5jb20+OyBLYWxsZSBWYWxvIDxrdmFs
+b0BrZXJuZWwub3JnPjsgU2FzaGEgTGV2aW4NCj4gPHNhc2hhbEBrZXJuZWwub3JnPg0KPiBTdWJq
+ZWN0OiBbUEFUQ0ggNi4wIDY4MS84NjJdIHdpZmk6IHJ0dzg4OiBwaHk6IGZpeCB3YXJuaW5nIG9m
+IHBvc3NpYmxlIGJ1ZmZlciBvdmVyZmxvdw0KPiANCj4gRnJvbTogWm9uZy1aaGUgWWFuZyA8a2V2
+aW5feWFuZ0ByZWFsdGVrLmNvbT4NCj4gDQo+IFsgVXBzdHJlYW0gY29tbWl0IDg2MzMxYzdlMGNk
+ODE5YmYwYzFkMGRjZjg5NWUwYzkwYjBhYTlhNmYgXQ0KPiANCj4gcmVwb3J0ZWQgYnkgc21hdGNo
+DQo+IA0KPiBwaHkuYzo4NTQgcnR3X3BoeV9saW5lYXJfMl9kYigpIGVycm9yOiBidWZmZXIgb3Zl
+cmZsb3cgJ2RiX2ludmVydF90YWJsZVtpXScNCj4gOCA8PSA4IChhc3N1bWluZyBmb3IgbG9vcCBk
+b2Vzbid0IGJyZWFrKQ0KPiANCj4gSG93ZXZlciwgaXQgc2VlbXMgdG8gYmUgYSBmYWxzZSBhbGFy
+bSBiZWNhdXNlIHdlIHByZXZlbnQgaXQgb3JpZ2luYWxseSB2aWENCj4gICAgICAgIGlmIChsaW5l
+YXIgPj0gZGJfaW52ZXJ0X3RhYmxlWzExXVs3XSkNCj4gICAgICAgICAgICAgICAgcmV0dXJuIDk2
+OyAvKiBtYXhpbXVtIDk2IGRCICovDQo+IA0KPiBTdGlsbCwgd2UgYWRqdXN0IHRoZSBjb2RlIHRv
+IGJlIG1vcmUgcmVhZGFibGUgYW5kIGF2b2lkIHNtYXRjaCB3YXJuaW5nLg0KDQpMaWtlIFBhdmVs
+IG1lbnRpb25lZCBbMV0sIHRoaXMgcGF0Y2ggaXMgdG8gYXZvaWQgc21hdGNoIHdhcm5pbmcsIG5v
+dCBhIHJlYWxseQ0KYnVnLiBTbywgc2hvdWxkbid0IHRha2UgdGhpcyBwYXRjaC4gDQoNClsxXSBo
+dHRwczovL2xvcmUua2VybmVsLm9yZy9saW51eC13aXJlbGVzcy8yMDIyMTAxODA5MzkyMS5HRDEy
+NjRAZHVvLnVjdy5jei8NCg0KPiANCj4gU2lnbmVkLW9mZi1ieTogWm9uZy1aaGUgWWFuZyA8a2V2
+aW5feWFuZ0ByZWFsdGVrLmNvbT4NCj4gU2lnbmVkLW9mZi1ieTogUGluZy1LZSBTaGloIDxwa3No
+aWhAcmVhbHRlay5jb20+DQo+IFNpZ25lZC1vZmYtYnk6IEthbGxlIFZhbG8gPGt2YWxvQGtlcm5l
+bC5vcmc+DQo+IExpbms6IGh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL3IvMjAyMjA3MjcwNjUwMDMu
+MjgzNDAtNS1wa3NoaWhAcmVhbHRlay5jb20NCj4gU2lnbmVkLW9mZi1ieTogU2FzaGEgTGV2aW4g
+PHNhc2hhbEBrZXJuZWwub3JnPg0KPiAtLS0NCj4gIGRyaXZlcnMvbmV0L3dpcmVsZXNzL3JlYWx0
+ZWsvcnR3ODgvcGh5LmMgfCAyMSArKysrKysrKy0tLS0tLS0tLS0tLS0NCj4gIDEgZmlsZSBjaGFu
+Z2VkLCA4IGluc2VydGlvbnMoKyksIDEzIGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvbmV0L3dpcmVsZXNzL3JlYWx0ZWsvcnR3ODgvcGh5LmMgYi9kcml2ZXJzL25ldC93
+aXJlbGVzcy9yZWFsdGVrL3J0dzg4L3BoeS5jDQo+IGluZGV4IDg5ODJlMGM5OGRhYy4uZGExZWZl
+YzBhYTg1IDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL25ldC93aXJlbGVzcy9yZWFsdGVrL3J0dzg4
+L3BoeS5jDQo+ICsrKyBiL2RyaXZlcnMvbmV0L3dpcmVsZXNzL3JlYWx0ZWsvcnR3ODgvcGh5LmMN
+Cj4gQEAgLTgxNiwyMyArODE2LDE4IEBAIHN0YXRpYyB1OCBydHdfcGh5X2xpbmVhcl8yX2RiKHU2
+NCBsaW5lYXIpDQo+ICAJdTggajsNCj4gIAl1MzIgZEI7DQo+IA0KPiAtCWlmIChsaW5lYXIgPj0g
+ZGJfaW52ZXJ0X3RhYmxlWzExXVs3XSkNCj4gLQkJcmV0dXJuIDk2OyAvKiBtYXhpbXVtIDk2IGRC
+ICovDQo+IC0NCj4gIAlmb3IgKGkgPSAwOyBpIDwgMTI7IGkrKykgew0KPiAtCQlpZiAoaSA8PSAy
+ICYmIChsaW5lYXIgPDwgRlJBQ19CSVRTKSA8PSBkYl9pbnZlcnRfdGFibGVbaV1bN10pDQo+IC0J
+CQlicmVhazsNCj4gLQkJZWxzZSBpZiAoaSA+IDIgJiYgbGluZWFyIDw9IGRiX2ludmVydF90YWJs
+ZVtpXVs3XSkNCj4gLQkJCWJyZWFrOw0KPiArCQlmb3IgKGogPSAwOyBqIDwgODsgaisrKSB7DQo+
+ICsJCQlpZiAoaSA8PSAyICYmIChsaW5lYXIgPDwgRlJBQ19CSVRTKSA8PSBkYl9pbnZlcnRfdGFi
+bGVbaV1bal0pDQo+ICsJCQkJZ290byBjbnQ7DQo+ICsJCQllbHNlIGlmIChpID4gMiAmJiBsaW5l
+YXIgPD0gZGJfaW52ZXJ0X3RhYmxlW2ldW2pdKQ0KPiArCQkJCWdvdG8gY250Ow0KPiArCQl9DQo+
+ICAJfQ0KPiANCj4gLQlmb3IgKGogPSAwOyBqIDwgODsgaisrKSB7DQo+IC0JCWlmIChpIDw9IDIg
+JiYgKGxpbmVhciA8PCBGUkFDX0JJVFMpIDw9IGRiX2ludmVydF90YWJsZVtpXVtqXSkNCj4gLQkJ
+CWJyZWFrOw0KPiAtCQllbHNlIGlmIChpID4gMiAmJiBsaW5lYXIgPD0gZGJfaW52ZXJ0X3RhYmxl
+W2ldW2pdKQ0KPiAtCQkJYnJlYWs7DQo+IC0JfQ0KPiArCXJldHVybiA5NjsgLyogbWF4aW11bSA5
+NiBkQiAqLw0KPiANCj4gK2NudDoNCj4gIAlpZiAoaiA9PSAwICYmIGkgPT0gMCkNCj4gIAkJZ290
+byBlbmQ7DQo+IA0KPiAtLQ0KPiAyLjM1LjENCj4gDQo+IA0KPiANCj4gDQo+IC0tLS0tLVBsZWFz
+ZSBjb25zaWRlciB0aGUgZW52aXJvbm1lbnQgYmVmb3JlIHByaW50aW5nIHRoaXMgZS1tYWlsLg0K
