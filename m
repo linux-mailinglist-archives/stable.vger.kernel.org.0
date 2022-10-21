@@ -2,56 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05758607FBA
-	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 22:23:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A2B26080FA
+	for <lists+stable@lfdr.de>; Fri, 21 Oct 2022 23:55:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229519AbiJUUXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Oct 2022 16:23:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41026 "EHLO
+        id S229846AbiJUVzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Oct 2022 17:55:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229531AbiJUUXq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 16:23:46 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90F3F290E32
-        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 13:23:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666383818;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=QKowXkZ3FV97O1ePJlhG2vtVr0Ym5oITV3vfEqsBkto=;
-        b=IjJ/R8pGCJPuUfVxy1iIGu8VERsYtmoMZiWKBt3oNl/mLpHUGdkdjGcm/RjoXzJuirrP+c
-        u5mwhGbJe+1vIvgilzJIJGsjq34ZNYJ2qCkUVIeMmem/Mwq62W0QtcseCdDTgEKH+az0Kc
-        30wVk8DlWZ0RiN5s+SvLecNMSQ3Kn1M=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-636-S1zPzWaoMxetLe7p3w_urQ-1; Fri, 21 Oct 2022 16:23:36 -0400
-X-MC-Unique: S1zPzWaoMxetLe7p3w_urQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DDCD3811E7A
-        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 20:23:35 +0000 (UTC)
-Received: from fs-i40c-03.fs.lab.eng.bos.redhat.com (fs-i40c-03.fs.lab.eng.bos.redhat.com [10.16.224.23])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B85E52166B2C;
-        Fri, 21 Oct 2022 20:23:35 +0000 (UTC)
-From:   Alexander Aring <aahringo@redhat.com>
-To:     teigland@redhat.com
-Cc:     cluster-devel@redhat.com, stable@vger.kernel.org,
-        aahringo@redhat.com
-Subject: [PATCH 2/2] fs: dlm: retry accept() until -EAGAIN or error returns
-Date:   Fri, 21 Oct 2022 16:23:28 -0400
-Message-Id: <20221021202328.869453-2-aahringo@redhat.com>
-In-Reply-To: <20221021202328.869453-1-aahringo@redhat.com>
-References: <20221021202328.869453-1-aahringo@redhat.com>
+        with ESMTP id S229895AbiJUVzc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Oct 2022 17:55:32 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1AB2183D91
+        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 14:55:28 -0700 (PDT)
+Received: by mail-pj1-x102f.google.com with SMTP id z5-20020a17090a8b8500b00210a3a2364fso5173550pjn.0
+        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 14:55:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gateworks-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dT6ZKO8bMRr2n8aUWPzJ3HA/WiCoNo2nqfyT8qO6Y9I=;
+        b=5L281OO8ws7T0y7/SJua3VBEA5/VgBaLIpo6N5UaQqaqzrxV1ugrvkM6uUtGc2zYFO
+         EF3MxUT7UBRWrZ+Qrwl3QeyfUxyP1QvzcFFc84hhUHnH4sI55QDjVYgI0OrDA3CDxafH
+         DJu/PqIjXj72xCSdn2becOw5+Vue32bTueGoE2F/DelOOU/viEmAAmQRkKFxNULvfm4H
+         V09R3MuuK62hk1G86mbDqIS9+yZ75yS7/pj2W7vUGfn+Z9qmLp4pYPgFeRCgBlkojj9H
+         6qgYoR3NF+AS+FTyVbAjjYyx9qW3Kkl9z43jUHU/dQKXZk/k0lsKaiYqqD02JDN0CCJ5
+         N2PQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=dT6ZKO8bMRr2n8aUWPzJ3HA/WiCoNo2nqfyT8qO6Y9I=;
+        b=seEL9Vb+RSIgFHSKlXC2aI5qrX8RrgTOx/C4FnGk2gs4v658Bj8PZ0bT/Jj1+Awb5u
+         b/iKqCTqran0c27ILmLISTCfQkQeLCbMNDKK+J5/x38gm7/pcjNEpaQWi+9swVXpIJd8
+         RaaLTZjg0zO7WUSQuFnMtaCm867c0c6BZXag1j+zOTotAPXTR6qCWmcTDUEZtQ0Wll7i
+         7vmoxDp0z60DgFaomYJrwAcGKyR0lVfLTtxfe9HsPDKJd2Lv+VAtb04dgPSVix10/KYg
+         dePCz5XcVf/JmlEvpM66p7fEx0H8U5DY//59LJD309kOoOmm+x771z6NRyyJ/xX56NOC
+         8H5A==
+X-Gm-Message-State: ACrzQf3qQD/pyVsX9/WukDezvSUSROjr5lE1cHrsbJV8u4tHo0QXGvAJ
+        XFMNJUG10k0Be7I3fstwYFknNsFJMjt7YincUy8GP5ePfG0=
+X-Google-Smtp-Source: AMsMyM4aEKNZfPgfMIi0f1nZAyJu5CZ1gxkgE5zlnZPgIYE+aBrkHQRJGYZhrw770e1IHhTLYx3sR6MjnccOOvh/Ixo=
+X-Received: by 2002:a17:90b:224d:b0:20d:8828:3051 with SMTP id
+ hk13-20020a17090b224d00b0020d88283051mr23885685pjb.89.1666389327258; Fri, 21
+ Oct 2022 14:55:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
-X-Spam-Status: No, score=-2.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+References: <20220701110341.3094023-1-s.hauer@pengutronix.de>
+ <c2d545d1f5478e66c0dac47f4bc4c04256ff44aa.camel@camlingroup.com>
+ <fd830c7e94de6b4a0b532dfcf46cf1edd22b42fb.camel@camlingroup.com>
+ <YtD/9KJZwlVj+6hS@kroah.com> <20220715074631.GA7333@pengutronix.de>
+ <YtEdIujszEKSprbF@kroah.com> <770744970.283550.1657871950910.JavaMail.zimbra@nod.at>
+ <20220902090252.75285234@xps-13>
+In-Reply-To: <20220902090252.75285234@xps-13>
+From:   Tim Harvey <tharvey@gateworks.com>
+Date:   Fri, 21 Oct 2022 14:55:15 -0700
+Message-ID: <CAJ+vNU0r3Enkwn+WzvEJYc_O4NurRyCssx2S-_ZS_cYCpk2-cA@mail.gmail.com>
+Subject: Re: [PATCH] mtd: rawnand: gpmi: Set WAIT_FOR_READY timeout based on
+ program/erase times
+To:     Sascha Hauer <s.hauer@pengutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        =?UTF-8?Q?Tomasz_Mo=C5=84?= <tomasz.mon@camlingroup.com>
+Cc:     Richard Weinberger <richard@nod.at>,
+        linux-mtd <linux-mtd@lists.infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        torvalds <torvalds@linux-foundation.org>,
+        Han Xu <han.xu@nxp.com>, kernel <kernel@pengutronix.de>,
+        stable <stable@vger.kernel.org>,
+        k drobinski <k.drobinski@camlintechnologies.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,39 +81,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch fixes a race if we get two times an socket data ready event
-while the listen connection worker is queued. Currently it will be
-served only once but we need to do it (in this case twice) until we hit
--EAGAIN which tells us there is no pending accept going on.
+On Fri, Sep 2, 2022 at 12:03 AM Miquel Raynal <miquel.raynal@bootlin.com> w=
+rote:
+>
+> Hey folks,
+>
+> richard@nod.at wrote on Fri, 15 Jul 2022 09:59:10 +0200 (CEST):
+>
+> > ----- Urspr=C3=BCngliche Mail -----
+> > >> My IRC history doesn't go back far enough, but if I recall correctly
+> > >> Miquel is on vacation, he would have picked up this patch for linux-=
+next
+> > >> otherwise.
+> >
+> > Exactly.
+>
+> Indeed, I was off for an extended period of time, I'm (very) slowly
+> catching up now.
+>
+> >
+> > > Ok, let me do a round of stable releases so that people don't get hit=
+ by
+> > > this now...
+> >
+> > Thanks a lot for doing so.
+> >
+> > > Hopefully this gets fixed up by 5.19-final.
+> >
+> > Sure, I'll pickup this patch.
+>
+> Thanks Greg & Richard for the handling of this issue.
+>
+> Cheers,
+> Miqu=C3=A8l
+>
 
-This patch wraps an do while loop until we receive a return value which
-is different than 0 as it was done before commit d11ccd451b65 ("fs: dlm:
-listen socket out of connection hash").
+Hello All,
 
-Cc: stable@vger.kernel.org
-Fixes: d11ccd451b65 ("fs: dlm: listen socket out of connection hash")
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
----
- fs/dlm/lowcomms.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+As Tomasz stated previously 06781a5026350 was merged in v5.19-rc4 and
+then was picked up by several stable kernels. While this made it into
+the 5.15 and 5.18 stable branches it did not make it into the
+following which are thus the are currently broken:
+5.10.y
+5.17.y
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index 2cb9f3b49e05..871d4e9f49fb 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -1543,7 +1543,11 @@ static void process_recv_sockets(struct work_struct *work)
- 
- static void process_listen_recv_socket(struct work_struct *work)
- {
--	accept_from_sock(&listen_con);
-+	int ret;
-+
-+	do {
-+		ret = accept_from_sock(&listen_con);
-+	} while (!ret);
- }
- 
- static void dlm_connect(struct connection *con)
--- 
-2.31.1
+How do we get this patch applied to those stable branches as well to
+resolve this?
 
+Best regards,
+
+Tim
