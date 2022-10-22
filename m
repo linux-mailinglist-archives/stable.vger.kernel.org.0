@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87583608A00
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 677B060890C
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:28:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234439AbiJVIp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:45:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52878 "EHLO
+        id S230111AbiJVI2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:28:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235128AbiJVIom (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:44:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 323372EBBA6;
-        Sat, 22 Oct 2022 01:08:18 -0700 (PDT)
+        with ESMTP id S229930AbiJVI1m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:27:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D3D029CB9F;
+        Sat, 22 Oct 2022 01:01:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41C4560BA3;
-        Sat, 22 Oct 2022 08:00:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51ABEC433D6;
-        Sat, 22 Oct 2022 08:00:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23DFCB82E37;
+        Sat, 22 Oct 2022 08:00:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50033C433D6;
+        Sat, 22 Oct 2022 08:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425653;
-        bh=ihi/X+jRwStHBrEQc38wWsGR2lD4+0D/n45zAeO5vlU=;
+        s=korg; t=1666425656;
+        bh=mbOqe3BvSY+Utn4ID69aJOshzLQV9w7fqEBjvKww5wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0uTP5fK5PgMPf8G6iaQYDxqHFNNoqvW8UnVPEA/D7DFdm6BHdhHYazUahZ4vjprWS
-         6VH2I4v8Uzi6lQphGrfNnCHx73SBL/V/FnyKn8PmrIjbkeP0cnk+c2a3VoE9QNC7ox
-         637k2vCJVYE+qijGXyikBIwWUydG/tC1hnzllyUA=
+        b=SjYpLuF0Kmn/AHnR38Q7K+1TVIs4+hMVctUiAeFEO5pfp3wVNLt5WPQNj/UxbFClH
+         O8DBKTn0PS8YiBBwYWE1VkygEuhuWEbm31AQe8902f5pH77wocAj6FEJPgnkRvjA2o
+         8kX7LNX8D8MtqPdWGUrQhAevQCIt4GWp+x2390R4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zong-Zhe Yang <kevin_yang@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 572/717] rtw89: ser: leave lps with mutex
-Date:   Sat, 22 Oct 2022 09:27:31 +0200
-Message-Id: <20221022072523.707440640@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 573/717] iavf: Fix race between iavf_close and iavf_reset_task
+Date:   Sat, 22 Oct 2022 09:27:32 +0200
+Message-Id: <20221022072523.758018450@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,35 +55,290 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zong-Zhe Yang <kevin_yang@realtek.com>
+From: Michal Jaron <michalx.jaron@intel.com>
 
-[ Upstream commit 8676031bae1c91037d06341214f4150b33707c68 ]
+[ Upstream commit 11c12adcbc1598d91e73ab6ddfa41d25a01478ed ]
 
-Calling rtw89_leave_lps() should hold rtwdev::mutex.
-So, fix it.
+During stress tests with adding VF to namespace and changing vf's
+trust there was a race between iavf_reset_task and iavf_close.
+Sometimes when IAVF_FLAG_AQ_DISABLE_QUEUES from iavf_close was sent
+to PF after reset and before IAVF_AQ_GET_CONFIG was sent then PF
+returns error IAVF_NOT_SUPPORTED to disable queues request and
+following requests. There is need to get_config before other
+aq_required will be send but iavf_close clears all flags, if
+get_config was not sent before iavf_close, then it will not be send
+at all.
 
-Signed-off-by: Zong-Zhe Yang <kevin_yang@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220704023453.19935-5-pkshih@realtek.com
+In case when IAVF_FLAG_AQ_GET_OFFLOAD_VLAN_V2_CAPS was sent before
+IAVF_FLAG_AQ_DISABLE_QUEUES then there was rtnl_lock deadlock
+between iavf_close and iavf_adminq_task until iavf_close timeouts
+and disable queues was sent after iavf_close ends.
+
+There was also a problem with sending delete/add filters.
+Sometimes when filters was not yet added to PF and in
+iavf_close all filters was set to remove there might be a try
+to remove nonexistent filters on PF.
+
+Add aq_required_tmp to save aq_required flags and send them after
+disable_queues will be handled. Clear flags given to iavf_down
+different than IAVF_FLAG_AQ_GET_CONFIG as this flag is necessary
+to sent other aq_required. Remove some flags that we don't
+want to send as we are in iavf_close and we want to disable
+interface. Remove filters which was not yet sent and send del
+filters flags only when there are filters to remove.
+
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw89/ser.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 177 ++++++++++++++++----
+ 1 file changed, 141 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw89/ser.c b/drivers/net/wireless/realtek/rtw89/ser.c
-index 9e95ed972710..5d88200cbd3e 100644
---- a/drivers/net/wireless/realtek/rtw89/ser.c
-+++ b/drivers/net/wireless/realtek/rtw89/ser.c
-@@ -152,7 +152,10 @@ static void ser_state_run(struct rtw89_ser *ser, u8 evt)
- 	rtw89_debug(rtwdev, RTW89_DBG_SER, "ser: %s receive %s\n",
- 		    ser_st_name(ser), ser_ev_name(ser, evt));
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 981c43b204ff..d3822c264642 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -1184,66 +1184,138 @@ static void iavf_up_complete(struct iavf_adapter *adapter)
+ }
  
-+	mutex_lock(&rtwdev->mutex);
- 	rtw89_leave_lps(rtwdev);
-+	mutex_unlock(&rtwdev->mutex);
+ /**
+- * iavf_down - Shutdown the connection processing
++ * iavf_clear_mac_vlan_filters - Remove mac and vlan filters not sent to PF
++ * yet and mark other to be removed.
+  * @adapter: board private structure
+- *
+- * Expects to be called while holding the __IAVF_IN_CRITICAL_TASK bit lock.
+  **/
+-void iavf_down(struct iavf_adapter *adapter)
++static void iavf_clear_mac_vlan_filters(struct iavf_adapter *adapter)
+ {
+-	struct net_device *netdev = adapter->netdev;
+-	struct iavf_vlan_filter *vlf;
+-	struct iavf_cloud_filter *cf;
+-	struct iavf_fdir_fltr *fdir;
+-	struct iavf_mac_filter *f;
+-	struct iavf_adv_rss *rss;
+-
+-	if (adapter->state <= __IAVF_DOWN_PENDING)
+-		return;
+-
+-	netif_carrier_off(netdev);
+-	netif_tx_disable(netdev);
+-	adapter->link_up = false;
+-	iavf_napi_disable_all(adapter);
+-	iavf_irq_disable(adapter);
++	struct iavf_vlan_filter *vlf, *vlftmp;
++	struct iavf_mac_filter *f, *ftmp;
+ 
+ 	spin_lock_bh(&adapter->mac_vlan_list_lock);
+-
+ 	/* clear the sync flag on all filters */
+ 	__dev_uc_unsync(adapter->netdev, NULL);
+ 	__dev_mc_unsync(adapter->netdev, NULL);
+ 
+ 	/* remove all MAC filters */
+-	list_for_each_entry(f, &adapter->mac_filter_list, list) {
+-		f->remove = true;
++	list_for_each_entry_safe(f, ftmp, &adapter->mac_filter_list,
++				 list) {
++		if (f->add) {
++			list_del(&f->list);
++			kfree(f);
++		} else {
++			f->remove = true;
++		}
+ 	}
+ 
+ 	/* remove all VLAN filters */
+-	list_for_each_entry(vlf, &adapter->vlan_filter_list, list) {
+-		vlf->remove = true;
++	list_for_each_entry_safe(vlf, vlftmp, &adapter->vlan_filter_list,
++				 list) {
++		if (vlf->add) {
++			list_del(&vlf->list);
++			kfree(vlf);
++		} else {
++			vlf->remove = true;
++		}
+ 	}
+-
+ 	spin_unlock_bh(&adapter->mac_vlan_list_lock);
++}
 +
- 	ser->st_tbl[ser->state].st_func(ser, evt);
++/**
++ * iavf_clear_cloud_filters - Remove cloud filters not sent to PF yet and
++ * mark other to be removed.
++ * @adapter: board private structure
++ **/
++static void iavf_clear_cloud_filters(struct iavf_adapter *adapter)
++{
++	struct iavf_cloud_filter *cf, *cftmp;
+ 
+ 	/* remove all cloud filters */
+ 	spin_lock_bh(&adapter->cloud_filter_list_lock);
+-	list_for_each_entry(cf, &adapter->cloud_filter_list, list) {
+-		cf->del = true;
++	list_for_each_entry_safe(cf, cftmp, &adapter->cloud_filter_list,
++				 list) {
++		if (cf->add) {
++			list_del(&cf->list);
++			kfree(cf);
++			adapter->num_cloud_filters--;
++		} else {
++			cf->del = true;
++		}
+ 	}
+ 	spin_unlock_bh(&adapter->cloud_filter_list_lock);
++}
++
++/**
++ * iavf_clear_fdir_filters - Remove fdir filters not sent to PF yet and mark
++ * other to be removed.
++ * @adapter: board private structure
++ **/
++static void iavf_clear_fdir_filters(struct iavf_adapter *adapter)
++{
++	struct iavf_fdir_fltr *fdir, *fdirtmp;
+ 
+ 	/* remove all Flow Director filters */
+ 	spin_lock_bh(&adapter->fdir_fltr_lock);
+-	list_for_each_entry(fdir, &adapter->fdir_list_head, list) {
+-		fdir->state = IAVF_FDIR_FLTR_DEL_REQUEST;
++	list_for_each_entry_safe(fdir, fdirtmp, &adapter->fdir_list_head,
++				 list) {
++		if (fdir->state == IAVF_FDIR_FLTR_ADD_REQUEST) {
++			list_del(&fdir->list);
++			kfree(fdir);
++			adapter->fdir_active_fltr--;
++		} else {
++			fdir->state = IAVF_FDIR_FLTR_DEL_REQUEST;
++		}
+ 	}
+ 	spin_unlock_bh(&adapter->fdir_fltr_lock);
++}
++
++/**
++ * iavf_clear_adv_rss_conf - Remove adv rss conf not sent to PF yet and mark
++ * other to be removed.
++ * @adapter: board private structure
++ **/
++static void iavf_clear_adv_rss_conf(struct iavf_adapter *adapter)
++{
++	struct iavf_adv_rss *rss, *rsstmp;
+ 
+ 	/* remove all advance RSS configuration */
+ 	spin_lock_bh(&adapter->adv_rss_lock);
+-	list_for_each_entry(rss, &adapter->adv_rss_list_head, list)
+-		rss->state = IAVF_ADV_RSS_DEL_REQUEST;
++	list_for_each_entry_safe(rss, rsstmp, &adapter->adv_rss_list_head,
++				 list) {
++		if (rss->state == IAVF_ADV_RSS_ADD_REQUEST) {
++			list_del(&rss->list);
++			kfree(rss);
++		} else {
++			rss->state = IAVF_ADV_RSS_DEL_REQUEST;
++		}
++	}
+ 	spin_unlock_bh(&adapter->adv_rss_lock);
++}
++
++/**
++ * iavf_down - Shutdown the connection processing
++ * @adapter: board private structure
++ *
++ * Expects to be called while holding the __IAVF_IN_CRITICAL_TASK bit lock.
++ **/
++void iavf_down(struct iavf_adapter *adapter)
++{
++	struct net_device *netdev = adapter->netdev;
++
++	if (adapter->state <= __IAVF_DOWN_PENDING)
++		return;
++
++	netif_carrier_off(netdev);
++	netif_tx_disable(netdev);
++	adapter->link_up = false;
++	iavf_napi_disable_all(adapter);
++	iavf_irq_disable(adapter);
++
++	iavf_clear_mac_vlan_filters(adapter);
++	iavf_clear_cloud_filters(adapter);
++	iavf_clear_fdir_filters(adapter);
++	iavf_clear_adv_rss_conf(adapter);
+ 
+ 	if (!(adapter->flags & IAVF_FLAG_PF_COMMS_FAILED)) {
+ 		/* cancel any current operation */
+@@ -1252,11 +1324,16 @@ void iavf_down(struct iavf_adapter *adapter)
+ 		 * here for this to complete. The watchdog is still running
+ 		 * and it will take care of this.
+ 		 */
+-		adapter->aq_required = IAVF_FLAG_AQ_DEL_MAC_FILTER;
+-		adapter->aq_required |= IAVF_FLAG_AQ_DEL_VLAN_FILTER;
+-		adapter->aq_required |= IAVF_FLAG_AQ_DEL_CLOUD_FILTER;
+-		adapter->aq_required |= IAVF_FLAG_AQ_DEL_FDIR_FILTER;
+-		adapter->aq_required |= IAVF_FLAG_AQ_DEL_ADV_RSS_CFG;
++		if (!list_empty(&adapter->mac_filter_list))
++			adapter->aq_required |= IAVF_FLAG_AQ_DEL_MAC_FILTER;
++		if (!list_empty(&adapter->vlan_filter_list))
++			adapter->aq_required |= IAVF_FLAG_AQ_DEL_VLAN_FILTER;
++		if (!list_empty(&adapter->cloud_filter_list))
++			adapter->aq_required |= IAVF_FLAG_AQ_DEL_CLOUD_FILTER;
++		if (!list_empty(&adapter->fdir_list_head))
++			adapter->aq_required |= IAVF_FLAG_AQ_DEL_FDIR_FILTER;
++		if (!list_empty(&adapter->adv_rss_list_head))
++			adapter->aq_required |= IAVF_FLAG_AQ_DEL_ADV_RSS_CFG;
+ 		adapter->aq_required |= IAVF_FLAG_AQ_DISABLE_QUEUES;
+ 	}
+ 
+@@ -4082,6 +4159,7 @@ static int iavf_open(struct net_device *netdev)
+ static int iavf_close(struct net_device *netdev)
+ {
+ 	struct iavf_adapter *adapter = netdev_priv(netdev);
++	u64 aq_to_restore;
+ 	int status;
+ 
+ 	mutex_lock(&adapter->crit_lock);
+@@ -4094,6 +4172,29 @@ static int iavf_close(struct net_device *netdev)
+ 	set_bit(__IAVF_VSI_DOWN, adapter->vsi.state);
+ 	if (CLIENT_ENABLED(adapter))
+ 		adapter->flags |= IAVF_FLAG_CLIENT_NEEDS_CLOSE;
++	/* We cannot send IAVF_FLAG_AQ_GET_OFFLOAD_VLAN_V2_CAPS before
++	 * IAVF_FLAG_AQ_DISABLE_QUEUES because in such case there is rtnl
++	 * deadlock with adminq_task() until iavf_close timeouts. We must send
++	 * IAVF_FLAG_AQ_GET_CONFIG before IAVF_FLAG_AQ_DISABLE_QUEUES to make
++	 * disable queues possible for vf. Give only necessary flags to
++	 * iavf_down and save other to set them right before iavf_close()
++	 * returns, when IAVF_FLAG_AQ_DISABLE_QUEUES will be already sent and
++	 * iavf will be in DOWN state.
++	 */
++	aq_to_restore = adapter->aq_required;
++	adapter->aq_required &= IAVF_FLAG_AQ_GET_CONFIG;
++
++	/* Remove flags which we do not want to send after close or we want to
++	 * send before disable queues.
++	 */
++	aq_to_restore &= ~(IAVF_FLAG_AQ_GET_CONFIG		|
++			   IAVF_FLAG_AQ_ENABLE_QUEUES		|
++			   IAVF_FLAG_AQ_CONFIGURE_QUEUES	|
++			   IAVF_FLAG_AQ_ADD_VLAN_FILTER		|
++			   IAVF_FLAG_AQ_ADD_MAC_FILTER		|
++			   IAVF_FLAG_AQ_ADD_CLOUD_FILTER	|
++			   IAVF_FLAG_AQ_ADD_FDIR_FILTER		|
++			   IAVF_FLAG_AQ_ADD_ADV_RSS_CFG);
+ 
+ 	iavf_down(adapter);
+ 	iavf_change_state(adapter, __IAVF_DOWN_PENDING);
+@@ -4117,6 +4218,10 @@ static int iavf_close(struct net_device *netdev)
+ 				    msecs_to_jiffies(500));
+ 	if (!status)
+ 		netdev_warn(netdev, "Device resources not yet released\n");
++
++	mutex_lock(&adapter->crit_lock);
++	adapter->aq_required |= aq_to_restore;
++	mutex_unlock(&adapter->crit_lock);
+ 	return 0;
  }
  
 -- 
