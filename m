@@ -2,166 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59073608D6D
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 15:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D497608D75
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 15:43:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229681AbiJVNft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 09:35:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41712 "EHLO
+        id S229491AbiJVNn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 09:43:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229652AbiJVNfs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 09:35:48 -0400
-Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF9F9B0B28;
-        Sat, 22 Oct 2022 06:35:46 -0700 (PDT)
-Received: by mail-io1-xd2d.google.com with SMTP id h203so4467181iof.1;
-        Sat, 22 Oct 2022 06:35:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=user-agent:in-reply-to:content-disposition:mime-version:references
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FLFJLqlhGPX1tCC+C1NWXqzTL8afrRkDZh5VaUzSxpI=;
-        b=KXqRlbioEBoTo29NGQ75QoQRir4Z3F61DvWf5DzwnsTgBPhXFZ6cJG6cFuqeRSkTZE
-         4RzlqxvaXfB+nLdb0DoLJPsqhAp6jT+YVB+NlbmMdRz8E08uIDBTfsGEfLLhssyvdbGm
-         87WJWNFz1O6BHrmNQhHr3ig0rTsI+QAdIyFImaWk4wLF9uzhRuZEo4HuloKTNpPDkv1O
-         g3PSv2/dOFOxYHpCHftebRB7y3fgzD86fDvJtNbYEjp1nba8D1lNJDEd/Swtbc2DnSBT
-         Y+9xW2z/g3LG24xwE1+P8C68kJ7SZ50XEYTq8E2cEJe/HhvNziHcJOo4QiZnwXqpax2z
-         iFqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=user-agent:in-reply-to:content-disposition:mime-version:references
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=FLFJLqlhGPX1tCC+C1NWXqzTL8afrRkDZh5VaUzSxpI=;
-        b=XDnIItE3bcqnfRlE64cRF7/eUhEON69hieywd21FBK0KtGMFr8ESpR3/x2nghPkSM3
-         0KEhhocvRX6gNbyESH0eNvhOACw3gvtiZOgk++DJRxeq5QhTryqd8/h9m0SyUJv0bMPY
-         qWx03tdXvuYt/ANNL682Yj7pyl/T61PInYPJ9cTpbx0MOhmmNMWtNt61NJg/666bXxJ3
-         iez/Qps2apRItGedTZ+ixfrc7AcrOP7UT7Md3MeHMMrdtFzjvLmUHYD5T74igKW54bmj
-         de4LC8r+sGi6/q+MJtSBbVkWvd0KcY6fmYgmfc4NlrIQFbq+/OjAViF8uGMzpQgSYufM
-         NU/g==
-X-Gm-Message-State: ACrzQf2pNiLbrWoScVdpTqBwyTA2DErFJunRjyhus++B2AYZEcljSMra
-        dOATaHkgj13hmm/n/HftboQ=
-X-Google-Smtp-Source: AMsMyM4obJwtc8x2liWuHgZ0A3FTLPLGffRFQwNkxV6RQNcbuXkeJoHP3RVt+CBh2Pt2CAOtTEvX+A==
-X-Received: by 2002:a05:6638:32a2:b0:364:de6:cdbe with SMTP id f34-20020a05663832a200b003640de6cdbemr15731069jav.73.1666445746092;
-        Sat, 22 Oct 2022 06:35:46 -0700 (PDT)
-Received: from qjv001-XeonWs (c-67-167-199-249.hsd1.il.comcast.net. [67.167.199.249])
-        by smtp.gmail.com with ESMTPSA id y20-20020a056638229400b00363dee286edsm5386977jas.60.2022.10.22.06.35.45
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Sat, 22 Oct 2022 06:35:45 -0700 (PDT)
-Date:   Sat, 22 Oct 2022 08:35:43 -0500
-From:   Jeff Vanhoof <jdv1029@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Dan Vacura <w36195@motorola.com>, linux-usb@vger.kernel.org,
-        Daniel Scally <dan.scally@ideasonboard.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Jeff Vanhoof <qjv001@motorola.com>, stable@vger.kernel.org,
-        Jonathan Corbet <corbet@lwn.net>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Paul Elder <paul.elder@ideasonboard.com>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v4 2/6] usb: dwc3: gadget: cancel requests instead of
- release after missed isoc
-Message-ID: <20221022133541.GA26431@qjv001-XeonWs>
-References: <20221018215044.765044-1-w36195@motorola.com>
- <20221018215044.765044-3-w36195@motorola.com>
- <Y1PUjO99fcgaN0tc@kroah.com>
+        with ESMTP id S229514AbiJVNn0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 09:43:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77AF41D0E9;
+        Sat, 22 Oct 2022 06:43:25 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D140600A0;
+        Sat, 22 Oct 2022 13:43:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32D11C433C1;
+        Sat, 22 Oct 2022 13:43:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1666446204;
+        bh=23QxA+M5S6H4DcowzMHJG00jNE/2O8r9A640gDM5zu8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jXyOk6gbU1Fzfuj8+1dyFfm2/PEN5YaPlKVloWqQkm1bSey+JZcTauOMh5hXBfXZQ
+         SDS7weCSdbOpVxCCEm/Hqjr8P1QiCG9ai/nBtCNxiJigEnIZKG/dHmVpj4IDZtDj6B
+         otsBPBdgHMW6VSHVQZdXi/qoNZpZz/ILlQWpQzG1ppDwMHM7b2ChZQ49vunhKyODwO
+         HnTL0U6gVwoehGJK/TEX4ieRHJ9wUv1mgpNvr9hD6OFhgyK6tqeT4O+vaE/jH7UAin
+         kuf01/WI4NNiZbCL2b+0Zc4PxlmlI3UUl9ug7NWXkSbs3ZoVlYwBrxzhFUz09s375P
+         rxwoVSfVjb0HQ==
+Date:   Sat, 22 Oct 2022 21:43:18 +0800
+From:   Peter Chen <peter.chen@kernel.org>
+To:     Pawel Laszczak <pawell@cadence.com>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] usb: cdnsp: fix issue with ZLP - added TD_SIZE = 1
+Message-ID: <20221022134318.GA51416@nchen-desktop>
+References: <1666159637-161135-1-git-send-email-pawell@cadence.com>
+ <20221020132010.GA29690@nchen-desktop>
+ <BYAPR07MB5381E4649DFD2BD0C528AC0FDD2D9@BYAPR07MB5381.namprd07.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y1PUjO99fcgaN0tc@kroah.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <BYAPR07MB5381E4649DFD2BD0C528AC0FDD2D9@BYAPR07MB5381.namprd07.prod.outlook.com>
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On Sat, Oct 22, 2022 at 01:31:24PM +0200, Greg Kroah-Hartman wrote:
-> On Tue, Oct 18, 2022 at 04:50:38PM -0500, Dan Vacura wrote:
-> > From: Jeff Vanhoof <qjv001@motorola.com>
-> > 
-> > arm-smmu related crashes seen after a Missed ISOC interrupt when
-> > no_interrupt=1 is used. This can happen if the hardware is still using
-> > the data associated with a TRB after the usb_request's ->complete call
-> > has been made.  Instead of immediately releasing a request when a Missed
-> > ISOC interrupt has occurred, this change will add logic to cancel the
-> > request instead where it will eventually be released when the
-> > END_TRANSFER command has completed. This logic is similar to some of the
-> > cleanup done in dwc3_gadget_ep_dequeue.
-> > 
-> > Fixes: 6d8a019614f3 ("usb: dwc3: gadget: check for Missed Isoc from event status")
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Jeff Vanhoof <qjv001@motorola.com>
-> > Co-developed-by: Dan Vacura <w36195@motorola.com>
-> > Signed-off-by: Dan Vacura <w36195@motorola.com>
-> > ---
-> > V1 -> V3:
-> > - no change, new patch in series
-> > V3 -> V4:
-> > - no change
+On 22-10-21 05:03:25, Pawel Laszczak wrote:
+> >
+> >
+> >On 22-10-19 02:07:17, Pawel Laszczak wrote:
+> >> Patch modifies the TD_SIZE in TRB before ZLP TRB.
+> >> The TD_SIZE in TRB before ZLP TRB must be set to 1 to force processing
+> >> ZLP TRB by controller.
+> >>
+> >> Cc: <stable@vger.kernel.org>
+> >> Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence
+> >> USBSSP DRD Driver")
+> >> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+> >> ---
+> >>  drivers/usb/cdns3/cdnsp-ring.c | 15 ++++++++-------
+> >>  1 file changed, 8 insertions(+), 7 deletions(-)
+> >>
+> >> diff --git a/drivers/usb/cdns3/cdnsp-ring.c
+> >> b/drivers/usb/cdns3/cdnsp-ring.c index 794e413800ae..4809d0e894bb
+> >> 100644
+> >> --- a/drivers/usb/cdns3/cdnsp-ring.c
+> >> +++ b/drivers/usb/cdns3/cdnsp-ring.c
+> >> @@ -1765,18 +1765,19 @@ static u32 cdnsp_td_remainder(struct
+> >cdnsp_device *pdev,
+> >>  			      struct cdnsp_request *preq,
+> >>  			      bool more_trbs_coming)
+> >>  {
+> >> -	u32 maxp, total_packet_count;
+> >> -
+> >> -	/* One TRB with a zero-length data packet. */
+> >> -	if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
+> >> -	    trb_buff_len == td_total_len)
+> >> -		return 0;
+> >> +	u32 maxp, total_packet_count, remainder;
+> >>
+> >>  	maxp = usb_endpoint_maxp(preq->pep->endpoint.desc);
+> >>  	total_packet_count = DIV_ROUND_UP(td_total_len, maxp);
+> >>
+> >>  	/* Queuing functions don't count the current TRB into transferred. */
+> >> -	return (total_packet_count - ((transferred + trb_buff_len) / maxp));
+> >> +	remainder = (total_packet_count - ((transferred + trb_buff_len) /
+> >> +maxp));
+> >> +
+> >> +	/* Before ZLP driver needs set TD_SIZE=1. */
+> >> +	if (!remainder && more_trbs_coming)
+> >> +		remainder = 1;
+> >
+> >Without ZLP, TD_SIZE = 0 for the last TRB.
+> >With ZLP, TD_SIZE = 1 for current TRB, and TD_SIZE = 0 for the next TRB (the
+> >last zero-length packet) right?
 > 
-> I need an ack from the dwc3 maintainer before I can take this one.
+> Yes, you have right.
 > 
-> thanks,
-> 
-> greg k-h
 
-Thinh has rejected this version of the patch. He has provided an alternative
-implementation which has been testing well for us so far. Either Thinh or Dan
-will formalize this patch within the next few days.
-The latest proposed changes are:
+Pawel, With your changes, the return value is 1 for function
+cdnsp_queue_ctrl_tx. Without your changes, it is 0, something wrong?
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index dfaf9ac24c4f..50287437d6de 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -3195,6 +3195,9 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
-        if (event->status & DEPEVT_STATUS_SHORT && !chain)
-                return 1;
- 
-+       if (DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC && !chain)
-+               return 1;
-+
-        if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
-            (trb->ctrl & DWC3_TRB_CTRL_LST))
-                return 1;
-@@ -3211,6 +3214,7 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
-        struct scatterlist *s;
-        unsigned int num_queued = req->num_queued_sgs;
-        unsigned int i;
-+       bool missed_isoc = false;
-        int ret = 0;
- 
-        for_each_sg(sg, s, num_queued, i) {
-@@ -3219,12 +3223,18 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
-                req->sg = sg_next(s);
-                req->num_queued_sgs--;
- 
-+               if (DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC)
-+                       missed_isoc = true;
-+
-                ret = dwc3_gadget_ep_reclaim_completed_trb(dep, req,
-                                trb, event, status, true);
-                if (ret)
-                        break;
-        }
- 
-+       if (missed_isoc)
-+               ret = 1;
-+
-        return ret;
- }
-
+-- 
 
 Thanks,
-Jeff
-
+Peter Chen
