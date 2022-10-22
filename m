@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87322608699
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:51:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30D0D6086F1
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231865AbiJVHvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:51:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50278 "EHLO
+        id S231990AbiJVHz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:55:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231912AbiJVHth (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98F318A6ED;
-        Sat, 22 Oct 2022 00:46:16 -0700 (PDT)
+        with ESMTP id S231847AbiJVHxt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:53:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065CA29B8A4;
+        Sat, 22 Oct 2022 00:46:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC993B82E1F;
-        Sat, 22 Oct 2022 07:45:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D2D1C433C1;
-        Sat, 22 Oct 2022 07:45:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFF1C60BB9;
+        Sat, 22 Oct 2022 07:45:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F40DBC433D6;
+        Sat, 22 Oct 2022 07:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424713;
-        bh=U3Vw3D6HP5pNxYddemRgXmagrQL9/QTUYvo5batzupQ=;
+        s=korg; t=1666424716;
+        bh=tIBsBLLuzY+hkWm+XuxHlNQ6uSDfN7fZPVjIX6Wp4vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nv/G7kYX6td22lczASPYB0cioo5OG5Jklu4AVc0szDAXH4IMXxuzXHIYHHokUl62F
-         3sg8jHnXZeDlm+4rfIXp7/v4ECPqJD1FLl4fh099Nu6gYao8jY4nvdZahr25e312k7
-         jn+UF+7EPxtFFefk0ibuYlFzLZ+c/cF2+5G1EufA=
+        b=PYlEwSdFGbUMqTGAZufY+87fuA3b8XGCo0NJH/rd68EDQmOugrQtgjJF5enkmvBeo
+         ovskoGHRdviYlu0ir8lNUzn7LTRheuOhSYhveaHP3tcGirN6mbinnSGKMwADkyMtj9
+         8dmzIAWkjQH1nYFQOFBFzHwNry3996lubT2axyXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Howard Hsu <howard-yh.hsu@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 248/717] wifi: mt76: mt7915: fix mcs value in ht mode
-Date:   Sat, 22 Oct 2022 09:22:07 +0200
-Message-Id: <20221022072458.768674217@linuxfoundation.org>
+Subject: [PATCH 5.19 249/717] wifi: mt76: mt7915: do not check state before configuring implicit beamform
+Date:   Sat, 22 Oct 2022 09:22:08 +0200
+Message-Id: <20221022072458.937520590@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,52 +54,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Howard Hsu <howard-yh.hsu@mediatek.com>
 
-[ Upstream commit c6d3e16ad4362502e804a6ca01e955612f3b8222 ]
+[ Upstream commit d2b5bb6dfab29fe32bedefaade88dcd182c03a00 ]
 
-Fix the error that mcs will be reduced to a range of 0 to 7 in ht mode.
+Do not need to check running state before configuring implicit Tx
+beamform. It is okay to configure implicit Tx beamform in run time.
+Noted that the existing connected stations will be applied for new
+configuration only if they reconnected to the interface.
 
-Fixes: 70fd1333cd32 ("mt76: mt7915: rework .set_bitrate_mask() to support more options")
+Fixes: 6d6dc980e07d ("mt76: mt7915: add implicit Tx beamforming support")
 Signed-off-by: Howard Hsu <howard-yh.hsu@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-index 17fa2acc0d07..ec8a5083466f 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-@@ -1460,7 +1460,7 @@ mt7915_mcu_add_rate_ctrl_fixed(struct mt7915_dev *dev,
- 	struct sta_phy phy = {};
- 	int ret, nrates = 0;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
+index fd76db8f5269..6ef3431cad64 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
+@@ -23,9 +23,9 @@ mt7915_implicit_txbf_set(void *data, u64 val)
+ {
+ 	struct mt7915_dev *dev = data;
  
--#define __sta_phy_bitrate_mask_check(_mcs, _gi, _he)				\
-+#define __sta_phy_bitrate_mask_check(_mcs, _gi, _ht, _he)			\
- 	do {									\
- 		u8 i, gi = mask->control[band]._gi;				\
- 		gi = (_he) ? gi : gi == NL80211_TXRATE_FORCE_SGI;		\
-@@ -1473,15 +1473,17 @@ mt7915_mcu_add_rate_ctrl_fixed(struct mt7915_dev *dev,
- 				continue;					\
- 			nrates += hweight16(mask->control[band]._mcs[i]);	\
- 			phy.mcs = ffs(mask->control[band]._mcs[i]) - 1;		\
-+			if (_ht)						\
-+				phy.mcs += 8 * i;				\
- 		}								\
- 	} while (0)
+-	if (test_bit(MT76_STATE_RUNNING, &dev->mphy.state))
+-		return -EBUSY;
+-
++	/* The existing connected stations shall reconnect to apply
++	 * new implicit txbf configuration.
++	 */
+ 	dev->ibf = !!val;
  
- 	if (sta->deflink.he_cap.has_he) {
--		__sta_phy_bitrate_mask_check(he_mcs, he_gi, 1);
-+		__sta_phy_bitrate_mask_check(he_mcs, he_gi, 0, 1);
- 	} else if (sta->deflink.vht_cap.vht_supported) {
--		__sta_phy_bitrate_mask_check(vht_mcs, gi, 0);
-+		__sta_phy_bitrate_mask_check(vht_mcs, gi, 0, 0);
- 	} else if (sta->deflink.ht_cap.ht_supported) {
--		__sta_phy_bitrate_mask_check(ht_mcs, gi, 0);
-+		__sta_phy_bitrate_mask_check(ht_mcs, gi, 1, 0);
- 	} else {
- 		nrates = hweight32(mask->control[band].legacy);
- 		phy.mcs = ffs(mask->control[band].legacy) - 1;
+ 	return mt7915_mcu_set_txbf(dev, MT_BF_TYPE_UPDATE);
 -- 
 2.35.1
 
