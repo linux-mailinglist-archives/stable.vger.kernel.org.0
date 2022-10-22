@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1F97608A03
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:46:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3466860889D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:20:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234749AbiJVIqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:46:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54864 "EHLO
+        id S233421AbiJVIUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:20:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235157AbiJVIor (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:44:47 -0400
+        with ESMTP id S233713AbiJVITL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:19:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AB672CB8DA;
-        Sat, 22 Oct 2022 01:08:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D27DAA3B71;
+        Sat, 22 Oct 2022 00:58:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33AB6B82E10;
-        Sat, 22 Oct 2022 07:56:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9981BC4314B;
-        Sat, 22 Oct 2022 07:56:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 601ACB82E2E;
+        Sat, 22 Oct 2022 07:56:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92177C433C1;
+        Sat, 22 Oct 2022 07:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425405;
-        bh=tehG72v3c95uVxTzV5i+1h2vcogIiUZ8LZxNLsn5eu4=;
+        s=korg; t=1666425408;
+        bh=1D/vS+8S3AmPgXJJELocgYPg2tPpEPjyNhYTEsMKNm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rl7eMwlzP3hVD2rOnT0D1yw91H66Jnw/IbjKv201vatLYrgcdPYuxhHkCicVrAKF3
-         CLKq82v1mEBUVr8M0OM2/yk0ZqnhW7NYNDxJkPIC0Sh3pnfngx1qNnnPBSwsiBFRQV
-         PVcmKnWyLZb4So6CfQmxom9bqQQUVHDZcf/T0694=
+        b=iVdCxiKHnECRRtqDlHiAqzdQVXK7f3VjulDAGTa664xxcdDrif9DkFbi8KJEgElWK
+         8vpuehdDDXOfi3u2hy2fcICYz5qQD4Zg62jzWn9zOKjBmbxWiCtcFARDOmZUZgzbM2
+         r1K0quiR2wXXvokCl5qpQPN4AR7imds+6nJYSz0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        stable@vger.kernel.org,
         Mike Christie <michael.christie@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 460/717] scsi: iscsi: Run recv path from workqueue
-Date:   Sat, 22 Oct 2022 09:25:39 +0200
-Message-Id: <20221022072518.651221542@linuxfoundation.org>
+Subject: [PATCH 5.19 461/717] scsi: iscsi: iscsi_tcp: Fix null-ptr-deref while calling getpeername()
+Date:   Sat, 22 Oct 2022 09:25:40 +0200
+Message-Id: <20221022072518.691067484@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,170 +56,220 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit f1d269765ee29da56b32818b7a08054484ed89f2 ]
+[ Upstream commit 57569c37f0add1b6489e1a1563c71519daf732cf ]
 
-We don't always want to run the recv path from the network softirq because
-when we have to have multiple sessions sharing the same CPUs, some sessions
-can eat up the NAPI softirq budget and affect other sessions or users.
+Fix a NULL pointer crash that occurs when we are freeing the socket at the
+same time we access it via sysfs.
 
-Allow us to queue the recv handling to the iscsi workqueue so we can have
-the scheduler/wq code try to balance the work and CPU use across all
-sessions' worker threads.
+The problem is that:
 
-Note: It wasn't the original intent of the change but a nice side effect is
-that for some workloads/configs we get a nice performance boost. For a
-simple read heavy test:
+ 1. iscsi_sw_tcp_conn_get_param() and iscsi_sw_tcp_host_get_param() take
+    the frwd_lock and do sock_hold() then drop the frwd_lock. sock_hold()
+    does a get on the "struct sock".
 
-  fio --direct=1 --filename=/dev/dm-0  --rw=randread --bs=256K
-    --ioengine=libaio --iodepth=128 --numjobs=4
+ 2. iscsi_sw_tcp_release_conn() does sockfd_put() which does the last put
+    on the "struct socket" and that does __sock_release() which sets the
+    sock->ops to NULL.
 
-where the iscsi threads, fio jobs, and rps_cpus share CPUs we see a 32%
-throughput boost. We also see increases for small I/O IOPs tests but it's
-not as high.
+ 3. iscsi_sw_tcp_conn_get_param() and iscsi_sw_tcp_host_get_param() then
+    call kernel_getpeername() which accesses the NULL sock->ops.
 
-Link: https://lore.kernel.org/r/20220616224557.115234-4-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
+Above we do a get on the "struct sock", but we needed a get on the "struct
+socket". Originally, we just held the frwd_lock the entire time but in
+commit bcf3a2953d36 ("scsi: iscsi: iscsi_tcp: Avoid holding spinlock while
+calling getpeername()") we switched to refcount based because the network
+layer changed and started taking a mutex in that path, so we could no
+longer hold the frwd_lock.
+
+Instead of trying to maintain multiple refcounts, this just has us use a
+mutex for accessing the socket in the interface code paths.
+
+Link: https://lore.kernel.org/r/20220907221700.10302-1-michael.christie@oracle.com
+Fixes: bcf3a2953d36 ("scsi: iscsi: iscsi_tcp: Avoid holding spinlock while calling getpeername()")
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Stable-dep-of: 57569c37f0ad ("scsi: iscsi: iscsi_tcp: Fix null-ptr-deref while calling getpeername()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/iscsi_tcp.c | 65 ++++++++++++++++++++++++++++++++--------
- drivers/scsi/iscsi_tcp.h |  2 ++
- 2 files changed, 54 insertions(+), 13 deletions(-)
+ drivers/scsi/iscsi_tcp.c | 73 ++++++++++++++++++++++++++++------------
+ drivers/scsi/iscsi_tcp.h |  3 ++
+ 2 files changed, 55 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
-index da1dc345b873..10d7f2b7dd0e 100644
+index 10d7f2b7dd0e..7e99070ea611 100644
 --- a/drivers/scsi/iscsi_tcp.c
 +++ b/drivers/scsi/iscsi_tcp.c
-@@ -52,6 +52,10 @@ static struct iscsi_transport iscsi_sw_tcp_transport;
- static unsigned int iscsi_max_lun = ~0;
- module_param_named(max_lun, iscsi_max_lun, uint, S_IRUGO);
+@@ -595,6 +595,8 @@ iscsi_sw_tcp_conn_create(struct iscsi_cls_session *cls_session,
+ 	INIT_WORK(&conn->recvwork, iscsi_sw_tcp_recv_data_work);
+ 	tcp_sw_conn->queue_recv = iscsi_recv_from_iscsi_q;
  
-+static bool iscsi_recv_from_iscsi_q;
-+module_param_named(recv_from_iscsi_q, iscsi_recv_from_iscsi_q, bool, 0644);
-+MODULE_PARM_DESC(recv_from_iscsi_q, "Set to true to read iSCSI data/headers from the iscsi_q workqueue. The default is false which will perform reads from the network softirq context.");
++	mutex_init(&tcp_sw_conn->sock_lock);
 +
- static int iscsi_sw_tcp_dbg;
- module_param_named(debug_iscsi_tcp, iscsi_sw_tcp_dbg, int,
- 		   S_IRUGO | S_IWUSR);
-@@ -122,20 +126,13 @@ static inline int iscsi_sw_sk_state_check(struct sock *sk)
- 	return 0;
- }
- 
--static void iscsi_sw_tcp_data_ready(struct sock *sk)
-+static void iscsi_sw_tcp_recv_data(struct iscsi_conn *conn)
- {
--	struct iscsi_conn *conn;
--	struct iscsi_tcp_conn *tcp_conn;
-+	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
-+	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
-+	struct sock *sk = tcp_sw_conn->sock->sk;
- 	read_descriptor_t rd_desc;
- 
--	read_lock_bh(&sk->sk_callback_lock);
--	conn = sk->sk_user_data;
--	if (!conn) {
--		read_unlock_bh(&sk->sk_callback_lock);
--		return;
--	}
--	tcp_conn = conn->dd_data;
--
- 	/*
- 	 * Use rd_desc to pass 'conn' to iscsi_tcp_recv.
- 	 * We set count to 1 because we want the network layer to
-@@ -144,13 +141,48 @@ static void iscsi_sw_tcp_data_ready(struct sock *sk)
- 	 */
- 	rd_desc.arg.data = conn;
- 	rd_desc.count = 1;
--	tcp_read_sock(sk, &rd_desc, iscsi_sw_tcp_recv);
- 
--	iscsi_sw_sk_state_check(sk);
-+	tcp_read_sock(sk, &rd_desc, iscsi_sw_tcp_recv);
- 
- 	/* If we had to (atomically) map a highmem page,
- 	 * unmap it now. */
- 	iscsi_tcp_segment_unmap(&tcp_conn->in.segment);
-+
-+	iscsi_sw_sk_state_check(sk);
-+}
-+
-+static void iscsi_sw_tcp_recv_data_work(struct work_struct *work)
-+{
-+	struct iscsi_conn *conn = container_of(work, struct iscsi_conn,
-+					       recvwork);
-+	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
-+	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
-+	struct sock *sk = tcp_sw_conn->sock->sk;
-+
-+	lock_sock(sk);
-+	iscsi_sw_tcp_recv_data(conn);
-+	release_sock(sk);
-+}
-+
-+static void iscsi_sw_tcp_data_ready(struct sock *sk)
-+{
-+	struct iscsi_sw_tcp_conn *tcp_sw_conn;
-+	struct iscsi_tcp_conn *tcp_conn;
-+	struct iscsi_conn *conn;
-+
-+	read_lock_bh(&sk->sk_callback_lock);
-+	conn = sk->sk_user_data;
-+	if (!conn) {
-+		read_unlock_bh(&sk->sk_callback_lock);
-+		return;
-+	}
-+	tcp_conn = conn->dd_data;
-+	tcp_sw_conn = tcp_conn->dd_data;
-+
-+	if (tcp_sw_conn->queue_recv)
-+		iscsi_conn_queue_recv(conn);
-+	else
-+		iscsi_sw_tcp_recv_data(conn);
- 	read_unlock_bh(&sk->sk_callback_lock);
- }
- 
-@@ -276,6 +308,9 @@ static int iscsi_sw_tcp_xmit_segment(struct iscsi_tcp_conn *tcp_conn,
- 		if (segment->total_copied + segment->size < segment->total_size)
- 			flags |= MSG_MORE;
- 
-+		if (tcp_sw_conn->queue_recv)
-+			flags |= MSG_DONTWAIT;
-+
- 		/* Use sendpage if we can; else fall back to sendmsg */
- 		if (!segment->data) {
- 			sg = segment->sg;
-@@ -557,6 +592,8 @@ iscsi_sw_tcp_conn_create(struct iscsi_cls_session *cls_session,
- 	conn = cls_conn->dd_data;
- 	tcp_conn = conn->dd_data;
- 	tcp_sw_conn = tcp_conn->dd_data;
-+	INIT_WORK(&conn->recvwork, iscsi_sw_tcp_recv_data_work);
-+	tcp_sw_conn->queue_recv = iscsi_recv_from_iscsi_q;
- 
  	tfm = crypto_alloc_ahash("crc32c", 0, CRYPTO_ALG_ASYNC);
  	if (IS_ERR(tfm))
-@@ -610,6 +647,8 @@ static void iscsi_sw_tcp_release_conn(struct iscsi_conn *conn)
- 	iscsi_sw_tcp_conn_restore_callbacks(conn);
- 	sock_put(sock->sk);
+ 		goto free_conn;
+@@ -629,11 +631,15 @@ iscsi_sw_tcp_conn_create(struct iscsi_cls_session *cls_session,
  
-+	iscsi_suspend_rx(conn);
-+
- 	spin_lock_bh(&session->frwd_lock);
+ static void iscsi_sw_tcp_release_conn(struct iscsi_conn *conn)
+ {
+-	struct iscsi_session *session = conn->session;
+ 	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
+ 	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
+ 	struct socket *sock = tcp_sw_conn->sock;
+ 
++	/*
++	 * The iscsi transport class will make sure we are not called in
++	 * parallel with start, stop, bind and destroys. However, this can be
++	 * called twice if userspace does a stop then a destroy.
++	 */
+ 	if (!sock)
+ 		return;
+ 
+@@ -649,9 +655,9 @@ static void iscsi_sw_tcp_release_conn(struct iscsi_conn *conn)
+ 
+ 	iscsi_suspend_rx(conn);
+ 
+-	spin_lock_bh(&session->frwd_lock);
++	mutex_lock(&tcp_sw_conn->sock_lock);
  	tcp_sw_conn->sock = NULL;
- 	spin_unlock_bh(&session->frwd_lock);
+-	spin_unlock_bh(&session->frwd_lock);
++	mutex_unlock(&tcp_sw_conn->sock_lock);
+ 	sockfd_put(sock);
+ }
+ 
+@@ -703,7 +709,6 @@ iscsi_sw_tcp_conn_bind(struct iscsi_cls_session *cls_session,
+ 		       struct iscsi_cls_conn *cls_conn, uint64_t transport_eph,
+ 		       int is_leading)
+ {
+-	struct iscsi_session *session = cls_session->dd_data;
+ 	struct iscsi_conn *conn = cls_conn->dd_data;
+ 	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
+ 	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
+@@ -723,10 +728,10 @@ iscsi_sw_tcp_conn_bind(struct iscsi_cls_session *cls_session,
+ 	if (err)
+ 		goto free_socket;
+ 
+-	spin_lock_bh(&session->frwd_lock);
++	mutex_lock(&tcp_sw_conn->sock_lock);
+ 	/* bind iSCSI connection and socket */
+ 	tcp_sw_conn->sock = sock;
+-	spin_unlock_bh(&session->frwd_lock);
++	mutex_unlock(&tcp_sw_conn->sock_lock);
+ 
+ 	/* setup Socket parameters */
+ 	sk = sock->sk;
+@@ -763,8 +768,15 @@ static int iscsi_sw_tcp_conn_set_param(struct iscsi_cls_conn *cls_conn,
+ 		break;
+ 	case ISCSI_PARAM_DATADGST_EN:
+ 		iscsi_set_param(cls_conn, param, buf, buflen);
++
++		mutex_lock(&tcp_sw_conn->sock_lock);
++		if (!tcp_sw_conn->sock) {
++			mutex_unlock(&tcp_sw_conn->sock_lock);
++			return -ENOTCONN;
++		}
+ 		tcp_sw_conn->sendpage = conn->datadgst_en ?
+ 			sock_no_sendpage : tcp_sw_conn->sock->ops->sendpage;
++		mutex_unlock(&tcp_sw_conn->sock_lock);
+ 		break;
+ 	case ISCSI_PARAM_MAX_R2T:
+ 		return iscsi_tcp_set_max_r2t(conn, buf);
+@@ -779,8 +791,8 @@ static int iscsi_sw_tcp_conn_get_param(struct iscsi_cls_conn *cls_conn,
+ 				       enum iscsi_param param, char *buf)
+ {
+ 	struct iscsi_conn *conn = cls_conn->dd_data;
+-	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
+-	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
++	struct iscsi_sw_tcp_conn *tcp_sw_conn;
++	struct iscsi_tcp_conn *tcp_conn;
+ 	struct sockaddr_in6 addr;
+ 	struct socket *sock;
+ 	int rc;
+@@ -790,21 +802,36 @@ static int iscsi_sw_tcp_conn_get_param(struct iscsi_cls_conn *cls_conn,
+ 	case ISCSI_PARAM_CONN_ADDRESS:
+ 	case ISCSI_PARAM_LOCAL_PORT:
+ 		spin_lock_bh(&conn->session->frwd_lock);
+-		if (!tcp_sw_conn || !tcp_sw_conn->sock) {
++		if (!conn->session->leadconn) {
+ 			spin_unlock_bh(&conn->session->frwd_lock);
+ 			return -ENOTCONN;
+ 		}
+-		sock = tcp_sw_conn->sock;
+-		sock_hold(sock->sk);
++		/*
++		 * The conn has been setup and bound, so just grab a ref
++		 * incase a destroy runs while we are in the net layer.
++		 */
++		iscsi_get_conn(conn->cls_conn);
+ 		spin_unlock_bh(&conn->session->frwd_lock);
+ 
++		tcp_conn = conn->dd_data;
++		tcp_sw_conn = tcp_conn->dd_data;
++
++		mutex_lock(&tcp_sw_conn->sock_lock);
++		sock = tcp_sw_conn->sock;
++		if (!sock) {
++			rc = -ENOTCONN;
++			goto sock_unlock;
++		}
++
+ 		if (param == ISCSI_PARAM_LOCAL_PORT)
+ 			rc = kernel_getsockname(sock,
+ 						(struct sockaddr *)&addr);
+ 		else
+ 			rc = kernel_getpeername(sock,
+ 						(struct sockaddr *)&addr);
+-		sock_put(sock->sk);
++sock_unlock:
++		mutex_unlock(&tcp_sw_conn->sock_lock);
++		iscsi_put_conn(conn->cls_conn);
+ 		if (rc < 0)
+ 			return rc;
+ 
+@@ -842,17 +869,21 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
+ 		}
+ 		tcp_conn = conn->dd_data;
+ 		tcp_sw_conn = tcp_conn->dd_data;
+-		sock = tcp_sw_conn->sock;
+-		if (!sock) {
+-			spin_unlock_bh(&session->frwd_lock);
+-			return -ENOTCONN;
+-		}
+-		sock_hold(sock->sk);
++		/*
++		 * The conn has been setup and bound, so just grab a ref
++		 * incase a destroy runs while we are in the net layer.
++		 */
++		iscsi_get_conn(conn->cls_conn);
+ 		spin_unlock_bh(&session->frwd_lock);
+ 
+-		rc = kernel_getsockname(sock,
+-					(struct sockaddr *)&addr);
+-		sock_put(sock->sk);
++		mutex_lock(&tcp_sw_conn->sock_lock);
++		sock = tcp_sw_conn->sock;
++		if (!sock)
++			rc = -ENOTCONN;
++		else
++			rc = kernel_getsockname(sock, (struct sockaddr *)&addr);
++		mutex_unlock(&tcp_sw_conn->sock_lock);
++		iscsi_put_conn(conn->cls_conn);
+ 		if (rc < 0)
+ 			return rc;
+ 
 diff --git a/drivers/scsi/iscsi_tcp.h b/drivers/scsi/iscsi_tcp.h
-index 791453195099..850a018aefb9 100644
+index 850a018aefb9..68e14a344904 100644
 --- a/drivers/scsi/iscsi_tcp.h
 +++ b/drivers/scsi/iscsi_tcp.h
-@@ -28,6 +28,8 @@ struct iscsi_sw_tcp_send {
+@@ -28,6 +28,9 @@ struct iscsi_sw_tcp_send {
  
  struct iscsi_sw_tcp_conn {
  	struct socket		*sock;
-+	struct work_struct	recvwork;
-+	bool			queue_recv;
++	/* Taken when accessing the sock from the netlink/sysfs interface */
++	struct mutex		sock_lock;
++
+ 	struct work_struct	recvwork;
+ 	bool			queue_recv;
  
- 	struct iscsi_sw_tcp_send out;
- 	/* old values for socket callbacks */
 -- 
 2.35.1
 
