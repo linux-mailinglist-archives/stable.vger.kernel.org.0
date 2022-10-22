@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E322608C7B
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 13:19:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43E43608B75
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:21:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230255AbiJVLTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 07:19:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59860 "EHLO
+        id S230020AbiJVKVU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 06:21:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230470AbiJVLTJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 07:19:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7246A2B5B92;
-        Sat, 22 Oct 2022 03:46:21 -0700 (PDT)
+        with ESMTP id S230010AbiJVKUq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:20:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C35D31D5A3;
+        Sat, 22 Oct 2022 02:37:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E86EAB82E16;
-        Sat, 22 Oct 2022 08:00:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76701C433D7;
-        Sat, 22 Oct 2022 08:00:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0D64B82E35;
+        Sat, 22 Oct 2022 08:00:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C69AC433D7;
+        Sat, 22 Oct 2022 08:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425614;
-        bh=r1uSprv05uRiiOBGa4ahdssT8plV/zjFxqe8j0cDwak=;
+        s=korg; t=1666425617;
+        bh=WsLm7DULaSh3XLEUh8TtPER6hSxauw/5gTEcKzR+ymA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dHdSw/VQvoazTOJT/rTDzI3FavFk1xZjqy23AvipESzi+wWvj/1gJTiS0/Uxp19WA
-         nbGhL7Fz3uvRFAnGUYiqTTk5fDGdqnG6OM5P5jYwPCkq2Ql3D37402X7j1w+hFQJb+
-         Ykv7EV5M1wPmXu24zK23BUMzacTxRPzZdda5PCuk=
+        b=rmFTavuUkooxzmbugtnm0pGLkApoysBWN0zW9v6D9/SgSSCoxY7K0wcNUTcAfdJ4s
+         rq81ZODUEpjmiVKA8jhWbeIU4IPr5QtoVL6xPwnMoHXSryGuZvhUzbOeYNoW9+y29d
+         nhWnemO9NjkA6vj3UzPWVWC4Q8hCGSBCrpSMpsKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Rob Herring <robh@kernel.org>,
+        stable@vger.kernel.org, Yann Sionneau <ysionneau@kalray.eu>,
         Masahiro Yamada <masahiroy@kernel.org>,
-        Nicolas Schier <nicolas@fjasle.eu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 528/717] kbuild: remove the target in signal traps when interrupted
-Date:   Sat, 22 Oct 2022 09:26:47 +0200
-Message-Id: <20221022072521.669887803@linuxfoundation.org>
+Subject: [PATCH 5.19 529/717] linux/export: use inline assembler to populate symbol CRCs
+Date:   Sat, 22 Oct 2022 09:26:48 +0200
+Message-Id: <20221022072521.710779092@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -57,168 +55,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit a7f3257da8a86b96fb9bf1bba40ae0bbd7f1885a ]
+[ Upstream commit f3304ecd7f060db1d4197fbdce5a503259f770d3 ]
 
-When receiving some signal, GNU Make automatically deletes the target if
-it has already been changed by the interrupted recipe.
+Since commit 7b4537199a4a ("kbuild: link symbol CRCs at final link,
+removing CONFIG_MODULE_REL_CRCS"), the module versioning on the
+(non-upstreamed-yet) kvx Linux port is broken due to unexpected padding
+for __crc_* symbols. The kvx GCC adds padding so u32 gets 8-byte
+alignment instead of 4.
 
-If the target is possibly incomplete due to interruption, it must be
-deleted so that it will be remade from scratch on the next run of make.
-Otherwise, the target would remain corrupted permanently because its
-timestamp had already been updated.
+I do not know if this happens for upstream architectures in general,
+but any compiler has the freedom to insert padding for faster access.
 
-Thanks to this behavior of Make, you can stop the build any time by
-pressing Ctrl-C, and just run 'make' to resume it.
+Use the inline assembler to directly specify the wanted data layout.
+This is how we previously did before the breakage.
 
-Kbuild also relies on this feature, but it is equivalently important
-for any build systems that make decisions based on timestamps (if you
-want to support Ctrl-C reliably).
-
-However, this does not always work as claimed; Make immediately dies
-with Ctrl-C if its stderr goes into a pipe.
-
-  [Test Makefile]
-
-    foo:
-            echo hello > $@
-            sleep 3
-            echo world >> $@
-
-  [Test Result]
-
-    $ make                         # hit Ctrl-C
-    echo hello > foo
-    sleep 3
-    ^Cmake: *** Deleting file 'foo'
-    make: *** [Makefile:3: foo] Interrupt
-
-    $ make 2>&1 | cat              # hit Ctrl-C
-    echo hello > foo
-    sleep 3
-    ^C$                            # 'foo' is often left-over
-
-The reason is because SIGINT is sent to the entire process group.
-In this example, SIGINT kills 'cat', and 'make' writes the message to
-the closed pipe, then dies with SIGPIPE before cleaning the target.
-
-A typical bad scenario (as reported by [1], [2]) is to save build log
-by using the 'tee' command:
-
-    $ make 2>&1 | tee log
-
-This can be problematic for any build systems based on Make, so I hope
-it will be fixed in GNU Make. The maintainer of GNU Make stated this is
-a long-standing issue and difficult to fix [3]. It has not been fixed
-yet as of writing.
-
-So, we cannot rely on Make cleaning the target. We can do it by
-ourselves, in signal traps.
-
-As far as I understand, Make takes care of SIGHUP, SIGINT, SIGQUIT, and
-SITERM for the target removal. I added the traps for them, and also for
-SIGPIPE just in case cmd_* rule prints something to stdout or stderr
-(but I did not observe an actual case where SIGPIPE was triggered).
-
-[Note 1]
-
-The trap handler might be worth explaining.
-
-    rm -f $@; trap - $(sig); kill -s $(sig) $$
-
-This lets the shell kill itself by the signal it caught, so the parent
-process can tell the child has exited on the signal. Generally, this is
-a proper manner for handling signals, in case the calling program (like
-Bash) may monitor WIFSIGNALED() and WTERMSIG() for WCE although this may
-not be a big deal here because GNU Make handles SIGHUP, SIGINT, SIGQUIT
-in WUE and SIGTERM in IUE.
-
-  IUE - Immediate Unconditional Exit
-  WUE - Wait and Unconditional Exit
-  WCE - Wait and Cooperative Exit
-
-For details, see "Proper handling of SIGINT/SIGQUIT" [4].
-
-[Note 2]
-
-Reverting 392885ee82d3 ("kbuild: let fixdep directly write to .*.cmd
-files") would directly address [1], but it only saves if_changed_dep.
-As reported in [2], all commands that use redirection can potentially
-leave an empty (i.e. broken) target.
-
-[Note 3]
-
-Another (even safer) approach might be to always write to a temporary
-file, and rename it to $@ at the end of the recipe.
-
-   <command>  > $(tmp-target)
-   mv $(tmp-target) $@
-
-It would require a lot of Makefile changes, and result in ugly code,
-so I did not take it.
-
-[Note 4]
-
-A little more thoughts about a pattern rule with multiple targets (or
-a grouped target).
-
-    %.x %.y: %.z
-            <recipe>
-
-When interrupted, GNU Make deletes both %.x and %.y, while this solution
-only deletes $@. Probably, this is not a big deal. The next run of make
-will execute the rule again to create $@ along with the other files.
-
-[1]: https://lore.kernel.org/all/YLeot94yAaM4xbMY@gmail.com/
-[2]: https://lore.kernel.org/all/20220510221333.2770571-1-robh@kernel.org/
-[3]: https://lists.gnu.org/archive/html/help-make/2021-06/msg00001.html
-[4]: https://www.cons.org/cracauer/sigint.html
-
-Fixes: 392885ee82d3 ("kbuild: let fixdep directly write to .*.cmd files")
-Reported-by: Ingo Molnar <mingo@kernel.org>
-Reported-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/lkml/20220817161438.32039-1-ysionneau@kalray.eu/
+Link: https://lore.kernel.org/linux-kbuild/31ce5305-a76b-13d7-ea55-afca82c46cf2@kalray.eu/
+Fixes: 7b4537199a4a ("kbuild: link symbol CRCs at final link, removing CONFIG_MODULE_REL_CRCS")
+Reported-by: Yann Sionneau <ysionneau@kalray.eu>
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Tested-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
+Tested-by: Yann Sionneau <ysionneau@kalray.eu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Kbuild.include | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ include/linux/export-internal.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
-index ece44b735061..2bc08ace38a3 100644
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -100,8 +100,29 @@ echo-cmd = $(if $($(quiet)cmd_$(1)),\
-  quiet_redirect :=
- silent_redirect := exec >/dev/null;
+diff --git a/include/linux/export-internal.h b/include/linux/export-internal.h
+index c2b1d4fd5987..fe7e6ba918f1 100644
+--- a/include/linux/export-internal.h
++++ b/include/linux/export-internal.h
+@@ -10,8 +10,10 @@
+ #include <linux/compiler.h>
+ #include <linux/types.h>
  
-+# Delete the target on interruption
-+#
-+# GNU Make automatically deletes the target if it has already been changed by
-+# the interrupted recipe. So, you can safely stop the build by Ctrl-C (Make
-+# will delete incomplete targets), and resume it later.
-+#
-+# However, this does not work when the stderr is piped to another program, like
-+#  $ make >&2 | tee log
-+# Make dies with SIGPIPE before cleaning the targets.
-+#
-+# To address it, we clean the target in signal traps.
-+#
-+# Make deletes the target when it catches SIGHUP, SIGINT, SIGQUIT, SIGTERM.
-+# So, we cover them, and also SIGPIPE just in case.
-+#
-+# Of course, this is unneeded for phony targets.
-+delete-on-interrupt = \
-+	$(if $(filter-out $(PHONY), $@), \
-+		$(foreach sig, HUP INT QUIT TERM PIPE, \
-+			trap 'rm -f $@; trap - $(sig); kill -s $(sig) $$$$' $(sig);))
-+
- # printing commands
--cmd = @set -e; $(echo-cmd) $($(quiet)redirect) $(cmd_$(1))
-+cmd = @set -e; $(echo-cmd) $($(quiet)redirect) $(delete-on-interrupt) $(cmd_$(1))
+-/* __used is needed to keep __crc_* for LTO */
+ #define SYMBOL_CRC(sym, crc, sec)   \
+-	u32 __section("___kcrctab" sec "+" #sym) __used __crc_##sym = crc
++	asm(".section \"___kcrctab" sec "+" #sym "\",\"a\""	"\n" \
++	    "__crc_" #sym ":"					"\n" \
++	    ".long " #crc					"\n" \
++	    ".previous"						"\n")
  
- ###
- # if_changed      - execute command if any prerequisite is newer than
+ #endif /* __LINUX_EXPORT_INTERNAL_H__ */
 -- 
 2.35.1
 
