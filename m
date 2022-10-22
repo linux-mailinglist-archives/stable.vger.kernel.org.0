@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E60C7608858
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD1AE608852
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233279AbiJVIQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:16:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57616 "EHLO
+        id S233207AbiJVIQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:16:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233237AbiJVIML (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:12:11 -0400
+        with ESMTP id S233426AbiJVIOB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:14:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B4322C10A;
-        Sat, 22 Oct 2022 00:54:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9E31EB77C;
+        Sat, 22 Oct 2022 00:55:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D8E4B82E10;
-        Sat, 22 Oct 2022 07:54:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAD68C433C1;
-        Sat, 22 Oct 2022 07:54:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60F13B82DF2;
+        Sat, 22 Oct 2022 07:54:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA09FC433D6;
+        Sat, 22 Oct 2022 07:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425277;
-        bh=JriGQH2ZerNgXXSQ2NT+nwSDaZwwrAgrAf1yrFYB7KA=;
+        s=korg; t=1666425280;
+        bh=Lkr8BBYCeuGeSIQydNTEzXhG3Uyi1hcTr8C3WMh2Pj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hbZ9AgHf8h7gJGcMssOvw+UU+kjNN9WMNuav20md8I92oGQ3WmBZ2mF1dVf/P06Zh
-         5PYFTBM7l6toYD3Ud1Daihu5irqZQp1PBdusAn+Pi3yhMxmJg6TXdNzSPlKUtuw1Xe
-         WU2Z6Ar6bLSNhTtlxgQ3ispRNt3gmGT5gje+RR/c=
+        b=cMFV3snmE/yOqfqIybIsBqhIcxzbJQdLnO6cCk4yoDtruzVXUWBBaHUKF9WhoD8Vx
+         qHy/c9RJVUTxMHuObZfcQlEkqo7mkSzvFMDb50m4NjeyIz1MYJ7frxI0YtGGn0mFr9
+         JUWIVAsY2E9j9IVCzj5mS7B2S66CYuAYoTmg6jGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lennert Buytenhek <buytenh@arista.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org,
         =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Thara Gopinath <tgopinath@microsoft.com>,
+        Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 448/717] serial: 8250: Toggle IER bits on only after irq has been set up
-Date:   Sat, 22 Oct 2022 09:25:27 +0200
-Message-Id: <20221022072518.088368896@linuxfoundation.org>
+Subject: [PATCH 5.19 449/717] tty: serial: fsl_lpuart: disable dma rx/tx use flags in lpuart_dma_shutdown
+Date:   Sat, 22 Oct 2022 09:25:28 +0200
+Message-Id: <20221022072518.120169495@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,138 +55,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 039d4926379b1d1c17b51cf21c500a5eed86899e ]
+[ Upstream commit 316ae95c175a7d770d1bfe4c011192712f57aa4a ]
 
-Invoking TIOCVHANGUP on 8250_mid port on Ice Lake-D and then reopening
-the port triggers these faults during serial8250_do_startup():
+lpuart_dma_shutdown tears down lpuart dma, but lpuart_flush_buffer can
+still occur which in turn tries to access dma apis if lpuart_dma_tx_use
+flag is true. At this point since dma is torn down, these dma apis can
+abort. Set lpuart_dma_tx_use and the corresponding rx flag
+lpuart_dma_rx_use to false in lpuart_dma_shutdown so that dmas are not
+accessed after they are relinquished.
 
-  DMAR: DRHD: handling fault status reg 3
-  DMAR: [DMA Write NO_PASID] Request device [00:1a.0] fault addr 0x0 [fault reason 0x05] PTE Write access is not set
+Otherwise, when try to kill btattach, kernel may panic. This patch may
+fix this issue.
+root@imx8ulpevk:~# btattach -B /dev/ttyLP2 -S 115200
+^C[   90.182296] Internal error: synchronous external abort: 96000210 [#1] PREEMPT SMP
+[   90.189806] Modules linked in: moal(O) mlan(O)
+[   90.194258] CPU: 0 PID: 503 Comm: btattach Tainted: G           O      5.15.32-06136-g34eecdf2f9e4 #37
+[   90.203554] Hardware name: NXP i.MX8ULP 9X9 EVK (DT)
+[   90.208513] pstate: 600000c5 (nZCv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[   90.215470] pc : fsl_edma3_disable_request+0x8/0x60
+[   90.220358] lr : fsl_edma3_terminate_all+0x34/0x20c
+[   90.225237] sp : ffff800013f0bac0
+[   90.228548] x29: ffff800013f0bac0 x28: 0000000000000001 x27: ffff000008404800
+[   90.235681] x26: ffff000008404960 x25: ffff000008404a08 x24: ffff000008404a00
+[   90.242813] x23: ffff000008404a60 x22: 0000000000000002 x21: 0000000000000000
+[   90.249946] x20: ffff800013f0baf8 x19: ffff00000559c800 x18: 0000000000000000
+[   90.257078] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+[   90.264211] x14: 0000000000000003 x13: 0000000000000000 x12: 0000000000000040
+[   90.271344] x11: ffff00000600c248 x10: ffff800013f0bb10 x9 : ffff000057bcb090
+[   90.278477] x8 : fffffc0000241a08 x7 : ffff00000534ee00 x6 : ffff000008404804
+[   90.285609] x5 : 0000000000000000 x4 : 0000000000000000 x3 : ffff0000055b3480
+[   90.292742] x2 : ffff8000135c0000 x1 : ffff00000534ee00 x0 : ffff00000559c800
+[   90.299876] Call trace:
+[   90.302321]  fsl_edma3_disable_request+0x8/0x60
+[   90.306851]  lpuart_flush_buffer+0x40/0x160
+[   90.311037]  uart_flush_buffer+0x88/0x120
+[   90.315050]  tty_driver_flush_buffer+0x20/0x30
+[   90.319496]  hci_uart_flush+0x44/0x90
+[   90.323162]  +0x34/0x12c
+[   90.327253]  tty_ldisc_close+0x38/0x70
+[   90.331005]  tty_ldisc_release+0xa8/0x190
+[   90.335018]  tty_release_struct+0x24/0x8c
+[   90.339022]  tty_release+0x3ec/0x4c0
+[   90.342593]  __fput+0x70/0x234
+[   90.345652]  ____fput+0x14/0x20
+[   90.348790]  task_work_run+0x84/0x17c
+[   90.352455]  do_exit+0x310/0x96c
+[   90.355688]  do_group_exit+0x3c/0xa0
+[   90.359259]  __arm64_sys_exit_group+0x1c/0x20
+[   90.363609]  invoke_syscall+0x48/0x114
+[   90.367362]  el0_svc_common.constprop.0+0xd4/0xfc
+[   90.372068]  do_el0_svc+0x2c/0x94
+[   90.375379]  el0_svc+0x28/0x80
+[   90.378438]  el0t_64_sync_handler+0xa8/0x130
+[   90.382711]  el0t_64_sync+0x1a0/0x1a4
+[   90.386376] Code: 17ffffda d503201f d503233f f9409802 (b9400041)
+[   90.392467] ---[ end trace 2f60524b4a43f1f6 ]---
+[   90.397073] note: btattach[503] exited with preempt_count 1
+[   90.402636] Fixing recursive fault but reboot is needed!
 
-If the IRQ hasn't been set up yet, the UART will have zeroes in its MSI
-address/data registers. Disabling the IRQ at the interrupt controller
-won't stop the UART from performing a DMA write to the address programmed
-in its MSI address register (zero) when it wants to signal an interrupt.
-
-The UARTs (in Ice Lake-D) implement PCI 2.1 style MSI without masking
-capability, so there is no way to mask the interrupt at the source PCI
-function level, except disabling the MSI capability entirely, but that
-would cause it to fall back to INTx# assertion, and the PCI specification
-prohibits disabling the MSI capability as a way to mask a function's
-interrupt service request.
-
-The MSI address register is zeroed by the hangup as the irq is freed.
-The interrupt is signalled during serial8250_do_startup() performing a
-THRE test that temporarily toggles THRI in IER. The THRE test currently
-occurs before UART's irq (and MSI address) is properly set up.
-
-Refactor serial8250_do_startup() such that irq is set up before the
-THRE test. The current irq setup code is intermixed with the timer
-setup code. As THRE test must be performed prior to the timer setup,
-extract it into own function and call it only after the THRE test.
-
-The ->setup_timer() needs to be part of the struct uart_8250_ops in
-order to not create circular dependency between 8250 and 8250_base
-modules.
-
-Fixes: 40b36daad0ac ("[PATCH] 8250 UART backup timer")
-Reported-by: Lennert Buytenhek <buytenh@arista.com>
-Tested-by: Lennert Buytenhek <buytenh@arista.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220922070005.2965-1-ilpo.jarvinen@linux.intel.com
+Fixes: 6250cc30c4c4 ("tty: serial: fsl_lpuart: Use scatter/gather DMA for Tx")
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Thara Gopinath <tgopinath@microsoft.com>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20220920111703.1532-1-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_core.c | 16 +++++++++++-----
- drivers/tty/serial/8250/8250_port.c |  8 +++++---
- include/linux/serial_8250.h         |  1 +
- 3 files changed, 17 insertions(+), 8 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/8250_core.c b/drivers/tty/serial/8250/8250_core.c
-index 82726cda6066..f05544e93eae 100644
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -298,10 +298,9 @@ static void serial8250_backup_timeout(struct timer_list *t)
- 		jiffies + uart_poll_timeout(&up->port) + HZ / 5);
- }
- 
--static int univ8250_setup_irq(struct uart_8250_port *up)
-+static void univ8250_setup_timer(struct uart_8250_port *up)
- {
- 	struct uart_port *port = &up->port;
--	int retval = 0;
- 
- 	/*
- 	 * The above check will only give an accurate result the first time
-@@ -322,10 +321,16 @@ static int univ8250_setup_irq(struct uart_8250_port *up)
- 	 */
- 	if (!port->irq)
- 		mod_timer(&up->timer, jiffies + uart_poll_timeout(port));
--	else
--		retval = serial_link_irq_chain(up);
-+}
- 
--	return retval;
-+static int univ8250_setup_irq(struct uart_8250_port *up)
-+{
-+	struct uart_port *port = &up->port;
-+
-+	if (port->irq)
-+		return serial_link_irq_chain(up);
-+
-+	return 0;
- }
- 
- static void univ8250_release_irq(struct uart_8250_port *up)
-@@ -381,6 +386,7 @@ static struct uart_ops univ8250_port_ops;
- static const struct uart_8250_ops univ8250_driver_ops = {
- 	.setup_irq	= univ8250_setup_irq,
- 	.release_irq	= univ8250_release_irq,
-+	.setup_timer	= univ8250_setup_timer,
- };
- 
- static struct uart_8250_port serial8250_ports[UART_NR];
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 5db53941d881..d5f9b56fdbab 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -2303,6 +2303,10 @@ int serial8250_do_startup(struct uart_port *port)
- 	if (port->irq && (up->port.flags & UPF_SHARE_IRQ))
- 		up->port.irqflags |= IRQF_SHARED;
- 
-+	retval = up->ops->setup_irq(up);
-+	if (retval)
-+		goto out;
-+
- 	if (port->irq && !(up->port.flags & UPF_NO_THRE_TEST)) {
- 		unsigned char iir1;
- 
-@@ -2345,9 +2349,7 @@ int serial8250_do_startup(struct uart_port *port)
- 		}
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index cb83c66bd8a8..a6471af9653c 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -1768,6 +1768,7 @@ static void lpuart_dma_shutdown(struct lpuart_port *sport)
+ 	if (sport->lpuart_dma_rx_use) {
+ 		del_timer_sync(&sport->lpuart_timer);
+ 		lpuart_dma_rx_free(&sport->port);
++		sport->lpuart_dma_rx_use = false;
  	}
  
--	retval = up->ops->setup_irq(up);
--	if (retval)
--		goto out;
-+	up->ops->setup_timer(up);
+ 	if (sport->lpuart_dma_tx_use) {
+@@ -1776,6 +1777,7 @@ static void lpuart_dma_shutdown(struct lpuart_port *sport)
+ 			sport->dma_tx_in_progress = false;
+ 			dmaengine_terminate_all(sport->dma_tx_chan);
+ 		}
++		sport->lpuart_dma_tx_use = false;
+ 	}
  
- 	/*
- 	 * Now, initialize the UART
-diff --git a/include/linux/serial_8250.h b/include/linux/serial_8250.h
-index ff84a3ed10ea..b0183e90fe90 100644
---- a/include/linux/serial_8250.h
-+++ b/include/linux/serial_8250.h
-@@ -74,6 +74,7 @@ struct uart_8250_port;
- struct uart_8250_ops {
- 	int		(*setup_irq)(struct uart_8250_port *);
- 	void		(*release_irq)(struct uart_8250_port *);
-+	void		(*setup_timer)(struct uart_8250_port *);
- };
- 
- struct uart_8250_em485 {
+ 	if (sport->dma_tx_chan)
 -- 
 2.35.1
 
