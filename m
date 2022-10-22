@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2407C608982
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2D76089D9
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:42:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234204AbiJVIgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:36:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54780 "EHLO
+        id S234794AbiJVImr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:42:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234514AbiJVIfn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:35:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B71491C2;
-        Sat, 22 Oct 2022 01:04:46 -0700 (PDT)
+        with ESMTP id S234293AbiJVIkq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:40:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC0C22E7144;
+        Sat, 22 Oct 2022 01:06:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E871C60B8C;
-        Sat, 22 Oct 2022 08:04:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF183C433D6;
-        Sat, 22 Oct 2022 08:04:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2C62B82DF1;
+        Sat, 22 Oct 2022 08:04:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B061C433C1;
+        Sat, 22 Oct 2022 08:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425869;
-        bh=TlFvzsGM4Nex1avejFrjzErcNggEJVizUEc0EWbwmEE=;
+        s=korg; t=1666425872;
+        bh=mZXZ26tA7ttCTsWuOIwX3tsboXgN7RDn17R3Kdc+NzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCWCIZbJ+BfSgD1rMQ04suN/eiJXWuZkubvyS7BPtr6Rboo+9fv6zH+b7Nqzq3G8O
-         Iw4vdUitwmN5jqx9fUuSsSVyla6D2OedR1qa0estQD8++GplGKc0Q9qQaVFXoGGrl/
-         iPSvNSKxgZHVP3sACh3MI6Ne6sKLel5qtiHR/UjY=
+        b=teeoaA1hurxO8/6gpC90UGqrk1tahzLWJQvtnn3MXDwT3AI3X9bkBGEOeLWyn/sa3
+         iTBySWPVtziZW9XrHCKoZGzpi2T5yuq+a9isJ8O8mJLxiH24bdaz4d3RXdLgJb5/LW
+         vn94kF9kyXvv+T1rIHUWh7ezWwCuvcFYKQd5zd10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 642/717] btrfs: dump extra info if one free space cache has more bitmaps than it should
-Date:   Sat, 22 Oct 2022 09:28:41 +0200
-Message-Id: <20221022072526.841385048@linuxfoundation.org>
+Subject: [PATCH 5.19 643/717] btrfs: scrub: properly report super block errors in system log
+Date:   Sat, 22 Oct 2022 09:28:42 +0200
+Message-Id: <20221022072526.881175601@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,61 +55,141 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 62cd9d4474282a1eb84f945955c56cbfc42e1ffe ]
+[ Upstream commit e69bf81c9a339f1b2c041b112a6fbb9f60fc9340 ]
 
-There is an internal report on hitting the following ASSERT() in
-recalculate_thresholds():
+[PROBLEM]
 
- 	ASSERT(ctl->total_bitmaps <= max_bitmaps);
+Unlike data/metadata corruption, if scrub detected some error in the
+super block, the only error message is from the updated device status:
 
-Above @max_bitmaps is calculated using the following variables:
+  BTRFS info (device dm-1): scrub: started on devid 2
+  BTRFS error (device dm-1): bdev /dev/mapper/test-scratch2 errs: wr 0, rd 0, flush 0, corrupt 1, gen 0
+  BTRFS info (device dm-1): scrub: finished on devid 2 with status: 0
 
-- bytes_per_bg
-  8 * 4096 * 4096 (128M) for x86_64/x86.
+This is not helpful at all.
 
-- block_group->length
-  The length of the block group.
+[CAUSE]
+Unlike data/metadata error reporting, there is no visible report in
+kernel dmesg to report supper block errors.
 
-@max_bitmaps is the rounded up value of block_group->length / 128M.
+In fact, return value of scrub_checksum_super() is intentionally
+skipped, thus scrub_handle_errored_block() will never be called for
+super blocks.
 
-Normally one free space cache should not have more bitmaps than above
-value, but when it happens the ASSERT() can be triggered if
-CONFIG_BTRFS_ASSERT is also enabled.
+[FIX]
+Make super block errors to output an error message, now the full
+dmesg would looks like this:
 
-But the ASSERT() itself won't provide enough info to know which is going
-wrong.
-Is the bg too small thus it only allows one bitmap?
-Or is there something else wrong?
+  BTRFS info (device dm-1): scrub: started on devid 2
+  BTRFS warning (device dm-1): super block error on device /dev/mapper/test-scratch2, physical 67108864
+  BTRFS error (device dm-1): bdev /dev/mapper/test-scratch2 errs: wr 0, rd 0, flush 0, corrupt 1, gen 0
+  BTRFS info (device dm-1): scrub: finished on devid 2 with status: 0
+  BTRFS info (device dm-1): scrub: started on devid 2
 
-So although I haven't found extra reports or crash dump to do further
-investigation, add the extra info to make it more helpful to debug.
+This fix involves:
 
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
+- Move the super_errors reporting to scrub_handle_errored_block()
+  This allows the device status message to show after the super block
+  error message.
+  But now we no longer distinguish super block corruption and generation
+  mismatch, now all counted as corruption.
+
+- Properly check the return value from scrub_checksum_super()
+- Add extra super block error reporting for scrub_print_warning().
+
 Signed-off-by: Qu Wenruo <wqu@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/free-space-cache.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/btrfs/scrub.c | 33 ++++++++++++---------------------
+ 1 file changed, 12 insertions(+), 21 deletions(-)
 
-diff --git a/fs/btrfs/free-space-cache.c b/fs/btrfs/free-space-cache.c
-index b1ae3ba2ca2c..16710d4571da 100644
---- a/fs/btrfs/free-space-cache.c
-+++ b/fs/btrfs/free-space-cache.c
-@@ -693,6 +693,12 @@ static void recalculate_thresholds(struct btrfs_free_space_ctl *ctl)
+diff --git a/fs/btrfs/scrub.c b/fs/btrfs/scrub.c
+index e7b0323e6efd..f62bfa023178 100644
+--- a/fs/btrfs/scrub.c
++++ b/fs/btrfs/scrub.c
+@@ -731,6 +731,13 @@ static void scrub_print_warning(const char *errstr, struct scrub_block *sblock)
+ 	dev = sblock->sectors[0]->dev;
+ 	fs_info = sblock->sctx->fs_info;
  
- 	max_bitmaps = max_t(u64, max_bitmaps, 1);
++	/* Super block error, no need to search extent tree. */
++	if (sblock->sectors[0]->flags & BTRFS_EXTENT_FLAG_SUPER) {
++		btrfs_warn_in_rcu(fs_info, "%s on device %s, physical %llu",
++			errstr, rcu_str_deref(dev->name),
++			sblock->sectors[0]->physical);
++		return;
++	}
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+ 		return;
+@@ -806,7 +813,7 @@ static inline void scrub_put_recover(struct btrfs_fs_info *fs_info,
+ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
+ {
+ 	struct scrub_ctx *sctx = sblock_to_check->sctx;
+-	struct btrfs_device *dev;
++	struct btrfs_device *dev = sblock_to_check->sectors[0]->dev;
+ 	struct btrfs_fs_info *fs_info;
+ 	u64 logical;
+ 	unsigned int failed_mirror_index;
+@@ -827,13 +834,15 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
+ 	fs_info = sctx->fs_info;
+ 	if (sblock_to_check->sectors[0]->flags & BTRFS_EXTENT_FLAG_SUPER) {
+ 		/*
+-		 * if we find an error in a super block, we just report it.
++		 * If we find an error in a super block, we just report it.
+ 		 * They will get written with the next transaction commit
+ 		 * anyway
+ 		 */
++		scrub_print_warning("super block error", sblock_to_check);
+ 		spin_lock(&sctx->stat_lock);
+ 		++sctx->stat.super_errors;
+ 		spin_unlock(&sctx->stat_lock);
++		btrfs_dev_stat_inc_and_print(dev, BTRFS_DEV_STAT_CORRUPTION_ERRS);
+ 		return 0;
+ 	}
+ 	logical = sblock_to_check->sectors[0]->logical;
+@@ -842,7 +851,6 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
+ 	is_metadata = !(sblock_to_check->sectors[0]->flags &
+ 			BTRFS_EXTENT_FLAG_DATA);
+ 	have_csum = sblock_to_check->sectors[0]->have_csum;
+-	dev = sblock_to_check->sectors[0]->dev;
  
-+	if (ctl->total_bitmaps > max_bitmaps)
-+		btrfs_err(block_group->fs_info,
-+"invalid free space control: bg start=%llu len=%llu total_bitmaps=%u unit=%u max_bitmaps=%llu bytes_per_bg=%llu",
-+			  block_group->start, block_group->length,
-+			  ctl->total_bitmaps, ctl->unit, max_bitmaps,
-+			  bytes_per_bg);
- 	ASSERT(ctl->total_bitmaps <= max_bitmaps);
+ 	if (!sctx->is_dev_replace && btrfs_repair_one_zone(fs_info, logical))
+ 		return 0;
+@@ -1773,7 +1781,7 @@ static int scrub_checksum(struct scrub_block *sblock)
+ 	else if (flags & BTRFS_EXTENT_FLAG_TREE_BLOCK)
+ 		ret = scrub_checksum_tree_block(sblock);
+ 	else if (flags & BTRFS_EXTENT_FLAG_SUPER)
+-		(void)scrub_checksum_super(sblock);
++		ret = scrub_checksum_super(sblock);
+ 	else
+ 		WARN_ON(1);
+ 	if (ret)
+@@ -1912,23 +1920,6 @@ static int scrub_checksum_super(struct scrub_block *sblock)
+ 	if (memcmp(calculated_csum, s->csum, sctx->fs_info->csum_size))
+ 		++fail_cor;
  
- 	/*
+-	if (fail_cor + fail_gen) {
+-		/*
+-		 * if we find an error in a super block, we just report it.
+-		 * They will get written with the next transaction commit
+-		 * anyway
+-		 */
+-		spin_lock(&sctx->stat_lock);
+-		++sctx->stat.super_errors;
+-		spin_unlock(&sctx->stat_lock);
+-		if (fail_cor)
+-			btrfs_dev_stat_inc_and_print(sector->dev,
+-				BTRFS_DEV_STAT_CORRUPTION_ERRS);
+-		else
+-			btrfs_dev_stat_inc_and_print(sector->dev,
+-				BTRFS_DEV_STAT_GENERATION_ERRS);
+-	}
+-
+ 	return fail_cor + fail_gen;
+ }
+ 
 -- 
 2.35.1
 
