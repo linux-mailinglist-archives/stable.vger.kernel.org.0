@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED0F86085AE
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:37:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CCBC6085BE
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:38:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230310AbiJVHh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49058 "EHLO
+        id S230445AbiJVHij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:38:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230331AbiJVHgu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:36:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04C44E410;
-        Sat, 22 Oct 2022 00:35:19 -0700 (PDT)
+        with ESMTP id S230387AbiJVHhR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:37:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41FC33EA43;
+        Sat, 22 Oct 2022 00:35:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C08F60AD7;
-        Sat, 22 Oct 2022 07:35:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 537BBC4347C;
-        Sat, 22 Oct 2022 07:35:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02D79B82DE2;
+        Sat, 22 Oct 2022 07:35:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B79EC433D7;
+        Sat, 22 Oct 2022 07:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424117;
-        bh=m+TRFRTP9gvTQtFF2Gus8jbfXoqPRF+vKAg3y1aelXY=;
+        s=korg; t=1666424120;
+        bh=W1TBsJ7qVPDisZmRcj5ehPhfk4MheiAIYfQxWqtgAmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ixYUUXP/ezUt/AUQsRU6Bs+73imfHvfjxQVUpqIeSrtvr9Jqs7OyVFTUxestgRKeT
-         1SvtQdKqwYdJtNihWRtuowcvWyWfkE7sdYY7oqKseWCquuKrkaDdHGN6sdtM16rbaH
-         WOnSjp0RhP9tfbLm5VlGC9tPk0rN2H92/xeok/Uc=
+        b=wqoob1K9hwXnc9vBpWZsqcxYdJI3BpfU9ffeT21JHOu1NHYT5qdTGmgtlmyUUFoVd
+         sEiiYAGm/NdWQ9CVGFN6qSGCi4Y1r3mf28TJpF8+fx8DwFqWwjinOzkuggOyOibKpj
+         4LBbicRTObPMbqJ1usitTjUNjQ61c3jrmQrkqsy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Callum Osmotherly <callum.osmotherly@gmail.com>,
+        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.19 006/717] ALSA: hda/realtek: remove ALC289_FIXUP_DUAL_SPK for Dell 5530
-Date:   Sat, 22 Oct 2022 09:18:05 +0200
-Message-Id: <20221022072416.192634022@linuxfoundation.org>
+Subject: [PATCH 5.19 007/717] ALSA: hda/realtek: Correct pin configs for ASUS G533Z
+Date:   Sat, 22 Oct 2022 09:18:06 +0200
+Message-Id: <20221022072416.364454804@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,34 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Callum Osmotherly <callum.osmotherly@gmail.com>
+From: Luke D. Jones <luke@ljones.dev>
 
-commit 417b9c51f59734d852e47252476fadc293ad994a upstream.
+commit 66ba7c88507344dee68ad1acbdb630473ab36114 upstream.
 
-After some feedback from users with Dell Precision 5530 machines, this
-patch reverts the previous change to add ALC289_FIXUP_DUAL_SPK.
-While it improved the speaker output quality, it caused the headphone
-jack to have an audible "pop" sound when power saving was toggled.
+The initial fix for ASUS G533Z was based on faulty information. This
+fixes the pincfg to values that have been verified with no existing
+module options or other hacks enabled.
 
-Fixes: 1885ff13d4c4 ("ALSA: hda/realtek: Enable 4-speaker output Dell Precision 5530 laptop")
-Signed-off-by: Callum Osmotherly <callum.osmotherly@gmail.com>
+Enables headphone jack, and 5.1 surround.
+
+[ corrected the indent level by tiwai ]
+
+Fixes: bc2c23549ccd ("ALSA: hda/realtek: Add pincfg for ASUS G533Z HP jack")
+Signed-off-by: Luke D. Jones <luke@ljones.dev>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Yz0uyN1zwZhnyRD6@piranha
+Link: https://lore.kernel.org/r/20221010065702.35190-1-luke@ljones.dev
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 -
- 1 file changed, 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -9151,7 +9151,6 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1028, 0x0871, "Dell Precision 3630", ALC255_FIXUP_DELL_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1028, 0x0872, "Dell Precision 3630", ALC255_FIXUP_DELL_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1028, 0x0873, "Dell Precision 3930", ALC255_FIXUP_DUMMY_LINEOUT_VERB),
--	SND_PCI_QUIRK(0x1028, 0x087d, "Dell Precision 5530", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x08ad, "Dell WYSE AIO", ALC225_FIXUP_DELL_WYSE_AIO_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x08ae, "Dell WYSE NB", ALC225_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x0935, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB),
+@@ -8396,11 +8396,13 @@ static const struct hda_fixup alc269_fix
+ 	[ALC285_FIXUP_ASUS_G533Z_PINS] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = (const struct hda_pintbl[]) {
+-			{ 0x14, 0x90170120 },
++			{ 0x14, 0x90170152 }, /* Speaker Surround Playback Switch */
++			{ 0x19, 0x03a19020 }, /* Mic Boost Volume */
++			{ 0x1a, 0x03a11c30 }, /* Mic Boost Volume */
++			{ 0x1e, 0x90170151 }, /* Rear jack, IN OUT EAPD Detect */
++			{ 0x21, 0x03211420 },
+ 			{ }
+ 		},
+-		.chained = true,
+-		.chain_id = ALC294_FIXUP_ASUS_G513_PINS,
+ 	},
+ 	[ALC294_FIXUP_ASUS_COEF_1B] = {
+ 		.type = HDA_FIXUP_VERBS,
 
 
