@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD9016089C1
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:41:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81BD460884E
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234414AbiJVIlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:41:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57240 "EHLO
+        id S230319AbiJVIQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:16:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234608AbiJVIjT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:39:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DC141ACA8C;
-        Sat, 22 Oct 2022 01:05:25 -0700 (PDT)
+        with ESMTP id S233564AbiJVIOR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:14:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DDF2591D1;
+        Sat, 22 Oct 2022 00:55:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F86A60B7B;
-        Sat, 22 Oct 2022 07:53:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68D35C433D6;
-        Sat, 22 Oct 2022 07:53:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9169AB82DF0;
+        Sat, 22 Oct 2022 07:53:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F416BC433D7;
+        Sat, 22 Oct 2022 07:53:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425185;
-        bh=sZH1AfOZE2dYsZSEtdB7yfve1BZph91UMlLwjQ5Fm+g=;
+        s=korg; t=1666425192;
+        bh=rRdn83gaQeaNkPFVcGa5S1CTqcpCTQhYS+1Lvk4tkVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xGnNSd8+Oroq4P8RUBkpgjvsgAZpiQ+gRGWTpVp7HrXUwUXn4kFx7ZBa3XipBKjnv
-         1Roh3IxHME7xP9fCGk7+/X5aUIqO+8aVoi7enWzpCXebWnFrF7+lAVsynup9mDnQ7E
-         BaW9/yYvhkV18kXS/7HAO96oTyRhfy0U1+v3GVJc=
+        b=qBe62dGd5zHDpTfERNQnAWN+Y7ndLpwpg54pqY6nI4mL88VqdRBKaMgQN/PbCQzI5
+         TsJoLIgU8cHk4Y8K4ahlZ2QeWcNH6Rsbt4oIPtwcpp1QgLqUeHNnITQY5tG2mwYhIZ
+         ziqW1EU/X1K9gRSC6g8c/P8Lt1umQ0TlEybs2RMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Daniel Vetter <daniel.vetter@ffwll.ch>,
         Jim Cromie <jim.cromie@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 419/717] dyndbg: let query-modname override actual module name
-Date:   Sat, 22 Oct 2022 09:24:58 +0200
-Message-Id: <20221022072516.841235504@linuxfoundation.org>
+Subject: [PATCH 5.19 420/717] dyndbg: drop EXPORTed dynamic_debug_exec_queries
+Date:   Sat, 22 Oct 2022 09:24:59 +0200
+Message-Id: <20221022072516.923693262@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,76 +56,95 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jim Cromie <jim.cromie@gmail.com>
 
-[ Upstream commit e75ef56f74965f426dd819a41336b640ffdd8fbc ]
+[ Upstream commit e26ef3af964acfea311403126acee8c56c89e26b ]
 
-dyndbg's control-parser: ddebug_parse_query(), requires that search
-terms: module, func, file, lineno, are used only once in a query; a
-thing cannot be named both foo and bar.
+This exported fn is unused, and will not be needed. Lets dump it.
 
-The cited commit added an overriding module modname, taken from the
-module loader, which is authoritative.  So it set query.module 1st,
-which disallowed its use in the query-string.
+The export was added to let drm control pr_debugs, as part of using
+them to avoid drm_debug_enabled overheads.  But its better to just
+implement the drm.debug bitmap interface, then its available for
+everyone.
 
-But now, its useful to allow a module-load to enable classes across a
-whole (or part of) a subsystem at once.
-
-  # enable (dynamic-debug in) drm only
-  modprobe drm dyndbg="class DRM_UT_CORE +p"
-
-  # get drm_helper too
-  modprobe drm dyndbg="class DRM_UT_CORE module drm* +p"
-
-  # get everything that knows DRM_UT_CORE
-  modprobe drm dyndbg="class DRM_UT_CORE module * +p"
-
-  # also for boot-args:
-  drm.dyndbg="class DRM_UT_CORE module * +p"
-
-So convert the override into a default, by filling it only when/after
-the query-string omitted the module.
-
-NB: the query class FOO handling is forthcoming.
-
-Fixes: 8e59b5cfb9a6 dynamic_debug: add modname arg to exec_query callchain
+Fixes: a2d375eda771 ("dyndbg: refine export, rename to dynamic_debug_exec_queries()")
+Fixes: 4c0d77828d4f ("dyndbg: export ddebug_exec_queries")
 Acked-by: Jason Baron <jbaron@akamai.com>
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
-Link: https://lore.kernel.org/r/20220904214134.408619-8-jim.cromie@gmail.com
+Link: https://lore.kernel.org/r/20220904214134.408619-10-jim.cromie@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/dynamic_debug.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ include/linux/dynamic_debug.h |  9 ---------
+ lib/dynamic_debug.c           | 29 -----------------------------
+ 2 files changed, 38 deletions(-)
 
+diff --git a/include/linux/dynamic_debug.h b/include/linux/dynamic_debug.h
+index f30b01aa9fa4..8d9eec5f6d8b 100644
+--- a/include/linux/dynamic_debug.h
++++ b/include/linux/dynamic_debug.h
+@@ -55,9 +55,6 @@ struct _ddebug {
+ 
+ #if defined(CONFIG_DYNAMIC_DEBUG_CORE)
+ 
+-/* exported for module authors to exercise >control */
+-int dynamic_debug_exec_queries(const char *query, const char *modname);
+-
+ int ddebug_add_module(struct _ddebug *tab, unsigned int n,
+ 				const char *modname);
+ extern int ddebug_remove_module(const char *mod_name);
+@@ -221,12 +218,6 @@ static inline int ddebug_dyndbg_module_param_cb(char *param, char *val,
+ 				rowsize, groupsize, buf, len, ascii);	\
+ 	} while (0)
+ 
+-static inline int dynamic_debug_exec_queries(const char *query, const char *modname)
+-{
+-	pr_warn("kernel not built with CONFIG_DYNAMIC_DEBUG_CORE\n");
+-	return 0;
+-}
+-
+ #endif /* !CONFIG_DYNAMIC_DEBUG_CORE */
+ 
+ #endif
 diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
-index a56c1286ffa4..4d168efcf779 100644
+index 4d168efcf779..c9b3d9e5d470 100644
 --- a/lib/dynamic_debug.c
 +++ b/lib/dynamic_debug.c
-@@ -384,10 +384,6 @@ static int ddebug_parse_query(char *words[], int nwords,
- 		return -EINVAL;
- 	}
- 
--	if (modname)
--		/* support $modname.dyndbg=<multiple queries> */
--		query->module = modname;
--
- 	for (i = 0; i < nwords; i += 2) {
- 		char *keyword = words[i];
- 		char *arg = words[i+1];
-@@ -428,6 +424,13 @@ static int ddebug_parse_query(char *words[], int nwords,
- 		if (rc)
- 			return rc;
- 	}
-+	if (!query->module && modname)
-+		/*
-+		 * support $modname.dyndbg=<multiple queries>, when
-+		 * not given in the query itself
-+		 */
-+		query->module = modname;
-+
- 	vpr_info_dq(query, "parsed");
- 	return 0;
+@@ -557,35 +557,6 @@ static int ddebug_exec_queries(char *query, const char *modname)
+ 	return nfound;
  }
+ 
+-/**
+- * dynamic_debug_exec_queries - select and change dynamic-debug prints
+- * @query: query-string described in admin-guide/dynamic-debug-howto
+- * @modname: string containing module name, usually &module.mod_name
+- *
+- * This uses the >/proc/dynamic_debug/control reader, allowing module
+- * authors to modify their dynamic-debug callsites. The modname is
+- * canonically struct module.mod_name, but can also be null or a
+- * module-wildcard, for example: "drm*".
+- */
+-int dynamic_debug_exec_queries(const char *query, const char *modname)
+-{
+-	int rc;
+-	char *qry; /* writable copy of query */
+-
+-	if (!query) {
+-		pr_err("non-null query/command string expected\n");
+-		return -EINVAL;
+-	}
+-	qry = kstrndup(query, PAGE_SIZE, GFP_KERNEL);
+-	if (!qry)
+-		return -ENOMEM;
+-
+-	rc = ddebug_exec_queries(qry, modname);
+-	kfree(qry);
+-	return rc;
+-}
+-EXPORT_SYMBOL_GPL(dynamic_debug_exec_queries);
+-
+ #define PREFIX_SIZE 64
+ 
+ static int remaining(int wrote)
 -- 
 2.35.1
 
