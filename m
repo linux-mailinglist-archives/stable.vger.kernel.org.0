@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30A636089F8
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:45:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 856FA6088E7
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:25:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234684AbiJVIps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:45:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33236 "EHLO
+        id S230257AbiJVIZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:25:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234992AbiJVIoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:44:13 -0400
+        with ESMTP id S233801AbiJVIXW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:23:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E82D2EBB96;
-        Sat, 22 Oct 2022 01:08:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C053D14D1FC;
+        Sat, 22 Oct 2022 00:59:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D59560AC3;
-        Sat, 22 Oct 2022 07:57:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16A41C433C1;
-        Sat, 22 Oct 2022 07:57:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4527060B98;
+        Sat, 22 Oct 2022 07:57:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27C96C433D6;
+        Sat, 22 Oct 2022 07:57:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425450;
-        bh=faVI2ltSz4dRWRF51eXeVoUuUZAOTS8lGFgE0aj/DJo=;
+        s=korg; t=1666425453;
+        bh=oi1CZUVpo8tc5lnU4a5h7UpgZgb2bjuEFwx20nMrjHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NMfk36zTdCJQzbKXAEx+gh5GoNnmtqAcmcPdEV45zUCbVjUuOFlTM/ISQSBlEpINh
-         LXmDtmzJ1d3AD5NhXZQP/QcAa4tz9BG5DMWtXxkaB6SnuFwh6NPTTfbajuN7KxWWbJ
-         T0Uu2Aw3EwlGOaPWCjVayF1AHE8qd3BhS0Mzx+ec=
+        b=jngscZb+xOMQNYZ0vtw2v5WsEn30LuT6De/DVsTLrmX9j6pXWDmrMbVCWQ1TwgMXL
+         kAHoN3vRe6OGcKyq7rGhglqVqCpMJ2yL5ZLg1KPgcNCwkMs1SNh4744IHj/UKLfb2n
+         ftjjfUZfW9j4XBLthLyj2c6OxA4eHpB5jKQ89C5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Haren Myneni <haren@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 506/717] powerpc/pseries/vas: Pass hw_cpu_id to node associativity HCALL
-Date:   Sat, 22 Oct 2022 09:26:25 +0200
-Message-Id: <20221022072520.647548263@linuxfoundation.org>
+Subject: [PATCH 5.19 507/717] crypto: sahara - dont sleep when in softirq
+Date:   Sat, 22 Oct 2022 09:26:26 +0200
+Message-Id: <20221022072520.688358442@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,48 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haren Myneni <haren@linux.ibm.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit f3e5d9e53e74d77e711a2c90a91a8b0836a9e0b3 ]
+[ Upstream commit 108586eba094b318e6a831f977f4ddcc403a15da ]
 
-Generally the hypervisor decides to allocate a window on different
-VAS instances. But if user space wishes to allocate on the current VAS
-instance where the process is executing, the kernel has to pass
-associativity domain IDs to allocate VAS window HCALL.
+Function of sahara_aes_crypt maybe could be called by function
+of crypto_skcipher_encrypt during the rx softirq, so it is not
+allowed to use mutex lock.
 
-To determine the associativity domain IDs for the current CPU,
-smp_processor_id() is passed to node associativity HCALL which may
-return H_P2 (-55) error during DLPAR CPU event. This is because Linux
-CPU numbers (smp_processor_id()) are not the same as the hypervisor's
-view of CPU numbers.
-
-Fix the issue by passing hard_smp_processor_id() with
-VPHN_FLAG_VCPU flag (PAPR 14.11.6.1 H_HOME_NODE_ASSOCIATIVITY).
-
-Fixes: b22f2d88e435 ("powerpc/pseries/vas: Integrate API with open/close windows")
-Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Haren Myneni <haren@linux.ibm.com>
-[mpe: Update change log to mention Linux vs HV CPU numbers]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/55380253ea0c11341824cd4c0fc6bbcfc5752689.camel@linux.ibm.com
+Fixes: c0c3c89ae347 ("crypto: sahara - replace tasklets with...")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/vas.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/sahara.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/vas.c b/arch/powerpc/platforms/pseries/vas.c
-index 500a1fc4a1d7..b2a32f8a837a 100644
---- a/arch/powerpc/platforms/pseries/vas.c
-+++ b/arch/powerpc/platforms/pseries/vas.c
-@@ -332,7 +332,7 @@ static struct vas_window *vas_allocate_window(int vas_id, u64 flags,
- 		 * So no unpacking needs to be done.
- 		 */
- 		rc = plpar_hcall9(H_HOME_NODE_ASSOCIATIVITY, domain,
--				  VPHN_FLAG_VCPU, smp_processor_id());
-+				  VPHN_FLAG_VCPU, hard_smp_processor_id());
- 		if (rc != H_SUCCESS) {
- 			pr_err("H_HOME_NODE_ASSOCIATIVITY error: %d\n", rc);
- 			goto out;
+diff --git a/drivers/crypto/sahara.c b/drivers/crypto/sahara.c
+index 457084b344c1..b07ae4ba165e 100644
+--- a/drivers/crypto/sahara.c
++++ b/drivers/crypto/sahara.c
+@@ -26,10 +26,10 @@
+ #include <linux/kernel.h>
+ #include <linux/kthread.h>
+ #include <linux/module.h>
+-#include <linux/mutex.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
++#include <linux/spinlock.h>
+ 
+ #define SHA_BUFFER_LEN		PAGE_SIZE
+ #define SAHARA_MAX_SHA_BLOCK_SIZE	SHA256_BLOCK_SIZE
+@@ -196,7 +196,7 @@ struct sahara_dev {
+ 	void __iomem		*regs_base;
+ 	struct clk		*clk_ipg;
+ 	struct clk		*clk_ahb;
+-	struct mutex		queue_mutex;
++	spinlock_t		queue_spinlock;
+ 	struct task_struct	*kthread;
+ 	struct completion	dma_completion;
+ 
+@@ -642,9 +642,9 @@ static int sahara_aes_crypt(struct skcipher_request *req, unsigned long mode)
+ 
+ 	rctx->mode = mode;
+ 
+-	mutex_lock(&dev->queue_mutex);
++	spin_lock_bh(&dev->queue_spinlock);
+ 	err = crypto_enqueue_request(&dev->queue, &req->base);
+-	mutex_unlock(&dev->queue_mutex);
++	spin_unlock_bh(&dev->queue_spinlock);
+ 
+ 	wake_up_process(dev->kthread);
+ 
+@@ -1043,10 +1043,10 @@ static int sahara_queue_manage(void *data)
+ 	do {
+ 		__set_current_state(TASK_INTERRUPTIBLE);
+ 
+-		mutex_lock(&dev->queue_mutex);
++		spin_lock_bh(&dev->queue_spinlock);
+ 		backlog = crypto_get_backlog(&dev->queue);
+ 		async_req = crypto_dequeue_request(&dev->queue);
+-		mutex_unlock(&dev->queue_mutex);
++		spin_unlock_bh(&dev->queue_spinlock);
+ 
+ 		if (backlog)
+ 			backlog->complete(backlog, -EINPROGRESS);
+@@ -1092,9 +1092,9 @@ static int sahara_sha_enqueue(struct ahash_request *req, int last)
+ 		rctx->first = 1;
+ 	}
+ 
+-	mutex_lock(&dev->queue_mutex);
++	spin_lock_bh(&dev->queue_spinlock);
+ 	ret = crypto_enqueue_request(&dev->queue, &req->base);
+-	mutex_unlock(&dev->queue_mutex);
++	spin_unlock_bh(&dev->queue_spinlock);
+ 
+ 	wake_up_process(dev->kthread);
+ 
+@@ -1449,7 +1449,7 @@ static int sahara_probe(struct platform_device *pdev)
+ 
+ 	crypto_init_queue(&dev->queue, SAHARA_QUEUE_LENGTH);
+ 
+-	mutex_init(&dev->queue_mutex);
++	spin_lock_init(&dev->queue_spinlock);
+ 
+ 	dev_ptr = dev;
+ 
 -- 
 2.35.1
 
