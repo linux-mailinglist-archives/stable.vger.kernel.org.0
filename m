@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 627316087BE
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C054608816
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:10:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232712AbiJVIFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:05:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60046 "EHLO
+        id S232414AbiJVIKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:10:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233051AbiJVIEq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A8E2D37FF;
-        Sat, 22 Oct 2022 00:51:59 -0700 (PDT)
+        with ESMTP id S232983AbiJVIHt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:07:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAE432CB8B4;
+        Sat, 22 Oct 2022 00:53:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C57DB82DF2;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A65D60AE6;
+        Sat, 22 Oct 2022 07:37:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B5A1C433D6;
         Sat, 22 Oct 2022 07:37:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84AE2C433D6;
-        Sat, 22 Oct 2022 07:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424239;
-        bh=oMix186Lse2NQD3gTlZX1UK/UVPp5ODuSEv2O/Plpw0=;
+        s=korg; t=1666424242;
+        bh=UzWcRCSCGAHYUtnLJmb+NhEh2plIKFuHU5nHeprqRTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYmwdYN3QKBvBRYplGtv6+yDWN6xjIU9gvPqrpOFgimEpCut3j9dc7GPHGeflWG2i
-         o/hpKNVZGLDPAH40tTG1mtxVISVQZV7P4g0fc9Pp2RTx7+vd3xCiWuuEBR8YAOeovU
-         jCO4bF0ZzNr5xxZXAszonZWrmLGzDhVM1LpRQAcc=
+        b=ZjIa1fr+CNXulpRPPni7W3+cwwRGmhG2kZUyPSjb1JrFwmipLeeRVl60I9zeKbqCb
+         ETnwRd9ZPz/ps95HB/lWz275GTI7ueOQKuin5V3WUxzua0SI3o8kaGXFfOHBnRZ8ay
+         buITDJ4wBDvw1qjUdtaW0lLeRAMHv/0Fd0G9y5vQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.19 073/717] arm64: errata: Add Cortex-A55 to the repeat tlbi list
-Date:   Sat, 22 Oct 2022 09:19:12 +0200
-Message-Id: <20221022072428.164381986@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Yang Guo <guoyang2@huawei.com>,
+        Shaokun Zhang <zhangshaokun@hisilicon.com>
+Subject: [PATCH 5.19 074/717] clocksource/drivers/arm_arch_timer: Fix CNTPCT_LO and CNTVCT_LO value
+Date:   Sat, 22 Oct 2022 09:19:13 +0200
+Message-Id: <20221022072428.368129337@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,79 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Yang Guo <guoyang2@huawei.com>
 
-commit 171df58028bf4649460fb146a56a58dcb0c8f75a upstream.
+commit af246cc6d0ed11318223606128bb0b09866c4c08 upstream.
 
-Cortex-A55 is affected by an erratum where in rare circumstances the
-CPUs may not handle a race between a break-before-make sequence on one
-CPU, and another CPU accessing the same page. This could allow a store
-to a page that has been unmapped.
+CNTPCT_LO and CNTVCT_LO are defined by mistake in commit '8b82c4f883a7',
+so fix them according to the Arm ARM DDI 0487I.a, Table I2-4
+"CNTBaseN memory map" as follows:
 
-Work around this by adding the affected CPUs to the list that needs
-TLB sequences to be done twice.
+Offset    Register      Type Description
+0x000     CNTPCT[31:0]  RO   Physical Count register.
+0x004     CNTPCT[63:32] RO
+0x008     CNTVCT[31:0]  RO   Virtual Count register.
+0x00C     CNTVCT[63:32] RO
 
-Signed-off-by: James Morse <james.morse@arm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220930131959.3082594-1-james.morse@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: 8b82c4f883a7 ("clocksource/drivers/arm_arch_timer: Move MMIO timer programming over to CVAL")
+Cc: stable@vger.kernel.org
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Yang Guo <guoyang2@huawei.com>
+Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Link: https://lore.kernel.org/r/20220927033221.49589-1-zhangshaokun@hisilicon.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/arm64/silicon-errata.rst |    2 ++
- arch/arm64/Kconfig                     |   17 +++++++++++++++++
- arch/arm64/kernel/cpu_errata.c         |    5 +++++
- 3 files changed, 24 insertions(+)
+ drivers/clocksource/arm_arch_timer.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/Documentation/arm64/silicon-errata.rst
-+++ b/Documentation/arm64/silicon-errata.rst
-@@ -76,6 +76,8 @@ stable kernels.
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A55      | #1530923        | ARM64_ERRATUM_1530923       |
- +----------------+-----------------+-----------------+-----------------------------+
-+| ARM            | Cortex-A55      | #2441007        | ARM64_ERRATUM_2441007       |
-++----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A57      | #832075         | ARM64_ERRATUM_832075        |
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A57      | #852523         | N/A                         |
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -629,6 +629,23 @@ config ARM64_ERRATUM_1530923
- config ARM64_WORKAROUND_REPEAT_TLBI
- 	bool
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -44,8 +44,8 @@
+ #define CNTACR_RWVT	BIT(4)
+ #define CNTACR_RWPT	BIT(5)
  
-+config ARM64_ERRATUM_2441007
-+	bool "Cortex-A55: Completion of affected memory accesses might not be guaranteed by completion of a TLBI"
-+	default y
-+	select ARM64_WORKAROUND_REPEAT_TLBI
-+	help
-+	  This option adds a workaround for ARM Cortex-A55 erratum #2441007.
-+
-+	  Under very rare circumstances, affected Cortex-A55 CPUs
-+	  may not handle a race between a break-before-make sequence on one
-+	  CPU, and another CPU accessing the same page. This could allow a
-+	  store to a page that has been unmapped.
-+
-+	  Work around this by adding the affected CPUs to the list that needs
-+	  TLB sequences to be done twice.
-+
-+	  If unsure, say Y.
-+
- config ARM64_ERRATUM_1286807
- 	bool "Cortex-A76: Modification of the translation table for a virtual address might lead to read-after-read ordering violation"
- 	default y
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -214,6 +214,11 @@ static const struct arm64_cpu_capabiliti
- 		ERRATA_MIDR_RANGE(MIDR_QCOM_KRYO_4XX_GOLD, 0xc, 0xe, 0xf, 0xe),
- 	},
- #endif
-+#ifdef CONFIG_ARM64_ERRATUM_2441007
-+	{
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
-+	},
-+#endif
- #ifdef CONFIG_ARM64_ERRATUM_2441009
- 	{
- 		/* Cortex-A510 r0p0 -> r1p1. Fixed in r1p2 */
+-#define CNTVCT_LO	0x00
+-#define CNTPCT_LO	0x08
++#define CNTPCT_LO	0x00
++#define CNTVCT_LO	0x08
+ #define CNTFRQ		0x10
+ #define CNTP_CVAL_LO	0x20
+ #define CNTP_CTL	0x2c
 
 
