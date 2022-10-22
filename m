@@ -2,101 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC440608B3C
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:06:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E57608B46
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:08:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229803AbiJVKGa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 06:06:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43502 "EHLO
+        id S229999AbiJVKIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 06:08:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229887AbiJVKGB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:06:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 677C132CC66
-        for <stable@vger.kernel.org>; Sat, 22 Oct 2022 02:22:22 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE055B82E02
-        for <stable@vger.kernel.org>; Sat, 22 Oct 2022 08:15:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57136C433D7;
-        Sat, 22 Oct 2022 08:15:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426526;
-        bh=1V0XBw1ky9MWeUmmiD4yGlVox2MD6VTGOylruNVtd5o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ni5FYsgfDgutRWoAe3HJ+7c6UyJLUN/kMzXc23deCC5OqLlC7RdMSA2BSMBwVFHb0
-         uXhLjWqINI4lTIZeKdh44ikdgHq6WmlC9jXxAFByH7z76bBbRrSKrc4G6/ghI7Aopt
-         /thuUdW2h15pY8Y7+5/+KDVAMIhiIr8Zt0C3GacI=
-Date:   Sat, 22 Oct 2022 09:39:26 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     Diederik de Haas <didi.debian@cknow.org>, stable@vger.kernel.org,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 1/2] Revert "drm/amdgpu: move nbio sdma_doorbell_range()
- into sdma code for vega"
-Message-ID: <Y1OeLv/OmfR431tL@kroah.com>
-References: <20221020153857.565160-1-alexander.deucher@amd.com>
- <2651645.mvXUDI8C0e@bagend>
- <Y1I4rC37gwl367rt@eldamar.lan>
+        with ESMTP id S230036AbiJVKIg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:08:36 -0400
+Received: from mail-qv1-xf2b.google.com (mail-qv1-xf2b.google.com [IPv6:2607:f8b0:4864:20::f2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E28FC18709F;
+        Sat, 22 Oct 2022 02:25:25 -0700 (PDT)
+Received: by mail-qv1-xf2b.google.com with SMTP id i12so3451945qvs.2;
+        Sat, 22 Oct 2022 02:25:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=YBywPh8NVLG25pa2iZVL+6YbAYv3SkSxdtxeXc3ICGE=;
+        b=HFNIAjQg2u9fd7rjHOSCi52sh4i3pX2zdX59+PNAbpK0DMrPNDxrTE8Wo75ksx5lSa
+         k2rv6UKx13HHU4cHZkn+cn3Db9hi3zsGf+jJmT+vG6ge5C1TKP3muOtKFO3JYC40+2Hs
+         EI9HOjjtfL16CQdm/NV7EDvQsyDTAdRxuR72gHU77qkbTYHxJjdH8LMyriD6is2ta27y
+         VTJi913rCj7nQYOhINGuLDdkwrCyLYPhD8JXy6LarHjnk8VslSL+rGVMzLYq2dDJU49r
+         /VwB6Pcp575ap5tCoi48Ot557tMEZr2TN+gOup4K+eqBbnLpm2DYKIsM+mu2JClpWLuQ
+         Fasg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=YBywPh8NVLG25pa2iZVL+6YbAYv3SkSxdtxeXc3ICGE=;
+        b=btwBD6GSBsonovG8vXNDGrUDg0Z3iUDo56BBOo+cpxEI0sfXVRcu/INIVlgAPkhLr9
+         0/p6//fkPk0qubMK5vwHfa256/TzC7c+8Mn/HoMY+U7npAhlsaCZHu4XvKaT7gmNxa2o
+         ZIjEiMe1NT4wjJnOSDYy5N6J5mfEC7vbj2itLjMDc8fseitTaqorjWedsR0sNNzUszbL
+         AhhU4wbF3xAstbcrQNXvctb4+f+03+0MtMR+Pvy2F7H5lM14gEaActCbRTPrcO3L8Qho
+         nPIytLpOxKOwYbQWMOb6lSyKFouV+U+fvtntoDO6w3XaDPnX85i6eevvu+76gwzMqRxY
+         UK3w==
+X-Gm-Message-State: ACrzQf1d0r2aaeYZIJJdLjWcc9AxOkNj/nWOr9oOUniYlQpF4imJ3w+C
+        QQmofmyKLItNq0oRzaDiaSZpyNIzjpzE0A==
+X-Google-Smtp-Source: AMsMyM5EZucdKobn64AcIzJtSK6MvkG+0ZK7xLozqjrQE0Nbc7Nm4kVlJTwuFbz+4pirMviJw78zAg==
+X-Received: by 2002:a62:1a97:0:b0:562:5587:12d6 with SMTP id a145-20020a621a97000000b00562558712d6mr23062930pfa.37.1666428897072;
+        Sat, 22 Oct 2022 01:54:57 -0700 (PDT)
+Received: from debian.me (subs02-180-214-232-75.three.co.id. [180.214.232.75])
+        by smtp.gmail.com with ESMTPSA id o4-20020a634104000000b0046ae818b626sm503468pga.30.2022.10.22.01.54.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 22 Oct 2022 01:54:56 -0700 (PDT)
+Received: by debian.me (Postfix, from userid 1000)
+        id B3754101140; Sat, 22 Oct 2022 15:54:52 +0700 (WIB)
+Date:   Sat, 22 Oct 2022 15:54:52 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Subject: Re: [PATCH 5.19 000/717] 5.19.17-rc1 review
+Message-ID: <Y1Ov3KuyKmb9Nizm@debian.me>
+References: <20221022072415.034382448@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="da3BH2hT0/m4O+ML"
 Content-Disposition: inline
-In-Reply-To: <Y1I4rC37gwl367rt@eldamar.lan>
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 21, 2022 at 08:14:04AM +0200, Salvatore Bonaccorso wrote:
-> Hi,
-> 
-> On Fri, Oct 21, 2022 at 02:29:22AM +0200, Diederik de Haas wrote:
-> > On Thursday, 20 October 2022 17:38:56 CEST Alex Deucher wrote:
-> > > This reverts commit 9f55f36f749a7608eeef57d7d72991a9bd557341.
-> > > 
-> > > This patch was backported incorrectly when Sasha backported it and
-> > > the patch that caused the regression that this patch set fixed
-> > > was reverted in commit 412b844143e3 ("Revert "PCI/portdrv: Don't disable AER
-> > > reporting in get_port_device_capability()""). This isn't necessary and
-> > > causes a regression so drop it.
-> > > 
-> > > Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2216
-> > > Cc: Shuah Khan <skhan@linuxfoundation.org>
-> > > Cc: Sasha Levin <sashal@kernel.org>
-> > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> > > Cc: <stable@vger.kernel.org>    # 5.10
-> > > ---
-> > 
-> > I build a kernel with these 2 patches reverted and can confirm that that fixes 
-> > the issue on my machine with a Radeon RX Vega 64 GPU. 
-> > # lspci -nn | grep VGA
-> > 0b:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/
-> > ATI] Vega 10 XL/XT [Radeon RX Vega 56/64] [1002:687f] (rev c1)
-> > 
-> > So feel free to add
-> > 
-> > Tested-By: Diederik de Haas <didi.debian@cknow.org>
-> 
-> Note additionally (probably only relevant for Greg while reviewing),
-> that the first of the commits which need to be reverted is already
-> queued as revert in queue-5.10.
 
-Yeah, this series does not apply to the current 5.10 queue at all.
+--da3BH2hT0/m4O+ML
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-And I am totally confused as to what to do here.
+On Sat, Oct 22, 2022 at 09:17:59AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.19.17 release.
+> There are 717 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+> Note, this will be the LAST 5.19.y kernel to be released.  Please move
+> to the 6.0.y kernel branch at this point in time, as after this is
+> released, this branch will be end-of-life.
+>=20
 
-Can someone please just send me a set of patches, on top of the current
-5.10 stable queue that works?  Or just wait for after the next 5.10.y
-release next week and then send me a working set of patches if you don't
-like to mess with the queue format?
+Hi Greg, thanks for the patch series, which is out three days after
+the -rc1 have been pused. As usual, the template message follows.
 
-thanks,
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.1.0).
 
-greg k-h
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+
+--=20
+An old man doll... just what I always wanted! - Clara
+
+--da3BH2hT0/m4O+ML
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY1Ov1AAKCRD2uYlJVVFO
+o/QcAQCXaZc/rI6NLvIrCTxPNzb22t+okIGUi1o+Z/b5tfeshQEA82hw2uxHuvUv
+PDjOLTGt3cMBXpN2V3J+ajJEB1A88w0=
+=oISM
+-----END PGP SIGNATURE-----
+
+--da3BH2hT0/m4O+ML--
