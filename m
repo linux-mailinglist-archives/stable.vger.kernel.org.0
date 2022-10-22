@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A52C608A4B
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:50:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B8DA608A64
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234560AbiJVIuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:50:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45834 "EHLO
+        id S234972AbiJVIwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:52:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234942AbiJVItM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:49:12 -0400
+        with ESMTP id S231131AbiJVIwL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:52:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB6211CDCF7;
-        Sat, 22 Oct 2022 01:10:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 426402F1412;
+        Sat, 22 Oct 2022 01:11:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA65460ADD;
-        Sat, 22 Oct 2022 08:06:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A5AC433C1;
-        Sat, 22 Oct 2022 08:06:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0527560AC3;
+        Sat, 22 Oct 2022 08:08:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7FEAC433C1;
+        Sat, 22 Oct 2022 08:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425997;
-        bh=AovMnUVFaDgnuucVmCvW2YnL6/FL1thsQNXgFxRaPiw=;
+        s=korg; t=1666426118;
+        bh=zlvOBi7kgkZoA/S+XkPCVsAvu3dMCz50xTOYDIk7Qeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UhWx7ZuL0GCwf3DQQCRPGWG0E85sH9tVyF78GhaOtezCnoYkPT+SytG6eyJ+SxF5N
-         kVjuo7+AMstmQjZpZAZKgO5Vt7yRkxqFSujerCxmbh8eKlW9jUOHSDjskXVHVuDzGb
-         /SmGJTOOrldwj5Qiy9JW4Qgf5z64FETrXSWLwNe0=
+        b=EY7pgBMNP6CWZqOwGyD8EbG771nR4SIf7I6qeJGlWhHEBf4JwyodwxprlYiL3Ty4C
+         jzfbnGc8ECfjNiG3tG3CeYZODGshiZzCrAXPpHzVcD3zU+js/UTJne5r3Yu2PeejEi
+         aSsbjSm7JbU3E2Iww2NHGCBLfiKIquDA9DMDJE4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Arun Easi <aeasi@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 683/717] scsi: tracing: Fix compile error in trace_array calls when TRACING is disabled
-Date:   Sat, 22 Oct 2022 09:29:22 +0200
-Message-Id: <20221022072528.688051704@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+0f2f7e65a3007d39539f@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 684/717] ext2: Use kvmalloc() for group descriptor array
+Date:   Sat, 22 Oct 2022 09:29:23 +0200
+Message-Id: <20221022072528.739528361@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,97 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 1a77dd1c2bb5d4a58c16d198cf593720787c02e4 ]
+[ Upstream commit e7c7fbb9a8574ebd89cc05db49d806c7476863ad ]
 
-Fix this compilation error seen when CONFIG_TRACING is not enabled:
+Array of group descriptor block buffers can get rather large. In theory
+in can reach 1MB for perfectly valid filesystem and even more for
+maliciously crafted ones. Use kvmalloc() to allocate the array to avoid
+straining memory allocator with large order allocations unnecessarily.
 
-drivers/scsi/qla2xxx/qla_os.c: In function 'qla_trace_init':
-drivers/scsi/qla2xxx/qla_os.c:2854:25: error: implicit declaration of function
-'trace_array_get_by_name'; did you mean 'trace_array_set_clr_event'?
-[-Werror=implicit-function-declaration]
- 2854 |         qla_trc_array = trace_array_get_by_name("qla2xxx");
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~
-      |                         trace_array_set_clr_event
-
-drivers/scsi/qla2xxx/qla_os.c: In function 'qla_trace_uninit':
-drivers/scsi/qla2xxx/qla_os.c:2869:9: error: implicit declaration of function
-'trace_array_put' [-Werror=implicit-function-declaration]
- 2869 |         trace_array_put(qla_trc_array);
-      |         ^~~~~~~~~~~~~~~
-
-Link: https://lore.kernel.org/r/20220907233308.4153-2-aeasi@marvell.com
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: syzbot+0f2f7e65a3007d39539f@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/trace.h | 36 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 34 insertions(+), 2 deletions(-)
+ fs/ext2/super.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/trace.h b/include/linux/trace.h
-index bf169612ffe1..b5e16e438448 100644
---- a/include/linux/trace.h
-+++ b/include/linux/trace.h
-@@ -2,8 +2,6 @@
- #ifndef _LINUX_TRACE_H
- #define _LINUX_TRACE_H
- 
--#ifdef CONFIG_TRACING
--
- #define TRACE_EXPORT_FUNCTION	BIT(0)
- #define TRACE_EXPORT_EVENT	BIT(1)
- #define TRACE_EXPORT_MARKER	BIT(2)
-@@ -28,6 +26,8 @@ struct trace_export {
- 	int flags;
- };
- 
-+#ifdef CONFIG_TRACING
-+
- int register_ftrace_export(struct trace_export *export);
- int unregister_ftrace_export(struct trace_export *export);
- 
-@@ -48,6 +48,38 @@ void osnoise_arch_unregister(void);
- void osnoise_trace_irq_entry(int id);
- void osnoise_trace_irq_exit(int id, const char *desc);
- 
-+#else /* CONFIG_TRACING */
-+static inline int register_ftrace_export(struct trace_export *export)
-+{
-+	return -EINVAL;
-+}
-+static inline int unregister_ftrace_export(struct trace_export *export)
-+{
-+	return 0;
-+}
-+static inline void trace_printk_init_buffers(void)
-+{
-+}
-+static inline int trace_array_printk(struct trace_array *tr, unsigned long ip,
-+				     const char *fmt, ...)
-+{
-+	return 0;
-+}
-+static inline int trace_array_init_printk(struct trace_array *tr)
-+{
-+	return -EINVAL;
-+}
-+static inline void trace_array_put(struct trace_array *tr)
-+{
-+}
-+static inline struct trace_array *trace_array_get_by_name(const char *name)
-+{
-+	return NULL;
-+}
-+static inline int trace_array_destroy(struct trace_array *tr)
-+{
-+	return 0;
-+}
- #endif	/* CONFIG_TRACING */
- 
- #endif	/* _LINUX_TRACE_H */
+diff --git a/fs/ext2/super.c b/fs/ext2/super.c
+index b3232845d0c4..f53ab39bb8e8 100644
+--- a/fs/ext2/super.c
++++ b/fs/ext2/super.c
+@@ -163,7 +163,7 @@ static void ext2_put_super (struct super_block * sb)
+ 	db_count = sbi->s_gdb_count;
+ 	for (i = 0; i < db_count; i++)
+ 		brelse(sbi->s_group_desc[i]);
+-	kfree(sbi->s_group_desc);
++	kvfree(sbi->s_group_desc);
+ 	kfree(sbi->s_debts);
+ 	percpu_counter_destroy(&sbi->s_freeblocks_counter);
+ 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
+@@ -1093,7 +1093,7 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+ 	}
+ 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
+ 		   EXT2_DESC_PER_BLOCK(sb);
+-	sbi->s_group_desc = kmalloc_array(db_count,
++	sbi->s_group_desc = kvmalloc_array(db_count,
+ 					   sizeof(struct buffer_head *),
+ 					   GFP_KERNEL);
+ 	if (sbi->s_group_desc == NULL) {
+@@ -1219,7 +1219,7 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+ 	for (i = 0; i < db_count; i++)
+ 		brelse(sbi->s_group_desc[i]);
+ failed_mount_group_desc:
+-	kfree(sbi->s_group_desc);
++	kvfree(sbi->s_group_desc);
+ 	kfree(sbi->s_debts);
+ failed_mount:
+ 	brelse(bh);
 -- 
 2.35.1
 
