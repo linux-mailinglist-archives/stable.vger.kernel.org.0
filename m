@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC61E608697
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:51:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBADF60864C
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:47:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231818AbiJVHvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:51:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55036 "EHLO
+        id S231398AbiJVHrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:47:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231897AbiJVHtf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 650672ACBE1;
-        Sat, 22 Oct 2022 00:46:04 -0700 (PDT)
+        with ESMTP id S230245AbiJVHpz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:45:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80387CABC2;
+        Sat, 22 Oct 2022 00:43:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6655360B95;
-        Sat, 22 Oct 2022 07:42:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79CCAC433C1;
-        Sat, 22 Oct 2022 07:42:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1760B82E1B;
+        Sat, 22 Oct 2022 07:42:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D78DC433C1;
+        Sat, 22 Oct 2022 07:42:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424573;
-        bh=KqCEdkhPcHZPtHS5XUueyb73weNWSVVYIaiahVplhzQ=;
+        s=korg; t=1666424576;
+        bh=Z5u/4kskGVbcyMVpAm9IC/je4fIBuE6fauWq6ihOXDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dOz2zUuVoAHgieaTu9lB28yF3OskU6GqEKbgU+VE39OXN54ffSzVRRzx1c88BjrDb
-         e7hbFrmeS9nN97ZePN7nw12ogHJbrhWg2QPj9/wW7W3Ib6ur6Of8hlz5pz44jq0XxV
-         CmpsSYxZXh3hZoQb/8F88cm0SdzhxdVNYsUk6ERQ=
+        b=KY69y8oqXuGaJ4uVoqc4M9FABU+NR5hqu9+Dp2Pt7XBtSQ4DqAHwx6JbB7mtdxaf/
+         ulxde7aXOVHFQZsVDuxvL9DTnvVcl2/rlFsHZ7fQ8h6XhCu03HIFdqmDWGrPBXG50E
+         f2j25VITooTxGi7Z59feMlXHgVYinukRX43qybv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.19 166/717] drm/nouveau: fix a use-after-free in nouveau_gem_prime_import_sg_table()
-Date:   Sat, 22 Oct 2022 09:20:45 +0200
-Message-Id: <20221022072444.854325770@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris.p.wilson@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.19 167/717] drm/i915/gt: Use i915_vm_put on ppgtt_create error paths
+Date:   Sat, 22 Oct 2022 09:20:46 +0200
+Message-Id: <20221022072445.054445928@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,39 +55,204 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Chris Wilson <chris.p.wilson@intel.com>
 
-commit 540dfd188ea2940582841c1c220bd035a7db0e51 upstream.
+commit 20e377e7b2e7c327039f10db80ba5bcc1f6c882d upstream.
 
-nouveau_bo_init() is backed by ttm_bo_init() and ferries its return code
-back to the caller. On failures, ttm will call nouveau_bo_del_ttm() and
-free the memory.Thus, when nouveau_bo_init() returns an error, the gem
-object has already been released. Then the call to nouveau_bo_ref() will
-use the freed "nvbo->bo" and lead to a use-after-free bug.
+Now that the scratch page and page directories have a reference back to
+the i915_address_space, we cannot do an immediate free of the ppgtt upon
+error as those buffer objects will perform a later i915_vm_put in their
+deferred frees.
 
-We should delete the call to nouveau_bo_ref() to avoid the use-after-free.
+The downside is that by replacing the onion unwind along the error
+paths, the ppgtt cleanup must handle a partially constructed vm. This
+includes ensuring that the vm->cleanup is set prior to the error path.
 
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: 019cbd4a4feb ("drm/nouveau: Initialize GEM object before TTM object")
-Cc: Thierry Reding <treding@nvidia.com>
-Cc: <stable@vger.kernel.org> # v5.4+
-Link: https://patchwork.freedesktop.org/patch/msgid/20220705132546.2247677-1-niejianglei2021@163.com
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6900
+Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
+Fixes: 4d8151ae5329 ("drm/i915: Don't free shared locks while shared")
+Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: <stable@vger.kernel.org> # v5.14+
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220926153333.102195-1-matthew.auld@intel.com
+(cherry picked from commit c286558f58535cf97b717b946d6c96d774a09d17)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_prime.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/i915/gt/gen6_ppgtt.c |   16 ++++-----
+ drivers/gpu/drm/i915/gt/gen8_ppgtt.c |   58 ++++++++++++++++++-----------------
+ drivers/gpu/drm/i915/gt/intel_gtt.c  |    3 +
+ 3 files changed, 41 insertions(+), 36 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nouveau_prime.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_prime.c
-@@ -71,7 +71,6 @@ struct drm_gem_object *nouveau_gem_prime
- 	ret = nouveau_bo_init(nvbo, size, align, NOUVEAU_GEM_DOMAIN_GART,
- 			      sg, robj);
- 	if (ret) {
--		nouveau_bo_ref(NULL, &nvbo);
- 		obj = ERR_PTR(ret);
- 		goto unlock;
+--- a/drivers/gpu/drm/i915/gt/gen6_ppgtt.c
++++ b/drivers/gpu/drm/i915/gt/gen6_ppgtt.c
+@@ -247,6 +247,7 @@ err_scratch1:
+ 	i915_gem_object_put(vm->scratch[1]);
+ err_scratch0:
+ 	i915_gem_object_put(vm->scratch[0]);
++	vm->scratch[0] = NULL;
+ 	return ret;
+ }
+ 
+@@ -268,9 +269,10 @@ static void gen6_ppgtt_cleanup(struct i9
+ 	gen6_ppgtt_free_pd(ppgtt);
+ 	free_scratch(vm);
+ 
+-	mutex_destroy(&ppgtt->flush);
++	if (ppgtt->base.pd)
++		free_pd(&ppgtt->base.vm, ppgtt->base.pd);
+ 
+-	free_pd(&ppgtt->base.vm, ppgtt->base.pd);
++	mutex_destroy(&ppgtt->flush);
+ }
+ 
+ static void pd_vma_bind(struct i915_address_space *vm,
+@@ -449,19 +451,17 @@ struct i915_ppgtt *gen6_ppgtt_create(str
+ 
+ 	err = gen6_ppgtt_init_scratch(ppgtt);
+ 	if (err)
+-		goto err_free;
++		goto err_put;
+ 
+ 	ppgtt->base.pd = gen6_alloc_top_pd(ppgtt);
+ 	if (IS_ERR(ppgtt->base.pd)) {
+ 		err = PTR_ERR(ppgtt->base.pd);
+-		goto err_scratch;
++		goto err_put;
  	}
+ 
+ 	return &ppgtt->base;
+ 
+-err_scratch:
+-	free_scratch(&ppgtt->base.vm);
+-err_free:
+-	kfree(ppgtt);
++err_put:
++	i915_vm_put(&ppgtt->base.vm);
+ 	return ERR_PTR(err);
+ }
+--- a/drivers/gpu/drm/i915/gt/gen8_ppgtt.c
++++ b/drivers/gpu/drm/i915/gt/gen8_ppgtt.c
+@@ -196,7 +196,10 @@ static void gen8_ppgtt_cleanup(struct i9
+ 	if (intel_vgpu_active(vm->i915))
+ 		gen8_ppgtt_notify_vgt(ppgtt, false);
+ 
+-	__gen8_ppgtt_cleanup(vm, ppgtt->pd, gen8_pd_top_count(vm), vm->top);
++	if (ppgtt->pd)
++		__gen8_ppgtt_cleanup(vm, ppgtt->pd,
++				     gen8_pd_top_count(vm), vm->top);
++
+ 	free_scratch(vm);
+ }
+ 
+@@ -803,8 +806,10 @@ static int gen8_init_scratch(struct i915
+ 		struct drm_i915_gem_object *obj;
+ 
+ 		obj = vm->alloc_pt_dma(vm, I915_GTT_PAGE_SIZE_4K);
+-		if (IS_ERR(obj))
++		if (IS_ERR(obj)) {
++			ret = PTR_ERR(obj);
+ 			goto free_scratch;
++		}
+ 
+ 		ret = map_pt_dma(vm, obj);
+ 		if (ret) {
+@@ -823,7 +828,8 @@ static int gen8_init_scratch(struct i915
+ free_scratch:
+ 	while (i--)
+ 		i915_gem_object_put(vm->scratch[i]);
+-	return -ENOMEM;
++	vm->scratch[0] = NULL;
++	return ret;
+ }
+ 
+ static int gen8_preallocate_top_level_pdp(struct i915_ppgtt *ppgtt)
+@@ -901,6 +907,7 @@ err_pd:
+ struct i915_ppgtt *gen8_ppgtt_create(struct intel_gt *gt,
+ 				     unsigned long lmem_pt_obj_flags)
+ {
++	struct i915_page_directory *pd;
+ 	struct i915_ppgtt *ppgtt;
+ 	int err;
+ 
+@@ -946,21 +953,7 @@ struct i915_ppgtt *gen8_ppgtt_create(str
+ 		ppgtt->vm.alloc_scratch_dma = alloc_pt_dma;
+ 	}
+ 
+-	err = gen8_init_scratch(&ppgtt->vm);
+-	if (err)
+-		goto err_free;
+-
+-	ppgtt->pd = gen8_alloc_top_pd(&ppgtt->vm);
+-	if (IS_ERR(ppgtt->pd)) {
+-		err = PTR_ERR(ppgtt->pd);
+-		goto err_free_scratch;
+-	}
+-
+-	if (!i915_vm_is_4lvl(&ppgtt->vm)) {
+-		err = gen8_preallocate_top_level_pdp(ppgtt);
+-		if (err)
+-			goto err_free_pd;
+-	}
++	ppgtt->vm.pte_encode = gen8_pte_encode;
+ 
+ 	ppgtt->vm.bind_async_flags = I915_VMA_LOCAL_BIND;
+ 	ppgtt->vm.insert_entries = gen8_ppgtt_insert;
+@@ -971,22 +964,31 @@ struct i915_ppgtt *gen8_ppgtt_create(str
+ 	ppgtt->vm.allocate_va_range = gen8_ppgtt_alloc;
+ 	ppgtt->vm.clear_range = gen8_ppgtt_clear;
+ 	ppgtt->vm.foreach = gen8_ppgtt_foreach;
++	ppgtt->vm.cleanup = gen8_ppgtt_cleanup;
+ 
+-	ppgtt->vm.pte_encode = gen8_pte_encode;
++	err = gen8_init_scratch(&ppgtt->vm);
++	if (err)
++		goto err_put;
++
++	pd = gen8_alloc_top_pd(&ppgtt->vm);
++	if (IS_ERR(pd)) {
++		err = PTR_ERR(pd);
++		goto err_put;
++	}
++	ppgtt->pd = pd;
++
++	if (!i915_vm_is_4lvl(&ppgtt->vm)) {
++		err = gen8_preallocate_top_level_pdp(ppgtt);
++		if (err)
++			goto err_put;
++	}
+ 
+ 	if (intel_vgpu_active(gt->i915))
+ 		gen8_ppgtt_notify_vgt(ppgtt, true);
+ 
+-	ppgtt->vm.cleanup = gen8_ppgtt_cleanup;
+-
+ 	return ppgtt;
+ 
+-err_free_pd:
+-	__gen8_ppgtt_cleanup(&ppgtt->vm, ppgtt->pd,
+-			     gen8_pd_top_count(&ppgtt->vm), ppgtt->vm.top);
+-err_free_scratch:
+-	free_scratch(&ppgtt->vm);
+-err_free:
+-	kfree(ppgtt);
++err_put:
++	i915_vm_put(&ppgtt->vm);
+ 	return ERR_PTR(err);
+ }
+--- a/drivers/gpu/drm/i915/gt/intel_gtt.c
++++ b/drivers/gpu/drm/i915/gt/intel_gtt.c
+@@ -405,6 +405,9 @@ void free_scratch(struct i915_address_sp
+ {
+ 	int i;
+ 
++	if (!vm->scratch[0])
++		return;
++
+ 	for (i = 0; i <= vm->top; i++)
+ 		i915_gem_object_put(vm->scratch[i]);
+ }
 
 
