@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3173A608897
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:19:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71D986088A9
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:20:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230471AbiJVIT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:19:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54292 "EHLO
+        id S230189AbiJVIUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:20:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233661AbiJVITC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:19:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF8732DE448;
-        Sat, 22 Oct 2022 00:58:00 -0700 (PDT)
+        with ESMTP id S233795AbiJVITo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:19:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E15D0D6BB4;
+        Sat, 22 Oct 2022 00:58:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A79BB82E29;
-        Sat, 22 Oct 2022 07:56:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADCCDC433C1;
-        Sat, 22 Oct 2022 07:56:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7486160B91;
+        Sat, 22 Oct 2022 07:56:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B239C433C1;
+        Sat, 22 Oct 2022 07:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425387;
-        bh=cOm26CLNCRY3FQd40Isa4XAbzShkLfFTJBR6ThNBhWU=;
+        s=korg; t=1666425392;
+        bh=1Y7qpSB/p47Zdgo29zn1EKjizf5xN3DqjUZFK+QYqKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=okqaPYY/mp9ygXGv8dB/mKvcKn84g9ZRA60wsIsTtlzfCs1NmSKfo0VECFgZW73of
-         7+wmyF/XlhR2bCPSrz5+cgvZ8pYS+VgWyfDhjju9id7M7OG6wUWRIq/eA75QCs+dZJ
-         pOAnT8gEjqVeDc05UaJKkUt14Exa1bPsB0AG1eMk=
+        b=PCbbhWt7zb9TKPWUQdTV0oZZVYa/GYwkhS3E/qExBJXXo7n1rgvhjhH4Ww01msjdv
+         nAU59SyHRPj51rG2WT88Dc+Tq4onCKixmwsKkIODzqFoDA4zIY9XBw+4ztl+L9231E
+         8m2wE0vuftUXxpY3RdGiHebnJTYKawYgwB1ke+Rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        "Ivan T. Ivanov" <iivanov@suse.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Lin Yujun <linyujun809@huawei.com>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 484/717] clk: bcm2835: fix bcm2835_clock_rate_from_divisor declaration
-Date:   Sat, 22 Oct 2022 09:26:03 +0200
-Message-Id: <20221022072519.797638219@linuxfoundation.org>
+Subject: [PATCH 5.19 485/717] clk: imx: scu: fix memleak on platform_device_add() fails
+Date:   Sat, 22 Oct 2022 09:26:04 +0200
+Message-Id: <20221022072519.828988984@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,41 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Lin Yujun <linyujun809@huawei.com>
 
-[ Upstream commit 0b919a3728691c172312dee99ba654055ccd8c84 ]
+[ Upstream commit 855ae87a2073ebf1b395e020de54fdf9ce7d166f ]
 
-The return value of bcm2835_clock_rate_from_divisor is always unsigned
-and also all caller expect this. So fix the declaration accordingly.
+No error handling is performed when platform_device_add()
+fails. Add error processing before return, and modified
+the return value.
 
-Fixes: 41691b8862e2 ("clk: bcm2835: Add support for programming the audio domain clocks")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/20220904141037.38816-1-stefan.wahren@i2se.com
-Reviewed-by: Ivan T. Ivanov <iivanov@suse.de>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 77d8f3068c63 ("clk: imx: scu: add two cells binding support")
+Signed-off-by: Lin Yujun <linyujun809@huawei.com>
+Link: https://lore.kernel.org/r/20220914033206.98046-1-linyujun809@huawei.com
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/imx/clk-scu.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index 48a1eb9f2d55..9e9f8b242958 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -966,9 +966,9 @@ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
- 	return div;
- }
+diff --git a/drivers/clk/imx/clk-scu.c b/drivers/clk/imx/clk-scu.c
+index c56e406138db..1e6870f3671f 100644
+--- a/drivers/clk/imx/clk-scu.c
++++ b/drivers/clk/imx/clk-scu.c
+@@ -695,7 +695,11 @@ struct clk_hw *imx_clk_scu_alloc_dev(const char *name,
+ 		pr_warn("%s: failed to attached the power domain %d\n",
+ 			name, ret);
  
--static long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
--					    unsigned long parent_rate,
--					    u32 div)
-+static unsigned long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
-+						     unsigned long parent_rate,
-+						     u32 div)
- {
- 	const struct bcm2835_clock_data *data = clock->data;
- 	u64 temp;
+-	platform_device_add(pdev);
++	ret = platform_device_add(pdev);
++	if (ret) {
++		platform_device_put(pdev);
++		return ERR_PTR(ret);
++	}
+ 
+ 	/* For API backwards compatiblilty, simply return NULL for success */
+ 	return NULL;
 -- 
 2.35.1
 
