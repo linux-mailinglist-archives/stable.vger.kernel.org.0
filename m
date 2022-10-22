@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 541CA608894
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:19:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A80608926
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230058AbiJVITz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:19:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50008 "EHLO
+        id S233865AbiJVIbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:31:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233681AbiJVITF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:19:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 881A22CCA0F;
-        Sat, 22 Oct 2022 00:58:03 -0700 (PDT)
+        with ESMTP id S234066AbiJVI3a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:29:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F27DC2E25E3;
+        Sat, 22 Oct 2022 01:01:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A70FE60AD9;
-        Sat, 22 Oct 2022 07:47:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FA7AC433D6;
-        Sat, 22 Oct 2022 07:47:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D838B82E21;
+        Sat, 22 Oct 2022 07:48:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BB44C433D6;
+        Sat, 22 Oct 2022 07:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424879;
-        bh=7+fjVzf8Ald8bczHdsBDYgEKHhhR9GoYNcP6Ek+3Dd4=;
+        s=korg; t=1666424887;
+        bh=v6XsYF2D1laF2NTZayhIX9dkIblRNqa009SYmswfqmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wdzYe1GFCY3mPdCF8tvgk/r+UbybuwvunTZuljf5yxptOZXTl3AfaCQ/Agw8nBv3h
-         +A0ksoDWsFFgFs7nJxSazFr39wqp4Rzib0/qzfnhVPh0+3+96JK6NwRSKzHFiOytu0
-         EFsXxk0BiNzUhZuEkJFv/hTnCD7+sEwwNFPInDmo=
+        b=SHQT+cq4xIkzOqtVVgnJ5okLEgtGOFjPVy4ZW2M6xwEj749gCpi0lIdfbkXm9qYC0
+         zShbvl48XodWbdaVbrEKmaFYEpSmBEaxxtcd1K764M0CrCaij1WbryWmd6xgzEatQp
+         U+sRee/vU9XLP2/xzLWBHGpI3mNFq2k1OTcHNaXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 311/717] ASoC: tas2764: Allow mono streams
-Date:   Sat, 22 Oct 2022 09:23:10 +0200
-Message-Id: <20221022072507.487813118@linuxfoundation.org>
+Subject: [PATCH 5.19 313/717] ASoC: tas2764: Fix mute/unmute
+Date:   Sat, 22 Oct 2022 09:23:12 +0200
+Message-Id: <20221022072507.733879519@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,36 +56,132 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit 23204d928a27146d13e11c9383632775345ecca8 ]
+[ Upstream commit f5ad67f13623548e5aff847f89700c178aaf2a98 ]
 
-The part is a mono speaker amp, but it can do downmix and switch between
-left and right channel, so the right channel range is 1 to 2.
+Because the PWR_CTRL field is modeled as the power state of the DAC
+widget, and at the same time it is used to implement mute/unmute, we
+need some additional book-keeping to have the right end result no matter
+the sequence of calls. Without this fix, one permanently mutes an
+ongoing stream by toggling the associated speaker pin control.
 
-(This mirrors commit bf54d97a835d ("ASoC: tas2770: Allow mono streams")
-which was a fix to the tas2770 driver.)
+(This mirrors commit 1e5907bcb3a3 ("ASoC: tas2770: Fix handling of
+mute/unmute") which was a fix to the tas2770 driver.)
 
 Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
 Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20220825140241.53963-2-povik+lin@cutebit.org
+Link: https://lore.kernel.org/r/20220825140241.53963-4-povik+lin@cutebit.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tas2764.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/tas2764.c | 57 +++++++++++++++++++++-----------------
+ 1 file changed, 32 insertions(+), 25 deletions(-)
 
 diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
-index 4cb788f3e5f7..00df36fb3ede 100644
+index c11406bbe5bc..7ae7a5249f95 100644
 --- a/sound/soc/codecs/tas2764.c
 +++ b/sound/soc/codecs/tas2764.c
-@@ -485,7 +485,7 @@ static struct snd_soc_dai_driver tas2764_dai_driver[] = {
- 		.id = 0,
- 		.playback = {
- 			.stream_name    = "ASI1 Playback",
--			.channels_min   = 2,
-+			.channels_min   = 1,
- 			.channels_max   = 2,
- 			.rates      = TAS2764_RATES,
- 			.formats    = TAS2764_FORMATS,
+@@ -34,6 +34,9 @@ struct tas2764_priv {
+ 	
+ 	int v_sense_slot;
+ 	int i_sense_slot;
++
++	bool dac_powered;
++	bool unmuted;
+ };
+ 
+ static void tas2764_reset(struct tas2764_priv *tas2764)
+@@ -50,6 +53,26 @@ static void tas2764_reset(struct tas2764_priv *tas2764)
+ 	usleep_range(1000, 2000);
+ }
+ 
++static int tas2764_update_pwr_ctrl(struct tas2764_priv *tas2764)
++{
++	struct snd_soc_component *component = tas2764->component;
++	unsigned int val;
++	int ret;
++
++	if (tas2764->dac_powered)
++		val = tas2764->unmuted ?
++			TAS2764_PWR_CTRL_ACTIVE : TAS2764_PWR_CTRL_MUTE;
++	else
++		val = TAS2764_PWR_CTRL_SHUTDOWN;
++
++	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
++					    TAS2764_PWR_CTRL_MASK, val);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
+ #ifdef CONFIG_PM
+ static int tas2764_codec_suspend(struct snd_soc_component *component)
+ {
+@@ -82,9 +105,7 @@ static int tas2764_codec_resume(struct snd_soc_component *component)
+ 		usleep_range(1000, 2000);
+ 	}
+ 
+-	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+-					    TAS2764_PWR_CTRL_MASK,
+-					    TAS2764_PWR_CTRL_ACTIVE);
++	ret = tas2764_update_pwr_ctrl(tas2764);
+ 
+ 	if (ret < 0)
+ 		return ret;
+@@ -118,14 +139,12 @@ static int tas2764_dac_event(struct snd_soc_dapm_widget *w,
+ 
+ 	switch (event) {
+ 	case SND_SOC_DAPM_POST_PMU:
+-		ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+-						    TAS2764_PWR_CTRL_MASK,
+-						    TAS2764_PWR_CTRL_MUTE);
++		tas2764->dac_powered = true;
++		ret = tas2764_update_pwr_ctrl(tas2764);
+ 		break;
+ 	case SND_SOC_DAPM_PRE_PMD:
+-		ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+-						    TAS2764_PWR_CTRL_MASK,
+-						    TAS2764_PWR_CTRL_SHUTDOWN);
++		tas2764->dac_powered = false;
++		ret = tas2764_update_pwr_ctrl(tas2764);
+ 		break;
+ 	default:
+ 		dev_err(tas2764->dev, "Unsupported event\n");
+@@ -170,17 +189,11 @@ static const struct snd_soc_dapm_route tas2764_audio_map[] = {
+ 
+ static int tas2764_mute(struct snd_soc_dai *dai, int mute, int direction)
+ {
+-	struct snd_soc_component *component = dai->component;
+-	int ret;
+-
+-	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+-					    TAS2764_PWR_CTRL_MASK,
+-					    mute ? TAS2764_PWR_CTRL_MUTE : 0);
++	struct tas2764_priv *tas2764 =
++			snd_soc_component_get_drvdata(dai->component);
+ 
+-	if (ret < 0)
+-		return ret;
+-
+-	return 0;
++	tas2764->unmuted = !mute;
++	return tas2764_update_pwr_ctrl(tas2764);
+ }
+ 
+ static int tas2764_set_bitwidth(struct tas2764_priv *tas2764, int bitwidth)
+@@ -494,12 +507,6 @@ static int tas2764_codec_probe(struct snd_soc_component *component)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+-					    TAS2764_PWR_CTRL_MASK,
+-					    TAS2764_PWR_CTRL_MUTE);
+-	if (ret < 0)
+-		return ret;
+-
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
