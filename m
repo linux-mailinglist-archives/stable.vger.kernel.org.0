@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 116C8608AB0
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:04:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D79B3608ADF
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:11:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231855AbiJVJE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 05:04:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43972 "EHLO
+        id S231840AbiJVJLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 05:11:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235102AbiJVJDq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:03:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEEB22FBDF6;
-        Sat, 22 Oct 2022 01:18:55 -0700 (PDT)
+        with ESMTP id S232165AbiJVJLa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:11:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BD32514E3;
+        Sat, 22 Oct 2022 01:25:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C409CB82E04;
-        Sat, 22 Oct 2022 07:48:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 214A1C433D6;
-        Sat, 22 Oct 2022 07:48:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6564560B0C;
+        Sat, 22 Oct 2022 07:48:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 766DCC433C1;
+        Sat, 22 Oct 2022 07:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424897;
-        bh=pP2r2bExKP4Le3wtAbMnar0v4Dk3GywGU3NbELH8LRo=;
+        s=korg; t=1666424902;
+        bh=CKtuwDOYPsb0DMnuLbGcnbkAajbl8yEKG+j15wLGQfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t38+x8WkoAe7YJOx4avhVAz6+MLQ+4pvrun6ks6zv9mzakIQXPuWWfbx8vPgy9XuM
-         3c1zcyMQvdYP3D0JNfGF7/6jNcuw96M9pveZ5GAz1mu2iE96C0lcM1WllhdayNt+WQ
-         BkbsZ66TTqji7ffsaJOGruq9c8oIaKqgkd+EnZSc=
+        b=u3yjSkGKQ1+NLzAf42T76EK+ulDzpZarpQjMrYhqKF3aqP6Z7nvtgtU3JO2YemP3b
+         N3pE6TpE5XhflqeJKXpCWP7Lf+3aTC2sZ6NwK9oQvJ+hH381gFqfy7reMIesbdpPtQ
+         7J48jMsXzJVCZ63Hp6ut5hzCdwrZ9ehIiigLfW/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Pin-yen Lin <treapking@chromium.org>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 317/717] drm/amdgpu: add missing pci_disable_device() in amdgpu_pmops_runtime_resume()
-Date:   Sat, 22 Oct 2022 09:23:16 +0200
-Message-Id: <20221022072508.171109408@linuxfoundation.org>
+Subject: [PATCH 5.19 319/717] drm/bridge: it6505: Fix the order of DP_SET_POWER commands
+Date:   Sat, 22 Oct 2022 09:23:18 +0200
+Message-Id: <20221022072508.422913883@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,37 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Pin-yen Lin <treapking@chromium.org>
 
-[ Upstream commit 6b11af6d1c8f5d4135332bb932baaa06e511173d ]
+[ Upstream commit 7c1dceaffd99247bf443606730515b54d6285969 ]
 
-Add missing pci_disable_device() if amdgpu_device_resume() fails.
+Send DP_SET_POWER_D3 command to the downstream before stopping DP, so the
+suspend process will not be interrupted by the HPD interrupt. Also modify
+the order in .atomic_enable callback to make the callbacks symmetric.
 
-Fixes: 8e4d5d43cc6c ("drm/amdgpu: Handling of amdgpu_device_resume return value for graceful teardown")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 46ca7da7f1e8 ("drm/bridge: it6505: Send DPCD SET_POWER to downstream")
+Signed-off-by: Pin-yen Lin <treapking@chromium.org>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220830045756.1655954-1-treapking@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/ite-it6505.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-index 8890300766a5..5e8ca32bc3a9 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -2548,8 +2548,11 @@ static int amdgpu_pmops_runtime_resume(struct device *dev)
- 		amdgpu_device_baco_exit(drm_dev);
- 	}
- 	ret = amdgpu_device_resume(drm_dev, false);
--	if (ret)
-+	if (ret) {
-+		if (amdgpu_device_supports_px(drm_dev))
-+			pci_disable_device(pdev);
- 		return ret;
-+	}
+diff --git a/drivers/gpu/drm/bridge/ite-it6505.c b/drivers/gpu/drm/bridge/ite-it6505.c
+index e5626035f311..a09d1a39ab0a 100644
+--- a/drivers/gpu/drm/bridge/ite-it6505.c
++++ b/drivers/gpu/drm/bridge/ite-it6505.c
+@@ -2945,9 +2945,6 @@ static void it6505_bridge_atomic_enable(struct drm_bridge *bridge,
+ 	if (ret)
+ 		dev_err(dev, "Failed to setup AVI infoframe: %d", ret);
  
- 	if (amdgpu_device_supports_px(drm_dev))
- 		drm_dev->switch_power_state = DRM_SWITCH_POWER_ON;
+-	it6505_drm_dp_link_set_power(&it6505->aux, &it6505->link,
+-				     DP_SET_POWER_D0);
+-
+ 	it6505_update_video_parameter(it6505, mode);
+ 
+ 	ret = it6505_send_video_infoframe(it6505, &frame);
+@@ -2957,6 +2954,9 @@ static void it6505_bridge_atomic_enable(struct drm_bridge *bridge,
+ 
+ 	it6505_int_mask_enable(it6505);
+ 	it6505_video_reset(it6505);
++
++	it6505_drm_dp_link_set_power(&it6505->aux, &it6505->link,
++				     DP_SET_POWER_D0);
+ }
+ 
+ static void it6505_bridge_atomic_disable(struct drm_bridge *bridge,
+@@ -2968,9 +2968,9 @@ static void it6505_bridge_atomic_disable(struct drm_bridge *bridge,
+ 	DRM_DEV_DEBUG_DRIVER(dev, "start");
+ 
+ 	if (it6505->powered) {
+-		it6505_video_disable(it6505);
+ 		it6505_drm_dp_link_set_power(&it6505->aux, &it6505->link,
+ 					     DP_SET_POWER_D3);
++		it6505_video_disable(it6505);
+ 	}
+ }
+ 
 -- 
 2.35.1
 
