@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC4160887E
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:17:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 541CA608894
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:19:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233559AbiJVIRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:17:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48814 "EHLO
+        id S230058AbiJVITz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:19:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233310AbiJVIQk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:16:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19D7CFF20A;
-        Sat, 22 Oct 2022 00:57:33 -0700 (PDT)
+        with ESMTP id S233681AbiJVITF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:19:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 881A22CCA0F;
+        Sat, 22 Oct 2022 00:58:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4AE6B82DFE;
-        Sat, 22 Oct 2022 07:47:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A4CEC433C1;
-        Sat, 22 Oct 2022 07:47:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A70FE60AD9;
+        Sat, 22 Oct 2022 07:47:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FA7AC433D6;
+        Sat, 22 Oct 2022 07:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424857;
-        bh=Vp52VCPyvK1uo9tqWME7V3/uLHnMjoZvQgmyVTyQAMM=;
+        s=korg; t=1666424879;
+        bh=7+fjVzf8Ald8bczHdsBDYgEKHhhR9GoYNcP6Ek+3Dd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yz/wxypvxh9k7XoYZNbM4NAnmiI1ylJuujlR0akBjeXQrK2CjBljRyqGbN2feq44A
-         z94UAqkUuU+ctabhyrVHLY1LWk+64e8llLRZ0DEM6gx+a+uqpBpy+41C+IzuPHxiZX
-         9i931XEDDRxqBw3rCUQpeelbPl8/A/sMH+Q+ZMpc=
+        b=wdzYe1GFCY3mPdCF8tvgk/r+UbybuwvunTZuljf5yxptOZXTl3AfaCQ/Agw8nBv3h
+         +A0ksoDWsFFgFs7nJxSazFr39wqp4Rzib0/qzfnhVPh0+3+96JK6NwRSKzHFiOytu0
+         EFsXxk0BiNzUhZuEkJFv/hTnCD7+sEwwNFPInDmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Ser <contact@emersion.fr>,
-        Lyude Paul <lyude@redhat.com>,
-        Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 303/717] drm/dp_mst: fix drm_dp_dpcd_read return value checks
-Date:   Sat, 22 Oct 2022 09:23:02 +0200
-Message-Id: <20221022072506.436381005@linuxfoundation.org>
+Subject: [PATCH 5.19 311/717] ASoC: tas2764: Allow mono streams
+Date:   Sat, 22 Oct 2022 09:23:10 +0200
+Message-Id: <20221022072507.487813118@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,55 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Ser <contact@emersion.fr>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit 2ac6cdd581f48c8f68747156fde5868486a44985 ]
+[ Upstream commit 23204d928a27146d13e11c9383632775345ecca8 ]
 
-drm_dp_dpcd_read returns the number of bytes read. The previous code
-would print garbage on DPCD error, and would exit with on error on
-success.
+The part is a mono speaker amp, but it can do downmix and switch between
+left and right channel, so the right channel range is 1 to 2.
 
-Signed-off-by: Simon Ser <contact@emersion.fr>
-Fixes: cb897542c6d2 ("drm/dp_mst: Fix W=1 warnings")
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Benjamin Gaignard <benjamin.gaignard@st.com>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/473500/
+(This mirrors commit bf54d97a835d ("ASoC: tas2770: Allow mono streams")
+which was a fix to the tas2770 driver.)
+
+Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20220825140241.53963-2-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/display/drm_dp_mst_topology.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/codecs/tas2764.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/drm/display/drm_dp_mst_topology.c
-index 18f2b6075b78..28dd741f7da1 100644
---- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
-@@ -4916,14 +4916,14 @@ void drm_dp_mst_dump_topology(struct seq_file *m,
- 		seq_printf(m, "dpcd: %*ph\n", DP_RECEIVER_CAP_SIZE, buf);
- 
- 		ret = drm_dp_dpcd_read(mgr->aux, DP_FAUX_CAP, buf, 2);
--		if (ret) {
-+		if (ret != 2) {
- 			seq_printf(m, "faux/mst read failed\n");
- 			goto out;
- 		}
- 		seq_printf(m, "faux/mst: %*ph\n", 2, buf);
- 
- 		ret = drm_dp_dpcd_read(mgr->aux, DP_MSTM_CTRL, buf, 1);
--		if (ret) {
-+		if (ret != 1) {
- 			seq_printf(m, "mst ctrl read failed\n");
- 			goto out;
- 		}
-@@ -4931,7 +4931,7 @@ void drm_dp_mst_dump_topology(struct seq_file *m,
- 
- 		/* dump the standard OUI branch header */
- 		ret = drm_dp_dpcd_read(mgr->aux, DP_BRANCH_OUI, buf, DP_BRANCH_OUI_HEADER_SIZE);
--		if (ret) {
-+		if (ret != DP_BRANCH_OUI_HEADER_SIZE) {
- 			seq_printf(m, "branch oui read failed\n");
- 			goto out;
- 		}
+diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
+index 4cb788f3e5f7..00df36fb3ede 100644
+--- a/sound/soc/codecs/tas2764.c
++++ b/sound/soc/codecs/tas2764.c
+@@ -485,7 +485,7 @@ static struct snd_soc_dai_driver tas2764_dai_driver[] = {
+ 		.id = 0,
+ 		.playback = {
+ 			.stream_name    = "ASI1 Playback",
+-			.channels_min   = 2,
++			.channels_min   = 1,
+ 			.channels_max   = 2,
+ 			.rates      = TAS2764_RATES,
+ 			.formats    = TAS2764_FORMATS,
 -- 
 2.35.1
 
