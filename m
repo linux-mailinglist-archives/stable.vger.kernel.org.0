@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C555608864
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE41D608857
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233400AbiJVIQt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:16:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51590 "EHLO
+        id S233269AbiJVIQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:16:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234019AbiJVIP4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:15:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73C54D6BB8;
-        Sat, 22 Oct 2022 00:56:49 -0700 (PDT)
+        with ESMTP id S233688AbiJVIOv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:14:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F719290E1D;
+        Sat, 22 Oct 2022 00:55:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FAB960B9A;
-        Sat, 22 Oct 2022 07:55:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 553A9C433C1;
-        Sat, 22 Oct 2022 07:55:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB7F5B82DF2;
+        Sat, 22 Oct 2022 07:55:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32472C433D6;
+        Sat, 22 Oct 2022 07:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425341;
-        bh=qWqlig6IlzpHHxfd14zNaM8RXMalHFwmu12oJV+HDCI=;
+        s=korg; t=1666425344;
+        bh=/HIERa100lh8MOJ+VnEm9GMQEByn7+Vm+HFFy4N/aVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SrFoW4Jdl8k8BSJD3i9rs5Agt3Tp1z/IbnncKCVggjORPEv9te7IOua/wxHyLxQ0/
-         Lyijjxp7H9SH76FicCNJ3+EFX6F3rvRNxKYCrgjPIcjWlj//9sNKlD31ii2UYXqt00
-         lpJbpMX/bDU0vYiI4ZkNVFVcEuDYGIYl6wUP8AXg=
+        b=nMxcUVRckV7hwBPYPE1F/9kS4ZlwYkEf5WRYgBQld3bJLftlQkLr63snN6mP9anSb
+         f3fBX+zDuVyKCgbGEJvGsB5ECvQayt4IWBX17QOMg2p7442IvU+090zKvezEtafsuJ
+         Sqttzz9s2myf8bhrwh0sIVBj59w6tP/Hg89jEY+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Martin Kaiser <martin@kaiser.cx>, Lee Jones <lee@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 470/717] mfd: fsl-imx25: Fix check for platform_get_irq() errors
-Date:   Sat, 22 Oct 2022 09:25:49 +0200
-Message-Id: <20221022072519.112847638@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 471/717] mfd: sm501: Add check for platform_driver_register()
+Date:   Sat, 22 Oct 2022 09:25:50 +0200
+Message-Id: <20221022072519.163507867@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,47 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 75db7907355ca5e2ff606e9dd3e86b6c3a455fe2 ]
+[ Upstream commit 8325a6c24ad78b8c1acc3c42b098ee24105d68e5 ]
 
-The mx25_tsadc_remove() function assumes all non-zero returns are success
-but the platform_get_irq() function returns negative on error and
-positive non-zero values on success.  It never returns zero, but if it
-did then treat that as a success.
+As platform_driver_register() can return error numbers,
+it should be better to check platform_driver_register()
+and deal with the exception.
 
-Fixes: 18f773937968 ("mfd: fsl-imx25: Clean up irq settings during removal")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Martin Kaiser <martin@kaiser.cx>
+Fixes: b6d6454fdb66 ("[PATCH] mfd: SM501 core driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/YvTfkbVQWYKMKS/t@kili
+Link: https://lore.kernel.org/r/20220913091112.1739138-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/fsl-imx25-tsadc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mfd/sm501.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/fsl-imx25-tsadc.c b/drivers/mfd/fsl-imx25-tsadc.c
-index 85f7982d26d2..823595bcc9b7 100644
---- a/drivers/mfd/fsl-imx25-tsadc.c
-+++ b/drivers/mfd/fsl-imx25-tsadc.c
-@@ -69,7 +69,7 @@ static int mx25_tsadc_setup_irq(struct platform_device *pdev,
- 	int irq;
+diff --git a/drivers/mfd/sm501.c b/drivers/mfd/sm501.c
+index bc0a2c38653e..3ac4508a6742 100644
+--- a/drivers/mfd/sm501.c
++++ b/drivers/mfd/sm501.c
+@@ -1720,7 +1720,12 @@ static struct platform_driver sm501_plat_driver = {
  
- 	irq = platform_get_irq(pdev, 0);
--	if (irq <= 0)
-+	if (irq < 0)
- 		return irq;
+ static int __init sm501_base_init(void)
+ {
+-	platform_driver_register(&sm501_plat_driver);
++	int ret;
++
++	ret = platform_driver_register(&sm501_plat_driver);
++	if (ret < 0)
++		return ret;
++
+ 	return pci_register_driver(&sm501_pci_driver);
+ }
  
- 	tsadc->domain = irq_domain_add_simple(np, 2, 0, &mx25_tsadc_domain_ops,
-@@ -89,7 +89,7 @@ static int mx25_tsadc_unset_irq(struct platform_device *pdev)
- 	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
- 	int irq = platform_get_irq(pdev, 0);
- 
--	if (irq) {
-+	if (irq >= 0) {
- 		irq_set_chained_handler_and_data(irq, NULL, NULL);
- 		irq_domain_remove(tsadc->domain);
- 	}
 -- 
 2.35.1
 
