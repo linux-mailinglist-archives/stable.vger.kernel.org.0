@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECF0F608619
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BC336086FA
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231145AbiJVHpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:45:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44772 "EHLO
+        id S232049AbiJVHzi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:55:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231281AbiJVHnb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:43:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF841EF054;
-        Sat, 22 Oct 2022 00:42:19 -0700 (PDT)
+        with ESMTP id S232126AbiJVHyH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:07 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3DB7951C5;
+        Sat, 22 Oct 2022 00:47:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A04760B09;
-        Sat, 22 Oct 2022 07:38:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 591BEC433C1;
-        Sat, 22 Oct 2022 07:38:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C78BCCE2C98;
+        Sat, 22 Oct 2022 07:38:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5A78C433C1;
+        Sat, 22 Oct 2022 07:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424280;
-        bh=SemBgwVN8OON6vFrEY8Oc1HWbiubQeH0TdHVV1OIaQw=;
+        s=korg; t=1666424286;
+        bh=zhPUD++s41ALFKJlkWcRVcaro7JOAzgATab/HtGbOz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=imByZEzX/uc/3YMDZKdCaRpvA3Lwd8JGKVlgXlayi8ZhbRjam6ACdXKonbSHrDMyW
-         XlYEu/63i4JOc1qPQaoyuyZGtqHn2s7kVDXtqqH4pgdstRPS6iXo4IOSLIFSulwsxO
-         AIrNnP4N0u2a8Sq3/tgISlwywJgkb/VXmqYCn8dc=
+        b=LoxpChLbtaq9P/LtSTQ8SUWX76tJkN3fAcCSRY0RJUlVQbMEfMepBVxP83ZgfESbp
+         lRK+I0OVJ6q/0eHh0SCBOuMlwK/WMzaGuftPwYaCtTpKJPNYn7T4FmL2MI5PRy3FQm
+         pzVWGTC0UU/hxwckCLZ0ZWN2BCwRnyz7OVo6/wHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Jeff Layton <jlayton@kernel.org>
-Subject: [PATCH 5.19 087/717] NFSD: Protect against send buffer overflow in NFSv2 READ
-Date:   Sat, 22 Oct 2022 09:19:26 +0200
-Message-Id: <20221022072430.760983577@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 5.19 089/717] cpufreq: qcom-cpufreq-hw: Fix uninitialized throttled_freq warning
+Date:   Sat, 22 Oct 2022 09:19:28 +0200
+Message-Id: <20221022072431.091471458@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,45 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-commit 401bc1f90874280a80b93f23be33a0e7e2d1f912 upstream.
+commit 91dc90fdb8b8199519a3aac9c46a433b02223c5b upstream.
 
-Since before the git era, NFSD has conserved the number of pages
-held by each nfsd thread by combining the RPC receive and send
-buffers into a single array of pages. This works because there are
-no cases where an operation needs a large RPC Call message and a
-large RPC Reply at the same time.
+Commit 6240aaad75e1 was supposed to drop the reference count to the OPP,
+instead it avoided more stuff if the OPP isn't found. This isn't
+entirely correct. We already have a frequency value available, we just
+couldn't align it with an OPP in case of IS_ERR(opp).
 
-Once an RPC Call has been received, svc_process() updates
-svc_rqst::rq_res to describe the part of rq_pages that can be
-used for constructing the Reply. This means that the send buffer
-(rq_res) shrinks when the received RPC record containing the RPC
-Call is large.
+Lets continue with updating thermal pressure, etc, even if we aren't
+able to find an OPP here.
 
-A client can force this shrinkage on TCP by sending a correctly-
-formed RPC Call header contained in an RPC record that is
-excessively large. The full maximum payload size cannot be
-constructed in that case.
+This fixes warning generated by the 'smatch' tool.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 6240aaad75e1 ("cpufreq: qcom-hw: fix the opp entries refcounting")
+Cc: v5.18+ <stable@vger.kernel.org> # v5.18+
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfsproc.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/cpufreq/qcom-cpufreq-hw.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/fs/nfsd/nfsproc.c
-+++ b/fs/nfsd/nfsproc.c
-@@ -182,6 +182,7 @@ nfsd_proc_read(struct svc_rqst *rqstp)
- 		argp->count, argp->offset);
+--- a/drivers/cpufreq/qcom-cpufreq-hw.c
++++ b/drivers/cpufreq/qcom-cpufreq-hw.c
+@@ -317,14 +317,14 @@ static void qcom_lmh_dcvs_notify(struct
+ 	if (IS_ERR(opp)) {
+ 		dev_warn(dev, "Can't find the OPP for throttling: %pe!\n", opp);
+ 	} else {
+-		throttled_freq = freq_hz / HZ_PER_KHZ;
+-
+-		/* Update thermal pressure (the boost frequencies are accepted) */
+-		arch_update_thermal_pressure(policy->related_cpus, throttled_freq);
+-
+ 		dev_pm_opp_put(opp);
+ 	}
  
- 	argp->count = min_t(u32, argp->count, NFSSVC_MAXBLKSIZE_V2);
-+	argp->count = min_t(u32, argp->count, rqstp->rq_res.buflen);
- 
- 	v = 0;
- 	len = argp->count;
++	throttled_freq = freq_hz / HZ_PER_KHZ;
++
++	/* Update thermal pressure (the boost frequencies are accepted) */
++	arch_update_thermal_pressure(policy->related_cpus, throttled_freq);
++
+ 	/*
+ 	 * In the unlikely case policy is unregistered do not enable
+ 	 * polling or h/w interrupt
 
 
