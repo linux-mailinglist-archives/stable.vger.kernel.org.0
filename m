@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D8B6089F7
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:45:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE4776089F2
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:45:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234427AbiJVIpr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:45:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52310 "EHLO
+        id S234694AbiJVIph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:45:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234978AbiJVIoL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:44:11 -0400
+        with ESMTP id S234902AbiJVIn7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:43:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 475612C6E9E;
-        Sat, 22 Oct 2022 01:07:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EADC2D5E90;
+        Sat, 22 Oct 2022 01:07:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58F8460BAA;
-        Sat, 22 Oct 2022 08:07:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65443C433C1;
-        Sat, 22 Oct 2022 08:07:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 363F760B93;
+        Sat, 22 Oct 2022 08:07:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21FEFC43470;
+        Sat, 22 Oct 2022 08:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426035;
-        bh=6HicgzDugBOerZVbAxSgXH2xBFYBrHxtY5zu4BuDnVg=;
+        s=korg; t=1666426038;
+        bh=NnJ0YjbfDryTNsgBnYfvkTFfLDik9g6cRLQCeZMJaHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uDLegif66pSGgV2jHhObzgJK3qKtEitiHmKkb93hYOStGi9AYG8MrNdACG8MOREYw
-         1aZby/F13hgLAYcg9bFsxesHwaxayrwEMyPykrOhLUR8Fc+vZ842ef4seIim772nLH
-         qRVZViJgx7LAkA7zGM4+PAL0I92H1hmDrPvEen8g=
+        b=kQJtik8s0x6RfwbSMuk9ym1Lu8mSD+/Alehwc4ZTkRUlxilnuU9dHnOxJdMqQUgi+
+         IvWtFv0vwgspaZN45W1e19a9aDqM1p0IBCkLx6ofDeNK86COeuORsroh5AdssIyMNf
+         shmyCRlWBaKWqIQrrw8UgCV8X2tnGyN8hdjfGek8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.19 698/717] perf intel-pt: Fix system_wide dummy event for hybrid
-Date:   Sat, 22 Oct 2022 09:29:37 +0200
-Message-Id: <20221022072529.333384768@linuxfoundation.org>
+        stable@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        syzbot+193f9cee8638750b23cf@syzkaller.appspotmail.com,
+        Liu Zixian <liuzixian4@huawei.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        David Hildenbrand <david@redhat.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Sidhartha Kumar <sidhartha.kumar@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.19 699/717] mm: hugetlb: fix UAF in hugetlb_handle_userfault
+Date:   Sat, 22 Oct 2022 09:29:38 +0200
+Message-Id: <20221022072529.365729689@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,38 +60,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-commit 6cef7dab3e2e5cb23a13569c3880c0532326748c upstream.
+commit 958f32ce832ba781ac20e11bb2d12a9352ea28fc upstream.
 
-User space tasks can migrate between CPUs, so when tracing selected CPUs,
-system-wide sideband is still needed, however evlist->core.has_user_cpus
-is not set in the hybrid case, so check the target cpu_list instead.
+The vma_lock and hugetlb_fault_mutex are dropped before handling userfault
+and reacquire them again after handle_userfault(), but reacquire the
+vma_lock could lead to UAF[1,2] due to the following race,
 
-Fixes: 7d189cadbeebc778 ("perf intel-pt: Track sideband system-wide when needed")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221012082259.22394-3-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+hugetlb_fault
+  hugetlb_no_page
+    /*unlock vma_lock */
+    hugetlb_handle_userfault
+      handle_userfault
+        /* unlock mm->mmap_lock*/
+                                           vm_mmap_pgoff
+                                             do_mmap
+                                               mmap_region
+                                                 munmap_vma_range
+                                                   /* clean old vma */
+        /* lock vma_lock again  <--- UAF */
+    /* unlock vma_lock */
+
+Since the vma_lock will unlock immediately after
+hugetlb_handle_userfault(), let's drop the unneeded lock and unlock in
+hugetlb_handle_userfault() to fix the issue.
+
+[1] https://lore.kernel.org/linux-mm/000000000000d5e00a05e834962e@google.com/
+[2] https://lore.kernel.org/linux-mm/20220921014457.1668-1-liuzixian4@huawei.com/
+Link: https://lkml.kernel.org/r/20220923042113.137273-1-liushixin2@huawei.com
+Fixes: 1a1aad8a9b7b ("userfaultfd: hugetlbfs: add userfaultfd hugetlb hook")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: syzbot+193f9cee8638750b23cf@syzkaller.appspotmail.com
+Reported-by: Liu Zixian <liuzixian4@huawei.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Sidhartha Kumar <sidhartha.kumar@oracle.com>
+Cc: <stable@vger.kernel.org>	[4.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/arch/x86/util/intel-pt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/hugetlb.c |   37 +++++++++++++++++--------------------
+ 1 file changed, 17 insertions(+), 20 deletions(-)
 
---- a/tools/perf/arch/x86/util/intel-pt.c
-+++ b/tools/perf/arch/x86/util/intel-pt.c
-@@ -871,7 +871,7 @@ static int intel_pt_recording_options(st
- 		 * User space tasks can migrate between CPUs, so when tracing
- 		 * selected CPUs, sideband for all CPUs is still needed.
- 		 */
--		need_system_wide_tracking = evlist->core.has_user_cpus &&
-+		need_system_wide_tracking = opts->target.cpu_list &&
- 					    !intel_pt_evsel->core.attr.exclude_user;
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5467,7 +5467,6 @@ static inline vm_fault_t hugetlb_handle_
+ 						  unsigned long addr,
+ 						  unsigned long reason)
+ {
+-	vm_fault_t ret;
+ 	u32 hash;
+ 	struct vm_fault vmf = {
+ 		.vma = vma,
+@@ -5485,18 +5484,14 @@ static inline vm_fault_t hugetlb_handle_
+ 	};
  
- 		tracking_evsel = evlist__add_aux_dummy(evlist, need_system_wide_tracking);
+ 	/*
+-	 * hugetlb_fault_mutex and i_mmap_rwsem must be
+-	 * dropped before handling userfault.  Reacquire
+-	 * after handling fault to make calling code simpler.
++	 * vma_lock and hugetlb_fault_mutex must be dropped before handling
++	 * userfault. Also mmap_lock will be dropped during handling
++	 * userfault, any vma operation should be careful from here.
+ 	 */
+ 	hash = hugetlb_fault_mutex_hash(mapping, idx);
+ 	mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 	i_mmap_unlock_read(mapping);
+-	ret = handle_userfault(&vmf, reason);
+-	i_mmap_lock_read(mapping);
+-	mutex_lock(&hugetlb_fault_mutex_table[hash]);
+-
+-	return ret;
++	return handle_userfault(&vmf, reason);
+ }
+ 
+ static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
+@@ -5514,6 +5509,7 @@ static vm_fault_t hugetlb_no_page(struct
+ 	spinlock_t *ptl;
+ 	unsigned long haddr = address & huge_page_mask(h);
+ 	bool new_page, new_pagecache_page = false;
++	u32 hash = hugetlb_fault_mutex_hash(mapping, idx);
+ 
+ 	/*
+ 	 * Currently, we are forced to kill the process in the event the
+@@ -5524,7 +5520,7 @@ static vm_fault_t hugetlb_no_page(struct
+ 	if (is_vma_resv_set(vma, HPAGE_RESV_UNMAPPED)) {
+ 		pr_warn_ratelimited("PID %d killed due to inadequate hugepage pool\n",
+ 			   current->pid);
+-		return ret;
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -5541,12 +5537,10 @@ retry:
+ 	page = find_lock_page(mapping, idx);
+ 	if (!page) {
+ 		/* Check for page in userfault range */
+-		if (userfaultfd_missing(vma)) {
+-			ret = hugetlb_handle_userfault(vma, mapping, idx,
++		if (userfaultfd_missing(vma))
++			return hugetlb_handle_userfault(vma, mapping, idx,
+ 						       flags, haddr, address,
+ 						       VM_UFFD_MISSING);
+-			goto out;
+-		}
+ 
+ 		page = alloc_huge_page(vma, haddr, 0);
+ 		if (IS_ERR(page)) {
+@@ -5606,10 +5600,9 @@ retry:
+ 		if (userfaultfd_minor(vma)) {
+ 			unlock_page(page);
+ 			put_page(page);
+-			ret = hugetlb_handle_userfault(vma, mapping, idx,
++			return hugetlb_handle_userfault(vma, mapping, idx,
+ 						       flags, haddr, address,
+ 						       VM_UFFD_MINOR);
+-			goto out;
+ 		}
+ 	}
+ 
+@@ -5667,6 +5660,8 @@ retry:
+ 
+ 	unlock_page(page);
+ out:
++	mutex_unlock(&hugetlb_fault_mutex_table[hash]);
++	i_mmap_unlock_read(mapping);
+ 	return ret;
+ 
+ backout:
+@@ -5765,11 +5760,13 @@ vm_fault_t hugetlb_fault(struct mm_struc
+ 
+ 	entry = huge_ptep_get(ptep);
+ 	/* PTE markers should be handled the same way as none pte */
+-	if (huge_pte_none_mostly(entry)) {
+-		ret = hugetlb_no_page(mm, vma, mapping, idx, address, ptep,
++	if (huge_pte_none_mostly(entry))
++		/*
++		 * hugetlb_no_page will drop vma lock and hugetlb fault
++		 * mutex internally, which make us return immediately.
++		 */
++		return hugetlb_no_page(mm, vma, mapping, idx, address, ptep,
+ 				      entry, flags);
+-		goto out_mutex;
+-	}
+ 
+ 	ret = 0;
+ 
 
 
