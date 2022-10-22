@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3466860889D
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1A056088EB
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233421AbiJVIUH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:20:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48234 "EHLO
+        id S230516AbiJVIZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:25:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233713AbiJVITL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:19:11 -0400
+        with ESMTP id S233962AbiJVIY0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:24:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D27DAA3B71;
-        Sat, 22 Oct 2022 00:58:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5216E4000C;
+        Sat, 22 Oct 2022 00:59:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 601ACB82E2E;
-        Sat, 22 Oct 2022 07:56:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92177C433C1;
-        Sat, 22 Oct 2022 07:56:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71980B82E2C;
+        Sat, 22 Oct 2022 07:56:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3525C433C1;
+        Sat, 22 Oct 2022 07:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425408;
-        bh=1D/vS+8S3AmPgXJJELocgYPg2tPpEPjyNhYTEsMKNm8=;
+        s=korg; t=1666425411;
+        bh=ihLTuvpV7fDfB9cdHCvDyrLZholIYyBFIIbqcDNjvCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iVdCxiKHnECRRtqDlHiAqzdQVXK7f3VjulDAGTa664xxcdDrif9DkFbi8KJEgElWK
-         8vpuehdDDXOfi3u2hy2fcICYz5qQD4Zg62jzWn9zOKjBmbxWiCtcFARDOmZUZgzbM2
-         r1K0quiR2wXXvokCl5qpQPN4AR7imds+6nJYSz0E=
+        b=wZZdsA+JwsBt2b4VahehVTDo6DK35zmDtTIJRpn2h1y8o4M2VOgF8UCGzVY+Z3ToN
+         LWXkZmZUwxMBiJl6f3B3jsAOLGsoCZQ/0rCpuBWkZdKaLssbfIPdsCCq60PT2GIMlP
+         xeZnmqcdoyp4jn/3WsdccJFGkWhtZYCF3C/aGHQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Robert Marko <robimarko@gmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 461/717] scsi: iscsi: iscsi_tcp: Fix null-ptr-deref while calling getpeername()
-Date:   Sat, 22 Oct 2022 09:25:40 +0200
-Message-Id: <20221022072518.691067484@linuxfoundation.org>
+Subject: [PATCH 5.19 462/717] clk: qcom: apss-ipq6018: mark apcs_alias0_core_clk as critical
+Date:   Sat, 22 Oct 2022 09:25:41 +0200
+Message-Id: <20221022072518.732027452@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,224 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Robert Marko <robimarko@gmail.com>
 
-[ Upstream commit 57569c37f0add1b6489e1a1563c71519daf732cf ]
+[ Upstream commit 86e78995c93ee182433f965babfccd48417d4dcf ]
 
-Fix a NULL pointer crash that occurs when we are freeing the socket at the
-same time we access it via sysfs.
+While fixing up the driver I noticed that my IPQ8074 board was hanging
+after CPUFreq switched the frequency during boot, WDT would eventually
+reset it.
 
-The problem is that:
+So mark apcs_alias0_core_clk as critical since its the clock feeding the
+CPU cluster and must never be disabled.
 
- 1. iscsi_sw_tcp_conn_get_param() and iscsi_sw_tcp_host_get_param() take
-    the frwd_lock and do sock_hold() then drop the frwd_lock. sock_hold()
-    does a get on the "struct sock".
-
- 2. iscsi_sw_tcp_release_conn() does sockfd_put() which does the last put
-    on the "struct socket" and that does __sock_release() which sets the
-    sock->ops to NULL.
-
- 3. iscsi_sw_tcp_conn_get_param() and iscsi_sw_tcp_host_get_param() then
-    call kernel_getpeername() which accesses the NULL sock->ops.
-
-Above we do a get on the "struct sock", but we needed a get on the "struct
-socket". Originally, we just held the frwd_lock the entire time but in
-commit bcf3a2953d36 ("scsi: iscsi: iscsi_tcp: Avoid holding spinlock while
-calling getpeername()") we switched to refcount based because the network
-layer changed and started taking a mutex in that path, so we could no
-longer hold the frwd_lock.
-
-Instead of trying to maintain multiple refcounts, this just has us use a
-mutex for accessing the socket in the interface code paths.
-
-Link: https://lore.kernel.org/r/20220907221700.10302-1-michael.christie@oracle.com
-Fixes: bcf3a2953d36 ("scsi: iscsi: iscsi_tcp: Avoid holding spinlock while calling getpeername()")
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 5e77b4ef1b19 ("clk: qcom: Add ipq6018 apss clock controller")
+Signed-off-by: Robert Marko <robimarko@gmail.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220818220628.339366-3-robimarko@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/iscsi_tcp.c | 73 ++++++++++++++++++++++++++++------------
- drivers/scsi/iscsi_tcp.h |  3 ++
- 2 files changed, 55 insertions(+), 21 deletions(-)
+ drivers/clk/qcom/apss-ipq6018.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
-index 10d7f2b7dd0e..7e99070ea611 100644
---- a/drivers/scsi/iscsi_tcp.c
-+++ b/drivers/scsi/iscsi_tcp.c
-@@ -595,6 +595,8 @@ iscsi_sw_tcp_conn_create(struct iscsi_cls_session *cls_session,
- 	INIT_WORK(&conn->recvwork, iscsi_sw_tcp_recv_data_work);
- 	tcp_sw_conn->queue_recv = iscsi_recv_from_iscsi_q;
- 
-+	mutex_init(&tcp_sw_conn->sock_lock);
-+
- 	tfm = crypto_alloc_ahash("crc32c", 0, CRYPTO_ALG_ASYNC);
- 	if (IS_ERR(tfm))
- 		goto free_conn;
-@@ -629,11 +631,15 @@ iscsi_sw_tcp_conn_create(struct iscsi_cls_session *cls_session,
- 
- static void iscsi_sw_tcp_release_conn(struct iscsi_conn *conn)
- {
--	struct iscsi_session *session = conn->session;
- 	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
- 	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
- 	struct socket *sock = tcp_sw_conn->sock;
- 
-+	/*
-+	 * The iscsi transport class will make sure we are not called in
-+	 * parallel with start, stop, bind and destroys. However, this can be
-+	 * called twice if userspace does a stop then a destroy.
-+	 */
- 	if (!sock)
- 		return;
- 
-@@ -649,9 +655,9 @@ static void iscsi_sw_tcp_release_conn(struct iscsi_conn *conn)
- 
- 	iscsi_suspend_rx(conn);
- 
--	spin_lock_bh(&session->frwd_lock);
-+	mutex_lock(&tcp_sw_conn->sock_lock);
- 	tcp_sw_conn->sock = NULL;
--	spin_unlock_bh(&session->frwd_lock);
-+	mutex_unlock(&tcp_sw_conn->sock_lock);
- 	sockfd_put(sock);
- }
- 
-@@ -703,7 +709,6 @@ iscsi_sw_tcp_conn_bind(struct iscsi_cls_session *cls_session,
- 		       struct iscsi_cls_conn *cls_conn, uint64_t transport_eph,
- 		       int is_leading)
- {
--	struct iscsi_session *session = cls_session->dd_data;
- 	struct iscsi_conn *conn = cls_conn->dd_data;
- 	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
- 	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
-@@ -723,10 +728,10 @@ iscsi_sw_tcp_conn_bind(struct iscsi_cls_session *cls_session,
- 	if (err)
- 		goto free_socket;
- 
--	spin_lock_bh(&session->frwd_lock);
-+	mutex_lock(&tcp_sw_conn->sock_lock);
- 	/* bind iSCSI connection and socket */
- 	tcp_sw_conn->sock = sock;
--	spin_unlock_bh(&session->frwd_lock);
-+	mutex_unlock(&tcp_sw_conn->sock_lock);
- 
- 	/* setup Socket parameters */
- 	sk = sock->sk;
-@@ -763,8 +768,15 @@ static int iscsi_sw_tcp_conn_set_param(struct iscsi_cls_conn *cls_conn,
- 		break;
- 	case ISCSI_PARAM_DATADGST_EN:
- 		iscsi_set_param(cls_conn, param, buf, buflen);
-+
-+		mutex_lock(&tcp_sw_conn->sock_lock);
-+		if (!tcp_sw_conn->sock) {
-+			mutex_unlock(&tcp_sw_conn->sock_lock);
-+			return -ENOTCONN;
-+		}
- 		tcp_sw_conn->sendpage = conn->datadgst_en ?
- 			sock_no_sendpage : tcp_sw_conn->sock->ops->sendpage;
-+		mutex_unlock(&tcp_sw_conn->sock_lock);
- 		break;
- 	case ISCSI_PARAM_MAX_R2T:
- 		return iscsi_tcp_set_max_r2t(conn, buf);
-@@ -779,8 +791,8 @@ static int iscsi_sw_tcp_conn_get_param(struct iscsi_cls_conn *cls_conn,
- 				       enum iscsi_param param, char *buf)
- {
- 	struct iscsi_conn *conn = cls_conn->dd_data;
--	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
--	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
-+	struct iscsi_sw_tcp_conn *tcp_sw_conn;
-+	struct iscsi_tcp_conn *tcp_conn;
- 	struct sockaddr_in6 addr;
- 	struct socket *sock;
- 	int rc;
-@@ -790,21 +802,36 @@ static int iscsi_sw_tcp_conn_get_param(struct iscsi_cls_conn *cls_conn,
- 	case ISCSI_PARAM_CONN_ADDRESS:
- 	case ISCSI_PARAM_LOCAL_PORT:
- 		spin_lock_bh(&conn->session->frwd_lock);
--		if (!tcp_sw_conn || !tcp_sw_conn->sock) {
-+		if (!conn->session->leadconn) {
- 			spin_unlock_bh(&conn->session->frwd_lock);
- 			return -ENOTCONN;
- 		}
--		sock = tcp_sw_conn->sock;
--		sock_hold(sock->sk);
-+		/*
-+		 * The conn has been setup and bound, so just grab a ref
-+		 * incase a destroy runs while we are in the net layer.
-+		 */
-+		iscsi_get_conn(conn->cls_conn);
- 		spin_unlock_bh(&conn->session->frwd_lock);
- 
-+		tcp_conn = conn->dd_data;
-+		tcp_sw_conn = tcp_conn->dd_data;
-+
-+		mutex_lock(&tcp_sw_conn->sock_lock);
-+		sock = tcp_sw_conn->sock;
-+		if (!sock) {
-+			rc = -ENOTCONN;
-+			goto sock_unlock;
-+		}
-+
- 		if (param == ISCSI_PARAM_LOCAL_PORT)
- 			rc = kernel_getsockname(sock,
- 						(struct sockaddr *)&addr);
- 		else
- 			rc = kernel_getpeername(sock,
- 						(struct sockaddr *)&addr);
--		sock_put(sock->sk);
-+sock_unlock:
-+		mutex_unlock(&tcp_sw_conn->sock_lock);
-+		iscsi_put_conn(conn->cls_conn);
- 		if (rc < 0)
- 			return rc;
- 
-@@ -842,17 +869,21 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
- 		}
- 		tcp_conn = conn->dd_data;
- 		tcp_sw_conn = tcp_conn->dd_data;
--		sock = tcp_sw_conn->sock;
--		if (!sock) {
--			spin_unlock_bh(&session->frwd_lock);
--			return -ENOTCONN;
--		}
--		sock_hold(sock->sk);
-+		/*
-+		 * The conn has been setup and bound, so just grab a ref
-+		 * incase a destroy runs while we are in the net layer.
-+		 */
-+		iscsi_get_conn(conn->cls_conn);
- 		spin_unlock_bh(&session->frwd_lock);
- 
--		rc = kernel_getsockname(sock,
--					(struct sockaddr *)&addr);
--		sock_put(sock->sk);
-+		mutex_lock(&tcp_sw_conn->sock_lock);
-+		sock = tcp_sw_conn->sock;
-+		if (!sock)
-+			rc = -ENOTCONN;
-+		else
-+			rc = kernel_getsockname(sock, (struct sockaddr *)&addr);
-+		mutex_unlock(&tcp_sw_conn->sock_lock);
-+		iscsi_put_conn(conn->cls_conn);
- 		if (rc < 0)
- 			return rc;
- 
-diff --git a/drivers/scsi/iscsi_tcp.h b/drivers/scsi/iscsi_tcp.h
-index 850a018aefb9..68e14a344904 100644
---- a/drivers/scsi/iscsi_tcp.h
-+++ b/drivers/scsi/iscsi_tcp.h
-@@ -28,6 +28,9 @@ struct iscsi_sw_tcp_send {
- 
- struct iscsi_sw_tcp_conn {
- 	struct socket		*sock;
-+	/* Taken when accessing the sock from the netlink/sysfs interface */
-+	struct mutex		sock_lock;
-+
- 	struct work_struct	recvwork;
- 	bool			queue_recv;
- 
--- 
-2.35.1
-
+--- a/drivers/clk/qcom/apss-ipq6018.c
++++ b/drivers/clk/qcom/apss-ipq6018.c
+@@ -57,7 +57,7 @@ static struct clk_branch apcs_alias0_cor
+ 			.parent_hws = (const struct clk_hw *[]){
+ 				&apcs_alias0_clk_src.clkr.hw },
+ 			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
++			.flags = CLK_SET_RATE_PARENT | CLK_IS_CRITICAL,
+ 			.ops = &clk_branch2_ops,
+ 		},
+ 	},
 
 
