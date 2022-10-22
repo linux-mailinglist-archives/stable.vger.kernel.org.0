@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A71A9608918
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E080608933
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230199AbiJVIbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:31:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52730 "EHLO
+        id S233925AbiJVIbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:31:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233954AbiJVI27 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:28:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB8392E22AC;
-        Sat, 22 Oct 2022 01:01:42 -0700 (PDT)
+        with ESMTP id S234285AbiJVIaU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:30:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F97D2D03AE;
+        Sat, 22 Oct 2022 01:02:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B7B560BA7;
-        Sat, 22 Oct 2022 08:01:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D24FC433C1;
-        Sat, 22 Oct 2022 08:01:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E58D3B82DB3;
+        Sat, 22 Oct 2022 08:01:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26E8AC433C1;
+        Sat, 22 Oct 2022 08:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425680;
-        bh=f2P4qW12vwATxExY6+WR4wROaknevNhDDR2RJccBt28=;
+        s=korg; t=1666425683;
+        bh=3592LoTzidScQOi9UJbL8L3IbnDlfBGPUhJSSJvZHmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TU5uXb3vC5F3gRcr20CqGYINbREDdgut0oJdd1r6nzI1l9YOaXPML8ktIhX3Fv5c3
-         0UiwtlPkdHM/MVMNw/YMuWHungG9xkdyv+dr/PksN/j4KGy63bbBHLbbfGxsF8f/Sy
-         VPxEcQPZSLPiTfJtde2ELraGziLfHKX6Pz1y+B9A=
+        b=eL62JVog+WtWw3XFe+nWtESB+qoWJvyhGsoP+EaA+MS5tootpbR6Q+Hqzs1IWXhsL
+         qESDgLpT98LjUB5yZN4wBQ0+xuc3oYQpD5I6X/eNUiaulKmR5UmORi9ILb4gepVniw
+         DaaN8EOWEJ0Le4HQAL6TOp3owDAKf6tZk4GKxoB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po-Hao Huang <phhuang@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 580/717] wifi: rtw89: fix rx filter after scan
-Date:   Sat, 22 Oct 2022 09:27:39 +0200
-Message-Id: <20221022072524.085568032@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+83672956c7aa6af698b3@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 581/717] Bluetooth: L2CAP: initialize delayed works at l2cap_chan_create()
+Date:   Sat, 22 Oct 2022 09:27:40 +0200
+Message-Id: <20221022072524.127144002@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,63 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hao Huang <phhuang@realtek.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 812825c2b204c491f1a5586c602e4ac75060493a ]
+[ Upstream commit 2d2cb3066f2c90cd8ca540b36ba7a55e7f2406e0 ]
 
-In monitor mode we should be able to received all packets even if it's not
-destined to us. But after scan, the configuration was wrongly set, so we
-fix it.
+syzbot is reporting cancel_delayed_work() without INIT_DELAYED_WORK() at
+l2cap_chan_del() [1], for CONF_NOT_COMPLETE flag (which meant to prevent
+l2cap_chan_del() from calling cancel_delayed_work()) is cleared by timer
+which fires before l2cap_chan_del() is called by closing file descriptor
+created by socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_L2CAP).
 
-Signed-off-by: Po-Hao Huang <phhuang@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220916033811.13862-7-pkshih@realtek.com
+l2cap_bredr_sig_cmd(L2CAP_CONF_REQ) and l2cap_bredr_sig_cmd(L2CAP_CONF_RSP)
+are calling l2cap_ertm_init(chan), and they call l2cap_chan_ready() (which
+clears CONF_NOT_COMPLETE flag) only when l2cap_ertm_init(chan) succeeded.
+
+l2cap_sock_init() does not call l2cap_ertm_init(chan), and it instead sets
+CONF_NOT_COMPLETE flag by calling l2cap_chan_set_defaults(). However, when
+connect() is requested, "command 0x0409 tx timeout" happens after 2 seconds
+ from connect() request, and CONF_NOT_COMPLETE flag is cleared after 4
+seconds from connect() request, for l2cap_conn_start() from
+l2cap_info_timeout() callback scheduled by
+
+  schedule_delayed_work(&conn->info_timer, L2CAP_INFO_TIMEOUT);
+
+in l2cap_connect() is calling l2cap_chan_ready().
+
+Fix this problem by initializing delayed works used by L2CAP_MODE_ERTM
+mode as soon as l2cap_chan_create() allocates a channel, like I did in
+commit be8597239379f0f5 ("Bluetooth: initialize skb_queue_head at
+l2cap_chan_create()").
+
+Link: https://syzkaller.appspot.com/bug?extid=83672956c7aa6af698b3 [1]
+Reported-by: syzbot <syzbot+83672956c7aa6af698b3@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw89/fw.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ net/bluetooth/l2cap_core.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw89/fw.c b/drivers/net/wireless/realtek/rtw89/fw.c
-index 4718aced1428..e7f86d84d91d 100644
---- a/drivers/net/wireless/realtek/rtw89/fw.c
-+++ b/drivers/net/wireless/realtek/rtw89/fw.c
-@@ -2288,6 +2288,7 @@ void rtw89_hw_scan_start(struct rtw89_dev *rtwdev, struct ieee80211_vif *vif,
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 48fbd0ae882b..a8835c8367af 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -61,6 +61,9 @@ static void l2cap_send_disconn_req(struct l2cap_chan *chan, int err);
+ 
+ static void l2cap_tx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
+ 		     struct sk_buff_head *skbs, u8 event);
++static void l2cap_retrans_timeout(struct work_struct *work);
++static void l2cap_monitor_timeout(struct work_struct *work);
++static void l2cap_ack_timeout(struct work_struct *work);
+ 
+ static inline u8 bdaddr_type(u8 link_type, u8 bdaddr_type)
  {
- 	struct rtw89_vif *rtwvif = (struct rtw89_vif *)vif->drv_priv;
- 	struct cfg80211_scan_request *req = &scan_req->req;
-+	u32 rx_fltr = rtwdev->hal.rx_fltr;
- 	u8 mac_addr[ETH_ALEN];
+@@ -476,6 +479,9 @@ struct l2cap_chan *l2cap_chan_create(void)
+ 	write_unlock(&chan_list_lock);
  
- 	rtwdev->scan_info.scanning_vif = vif;
-@@ -2302,13 +2303,13 @@ void rtw89_hw_scan_start(struct rtw89_dev *rtwdev, struct ieee80211_vif *vif,
- 		ether_addr_copy(mac_addr, vif->addr);
- 	rtw89_core_scan_start(rtwdev, rtwvif, mac_addr, true);
+ 	INIT_DELAYED_WORK(&chan->chan_timer, l2cap_chan_timeout);
++	INIT_DELAYED_WORK(&chan->retrans_timer, l2cap_retrans_timeout);
++	INIT_DELAYED_WORK(&chan->monitor_timer, l2cap_monitor_timeout);
++	INIT_DELAYED_WORK(&chan->ack_timer, l2cap_ack_timeout);
  
--	rtwdev->hal.rx_fltr &= ~B_AX_A_BCN_CHK_EN;
--	rtwdev->hal.rx_fltr &= ~B_AX_A_BC;
--	rtwdev->hal.rx_fltr &= ~B_AX_A_A1_MATCH;
-+	rx_fltr &= ~B_AX_A_BCN_CHK_EN;
-+	rx_fltr &= ~B_AX_A_BC;
-+	rx_fltr &= ~B_AX_A_A1_MATCH;
- 	rtw89_write32_mask(rtwdev,
- 			   rtw89_mac_reg_by_idx(R_AX_RX_FLTR_OPT, RTW89_MAC_0),
- 			   B_AX_RX_FLTR_CFG_MASK,
--			   rtwdev->hal.rx_fltr);
-+			   rx_fltr);
- }
+ 	chan->state = BT_OPEN;
  
- void rtw89_hw_scan_complete(struct rtw89_dev *rtwdev, struct ieee80211_vif *vif,
-@@ -2322,9 +2323,6 @@ void rtw89_hw_scan_complete(struct rtw89_dev *rtwdev, struct ieee80211_vif *vif,
- 	if (!vif)
- 		return;
+@@ -3319,10 +3325,6 @@ int l2cap_ertm_init(struct l2cap_chan *chan)
+ 	chan->rx_state = L2CAP_RX_STATE_RECV;
+ 	chan->tx_state = L2CAP_TX_STATE_XMIT;
  
--	rtwdev->hal.rx_fltr |= B_AX_A_BCN_CHK_EN;
--	rtwdev->hal.rx_fltr |= B_AX_A_BC;
--	rtwdev->hal.rx_fltr |= B_AX_A_A1_MATCH;
- 	rtw89_write32_mask(rtwdev,
- 			   rtw89_mac_reg_by_idx(R_AX_RX_FLTR_OPT, RTW89_MAC_0),
- 			   B_AX_RX_FLTR_CFG_MASK,
+-	INIT_DELAYED_WORK(&chan->retrans_timer, l2cap_retrans_timeout);
+-	INIT_DELAYED_WORK(&chan->monitor_timer, l2cap_monitor_timeout);
+-	INIT_DELAYED_WORK(&chan->ack_timer, l2cap_ack_timeout);
+-
+ 	skb_queue_head_init(&chan->srej_q);
+ 
+ 	err = l2cap_seq_list_init(&chan->srej_list, chan->tx_win);
 -- 
 2.35.1
 
