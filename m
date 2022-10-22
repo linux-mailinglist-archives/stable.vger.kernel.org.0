@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07C74608937
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5277160896E
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:36:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233936AbiJVIbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:31:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58058 "EHLO
+        id S231552AbiJVIgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:36:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234343AbiJVIaa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:30:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 662DB285982;
-        Sat, 22 Oct 2022 01:02:50 -0700 (PDT)
+        with ESMTP id S234391AbiJVIfO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:35:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4203636BF2;
+        Sat, 22 Oct 2022 01:04:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08286B82E1D;
-        Sat, 22 Oct 2022 08:02:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 574F1C433D6;
-        Sat, 22 Oct 2022 08:02:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AEA260ADC;
+        Sat, 22 Oct 2022 08:02:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BB9BC433D6;
+        Sat, 22 Oct 2022 08:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425728;
-        bh=Q7nL0WEUtaTUZsGTu8PhNbsvfvjXK7qqWWgILZtc6rQ=;
+        s=korg; t=1666425731;
+        bh=Pn90kuPbeK/qdV/mITnz331Ur07Ew6mzmpWUpHOoTiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWVVGjySayjJ+7FDPKVnnl+y9/2H3Usq6W0xrGj9SJtV1bMlCS6PrYbyHdOFjndEc
-         +Ie5aLd3inmNurGHqJ7WEtHVLwca1/A0vcCqVIpQaBcSeSfJcQJ868Z6Cu3ECkaN1t
-         6pPqEgSgUc4ux/jG0QDiO4aDRA9V4A9Jr1pRxaMQ=
+        b=Iia/AAgFpd8MOGLxdTYvP/OMRTIo7wwXmCiP7fR10v5J+MjOfb628CqCRUcvntcjv
+         g1yQXuH1nlsSUfbMHHqushTfE+/iq2wWkISSWokDMMv8NGRicuv4Ofw5OxEHXyD0W2
+         8kHSSUuLVZbNxQMnTrW+m/QrbarZWgOnXSIT6RtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Gaul <gaul@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 597/717] r8152: Rate limit overflow messages
-Date:   Sat, 22 Oct 2022 09:27:56 +0200
-Message-Id: <20221022072524.855613955@linuxfoundation.org>
+        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
+        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 598/717] drm/nouveau/nouveau_bo: fix potential memory leak in nouveau_bo_alloc()
+Date:   Sat, 22 Oct 2022 09:27:57 +0200
+Message-Id: <20221022072524.907495788@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,36 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Gaul <gaul@gaul.org>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit 93e2be344a7db169b7119de21ac1bf253b8c6907 ]
+[ Upstream commit 6dc548745d5b5102e3c53dc5097296ac270b6c69 ]
 
-My system shows almost 10 million of these messages over a 24-hour
-period which pollutes my logs.
+nouveau_bo_alloc() allocates a memory chunk for "nvbo" with kzalloc().
+When some error occurs, "nvbo" should be released. But when
+WARN_ON(pi < 0)) equals true, the function return ERR_PTR without
+releasing the "nvbo", which will lead to a memory leak.
 
-Signed-off-by: Andrew Gaul <gaul@google.com>
-Link: https://lore.kernel.org/r/20221002034128.2026653-1-gaul@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+We should release the "nvbo" with kfree() if WARN_ON(pi < 0)) equals true.
+
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220705094306.2244103-1-niejianglei2021@163.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 4 +++-
+ drivers/gpu/drm/nouveau/nouveau_bo.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 688905ea0a6d..e7b0b59e2bc8 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -1874,7 +1874,9 @@ static void intr_callback(struct urb *urb)
- 			   "Stop submitting intr, status %d\n", status);
- 		return;
- 	case -EOVERFLOW:
--		netif_info(tp, intr, tp->netdev, "intr status -EOVERFLOW\n");
-+		if (net_ratelimit())
-+			netif_info(tp, intr, tp->netdev,
-+				   "intr status -EOVERFLOW\n");
- 		goto resubmit;
- 	/* -EPIPE:  should clear the halt */
- 	default:
+diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
+index e29175e4b44c..07a327ad5e2a 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_bo.c
++++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
+@@ -281,8 +281,10 @@ nouveau_bo_alloc(struct nouveau_cli *cli, u64 *size, int *align, u32 domain,
+ 			break;
+ 	}
+ 
+-	if (WARN_ON(pi < 0))
++	if (WARN_ON(pi < 0)) {
++		kfree(nvbo);
+ 		return ERR_PTR(-EINVAL);
++	}
+ 
+ 	/* Disable compression if suitable settings couldn't be found. */
+ 	if (nvbo->comp && !vmm->page[pi].comp) {
 -- 
 2.35.1
 
