@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D8D6087AC
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 573CD60893B
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232538AbiJVIFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:05:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42868 "EHLO
+        id S233947AbiJVIbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:31:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232763AbiJVIEK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:10 -0400
+        with ESMTP id S234227AbiJVIaE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:30:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 570BA2A4E1A;
-        Sat, 22 Oct 2022 00:51:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 881832E32D9;
+        Sat, 22 Oct 2022 01:02:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A11A1B82E38;
-        Sat, 22 Oct 2022 07:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF419C433D6;
-        Sat, 22 Oct 2022 07:51:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 050E4B82E11;
+        Sat, 22 Oct 2022 07:51:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D038CC433C1;
+        Sat, 22 Oct 2022 07:51:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425066;
-        bh=iBB9h9YvKlo2kBA38TF8vV6C0UBNbRscfhurjMCwveY=;
+        s=korg; t=1666425069;
+        bh=GGfMeq0Y2E3Tt4hU/JXQhleUHqj5ipTavMY9Ad79xMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MSnK4u9TKNzZbpOdoNGwSHi4Z8qjXJOcLs+J8czEfLzgbNTrvZszU4mSfpBd6fhPO
-         JhRgRl0gRosytHhTDZdcgwo2kvi08zkE2/iH76nsMwTo5EKmzS/nuhEU7466AdWvWo
-         XLJrD7c0SuGSWLI0t5CaWaYQD5ZmVKxk0NLTYQqg=
+        b=mwokMRQ52ijagpbWduhcQ0KHynY0dxHloom3b1Ysm4s+FQYhh/jCKm/tNp6EMsIjX
+         dToLN1Hrcmt/vKqQs2wJm4v+ojlJQsi0hssjT+vhQLviTR8Phi+3AZkIwt4FXns+i5
+         TWdeBszFwiogub75Ks+5pSBm6MXi0ALyM6DvmA8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakob Hauser <jahau@rocketmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Aharon Landau <aharonl@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 378/717] iio: magnetometer: yas530: Change data type of hard_offsets to signed
-Date:   Sat, 22 Oct 2022 09:24:17 +0200
-Message-Id: <20221022072513.929591657@linuxfoundation.org>
+Subject: [PATCH 5.19 379/717] RDMA/mlx5: Dont compare mkey tags in DEVX indirect mkey
+Date:   Sat, 22 Oct 2022 09:24:18 +0200
+Message-Id: <20221022072513.991553805@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,41 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Hauser <jahau@rocketmail.com>
+From: Aharon Landau <aharonl@nvidia.com>
 
-[ Upstream commit e137fafc8985cf152a4bb6f18ae83ebb06816df1 ]
+[ Upstream commit 13ad1125b941a5f257d9d3ae70485773abd34792 ]
 
-The "hard_offsets" are currently unsigned u8 but they should be signed as they
-can get negative. They are signed in function yas5xx_meaure_offsets() and in the
-Yamaha drivers [1][2].
+According to the ib spec:
+If the CI supports the Base Memory Management Extensions defined in this
+specification, the L_Key format must consist of:
+24 bit index in the most significant bits of the R_Key, and
+8 bit key in the least significant bits of the R_Key
+Through a successful Allocate L_Key verb invocation, the CI must let the
+consumer own the key portion of the returned R_Key
 
-[1] https://github.com/NovaFusion/android_kernel_samsung_golden/blob/cm-12.1/drivers/sensor/compass/yas.h#L156
-[2] https://github.com/msm8916-mainline/android_kernel_qcom_msm8916/blob/GT-I9195I/drivers/iio/magnetometer/yas_mag_drv-yas532.c#L91
+Therefore, when creating a mkey using DEVX, the consumer is allowed to
+change the key part. The kernel should compare only the index part of a
+R_Key to determine equality with another R_Key.
 
-Fixes: de8860b1ed47 ("iio: magnetometer: Add driver for Yamaha YAS530")
-Signed-off-by: Jakob Hauser <jahau@rocketmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/40f052bf6491457d0c5c0ed4c3534dc6fa251c3c.1660337264.git.jahau@rocketmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Adding capability in order not to break backward compatibility.
+
+Fixes: 534fd7aac56a ("IB/mlx5: Manage indirection mkey upon DEVX flow for ODP")
+Link: https://lore.kernel.org/r/3d669aacea85a3a15c3b3b953b3eaba3f80ef9be.1659255945.git.leonro@nvidia.com
+Signed-off-by: Aharon Landau <aharonl@nvidia.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/magnetometer/yamaha-yas530.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/main.c | 3 +++
+ drivers/infiniband/hw/mlx5/odp.c  | 3 ++-
+ include/uapi/rdma/mlx5-abi.h      | 1 +
+ 3 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/magnetometer/yamaha-yas530.c b/drivers/iio/magnetometer/yamaha-yas530.c
-index b2bc637150bf..40192aa46b04 100644
---- a/drivers/iio/magnetometer/yamaha-yas530.c
-+++ b/drivers/iio/magnetometer/yamaha-yas530.c
-@@ -132,7 +132,7 @@ struct yas5xx {
- 	unsigned int version;
- 	char name[16];
- 	struct yas5xx_calibration calibration;
--	u8 hard_offsets[3];
-+	s8 hard_offsets[3];
- 	struct iio_mount_matrix orientation;
- 	struct regmap *map;
- 	struct regulator_bulk_data regs[2];
+diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
+index bb13164124fd..aa4a2a9cb0d5 100644
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -1826,6 +1826,9 @@ static int set_ucontext_resp(struct ib_ucontext *uctx,
+ 	if (MLX5_CAP_GEN(dev->mdev, drain_sigerr))
+ 		resp->comp_mask |= MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_SQD2RTS;
+ 
++	resp->comp_mask |=
++		MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_MKEY_UPDATE_TAG;
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/infiniband/hw/mlx5/odp.c b/drivers/infiniband/hw/mlx5/odp.c
+index 84da5674e1ab..9151852f04a1 100644
+--- a/drivers/infiniband/hw/mlx5/odp.c
++++ b/drivers/infiniband/hw/mlx5/odp.c
+@@ -795,7 +795,8 @@ static bool mkey_is_eq(struct mlx5_ib_mkey *mmkey, u32 key)
+ {
+ 	if (!mmkey)
+ 		return false;
+-	if (mmkey->type == MLX5_MKEY_MW)
++	if (mmkey->type == MLX5_MKEY_MW ||
++	    mmkey->type == MLX5_MKEY_INDIRECT_DEVX)
+ 		return mlx5_base_mkey(mmkey->key) == mlx5_base_mkey(key);
+ 	return mmkey->key == key;
+ }
+diff --git a/include/uapi/rdma/mlx5-abi.h b/include/uapi/rdma/mlx5-abi.h
+index 86be4a92b67b..a96b7d2770e1 100644
+--- a/include/uapi/rdma/mlx5-abi.h
++++ b/include/uapi/rdma/mlx5-abi.h
+@@ -104,6 +104,7 @@ enum mlx5_ib_alloc_ucontext_resp_mask {
+ 	MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_ECE               = 1UL << 2,
+ 	MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_SQD2RTS           = 1UL << 3,
+ 	MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_REAL_TIME_TS	   = 1UL << 4,
++	MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_MKEY_UPDATE_TAG   = 1UL << 5,
+ };
+ 
+ enum mlx5_user_cmds_supp_uhw {
 -- 
 2.35.1
 
