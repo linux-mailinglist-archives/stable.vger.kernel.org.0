@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47296608841
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58C5660885A
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233342AbiJVIMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:12:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55340 "EHLO
+        id S233303AbiJVIQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:16:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233036AbiJVIKX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:10:23 -0400
+        with ESMTP id S233146AbiJVIL5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:11:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6ADC33A2B;
-        Sat, 22 Oct 2022 00:54:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF9D855094;
+        Sat, 22 Oct 2022 00:54:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4809060B90;
-        Sat, 22 Oct 2022 07:54:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36A3BC433C1;
-        Sat, 22 Oct 2022 07:54:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BA0560B30;
+        Sat, 22 Oct 2022 07:54:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35334C433D6;
+        Sat, 22 Oct 2022 07:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425255;
-        bh=mPVjszT3wboNXS/Hfwq1BXiLQmXtBUP5WVrK5S+6wHQ=;
+        s=korg; t=1666425289;
+        bh=joD3mbfUiz/qsnrMG3CKx0XowThncKwMs1kwZheyZHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qzDLZY7iXNC1M1E6l98n6mnf6/gelwi7XGeuaqqzHeD78AmxDTWCJoAsFIcraPh29
-         cvqRpjotvKmBc5zsaIgDm16mzWUSP+1x9z8FJUkSxycNXTRFqAWLPZinljNlVM9Cr3
-         xHdsTuMsFJzdUHRARM06Hwu3FQMtwjbzjonWYzr4=
+        b=OQhlTRgJQ33FvndK2U3lI6Q1bc6uBN2wQmsXw2wZEa/d6J3R4ti5NiBTSRVqm/0+w
+         zTfpxnloPVILawKVtQ8s+schz+RgwuEfKsGiV56akpFr1aCxzqlqwnDGQk+l9beR+M
+         uPY5nx2Bs1STT5QFMYnEnw/fzUD+BUWeL5heEo5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 424/717] phy: amlogic: phy-meson-axg-mipi-pcie-analog: Hold reference returned by of_get_parent()
-Date:   Sat, 22 Oct 2022 09:25:03 +0200
-Message-Id: <20221022072517.169860831@linuxfoundation.org>
+Subject: [PATCH 5.19 425/717] phy: phy-mtk-tphy: fix the phy type setting issue
+Date:   Sat, 22 Oct 2022 09:25:04 +0200
+Message-Id: <20221022072517.221613126@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,48 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit c4c349be07aeec5f397a349046dc5fc0f2657691 ]
+[ Upstream commit 931c05a8cb1be029ef2fbc1e4af313d4cb297c47 ]
 
-As the of_get_parent() will increase the refcount of the node->parent
-and the reference will be discarded, so we should hold the reference
-with which we can decrease the refcount when done.
+The PHY type is not set if the index is non zero, prepare type
+value according to the index, like as mask value.
 
-Fixes: 8eff8b4e22d9 ("phy: amlogic: phy-meson-axg-mipi-pcie-analog: add support for MIPI DSI analog")
-Signed-off-by: Liang He <windhl@126.com>
-
-Link: https://lore.kernel.org/r/20220915093506.4009456-1-windhl@126.com
+Fixes: 39099a443358 ("phy: phy-mtk-tphy: support type switch by pericfg")
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220914060746.10004-7-chunfeng.yun@mediatek.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/amlogic/phy-meson-axg-mipi-pcie-analog.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/phy/mediatek/phy-mtk-tphy.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/phy/amlogic/phy-meson-axg-mipi-pcie-analog.c b/drivers/phy/amlogic/phy-meson-axg-mipi-pcie-analog.c
-index 1027ece6ca12..a3e1108b736d 100644
---- a/drivers/phy/amlogic/phy-meson-axg-mipi-pcie-analog.c
-+++ b/drivers/phy/amlogic/phy-meson-axg-mipi-pcie-analog.c
-@@ -197,7 +197,7 @@ static int phy_axg_mipi_pcie_analog_probe(struct platform_device *pdev)
- 	struct phy_provider *phy;
- 	struct device *dev = &pdev->dev;
- 	struct phy_axg_mipi_pcie_analog_priv *priv;
--	struct device_node *np = dev->of_node;
-+	struct device_node *np = dev->of_node, *parent_np;
- 	struct regmap *map;
- 	int ret;
+diff --git a/drivers/phy/mediatek/phy-mtk-tphy.c b/drivers/phy/mediatek/phy-mtk-tphy.c
+index 8ee7682b8e93..bdffc21858f6 100644
+--- a/drivers/phy/mediatek/phy-mtk-tphy.c
++++ b/drivers/phy/mediatek/phy-mtk-tphy.c
+@@ -906,7 +906,7 @@ static int phy_type_syscon_get(struct mtk_phy_instance *instance,
+ static int phy_type_set(struct mtk_phy_instance *instance)
+ {
+ 	int type;
+-	u32 mask;
++	u32 offset;
  
-@@ -206,7 +206,9 @@ static int phy_axg_mipi_pcie_analog_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+ 	if (!instance->type_sw)
+ 		return 0;
+@@ -929,8 +929,9 @@ static int phy_type_set(struct mtk_phy_instance *instance)
+ 		return 0;
+ 	}
  
- 	/* Get the hhi system controller node */
--	map = syscon_node_to_regmap(of_get_parent(dev->of_node));
-+	parent_np = of_get_parent(dev->of_node);
-+	map = syscon_node_to_regmap(parent_np);
-+	of_node_put(parent_np);
- 	if (IS_ERR(map)) {
- 		dev_err(dev,
- 			"failed to get HHI regmap\n");
+-	mask = RG_PHY_SW_TYPE << (instance->type_sw_index * BITS_PER_BYTE);
+-	regmap_update_bits(instance->type_sw, instance->type_sw_reg, mask, type);
++	offset = instance->type_sw_index * BITS_PER_BYTE;
++	regmap_update_bits(instance->type_sw, instance->type_sw_reg,
++			   RG_PHY_SW_TYPE << offset, type << offset);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
