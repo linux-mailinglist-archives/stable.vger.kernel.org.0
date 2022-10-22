@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A7086087B3
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A2366088C1
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:22:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232431AbiJVIF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:05:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57476 "EHLO
+        id S233674AbiJVIWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:22:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232862AbiJVIET (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:19 -0400
+        with ESMTP id S233681AbiJVIUn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:20:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 478ED2D2C1B;
-        Sat, 22 Oct 2022 00:51:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B03B82DF46A;
+        Sat, 22 Oct 2022 00:58:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9663AB82DFB;
-        Sat, 22 Oct 2022 07:41:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E2BBC433C1;
-        Sat, 22 Oct 2022 07:41:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16664B82DFA;
+        Sat, 22 Oct 2022 07:41:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6252EC433D7;
+        Sat, 22 Oct 2022 07:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424474;
-        bh=HJEF7endQpM+60VPzFKP7f1JvxvvavZo44m56jkX12A=;
+        s=korg; t=1666424495;
+        bh=muXk5+zb//UYPKqFzeIirwUDgkQcWmRmo0xZyDuWdZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HRWv8JX6/w93BX/QkPwAvqqocsg7JKqVIw77VNmerIEkFlnuE1uPyQBnQFGPpIwrH
-         Tn6Lv6GXEP4x2fqpGXXGYeHnJ3C2D3GcnUgFtlo0asE90pkmV0UhnCbfTX8QvguEZZ
-         QLYtY+DIfSQ03MYmZegRHK4YyFIpws1vC5mrm5io=
+        b=L+hTERTZQICsM2vA6xZLGGfoMIQ6rbYg5N69M/QI7+T2lpNCOD0+mVQ73/I86TmCK
+         NxDNzaXK9/NnUYam2Vb9UfZ6Jw32YM9fZAGm1FSv0v9bxVeyClqXlA1VwhonF6BH9l
+         nlCXIPf28d8touhuIXZRxL5BprYxGTDbpdiLNfPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.19 132/717] ext4: fix dir corruption when ext4_dx_add_entry() fails
-Date:   Sat, 22 Oct 2022 09:20:11 +0200
-Message-Id: <20221022072438.874019929@linuxfoundation.org>
+        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
+        Breno Leitao <leitao@debian.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>, stable@kernel.org
+Subject: [PATCH 5.19 137/717] livepatch: fix race between fork and KLP transition
+Date:   Sat, 22 Oct 2022 09:20:16 +0200
+Message-Id: <20221022072439.781084021@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,95 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Rik van Riel <riel@surriel.com>
 
-commit 7177dd009c7c04290891e9a534cd47d1b620bd04 upstream.
+commit 747f7a2901174c9afa805dddfb7b24db6f65e985 upstream.
 
-Following process may lead to fs corruption:
-1. ext4_create(dir/foo)
- ext4_add_nondir
-  ext4_add_entry
-   ext4_dx_add_entry
-     a. add_dirent_to_buf
-      ext4_mark_inode_dirty
-      ext4_handle_dirty_metadata   // dir inode bh is recorded into journal
-     b. ext4_append    // dx_get_count(entries) == dx_get_limit(entries)
-       ext4_bread(EXT4_GET_BLOCKS_CREATE)
-        ext4_getblk
-         ext4_map_blocks
-          ext4_ext_map_blocks
-            ext4_mb_new_blocks
-             dquot_alloc_block
-              dquot_alloc_space_nodirty
-               inode_add_bytes    // update dir's i_blocks
-            ext4_ext_insert_extent
-	     ext4_ext_dirty  // record extent bh into journal
-              ext4_handle_dirty_metadata(bh)
-	      // record new block into journal
-       inode->i_size += inode->i_sb->s_blocksize   // new size(in mem)
-     c. ext4_handle_dirty_dx_node(bh2)
-	// record dir's new block(dx_node) into journal
-     d. ext4_handle_dirty_dx_node((frame - 1)->bh)
-     e. ext4_handle_dirty_dx_node(frame->bh)
-     f. do_split    // ret err!
-     g. add_dirent_to_buf
-	 ext4_mark_inode_dirty(dir)  // update raw_inode on disk(skipped)
-2. fsck -a /dev/sdb
- drop last block(dx_node) which beyonds dir's i_size.
-  /dev/sdb: recovering journal
-  /dev/sdb contains a file system with errors, check forced.
-  /dev/sdb: Inode 12, end of extent exceeds allowed value
-	(logical block 128, physical block 3938, len 1)
-3. fsck -fn /dev/sdb
- dx_node->entry[i].blk > dir->i_size
-  Pass 2: Checking directory structure
-  Problem in HTREE directory inode 12 (/dir): bad block number 128.
-  Clear HTree index? no
-  Problem in HTREE directory inode 12: block #3 has invalid depth (2)
-  Problem in HTREE directory inode 12: block #3 has bad max hash
-  Problem in HTREE directory inode 12: block #3 not referenced
+The KLP transition code depends on the TIF_PATCH_PENDING and
+the task->patch_state to stay in sync. On a normal (forward)
+transition, TIF_PATCH_PENDING will be set on every task in
+the system, while on a reverse transition (after a failed
+forward one) first TIF_PATCH_PENDING will be cleared from
+every task, followed by it being set on tasks that need to
+be transitioned back to the original code.
 
-Fix it by marking inode dirty directly inside ext4_append().
-Fetch a reproducer in [Link].
+However, the fork code copies over the TIF_PATCH_PENDING flag
+from the parent to the child early on, in dup_task_struct and
+setup_thread_stack. Much later, klp_copy_process will set
+child->patch_state to match that of the parent.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216466
-Cc: stable@vger.kernel.org
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220911045204.516460-1-chengzhihao1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+However, the parent's patch_state may have been changed by KLP loading
+or unloading since it was initially copied over into the child.
+
+This results in the KLP code occasionally hitting this warning in
+klp_complete_transition:
+
+        for_each_process_thread(g, task) {
+                WARN_ON_ONCE(test_tsk_thread_flag(task, TIF_PATCH_PENDING));
+                task->patch_state = KLP_UNDEFINED;
+        }
+
+Set, or clear, the TIF_PATCH_PENDING flag in the child task
+depending on whether or not it is needed at the time
+klp_copy_process is called, at a point in copy_process where the
+tasklist_lock is held exclusively, preventing races with the KLP
+code.
+
+The KLP code does have a few places where the state is changed
+without the tasklist_lock held, but those should not cause
+problems because klp_update_patch_state(current) cannot be
+called while the current task is in the middle of fork,
+klp_check_and_switch_task() which is called under the pi_lock,
+which prevents rescheduling, and manipulation of the patch
+state of idle tasks, which do not fork.
+
+This should prevent this warning from triggering again in the
+future, and close the race for both normal and reverse transitions.
+
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reported-by: Breno Leitao <leitao@debian.org>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Fixes: d83a7cb375ee ("livepatch: change to a per-task consistency model")
+Cc: stable@kernel.org
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20220808150019.03d6a67b@imladris.surriel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/namei.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ kernel/livepatch/transition.c |   18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -85,15 +85,20 @@ static struct buffer_head *ext4_append(h
- 		return bh;
- 	inode->i_size += inode->i_sb->s_blocksize;
- 	EXT4_I(inode)->i_disksize = inode->i_size;
-+	err = ext4_mark_inode_dirty(handle, inode);
-+	if (err)
-+		goto out;
- 	BUFFER_TRACE(bh, "get_write_access");
- 	err = ext4_journal_get_write_access(handle, inode->i_sb, bh,
- 					    EXT4_JTR_NONE);
--	if (err) {
--		brelse(bh);
--		ext4_std_error(inode->i_sb, err);
--		return ERR_PTR(err);
--	}
-+	if (err)
-+		goto out;
- 	return bh;
+--- a/kernel/livepatch/transition.c
++++ b/kernel/livepatch/transition.c
+@@ -610,9 +610,23 @@ void klp_reverse_transition(void)
+ /* Called from copy_process() during fork */
+ void klp_copy_process(struct task_struct *child)
+ {
+-	child->patch_state = current->patch_state;
+ 
+-	/* TIF_PATCH_PENDING gets copied in setup_thread_stack() */
++	/*
++	 * The parent process may have gone through a KLP transition since
++	 * the thread flag was copied in setup_thread_stack earlier. Bring
++	 * the task flag up to date with the parent here.
++	 *
++	 * The operation is serialized against all klp_*_transition()
++	 * operations by the tasklist_lock. The only exception is
++	 * klp_update_patch_state(current), but we cannot race with
++	 * that because we are current.
++	 */
++	if (test_tsk_thread_flag(current, TIF_PATCH_PENDING))
++		set_tsk_thread_flag(child, TIF_PATCH_PENDING);
++	else
++		clear_tsk_thread_flag(child, TIF_PATCH_PENDING);
 +
-+out:
-+	brelse(bh);
-+	ext4_std_error(inode->i_sb, err);
-+	return ERR_PTR(err);
++	child->patch_state = current->patch_state;
  }
  
- static int ext4_dx_csum_verify(struct inode *inode,
+ /*
 
 
