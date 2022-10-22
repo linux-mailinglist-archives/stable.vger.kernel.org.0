@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A215608630
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C860960867E
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:50:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231366AbiJVHpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:45:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47088 "EHLO
+        id S231638AbiJVHuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:50:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231626AbiJVHop (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:44:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 678AE168E46;
-        Sat, 22 Oct 2022 00:43:35 -0700 (PDT)
+        with ESMTP id S231787AbiJVHtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66DDD29B88E;
+        Sat, 22 Oct 2022 00:45:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD35FB82E13;
-        Sat, 22 Oct 2022 07:42:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 166EAC433C1;
-        Sat, 22 Oct 2022 07:42:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A25B960B8E;
+        Sat, 22 Oct 2022 07:42:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6BCCC433C1;
+        Sat, 22 Oct 2022 07:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424549;
-        bh=zg+p61KItxBrk4fp24Kbh1QhrpK1b7WGZ7RcxpNQlec=;
+        s=korg; t=1666424552;
+        bh=KLXaFQT2JlFqTccYwn76fcGTCiyc8m5psLPMQV9qgJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wStHh8mCIYLT1b79UZ8PrVImQ76GsrzYHY+SdUxDMLQCfsZk0pTX1hRy7XLCkPyWh
-         /l08m9KbyrwxM0fUCIGOasFUOTUwRfKZBgwVZDSOgghs1O7ZJESmx/l8ELIDGcxibl
-         GWQP8WL6gORqGtvEsQIJV97tGem8fCyVsdaC22xk=
+        b=F6bj/Ti1gAPx/Z2OinsRKGSK9Eca/aD2F9O7zGSQx1TqO+EDoeWc4RaUTkPalZiaF
+         Ea103rthdWbVTvvOaIip7Uq9tH2wFhckN8GcxW3dxRqe/jI7WZp6i6D5/INbTXk2zu
+         jqa/kQ1x1MXsJefCRFTyCl90qE2l6AcG6AKc6L1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        linux-arm-kernel@lists.infradead.org,
-        Bart Van Assche <bvanassche@acm.org>,
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 187/717] ARM: 9243/1: riscpc: Unbreak the build
-Date:   Sat, 22 Oct 2022 09:21:06 +0200
-Message-Id: <20221022072448.735406798@linuxfoundation.org>
+Subject: [PATCH 5.19 188/717] ARM: 9244/1: dump: Fix wrong pg_level in walk_pmd()
+Date:   Sat, 22 Oct 2022 09:21:07 +0200
+Message-Id: <20221022072448.891495010@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,51 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Wang Kefeng <wangkefeng.wang@huawei.com>
 
-[ Upstream commit 32844a8eecaa4a3e65841c53e43e04a9087d1ef6 ]
+[ Upstream commit 2ccd19b3ffac07cc7e75a2bd1ed779728bb67197 ]
 
-This patch fixes the following build error:
+After ARM supports p4d page tables, the pg_level for note_page()
+in walk_pmd() should be 4, not 3, fix it.
 
-In file included from ./include/linux/io.h:13,
-                 from ./arch/arm/mach-rpc/include/mach/uncompress.h:9,
-                 from arch/arm/boot/compressed/misc.c:31:
-./arch/arm/include/asm/io.h:85:22: error: conflicting types for ‘__raw_writeb’
-   85 | #define __raw_writeb __raw_writeb
-      |                      ^~~~~~~~~~~~
-./arch/arm/include/asm/io.h:86:20: note: in expansion of macro ‘__raw_writeb’
-   86 | static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
-      |                    ^~~~~~~~~~~~
-In file included from arch/arm/boot/compressed/misc.c:26:
-arch/arm/boot/compressed/misc-ep93xx.h:13:20: note: previous definition of ‘__raw_writeb’ was here
-   13 | static inline void __raw_writeb(unsigned char value, unsigned int ptr)
-      |                    ^~~~~~~~~~~~
-
-To: Russell King <linux@armlinux.org.uk>
-
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arm-kernel@lists.infradead.org
-Fixes: 0361c7e504b1 ("ARM: ep93xx: multiplatform support")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Fixes: 84e6ffb2c49c ("arm: add support for folded p4d page tables")
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/compressed/misc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/mm/dump.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/compressed/misc.c b/arch/arm/boot/compressed/misc.c
-index cb2e069dc73f..abfed1aa2baa 100644
---- a/arch/arm/boot/compressed/misc.c
-+++ b/arch/arm/boot/compressed/misc.c
-@@ -23,7 +23,9 @@ unsigned int __machine_arch_type;
- #include <linux/types.h>
- #include <linux/linkage.h>
- #include "misc.h"
-+#ifdef CONFIG_ARCH_EP93XX
- #include "misc-ep93xx.h"
-+#endif
- 
- static void putstr(const char *ptr);
+diff --git a/arch/arm/mm/dump.c b/arch/arm/mm/dump.c
+index fb688003d156..712da6a81b23 100644
+--- a/arch/arm/mm/dump.c
++++ b/arch/arm/mm/dump.c
+@@ -346,7 +346,7 @@ static void walk_pmd(struct pg_state *st, pud_t *pud, unsigned long start)
+ 		addr = start + i * PMD_SIZE;
+ 		domain = get_domain_name(pmd);
+ 		if (pmd_none(*pmd) || pmd_large(*pmd) || !pmd_present(*pmd))
+-			note_page(st, addr, 3, pmd_val(*pmd), domain);
++			note_page(st, addr, 4, pmd_val(*pmd), domain);
+ 		else
+ 			walk_pte(st, pmd, addr, domain);
  
 -- 
 2.35.1
