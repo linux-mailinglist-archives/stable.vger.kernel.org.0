@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6621E608A5C
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EB7B608A39
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:48:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234462AbiJVIvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:51:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37950 "EHLO
+        id S234546AbiJVIs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:48:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234489AbiJVIuD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:50:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 201ED2E32FB;
-        Sat, 22 Oct 2022 01:11:26 -0700 (PDT)
+        with ESMTP id S234649AbiJVIrW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:47:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25FC85D72D;
+        Sat, 22 Oct 2022 01:10:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 073E8B82E41;
-        Sat, 22 Oct 2022 08:08:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87003C433C1;
-        Sat, 22 Oct 2022 08:08:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1422C60ACE;
+        Sat, 22 Oct 2022 08:08:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04ECAC433D7;
+        Sat, 22 Oct 2022 08:08:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426096;
-        bh=W4/yh7xZQybObDims9YbWGLF6sS6IkZ+HBTqyatr0Ks=;
+        s=korg; t=1666426121;
+        bh=5NlSRbXHvRb/aa25XM64BKUcWStHvdySzp+8NaPB+vM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dq1o8u0Xxln/upeRiNMYUy6wex7QfDE9zmMc2j0Hzft5laH+7dUnEYxz6T5tcr5UI
-         d2GDFExlKCU0Q/cZIcglPC8zjPiC3RPxq0v/pfdkjTBTjVAHuOMO/iC9/7Hu9wR4kS
-         WgJEZFSTnR4HRpy8JSJM9jagH+kX34Roj6gLZSnM=
+        b=SnbUCUvnocpG6weh1QFoJNa9EwTTOpgn4HfF90TyH3Z49tUJnYY/26z69NjYO2Lxg
+         cXykfx23bTX2qWgKcskLKtJ46Dxzq4QhsHlfcv0BTtOIBF9PlJSsqRavPHZXb7js3D
+         0+m6v59KxboE07AmBrfrcp7+VuT1Q2OwkjowjMXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
         <ville.syrjala@linux.intel.com>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.19 716/717] drm/i915/bios: Validate fp_timing terminator presence
-Date:   Sat, 22 Oct 2022 09:29:55 +0200
-Message-Id: <20221022072530.138458717@linuxfoundation.org>
+Subject: [PATCH 5.19 717/717] drm/i915/bios: Use hardcoded fp_timing size for generating LFP data pointers
+Date:   Sat, 22 Oct 2022 09:29:56 +0200
+Message-Id: <20221022072530.179352316@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,117 +56,130 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 4e78d6023c15c6acce8fbe42e13027c460395522 upstream.
+commit d3a7051841f0a4bcb1ee26a1b721c6150cc4c2b1 upstream.
 
-Validate the LFP data block a bit hardwer by making sure the
-fp_timing terminators (0xffff) are where we expect them to be.
+The current scheme for generating the LFP data table pointers
+(when the block including them is missing from the VBT) expects
+the 0xffff sequence to only appear in the fp_timing terminator
+entries. However some VBTs also have extra 0xffff sequences
+elsewhere in the LFP data. When looking for the terminators
+we may end up finding those extra sequeneces insted, which means
+we deduce the wrong size for the fp_timing table. The code
+then notices the inconsistent looking values and gives up on
+the generated data table pointers, preventing us from parsing
+the LFP data table entirely.
 
+Let's give up on the "search for the terminators" approach
+and instead just hardcode the expected size for the fp_timing
+table.
+
+We have enough sanity checks in place to make sure we
+shouldn't end up parsing total garbage even if that size
+should change in the future (although that seems unlikely
+as the fp_timing and dvo_timing tables have been declared
+obsolete as of VBT version 229).
+
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6592
 Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220818192223.29881-2-ville.syrjala@linux.intel.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20220818192223.29881-3-ville.syrjala@linux.intel.com
 Reviewed-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/i915/display/intel_bios.c |   60 ++++++++++++++++--------------
- 1 file changed, 32 insertions(+), 28 deletions(-)
+ drivers/gpu/drm/i915/display/intel_bios.c |   46 +++++++++++-------------------
+ 1 file changed, 18 insertions(+), 28 deletions(-)
 
 --- a/drivers/gpu/drm/i915/display/intel_bios.c
 +++ b/drivers/gpu/drm/i915/display/intel_bios.c
-@@ -134,18 +134,6 @@ static u32 raw_block_offset(const void *
- 	return block - bdb;
+@@ -336,18 +336,6 @@ static bool fixup_lfp_data_ptrs(const vo
+ 	return validate_lfp_data_ptrs(bdb, ptrs);
  }
  
--/* size of the block excluding the header */
--static u32 raw_block_size(const void *bdb, enum bdb_block_id section_id)
+-static const void *find_fp_timing_terminator(const u8 *data, int size)
 -{
--	const void *block;
+-	int i;
 -
--	block = find_raw_section(bdb, section_id);
--	if (!block)
--		return 0;
+-	for (i = 0; i < size - 1; i++) {
+-		if (data[i] == 0xff && data[i+1] == 0xff)
+-			return &data[i];
+-	}
 -
--	return get_blocksize(block);
+-	return NULL;
 -}
 -
- struct bdb_block_entry {
- 	struct list_head node;
- 	enum bdb_block_id section_id;
-@@ -230,9 +218,14 @@ static bool validate_lfp_data_ptrs(const
+ static int make_lfp_data_ptr(struct lvds_lfp_data_ptr_table *table,
+ 			     int table_size, int total_size)
  {
- 	int fp_timing_size, dvo_timing_size, panel_pnp_id_size, panel_name_size;
- 	int data_block_size, lfp_data_size;
-+	const void *data_block;
- 	int i;
- 
--	data_block_size = raw_block_size(bdb, BDB_LVDS_LFP_DATA);
-+	data_block = find_raw_section(bdb, BDB_LVDS_LFP_DATA);
-+	if (!data_block)
-+		return false;
-+
-+	data_block_size = get_blocksize(data_block);
- 	if (data_block_size == 0)
- 		return false;
- 
-@@ -260,21 +253,6 @@ static bool validate_lfp_data_ptrs(const
- 	if (16 * lfp_data_size > data_block_size)
- 		return false;
- 
--	/*
--	 * Except for vlv/chv machines all real VBTs seem to have 6
--	 * unaccounted bytes in the fp_timing table. And it doesn't
--	 * appear to be a really intentional hole as the fp_timing
--	 * 0xffff terminator is always within those 6 missing bytes.
--	 */
--	if (fp_timing_size + dvo_timing_size + panel_pnp_id_size != lfp_data_size &&
--	    fp_timing_size + 6 + dvo_timing_size + panel_pnp_id_size != lfp_data_size)
--		return false;
--
--	if (ptrs->ptr[0].fp_timing.offset + fp_timing_size > ptrs->ptr[0].dvo_timing.offset ||
--	    ptrs->ptr[0].dvo_timing.offset + dvo_timing_size != ptrs->ptr[0].panel_pnp_id.offset ||
--	    ptrs->ptr[0].panel_pnp_id.offset + panel_pnp_id_size != lfp_data_size)
--		return false;
--
- 	/* make sure the table entries have uniform size */
- 	for (i = 1; i < 16; i++) {
- 		if (ptrs->ptr[i].fp_timing.table_size != fp_timing_size ||
-@@ -288,6 +266,23 @@ static bool validate_lfp_data_ptrs(const
- 			return false;
- 	}
+@@ -371,11 +359,22 @@ static void next_lfp_data_ptr(struct lvd
+ static void *generate_lfp_data_ptrs(struct drm_i915_private *i915,
+ 				    const void *bdb)
+ {
+-	int i, size, table_size, block_size, offset;
+-	const void *t0, *t1, *block;
++	int i, size, table_size, block_size, offset, fp_timing_size;
+ 	struct bdb_lvds_lfp_data_ptrs *ptrs;
++	const void *block;
+ 	void *ptrs_block;
  
 +	/*
-+	 * Except for vlv/chv machines all real VBTs seem to have 6
-+	 * unaccounted bytes in the fp_timing table. And it doesn't
-+	 * appear to be a really intentional hole as the fp_timing
-+	 * 0xffff terminator is always within those 6 missing bytes.
++	 * The hardcoded fp_timing_size is only valid for
++	 * modernish VBTs. All older VBTs definitely should
++	 * include block 41 and thus we don't need to
++	 * generate one.
 +	 */
-+	if (fp_timing_size + 6 + dvo_timing_size + panel_pnp_id_size == lfp_data_size)
-+		fp_timing_size += 6;
++	if (i915->vbt.version < 155)
++		return NULL;
 +
-+	if (fp_timing_size + dvo_timing_size + panel_pnp_id_size != lfp_data_size)
-+		return false;
++	fp_timing_size = 38;
 +
-+	if (ptrs->ptr[0].fp_timing.offset + fp_timing_size != ptrs->ptr[0].dvo_timing.offset ||
-+	    ptrs->ptr[0].dvo_timing.offset + dvo_timing_size != ptrs->ptr[0].panel_pnp_id.offset ||
-+	    ptrs->ptr[0].panel_pnp_id.offset + panel_pnp_id_size != lfp_data_size)
-+		return false;
-+
- 	/* make sure the tables fit inside the data block */
- 	for (i = 0; i < 16; i++) {
- 		if (ptrs->ptr[i].fp_timing.offset + fp_timing_size > data_block_size ||
-@@ -299,6 +294,15 @@ static bool validate_lfp_data_ptrs(const
- 	if (ptrs->panel_name.offset + 16 * panel_name_size > data_block_size)
- 		return false;
+ 	block = find_raw_section(bdb, BDB_LVDS_LFP_DATA);
+ 	if (!block)
+ 		return NULL;
+@@ -384,17 +383,8 @@ static void *generate_lfp_data_ptrs(stru
  
-+	/* make sure fp_timing terminators are present at expected locations */
-+	for (i = 0; i < 16; i++) {
-+		const u16 *t = data_block + ptrs->ptr[i].fp_timing.offset +
-+			fp_timing_size - 2;
-+
-+		if (*t != 0xffff)
-+			return false;
-+	}
-+
- 	return true;
- }
+ 	block_size = get_blocksize(block);
  
+-	size = block_size;
+-	t0 = find_fp_timing_terminator(block, size);
+-	if (!t0)
+-		return NULL;
+-
+-	size -= t0 - block - 2;
+-	t1 = find_fp_timing_terminator(t0 + 2, size);
+-	if (!t1)
+-		return NULL;
+-
+-	size = t1 - t0;
++	size = fp_timing_size + sizeof(struct lvds_dvo_timing) +
++		sizeof(struct lvds_pnp_id);
+ 	if (size * 16 > block_size)
+ 		return NULL;
+ 
+@@ -412,7 +402,7 @@ static void *generate_lfp_data_ptrs(stru
+ 	table_size = sizeof(struct lvds_dvo_timing);
+ 	size = make_lfp_data_ptr(&ptrs->ptr[0].dvo_timing, table_size, size);
+ 
+-	table_size = t0 - block + 2;
++	table_size = fp_timing_size;
+ 	size = make_lfp_data_ptr(&ptrs->ptr[0].fp_timing, table_size, size);
+ 
+ 	if (ptrs->ptr[0].fp_timing.table_size)
+@@ -427,14 +417,14 @@ static void *generate_lfp_data_ptrs(stru
+ 		return NULL;
+ 	}
+ 
+-	size = t1 - t0;
++	size = fp_timing_size + sizeof(struct lvds_dvo_timing) +
++		sizeof(struct lvds_pnp_id);
+ 	for (i = 1; i < 16; i++) {
+ 		next_lfp_data_ptr(&ptrs->ptr[i].fp_timing, &ptrs->ptr[i-1].fp_timing, size);
+ 		next_lfp_data_ptr(&ptrs->ptr[i].dvo_timing, &ptrs->ptr[i-1].dvo_timing, size);
+ 		next_lfp_data_ptr(&ptrs->ptr[i].panel_pnp_id, &ptrs->ptr[i-1].panel_pnp_id, size);
+ 	}
+ 
+-	size = t1 - t0;
+ 	table_size = sizeof(struct lvds_lfp_panel_name);
+ 
+ 	if (16 * (size + table_size) <= block_size) {
 
 
