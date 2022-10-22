@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C479260885B
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6041F6087AF
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233146AbiJVIQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:16:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49156 "EHLO
+        id S232569AbiJVIFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:05:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233861AbiJVIPZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:15:25 -0400
+        with ESMTP id S232764AbiJVIEK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC6832DA1AB;
-        Sat, 22 Oct 2022 00:56:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8B1627A318;
+        Sat, 22 Oct 2022 00:51:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B530AB82DF8;
-        Sat, 22 Oct 2022 07:41:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00BFC433C1;
-        Sat, 22 Oct 2022 07:41:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86C83B82E0B;
+        Sat, 22 Oct 2022 07:42:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8F63C433D6;
+        Sat, 22 Oct 2022 07:42:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424514;
-        bh=RaCY5RAb8ZerKeM1IclPcawvKRfJOaSZ/TtnUxatBTc=;
+        s=korg; t=1666424530;
+        bh=yXakOncocmAMdyM9Kp+4spb4pV7+704OueZkYTIj4p4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DgAL44duOAbi1WTf6l/lcecDXlKI0Lycu55PIxukf1D1AyjU5tVtN9p0M0/NLS3/S
-         W/L0Ax0gIiUcbi3PC5WhmVWS48KTOf7b+V0A8B5JAPiojZvf2TF4UaTZ25OnnNPe83
-         FHv71ttCrzle88Pqmg9katWNdBfrSka0UZNlXfBI=
+        b=vwWMIRYb/WksO+dtHAvjxqdWQdJ+2b90933D5mq6B7UlZXA6yX8zuFwkKW8iaGQJg
+         cRM7Mq4c2eKreL5d4N1Zq9aQH76XAorPd8e33bToX9N5C692mx9glGATkSHSgyovNs
+         klqjagQGJyUPzBMKhRiONVEbsaJ1ovkLLEcBSUYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.19 175/717] smb3: must initialize two ACL struct fields to zero
-Date:   Sat, 22 Oct 2022 09:20:54 +0200
-Message-Id: <20221022072446.511064179@linuxfoundation.org>
+        stable@vger.kernel.org, Huang Rui <ray.huang@amd.com>,
+        Perry Yuan <Perry.Yuan@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 181/717] cpufreq: amd-pstate: Fix initial highest_perf value
+Date:   Sat, 22 Oct 2022 09:21:00 +0200
+Message-Id: <20221022072447.617589858@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,40 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Perry Yuan <Perry.Yuan@amd.com>
 
-commit f09bd695af3b8ab46fc24e5d6954a24104c38387 upstream.
+[ Upstream commit bedadcfb011fef55273bd686e8893fdd8911dcdb ]
 
-Coverity spotted that we were not initalizing Stbz1 and Stbz2 to
-zero in create_sd_buf.
+To avoid some new AMD processors use wrong highest perf when amd pstate
+driver loaded, this fix will query the highest perf from MSR register
+MSR_AMD_CPPC_CAP1 and cppc_acpi interface firstly, then compare with the
+highest perf value got by calling amd_get_highest_perf() function.
 
-Addresses-Coverity: 1513848 ("Uninitialized scalar variable")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The lower value will be the correct highest perf we need to use.
+Otherwise the CPU max MHz will be incorrect if the
+amd_get_highest_perf() did not cover the new process family and model ID.
+
+Like this lscpu info, the max frequency is incorrect.
+
+Vendor ID:               AuthenticAMD
+    Socket(s):           1
+    Stepping:            2
+    CPU max MHz:         5410.0000
+    CPU min MHz:         400.0000
+    BogoMIPS:            5600.54
+
+Fixes: 3743d55b289c2 (x86, sched: Fix the AMD CPPC maximum performance value on certain AMD Ryzen generations)
+Acked-by: Huang Rui <ray.huang@amd.com>
+Signed-off-by: Perry Yuan <Perry.Yuan@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/cpufreq/amd-pstate.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -2410,7 +2410,7 @@ create_sd_buf(umode_t mode, bool set_own
- 	unsigned int acelen, acl_size, ace_count;
- 	unsigned int owner_offset = 0;
- 	unsigned int group_offset = 0;
--	struct smb3_acl acl;
-+	struct smb3_acl acl = {};
+diff --git a/drivers/cpufreq/amd-pstate.c b/drivers/cpufreq/amd-pstate.c
+index 9ac75c1cde9c..365f3ad166a7 100644
+--- a/drivers/cpufreq/amd-pstate.c
++++ b/drivers/cpufreq/amd-pstate.c
+@@ -152,6 +152,7 @@ static inline int amd_pstate_enable(bool enable)
+ static int pstate_init_perf(struct amd_cpudata *cpudata)
+ {
+ 	u64 cap1;
++	u32 highest_perf;
  
- 	*len = roundup(sizeof(struct crt_sd_ctxt) + (sizeof(struct cifs_ace) * 4), 8);
+ 	int ret = rdmsrl_safe_on_cpu(cpudata->cpu, MSR_AMD_CPPC_CAP1,
+ 				     &cap1);
+@@ -163,7 +164,11 @@ static int pstate_init_perf(struct amd_cpudata *cpudata)
+ 	 *
+ 	 * CPPC entry doesn't indicate the highest performance in some ASICs.
+ 	 */
+-	WRITE_ONCE(cpudata->highest_perf, amd_get_highest_perf());
++	highest_perf = amd_get_highest_perf();
++	if (highest_perf > AMD_CPPC_HIGHEST_PERF(cap1))
++		highest_perf = AMD_CPPC_HIGHEST_PERF(cap1);
++
++	WRITE_ONCE(cpudata->highest_perf, highest_perf);
  
-@@ -2483,6 +2483,7 @@ create_sd_buf(umode_t mode, bool set_own
- 	acl.AclRevision = ACL_REVISION; /* See 2.4.4.1 of MS-DTYP */
- 	acl.AclSize = cpu_to_le16(acl_size);
- 	acl.AceCount = cpu_to_le16(ace_count);
-+	/* acl.Sbz1 and Sbz2 MBZ so are not set here, but initialized above */
- 	memcpy(aclptr, &acl, sizeof(struct smb3_acl));
+ 	WRITE_ONCE(cpudata->nominal_perf, AMD_CPPC_NOMINAL_PERF(cap1));
+ 	WRITE_ONCE(cpudata->lowest_nonlinear_perf, AMD_CPPC_LOWNONLIN_PERF(cap1));
+@@ -175,12 +180,17 @@ static int pstate_init_perf(struct amd_cpudata *cpudata)
+ static int cppc_init_perf(struct amd_cpudata *cpudata)
+ {
+ 	struct cppc_perf_caps cppc_perf;
++	u32 highest_perf;
  
- 	buf->ccontext.DataLength = cpu_to_le32(ptr - (__u8 *)&buf->sd);
+ 	int ret = cppc_get_perf_caps(cpudata->cpu, &cppc_perf);
+ 	if (ret)
+ 		return ret;
+ 
+-	WRITE_ONCE(cpudata->highest_perf, amd_get_highest_perf());
++	highest_perf = amd_get_highest_perf();
++	if (highest_perf > cppc_perf.highest_perf)
++		highest_perf = cppc_perf.highest_perf;
++
++	WRITE_ONCE(cpudata->highest_perf, highest_perf);
+ 
+ 	WRITE_ONCE(cpudata->nominal_perf, cppc_perf.nominal_perf);
+ 	WRITE_ONCE(cpudata->lowest_nonlinear_perf,
+-- 
+2.35.1
+
 
 
