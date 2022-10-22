@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 248476088E6
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:25:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B5A76089F4
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:45:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234252AbiJVIZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:25:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44402 "EHLO
+        id S234551AbiJVIpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:45:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233695AbiJVIWn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:22:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D63BA13A58A;
-        Sat, 22 Oct 2022 00:59:08 -0700 (PDT)
+        with ESMTP id S234963AbiJVIoJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:44:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A8D62D5E94;
+        Sat, 22 Oct 2022 01:07:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA9F3B82DF9;
-        Sat, 22 Oct 2022 07:58:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11740C433C1;
-        Sat, 22 Oct 2022 07:58:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D23EB82E06;
+        Sat, 22 Oct 2022 07:59:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E63E4C433D6;
+        Sat, 22 Oct 2022 07:59:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425524;
-        bh=wpNuhBG9/6aQ2W+7cbuETNqCLtVcvtJT1YSt5RjOQ6M=;
+        s=korg; t=1666425558;
+        bh=9UrjUr8/IkPv6PWDRT8g70RM3dX0hvB24hPHyGPf0nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E0q5V2HQ+bkOJSmdCytPHEyTlRt5hvZ+/DuEydR5VVgK4zCGrja01Zcf4ff0iootc
-         vcBip9IFcmcr8r47ubvq138IeHGtfrp7mWUZ6YfkcDyPquXmQOqfQJBGrlp19PaCl6
-         32B8Sxs4Ce3tU3UHOSxb2J/XTTDwXwDrLv5vNZFA=
+        b=slkWU2ucj/aDhflC2sfvKqSJDUJ4HHeIB5HZkOSzPrlGHOu98kZKL3SDm4WXAuwzP
+         yudSmyFN34K0lt3hrCIHV2mEqG9dHJwLUDHy45XdQOwoLDRxsXbGGm7T0goM6fczjX
+         YM1lC+BtLAtMxA4T6W1kgtA0bj8BQetpurLcG2bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Yujun <linyujun809@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Enzo Matsumiya <ematsumiya@suse.de>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 522/717] clocksource/drivers/timer-gxp: Add missing error handling in gxp_timer_probe
-Date:   Sat, 22 Oct 2022 09:26:41 +0200
-Message-Id: <20221022072521.392405978@linuxfoundation.org>
+Subject: [PATCH 5.19 523/717] cifs: return correct error in ->calc_signature()
+Date:   Sat, 22 Oct 2022 09:26:42 +0200
+Message-Id: <20221022072521.442957149@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,47 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Yujun <linyujun809@huawei.com>
+From: Enzo Matsumiya <ematsumiya@suse.de>
 
-[ Upstream commit 0e2c8e6d769bcdc4f6634a02c545356282275e68 ]
+[ Upstream commit 09a1f9a168ae1f69f701689429871793174417d2 ]
 
-Add platform_device_put() to make sure to free the platform
-device in the event platform_device_add() fails.
+If an error happens while getting the key or session in the
+->calc_signature implementations, 0 (success) is returned. Fix it by
+returning a proper error code.
 
-Fixes: 5184f4bf151b ("clocksource/drivers/timer-gxp: Add HPE GXP Timer")
-Signed-off-by: Lin Yujun <linyujun809@huawei.com>
-Link: https://lore.kernel.org/r/20220914033018.97484-1-linyujun809@huawei.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Since it seems to be highly unlikely to happen wrap the rc check in
+unlikely() too.
+
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Fixes: 32811d242ff6 ("cifs: Start using per session key for smb2/3 for signature generation")
+Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-gxp.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/cifs/smb2transport.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clocksource/timer-gxp.c b/drivers/clocksource/timer-gxp.c
-index 8b38b3212388..fe4fa8d7b3f1 100644
---- a/drivers/clocksource/timer-gxp.c
-+++ b/drivers/clocksource/timer-gxp.c
-@@ -171,6 +171,7 @@ static int gxp_timer_probe(struct platform_device *pdev)
- {
- 	struct platform_device *gxp_watchdog_device;
- 	struct device *dev = &pdev->dev;
-+	int ret;
+diff --git a/fs/cifs/smb2transport.c b/fs/cifs/smb2transport.c
+index 55e79f6ee78d..334d8471346f 100644
+--- a/fs/cifs/smb2transport.c
++++ b/fs/cifs/smb2transport.c
+@@ -225,9 +225,9 @@ smb2_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server,
+ 	struct smb_rqst drqst;
  
- 	if (!gxp_timer) {
- 		pr_err("Gxp Timer not initialized, cannot create watchdog");
-@@ -187,7 +188,11 @@ static int gxp_timer_probe(struct platform_device *pdev)
- 	gxp_watchdog_device->dev.platform_data = gxp_timer->counter;
- 	gxp_watchdog_device->dev.parent = dev;
+ 	ses = smb2_find_smb_ses(server, le64_to_cpu(shdr->SessionId));
+-	if (!ses) {
++	if (unlikely(!ses)) {
+ 		cifs_server_dbg(VFS, "%s: Could not find session\n", __func__);
+-		return 0;
++		return -ENOENT;
+ 	}
  
--	return platform_device_add(gxp_watchdog_device);
-+	ret = platform_device_add(gxp_watchdog_device);
-+	if (ret)
-+		platform_device_put(gxp_watchdog_device);
-+
-+	return ret;
- }
+ 	memset(smb2_signature, 0x0, SMB2_HMACSHA256_SIZE);
+@@ -557,8 +557,10 @@ smb3_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server,
+ 	u8 key[SMB3_SIGN_KEY_SIZE];
  
- static const struct of_device_id gxp_timer_of_match[] = {
+ 	rc = smb2_get_sign_key(le64_to_cpu(shdr->SessionId), server, key);
+-	if (rc)
+-		return 0;
++	if (unlikely(rc)) {
++		cifs_server_dbg(VFS, "%s: Could not get signing key\n", __func__);
++		return rc;
++	}
+ 
+ 	if (allocate_crypto) {
+ 		rc = cifs_alloc_hash("cmac(aes)", &hash, &sdesc);
 -- 
 2.35.1
 
