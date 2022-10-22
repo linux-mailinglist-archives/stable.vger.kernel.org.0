@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E3C608A73
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:55:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6621E608A5C
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:51:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234730AbiJVIzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:55:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32988 "EHLO
+        id S234462AbiJVIvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:51:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235184AbiJVIyl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:54:41 -0400
+        with ESMTP id S234489AbiJVIuD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:50:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC3292F5844;
-        Sat, 22 Oct 2022 01:13:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 201ED2E32FB;
+        Sat, 22 Oct 2022 01:11:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45B85B82E49;
-        Sat, 22 Oct 2022 08:08:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 746A5C433D6;
-        Sat, 22 Oct 2022 08:08:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 073E8B82E41;
+        Sat, 22 Oct 2022 08:08:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87003C433C1;
+        Sat, 22 Oct 2022 08:08:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426093;
-        bh=crSfYZdlpZpIdRFdSPKQ20saC6ktN5bPHpKGg0bi5tU=;
+        s=korg; t=1666426096;
+        bh=W4/yh7xZQybObDims9YbWGLF6sS6IkZ+HBTqyatr0Ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=We9RWXtKsE3dYEfDC8eVI7zTjixvCPN9zdbCvWIjqeuIqC2mUEfkTLdQAq5AQaSPv
-         plFxdkV0hi9iY4+GMMn+AxegOLSfI7cLHWTraTsdok+yDUVkXlU2PauFxw28A6NQR2
-         6blr8OUAFuAFPnJJ3QgAwXqqgeV7/Ux90BcQOSu8=
+        b=dq1o8u0Xxln/upeRiNMYUy6wex7QfDE9zmMc2j0Hzft5laH+7dUnEYxz6T5tcr5UI
+         d2GDFExlKCU0Q/cZIcglPC8zjPiC3RPxq0v/pfdkjTBTjVAHuOMO/iC9/7Hu9wR4kS
+         WgJEZFSTnR4HRpy8JSJM9jagH+kX34Roj6gLZSnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
         <ville.syrjala@linux.intel.com>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.19 715/717] drm/i915: Rename block_size()/block_offset()
-Date:   Sat, 22 Oct 2022 09:29:54 +0200
-Message-Id: <20221022072530.098549125@linuxfoundation.org>
+Subject: [PATCH 5.19 716/717] drm/i915/bios: Validate fp_timing terminator presence
+Date:   Sat, 22 Oct 2022 09:29:55 +0200
+Message-Id: <20221022072530.138458717@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,63 +56,117 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 39b1bc4b5bcccac781267bb826b035fbb99c8b9d upstream.
+commit 4e78d6023c15c6acce8fbe42e13027c460395522 upstream.
 
-Give block_size()/block_offset() a "raw_" prefix since they
-both operate on the "raw" (as in not duplicated) BDB block
-contents.
-
-What actually spurred this was a conflict between intel_bios.c
-block_size() vs. block_size() from blkdev.h. That only
-happened to me on a custom tree where we somehow manage to
-include blkdev.h into intel_bios.c. But I think the rename
-makes sense anyway to clarify the purpose of these functions.
+Validate the LFP data block a bit hardwer by making sure the
+fp_timing terminators (0xffff) are where we expect them to be.
 
 Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220519140010.10600-1-ville.syrjala@linux.intel.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20220818192223.29881-2-ville.syrjala@linux.intel.com
 Reviewed-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_bios.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/display/intel_bios.c |   60 ++++++++++++++++--------------
+ 1 file changed, 32 insertions(+), 28 deletions(-)
 
 --- a/drivers/gpu/drm/i915/display/intel_bios.c
 +++ b/drivers/gpu/drm/i915/display/intel_bios.c
-@@ -123,7 +123,7 @@ find_raw_section(const void *_bdb, enum
-  * Offset from the start of BDB to the start of the
-  * block data (just past the block header).
-  */
--static u32 block_offset(const void *bdb, enum bdb_block_id section_id)
-+static u32 raw_block_offset(const void *bdb, enum bdb_block_id section_id)
- {
- 	const void *block;
- 
-@@ -135,7 +135,7 @@ static u32 block_offset(const void *bdb,
+@@ -134,18 +134,6 @@ static u32 raw_block_offset(const void *
+ 	return block - bdb;
  }
  
- /* size of the block excluding the header */
--static u32 block_size(const void *bdb, enum bdb_block_id section_id)
-+static u32 raw_block_size(const void *bdb, enum bdb_block_id section_id)
+-/* size of the block excluding the header */
+-static u32 raw_block_size(const void *bdb, enum bdb_block_id section_id)
+-{
+-	const void *block;
+-
+-	block = find_raw_section(bdb, section_id);
+-	if (!block)
+-		return 0;
+-
+-	return get_blocksize(block);
+-}
+-
+ struct bdb_block_entry {
+ 	struct list_head node;
+ 	enum bdb_block_id section_id;
+@@ -230,9 +218,14 @@ static bool validate_lfp_data_ptrs(const
  {
- 	const void *block;
- 
-@@ -232,7 +232,7 @@ static bool validate_lfp_data_ptrs(const
+ 	int fp_timing_size, dvo_timing_size, panel_pnp_id_size, panel_name_size;
  	int data_block_size, lfp_data_size;
++	const void *data_block;
  	int i;
  
--	data_block_size = block_size(bdb, BDB_LVDS_LFP_DATA);
-+	data_block_size = raw_block_size(bdb, BDB_LVDS_LFP_DATA);
+-	data_block_size = raw_block_size(bdb, BDB_LVDS_LFP_DATA);
++	data_block = find_raw_section(bdb, BDB_LVDS_LFP_DATA);
++	if (!data_block)
++		return false;
++
++	data_block_size = get_blocksize(data_block);
  	if (data_block_size == 0)
  		return false;
  
-@@ -309,7 +309,7 @@ static bool fixup_lfp_data_ptrs(const vo
- 	u32 offset;
- 	int i;
+@@ -260,21 +253,6 @@ static bool validate_lfp_data_ptrs(const
+ 	if (16 * lfp_data_size > data_block_size)
+ 		return false;
  
--	offset = block_offset(bdb, BDB_LVDS_LFP_DATA);
-+	offset = raw_block_offset(bdb, BDB_LVDS_LFP_DATA);
+-	/*
+-	 * Except for vlv/chv machines all real VBTs seem to have 6
+-	 * unaccounted bytes in the fp_timing table. And it doesn't
+-	 * appear to be a really intentional hole as the fp_timing
+-	 * 0xffff terminator is always within those 6 missing bytes.
+-	 */
+-	if (fp_timing_size + dvo_timing_size + panel_pnp_id_size != lfp_data_size &&
+-	    fp_timing_size + 6 + dvo_timing_size + panel_pnp_id_size != lfp_data_size)
+-		return false;
+-
+-	if (ptrs->ptr[0].fp_timing.offset + fp_timing_size > ptrs->ptr[0].dvo_timing.offset ||
+-	    ptrs->ptr[0].dvo_timing.offset + dvo_timing_size != ptrs->ptr[0].panel_pnp_id.offset ||
+-	    ptrs->ptr[0].panel_pnp_id.offset + panel_pnp_id_size != lfp_data_size)
+-		return false;
+-
+ 	/* make sure the table entries have uniform size */
+ 	for (i = 1; i < 16; i++) {
+ 		if (ptrs->ptr[i].fp_timing.table_size != fp_timing_size ||
+@@ -288,6 +266,23 @@ static bool validate_lfp_data_ptrs(const
+ 			return false;
+ 	}
  
++	/*
++	 * Except for vlv/chv machines all real VBTs seem to have 6
++	 * unaccounted bytes in the fp_timing table. And it doesn't
++	 * appear to be a really intentional hole as the fp_timing
++	 * 0xffff terminator is always within those 6 missing bytes.
++	 */
++	if (fp_timing_size + 6 + dvo_timing_size + panel_pnp_id_size == lfp_data_size)
++		fp_timing_size += 6;
++
++	if (fp_timing_size + dvo_timing_size + panel_pnp_id_size != lfp_data_size)
++		return false;
++
++	if (ptrs->ptr[0].fp_timing.offset + fp_timing_size != ptrs->ptr[0].dvo_timing.offset ||
++	    ptrs->ptr[0].dvo_timing.offset + dvo_timing_size != ptrs->ptr[0].panel_pnp_id.offset ||
++	    ptrs->ptr[0].panel_pnp_id.offset + panel_pnp_id_size != lfp_data_size)
++		return false;
++
+ 	/* make sure the tables fit inside the data block */
  	for (i = 0; i < 16; i++) {
- 		if (ptrs->ptr[i].fp_timing.offset < offset ||
+ 		if (ptrs->ptr[i].fp_timing.offset + fp_timing_size > data_block_size ||
+@@ -299,6 +294,15 @@ static bool validate_lfp_data_ptrs(const
+ 	if (ptrs->panel_name.offset + 16 * panel_name_size > data_block_size)
+ 		return false;
+ 
++	/* make sure fp_timing terminators are present at expected locations */
++	for (i = 0; i < 16; i++) {
++		const u16 *t = data_block + ptrs->ptr[i].fp_timing.offset +
++			fp_timing_size - 2;
++
++		if (*t != 0xffff)
++			return false;
++	}
++
+ 	return true;
+ }
+ 
 
 
