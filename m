@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA0A608821
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:10:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2740C608AAE
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233030AbiJVIKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:10:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60038 "EHLO
+        id S231670AbiJVJE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 05:04:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233375AbiJVIJl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:09:41 -0400
+        with ESMTP id S235091AbiJVJDo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:03:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 780672CA7CD;
-        Sat, 22 Oct 2022 00:54:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C70DA2FA5CC;
+        Sat, 22 Oct 2022 01:18:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE1CC60B89;
-        Sat, 22 Oct 2022 07:53:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9E84C433D6;
-        Sat, 22 Oct 2022 07:53:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FF7760B89;
+        Sat, 22 Oct 2022 07:55:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52F31C4314C;
+        Sat, 22 Oct 2022 07:55:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425195;
-        bh=ZfDWuQNfaD4Mxq/Q6X3O0/xnPSophpyyQ8qJFF0+MYw=;
+        s=korg; t=1666425320;
+        bh=d4xHh/EUCkCOVmUiHgDNQoi2lFnlAt1QKWLdSYAR6Ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G2XKskj5W2f/72cNuDRNP3M5OXeRygQT3kVGCtT2AQURCz0KTYML50UGe2ufRwIzH
-         aGCseJyvAmRhltUHztdrOiXAShfs6ythBxwO6pGQWyrFFVJeubH6VS7yAvSYvii7HD
-         tv/FIZIYlCNDHKSt7p3q/UvzuaVSoSRK21U6XrX8=
+        b=hOjJVgEfrCMMqjzeoHIvcXTA1aW8xUgqnn7Cl50jmtEc3/tmWpaeAel2BxrRMCIdU
+         b7zRulekcm5mHEwdbTNNjEzPnqObb6WqwsxxDeqsLx9vN0PzkrhzXaBXhcLtCFzZe3
+         ozJYmWTj6smB3oil7MqQ/y8StrSmxRO8KYnOnqyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dang Huynh <danct12@riseup.net>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
+        William Dean <williamsukatube@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 421/717] clk: qcom: sm6115: Select QCOM_GDSC
-Date:   Sat, 22 Oct 2022 09:25:00 +0200
-Message-Id: <20221022072516.991440414@linuxfoundation.org>
+Subject: [PATCH 5.19 422/717] mtd: devices: docg3: check the return value of devm_ioremap() in the probe
+Date:   Sat, 22 Oct 2022 09:25:01 +0200
+Message-Id: <20221022072517.050464932@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,40 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dang Huynh <danct12@riseup.net>
+From: William Dean <williamsukatube@gmail.com>
 
-[ Upstream commit 50ee65dc512b9b5c4de354cf3b4dded34f46c571 ]
+[ Upstream commit 26e784433e6c65735cd6d93a8db52531970d9a60 ]
 
-While working on the Fxtec Pro1X device, this error shows up with
-my own minimal configuration:
+The function devm_ioremap() in docg3_probe() can fail, so
+its return value should be checked.
 
-gcc-sm6115: probe of 1400000.clock-controller failed with error -38
-
-The clock driver depends on CONFIG_QCOM_GDSC and after enabling
-that, the driver probes successfully.
-
-Signed-off-by: Dang Huynh <danct12@riseup.net>
-Fixes: cbe63bfdc54f ("clk: qcom: Add Global Clock controller (GCC)
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220910170207.1592220-1-danct12@riseup.net
+Fixes: 82402aeb8c81e ("mtd: docg3: Use devm_*() functions")
+Reported-by: Hacash Robot <hacashRobot@santino.com>
+Signed-off-by: William Dean <williamsukatube@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220722091644.2937953-1-williamsukatube@163.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/devices/docg3.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/qcom/Kconfig b/drivers/clk/qcom/Kconfig
-index bc4dcf356d82..b1b141abc01c 100644
---- a/drivers/clk/qcom/Kconfig
-+++ b/drivers/clk/qcom/Kconfig
-@@ -637,6 +637,7 @@ config SM_DISPCC_6350
+diff --git a/drivers/mtd/devices/docg3.c b/drivers/mtd/devices/docg3.c
+index 5b0ae5ddad74..27c08f22dec8 100644
+--- a/drivers/mtd/devices/docg3.c
++++ b/drivers/mtd/devices/docg3.c
+@@ -1974,9 +1974,14 @@ static int __init docg3_probe(struct platform_device *pdev)
+ 		dev_err(dev, "No I/O memory resource defined\n");
+ 		return ret;
+ 	}
+-	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
  
- config SM_GCC_6115
- 	tristate "SM6115 and SM4250 Global Clock Controller"
-+	select QCOM_GDSC
- 	help
- 	  Support for the global clock controller on SM6115 and SM4250 devices.
- 	  Say Y if you want to use peripheral devices such as UART, SPI,
+ 	ret = -ENOMEM;
++	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
++	if (!base) {
++		dev_err(dev, "devm_ioremap dev failed\n");
++		return ret;
++	}
++
+ 	cascade = devm_kcalloc(dev, DOC_MAX_NBFLOORS, sizeof(*cascade),
+ 			       GFP_KERNEL);
+ 	if (!cascade)
 -- 
 2.35.1
 
