@@ -2,51 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1CF3608A06
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:46:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CB326088E9
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234754AbiJVIqE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:46:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40816 "EHLO
+        id S230413AbiJVIZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:25:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235174AbiJVIot (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:44:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8D492CB8C5;
-        Sat, 22 Oct 2022 01:08:42 -0700 (PDT)
+        with ESMTP id S233961AbiJVIYZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:24:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC6622A716;
+        Sat, 22 Oct 2022 00:59:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50A7460B1B;
-        Sat, 22 Oct 2022 07:59:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25724C433C1;
-        Sat, 22 Oct 2022 07:59:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 350E3B82DF9;
+        Sat, 22 Oct 2022 07:59:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6706EC433D6;
+        Sat, 22 Oct 2022 07:59:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425573;
-        bh=hzbiDCjgP4PWpxtEpRK2mCWbxYUpFdc6paCISbBKNxg=;
+        s=korg; t=1666425579;
+        bh=PU8iaCs2iWQxeCCZgNEo4F7oo3UpqlSd8bf4uBmxP6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mDrZeKLDuXuU9SGEfDqfISMNuvMjWQ5T2r+ThsxvajZw67xFR2nI+jpYlHd7xSaEJ
-         0soQ2Eu4YGWUg75v0nF594EGklSJc9hMimMofwyRhVIRgie5cab2IGjlHyjZPRozqi
-         aSbdX1B4YJMfnlX1DX5DTMqNe+Hcoyl3XwoAb484=
+        b=YL8yW9V0pxt7CrgyIzIBLOWz++R6AfBAnQsl3atYSkHU2LTgMP0Cn2TPSaylfY4jf
+         DrDMZXLeAeB6a+2oRM4l1B8wLj3IQMeT3pWEwe7x58NpkmkOT+Gdy0J/MXg00Y3sx2
+         UgUAtbajCxysYFLwk81suaY8wtlF3n91ci8JgZCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Tom Rix <trix@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        David Gow <davidgow@google.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Sander Vanheule <sander@svanheule.net>,
-        linux-hardening@vger.kernel.org, llvm@lists.linux.dev,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Doug Smythies <dsmythies@telus.net>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 545/717] fortify: Fix __compiletime_strlen() under UBSAN_BOUNDS_LOCAL
-Date:   Sat, 22 Oct 2022 09:27:04 +0200
-Message-Id: <20221022072522.458343012@linuxfoundation.org>
+Subject: [PATCH 5.19 547/717] cpufreq: intel_pstate: Add Tigerlake support in no-HWP mode
+Date:   Sat, 22 Oct 2022 09:27:06 +0200
+Message-Id: <20221022072522.559406934@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -63,83 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Doug Smythies <dsmythies@telus.net>
 
-[ Upstream commit d07c0acb4f41cc42a0d97530946965b3e4fa68c1 ]
+[ Upstream commit 71bb5c82aaaea007167f3ba68d3a669c74d7d55d ]
 
-With CONFIG_FORTIFY=y and CONFIG_UBSAN_LOCAL_BOUNDS=y enabled, we observe
-a runtime panic while running Android's Compatibility Test Suite's (CTS)
-android.hardware.input.cts.tests. This is stemming from a strlen()
-call in hidinput_allocate().
+Users may disable HWP in firmware, in which case intel_pstate wouldn't load
+unless the CPU model is explicitly supported.
 
-__compiletime_strlen() is implemented in terms of __builtin_object_size(),
-then does an array access to check for NUL-termination. A quirk of
-__builtin_object_size() is that for strings whose values are runtime
-dependent, __builtin_object_size(str, 1 or 0) returns the maximum size
-of possible values when those sizes are determinable at compile time.
-Example:
+Add TIGERLAKE to the list of CPUs that can register intel_pstate while not
+advertising the HWP capability. Without this change, an TIGERLAKE in no-HWP
+mode could only use the acpi_cpufreq frequency scaling driver.
 
-  static const char *v = "FOO BAR";
-  static const char *y = "FOO BA";
-  unsigned long x (int z) {
-      // Returns 8, which is:
-      // max(__builtin_object_size(v, 1), __builtin_object_size(y, 1))
-      return __builtin_object_size(z ? v : y, 1);
-  }
+See also commits:
+d8de7a44e11f: cpufreq: intel_pstate: Add Skylake servers support
+fbdc21e9b038: cpufreq: intel_pstate: Add Icelake servers support in no-HWP mode
+706c5328851d: cpufreq: intel_pstate: Add Cometlake support in no-HWP mode
 
-So when FORTIFY_SOURCE is enabled, the current implementation of
-__compiletime_strlen() will try to access beyond the end of y at runtime
-using the size of v. Mixed with UBSAN_LOCAL_BOUNDS we get a fault.
-
-hidinput_allocate() has a local C string whose value is control flow
-dependent on a switch statement, so __builtin_object_size(str, 1)
-evaluates to the maximum string length, making all other cases fault on
-the last character check. hidinput_allocate() could be cleaned up to
-avoid runtime calls to strlen() since the local variable can only have
-literal values, so there's no benefit to trying to fortify the strlen
-call site there.
-
-Perform a __builtin_constant_p() check against index 0 earlier in the
-macro to filter out the control-flow-dependant case. Add a KUnit test
-for checking the expected behavioral characteristics of FORTIFY_SOURCE
-internals.
-
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Tom Rix <trix@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Cc: David Gow <davidgow@google.com>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Sander Vanheule <sander@svanheule.net>
-Cc: linux-hardening@vger.kernel.org
-Cc: llvm@lists.linux.dev
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Android Treehugger Robot
-Link: https://android-review.googlesource.com/c/kernel/common/+/2206839
-Co-developed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Reported by: M. Cargi Ari <cagriari@pm.me>
+Signed-off-by: Doug Smythies <dsmythies@telus.net>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/fortify-string.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/cpufreq/intel_pstate.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/fortify-string.h b/include/linux/fortify-string.h
-index 3b401fa0f374..fce2fb2fc962 100644
---- a/include/linux/fortify-string.h
-+++ b/include/linux/fortify-string.h
-@@ -19,7 +19,8 @@ void __write_overflow_field(size_t avail, size_t wanted) __compiletime_warning("
- 	unsigned char *__p = (unsigned char *)(p);		\
- 	size_t __ret = (size_t)-1;				\
- 	size_t __p_size = __builtin_object_size(p, 1);		\
--	if (__p_size != (size_t)-1) {				\
-+	if (__p_size != (size_t)-1 &&				\
-+	    __builtin_constant_p(*__p)) {			\
- 		size_t __p_len = __p_size - 1;			\
- 		if (__builtin_constant_p(__p[__p_len]) &&	\
- 		    __p[__p_len] == '\0')			\
+diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+index 57cdb3679885..fc3ebeb0bbe5 100644
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -2416,6 +2416,7 @@ static const struct x86_cpu_id intel_pstate_cpu_ids[] = {
+ 	X86_MATCH(SKYLAKE_X,		core_funcs),
+ 	X86_MATCH(COMETLAKE,		core_funcs),
+ 	X86_MATCH(ICELAKE_X,		core_funcs),
++	X86_MATCH(TIGERLAKE,		core_funcs),
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(x86cpu, intel_pstate_cpu_ids);
 -- 
 2.35.1
 
