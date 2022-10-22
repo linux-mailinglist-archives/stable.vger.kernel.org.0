@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C8C860871B
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBE7560866B
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232249AbiJVH4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:56:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38542 "EHLO
+        id S231262AbiJVHtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:49:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232324AbiJVHyk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:40 -0400
+        with ESMTP id S231528AbiJVHsk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:48:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AD992C500F;
-        Sat, 22 Oct 2022 00:47:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C0B1170DEE;
+        Sat, 22 Oct 2022 00:45:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE13B60B8C;
-        Sat, 22 Oct 2022 07:40:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4302C433C1;
-        Sat, 22 Oct 2022 07:40:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FFCB60B81;
+        Sat, 22 Oct 2022 07:40:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FE78C433D6;
+        Sat, 22 Oct 2022 07:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424453;
-        bh=a6b1NSqvH/b6gAlJZYFh0Q5qf/RCTEE7cuX29pmcyhM=;
+        s=korg; t=1666424458;
+        bh=v/ymPpgTxvo03kcno91Ec+SWdJWekcA1Tf7hofUOme4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=clXgU8gfLFw35OCd/ydkPh4ali+3CmLvxEVnESrFTv1pPOQAy71IljC7R2SvCH0la
-         ew9moy1CBnDn0D4Tn0b9/Mvh5Y9GBpNkDiQrd2Mx9JdYBUzwwHSnNrfHWT1ecv+Poe
-         pByMPprxXFVwrNP5g/up3uYdsZRkfMeL2I2mlRLg=
+        b=dZASHyKYh38l+fHIRIsbIwv4G4/GwxI77btu0Jr4FsJx4YD4nlbKBq6W+r6Yo10LK
+         Conf41P4RiNEnSMK/1KCW845jPlAUAcjAdvUWFi6FX1JnEEgoUKLUY4YqzzC0qmoxT
+         nDj6cwTXrCNp17tMw0ekOVWWKD7GNMPmM6SnpemA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.19 151/717] tracing: Add "(fault)" name injection to kernel probes
-Date:   Sat, 22 Oct 2022 09:20:30 +0200
-Message-Id: <20221022072442.154265885@linuxfoundation.org>
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
+        Peng Fan <peng.fan@nxp.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 5.19 153/717] rpmsg: char: Avoid double destroy of default endpoint
+Date:   Sat, 22 Oct 2022 09:20:32 +0200
+Message-Id: <20221022072442.508885436@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,98 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-commit 2e9906f84fc7c99388bb7123ade167250d50f1c0 upstream.
+commit 467233a4ac29b215d492843d067a9f091e6bf0c5 upstream.
 
-Have the specific functions for kernel probes that read strings to inject
-the "(fault)" name directly. trace_probes.c does this too (for uprobes)
-but as the code to read strings are going to be used by synthetic events
-(and perhaps other utilities), it simplifies the code by making sure those
-other uses do not need to implement the "(fault)" name injection as well.
+The rpmsg_dev_remove() in rpmsg_core is the place for releasing
+this default endpoint.
 
-Link: https://lkml.kernel.org/r/20221012104534.644803645@goodmis.org
+So need to avoid destroying the default endpoint in
+rpmsg_chrdev_eptdev_destroy(), this should be the same as
+rpmsg_eptdev_release(). Otherwise there will be double destroy
+issue that ept->refcount report warning:
 
-Cc: stable@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tom Zanussi <zanussi@kernel.org>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Fixes: bd82631d7ccdc ("tracing: Add support for dynamic strings to synthetic events")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+refcount_t: underflow; use-after-free.
+
+Call trace:
+ refcount_warn_saturate+0xf8/0x150
+ virtio_rpmsg_destroy_ept+0xd4/0xec
+ rpmsg_dev_remove+0x60/0x70
+
+The issue can be reproduced by stopping remoteproc before
+closing the /dev/rpmsgX.
+
+Fixes: bea9b79c2d10 ("rpmsg: char: Add possibility to use default endpoint of the rpmsg device")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Reviewed-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1663725523-6514-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_probe_kernel.h |   31 +++++++++++++++++++++++++------
- 1 file changed, 25 insertions(+), 6 deletions(-)
+ drivers/rpmsg/rpmsg_char.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace_probe_kernel.h
-+++ b/kernel/trace/trace_probe_kernel.h
-@@ -2,6 +2,8 @@
- #ifndef __TRACE_PROBE_KERNEL_H_
- #define __TRACE_PROBE_KERNEL_H_
+--- a/drivers/rpmsg/rpmsg_char.c
++++ b/drivers/rpmsg/rpmsg_char.c
+@@ -76,7 +76,9 @@ int rpmsg_chrdev_eptdev_destroy(struct d
  
-+#define FAULT_STRING "(fault)"
-+
- /*
-  * This depends on trace_probe.h, but can not include it due to
-  * the way trace_probe_tmpl.h is used by trace_kprobe.c and trace_eprobe.c.
-@@ -13,8 +15,16 @@ static nokprobe_inline int
- kern_fetch_store_strlen_user(unsigned long addr)
- {
- 	const void __user *uaddr =  (__force const void __user *)addr;
-+	int ret;
- 
--	return strnlen_user_nofault(uaddr, MAX_STRING_SIZE);
-+	ret = strnlen_user_nofault(uaddr, MAX_STRING_SIZE);
-+	/*
-+	 * strnlen_user_nofault returns zero on fault, insert the
-+	 * FAULT_STRING when that occurs.
-+	 */
-+	if (ret <= 0)
-+		return strlen(FAULT_STRING) + 1;
-+	return ret;
- }
- 
- /* Return the length of string -- including null terminal byte */
-@@ -34,7 +44,18 @@ kern_fetch_store_strlen(unsigned long ad
- 		len++;
- 	} while (c && ret == 0 && len < MAX_STRING_SIZE);
- 
--	return (ret < 0) ? ret : len;
-+	/* For faults, return enough to hold the FAULT_STRING */
-+	return (ret < 0) ? strlen(FAULT_STRING) + 1 : len;
-+}
-+
-+static nokprobe_inline void set_data_loc(int ret, void *dest, void *__dest, void *base, int len)
-+{
-+	if (ret >= 0) {
-+		*(u32 *)dest = make_data_loc(ret, __dest - base);
-+	} else {
-+		strscpy(__dest, FAULT_STRING, len);
-+		ret = strlen(__dest) + 1;
-+	}
- }
- 
- /*
-@@ -55,8 +76,7 @@ kern_fetch_store_string_user(unsigned lo
- 	__dest = get_loc_data(dest, base);
- 
- 	ret = strncpy_from_user_nofault(__dest, uaddr, maxlen);
--	if (ret >= 0)
--		*(u32 *)dest = make_data_loc(ret, __dest - base);
-+	set_data_loc(ret, dest, __dest, base, maxlen);
- 
- 	return ret;
- }
-@@ -87,8 +107,7 @@ kern_fetch_store_string(unsigned long ad
- 	 * probing.
- 	 */
- 	ret = strncpy_from_kernel_nofault(__dest, (void *)addr, maxlen);
--	if (ret >= 0)
--		*(u32 *)dest = make_data_loc(ret, __dest - base);
-+	set_data_loc(ret, dest, __dest, base, maxlen);
- 
- 	return ret;
- }
+ 	mutex_lock(&eptdev->ept_lock);
+ 	if (eptdev->ept) {
+-		rpmsg_destroy_ept(eptdev->ept);
++		/* The default endpoint is released by the rpmsg core */
++		if (!eptdev->default_ept)
++			rpmsg_destroy_ept(eptdev->ept);
+ 		eptdev->ept = NULL;
+ 	}
+ 	mutex_unlock(&eptdev->ept_lock);
 
 
