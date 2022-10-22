@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43E43608B75
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:21:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CD76608C0F
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230020AbiJVKVU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 06:21:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45148 "EHLO
+        id S229610AbiJVK6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 06:58:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230010AbiJVKUq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:20:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C35D31D5A3;
-        Sat, 22 Oct 2022 02:37:50 -0700 (PDT)
+        with ESMTP id S230446AbiJVK5x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:57:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC14C319B88;
+        Sat, 22 Oct 2022 03:16:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0D64B82E35;
-        Sat, 22 Oct 2022 08:00:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C69AC433D7;
-        Sat, 22 Oct 2022 08:00:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A3E46CE2CB3;
+        Sat, 22 Oct 2022 07:59:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 609DBC433D6;
+        Sat, 22 Oct 2022 07:59:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425617;
-        bh=WsLm7DULaSh3XLEUh8TtPER6hSxauw/5gTEcKzR+ymA=;
+        s=korg; t=1666425548;
+        bh=X1wE11PrAAWw40XctTtBRMrMg9csj3krl4R38bk5NqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rmFTavuUkooxzmbugtnm0pGLkApoysBWN0zW9v6D9/SgSSCoxY7K0wcNUTcAfdJ4s
-         rq81ZODUEpjmiVKA8jhWbeIU4IPr5QtoVL6xPwnMoHXSryGuZvhUzbOeYNoW9+y29d
-         nhWnemO9NjkA6vj3UzPWVWC4Q8hCGSBCrpSMpsKo=
+        b=pnufLew+vBVIRbhblDTV5C8t1OhIkXxHDh703gR1UrZDT5Z+YWHuBAkFeE0Q7LmGP
+         NiSJGA2FzvpcDA96TcQz1j2pQlJssvEnfpM6LIz2HapvTPOLg67pKfr7HdRHyyl3uE
+         P7ITTgN3v7Ll5NnKZ/uGa7NOnEZmFOaOGiqtxmUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yann Sionneau <ysionneau@kalray.eu>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+        linux-kselftest@vger.kernel.org,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Stefan Berger <stefanb@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 529/717] linux/export: use inline assembler to populate symbol CRCs
-Date:   Sat, 22 Oct 2022 09:26:48 +0200
-Message-Id: <20221022072521.710779092@linuxfoundation.org>
+Subject: [PATCH 5.19 538/717] selftest: tpm2: Add Client.__del__() to close /dev/tpm* handle
+Date:   Sat, 22 Oct 2022 09:26:57 +0200
+Message-Id: <20221022072522.125914615@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,50 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Stefan Berger <stefanb@linux.ibm.com>
 
-[ Upstream commit f3304ecd7f060db1d4197fbdce5a503259f770d3 ]
+[ Upstream commit 2d869f0b458547386fbcd8cf3004b271b7347b7f ]
 
-Since commit 7b4537199a4a ("kbuild: link symbol CRCs at final link,
-removing CONFIG_MODULE_REL_CRCS"), the module versioning on the
-(non-upstreamed-yet) kvx Linux port is broken due to unexpected padding
-for __crc_* symbols. The kvx GCC adds padding so u32 gets 8-byte
-alignment instead of 4.
+The following output can bee seen when the test is executed:
 
-I do not know if this happens for upstream architectures in general,
-but any compiler has the freedom to insert padding for faster access.
+  test_flush_context (tpm2_tests.SpaceTest) ... \
+    /usr/lib64/python3.6/unittest/case.py:605: ResourceWarning: \
+    unclosed file <_io.FileIO name='/dev/tpmrm0' mode='rb+' closefd=True>
 
-Use the inline assembler to directly specify the wanted data layout.
-This is how we previously did before the breakage.
+An instance of Client does not implicitly close /dev/tpm* handle, once it
+gets destroyed. Close the file handle in the class destructor
+Client.__del__().
 
-Link: https://lore.kernel.org/lkml/20220817161438.32039-1-ysionneau@kalray.eu/
-Link: https://lore.kernel.org/linux-kbuild/31ce5305-a76b-13d7-ea55-afca82c46cf2@kalray.eu/
-Fixes: 7b4537199a4a ("kbuild: link symbol CRCs at final link, removing CONFIG_MODULE_REL_CRCS")
-Reported-by: Yann Sionneau <ysionneau@kalray.eu>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Tested-by: Yann Sionneau <ysionneau@kalray.eu>
+Fixes: 6ea3dfe1e0732 ("selftests: add TPM 2.0 tests")
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: linux-kselftest@vger.kernel.org
+Cc: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/export-internal.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/testing/selftests/tpm2/tpm2.py | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/linux/export-internal.h b/include/linux/export-internal.h
-index c2b1d4fd5987..fe7e6ba918f1 100644
---- a/include/linux/export-internal.h
-+++ b/include/linux/export-internal.h
-@@ -10,8 +10,10 @@
- #include <linux/compiler.h>
- #include <linux/types.h>
+diff --git a/tools/testing/selftests/tpm2/tpm2.py b/tools/testing/selftests/tpm2/tpm2.py
+index 057a4f49c79d..c7363c6764fc 100644
+--- a/tools/testing/selftests/tpm2/tpm2.py
++++ b/tools/testing/selftests/tpm2/tpm2.py
+@@ -371,6 +371,10 @@ class Client:
+             fcntl.fcntl(self.tpm, fcntl.F_SETFL, flags)
+             self.tpm_poll = select.poll()
  
--/* __used is needed to keep __crc_* for LTO */
- #define SYMBOL_CRC(sym, crc, sec)   \
--	u32 __section("___kcrctab" sec "+" #sym) __used __crc_##sym = crc
-+	asm(".section \"___kcrctab" sec "+" #sym "\",\"a\""	"\n" \
-+	    "__crc_" #sym ":"					"\n" \
-+	    ".long " #crc					"\n" \
-+	    ".previous"						"\n")
++    def __del__(self):
++        if self.tpm:
++            self.tpm.close()
++
+     def close(self):
+         self.tpm.close()
  
- #endif /* __LINUX_EXPORT_INTERNAL_H__ */
 -- 
 2.35.1
 
