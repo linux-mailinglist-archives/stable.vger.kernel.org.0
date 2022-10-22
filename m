@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7216608BF3
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82FD4608BDC
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:46:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229916AbiJVKvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 06:51:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46458 "EHLO
+        id S230310AbiJVKqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 06:46:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230454AbiJVKul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:50:41 -0400
+        with ESMTP id S230400AbiJVKpl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:45:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06D00285105;
-        Sat, 22 Oct 2022 03:07:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D50981F6;
+        Sat, 22 Oct 2022 03:03:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E722260A5C;
-        Sat, 22 Oct 2022 07:37:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09275C433D6;
-        Sat, 22 Oct 2022 07:37:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2277C60AFF;
+        Sat, 22 Oct 2022 07:37:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3021FC433C1;
+        Sat, 22 Oct 2022 07:37:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424245;
-        bh=NsVJ/BIVWYCUiIPM2sLFZV0xqyU63Ea0NVA+bdB/+IU=;
+        s=korg; t=1666424269;
+        bh=1mViT2c5UD5jcinRno6IL7qpXr7J0qcTYNSXnwD/3wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYcS/q455gyqXRzbZgftArqYYz2LDohCjZu7YgFEzY46YijmBNTYC6dMoCFZZJtdc
-         XnFTTCJFwKfqucDkpgmjxYBUIrBRCZFs8BazOasxngvz8Kj7aI/gQZjYJTk06bTpR3
-         ymweYP+3xhstbcYKx63Fv0Mf5oJzunhiQoLZkAf0=
+        b=GzpNEQPnhb+Noa+3eHorNZIFNQDEIj3qHfpBeVCPZ0d1ofZ0YdL78R9wlKctBHNfB
+         W40o6gYlFzHc0paakyFh1s5aidDiVrR4OrHvYMPkgTp+UDeB4h0KO2u5TcjWdxWGxy
+         eoh1L2zA833V+dE2Git/jqPp2e3bxqrsCL2MaYrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        David Hildenbrand <david@redhat.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 075/717] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
-Date:   Sat, 22 Oct 2022 09:19:14 +0200
-Message-Id: <20221022072428.550961015@linuxfoundation.org>
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 5.19 083/717] serial: stm32: Deassert Transmit Enable on ->rs485_config()
+Date:   Sat, 22 Oct 2022 09:19:22 +0200
+Message-Id: <20221022072430.021107652@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,170 +53,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit fac35ba763ed07ba93154c95ffc0c4a55023707f upstream.
+commit adafbbf6895eb0ce41a313c6ee68870ab9aa93cd upstream.
 
-On some architectures (like ARM64), it can support CONT-PTE/PMD size
-hugetlb, which means it can support not only PMD/PUD size hugetlb (2M and
-1G), but also CONT-PTE/PMD size(64K and 32M) if a 4K page size specified.
+The STM32 USART can control RS-485 Transmit Enable in hardware.  Since
+commit 7df5081cbf5e ("serial: stm32: Add RS485 RTS GPIO control"),
+it can alternatively be controlled in software.  That was done to allow
+RS-485 even if the RTS pin is unavailable because it's pinmuxed to a
+different function.
 
-So when looking up a CONT-PTE size hugetlb page by follow_page(), it will
-use pte_offset_map_lock() to get the pte entry lock for the CONT-PTE size
-hugetlb in follow_page_pte().  However this pte entry lock is incorrect
-for the CONT-PTE size hugetlb, since we should use huge_pte_lock() to get
-the correct lock, which is mm->page_table_lock.
+However the commit neglected to deassert Transmit Enable upon invocation
+of the ->rs485_config() callback.  Fix it.
 
-That means the pte entry of the CONT-PTE size hugetlb under current pte
-lock is unstable in follow_page_pte(), we can continue to migrate or
-poison the pte entry of the CONT-PTE size hugetlb, which can cause some
-potential race issues, even though they are under the 'pte lock'.
+Avoid forward declarations by moving stm32_usart_tx_empty(),
+stm32_usart_rs485_rts_enable() and stm32_usart_rs485_rts_disable()
+further up in the driver.
 
-For example, suppose thread A is trying to look up a CONT-PTE size hugetlb
-page by move_pages() syscall under the lock, however antoher thread B can
-migrate the CONT-PTE hugetlb page at the same time, which will cause
-thread A to get an incorrect page, if thread A also wants to do page
-migration, then data inconsistency error occurs.
-
-Moreover we have the same issue for CONT-PMD size hugetlb in
-follow_huge_pmd().
-
-To fix above issues, rename the follow_huge_pmd() as follow_huge_pmd_pte()
-to handle PMD and PTE level size hugetlb, which uses huge_pte_lock() to
-get the correct pte entry lock to make the pte entry stable.
-
-Mike said:
-
-Support for CONT_PMD/_PTE was added with bb9dd3df8ee9 ("arm64: hugetlb:
-refactor find_num_contig()").  Patch series "Support for contiguous pte
-hugepages", v4.  However, I do not believe these code paths were
-executed until migration support was added with 5480280d3f2d ("arm64/mm:
-enable HugeTLB migration for contiguous bit HugeTLB pages") I would go
-with 5480280d3f2d for the Fixes: targe.
-
-Link: https://lkml.kernel.org/r/635f43bdd85ac2615a58405da82b4d33c6e5eb05.1662017562.git.baolin.wang@linux.alibaba.com
-Fixes: 5480280d3f2d ("arm64/mm: enable HugeTLB migration for contiguous bit HugeTLB pages")
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 7df5081cbf5e ("serial: stm32: Add RS485 RTS GPIO control")
+Cc: stable@vger.kernel.org # v5.9+
+Cc: Marek Vasut <marex@denx.de>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/6059eab35dba394468335ef640df8b0050fd9dbd.1662886616.git.lukas@wunner.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/hugetlb.h |    8 ++++----
- mm/gup.c                |   14 +++++++++++++-
- mm/hugetlb.c            |   27 +++++++++++++--------------
- 3 files changed, 30 insertions(+), 19 deletions(-)
+ drivers/tty/serial/stm32-usart.c |  100 ++++++++++++++++++++-------------------
+ 1 file changed, 53 insertions(+), 47 deletions(-)
 
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -203,8 +203,8 @@ struct page *follow_huge_addr(struct mm_
- struct page *follow_huge_pd(struct vm_area_struct *vma,
- 			    unsigned long address, hugepd_t hpd,
- 			    int flags, int pdshift);
--struct page *follow_huge_pmd(struct mm_struct *mm, unsigned long address,
--				pmd_t *pmd, int flags);
-+struct page *follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address,
-+				 int flags);
- struct page *follow_huge_pud(struct mm_struct *mm, unsigned long address,
- 				pud_t *pud, int flags);
- struct page *follow_huge_pgd(struct mm_struct *mm, unsigned long address,
-@@ -308,8 +308,8 @@ static inline struct page *follow_huge_p
- 	return NULL;
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -62,6 +62,53 @@ static void stm32_usart_clr_bits(struct
+ 	writel_relaxed(val, port->membase + reg);
  }
  
--static inline struct page *follow_huge_pmd(struct mm_struct *mm,
--				unsigned long address, pmd_t *pmd, int flags)
-+static inline struct page *follow_huge_pmd_pte(struct vm_area_struct *vma,
-+				unsigned long address, int flags)
- {
- 	return NULL;
- }
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -531,6 +531,18 @@ static struct page *follow_page_pte(stru
- 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
- 			 (FOLL_PIN | FOLL_GET)))
- 		return ERR_PTR(-EINVAL);
++static unsigned int stm32_usart_tx_empty(struct uart_port *port)
++{
++	struct stm32_port *stm32_port = to_stm32_port(port);
++	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
 +
-+	/*
-+	 * Considering PTE level hugetlb, like continuous-PTE hugetlb on
-+	 * ARM64 architecture.
-+	 */
-+	if (is_vm_hugetlb_page(vma)) {
-+		page = follow_huge_pmd_pte(vma, address, flags);
-+		if (page)
-+			return page;
-+		return no_page_table(vma, flags);
++	if (readl_relaxed(port->membase + ofs->isr) & USART_SR_TC)
++		return TIOCSER_TEMT;
++
++	return 0;
++}
++
++static void stm32_usart_rs485_rts_enable(struct uart_port *port)
++{
++	struct stm32_port *stm32_port = to_stm32_port(port);
++	struct serial_rs485 *rs485conf = &port->rs485;
++
++	if (stm32_port->hw_flow_control ||
++	    !(rs485conf->flags & SER_RS485_ENABLED))
++		return;
++
++	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
++		mctrl_gpio_set(stm32_port->gpios,
++			       stm32_port->port.mctrl | TIOCM_RTS);
++	} else {
++		mctrl_gpio_set(stm32_port->gpios,
++			       stm32_port->port.mctrl & ~TIOCM_RTS);
 +	}
++}
 +
- retry:
- 	if (unlikely(pmd_bad(*pmd)))
- 		return no_page_table(vma, flags);
-@@ -663,7 +675,7 @@ static struct page *follow_pmd_mask(stru
- 	if (pmd_none(pmdval))
- 		return no_page_table(vma, flags);
- 	if (pmd_huge(pmdval) && is_vm_hugetlb_page(vma)) {
--		page = follow_huge_pmd(mm, address, pmd, flags);
-+		page = follow_huge_pmd_pte(vma, address, flags);
- 		if (page)
- 			return page;
- 		return no_page_table(vma, flags);
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -6906,12 +6906,13 @@ follow_huge_pd(struct vm_area_struct *vm
++static void stm32_usart_rs485_rts_disable(struct uart_port *port)
++{
++	struct stm32_port *stm32_port = to_stm32_port(port);
++	struct serial_rs485 *rs485conf = &port->rs485;
++
++	if (stm32_port->hw_flow_control ||
++	    !(rs485conf->flags & SER_RS485_ENABLED))
++		return;
++
++	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
++		mctrl_gpio_set(stm32_port->gpios,
++			       stm32_port->port.mctrl & ~TIOCM_RTS);
++	} else {
++		mctrl_gpio_set(stm32_port->gpios,
++			       stm32_port->port.mctrl | TIOCM_RTS);
++	}
++}
++
+ static void stm32_usart_config_reg_rs485(u32 *cr1, u32 *cr3, u32 delay_ADE,
+ 					 u32 delay_DDE, u32 baud)
+ {
+@@ -145,6 +192,12 @@ static int stm32_usart_config_rs485(stru
+ 
+ 	stm32_usart_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
+ 
++	/* Adjust RTS polarity in case it's driven in software */
++	if (stm32_usart_tx_empty(port))
++		stm32_usart_rs485_rts_disable(port);
++	else
++		stm32_usart_rs485_rts_enable(port);
++
+ 	return 0;
  }
  
- struct page * __weak
--follow_huge_pmd(struct mm_struct *mm, unsigned long address,
--		pmd_t *pmd, int flags)
-+follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address, int flags)
+@@ -460,42 +513,6 @@ static void stm32_usart_tc_interrupt_dis
+ 	stm32_usart_clr_bits(port, ofs->cr1, USART_CR1_TCIE);
+ }
+ 
+-static void stm32_usart_rs485_rts_enable(struct uart_port *port)
+-{
+-	struct stm32_port *stm32_port = to_stm32_port(port);
+-	struct serial_rs485 *rs485conf = &port->rs485;
+-
+-	if (stm32_port->hw_flow_control ||
+-	    !(rs485conf->flags & SER_RS485_ENABLED))
+-		return;
+-
+-	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
+-		mctrl_gpio_set(stm32_port->gpios,
+-			       stm32_port->port.mctrl | TIOCM_RTS);
+-	} else {
+-		mctrl_gpio_set(stm32_port->gpios,
+-			       stm32_port->port.mctrl & ~TIOCM_RTS);
+-	}
+-}
+-
+-static void stm32_usart_rs485_rts_disable(struct uart_port *port)
+-{
+-	struct stm32_port *stm32_port = to_stm32_port(port);
+-	struct serial_rs485 *rs485conf = &port->rs485;
+-
+-	if (stm32_port->hw_flow_control ||
+-	    !(rs485conf->flags & SER_RS485_ENABLED))
+-		return;
+-
+-	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
+-		mctrl_gpio_set(stm32_port->gpios,
+-			       stm32_port->port.mctrl & ~TIOCM_RTS);
+-	} else {
+-		mctrl_gpio_set(stm32_port->gpios,
+-			       stm32_port->port.mctrl | TIOCM_RTS);
+-	}
+-}
+-
+ static void stm32_usart_transmit_chars_pio(struct uart_port *port)
  {
-+	struct hstate *h = hstate_vma(vma);
-+	struct mm_struct *mm = vma->vm_mm;
- 	struct page *page = NULL;
- 	spinlock_t *ptl;
--	pte_t pte;
-+	pte_t *ptep, pte;
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
+@@ -738,17 +755,6 @@ static irqreturn_t stm32_usart_threaded_
+ 	return IRQ_HANDLED;
+ }
  
- 	/*
- 	 * FOLL_PIN is not supported for follow_page(). Ordinary GUP goes via
-@@ -6921,17 +6922,15 @@ follow_huge_pmd(struct mm_struct *mm, un
- 		return NULL;
- 
- retry:
--	ptl = pmd_lockptr(mm, pmd);
--	spin_lock(ptl);
--	/*
--	 * make sure that the address range covered by this pmd is not
--	 * unmapped from other threads.
--	 */
--	if (!pmd_huge(*pmd))
--		goto out;
--	pte = huge_ptep_get((pte_t *)pmd);
-+	ptep = huge_pte_offset(mm, address, huge_page_size(h));
-+	if (!ptep)
-+		return NULL;
-+
-+	ptl = huge_pte_lock(h, mm, ptep);
-+	pte = huge_ptep_get(ptep);
- 	if (pte_present(pte)) {
--		page = pmd_page(*pmd) + ((address & ~PMD_MASK) >> PAGE_SHIFT);
-+		page = pte_page(pte) +
-+			((address & ~huge_page_mask(h)) >> PAGE_SHIFT);
- 		/*
- 		 * try_grab_page() should always succeed here, because: a) we
- 		 * hold the pmd (ptl) lock, and b) we've just checked that the
-@@ -6947,7 +6946,7 @@ retry:
- 	} else {
- 		if (is_hugetlb_entry_migration(pte)) {
- 			spin_unlock(ptl);
--			__migration_entry_wait_huge((pte_t *)pmd, ptl);
-+			__migration_entry_wait_huge(ptep, ptl);
- 			goto retry;
- 		}
- 		/*
+-static unsigned int stm32_usart_tx_empty(struct uart_port *port)
+-{
+-	struct stm32_port *stm32_port = to_stm32_port(port);
+-	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+-
+-	if (readl_relaxed(port->membase + ofs->isr) & USART_SR_TC)
+-		return TIOCSER_TEMT;
+-
+-	return 0;
+-}
+-
+ static void stm32_usart_set_mctrl(struct uart_port *port, unsigned int mctrl)
+ {
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
 
 
