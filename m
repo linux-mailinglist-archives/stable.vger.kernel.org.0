@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4776089F2
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:45:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 109DA608A4A
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234694AbiJVIph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:45:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52866 "EHLO
+        id S234538AbiJVIuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:50:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234902AbiJVIn7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:43:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EADC2D5E90;
-        Sat, 22 Oct 2022 01:07:51 -0700 (PDT)
+        with ESMTP id S234820AbiJVIsK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:48:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69121BC8A;
+        Sat, 22 Oct 2022 01:10:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 363F760B93;
-        Sat, 22 Oct 2022 08:07:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21FEFC43470;
-        Sat, 22 Oct 2022 08:07:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D698BB82E11;
+        Sat, 22 Oct 2022 08:07:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CD10C433D6;
+        Sat, 22 Oct 2022 08:07:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426038;
-        bh=NnJ0YjbfDryTNsgBnYfvkTFfLDik9g6cRLQCeZMJaHk=;
+        s=korg; t=1666426041;
+        bh=OjZ0L2KyAgkZPt75DZB7YHk9PytepHMPjogVsy2mw0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQJtik8s0x6RfwbSMuk9ym1Lu8mSD+/Alehwc4ZTkRUlxilnuU9dHnOxJdMqQUgi+
-         IvWtFv0vwgspaZN45W1e19a9aDqM1p0IBCkLx6ofDeNK86COeuORsroh5AdssIyMNf
-         shmyCRlWBaKWqIQrrw8UgCV8X2tnGyN8hdjfGek8=
+        b=Bzk2p3yU5CoeSukwuetD4Fw4iK9VYqkYwP4Y4dT4hKfh/PC9+gJmXFf9mHUuNQ1bH
+         rDnpTqWAI4U3ITJlCOt7XLefUcV3VEKOlJXrTAsWdBPBQIl1uKHLiQXmIQP2rhKKmp
+         1RvhT2IWeRwHNTE5AKwGuenok/qjGLa881dArqbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        syzbot+193f9cee8638750b23cf@syzkaller.appspotmail.com,
-        Liu Zixian <liuzixian4@huawei.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        David Hildenbrand <david@redhat.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Sidhartha Kumar <sidhartha.kumar@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 699/717] mm: hugetlb: fix UAF in hugetlb_handle_userfault
-Date:   Sat, 22 Oct 2022 09:29:38 +0200
-Message-Id: <20221022072529.365729689@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.19 700/717] net: ieee802154: return -EINVAL for unknown addr type
+Date:   Sat, 22 Oct 2022 09:29:39 +0200
+Message-Id: <20221022072529.411578843@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -60,155 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit 958f32ce832ba781ac20e11bb2d12a9352ea28fc upstream.
+commit 30393181fdbc1608cc683b4ee99dcce05ffcc8c7 upstream.
 
-The vma_lock and hugetlb_fault_mutex are dropped before handling userfault
-and reacquire them again after handle_userfault(), but reacquire the
-vma_lock could lead to UAF[1,2] due to the following race,
+This patch adds handling to return -EINVAL for an unknown addr type. The
+current behaviour is to return 0 as successful but the size of an
+unknown addr type is not defined and should return an error like -EINVAL.
 
-hugetlb_fault
-  hugetlb_no_page
-    /*unlock vma_lock */
-    hugetlb_handle_userfault
-      handle_userfault
-        /* unlock mm->mmap_lock*/
-                                           vm_mmap_pgoff
-                                             do_mmap
-                                               mmap_region
-                                                 munmap_vma_range
-                                                   /* clean old vma */
-        /* lock vma_lock again  <--- UAF */
-    /* unlock vma_lock */
-
-Since the vma_lock will unlock immediately after
-hugetlb_handle_userfault(), let's drop the unneeded lock and unlock in
-hugetlb_handle_userfault() to fix the issue.
-
-[1] https://lore.kernel.org/linux-mm/000000000000d5e00a05e834962e@google.com/
-[2] https://lore.kernel.org/linux-mm/20220921014457.1668-1-liuzixian4@huawei.com/
-Link: https://lkml.kernel.org/r/20220923042113.137273-1-liushixin2@huawei.com
-Fixes: 1a1aad8a9b7b ("userfaultfd: hugetlbfs: add userfaultfd hugetlb hook")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reported-by: syzbot+193f9cee8638750b23cf@syzkaller.appspotmail.com
-Reported-by: Liu Zixian <liuzixian4@huawei.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Sidhartha Kumar <sidhartha.kumar@oracle.com>
-Cc: <stable@vger.kernel.org>	[4.14+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 94160108a70c ("net/ieee802154: fix uninit value bug in dgram_sendmsg")
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c |   37 +++++++++++++++++--------------------
- 1 file changed, 17 insertions(+), 20 deletions(-)
+ include/net/ieee802154_netdev.h |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5467,7 +5467,6 @@ static inline vm_fault_t hugetlb_handle_
- 						  unsigned long addr,
- 						  unsigned long reason)
+--- a/include/net/ieee802154_netdev.h
++++ b/include/net/ieee802154_netdev.h
+@@ -185,21 +185,27 @@ static inline int
+ ieee802154_sockaddr_check_size(struct sockaddr_ieee802154 *daddr, int len)
  {
--	vm_fault_t ret;
- 	u32 hash;
- 	struct vm_fault vmf = {
- 		.vma = vma,
-@@ -5485,18 +5484,14 @@ static inline vm_fault_t hugetlb_handle_
- 	};
+ 	struct ieee802154_addr_sa *sa;
++	int ret = 0;
  
- 	/*
--	 * hugetlb_fault_mutex and i_mmap_rwsem must be
--	 * dropped before handling userfault.  Reacquire
--	 * after handling fault to make calling code simpler.
-+	 * vma_lock and hugetlb_fault_mutex must be dropped before handling
-+	 * userfault. Also mmap_lock will be dropped during handling
-+	 * userfault, any vma operation should be careful from here.
- 	 */
- 	hash = hugetlb_fault_mutex_hash(mapping, idx);
- 	mutex_unlock(&hugetlb_fault_mutex_table[hash]);
- 	i_mmap_unlock_read(mapping);
--	ret = handle_userfault(&vmf, reason);
--	i_mmap_lock_read(mapping);
--	mutex_lock(&hugetlb_fault_mutex_table[hash]);
--
--	return ret;
-+	return handle_userfault(&vmf, reason);
+ 	sa = &daddr->addr;
+ 	if (len < IEEE802154_MIN_NAMELEN)
+ 		return -EINVAL;
+ 	switch (sa->addr_type) {
++	case IEEE802154_ADDR_NONE:
++		break;
+ 	case IEEE802154_ADDR_SHORT:
+ 		if (len < IEEE802154_NAMELEN_SHORT)
+-			return -EINVAL;
++			ret = -EINVAL;
+ 		break;
+ 	case IEEE802154_ADDR_LONG:
+ 		if (len < IEEE802154_NAMELEN_LONG)
+-			return -EINVAL;
++			ret = -EINVAL;
++		break;
++	default:
++		ret = -EINVAL;
+ 		break;
+ 	}
+-	return 0;
++	return ret;
  }
  
- static vm_fault_t hugetlb_no_page(struct mm_struct *mm,
-@@ -5514,6 +5509,7 @@ static vm_fault_t hugetlb_no_page(struct
- 	spinlock_t *ptl;
- 	unsigned long haddr = address & huge_page_mask(h);
- 	bool new_page, new_pagecache_page = false;
-+	u32 hash = hugetlb_fault_mutex_hash(mapping, idx);
- 
- 	/*
- 	 * Currently, we are forced to kill the process in the event the
-@@ -5524,7 +5520,7 @@ static vm_fault_t hugetlb_no_page(struct
- 	if (is_vma_resv_set(vma, HPAGE_RESV_UNMAPPED)) {
- 		pr_warn_ratelimited("PID %d killed due to inadequate hugepage pool\n",
- 			   current->pid);
--		return ret;
-+		goto out;
- 	}
- 
- 	/*
-@@ -5541,12 +5537,10 @@ retry:
- 	page = find_lock_page(mapping, idx);
- 	if (!page) {
- 		/* Check for page in userfault range */
--		if (userfaultfd_missing(vma)) {
--			ret = hugetlb_handle_userfault(vma, mapping, idx,
-+		if (userfaultfd_missing(vma))
-+			return hugetlb_handle_userfault(vma, mapping, idx,
- 						       flags, haddr, address,
- 						       VM_UFFD_MISSING);
--			goto out;
--		}
- 
- 		page = alloc_huge_page(vma, haddr, 0);
- 		if (IS_ERR(page)) {
-@@ -5606,10 +5600,9 @@ retry:
- 		if (userfaultfd_minor(vma)) {
- 			unlock_page(page);
- 			put_page(page);
--			ret = hugetlb_handle_userfault(vma, mapping, idx,
-+			return hugetlb_handle_userfault(vma, mapping, idx,
- 						       flags, haddr, address,
- 						       VM_UFFD_MINOR);
--			goto out;
- 		}
- 	}
- 
-@@ -5667,6 +5660,8 @@ retry:
- 
- 	unlock_page(page);
- out:
-+	mutex_unlock(&hugetlb_fault_mutex_table[hash]);
-+	i_mmap_unlock_read(mapping);
- 	return ret;
- 
- backout:
-@@ -5765,11 +5760,13 @@ vm_fault_t hugetlb_fault(struct mm_struc
- 
- 	entry = huge_ptep_get(ptep);
- 	/* PTE markers should be handled the same way as none pte */
--	if (huge_pte_none_mostly(entry)) {
--		ret = hugetlb_no_page(mm, vma, mapping, idx, address, ptep,
-+	if (huge_pte_none_mostly(entry))
-+		/*
-+		 * hugetlb_no_page will drop vma lock and hugetlb fault
-+		 * mutex internally, which make us return immediately.
-+		 */
-+		return hugetlb_no_page(mm, vma, mapping, idx, address, ptep,
- 				      entry, flags);
--		goto out_mutex;
--	}
- 
- 	ret = 0;
- 
+ static inline void ieee802154_addr_from_sa(struct ieee802154_addr *a,
 
 
