@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6B52608952
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B7FC6087C0
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231337AbiJVIcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:32:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58030 "EHLO
+        id S232731AbiJVIFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:05:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233880AbiJVIbh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:31:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A4312E5E13;
-        Sat, 22 Oct 2022 01:03:16 -0700 (PDT)
+        with ESMTP id S233070AbiJVIEr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B50982C5691;
+        Sat, 22 Oct 2022 00:52:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9288360B49;
-        Sat, 22 Oct 2022 07:51:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5FACC433C1;
-        Sat, 22 Oct 2022 07:51:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9821160AFA;
+        Sat, 22 Oct 2022 07:51:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EE39C433C1;
+        Sat, 22 Oct 2022 07:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425111;
-        bh=L07KiKZDECLETthVLMJmTtvE8NKrJZSQVDnbc0zkDzs=;
+        s=korg; t=1666425114;
+        bh=k/0uoSHWawpsg9nFOcifCvqikP2Riu3JdAP2ZeH8ki8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A3YyxOnpUgZxpvED4kztSAWk62qIpa1DqLEhG7rswgsnioBFWYFJyFH4GPCiuxty1
-         iZ6KDF/IvASIci7HE44oR4WSs54TJ+uY7h0R4H81JM91see21tqi/28p6eJ9f9CmI0
-         Za/RfvECiaQZcE4LJ73hRsffvA0hX4QvUZaTPSn0=
+        b=RVznnhEigNrZIvONi9tNhZzMM4dZexSAAwnD8s955RpXTPSqZeEL4/Q4TIBkf1DEm
+         QJQ4yBa/1+dX7txEoCOotsQ3ES+L15958EFzBy/01BoG+jk9o+EB2afGSZmW3zVidg
+         eM+w3gy2SY9edROcvGab3QNZfK6qClSZzLLTJAlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
+        stable@vger.kernel.org, Matt Ranostay <mranostay@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Vaishnav Achath <vaishnav.a@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 363/717] soc/tegra: fuse: Drop Kconfig dependency on TEGRA20_APB_DMA
-Date:   Sat, 22 Oct 2022 09:24:02 +0200
-Message-Id: <20221022072512.378187134@linuxfoundation.org>
+Subject: [PATCH 5.19 364/717] arm64: dts: ti: k3-j7200: fix main pinmux range
+Date:   Sat, 22 Oct 2022 09:24:03 +0200
+Message-Id: <20221022072512.557784295@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,43 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Matt Ranostay <mranostay@ti.com>
 
-[ Upstream commit 2254182807fc09ba9dec9a42ef239e373796f1b2 ]
+[ Upstream commit 0d0a0b4413460383331088b2203ba09a6971bc3a ]
 
-The DMA subsystem could be entirely disabled in Kconfig and then the
-TEGRA20_APB_DMA option isn't available too. Hence kernel configuration
-fails if DMADEVICES Kconfig option is disabled due to the unsatisfiable
-dependency.
+Range size of 0x2b4 was incorrect since there isn't 173 configurable
+pins for muxing. Additionally there is a non-addressable region in the
+mapping which requires splitting into two ranges.
 
-The FUSE driver isn't a critical driver and currently it only provides
-NVMEM interface to userspace which isn't known to be widely used, and
-thus, it's fine if FUSE driver fails to load.
+main_pmx0 -> 67 pins
+main_pmx1 -> 3 pins
 
-Let's remove the erroneous Kconfig dependency and let the FUSE driver to
-fail the probing if DMA is unavailable.
-
-Fixes: 19d41e5e9c68 ("soc/tegra: fuse: Add APB DMA dependency for Tegra20")
-Reported-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209301
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Fixes: d361ed88455f ("arm64: dts: ti: Add support for J7200 SoC")
+Signed-off-by: Matt Ranostay <mranostay@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Tested-by: Vaishnav Achath <vaishnav.a@ti.com>
+Link: https://lore.kernel.org/r/20220919205723.8342-1-mranostay@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/tegra/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts | 10 ++++++----
+ arch/arm64/boot/dts/ti/k3-j7200-main.dtsi             | 11 ++++++++++-
+ 2 files changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/soc/tegra/Kconfig b/drivers/soc/tegra/Kconfig
-index 5725c8ef0406..6f601227da3c 100644
---- a/drivers/soc/tegra/Kconfig
-+++ b/drivers/soc/tegra/Kconfig
-@@ -136,7 +136,6 @@ config SOC_TEGRA_FUSE
- 	def_bool y
- 	depends on ARCH_TEGRA
- 	select SOC_BUS
--	select TEGRA20_APB_DMA if ARCH_TEGRA_2x_SOC
+diff --git a/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts b/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
+index 121975dc8239..7e8552fd2b6a 100644
+--- a/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
++++ b/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
+@@ -134,15 +134,17 @@
+ 		>;
+ 	};
  
- config SOC_TEGRA_FLOWCTRL
- 	bool
+-	main_usbss0_pins_default: main-usbss0-pins-default {
++	vdd_sd_dv_pins_default: vdd-sd-dv-pins-default {
+ 		pinctrl-single,pins = <
+-			J721E_IOPAD(0x120, PIN_OUTPUT, 0) /* (T4) USB0_DRVVBUS */
++			J721E_IOPAD(0xd0, PIN_OUTPUT, 7) /* (T5) SPI0_D1.GPIO0_55 */
+ 		>;
+ 	};
++};
+ 
+-	vdd_sd_dv_pins_default: vdd-sd-dv-pins-default {
++&main_pmx1 {
++	main_usbss0_pins_default: main-usbss0-pins-default {
+ 		pinctrl-single,pins = <
+-			J721E_IOPAD(0xd0, PIN_OUTPUT, 7) /* (T5) SPI0_D1.GPIO0_55 */
++			J721E_IOPAD(0x04, PIN_OUTPUT, 0) /* (T4) USB0_DRVVBUS */
+ 		>;
+ 	};
+ };
+diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
+index 16684a2f054d..e12a53f1857f 100644
+--- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
+@@ -295,7 +295,16 @@
+ 	main_pmx0: pinctrl@11c000 {
+ 		compatible = "pinctrl-single";
+ 		/* Proxy 0 addressing */
+-		reg = <0x00 0x11c000 0x00 0x2b4>;
++		reg = <0x00 0x11c000 0x00 0x10c>;
++		#pinctrl-cells = <1>;
++		pinctrl-single,register-width = <32>;
++		pinctrl-single,function-mask = <0xffffffff>;
++	};
++
++	main_pmx1: pinctrl@11c11c {
++		compatible = "pinctrl-single";
++		/* Proxy 0 addressing */
++		reg = <0x00 0x11c11c 0x00 0xc>;
+ 		#pinctrl-cells = <1>;
+ 		pinctrl-single,register-width = <32>;
+ 		pinctrl-single,function-mask = <0xffffffff>;
 -- 
 2.35.1
 
