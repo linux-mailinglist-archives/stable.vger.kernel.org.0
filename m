@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90482608C73
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 13:19:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18B69608C77
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 13:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229971AbiJVLTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 07:19:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53348 "EHLO
+        id S231235AbiJVLTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 07:19:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230257AbiJVLTD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 07:19:03 -0400
+        with ESMTP id S230376AbiJVLTH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 07:19:07 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1695F231;
-        Sat, 22 Oct 2022 03:46:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E671A3AF;
+        Sat, 22 Oct 2022 03:46:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4376FB82E45;
-        Sat, 22 Oct 2022 08:07:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A074C433D7;
-        Sat, 22 Oct 2022 08:07:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A953B82E4B;
+        Sat, 22 Oct 2022 08:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7989DC433C1;
+        Sat, 22 Oct 2022 08:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426053;
-        bh=mfF7iVgzEiNCmdKqx1IbQXbWdrARJ0crLzZe8h5R+h0=;
+        s=korg; t=1666426111;
+        bh=Wn3oSxO3heTPfc3NTmNAvwL+9w/ee0D9B9DE8PlDHrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wT4vddH4d0rJencWI6DWGxJReXc5bciO6T25XCibm5fNn3j1Z2ZmDeWcHnzEnNH1o
-         wwW7kMcfymS7oxY0JQl275TiJGZaCmSNdK57EaAW+NFTGvHzoKMlxB7uDr4u+lL1rX
-         IzHo6fzR9ofGUc4oaiOkVEIR1WWB1tG8RcI4WQ7E=
+        b=uZG1HHC21HZU5iycpKlW2ew2fs69cjmNRnhfqjl4ak3PM5gryrAsCvagC5mAjk0R8
+         JMNjVN9LhKMPfeyGfz3/qINojdkQ2uoEEYhq+U20FWHQMGXJ5H9+2GklovRaMFCzFP
+         5GWwuz6enNrXrokc/r+ARco6OmNZi+1SPCGp0WKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Lien <jeff.lien@wdc.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Chao Leng <lengchao@huawei.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 686/717] nvme: copy firmware_rev on each init
-Date:   Sat, 22 Oct 2022 09:29:25 +0200
-Message-Id: <20221022072528.833925702@linuxfoundation.org>
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>, Joel Stanley <joel@jms.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 692/717] fsi: master-ast-cf: Fix missing of_node_put in fsi_master_acf_probe
+Date:   Sat, 22 Oct 2022 09:29:31 +0200
+Message-Id: <20221022072529.086457688@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,46 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit a8eb6c1ba48bddea82e8d74cbe6e119f006be97d ]
+[ Upstream commit 182d98e00e4745fe253cb0c24c63bbac253464a2 ]
 
-The firmware revision can change on after a reset so copy the most
-recent info each time instead of just the first time, otherwise the
-sysfs firmware_rev entry may contain stale data.
+of_parse_phandle returns node pointer with refcount incremented, use
+of_node_put() on it when done.
 
-Reported-by: Jeff Lien <jeff.lien@wdc.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Chao Leng <lengchao@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Link: https://lore.kernel.org/r/20220407085911.2491719-1-lv.ruyi@zte.com.cn
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/fsi/fsi-master-ast-cf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 47fd9d528c83..698e65883d82 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -2796,7 +2796,6 @@ static int nvme_init_subsystem(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
- 	nvme_init_subnqn(subsys, ctrl, id);
- 	memcpy(subsys->serial, id->sn, sizeof(subsys->serial));
- 	memcpy(subsys->model, id->mn, sizeof(subsys->model));
--	memcpy(subsys->firmware_rev, id->fr, sizeof(subsys->firmware_rev));
- 	subsys->vendor_id = le16_to_cpu(id->vid);
- 	subsys->cmic = id->cmic;
- 
-@@ -3015,6 +3014,8 @@ static int nvme_init_identify(struct nvme_ctrl *ctrl)
- 				ctrl->quirks |= core_quirks[i].quirks;
+diff --git a/drivers/fsi/fsi-master-ast-cf.c b/drivers/fsi/fsi-master-ast-cf.c
+index 24292acdbaf8..5f608ef8b53c 100644
+--- a/drivers/fsi/fsi-master-ast-cf.c
++++ b/drivers/fsi/fsi-master-ast-cf.c
+@@ -1324,12 +1324,14 @@ static int fsi_master_acf_probe(struct platform_device *pdev)
  		}
- 	}
-+	memcpy(ctrl->subsys->firmware_rev, id->fr,
-+	       sizeof(ctrl->subsys->firmware_rev));
- 
- 	if (force_apst && (ctrl->quirks & NVME_QUIRK_NO_DEEPEST_PS)) {
- 		dev_warn(ctrl->device, "forcibly allowing all power states due to nvme_core.force_apst -- use at your own risk\n");
+ 		master->cvic = devm_of_iomap(&pdev->dev, np, 0, NULL);
+ 		if (IS_ERR(master->cvic)) {
++			of_node_put(np);
+ 			rc = PTR_ERR(master->cvic);
+ 			dev_err(&pdev->dev, "Error %d mapping CVIC\n", rc);
+ 			goto err_free;
+ 		}
+ 		rc = of_property_read_u32(np, "copro-sw-interrupts",
+ 					  &master->cvic_sw_irq);
++		of_node_put(np);
+ 		if (rc) {
+ 			dev_err(&pdev->dev, "Can't find coprocessor SW interrupt\n");
+ 			goto err_free;
 -- 
 2.35.1
 
