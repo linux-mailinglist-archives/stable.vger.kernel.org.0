@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC62C60862D
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F340360865C
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:48:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231361AbiJVHpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:45:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45922 "EHLO
+        id S231625AbiJVHso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:48:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231598AbiJVHoh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:44:37 -0400
+        with ESMTP id S231552AbiJVHsM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:48:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BF742A9355;
-        Sat, 22 Oct 2022 00:43:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7B8DCD5DC;
+        Sat, 22 Oct 2022 00:45:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C23160B3D;
-        Sat, 22 Oct 2022 07:39:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D944C433C1;
-        Sat, 22 Oct 2022 07:39:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D8A560B24;
+        Sat, 22 Oct 2022 07:39:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0037C433C1;
+        Sat, 22 Oct 2022 07:39:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424359;
-        bh=DGwsmplE8Vkby6OIoLLT0zxoXaCbmjiNeby20xr9kEg=;
+        s=korg; t=1666424370;
+        bh=AEncgBZqnzHKq0T0S/CKCWLF1y28DmqfUPSmO+kiz2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HSrupPQbIBK4us2n5dtjSvSxIoKYZsTJOG7EZATQT57v9gAuh7ZpI8zPV8iUa13ZQ
-         iJI5tw3uty1MdsEwZqD5zvvv58SY/EXOkF2SuUfVD/me88wwdoOLUnqH+GWm957GXL
-         P0P/Vw8MIKb96KRjv7eTsssFxaoFa14DhfJN3plE=
+        b=mjxEVSTRQcHRN8JzjYmchhqtLKaTUB8nE3DlzCBYXxtGQi/3tNY2hYgN/3uUR/m5l
+         O6x4xKQoZzgHkTr50FFj7f1J/4fCP7X2M5cjZhJjzu3vBqihhsOyk2w6i/3t6FUeIc
+         Fi0/Tnuh/vtLmbjzp2LMt8OKAHALFqN4yeszTZc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.19 116/717] f2fs: fix to do sanity check on destination blkaddr during recovery
-Date:   Sat, 22 Oct 2022 09:19:55 +0200
-Message-Id: <20221022072435.970907619@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.19 120/717] jbd2: fix potential use-after-free in jbd2_fc_wait_bufs
+Date:   Sat, 22 Oct 2022 09:19:59 +0200
+Message-Id: <20221022072436.737549980@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,124 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 0ef4ca04a3f9223ff8bc440041c524b2123e09a3 upstream.
+commit 243d1a5d505d0b0460c9af0ad56ed4a56ef0bebd upstream.
 
-As Wenqing Liu reported in bugzilla:
+In 'jbd2_fc_wait_bufs' use 'bh' after put buffer head reference count
+which may lead to use-after-free.
+So judge buffer if uptodate before put buffer head reference count.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=216456
-
-loop5: detected capacity change from 0 to 131072
-F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
-F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
-F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
-F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
-F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
-F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
-F2FS-fs (loop5): Bitmap was wrongly set, blk:5634
-------------[ cut here ]------------
-WARNING: CPU: 3 PID: 1013 at fs/f2fs/segment.c:2198
-RIP: 0010:update_sit_entry+0xa55/0x10b0 [f2fs]
-Call Trace:
- <TASK>
- f2fs_do_replace_block+0xa98/0x1890 [f2fs]
- f2fs_replace_block+0xeb/0x180 [f2fs]
- recover_data+0x1a69/0x6ae0 [f2fs]
- f2fs_recover_fsync_data+0x120d/0x1fc0 [f2fs]
- f2fs_fill_super+0x4665/0x61e0 [f2fs]
- mount_bdev+0x2cf/0x3b0
- legacy_get_tree+0xed/0x1d0
- vfs_get_tree+0x81/0x2b0
- path_mount+0x47e/0x19d0
- do_mount+0xce/0xf0
- __x64_sys_mount+0x12c/0x1a0
- do_syscall_64+0x38/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-If we enable CONFIG_F2FS_CHECK_FS config, it will trigger a kernel panic
-instead of warning.
-
-The root cause is: in fuzzed image, SIT table is inconsistent with inode
-mapping table, result in triggering such warning during SIT table update.
-
-This patch introduces a new flag DATA_GENERIC_ENHANCE_UPDATE, w/ this
-flag, data block recovery flow can check destination blkaddr's validation
-in SIT table, and skip f2fs_replace_block() to avoid inconsistent status.
-
-Cc: stable@vger.kernel.org
-Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220914100812.1414768-3-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/checkpoint.c |   10 +++++++++-
- fs/f2fs/f2fs.h       |    4 ++++
- fs/f2fs/recovery.c   |    8 ++++++++
- 3 files changed, 21 insertions(+), 1 deletion(-)
+ fs/jbd2/journal.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -140,7 +140,7 @@ static bool __is_bitmap_valid(struct f2f
- 	unsigned int segno, offset;
- 	bool exist;
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -926,16 +926,16 @@ int jbd2_fc_wait_bufs(journal_t *journal
+ 	for (i = j_fc_off - 1; i >= j_fc_off - num_blks; i--) {
+ 		bh = journal->j_fc_wbuf[i];
+ 		wait_on_buffer(bh);
+-		put_bh(bh);
+-		journal->j_fc_wbuf[i] = NULL;
+ 		/*
+ 		 * Update j_fc_off so jbd2_fc_release_bufs can release remain
+ 		 * buffer head.
+ 		 */
+ 		if (unlikely(!buffer_uptodate(bh))) {
+-			journal->j_fc_off = i;
++			journal->j_fc_off = i + 1;
+ 			return -EIO;
+ 		}
++		put_bh(bh);
++		journal->j_fc_wbuf[i] = NULL;
+ 	}
  
--	if (type != DATA_GENERIC_ENHANCE && type != DATA_GENERIC_ENHANCE_READ)
-+	if (type == DATA_GENERIC)
- 		return true;
- 
- 	segno = GET_SEGNO(sbi, blkaddr);
-@@ -148,6 +148,13 @@ static bool __is_bitmap_valid(struct f2f
- 	se = get_seg_entry(sbi, segno);
- 
- 	exist = f2fs_test_bit(offset, se->cur_valid_map);
-+	if (exist && type == DATA_GENERIC_ENHANCE_UPDATE) {
-+		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
-+			 blkaddr, exist);
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
-+		return exist;
-+	}
-+
- 	if (!exist && type == DATA_GENERIC_ENHANCE) {
- 		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
- 			 blkaddr, exist);
-@@ -185,6 +192,7 @@ bool f2fs_is_valid_blkaddr(struct f2fs_s
- 	case DATA_GENERIC:
- 	case DATA_GENERIC_ENHANCE:
- 	case DATA_GENERIC_ENHANCE_READ:
-+	case DATA_GENERIC_ENHANCE_UPDATE:
- 		if (unlikely(blkaddr >= MAX_BLKADDR(sbi) ||
- 				blkaddr < MAIN_BLKADDR(sbi))) {
- 			f2fs_warn(sbi, "access invalid blkaddr:%u",
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -266,6 +266,10 @@ enum {
- 					 * condition of read on truncated area
- 					 * by extent_cache
- 					 */
-+	DATA_GENERIC_ENHANCE_UPDATE,	/*
-+					 * strong check on range and segment
-+					 * bitmap for update case
-+					 */
- 	META_GENERIC,
- };
- 
---- a/fs/f2fs/recovery.c
-+++ b/fs/f2fs/recovery.c
-@@ -698,6 +698,14 @@ retry_prev:
- 				goto err;
- 			}
- 
-+			if (f2fs_is_valid_blkaddr(sbi, dest,
-+					DATA_GENERIC_ENHANCE_UPDATE)) {
-+				f2fs_err(sbi, "Inconsistent dest blkaddr:%u, ino:%lu, ofs:%u",
-+					dest, inode->i_ino, dn.ofs_in_node);
-+				err = -EFSCORRUPTED;
-+				goto err;
-+			}
-+
- 			/* write dummy data page */
- 			f2fs_replace_block(sbi, &dn, src, dest,
- 						ni.version, false, false);
+ 	return 0;
 
 
