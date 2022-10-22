@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 273CE60874D
+	by mail.lfdr.de (Postfix) with ESMTP id C7FF060874F
 	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:00:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230291AbiJVIAi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:00:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48634 "EHLO
+        id S231972AbiJVIAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:00:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232041AbiJVH5V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:57:21 -0400
+        with ESMTP id S232332AbiJVH5d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:57:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5320374CC7;
-        Sat, 22 Oct 2022 00:48:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82E8213A5B4;
+        Sat, 22 Oct 2022 00:48:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69BF7B82E0C;
-        Sat, 22 Oct 2022 07:48:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1963C433D6;
-        Sat, 22 Oct 2022 07:48:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDF5AB82DEF;
+        Sat, 22 Oct 2022 07:48:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2345EC433D7;
+        Sat, 22 Oct 2022 07:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424900;
-        bh=OzLtw84/qExOO0VigNtqfN9GRq/sTIKWBf6EPPnoyMA=;
+        s=korg; t=1666424905;
+        bh=0M6ldLkPIHOA6wq73aLHiYig4mC6FQqYwNyvlLZ3uo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMM+U4CAeLrUZ8QVCmmkcpVuhCUG2nbd8/wAwNnLojG4olmyTDiPJ/rpK0N+u9gaa
-         7vNbJ6rSUZGPF+TLxOfndI0x56mx26dT5RWwG3r0oF3cGemq5AA66HZMfdRga04oie
-         HdLFFoZ0xFbuEkaHqg9eLDFHWRDXQtRHpAX3BtrQ=
+        b=UJFPx6Xqv0PnA0Ahf0iwef+DM2x1DeQlJDVaoK+yZ7wDSVOOyJDHy+CDCgebITE/q
+         4zVJQ4gWO2VMIvE6xt8WWPoAqHSAPMpWRVGGexBrnJ1jwysoHHwhUsQF8mW2uTqzDw
+         4ssOv9macPzzrF3OoYHXIIRz+Rlo46s8oR+UJm/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 318/717] drm/bridge: megachips: Fix a null pointer dereference bug
-Date:   Sat, 22 Oct 2022 09:23:17 +0200
-Message-Id: <20221022072508.308070614@linuxfoundation.org>
+Subject: [PATCH 5.19 320/717] ASoC: rsnd: Add check for rsnd_mod_power_on
+Date:   Sat, 22 Oct 2022 09:23:19 +0200
+Message-Id: <20221022072508.533986921@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,50 +54,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 1ff673333d46d2c1b053ebd0c1c7c7c79e36943e ]
+[ Upstream commit 376be51caf8871419bbcbb755e1e615d30dc3153 ]
 
-When removing the module we will get the following warning:
+As rsnd_mod_power_on() can return negative numbers,
+it should be better to check the return value and
+deal with the exception.
 
-[   31.911505] i2c-core: driver [stdp2690-ge-b850v3-fw] unregistered
-[   31.912484] general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN PTI
-[   31.913338] KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-[   31.915280] RIP: 0010:drm_bridge_remove+0x97/0x130
-[   31.921825] Call Trace:
-[   31.922533]  stdp4028_ge_b850v3_fw_remove+0x34/0x60 [megachips_stdpxxxx_ge_b850v3_fw]
-[   31.923139]  i2c_device_remove+0x181/0x1f0
-
-The two bridges (stdp2690, stdp4028) do not probe at the same time, so
-the driver does not call ge_b850v3_resgiter() when probing, causing the
-driver to try to remove the object that has not been initialized.
-
-Fix this by checking whether both the bridges are probed.
-
-Fixes: 11632d4aa2b3 ("drm/bridge: megachips: Ensure both bridges are probed before registration")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220830073450.1897020-1-zheyuma97@gmail.com
+Fixes: e7d850dd10f4 ("ASoC: rsnd: use mod base common method on SSI-parent")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/20220902013030.3691266-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/sh/rcar/ctu.c | 6 +++++-
+ sound/soc/sh/rcar/dvc.c | 6 +++++-
+ sound/soc/sh/rcar/mix.c | 6 +++++-
+ sound/soc/sh/rcar/src.c | 5 ++++-
+ sound/soc/sh/rcar/ssi.c | 4 +++-
+ 5 files changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-index cce98bf2a4e7..72248a565579 100644
---- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-+++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-@@ -296,7 +296,9 @@ static void ge_b850v3_lvds_remove(void)
- 	 * This check is to avoid both the drivers
- 	 * removing the bridge in their remove() function
- 	 */
--	if (!ge_b850v3_lvds_ptr)
-+	if (!ge_b850v3_lvds_ptr ||
-+	    !ge_b850v3_lvds_ptr->stdp2690_i2c ||
-+		!ge_b850v3_lvds_ptr->stdp4028_i2c)
- 		goto out;
+diff --git a/sound/soc/sh/rcar/ctu.c b/sound/soc/sh/rcar/ctu.c
+index 6156445bcb69..e39eb2ac7e95 100644
+--- a/sound/soc/sh/rcar/ctu.c
++++ b/sound/soc/sh/rcar/ctu.c
+@@ -171,7 +171,11 @@ static int rsnd_ctu_init(struct rsnd_mod *mod,
+ 			 struct rsnd_dai_stream *io,
+ 			 struct rsnd_priv *priv)
+ {
+-	rsnd_mod_power_on(mod);
++	int ret;
++
++	ret = rsnd_mod_power_on(mod);
++	if (ret < 0)
++		return ret;
  
- 	drm_bridge_remove(&ge_b850v3_lvds_ptr->bridge);
+ 	rsnd_ctu_activation(mod);
+ 
+diff --git a/sound/soc/sh/rcar/dvc.c b/sound/soc/sh/rcar/dvc.c
+index 5137e03a9d7c..16befcbc312c 100644
+--- a/sound/soc/sh/rcar/dvc.c
++++ b/sound/soc/sh/rcar/dvc.c
+@@ -186,7 +186,11 @@ static int rsnd_dvc_init(struct rsnd_mod *mod,
+ 			 struct rsnd_dai_stream *io,
+ 			 struct rsnd_priv *priv)
+ {
+-	rsnd_mod_power_on(mod);
++	int ret;
++
++	ret = rsnd_mod_power_on(mod);
++	if (ret < 0)
++		return ret;
+ 
+ 	rsnd_dvc_activation(mod);
+ 
+diff --git a/sound/soc/sh/rcar/mix.c b/sound/soc/sh/rcar/mix.c
+index 3572c2c5686c..1de0e085804c 100644
+--- a/sound/soc/sh/rcar/mix.c
++++ b/sound/soc/sh/rcar/mix.c
+@@ -146,7 +146,11 @@ static int rsnd_mix_init(struct rsnd_mod *mod,
+ 			 struct rsnd_dai_stream *io,
+ 			 struct rsnd_priv *priv)
+ {
+-	rsnd_mod_power_on(mod);
++	int ret;
++
++	ret = rsnd_mod_power_on(mod);
++	if (ret < 0)
++		return ret;
+ 
+ 	rsnd_mix_activation(mod);
+ 
+diff --git a/sound/soc/sh/rcar/src.c b/sound/soc/sh/rcar/src.c
+index 0ea84ae57c6a..f832165e46bc 100644
+--- a/sound/soc/sh/rcar/src.c
++++ b/sound/soc/sh/rcar/src.c
+@@ -463,11 +463,14 @@ static int rsnd_src_init(struct rsnd_mod *mod,
+ 			 struct rsnd_priv *priv)
+ {
+ 	struct rsnd_src *src = rsnd_mod_to_src(mod);
++	int ret;
+ 
+ 	/* reset sync convert_rate */
+ 	src->sync.val = 0;
+ 
+-	rsnd_mod_power_on(mod);
++	ret = rsnd_mod_power_on(mod);
++	if (ret < 0)
++		return ret;
+ 
+ 	rsnd_src_activation(mod);
+ 
+diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
+index 43c5e27dc5c8..7ade6c5ed96f 100644
+--- a/sound/soc/sh/rcar/ssi.c
++++ b/sound/soc/sh/rcar/ssi.c
+@@ -480,7 +480,9 @@ static int rsnd_ssi_init(struct rsnd_mod *mod,
+ 
+ 	ssi->usrcnt++;
+ 
+-	rsnd_mod_power_on(mod);
++	ret = rsnd_mod_power_on(mod);
++	if (ret < 0)
++		return ret;
+ 
+ 	rsnd_ssi_config_init(mod, io);
+ 
 -- 
 2.35.1
 
