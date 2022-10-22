@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E6BA608693
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:51:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9B396086DE
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231792AbiJVHvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:51:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54850 "EHLO
+        id S231980AbiJVHzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:55:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231883AbiJVHte (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0967F2AA152;
-        Sat, 22 Oct 2022 00:46:02 -0700 (PDT)
+        with ESMTP id S231871AbiJVHwv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:52:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65C942CA7DC;
+        Sat, 22 Oct 2022 00:46:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31373B82E1A;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3988B60B3B;
+        Sat, 22 Oct 2022 07:45:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 192F7C433D6;
         Sat, 22 Oct 2022 07:44:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82001C433C1;
-        Sat, 22 Oct 2022 07:44:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424697;
-        bh=ox7vi4Bv2Sh7+GvuZXncrkO2Hs5AcUsm0cIlGIXr+08=;
+        s=korg; t=1666424700;
+        bh=VRLqewPZnRfvRb2gTusmvVhdK4472AhYpCvXWsyNu4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0XKvmnBnsK62BAdZDyogDNXH7NkYbWSaZd8vdGMoI2sgjXZOHV43trz4sAbWQqczK
-         v3Y/TsZgSY8DUMo/GZtnJYmybIBBNwntxanjXnOIB3CP+nkD4DzuJFFFu+1myvFqBx
-         ED+W7PtYRQayLWkqjnei+O4Om2rc0WDHy5D9F/xE=
+        b=128Mk6uGJWbDuGB2cdAvsIZmO90vMkS2ydUOCL+hldbFIYAV28W9GGp23Uvj+kWPQ
+         PgUT8mnVxH+Rdnrs+Sgy6zoEHmYYkSqeUbV9E5rRIXe/dFfY9ElUkq6CQoy3Quzv4m
+         oADV9bh54Rb3FBhneWC99L0clif9g7lgAGpM7dbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 243/717] wifi: mt76: mt7615: add mt7615_mutex_acquire/release in mt7615_sta_set_decap_offload
-Date:   Sat, 22 Oct 2022 09:22:02 +0200
-Message-Id: <20221022072457.940959451@linuxfoundation.org>
+Subject: [PATCH 5.19 244/717] wifi: mt76: mt7915: fix possible unaligned access in mt7915_mac_add_twt_setup
+Date:   Sat, 22 Oct 2022 09:22:03 +0200
+Message-Id: <20221022072458.124221443@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,41 +55,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 765c69d477a44c088e5d19e7758dfa4db418e3ba ]
+[ Upstream commit 3d9aa54355d863e5412a7e08180f50a8f1827b7f ]
 
-Similar to mt7921 driver, introduce mt7615_mutex_acquire/release in
-mt7615_sta_set_decap_offload in order to avoid sending mcu commands
-while the device is in low-power state.
+Fix possible unaligned pointer in mt7915_mac_add_twt_setup routine.
 
-Fixes: d4b98c63d7a77 ("mt76: mt7615: add support for rx decapsulation offload")
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 3782b69d03e71 ("mt76: mt7915: introduce mt7915_mac_add_twt_setup routine")
 Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-index d722c3c177be..4a1e6b92ff73 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-@@ -1194,12 +1194,16 @@ static void mt7615_sta_set_decap_offload(struct ieee80211_hw *hw,
- 	struct mt7615_dev *dev = mt7615_hw_dev(hw);
- 	struct mt7615_sta *msta = (struct mt7615_sta *)sta->drv_priv;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+index 89f10bf885ba..4f3a3a88f086 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+@@ -2536,8 +2536,9 @@ void mt7915_mac_add_twt_setup(struct ieee80211_hw *hw,
+ 	}
  
-+	mt7615_mutex_acquire(dev);
-+
- 	if (enabled)
- 		set_bit(MT_WCID_FLAG_HDR_TRANS, &msta->wcid.flags);
- 	else
- 		clear_bit(MT_WCID_FLAG_HDR_TRANS, &msta->wcid.flags);
+ 	flowid = ffs(~msta->twt.flowid_mask) - 1;
+-	le16p_replace_bits(&twt_agrt->req_type, flowid,
+-			   IEEE80211_TWT_REQTYPE_FLOWID);
++	twt_agrt->req_type &= ~cpu_to_le16(IEEE80211_TWT_REQTYPE_FLOWID);
++	twt_agrt->req_type |= le16_encode_bits(flowid,
++					       IEEE80211_TWT_REQTYPE_FLOWID);
  
- 	mt7615_mcu_set_sta_decap_offload(dev, vif, sta);
-+
-+	mt7615_mutex_release(dev);
+ 	table_id = ffs(~dev->twt.table_mask) - 1;
+ 	exp = FIELD_GET(IEEE80211_TWT_REQTYPE_WAKE_INT_EXP, req_type);
+@@ -2587,8 +2588,9 @@ void mt7915_mac_add_twt_setup(struct ieee80211_hw *hw,
+ unlock:
+ 	mutex_unlock(&dev->mt76.mutex);
+ out:
+-	le16p_replace_bits(&twt_agrt->req_type, setup_cmd,
+-			   IEEE80211_TWT_REQTYPE_SETUP_CMD);
++	twt_agrt->req_type &= ~cpu_to_le16(IEEE80211_TWT_REQTYPE_SETUP_CMD);
++	twt_agrt->req_type |=
++		le16_encode_bits(setup_cmd, IEEE80211_TWT_REQTYPE_SETUP_CMD);
+ 	twt->control = (twt->control & IEEE80211_TWT_CONTROL_WAKE_DUR_UNIT) |
+ 		       (twt->control & IEEE80211_TWT_CONTROL_RX_DISABLED);
  }
- 
- #ifdef CONFIG_PM
 -- 
 2.35.1
 
