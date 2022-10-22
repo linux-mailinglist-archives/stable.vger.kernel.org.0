@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 794856086FB
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 756E860867D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:50:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232086AbiJVHzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:55:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56314 "EHLO
+        id S231636AbiJVHuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:50:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232131AbiJVHyH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5583566F19;
-        Sat, 22 Oct 2022 00:47:24 -0700 (PDT)
+        with ESMTP id S231397AbiJVHso (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:48:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F35ED1D4DD0;
+        Sat, 22 Oct 2022 00:45:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EBF360B85;
-        Sat, 22 Oct 2022 07:41:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B362CC433D6;
-        Sat, 22 Oct 2022 07:41:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E863D60AFA;
+        Sat, 22 Oct 2022 07:41:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AA41C433D6;
+        Sat, 22 Oct 2022 07:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424493;
-        bh=pEMmLSxLkhJ7Q0G0EGdPJvux2Lqx48XdeRTTspi2RpU=;
+        s=korg; t=1666424498;
+        bh=APosRWLMWXRR23CdEQKkKNR6lfRUIpIXd8OHjaqegVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yUndkd4HcluQiG4mSMRcso4B3oAWkjuENJN1FUkp6dQH+kD6tRqUCCL/LXXDjyE8Y
-         +cvySZfbHibLNKpZXTqMc97Nz6nTf5YfKUzjwaZIZCqcS0CoMbOODU0mbW5RSvkpYz
-         aLyr9txU8gfXlsaO+baCd9Kz+hgo0sfFsxUZqo3M=
+        b=hTGBxYbgJoKS99uLqaMAdKTWeMuwDj5x0vFkxlR/YD3Q9/eFp47/0IRlEIllRb3aW
+         uO+tJATFa4zYeI/mfWLpeBcNqUj7F+l3PJLEM3Xc+Y7mBTGpCS3VIVOfxeNwCVn6CK
+         bzrt6PcG/1+eyBTSyR7vL/NM6V1SQ1YHX6du7VLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.19 136/717] ext4: update state->fc_regions_size after successful memory allocation
-Date:   Sat, 22 Oct 2022 09:20:15 +0200
-Message-Id: <20221022072439.601141995@linuxfoundation.org>
+        stable@vger.kernel.org, mingo@redhat.com,
+        Zheng Yejian <zhengyejian1@huawei.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.19 138/717] ftrace: Properly unset FTRACE_HASH_FL_MOD
+Date:   Sat, 22 Oct 2022 09:20:17 +0200
+Message-Id: <20221022072439.964516610@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,45 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Zheng Yejian <zhengyejian1@huawei.com>
 
-commit 27cd49780381c6ccbf248798e5e8fd076200ffba upstream.
+commit 0ce0638edf5ec83343302b884fa208179580700a upstream.
 
-To avoid to 'state->fc_regions_size' mismatch with 'state->fc_regions'
-when fail to reallocate 'fc_reqions',only update 'state->fc_regions_size'
-after 'state->fc_regions' is allocated successfully.
+When executing following commands like what document said, but the log
+"#### all functions enabled ####" was not shown as expect:
+  1. Set a 'mod' filter:
+    $ echo 'write*:mod:ext3' > /sys/kernel/tracing/set_ftrace_filter
+  2. Invert above filter:
+    $ echo '!write*:mod:ext3' >> /sys/kernel/tracing/set_ftrace_filter
+  3. Read the file:
+    $ cat /sys/kernel/tracing/set_ftrace_filter
 
-Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220921064040.3693255-4-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+By some debugging, I found that flag FTRACE_HASH_FL_MOD was not unset
+after inversion like above step 2 and then result of ftrace_hash_empty()
+is incorrect.
+
+Link: https://lkml.kernel.org/r/20220926152008.2239274-1-zhengyejian1@huawei.com
+
+Cc: <mingo@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 8c08f0d5c6fb ("ftrace: Have cached module filters be an active filter")
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ kernel/trace/ftrace.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -1689,14 +1689,15 @@ int ext4_fc_record_regions(struct super_
- 	if (state->fc_regions_used == state->fc_regions_size) {
- 		struct ext4_fc_alloc_region *fc_regions;
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -6037,8 +6037,12 @@ int ftrace_regex_release(struct inode *i
  
--		state->fc_regions_size +=
--			EXT4_FC_REPLAY_REALLOC_INCREMENT;
- 		fc_regions = krealloc(state->fc_regions,
--				      state->fc_regions_size *
--				      sizeof(struct ext4_fc_alloc_region),
-+				      sizeof(struct ext4_fc_alloc_region) *
-+				      (state->fc_regions_size +
-+				       EXT4_FC_REPLAY_REALLOC_INCREMENT),
- 				      GFP_KERNEL);
- 		if (!fc_regions)
- 			return -ENOMEM;
-+		state->fc_regions_size +=
-+			EXT4_FC_REPLAY_REALLOC_INCREMENT;
- 		state->fc_regions = fc_regions;
- 	}
- 	region = &state->fc_regions[state->fc_regions_used++];
+ 		if (filter_hash) {
+ 			orig_hash = &iter->ops->func_hash->filter_hash;
+-			if (iter->tr && !list_empty(&iter->tr->mod_trace))
+-				iter->hash->flags |= FTRACE_HASH_FL_MOD;
++			if (iter->tr) {
++				if (list_empty(&iter->tr->mod_trace))
++					iter->hash->flags &= ~FTRACE_HASH_FL_MOD;
++				else
++					iter->hash->flags |= FTRACE_HASH_FL_MOD;
++			}
+ 		} else
+ 			orig_hash = &iter->ops->func_hash->notrace_hash;
+ 
 
 
