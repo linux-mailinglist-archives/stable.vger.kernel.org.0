@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C8496088D8
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:23:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 168E46088EE
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:25:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233826AbiJVIXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:23:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46832 "EHLO
+        id S231152AbiJVIZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:25:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233310AbiJVIVW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:21:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774C146DAF;
-        Sat, 22 Oct 2022 00:59:00 -0700 (PDT)
+        with ESMTP id S234052AbiJVIYi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:24:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8CD05D881;
+        Sat, 22 Oct 2022 01:00:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCFC8B82E2E;
-        Sat, 22 Oct 2022 07:58:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30D7DC433D6;
-        Sat, 22 Oct 2022 07:58:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29D3260B88;
+        Sat, 22 Oct 2022 07:58:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33089C433D7;
+        Sat, 22 Oct 2022 07:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425503;
-        bh=6WiXUIWdNpTJTFRKsmuUuF0DqLK4FwROa9QJifzyzlM=;
+        s=korg; t=1666425506;
+        bh=f0I55/u99pGYDq+p5TcYl8mlp27PqkFcOL+TYbcY9o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JNvstZjkZyO/LdRxKWbaNCxOKH3bXM3F/6WH2NeasAzHnOs58/0+2zc66QOyfInTQ
-         J9YPf3yVbKjHKKg2YqNlAtJAq/gb3dd+SFL0GBCr2zNpWtG12YDUvn+I2xGGXnMu5y
-         GT89+ns63CipFZTrqH1mEysxqVeceKYCzrgAAlyU=
+        b=b3kfXn9fR4kZYL+gPt8xrU1oATBPZn58CqkOIl9Ka1+N/9KHIpvHjcZeQR/EOyyLI
+         AwAffsBltF5Ne+oxvfpaen4cnAxNz/GGfkQEWf98RttihglgcDjSnQTwtJ9js2TkwY
+         GLyVVLdSkUFFqegETaAwz9bJS11I4Dfge4zBtqMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 492/717] ipc: mqueue: fix possible memory leak in init_mqueue_fs()
-Date:   Sat, 22 Oct 2022 09:26:11 +0200
-Message-Id: <20221022072520.065627399@linuxfoundation.org>
+Subject: [PATCH 5.19 493/717] powerpc/configs: Properly enable PAPR_SCM in pseries_defconfig
+Date:   Sat, 22 Oct 2022 09:26:12 +0200
+Message-Id: <20221022072520.096335533@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,38 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit c579d60f0d0cd87552f64fdebe68b5d941d20309 ]
+[ Upstream commit aa398d88aea4ec863bd7aea35d5035a37096dc59 ]
 
-commit db7cfc380900 ("ipc: Free mq_sysctls if ipc namespace creation
-failed")
+My commit to add PAPR_SCM to pseries_defconfig failed to add the
+required dependencies, meaning the driver doesn't get built.
 
-Here's a similar memory leak to the one fixed by the patch above.
-retire_mq_sysctls need to be called when init_mqueue_fs fails after
-setup_mq_sysctls.
+Add the required LIBNVDIMM=m.
 
-Fixes: dc55e35f9e81 ("ipc: Store mqueue sysctls in the ipc namespace")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lkml.kernel.org/r/20220715062301.19311-1-hbh25y@gmail.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Fixes: d6481a7195df ("powerpc/configs: Add PAPR_SCM to pseries_defconfig")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220901014253.252927-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- ipc/mqueue.c | 1 +
+ arch/powerpc/configs/pseries_defconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/ipc/mqueue.c b/ipc/mqueue.c
-index 12ad7860bb88..83370fef8879 100644
---- a/ipc/mqueue.c
-+++ b/ipc/mqueue.c
-@@ -1746,6 +1746,7 @@ static int __init init_mqueue_fs(void)
- 	unregister_filesystem(&mqueue_fs_type);
- out_sysctl:
- 	kmem_cache_destroy(mqueue_inode_cachep);
-+	retire_mq_sysctls(&init_ipc_ns);
- 	return error;
- }
- 
+diff --git a/arch/powerpc/configs/pseries_defconfig b/arch/powerpc/configs/pseries_defconfig
+index b571d084c148..c05e37af9f1e 100644
+--- a/arch/powerpc/configs/pseries_defconfig
++++ b/arch/powerpc/configs/pseries_defconfig
+@@ -40,6 +40,7 @@ CONFIG_PPC_SPLPAR=y
+ CONFIG_DTL=y
+ CONFIG_PPC_SMLPAR=y
+ CONFIG_IBMEBUS=y
++CONFIG_LIBNVDIMM=m
+ CONFIG_PAPR_SCM=m
+ CONFIG_PPC_SVM=y
+ # CONFIG_PPC_PMAC is not set
 -- 
 2.35.1
 
