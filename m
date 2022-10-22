@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DC5B60862B
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DB786086F4
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231326AbiJVHpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:45:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34372 "EHLO
+        id S232017AbiJVHzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:55:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231561AbiJVHoa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:44:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3520625EA;
-        Sat, 22 Oct 2022 00:43:14 -0700 (PDT)
+        with ESMTP id S232087AbiJVHyA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C947B2CA7E2;
+        Sat, 22 Oct 2022 00:46:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 526F160B27;
-        Sat, 22 Oct 2022 07:38:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54109C433C1;
-        Sat, 22 Oct 2022 07:38:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9614B82DFE;
+        Sat, 22 Oct 2022 07:38:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 155CAC433D6;
+        Sat, 22 Oct 2022 07:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424334;
-        bh=zSw86Kfl/43rpUiQkO8CuqcSTmXOw99N9G+BtcjPwjA=;
+        s=korg; t=1666424337;
+        bh=J3hY5Ke9dVOuH+qLSGit5n24qZH/9BcKbPIcxeJC+gA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yxdwsd29PcmCABdETN0Fzm96sE29aCMV+8vCOmKMWV1rq8rZ8jvhKExNkcuyrYFYH
-         x+xgUeh/yrdiiZE1zaFb0KJMAERIHq8urhrbNhDKxX6oPtrFvGyfv+F+fRWSlYYxf6
-         NqxISR4pk4e/AajXpuaFLuKN+Zcg5Src9ZR7Xy6I=
+        b=uh1K5F2AcHc6tGdq4BwVzNoEGLan4/HDbGIO7A6hjqPGDoUuJOAgbTrPht+uaUNxK
+         fEG8rj1j1se0B5Bt3J8Cpc9xMbTyc2dWJVrmq4XWc4dGzuSXXA3j8pRH0N5Rbqo8OR
+         dPjsEPzA60nBsWIdlxdU0ZRX8BnqJuH/9plNEQQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.19 108/717] btrfs: enhance unsupported compat RO flags handling
-Date:   Sat, 22 Oct 2022 09:19:47 +0200
-Message-Id: <20221022072434.561112249@linuxfoundation.org>
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.19 109/717] btrfs: fix race between quota enable and quota rescan ioctl
+Date:   Sat, 22 Oct 2022 09:19:48 +0200
+Message-Id: <20221022072434.704677757@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,86 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 81d5d61454c365718655cfc87d8200c84e25d596 upstream.
+commit 331cd9461412e103d07595a10289de90004ac890 upstream.
 
-Currently there are two corner cases not handling compat RO flags
-correctly:
+When enabling quotas, at btrfs_quota_enable(), after committing the
+transaction, we change fs_info->quota_root to point to the quota root we
+created and set BTRFS_FS_QUOTA_ENABLED at fs_info->flags. Then we try
+to start the qgroup rescan worker, first by initializing it with a call
+to qgroup_rescan_init() - however if that fails we end up freeing the
+quota root but we leave fs_info->quota_root still pointing to it, this
+can later result in a use-after-free somewhere else.
 
-- Remount
-  We can still mount the fs RO with compat RO flags, then remount it RW.
-  We should not allow any write into a fs with unsupported RO flags.
+We have previously set the flags BTRFS_FS_QUOTA_ENABLED and
+BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with -EINPROGRESS at
+btrfs_quota_enable(), which is possible if someone already called the
+quota rescan ioctl, and therefore started the rescan worker.
 
-- Still try to search block group items
-  In fact, behavior/on-disk format change to extent tree should not
-  need a full incompat flag.
+So fix this by ignoring an -EINPROGRESS and asserting we can't get any
+other error.
 
-  And since we can ensure fs with unsupported RO flags never got any
-  writes (with above case fixed), then we can even skip block group
-  items search at mount time.
-
-This patch will enhance the unsupported RO compat flags by:
-
-- Reject read-write remount if there are unsupported RO compat flags
-
-- Go dummy block group items directly for unsupported RO compat flags
-  In fact, only changes to chunk/subvolume/root/csum trees should go
-  incompat flags.
-
-The latter part should allow future change to extent tree to be compat
-RO flags.
-
-Thus this patch also needs to be backported to all stable trees.
-
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Reported-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/linux-btrfs/20220823015931.421355-1-yebin10@huawei.com/
+CC: stable@vger.kernel.org # 4.19+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/block-group.c |   11 ++++++++++-
- fs/btrfs/super.c       |    9 +++++++++
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ fs/btrfs/qgroup.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -2191,7 +2191,16 @@ int btrfs_read_block_groups(struct btrfs
- 	int need_clear = 0;
- 	u64 cache_gen;
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -1174,6 +1174,21 @@ out_add_root:
+ 		fs_info->qgroup_rescan_running = true;
+ 	        btrfs_queue_work(fs_info->qgroup_rescan_workers,
+ 	                         &fs_info->qgroup_rescan_work);
++	} else {
++		/*
++		 * We have set both BTRFS_FS_QUOTA_ENABLED and
++		 * BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with
++		 * -EINPROGRESS. That can happen because someone started the
++		 * rescan worker by calling quota rescan ioctl before we
++		 * attempted to initialize the rescan worker. Failure due to
++		 * quotas disabled in the meanwhile is not possible, because
++		 * we are holding a write lock on fs_info->subvol_sem, which
++		 * is also acquired when disabling quotas.
++		 * Ignore such error, and any other error would need to undo
++		 * everything we did in the transaction we just committed.
++		 */
++		ASSERT(ret == -EINPROGRESS);
++		ret = 0;
+ 	}
  
--	if (!root)
-+	/*
-+	 * Either no extent root (with ibadroots rescue option) or we have
-+	 * unsupported RO options. The fs can never be mounted read-write, so no
-+	 * need to waste time searching block group items.
-+	 *
-+	 * This also allows new extent tree related changes to be RO compat,
-+	 * no need for a full incompat flag.
-+	 */
-+	if (!root || (btrfs_super_compat_ro_flags(info->super_copy) &
-+		      ~BTRFS_FEATURE_COMPAT_RO_SUPP))
- 		return fill_dummy_bgs(info);
- 
- 	key.objectid = 0;
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -2113,6 +2113,15 @@ static int btrfs_remount(struct super_bl
- 			ret = -EINVAL;
- 			goto restore;
- 		}
-+		if (btrfs_super_compat_ro_flags(fs_info->super_copy) &
-+		    ~BTRFS_FEATURE_COMPAT_RO_SUPP) {
-+			btrfs_err(fs_info,
-+		"can not remount read-write due to unsupported optional flags 0x%llx",
-+				btrfs_super_compat_ro_flags(fs_info->super_copy) &
-+				~BTRFS_FEATURE_COMPAT_RO_SUPP);
-+			ret = -EINVAL;
-+			goto restore;
-+		}
- 		if (fs_info->fs_devices->rw_devices == 0) {
- 			ret = -EACCES;
- 			goto restore;
+ out_free_path:
 
 
