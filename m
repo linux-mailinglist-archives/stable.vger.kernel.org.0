@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ABE7608C6B
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 13:16:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6ECC608B5F
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:16:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231205AbiJVLQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 07:16:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53708 "EHLO
+        id S230122AbiJVKQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 06:16:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231199AbiJVLQi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 07:16:38 -0400
+        with ESMTP id S230139AbiJVKQZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:16:25 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9679C4363A;
-        Sat, 22 Oct 2022 03:41:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E11319CF2;
+        Sat, 22 Oct 2022 02:33:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B854B82D9F;
-        Sat, 22 Oct 2022 08:05:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C147AC433C1;
-        Sat, 22 Oct 2022 08:05:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A7C9B82E1E;
+        Sat, 22 Oct 2022 08:05:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8001C433C1;
+        Sat, 22 Oct 2022 08:05:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425928;
-        bh=ZLE1CSNMbyO4wlg97VRaWaPwROidpEs6zu78zaQFPic=;
+        s=korg; t=1666425952;
+        bh=D8ozL383GaaeAGtKQvIA9IdpVRSMEvGm6dPoBfIkAio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ebRoYM1IKJPxyhb58wdm6yWzlDwLvofDOxzmA/RHs1PcJq6ICbXNHfwLqpflMy0o/
-         xQsIwwh8oBl76ms9P7v1cbk8Lkiq+aSv7UXW1HL1uB6WdIU5FD6UzeGsi4aZ4wa/1W
-         86mjoxP6ATs9Pj21/m1kS0CBCgnjjpKqk32GkWXA=
+        b=0dATC2LipFa9yolX/NNlirQ/Yza/zgl7fqEI8A4J6pEmtzl0GEvcTt3ItX7jX3tLA
+         klW96q1Dw58mYoyd7htQ8D3/zB1Uaqdl2B7MZ1R6USgBYVBrA3ng4dCj4Q0ZRDii1E
+         eyVHLhRYB90Dy0/yelvIB9oAHRXTyed+GXCvCQxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 662/717] usb: gadget: uvc: increase worker prio to WQ_HIGHPRI
-Date:   Sat, 22 Oct 2022 09:29:01 +0200
-Message-Id: <20221022072527.671569804@linuxfoundation.org>
+        stable@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 670/717] HID: roccat: Fix use-after-free in roccat_read()
+Date:   Sat, 22 Oct 2022 09:29:09 +0200
+Message-Id: <20221022072528.061729377@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,105 +52,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+From: Hyunwoo Kim <imv4bel@gmail.com>
 
-[ Upstream commit 9b91a65230784a9ef644b8bdbb82a79ba4ae9456 ]
+[ Upstream commit cacdb14b1c8d3804a3a7d31773bc7569837b71a4 ]
 
-This patch is changing the simple workqueue in the gadget driver to be
-allocated as async_wq with a higher priority. The pump worker, that is
-filling the usb requests, will have a higher priority and will not be
-scheduled away so often while the video stream is handled. This will
-lead to fewer streaming underruns.
+roccat_report_event() is responsible for registering
+roccat-related reports in struct roccat_device.
 
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Link: https://lore.kernel.org/r/20220907215818.2670097-1-m.grzeschik@pengutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+int roccat_report_event(int minor, u8 const *data)
+{
+	struct roccat_device *device;
+	struct roccat_reader *reader;
+	struct roccat_report *report;
+	uint8_t *new_value;
+
+	device = devices[minor];
+
+	new_value = kmemdup(data, device->report_size, GFP_ATOMIC);
+	if (!new_value)
+		return -ENOMEM;
+
+	report = &device->cbuf[device->cbuf_end];
+
+	/* passing NULL is safe */
+	kfree(report->value);
+	...
+
+The registered report is stored in the struct roccat_device member
+"struct roccat_report cbuf[ROCCAT_CBUF_SIZE];".
+If more reports are received than the "ROCCAT_CBUF_SIZE" value,
+kfree() the saved report from cbuf[0] and allocates a new reprot.
+Since there is no lock when this kfree() is performed,
+kfree() can be performed even while reading the saved report.
+
+static ssize_t roccat_read(struct file *file, char __user *buffer,
+		size_t count, loff_t *ppos)
+{
+	struct roccat_reader *reader = file->private_data;
+	struct roccat_device *device = reader->device;
+	struct roccat_report *report;
+	ssize_t retval = 0, len;
+	DECLARE_WAITQUEUE(wait, current);
+
+	mutex_lock(&device->cbuf_lock);
+
+	...
+
+	report = &device->cbuf[reader->cbuf_start];
+	/*
+	 * If report is larger than requested amount of data, rest of report
+	 * is lost!
+	 */
+	len = device->report_size > count ? count : device->report_size;
+
+	if (copy_to_user(buffer, report->value, len)) {
+		retval = -EFAULT;
+		goto exit_unlock;
+	}
+	...
+
+The roccat_read() function receives the device->cbuf report and
+delivers it to the user through copy_to_user().
+If the N+ROCCAT_CBUF_SIZE th report is received while copying of
+the Nth report->value is in progress, the pointer that copy_to_user()
+is working on is kfree()ed and UAF read may occur. (race condition)
+
+Since the device node of this driver does not set separate permissions,
+this is not a security vulnerability, but because it is used for
+requesting screen display of profile or dpi settings,
+a user using the roccat device can apply udev to this device node or
+There is a possibility to use it by giving.
+
+Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_uvc.c     | 4 ++++
- drivers/usb/gadget/function/uvc.h       | 1 +
- drivers/usb/gadget/function/uvc_v4l2.c  | 2 +-
- drivers/usb/gadget/function/uvc_video.c | 9 +++++++--
- 4 files changed, 13 insertions(+), 3 deletions(-)
+ drivers/hid/hid-roccat.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/f_uvc.c b/drivers/usb/gadget/function/f_uvc.c
-index 86bb0098fb66..7ec223849d94 100644
---- a/drivers/usb/gadget/function/f_uvc.c
-+++ b/drivers/usb/gadget/function/f_uvc.c
-@@ -897,10 +897,14 @@ static void uvc_function_unbind(struct usb_configuration *c,
- {
- 	struct usb_composite_dev *cdev = c->cdev;
- 	struct uvc_device *uvc = to_uvc(f);
-+	struct uvc_video *video = &uvc->video;
- 	long wait_ret = 1;
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index 26373b82fe81..6da80e442fdd 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -257,6 +257,8 @@ int roccat_report_event(int minor, u8 const *data)
+ 	if (!new_value)
+ 		return -ENOMEM;
  
- 	uvcg_info(f, "%s()\n", __func__);
- 
-+	if (video->async_wq)
-+		destroy_workqueue(video->async_wq);
++	mutex_lock(&device->cbuf_lock);
 +
- 	/*
- 	 * If we know we're connected via v4l2, then there should be a cleanup
- 	 * of the device from userspace either via UVC_EVENT_DISCONNECT or
-diff --git a/drivers/usb/gadget/function/uvc.h b/drivers/usb/gadget/function/uvc.h
-index 58e383afdd44..1a31e6c6a5ff 100644
---- a/drivers/usb/gadget/function/uvc.h
-+++ b/drivers/usb/gadget/function/uvc.h
-@@ -88,6 +88,7 @@ struct uvc_video {
- 	struct usb_ep *ep;
+ 	report = &device->cbuf[device->cbuf_end];
  
- 	struct work_struct pump;
-+	struct workqueue_struct *async_wq;
+ 	/* passing NULL is safe */
+@@ -276,6 +278,8 @@ int roccat_report_event(int minor, u8 const *data)
+ 			reader->cbuf_start = (reader->cbuf_start + 1) % ROCCAT_CBUF_SIZE;
+ 	}
  
- 	/* Frame parameters */
- 	u8 bpp;
-diff --git a/drivers/usb/gadget/function/uvc_v4l2.c b/drivers/usb/gadget/function/uvc_v4l2.c
-index fd8f73bb726d..fddc392b8ab9 100644
---- a/drivers/usb/gadget/function/uvc_v4l2.c
-+++ b/drivers/usb/gadget/function/uvc_v4l2.c
-@@ -170,7 +170,7 @@ uvc_v4l2_qbuf(struct file *file, void *fh, struct v4l2_buffer *b)
- 		return ret;
- 
- 	if (uvc->state == UVC_STATE_STREAMING)
--		schedule_work(&video->pump);
-+		queue_work(video->async_wq, &video->pump);
- 
- 	return ret;
- }
-diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index c00ce0e91f5d..bb037fcc90e6 100644
---- a/drivers/usb/gadget/function/uvc_video.c
-+++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -277,7 +277,7 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
- 	spin_unlock_irqrestore(&video->req_lock, flags);
- 
- 	if (uvc->state == UVC_STATE_STREAMING)
--		schedule_work(&video->pump);
-+		queue_work(video->async_wq, &video->pump);
- }
- 
- static int
-@@ -485,7 +485,7 @@ int uvcg_video_enable(struct uvc_video *video, int enable)
- 
- 	video->req_int_count = 0;
- 
--	schedule_work(&video->pump);
-+	queue_work(video->async_wq, &video->pump);
- 
- 	return ret;
- }
-@@ -499,6 +499,11 @@ int uvcg_video_init(struct uvc_video *video, struct uvc_device *uvc)
- 	spin_lock_init(&video->req_lock);
- 	INIT_WORK(&video->pump, uvcg_video_pump);
- 
-+	/* Allocate a work queue for asynchronous video pump handler. */
-+	video->async_wq = alloc_workqueue("uvcgadget", WQ_UNBOUND | WQ_HIGHPRI, 0);
-+	if (!video->async_wq)
-+		return -EINVAL;
++	mutex_unlock(&device->cbuf_lock);
 +
- 	video->uvc = uvc;
- 	video->fcc = V4L2_PIX_FMT_YUYV;
- 	video->bpp = 16;
+ 	wake_up_interruptible(&device->wait);
+ 	return 0;
+ }
 -- 
 2.35.1
 
