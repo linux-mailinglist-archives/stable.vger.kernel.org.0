@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2740C608AAE
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:04:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56FAB60891F
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231670AbiJVJE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 05:04:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37880 "EHLO
+        id S233730AbiJVIbV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:31:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235091AbiJVJDo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:03:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C70DA2FA5CC;
-        Sat, 22 Oct 2022 01:18:45 -0700 (PDT)
+        with ESMTP id S234024AbiJVI3O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:29:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D63F512D01;
+        Sat, 22 Oct 2022 01:01:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FF7760B89;
-        Sat, 22 Oct 2022 07:55:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52F31C4314C;
-        Sat, 22 Oct 2022 07:55:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4177CB82E03;
+        Sat, 22 Oct 2022 07:53:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76F97C433D6;
+        Sat, 22 Oct 2022 07:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425320;
-        bh=d4xHh/EUCkCOVmUiHgDNQoi2lFnlAt1QKWLdSYAR6Ls=;
+        s=korg; t=1666425219;
+        bh=b7nk5n+pn5dwuzcRGHt+Ga4aNSHt99eeLerkhnMnA88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hOjJVgEfrCMMqjzeoHIvcXTA1aW8xUgqnn7Cl50jmtEc3/tmWpaeAel2BxrRMCIdU
-         b7zRulekcm5mHEwdbTNNjEzPnqObb6WqwsxxDeqsLx9vN0PzkrhzXaBXhcLtCFzZe3
-         ozJYmWTj6smB3oil7MqQ/y8StrSmxRO8KYnOnqyI=
+        b=HR5RZGFMilMd19a7QviZsj8gTcu4W8Q3KGEFK9dn9YW9ZDaDgA6pl4AxhgHnLBITp
+         4eHl8Ew9YchOSYcYSq+cDe96eumNKjB1FbpYoumIg1jXHRDY+VlpEd/pcPVcF95lS+
+         G6Lc9nd72l44KNsNdOvee6+akIVrRl+WhHdMRpVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
-        William Dean <williamsukatube@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 422/717] mtd: devices: docg3: check the return value of devm_ioremap() in the probe
-Date:   Sat, 22 Oct 2022 09:25:01 +0200
-Message-Id: <20221022072517.050464932@linuxfoundation.org>
+Subject: [PATCH 5.19 423/717] remoteproc: Harden rproc_handle_vdev() against integer overflow
+Date:   Sat, 22 Oct 2022 09:25:02 +0200
+Message-Id: <20221022072517.109421152@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,43 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Dean <williamsukatube@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 26e784433e6c65735cd6d93a8db52531970d9a60 ]
+[ Upstream commit 7d7f8fe4e399519cc9ac68a475fec6d3a996341b ]
 
-The function devm_ioremap() in docg3_probe() can fail, so
-its return value should be checked.
+The struct_size() macro protects against integer overflows but adding
+"+ rsc->config_len" introduces the risk of integer overflows again.
+Use size_add() to be safe.
 
-Fixes: 82402aeb8c81e ("mtd: docg3: Use devm_*() functions")
-Reported-by: Hacash Robot <hacashRobot@santino.com>
-Signed-off-by: William Dean <williamsukatube@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220722091644.2937953-1-williamsukatube@163.com
+Fixes: c87846571587 ("remoteproc: use struct_size() helper")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Link: https://lore.kernel.org/r/YyMyoPoGOJUcEpZT@kili
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/devices/docg3.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/remoteproc/remoteproc_core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/devices/docg3.c b/drivers/mtd/devices/docg3.c
-index 5b0ae5ddad74..27c08f22dec8 100644
---- a/drivers/mtd/devices/docg3.c
-+++ b/drivers/mtd/devices/docg3.c
-@@ -1974,9 +1974,14 @@ static int __init docg3_probe(struct platform_device *pdev)
- 		dev_err(dev, "No I/O memory resource defined\n");
- 		return ret;
- 	}
--	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
+diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
+index 02a04ab34a23..9d86470df79b 100644
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -518,12 +518,13 @@ static int rproc_handle_vdev(struct rproc *rproc, void *ptr,
+ 	struct fw_rsc_vdev *rsc = ptr;
+ 	struct device *dev = &rproc->dev;
+ 	struct rproc_vdev *rvdev;
++	size_t rsc_size;
+ 	int i, ret;
+ 	char name[16];
  
- 	ret = -ENOMEM;
-+	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
-+	if (!base) {
-+		dev_err(dev, "devm_ioremap dev failed\n");
-+		return ret;
-+	}
-+
- 	cascade = devm_kcalloc(dev, DOC_MAX_NBFLOORS, sizeof(*cascade),
- 			       GFP_KERNEL);
- 	if (!cascade)
+ 	/* make sure resource isn't truncated */
+-	if (struct_size(rsc, vring, rsc->num_of_vrings) + rsc->config_len >
+-			avail) {
++	rsc_size = struct_size(rsc, vring, rsc->num_of_vrings);
++	if (size_add(rsc_size, rsc->config_len) > avail) {
+ 		dev_err(dev, "vdev rsc is truncated\n");
+ 		return -EINVAL;
+ 	}
 -- 
 2.35.1
 
