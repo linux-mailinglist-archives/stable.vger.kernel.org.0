@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EA3D60889E
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:20:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E436D608978
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:36:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233476AbiJVIUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:20:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58232 "EHLO
+        id S234059AbiJVIgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:36:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233723AbiJVITN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:19:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99FD82DF448;
-        Sat, 22 Oct 2022 00:58:13 -0700 (PDT)
+        with ESMTP id S234108AbiJVIdu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:33:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C8592E7150;
+        Sat, 22 Oct 2022 01:03:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B633B80E4D;
-        Sat, 22 Oct 2022 07:56:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BD3CC433B5;
-        Sat, 22 Oct 2022 07:56:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39EBF60B80;
+        Sat, 22 Oct 2022 07:55:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 467E0C433D6;
+        Sat, 22 Oct 2022 07:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425416;
-        bh=tv9L0ATtm/g+3f1svrh0qKf6P+ZJy0hTBvk3G0cON/Q=;
+        s=korg; t=1666425326;
+        bh=1OAwvSabGh6LnKItuicwtRw9I08Q/Qc3Yz5P8kejiIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=taKgWB6he3HAjDBNzYi/l2yOdLSnNbrZi/Vcnw09X9OHZu5A+wsD12abKq8ULI2wN
-         9VHLqzHngDQKgRIfKod+I2f2J+NnSK2IwxsvGG0qNYSCLtzxU5dC27d67kVTok3hQd
-         tUJz+2HbBCHZsb+5qnaNHBhG9IkG+vzilTm/4sqE=
+        b=t3oemX1/VzxFe+9RlpVQFHXG4pKlCxr6XFYZ37lOUDf1gy2hcmuJxxYb46RP9uhcD
+         ylaIqYQu/ELXvh/e8XGweFXJnN/0jF4VHMo89A1SX0PdbOuV2gwvs7qo7BMOcsSO8u
+         zZX7Vii/Vd8hIlQ2nRkaECAS3F6quhUOstmE7ses=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Pearson <rpearsonhpe@gmail.com>,
-        Li Zhijian <lizhijian@fujitsu.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 464/717] RDMA/rxe: Fix resize_finish() in rxe_queue.c
-Date:   Sat, 22 Oct 2022 09:25:43 +0200
-Message-Id: <20221022072518.828870179@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Eddie James <eajames@linux.ibm.com>,
+        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 465/717] fsi: core: Check error number after calling ida_simple_get
+Date:   Sat, 22 Oct 2022 09:25:44 +0200
+Message-Id: <20221022072518.876493488@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,63 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit fda5d0cf8aef12f0a4f714a96a4b2fce039a3e55 ]
+[ Upstream commit 35af9fb49bc5c6d61ef70b501c3a56fe161cce3e ]
 
-Currently in resize_finish() in rxe_queue.c there is a loop which copies
-the entries in the original queue into a newly allocated queue.  The
-termination logic for this loop is incorrect. The call to
-queue_next_index() updates cons but has no effect on whether the queue is
-empty. So if the queue starts out empty nothing is copied but if it is not
-then the loop will run forever. This patch changes the loop to compare the
-value of cons to the original producer index.
+If allocation fails, the ida_simple_get() will return error number.
+So master->idx could be error number and be used in dev_set_name().
+Therefore, it should be better to check it and return error if fails,
+like the ida_simple_get() in __fsi_get_new_minor().
 
-Fixes: ae6e843fe08d0 ("RDMA/rxe: Add memory barriers to kernel queues")
-Link: https://lore.kernel.org/r/20220825221446.6512-1-rpearsonhpe@gmail.com
-Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
-Reviewed-by: Li Zhijian <lizhijian@fujitsu.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 09aecfab93b8 ("drivers/fsi: Add fsi master definition")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Eddie James <eajames@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220111073411.614138-1-jiasheng@iscas.ac.cn
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_queue.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/fsi/fsi-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_queue.c b/drivers/infiniband/sw/rxe/rxe_queue.c
-index dbd4971039c0..d6dbf5a0058d 100644
---- a/drivers/infiniband/sw/rxe/rxe_queue.c
-+++ b/drivers/infiniband/sw/rxe/rxe_queue.c
-@@ -112,23 +112,25 @@ static int resize_finish(struct rxe_queue *q, struct rxe_queue *new_q,
- 			 unsigned int num_elem)
- {
- 	enum queue_type type = q->type;
-+	u32 new_prod;
- 	u32 prod;
- 	u32 cons;
+diff --git a/drivers/fsi/fsi-core.c b/drivers/fsi/fsi-core.c
+index 3a7b78e36701..5858e6339a10 100644
+--- a/drivers/fsi/fsi-core.c
++++ b/drivers/fsi/fsi-core.c
+@@ -1314,6 +1314,9 @@ int fsi_master_register(struct fsi_master *master)
  
- 	if (!queue_empty(q, q->type) && (num_elem < queue_count(q, type)))
- 		return -EINVAL;
+ 	mutex_init(&master->scan_lock);
+ 	master->idx = ida_simple_get(&master_ida, 0, INT_MAX, GFP_KERNEL);
++	if (master->idx < 0)
++		return master->idx;
++
+ 	dev_set_name(&master->dev, "fsi%d", master->idx);
+ 	master->dev.class = &fsi_master_class;
  
--	prod = queue_get_producer(new_q, type);
-+	new_prod = queue_get_producer(new_q, type);
-+	prod = queue_get_producer(q, type);
- 	cons = queue_get_consumer(q, type);
- 
--	while (!queue_empty(q, type)) {
--		memcpy(queue_addr_from_index(new_q, prod),
-+	while ((prod - cons) & q->index_mask) {
-+		memcpy(queue_addr_from_index(new_q, new_prod),
- 		       queue_addr_from_index(q, cons), new_q->elem_size);
--		prod = queue_next_index(new_q, prod);
-+		new_prod = queue_next_index(new_q, new_prod);
- 		cons = queue_next_index(q, cons);
- 	}
- 
--	new_q->buf->producer_index = prod;
-+	new_q->buf->producer_index = new_prod;
- 	q->buf->consumer_index = cons;
- 
- 	/* update private index copies */
 -- 
 2.35.1
 
