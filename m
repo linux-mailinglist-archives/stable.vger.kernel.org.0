@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B015E608631
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6A9A6085F9
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:42:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231368AbiJVHpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:45:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35564 "EHLO
+        id S230328AbiJVHmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:42:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231633AbiJVHop (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:44:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE18329F67A;
-        Sat, 22 Oct 2022 00:43:25 -0700 (PDT)
+        with ESMTP id S231139AbiJVHlz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:41:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEF55EF5B6;
+        Sat, 22 Oct 2022 00:40:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FFAA60B21;
-        Sat, 22 Oct 2022 07:39:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2B23C433D6;
-        Sat, 22 Oct 2022 07:39:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E18AB82E01;
+        Sat, 22 Oct 2022 07:39:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87438C433D6;
+        Sat, 22 Oct 2022 07:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424351;
-        bh=AKjqxU4F0WI3D5+Ca3cuRol5AchGUdnutzPQA42eCZI=;
+        s=korg; t=1666424356;
+        bh=LUCqnL0CpNQQy7m2QqQFuPp6xdW28Ne5xn1QZwADrrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ap/Mb7tk6Sjo+Vc1LA2agIil8jsib/C6L7FT+nKZsF2C/76Nr+lFudruWNkNOT8QQ
-         M8SOtroED5NEIY8Wx18Gx3kaWgHziTHv0ybHQawiSnth0So9J/0Oi7ux7ml9SWxxgL
-         YtWf/gh1+qC6i3xk8r7wq6g60ZqqzahHWQMTyT0w=
+        b=GlhTD63GR/dN/saezdaWREv9yiwUnHW3BSxEmj1lur/TJG0J6X0xCnyTj7jMM9Qr5
+         dTTPjea/6ykYVQtq3O7z83+epPzz2F9i25aUKd2CTqbfF6rDPn7K53XRRVehjFOsiJ
+         HK/m7F2dUvNWOgzAcsad26POhjCUpKQVvRdaKZ4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.19 114/717] f2fs: flush pending checkpoints when freezing super
-Date:   Sat, 22 Oct 2022 09:19:53 +0200
-Message-Id: <20221022072435.577636339@linuxfoundation.org>
+        stable@vger.kernel.org, Aran Dalton <arda@allwinnertech.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.19 115/717] f2fs: increase the limit for reserve_root
+Date:   Sat, 22 Oct 2022 09:19:54 +0200
+Message-Id: <20221022072435.740997775@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,79 +54,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit c7b58576370147833999fd4cc874d0f918bdf9ca upstream.
+commit da35fe96d12d15779f3cb74929b7ed03941cf983 upstream.
 
-This avoids -EINVAL when trying to freeze f2fs.
+This patch increases the threshold that limits the reserved root space from 0.2%
+to 12.5% by using simple shift operation.
+
+Typically Android sets 128MB, but if the storage capacity is 32GB, 0.2% which is
+around 64MB becomes too small. Let's relax it.
 
 Cc: stable@vger.kernel.org
+Reported-by: Aran Dalton <arda@allwinnertech.com>
 Reviewed-by: Chao Yu <chao@kernel.org>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/checkpoint.c |   24 ++++++++++++++++++------
- fs/f2fs/f2fs.h       |    1 +
- fs/f2fs/super.c      |    5 ++---
- 3 files changed, 21 insertions(+), 9 deletions(-)
+ fs/f2fs/super.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -1894,15 +1894,27 @@ int f2fs_start_ckpt_thread(struct f2fs_s
- void f2fs_stop_ckpt_thread(struct f2fs_sb_info *sbi)
- {
- 	struct ckpt_req_control *cprc = &sbi->cprc_info;
-+	struct task_struct *ckpt_task;
- 
--	if (cprc->f2fs_issue_ckpt) {
--		struct task_struct *ckpt_task = cprc->f2fs_issue_ckpt;
-+	if (!cprc->f2fs_issue_ckpt)
-+		return;
- 
--		cprc->f2fs_issue_ckpt = NULL;
--		kthread_stop(ckpt_task);
-+	ckpt_task = cprc->f2fs_issue_ckpt;
-+	cprc->f2fs_issue_ckpt = NULL;
-+	kthread_stop(ckpt_task);
- 
--		flush_remained_ckpt_reqs(sbi, NULL);
--	}
-+	f2fs_flush_ckpt_thread(sbi);
-+}
-+
-+void f2fs_flush_ckpt_thread(struct f2fs_sb_info *sbi)
-+{
-+	struct ckpt_req_control *cprc = &sbi->cprc_info;
-+
-+	flush_remained_ckpt_reqs(sbi, NULL);
-+
-+	/* Let's wait for the previous dispatched checkpoint. */
-+	while (atomic_read(&cprc->queued_ckpt))
-+		io_schedule_timeout(DEFAULT_IO_TIMEOUT);
- }
- 
- void f2fs_init_ckpt_req_control(struct f2fs_sb_info *sbi)
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -3676,6 +3676,7 @@ static inline bool f2fs_need_rand_seg(st
-  * checkpoint.c
-  */
- void f2fs_stop_checkpoint(struct f2fs_sb_info *sbi, bool end_io);
-+void f2fs_flush_ckpt_thread(struct f2fs_sb_info *sbi);
- struct page *f2fs_grab_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
- struct page *f2fs_get_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
- struct page *f2fs_get_meta_page_retry(struct f2fs_sb_info *sbi, pgoff_t index);
 --- a/fs/f2fs/super.c
 +++ b/fs/f2fs/super.c
-@@ -1637,9 +1637,8 @@ static int f2fs_freeze(struct super_bloc
- 	if (is_sbi_flag_set(F2FS_SB(sb), SBI_IS_DIRTY))
- 		return -EINVAL;
+@@ -298,10 +298,10 @@ static void f2fs_destroy_casefold_cache(
  
--	/* ensure no checkpoint required */
--	if (!llist_empty(&F2FS_SB(sb)->cprc_info.issue_list))
--		return -EINVAL;
-+	/* Let's flush checkpoints and stop the thread. */
-+	f2fs_flush_ckpt_thread(F2FS_SB(sb));
+ static inline void limit_reserve_root(struct f2fs_sb_info *sbi)
+ {
+-	block_t limit = min((sbi->user_block_count << 1) / 1000,
++	block_t limit = min((sbi->user_block_count >> 3),
+ 			sbi->user_block_count - sbi->reserved_blocks);
  
- 	/* to avoid deadlock on f2fs_evict_inode->SB_FREEZE_FS */
- 	set_sbi_flag(F2FS_SB(sb), SBI_IS_FREEZING);
+-	/* limit is 0.2% */
++	/* limit is 12.5% */
+ 	if (test_opt(sbi, RESERVE_ROOT) &&
+ 			F2FS_OPTION(sbi).root_reserved_blocks > limit) {
+ 		F2FS_OPTION(sbi).root_reserved_blocks = limit;
 
 
