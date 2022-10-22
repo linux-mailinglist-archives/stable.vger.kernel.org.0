@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7FF060874F
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:00:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEC6C60876F
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:01:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231972AbiJVIAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:00:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42398 "EHLO
+        id S232405AbiJVIBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:01:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232332AbiJVH5d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:57:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82E8213A5B4;
-        Sat, 22 Oct 2022 00:48:50 -0700 (PDT)
+        with ESMTP id S232893AbiJVIAM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:00:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93BE81A527C;
+        Sat, 22 Oct 2022 00:50:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BDF5AB82DEF;
-        Sat, 22 Oct 2022 07:48:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2345EC433D7;
-        Sat, 22 Oct 2022 07:48:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63AEF60B40;
+        Sat, 22 Oct 2022 07:48:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AC14C433D6;
+        Sat, 22 Oct 2022 07:48:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424905;
-        bh=0M6ldLkPIHOA6wq73aLHiYig4mC6FQqYwNyvlLZ3uo0=;
+        s=korg; t=1666424913;
+        bh=uLP/v4pPCuxso/vuU6PoxkZFMFw+IoE4hCq+BrnMAP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJFPx6Xqv0PnA0Ahf0iwef+DM2x1DeQlJDVaoK+yZ7wDSVOOyJDHy+CDCgebITE/q
-         4zVJQ4gWO2VMIvE6xt8WWPoAqHSAPMpWRVGGexBrnJ1jwysoHHwhUsQF8mW2uTqzDw
-         4ssOv9macPzzrF3OoYHXIIRz+Rlo46s8oR+UJm/Y=
+        b=C7mOsT77EEnsuWrpq/kWOz5Ur2U1qiHb02It22GvlonTNag89K2TQiORCLKsjAoK3
+         2UUjy7f94U2chOsS8KkQJUjPCX5FpnurG2i49/WJ3aSk9bwypLrm1q+62nVHPMbtcs
+         fsuvRZ5ugelp/ye7/TRkCiLxnxSboahcKLRqhP1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 320/717] ASoC: rsnd: Add check for rsnd_mod_power_on
-Date:   Sat, 22 Oct 2022 09:23:19 +0200
-Message-Id: <20221022072508.533986921@linuxfoundation.org>
+Subject: [PATCH 5.19 322/717] ALSA: hda: beep: Simplify keep-power-at-enable behavior
+Date:   Sat, 22 Oct 2022 09:23:21 +0200
+Message-Id: <20221022072508.700301228@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,113 +52,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 376be51caf8871419bbcbb755e1e615d30dc3153 ]
+[ Upstream commit 4c8d695cb9bc5f6fd298a586602947b2fc099a64 ]
 
-As rsnd_mod_power_on() can return negative numbers,
-it should be better to check the return value and
-deal with the exception.
+The recent fix for IDT codecs to keep the power up while the beep is
+enabled can be better integrated into the beep helper code.
+This patch cleans up the code with refactoring.
 
-Fixes: e7d850dd10f4 ("ASoC: rsnd: use mod base common method on SSI-parent")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20220902013030.3691266-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 414d38ba8710 ("ALSA: hda/sigmatel: Keep power up while beep is enabled")
+Link: https://lore.kernel.org/r/20220906092306.26183-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/ctu.c | 6 +++++-
- sound/soc/sh/rcar/dvc.c | 6 +++++-
- sound/soc/sh/rcar/mix.c | 6 +++++-
- sound/soc/sh/rcar/src.c | 5 ++++-
- sound/soc/sh/rcar/ssi.c | 4 +++-
- 5 files changed, 22 insertions(+), 5 deletions(-)
+ sound/pci/hda/hda_beep.c       | 15 +++++++++++++--
+ sound/pci/hda/hda_beep.h       |  1 +
+ sound/pci/hda/patch_sigmatel.c | 25 ++-----------------------
+ 3 files changed, 16 insertions(+), 25 deletions(-)
 
-diff --git a/sound/soc/sh/rcar/ctu.c b/sound/soc/sh/rcar/ctu.c
-index 6156445bcb69..e39eb2ac7e95 100644
---- a/sound/soc/sh/rcar/ctu.c
-+++ b/sound/soc/sh/rcar/ctu.c
-@@ -171,7 +171,11 @@ static int rsnd_ctu_init(struct rsnd_mod *mod,
- 			 struct rsnd_dai_stream *io,
- 			 struct rsnd_priv *priv)
- {
--	rsnd_mod_power_on(mod);
-+	int ret;
+diff --git a/sound/pci/hda/hda_beep.c b/sound/pci/hda/hda_beep.c
+index 53a2b89f8983..e63621bcb214 100644
+--- a/sound/pci/hda/hda_beep.c
++++ b/sound/pci/hda/hda_beep.c
+@@ -118,6 +118,12 @@ static int snd_hda_beep_event(struct input_dev *dev, unsigned int type,
+ 	return 0;
+ }
+ 
++static void turn_on_beep(struct hda_beep *beep)
++{
++	if (beep->keep_power_at_enable)
++		snd_hda_power_up_pm(beep->codec);
++}
 +
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
- 
- 	rsnd_ctu_activation(mod);
- 
-diff --git a/sound/soc/sh/rcar/dvc.c b/sound/soc/sh/rcar/dvc.c
-index 5137e03a9d7c..16befcbc312c 100644
---- a/sound/soc/sh/rcar/dvc.c
-+++ b/sound/soc/sh/rcar/dvc.c
-@@ -186,7 +186,11 @@ static int rsnd_dvc_init(struct rsnd_mod *mod,
- 			 struct rsnd_dai_stream *io,
- 			 struct rsnd_priv *priv)
+ static void turn_off_beep(struct hda_beep *beep)
  {
--	rsnd_mod_power_on(mod);
-+	int ret;
-+
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
+ 	cancel_work_sync(&beep->beep_work);
+@@ -125,6 +131,8 @@ static void turn_off_beep(struct hda_beep *beep)
+ 		/* turn off beep */
+ 		generate_tone(beep, 0);
+ 	}
++	if (beep->keep_power_at_enable)
++		snd_hda_power_down_pm(beep->codec);
+ }
  
- 	rsnd_dvc_activation(mod);
+ /**
+@@ -140,7 +148,9 @@ int snd_hda_enable_beep_device(struct hda_codec *codec, int enable)
+ 	enable = !!enable;
+ 	if (beep->enabled != enable) {
+ 		beep->enabled = enable;
+-		if (!enable)
++		if (enable)
++			turn_on_beep(beep);
++		else
+ 			turn_off_beep(beep);
+ 		return 1;
+ 	}
+@@ -167,7 +177,8 @@ static int beep_dev_disconnect(struct snd_device *device)
+ 		input_unregister_device(beep->dev);
+ 	else
+ 		input_free_device(beep->dev);
+-	turn_off_beep(beep);
++	if (beep->enabled)
++		turn_off_beep(beep);
+ 	return 0;
+ }
  
-diff --git a/sound/soc/sh/rcar/mix.c b/sound/soc/sh/rcar/mix.c
-index 3572c2c5686c..1de0e085804c 100644
---- a/sound/soc/sh/rcar/mix.c
-+++ b/sound/soc/sh/rcar/mix.c
-@@ -146,7 +146,11 @@ static int rsnd_mix_init(struct rsnd_mod *mod,
- 			 struct rsnd_dai_stream *io,
- 			 struct rsnd_priv *priv)
- {
--	rsnd_mod_power_on(mod);
-+	int ret;
-+
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
+diff --git a/sound/pci/hda/hda_beep.h b/sound/pci/hda/hda_beep.h
+index a25358a4807a..db76e3ddba65 100644
+--- a/sound/pci/hda/hda_beep.h
++++ b/sound/pci/hda/hda_beep.h
+@@ -25,6 +25,7 @@ struct hda_beep {
+ 	unsigned int enabled:1;
+ 	unsigned int linear_tone:1;	/* linear tone for IDT/STAC codec */
+ 	unsigned int playing:1;
++	unsigned int keep_power_at_enable:1;	/* set by driver */
+ 	struct work_struct beep_work; /* scheduled task for beep event */
+ 	struct mutex mutex;
+ 	void (*power_hook)(struct hda_beep *beep, bool on);
+diff --git a/sound/pci/hda/patch_sigmatel.c b/sound/pci/hda/patch_sigmatel.c
+index 7f340f18599c..a794a01a68ca 100644
+--- a/sound/pci/hda/patch_sigmatel.c
++++ b/sound/pci/hda/patch_sigmatel.c
+@@ -4311,6 +4311,8 @@ static int stac_parse_auto_config(struct hda_codec *codec)
+ 		if (codec->beep) {
+ 			/* IDT/STAC codecs have linear beep tone parameter */
+ 			codec->beep->linear_tone = spec->linear_tone_beep;
++			/* keep power up while beep is enabled */
++			codec->beep->keep_power_at_enable = 1;
+ 			/* if no beep switch is available, make its own one */
+ 			caps = query_amp_caps(codec, nid, HDA_OUTPUT);
+ 			if (!(caps & AC_AMPCAP_MUTE)) {
+@@ -4444,28 +4446,6 @@ static int stac_suspend(struct hda_codec *codec)
  
- 	rsnd_mix_activation(mod);
- 
-diff --git a/sound/soc/sh/rcar/src.c b/sound/soc/sh/rcar/src.c
-index 0ea84ae57c6a..f832165e46bc 100644
---- a/sound/soc/sh/rcar/src.c
-+++ b/sound/soc/sh/rcar/src.c
-@@ -463,11 +463,14 @@ static int rsnd_src_init(struct rsnd_mod *mod,
- 			 struct rsnd_priv *priv)
- {
- 	struct rsnd_src *src = rsnd_mod_to_src(mod);
-+	int ret;
- 
- 	/* reset sync convert_rate */
- 	src->sync.val = 0;
- 
--	rsnd_mod_power_on(mod);
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
- 
- 	rsnd_src_activation(mod);
- 
-diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
-index 43c5e27dc5c8..7ade6c5ed96f 100644
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -480,7 +480,9 @@ static int rsnd_ssi_init(struct rsnd_mod *mod,
- 
- 	ssi->usrcnt++;
- 
--	rsnd_mod_power_on(mod);
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
- 
- 	rsnd_ssi_config_init(mod, io);
+ 	return 0;
+ }
+-
+-static int stac_check_power_status(struct hda_codec *codec, hda_nid_t nid)
+-{
+-#ifdef CONFIG_SND_HDA_INPUT_BEEP
+-	struct sigmatel_spec *spec = codec->spec;
+-#endif
+-	int ret = snd_hda_gen_check_power_status(codec, nid);
+-
+-#ifdef CONFIG_SND_HDA_INPUT_BEEP
+-	if (nid == spec->gen.beep_nid && codec->beep) {
+-		if (codec->beep->enabled != spec->beep_power_on) {
+-			spec->beep_power_on = codec->beep->enabled;
+-			if (spec->beep_power_on)
+-				snd_hda_power_up_pm(codec);
+-			else
+-				snd_hda_power_down_pm(codec);
+-		}
+-		ret |= spec->beep_power_on;
+-	}
+-#endif
+-	return ret;
+-}
+ #else
+ #define stac_suspend		NULL
+ #endif /* CONFIG_PM */
+@@ -4478,7 +4458,6 @@ static const struct hda_codec_ops stac_patch_ops = {
+ 	.unsol_event = snd_hda_jack_unsol_event,
+ #ifdef CONFIG_PM
+ 	.suspend = stac_suspend,
+-	.check_power_status = stac_check_power_status,
+ #endif
+ };
  
 -- 
 2.35.1
