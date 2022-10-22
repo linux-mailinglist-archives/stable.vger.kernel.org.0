@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C860960867E
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09A27608690
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231638AbiJVHuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:50:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48372 "EHLO
+        id S231769AbiJVHu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:50:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231787AbiJVHtJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66DDD29B88E;
-        Sat, 22 Oct 2022 00:45:53 -0700 (PDT)
+        with ESMTP id S231881AbiJVHte (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA6529C4AF;
+        Sat, 22 Oct 2022 00:45:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A25B960B8E;
-        Sat, 22 Oct 2022 07:42:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6BCCC433C1;
-        Sat, 22 Oct 2022 07:42:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53B1960B94;
+        Sat, 22 Oct 2022 07:42:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BAEDC433C1;
+        Sat, 22 Oct 2022 07:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424552;
-        bh=KLXaFQT2JlFqTccYwn76fcGTCiyc8m5psLPMQV9qgJ0=;
+        s=korg; t=1666424554;
+        bh=00HXMAn+/r8CSZi6lXNpibBGKfp4GOr5lj0UEYdGDG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F6bj/Ti1gAPx/Z2OinsRKGSK9Eca/aD2F9O7zGSQx1TqO+EDoeWc4RaUTkPalZiaF
-         Ea103rthdWbVTvvOaIip7Uq9tH2wFhckN8GcxW3dxRqe/jI7WZp6i6D5/INbTXk2zu
-         jqa/kQ1x1MXsJefCRFTyCl90qE2l6AcG6AKc6L1Q=
+        b=rdKqVC82vtYC9Ye4hH7D5xp5dlQMp327P0l3egW633wgD+I10t7hcUYMEj1QaOmcJ
+         haePQwzwF7dfQWiQVMsO+eYHMVIJqqEuobGyWjwaEtcYW2amMa8sjKUJwTELbh5Iwb
+         yk5e80r2M9oFjIQvblHUfKMfXe5MycJK3J+glZuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 188/717] ARM: 9244/1: dump: Fix wrong pg_level in walk_pmd()
-Date:   Sat, 22 Oct 2022 09:21:07 +0200
-Message-Id: <20221022072448.891495010@linuxfoundation.org>
+Subject: [PATCH 5.19 189/717] ARM: 9247/1: mm: set readonly for MT_MEMORY_RO with ARM_LPAE
+Date:   Sat, 22 Oct 2022 09:21:08 +0200
+Message-Id: <20221022072449.041364364@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,32 +55,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wang Kefeng <wangkefeng.wang@huawei.com>
 
-[ Upstream commit 2ccd19b3ffac07cc7e75a2bd1ed779728bb67197 ]
+[ Upstream commit 14ca1a4690750bb54e1049e49f3140ef48958a6e ]
 
-After ARM supports p4d page tables, the pg_level for note_page()
-in walk_pmd() should be 4, not 3, fix it.
+MT_MEMORY_RO is introduced by commit 598f0a99fa8a ("ARM: 9210/1:
+Mark the FDT_FIXED sections as shareable"), which is a readonly
+memory type for FDT area, but there are some different between
+ARM_LPAE and non-ARM_LPAE, we need to setup PMD_SECT_AP2 and
+L_PMD_SECT_RDONLY for MT_MEMORY_RO when ARM_LAPE enabled.
 
-Fixes: 84e6ffb2c49c ("arm: add support for folded p4d page tables")
+non-ARM_LPAE	0xff800000-0xffa00000           2M PGD KERNEL      ro NX SHD
+ARM_LPAE	0xff800000-0xffc00000           4M PMD RW NX SHD
+ARM_LPAE+fix	0xff800000-0xffc00000           4M PMD ro NX SHD
+
+Fixes: 598f0a99fa8a ("ARM: 9210/1: Mark the FDT_FIXED sections as shareable")
 Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/dump.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mm/mmu.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/mm/dump.c b/arch/arm/mm/dump.c
-index fb688003d156..712da6a81b23 100644
---- a/arch/arm/mm/dump.c
-+++ b/arch/arm/mm/dump.c
-@@ -346,7 +346,7 @@ static void walk_pmd(struct pg_state *st, pud_t *pud, unsigned long start)
- 		addr = start + i * PMD_SIZE;
- 		domain = get_domain_name(pmd);
- 		if (pmd_none(*pmd) || pmd_large(*pmd) || !pmd_present(*pmd))
--			note_page(st, addr, 3, pmd_val(*pmd), domain);
-+			note_page(st, addr, 4, pmd_val(*pmd), domain);
- 		else
- 			walk_pte(st, pmd, addr, domain);
- 
+diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
+index cd17e324aa51..83a91e0ab848 100644
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -300,7 +300,11 @@ static struct mem_type mem_types[] __ro_after_init = {
+ 		.prot_pte  = L_PTE_PRESENT | L_PTE_YOUNG | L_PTE_DIRTY |
+ 			     L_PTE_XN | L_PTE_RDONLY,
+ 		.prot_l1   = PMD_TYPE_TABLE,
++#ifdef CONFIG_ARM_LPAE
++		.prot_sect = PMD_TYPE_SECT | L_PMD_SECT_RDONLY | PMD_SECT_AP2,
++#else
+ 		.prot_sect = PMD_TYPE_SECT,
++#endif
+ 		.domain    = DOMAIN_KERNEL,
+ 	},
+ 	[MT_ROM] = {
 -- 
 2.35.1
 
