@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F3E76089E7
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47ADD608A6A
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:53:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234365AbiJVIny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:43:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46262 "EHLO
+        id S234916AbiJVIxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:53:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234490AbiJVInL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:43:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AC732E96B6;
-        Sat, 22 Oct 2022 01:07:09 -0700 (PDT)
+        with ESMTP id S231858AbiJVIwu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:52:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DCE1635E1;
+        Sat, 22 Oct 2022 01:12:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C1B8B82E39;
-        Sat, 22 Oct 2022 08:05:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8A34C433D6;
-        Sat, 22 Oct 2022 08:05:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C193660ADF;
+        Sat, 22 Oct 2022 08:05:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8A8BC433D6;
+        Sat, 22 Oct 2022 08:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425931;
-        bh=PyVuP224LTfOgKeY7PGhWDcswJIc+RIZ/ujbhn1tRm4=;
+        s=korg; t=1666425934;
+        bh=D/w4+tNdgXpjzCLigmMkqIOrd6AKbniJcwUCMTZWcE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHxEysoYtx0YQgZ3g7DWu0/1W0TUiTLFXBipaNMQF/3h4HPltWp1Co3LnBQ7e2gp/
-         cCajn5bopvErNy3Ulaqipww46kJyKpdQttyZXgPaXuLh8q4Lp0lc+Gkgf2PeyK0aKv
-         2sYbRGW4pN/XV+IwC9MwTfEdeurhL5MjwGe4ONzM=
+        b=qFuhRjOBeBpBC3+lEN36tYhWEpqJQEK8Fiw/uffV9/qnb8giRZDULmIzwShC0KswQ
+         ZqjztbUi0QUiMRhi9BXJkk2ycOeQ9Igo35jMf+px1esNuF0uWadhcWo0zB4y+tV1O3
+         8qPH7saBSMMLN4jSYxoJDiN8lpypla6ow8pKuLMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 663/717] power: supply: adp5061: fix out-of-bounds read in adp5061_get_chg_type()
-Date:   Sat, 22 Oct 2022 09:29:02 +0200
-Message-Id: <20221022072527.715316714@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Philipp Hortmann <philipp.g.hortmann@gmail.com>,
+        Nam Cao <namcaov@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 664/717] staging: vt6655: fix potential memory leak
+Date:   Sat, 22 Oct 2022 09:29:03 +0200
+Message-Id: <20221022072527.766676824@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,41 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Nam Cao <namcaov@gmail.com>
 
-[ Upstream commit 9d47e01b9d807808224347935562f7043a358054 ]
+[ Upstream commit c8ff91535880d41b49699b3829fb6151942de29e ]
 
-ADP5061_CHG_STATUS_1_CHG_STATUS is masked with 0x07, which means a length
-of 8, but adp5061_chg_type array size is 4, may end up reading 4 elements
-beyond the end of the adp5061_chg_type[] array.
+In function device_init_td0_ring, memory is allocated for member
+td_info of priv->apTD0Rings[i], with i increasing from 0. In case of
+allocation failure, the memory is freed in reversed order, with i
+decreasing to 0. However, the case i=0 is left out and thus memory is
+leaked.
 
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Modify the memory freeing loop to include the case i=0.
+
+Tested-by: Philipp Hortmann <philipp.g.hortmann@gmail.com>
+Signed-off-by: Nam Cao <namcaov@gmail.com>
+Link: https://lore.kernel.org/r/20220909141338.19343-1-namcaov@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/adp5061.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/vt6655/device_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/adp5061.c b/drivers/power/supply/adp5061.c
-index 003557043ab3..daee1161c305 100644
---- a/drivers/power/supply/adp5061.c
-+++ b/drivers/power/supply/adp5061.c
-@@ -427,11 +427,11 @@ static int adp5061_get_chg_type(struct adp5061_state *st,
- 	if (ret < 0)
- 		return ret;
+diff --git a/drivers/staging/vt6655/device_main.c b/drivers/staging/vt6655/device_main.c
+index ecb8c3934bc6..a91c834c96c0 100644
+--- a/drivers/staging/vt6655/device_main.c
++++ b/drivers/staging/vt6655/device_main.c
+@@ -675,7 +675,7 @@ static int device_init_td0_ring(struct vnt_private *priv)
+ 	return 0;
  
--	chg_type = adp5061_chg_type[ADP5061_CHG_STATUS_1_CHG_STATUS(status1)];
--	if (chg_type > ADP5061_CHG_FAST_CV)
-+	chg_type = ADP5061_CHG_STATUS_1_CHG_STATUS(status1);
-+	if (chg_type >= ARRAY_SIZE(adp5061_chg_type))
- 		val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
- 	else
--		val->intval = chg_type;
-+		val->intval = adp5061_chg_type[chg_type];
- 
- 	return ret;
- }
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->apTD0Rings[i];
+ 		kfree(desc->td_info);
+ 	}
 -- 
 2.35.1
 
