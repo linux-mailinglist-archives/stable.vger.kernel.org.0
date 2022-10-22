@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AF4E60877A
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D930760872D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:57:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232540AbiJVICL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:02:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40728 "EHLO
+        id S231965AbiJVH5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:57:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232981AbiJVIAa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:00:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A160253BD6;
-        Sat, 22 Oct 2022 00:50:26 -0700 (PDT)
+        with ESMTP id S232457AbiJVHzC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:55:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 358F14A13E;
+        Sat, 22 Oct 2022 00:48:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F354B82E20;
-        Sat, 22 Oct 2022 07:47:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B73B3C433D7;
-        Sat, 22 Oct 2022 07:47:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED4A3B82DFC;
+        Sat, 22 Oct 2022 07:47:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF26C433C1;
+        Sat, 22 Oct 2022 07:47:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424871;
-        bh=FGLUiA+nI5EoWurmpv9dwxt2Cwd9+rHSJ5m5kYCZDGs=;
+        s=korg; t=1666424873;
+        bh=a9QnuAj57d0g4YM0AcqhAV4WtYyzOmeBc0b2HC4WlRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvlJOOH0zUz/2cGCojgm2eB7PVb9N5O68I60841tNneeaoR+MuaAXtu0SO9A0eNHL
-         KdMX7nUp6lVFOKGOiPApKm3Rg4foVrcFeBR9R5GR9hJYVPkSAMePFa2l/IHu+LEMmi
-         eAaxfDu58WF9XMOTzY2KfjmvsgOOakBXmJxqViPg=
+        b=aMEgqGMZUHqaDjRfuljiItxlvLV1c5A4bWwtvQiQRVtp02nQgeZO7YSOz3FzTIAST
+         KbAbdbJMSbHmwUk0CkSIeXyNeL7ElJIEFmx7pOFg22PwGMSDFqUFTC8S8egThCTYpM
+         McCw2nRMtGsfNG90hdX5xJOAp2f9D0XyvijYpuoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Tzung-Bi Shih <tzungbi@kernel.org>,
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 308/717] platform/chrome: fix memory corruption in ioctl
-Date:   Sat, 22 Oct 2022 09:23:07 +0200
-Message-Id: <20221022072507.107751863@linuxfoundation.org>
+Subject: [PATCH 5.19 309/717] drm/virtio: Fix same-context optimization
+Date:   Sat, 22 Oct 2022 09:23:08 +0200
+Message-Id: <20221022072507.258233889@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,37 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 8a07b45fd3c2dda24fad43639be5335a4595196a ]
+[ Upstream commit 3007dc2af6e86ac00b4daf7414142637fdf50bfa ]
 
-If "s_mem.bytes" is larger than the buffer size it leads to memory
-corruption.
+When VIRTGPU_EXECBUF_RING_IDX is used, we should be considering the
+timeline that the EB if running on rather than the global driver fence
+context.
 
-Fixes: eda2e30c6684 ("mfd / platform: cros_ec: Miscellaneous character device to talk with the EC")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
-Link: https://lore.kernel.org/r/Yv8dpCFZJdbUT5ye@kili
+Fixes: 85c83ea915ed ("drm/virtio: implement context init: allocate an array of fence contexts")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220812224001.2806463-1-robdclark@gmail.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_chardev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/chrome/cros_ec_chardev.c b/drivers/platform/chrome/cros_ec_chardev.c
-index fd33de546aee..0de7c255254e 100644
---- a/drivers/platform/chrome/cros_ec_chardev.c
-+++ b/drivers/platform/chrome/cros_ec_chardev.c
-@@ -327,6 +327,9 @@ static long cros_ec_chardev_ioctl_readmem(struct cros_ec_dev *ec,
- 	if (copy_from_user(&s_mem, arg, sizeof(s_mem)))
- 		return -EFAULT;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 9b2702116f93..3b1701607aae 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -168,7 +168,7 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+ 		 * array contains any fence from a foreign context.
+ 		 */
+ 		ret = 0;
+-		if (!dma_fence_match_context(in_fence, vgdev->fence_drv.context))
++		if (!dma_fence_match_context(in_fence, fence_ctx + ring_idx))
+ 			ret = dma_fence_wait(in_fence, true);
  
-+	if (s_mem.bytes > sizeof(s_mem.buffer))
-+		return -EINVAL;
-+
- 	num = ec_dev->cmd_readmem(ec_dev, s_mem.offset, s_mem.bytes,
- 				  s_mem.buffer);
- 	if (num <= 0)
+ 		dma_fence_put(in_fence);
 -- 
 2.35.1
 
