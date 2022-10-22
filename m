@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 437D26088C9
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:22:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 875696088DF
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233689AbiJVIWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:22:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44336 "EHLO
+        id S233683AbiJVIXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:23:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233717AbiJVIU4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:20:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D461937F9F;
-        Sat, 22 Oct 2022 00:58:39 -0700 (PDT)
+        with ESMTP id S233586AbiJVIWK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:22:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE3B0836C8;
+        Sat, 22 Oct 2022 00:59:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22F2460B8C;
-        Sat, 22 Oct 2022 07:58:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1463BC433C1;
-        Sat, 22 Oct 2022 07:58:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B01960ADE;
+        Sat, 22 Oct 2022 07:57:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A801FC433D6;
+        Sat, 22 Oct 2022 07:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425518;
-        bh=MzqN5J3LzkgF+sMfK6atxZHurz4IuMxAyc9YhNaRH90=;
+        s=korg; t=1666425429;
+        bh=gjDljZl/wvRQcLjS5e2kmaL29MSYEY38YuRzoP9nEaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dwiNyuxjS3q2ElTURGtps1/ecY6NUqkiIysu7pPe8ZETlsyl7+9xU4vizj8+CBE4D
-         /hHXwMuqIuy1kJM2o+27dE2BJdioVa074F0famm8yljbKpC/ytFoDliqIY7gFYZzfF
-         JDnjMl+t+E6k3JCHQtBtiZ3JPiImvdyKLM9ugxss=
+        b=sZwUK/eNDOt+o7fFrUwWYdBlyeVVMmbVw7MvNlZRp3aCZBBWw/hwD+g9Qv9IdZWjS
+         Rhigb1RQMS1lEzP2ahEEMiaVdKOwlAyrad5wFKQQrOS98s106vaRKk38VxapDBOeu/
+         C2Hc3K1B6ll3+5irMij0SFfN94MKmYajBZrhK+ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Rohan McLure <rmclure@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 497/717] powerpc/powernv: add missing of_node_put() in opal_export_attrs()
-Date:   Sat, 22 Oct 2022 09:26:16 +0200
-Message-Id: <20221022072520.249526274@linuxfoundation.org>
+Subject: [PATCH 5.19 499/717] powerpc: Fix fallocate and fadvise64_64 compat parameter combination
+Date:   Sat, 22 Oct 2022 09:26:18 +0200
+Message-Id: <20221022072520.337094485@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,34 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Rohan McLure <rmclure@linux.ibm.com>
 
-[ Upstream commit 71a92e99c47900cc164620948b3863382cec4f1a ]
+[ Upstream commit 016ff72bd2090903715c0f9422a44afbb966f4ee ]
 
-After using 'np' returned by of_find_node_by_path(), of_node_put()
-need be called to decrease the refcount.
+As reported[1] by Arnd, the arch-specific fadvise64_64 and fallocate
+compatibility handlers assume parameters are passed with 32-bit
+big-endian ABI. This affects the assignment of odd-even parameter pairs
+to the high or low words of a 64-bit syscall parameter.
 
-Fixes: 11fe909d2362 ("powerpc/powernv: Add OPAL exports attributes to sysfs")
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Fix fadvise64_64 fallocate compat handlers to correctly swap upper/lower
+32 bits conditioned on endianness.
+
+A future patch will replace the arch-specific compat fallocate with an
+asm-generic implementation. This patch is intended for ease of
+back-port.
+
+[1]: https://lore.kernel.org/all/be29926f-226e-48dc-871a-e29a54e80583@www.fastmail.com/
+
+Fixes: 57f48b4b74e7 ("powerpc/compat_sys: swap hi/lo parts of 64-bit syscall args in LE mode")
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Rohan McLure <rmclure@linux.ibm.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220906141703.118192-1-zhengyongjun3@huawei.com
+Link: https://lore.kernel.org/r/20220921065605.1051927-9-rmclure@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/opal.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/include/asm/syscalls.h | 12 ++++++++++++
+ arch/powerpc/kernel/sys_ppc32.c     | 14 +-------------
+ arch/powerpc/kernel/syscalls.c      |  4 ++--
+ 3 files changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/arch/powerpc/platforms/powernv/opal.c b/arch/powerpc/platforms/powernv/opal.c
-index 55a8fbfdb5b2..3510b55b36f8 100644
---- a/arch/powerpc/platforms/powernv/opal.c
-+++ b/arch/powerpc/platforms/powernv/opal.c
-@@ -892,6 +892,7 @@ static void opal_export_attrs(void)
- 	kobj = kobject_create_and_add("exports", opal_kobj);
- 	if (!kobj) {
- 		pr_warn("kobject_create_and_add() of exports failed\n");
-+		of_node_put(np);
- 		return;
- 	}
+diff --git a/arch/powerpc/include/asm/syscalls.h b/arch/powerpc/include/asm/syscalls.h
+index a2b13e55254f..da40219b303a 100644
+--- a/arch/powerpc/include/asm/syscalls.h
++++ b/arch/powerpc/include/asm/syscalls.h
+@@ -8,6 +8,18 @@
+ #include <linux/types.h>
+ #include <linux/compat.h>
  
++/*
++ * long long munging:
++ * The 32 bit ABI passes long longs in an odd even register pair.
++ * High and low parts are swapped depending on endian mode,
++ * so define a macro (similar to mips linux32) to handle that.
++ */
++#ifdef __LITTLE_ENDIAN__
++#define merge_64(low, high) (((u64)high << 32) | low)
++#else
++#define merge_64(high, low) (((u64)high << 32) | low)
++#endif
++
+ struct rtas_args;
+ 
+ asmlinkage long sys_mmap(unsigned long addr, size_t len,
+diff --git a/arch/powerpc/kernel/sys_ppc32.c b/arch/powerpc/kernel/sys_ppc32.c
+index 16ff0399a257..719bfc6d1e3f 100644
+--- a/arch/powerpc/kernel/sys_ppc32.c
++++ b/arch/powerpc/kernel/sys_ppc32.c
+@@ -56,18 +56,6 @@ unsigned long compat_sys_mmap2(unsigned long addr, size_t len,
+ 	return sys_mmap(addr, len, prot, flags, fd, pgoff << 12);
+ }
+ 
+-/* 
+- * long long munging:
+- * The 32 bit ABI passes long longs in an odd even register pair.
+- * High and low parts are swapped depending on endian mode,
+- * so define a macro (similar to mips linux32) to handle that.
+- */
+-#ifdef __LITTLE_ENDIAN__
+-#define merge_64(low, high) ((u64)high << 32) | low
+-#else
+-#define merge_64(high, low) ((u64)high << 32) | low
+-#endif
+-
+ compat_ssize_t compat_sys_pread64(unsigned int fd, char __user *ubuf, compat_size_t count,
+ 			     u32 reg6, u32 pos1, u32 pos2)
+ {
+@@ -94,7 +82,7 @@ asmlinkage int compat_sys_truncate64(const char __user * path, u32 reg4,
+ asmlinkage long compat_sys_fallocate(int fd, int mode, u32 offset1, u32 offset2,
+ 				     u32 len1, u32 len2)
+ {
+-	return ksys_fallocate(fd, mode, ((loff_t)offset1 << 32) | offset2,
++	return ksys_fallocate(fd, mode, merge_64(offset1, offset2),
+ 			     merge_64(len1, len2));
+ }
+ 
+diff --git a/arch/powerpc/kernel/syscalls.c b/arch/powerpc/kernel/syscalls.c
+index fc999140bc27..abc3fbb3c490 100644
+--- a/arch/powerpc/kernel/syscalls.c
++++ b/arch/powerpc/kernel/syscalls.c
+@@ -98,8 +98,8 @@ long ppc64_personality(unsigned long personality)
+ long ppc_fadvise64_64(int fd, int advice, u32 offset_high, u32 offset_low,
+ 		      u32 len_high, u32 len_low)
+ {
+-	return ksys_fadvise64_64(fd, (u64)offset_high << 32 | offset_low,
+-				 (u64)len_high << 32 | len_low, advice);
++	return ksys_fadvise64_64(fd, merge_64(offset_high, offset_low),
++				 merge_64(len_high, len_low), advice);
+ }
+ 
+ SYSCALL_DEFINE0(switch_endian)
 -- 
 2.35.1
 
