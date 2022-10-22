@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0117E6085A1
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:36:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 545196085A5
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:36:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230208AbiJVHgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:36:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48264 "EHLO
+        id S230133AbiJVHgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:36:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230146AbiJVHfk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:35:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB60863F24;
-        Sat, 22 Oct 2022 00:34:59 -0700 (PDT)
+        with ESMTP id S230164AbiJVHgO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:36:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B256F24E;
+        Sat, 22 Oct 2022 00:35:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8741260ADB;
-        Sat, 22 Oct 2022 07:34:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B7E9C433D6;
-        Sat, 22 Oct 2022 07:34:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99A7E60A5C;
+        Sat, 22 Oct 2022 07:35:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A058DC433C1;
+        Sat, 22 Oct 2022 07:35:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424099;
-        bh=RfWcLuhdM/efK7GPaA8Whk+57q1ge3rUrqp2Fx8g4os=;
+        s=korg; t=1666424102;
+        bh=kPlLgIU4K3Nj0h9buGsIm0radl9uI7/hOyIa4w0HL+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aS5hFWagyT8on5QN0N/lmc1vtAkPjc93kdPahL1JWrEy9r2rEZ2GMTI1g5U0yoV9P
-         Mm/v3ylSySTPgReR4bhE1Zz7sYoiynLPRmBV3oDoEysSGaaNKPIhN+z0YZphP4qL62
-         rokg/hadZfzC1+u1VRQ1Xh+1Q+Y5GdgurqPUkDiM=
+        b=Hll0OjoL4Ehtjj7W01ETAPYFpF33Ij4u4XIG2Yc8N4az7UEyt5+goz65aHwx93rsC
+         63XnUCbVqwf6B6TGlmUEsYd3UhH2qG56C1Nh8pQQLTHDDiArxasAAcWL2p8c5G+DAr
+         F5W+dHFhlvEcvysGDOlWenqNDYLiRsvfrXtTWdFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.19 027/717] mmc: core: Add SD card quirk for broken discard
-Date:   Sat, 22 Oct 2022 09:18:26 +0200
-Message-Id: <20221022072419.914374623@linuxfoundation.org>
+        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
+        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.19 028/717] can: kvaser_usb: Fix use of uninitialized completion
+Date:   Sat, 22 Oct 2022 09:18:27 +0200
+Message-Id: <20221022072420.061082568@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,91 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avri Altman <avri.altman@wdc.com>
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-commit 07d2872bf4c864eb83d034263c155746a2fb7a3b upstream.
+commit cd7f30e174d09a02ca2afa5ef093fb0f0352e0d8 upstream.
 
-Some SD-cards from Sandisk that are SDA-6.0 compliant reports they supports
-discard, while they actually don't. This might cause mk2fs to fail while
-trying to format the card and revert it to a read-only mode.
+flush_comp is initialized when CMD_FLUSH_QUEUE is sent to the device and
+completed when the device sends CMD_FLUSH_QUEUE_RESP.
 
-To fix this problem, let's add a card quirk (MMC_QUIRK_BROKEN_SD_DISCARD)
-to indicate that we shall fall-back to use the legacy erase command
-instead.
+This causes completion of uninitialized completion if the device sends
+CMD_FLUSH_QUEUE_RESP before CMD_FLUSH_QUEUE is ever sent (e.g. as a
+response to a flush by a previously bound driver, or a misbehaving
+device).
 
-Signed-off-by: Avri Altman <avri.altman@wdc.com>
+Fix that by initializing flush_comp in kvaser_usb_init_one() like the
+other completions.
+
+This issue is only triggerable after RX URBs have been set up, i.e. the
+interface has been opened at least once.
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220928095744.16455-1-avri.altman@wdc.com
-[Ulf: Updated the commit message]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: aec5fb2268b7 ("can: kvaser_usb: Add support for Kvaser USB hydra family")
+Tested-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010150829.199676-3-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/block.c  |    6 +++++-
- drivers/mmc/core/card.h   |    6 ++++++
- drivers/mmc/core/quirks.h |    6 ++++++
- include/linux/mmc/card.h  |    1 +
- 4 files changed, 18 insertions(+), 1 deletion(-)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c  |    1 +
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -1140,8 +1140,12 @@ static void mmc_blk_issue_discard_rq(str
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
+@@ -712,6 +712,7 @@ static int kvaser_usb_init_one(struct kv
+ 	init_usb_anchor(&priv->tx_submitted);
+ 	init_completion(&priv->start_comp);
+ 	init_completion(&priv->stop_comp);
++	init_completion(&priv->flush_comp);
+ 	priv->can.ctrlmode_supported = 0;
+ 
+ 	priv->dev = dev;
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+@@ -1914,7 +1914,7 @@ static int kvaser_usb_hydra_flush_queue(
  {
- 	struct mmc_blk_data *md = mq->blkdata;
- 	struct mmc_card *card = md->queue.card;
-+	unsigned int arg = card->erase_arg;
+ 	int err;
  
--	mmc_blk_issue_erase_rq(mq, req, MMC_BLK_DISCARD, card->erase_arg);
-+	if (mmc_card_broken_sd_discard(card))
-+		arg = SD_ERASE_ARG;
-+
-+	mmc_blk_issue_erase_rq(mq, req, MMC_BLK_DISCARD, arg);
- }
+-	init_completion(&priv->flush_comp);
++	reinit_completion(&priv->flush_comp);
  
- static void mmc_blk_issue_secdiscard_rq(struct mmc_queue *mq,
---- a/drivers/mmc/core/card.h
-+++ b/drivers/mmc/core/card.h
-@@ -73,6 +73,7 @@ struct mmc_fixup {
- #define EXT_CSD_REV_ANY (-1u)
- 
- #define CID_MANFID_SANDISK      0x2
-+#define CID_MANFID_SANDISK_SD   0x3
- #define CID_MANFID_ATP          0x9
- #define CID_MANFID_TOSHIBA      0x11
- #define CID_MANFID_MICRON       0x13
-@@ -258,4 +259,9 @@ static inline int mmc_card_broken_hpi(co
- 	return c->quirks & MMC_QUIRK_BROKEN_HPI;
- }
- 
-+static inline int mmc_card_broken_sd_discard(const struct mmc_card *c)
-+{
-+	return c->quirks & MMC_QUIRK_BROKEN_SD_DISCARD;
-+}
-+
- #endif
---- a/drivers/mmc/core/quirks.h
-+++ b/drivers/mmc/core/quirks.h
-@@ -100,6 +100,12 @@ static const struct mmc_fixup __maybe_un
- 	MMC_FIXUP("V10016", CID_MANFID_KINGSTON, CID_OEMID_ANY, add_quirk_mmc,
- 		  MMC_QUIRK_TRIM_BROKEN),
- 
-+	/*
-+	 * Some SD cards reports discard support while they don't
-+	 */
-+	MMC_FIXUP(CID_NAME_ANY, CID_MANFID_SANDISK_SD, 0x5344, add_quirk_sd,
-+		  MMC_QUIRK_BROKEN_SD_DISCARD),
-+
- 	END_FIXUP
- };
- 
---- a/include/linux/mmc/card.h
-+++ b/include/linux/mmc/card.h
-@@ -292,6 +292,7 @@ struct mmc_card {
- #define MMC_QUIRK_BROKEN_IRQ_POLLING	(1<<11)	/* Polling SDIO_CCCR_INTx could create a fake interrupt */
- #define MMC_QUIRK_TRIM_BROKEN	(1<<12)		/* Skip trim */
- #define MMC_QUIRK_BROKEN_HPI	(1<<13)		/* Disable broken HPI support */
-+#define MMC_QUIRK_BROKEN_SD_DISCARD	(1<<14)	/* Disable broken SD discard support */
- 
- 	bool			reenable_cmdq;	/* Re-enable Command Queue */
- 
+ 	err = kvaser_usb_hydra_send_simple_cmd(priv->dev, CMD_FLUSH_QUEUE,
+ 					       priv->channel);
 
 
