@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEC6C60876F
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:01:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35572608759
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:00:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232405AbiJVIBW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:01:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42506 "EHLO
+        id S232276AbiJVIAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:00:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232893AbiJVIAM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:00:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93BE81A527C;
-        Sat, 22 Oct 2022 00:50:32 -0700 (PDT)
+        with ESMTP id S232550AbiJVH7L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:59:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70EBB1AFAA7;
+        Sat, 22 Oct 2022 00:49:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63AEF60B40;
-        Sat, 22 Oct 2022 07:48:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AC14C433D6;
-        Sat, 22 Oct 2022 07:48:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3BB51B82E28;
+        Sat, 22 Oct 2022 07:49:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A10A7C433C1;
+        Sat, 22 Oct 2022 07:48:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424913;
-        bh=uLP/v4pPCuxso/vuU6PoxkZFMFw+IoE4hCq+BrnMAP0=;
+        s=korg; t=1666424939;
+        bh=gcxnBUSa9foL5EqXXsgqGWDnGsdIU5fZNBC3EUE3+VA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C7mOsT77EEnsuWrpq/kWOz5Ur2U1qiHb02It22GvlonTNag89K2TQiORCLKsjAoK3
-         2UUjy7f94U2chOsS8KkQJUjPCX5FpnurG2i49/WJ3aSk9bwypLrm1q+62nVHPMbtcs
-         fsuvRZ5ugelp/ye7/TRkCiLxnxSboahcKLRqhP1o=
+        b=TxyFfoc3MTsa007Fm7Uy6todYx/t0CCzq5RrRHnfClFTpezB7BYEF5q5jj3tPnqJr
+         vrAUCueQwGuES41NBLpQsaVi+nrMMDYHrI/jJi8TSKi1O6WEaYW9U5wTGXIiWpCPKQ
+         d6VBSh3CQ35WCgYpjcDOLEHUBfqd8QSFGACY+Yac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 322/717] ALSA: hda: beep: Simplify keep-power-at-enable behavior
-Date:   Sat, 22 Oct 2022 09:23:21 +0200
-Message-Id: <20221022072508.700301228@linuxfoundation.org>
+Subject: [PATCH 5.19 325/717] ASoC: SOF: mediatek: mt8195: Import namespace SND_SOC_SOF_MTK_COMMON
+Date:   Sat, 22 Oct 2022 09:23:24 +0200
+Message-Id: <20221022072508.941708621@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,133 +55,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 4c8d695cb9bc5f6fd298a586602947b2fc099a64 ]
+[ Upstream commit 404bec4c8f6c38ae5fa208344f1086d38026e93d ]
 
-The recent fix for IDT codecs to keep the power up while the beep is
-enabled can be better integrated into the beep helper code.
-This patch cleans up the code with refactoring.
+Here we're using function mtk_adsp_dump() from mtk-adsp-common:
+explicitly import its namespace.
 
-Fixes: 414d38ba8710 ("ALSA: hda/sigmatel: Keep power up while beep is enabled")
-Link: https://lore.kernel.org/r/20220906092306.26183-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 3a054f90e955 ("ASoC: SOF: mediatek: Add mt8195 debug dump")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220906092727.37324-3-angelogioacchino.delregno@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_beep.c       | 15 +++++++++++++--
- sound/pci/hda/hda_beep.h       |  1 +
- sound/pci/hda/patch_sigmatel.c | 25 ++-----------------------
- 3 files changed, 16 insertions(+), 25 deletions(-)
+ sound/soc/sof/mediatek/mt8195/mt8195.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/pci/hda/hda_beep.c b/sound/pci/hda/hda_beep.c
-index 53a2b89f8983..e63621bcb214 100644
---- a/sound/pci/hda/hda_beep.c
-+++ b/sound/pci/hda/hda_beep.c
-@@ -118,6 +118,12 @@ static int snd_hda_beep_event(struct input_dev *dev, unsigned int type,
- 	return 0;
- }
+diff --git a/sound/soc/sof/mediatek/mt8195/mt8195.c b/sound/soc/sof/mediatek/mt8195/mt8195.c
+index 30111ab23bf5..30ab2274fbf8 100644
+--- a/sound/soc/sof/mediatek/mt8195/mt8195.c
++++ b/sound/soc/sof/mediatek/mt8195/mt8195.c
+@@ -634,4 +634,5 @@ static struct platform_driver snd_sof_of_mt8195_driver = {
+ module_platform_driver(snd_sof_of_mt8195_driver);
  
-+static void turn_on_beep(struct hda_beep *beep)
-+{
-+	if (beep->keep_power_at_enable)
-+		snd_hda_power_up_pm(beep->codec);
-+}
-+
- static void turn_off_beep(struct hda_beep *beep)
- {
- 	cancel_work_sync(&beep->beep_work);
-@@ -125,6 +131,8 @@ static void turn_off_beep(struct hda_beep *beep)
- 		/* turn off beep */
- 		generate_tone(beep, 0);
- 	}
-+	if (beep->keep_power_at_enable)
-+		snd_hda_power_down_pm(beep->codec);
- }
- 
- /**
-@@ -140,7 +148,9 @@ int snd_hda_enable_beep_device(struct hda_codec *codec, int enable)
- 	enable = !!enable;
- 	if (beep->enabled != enable) {
- 		beep->enabled = enable;
--		if (!enable)
-+		if (enable)
-+			turn_on_beep(beep);
-+		else
- 			turn_off_beep(beep);
- 		return 1;
- 	}
-@@ -167,7 +177,8 @@ static int beep_dev_disconnect(struct snd_device *device)
- 		input_unregister_device(beep->dev);
- 	else
- 		input_free_device(beep->dev);
--	turn_off_beep(beep);
-+	if (beep->enabled)
-+		turn_off_beep(beep);
- 	return 0;
- }
- 
-diff --git a/sound/pci/hda/hda_beep.h b/sound/pci/hda/hda_beep.h
-index a25358a4807a..db76e3ddba65 100644
---- a/sound/pci/hda/hda_beep.h
-+++ b/sound/pci/hda/hda_beep.h
-@@ -25,6 +25,7 @@ struct hda_beep {
- 	unsigned int enabled:1;
- 	unsigned int linear_tone:1;	/* linear tone for IDT/STAC codec */
- 	unsigned int playing:1;
-+	unsigned int keep_power_at_enable:1;	/* set by driver */
- 	struct work_struct beep_work; /* scheduled task for beep event */
- 	struct mutex mutex;
- 	void (*power_hook)(struct hda_beep *beep, bool on);
-diff --git a/sound/pci/hda/patch_sigmatel.c b/sound/pci/hda/patch_sigmatel.c
-index 7f340f18599c..a794a01a68ca 100644
---- a/sound/pci/hda/patch_sigmatel.c
-+++ b/sound/pci/hda/patch_sigmatel.c
-@@ -4311,6 +4311,8 @@ static int stac_parse_auto_config(struct hda_codec *codec)
- 		if (codec->beep) {
- 			/* IDT/STAC codecs have linear beep tone parameter */
- 			codec->beep->linear_tone = spec->linear_tone_beep;
-+			/* keep power up while beep is enabled */
-+			codec->beep->keep_power_at_enable = 1;
- 			/* if no beep switch is available, make its own one */
- 			caps = query_amp_caps(codec, nid, HDA_OUTPUT);
- 			if (!(caps & AC_AMPCAP_MUTE)) {
-@@ -4444,28 +4446,6 @@ static int stac_suspend(struct hda_codec *codec)
- 
- 	return 0;
- }
--
--static int stac_check_power_status(struct hda_codec *codec, hda_nid_t nid)
--{
--#ifdef CONFIG_SND_HDA_INPUT_BEEP
--	struct sigmatel_spec *spec = codec->spec;
--#endif
--	int ret = snd_hda_gen_check_power_status(codec, nid);
--
--#ifdef CONFIG_SND_HDA_INPUT_BEEP
--	if (nid == spec->gen.beep_nid && codec->beep) {
--		if (codec->beep->enabled != spec->beep_power_on) {
--			spec->beep_power_on = codec->beep->enabled;
--			if (spec->beep_power_on)
--				snd_hda_power_up_pm(codec);
--			else
--				snd_hda_power_down_pm(codec);
--		}
--		ret |= spec->beep_power_on;
--	}
--#endif
--	return ret;
--}
- #else
- #define stac_suspend		NULL
- #endif /* CONFIG_PM */
-@@ -4478,7 +4458,6 @@ static const struct hda_codec_ops stac_patch_ops = {
- 	.unsol_event = snd_hda_jack_unsol_event,
- #ifdef CONFIG_PM
- 	.suspend = stac_suspend,
--	.check_power_status = stac_check_power_status,
- #endif
- };
- 
+ MODULE_IMPORT_NS(SND_SOC_SOF_XTENSA);
++MODULE_IMPORT_NS(SND_SOC_SOF_MTK_COMMON);
+ MODULE_LICENSE("Dual BSD/GPL");
 -- 
 2.35.1
 
