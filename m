@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EDB56086A8
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:51:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D94B060865D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:48:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231391AbiJVHvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:51:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56534 "EHLO
+        id S231626AbiJVHsp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:48:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231493AbiJVHtt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:49 -0400
+        with ESMTP id S231575AbiJVHsN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:48:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 900092B76BA;
-        Sat, 22 Oct 2022 00:46:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9158E8A6F0;
+        Sat, 22 Oct 2022 00:45:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97A9260B40;
-        Sat, 22 Oct 2022 07:39:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA4F7C433D6;
-        Sat, 22 Oct 2022 07:39:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39AE460B46;
+        Sat, 22 Oct 2022 07:39:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A433C433D6;
+        Sat, 22 Oct 2022 07:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424386;
-        bh=/T5WIT+OJWxhYMw+OGtb645cRypYMAjjAnkcyWWRik8=;
+        s=korg; t=1666424388;
+        bh=mGqmo0S/cZ1DZJ0WQ/Bt9WjSLdXTjqMxohIkX6GdePo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UTV2GidtferzF5sNR95OaZs0uODL6E+Kpu0A6yNQigSyrI3amz8WShpgWATxMk3Fu
-         SjgE6ulTA2Q+G/XoE5/i1gh24CtjWu+EMMlK4cJ5kU4/TNJK7snspw5/VPScDCcINS
-         stQhtY5Mztf9iArkQDS4sRg+IKfyJg7IFvf6s7e8=
+        b=WQIY5iPz9de/wT9voHE5RUo/Ut5f14sBUjJcReYitRfo94YYi2o1V2yuFz0G0/u7/
+         3zXuEFh4JKzsPY98mjrm2jVRwx+bCYULwNH5EBwbDX5LZFr1GdrCrVvT+T7V5MiE2K
+         Mgvz3QzrXwE2PKM4rNB/d2PmO2vYCb9U6EMcjTLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Lalith Rajendran <lalithkraj@google.com>,
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Lukas Czerner <lczerner@redhat.com>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.19 125/717] ext4: make ext4_lazyinit_thread freezable
-Date:   Sat, 22 Oct 2022 09:20:04 +0200
-Message-Id: <20221022072437.577812816@linuxfoundation.org>
+Subject: [PATCH 5.19 126/717] ext4: fix check for block being out of directory size
+Date:   Sat, 22 Oct 2022 09:20:05 +0200
+Message-Id: <20221022072437.773984046@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,32 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lalith Rajendran <lalithkraj@google.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 3b575495ab8dbb4dbe85b4ac7f991693c3668ff5 upstream.
+commit 61a1d87a324ad5e3ed27c6699dfc93218fcf3201 upstream.
 
-ext4_lazyinit_thread is not set freezable. Hence when the thread calls
-try_to_freeze it doesn't freeze during suspend and continues to send
-requests to the storage during suspend, resulting in suspend failures.
+The check in __ext4_read_dirblock() for block being outside of directory
+size was wrong because it compared block number against directory size
+in bytes. Fix it.
 
-Cc: stable@kernel.org
-Signed-off-by: Lalith Rajendran <lalithkraj@google.com>
-Link: https://lore.kernel.org/r/20220818214049.1519544-1-lalithkraj@google.com
+Fixes: 65f8ea4cd57d ("ext4: check if directory block is within i_size")
+CVE: CVE-2022-1184
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Link: https://lore.kernel.org/r/20220822114832.1482-1-jack@suse.cz
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/namei.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3758,6 +3758,7 @@ static int ext4_lazyinit_thread(void *ar
- 	unsigned long next_wakeup, cur;
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -126,7 +126,7 @@ static struct buffer_head *__ext4_read_d
+ 	struct ext4_dir_entry *dirent;
+ 	int is_dx_block = 0;
  
- 	BUG_ON(NULL == eli);
-+	set_freezable();
- 
- cont_thread:
- 	while (true) {
+-	if (block >= inode->i_size) {
++	if (block >= inode->i_size >> inode->i_blkbits) {
+ 		ext4_error_inode(inode, func, line, block,
+ 		       "Attempting to read directory block (%u) that is past i_size (%llu)",
+ 		       block, inode->i_size);
 
 
