@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3753460895C
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:33:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93B266087CF
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230304AbiJVIdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:33:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58086 "EHLO
+        id S232308AbiJVIGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:06:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233975AbiJVIcB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:32:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC9412D1291;
-        Sat, 22 Oct 2022 01:03:30 -0700 (PDT)
+        with ESMTP id S232424AbiJVIFN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:05:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8B1E5A3DC;
+        Sat, 22 Oct 2022 00:52:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACC8060B85;
-        Sat, 22 Oct 2022 07:52:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0833C433D6;
-        Sat, 22 Oct 2022 07:52:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7020860B89;
+        Sat, 22 Oct 2022 07:52:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86490C433B5;
+        Sat, 22 Oct 2022 07:52:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425126;
-        bh=9+NtXeXBvF4Ebv92J6wPhWRQ5nQ9JXpxZQzq7UfEEhk=;
+        s=korg; t=1666425157;
+        bh=K4roTK2fnCmQiAynGRZx39W2zSKfyzroDBihQQeCMlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=se8kFrR+Tnb7m4fGuv5BJN8cheUgpttA7SYT6+ZySAkSRSeu2624WBO0KjE0Y7I0s
-         gn+zZ2cTQd0Sz+yHm95PRaoxfyFIZrH1WjEf1PmU/p9wvJieEefJbZnaopYcj6QX7A
-         /kp9GI/PMrl4KPDtadB8MxJg19CpuqZjvDHlnG00=
+        b=lHxp/0+sOp+5y7Ldg2+BjBaJJpCI5E8n2tZjJhPDuEppzXL3BFbhmJs7F7QtKfA+V
+         MpsDsbTaR0Nwajku0HFdBW6ukpx9tRN5SX1+yOAQK4lnIlZpTBpWiXjrn/Rh0otpDq
+         SQE+sO9Hidg1ZzFrQEzQHGoqKbV0uijB0PaAc6EQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Sebastian Reichel <sre@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 391/717] HSI: omap_ssi: Fix refcount leak in ssi_probe
-Date:   Sat, 22 Oct 2022 09:24:30 +0200
-Message-Id: <20221022072514.915402050@linuxfoundation.org>
+Subject: [PATCH 5.19 392/717] HSI: omap_ssi_port: Fix dma_map_sg error check
+Date:   Sat, 22 Oct 2022 09:24:31 +0200
+Message-Id: <20221022072514.987704762@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,34 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jack Wang <jinpu.wang@ionos.com>
 
-[ Upstream commit 9a2ea132df860177b33c9fd421b26c4e9a0a9396 ]
+[ Upstream commit 551e325bbd3fb8b5a686ac1e6cf76e5641461cf2 ]
 
-When returning or breaking early from a
-for_each_available_child_of_node() loop, we need to explicitly call
-of_node_put() on the child node to possibly release the node.
+dma_map_sg return 0 on error, in case of error return -EIO
+to caller.
 
+Cc: Sebastian Reichel <sre@kernel.org>
+Cc: linux-kernel@vger.kernel.org (open list)
 Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hsi/controllers/omap_ssi_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hsi/controllers/omap_ssi_port.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
-index 44a3f5660c10..eb9820158318 100644
---- a/drivers/hsi/controllers/omap_ssi_core.c
-+++ b/drivers/hsi/controllers/omap_ssi_core.c
-@@ -524,6 +524,7 @@ static int ssi_probe(struct platform_device *pd)
- 		if (!childpdev) {
- 			err = -ENODEV;
- 			dev_err(&pd->dev, "failed to create ssi controller port\n");
-+			of_node_put(child);
- 			goto out3;
+diff --git a/drivers/hsi/controllers/omap_ssi_port.c b/drivers/hsi/controllers/omap_ssi_port.c
+index a0cb5be246e1..b9495b720f1b 100644
+--- a/drivers/hsi/controllers/omap_ssi_port.c
++++ b/drivers/hsi/controllers/omap_ssi_port.c
+@@ -230,10 +230,10 @@ static int ssi_start_dma(struct hsi_msg *msg, int lch)
+ 	if (msg->ttype == HSI_MSG_READ) {
+ 		err = dma_map_sg(&ssi->device, msg->sgt.sgl, msg->sgt.nents,
+ 							DMA_FROM_DEVICE);
+-		if (err < 0) {
++		if (!err) {
+ 			dev_dbg(&ssi->device, "DMA map SG failed !\n");
+ 			pm_runtime_put_autosuspend(omap_port->pdev);
+-			return err;
++			return -EIO;
  		}
- 	}
+ 		csdp = SSI_DST_BURST_4x32_BIT | SSI_DST_MEMORY_PORT |
+ 			SSI_SRC_SINGLE_ACCESS0 | SSI_SRC_PERIPHERAL_PORT |
+@@ -247,10 +247,10 @@ static int ssi_start_dma(struct hsi_msg *msg, int lch)
+ 	} else {
+ 		err = dma_map_sg(&ssi->device, msg->sgt.sgl, msg->sgt.nents,
+ 							DMA_TO_DEVICE);
+-		if (err < 0) {
++		if (!err) {
+ 			dev_dbg(&ssi->device, "DMA map SG failed !\n");
+ 			pm_runtime_put_autosuspend(omap_port->pdev);
+-			return err;
++			return -EIO;
+ 		}
+ 		csdp = SSI_SRC_BURST_4x32_BIT | SSI_SRC_MEMORY_PORT |
+ 			SSI_DST_SINGLE_ACCESS0 | SSI_DST_PERIPHERAL_PORT |
 -- 
 2.35.1
 
