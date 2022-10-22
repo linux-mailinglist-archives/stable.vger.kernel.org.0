@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C74C608694
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:51:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93FEB6086E0
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231805AbiJVHvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:51:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54862 "EHLO
+        id S231820AbiJVHzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:55:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231891AbiJVHte (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:34 -0400
+        with ESMTP id S231892AbiJVHwv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:52:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D24F2ABAAF;
-        Sat, 22 Oct 2022 00:46:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65CF82C6EB9;
+        Sat, 22 Oct 2022 00:46:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6CDB60AC7;
-        Sat, 22 Oct 2022 07:42:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0881C433C1;
-        Sat, 22 Oct 2022 07:42:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1389960BAD;
+        Sat, 22 Oct 2022 07:44:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29A9AC433C1;
+        Sat, 22 Oct 2022 07:44:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424571;
-        bh=cEznBf9bvTB/4ENmafZ5o4nl4xs2vm5vB0HoS9fBxMM=;
+        s=korg; t=1666424676;
+        bh=UCOXvJhWORPwHaVSbJcOe6oEVxI7zAC7T2lMUEbvagY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aw9Vx7v6lSeojtgWiboj3lTbGbteCGXfkyIHFunT9gxqjLwP3BT9MozBjmLFUW93J
-         sdBVC3/SxmG171LK7CS6GhdN2+ZJvNs/dGu8F/vdPVyIBsTIC0q7l7Ir5t3qKEGdVa
-         +AnLx36TXczexQizc9WHPUJP1yYSn5ahFT8Yiv7I=
+        b=R0KGsLZPtQjdxa7QHhx+lBNcSbOWEC4Fek+owrztrjE2t3V2J2qKaJDb9+6gL1L9p
+         U4lFN4rAgPmAaD7w7QjhvBLdrc+TkKaCcvCqxYwaXQLQIKelX8FzY3X8bt8pX3LW8L
+         PBgGA0mPfGZk0YXoGoEUPsR/mybnXbj1BRHxzmlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jeff Layton <jlayton@kernel.org>,
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
         Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 194/717] nfsd: Fix a memory leak in an error handling path
-Date:   Sat, 22 Oct 2022 09:21:13 +0200
-Message-Id: <20221022072449.851687239@linuxfoundation.org>
+Subject: [PATCH 5.19 195/717] SUNRPC: Fix svcxdr_init_decodes end-of-buffer calculation
+Date:   Sat, 22 Oct 2022 09:21:14 +0200
+Message-Id: <20221022072450.024803795@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,38 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit fd1ef88049de09bc70d60b549992524cfc0e66ff ]
+[ Upstream commit 90bfc37b5ab91c1a6165e3e5cfc49bf04571b762 ]
 
-If this memdup_user() call fails, the memory allocated in a previous call
-a few lines above should be freed. Otherwise it leaks.
+Ensure that stream-based argument decoding can't go past the actual
+end of the receive buffer. xdr_init_decode's calculation of the
+value of xdr->end over-estimates the end of the buffer because the
+Linux kernel RPC server code does not remove the size of the RPC
+header from rqstp->rq_arg before calling the upper layer's
+dispatcher.
 
-Fixes: 6ee95d1c8991 ("nfsd: add support for upcall version 2")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+The server-side still uses the svc_getnl() macros to decode the
+RPC call header. These macros reduce the length of the head iov
+but do not update the total length of the message in the buffer
+(buf->len).
+
+A proper fix for this would be to replace the use of svc_getnl() and
+friends in the RPC header decoder, but that would be a large and
+invasive change that would be difficult to backport.
+
+Fixes: 5191955d6fc6 ("SUNRPC: Prepare for xdr_stream-style decoding on the server-side")
 Reviewed-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4recover.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/sunrpc/svc.h | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfsd/nfs4recover.c b/fs/nfsd/nfs4recover.c
-index c634483d85d2..8f24485e0f04 100644
---- a/fs/nfsd/nfs4recover.c
-+++ b/fs/nfsd/nfs4recover.c
-@@ -815,8 +815,10 @@ __cld_pipe_inprogress_downcall(const struct cld_msg_v2 __user *cmsg,
- 				princhash.data = memdup_user(
- 						&ci->cc_princhash.cp_data,
- 						princhashlen);
--				if (IS_ERR_OR_NULL(princhash.data))
-+				if (IS_ERR_OR_NULL(princhash.data)) {
-+					kfree(name.data);
- 					return -EFAULT;
-+				}
- 				princhash.len = princhashlen;
- 			} else
- 				princhash.len = 0;
+diff --git a/include/linux/sunrpc/svc.h b/include/linux/sunrpc/svc.h
+index daecb009c05b..5a830b66f059 100644
+--- a/include/linux/sunrpc/svc.h
++++ b/include/linux/sunrpc/svc.h
+@@ -544,16 +544,27 @@ static inline void svc_reserve_auth(struct svc_rqst *rqstp, int space)
+ }
+ 
+ /**
+- * svcxdr_init_decode - Prepare an xdr_stream for svc Call decoding
++ * svcxdr_init_decode - Prepare an xdr_stream for Call decoding
+  * @rqstp: controlling server RPC transaction context
+  *
++ * This function currently assumes the RPC header in rq_arg has
++ * already been decoded. Upon return, xdr->p points to the
++ * location of the upper layer header.
+  */
+ static inline void svcxdr_init_decode(struct svc_rqst *rqstp)
+ {
+ 	struct xdr_stream *xdr = &rqstp->rq_arg_stream;
+-	struct kvec *argv = rqstp->rq_arg.head;
++	struct xdr_buf *buf = &rqstp->rq_arg;
++	struct kvec *argv = buf->head;
+ 
+-	xdr_init_decode(xdr, &rqstp->rq_arg, argv->iov_base, NULL);
++	/*
++	 * svc_getnl() and friends do not keep the xdr_buf's ::len
++	 * field up to date. Refresh that field before initializing
++	 * the argument decoding stream.
++	 */
++	buf->len = buf->head->iov_len + buf->page_len + buf->tail->iov_len;
++
++	xdr_init_decode(xdr, buf, argv->iov_base, NULL);
+ 	xdr_set_scratch_page(xdr, rqstp->rq_scratch_page);
+ }
+ 
 -- 
 2.35.1
 
