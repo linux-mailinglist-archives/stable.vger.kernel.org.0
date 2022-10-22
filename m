@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 829C0608928
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 248476088E6
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:25:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230054AbiJVIbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:31:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58022 "EHLO
+        id S234252AbiJVIZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:25:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234103AbiJVI3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:29:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A767C2E25DC;
-        Sat, 22 Oct 2022 01:01:54 -0700 (PDT)
+        with ESMTP id S233695AbiJVIWn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:22:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D63BA13A58A;
+        Sat, 22 Oct 2022 00:59:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4803A60B40;
-        Sat, 22 Oct 2022 08:00:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 559D9C433B5;
-        Sat, 22 Oct 2022 08:00:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA9F3B82DF9;
+        Sat, 22 Oct 2022 07:58:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11740C433C1;
+        Sat, 22 Oct 2022 07:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425623;
-        bh=RGwrKnkrt+w/nHMKlIsALNrzbvtZrXpoRBaBl2bJTIg=;
+        s=korg; t=1666425524;
+        bh=wpNuhBG9/6aQ2W+7cbuETNqCLtVcvtJT1YSt5RjOQ6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZwoKLnoYp5xCRU926pElRHTgXtJ2Ipod7aQjrWii25/4Do7pme19fLXkGI08aoU8S
-         JCHxTF9JztvQyDu9snDrpJSLsoYmkzgGL0d6+nSGckS3FmeAzqewRCbpRvrDJhWDHz
-         6D3lEvDvHRXmudS+XTuWRyqZBxUZfOVYpN5Pfy70=
+        b=E0q5V2HQ+bkOJSmdCytPHEyTlRt5hvZ+/DuEydR5VVgK4zCGrja01Zcf4ff0iootc
+         vcBip9IFcmcr8r47ubvq138IeHGtfrp7mWUZ6YfkcDyPquXmQOqfQJBGrlp19PaCl6
+         32B8Sxs4Ce3tU3UHOSxb2J/XTTDwXwDrLv5vNZFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kunkun Jiang <jiangkunkun@huawei.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Oliver Upton <oliver.upton@linux.dev>,
+        stable@vger.kernel.org, Lin Yujun <linyujun809@huawei.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 521/717] clocksource/drivers/arm_arch_timer: Fix handling of ARM erratum 858921
-Date:   Sat, 22 Oct 2022 09:26:40 +0200
-Message-Id: <20221022072521.341170227@linuxfoundation.org>
+Subject: [PATCH 5.19 522/717] clocksource/drivers/timer-gxp: Add missing error handling in gxp_timer_probe
+Date:   Sat, 22 Oct 2022 09:26:41 +0200
+Message-Id: <20221022072521.392405978@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,45 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunkun Jiang <jiangkunkun@huawei.com>
+From: Lin Yujun <linyujun809@huawei.com>
 
-[ Upstream commit 6c3b62d93e195f78c1437c8fa7581e9b2f00886e ]
+[ Upstream commit 0e2c8e6d769bcdc4f6634a02c545356282275e68 ]
 
-The commit a38b71b0833e ("clocksource/drivers/arm_arch_timer:
-Move system register timer programming over to CVAL") moves the
-programming of the timers from the countdown timer (TVAL) over
-to the comparator (CVAL). This makes it necessary to read the
-counter when programming next event. However, the workaround of
-Cortex-A73 erratum 858921 does not set the corresponding
-set_next_event_phys and set_next_event_virt.
+Add platform_device_put() to make sure to free the platform
+device in the event platform_device_add() fails.
 
-Add the appropriate hooks to apply the erratum mitigation when
-programming the next timer event.
-
-Fixes: a38b71b0833e ("clocksource/drivers/arm_arch_timer: Move system register timer programming over to CVAL")
-Signed-off-by: Kunkun Jiang <jiangkunkun@huawei.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
-Link: https://lore.kernel.org/r/20220914061424.1260-1-jiangkunkun@huawei.com
+Fixes: 5184f4bf151b ("clocksource/drivers/timer-gxp: Add HPE GXP Timer")
+Signed-off-by: Lin Yujun <linyujun809@huawei.com>
+Link: https://lore.kernel.org/r/20220914033018.97484-1-linyujun809@huawei.com
 Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/arm_arch_timer.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/clocksource/timer-gxp.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 8122a1646925..a7ff77550e17 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -473,6 +473,8 @@ static const struct arch_timer_erratum_workaround ool_workarounds[] = {
- 		.desc = "ARM erratum 858921",
- 		.read_cntpct_el0 = arm64_858921_read_cntpct_el0,
- 		.read_cntvct_el0 = arm64_858921_read_cntvct_el0,
-+		.set_next_event_phys = erratum_set_next_event_phys,
-+		.set_next_event_virt = erratum_set_next_event_virt,
- 	},
- #endif
- #ifdef CONFIG_SUN50I_ERRATUM_UNKNOWN1
+diff --git a/drivers/clocksource/timer-gxp.c b/drivers/clocksource/timer-gxp.c
+index 8b38b3212388..fe4fa8d7b3f1 100644
+--- a/drivers/clocksource/timer-gxp.c
++++ b/drivers/clocksource/timer-gxp.c
+@@ -171,6 +171,7 @@ static int gxp_timer_probe(struct platform_device *pdev)
+ {
+ 	struct platform_device *gxp_watchdog_device;
+ 	struct device *dev = &pdev->dev;
++	int ret;
+ 
+ 	if (!gxp_timer) {
+ 		pr_err("Gxp Timer not initialized, cannot create watchdog");
+@@ -187,7 +188,11 @@ static int gxp_timer_probe(struct platform_device *pdev)
+ 	gxp_watchdog_device->dev.platform_data = gxp_timer->counter;
+ 	gxp_watchdog_device->dev.parent = dev;
+ 
+-	return platform_device_add(gxp_watchdog_device);
++	ret = platform_device_add(gxp_watchdog_device);
++	if (ret)
++		platform_device_put(gxp_watchdog_device);
++
++	return ret;
+ }
+ 
+ static const struct of_device_id gxp_timer_of_match[] = {
 -- 
 2.35.1
 
