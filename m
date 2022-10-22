@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A74B6085CA
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:39:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 384576085CC
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:39:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230414AbiJVHjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:39:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48146 "EHLO
+        id S230337AbiJVHjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:39:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230454AbiJVHin (ORCPT
+        with ESMTP id S230455AbiJVHin (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:38:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5687029B88B;
-        Sat, 22 Oct 2022 00:36:05 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5701A29B89B;
+        Sat, 22 Oct 2022 00:36:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A65EFB82D9F;
-        Sat, 22 Oct 2022 07:36:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F27B3C433C1;
-        Sat, 22 Oct 2022 07:36:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A601560ADA;
+        Sat, 22 Oct 2022 07:36:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE175C433D7;
+        Sat, 22 Oct 2022 07:36:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424162;
-        bh=qzNPjTgfZEYYgdxUncWZqKaKdlo8w1SbSuDFg3W8BnA=;
+        s=korg; t=1666424165;
+        bh=beAhWKXvQm9GjdNfxG+/MZqHkyVEr24AhaspX2hWJsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GsoShnUtufvycgSoX6JXO2BrK8EoeZInnkG38/zZ1SXTsVjTtncFZar/bR2Zx84WS
-         R5Pv/NVnJmh9TcBvwlSQmGKARp//8cg69GNrdGkxHELBOVDgIOwfhTIXr0nZ2goy4N
-         GpprgUDy6ReJjUuk2OJ/LVPZAZOqyuXrChvOHNcM=
+        b=HuaWQZEMPqrpPB8WGKJBiNv6XZqXhz1dsXG9OzDhH3L5wL/MK2qVkWtLl5jQjkiR5
+         eojBel5C6jA02a+r4/CYVJ4aQs+H46hY5VRZ3f1+A9Hn+7r8V5yn5H5znTMZg6j1HP
+         vUiGm0oSHKt66JIU0DYAovNjOe7yqEqYEIQS1xU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.19 047/717] net: thunderbolt: Enable DMA paths only after rings are enabled
-Date:   Sat, 22 Oct 2022 09:18:46 +0200
-Message-Id: <20221022072423.447662635@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        linux-arm-msm@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.19 048/717] regulator: qcom_rpm: Fix circular deferral regression
+Date:   Sat, 22 Oct 2022 09:18:47 +0200
+Message-Id: <20221022072423.637828474@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,78 +56,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit ff7cd07f306406493f7b78890475e85b6d0811ed upstream.
+commit 8478ed5844588703a1a4c96a004b1525fbdbdd5e upstream.
 
-If the other host starts sending packets early on it is possible that we
-are still in the middle of populating the initial Rx ring packets to the
-ring. This causes the tbnet_poll() to mess over the queue and causes
-list corruption. This happens specifically when connected with macOS as
-it seems start sending various IP discovery packets as soon as its side
-of the paths are configured.
+On recent kernels, the PM8058 L16 (or any other PM8058 LDO-regulator)
+does not come up if they are supplied by an SMPS-regulator. This
+is not very strange since the regulators are registered in a long
+array and the L-regulators are registered before the S-regulators,
+and if an L-regulator defers, it will never get around to registering
+the S-regulator that it needs.
 
-To prevent this we move the DMA path enabling to happen after we have
-primed the Rx ring. This makes sure no incoming packets can arrive
-before we are ready to handle them.
+See arch/arm/boot/dts/qcom-apq8060-dragonboard.dts:
 
-Fixes: e69b6c02b4c3 ("net: Add support for networking over Thunderbolt cable")
+pm8058-regulators {
+    (...)
+    vdd_l13_l16-supply = <&pm8058_s4>;
+    (...)
+
+Ooops.
+
+Fix this by moving the PM8058 S-regulators first in the array.
+
+Do the same for the PM8901 S-regulators (though this is currently
+not causing any problems with out device trees) so that the pattern
+of registration order is the same on all PMnnnn chips.
+
+Fixes: 087a1b5cdd55 ("regulator: qcom: Rework to single platform device")
 Cc: stable@vger.kernel.org
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Andy Gross <agross@kernel.org>
+Cc: Bjorn Andersson <andersson@kernel.org>
+Cc: Konrad Dybcio <konrad.dybcio@somainline.org>
+Cc: linux-arm-msm@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220909112529.239143-1-linus.walleij@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/thunderbolt.c |   28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ drivers/regulator/qcom_rpm-regulator.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/drivers/net/thunderbolt.c
-+++ b/drivers/net/thunderbolt.c
-@@ -612,18 +612,13 @@ static void tbnet_connected_work(struct
- 		return;
- 	}
+--- a/drivers/regulator/qcom_rpm-regulator.c
++++ b/drivers/regulator/qcom_rpm-regulator.c
+@@ -802,6 +802,12 @@ static const struct rpm_regulator_data r
+ };
  
--	/* Both logins successful so enable the high-speed DMA paths and
--	 * start the network device queue.
-+	/* Both logins successful so enable the rings, high-speed DMA
-+	 * paths and start the network device queue.
-+	 *
-+	 * Note we enable the DMA paths last to make sure we have primed
-+	 * the Rx ring before any incoming packets are allowed to
-+	 * arrive.
- 	 */
--	ret = tb_xdomain_enable_paths(net->xd, net->local_transmit_path,
--				      net->rx_ring.ring->hop,
--				      net->remote_transmit_path,
--				      net->tx_ring.ring->hop);
--	if (ret) {
--		netdev_err(net->dev, "failed to enable DMA paths\n");
--		return;
--	}
--
- 	tb_ring_start(net->tx_ring.ring);
- 	tb_ring_start(net->rx_ring.ring);
- 
-@@ -635,10 +630,21 @@ static void tbnet_connected_work(struct
- 	if (ret)
- 		goto err_free_rx_buffers;
- 
-+	ret = tb_xdomain_enable_paths(net->xd, net->local_transmit_path,
-+				      net->rx_ring.ring->hop,
-+				      net->remote_transmit_path,
-+				      net->tx_ring.ring->hop);
-+	if (ret) {
-+		netdev_err(net->dev, "failed to enable DMA paths\n");
-+		goto err_free_tx_buffers;
-+	}
+ static const struct rpm_regulator_data rpm_pm8058_regulators[] = {
++	{ "s0",   QCOM_RPM_PM8058_SMPS0,  &pm8058_smps, "vdd_s0" },
++	{ "s1",   QCOM_RPM_PM8058_SMPS1,  &pm8058_smps, "vdd_s1" },
++	{ "s2",   QCOM_RPM_PM8058_SMPS2,  &pm8058_smps, "vdd_s2" },
++	{ "s3",   QCOM_RPM_PM8058_SMPS3,  &pm8058_smps, "vdd_s3" },
++	{ "s4",   QCOM_RPM_PM8058_SMPS4,  &pm8058_smps, "vdd_s4" },
 +
- 	netif_carrier_on(net->dev);
- 	netif_start_queue(net->dev);
- 	return;
+ 	{ "l0",   QCOM_RPM_PM8058_LDO0,   &pm8058_nldo, "vdd_l0_l1_lvs"	},
+ 	{ "l1",   QCOM_RPM_PM8058_LDO1,   &pm8058_nldo, "vdd_l0_l1_lvs" },
+ 	{ "l2",   QCOM_RPM_PM8058_LDO2,   &pm8058_pldo, "vdd_l2_l11_l12" },
+@@ -829,12 +835,6 @@ static const struct rpm_regulator_data r
+ 	{ "l24",  QCOM_RPM_PM8058_LDO24,  &pm8058_nldo, "vdd_l23_l24_l25" },
+ 	{ "l25",  QCOM_RPM_PM8058_LDO25,  &pm8058_nldo, "vdd_l23_l24_l25" },
  
-+err_free_tx_buffers:
-+	tbnet_free_buffers(&net->tx_ring);
- err_free_rx_buffers:
- 	tbnet_free_buffers(&net->rx_ring);
- err_stop_rings:
+-	{ "s0",   QCOM_RPM_PM8058_SMPS0,  &pm8058_smps, "vdd_s0" },
+-	{ "s1",   QCOM_RPM_PM8058_SMPS1,  &pm8058_smps, "vdd_s1" },
+-	{ "s2",   QCOM_RPM_PM8058_SMPS2,  &pm8058_smps, "vdd_s2" },
+-	{ "s3",   QCOM_RPM_PM8058_SMPS3,  &pm8058_smps, "vdd_s3" },
+-	{ "s4",   QCOM_RPM_PM8058_SMPS4,  &pm8058_smps, "vdd_s4" },
+-
+ 	{ "lvs0", QCOM_RPM_PM8058_LVS0, &pm8058_switch, "vdd_l0_l1_lvs" },
+ 	{ "lvs1", QCOM_RPM_PM8058_LVS1, &pm8058_switch, "vdd_l0_l1_lvs" },
+ 
+@@ -843,6 +843,12 @@ static const struct rpm_regulator_data r
+ };
+ 
+ static const struct rpm_regulator_data rpm_pm8901_regulators[] = {
++	{ "s0",   QCOM_RPM_PM8901_SMPS0, &pm8901_ftsmps, "vdd_s0" },
++	{ "s1",   QCOM_RPM_PM8901_SMPS1, &pm8901_ftsmps, "vdd_s1" },
++	{ "s2",   QCOM_RPM_PM8901_SMPS2, &pm8901_ftsmps, "vdd_s2" },
++	{ "s3",   QCOM_RPM_PM8901_SMPS3, &pm8901_ftsmps, "vdd_s3" },
++	{ "s4",   QCOM_RPM_PM8901_SMPS4, &pm8901_ftsmps, "vdd_s4" },
++
+ 	{ "l0",   QCOM_RPM_PM8901_LDO0, &pm8901_nldo, "vdd_l0" },
+ 	{ "l1",   QCOM_RPM_PM8901_LDO1, &pm8901_pldo, "vdd_l1" },
+ 	{ "l2",   QCOM_RPM_PM8901_LDO2, &pm8901_pldo, "vdd_l2" },
+@@ -851,12 +857,6 @@ static const struct rpm_regulator_data r
+ 	{ "l5",   QCOM_RPM_PM8901_LDO5, &pm8901_pldo, "vdd_l5" },
+ 	{ "l6",   QCOM_RPM_PM8901_LDO6, &pm8901_pldo, "vdd_l6" },
+ 
+-	{ "s0",   QCOM_RPM_PM8901_SMPS0, &pm8901_ftsmps, "vdd_s0" },
+-	{ "s1",   QCOM_RPM_PM8901_SMPS1, &pm8901_ftsmps, "vdd_s1" },
+-	{ "s2",   QCOM_RPM_PM8901_SMPS2, &pm8901_ftsmps, "vdd_s2" },
+-	{ "s3",   QCOM_RPM_PM8901_SMPS3, &pm8901_ftsmps, "vdd_s3" },
+-	{ "s4",   QCOM_RPM_PM8901_SMPS4, &pm8901_ftsmps, "vdd_s4" },
+-
+ 	{ "lvs0", QCOM_RPM_PM8901_LVS0, &pm8901_switch, "lvs0_in" },
+ 	{ "lvs1", QCOM_RPM_PM8901_LVS1, &pm8901_switch, "lvs1_in" },
+ 	{ "lvs2", QCOM_RPM_PM8901_LVS2, &pm8901_switch, "lvs2_in" },
 
 
