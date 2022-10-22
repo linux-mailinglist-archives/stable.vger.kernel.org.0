@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A504F608A57
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38C8E608A85
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:59:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234814AbiJVIvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:51:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41150 "EHLO
+        id S230389AbiJVI7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:59:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234963AbiJVItO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:49:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A09461E3920;
-        Sat, 22 Oct 2022 01:10:44 -0700 (PDT)
+        with ESMTP id S235054AbiJVI64 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:58:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8479729B8B8;
+        Sat, 22 Oct 2022 01:16:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C84E1B82E3F;
-        Sat, 22 Oct 2022 08:07:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4BF3C433C1;
-        Sat, 22 Oct 2022 08:07:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14F2460B83;
+        Sat, 22 Oct 2022 08:07:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B0ADC433D6;
+        Sat, 22 Oct 2022 08:07:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426072;
-        bh=I4Y0X1nv5hy0ZnRex9psEdEmaD4dw31+0KM/lFOjzig=;
+        s=korg; t=1666426075;
+        bh=FYipOXVEh/W6XkjRwrcbJtXg1hEM0/kwaTD3dCXorOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PdE1wxpJrDDeubUdwk3s6Yf/5YgTCk33cgisaHpaO6YlYN5hZJ7MJ6L4xQHanSKcU
-         +ftKHLA0RnejbXVncGjDBxYm9d5E51d0m59AZNtj3T6KON/ayTg8kpH2IDWV/Df/YL
-         Jrt1NnGK5cg+B9ThkgMKiM+IXVB6g8aX4sM0OzH0=
+        b=Xk+pYHp8qgTxP3p5QGmdaIAU/3CE3pV+4Sk67iDpYlByUFumEHpUKNVMIZudwll42
+         GGaGuL41XKLf+JwePuZGcUCDS2BAgL/ValJIu5oDfq+Mv6yzxniSMFWfUBsGEW3IgG
+         Jo+Z/44vpgGs3sO5PRAs72Qq3D6MxLVTOOBf7XSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Martin Rodriguez Reboredo <yakoyoku@gmail.com>,
-        Jiri Olsa <jolsa@kernel.org>
-Subject: [PATCH 5.19 709/717] kbuild: Add skip_encoding_btf_enum64 option to pahole
-Date:   Sat, 22 Oct 2022 09:29:48 +0200
-Message-Id: <20221022072529.817908352@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.19 710/717] Kconfig.debug: simplify the dependency of DEBUG_INFO_DWARF4/5
+Date:   Sat, 22 Oct 2022 09:29:49 +0200
+Message-Id: <20221022072529.869510319@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,42 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Rodriguez Reboredo <yakoyoku@gmail.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-New pahole (version 1.24) generates by default new BTF_KIND_ENUM64 BTF tag,
-which is not supported by stable kernel.
+commit 4f001a21080ff2e2f0e1c3692f5e119aedbb3bc1 upstream.
 
-As a result the kernel with CONFIG_DEBUG_INFO_BTF option will fail to
-compile with following error:
+Commit c0a5c81ca9be ("Kconfig.debug: drop GCC 5+ version check for
+DWARF5") could have cleaned up the code a bit more.
 
-  BTFIDS  vmlinux
-FAILED: load BTF from vmlinux: Invalid argument
+"CC_IS_CLANG &&" is unneeded. No functional change is intended.
 
-New pahole provides --skip_encoding_btf_enum64 option to skip BTF_KIND_ENUM64
-generation and produce BTF supported by stable kernel.
-
-Adding this option to scripts/pahole-flags.sh.
-
-This change does not have equivalent commit in linus tree, because linus tree
-has support for BTF_KIND_ENUM64 tag, so it does not need to be disabled.
-
-Signed-off-by: Martin Rodriguez Reboredo <yakoyoku@gmail.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/pahole-flags.sh |    4 ++++
- 1 file changed, 4 insertions(+)
+ lib/Kconfig.debug |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/scripts/pahole-flags.sh
-+++ b/scripts/pahole-flags.sh
-@@ -20,4 +20,8 @@ if [ "${pahole_ver}" -ge "122" ]; then
- 	extra_paholeopt="${extra_paholeopt} -j"
- fi
- 
-+if [ "${pahole_ver}" -ge "124" ]; then
-+	extra_paholeopt="${extra_paholeopt} --skip_encoding_btf_enum64"
-+fi
-+
- echo ${extra_paholeopt}
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -264,7 +264,7 @@ config DEBUG_INFO_DWARF_TOOLCHAIN_DEFAUL
+ config DEBUG_INFO_DWARF4
+ 	bool "Generate DWARF Version 4 debuginfo"
+ 	select DEBUG_INFO
+-	depends on !CC_IS_CLANG || (CC_IS_CLANG && (AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)))
++	depends on !CC_IS_CLANG || AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)
+ 	help
+ 	  Generate DWARF v4 debug info. This requires gcc 4.5+, binutils 2.35.2
+ 	  if using clang without clang's integrated assembler, and gdb 7.0+.
+@@ -276,7 +276,7 @@ config DEBUG_INFO_DWARF4
+ config DEBUG_INFO_DWARF5
+ 	bool "Generate DWARF Version 5 debuginfo"
+ 	select DEBUG_INFO
+-	depends on !CC_IS_CLANG || (CC_IS_CLANG && (AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)))
++	depends on !CC_IS_CLANG || AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)
+ 	help
+ 	  Generate DWARF v5 debug info. Requires binutils 2.35.2, gcc 5.0+ (gcc
+ 	  5.0+ accepts the -gdwarf-5 flag but only had partial support for some
 
 
