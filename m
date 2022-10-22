@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A9B26086EC
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83F62608711
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231923AbiJVHzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:55:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54870 "EHLO
+        id S232206AbiJVH4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:56:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231772AbiJVHxh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:53:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CDCA66F2D;
-        Sat, 22 Oct 2022 00:47:11 -0700 (PDT)
+        with ESMTP id S232241AbiJVHya (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E75E2951C1;
+        Sat, 22 Oct 2022 00:47:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B2EF60B81;
-        Sat, 22 Oct 2022 07:46:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 178F2C433C1;
-        Sat, 22 Oct 2022 07:46:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 640FEB82DFC;
+        Sat, 22 Oct 2022 07:46:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDF63C433C1;
+        Sat, 22 Oct 2022 07:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424769;
-        bh=W+SzmJ4+Ai0GJAXfRt/BGB8Dxa/vhps1D+4o/1qiegw=;
+        s=korg; t=1666424772;
+        bh=6F9Q7yQOukegTSuI//Wh9z9S+yPVAsGd+7m722dCw2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BCDa3POgPft+maYowYoi+nXPlhn65fWlLHf2ozMR3XsxGF/yDwEkQ3Hs7zr6xJQRH
-         JxyXrmiTe1EjDWOMv8IF35m4mHONjhStExbPznc57on2mzlkIbV7oUGvi2ABI8gtIQ
-         jVrYyWpnxwhZJDSFpgX/WdYeDyo5AwddWRys8ljw=
+        b=E5VLJuCDXZ3OI8Z06qMYlpz+ubG41fsypkVPmQJee35YiDVrebSi/k58ES9Bsvj+t
+         KkhKy0DpQ+Kn2/Qaabd/BlBAjCgYdevmr8G5behlFC3LmXxCiYyU6yFmHK1qcwOq87
+         /tSUz0R1cxKiqwgdyN9YUOan+QQzIEFCAek7JOOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khalil Blaiech <kblaiech@nvidia.com>,
-        Asmaa Mnebhi <asmaa@nvidia.com>, Wolfram Sang <wsa@kernel.org>,
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        David Beinder <david@beinder.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 270/717] i2c: mlxbf: support lock mechanism
-Date:   Sat, 22 Oct 2022 09:22:29 +0200
-Message-Id: <20221022072502.144621556@linuxfoundation.org>
+Subject: [PATCH 5.19 271/717] Bluetooth: hci_core: Fix not handling link timeouts propertly
+Date:   Sat, 22 Oct 2022 09:22:30 +0200
+Message-Id: <20221022072502.371046546@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,119 +54,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Asmaa Mnebhi <asmaa@nvidia.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 86067ccfa1424a26491542d6f6d7546d40b61a10 ]
+[ Upstream commit 116523c8fac05d1d26f748fee7919a4ec5df67ea ]
 
-Linux is not the only entity using the BlueField I2C busses so
-support a lock mechanism provided by hardware to avoid issues
-when multiple entities are trying to access the same bus.
+Change that introduced the use of __check_timeout did not account for
+link types properly, it always assumes ACL_LINK is used thus causing
+hdev->acl_last_tx to be used even in case of LE_LINK and then again
+uses ACL_LINK with hci_link_tx_to.
 
-The lock is acquired whenever written explicitely or the lock
-register is read. So make sure it is always released at the end
-of a successful or failed transaction.
+To fix this __check_timeout now takes the link type as parameter and
+then procedure to use the right last_tx based on the link type and pass
+it to hci_link_tx_to.
 
-Fixes: b5b5b32081cd206b (i2c: mlxbf: I2C SMBus driver for Mellanox BlueField SoC)
-Reviewed-by: Khalil Blaiech <kblaiech@nvidia.com>
-Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 1b1d29e51499 ("Bluetooth: Make use of __check_timeout on hci_sched_le")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Tested-by: David Beinder <david@beinder.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-mlxbf.c | 44 ++++++++++++++++++++++++++++++----
- 1 file changed, 39 insertions(+), 5 deletions(-)
+ net/bluetooth/hci_core.c | 34 +++++++++++++++++++++++-----------
+ 1 file changed, 23 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
-index ad5efd7497d1..0e840eba4fd6 100644
---- a/drivers/i2c/busses/i2c-mlxbf.c
-+++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -306,6 +306,7 @@ static u64 mlxbf_i2c_corepll_frequency;
-  * exact.
-  */
- #define MLXBF_I2C_SMBUS_TIMEOUT   (300 * 1000) /* 300ms */
-+#define MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT (300 * 1000) /* 300ms */
- 
- /* Encapsulates timing parameters. */
- struct mlxbf_i2c_timings {
-@@ -514,6 +515,25 @@ static bool mlxbf_smbus_master_wait_for_idle(struct mlxbf_i2c_priv *priv)
- 	return false;
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index 48029a390c65..8ecc0a18df76 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -3370,15 +3370,27 @@ static inline int __get_blocks(struct hci_dev *hdev, struct sk_buff *skb)
+ 	return DIV_ROUND_UP(skb->len - HCI_ACL_HDR_SIZE, hdev->block_len);
  }
  
-+/*
-+ * wait for the lock to be released before acquiring it.
-+ */
-+static bool mlxbf_i2c_smbus_master_lock(struct mlxbf_i2c_priv *priv)
-+{
-+	if (mlxbf_smbus_poll(priv->smbus->io, MLXBF_I2C_SMBUS_MASTER_GW,
-+			   MLXBF_I2C_MASTER_LOCK_BIT, true,
-+			   MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT))
-+		return true;
-+
-+	return false;
-+}
-+
-+static void mlxbf_i2c_smbus_master_unlock(struct mlxbf_i2c_priv *priv)
-+{
-+	/* Clear the gw to clear the lock */
-+	writel(0, priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_GW);
-+}
-+
- static bool mlxbf_i2c_smbus_transaction_success(u32 master_status,
- 						u32 cause_status)
+-static void __check_timeout(struct hci_dev *hdev, unsigned int cnt)
++static void __check_timeout(struct hci_dev *hdev, unsigned int cnt, u8 type)
  {
-@@ -705,10 +725,19 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 	slave = request->slave & GENMASK(6, 0);
- 	addr = slave << 1;
- 
--	/* First of all, check whether the HW is idle. */
--	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv)))
-+	/*
-+	 * Try to acquire the smbus gw lock before any reads of the GW register since
-+	 * a read sets the lock.
+-	if (!hci_dev_test_flag(hdev, HCI_UNCONFIGURED)) {
+-		/* ACL tx timeout must be longer than maximum
+-		 * link supervision timeout (40.9 seconds) */
+-		if (!cnt && time_after(jiffies, hdev->acl_last_tx +
+-				       HCI_ACL_TX_TIMEOUT))
+-			hci_link_tx_to(hdev, ACL_LINK);
++	unsigned long last_tx;
++
++	if (hci_dev_test_flag(hdev, HCI_UNCONFIGURED))
++		return;
++
++	switch (type) {
++	case LE_LINK:
++		last_tx = hdev->le_last_tx;
++		break;
++	default:
++		last_tx = hdev->acl_last_tx;
++		break;
+ 	}
++
++	/* tx timeout must be longer than maximum link supervision timeout
++	 * (40.9 seconds)
 +	 */
-+	if (WARN_ON(!mlxbf_i2c_smbus_master_lock(priv)))
- 		return -EBUSY;
- 
-+	/* Check whether the HW is idle */
-+	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv))) {
-+		ret = -EBUSY;
-+		goto out_unlock;
-+	}
-+
- 	/* Set first byte. */
- 	data_desc[data_idx++] = addr;
- 
-@@ -732,8 +761,10 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 			write_en = 1;
- 			write_len += operation->length;
- 			if (data_idx + operation->length >
--					MLXBF_I2C_MASTER_DATA_DESC_SIZE)
--				return -ENOBUFS;
-+					MLXBF_I2C_MASTER_DATA_DESC_SIZE) {
-+				ret = -ENOBUFS;
-+				goto out_unlock;
-+			}
- 			memcpy(data_desc + data_idx,
- 			       operation->buffer, operation->length);
- 			data_idx += operation->length;
-@@ -765,7 +796,7 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 		ret = mlxbf_i2c_smbus_enable(priv, slave, write_len, block_en,
- 					 pec_en, 0);
- 		if (ret)
--			return ret;
-+			goto out_unlock;
- 	}
- 
- 	if (read_en) {
-@@ -792,6 +823,9 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 			priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_FSM);
- 	}
- 
-+out_unlock:
-+	mlxbf_i2c_smbus_master_unlock(priv);
-+
- 	return ret;
++	if (!cnt && time_after(jiffies, last_tx + HCI_ACL_TX_TIMEOUT))
++		hci_link_tx_to(hdev, type);
  }
  
+ /* Schedule SCO */
+@@ -3436,7 +3448,7 @@ static void hci_sched_acl_pkt(struct hci_dev *hdev)
+ 	struct sk_buff *skb;
+ 	int quote;
+ 
+-	__check_timeout(hdev, cnt);
++	__check_timeout(hdev, cnt, ACL_LINK);
+ 
+ 	while (hdev->acl_cnt &&
+ 	       (chan = hci_chan_sent(hdev, ACL_LINK, &quote))) {
+@@ -3479,8 +3491,6 @@ static void hci_sched_acl_blk(struct hci_dev *hdev)
+ 	int quote;
+ 	u8 type;
+ 
+-	__check_timeout(hdev, cnt);
+-
+ 	BT_DBG("%s", hdev->name);
+ 
+ 	if (hdev->dev_type == HCI_AMP)
+@@ -3488,6 +3498,8 @@ static void hci_sched_acl_blk(struct hci_dev *hdev)
+ 	else
+ 		type = ACL_LINK;
+ 
++	__check_timeout(hdev, cnt, type);
++
+ 	while (hdev->block_cnt > 0 &&
+ 	       (chan = hci_chan_sent(hdev, type, &quote))) {
+ 		u32 priority = (skb_peek(&chan->data_q))->priority;
+@@ -3561,7 +3573,7 @@ static void hci_sched_le(struct hci_dev *hdev)
+ 
+ 	cnt = hdev->le_pkts ? hdev->le_cnt : hdev->acl_cnt;
+ 
+-	__check_timeout(hdev, cnt);
++	__check_timeout(hdev, cnt, LE_LINK);
+ 
+ 	tmp = cnt;
+ 	while (cnt && (chan = hci_chan_sent(hdev, LE_LINK, &quote))) {
 -- 
 2.35.1
 
