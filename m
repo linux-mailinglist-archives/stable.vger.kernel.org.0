@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA1746087B1
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D13A1608899
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232585AbiJVIFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:05:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57840 "EHLO
+        id S232963AbiJVIT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:19:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232810AbiJVIEP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B5522CE62E;
-        Sat, 22 Oct 2022 00:51:27 -0700 (PDT)
+        with ESMTP id S233395AbiJVISX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:18:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D84432DD78D;
+        Sat, 22 Oct 2022 00:57:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7772B82E25;
-        Sat, 22 Oct 2022 07:51:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4A7AC433C1;
-        Sat, 22 Oct 2022 07:50:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1DB060B28;
+        Sat, 22 Oct 2022 07:51:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC667C433D6;
+        Sat, 22 Oct 2022 07:51:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425060;
-        bh=WmmLy4E8An3OoQIhgPyQEWi6R0z+s9ZmI4f2V31hoR8=;
+        s=korg; t=1666425094;
+        bh=BBEZSL/kEaLKT0nn3CDJDaoaCe8MaFX+1kU7JZ+z9Ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHk1wcLlDBgNVhqxJt3z5BmiQ3Lja12lxUzxyq/NCSxSnQswJA//oeR8lJS/A2pox
-         +FOscGXeBxTqUUAhvbaiKTL0MCBq+TmzygUDXs/Hv3CZCnoA0vxP0iSni74ffLg+5L
-         l9a3s52KvlRoKAm0VwJvpL7Fk63Hp3bCHyvdijd0=
+        b=KgRiq/XfINKJGQKX+dpteipttJAqA4u+POBmo0NcXj88yzDUMouSONZls4j08p32o
+         1HmbgRYJVDVjwn6Z4bNlb797y4clwT3abdVbSZtZdt10dK0U67W2kS/0vYCQA5GlSg
+         IEc620PyvwIt+BkBQUEwhmHlhNTicbptd4x82EbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Andrew Lunn <andrew@lunn.ch>,
         Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 359/717] ARM: dts: turris-omnia: Fix mpp26 pin name and comment
-Date:   Sat, 22 Oct 2022 09:23:58 +0200
-Message-Id: <20221022072512.073781286@linuxfoundation.org>
+Subject: [PATCH 5.19 360/717] ARM: dts: kirkwood: lsxl: fix serial line
+Date:   Sat, 22 Oct 2022 09:23:59 +0200
+Message-Id: <20221022072512.135209312@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,48 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 49e93898f0dc177e645c22d0664813567fd9ec00 ]
+[ Upstream commit 04eabc6ac10fda9424606d9a7ab6ab9a5d95350a ]
 
-There is a bug in Turris Omnia's schematics, whereupon the MPP[26] pin,
-which is routed to CN11 pin header, is documented as SPI CS1, but
-MPP[26] pin does not support this function. Instead it controls chip
-select 2 if in "spi0" mode.
+Commit 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl
+settings") unknowingly broke the serial output on this board. Before
+this commit, the pinmux was still configured by the bootloader and the
+kernel didn't reconfigured it again. This was an oversight by the
+initial board support where the pinmux for the serial line was never
+configured by the kernel. But with this commit, the serial line will be
+reconfigured to the wrong pins. This is especially confusing, because
+the output still works, but the input doesn't. Presumingly, the input is
+reconfigured to MPP10, but the output is connected to both MPP11 and
+MPP5.
 
-Fix the name of the pin node in pinctrl node and fix the comment in SPI
-node.
+Override the pinmux in the board device tree.
 
-Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
-Signed-off-by: Marek Behún <kabel@kernel.org>
+Fixes: 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl settings")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-385-turris-omnia.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/kirkwood-lsxl.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm/boot/dts/armada-385-turris-omnia.dts b/arch/arm/boot/dts/armada-385-turris-omnia.dts
-index f4878df39753..487dece2033c 100644
---- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
-+++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
-@@ -478,7 +478,7 @@
- 		marvell,function = "spi0";
- 	};
+diff --git a/arch/arm/boot/dts/kirkwood-lsxl.dtsi b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
+index 7b151acb9984..321a40a98ed2 100644
+--- a/arch/arm/boot/dts/kirkwood-lsxl.dtsi
++++ b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
+@@ -10,6 +10,11 @@
  
--	spi0cs1_pins: spi0cs1-pins {
-+	spi0cs2_pins: spi0cs2-pins {
- 		marvell,pins = "mpp26";
- 		marvell,function = "spi0";
- 	};
-@@ -513,7 +513,7 @@
- 		};
- 	};
- 
--	/* MISO, MOSI, SCLK and CS1 are routed to pin header CN11 */
-+	/* MISO, MOSI, SCLK and CS2 are routed to pin header CN11 */
- };
- 
- &uart0 {
+ 	ocp@f1000000 {
+ 		pinctrl: pin-controller@10000 {
++			/* Non-default UART pins */
++			pmx_uart0: pmx-uart0 {
++				marvell,pins = "mpp4", "mpp5";
++			};
++
+ 			pmx_power_hdd: pmx-power-hdd {
+ 				marvell,pins = "mpp10";
+ 				marvell,function = "gpo";
 -- 
 2.35.1
 
