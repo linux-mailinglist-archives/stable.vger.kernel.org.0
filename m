@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04F79608A5E
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:51:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E9A4608ADB
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:10:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234789AbiJVIvx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:51:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40844 "EHLO
+        id S229716AbiJVJKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 05:10:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234799AbiJVIuO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:50:14 -0400
+        with ESMTP id S235261AbiJVJJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:09:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1F492F0462;
-        Sat, 22 Oct 2022 01:11:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13C252DF452;
+        Sat, 22 Oct 2022 01:23:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C56DBB82DF3;
-        Sat, 22 Oct 2022 08:08:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E097C433C1;
-        Sat, 22 Oct 2022 08:08:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79318B82E1F;
+        Sat, 22 Oct 2022 08:08:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C1BDC433C1;
+        Sat, 22 Oct 2022 08:08:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426108;
-        bh=GmRUeDbFgkpqIs8eExCjyoabv5cVnd0mR8YC0z3X1xw=;
+        s=korg; t=1666426115;
+        bh=pZTA8+b6t89yvqWaduEatUoC/Fpvy1u8fwa7q8EqwVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OEbL3ChDVIk2ORUYSXCONJ1f3m0jspVsSZR4doKOulDUd5Uc6MMRF/fSrFm2gEAFV
-         bet7N0FgEjHlEYX96luEcySj0sx4/1U9yI3y16XwgYimGF/TP44bDfrBqj0hSCwBxB
-         rWOKeDJwoT/ICmHm5ZVTVMO+OgxCWNo16j72hLBI=
+        b=K2/TNFwK2ZLPmMAKOnxBaBwnsvxw0rwLWbEKuEI90QuA2zE7bQ+gARZasAVyefA4F
+         i3SYCF0x7Y5UfwRspEqsUVcRIcpcqn6h71RMnBbR6o5CsyfVq3R31bKhbK+6iQANFQ
+         I1BxsAuw76NVWPbFBtTujiQpZgSEdt3OMmIpURlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 691/717] fsi: occ: Prevent use after free
-Date:   Sat, 22 Oct 2022 09:29:30 +0200
-Message-Id: <20221022072529.046151502@linuxfoundation.org>
+        stable@vger.kernel.org, Wayne Chang <waynec@nvidia.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 693/717] usb: typec: ucsi: Dont warn on probe deferral
+Date:   Sat, 22 Oct 2022 09:29:32 +0200
+Message-Id: <20221022072529.126182612@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,82 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Wayne Chang <waynec@nvidia.com>
 
-[ Upstream commit d3e1e24604031b0d83b6c2d38f54eeea265cfcc0 ]
+[ Upstream commit fce703a991b7e8c7e1371de95b9abaa832ecf9c3 ]
 
-Use get_device and put_device in the open and close functions to
-make sure the device doesn't get freed while a file descriptor is
-open.
-Also, lock around the freeing of the device buffer and check the
-buffer before using it in the submit function.
+Deferred probe is an expected return value for fwnode_usb_role_switch_get().
+Given that the driver deals with it properly, there's no need to output a
+warning that may potentially confuse users.
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220513194424.53468-1-eajames@linux.ibm.com
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+--
+V2 -> V3: remove the Fixes and Cc
+V1 -> V2: adjust the coding style for better reading format.
+ drivers/usb/typec/ucsi/ucsi.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+Signed-off-by: Wayne Chang <waynec@nvidia.com>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20220927134512.2651067-1-waynec@nvidia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-occ.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/usb/typec/ucsi/ucsi.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/fsi/fsi-occ.c b/drivers/fsi/fsi-occ.c
-index c9cc75fbdfb9..28c176d038a2 100644
---- a/drivers/fsi/fsi-occ.c
-+++ b/drivers/fsi/fsi-occ.c
-@@ -94,6 +94,7 @@ static int occ_open(struct inode *inode, struct file *file)
- 	client->occ = occ;
- 	mutex_init(&client->lock);
- 	file->private_data = client;
-+	get_device(occ->dev);
+diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+index 6364f0d467ea..74fb5a4c6f21 100644
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -1067,11 +1067,9 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
  
- 	/* We allocate a 1-page buffer, make sure it all fits */
- 	BUILD_BUG_ON((OCC_CMD_DATA_BYTES + 3) > PAGE_SIZE);
-@@ -197,6 +198,7 @@ static int occ_release(struct inode *inode, struct file *file)
- {
- 	struct occ_client *client = file->private_data;
+ 	cap->fwnode = ucsi_find_fwnode(con);
+ 	con->usb_role_sw = fwnode_usb_role_switch_get(cap->fwnode);
+-	if (IS_ERR(con->usb_role_sw)) {
+-		dev_err(ucsi->dev, "con%d: failed to get usb role switch\n",
+-			con->num);
+-		return PTR_ERR(con->usb_role_sw);
+-	}
++	if (IS_ERR(con->usb_role_sw))
++		return dev_err_probe(ucsi->dev, PTR_ERR(con->usb_role_sw),
++			"con%d: failed to get usb role switch\n", con->num);
  
-+	put_device(client->occ->dev);
- 	free_page((unsigned long)client->buffer);
- 	kfree(client);
- 
-@@ -493,12 +495,19 @@ int fsi_occ_submit(struct device *dev, const void *request, size_t req_len,
- 	for (i = 1; i < req_len - 2; ++i)
- 		checksum += byte_request[i];
- 
--	mutex_lock(&occ->occ_lock);
-+	rc = mutex_lock_interruptible(&occ->occ_lock);
-+	if (rc)
-+		return rc;
- 
- 	occ->client_buffer = response;
- 	occ->client_buffer_size = user_resp_len;
- 	occ->client_response_size = 0;
- 
-+	if (!occ->buffer) {
-+		rc = -ENOENT;
-+		goto done;
-+	}
-+
- 	/*
- 	 * Get a sequence number and update the counter. Avoid a sequence
- 	 * number of 0 which would pass the response check below even if the
-@@ -671,10 +680,13 @@ static int occ_remove(struct platform_device *pdev)
- {
- 	struct occ *occ = platform_get_drvdata(pdev);
- 
--	kvfree(occ->buffer);
--
- 	misc_deregister(&occ->mdev);
- 
-+	mutex_lock(&occ->occ_lock);
-+	kvfree(occ->buffer);
-+	occ->buffer = NULL;
-+	mutex_unlock(&occ->occ_lock);
-+
- 	device_for_each_child(&pdev->dev, NULL, occ_unregister_child);
- 
- 	ida_simple_remove(&occ_ida, occ->idx);
+ 	/* Delay other interactions with the con until registration is complete */
+ 	mutex_lock(&con->lock);
 -- 
 2.35.1
 
