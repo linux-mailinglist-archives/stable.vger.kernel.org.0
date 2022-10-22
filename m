@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ABA96089BA
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:40:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DF28608A99
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234272AbiJVIkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:40:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
+        id S230395AbiJVJC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 05:02:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234632AbiJVIjX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:39:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E5EF2505F0;
-        Sat, 22 Oct 2022 01:05:41 -0700 (PDT)
+        with ESMTP id S231966AbiJVJCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:02:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C3C12DCB27;
+        Sat, 22 Oct 2022 01:17:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CAD160ADC;
-        Sat, 22 Oct 2022 08:05:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06B19C433D6;
-        Sat, 22 Oct 2022 08:05:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8918CB82E25;
+        Sat, 22 Oct 2022 08:05:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1181C433D6;
+        Sat, 22 Oct 2022 08:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425940;
-        bh=YBukERdAxHkU57EcJR6ZhFZ2hlJha5Z6ys8hKW3Glgs=;
+        s=korg; t=1666425943;
+        bh=pyFqEjCsJm/B3AhoMs/+9UBXpGWPBTmE33Qm6IaChXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfWDLaUmwChhDB3qlJCUO2D1Szh8FrnKcMzfN0i4cSInzQe2z5docbKt+ZoytklDH
-         wftEZuDVVDgM+rVtlIexiyRbicpoNbKGgJW4U1iKsRkrZtfKG0nsYrYCSLBQGvYHgB
-         rixL7VphuL30U9HjiBUnY0Rqf5ZVnW6gSeCZRhoM=
+        b=tZ/VpPLxMtoqhxJGEfHDZMLidJu9ivGNZzSroYVCnSq+xHraFP7xMnmaNiFH8ZcNL
+         8Tnl7Yp27+mZnSmlu/5zFRagYg+raYfehh95+xChIPyr9TPY/q03bWjxnwXrfDC/rH
+         klaqe/kcDc6GK1+zTE7P8mKmzVTMW/nTDmdmdx0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Hannes Reinecke <hare@suse.de>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@vger.kernel.org, Mingzhe Zou <mingzhe.zou@easystack.cn>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 666/717] ata: libahci_platform: Sanity check the DT child nodes number
-Date:   Sat, 22 Oct 2022 09:29:05 +0200
-Message-Id: <20221022072527.857706859@linuxfoundation.org>
+Subject: [PATCH 5.19 667/717] bcache: fix set_at_max_writeback_rate() for multiple attached devices
+Date:   Sat, 22 Oct 2022 09:29:06 +0200
+Message-Id: <20221022072527.909354906@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,65 +53,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit 3c132ea6508b34956e5ed88d04936983ec230601 ]
+[ Upstream commit d2d05b88035d2d51a5bb6c5afec88a0880c73df4 ]
 
-Having greater than AHCI_MAX_PORTS (32) ports detected isn't that critical
-from the further AHCI-platform initialization point of view since
-exceeding the ports upper limit will cause allocating more resources than
-will be used afterwards. But detecting too many child DT-nodes doesn't
-seem right since it's very unlikely to have it on an ordinary platform. In
-accordance with the AHCI specification there can't be more than 32 ports
-implemented at least due to having the CAP.NP field of 5 bits wide and the
-PI register of dword size. Thus if such situation is found the DTB must
-have been corrupted and the data read from it shouldn't be reliable. Let's
-consider that as an erroneous situation and halt further resources
-allocation.
+Inside set_at_max_writeback_rate() the calculation in following if()
+check is wrong,
+	if (atomic_inc_return(&c->idle_counter) <
+	    atomic_read(&c->attached_dev_nr) * 6)
 
-Note it's logically more correct to have the nports set only after the
-initialization value is checked for being sane. So while at it let's make
-sure nports is assigned with a correct value.
+Because each attached backing device has its own writeback thread
+running and increasing c->idle_counter, the counter increates much
+faster than expected. The correct calculation should be,
+	(counter / dev_nr) < dev_nr * 6
+which equals to,
+	counter < dev_nr * dev_nr * 6
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+This patch fixes the above mistake with correct calculation, and helper
+routine idle_counter_exceeded() is added to make code be more clear.
+
+Reported-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
+Signed-off-by: Coly Li <colyli@suse.de>
+Acked-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
+Link: https://lore.kernel.org/r/20220919161647.81238-6-colyli@suse.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libahci_platform.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/md/bcache/writeback.c | 73 +++++++++++++++++++++++++----------
+ 1 file changed, 52 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
-index 32495ae96567..986f1923a76d 100644
---- a/drivers/ata/libahci_platform.c
-+++ b/drivers/ata/libahci_platform.c
-@@ -451,14 +451,24 @@ struct ahci_host_priv *ahci_platform_get_resources(struct platform_device *pdev,
- 		}
- 	}
+diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
+index 3f0ff3aab6f2..9c227e4a8465 100644
+--- a/drivers/md/bcache/writeback.c
++++ b/drivers/md/bcache/writeback.c
+@@ -157,6 +157,53 @@ static void __update_writeback_rate(struct cached_dev *dc)
+ 	dc->writeback_rate_target = target;
+ }
  
--	hpriv->nports = child_nodes = of_get_child_count(dev->of_node);
++static bool idle_counter_exceeded(struct cache_set *c)
++{
++	int counter, dev_nr;
++
 +	/*
-+	 * Too many sub-nodes most likely means having something wrong with
-+	 * the firmware.
++	 * If c->idle_counter is overflow (idel for really long time),
++	 * reset as 0 and not set maximum rate this time for code
++	 * simplicity.
 +	 */
-+	child_nodes = of_get_child_count(dev->of_node);
-+	if (child_nodes > AHCI_MAX_PORTS) {
-+		rc = -EINVAL;
-+		goto err_out;
++	counter = atomic_inc_return(&c->idle_counter);
++	if (counter <= 0) {
++		atomic_set(&c->idle_counter, 0);
++		return false;
 +	}
++
++	dev_nr = atomic_read(&c->attached_dev_nr);
++	if (dev_nr == 0)
++		return false;
++
++	/*
++	 * c->idle_counter is increased by writeback thread of all
++	 * attached backing devices, in order to represent a rough
++	 * time period, counter should be divided by dev_nr.
++	 * Otherwise the idle time cannot be larger with more backing
++	 * device attached.
++	 * The following calculation equals to checking
++	 *	(counter / dev_nr) < (dev_nr * 6)
++	 */
++	if (counter < (dev_nr * dev_nr * 6))
++		return false;
++
++	return true;
++}
++
++/*
++ * Idle_counter is increased every time when update_writeback_rate() is
++ * called. If all backing devices attached to the same cache set have
++ * identical dc->writeback_rate_update_seconds values, it is about 6
++ * rounds of update_writeback_rate() on each backing device before
++ * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
++ * to each dc->writeback_rate.rate.
++ * In order to avoid extra locking cost for counting exact dirty cached
++ * devices number, c->attached_dev_nr is used to calculate the idle
++ * throushold. It might be bigger if not all cached device are in write-
++ * back mode, but it still works well with limited extra rounds of
++ * update_writeback_rate().
++ */
+ static bool set_at_max_writeback_rate(struct cache_set *c,
+ 				       struct cached_dev *dc)
+ {
+@@ -167,21 +214,8 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
+ 	/* Don't set max writeback rate if gc is running */
+ 	if (!c->gc_mark_valid)
+ 		return false;
+-	/*
+-	 * Idle_counter is increased everytime when update_writeback_rate() is
+-	 * called. If all backing devices attached to the same cache set have
+-	 * identical dc->writeback_rate_update_seconds values, it is about 6
+-	 * rounds of update_writeback_rate() on each backing device before
+-	 * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
+-	 * to each dc->writeback_rate.rate.
+-	 * In order to avoid extra locking cost for counting exact dirty cached
+-	 * devices number, c->attached_dev_nr is used to calculate the idle
+-	 * throushold. It might be bigger if not all cached device are in write-
+-	 * back mode, but it still works well with limited extra rounds of
+-	 * update_writeback_rate().
+-	 */
+-	if (atomic_inc_return(&c->idle_counter) <
+-	    atomic_read(&c->attached_dev_nr) * 6)
++
++	if (!idle_counter_exceeded(c))
+ 		return false;
+ 
+ 	if (atomic_read(&c->at_max_writeback_rate) != 1)
+@@ -195,13 +229,10 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
+ 	dc->writeback_rate_change = 0;
  
  	/*
- 	 * If no sub-node was found, we still need to set nports to
- 	 * one in order to be able to use the
- 	 * ahci_platform_[en|dis]able_[phys|regulators] functions.
+-	 * Check c->idle_counter and c->at_max_writeback_rate agagain in case
+-	 * new I/O arrives during before set_at_max_writeback_rate() returns.
+-	 * Then the writeback rate is set to 1, and its new value should be
+-	 * decided via __update_writeback_rate().
++	 * In case new I/O arrives during before
++	 * set_at_max_writeback_rate() returns.
  	 */
--	if (!child_nodes)
-+	if (child_nodes)
-+		hpriv->nports = child_nodes;
-+	else
- 		hpriv->nports = 1;
+-	if ((atomic_read(&c->idle_counter) <
+-	     atomic_read(&c->attached_dev_nr) * 6) ||
++	if (!idle_counter_exceeded(c) ||
+ 	    !atomic_read(&c->at_max_writeback_rate))
+ 		return false;
  
- 	hpriv->phys = devm_kcalloc(dev, hpriv->nports, sizeof(*hpriv->phys), GFP_KERNEL);
 -- 
 2.35.1
 
