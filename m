@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1F046086CE
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:53:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B24608678
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:49:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231799AbiJVHxh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:53:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54846 "EHLO
+        id S231597AbiJVHt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:49:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231804AbiJVHwg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:52:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82EF82C1736;
-        Sat, 22 Oct 2022 00:46:27 -0700 (PDT)
+        with ESMTP id S231756AbiJVHtF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E82926908D;
+        Sat, 22 Oct 2022 00:45:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 366B360B21;
-        Sat, 22 Oct 2022 07:43:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15280C433D6;
-        Sat, 22 Oct 2022 07:43:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A21DB82E0C;
+        Sat, 22 Oct 2022 07:43:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A70E6C433C1;
+        Sat, 22 Oct 2022 07:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424627;
-        bh=93O7dW6IRHQsb8gextTW4CtzcYvhaFQPXPpG+LAb1ro=;
+        s=korg; t=1666424633;
+        bh=X5Y186WYxWqCHF+6mWY7rwZAQh/o7I6+AlwNmuTbF6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CUmDIEFTTzr58H56+o5iX/D3KHTuaOsaCYl/Ts4NBGAaclG5Y5sG3kh075ndJsY1Z
-         1jq1aLURc+EcRJ0T51reCRWwUf6H+RRrZFaGTNDnnXPv0L3M14VHy4o5Bn2bo35hIN
-         lJcHHuzy2xlLP//Q5eu/xlUjgnaqvVlO9wYtvguE=
+        b=KZEUn25xzlxv/QrN7jiVYgpT601Z3s5a1VhVc7nArmZ3JYlxRsj5ClKYbVI9y00Nj
+         x05vQn5gMX/hIcDRdcuEjJEDqIH+IwmgnG39CWJW+le9CnL/0oSjKzfpkioTTr+z/o
+         T833tgSwe3jw51IqYTr6hOloN2XbKaZOnb8aWWGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Hao Luo <haoluo@google.com>,
+        Hou Tao <houtao1@huawei.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 216/717] xsk: Fix backpressure mechanism on Tx
-Date:   Sat, 22 Oct 2022 09:21:35 +0200
-Message-Id: <20221022072453.451371628@linuxfoundation.org>
+Subject: [PATCH 5.19 218/717] bpf: Disable preemption when increasing per-cpu map_locked
+Date:   Sat, 22 Oct 2022 09:21:37 +0200
+Message-Id: <20221022072453.805093302@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,169 +54,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit c00c4461689e15ac2cc3b9a595a54e4d8afd3d77 ]
+[ Upstream commit 2775da21628738ce073a3a6a806adcbaada0f091 ]
 
-Commit d678cbd2f867 ("xsk: Fix handling of invalid descriptors in XSK TX
-batching API") fixed batch API usage against set of descriptors with
-invalid ones but introduced a problem when AF_XDP SW rings are smaller
-than HW ones. Mismatch of reported Tx'ed frames between HW generator and
-user space app was observed. It turned out that backpressure mechanism
-became a bottleneck when the amount of produced descriptors to CQ is
-lower than what we grabbed from XSK Tx ring.
+Per-cpu htab->map_locked is used to prohibit the concurrent accesses
+from both NMI and non-NMI contexts. But since commit 74d862b682f5
+("sched: Make migrate_disable/enable() independent of RT"),
+migrate_disable() is also preemptible under CONFIG_PREEMPT case, so now
+map_locked also disallows concurrent updates from normal contexts
+(e.g. userspace processes) unexpectedly as shown below:
 
-Say that 512 entries had been taken from XSK Tx ring but we had only 490
-free entries in CQ. Then callsite (ZC driver) will produce only 490
-entries onto HW Tx ring but 512 entries will be released from Tx ring
-and this is what will be seen by the user space.
+process A                      process B
 
-In order to fix this case, mix XSK Tx/CQ ring interractions by moving
-around internal functions and changing call order:
+htab_map_update_elem()
+  htab_lock_bucket()
+    migrate_disable()
+    /* return 1 */
+    __this_cpu_inc_return()
+    /* preempted by B */
 
-*  pull out xskq_prod_nb_free() from xskq_prod_reserve_addr_batch()
-   up to xsk_tx_peek_release_desc_batch();
-** move xskq_cons_release_n() into xskq_cons_read_desc_batch()
+                               htab_map_update_elem()
+                                 /* the same bucket as A */
+                                 htab_lock_bucket()
+                                   migrate_disable()
+                                   /* return 2, so lock fails */
+                                   __this_cpu_inc_return()
+                                   return -EBUSY
 
-After doing so, algorithm can be described as follows:
+A fix that seems feasible is using in_nmi() in htab_lock_bucket() and
+only checking the value of map_locked for nmi context. But it will
+re-introduce dead-lock on bucket lock if htab_lock_bucket() is re-entered
+through non-tracing program (e.g. fentry program).
 
-1. lookup Tx entries
-2. use value from 1. to reserve space in CQ (*)
-3. Read from Tx ring as much descriptors as value from 2
- 3a. release descriptors from XSK Tx ring (**)
-4. Finally produce addresses to CQ
+One cannot use preempt_disable() to fix this issue as htab_use_raw_lock
+being false causes the bucket lock to be a spin lock which can sleep and
+does not work with preempt_disable().
 
-Fixes: d678cbd2f867 ("xsk: Fix handling of invalid descriptors in XSK TX batching API")
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220830121705.8618-1-maciej.fijalkowski@intel.com
+Therefore, use migrate_disable() when using the spinlock instead of
+preempt_disable() and defer fixing concurrent updates to when the kernel
+has its own BPF memory allocator.
+
+Fixes: 74d862b682f5 ("sched: Make migrate_disable/enable() independent of RT")
+Reviewed-by: Hao Luo <haoluo@google.com>
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Link: https://lore.kernel.org/r/20220831042629.130006-2-houtao@huaweicloud.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xsk.c       | 22 +++++++++++-----------
- net/xdp/xsk_queue.h | 22 ++++++++++------------
- 2 files changed, 21 insertions(+), 23 deletions(-)
+ kernel/bpf/hashtab.c | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
-index 7e311420aab9..e24d62f8883a 100644
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -355,16 +355,15 @@ static u32 xsk_tx_peek_release_fallback(struct xsk_buff_pool *pool, u32 max_entr
- 	return nb_pkts;
- }
- 
--u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 max_entries)
-+u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 nb_pkts)
+diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
+index 4dd5e0005afa..717f85973443 100644
+--- a/kernel/bpf/hashtab.c
++++ b/kernel/bpf/hashtab.c
+@@ -162,17 +162,25 @@ static inline int htab_lock_bucket(const struct bpf_htab *htab,
+ 				   unsigned long *pflags)
  {
- 	struct xdp_sock *xs;
--	u32 nb_pkts;
+ 	unsigned long flags;
++	bool use_raw_lock;
  
- 	rcu_read_lock();
- 	if (!list_is_singular(&pool->xsk_tx_list)) {
- 		/* Fallback to the non-batched version */
- 		rcu_read_unlock();
--		return xsk_tx_peek_release_fallback(pool, max_entries);
-+		return xsk_tx_peek_release_fallback(pool, nb_pkts);
+ 	hash = hash & HASHTAB_MAP_LOCK_MASK;
+ 
+-	migrate_disable();
++	use_raw_lock = htab_use_raw_lock(htab);
++	if (use_raw_lock)
++		preempt_disable();
++	else
++		migrate_disable();
+ 	if (unlikely(__this_cpu_inc_return(*(htab->map_locked[hash])) != 1)) {
+ 		__this_cpu_dec(*(htab->map_locked[hash]));
+-		migrate_enable();
++		if (use_raw_lock)
++			preempt_enable();
++		else
++			migrate_enable();
+ 		return -EBUSY;
  	}
  
- 	xs = list_first_or_null_rcu(&pool->xsk_tx_list, struct xdp_sock, tx_list);
-@@ -373,12 +372,7 @@ u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 max_entries)
- 		goto out;
- 	}
- 
--	max_entries = xskq_cons_nb_entries(xs->tx, max_entries);
--	nb_pkts = xskq_cons_read_desc_batch(xs->tx, pool, max_entries);
--	if (!nb_pkts) {
--		xs->tx->queue_empty_descs++;
--		goto out;
--	}
-+	nb_pkts = xskq_cons_nb_entries(xs->tx, nb_pkts);
- 
- 	/* This is the backpressure mechanism for the Tx path. Try to
- 	 * reserve space in the completion queue for all packets, but
-@@ -386,12 +380,18 @@ u32 xsk_tx_peek_release_desc_batch(struct xsk_buff_pool *pool, u32 max_entries)
- 	 * packets. This avoids having to implement any buffering in
- 	 * the Tx path.
- 	 */
--	nb_pkts = xskq_prod_reserve_addr_batch(pool->cq, pool->tx_descs, nb_pkts);
-+	nb_pkts = xskq_prod_nb_free(pool->cq, nb_pkts);
- 	if (!nb_pkts)
- 		goto out;
- 
--	xskq_cons_release_n(xs->tx, max_entries);
-+	nb_pkts = xskq_cons_read_desc_batch(xs->tx, pool, nb_pkts);
-+	if (!nb_pkts) {
-+		xs->tx->queue_empty_descs++;
-+		goto out;
-+	}
+-	if (htab_use_raw_lock(htab))
++	if (use_raw_lock)
+ 		raw_spin_lock_irqsave(&b->raw_lock, flags);
+ 	else
+ 		spin_lock_irqsave(&b->lock, flags);
+@@ -185,13 +193,18 @@ static inline void htab_unlock_bucket(const struct bpf_htab *htab,
+ 				      struct bucket *b, u32 hash,
+ 				      unsigned long flags)
+ {
++	bool use_raw_lock = htab_use_raw_lock(htab);
 +
- 	__xskq_cons_release(xs->tx);
-+	xskq_prod_write_addr_batch(pool->cq, pool->tx_descs, nb_pkts);
- 	xs->sk.sk_write_space(&xs->sk);
- 
- out:
-diff --git a/net/xdp/xsk_queue.h b/net/xdp/xsk_queue.h
-index fb20bf7207cf..c6fb6b763658 100644
---- a/net/xdp/xsk_queue.h
-+++ b/net/xdp/xsk_queue.h
-@@ -205,6 +205,11 @@ static inline bool xskq_cons_read_desc(struct xsk_queue *q,
- 	return false;
+ 	hash = hash & HASHTAB_MAP_LOCK_MASK;
+-	if (htab_use_raw_lock(htab))
++	if (use_raw_lock)
+ 		raw_spin_unlock_irqrestore(&b->raw_lock, flags);
+ 	else
+ 		spin_unlock_irqrestore(&b->lock, flags);
+ 	__this_cpu_dec(*(htab->map_locked[hash]));
+-	migrate_enable();
++	if (use_raw_lock)
++		preempt_enable();
++	else
++		migrate_enable();
  }
  
-+static inline void xskq_cons_release_n(struct xsk_queue *q, u32 cnt)
-+{
-+	q->cached_cons += cnt;
-+}
-+
- static inline u32 xskq_cons_read_desc_batch(struct xsk_queue *q, struct xsk_buff_pool *pool,
- 					    u32 max)
- {
-@@ -226,6 +231,8 @@ static inline u32 xskq_cons_read_desc_batch(struct xsk_queue *q, struct xsk_buff
- 		cached_cons++;
- 	}
- 
-+	/* Release valid plus any invalid entries */
-+	xskq_cons_release_n(q, cached_cons - q->cached_cons);
- 	return nb_entries;
- }
- 
-@@ -291,11 +298,6 @@ static inline void xskq_cons_release(struct xsk_queue *q)
- 	q->cached_cons++;
- }
- 
--static inline void xskq_cons_release_n(struct xsk_queue *q, u32 cnt)
--{
--	q->cached_cons += cnt;
--}
--
- static inline u32 xskq_cons_present_entries(struct xsk_queue *q)
- {
- 	/* No barriers needed since data is not accessed */
-@@ -350,21 +352,17 @@ static inline int xskq_prod_reserve_addr(struct xsk_queue *q, u64 addr)
- 	return 0;
- }
- 
--static inline u32 xskq_prod_reserve_addr_batch(struct xsk_queue *q, struct xdp_desc *descs,
--					       u32 max)
-+static inline void xskq_prod_write_addr_batch(struct xsk_queue *q, struct xdp_desc *descs,
-+					      u32 nb_entries)
- {
- 	struct xdp_umem_ring *ring = (struct xdp_umem_ring *)q->ring;
--	u32 nb_entries, i, cached_prod;
--
--	nb_entries = xskq_prod_nb_free(q, max);
-+	u32 i, cached_prod;
- 
- 	/* A, matches D */
- 	cached_prod = q->cached_prod;
- 	for (i = 0; i < nb_entries; i++)
- 		ring->desc[cached_prod++ & q->ring_mask] = descs[i].addr;
- 	q->cached_prod = cached_prod;
--
--	return nb_entries;
- }
- 
- static inline int xskq_prod_reserve_desc(struct xsk_queue *q,
+ static bool htab_lru_map_delete_node(void *arg, struct bpf_lru_node *node);
 -- 
 2.35.1
 
