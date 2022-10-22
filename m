@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D93C608947
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4494160883C
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:12:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234063AbiJVIcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:32:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58058 "EHLO
+        id S232816AbiJVIMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:12:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234474AbiJVIa6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:30:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FF7029C3E2;
-        Sat, 22 Oct 2022 01:02:59 -0700 (PDT)
+        with ESMTP id S232833AbiJVIKK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:10:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4D771834C;
+        Sat, 22 Oct 2022 00:54:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48DDB60B81;
-        Sat, 22 Oct 2022 07:54:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DD4EC433D7;
-        Sat, 22 Oct 2022 07:54:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E17CEB82E0B;
+        Sat, 22 Oct 2022 07:54:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5956AC433D6;
+        Sat, 22 Oct 2022 07:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425258;
-        bh=PxotsaKLlKY7b4HcUMIZ3OuGfX1704mNrjuqwc66VrE=;
+        s=korg; t=1666425261;
+        bh=W/qDAiByOmW1Y7CEAQjz9gU5fPmSyXrCb/xo6AYIas8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kxayVuqs/L4dWh00aiaXEIOxKMGSn5CHPmXJXXC1vYHwj5xjLsen9GI0wU1LfxSUs
-         6opnJFfCDPwFjvUK3F0FFb0wiqTwKkGVozbJ0gw0nMtAM979TF0zDAySvnss/0HMRr
-         yeGcDF/0sNL1Hmezpou4yWhWB/kr8aFyNv7OpBHA=
+        b=kRj5ZjjKrKElQ0Iryj0dz8aGZRzoKS7ajvembMVZJcbxIaSUVIqHS1POxc/L6JEdf
+         8Ztw4k5hhiz23powDVufy1O1VlS48PAIhql7rfLSEO8HpRS/1hxby8MbO422s6byPr
+         AeIkCn40dZyN4Quc9n4imso4fOXV0DSEEoHHMEXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Zhang <markzhang@nvidia.com>,
-        Mark Bloch <mbloch@nvidia.com>,
+        stable@vger.kernel.org,
+        Daisuke Matsuda <matsuda-daisuke@fujitsu.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 442/717] RDMA/cm: Use SLID in the work completion as the DLID in responder side
-Date:   Sat, 22 Oct 2022 09:25:21 +0200
-Message-Id: <20221022072517.860151769@linuxfoundation.org>
+Subject: [PATCH 5.19 443/717] IB: Set IOVA/LENGTH on IB_MR in core/uverbs layers
+Date:   Sat, 22 Oct 2022 09:25:22 +0200
+Message-Id: <20221022072517.901595870@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,77 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markzhang@nvidia.com>
+From: Daisuke Matsuda <matsuda-daisuke@fujitsu.com>
 
-[ Upstream commit b7d95040c13f61a4a6a859c5355faf583eff9658 ]
+[ Upstream commit 241f9a27e0fc0eaf23e3d52c8450f10648cd11f1 ]
 
-The responder should always use WC's SLID as the dlid, to follow the
-IB SPEC section "13.5.4.2 COMMON RESPONSE ACTIONS":
-A responder always takes the following actions in constructing a
-response packet:
-- The SLID of the received packet is used as the DLID in the response
-  packet.
+Set 'iova' and 'length' on ib_mr in ib_uverbs and ib_core layers to let all
+drivers have the members filled. Also, this commit removes redundancy in
+the respective drivers.
 
-Fixes: ac3a949fb2ff ("IB/CM: Set appropriate slid and dlid when handling CM request")
-Signed-off-by: Mark Zhang <markzhang@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Link: https://lore.kernel.org/r/cd17c240231e059d2fc07c17dfe555d548b917eb.1662631201.git.leonro@nvidia.com
+Previously, commit 04c0a5fcfcf65 ("IB/uverbs: Set IOVA on IB MR in uverbs
+layer") changed to set 'iova', but seems to have missed 'length' and the
+ib_core layer at that time.
+
+Fixes: 04c0a5fcfcf65 ("IB/uverbs: Set IOVA on IB MR in uverbs layer")
+Signed-off-by: Daisuke Matsuda <matsuda-daisuke@fujitsu.com>
+Link: https://lore.kernel.org/r/20220921080844.1616883-1-matsuda-daisuke@fujitsu.com
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cm.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/infiniband/core/uverbs_cmd.c    | 5 ++++-
+ drivers/infiniband/core/verbs.c         | 2 ++
+ drivers/infiniband/hw/hns/hns_roce_mr.c | 1 -
+ drivers/infiniband/hw/mlx4/mr.c         | 1 -
+ 4 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
-index b985e0d9bc05..5c910f5c01b3 100644
---- a/drivers/infiniband/core/cm.c
-+++ b/drivers/infiniband/core/cm.c
-@@ -1632,14 +1632,13 @@ static void cm_path_set_rec_type(struct ib_device *ib_device, u32 port_num,
+diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
+index 046376bd68e2..4796f6a8828c 100644
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -739,6 +739,7 @@ static int ib_uverbs_reg_mr(struct uverbs_attr_bundle *attrs)
+ 	mr->uobject = uobj;
+ 	atomic_inc(&pd->usecnt);
+ 	mr->iova = cmd.hca_va;
++	mr->length = cmd.length;
  
- static void cm_format_path_lid_from_req(struct cm_req_msg *req_msg,
- 					struct sa_path_rec *primary_path,
--					struct sa_path_rec *alt_path)
-+					struct sa_path_rec *alt_path,
-+					struct ib_wc *wc)
- {
- 	u32 lid;
- 
- 	if (primary_path->rec_type != SA_PATH_REC_TYPE_OPA) {
--		sa_path_set_dlid(primary_path,
--				 IBA_GET(CM_REQ_PRIMARY_LOCAL_PORT_LID,
--					 req_msg));
-+		sa_path_set_dlid(primary_path, wc->slid);
- 		sa_path_set_slid(primary_path,
- 				 IBA_GET(CM_REQ_PRIMARY_REMOTE_PORT_LID,
- 					 req_msg));
-@@ -1676,7 +1675,8 @@ static void cm_format_path_lid_from_req(struct cm_req_msg *req_msg,
- 
- static void cm_format_paths_from_req(struct cm_req_msg *req_msg,
- 				     struct sa_path_rec *primary_path,
--				     struct sa_path_rec *alt_path)
-+				     struct sa_path_rec *alt_path,
-+				     struct ib_wc *wc)
- {
- 	primary_path->dgid =
- 		*IBA_GET_MEM_PTR(CM_REQ_PRIMARY_LOCAL_PORT_GID, req_msg);
-@@ -1734,7 +1734,7 @@ static void cm_format_paths_from_req(struct cm_req_msg *req_msg,
- 		if (sa_path_is_roce(alt_path))
- 			alt_path->roce.route_resolved = false;
+ 	rdma_restrack_new(&mr->res, RDMA_RESTRACK_MR);
+ 	rdma_restrack_set_name(&mr->res, NULL);
+@@ -861,8 +862,10 @@ static int ib_uverbs_rereg_mr(struct uverbs_attr_bundle *attrs)
+ 			mr->pd = new_pd;
+ 			atomic_inc(&new_pd->usecnt);
+ 		}
+-		if (cmd.flags & IB_MR_REREG_TRANS)
++		if (cmd.flags & IB_MR_REREG_TRANS) {
+ 			mr->iova = cmd.hca_va;
++			mr->length = cmd.length;
++		}
  	}
--	cm_format_path_lid_from_req(req_msg, primary_path, alt_path);
-+	cm_format_path_lid_from_req(req_msg, primary_path, alt_path, wc);
- }
  
- static u16 cm_get_bth_pkey(struct cm_work *work)
-@@ -2148,7 +2148,7 @@ static int cm_req_handler(struct cm_work *work)
- 	if (cm_req_has_alt_path(req_msg))
- 		work->path[1].rec_type = work->path[0].rec_type;
- 	cm_format_paths_from_req(req_msg, &work->path[0],
--				 &work->path[1]);
-+				 &work->path[1], work->mad_recv_wc->wc);
- 	if (cm_id_priv->av.ah_attr.type == RDMA_AH_ATTR_TYPE_ROCE)
- 		sa_path_set_dmac(&work->path[0],
- 				 cm_id_priv->av.ah_attr.roce.dmac);
+ 	memset(&resp, 0, sizeof(resp));
+diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
+index e54b3f1b730e..f8964c8cf0ad 100644
+--- a/drivers/infiniband/core/verbs.c
++++ b/drivers/infiniband/core/verbs.c
+@@ -2149,6 +2149,8 @@ struct ib_mr *ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
+ 	mr->pd = pd;
+ 	mr->dm = NULL;
+ 	atomic_inc(&pd->usecnt);
++	mr->iova =  virt_addr;
++	mr->length = length;
+ 
+ 	rdma_restrack_new(&mr->res, RDMA_RESTRACK_MR);
+ 	rdma_restrack_parent_name(&mr->res, &pd->res);
+diff --git a/drivers/infiniband/hw/hns/hns_roce_mr.c b/drivers/infiniband/hw/hns/hns_roce_mr.c
+index 867972c2a894..dedfa56f5773 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_mr.c
++++ b/drivers/infiniband/hw/hns/hns_roce_mr.c
+@@ -249,7 +249,6 @@ struct ib_mr *hns_roce_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
+ 		goto err_alloc_pbl;
+ 
+ 	mr->ibmr.rkey = mr->ibmr.lkey = mr->key;
+-	mr->ibmr.length = length;
+ 
+ 	return &mr->ibmr;
+ 
+diff --git a/drivers/infiniband/hw/mlx4/mr.c b/drivers/infiniband/hw/mlx4/mr.c
+index 04a67b481608..a40bf58bcdd3 100644
+--- a/drivers/infiniband/hw/mlx4/mr.c
++++ b/drivers/infiniband/hw/mlx4/mr.c
+@@ -439,7 +439,6 @@ struct ib_mr *mlx4_ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
+ 		goto err_mr;
+ 
+ 	mr->ibmr.rkey = mr->ibmr.lkey = mr->mmr.key;
+-	mr->ibmr.length = length;
+ 	mr->ibmr.page_size = 1U << shift;
+ 
+ 	return &mr->ibmr;
 -- 
 2.35.1
 
