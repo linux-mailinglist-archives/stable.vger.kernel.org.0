@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57F8260891A
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05FB7608916
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231167AbiJVIbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:31:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51326 "EHLO
+        id S230000AbiJVIbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:31:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233987AbiJVI3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:29:06 -0400
+        with ESMTP id S233934AbiJVI2r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:28:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9E5F2CB88B;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCB532E2283;
         Sat, 22 Oct 2022 01:01:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52845B82E07;
-        Sat, 22 Oct 2022 07:53:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC416C433D6;
-        Sat, 22 Oct 2022 07:53:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9525AB82E0D;
+        Sat, 22 Oct 2022 07:53:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCA55C433D6;
+        Sat, 22 Oct 2022 07:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425226;
-        bh=QuHmkVD5GrEIany+pQ95OQ4C3Xd093q6+PFGtcYblMY=;
+        s=korg; t=1666425229;
+        bh=2jLg4sorREdD9Kh2cd4WxQmBKxAsrF1D/dWByB0ETJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HjtWpkAhRNoAb0dcNMfmbedHD5DZFCT/Z3oxjeIA1hGcgx94hPpf/ba+d9BJU7JJ9
-         ZjOHIF6vVcVqDMgXxBZTs1EH+vzMYCe/Iqv1yNuhbO9ohpYJRHpWx66WkfVkHsc1tw
-         f4sfrGAmlb85VUU2V6KIEZKr9Hbp5h/X6xbLB4JM=
+        b=d2pkKRPLkuBrYElwNUeQnguJXqrlwx2zvNbendNgiHqi0DV46vkNKAmiZbk5rdbGs
+         nUgfBjxOHuCefQzlp9ef4q/hOKn9Aqk9Xb1PgFq6q17LSpBq+FOjS+/rKlO0t6rYUq
+         Nbsf0WNSN6+tr2r9zSa4aPXpA4wGv/xewG62WfMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 433/717] RDMA/siw: Fix QP destroy to wait for all references dropped.
-Date:   Sat, 22 Oct 2022 09:25:12 +0200
-Message-Id: <20221022072517.571666640@linuxfoundation.org>
+Subject: [PATCH 5.19 434/717] ata: fix ata_id_sense_reporting_enabled() and ata_id_has_sense_reporting()
+Date:   Sat, 22 Oct 2022 09:25:13 +0200
+Message-Id: <20221022072517.606948532@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,76 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernard Metzler <bmt@zurich.ibm.com>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit a3c278807a459e6f50afee6971cabe74cccfb490 ]
+[ Upstream commit 690aa8c3ae308bc696ec8b1b357b995193927083 ]
 
-Delay QP destroy completion until all siw references to QP are
-dropped. The calling RDMA core will free QP structure after
-successful return from siw_qp_destroy() call, so siw must not
-hold any remaining reference to the QP upon return.
-A use-after-free was encountered in xfstest generic/460, while
-testing NFSoRDMA. Here, after a TCP connection drop by peer,
-the triggered siw_cm_work_handler got delayed until after
-QP destroy call, referencing a QP which has already freed.
+ACS-5 section
+7.13.6.41 Words 85..87, 120: Commands and feature sets supported or enabled
+states that:
 
-Fixes: 303ae1cdfdf7 ("rdma/siw: application interface")
-Reported-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
-Link: https://lore.kernel.org/r/20220920082503.224189-1-bmt@zurich.ibm.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+If bit 15 of word 86 is set to one, bit 14 of word 119 is set to one,
+and bit 15 of word 119 is cleared to zero, then word 119 is valid.
+
+If bit 15 of word 86 is set to one, bit 14 of word 120 is set to one,
+and bit 15 of word 120 is cleared to zero, then word 120 is valid.
+
+(This text also exists in really old ACS standards, e.g. ACS-3.)
+
+Currently, ata_id_sense_reporting_enabled() and
+ata_id_has_sense_reporting() both check bit 15 of word 86,
+but neither of them check that bit 14 of word 119 is set to one,
+or that bit 15 of word 119 is cleared to zero.
+
+Additionally, make ata_id_sense_reporting_enabled() return false
+if !ata_id_has_sense_reporting(), similar to how e.g.
+ata_id_flush_ext_enabled() returns false if !ata_id_has_flush_ext().
+
+Fixes: e87fd28cf9a2 ("libata: Implement support for sense data reporting")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw.h       | 1 +
- drivers/infiniband/sw/siw/siw_qp.c    | 2 +-
- drivers/infiniband/sw/siw/siw_verbs.c | 3 +++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ include/linux/ata.h | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw.h b/drivers/infiniband/sw/siw/siw.h
-index df03d84c6868..2f3a9cda3850 100644
---- a/drivers/infiniband/sw/siw/siw.h
-+++ b/drivers/infiniband/sw/siw/siw.h
-@@ -418,6 +418,7 @@ struct siw_qp {
- 	struct ib_qp base_qp;
- 	struct siw_device *sdev;
- 	struct kref ref;
-+	struct completion qp_free;
- 	struct list_head devq;
- 	int tx_cpu;
- 	struct siw_qp_attrs attrs;
-diff --git a/drivers/infiniband/sw/siw/siw_qp.c b/drivers/infiniband/sw/siw/siw_qp.c
-index 7e01f2438afc..e6f634971228 100644
---- a/drivers/infiniband/sw/siw/siw_qp.c
-+++ b/drivers/infiniband/sw/siw/siw_qp.c
-@@ -1342,6 +1342,6 @@ void siw_free_qp(struct kref *ref)
- 	vfree(qp->orq);
+diff --git a/include/linux/ata.h b/include/linux/ata.h
+index 21292b5bbb55..868bfd503aee 100644
+--- a/include/linux/ata.h
++++ b/include/linux/ata.h
+@@ -771,16 +771,21 @@ static inline bool ata_id_has_read_log_dma_ext(const u16 *id)
  
- 	siw_put_tx_cpu(qp->tx_cpu);
--
-+	complete(&qp->qp_free);
- 	atomic_dec(&sdev->num_qp);
+ static inline bool ata_id_has_sense_reporting(const u16 *id)
+ {
+-	if (!(id[ATA_ID_CFS_ENABLE_2] & (1 << 15)))
++	if (!(id[ATA_ID_CFS_ENABLE_2] & BIT(15)))
++		return false;
++	if ((id[ATA_ID_COMMAND_SET_3] & (BIT(15) | BIT(14))) != BIT(14))
+ 		return false;
+-	return id[ATA_ID_COMMAND_SET_3] & (1 << 6);
++	return id[ATA_ID_COMMAND_SET_3] & BIT(6);
  }
-diff --git a/drivers/infiniband/sw/siw/siw_verbs.c b/drivers/infiniband/sw/siw/siw_verbs.c
-index 09316072b789..598dab44536b 100644
---- a/drivers/infiniband/sw/siw/siw_verbs.c
-+++ b/drivers/infiniband/sw/siw/siw_verbs.c
-@@ -480,6 +480,8 @@ int siw_create_qp(struct ib_qp *ibqp, struct ib_qp_init_attr *attrs,
- 	list_add_tail(&qp->devq, &sdev->qp_list);
- 	spin_unlock_irqrestore(&sdev->lock, flags);
  
-+	init_completion(&qp->qp_free);
-+
- 	return 0;
- 
- err_out_xa:
-@@ -624,6 +626,7 @@ int siw_destroy_qp(struct ib_qp *base_qp, struct ib_udata *udata)
- 	qp->scq = qp->rcq = NULL;
- 
- 	siw_qp_put(qp);
-+	wait_for_completion(&qp->qp_free);
- 
- 	return 0;
+ static inline bool ata_id_sense_reporting_enabled(const u16 *id)
+ {
+-	if (!(id[ATA_ID_CFS_ENABLE_2] & (1 << 15)))
++	if (!ata_id_has_sense_reporting(id))
++		return false;
++	/* ata_id_has_sense_reporting() == true, word 86 must have bit 15 set */
++	if ((id[ATA_ID_COMMAND_SET_4] & (BIT(15) | BIT(14))) != BIT(14))
+ 		return false;
+-	return id[ATA_ID_COMMAND_SET_4] & (1 << 6);
++	return id[ATA_ID_COMMAND_SET_4] & BIT(6);
  }
+ 
+ /**
 -- 
 2.35.1
 
