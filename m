@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85C36608626
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 010F36085F3
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:42:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231308AbiJVHpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45920 "EHLO
+        id S230438AbiJVHmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:42:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231470AbiJVHoS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:44:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0726B62A5B;
-        Sat, 22 Oct 2022 00:42:32 -0700 (PDT)
+        with ESMTP id S231228AbiJVHlo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:41:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9858A31EE9;
+        Sat, 22 Oct 2022 00:39:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DFD260AC3;
-        Sat, 22 Oct 2022 07:38:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FE8BC433C1;
-        Sat, 22 Oct 2022 07:38:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E58BB82DF9;
+        Sat, 22 Oct 2022 07:38:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA311C433D6;
+        Sat, 22 Oct 2022 07:38:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424302;
-        bh=oIZz2kCGl4WXF7IUGUkjXWSCBViv/dAcbheVseTAqUw=;
+        s=korg; t=1666424324;
+        bh=5dmX0BxH8ERt9C6w6xHEfRy2uRICDLXXIjsgURNzIo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obv6sulYRd84kOP2RIHSxLZo/D3VnsTHW6/hVVhD4BuxSqECPrvJVzZJbQCkTLo5m
-         dS/D8JHiDrweiy2YX7TTT38710MUzIixD+FgKboGQlvqDG0fBxgvhngdbZtKBt68OV
-         Ch+iTi0sh+mernHMA3rpoczfxPBF9A8lkbNS5T4A=
+        b=GMsJVDNuQGkLxooE2l/mKD0S4lI4bx6cmqDCXDufqpfTXArvC42RSbXUATVRoUOHq
+         gkB3HWdOlw946emZYg+hzWjyZYULu2+6FefRxp/4/lYFnHczwtjoN5WC5OiTKPfkQI
+         gqH7iLjDEH/MPLOIqKXAxKRipo6IIfofMZRFU/K4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.19 094/717] slimbus: qcom-ngd: cleanup in probe error path
-Date:   Sat, 22 Oct 2022 09:19:33 +0200
-Message-Id: <20221022072432.030870879@linuxfoundation.org>
+        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
+        John Meneghini <jmeneghi@redhat.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.19 096/717] scsi: qedf: Populate sysfs attributes for vport
+Date:   Sat, 22 Oct 2022 09:19:35 +0200
+Message-Id: <20221022072432.361102673@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,78 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Saurav Kashyap <skashyap@marvell.com>
 
-commit 16f14551d0df9e7cd283545d7d748829594d912f upstream.
+commit 592642e6b11e620e4b43189f8072752429fc8dc3 upstream.
 
-Add proper error path in probe() to cleanup resources previously
-acquired/allocated to fix warnings visible during probe deferral:
+Few vport parameters were displayed by systool as 'Unknown' or 'NULL'.
+Copy speed, supported_speed, frame_size and update port_type for NPIV port.
 
-  notifier callback qcom_slim_ngd_ssr_notify already registered
-  WARNING: CPU: 6 PID: 70 at kernel/notifier.c:28 notifier_chain_register+0x5c/0x90
-  Modules linked in:
-  CPU: 6 PID: 70 Comm: kworker/u16:1 Not tainted 6.0.0-rc3-next-20220830 #380
-  Call trace:
-   notifier_chain_register+0x5c/0x90
-   srcu_notifier_chain_register+0x44/0x90
-   qcom_register_ssr_notifier+0x38/0x4c
-   qcom_slim_ngd_ctrl_probe+0xd8/0x400
-   platform_probe+0x6c/0xe0
-   really_probe+0xbc/0x2d4
-   __driver_probe_device+0x78/0xe0
-   driver_probe_device+0x3c/0x12c
-   __device_attach_driver+0xb8/0x120
-   bus_for_each_drv+0x78/0xd0
-   __device_attach+0xa8/0x1c0
-   device_initial_probe+0x18/0x24
-   bus_probe_device+0xa0/0xac
-   deferred_probe_work_func+0x88/0xc0
-   process_one_work+0x1d4/0x320
-   worker_thread+0x2cc/0x44c
-   kthread+0x110/0x114
-   ret_from_fork+0x10/0x20
-
-Fixes: e1ae85e1830e ("slimbus: qcom-ngd-ctrl: add Protection Domain Restart Support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220916122910.170730-3-srinivas.kandagatla@linaro.org
+Link: https://lore.kernel.org/r/20220919134434.3513-1-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Tested-by: Guangwu Zhang <guazhang@redhat.com>
+Reviewed-by: John Meneghini <jmeneghi@redhat.com>
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/slimbus/qcom-ngd-ctrl.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/scsi/qedf/qedf_main.c |   21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
---- a/drivers/slimbus/qcom-ngd-ctrl.c
-+++ b/drivers/slimbus/qcom-ngd-ctrl.c
-@@ -1576,18 +1576,27 @@ static int qcom_slim_ngd_ctrl_probe(stru
- 	ctrl->pdr = pdr_handle_alloc(slim_pd_status, ctrl);
- 	if (IS_ERR(ctrl->pdr)) {
- 		dev_err(dev, "Failed to init PDR handle\n");
--		return PTR_ERR(ctrl->pdr);
-+		ret = PTR_ERR(ctrl->pdr);
-+		goto err_pdr_alloc;
+--- a/drivers/scsi/qedf/qedf_main.c
++++ b/drivers/scsi/qedf/qedf_main.c
+@@ -1921,6 +1921,27 @@ static int qedf_vport_create(struct fc_v
+ 		fc_vport_setlink(vn_port);
  	}
  
- 	pds = pdr_add_lookup(ctrl->pdr, "avs/audio", "msm/adsp/audio_pd");
- 	if (IS_ERR(pds) && PTR_ERR(pds) != -EALREADY) {
- 		ret = PTR_ERR(pds);
- 		dev_err(dev, "pdr add lookup failed: %d\n", ret);
--		return ret;
-+		goto err_pdr_lookup;
- 	}
++	/* Set symbolic node name */
++	if (base_qedf->pdev->device == QL45xxx)
++		snprintf(fc_host_symbolic_name(vn_port->host), 256,
++			 "Marvell FastLinQ 45xxx FCoE v%s", QEDF_VERSION);
++
++	if (base_qedf->pdev->device == QL41xxx)
++		snprintf(fc_host_symbolic_name(vn_port->host), 256,
++			 "Marvell FastLinQ 41xxx FCoE v%s", QEDF_VERSION);
++
++	/* Set supported speed */
++	fc_host_supported_speeds(vn_port->host) = n_port->link_supported_speeds;
++
++	/* Set speed */
++	vn_port->link_speed = n_port->link_speed;
++
++	/* Set port type */
++	fc_host_port_type(vn_port->host) = FC_PORTTYPE_NPIV;
++
++	/* Set maxframe size */
++	fc_host_maxframe_size(vn_port->host) = n_port->mfs;
++
+ 	QEDF_INFO(&(base_qedf->dbg_ctx), QEDF_LOG_NPIV, "vn_port=%p.\n",
+ 		   vn_port);
  
- 	platform_driver_register(&qcom_slim_ngd_driver);
- 	return of_qcom_slim_ngd_register(dev, ctrl);
-+
-+err_pdr_alloc:
-+	qcom_unregister_ssr_notifier(ctrl->notifier, &ctrl->nb);
-+
-+err_pdr_lookup:
-+	pdr_handle_release(ctrl->pdr);
-+
-+	return ret;
- }
- 
- static int qcom_slim_ngd_ctrl_remove(struct platform_device *pdev)
 
 
