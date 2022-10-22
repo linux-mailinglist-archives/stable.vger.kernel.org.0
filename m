@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11707608BF0
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63138608C0B
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230461AbiJVKuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 06:50:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59184 "EHLO
+        id S230472AbiJVK6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 06:58:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229585AbiJVKuF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:50:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0039F10041D;
-        Sat, 22 Oct 2022 03:07:00 -0700 (PDT)
+        with ESMTP id S230494AbiJVK5k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:57:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 167592E983F;
+        Sat, 22 Oct 2022 03:16:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEE85B82DE2;
-        Sat, 22 Oct 2022 07:42:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56577C433D6;
-        Sat, 22 Oct 2022 07:42:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58643B82E14;
+        Sat, 22 Oct 2022 07:44:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1DFEC433C1;
+        Sat, 22 Oct 2022 07:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424557;
-        bh=njhw0LwRXIffYEP5C+Wa5eEtx0qNIV98IVTRB8jz/4A=;
+        s=korg; t=1666424679;
+        bh=/WHpOa08+5yeB5M68zBL42rWpAGT/Vty05ist5mnjeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dIS7pPwbSIna8eki4KRjbhI5p4TrC8LX4ZKI4LIu5OmYHz1WlV6ltT8/vjiFIkDWQ
-         GL4MoGGi6eDZTfAiKh4ovISDz/lmN8xIpdqvOLtRIoUabSE0ILqUr55D+YbYuJMXXg
-         LoeHndGkFnJ1tb15hRqur9uAP60CaG/MMt2f1a6Q=
+        b=LtGfJUQOqawN9d7syREvvtG9DClXq9s5SiECps3YMp5JKvxHK/qJtoczZIdJrM9ml
+         mwqKFtvirIDAe09oAqZQg2IELspSSsWLobL5hrNQ1+BDP/bPhkLLx5QfnPdhZOn9nO
+         5RaHzvP0HxMLFtDUoPGeBMDm4WnSSQtFtUJRpni8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 190/717] ACPI: PCC: Release resources on address space setup failure path
-Date:   Sat, 22 Oct 2022 09:21:09 +0200
-Message-Id: <20221022072449.227831824@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 228/717] wifi: rtw88: add missing destroy_workqueue() on error path in rtw_core_init()
+Date:   Sat, 22 Oct 2022 09:21:47 +0200
+Message-Id: <20221022072455.457843616@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,44 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f890157e61b85ce8ae01a41ffa375e3b99853698 ]
+[ Upstream commit b0ea758b30bbdf7c4323c78b7c50c05d2e1224d5 ]
 
-The allocated memory for the pcc_data struct doesn't get freed under an
-error path in pcc_mbox_request_channel() or acpi_os_ioremap(). Also, the
-PCC mailbox channel doesn't get freed under an error path in
-acpi_os_ioremap().
+Add the missing destroy_workqueue() before return from rtw_core_init()
+in error path.
 
-Fixes: 77e2a04745ff8 ("ACPI: PCC: Implement OperationRegion handler for the PCC Type 3 subtype")
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: fe101716c7c9 ("rtw88: replace tx tasklet with work queue")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220826023817.3908255-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_pcc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/realtek/rtw88/main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/acpi_pcc.c b/drivers/acpi/acpi_pcc.c
-index a12b55d81209..84f1ac416b57 100644
---- a/drivers/acpi/acpi_pcc.c
-+++ b/drivers/acpi/acpi_pcc.c
-@@ -63,6 +63,7 @@ acpi_pcc_address_space_setup(acpi_handle region_handle, u32 function,
- 	if (IS_ERR(data->pcc_chan)) {
- 		pr_err("Failed to find PCC channel for subspace %d\n",
- 		       ctx->subspace_id);
-+		kfree(data);
- 		return AE_NOT_FOUND;
+diff --git a/drivers/net/wireless/realtek/rtw88/main.c b/drivers/net/wireless/realtek/rtw88/main.c
+index 645ef1d01895..c364482ab331 100644
+--- a/drivers/net/wireless/realtek/rtw88/main.c
++++ b/drivers/net/wireless/realtek/rtw88/main.c
+@@ -2037,7 +2037,7 @@ int rtw_core_init(struct rtw_dev *rtwdev)
+ 	ret = rtw_load_firmware(rtwdev, RTW_NORMAL_FW);
+ 	if (ret) {
+ 		rtw_warn(rtwdev, "no firmware loaded\n");
+-		return ret;
++		goto out;
  	}
  
-@@ -72,6 +73,8 @@ acpi_pcc_address_space_setup(acpi_handle region_handle, u32 function,
- 	if (!data->pcc_comm_addr) {
- 		pr_err("Failed to ioremap PCC comm region mem for %d\n",
- 		       ctx->subspace_id);
-+		pcc_mbox_free_channel(data->pcc_chan);
-+		kfree(data);
- 		return AE_NO_MEMORY;
+ 	if (chip->wow_fw_name) {
+@@ -2047,11 +2047,15 @@ int rtw_core_init(struct rtw_dev *rtwdev)
+ 			wait_for_completion(&rtwdev->fw.completion);
+ 			if (rtwdev->fw.firmware)
+ 				release_firmware(rtwdev->fw.firmware);
+-			return ret;
++			goto out;
+ 		}
  	}
+ 
+ 	return 0;
++
++out:
++	destroy_workqueue(rtwdev->tx_wq);
++	return ret;
+ }
+ EXPORT_SYMBOL(rtw_core_init);
  
 -- 
 2.35.1
