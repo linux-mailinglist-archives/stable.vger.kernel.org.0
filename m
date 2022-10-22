@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F22C76087BF
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF3606087D9
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:06:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232727AbiJVIFl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:05:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60038 "EHLO
+        id S232594AbiJVIGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:06:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233049AbiJVIEq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D7A72C4CAF;
-        Sat, 22 Oct 2022 00:52:18 -0700 (PDT)
+        with ESMTP id S232537AbiJVIFV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:05:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E152C6E0D;
+        Sat, 22 Oct 2022 00:52:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 213D160B6B;
-        Sat, 22 Oct 2022 07:52:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38774C433C1;
-        Sat, 22 Oct 2022 07:52:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 757BAB82D9F;
+        Sat, 22 Oct 2022 07:52:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7A78C433D6;
+        Sat, 22 Oct 2022 07:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425134;
-        bh=PsFauO4JCKT7a/SR3XyCwaQSaNErUbHMqu5GtQzlL6k=;
+        s=korg; t=1666425137;
+        bh=nmvG3vBy2Gnd/UxyKgj0D3lIpS0zVnyNZ2NZnicV560=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPJB6in5mfF9bmxMwp1WZRJb0PqdrSi1NTVGtdS1SurFueqrEbPiCIUfq22yKfcND
-         5qgStE1yEf9UQF+kIYJzdcEnF2BqPQ5pbYOgbhLKK51R9eKz4tlWg+8x631yWX6gWl
-         Be1ysSfJUbJIXAbe4u5Rrqd/kjWNrtlZpbiEGvsE=
+        b=j07urjt1Ot1jNuQnTZ6vY+AMuNmZKB1a66DGG2Bp0vm2h+ShN6yO/we6k6QVyXYdE
+         AYrL/k8vpeqWJUUtO5A/sUZWHBnrJUafqlE9Advjsk7jrn+apq5+PDbJZQbl5/7DYp
+         uJqIi7fseLSKrziH2g0qYHSJDuzctpFJeJshhy5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunke Cao <yunkec@google.com>,
-        Ricardo Ribalda <ribalda@chromium.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 402/717] media: uvcvideo: Use entity get_cur in uvc_ctrl_set
-Date:   Sat, 22 Oct 2022 09:24:41 +0200
-Message-Id: <20221022072515.662032461@linuxfoundation.org>
+Subject: [PATCH 5.19 403/717] media: xilinx: vipp: Fix refcount leak in xvip_graph_dma_init
+Date:   Sat, 22 Oct 2022 09:24:42 +0200
+Message-Id: <20221022072515.722008557@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,132 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunke Cao <yunkec@google.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 5f36851c36b30f713f588ed2b60aa7b4512e2c76 ]
+[ Upstream commit 1c78f19c3a0ea312a8178a6bfd8934eb93e9b10a ]
 
-Entity controls should get_cur using an entity-defined function
-instead of via a query. Fix this in uvc_ctrl_set.
+of_get_child_by_name() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 65900c581d01 ("media: uvcvideo: Allow entity-defined get_info and get_cur")
-Signed-off-by: Yunke Cao <yunkec@google.com>
-Reviewed-by: Ricardo Ribalda <ribalda@chromium.org>
+Fixes: df3305156f98 ("[media] v4l: xilinx: Add Xilinx Video IP core")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
 Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_ctrl.c | 83 ++++++++++++++++++--------------
- 1 file changed, 46 insertions(+), 37 deletions(-)
+ drivers/media/platform/xilinx/xilinx-vipp.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
-index 0e78233fc8a0..44071040d764 100644
---- a/drivers/media/usb/uvc/uvc_ctrl.c
-+++ b/drivers/media/usb/uvc/uvc_ctrl.c
-@@ -963,36 +963,56 @@ static s32 __uvc_ctrl_get_value(struct uvc_control_mapping *mapping,
- 	return value;
+diff --git a/drivers/media/platform/xilinx/xilinx-vipp.c b/drivers/media/platform/xilinx/xilinx-vipp.c
+index f34f8b077e03..0a16c218a50a 100644
+--- a/drivers/media/platform/xilinx/xilinx-vipp.c
++++ b/drivers/media/platform/xilinx/xilinx-vipp.c
+@@ -471,7 +471,7 @@ static int xvip_graph_dma_init(struct xvip_composite_device *xdev)
+ {
+ 	struct device_node *ports;
+ 	struct device_node *port;
+-	int ret;
++	int ret = 0;
+ 
+ 	ports = of_get_child_by_name(xdev->dev->of_node, "ports");
+ 	if (ports == NULL) {
+@@ -481,13 +481,14 @@ static int xvip_graph_dma_init(struct xvip_composite_device *xdev)
+ 
+ 	for_each_child_of_node(ports, port) {
+ 		ret = xvip_graph_dma_init_one(xdev, port);
+-		if (ret < 0) {
++		if (ret) {
+ 			of_node_put(port);
+-			return ret;
++			break;
+ 		}
+ 	}
+ 
+-	return 0;
++	of_node_put(ports);
++	return ret;
  }
  
--static int __uvc_ctrl_get(struct uvc_video_chain *chain,
--	struct uvc_control *ctrl, struct uvc_control_mapping *mapping,
--	s32 *value)
-+static int __uvc_ctrl_load_cur(struct uvc_video_chain *chain,
-+			       struct uvc_control *ctrl)
- {
-+	u8 *data;
- 	int ret;
- 
--	if ((ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR) == 0)
--		return -EACCES;
-+	if (ctrl->loaded)
-+		return 0;
- 
--	if (!ctrl->loaded) {
--		if (ctrl->entity->get_cur) {
--			ret = ctrl->entity->get_cur(chain->dev,
--				ctrl->entity,
--				ctrl->info.selector,
--				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
--				ctrl->info.size);
--		} else {
--			ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR,
--				ctrl->entity->id,
--				chain->dev->intfnum,
--				ctrl->info.selector,
--				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
--				ctrl->info.size);
--		}
--		if (ret < 0)
--			return ret;
-+	data = uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT);
- 
-+	if ((ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR) == 0) {
-+		memset(data, 0, ctrl->info.size);
- 		ctrl->loaded = 1;
-+
-+		return 0;
- 	}
- 
-+	if (ctrl->entity->get_cur)
-+		ret = ctrl->entity->get_cur(chain->dev, ctrl->entity,
-+					    ctrl->info.selector, data,
-+					    ctrl->info.size);
-+	else
-+		ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR,
-+				     ctrl->entity->id, chain->dev->intfnum,
-+				     ctrl->info.selector, data,
-+				     ctrl->info.size);
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	ctrl->loaded = 1;
-+
-+	return ret;
-+}
-+
-+static int __uvc_ctrl_get(struct uvc_video_chain *chain,
-+			  struct uvc_control *ctrl,
-+			  struct uvc_control_mapping *mapping,
-+			  s32 *value)
-+{
-+	int ret;
-+
-+	if ((ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR) == 0)
-+		return -EACCES;
-+
-+	ret = __uvc_ctrl_load_cur(chain, ctrl);
-+	if (ret < 0)
-+		return ret;
-+
- 	*value = __uvc_ctrl_get_value(mapping,
- 				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT));
- 
-@@ -1783,21 +1803,10 @@ int uvc_ctrl_set(struct uvc_fh *handle,
- 	 * needs to be loaded from the device to perform the read-modify-write
- 	 * operation.
- 	 */
--	if (!ctrl->loaded && (ctrl->info.size * 8) != mapping->size) {
--		if ((ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR) == 0) {
--			memset(uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
--				0, ctrl->info.size);
--		} else {
--			ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR,
--				ctrl->entity->id, chain->dev->intfnum,
--				ctrl->info.selector,
--				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
--				ctrl->info.size);
--			if (ret < 0)
--				return ret;
--		}
--
--		ctrl->loaded = 1;
-+	if ((ctrl->info.size * 8) != mapping->size) {
-+		ret = __uvc_ctrl_load_cur(chain, ctrl);
-+		if (ret < 0)
-+			return ret;
- 	}
- 
- 	/* Backup the current value in case we need to rollback later. */
+ static void xvip_graph_cleanup(struct xvip_composite_device *xdev)
 -- 
 2.35.1
 
