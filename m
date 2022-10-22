@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F2BE608912
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CCB7608A0E
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229916AbiJVIbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:31:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51544 "EHLO
+        id S234827AbiJVIqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:46:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233877AbiJVI2j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:28:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 056BE2E1B94;
-        Sat, 22 Oct 2022 01:01:26 -0700 (PDT)
+        with ESMTP id S235229AbiJVIo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:44:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C748A2EC21D;
+        Sat, 22 Oct 2022 01:08:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EFD360ADC;
-        Sat, 22 Oct 2022 07:59:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08541C433D6;
-        Sat, 22 Oct 2022 07:59:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3987960AD7;
+        Sat, 22 Oct 2022 07:59:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 330D6C433C1;
+        Sat, 22 Oct 2022 07:59:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425567;
-        bh=GYMheR2uDf5Pu2mG9xm6Hst+j27aQrPCPR8epawv2K8=;
+        s=korg; t=1666425570;
+        bh=nLLcqQo2hHrNZnG6RE5P/dIUeAGxE2Muhy9l2Em4mAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v8mH59dz/vwuh9670EI9hy5RsbWgYInYBkOtKkfvhnduSG+lRSUXwR2D11tat9mqA
-         DCEXxAHQBfXf7Vk5Hm7n79uxbddBMLYoRBGX1ku+gZLyTtN87sNoPZP5tyEKuvlw79
-         CMn7p7FGy08M5jKIsySe9A+rDxOmgnQi4RAjLlAk=
+        b=br9hr+FcL0Gu4MQnbakwJL/UjrTjdao6AX9YzpfN8hVWBFWTUsa7Ow458dGt2Krth
+         /VaUVDxRcWAHM9284fKV3hkFEJJglXvSsB1/T7Ff1aivSOg/0L5uGmEYaIfB+R7ON7
+         n9JUlRajbNwYIKDKtNO0ZIQ3UNc9tYA0eZ5h4nIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Rui <ray.huang@amd.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Perry Yuan <Perry.Yuan@amd.com>,
-        Su Jinzhou <jinzhou.su@amd.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Arvid Norlander <lkml@vorpal.se>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 543/717] cpufreq: amd_pstate: fix wrong lowest perf fetch
-Date:   Sat, 22 Oct 2022 09:27:02 +0200
-Message-Id: <20221022072522.360550037@linuxfoundation.org>
+Subject: [PATCH 5.19 544/717] ACPI: video: Add Toshiba Satellite/Portege Z830 quirk
+Date:   Sat, 22 Oct 2022 09:27:03 +0200
+Message-Id: <20221022072522.409051425@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,38 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Perry Yuan <Perry.Yuan@amd.com>
+From: Arvid Norlander <lkml@vorpal.se>
 
-[ Upstream commit b185c5053c65b7704ead4537e4d4d9b33dc398dc ]
+[ Upstream commit 574160b8548deff8b80b174f03201e94ab8431e2 ]
 
-Fix the wrong lowest perf value reading which is used for new
-des_perf calculation by governor requested, the incorrect min_perf will
-get incorrect des_perf to be set , that will cause the system frequency
-changing unexpectedly.
+Toshiba Satellite Z830 needs the quirk video_disable_backlight_sysfs_if
+for proper backlight control after suspend/resume cycles.
 
-Reviewed-by: Huang Rui <ray.huang@amd.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Perry Yuan <Perry.Yuan@amd.com>
-Signed-off-by: Su Jinzhou <jinzhou.su@amd.com>
+Toshiba Portege Z830 is simply the same laptop rebranded for certain
+markets (I looked through the manual to other language sections to confirm
+this) and thus also needs this quirk.
+
+Thanks to Hans de Goede for suggesting this fix.
+
+Link: https://www.spinics.net/lists/platform-driver-x86/msg34394.html
+Suggested-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Arvid Norlander <lkml@vorpal.se>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Arvid Norlander <lkml@vorpal.se>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/amd-pstate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/acpi_video.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/cpufreq/amd-pstate.c b/drivers/cpufreq/amd-pstate.c
-index 365f3ad166a7..d63a28c5f95a 100644
---- a/drivers/cpufreq/amd-pstate.c
-+++ b/drivers/cpufreq/amd-pstate.c
-@@ -322,7 +322,7 @@ static int amd_pstate_target(struct cpufreq_policy *policy,
- 		return -ENODEV;
- 
- 	cap_perf = READ_ONCE(cpudata->highest_perf);
--	min_perf = READ_ONCE(cpudata->lowest_nonlinear_perf);
-+	min_perf = READ_ONCE(cpudata->lowest_perf);
- 	max_perf = cap_perf;
- 
- 	freqs.old = policy->cur;
+diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
+index eaea733b368a..03f5f92b603c 100644
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -496,6 +496,22 @@ static const struct dmi_system_id video_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE R830"),
+ 		},
+ 	},
++	{
++	 .callback = video_disable_backlight_sysfs_if,
++	 .ident = "Toshiba Satellite Z830",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE Z830"),
++		},
++	},
++	{
++	 .callback = video_disable_backlight_sysfs_if,
++	 .ident = "Toshiba Portege Z830",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE Z830"),
++		},
++	},
+ 	/*
+ 	 * Some machine's _DOD IDs don't have bit 31(Device ID Scheme) set
+ 	 * but the IDs actually follow the Device ID Scheme.
 -- 
 2.35.1
 
