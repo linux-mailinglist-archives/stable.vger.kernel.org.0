@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FBDA608B4B
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:10:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16E21608C0D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230063AbiJVKK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 06:10:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58386 "EHLO
+        id S230013AbiJVK6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 06:58:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230190AbiJVKKj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:10:39 -0400
+        with ESMTP id S230094AbiJVK5r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:57:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BAA530F9DB;
-        Sat, 22 Oct 2022 02:27:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4659318128;
+        Sat, 22 Oct 2022 03:16:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34D06B82E24;
-        Sat, 22 Oct 2022 07:45:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B31AC433C1;
-        Sat, 22 Oct 2022 07:45:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA355B82E27;
+        Sat, 22 Oct 2022 07:45:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 308FDC433D6;
+        Sat, 22 Oct 2022 07:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424719;
-        bh=Vozqve6uz0M1YkzgDdcf8XEiQm+jmQXPx46GgpjETVE=;
+        s=korg; t=1666424729;
+        bh=mJCJOvl0y7LTRwf4p585S532bpIt8sAVDqmZaOPVe8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AtRqtR+f9jN3C1CFjU5BJFgyqBKq0PhnvIvrAjSagNaMPUiFTyg6iOPnOPJylrfaL
-         iW7W1IbXsMU+qH+XCpZ1mfKgiqlypaDSz8cf8unxiJtfUUt+UtyjJRQFntyiB6IqbV
-         1C8Bwp23hOj5DZAY7/rqmNEei+G4tBbAwyT78RD8=
+        b=h7gp7NcmuDFLG0+FS6e/15VGejReTNFc5klEbiz49of73AEHRt+Lz7TPmuyXMSF7j
+         jL5XPLEppyo5VNu0s0tRyANOqxyY80owZe+niZaFGn32/OlK9KD//9EMTUXjwMlhjj
+         06R7xBVjSFQkDhDFXOgDSc4u5gs1n7yZ3BQGK4wA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Deren Wu <deren.wu@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 250/717] wifi: mt76: mt7921e: fix rmmod crash in driver reload test
-Date:   Sat, 22 Oct 2022 09:22:09 +0200
-Message-Id: <20221022072459.104520548@linuxfoundation.org>
+        stable@vger.kernel.org, Baochen Qiang <quic_bqiang@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 254/717] wifi: ath11k: Include STA_KEEPALIVE_ARP_RESPONSE TLV header by default
+Date:   Sat, 22 Oct 2022 09:22:13 +0200
+Message-Id: <20221022072459.744282162@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,68 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Deren Wu <deren.wu@mediatek.com>
+From: Baochen Qiang <quic_bqiang@quicinc.com>
 
-[ Upstream commit b5a62d612b7baf6e09884e4de94decb6391d6a9d ]
+[ Upstream commit b7b6f86149a7e06269d61a7a5206360f5b642f80 ]
 
-In insmod/rmmod stress test, the following crash dump shows up immediately.
-The problem is caused by missing mt76_dev in mt7921_pci_remove(). We
-should make sure the drvdata is ready before probe() finished.
+In current code STA_KEEPALIVE_ARP_RESPONSE TLV header is included only
+when ARP method is used, this causes firmware always to crash when wowlan
+is enabled because firmware needs it to be present no matter ARP method
+is used or not.
 
-[168.862789] ==================================================================
-[168.862797] BUG: KASAN: user-memory-access in try_to_grab_pending+0x59/0x480
-[168.862805] Write of size 8 at addr 0000000000006df0 by task rmmod/5361
-[168.862812] CPU: 7 PID: 5361 Comm: rmmod Tainted: G           OE     5.19.0-rc6 #1
-[168.862816] Hardware name: Intel(R) Client Systems NUC8i7BEH/NUC8BEB, 05/04/2020
-[168.862820] Call Trace:
-[168.862822]  <TASK>
-[168.862825]  dump_stack_lvl+0x49/0x63
-[168.862832]  print_report.cold+0x493/0x6b7
-[168.862845]  kasan_report+0xa7/0x120
-[168.862857]  kasan_check_range+0x163/0x200
-[168.862861]  __kasan_check_write+0x14/0x20
-[168.862866]  try_to_grab_pending+0x59/0x480
-[168.862870]  __cancel_work_timer+0xbb/0x340
-[168.862898]  cancel_work_sync+0x10/0x20
-[168.862902]  mt7921_pci_remove+0x61/0x1c0 [mt7921e]
-[168.862909]  pci_device_remove+0xa3/0x1d0
-[168.862914]  device_remove+0xc4/0x170
-[168.862920]  device_release_driver_internal+0x163/0x300
-[168.862925]  driver_detach+0xc7/0x1a0
-[168.862930]  bus_remove_driver+0xeb/0x2d0
-[168.862935]  driver_unregister+0x71/0xb0
-[168.862939]  pci_unregister_driver+0x30/0x230
-[168.862944]  mt7921_pci_driver_exit+0x10/0x1b [mt7921e]
-[168.862949]  __x64_sys_delete_module+0x2f9/0x4b0
-[168.862968]  do_syscall_64+0x38/0x90
-[168.862973]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+Fix this issue by including STA_KEEPALIVE_ARP_RESPONSE TLV header by
+default.
 
-Test steps:
-1. insmode
-2. do not ifup
-3. rmmod quickly (within 1 second)
+Also fix below typo:
+  s/WMI_TAG_STA_KEEPALVE_ARP_RESPONSE/WMI_TAG_STA_KEEPALIVE_ARP_RESPONSE/
 
-Fixes: 1c71e03afe4b ("mt76: mt7921: move mt7921_init_hw in a dedicated work")
-Signed-off-by: Deren Wu <deren.wu@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3
+
+Fixes: 0f84a156aa3b ("ath11k: Handle keepalive during WoWLAN suspend and resume")
+Signed-off-by: Baochen Qiang <quic_bqiang@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220913044358.2037-1-quic_bqiang@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/ath/ath11k/wmi.c | 9 +++++----
+ drivers/net/wireless/ath/ath11k/wmi.h | 2 +-
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
-index 295c21586273..d8347b33641e 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
-@@ -289,6 +289,8 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
- 		goto err_free_pci_vec;
- 	}
+diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
+index cc84bd53ddae..1c8aa503e614 100644
+--- a/drivers/net/wireless/ath/ath11k/wmi.c
++++ b/drivers/net/wireless/ath/ath11k/wmi.c
+@@ -9003,12 +9003,13 @@ int ath11k_wmi_sta_keepalive(struct ath11k *ar,
+ 	cmd->interval = arg->interval;
+ 	cmd->method = arg->method;
  
-+	pci_set_drvdata(pdev, mdev);
++	arp = (struct wmi_sta_keepalive_arp_resp *)(cmd + 1);
++	arp->tlv_header = FIELD_PREP(WMI_TLV_TAG,
++				     WMI_TAG_STA_KEEPALIVE_ARP_RESPONSE) |
++			 FIELD_PREP(WMI_TLV_LEN, sizeof(*arp) - TLV_HDR_SIZE);
 +
- 	dev = container_of(mdev, struct mt7921_dev, mt76);
- 	dev->hif_ops = &mt7921_pcie_ops;
- 
+ 	if (arg->method == WMI_STA_KEEPALIVE_METHOD_UNSOLICITED_ARP_RESPONSE ||
+ 	    arg->method == WMI_STA_KEEPALIVE_METHOD_GRATUITOUS_ARP_REQUEST) {
+-		arp = (struct wmi_sta_keepalive_arp_resp *)(cmd + 1);
+-		arp->tlv_header = FIELD_PREP(WMI_TLV_TAG,
+-					     WMI_TAG_STA_KEEPALVE_ARP_RESPONSE) |
+-				 FIELD_PREP(WMI_TLV_LEN, sizeof(*arp) - TLV_HDR_SIZE);
+ 		arp->src_ip4_addr = arg->src_ip4_addr;
+ 		arp->dest_ip4_addr = arg->dest_ip4_addr;
+ 		ether_addr_copy(arp->dest_mac_addr.addr, arg->dest_mac_addr);
+diff --git a/drivers/net/wireless/ath/ath11k/wmi.h b/drivers/net/wireless/ath/ath11k/wmi.h
+index b1fad4707dc6..ca3b9a384d60 100644
+--- a/drivers/net/wireless/ath/ath11k/wmi.h
++++ b/drivers/net/wireless/ath/ath11k/wmi.h
+@@ -1214,7 +1214,7 @@ enum wmi_tlv_tag {
+ 	WMI_TAG_NS_OFFLOAD_TUPLE,
+ 	WMI_TAG_FTM_INTG_CMD,
+ 	WMI_TAG_STA_KEEPALIVE_CMD,
+-	WMI_TAG_STA_KEEPALVE_ARP_RESPONSE,
++	WMI_TAG_STA_KEEPALIVE_ARP_RESPONSE,
+ 	WMI_TAG_P2P_SET_VENDOR_IE_DATA_CMD,
+ 	WMI_TAG_AP_PS_PEER_CMD,
+ 	WMI_TAG_PEER_RATE_RETRY_SCHED_CMD,
 -- 
 2.35.1
 
