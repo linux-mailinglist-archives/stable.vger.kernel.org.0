@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 338E5608605
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:43:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0E79608618
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231298AbiJVHnP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:43:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47088 "EHLO
+        id S230313AbiJVHpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:45:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231274AbiJVHmm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:42:42 -0400
+        with ESMTP id S231307AbiJVHnT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:43:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5F2D65004;
-        Sat, 22 Oct 2022 00:41:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E4A76501A;
+        Sat, 22 Oct 2022 00:42:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C136A60AFA;
-        Sat, 22 Oct 2022 07:37:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D848AC433C1;
-        Sat, 22 Oct 2022 07:37:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B085B60AFD;
+        Sat, 22 Oct 2022 07:37:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3345C433D7;
+        Sat, 22 Oct 2022 07:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424253;
-        bh=dJ6NpRGfTiudBlY78zUwNyNL6KxXExXZrduB0FLK+cE=;
+        s=korg; t=1666424256;
+        bh=z1jpo4UkD4Ly2oimtwNpPZSx9SB4oraktF/ZPcHwwwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X4tAELJ+8WJa6iTPLCMBdopVPDGh6RLUAnatSSaui2wStx9H9ZFt6CRWSxr1NW3dr
-         RzRoLlHgYO6bsxRmqe+w3BWqBE2yrnoQW8n0ghpMxec7pViVUHyz1+z+hba+ejjAMU
-         i0e6r+feABG4vd9gbrwZC0Q75wSzmCaiAsBjUVXQ=
+        b=yk8rxUpPkUZqEGL6uQ5mtXGeGvwBtjh8l3q4UQ0J2J4N0+v7THg0QqrEe3u8Goyiw
+         JzfCDoC2oAKyVdTKbm9vnDkJadqYpNGi5fBfPyx9hee2oGze2n6JGv91l2OAPQlApV
+         7gkahhalS/GBZPSl+65wrQHvySkq551eftZLC3lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carlos Llamas <cmllamas@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Liam Howlett <liam.howlett@oracle.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 078/717] mm/mmap: undo ->mmap() when arch_validate_flags() fails
-Date:   Sat, 22 Oct 2022 09:19:17 +0200
-Message-Id: <20221022072429.031061362@linuxfoundation.org>
+        stable@vger.kernel.org, "M. Vefa Bicakci" <m.v.b@runbox.com>,
+        Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.19 079/717] xen/gntdev: Prevent leaking grants
+Date:   Sat, 22 Oct 2022 09:19:18 +0200
+Message-Id: <20221022072429.247728281@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -58,112 +53,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Llamas <cmllamas@google.com>
+From: M. Vefa Bicakci <m.v.b@runbox.com>
 
-commit deb0f6562884b5b4beb883d73e66a7d3a1b96d99 upstream.
+commit 0991028cd49567d7016d1b224fe0117c35059f86 upstream.
 
-Commit c462ac288f2c ("mm: Introduce arch_validate_flags()") added a late
-check in mmap_region() to let architectures validate vm_flags.  The check
-needs to happen after calling ->mmap() as the flags can potentially be
-modified during this callback.
+Prior to this commit, if a grant mapping operation failed partially,
+some of the entries in the map_ops array would be invalid, whereas all
+of the entries in the kmap_ops array would be valid. This in turn would
+cause the following logic in gntdev_map_grant_pages to become invalid:
 
-If arch_validate_flags() check fails we unmap and free the vma.  However,
-the error path fails to undo the ->mmap() call that previously succeeded
-and depending on the specific ->mmap() implementation this translates to
-reference increments, memory allocations and other operations what will
-not be cleaned up.
-
-There are several places (mainly device drivers) where this is an issue.
-However, one specific example is bpf_map_mmap() which keeps count of the
-mappings in map->writecnt.  The count is incremented on ->mmap() and then
-decremented on vm_ops->close().  When arch_validate_flags() fails this
-count is off since bpf_map_mmap_close() is never called.
-
-One can reproduce this issue in arm64 devices with MTE support.  Here the
-vm_flags are checked to only allow VM_MTE if VM_MTE_ALLOWED has been set
-previously.  From userspace then is enough to pass the PROT_MTE flag to
-mmap() syscall to trigger the arch_validate_flags() failure.
-
-The following program reproduces this issue:
-
-  #include <stdio.h>
-  #include <unistd.h>
-  #include <linux/unistd.h>
-  #include <linux/bpf.h>
-  #include <sys/mman.h>
-
-  int main(void)
-  {
-	union bpf_attr attr = {
-		.map_type = BPF_MAP_TYPE_ARRAY,
-		.key_size = sizeof(int),
-		.value_size = sizeof(long long),
-		.max_entries = 256,
-		.map_flags = BPF_F_MMAPABLE,
-	};
-	int fd;
-
-	fd = syscall(__NR_bpf, BPF_MAP_CREATE, &attr, sizeof(attr));
-	mmap(NULL, 4096, PROT_WRITE | PROT_MTE, MAP_SHARED, fd, 0);
-
-	return 0;
+  for (i = 0; i < map->count; i++) {
+    if (map->map_ops[i].status == GNTST_okay) {
+      map->unmap_ops[i].handle = map->map_ops[i].handle;
+      if (!use_ptemod)
+        alloced++;
+    }
+    if (use_ptemod) {
+      if (map->kmap_ops[i].status == GNTST_okay) {
+        if (map->map_ops[i].status == GNTST_okay)
+          alloced++;
+        map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
+      }
+    }
   }
+  ...
+  atomic_add(alloced, &map->live_grants);
 
-By manually adding some log statements to the vm_ops callbacks we can
-confirm that when passing PROT_MTE to mmap() the map->writecnt is off upon
-->release():
+Assume that use_ptemod is true (i.e., the domain mapping the granted
+pages is a paravirtualized domain). In the code excerpt above, note that
+the "alloced" variable is only incremented when both kmap_ops[i].status
+and map_ops[i].status are set to GNTST_okay (i.e., both mapping
+operations are successful).  However, as also noted above, there are
+cases where a grant mapping operation fails partially, breaking the
+assumption of the code excerpt above.
 
-With PROT_MTE flag:
-  root@debian:~# ./bpf-test
-  [  111.263874] bpf_map_write_active_inc: map=9 writecnt=1
-  [  111.288763] bpf_map_release: map=9 writecnt=1
+The aforementioned causes map->live_grants to be incorrectly set. In
+some cases, all of the map_ops mappings fail, but all of the kmap_ops
+mappings succeed, meaning that live_grants may remain zero. This in turn
+makes it impossible to unmap the successfully grant-mapped pages pointed
+to by kmap_ops, because unmap_grant_pages has the following snippet of
+code at its beginning:
 
-Without PROT_MTE flag:
-  root@debian:~# ./bpf-test
-  [  157.816912] bpf_map_write_active_inc: map=10 writecnt=1
-  [  157.830442] bpf_map_write_active_dec: map=10 writecnt=0
-  [  157.832396] bpf_map_release: map=10 writecnt=0
+  if (atomic_read(&map->live_grants) == 0)
+    return; /* Nothing to do */
 
-This patch fixes the above issue by calling vm_ops->close() when the
-arch_validate_flags() check fails, after this we can proceed to unmap and
-free the vma on the error path.
+In other cases where only some of the map_ops mappings fail but all
+kmap_ops mappings succeed, live_grants is made positive, but when the
+user requests unmapping the grant-mapped pages, __unmap_grant_pages_done
+will then make map->live_grants negative, because the latter function
+does not check if all of the pages that were requested to be unmapped
+were actually unmapped, and the same function unconditionally subtracts
+"data->count" (i.e., a value that can be greater than map->live_grants)
+from map->live_grants. The side effects of a negative live_grants value
+have not been studied.
 
-Link: https://lkml.kernel.org/r/20220930003844.1210987-1-cmllamas@google.com
-Fixes: c462ac288f2c ("mm: Introduce arch_validate_flags()")
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Reviewed-by: Liam Howlett <liam.howlett@oracle.com>
-Cc: Christian Brauner (Microsoft) <brauner@kernel.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: <stable@vger.kernel.org>	[5.10+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+The net effect of all of this is that grant references are leaked in one
+of the above conditions. In Qubes OS v4.1 (which uses Xen's grant
+mechanism extensively for X11 GUI isolation), this issue manifests
+itself with warning messages like the following to be printed out by the
+Linux kernel in the VM that had granted pages (that contain X11 GUI
+window data) to dom0: "g.e. 0x1234 still pending", especially after the
+user rapidly resizes GUI VM windows (causing some grant-mapping
+operations to partially or completely fail, due to the fact that the VM
+unshares some of the pages as part of the window resizing, making the
+pages impossible to grant-map from dom0).
+
+The fix for this issue involves counting all successful map_ops and
+kmap_ops mappings separately, and then adding the sum to live_grants.
+During unmapping, only the number of successfully unmapped grants is
+subtracted from live_grants. The code is also modified to check for
+negative live_grants values after the subtraction and warn the user.
+
+Link: https://github.com/QubesOS/qubes-issues/issues/7631
+Fixes: dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
+Cc: stable@vger.kernel.org
+Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+Acked-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20221002222006.2077-2-m.v.b@runbox.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mmap.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/xen/gntdev.c |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1845,7 +1845,7 @@ unsigned long mmap_region(struct file *f
- 	if (!arch_validate_flags(vma->vm_flags)) {
- 		error = -EINVAL;
- 		if (file)
--			goto unmap_and_free_vma;
-+			goto close_and_free_vma;
- 		else
- 			goto free_vma;
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -367,8 +367,7 @@ int gntdev_map_grant_pages(struct gntdev
+ 	for (i = 0; i < map->count; i++) {
+ 		if (map->map_ops[i].status == GNTST_okay) {
+ 			map->unmap_ops[i].handle = map->map_ops[i].handle;
+-			if (!use_ptemod)
+-				alloced++;
++			alloced++;
+ 		} else if (!err)
+ 			err = -EINVAL;
+ 
+@@ -377,8 +376,7 @@ int gntdev_map_grant_pages(struct gntdev
+ 
+ 		if (use_ptemod) {
+ 			if (map->kmap_ops[i].status == GNTST_okay) {
+-				if (map->map_ops[i].status == GNTST_okay)
+-					alloced++;
++				alloced++;
+ 				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
+ 			} else if (!err)
+ 				err = -EINVAL;
+@@ -394,8 +392,14 @@ static void __unmap_grant_pages_done(int
+ 	unsigned int i;
+ 	struct gntdev_grant_map *map = data->data;
+ 	unsigned int offset = data->unmap_ops - map->unmap_ops;
++	int successful_unmaps = 0;
++	int live_grants;
+ 
+ 	for (i = 0; i < data->count; i++) {
++		if (map->unmap_ops[offset + i].status == GNTST_okay &&
++		    map->unmap_ops[offset + i].handle != INVALID_GRANT_HANDLE)
++			successful_unmaps++;
++
+ 		WARN_ON(map->unmap_ops[offset + i].status != GNTST_okay &&
+ 			map->unmap_ops[offset + i].handle != INVALID_GRANT_HANDLE);
+ 		pr_debug("unmap handle=%d st=%d\n",
+@@ -403,6 +407,10 @@ static void __unmap_grant_pages_done(int
+ 			map->unmap_ops[offset+i].status);
+ 		map->unmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
+ 		if (use_ptemod) {
++			if (map->kunmap_ops[offset + i].status == GNTST_okay &&
++			    map->kunmap_ops[offset + i].handle != INVALID_GRANT_HANDLE)
++				successful_unmaps++;
++
+ 			WARN_ON(map->kunmap_ops[offset + i].status != GNTST_okay &&
+ 				map->kunmap_ops[offset + i].handle != INVALID_GRANT_HANDLE);
+ 			pr_debug("kunmap handle=%u st=%d\n",
+@@ -411,11 +419,15 @@ static void __unmap_grant_pages_done(int
+ 			map->kunmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
+ 		}
  	}
-@@ -1892,6 +1892,9 @@ out:
++
+ 	/*
+ 	 * Decrease the live-grant counter.  This must happen after the loop to
+ 	 * prevent premature reuse of the grants by gnttab_mmap().
+ 	 */
+-	atomic_sub(data->count, &map->live_grants);
++	live_grants = atomic_sub_return(successful_unmaps, &map->live_grants);
++	if (WARN_ON(live_grants < 0))
++		pr_err("%s: live_grants became negative (%d) after unmapping %d pages!\n",
++		       __func__, live_grants, successful_unmaps);
  
- 	return addr;
- 
-+close_and_free_vma:
-+	if (vma->vm_ops && vma->vm_ops->close)
-+		vma->vm_ops->close(vma);
- unmap_and_free_vma:
- 	fput(vma->vm_file);
- 	vma->vm_file = NULL;
+ 	/* Release reference taken by __unmap_grant_pages */
+ 	gntdev_put_map(NULL, map);
 
 
