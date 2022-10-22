@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E73DA60861A
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03505608657
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:48:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231213AbiJVHpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:45:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45402 "EHLO
+        id S231598AbiJVHsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:48:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231287AbiJVHnc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:43:32 -0400
+        with ESMTP id S231582AbiJVHrr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:47:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE6F1EB552;
-        Sat, 22 Oct 2022 00:42:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7661048E9F;
+        Sat, 22 Oct 2022 00:44:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A6F660AC7;
-        Sat, 22 Oct 2022 07:38:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8872EC433D6;
-        Sat, 22 Oct 2022 07:38:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AF8D60B1B;
+        Sat, 22 Oct 2022 07:38:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8FAFC433D6;
+        Sat, 22 Oct 2022 07:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424288;
-        bh=60PZ+RY33//MRdOs+d0W6qXIbeFiZGLYctjbhfQDJfs=;
+        s=korg; t=1666424297;
+        bh=tdIxaMXshIpDgKMPQUIn1JKQxwzuc+FAbzhb3VjbmOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ym7djM2hC6N0M8LjFFoyoxCsiNE2ZZ8JMmApLPpImmmP4qQdjTK5rGA0M0PLqAP7t
-         Ysg0t6sTwl+r97LwYE+U9/dbsa4Z4RaegiIkl0oauGHN8Et1XQr7pOY3MIXJdxAzKD
-         WAjO4doPbq1lalGfFEiEXJ/VzwOdhRLUrCQTR4Jo=
+        b=C3KvlSgueoNP/NOWS334O3KEveDhKXz0uf+29Zr/brkNg79WrBzJzUBnW719VP0c1
+         qrsGITHA5fWK7J38U54Y5o1rXE2+VuZSItUQG14Sy6HG5Gdaig6gMzcaM71g0ltka/
+         E8F3DW3aolSmniKM6NnwBe7sKoSzk2POTyUi3tR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
-        Wang Wendy <wendy.wang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.19 090/717] powercap: intel_rapl: Use standard Energy Unit for SPR Dram RAPL domain
-Date:   Sat, 22 Oct 2022 09:19:29 +0200
-Message-Id: <20221022072431.304446345@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.19 092/717] powerpc/boot: Explicitly disable usage of SPE instructions
+Date:   Sat, 22 Oct 2022 09:19:31 +0200
+Message-Id: <20221022072431.642839091@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,35 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Rui <rui.zhang@intel.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 4c081324df5608b73428662ca54d5221ea03a6bd upstream.
+commit 110a58b9f91c66f743c01a2c217243d94c899c23 upstream.
 
-Intel Xeon servers used to use a fixed energy resolution (15.3uj) for
-Dram RAPL domain. But on SPR, Dram RAPL domain follows the standard
-energy resolution as described in MSR_RAPL_POWER_UNIT.
+uImage boot wrapper should not use SPE instructions, like kernel itself.
+Boot wrapper has already disabled Altivec and VSX instructions but not SPE.
+Options -mno-spe and -mspe=no already set when compilation of kernel, but
+not when compiling uImage wrapper yet. Fix it.
 
-Remove the SPR dram_domain_energy_unit quirk.
-
-Fixes: 2d798d9f5967 ("powercap: intel_rapl: add support for Sapphire Rapids")
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Tested-by: Wang Wendy <wendy.wang@intel.com>
-Cc: 5.9+ <stable@vger.kernel.org> # 5.9+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220827134454.17365-1-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/powercap/intel_rapl_common.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/boot/Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/powercap/intel_rapl_common.c
-+++ b/drivers/powercap/intel_rapl_common.c
-@@ -1035,7 +1035,6 @@ static const struct rapl_defaults rapl_d
- 	.check_unit = rapl_check_unit_core,
- 	.set_floor_freq = set_floor_freq_default,
- 	.compute_time_window = rapl_compute_time_window_core,
--	.dram_domain_energy_unit = 15300,
- 	.psys_domain_energy_unit = 1000000000,
- 	.spr_psys_bits = true,
- };
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -34,6 +34,7 @@ endif
+ 
+ BOOTCFLAGS    := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+ 		 -fno-strict-aliasing -O2 -msoft-float -mno-altivec -mno-vsx \
++		 $(call cc-option,-mno-spe) $(call cc-option,-mspe=no) \
+ 		 -pipe -fomit-frame-pointer -fno-builtin -fPIC -nostdinc \
+ 		 $(LINUXINCLUDE)
+ 
 
 
