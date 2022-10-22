@@ -2,81 +2,319 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2AB3608AA8
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:04:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D6B9608A92
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:01:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230495AbiJVJEU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 05:04:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43252 "EHLO
+        id S231449AbiJVJBv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 05:01:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235030AbiJVJDU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:03:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 829B02FA5C9;
-        Sat, 22 Oct 2022 01:18:23 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 067F260ADC;
-        Sat, 22 Oct 2022 08:15:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBC49C43470;
-        Sat, 22 Oct 2022 08:15:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426520;
-        bh=bVwuHeyD6NBbvbw/CTdPYwlqiQGkMoa5incPyO51BKQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MRFmoRbI59ENHf6UMBZKAQrxouJc4uJwAqmTb+8OXfd8EhjZWHMcIwGQ3ZBEaEIJV
-         cIS+w0m8fbri1SdENSXiflOKcdrPBn7u6LGCJO5AGydXM8rcKJbypUU0ZuQQYVqVrt
-         7ExI4dXjD5EhLbkC2D9J8IZDgrLmpfVX+BdgmEWg=
-Date:   Sat, 22 Oct 2022 09:36:29 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Evgenii Stepanov <eugenis@google.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH] arm64/mm: Consolidate TCR_EL1 fields
-Message-ID: <Y1OdfXuLmp/gr1Z4@kroah.com>
-References: <20221021222811.2366215-1-eugenis@google.com>
+        with ESMTP id S232013AbiJVJAx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:00:53 -0400
+Received: from out3-smtp.messagingengine.com (out3-smtp.messagingengine.com [66.111.4.27])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD9E72E96B1;
+        Sat, 22 Oct 2022 01:16:49 -0700 (PDT)
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 20B045C0110;
+        Sat, 22 Oct 2022 04:15:24 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sat, 22 Oct 2022 04:15:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; t=1666426524; x=1666512924; bh=KbH4kD+cwB
+        MRO0Ftn1jNWdbO8gQ4MYKZR6QdxIZOKMY=; b=I7FS2KK/0UXBvxDJ9JjJ1b9BTl
+        k69WSihbDYwyDyErT51o9pzgB1Wf+w6INEh9416GcARObPkZtKUZH71hC0XNCGo5
+        d14mznJGnDv/jnJd6TWiSF+gnFtPaSaa138QTTCyeQYP4p2d3Xt0mb4MjOUvtkWz
+        zmjwlsASIB8hOIiadJz6oombcKkaKve6LPYuo5WtIXhUl8l7pqQQ75NClBryEY4w
+        itAd4zWb6bTf/eJGcYrmB7fANOJMvJUF6KdjVmTtxUnmTPS1UYtJuE5sEUpYvkye
+        Eb/s7pTk1UMrC42xt1raXfzDBSCa7o/f4jCXsU2YCFJB2T8pQiWbsk6x6WBQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm3; t=1666426524; x=1666512924; bh=KbH4kD+cwBMRO0Ftn1jNWdbO8gQ4
+        MYKZR6QdxIZOKMY=; b=F8CxYnW6L2wJ8kYkvr+uR8Vaiq1rDieY2szozFLo7/Ae
+        dtPeGwbCYMbKi3vWUtd9FONvou1a2ryVKo6Bubl4wdPIRIYuw2O+gJvCeDCyAAaM
+        nG6BoMQ8DWjQDHYzJQKiuvXrNtr6jHnG4bqGREE3toe/JKmWmw+LZ4OiqRxUHLNI
+        NSZHnDFaE/dptqYXsPwc6qDYJXZ4TIsSLplwoZOWzjdqLjq3WbB0m8ZchETTRpnc
+        WouXnKvWfnwxV9PtvzI3z6UcISXv8mpBGgmt5bVp3ILzNeWLY73cOhB8Xs3cZEew
+        1xdiHRtbfSP4Efetnb0qnO+itloKfwvvojBksCVKQg==
+X-ME-Sender: <xms:m6ZTY9gZLC5mJJBtQMoXyQNlCSdJSXIeITzN0rEzFj4M3Ft7bkc_Pw>
+    <xme:m6ZTYyAtFbN6mH7hKokggr0ynsNT3xheD0Wgb0vxT94_qs7c-SjkavVbLQxfS9ua0
+    vCua4BXwMYRfw>
+X-ME-Received: <xmr:m6ZTY9FOb5d88qraa66hFSPRUPcSYZQTV3aFKDM3iUBdyiIxuzgQylg5PjuWt4Pa68aBVPV6iMuNyqC_vFpgScI1mPlelbQw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrgedttddgtdduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepgeehue
+    ehgfdtledutdelkeefgeejteegieekheefudeiffdvudeffeelvedttddvnecuffhomhgr
+    ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
+    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:m6ZTYyTBw6brIjC4u5n3Y2yTAASN81twHqAu0WsVmVy7gJwxt-Jjfw>
+    <xmx:m6ZTY6xYU2KhcsKr0lhG6SOLOfH5HOR9bIkTF-b4zllKJfOo2Qtrug>
+    <xmx:m6ZTY47lnSY5k20DeS6mr2qxczhGXMXT8ekU9_PCFDmFijinldL-XA>
+    <xmx:nKZTY1qaGD9q6SQjfFuBwb8S0UHknduvq71XInPI9ZZ2kTcdndrvOg>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 22 Oct 2022 04:15:23 -0400 (EDT)
+Date:   Sat, 22 Oct 2022 09:37:41 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Carlos Llamas <cmllamas@google.com>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, kernel-team@android.com,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH 4.9] inet: fully convert sk->sk_rx_dst to RCU rules
+Message-ID: <Y1OdxYkJzhaU0dSl@kroah.com>
+References: <20221021182223.3270269-1-cmllamas@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221021222811.2366215-1-eugenis@google.com>
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20221021182223.3270269-1-cmllamas@google.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 21, 2022 at 03:28:11PM -0700, Evgenii Stepanov wrote:
-> From: Anshuman Khandual <anshuman.khandual@arm.com>
+On Fri, Oct 21, 2022 at 06:22:23PM +0000, Carlos Llamas wrote:
+> From: Eric Dumazet <edumazet@google.com>
 > 
-> commit e921da6bc7cac5f0e8458fe5df18ae08eb538f54 upstream.
+> commit 8f905c0e7354ef261360fb7535ea079b1082c105 upstream.
 > 
-> This renames and moves SYS_TCR_EL1_TCMA1 and SYS_TCR_EL1_TCMA0 definitions
-> into pgtable-hwdef.h thus consolidating all TCR fields in a single header.
-> This does not cause any functional change.
+> syzbot reported various issues around early demux,
+> one being included in this changelog [1]
 > 
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-kernel@vger.kernel.org
-> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> Link: https://lore.kernel.org/r/1643121513-21854-1-git-send-email-anshuman.khandual@arm.com
-> Signed-off-by: Will Deacon <will@kernel.org>
-> ---
->  arch/arm64/include/asm/pgtable-hwdef.h | 2 ++
->  arch/arm64/include/asm/sysreg.h        | 4 ----
->  arch/arm64/mm/proc.S                   | 2 +-
->  3 files changed, 3 insertions(+), 5 deletions(-)
+> sk->sk_rx_dst is using RCU protection without clearly
+> documenting it.
+> 
+> And following sequences in tcp_v4_do_rcv()/tcp_v6_do_rcv()
+> are not following standard RCU rules.
+> 
+> [a]    dst_release(dst);
+> [b]    sk->sk_rx_dst = NULL;
+> 
+> They look wrong because a delete operation of RCU protected
+> pointer is supposed to clear the pointer before
+> the call_rcu()/synchronize_rcu() guarding actual memory freeing.
+> 
+> In some cases indeed, dst could be freed before [b] is done.
+> 
+> We could cheat by clearing sk_rx_dst before calling
+> dst_release(), but this seems the right time to stick
+> to standard RCU annotations and debugging facilities.
+> 
+> [1]
+> BUG: KASAN: use-after-free in dst_check include/net/dst.h:470 [inline]
+> BUG: KASAN: use-after-free in tcp_v4_early_demux+0x95b/0x960 net/ipv4/tcp_ipv4.c:1792
+> Read of size 2 at addr ffff88807f1cb73a by task syz-executor.5/9204
+> 
+> CPU: 0 PID: 9204 Comm: syz-executor.5 Not tainted 5.16.0-rc5-syzkaller #0
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+> Call Trace:
+>  <TASK>
+>  __dump_stack lib/dump_stack.c:88 [inline]
+>  dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+>  print_address_description.constprop.0.cold+0x8d/0x320 mm/kasan/report.c:247
+>  __kasan_report mm/kasan/report.c:433 [inline]
+>  kasan_report.cold+0x83/0xdf mm/kasan/report.c:450
+>  dst_check include/net/dst.h:470 [inline]
+>  tcp_v4_early_demux+0x95b/0x960 net/ipv4/tcp_ipv4.c:1792
+>  ip_rcv_finish_core.constprop.0+0x15de/0x1e80 net/ipv4/ip_input.c:340
+>  ip_list_rcv_finish.constprop.0+0x1b2/0x6e0 net/ipv4/ip_input.c:583
+>  ip_sublist_rcv net/ipv4/ip_input.c:609 [inline]
+>  ip_list_rcv+0x34e/0x490 net/ipv4/ip_input.c:644
+>  __netif_receive_skb_list_ptype net/core/dev.c:5508 [inline]
+>  __netif_receive_skb_list_core+0x549/0x8e0 net/core/dev.c:5556
+>  __netif_receive_skb_list net/core/dev.c:5608 [inline]
+>  netif_receive_skb_list_internal+0x75e/0xd80 net/core/dev.c:5699
+>  gro_normal_list net/core/dev.c:5853 [inline]
+>  gro_normal_list net/core/dev.c:5849 [inline]
+>  napi_complete_done+0x1f1/0x880 net/core/dev.c:6590
+>  virtqueue_napi_complete drivers/net/virtio_net.c:339 [inline]
+>  virtnet_poll+0xca2/0x11b0 drivers/net/virtio_net.c:1557
+>  __napi_poll+0xaf/0x440 net/core/dev.c:7023
+>  napi_poll net/core/dev.c:7090 [inline]
+>  net_rx_action+0x801/0xb40 net/core/dev.c:7177
+>  __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
+>  invoke_softirq kernel/softirq.c:432 [inline]
+>  __irq_exit_rcu+0x123/0x180 kernel/softirq.c:637
+>  irq_exit_rcu+0x5/0x20 kernel/softirq.c:649
+>  common_interrupt+0x52/0xc0 arch/x86/kernel/irq.c:240
+>  asm_common_interrupt+0x1e/0x40 arch/x86/include/asm/idtentry.h:629
+> RIP: 0033:0x7f5e972bfd57
+> Code: 39 d1 73 14 0f 1f 80 00 00 00 00 48 8b 50 f8 48 83 e8 08 48 39 ca 77 f3 48 39 c3 73 3e 48 89 13 48 8b 50 f8 48 89 38 49 8b 0e <48> 8b 3e 48 83 c3 08 48 83 c6 08 eb bc 48 39 d1 72 9e 48 39 d0 73
+> RSP: 002b:00007fff8a413210 EFLAGS: 00000283
+> RAX: 00007f5e97108990 RBX: 00007f5e97108338 RCX: ffffffff81d3aa45
+> RDX: ffffffff81d3aa45 RSI: 00007f5e97108340 RDI: ffffffff81d3aa45
+> RBP: 00007f5e97107eb8 R08: 00007f5e97108d88 R09: 0000000093c2e8d9
+> R10: 0000000000000000 R11: 0000000000000000 R12: 00007f5e97107eb0
+> R13: 00007f5e97108338 R14: 00007f5e97107ea8 R15: 0000000000000019
+>  </TASK>
+> 
+> Allocated by task 13:
+>  kasan_save_stack+0x1e/0x50 mm/kasan/common.c:38
+>  kasan_set_track mm/kasan/common.c:46 [inline]
+>  set_alloc_info mm/kasan/common.c:434 [inline]
+>  __kasan_slab_alloc+0x90/0xc0 mm/kasan/common.c:467
+>  kasan_slab_alloc include/linux/kasan.h:259 [inline]
+>  slab_post_alloc_hook mm/slab.h:519 [inline]
+>  slab_alloc_node mm/slub.c:3234 [inline]
+>  slab_alloc mm/slub.c:3242 [inline]
+>  kmem_cache_alloc+0x202/0x3a0 mm/slub.c:3247
+>  dst_alloc+0x146/0x1f0 net/core/dst.c:92
+>  rt_dst_alloc+0x73/0x430 net/ipv4/route.c:1613
+>  ip_route_input_slow+0x1817/0x3a20 net/ipv4/route.c:2340
+>  ip_route_input_rcu net/ipv4/route.c:2470 [inline]
+>  ip_route_input_noref+0x116/0x2a0 net/ipv4/route.c:2415
+>  ip_rcv_finish_core.constprop.0+0x288/0x1e80 net/ipv4/ip_input.c:354
+>  ip_list_rcv_finish.constprop.0+0x1b2/0x6e0 net/ipv4/ip_input.c:583
+>  ip_sublist_rcv net/ipv4/ip_input.c:609 [inline]
+>  ip_list_rcv+0x34e/0x490 net/ipv4/ip_input.c:644
+>  __netif_receive_skb_list_ptype net/core/dev.c:5508 [inline]
+>  __netif_receive_skb_list_core+0x549/0x8e0 net/core/dev.c:5556
+>  __netif_receive_skb_list net/core/dev.c:5608 [inline]
+>  netif_receive_skb_list_internal+0x75e/0xd80 net/core/dev.c:5699
+>  gro_normal_list net/core/dev.c:5853 [inline]
+>  gro_normal_list net/core/dev.c:5849 [inline]
+>  napi_complete_done+0x1f1/0x880 net/core/dev.c:6590
+>  virtqueue_napi_complete drivers/net/virtio_net.c:339 [inline]
+>  virtnet_poll+0xca2/0x11b0 drivers/net/virtio_net.c:1557
+>  __napi_poll+0xaf/0x440 net/core/dev.c:7023
+>  napi_poll net/core/dev.c:7090 [inline]
+>  net_rx_action+0x801/0xb40 net/core/dev.c:7177
+>  __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
+> 
+> Freed by task 13:
+>  kasan_save_stack+0x1e/0x50 mm/kasan/common.c:38
+>  kasan_set_track+0x21/0x30 mm/kasan/common.c:46
+>  kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
+>  ____kasan_slab_free mm/kasan/common.c:366 [inline]
+>  ____kasan_slab_free mm/kasan/common.c:328 [inline]
+>  __kasan_slab_free+0xff/0x130 mm/kasan/common.c:374
+>  kasan_slab_free include/linux/kasan.h:235 [inline]
+>  slab_free_hook mm/slub.c:1723 [inline]
+>  slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1749
+>  slab_free mm/slub.c:3513 [inline]
+>  kmem_cache_free+0xbd/0x5d0 mm/slub.c:3530
+>  dst_destroy+0x2d6/0x3f0 net/core/dst.c:127
+>  rcu_do_batch kernel/rcu/tree.c:2506 [inline]
+>  rcu_core+0x7ab/0x1470 kernel/rcu/tree.c:2741
+>  __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
+> 
+> Last potentially related work creation:
+>  kasan_save_stack+0x1e/0x50 mm/kasan/common.c:38
+>  __kasan_record_aux_stack+0xf5/0x120 mm/kasan/generic.c:348
+>  __call_rcu kernel/rcu/tree.c:2985 [inline]
+>  call_rcu+0xb1/0x740 kernel/rcu/tree.c:3065
+>  dst_release net/core/dst.c:177 [inline]
+>  dst_release+0x79/0xe0 net/core/dst.c:167
+>  tcp_v4_do_rcv+0x612/0x8d0 net/ipv4/tcp_ipv4.c:1712
+>  sk_backlog_rcv include/net/sock.h:1030 [inline]
+>  __release_sock+0x134/0x3b0 net/core/sock.c:2768
+>  release_sock+0x54/0x1b0 net/core/sock.c:3300
+>  tcp_sendmsg+0x36/0x40 net/ipv4/tcp.c:1441
+>  inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:819
+>  sock_sendmsg_nosec net/socket.c:704 [inline]
+>  sock_sendmsg+0xcf/0x120 net/socket.c:724
+>  sock_write_iter+0x289/0x3c0 net/socket.c:1057
+>  call_write_iter include/linux/fs.h:2162 [inline]
+>  new_sync_write+0x429/0x660 fs/read_write.c:503
+>  vfs_write+0x7cd/0xae0 fs/read_write.c:590
+>  ksys_write+0x1ee/0x250 fs/read_write.c:643
+>  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+>  do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+>  entry_SYSCALL_64_after_hwframe+0x44/0xae
+> 
+> The buggy address belongs to the object at ffff88807f1cb700
+>  which belongs to the cache ip_dst_cache of size 176
+> The buggy address is located 58 bytes inside of
+>  176-byte region [ffff88807f1cb700, ffff88807f1cb7b0)
+> The buggy address belongs to the page:
+> page:ffffea0001fc72c0 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x7f1cb
+> flags: 0xfff00000000200(slab|node=0|zone=1|lastcpupid=0x7ff)
+> raw: 00fff00000000200 dead000000000100 dead000000000122 ffff8881413bb780
+> raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
+> page dumped because: kasan: bad access detected
+> page_owner tracks the page as allocated
+> page last allocated via order 0, migratetype Unmovable, gfp_mask 0x112a20(GFP_ATOMIC|__GFP_NOWARN|__GFP_NORETRY|__GFP_HARDWALL), pid 5, ts 108466983062, free_ts 108048976062
+>  prep_new_page mm/page_alloc.c:2418 [inline]
+>  get_page_from_freelist+0xa72/0x2f50 mm/page_alloc.c:4149
+>  __alloc_pages+0x1b2/0x500 mm/page_alloc.c:5369
+>  alloc_pages+0x1a7/0x300 mm/mempolicy.c:2191
+>  alloc_slab_page mm/slub.c:1793 [inline]
+>  allocate_slab mm/slub.c:1930 [inline]
+>  new_slab+0x32d/0x4a0 mm/slub.c:1993
+>  ___slab_alloc+0x918/0xfe0 mm/slub.c:3022
+>  __slab_alloc.constprop.0+0x4d/0xa0 mm/slub.c:3109
+>  slab_alloc_node mm/slub.c:3200 [inline]
+>  slab_alloc mm/slub.c:3242 [inline]
+>  kmem_cache_alloc+0x35c/0x3a0 mm/slub.c:3247
+>  dst_alloc+0x146/0x1f0 net/core/dst.c:92
+>  rt_dst_alloc+0x73/0x430 net/ipv4/route.c:1613
+>  __mkroute_output net/ipv4/route.c:2564 [inline]
+>  ip_route_output_key_hash_rcu+0x921/0x2d00 net/ipv4/route.c:2791
+>  ip_route_output_key_hash+0x18b/0x300 net/ipv4/route.c:2619
+>  __ip_route_output_key include/net/route.h:126 [inline]
+>  ip_route_output_flow+0x23/0x150 net/ipv4/route.c:2850
+>  ip_route_output_key include/net/route.h:142 [inline]
+>  geneve_get_v4_rt+0x3a6/0x830 drivers/net/geneve.c:809
+>  geneve_xmit_skb drivers/net/geneve.c:899 [inline]
+>  geneve_xmit+0xc4a/0x3540 drivers/net/geneve.c:1082
+>  __netdev_start_xmit include/linux/netdevice.h:4994 [inline]
+>  netdev_start_xmit include/linux/netdevice.h:5008 [inline]
+>  xmit_one net/core/dev.c:3590 [inline]
+>  dev_hard_start_xmit+0x1eb/0x920 net/core/dev.c:3606
+>  __dev_queue_xmit+0x299a/0x3650 net/core/dev.c:4229
+> page last free stack trace:
+>  reset_page_owner include/linux/page_owner.h:24 [inline]
+>  free_pages_prepare mm/page_alloc.c:1338 [inline]
+>  free_pcp_prepare+0x374/0x870 mm/page_alloc.c:1389
+>  free_unref_page_prepare mm/page_alloc.c:3309 [inline]
+>  free_unref_page+0x19/0x690 mm/page_alloc.c:3388
+>  qlink_free mm/kasan/quarantine.c:146 [inline]
+>  qlist_free_all+0x5a/0xc0 mm/kasan/quarantine.c:165
+>  kasan_quarantine_reduce+0x180/0x200 mm/kasan/quarantine.c:272
+>  __kasan_slab_alloc+0xa2/0xc0 mm/kasan/common.c:444
+>  kasan_slab_alloc include/linux/kasan.h:259 [inline]
+>  slab_post_alloc_hook mm/slab.h:519 [inline]
+>  slab_alloc_node mm/slub.c:3234 [inline]
+>  kmem_cache_alloc_node+0x255/0x3f0 mm/slub.c:3270
+>  __alloc_skb+0x215/0x340 net/core/skbuff.c:414
+>  alloc_skb include/linux/skbuff.h:1126 [inline]
+>  alloc_skb_with_frags+0x93/0x620 net/core/skbuff.c:6078
+>  sock_alloc_send_pskb+0x783/0x910 net/core/sock.c:2575
+>  mld_newpack+0x1df/0x770 net/ipv6/mcast.c:1754
+>  add_grhead+0x265/0x330 net/ipv6/mcast.c:1857
+>  add_grec+0x1053/0x14e0 net/ipv6/mcast.c:1995
+>  mld_send_initial_cr.part.0+0xf6/0x230 net/ipv6/mcast.c:2242
+>  mld_send_initial_cr net/ipv6/mcast.c:1232 [inline]
+>  mld_dad_work+0x1d3/0x690 net/ipv6/mcast.c:2268
+>  process_one_work+0x9b2/0x1690 kernel/workqueue.c:2298
+>  worker_thread+0x658/0x11f0 kernel/workqueue.c:2445
+> 
+> Memory state around the buggy address:
+>  ffff88807f1cb600: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+>  ffff88807f1cb680: fb fb fb fb fb fb fc fc fc fc fc fc fc fc fc fc
+> >ffff88807f1cb700: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+>                                         ^
+>  ffff88807f1cb780: fb fb fb fb fb fb fc fc fc fc fc fc fc fc fc fc
+>  ffff88807f1cb800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+> 
+> Fixes: 41063e9dd119 ("ipv4: Early TCP socket demux.")
+> Signed-off-by: Eric Dumazet <edumazet@google.com>
+> Link: https://lore.kernel.org/r/20211220143330.680945-1-eric.dumazet@gmail.com
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> [cmllamas: backported to 4.9; dropped irrelevant hunks in ipv6/udp.c;
+>  added rcu_access_pointer(sk->sk_rx_dst) in tcp_prequeue().]
+> Signed-off-by: Carlos Llamas <cmllamas@google.com>
 
-What stable kernel branch(es) do you want this applied to?
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
