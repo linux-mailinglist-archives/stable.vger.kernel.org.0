@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97B7C608874
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81A906087AD
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229955AbiJVIRU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:17:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37160 "EHLO
+        id S232526AbiJVIFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:05:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234104AbiJVIQO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:16:14 -0400
+        with ESMTP id S232717AbiJVIED (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D21A32CCA2F;
-        Sat, 22 Oct 2022 00:57:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D01892A4E35;
+        Sat, 22 Oct 2022 00:51:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12DBFB82DF3;
-        Sat, 22 Oct 2022 07:49:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60C0AC433C1;
-        Sat, 22 Oct 2022 07:49:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53214B82DF1;
+        Sat, 22 Oct 2022 07:49:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9622C433C1;
+        Sat, 22 Oct 2022 07:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424963;
-        bh=79Re3s7HyL5x8jX9VgKMr7GKBE2eiA+WCJ2eP4LQ32k=;
+        s=korg; t=1666424972;
+        bh=RKozKmBB0JBkOoa/PJoj7yI411/Su3O6UrAsmEnlFdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bw1gEx4AI9fqWfaGQDuMbJ4msiwhQBbAVXAxr5PcaAt7yXCB/yWi2K1XpVczHzhU2
-         EPut0HESDwH6bWfTbfvxlVSWuoCyXgJiW1oLkEzcpmI9h8QDvphJOfs1leicUSD2nu
-         fTj/tuWNaDPvB6QDJ4t+av0THrQ1BfyB5Qd+QQqM=
+        b=C4TYIsGoAdmaj4LMKiJB+iP0PNqRCYCdufenGnQdf572JKq03rT/kb8aPsvnbxG1c
+         MiVSh9FSu5sjIGOB0iLESQX7Mp+ionxYO+WBQgwIupeB0s0Qax6M2d8LRxaeyKq2Yb
+         o3aC2DzO5PnHPQQPnEANEUAAPSAG6152Ha08ylCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Olivier Moysan <olivier.moysan@foss.st.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 342/717] ASoC: stm: Fix PM disable depth imbalance in stm32_i2s_probe
-Date:   Sat, 22 Oct 2022 09:23:41 +0200
-Message-Id: <20221022072510.648177769@linuxfoundation.org>
+Subject: [PATCH 5.19 344/717] ASoC: wm5110: Fix PM disable depth imbalance in wm5110_probe
+Date:   Sat, 22 Oct 2022 09:23:43 +0200
+Message-Id: <20221022072510.810189432@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,46 +55,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 93618e5e05a3ce4aa6750268c5025bdb4cb7dc6e ]
+[ Upstream commit 86b46bf1feb83898d89a2b4a8d08d21e9ea277a7 ]
 
 The pm_runtime_enable will increase power disable depth. Thus
 a pairing decrement is needed on the error handling path to
 keep it balanced according to context. We fix it by moving
-pm_runtime_enable to the endding of stm32_i2s_probe.
+pm_runtime_enable to the endding of wm5110_probe.
 
-Fixes:32a956a1fadf ("ASoC: stm32: i2s: add pm_runtime support")
+Fixes:5c6af635fd772 ("ASoC: wm5110: Add audio CODEC driver")
 
 Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Olivier Moysan <olivier.moysan@foss.st.com>
-Link: https://lore.kernel.org/r/20220927142640.64647-1-zhangqilong3@huawei.com
+Link: https://lore.kernel.org/r/20220928160116.125020-3-zhangqilong3@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/stm/stm32_i2s.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/wm5110.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/stm/stm32_i2s.c b/sound/soc/stm/stm32_i2s.c
-index ac5dff4d1677..d9e622f4c422 100644
---- a/sound/soc/stm/stm32_i2s.c
-+++ b/sound/soc/stm/stm32_i2s.c
-@@ -1135,8 +1135,6 @@ static int stm32_i2s_probe(struct platform_device *pdev)
- 		return dev_err_probe(&pdev->dev, PTR_ERR(i2s->regmap),
- 				     "Regmap init error\n");
+diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
+index 4ab7a672f8de..1b0da02b5c79 100644
+--- a/sound/soc/codecs/wm5110.c
++++ b/sound/soc/codecs/wm5110.c
+@@ -2458,9 +2458,6 @@ static int wm5110_probe(struct platform_device *pdev)
+ 		regmap_update_bits(arizona->regmap, wm5110_digital_vu[i],
+ 				   WM5110_DIG_VU, WM5110_DIG_VU);
  
 -	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_idle(&pdev->dev);
 -
- 	ret = snd_dmaengine_pcm_register(&pdev->dev, &stm32_i2s_pcm_config, 0);
- 	if (ret)
- 		return dev_err_probe(&pdev->dev, ret, "PCM DMA register error\n");
-@@ -1179,6 +1177,8 @@ static int stm32_i2s_probe(struct platform_device *pdev)
- 			FIELD_GET(I2S_VERR_MIN_MASK, val));
+ 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
+ 				  "ADSP2 Compressed IRQ", wm5110_adsp2_irq,
+ 				  wm5110);
+@@ -2493,6 +2490,9 @@ static int wm5110_probe(struct platform_device *pdev)
+ 		goto err_spk_irqs;
  	}
  
 +	pm_runtime_enable(&pdev->dev);
++	pm_runtime_idle(&pdev->dev);
 +
  	return ret;
  
- error:
+ err_spk_irqs:
 -- 
 2.35.1
 
