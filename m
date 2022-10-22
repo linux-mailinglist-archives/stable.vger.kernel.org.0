@@ -2,98 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9995F608515
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 08:28:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DF6560852C
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 08:36:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229576AbiJVG2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 02:28:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49206 "EHLO
+        id S230057AbiJVGgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 02:36:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbiJVG2C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 02:28:02 -0400
-X-Greylist: delayed 17851 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 21 Oct 2022 23:28:00 PDT
-Received: from cloud.joominahost.com (cloud.joominahost.com [95.217.54.122])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4005D2AD9DD
-        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 23:27:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=oraldesign-iran.com; s=default; h=Content-Transfer-Encoding:Content-Type:
-        MIME-Version:Message-ID:From:Date:Subject:To:Sender:Reply-To:Cc:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=XbJunz+GiZM77nGbTYw9fFDUPlkKOhTOsbz3zUgj9YI=; b=j3JJTPErq78hFfUZolRm/1GAet
-        t3RYFpWp7uDvKOEAu0OcRtDLsaUxXshjiPTpAnGEl8sn6HTgdBqcsQ8lDfHuoS8EPIhM1p5NEi4pp
-        DBdn8es01Z6/bT678ccg8l1C5bIpdSvgES+KVnVAp2biPI1VA1WG9qKl2S1Kwz7OfCqU0cwswO10e
-        mLuFTySa43ow3H3AHprFxYEU5+OS3d3ZV48E8jdFdqARVlOJlsJ0v+yobJJRa/wia3r5Eut/hAD6k
-        CkreNp8GpdvChfhdUW3W8341aq1qJjGPTsGSALav7n0NInVU7Im0eCL9wcydPJlm3/YqgbnNliI9G
-        EWlmKC0Q==;
-Received: from oraldesi by cloud.joominahost.com with local (Exim 4.95)
-        (envelope-from <info@oraldesign-iran.com>)
-        id 1om3LD-005Og7-Ns
-        for stable@vger.kernel.org;
-        Fri, 21 Oct 2022 21:30:23 -0400
-To:     stable@vger.kernel.org
-Subject: =?utf-8?B?2YXYtNiu2LXYp9iqINit2LPYp9ioINqp2KfYsdio2LHbjCDYqNix2KfbjCBi?=  =?utf-8?B?aWdfaG9tZV9tb3ZpZXNfc2V4IGlqcS5wYWdlLmxpbms=?=  =?utf-8?B?L3FDUUEjU29pbGQg2K/YsSDZhdix2qnYsiDYp9mI2LHYp9mEINiv24zYstin?=  =?utf-8?B?24zZhiDYp9uM2LHYp9mG?=
-X-PHP-Script: oraldesign-iran.com/index.php for 109.169.158.135
-X-PHP-Originating-Script: 1927:class.phpmailer.php
-Date:   Sat, 22 Oct 2022 01:30:23 +0000
-From:   =?utf-8?B?2YXYsdqp2LIg2KfZiNix2KfZhCDYr9uM2LLYp9uM2YYg2KfbjNix2KfZhg==?= 
-        <info@oraldesign-iran.com>
-Message-ID: <6e14eafeebba32aeb7f623d5877b9695@oraldesign-iran.com>
+        with ESMTP id S230058AbiJVGgS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 02:36:18 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30B6E253BC8
+        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 23:36:16 -0700 (PDT)
+Received: from [77.247.85.102] (helo=[192.168.44.12]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1om86p-0006gD-1E; Sat, 22 Oct 2022 08:35:51 +0200
+Message-ID: <2c028797-b313-be93-7b1e-8d838e694948@leemhuis.info>
+Date:   Sat, 22 Oct 2022 08:35:47 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+Content-Language: en-US, de-DE
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+Subject: [Regression] Bug 216613 - Sound stopped working with v6.0.3 on Lenovo
+ T14 Gen2i: ASoC: error at snd_soc_component_probe
+To:     Cezary Rojewski <cezary.rojewski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Liam Girdwood <liam.r.girdwood@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Cc:     =?UTF-8?Q?Grzegorz_Alibo=c5=bcek?= <grzegorz.alibozek@gmail.com>,
+        alsa-devel@alsa-project.org, Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-YourOrg-MailScanner-Information: Please contact the ISP for more information
-X-YourOrg-MailScanner-ID: 1om3LD-005Og7-Ns
-X-YourOrg-MailScanner: Found to be clean
-X-YourOrg-MailScanner-SpamCheck: 
-X-YourOrg-MailScanner-From: info@oraldesign-iran.com
-X-Spam-Status: Yes, score=5.6 required=5.0 tests=BAYES_50,DATE_IN_PAST_03_06,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PHP_SCRIPT,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLACK autolearn=no autolearn_force=no
-        version=3.4.6
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cloud.joominahost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [1927 993] / [47 12]
-X-AntiAbuse: Sender Address Domain - oraldesign-iran.com
-X-Get-Message-Sender-Via: cloud.joominahost.com: authenticated_id: oraldesi/from_h
-X-Authenticated-Sender: cloud.joominahost.com: info@oraldesign-iran.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        *  1.7 URIBL_BLACK Contains an URL listed in the URIBL blacklist
-        *      [URIs: olr.page.link]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  1.6 DATE_IN_PAST_03_06 Date: is 3 to 6 hours before Received: date
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  1.7 PHP_SCRIPT Sent by PHP script
-X-Spam-Level: *****
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1666420577;eaf007ca;
+X-HE-SMSGID: 1om86p-0006gD-1E
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-سلام big_home_movies_sex
- ijq.page.link/qCQA#
-Soild عزیز به وب سایت ما خوش آمدید،
+Hi, this is your Linux kernel regression tracker speaking.
 
-از اینکه در وب سایت مرکز اورال دیزاین ایران ثبت نام نموده اید متشکریم.
+I noticed a regression report in bugzilla.kernel.org. As many (most?)
+kernel developer don't keep an eye on it, I decided to forward it by
+mail. Quoting from https://bugzilla.kernel.org/show_bug.cgi?id=216613 :
 
-شما هم اکنون می توانید در سایت https://www.oraldesign-iran.com/ با استفاده از نام کاربری و رمز عبور زیر وارد شوید:
+>  Grzegorz Alibożek 2022-10-21 19:26:43 UTC
+> 
+> After upgrade kernel from 6.0.2 to 6.0.3 on Lenovo T14 Gen2i, sound stopped working.
+> dmesg:
+> 
+> paź 21 21:11:45 kernel: snd_hda_codec_hdmi ehdaudio0D2: failed to create hda codec -12
+> paź 21 21:11:45 kernel: snd_hda_codec_hdmi ehdaudio0D2: ASoC: error at snd_soc_component_probe on ehdaudio0D2: -12
+> paź 21 21:11:45 kernel: skl_hda_dsp_generic skl_hda_dsp_generic: ASoC: failed to instantiate card -12
+> 
+> [reply] [−] Comment 1 Grzegorz Alibożek 2022-10-21 19:56:43 UTC
+> 
+> Created attachment 303070 [details]
+> trace
 
-نام کاربری: big_home_movies_sex ijq.page.link/qCQA#Soild
-رمز عبور: best_way_for_oral_sex
- olr.page.link/KH9p#
-Bup
+See the ticket for more details.
 
+BTW, let me use this mail to also add the report to the list of tracked
+regressions to ensure it's doesn't fall through the cracks:
+
+#regzbot introduced: v6.0.2..v6.0.3
+https://bugzilla.kernel.org/show_bug.cgi?id=216613
+#regzbot ignore-activity
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+
+P.S.: As the Linux kernel's regression tracker I deal with a lot of
+reports and sometimes miss something important when writing mails like
+this. If that's the case here, don't hesitate to tell me in a public
+reply, it's in everyone's interest to set the public record straight.
