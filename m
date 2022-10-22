@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE7A5608628
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5B460863B
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:46:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231313AbiJVHp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:45:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34302 "EHLO
+        id S231442AbiJVHqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:46:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231529AbiJVHoa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:44:30 -0400
+        with ESMTP id S231696AbiJVHpJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:45:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1928625B254;
-        Sat, 22 Oct 2022 00:43:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71BA13F7D;
+        Sat, 22 Oct 2022 00:43:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD78BB82E05;
-        Sat, 22 Oct 2022 07:42:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C136C433C1;
-        Sat, 22 Oct 2022 07:41:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9636FB82E0C;
+        Sat, 22 Oct 2022 07:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBC81C433D7;
+        Sat, 22 Oct 2022 07:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424519;
-        bh=7Q6MPwhmrr5duWhaJn7LPUnD03iMIW/ggf8M3L2Dfm0=;
+        s=korg; t=1666424522;
+        bh=AoD7+dTTk9jFcrmi68nzi+Pl5BVo8xV9UUy1UM1JpqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Acyx54IiQQjNTIqUny4gXPQaOLMLf33wZt0uIz0RBzmhilTMV9wrlDC5xi93RTc9v
-         Qa9jLjf3hGtTbbf0sHR7mqs3MeUW7qSqKtPFjoO1XQ/S0Ny+VmJv9j/VwgQQzurIHa
-         FD/fnJdiLVlODzgDlOqbpFRE6qRjJhWGNHE1rmqw=
+        b=Dp2cPbiI6kVo9txPvU1CGMmerGi2mziYtq69ey+yaSRx9+vzR+HgX+DeBz+XSx8ld
+         1x7pPGNGpoik0ffovnp4vmKzb5HGzCinM+WfCEOp6Dl3N7UWkb+epZZKLjTSKddl3o
+         MyP4PoBonwu0Y3WfbvupCSD01UVnRscemZdv0o8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Brauner <brauner@kernel.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Robert OCallahan <roc@ocallahan.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 177/717] ima: fix blocking of security.ima xattrs of unsupported algorithms
-Date:   Sat, 22 Oct 2022 09:20:56 +0200
-Message-Id: <20221022072446.904520536@linuxfoundation.org>
+Subject: [PATCH 5.19 178/717] userfaultfd: open userfaultfds with O_RDONLY
+Date:   Sat, 22 Oct 2022 09:20:57 +0200
+Message-Id: <20221022072447.079288900@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,58 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mimi Zohar <zohar@linux.ibm.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-[ Upstream commit 5926586f291b53cb8a0c9631fc19489be1186e2d ]
+[ Upstream commit abec3d015fdfb7c63105c7e1c956188bf381aa55 ]
 
-Limit validating the hash algorithm to just security.ima xattr, not
-the security.evm xattr or any of the protected EVM security xattrs,
-nor posix acls.
+Since userfaultfd doesn't implement a write operation, it is more
+appropriate to open it read-only.
 
-Fixes: 50f742dd9147 ("IMA: block writes of the security.ima xattr with unsupported algorithms")
-Reported-by: Christian Brauner <brauner@kernel.org>
+When userfaultfds are opened read-write like it is now, and such fd is
+passed from one process to another, SELinux will check both read and
+write permissions for the target process, even though it can't actually
+do any write operation on the fd later.
+
+Inspired by the following bug report, which has hit the SELinux scenario
+described above:
+https://bugzilla.redhat.com/show_bug.cgi?id=1974559
+
+Reported-by: Robert O'Callahan <roc@ocallahan.org>
+Fixes: 86039bd3b4e6 ("userfaultfd: add new syscall to provide memory externalization")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Acked-by: Peter Xu <peterx@redhat.com>
 Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_appraise.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ fs/userfaultfd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-index bde74fcecee3..3e0fbbd99534 100644
---- a/security/integrity/ima/ima_appraise.c
-+++ b/security/integrity/ima/ima_appraise.c
-@@ -750,22 +750,26 @@ int ima_inode_setxattr(struct dentry *dentry, const char *xattr_name,
- 	const struct evm_ima_xattr_data *xvalue = xattr_value;
- 	int digsig = 0;
- 	int result;
-+	int err;
+diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+index ab0576d372d6..fa0a2fa5debb 100644
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -991,7 +991,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *new,
+ 	int fd;
  
- 	result = ima_protect_xattr(dentry, xattr_name, xattr_value,
- 				   xattr_value_len);
- 	if (result == 1) {
- 		if (!xattr_value_len || (xvalue->type >= IMA_XATTR_LAST))
- 			return -EINVAL;
-+
-+		err = validate_hash_algo(dentry, xvalue, xattr_value_len);
-+		if (err)
-+			return err;
-+
- 		digsig = (xvalue->type == EVM_IMA_XATTR_DIGSIG);
- 	} else if (!strcmp(xattr_name, XATTR_NAME_EVM) && xattr_value_len > 0) {
- 		digsig = (xvalue->type == EVM_XATTR_PORTABLE_DIGSIG);
- 	}
- 	if (result == 1 || evm_revalidate_status(xattr_name)) {
--		result = validate_hash_algo(dentry, xvalue, xattr_value_len);
--		if (result)
--			return result;
--
- 		ima_reset_appraise_flags(d_backing_inode(dentry), digsig);
-+		if (result == 1)
-+			result = 0;
- 	}
- 	return result;
- }
+ 	fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, new,
+-			O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
++			O_RDONLY | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
+ 	if (fd < 0)
+ 		return fd;
+ 
+@@ -2096,7 +2096,7 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
+ 	mmgrab(ctx->mm);
+ 
+ 	fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, ctx,
+-			O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
++			O_RDONLY | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
+ 	if (fd < 0) {
+ 		mmdrop(ctx->mm);
+ 		kmem_cache_free(userfaultfd_ctx_cachep, ctx);
 -- 
 2.35.1
 
