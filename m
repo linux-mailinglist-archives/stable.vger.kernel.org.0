@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 642576087CC
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:06:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5A94608782
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232827AbiJVIGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:06:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51602 "EHLO
+        id S232600AbiJVICo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:02:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233190AbiJVIFJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:05:09 -0400
+        with ESMTP id S232302AbiJVIA4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:00:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C36512C2AD2;
-        Sat, 22 Oct 2022 00:52:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72FA9269092;
+        Sat, 22 Oct 2022 00:50:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78985B82E10;
-        Sat, 22 Oct 2022 07:52:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94620C433D6;
-        Sat, 22 Oct 2022 07:52:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF6E0B82E1C;
+        Sat, 22 Oct 2022 07:50:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD5DC433C1;
+        Sat, 22 Oct 2022 07:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425123;
-        bh=Q4JHJu+FS1cZcSaWDMVIpJu42fBheHX5lVnvNO+s2IA=;
+        s=korg; t=1666425028;
+        bh=av6IIo9dQWWrz+gy2p6l7x7pffWvKphYgpbV9re8afE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rj0W9REfjslsVncivrFIPtUU/0ekkWCWNP1v96W5fnnvXavxApsRokmVrf7vHC1uo
-         65btLfGSVB0n4Fk0+rl/EAN+dPH57S15AooubfBUyXfHcDdoE/WU6/VncWgAgcJZTB
-         j6B1GQruK4tz6c76v/8OV8s/rkMte7uJnMqK5muM=
+        b=IWyCT6lLSQma5kOPRg2d9VZNYF9K/Y2aupsJQM8VvestievJbqu0ofqK4VgTF29xd
+         Q85ozAlMtf+Dn/8A3eWebWS1DljwXBadX/FJxhZrSoIhsvIyMEjvcCaAAKI+Fl03Ev
+         TMmVmy7Q3wQ09N5HBHV534ArfuRFj3pRyDW6VJFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Chanho Park <chanho61.park@samsung.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 357/717] arm64: dts: renesas: r9a07g043: Fix SCI{Rx,Tx} interrupt types
-Date:   Sat, 22 Oct 2022 09:23:56 +0200
-Message-Id: <20221022072511.919091215@linuxfoundation.org>
+Subject: [PATCH 5.19 358/717] dt-bindings: clock: exynosautov9: correct clock numbering of peric0/c1
+Date:   Sat, 22 Oct 2022 09:23:57 +0200
+Message-Id: <20221022072512.006484747@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,48 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Chanho Park <chanho61.park@samsung.com>
 
-[ Upstream commit 72a482dbaec4b9e4d54b81be6bdb8c016fd2f4bd ]
+[ Upstream commit b6740089b740b842d5e6ff55b4b2c3bf5961c69a ]
 
-As per the RZ/G2UL Hardware User's Manual (Rev.1.00 Apr, 2022),
-the interrupt type of SCI{Rx,Tx} is edge triggered.
+There are duplicated definitions of peric0 and peric1 cmu blocks. Thus,
+they should be defined correctly as numerical order.
 
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Fixes: cf40c9689e5109bf ("arm64: dts: renesas: Add initial DTSI for RZ/G2UL SoC")
-Link: https://lore.kernel.org/r/20220802101534.1401342-3-biju.das.jz@bp.renesas.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: 680e1c8370a2 ("dt-bindings: clock: add clock binding definitions for Exynos Auto v9")
+Signed-off-by: Chanho Park <chanho61.park@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220727021357.152421-2-chanho61.park@samsung.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r9a07g043.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ .../dt-bindings/clock/samsung,exynosautov9.h  | 56 +++++++++----------
+ 1 file changed, 28 insertions(+), 28 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r9a07g043.dtsi b/arch/arm64/boot/dts/renesas/r9a07g043.dtsi
-index b31fb713ae4d..434ae73664a2 100644
---- a/arch/arm64/boot/dts/renesas/r9a07g043.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r9a07g043.dtsi
-@@ -334,8 +334,8 @@
- 			compatible = "renesas,r9a07g043-sci", "renesas,sci";
- 			reg = <0 0x1004d000 0 0x400>;
- 			interrupts = <GIC_SPI 405 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 406 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 407 IRQ_TYPE_LEVEL_HIGH>,
-+				     <GIC_SPI 406 IRQ_TYPE_EDGE_RISING>,
-+				     <GIC_SPI 407 IRQ_TYPE_EDGE_RISING>,
- 				     <GIC_SPI 408 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-names = "eri", "rxi", "txi", "tei";
- 			clocks = <&cpg CPG_MOD R9A07G043_SCI0_CLKP>;
-@@ -349,8 +349,8 @@
- 			compatible = "renesas,r9a07g043-sci", "renesas,sci";
- 			reg = <0 0x1004d400 0 0x400>;
- 			interrupts = <GIC_SPI 409 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 410 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 411 IRQ_TYPE_LEVEL_HIGH>,
-+				     <GIC_SPI 410 IRQ_TYPE_EDGE_RISING>,
-+				     <GIC_SPI 411 IRQ_TYPE_EDGE_RISING>,
- 				     <GIC_SPI 412 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-names = "eri", "rxi", "txi", "tei";
- 			clocks = <&cpg CPG_MOD R9A07G043_SCI1_CLKP>;
+diff --git a/include/dt-bindings/clock/samsung,exynosautov9.h b/include/dt-bindings/clock/samsung,exynosautov9.h
+index ea9f91b4eb1a..a7db6516593f 100644
+--- a/include/dt-bindings/clock/samsung,exynosautov9.h
++++ b/include/dt-bindings/clock/samsung,exynosautov9.h
+@@ -226,21 +226,21 @@
+ #define CLK_GOUT_PERIC0_IPCLK_8		28
+ #define CLK_GOUT_PERIC0_IPCLK_9		29
+ #define CLK_GOUT_PERIC0_IPCLK_10	30
+-#define CLK_GOUT_PERIC0_IPCLK_11	30
+-#define CLK_GOUT_PERIC0_PCLK_0		31
+-#define CLK_GOUT_PERIC0_PCLK_1		32
+-#define CLK_GOUT_PERIC0_PCLK_2		33
+-#define CLK_GOUT_PERIC0_PCLK_3		34
+-#define CLK_GOUT_PERIC0_PCLK_4		35
+-#define CLK_GOUT_PERIC0_PCLK_5		36
+-#define CLK_GOUT_PERIC0_PCLK_6		37
+-#define CLK_GOUT_PERIC0_PCLK_7		38
+-#define CLK_GOUT_PERIC0_PCLK_8		39
+-#define CLK_GOUT_PERIC0_PCLK_9		40
+-#define CLK_GOUT_PERIC0_PCLK_10		41
+-#define CLK_GOUT_PERIC0_PCLK_11		42
++#define CLK_GOUT_PERIC0_IPCLK_11	31
++#define CLK_GOUT_PERIC0_PCLK_0		32
++#define CLK_GOUT_PERIC0_PCLK_1		33
++#define CLK_GOUT_PERIC0_PCLK_2		34
++#define CLK_GOUT_PERIC0_PCLK_3		35
++#define CLK_GOUT_PERIC0_PCLK_4		36
++#define CLK_GOUT_PERIC0_PCLK_5		37
++#define CLK_GOUT_PERIC0_PCLK_6		38
++#define CLK_GOUT_PERIC0_PCLK_7		39
++#define CLK_GOUT_PERIC0_PCLK_8		40
++#define CLK_GOUT_PERIC0_PCLK_9		41
++#define CLK_GOUT_PERIC0_PCLK_10		42
++#define CLK_GOUT_PERIC0_PCLK_11		43
+ 
+-#define PERIC0_NR_CLK			43
++#define PERIC0_NR_CLK			44
+ 
+ /* CMU_PERIC1 */
+ #define CLK_MOUT_PERIC1_BUS_USER	1
+@@ -272,21 +272,21 @@
+ #define CLK_GOUT_PERIC1_IPCLK_8		28
+ #define CLK_GOUT_PERIC1_IPCLK_9		29
+ #define CLK_GOUT_PERIC1_IPCLK_10	30
+-#define CLK_GOUT_PERIC1_IPCLK_11	30
+-#define CLK_GOUT_PERIC1_PCLK_0		31
+-#define CLK_GOUT_PERIC1_PCLK_1		32
+-#define CLK_GOUT_PERIC1_PCLK_2		33
+-#define CLK_GOUT_PERIC1_PCLK_3		34
+-#define CLK_GOUT_PERIC1_PCLK_4		35
+-#define CLK_GOUT_PERIC1_PCLK_5		36
+-#define CLK_GOUT_PERIC1_PCLK_6		37
+-#define CLK_GOUT_PERIC1_PCLK_7		38
+-#define CLK_GOUT_PERIC1_PCLK_8		39
+-#define CLK_GOUT_PERIC1_PCLK_9		40
+-#define CLK_GOUT_PERIC1_PCLK_10		41
+-#define CLK_GOUT_PERIC1_PCLK_11		42
++#define CLK_GOUT_PERIC1_IPCLK_11	31
++#define CLK_GOUT_PERIC1_PCLK_0		32
++#define CLK_GOUT_PERIC1_PCLK_1		33
++#define CLK_GOUT_PERIC1_PCLK_2		34
++#define CLK_GOUT_PERIC1_PCLK_3		35
++#define CLK_GOUT_PERIC1_PCLK_4		36
++#define CLK_GOUT_PERIC1_PCLK_5		37
++#define CLK_GOUT_PERIC1_PCLK_6		38
++#define CLK_GOUT_PERIC1_PCLK_7		39
++#define CLK_GOUT_PERIC1_PCLK_8		40
++#define CLK_GOUT_PERIC1_PCLK_9		41
++#define CLK_GOUT_PERIC1_PCLK_10		42
++#define CLK_GOUT_PERIC1_PCLK_11		43
+ 
+-#define PERIC1_NR_CLK			43
++#define PERIC1_NR_CLK			44
+ 
+ /* CMU_PERIS */
+ #define CLK_MOUT_PERIS_BUS_USER		1
 -- 
 2.35.1
 
