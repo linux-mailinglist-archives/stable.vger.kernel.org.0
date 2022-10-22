@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB782608620
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43D49608621
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231283AbiJVHpU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:45:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47278 "EHLO
+        id S231293AbiJVHpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:45:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231393AbiJVHoF (ORCPT
+        with ESMTP id S231394AbiJVHoF (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:44:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 267B163D35;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47D41DD886;
         Sat, 22 Oct 2022 00:42:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F817B82E0E;
-        Sat, 22 Oct 2022 07:41:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0EB7C433D6;
-        Sat, 22 Oct 2022 07:41:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22CEEB82E07;
+        Sat, 22 Oct 2022 07:41:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F789C433D7;
+        Sat, 22 Oct 2022 07:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424485;
-        bh=C620LoJ1iYClQH8UWros1PqqPG0tOj5qGlc2syb/41g=;
+        s=korg; t=1666424487;
+        bh=A/EfSodavLN3vkOq7yofx8nSRK5ew/SrXZ7YRPbEBvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vjdEjvQbJr8fEg79OAL/tVahuG6j+uUHIH6JvGnv9qQCcB367ASIvkaoj1ELospn
-         MLcofFC6PduVzk3Go5XjY3FAt0XVfhVkXPhNf2NXSukY6VuQvOuAyRlrjH2rOxlPmd
-         Hom3c40R7FIJXhck9b+lGgQsyKk5sW4KEHSkgBBM=
+        b=dSUy7VI6H0yeaa9ULhvNIvWPP6gman5pvBaKiOZwXVor+hQ6LCiO4f/65M6BT9Sk8
+         EE48Ds1Y5yp+9kw2KiNvhHFpOw+W6WlvSwm2619mCJt2cOA1Rw3bY7W+1tjIqyPw3e
+         5XEeyQl8/RP1sOFwFmx0lM6cArJ4SB0YJ7lmWGws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
         Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.19 133/717] ext4: fix miss release buffer head in ext4_fc_write_inode
-Date:   Sat, 22 Oct 2022 09:20:12 +0200
-Message-Id: <20221022072439.057846523@linuxfoundation.org>
+Subject: [PATCH 5.19 134/717] ext4: fix potential memory leak in ext4_fc_record_modified_inode()
+Date:   Sat, 22 Oct 2022 09:20:13 +0200
+Message-Id: <20221022072439.237269256@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,55 +55,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ye Bin <yebin10@huawei.com>
 
-commit ccbf8eeb39f2ff00b54726a2b20b35d788c4ecb5 upstream.
+commit 9305721a309fa1bd7c194e0d4a2335bf3b29dca4 upstream.
 
-In 'ext4_fc_write_inode' function first call 'ext4_get_inode_loc' get 'iloc',
-after use it miss release 'iloc.bh'.
-So just release 'iloc.bh' before 'ext4_fc_write_inode' return.
+As krealloc may return NULL, in this case 'state->fc_modified_inodes'
+may not be freed by krealloc, but 'state->fc_modified_inodes' already
+set NULL. Then will lead to 'state->fc_modified_inodes' memory leak.
 
 Cc: stable@kernel.org
 Signed-off-by: Ye Bin <yebin10@huawei.com>
 Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220914100859.1415196-1-yebin10@huawei.com
+Link: https://lore.kernel.org/r/20220921064040.3693255-2-yebin10@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ fs/ext4/fast_commit.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 --- a/fs/ext4/fast_commit.c
 +++ b/fs/ext4/fast_commit.c
-@@ -874,22 +874,25 @@ static int ext4_fc_write_inode(struct in
- 	tl.fc_tag = cpu_to_le16(EXT4_FC_TAG_INODE);
- 	tl.fc_len = cpu_to_le16(inode_len + sizeof(fc_inode.fc_ino));
- 
-+	ret = -ECANCELED;
- 	dst = ext4_fc_reserve_space(inode->i_sb,
- 			sizeof(tl) + inode_len + sizeof(fc_inode.fc_ino), crc);
- 	if (!dst)
--		return -ECANCELED;
-+		goto err;
- 
- 	if (!ext4_fc_memcpy(inode->i_sb, dst, &tl, sizeof(tl), crc))
--		return -ECANCELED;
-+		goto err;
- 	dst += sizeof(tl);
- 	if (!ext4_fc_memcpy(inode->i_sb, dst, &fc_inode, sizeof(fc_inode), crc))
--		return -ECANCELED;
-+		goto err;
- 	dst += sizeof(fc_inode);
- 	if (!ext4_fc_memcpy(inode->i_sb, dst, (u8 *)ext4_raw_inode(&iloc),
- 					inode_len, crc))
--		return -ECANCELED;
--
--	return 0;
-+		goto err;
-+	ret = 0;
-+err:
-+	brelse(iloc.bh);
-+	return ret;
- }
- 
- /*
+@@ -1494,13 +1494,15 @@ static int ext4_fc_record_modified_inode
+ 		if (state->fc_modified_inodes[i] == ino)
+ 			return 0;
+ 	if (state->fc_modified_inodes_used == state->fc_modified_inodes_size) {
+-		state->fc_modified_inodes = krealloc(
+-				state->fc_modified_inodes,
++		int *fc_modified_inodes;
++
++		fc_modified_inodes = krealloc(state->fc_modified_inodes,
+ 				sizeof(int) * (state->fc_modified_inodes_size +
+ 				EXT4_FC_REPLAY_REALLOC_INCREMENT),
+ 				GFP_KERNEL);
+-		if (!state->fc_modified_inodes)
++		if (!fc_modified_inodes)
+ 			return -ENOMEM;
++		state->fc_modified_inodes = fc_modified_inodes;
+ 		state->fc_modified_inodes_size +=
+ 			EXT4_FC_REPLAY_REALLOC_INCREMENT;
+ 	}
 
 
