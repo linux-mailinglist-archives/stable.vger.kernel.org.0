@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E57906088AC
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:20:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C2226088BF
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233713AbiJVIUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:20:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54232 "EHLO
+        id S229822AbiJVIWR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:22:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233796AbiJVITo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:19:44 -0400
+        with ESMTP id S233655AbiJVIUe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:20:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFBE52B5B98;
-        Sat, 22 Oct 2022 00:58:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F6332B5BAC;
+        Sat, 22 Oct 2022 00:58:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFE9660B95;
-        Sat, 22 Oct 2022 07:58:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C38B7C433D6;
-        Sat, 22 Oct 2022 07:58:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A172960ADC;
+        Sat, 22 Oct 2022 07:58:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1443C433C1;
+        Sat, 22 Oct 2022 07:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425482;
-        bh=cWRamBsDNvVDBJ3mqQVRbJszxwtXNpzWGuAkpTyTjgE=;
+        s=korg; t=1666425485;
+        bh=AlKGxA5oHb1mhMs88++LuDXBhLryEnVpofotGpHubyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Legf1VSbfVzkMOqMWTxUx/ICNRQ+jqUjcX7j/JFGnWlGCa36UoCHFO+wsBiZRS/7K
-         7OwU8fX0SQBl7TULHE4mrBLPUzfgPtPdqpLWLKUyxS6q2J7WksfVqYdFwfP7qCUVx0
-         iztQU05V/Ae8H/MRvBIa7fGOyS5BO/LxzKbWU8mg=
+        b=M5QaGctB2iYXQx0I2xwiGTzTqFv1pW/xRQkkMp2dj6iiEdiJpEzWvpRYlbZcyTCUN
+         W7vZc4c6sd47WzGeMEi0GfjoiASPDFW0/Ukh30Z7fVf5B7x/w7/jO7n9/uQbObjO9I
+         mB1g528tgRA1C6jmKfCrGcvGax+ZNj9By2rosJC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 515/717] cgroup/cpuset: Enable update_tasks_cpumask() on top_cpuset
-Date:   Sat, 22 Oct 2022 09:26:34 +0200
-Message-Id: <20221022072521.055933064@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 516/717] iommu/omap: Fix buffer overflow in debugfs
+Date:   Sat, 22 Oct 2022 09:26:35 +0200
+Message-Id: <20221022072521.109506096@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,69 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ec5fbdfb99d18482619ac42605cb80fbb56068ee ]
+[ Upstream commit 184233a5202786b20220acd2d04ddf909ef18f29 ]
 
-Previously, update_tasks_cpumask() is not supposed to be called with
-top cpuset. With cpuset partition that takes CPUs away from the top
-cpuset, adjusting the cpus_mask of the tasks in the top cpuset is
-necessary. Percpu kthreads, however, are ignored.
+There are two issues here:
 
-Fixes: ee8dde0cd2ce ("cpuset: Add new v2 cpuset.sched.partition flag")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+1) The "len" variable needs to be checked before the very first write.
+   Otherwise if omap2_iommu_dump_ctx() with "bytes" less than 32 it is a
+   buffer overflow.
+2) The snprintf() function returns the number of bytes that *would* have
+   been copied if there were enough space.  But we want to know the
+   number of bytes which were *actually* copied so use scnprintf()
+   instead.
+
+Fixes: bd4396f09a4a ("iommu/omap: Consolidate OMAP IOMMU modules")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/YuvYh1JbE3v+abd5@kili
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cpuset.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/iommu/omap-iommu-debug.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index 1f3a55297f39..50bf837571ac 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -33,6 +33,7 @@
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/kmod.h>
-+#include <linux/kthread.h>
- #include <linux/list.h>
- #include <linux/mempolicy.h>
- #include <linux/mm.h>
-@@ -1127,10 +1128,18 @@ static void update_tasks_cpumask(struct cpuset *cs)
- {
- 	struct css_task_iter it;
- 	struct task_struct *task;
-+	bool top_cs = cs == &top_cpuset;
+diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
+index a99afb5d9011..259f65291d90 100644
+--- a/drivers/iommu/omap-iommu-debug.c
++++ b/drivers/iommu/omap-iommu-debug.c
+@@ -32,12 +32,12 @@ static inline bool is_omap_iommu_detached(struct omap_iommu *obj)
+ 		ssize_t bytes;						\
+ 		const char *str = "%20s: %08x\n";			\
+ 		const int maxcol = 32;					\
+-		bytes = snprintf(p, maxcol, str, __stringify(name),	\
++		if (len < maxcol)					\
++			goto out;					\
++		bytes = scnprintf(p, maxcol, str, __stringify(name),	\
+ 				 iommu_read_reg(obj, MMU_##name));	\
+ 		p += bytes;						\
+ 		len -= bytes;						\
+-		if (len < maxcol)					\
+-			goto out;					\
+ 	} while (0)
  
- 	css_task_iter_start(&cs->css, 0, &it);
--	while ((task = css_task_iter_next(&it)))
-+	while ((task = css_task_iter_next(&it))) {
-+		/*
-+		 * Percpu kthreads in top_cpuset are ignored
-+		 */
-+		if (top_cs && (task->flags & PF_KTHREAD) &&
-+		    kthread_is_per_cpu(task))
-+			continue;
- 		set_cpus_allowed_ptr(task, cs->effective_cpus);
-+	}
- 	css_task_iter_end(&it);
- }
- 
-@@ -2092,12 +2101,7 @@ static int update_prstate(struct cpuset *cs, int new_prs)
- 		update_flag(CS_CPU_EXCLUSIVE, cs, 0);
- 	}
- 
--	/*
--	 * Update cpumask of parent's tasks except when it is the top
--	 * cpuset as some system daemons cannot be mapped to other CPUs.
--	 */
--	if (parent != &top_cpuset)
--		update_tasks_cpumask(parent);
-+	update_tasks_cpumask(parent);
- 
- 	if (parent->child_ecpus_count)
- 		update_sibling_cpumasks(parent, cs, &tmpmask);
+ static ssize_t
 -- 
 2.35.1
 
