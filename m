@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D409608710
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:56:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFC4E608700
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232202AbiJVH4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:56:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42802 "EHLO
+        id S232128AbiJVHzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:55:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232230AbiJVHy1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:27 -0400
+        with ESMTP id S232157AbiJVHyN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7752829F66F;
-        Sat, 22 Oct 2022 00:47:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EC3D2C6EA8;
+        Sat, 22 Oct 2022 00:47:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AA8360B1A;
-        Sat, 22 Oct 2022 07:46:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51428C433D7;
-        Sat, 22 Oct 2022 07:46:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4FAA60AFD;
+        Sat, 22 Oct 2022 07:46:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7D5DC433C1;
+        Sat, 22 Oct 2022 07:46:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424803;
-        bh=e9rDTZzYaQS3sxO5Dhrp00pJNaqgumzz+ILinbeYFx8=;
+        s=korg; t=1666424806;
+        bh=W0IX97rDbejV5O6XzcEziQT2bEP4ZyIT4QwCqP1mfbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D58ohirG3xCE3YJnevGLIqRqMu7saGDKd7JD/a/vvML7mzrT7yvt2y4Zcx4c1ahFq
-         /2UYfB52fcvrZan+/j84+vlq4atguenM8LZC5SpTEmngyM3H/0zY7SgcHTRMHKsuB8
-         tppqaM7CbofXIIomdvfTZcKzX7QoHikXxb90YDmA=
+        b=XAvZbU9Nuog+vRWdKm1VUh3LC9rXk5f/Ivq6EdYkkJ2k9BMEEGpReDkb5KiA3L+oC
+         gtV1ZPK52gvd7KGE0yDkJbTyVUa8h9DkDUXwA35RxfNjkw6wAjsNBQSQ9hklRigZJf
+         R8B7y67XvgbiIhc6xbHP24Md97pmlwsHdrqdEbZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Mark Brown <broonie@kernel.org>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Tedd Ho-Jeong An <tedd.an@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 282/717] spi: Ensure that sg_table wont be used after being freed
-Date:   Sat, 22 Oct 2022 09:22:41 +0200
-Message-Id: <20221022072503.655201205@linuxfoundation.org>
+Subject: [PATCH 5.19 283/717] Bluetooth: hci_sync: Fix not indicating power state
+Date:   Sat, 22 Oct 2022 09:22:42 +0200
+Message-Id: <20221022072503.834302003@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,37 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 8e9204cddcc3fea9affcfa411715ba4f66e97587 ]
+[ Upstream commit 6abf0dae8c3c927f54e62c46faf8aba580ba0d04 ]
 
-SPI code checks for non-zero sgt->orig_nents to determine if the buffer
-has been DMA-mapped. Ensure that sg_table is really zeroed after free to
-avoid potential NULL pointer dereference if the given SPI xfer object is
-reused again without being DMA-mapped.
+When setting power state using legacy/non-mgmt API
+(e.g hcitool hci0 up) the likes of mgmt_set_powered_complete won't be
+called causing clients of the MGMT API to not be notified of the change
+of the state.
 
-Fixes: 0c17ba73c08f ("spi: Fix cache corruption due to DMA/PIO overlap")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20220930113408.19720-1-m.szyprowski@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: cf75ad8b41d2 ("Bluetooth: hci_sync: Convert MGMT_SET_POWERED")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Tested-by: Tedd Ho-Jeong An <tedd.an@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/bluetooth/hci_sync.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 2c616024f7c0..f595e516058c 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -1047,6 +1047,8 @@ void spi_unmap_buf(struct spi_controller *ctlr, struct device *dev,
- 	if (sgt->orig_nents) {
- 		dma_unmap_sg(dev, sgt->sgl, sgt->orig_nents, dir);
- 		sg_free_table(sgt);
-+		sgt->orig_nents = 0;
-+		sgt->nents = 0;
- 	}
- }
- 
+diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
+index 3b4cee67bbd6..a7c0cd2fabfb 100644
+--- a/net/bluetooth/hci_sync.c
++++ b/net/bluetooth/hci_sync.c
+@@ -4033,6 +4033,7 @@ int hci_dev_open_sync(struct hci_dev *hdev)
+ 		    hci_dev_test_flag(hdev, HCI_MGMT) &&
+ 		    hdev->dev_type == HCI_PRIMARY) {
+ 			ret = hci_powered_update_sync(hdev);
++			mgmt_power_on(hdev, ret);
+ 		}
+ 	} else {
+ 		/* Init failed, cleanup */
 -- 
 2.35.1
 
