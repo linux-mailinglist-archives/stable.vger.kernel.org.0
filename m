@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7202D60892D
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE85A608850
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233904AbiJVIbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:31:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51926 "EHLO
+        id S233095AbiJVIQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:16:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234148AbiJVI3r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:29:47 -0400
+        with ESMTP id S233886AbiJVIPb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:15:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC6F524B334;
-        Sat, 22 Oct 2022 01:02:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B2982DA752;
+        Sat, 22 Oct 2022 00:56:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C012B82E19;
-        Sat, 22 Oct 2022 07:47:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6CFDC433C1;
-        Sat, 22 Oct 2022 07:47:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6E78B82E1A;
+        Sat, 22 Oct 2022 07:46:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B076C433C1;
+        Sat, 22 Oct 2022 07:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424822;
-        bh=DxdqHRq9n3CnM6oqOwqOVl6LE5qMcE9fhLL5nLUgjn8=;
+        s=korg; t=1666424790;
+        bh=RZ6NS0SnC3gnbfETbcJ/j5wvx8/vJ3dE1h7eQRYb3WY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wn4SHrSmfkww5OWZr9F+TuB1FU0/HVOLfeM1jvhWXDJ7OONg+XCBhE3BqFcFDX9vM
-         m30wTpPY3K+60rnT6jTTAg8lM9v/dyj0a7ey7czXGtCoxMP1nPpEo8/g3xjlpimNw3
-         gpU8g9Iy3d+SSnbI7MmXDyDYy7NsZF7wYL1HS8eA=
+        b=0sPKgkrZ3TZJnjUDyz8hPAOCGn4bnMoaDxXcCx+2SQWVj9/jeKYMe/CGuKkLVM1Yg
+         hdsen7OyeGJFLhjmicQ0wmnSr/wZvCKB2j4m37CcHdV6zjRwquSIqzZu4ZldUqI7KG
+         C5SPFhJaQ9BshLVj+qFS1WBrGPauJn7z+m2wIy/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Micay <danielmicay@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 262/717] x86/microcode/AMD: Track patch allocation size explicitly
-Date:   Sat, 22 Oct 2022 09:22:21 +0200
-Message-Id: <20221022072500.994478851@linuxfoundation.org>
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Zbynek Michl <zbynek.michl@gmail.com>
+Subject: [PATCH 5.19 278/717] eth: alx: take rtnl_lock on resume
+Date:   Sat, 22 Oct 2022 09:22:37 +0200
+Message-Id: <20221022072503.183456425@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,62 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 712f210a457d9c32414df246a72781550bc23ef6 ]
+[ Upstream commit 6ad1c94e1e7e374d88f0cfd77936dddb8339aaba ]
 
-In preparation for reducing the use of ksize(), record the actual
-allocation size for later memcpy(). This avoids copying extra
-(uninitialized!) bytes into the patch buffer when the requested
-allocation size isn't exactly the size of a kmalloc bucket.
-Additionally, fix potential future issues where runtime bounds checking
-will notice that the buffer was allocated to a smaller value than
-returned by ksize().
+Zbynek reports that alx trips an rtnl assertion on resume:
 
-Fixes: 757885e94a22 ("x86, microcode, amd: Early microcode patch loading support for AMD")
-Suggested-by: Daniel Micay <danielmicay@gmail.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/lkml/CA+DvKQ+bp7Y7gmaVhacjv9uF6Ar-o4tet872h4Q8RPYPJjcJQA@mail.gmail.com/
+ RTNL: assertion failed at net/core/dev.c (2891)
+ RIP: 0010:netif_set_real_num_tx_queues+0x1ac/0x1c0
+ Call Trace:
+  <TASK>
+  __alx_open+0x230/0x570 [alx]
+  alx_resume+0x54/0x80 [alx]
+  ? pci_legacy_resume+0x80/0x80
+  dpm_run_callback+0x4a/0x150
+  device_resume+0x8b/0x190
+  async_resume+0x19/0x30
+  async_run_entry_fn+0x30/0x130
+  process_one_work+0x1e5/0x3b0
+
+indeed the driver does not hold rtnl_lock during its internal close
+and re-open functions during suspend/resume. Note that this is not
+a huge bug as the driver implements its own locking, and does not
+implement changing the number of queues, but we need to silence
+the splat.
+
+Fixes: 4a5fe57e7751 ("alx: use fine-grained locking instead of RTNL")
+Reported-and-tested-by: Zbynek Michl <zbynek.michl@gmail.com>
+Reviewed-by: Niels Dossche <dossche.niels@gmail.com>
+Link: https://lore.kernel.org/r/20220928181236.1053043-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/microcode.h    | 1 +
- arch/x86/kernel/cpu/microcode/amd.c | 3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/atheros/alx/main.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/x86/include/asm/microcode.h b/arch/x86/include/asm/microcode.h
-index 0c3d3440fe27..aa675783412f 100644
---- a/arch/x86/include/asm/microcode.h
-+++ b/arch/x86/include/asm/microcode.h
-@@ -9,6 +9,7 @@
- struct ucode_patch {
- 	struct list_head plist;
- 	void *data;		/* Intel uses only this one */
-+	unsigned int size;
- 	u32 patch_id;
- 	u16 equiv_cpu;
- };
-diff --git a/arch/x86/kernel/cpu/microcode/amd.c b/arch/x86/kernel/cpu/microcode/amd.c
-index 8b2fcdfa6d31..615bc6efa1dd 100644
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -788,6 +788,7 @@ static int verify_and_add_patch(u8 family, u8 *fw, unsigned int leftover,
- 		kfree(patch);
- 		return -EINVAL;
- 	}
-+	patch->size = *patch_size;
+diff --git a/drivers/net/ethernet/atheros/alx/main.c b/drivers/net/ethernet/atheros/alx/main.c
+index a89b93cb4e26..d5939586c82e 100644
+--- a/drivers/net/ethernet/atheros/alx/main.c
++++ b/drivers/net/ethernet/atheros/alx/main.c
+@@ -1912,11 +1912,14 @@ static int alx_suspend(struct device *dev)
  
- 	mc_hdr      = (struct microcode_header_amd *)(fw + SECTION_HDR_SIZE);
- 	proc_id     = mc_hdr->processor_rev_id;
-@@ -869,7 +870,7 @@ load_microcode_amd(bool save, u8 family, const u8 *data, size_t size)
- 		return ret;
+ 	if (!netif_running(alx->dev))
+ 		return 0;
++
++	rtnl_lock();
+ 	netif_device_detach(alx->dev);
  
- 	memset(amd_ucode_patch, 0, PATCH_MAX_SIZE);
--	memcpy(amd_ucode_patch, p->data, min_t(u32, ksize(p->data), PATCH_MAX_SIZE));
-+	memcpy(amd_ucode_patch, p->data, min_t(u32, p->size, PATCH_MAX_SIZE));
+ 	mutex_lock(&alx->mtx);
+ 	__alx_stop(alx);
+ 	mutex_unlock(&alx->mtx);
++	rtnl_unlock();
  
- 	return ret;
+ 	return 0;
  }
+@@ -1927,6 +1930,7 @@ static int alx_resume(struct device *dev)
+ 	struct alx_hw *hw = &alx->hw;
+ 	int err;
+ 
++	rtnl_lock();
+ 	mutex_lock(&alx->mtx);
+ 	alx_reset_phy(hw);
+ 
+@@ -1943,6 +1947,7 @@ static int alx_resume(struct device *dev)
+ 
+ unlock:
+ 	mutex_unlock(&alx->mtx);
++	rtnl_unlock();
+ 	return err;
+ }
+ 
 -- 
 2.35.1
 
