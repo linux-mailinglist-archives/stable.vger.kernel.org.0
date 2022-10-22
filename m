@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82FD4608BDC
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:46:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 897C2608BBC
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:39:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230310AbiJVKqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 06:46:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33968 "EHLO
+        id S230166AbiJVKji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 06:39:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230400AbiJVKpl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:45:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D50981F6;
-        Sat, 22 Oct 2022 03:03:32 -0700 (PDT)
+        with ESMTP id S230015AbiJVKjQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:39:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D97156BBB;
+        Sat, 22 Oct 2022 02:56:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2277C60AFF;
-        Sat, 22 Oct 2022 07:37:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3021FC433C1;
-        Sat, 22 Oct 2022 07:37:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B987B82DF4;
+        Sat, 22 Oct 2022 07:37:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6EACC433C1;
+        Sat, 22 Oct 2022 07:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424269;
-        bh=1mViT2c5UD5jcinRno6IL7qpXr7J0qcTYNSXnwD/3wk=;
+        s=korg; t=1666424272;
+        bh=q+8IZv14OH8z7nHWlSQwAYSMLSmzzRxf767zndaIaCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GzpNEQPnhb+Noa+3eHorNZIFNQDEIj3qHfpBeVCPZ0d1ofZ0YdL78R9wlKctBHNfB
-         W40o6gYlFzHc0paakyFh1s5aidDiVrR4OrHvYMPkgTp+UDeB4h0KO2u5TcjWdxWGxy
-         eoh1L2zA833V+dE2Git/jqPp2e3bxqrsCL2MaYrQ=
+        b=Mynq8NWPVt8bXR6JOMsTmXEKSNNR9NumMm4V/U8ErMNo1e0KOyFzCIBD6BAj/d+Dd
+         EgX+BSrFsnz57h+ekRORAHU3x5nzWhm5nuPuZAgK4yllbfuq176JQjXODMrQ35gkJ/
+         P0LC1JeI/ZrjrPYu4nuy5Jr7pwjL51ysdLibrOJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 5.19 083/717] serial: stm32: Deassert Transmit Enable on ->rs485_config()
-Date:   Sat, 22 Oct 2022 09:19:22 +0200
-Message-Id: <20221022072430.021107652@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Anders Blomdell <anders.blomdell@control.lth.se>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>
+Subject: [PATCH 5.19 084/717] serial: 8250: Let drivers request full 16550A feature probing
+Date:   Sat, 22 Oct 2022 09:19:23 +0200
+Message-Id: <20221022072430.217746516@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,163 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit adafbbf6895eb0ce41a313c6ee68870ab9aa93cd upstream.
+commit 9906890c89e4dbd900ed87ad3040080339a7f411 upstream.
 
-The STM32 USART can control RS-485 Transmit Enable in hardware.  Since
-commit 7df5081cbf5e ("serial: stm32: Add RS485 RTS GPIO control"),
-it can alternatively be controlled in software.  That was done to allow
-RS-485 even if the RTS pin is unavailable because it's pinmuxed to a
-different function.
+A SERIAL_8250_16550A_VARIANTS configuration option has been recently
+defined that lets one request the 8250 driver not to probe for 16550A
+device features so as to reduce the driver's device startup time in
+virtual machines.
 
-However the commit neglected to deassert Transmit Enable upon invocation
-of the ->rs485_config() callback.  Fix it.
+Some actual hardware devices require these features to have been fully
+determined however for their driver to work correctly, so define a flag
+to let drivers request full 16550A feature probing on a device-by-device
+basis if required regardless of the SERIAL_8250_16550A_VARIANTS option
+setting chosen.
 
-Avoid forward declarations by moving stm32_usart_tx_empty(),
-stm32_usart_rs485_rts_enable() and stm32_usart_rs485_rts_disable()
-further up in the driver.
-
-Fixes: 7df5081cbf5e ("serial: stm32: Add RS485 RTS GPIO control")
-Cc: stable@vger.kernel.org # v5.9+
-Cc: Marek Vasut <marex@denx.de>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/6059eab35dba394468335ef640df8b0050fd9dbd.1662886616.git.lukas@wunner.de
+Fixes: dc56ecb81a0a ("serial: 8250: Support disabling mdelay-filled probes of 16550A variants")
+Cc: stable@vger.kernel.org # v5.6+
+Reported-by: Anders Blomdell <anders.blomdell@control.lth.se>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209202357520.41633@angie.orcam.me.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/stm32-usart.c |  100 ++++++++++++++++++++-------------------
- 1 file changed, 53 insertions(+), 47 deletions(-)
+ drivers/tty/serial/8250/8250_port.c |    3 ++-
+ include/linux/serial_core.h         |    3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -62,6 +62,53 @@ static void stm32_usart_clr_bits(struct
- 	writel_relaxed(val, port->membase + reg);
- }
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1029,7 +1029,8 @@ static void autoconfig_16550a(struct uar
+ 	up->port.type = PORT_16550A;
+ 	up->capabilities |= UART_CAP_FIFO;
  
-+static unsigned int stm32_usart_tx_empty(struct uart_port *port)
-+{
-+	struct stm32_port *stm32_port = to_stm32_port(port);
-+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
-+
-+	if (readl_relaxed(port->membase + ofs->isr) & USART_SR_TC)
-+		return TIOCSER_TEMT;
-+
-+	return 0;
-+}
-+
-+static void stm32_usart_rs485_rts_enable(struct uart_port *port)
-+{
-+	struct stm32_port *stm32_port = to_stm32_port(port);
-+	struct serial_rs485 *rs485conf = &port->rs485;
-+
-+	if (stm32_port->hw_flow_control ||
-+	    !(rs485conf->flags & SER_RS485_ENABLED))
-+		return;
-+
-+	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
-+		mctrl_gpio_set(stm32_port->gpios,
-+			       stm32_port->port.mctrl | TIOCM_RTS);
-+	} else {
-+		mctrl_gpio_set(stm32_port->gpios,
-+			       stm32_port->port.mctrl & ~TIOCM_RTS);
-+	}
-+}
-+
-+static void stm32_usart_rs485_rts_disable(struct uart_port *port)
-+{
-+	struct stm32_port *stm32_port = to_stm32_port(port);
-+	struct serial_rs485 *rs485conf = &port->rs485;
-+
-+	if (stm32_port->hw_flow_control ||
-+	    !(rs485conf->flags & SER_RS485_ENABLED))
-+		return;
-+
-+	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
-+		mctrl_gpio_set(stm32_port->gpios,
-+			       stm32_port->port.mctrl & ~TIOCM_RTS);
-+	} else {
-+		mctrl_gpio_set(stm32_port->gpios,
-+			       stm32_port->port.mctrl | TIOCM_RTS);
-+	}
-+}
-+
- static void stm32_usart_config_reg_rs485(u32 *cr1, u32 *cr3, u32 delay_ADE,
- 					 u32 delay_DDE, u32 baud)
- {
-@@ -145,6 +192,12 @@ static int stm32_usart_config_rs485(stru
+-	if (!IS_ENABLED(CONFIG_SERIAL_8250_16550A_VARIANTS))
++	if (!IS_ENABLED(CONFIG_SERIAL_8250_16550A_VARIANTS) &&
++	    !(up->port.flags & UPF_FULL_PROBE))
+ 		return;
  
- 	stm32_usart_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
+ 	/*
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -101,7 +101,7 @@ struct uart_icount {
+ 	__u32	buf_overrun;
+ };
  
-+	/* Adjust RTS polarity in case it's driven in software */
-+	if (stm32_usart_tx_empty(port))
-+		stm32_usart_rs485_rts_disable(port);
-+	else
-+		stm32_usart_rs485_rts_enable(port);
-+
- 	return 0;
- }
+-typedef unsigned int __bitwise upf_t;
++typedef u64 __bitwise upf_t;
+ typedef unsigned int __bitwise upstat_t;
  
-@@ -460,42 +513,6 @@ static void stm32_usart_tc_interrupt_dis
- 	stm32_usart_clr_bits(port, ofs->cr1, USART_CR1_TCIE);
- }
+ struct uart_port {
+@@ -208,6 +208,7 @@ struct uart_port {
+ #define UPF_FIXED_PORT		((__force upf_t) (1 << 29))
+ #define UPF_DEAD		((__force upf_t) (1 << 30))
+ #define UPF_IOREMAP		((__force upf_t) (1 << 31))
++#define UPF_FULL_PROBE		((__force upf_t) (1ULL << 32))
  
--static void stm32_usart_rs485_rts_enable(struct uart_port *port)
--{
--	struct stm32_port *stm32_port = to_stm32_port(port);
--	struct serial_rs485 *rs485conf = &port->rs485;
--
--	if (stm32_port->hw_flow_control ||
--	    !(rs485conf->flags & SER_RS485_ENABLED))
--		return;
--
--	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
--		mctrl_gpio_set(stm32_port->gpios,
--			       stm32_port->port.mctrl | TIOCM_RTS);
--	} else {
--		mctrl_gpio_set(stm32_port->gpios,
--			       stm32_port->port.mctrl & ~TIOCM_RTS);
--	}
--}
--
--static void stm32_usart_rs485_rts_disable(struct uart_port *port)
--{
--	struct stm32_port *stm32_port = to_stm32_port(port);
--	struct serial_rs485 *rs485conf = &port->rs485;
--
--	if (stm32_port->hw_flow_control ||
--	    !(rs485conf->flags & SER_RS485_ENABLED))
--		return;
--
--	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
--		mctrl_gpio_set(stm32_port->gpios,
--			       stm32_port->port.mctrl & ~TIOCM_RTS);
--	} else {
--		mctrl_gpio_set(stm32_port->gpios,
--			       stm32_port->port.mctrl | TIOCM_RTS);
--	}
--}
--
- static void stm32_usart_transmit_chars_pio(struct uart_port *port)
- {
- 	struct stm32_port *stm32_port = to_stm32_port(port);
-@@ -738,17 +755,6 @@ static irqreturn_t stm32_usart_threaded_
- 	return IRQ_HANDLED;
- }
- 
--static unsigned int stm32_usart_tx_empty(struct uart_port *port)
--{
--	struct stm32_port *stm32_port = to_stm32_port(port);
--	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
--
--	if (readl_relaxed(port->membase + ofs->isr) & USART_SR_TC)
--		return TIOCSER_TEMT;
--
--	return 0;
--}
--
- static void stm32_usart_set_mctrl(struct uart_port *port, unsigned int mctrl)
- {
- 	struct stm32_port *stm32_port = to_stm32_port(port);
+ #define __UPF_CHANGE_MASK	0x17fff
+ #define UPF_CHANGE_MASK		((__force upf_t) __UPF_CHANGE_MASK)
 
 
