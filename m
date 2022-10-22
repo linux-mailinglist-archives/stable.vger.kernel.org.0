@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5E266086BA
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B67C96086C9
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:53:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231858AbiJVHwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:52:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37530 "EHLO
+        id S232005AbiJVHx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:53:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231810AbiJVHvU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:51:20 -0400
+        with ESMTP id S231985AbiJVHv7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:51:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E57AC2AC;
-        Sat, 22 Oct 2022 00:46:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29B87AC28F;
+        Sat, 22 Oct 2022 00:46:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C39E60ADB;
-        Sat, 22 Oct 2022 07:44:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F1A9C433D6;
-        Sat, 22 Oct 2022 07:44:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F08760B27;
+        Sat, 22 Oct 2022 07:44:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B30EC433C1;
+        Sat, 22 Oct 2022 07:44:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424655;
-        bh=9B4auItuu6R+2k1KwQ4JjfFlpPatjo0qE5hU/icNkEo=;
+        s=korg; t=1666424657;
+        bh=9vXiCE0BvIwGv1vGlOobuOURIED+4AIDnWGgCQuShT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E04x2Jxba970tn4ZmTAV5dlK8pwrCyR1QbCs08ZV+7SWC3XDz/wtWdnk1KVrsMC+7
-         aXtJO/EVBlKK277zQQ8o9AHmv0QjXnthtY+OWeKn/wQVDLO26oqngWm9SLP6Y+AoMy
-         5oTogm2dgXMYgRJT8eunL0sTClD9+VZVTomM/t1Y=
+        b=F/gN75wpAD6xAqLasLfbitG1V6UnwqmJyx6E0dg7k/xh9BG1LnCLhwMIn8a07dFyy
+         nLdoU6LS/Gv3FeZbeZ+n//EICKcXbtOcZYDbtDD9MdOjgu5IkHIMV+QYGTzNy6kA9G
+         NBlaghs0rx3bg0CleGrE+TR7fhisI52KoCFQJZL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jes Sorensen <Jes.Sorensen@gmail.com>,
         Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 225/717] wifi: rtw89: pci: correct TX resource checking in low power mode
-Date:   Sat, 22 Oct 2022 09:21:44 +0200
-Message-Id: <20221022072454.934918734@linuxfoundation.org>
+Subject: [PATCH 5.19 226/717] wifi: rtl8xxxu: tighten bounds checking in rtl8xxxu_read_efuse()
+Date:   Sat, 22 Oct 2022 09:21:45 +0200
+Message-Id: <20221022072455.101563057@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,39 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 4a29213cd775cabcbe395229d175903accedbb9d ]
+[ Upstream commit 620d5eaeb9059636864bda83ca1c68c20ede34a5 ]
 
-Number of TX resource must be minimum of TX_BD and TX_WD. Only considering
-TX_BD could drop TX packets pulled from mac80211 if TX_WD is unavailable.
+There some bounds checking to ensure that "map_addr" is not out of
+bounds before the start of the loop.  But the checking needs to be
+done as we iterate through the loop because "map_addr" gets larger as
+we iterate.
 
-Fixes: 52edbb9fb78a ("rtw89: ps: access TX/RX rings via another registers in low power mode")
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Jes Sorensen <Jes.Sorensen@gmail.com>
 Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220824063312.15784-2-pkshih@realtek.com
+Link: https://lore.kernel.org/r/Yv8eGLdBslLAk3Ct@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw89/pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ .../net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c  | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw89/pci.c b/drivers/net/wireless/realtek/rtw89/pci.c
-index 622f95bc3ffc..bc8132e91992 100644
---- a/drivers/net/wireless/realtek/rtw89/pci.c
-+++ b/drivers/net/wireless/realtek/rtw89/pci.c
-@@ -922,10 +922,12 @@ u32 __rtw89_pci_check_and_reclaim_tx_resource_noio(struct rtw89_dev *rtwdev,
- {
- 	struct rtw89_pci *rtwpci = (struct rtw89_pci *)rtwdev->priv;
- 	struct rtw89_pci_tx_ring *tx_ring = &rtwpci->tx_rings[txch];
-+	struct rtw89_pci_tx_wd_ring *wd_ring = &tx_ring->wd_ring;
- 	u32 cnt;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index 8b2ca9e8eac6..7f09359a238f 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -1878,13 +1878,6 @@ static int rtl8xxxu_read_efuse(struct rtl8xxxu_priv *priv)
  
- 	spin_lock_bh(&rtwpci->trx_lock);
- 	cnt = rtw89_pci_get_avail_txbd_num(tx_ring);
-+	cnt = min(cnt, wd_ring->curr_num);
- 	spin_unlock_bh(&rtwpci->trx_lock);
+ 		/* We have 8 bits to indicate validity */
+ 		map_addr = offset * 8;
+-		if (map_addr >= EFUSE_MAP_LEN) {
+-			dev_warn(dev, "%s: Illegal map_addr (%04x), "
+-				 "efuse corrupt!\n",
+-				 __func__, map_addr);
+-			ret = -EINVAL;
+-			goto exit;
+-		}
+ 		for (i = 0; i < EFUSE_MAX_WORD_UNIT; i++) {
+ 			/* Check word enable condition in the section */
+ 			if (word_mask & BIT(i)) {
+@@ -1895,6 +1888,13 @@ static int rtl8xxxu_read_efuse(struct rtl8xxxu_priv *priv)
+ 			ret = rtl8xxxu_read_efuse8(priv, efuse_addr++, &val8);
+ 			if (ret)
+ 				goto exit;
++			if (map_addr >= EFUSE_MAP_LEN - 1) {
++				dev_warn(dev, "%s: Illegal map_addr (%04x), "
++					 "efuse corrupt!\n",
++					 __func__, map_addr);
++				ret = -EINVAL;
++				goto exit;
++			}
+ 			priv->efuse_wifi.raw[map_addr++] = val8;
  
- 	return cnt;
+ 			ret = rtl8xxxu_read_efuse8(priv, efuse_addr++, &val8);
 -- 
 2.35.1
 
