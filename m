@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9000608592
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:35:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B6476085A6
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:36:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230127AbiJVHfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:35:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51636 "EHLO
+        id S230125AbiJVHgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:36:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230265AbiJVHfH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:35:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6248745229;
-        Sat, 22 Oct 2022 00:34:37 -0700 (PDT)
+        with ESMTP id S230253AbiJVHg3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:36:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52FF036DD5;
+        Sat, 22 Oct 2022 00:35:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8EB7CB82DF1;
-        Sat, 22 Oct 2022 07:34:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9B61C433C1;
-        Sat, 22 Oct 2022 07:34:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A123B82DEF;
+        Sat, 22 Oct 2022 07:35:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65988C433D6;
+        Sat, 22 Oct 2022 07:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424074;
-        bh=6Q8RJsXE1kESmQt7BuzCD7VcjKXu9zTMzzTGYbKSZ8k=;
+        s=korg; t=1666424107;
+        bh=8fi4KRnTeAjrn2RZpFpUaMqKpGr4C7VXsqZt/H77q6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qYjgHV/hNVjp+lTMSSOn5pOk4RFNXHbOkNt9uGrSdSeKunzp2Fqjwyn7dgEm4/qxV
-         CUM4lzKGdKFdUHfTFK2aJZipQklpshlZ7T+/1QURnjq6FP6xLAw1pb5bzbO1pt9G8z
-         XViKRZXS5iumRwKiFOBygjKTAaz97izZaq3eXejg=
+        b=uyenJxijD2Whif/fKhAg65xur7rVaqr9O8y6TOVV4gtMCw9u++ckorYghGGbf8OH4
+         V87bU5MbMfhMHLHlP+JVTSm2pybgcjkM2WNi18WFyngwp/bFJKHEOGPtxulZ1LqU7B
+         FHutiANflQ2GMW0s2azv3lwdoFPIVbt+iPca243s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.19 002/717] ALSA: oss: Fix potential deadlock at unregistration
-Date:   Sat, 22 Oct 2022 09:18:01 +0200
-Message-Id: <20221022072415.458280635@linuxfoundation.org>
+Subject: [PATCH 5.19 003/717] ALSA: rawmidi: Drop register_mutex in snd_rawmidi_free()
+Date:   Sat, 22 Oct 2022 09:18:02 +0200
+Message-Id: <20221022072415.630907767@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,59 +53,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 97d917879d7f92df09c3f21fd54609a8bcd654b2 upstream.
+commit a70aef7982b012e86dfd39fbb235e76a21ae778a upstream.
 
-We took sound_oss_mutex around the calls of unregister_sound_special()
-at unregistering OSS devices.  This may, however, lead to a deadlock,
-because we manage the card release via the card's device object, and
-the release may happen at unregister_sound_special() call -- which
-will take sound_oss_mutex again in turn.
+The register_mutex taken around the dev_unregister callback call in
+snd_rawmidi_free() may potentially lead to a mutex deadlock, when OSS
+emulation and a hot unplug are involved.
 
-Although the deadlock might be fixed by relaxing the rawmidi mutex in
-the previous commit, it's safer to move unregister_sound_special()
-calls themselves out of the sound_oss_mutex, too.  The call is
-race-safe as the function has a spinlock protection by itself.
+Since the mutex doesn't protect the actual race (as the registration
+itself is already protected by another means), let's drop it.
 
 Link: https://lore.kernel.org/r/CAB7eexJP7w1B0mVgDF0dQ+gWor7UdkiwPczmL7pn91xx8xpzOA@mail.gmail.com
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221011070147.7611-2-tiwai@suse.de
+Link: https://lore.kernel.org/r/20221011070147.7611-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/sound_oss.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ sound/core/rawmidi.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/sound/core/sound_oss.c
-+++ b/sound/core/sound_oss.c
-@@ -162,7 +162,6 @@ int snd_unregister_oss_device(int type,
- 		mutex_unlock(&sound_oss_mutex);
- 		return -ENOENT;
- 	}
--	unregister_sound_special(minor);
- 	switch (SNDRV_MINOR_OSS_DEVICE(minor)) {
- 	case SNDRV_MINOR_OSS_PCM:
- 		track2 = SNDRV_MINOR_OSS(cidx, SNDRV_MINOR_OSS_AUDIO);
-@@ -174,12 +173,18 @@ int snd_unregister_oss_device(int type,
- 		track2 = SNDRV_MINOR_OSS(cidx, SNDRV_MINOR_OSS_DMMIDI1);
- 		break;
- 	}
--	if (track2 >= 0) {
--		unregister_sound_special(track2);
-+	if (track2 >= 0)
- 		snd_oss_minors[track2] = NULL;
--	}
- 	snd_oss_minors[minor] = NULL;
- 	mutex_unlock(&sound_oss_mutex);
-+
-+	/* call unregister_sound_special() outside sound_oss_mutex;
-+	 * otherwise may deadlock, as it can trigger the release of a card
-+	 */
-+	unregister_sound_special(minor);
-+	if (track2 >= 0)
-+		unregister_sound_special(track2);
-+
- 	kfree(mptr);
- 	return 0;
- }
+--- a/sound/core/rawmidi.c
++++ b/sound/core/rawmidi.c
+@@ -1835,10 +1835,8 @@ static int snd_rawmidi_free(struct snd_r
+ 
+ 	snd_info_free_entry(rmidi->proc_entry);
+ 	rmidi->proc_entry = NULL;
+-	mutex_lock(&register_mutex);
+ 	if (rmidi->ops && rmidi->ops->dev_unregister)
+ 		rmidi->ops->dev_unregister(rmidi);
+-	mutex_unlock(&register_mutex);
+ 
+ 	snd_rawmidi_free_substreams(&rmidi->streams[SNDRV_RAWMIDI_STREAM_INPUT]);
+ 	snd_rawmidi_free_substreams(&rmidi->streams[SNDRV_RAWMIDI_STREAM_OUTPUT]);
 
 
