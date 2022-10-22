@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2E2608855
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDA3C608888
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233245AbiJVIQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:16:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48236 "EHLO
+        id S233433AbiJVISZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:18:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233599AbiJVIOd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:14:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F28BE18F275;
-        Sat, 22 Oct 2022 00:55:27 -0700 (PDT)
+        with ESMTP id S233442AbiJVIQ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:16:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7534AA3B67;
+        Sat, 22 Oct 2022 00:57:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92B0DB82E1F;
-        Sat, 22 Oct 2022 07:55:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1F0BC433C1;
-        Sat, 22 Oct 2022 07:55:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 706E560B88;
+        Sat, 22 Oct 2022 07:55:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02280C433D6;
+        Sat, 22 Oct 2022 07:55:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425307;
-        bh=WFVjG+q3vUFosN6VOG2U+vIcJlTIVoQCqEg0IL9VlxE=;
+        s=korg; t=1666425313;
+        bh=1aF+wunZsI3eYUauDVodWioKatZGavxsgr93VDvBbls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1t5E43vE5o/Dp2mito80Rv7OfYpC7QPbFKT7+gxpAdj1aQttrd1U8U4i3eqy4B12c
-         4K9+SLt+TIS8XHhYvlUooLa9V9OKpSAWosm9QN98VyyrN8mJMVS8+3kvL2dK+tRD65
-         nMxQGev8LVr7La4v1Pc2uSareaurSG/prBSdHX00=
+        b=xrqI85FatA9P3VmLHQbD0AJXOUBF2HRnSUKR0Zclrnq6w8lhEFjnn6l3HcYN+lHtI
+         8BammQBtSII9L059dFFXNYNJIdv4H0Z/Up+zapq3mr7VcUB6N/ltSItl2I16qX627R
+         gUxCWAfSVvy97lCh1rpSF5VWkt0B5Kc3lSND2Dgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 428/717] mtd: rawnand: fsl_elbc: Fix none ECC mode
-Date:   Sat, 22 Oct 2022 09:25:07 +0200
-Message-Id: <20221022072517.367302516@linuxfoundation.org>
+Subject: [PATCH 5.19 430/717] RDMA/irdma: Validate udata inlen and outlen
+Date:   Sat, 22 Oct 2022 09:25:09 +0200
+Message-Id: <20221022072517.451916155@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,93 +54,268 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Shiraz Saleem <shiraz.saleem@intel.com>
 
-[ Upstream commit 049e43b9fd8fd2966940485da163d67e96ee3fea ]
+[ Upstream commit 34acb833cc83bdea912a160ff99b537e62bb4cf3 ]
 
-Commit f6424c22aa36 ("mtd: rawnand: fsl_elbc: Make SW ECC work") added
-support for specifying ECC mode via DTS and skipping autodetection.
+Currently ib_copy_from_udata and ib_copy_to_udata could underfill
+the request and response buffer if the user-space passes an undersized
+value for udata->inlen or udata->outlen respectively [1]
+This could lead to undesirable behavior.
 
-But it broke explicit specification of HW ECC mode in DTS as correct
-settings for HW ECC mode are applied only when NONE mode or nothing was
-specified in DTS file.
+Zero initing the buffer only goes as far as preventing using the buffer
+uninitialized.
 
-Also it started aliasing NONE mode to be same as when ECC mode was not
-specified and disallowed usage of ON_DIE mode.
+Validate udata->inlen and udata->outlen passed from user-space to ensure
+they are at least the required minimum size.
 
-Fix all these issues. Use autodetection of ECC mode only in case when mode
-was really not specified in DTS file by checking that ecc value is invalid.
-Set HW ECC settings either when HW ECC was specified in DTS or it was
-autodetected. And do not fail when ON_DIE mode is set.
+[1] https://lore.kernel.org/linux-rdma/MWHPR11MB0029F37D40D9D4A993F8F549E9D79@MWHPR11MB0029.namprd11.prod.outlook.com/
 
-Fixes: f6424c22aa36 ("mtd: rawnand: fsl_elbc: Make SW ECC work")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220707184328.3845-1-pali@kernel.org
+Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Link: https://lore.kernel.org/r/20220907191324.1173-3-shiraz.saleem@intel.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/fsl_elbc_nand.c | 28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ drivers/infiniband/hw/irdma/verbs.c | 67 ++++++++++++++++++++++++++---
+ 1 file changed, 60 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/fsl_elbc_nand.c b/drivers/mtd/nand/raw/fsl_elbc_nand.c
-index aab93b9e6052..a18d121396aa 100644
---- a/drivers/mtd/nand/raw/fsl_elbc_nand.c
-+++ b/drivers/mtd/nand/raw/fsl_elbc_nand.c
-@@ -726,36 +726,40 @@ static int fsl_elbc_attach_chip(struct nand_chip *chip)
- 	struct fsl_lbc_regs __iomem *lbc = ctrl->regs;
- 	unsigned int al;
+diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
+index 7cd50147de1d..c5652efb3df2 100644
+--- a/drivers/infiniband/hw/irdma/verbs.c
++++ b/drivers/infiniband/hw/irdma/verbs.c
+@@ -299,13 +299,19 @@ static void irdma_alloc_push_page(struct irdma_qp *iwqp)
+ static int irdma_alloc_ucontext(struct ib_ucontext *uctx,
+ 				struct ib_udata *udata)
+ {
++#define IRDMA_ALLOC_UCTX_MIN_REQ_LEN offsetofend(struct irdma_alloc_ucontext_req, rsvd8)
++#define IRDMA_ALLOC_UCTX_MIN_RESP_LEN offsetofend(struct irdma_alloc_ucontext_resp, rsvd)
+ 	struct ib_device *ibdev = uctx->device;
+ 	struct irdma_device *iwdev = to_iwdev(ibdev);
+-	struct irdma_alloc_ucontext_req req;
++	struct irdma_alloc_ucontext_req req = {};
+ 	struct irdma_alloc_ucontext_resp uresp = {};
+ 	struct irdma_ucontext *ucontext = to_ucontext(uctx);
+ 	struct irdma_uk_attrs *uk_attrs;
  
--	switch (chip->ecc.engine_type) {
- 	/*
- 	 * if ECC was not chosen in DT, decide whether to use HW or SW ECC from
- 	 * CS Base Register
- 	 */
--	case NAND_ECC_ENGINE_TYPE_NONE:
-+	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_INVALID) {
- 		/* If CS Base Register selects full hardware ECC then use it */
- 		if ((in_be32(&lbc->bank[priv->bank].br) & BR_DECC) ==
- 		    BR_DECC_CHK_GEN) {
--			chip->ecc.read_page = fsl_elbc_read_page;
--			chip->ecc.write_page = fsl_elbc_write_page;
--			chip->ecc.write_subpage = fsl_elbc_write_subpage;
--
- 			chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
--			mtd_set_ooblayout(mtd, &fsl_elbc_ooblayout_ops);
--			chip->ecc.size = 512;
--			chip->ecc.bytes = 3;
--			chip->ecc.strength = 1;
- 		} else {
- 			/* otherwise fall back to default software ECC */
- 			chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
- 			chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
- 		}
++	if (udata->inlen < IRDMA_ALLOC_UCTX_MIN_REQ_LEN ||
++	    udata->outlen < IRDMA_ALLOC_UCTX_MIN_RESP_LEN)
++		return -EINVAL;
++
+ 	if (ib_copy_from_udata(&req, udata, min(sizeof(req), udata->inlen)))
+ 		return -EINVAL;
+ 
+@@ -317,7 +323,7 @@ static int irdma_alloc_ucontext(struct ib_ucontext *uctx,
+ 
+ 	uk_attrs = &iwdev->rf->sc_dev.hw_attrs.uk_attrs;
+ 	/* GEN_1 legacy support with libi40iw */
+-	if (udata->outlen < sizeof(uresp)) {
++	if (udata->outlen == IRDMA_ALLOC_UCTX_MIN_RESP_LEN) {
+ 		if (uk_attrs->hw_rev != IRDMA_GEN_1)
+ 			return -EOPNOTSUPP;
+ 
+@@ -389,6 +395,7 @@ static void irdma_dealloc_ucontext(struct ib_ucontext *context)
+  */
+ static int irdma_alloc_pd(struct ib_pd *pd, struct ib_udata *udata)
+ {
++#define IRDMA_ALLOC_PD_MIN_RESP_LEN offsetofend(struct irdma_alloc_pd_resp, rsvd)
+ 	struct irdma_pd *iwpd = to_iwpd(pd);
+ 	struct irdma_device *iwdev = to_iwdev(pd->device);
+ 	struct irdma_sc_dev *dev = &iwdev->rf->sc_dev;
+@@ -398,6 +405,9 @@ static int irdma_alloc_pd(struct ib_pd *pd, struct ib_udata *udata)
+ 	u32 pd_id = 0;
+ 	int err;
+ 
++	if (udata && udata->outlen < IRDMA_ALLOC_PD_MIN_RESP_LEN)
++		return -EINVAL;
++
+ 	err = irdma_alloc_rsrc(rf, rf->allocated_pds, rf->max_pd, &pd_id,
+ 			       &rf->next_pd);
+ 	if (err)
+@@ -814,12 +824,14 @@ static int irdma_create_qp(struct ib_qp *ibqp,
+ 			   struct ib_qp_init_attr *init_attr,
+ 			   struct ib_udata *udata)
+ {
++#define IRDMA_CREATE_QP_MIN_REQ_LEN offsetofend(struct irdma_create_qp_req, user_compl_ctx)
++#define IRDMA_CREATE_QP_MIN_RESP_LEN offsetofend(struct irdma_create_qp_resp, rsvd)
+ 	struct ib_pd *ibpd = ibqp->pd;
+ 	struct irdma_pd *iwpd = to_iwpd(ibpd);
+ 	struct irdma_device *iwdev = to_iwdev(ibpd->device);
+ 	struct irdma_pci_f *rf = iwdev->rf;
+ 	struct irdma_qp *iwqp = to_iwqp(ibqp);
+-	struct irdma_create_qp_req req;
++	struct irdma_create_qp_req req = {};
+ 	struct irdma_create_qp_resp uresp = {};
+ 	u32 qp_num = 0;
+ 	int err_code;
+@@ -836,6 +848,10 @@ static int irdma_create_qp(struct ib_qp *ibqp,
+ 	if (err_code)
+ 		return err_code;
+ 
++	if (udata && (udata->inlen < IRDMA_CREATE_QP_MIN_REQ_LEN ||
++		      udata->outlen < IRDMA_CREATE_QP_MIN_RESP_LEN))
++		return -EINVAL;
++
+ 	sq_size = init_attr->cap.max_send_wr;
+ 	rq_size = init_attr->cap.max_recv_wr;
+ 
+@@ -1120,6 +1136,8 @@ static int irdma_query_pkey(struct ib_device *ibdev, u32 port, u16 index,
+ int irdma_modify_qp_roce(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ 			 int attr_mask, struct ib_udata *udata)
+ {
++#define IRDMA_MODIFY_QP_MIN_REQ_LEN offsetofend(struct irdma_modify_qp_req, rq_flush)
++#define IRDMA_MODIFY_QP_MIN_RESP_LEN offsetofend(struct irdma_modify_qp_resp, push_valid)
+ 	struct irdma_pd *iwpd = to_iwpd(ibqp->pd);
+ 	struct irdma_qp *iwqp = to_iwqp(ibqp);
+ 	struct irdma_device *iwdev = iwqp->iwdev;
+@@ -1138,6 +1156,13 @@ int irdma_modify_qp_roce(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ 	roce_info = &iwqp->roce_info;
+ 	udp_info = &iwqp->udp_info;
+ 
++	if (udata) {
++		/* udata inlen/outlen can be 0 when supporting legacy libi40iw */
++		if ((udata->inlen && udata->inlen < IRDMA_MODIFY_QP_MIN_REQ_LEN) ||
++		    (udata->outlen && udata->outlen < IRDMA_MODIFY_QP_MIN_RESP_LEN))
++			return -EINVAL;
 +	}
 +
-+	switch (chip->ecc.engine_type) {
-+	/* if HW ECC was chosen, setup ecc and oob layout */
-+	case NAND_ECC_ENGINE_TYPE_ON_HOST:
-+		chip->ecc.read_page = fsl_elbc_read_page;
-+		chip->ecc.write_page = fsl_elbc_write_page;
-+		chip->ecc.write_subpage = fsl_elbc_write_subpage;
-+		mtd_set_ooblayout(mtd, &fsl_elbc_ooblayout_ops);
-+		chip->ecc.size = 512;
-+		chip->ecc.bytes = 3;
-+		chip->ecc.strength = 1;
- 		break;
+ 	if (attr_mask & ~IB_QP_ATTR_STANDARD_BITS)
+ 		return -EOPNOTSUPP;
  
--	/* if SW ECC was chosen in DT, we do not need to set anything here */
-+	/* if none or SW ECC was chosen, we do not need to set anything here */
-+	case NAND_ECC_ENGINE_TYPE_NONE:
- 	case NAND_ECC_ENGINE_TYPE_SOFT:
-+	case NAND_ECC_ENGINE_TYPE_ON_DIE:
- 		break;
+@@ -1374,7 +1399,7 @@ int irdma_modify_qp_roce(struct ib_qp *ibqp, struct ib_qp_attr *attr,
  
--	/* should we also implement *_ECC_ENGINE_CONTROLLER to do as above? */
- 	default:
- 		return -EINVAL;
+ 			if (iwqp->iwarp_state == IRDMA_QP_STATE_ERROR) {
+ 				spin_unlock_irqrestore(&iwqp->lock, flags);
+-				if (udata) {
++				if (udata && udata->inlen) {
+ 					if (ib_copy_from_udata(&ureq, udata,
+ 					    min(sizeof(ureq), udata->inlen)))
+ 						return -EINVAL;
+@@ -1426,7 +1451,7 @@ int irdma_modify_qp_roce(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ 		} else {
+ 			iwqp->ibqp_state = attr->qp_state;
+ 		}
+-		if (udata && dev->hw_attrs.uk_attrs.hw_rev >= IRDMA_GEN_2) {
++		if (udata && udata->outlen && dev->hw_attrs.uk_attrs.hw_rev >= IRDMA_GEN_2) {
+ 			struct irdma_ucontext *ucontext;
+ 
+ 			ucontext = rdma_udata_to_drv_context(udata,
+@@ -1466,6 +1491,8 @@ int irdma_modify_qp_roce(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ int irdma_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr, int attr_mask,
+ 		    struct ib_udata *udata)
+ {
++#define IRDMA_MODIFY_QP_MIN_REQ_LEN offsetofend(struct irdma_modify_qp_req, rq_flush)
++#define IRDMA_MODIFY_QP_MIN_RESP_LEN offsetofend(struct irdma_modify_qp_resp, push_valid)
+ 	struct irdma_qp *iwqp = to_iwqp(ibqp);
+ 	struct irdma_device *iwdev = iwqp->iwdev;
+ 	struct irdma_sc_dev *dev = &iwdev->rf->sc_dev;
+@@ -1480,6 +1507,13 @@ int irdma_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr, int attr_mask,
+ 	int err;
+ 	unsigned long flags;
+ 
++	if (udata) {
++		/* udata inlen/outlen can be 0 when supporting legacy libi40iw */
++		if ((udata->inlen && udata->inlen < IRDMA_MODIFY_QP_MIN_REQ_LEN) ||
++		    (udata->outlen && udata->outlen < IRDMA_MODIFY_QP_MIN_RESP_LEN))
++			return -EINVAL;
++	}
++
+ 	if (attr_mask & ~IB_QP_ATTR_STANDARD_BITS)
+ 		return -EOPNOTSUPP;
+ 
+@@ -1565,7 +1599,7 @@ int irdma_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr, int attr_mask,
+ 		case IB_QPS_RESET:
+ 			if (iwqp->iwarp_state == IRDMA_QP_STATE_ERROR) {
+ 				spin_unlock_irqrestore(&iwqp->lock, flags);
+-				if (udata) {
++				if (udata && udata->inlen) {
+ 					if (ib_copy_from_udata(&ureq, udata,
+ 					    min(sizeof(ureq), udata->inlen)))
+ 						return -EINVAL;
+@@ -1662,7 +1696,7 @@ int irdma_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr, int attr_mask,
+ 			}
+ 		}
  	}
+-	if (attr_mask & IB_QP_STATE && udata &&
++	if (attr_mask & IB_QP_STATE && udata && udata->outlen &&
+ 	    dev->hw_attrs.uk_attrs.hw_rev >= IRDMA_GEN_2) {
+ 		struct irdma_ucontext *ucontext;
+ 
+@@ -1797,6 +1831,7 @@ static int irdma_destroy_cq(struct ib_cq *ib_cq, struct ib_udata *udata)
+ static int irdma_resize_cq(struct ib_cq *ibcq, int entries,
+ 			   struct ib_udata *udata)
+ {
++#define IRDMA_RESIZE_CQ_MIN_REQ_LEN offsetofend(struct irdma_resize_cq_req, user_cq_buffer)
+ 	struct irdma_cq *iwcq = to_iwcq(ibcq);
+ 	struct irdma_sc_dev *dev = iwcq->sc_cq.dev;
+ 	struct irdma_cqp_request *cqp_request;
+@@ -1819,6 +1854,9 @@ static int irdma_resize_cq(struct ib_cq *ibcq, int entries,
+ 	    IRDMA_FEATURE_CQ_RESIZE))
+ 		return -EOPNOTSUPP;
+ 
++	if (udata && udata->inlen < IRDMA_RESIZE_CQ_MIN_REQ_LEN)
++		return -EINVAL;
++
+ 	if (entries > rf->max_cqe)
+ 		return -EINVAL;
+ 
+@@ -1951,6 +1989,8 @@ static int irdma_create_cq(struct ib_cq *ibcq,
+ 			   const struct ib_cq_init_attr *attr,
+ 			   struct ib_udata *udata)
+ {
++#define IRDMA_CREATE_CQ_MIN_REQ_LEN offsetofend(struct irdma_create_cq_req, user_cq_buf)
++#define IRDMA_CREATE_CQ_MIN_RESP_LEN offsetofend(struct irdma_create_cq_resp, cq_size)
+ 	struct ib_device *ibdev = ibcq->device;
+ 	struct irdma_device *iwdev = to_iwdev(ibdev);
+ 	struct irdma_pci_f *rf = iwdev->rf;
+@@ -1969,6 +2009,11 @@ static int irdma_create_cq(struct ib_cq *ibcq,
+ 	err_code = cq_validate_flags(attr->flags, dev->hw_attrs.uk_attrs.hw_rev);
+ 	if (err_code)
+ 		return err_code;
++
++	if (udata && (udata->inlen < IRDMA_CREATE_CQ_MIN_REQ_LEN ||
++		      udata->outlen < IRDMA_CREATE_CQ_MIN_RESP_LEN))
++		return -EINVAL;
++
+ 	err_code = irdma_alloc_rsrc(rf, rf->allocated_cqs, rf->max_cq, &cq_num,
+ 				    &rf->next_cq);
+ 	if (err_code)
+@@ -2738,6 +2783,7 @@ static struct ib_mr *irdma_reg_user_mr(struct ib_pd *pd, u64 start, u64 len,
+ 				       u64 virt, int access,
+ 				       struct ib_udata *udata)
+ {
++#define IRDMA_MEM_REG_MIN_REQ_LEN offsetofend(struct irdma_mem_reg_req, sq_pages)
+ 	struct irdma_device *iwdev = to_iwdev(pd->device);
+ 	struct irdma_ucontext *ucontext;
+ 	struct irdma_pble_alloc *palloc;
+@@ -2755,6 +2801,9 @@ static struct ib_mr *irdma_reg_user_mr(struct ib_pd *pd, u64 start, u64 len,
+ 	if (len > iwdev->rf->sc_dev.hw_attrs.max_mr_size)
+ 		return ERR_PTR(-EINVAL);
+ 
++	if (udata->inlen < IRDMA_MEM_REG_MIN_REQ_LEN)
++		return ERR_PTR(-EINVAL);
++
+ 	region = ib_umem_get(pd->device, start, len, access);
+ 
+ 	if (IS_ERR(region)) {
+@@ -4290,12 +4339,16 @@ static int irdma_create_user_ah(struct ib_ah *ibah,
+ 				struct rdma_ah_init_attr *attr,
+ 				struct ib_udata *udata)
+ {
++#define IRDMA_CREATE_AH_MIN_RESP_LEN offsetofend(struct irdma_create_ah_resp, rsvd)
+ 	struct irdma_ah *ah = container_of(ibah, struct irdma_ah, ibah);
+ 	struct irdma_device *iwdev = to_iwdev(ibah->pd->device);
+ 	struct irdma_create_ah_resp uresp;
+ 	struct irdma_ah *parent_ah;
+ 	int err;
+ 
++	if (udata && udata->outlen < IRDMA_CREATE_AH_MIN_RESP_LEN)
++		return -EINVAL;
++
+ 	err = irdma_setup_ah(ibah, attr);
+ 	if (err)
+ 		return err;
 -- 
 2.35.1
 
