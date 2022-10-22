@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91CC56087D2
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37082608A0F
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232854AbiJVIGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:06:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60864 "EHLO
+        id S234836AbiJVIqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:46:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232406AbiJVIFR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:05:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3317F2C6E07;
-        Sat, 22 Oct 2022 00:52:44 -0700 (PDT)
+        with ESMTP id S235273AbiJVIpF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:45:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 197032ECF57;
+        Sat, 22 Oct 2022 01:09:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 969CCB82E05;
-        Sat, 22 Oct 2022 07:44:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 120FAC433D6;
-        Sat, 22 Oct 2022 07:44:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 215D1B82DB2;
+        Sat, 22 Oct 2022 07:43:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3489AC433B5;
+        Sat, 22 Oct 2022 07:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424660;
-        bh=2eafooLCWzYB3jrawTGKwYMxHojxlE96ckfg/2CLZiY=;
+        s=korg; t=1666424605;
+        bh=VpSA4BMhFeKTWyRx8kXmF54tw9u0jbtrAQ4h/xDZpo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTGbQucXIX4mC2iaKeO1TVOxWadX3v7k3Fvjd2EC/mX8GCBfiwTkgARF9mSfDDYHz
-         06bcLLZvnlMOS7LG3fk7DCdgDNyFbNsRFhDhvs+CBax+Qgk/oFPxa9YMCOfZ7Vf/Bn
-         kYao5NtlSvAGUD8Mta+aP12ABmMr457+uqaTA264=
+        b=Tz8MJWZikgEqpMsDZ7uj8CG0mYn3DjptpICY9UfwZ96I0NPeT608rXM+A3SdUuDKW
+         jNGNSkFIgb6XoHn1suH6cTfc/+HEem8UOq5SkZKnOMNinctDbGsMJgotSfWiAeYoBR
+         O1x+YdgyhDIbSpeGXLXw3mOhSvs+SU2PJEDSJEBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bill Wendling <morbo@google.com>,
-        Juergen Gross <jgross@suse.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.19 199/717] x86/paravirt: add extra clobbers with ZERO_CALL_USED_REGS enabled
-Date:   Sat, 22 Oct 2022 09:21:18 +0200
-Message-Id: <20221022072450.677685116@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Hari Chandrakanthan <quic_haric@quicinc.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 209/717] wifi: mac80211: allow bw change during channel switch in mesh
+Date:   Sat, 22 Oct 2022 09:21:28 +0200
+Message-Id: <20221022072452.264380904@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,106 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bill Wendling <morbo@google.com>
+From: Hari Chandrakanthan <quic_haric@quicinc.com>
 
-[ Upstream commit 8c86f29bfb18465d15b05cfd26a6454ec787b793 ]
+[ Upstream commit 6b75f133fe05c36c52d691ff21545d5757fff721 ]
 
-The ZERO_CALL_USED_REGS feature may zero out caller-saved registers
-before returning.
+>From 'IEEE Std 802.11-2020 section 11.8.8.4.1':
+  The mesh channel switch may be triggered by the need to avoid
+  interference to a detected radar signal, or to reassign mesh STA
+  channels to ensure the MBSS connectivity.
 
-In spurious_kernel_fault(), the "pte_offset_kernel()" call results in
-this assembly code:
+  A 20/40 MHz MBSS may be changed to a 20 MHz MBSS and a 20 MHz
+  MBSS may be changed to a 20/40 MHz MBSS.
 
-.Ltmp151:
-        #APP
-        # ALT: oldnstr
-.Ltmp152:
-.Ltmp153:
-.Ltmp154:
-        .section        .discard.retpoline_safe,"",@progbits
-        .quad   .Ltmp154
-        .text
+Since the standard allows the change of bandwidth during
+the channel switch in mesh, remove the bandwidth check present in
+ieee80211_set_csa_beacon.
 
-        callq   *pv_ops+536(%rip)
-
-.Ltmp155:
-        .section        .parainstructions,"a",@progbits
-        .p2align        3, 0x0
-        .quad   .Ltmp153
-        .byte   67
-        .byte   .Ltmp155-.Ltmp153
-        .short  1
-        .text
-.Ltmp156:
-        # ALT: padding
-        .zero   (-(((.Ltmp157-.Ltmp158)-(.Ltmp156-.Ltmp152))>0))*((.Ltmp157-.Ltmp158)-(.Ltmp156-.Ltmp152)),144
-.Ltmp159:
-        .section        .altinstructions,"a",@progbits
-.Ltmp160:
-        .long   .Ltmp152-.Ltmp160
-.Ltmp161:
-        .long   .Ltmp158-.Ltmp161
-        .short  33040
-        .byte   .Ltmp159-.Ltmp152
-        .byte   .Ltmp157-.Ltmp158
-        .text
-
-        .section        .altinstr_replacement,"ax",@progbits
-        # ALT: replacement 1
-.Ltmp158:
-        movq    %rdi, %rax
-.Ltmp157:
-        .text
-        #NO_APP
-.Ltmp162:
-        testb   $-128, %dil
-
-The "testb" here is using %dil, but the %rdi register was cleared before
-returning from "callq *pv_ops+536(%rip)". Adding the proper constraints
-results in the use of a different register:
-
-        movq    %r11, %rdi
-
-        # Similar to above.
-
-        testb   $-128, %r11b
-
-Link: https://github.com/KSPP/linux/issues/192
-Signed-off-by: Bill Wendling <morbo@google.com>
-Reported-and-tested-by: Nathan Chancellor <nathan@kernel.org>
-Fixes: 035f7f87b729 ("randstruct: Enable Clang support")
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/lkml/fa6df43b-8a1a-8ad1-0236-94d2a0b588fa@suse.com/
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220902213750.1124421-3-morbo@google.com
+Fixes: c6da674aff94 ("{nl,cfg,mac}80211: enable the triggering of CSA frame in mesh")
+Signed-off-by: Hari Chandrakanthan <quic_haric@quicinc.com>
+Link: https://lore.kernel.org/r/1658903549-21218-1-git-send-email-quic_haric@quicinc.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/paravirt_types.h | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ net/mac80211/cfg.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 89df6c6617f5..bc2e1b67319d 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -414,8 +414,17 @@ int paravirt_disable_iospace(void);
- 				"=c" (__ecx)
- #define PVOP_CALL_CLOBBERS	PVOP_VCALL_CLOBBERS, "=a" (__eax)
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index 9ca25ae503b0..37484c26259d 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -3545,9 +3545,6 @@ static int ieee80211_set_csa_beacon(struct ieee80211_sub_if_data *sdata,
+ 	case NL80211_IFTYPE_MESH_POINT: {
+ 		struct ieee80211_if_mesh *ifmsh = &sdata->u.mesh;
  
--/* void functions are still allowed [re]ax for scratch */
-+/*
-+ * void functions are still allowed [re]ax for scratch.
-+ *
-+ * The ZERO_CALL_USED REGS feature may end up zeroing out callee-saved
-+ * registers. Make sure we model this with the appropriate clobbers.
-+ */
-+#ifdef CONFIG_ZERO_CALL_USED_REGS
-+#define PVOP_VCALLEE_CLOBBERS	"=a" (__eax), PVOP_VCALL_CLOBBERS
-+#else
- #define PVOP_VCALLEE_CLOBBERS	"=a" (__eax)
-+#endif
- #define PVOP_CALLEE_CLOBBERS	PVOP_VCALLEE_CLOBBERS
- 
- #define EXTRA_CLOBBERS	 , "r8", "r9", "r10", "r11"
+-		if (params->chandef.width != sdata->vif.bss_conf.chandef.width)
+-			return -EINVAL;
+-
+ 		/* changes into another band are not supported */
+ 		if (sdata->vif.bss_conf.chandef.chan->band !=
+ 		    params->chandef.chan->band)
 -- 
 2.35.1
 
