@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59A26608C16
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:59:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16C57608C14
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:58:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbiJVK7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 06:59:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46418 "EHLO
+        id S230054AbiJVK6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 06:58:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230253AbiJVK6p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:58:45 -0400
+        with ESMTP id S230060AbiJVK6d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:58:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2686D46D85;
-        Sat, 22 Oct 2022 03:17:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5517072291;
+        Sat, 22 Oct 2022 03:17:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55029B82E05;
-        Sat, 22 Oct 2022 07:54:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B13BC433D6;
-        Sat, 22 Oct 2022 07:54:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40F98B82E2B;
+        Sat, 22 Oct 2022 07:55:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FE4AC43470;
+        Sat, 22 Oct 2022 07:55:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425265;
-        bh=aRoHgLT18h88Rn43em+coJfcbxqhuSaOBcPrfYQ//0Q=;
+        s=korg; t=1666425329;
+        bh=TOSu46mciuE/L6gJio2Q140JlgyZxiLGuzWYQlMx65Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=khJ39P7ww19bhrsKyQWDEX5PalT+DcYk+zzFVH5uxOZVFll1TeDhRtOyMALa9alU6
-         5/10WmQ5LZvYMB+fBWDzbb9gtMfEah8NyApha9wnGUVgdVlAYCPzuSpke8ckYmZz0R
-         siTnpdd8BlSd3XYnWCAwDVB0btyGbPp3sz61Z7CQ=
+        b=qi//daVm1AIkIkt0QJnPGef7yb1ioLl2SoMfPdbboftKN8mqfiPAO+cWOoEIsT0g4
+         cyA7qcAArguFmI4l/TE9WXGTVLRDg5pD56j0SjgxjFxdYjae6e0e+J0Dn7J/PHHkxx
+         4y5gIgNGA9BqE2biG6ihrTA3Qd13P7y2n9YBonoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Artem S. Tashkinov" <aros@gmx.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 444/717] xhci: Dont show warning for reinit on known broken suspend
-Date:   Sat, 22 Oct 2022 09:25:23 +0200
-Message-Id: <20221022072517.931513104@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 466/717] mfd: intel_soc_pmic: Fix an error handling path in intel_soc_pmic_i2c_probe()
+Date:   Sat, 22 Oct 2022 09:25:45 +0200
+Message-Id: <20221022072518.916284151@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,46 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 484d6f7aa3283d082c87654b7fe7a7f725423dfb ]
+[ Upstream commit 48749cabba109397b4e7dd556e85718ec0ec114d ]
 
-commit 8b328f8002bc ("xhci: re-initialize the HC during resume if HCE was
-set") introduced a new warning message when the host controller error
-was set and re-initializing.
+The commit in Fixes: has added a pwm_add_table() call in the probe() and
+a pwm_remove_table() call in the remove(), but forget to update the error
+handling path of the probe.
 
-This is expected behavior on some designs which already set
-`xhci->broken_suspend` so the new warning is alarming to some users.
+Add the missing pwm_remove_table() call.
 
-Modify the code to only show the warning if this was a surprising behavior
-to the XHCI driver.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216470
-Fixes: 8b328f8002bc ("xhci: re-initialize the HC during resume if HCE was set")
-Reported-by: Artem S. Tashkinov <aros@gmx.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220921123450.671459-4-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a3aa9a93df9f ("mfd: intel_soc_pmic_core: ADD PWM lookup table for CRC PMIC based PWM")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/20220801114211.36267-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mfd/intel_soc_pmic_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 38649284ff88..a7ef675f00fd 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1183,7 +1183,8 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
- 	/* re-initialize the HC on Restore Error, or Host Controller Error */
- 	if (temp & (STS_SRE | STS_HCE)) {
- 		reinit_xhc = true;
--		xhci_warn(xhci, "xHC error in resume, USBSTS 0x%x, Reinit\n", temp);
-+		if (!xhci->broken_suspend)
-+			xhci_warn(xhci, "xHC error in resume, USBSTS 0x%x, Reinit\n", temp);
- 	}
+diff --git a/drivers/mfd/intel_soc_pmic_core.c b/drivers/mfd/intel_soc_pmic_core.c
+index 5e8c94e008ed..85d070bce0e2 100644
+--- a/drivers/mfd/intel_soc_pmic_core.c
++++ b/drivers/mfd/intel_soc_pmic_core.c
+@@ -77,6 +77,7 @@ static int intel_soc_pmic_i2c_probe(struct i2c_client *i2c,
+ 	return 0;
  
- 	if (reinit_xhc) {
+ err_del_irq_chip:
++	pwm_remove_table(crc_pwm_lookup, ARRAY_SIZE(crc_pwm_lookup));
+ 	regmap_del_irq_chip(pmic->irq, pmic->irq_chip_data);
+ 	return ret;
+ }
 -- 
 2.35.1
 
