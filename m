@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A6C2608C2D
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 13:03:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6073C608C2E
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 13:03:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229697AbiJVLDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 07:03:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51252 "EHLO
+        id S230031AbiJVLDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 07:03:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230476AbiJVLCl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 07:02:41 -0400
+        with ESMTP id S229918AbiJVLCm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 07:02:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F40DC2FACE2;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F3F22FA5F1;
         Sat, 22 Oct 2022 03:21:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 093F3B82DF7;
-        Sat, 22 Oct 2022 07:53:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57DEEC433C1;
-        Sat, 22 Oct 2022 07:53:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17C89B82DFB;
+        Sat, 22 Oct 2022 07:53:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 534ACC433D6;
+        Sat, 22 Oct 2022 07:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425207;
-        bh=KnC0eVRrajGhZ5HIxfCVZGcjDmnvlTYo6SUexl+tkS8=;
+        s=korg; t=1666425210;
+        bh=h5rZI2DhtyRw6JJ9HZ5Nms1rZq9aonnNTsh+tp6sooA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hswTckQR3a/keiU8FJ3bgflkKuv1NbMzn8ggvRJVETZbZjnlSNe4DvDxqeSNmawNR
-         DTFpULLH+d5hugidJX5D7LVB1jGO6DhraZ2+IUkESqMk4FhCRTyAn7i2NNwnL1cvMR
-         snYMc5X18MQZWZQB/MNP7r2Uovd293PHOtMw4Fko=
+        b=YTh/jYIz+yZ5iHvht3bMcRkjEciWsjQ1Q/TIUuA8gCkQhUsCjNEORcgP5fGJ/uwfs
+         sAQ/mJlO4CCNoeGFpwEcmubqSnHxtZYEUnLIPcLYzFF7m6HU97NJks/MB0ehUvywxM
+         +wz+V7LMQquAdUDkVfOUEP/96DYyFPrHh2jDcGcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 397/717] media: amphion: adjust the encoders value range of gop size
-Date:   Sat, 22 Oct 2022 09:24:36 +0200
-Message-Id: <20221022072515.402386581@linuxfoundation.org>
+Subject: [PATCH 5.19 398/717] media: amphion: dont change the colorspace reported by decoder.
+Date:   Sat, 22 Oct 2022 09:24:37 +0200
+Message-Id: <20221022072515.462478704@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,35 +56,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit 996f4e89fabe44ab9ac0aabb0697aeecbe717eca ]
+[ Upstream commit 61c2698ee60630c6a7d2e99850fa81ff6450270a ]
 
-adjust the value range of gop size from [0, 65535] to [1, 8000].
-when the gop size is set to a too large value,
-it may affect the encoded picture quality.
-so constrain it to a reasonable range.
+decoder will report the colorspace information
+which is parsed from the sequence header,
+if they are unspecified, just let application to determine it,
+don't change it in driver.
 
-Fixes: 0401e659c1f92 ("media: amphion: add v4l2 m2m vpu encoder stateful driver")
+Fixes: 6de8d628df6ef ("media: amphion: add v4l2 m2m vpu decoder stateful driver")
 Signed-off-by: Ming Qian <ming.qian@nxp.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/amphion/venc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/amphion/vdec.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/media/platform/amphion/venc.c b/drivers/media/platform/amphion/venc.c
-index 43d61d82f58c..0f21a181c1de 100644
---- a/drivers/media/platform/amphion/venc.c
-+++ b/drivers/media/platform/amphion/venc.c
-@@ -644,7 +644,7 @@ static int venc_ctrl_init(struct vpu_inst *inst)
- 			  BITRATE_DEFAULT_PEAK);
+diff --git a/drivers/media/platform/amphion/vdec.c b/drivers/media/platform/amphion/vdec.c
+index 44dbca0fe17f..6d6842ff12e2 100644
+--- a/drivers/media/platform/amphion/vdec.c
++++ b/drivers/media/platform/amphion/vdec.c
+@@ -808,14 +808,6 @@ static void vdec_init_fmt(struct vpu_inst *inst)
+ 		inst->cap_format.field = V4L2_FIELD_NONE;
+ 	else
+ 		inst->cap_format.field = V4L2_FIELD_SEQ_TB;
+-	if (vdec->codec_info.color_primaries == V4L2_COLORSPACE_DEFAULT)
+-		vdec->codec_info.color_primaries = V4L2_COLORSPACE_REC709;
+-	if (vdec->codec_info.transfer_chars == V4L2_XFER_FUNC_DEFAULT)
+-		vdec->codec_info.transfer_chars = V4L2_XFER_FUNC_709;
+-	if (vdec->codec_info.matrix_coeffs == V4L2_YCBCR_ENC_DEFAULT)
+-		vdec->codec_info.matrix_coeffs = V4L2_YCBCR_ENC_709;
+-	if (vdec->codec_info.full_range == V4L2_QUANTIZATION_DEFAULT)
+-		vdec->codec_info.full_range = V4L2_QUANTIZATION_LIM_RANGE;
+ }
  
- 	v4l2_ctrl_new_std(&inst->ctrl_handler, &venc_ctrl_ops,
--			  V4L2_CID_MPEG_VIDEO_GOP_SIZE, 0, (1 << 16) - 1, 1, 30);
-+			  V4L2_CID_MPEG_VIDEO_GOP_SIZE, 1, 8000, 1, 30);
- 
- 	v4l2_ctrl_new_std(&inst->ctrl_handler, &venc_ctrl_ops,
- 			  V4L2_CID_MPEG_VIDEO_B_FRAMES, 0, 4, 1, 0);
+ static void vdec_init_crop(struct vpu_inst *inst)
+@@ -1556,6 +1548,14 @@ static int vdec_get_debug_info(struct vpu_inst *inst, char *str, u32 size, u32 i
+ 				vdec->codec_info.frame_rate.numerator,
+ 				vdec->codec_info.frame_rate.denominator);
+ 		break;
++	case 9:
++		num = scnprintf(str, size, "colorspace: %d, %d, %d, %d (%d)\n",
++				vdec->codec_info.color_primaries,
++				vdec->codec_info.transfer_chars,
++				vdec->codec_info.matrix_coeffs,
++				vdec->codec_info.full_range,
++				vdec->codec_info.vui_present);
++		break;
+ 	default:
+ 		break;
+ 	}
 -- 
 2.35.1
 
