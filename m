@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C39E60862F
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DAEC608672
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:49:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231365AbiJVHpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:45:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45920 "EHLO
+        id S231544AbiJVHtu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:49:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231602AbiJVHoi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:44:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5907D402E1;
-        Sat, 22 Oct 2022 00:43:20 -0700 (PDT)
+        with ESMTP id S231784AbiJVHtI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C6B145239;
+        Sat, 22 Oct 2022 00:45:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD25DB82E14;
-        Sat, 22 Oct 2022 07:42:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E7CBC433C1;
-        Sat, 22 Oct 2022 07:42:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCBEF60B93;
+        Sat, 22 Oct 2022 07:42:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7B86C433C1;
+        Sat, 22 Oct 2022 07:42:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424538;
-        bh=kNhHrO3zOwOCwUFqeWaMpjDE+M8BL55uYkKdhNtLPMY=;
+        s=korg; t=1666424541;
+        bh=HOZhK5nwydeR/Bd8FjHVUeZa+EqAKfMdTpBZvPcFDdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nahiugeX8xqCn8dyxr1HkKEFfgjECWxWwQ9+P81/5kxzatFbLaDBHeoBltRuZUWN0
-         D0hc+3iOI52yWL/vm8gVqhCsuU9hveX20V4YYlmOtNYrfE/lBGjgwJQFCtrlFGQKol
-         eSceacViAKIEJZvAu/57AD+Wnk24j6bG7WHQsIA8=
+        b=MEsPZa4ZmcqYhQbfWaEDvsiY9xm2+5xypjp9zxzQ83LpqwHrSD3qI/VZbL1wJoRHc
+         x7hfV5TKazKJv07gEzQoLgGMlzg6fhX0PdmOT8OkZOl3hI7tri7pyYdl4uLxVTpZQ3
+         Hx5GkEh/Jbgyy+F9vEKwIIkP0Cu8SVzX3fm7teOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lin Yujun <linyujun809@huawei.com>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 183/717] MIPS: SGI-IP30: Fix platform-device leak in bridge_platform_create()
-Date:   Sat, 22 Oct 2022 09:21:02 +0200
-Message-Id: <20221022072448.021112492@linuxfoundation.org>
+Subject: [PATCH 5.19 184/717] MIPS: SGI-IP27: Fix platform-device leak in bridge_platform_create()
+Date:   Sat, 22 Oct 2022 09:21:03 +0200
+Message-Id: <20221022072448.224341979@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,7 +55,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lin Yujun <linyujun809@huawei.com>
 
-[ Upstream commit 1e6d11fe72e311c1989991ee318d239f650fa318 ]
+[ Upstream commit 11bec9cba4de06b3c0e9e4041453c2caaa1cbec1 ]
 
 In error case in bridge_platform_create after calling
 platform_device_add()/platform_device_add_data()/
@@ -67,19 +67,19 @@ Besides, 'pdev' is divided into 'pdev_wd' and 'pdev_bd',
 use platform_device_unregister() to release sgi_w1
 resources when xtalk-bridge registration fails.
 
-Fixes: fd27234f24ae ("MIPS: add support for SGI Octane (IP30)")
+Fixes: 5dc76a96e95a ("MIPS: PCI: use information from 1-wire PROM for IOC3 detection")
 Signed-off-by: Lin Yujun <linyujun809@huawei.com>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/sgi-ip30/ip30-xtalk.c | 70 +++++++++++++++++++++++----------
+ arch/mips/sgi-ip27/ip27-xtalk.c | 70 +++++++++++++++++++++++----------
  1 file changed, 50 insertions(+), 20 deletions(-)
 
-diff --git a/arch/mips/sgi-ip30/ip30-xtalk.c b/arch/mips/sgi-ip30/ip30-xtalk.c
-index 8129524421cb..7ceb2b23ea1c 100644
---- a/arch/mips/sgi-ip30/ip30-xtalk.c
-+++ b/arch/mips/sgi-ip30/ip30-xtalk.c
-@@ -40,12 +40,15 @@ static void bridge_platform_create(int widget, int masterwid)
+diff --git a/arch/mips/sgi-ip27/ip27-xtalk.c b/arch/mips/sgi-ip27/ip27-xtalk.c
+index e762886d1dda..5143d1cf8984 100644
+--- a/arch/mips/sgi-ip27/ip27-xtalk.c
++++ b/arch/mips/sgi-ip27/ip27-xtalk.c
+@@ -27,15 +27,18 @@ static void bridge_platform_create(nasid_t nasid, int widget, int masterwid)
  {
  	struct xtalk_bridge_platform_data *bd;
  	struct sgi_w1_platform_data *wd;
@@ -87,18 +87,21 @@ index 8129524421cb..7ceb2b23ea1c 100644
 +	struct platform_device *pdev_wd;
 +	struct platform_device *pdev_bd;
  	struct resource w1_res;
+ 	unsigned long offset;
+ 
+ 	offset = NODE_OFFSET(nasid);
  
  	wd = kzalloc(sizeof(*wd), GFP_KERNEL);
 -	if (!wd)
 -		goto no_mem;
 +	if (!wd) {
-+		pr_warn("xtalk:%x bridge create out of memory\n", widget);
++		pr_warn("xtalk:n%d/%x bridge create out of memory\n", nasid, widget);
 +		return;
 +	}
  
  	snprintf(wd->dev_id, sizeof(wd->dev_id), "bridge-%012lx",
- 		 IP30_SWIN_BASE(widget));
-@@ -56,24 +59,35 @@ static void bridge_platform_create(int widget, int masterwid)
+ 		 offset + (widget << SWIN_SIZE_BITS));
+@@ -46,24 +49,35 @@ static void bridge_platform_create(nasid_t nasid, int widget, int masterwid)
  	w1_res.end = w1_res.start + 3;
  	w1_res.flags = IORESOURCE_MEM;
  
@@ -108,19 +111,19 @@ index 8129524421cb..7ceb2b23ea1c 100644
 -		goto no_mem;
 +	pdev_wd = platform_device_alloc("sgi_w1", PLATFORM_DEVID_AUTO);
 +	if (!pdev_wd) {
-+		pr_warn("xtalk:%x bridge create out of memory\n", widget);
++		pr_warn("xtalk:n%d/%x bridge create out of memory\n", nasid, widget);
 +		goto err_kfree_wd;
 +	}
 +	if (platform_device_add_resources(pdev_wd, &w1_res, 1)) {
-+		pr_warn("xtalk:%x bridge failed to add platform resources.\n", widget);
++		pr_warn("xtalk:n%d/%x bridge failed to add platform resources.\n", nasid, widget);
 +		goto err_put_pdev_wd;
 +	}
 +	if (platform_device_add_data(pdev_wd, wd, sizeof(*wd))) {
-+		pr_warn("xtalk:%x bridge failed to add platform data.\n", widget);
++		pr_warn("xtalk:n%d/%x bridge failed to add platform data.\n", nasid, widget);
 +		goto err_put_pdev_wd;
 +	}
 +	if (platform_device_add(pdev_wd)) {
-+		pr_warn("xtalk:%x bridge failed to add platform device.\n", widget);
++		pr_warn("xtalk:n%d/%x bridge failed to add platform device.\n", nasid, widget);
 +		goto err_put_pdev_wd;
  	}
 -	platform_device_add_resources(pdev, &w1_res, 1);
@@ -137,37 +140,37 @@ index 8129524421cb..7ceb2b23ea1c 100644
 -		kfree(bd);
 -		goto no_mem;
 +	if (!bd) {
-+		pr_warn("xtalk:%x bridge create out of memory\n", widget);
++		pr_warn("xtalk:n%d/%x bridge create out of memory\n", nasid, widget);
 +		goto err_unregister_pdev_wd;
 +	}
 +	pdev_bd = platform_device_alloc("xtalk-bridge", PLATFORM_DEVID_AUTO);
 +	if (!pdev_bd) {
-+		pr_warn("xtalk:%x bridge create out of memory\n", widget);
++		pr_warn("xtalk:n%d/%x bridge create out of memory\n", nasid, widget);
 +		goto err_kfree_bd;
  	}
  
- 	bd->bridge_addr	= IP30_RAW_SWIN_BASE(widget);
-@@ -93,15 +107,31 @@ static void bridge_platform_create(int widget, int masterwid)
+ 
+@@ -84,15 +98,31 @@ static void bridge_platform_create(nasid_t nasid, int widget, int masterwid)
  	bd->io.flags	= IORESOURCE_IO;
- 	bd->io_offset	= IP30_SWIN_BASE(widget);
+ 	bd->io_offset	= offset;
  
 -	platform_device_add_data(pdev, bd, sizeof(*bd));
 +	if (platform_device_add_data(pdev_bd, bd, sizeof(*bd))) {
-+		pr_warn("xtalk:%x bridge failed to add platform data.\n", widget);
++		pr_warn("xtalk:n%d/%x bridge failed to add platform data.\n", nasid, widget);
 +		goto err_put_pdev_bd;
 +	}
 +	if (platform_device_add(pdev_bd)) {
-+		pr_warn("xtalk:%x bridge failed to add platform device.\n", widget);
++		pr_warn("xtalk:n%d/%x bridge failed to add platform device.\n", nasid, widget);
 +		goto err_put_pdev_bd;
 +	}
  	/* platform_device_add_data() duplicates the data */
  	kfree(bd);
 -	platform_device_add(pdev);
- 	pr_info("xtalk:%x bridge widget\n", widget);
+ 	pr_info("xtalk:n%d/%x bridge widget\n", nasid, widget);
  	return;
  
 -no_mem:
--	pr_warn("xtalk:%x bridge create out of memory\n", widget);
+-	pr_warn("xtalk:n%d/%x bridge create out of memory\n", nasid, widget);
 +err_put_pdev_bd:
 +	platform_device_put(pdev_bd);
 +err_kfree_bd:
@@ -182,7 +185,7 @@ index 8129524421cb..7ceb2b23ea1c 100644
 +	return;
  }
  
- static unsigned int __init xbow_widget_active(s8 wid)
+ static int probe_one_port(nasid_t nasid, int widget, int masterwid)
 -- 
 2.35.1
 
