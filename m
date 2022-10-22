@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7FF96089F9
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:45:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C9F2608A56
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:51:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234461AbiJVIpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:45:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52858 "EHLO
+        id S234515AbiJVIvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:51:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235014AbiJVIoP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:44:15 -0400
+        with ESMTP id S234964AbiJVItP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:49:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 096E72D5EA4;
-        Sat, 22 Oct 2022 01:07:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4F5480F58;
+        Sat, 22 Oct 2022 01:10:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D82760AFA;
-        Sat, 22 Oct 2022 08:07:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 609DAC433D7;
-        Sat, 22 Oct 2022 08:07:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 625C360B94;
+        Sat, 22 Oct 2022 08:07:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59536C433D7;
+        Sat, 22 Oct 2022 08:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426047;
-        bh=407NwDvLPJKqzLB7rgTrwzWR7eY9drwpc2gxmRqi+5c=;
+        s=korg; t=1666426050;
+        bh=SfovaiwKGLjcp/SsOJAxEXvxF9kuiamt4gaWeahnRxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1FEz9PqZO8iy5j1LG+gfIXEkx4+ZtisPG16CpXvzqKFRIhGsKrYIWfYQyCFmu5oBf
-         vRuJL6QLHOS+RwtonkVnIvDZr+3tbyK+18SJKcY3VC5lj9WKFYDg/NQkLhQMEAhExn
-         vq3sLb/VAgbdaTR2PjphTIC6S8WrUH9Fb2GKsnjw=
+        b=X4qC1DPzOiZL+1dWi7NbGw9EwKuwy2enhjTYT6RvQqi0+vJw/6VEAE7AG8PvHlFGz
+         P8HjSxmBdO9iCTsMgBB1lMQEC/VHWXGfIwpf7Z6TbmQAgmqq4xREh5x+zmFWVx/CIX
+         VsS9CrDdfix09IRqaZzttqgK3m8q7Dhckh1hAacQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <yujie.liu@intel.com>,
-        Yu Kuai <yukuai3@huawei.com>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.19 702/717] blk-wbt: fix that rwb->wc is always set to 1 in wbt_init()
-Date:   Sat, 22 Oct 2022 09:29:41 +0200
-Message-Id: <20221022072529.503058251@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Ravi Gunasekaran <r-gunasekaran@ti.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.19 703/717] net: ethernet: ti: davinci_mdio: fix build for mdio bitbang uses
+Date:   Sat, 22 Oct 2022 09:29:42 +0200
+Message-Id: <20221022072529.547751759@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,45 +58,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 285febabac4a16655372d23ff43e89ff6f216691 upstream.
+commit 35bbe652c421037822aba29423f5f1f7d0d69f3f upstream.
 
-commit 8c5035dfbb94 ("blk-wbt: call rq_qos_add() after wb_normal is
-initialized") moves wbt_set_write_cache() before rq_qos_add(), which
-is wrong because wbt_rq_qos() is still NULL.
+davinci_mdio.c uses mdio bitbang APIs, so it should select
+MDIO_BITBANG to prevent build errors.
 
-Fix the problem by removing wbt_set_write_cache() and setting 'rwb->wc'
-directly. Noted that this patch also remove the redundant setting of
-'rab->wc'.
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/davinci_mdio.o: in function `davinci_mdio_remove':
+drivers/net/ethernet/ti/davinci_mdio.c:649: undefined reference to `free_mdio_bitbang'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/davinci_mdio.o: in function `davinci_mdio_probe':
+drivers/net/ethernet/ti/davinci_mdio.c:545: undefined reference to `alloc_mdio_bitbang'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/davinci_mdio.o: in function `davinci_mdiobb_read':
+drivers/net/ethernet/ti/davinci_mdio.c:236: undefined reference to `mdiobb_read'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/davinci_mdio.o: in function `davinci_mdiobb_write':
+drivers/net/ethernet/ti/davinci_mdio.c:253: undefined reference to `mdiobb_write'
 
-Fixes: 8c5035dfbb94 ("blk-wbt: call rq_qos_add() after wb_normal is initialized")
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Link: https://lore.kernel.org/r/202210081045.77ddf59b-yujie.liu@intel.com
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20221009101038.1692875-1-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: d04807b80691 ("net: ethernet: ti: davinci_mdio: Add workaround for errata i2329")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Ravi Gunasekaran <r-gunasekaran@ti.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc: Sudip Mukherjee (Codethink) <sudipm.mukherjee@gmail.com>
+Link: https://lore.kernel.org/r/20220824024216.4939-1-rdunlap@infradead.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-wbt.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/ti/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/block/blk-wbt.c
-+++ b/block/blk-wbt.c
-@@ -841,12 +841,11 @@ int wbt_init(struct request_queue *q)
- 	rwb->last_comp = rwb->last_issue = jiffies;
- 	rwb->win_nsec = RWB_WINDOW_NSEC;
- 	rwb->enable_state = WBT_STATE_ON_DEFAULT;
--	rwb->wc = 1;
-+	rwb->wc = test_bit(QUEUE_FLAG_WC, &q->queue_flags);
- 	rwb->rq_depth.default_depth = RWB_DEF_DEPTH;
- 	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
+--- a/drivers/net/ethernet/ti/Kconfig
++++ b/drivers/net/ethernet/ti/Kconfig
+@@ -33,6 +33,7 @@ config TI_DAVINCI_MDIO
+ 	tristate "TI DaVinci MDIO Support"
+ 	depends on ARCH_DAVINCI || ARCH_OMAP2PLUS || ARCH_KEYSTONE || ARCH_K3 || COMPILE_TEST
+ 	select PHYLIB
++	select MDIO_BITBANG
+ 	help
+ 	  This driver supports TI's DaVinci MDIO module.
  
- 	wbt_queue_depth_changed(&rwb->rqos);
--	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
- 
- 	/*
- 	 * Assign rwb and add the stats callback.
 
 
