@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BC336086FA
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E73DA60861A
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232049AbiJVHzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:55:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39696 "EHLO
+        id S231213AbiJVHpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:45:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232126AbiJVHyH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:07 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3DB7951C5;
-        Sat, 22 Oct 2022 00:47:22 -0700 (PDT)
+        with ESMTP id S231287AbiJVHnc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:43:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE6F1EB552;
+        Sat, 22 Oct 2022 00:42:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C78BCCE2C98;
-        Sat, 22 Oct 2022 07:38:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5A78C433C1;
-        Sat, 22 Oct 2022 07:38:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A6F660AC7;
+        Sat, 22 Oct 2022 07:38:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8872EC433D6;
+        Sat, 22 Oct 2022 07:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424286;
-        bh=zhPUD++s41ALFKJlkWcRVcaro7JOAzgATab/HtGbOz8=;
+        s=korg; t=1666424288;
+        bh=60PZ+RY33//MRdOs+d0W6qXIbeFiZGLYctjbhfQDJfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LoxpChLbtaq9P/LtSTQ8SUWX76tJkN3fAcCSRY0RJUlVQbMEfMepBVxP83ZgfESbp
-         lRK+I0OVJ6q/0eHh0SCBOuMlwK/WMzaGuftPwYaCtTpKJPNYn7T4FmL2MI5PRy3FQm
-         pzVWGTC0UU/hxwckCLZ0ZWN2BCwRnyz7OVo6/wHc=
+        b=Ym7djM2hC6N0M8LjFFoyoxCsiNE2ZZ8JMmApLPpImmmP4qQdjTK5rGA0M0PLqAP7t
+         Ysg0t6sTwl+r97LwYE+U9/dbsa4Z4RaegiIkl0oauGHN8Et1XQr7pOY3MIXJdxAzKD
+         WAjO4doPbq1lalGfFEiEXJ/VzwOdhRLUrCQTR4Jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 5.19 089/717] cpufreq: qcom-cpufreq-hw: Fix uninitialized throttled_freq warning
-Date:   Sat, 22 Oct 2022 09:19:28 +0200
-Message-Id: <20221022072431.091471458@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
+        Wang Wendy <wendy.wang@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.19 090/717] powercap: intel_rapl: Use standard Energy Unit for SPR Dram RAPL domain
+Date:   Sat, 22 Oct 2022 09:19:29 +0200
+Message-Id: <20221022072431.304446345@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,52 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Zhang Rui <rui.zhang@intel.com>
 
-commit 91dc90fdb8b8199519a3aac9c46a433b02223c5b upstream.
+commit 4c081324df5608b73428662ca54d5221ea03a6bd upstream.
 
-Commit 6240aaad75e1 was supposed to drop the reference count to the OPP,
-instead it avoided more stuff if the OPP isn't found. This isn't
-entirely correct. We already have a frequency value available, we just
-couldn't align it with an OPP in case of IS_ERR(opp).
+Intel Xeon servers used to use a fixed energy resolution (15.3uj) for
+Dram RAPL domain. But on SPR, Dram RAPL domain follows the standard
+energy resolution as described in MSR_RAPL_POWER_UNIT.
 
-Lets continue with updating thermal pressure, etc, even if we aren't
-able to find an OPP here.
+Remove the SPR dram_domain_energy_unit quirk.
 
-This fixes warning generated by the 'smatch' tool.
-
-Fixes: 6240aaad75e1 ("cpufreq: qcom-hw: fix the opp entries refcounting")
-Cc: v5.18+ <stable@vger.kernel.org> # v5.18+
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: 2d798d9f5967 ("powercap: intel_rapl: add support for Sapphire Rapids")
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Tested-by: Wang Wendy <wendy.wang@intel.com>
+Cc: 5.9+ <stable@vger.kernel.org> # 5.9+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/qcom-cpufreq-hw.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/powercap/intel_rapl_common.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/cpufreq/qcom-cpufreq-hw.c
-+++ b/drivers/cpufreq/qcom-cpufreq-hw.c
-@@ -317,14 +317,14 @@ static void qcom_lmh_dcvs_notify(struct
- 	if (IS_ERR(opp)) {
- 		dev_warn(dev, "Can't find the OPP for throttling: %pe!\n", opp);
- 	} else {
--		throttled_freq = freq_hz / HZ_PER_KHZ;
--
--		/* Update thermal pressure (the boost frequencies are accepted) */
--		arch_update_thermal_pressure(policy->related_cpus, throttled_freq);
--
- 		dev_pm_opp_put(opp);
- 	}
- 
-+	throttled_freq = freq_hz / HZ_PER_KHZ;
-+
-+	/* Update thermal pressure (the boost frequencies are accepted) */
-+	arch_update_thermal_pressure(policy->related_cpus, throttled_freq);
-+
- 	/*
- 	 * In the unlikely case policy is unregistered do not enable
- 	 * polling or h/w interrupt
+--- a/drivers/powercap/intel_rapl_common.c
++++ b/drivers/powercap/intel_rapl_common.c
+@@ -1035,7 +1035,6 @@ static const struct rapl_defaults rapl_d
+ 	.check_unit = rapl_check_unit_core,
+ 	.set_floor_freq = set_floor_freq_default,
+ 	.compute_time_window = rapl_compute_time_window_core,
+-	.dram_domain_energy_unit = 15300,
+ 	.psys_domain_energy_unit = 1000000000,
+ 	.spr_psys_bits = true,
+ };
 
 
