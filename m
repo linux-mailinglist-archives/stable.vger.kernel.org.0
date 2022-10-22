@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B92D66086B6
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF2516086C8
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231784AbiJVHwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:52:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47526 "EHLO
+        id S231984AbiJVHx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:53:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231819AbiJVHvL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:51:11 -0400
+        with ESMTP id S231983AbiJVHv7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:51:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B890AC283;
-        Sat, 22 Oct 2022 00:46:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0DA92C1735;
+        Sat, 22 Oct 2022 00:46:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6B0060BA0;
-        Sat, 22 Oct 2022 07:44:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E984BC433D6;
-        Sat, 22 Oct 2022 07:44:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA12D60ADC;
+        Sat, 22 Oct 2022 07:44:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD1CEC433D6;
+        Sat, 22 Oct 2022 07:44:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424652;
-        bh=2EhvjNtORN3r16Cix0wrloC5od6db+mEbJMl0K4QFlI=;
+        s=korg; t=1666424663;
+        bh=HBbeeWj5cCSDh5GVLlnZ/XVO+E/RGuJ2akvlL/0LNDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNrtlmtya+1gue/j+IZZ75HoKc8KqvyOwsFs8Mub5TinvHDjIXYIzmoDF+JTzgD+T
-         B9ZfLhg2YiENs35gMsyCzbo/V722z9g2uFNMKOwj6CpGkczNYSty4700mfFZptLCVF
-         EfZg+GMRf5+oKsSqfZGy5gzAmkRfrIku4P9Id/oI=
+        b=rc9BGQ6KkGb5FpQq3VY2swsJRoa06cQMNqj7bI3KJArKr8T8iRLeFwO5Fs3fwIS7E
+         zGX++K8t1xwGEHjGvybXWMjt0eRToBlhVPY4Uqm4iTv7nsbeDxTDGUDhxC8gy3u/Ei
+         CuC4JhLBp4aw+YMGm9EaLI4nXgfRylTWARvBx3yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bruce Fields <bfields@fieldses.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 198/717] NFSD: Fix handling of oversized NFSv4 COMPOUND requests
-Date:   Sat, 22 Oct 2022 09:21:17 +0200
-Message-Id: <20221022072450.511212061@linuxfoundation.org>
+        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 200/717] wifi: rtlwifi: 8192de: correct checking of IQK reload
+Date:   Sat, 22 Oct 2022 09:21:19 +0200
+Message-Id: <20221022072450.817790259@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,123 +52,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Ping-Ke Shih <pkshih@realtek.com>
 
-[ Upstream commit 7518a3dc5ea249d4112156ce71b8b184eb786151 ]
+[ Upstream commit 93fbc1ebd978cf408ef5765e9c1630fce9a8621b ]
 
-If an NFS server returns NFS4ERR_RESOURCE on the first operation in
-an NFSv4 COMPOUND, there's no way for a client to know where the
-problem is and then simplify the compound to make forward progress.
+Since IQK could spend time, we make a cache of IQK result matrix that looks
+like iqk_matrix[channel_idx].val[x][y], and we can reload the matrix if we
+have made a cache. To determine a cache is made, we check
+iqk_matrix[channel_idx].val[0][0].
 
-So instead, make NFSD process as many operations in an oversized
-COMPOUND as it can and then return NFS4ERR_RESOURCE on the first
-operation it did not process.
+The initial commit 7274a8c22980 ("rtlwifi: rtl8192de: Merge phy routines")
+make a mistake that checks incorrect iqk_matrix[channel_idx].val[0] that
+is always true, and this mistake is found by commit ee3db469dd31
+("wifi: rtlwifi: remove always-true condition pointed out by GCC 12"), so
+I recall the vendor driver to find fix and apply the correctness.
 
-pynfs NFSv4.0 COMP6 exercises this case, but checks only for the
-COMPOUND status code, not whether the server has processed any
-of the operations.
-
-pynfs NFSv4.1 SEQ6 and SEQ7 exercise the NFSv4.1 case, which detects
-too many operations per COMPOUND by checking against the limits
-negotiated when the session was created.
-
-Suggested-by: Bruce Fields <bfields@fieldses.org>
-Fixes: 0078117c6d91 ("nfsd: return RESOURCE not GARBAGE_ARGS on too many ops")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 7274a8c22980 ("rtlwifi: rtl8192de: Merge phy routines")
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220801113345.42016-1-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4proc.c | 19 +++++++++++++------
- fs/nfsd/nfs4xdr.c  | 12 +++---------
- fs/nfsd/xdr4.h     |  3 ++-
- 3 files changed, 18 insertions(+), 16 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index 3895eb52d2b1..c12e66cc58a2 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -2663,9 +2663,6 @@ nfsd4_proc_compound(struct svc_rqst *rqstp)
- 	status = nfserr_minor_vers_mismatch;
- 	if (nfsd_minorversion(nn, args->minorversion, NFSD_TEST) <= 0)
- 		goto out;
--	status = nfserr_resource;
--	if (args->opcnt > NFSD_MAX_OPS_PER_COMPOUND)
--		goto out;
- 
- 	status = nfs41_check_op_ordering(args);
- 	if (status) {
-@@ -2678,10 +2675,20 @@ nfsd4_proc_compound(struct svc_rqst *rqstp)
- 
- 	rqstp->rq_lease_breaker = (void **)&cstate->clp;
- 
--	trace_nfsd_compound(rqstp, args->opcnt);
-+	trace_nfsd_compound(rqstp, args->client_opcnt);
- 	while (!status && resp->opcnt < args->opcnt) {
- 		op = &args->ops[resp->opcnt++];
- 
-+		if (unlikely(resp->opcnt == NFSD_MAX_OPS_PER_COMPOUND)) {
-+			/* If there are still more operations to process,
-+			 * stop here and report NFS4ERR_RESOURCE. */
-+			if (cstate->minorversion == 0 &&
-+			    args->client_opcnt > resp->opcnt) {
-+				op->status = nfserr_resource;
-+				goto encode_op;
-+			}
-+		}
-+
- 		/*
- 		 * The XDR decode routines may have pre-set op->status;
- 		 * for example, if there is a miscellaneous XDR error
-@@ -2757,8 +2764,8 @@ nfsd4_proc_compound(struct svc_rqst *rqstp)
- 			status = op->status;
- 		}
- 
--		trace_nfsd_compound_status(args->opcnt, resp->opcnt, status,
--					   nfsd4_op_name(op->opnum));
-+		trace_nfsd_compound_status(args->client_opcnt, resp->opcnt,
-+					   status, nfsd4_op_name(op->opnum));
- 
- 		nfsd4_cstate_clear_replay(cstate);
- 		nfsd4_increment_op_stats(op->opnum);
-diff --git a/fs/nfsd/nfs4xdr.c b/fs/nfsd/nfs4xdr.c
-index 2acea7792bb2..eef98e3f4ae5 100644
---- a/fs/nfsd/nfs4xdr.c
-+++ b/fs/nfsd/nfs4xdr.c
-@@ -2347,16 +2347,10 @@ nfsd4_decode_compound(struct nfsd4_compoundargs *argp)
- 
- 	if (xdr_stream_decode_u32(argp->xdr, &argp->minorversion) < 0)
- 		return false;
--	if (xdr_stream_decode_u32(argp->xdr, &argp->opcnt) < 0)
-+	if (xdr_stream_decode_u32(argp->xdr, &argp->client_opcnt) < 0)
- 		return false;
--
--	/*
--	 * NFS4ERR_RESOURCE is a more helpful error than GARBAGE_ARGS
--	 * here, so we return success at the xdr level so that
--	 * nfsd4_proc can handle this is an NFS-level error.
--	 */
--	if (argp->opcnt > NFSD_MAX_OPS_PER_COMPOUND)
--		return true;
-+	argp->opcnt = min_t(u32, argp->client_opcnt,
-+			    NFSD_MAX_OPS_PER_COMPOUND);
- 
- 	if (argp->opcnt > ARRAY_SIZE(argp->iops)) {
- 		argp->ops = kzalloc(argp->opcnt * sizeof(*argp->ops), GFP_KERNEL);
-diff --git a/fs/nfsd/xdr4.h b/fs/nfsd/xdr4.h
-index 7b744011f2d3..77286e8c9ab0 100644
---- a/fs/nfsd/xdr4.h
-+++ b/fs/nfsd/xdr4.h
-@@ -689,9 +689,10 @@ struct nfsd4_compoundargs {
- 	struct svcxdr_tmpbuf		*to_free;
- 	struct svc_rqst			*rqstp;
- 
--	u32				taglen;
- 	char *				tag;
-+	u32				taglen;
- 	u32				minorversion;
-+	u32				client_opcnt;
- 	u32				opcnt;
- 	struct nfsd4_op			*ops;
- 	struct nfsd4_op			iops[8];
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c
+index 15e6a6aded31..d18c092b6142 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c
+@@ -2386,11 +2386,10 @@ void rtl92d_phy_reload_iqk_setting(struct ieee80211_hw *hw, u8 channel)
+ 			rtl_dbg(rtlpriv, COMP_SCAN, DBG_LOUD,
+ 				"Just Read IQK Matrix reg for channel:%d....\n",
+ 				channel);
+-			_rtl92d_phy_patha_fill_iqk_matrix(hw, true,
+-					rtlphy->iqk_matrix[
+-					indexforchannel].value,	0,
+-					(rtlphy->iqk_matrix[
+-					indexforchannel].value[0][2] == 0));
++			if (rtlphy->iqk_matrix[indexforchannel].value[0][0] != 0)
++				_rtl92d_phy_patha_fill_iqk_matrix(hw, true,
++					rtlphy->iqk_matrix[indexforchannel].value, 0,
++					rtlphy->iqk_matrix[indexforchannel].value[0][2] == 0);
+ 			if (IS_92D_SINGLEPHY(rtlhal->version)) {
+ 				if ((rtlphy->iqk_matrix[
+ 					indexforchannel].value[0][4] != 0)
 -- 
 2.35.1
 
