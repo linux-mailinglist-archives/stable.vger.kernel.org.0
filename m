@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3060C60860A
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:43:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28B396086F8
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231317AbiJVHna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:43:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47758 "EHLO
+        id S232034AbiJVHze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:55:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231202AbiJVHmz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:42:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC7FD5BCAC;
-        Sat, 22 Oct 2022 00:41:37 -0700 (PDT)
+        with ESMTP id S232114AbiJVHyG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AD7866F25;
+        Sat, 22 Oct 2022 00:47:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7930060ADA;
-        Sat, 22 Oct 2022 07:37:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89696C433B5;
-        Sat, 22 Oct 2022 07:37:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE91AB82DF0;
+        Sat, 22 Oct 2022 07:37:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23F63C433C1;
+        Sat, 22 Oct 2022 07:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424258;
-        bh=dDEgC9WFXRGUcgTqtVWIJfnABWNhCQtyM3jd2yNVvEU=;
+        s=korg; t=1666424261;
+        bh=14mKDapbgbuh31OpS2MIP0VbUg71zVnPdpLmFUC99dY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxpo3IddTtQ0nZnD818ndSBVLOnyLW2eprucbJYUxY0Wz9SbFX6xKAnfBt27H1LCG
-         5hjnPRQYKNXGkpvgUXQ4Yu1qSQXg7IP6FmXCo2YwXU7s78Z7fDGhKj4Uw+RJvqA8uA
-         qzLgWYkbWLf8vye6rOxlwf/NGZR0atNQt0LG4D3o=
+        b=CF2nkY1GLdGOLz7kqgVpJp90YTaHGIe5wgjrLO0ftyuK/aPGWCtN9OtAMx1ZjdJOo
+         1s/Gwchawd994Px6uiNkXFnRzGdg7m7LIgd0pyaZIbAjcuiNrJoGDq4QQxwr8Ir4y4
+         F41/kUeh7ai/kRpDy3ZVDH1KnF7xFQV4dn7/a8dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "M. Vefa Bicakci" <m.v.b@runbox.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.19 080/717] xen/gntdev: Accommodate VMA splitting
-Date:   Sat, 22 Oct 2022 09:19:19 +0200
-Message-Id: <20221022072429.441560612@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.19 081/717] PCI: Sanitise firmware BAR assignments behind a PCI-PCI bridge
+Date:   Sat, 22 Oct 2022 09:19:20 +0200
+Message-Id: <20221022072429.627641346@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,263 +52,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: M. Vefa Bicakci <m.v.b@runbox.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 5c13a4a0291b30191eff9ead8d010e1ca43a4d0c upstream.
+commit 0e32818397426a688f598f35d3bc762eca6d7592 upstream.
 
-Prior to this commit, the gntdev driver code did not handle the
-following scenario correctly with paravirtualized (PV) Xen domains:
+When pci_assign_resource() is unable to assign resources to a BAR, it uses
+pci_revert_fw_address() to fall back to a firmware assignment (if any).
+Previously pci_revert_fw_address() assumed all addresses could reach the
+device, but this is not true if the device is below a bridge that only
+forwards addresses within its windows.
 
-* User process sets up a gntdev mapping composed of two grant mappings
-  (i.e., two pages shared by another Xen domain).
-* User process munmap()s one of the pages.
-* User process munmap()s the remaining page.
-* User process exits.
+This problem was observed on a Tyan Tomcat IV S1564D system where the BIOS
+did not assign valid addresses to several bridges and USB devices:
 
-In the scenario above, the user process would cause the kernel to log
-the following messages in dmesg for the first munmap(), and the second
-munmap() call would result in similar log messages:
+  pci 0000:00:11.0: PCI-to-PCIe bridge to [bus 01-ff]
+  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
+  pci 0000:01:00.0: PCIe Upstream Port to [bus 02-ff]
+  pci 0000:01:00.0:   bridge window [io  0x0000-0x0fff]   # unreachable
+  pci 0000:02:02.0: PCIe Downstream Port to [bus 05-ff]
+  pci 0000:02:02.0:   bridge window [io  0x0000-0x0fff]   # unreachable
+  pci 0000:05:00.0: PCIe-to-PCI bridge to [bus 06-ff]
+  pci 0000:05:00.0:   bridge window [io  0x0000-0x0fff]   # unreachable
+  pci 0000:06:08.0: USB UHCI 1.1
+  pci 0000:06:08.0: BAR 4: [io  0xfce0-0xfcff]            # unreachable
+  pci 0000:06:08.1: USB UHCI 1.1
+  pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff]            # unreachable
+  pci 0000:06:08.0: can't claim BAR 4 [io  0xfce0-0xfcff]: no compatible bridge window
+  pci 0000:06:08.1: can't claim BAR 4 [io  0xfce0-0xfcff]: no compatible bridge window
 
-  BUG: Bad page map in process doublemap.test  pte:... pmd:...
-  page:0000000057c97bff refcount:1 mapcount:-1 \
-    mapping:0000000000000000 index:0x0 pfn:...
+During the first pass of assigning unassigned resources, there was not
+enough I/O space available, so we couldn't assign the 06:08.0 BAR and
+reverted to the firmware assignment (still unreachable).  Reverting the
+06:08.1 assignment failed because it conflicted with 06:08.0:
+
+  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
+  pci 0000:01:00.0: no space for bridge window [io  size 0x2000]
+  pci 0000:02:02.0: no space for bridge window [io  size 0x1000]
+  pci 0000:05:00.0: no space for bridge window [io  size 0x1000]
+  pci 0000:06:08.0: BAR 4: no space for [io  size 0x0020]
+  pci 0000:06:08.0: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
+  pci 0000:06:08.1: BAR 4: no space for [io  size 0x0020]
+  pci 0000:06:08.1: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
+  pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff] conflicts with 0000:06:08.0 [io  0xfce0-0xfcff]
+
+A subsequent pass assigned valid bridge windows and a valid 06:08.1 BAR,
+but left the 06:08.0 BAR alone, so the UHCI device was still unusable:
+
+  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff] released
+  pci 0000:00:11.0:   bridge window [io  0x1000-0x2fff]   # reassigned
+  pci 0000:01:00.0:   bridge window [io  0x1000-0x2fff]   # reassigned
+  pci 0000:02:02.0:   bridge window [io  0x2000-0x2fff]   # reassigned
+  pci 0000:05:00.0:   bridge window [io  0x2000-0x2fff]   # reassigned
+  pci 0000:06:08.0: BAR 4: assigned [io  0xfce0-0xfcff]   # left alone
+  pci 0000:06:08.1: BAR 4: assigned [io  0x2000-0x201f]
   ...
-  page dumped because: bad pte
-  ...
-  file:gntdev fault:0x0 mmap:gntdev_mmap [xen_gntdev] readpage:0x0
-  ...
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x46/0x5e
-   print_bad_pte.cold+0x66/0xb6
-   unmap_page_range+0x7e5/0xdc0
-   unmap_vmas+0x78/0xf0
-   unmap_region+0xa8/0x110
-   __do_munmap+0x1ea/0x4e0
-   __vm_munmap+0x75/0x120
-   __x64_sys_munmap+0x28/0x40
-   do_syscall_64+0x38/0x90
-   entry_SYSCALL_64_after_hwframe+0x61/0xcb
-   ...
+  uhci_hcd 0000:06:08.0: host system error, PCI problems?
+  uhci_hcd 0000:06:08.0: host controller process error, something bad happened!
+  uhci_hcd 0000:06:08.0: host controller halted, very bad!
+  uhci_hcd 0000:06:08.0: HCRESET not completed yet!
+  uhci_hcd 0000:06:08.0: HC died; cleaning up
 
-For each munmap() call, the Xen hypervisor (if built with CONFIG_DEBUG)
-would print out the following and trigger a general protection fault in
-the affected Xen PV domain:
+If the address assigned by firmware is not reachable because it's not
+within upstream bridge windows, fail instead of assigning the unusable
+address from firmware.
 
-  (XEN) d0v... Attempt to implicitly unmap d0's grant PTE ...
-  (XEN) d0v... Attempt to implicitly unmap d0's grant PTE ...
-
-As of this writing, gntdev_grant_map structure's vma field (referred to
-as map->vma below) is mainly used for checking the start and end
-addresses of mappings. However, with split VMAs, these may change, and
-there could be more than one VMA associated with a gntdev mapping.
-Hence, remove the use of map->vma and rely on map->pages_vm_start for
-the original start address and on (map->count << PAGE_SHIFT) for the
-original mapping size. Let the invalidate() and find_special_page()
-hooks use these.
-
-Also, given that there can be multiple VMAs associated with a gntdev
-mapping, move the "mmu_interval_notifier_remove(&map->notifier)" call to
-the end of gntdev_put_map, so that the MMU notifier is only removed
-after the closing of the last remaining VMA.
-
-Finally, use an atomic to prevent inadvertent gntdev mapping re-use,
-instead of using the map->live_grants atomic counter and/or the map->vma
-pointer (the latter of which is now removed). This prevents the
-userspace from mmap()'ing (with MAP_FIXED) a gntdev mapping over the
-same address range as a previously set up gntdev mapping. This scenario
-can be summarized with the following call-trace, which was valid prior
-to this commit:
-
-  mmap
-    gntdev_mmap
-  mmap (repeat mmap with MAP_FIXED over the same address range)
-    gntdev_invalidate
-      unmap_grant_pages (sets 'being_removed' entries to true)
-        gnttab_unmap_refs_async
-    unmap_single_vma
-    gntdev_mmap (maps the shared pages again)
-  munmap
-    gntdev_invalidate
-      unmap_grant_pages
-        (no-op because 'being_removed' entries are true)
-    unmap_single_vma (For PV domains, Xen reports that a granted page
-      is being unmapped and triggers a general protection fault in the
-      affected domain, if Xen was built with CONFIG_DEBUG)
-
-The fix for this last scenario could be worth its own commit, but we
-opted for a single commit, because removing the gntdev_grant_map
-structure's vma field requires guarding the entry to gntdev_mmap(), and
-the live_grants atomic counter is not sufficient on its own to prevent
-the mmap() over a pre-existing mapping.
-
-Link: https://github.com/QubesOS/qubes-issues/issues/7631
-Fixes: ab31523c2fca ("xen/gntdev: allow usermode to map granted pages")
-Cc: stable@vger.kernel.org
-Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221002222006.2077-3-m.v.b@runbox.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+[bhelgaas: commit log, use pci_upstream_bridge()]
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=16263
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2203012338460.46819@angie.orcam.me.uk
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209211921250.29493@angie.orcam.me.uk
+Fixes: 58c84eda0756 ("PCI: fall back to original BIOS BAR addresses")
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org # v2.6.35+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/gntdev-common.h |    3 +-
- drivers/xen/gntdev.c        |   58 ++++++++++++++++++--------------------------
- 2 files changed, 27 insertions(+), 34 deletions(-)
+ drivers/pci/setup-res.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/xen/gntdev-common.h
-+++ b/drivers/xen/gntdev-common.h
-@@ -44,9 +44,10 @@ struct gntdev_unmap_notify {
- };
+--- a/drivers/pci/setup-res.c
++++ b/drivers/pci/setup-res.c
+@@ -214,6 +214,17 @@ static int pci_revert_fw_address(struct
  
- struct gntdev_grant_map {
-+	atomic_t in_use;
- 	struct mmu_interval_notifier notifier;
-+	bool notifier_init;
- 	struct list_head next;
--	struct vm_area_struct *vma;
- 	int index;
- 	int count;
- 	int flags;
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -286,6 +286,9 @@ void gntdev_put_map(struct gntdev_priv *
- 		 */
- 	}
- 
-+	if (use_ptemod && map->notifier_init)
-+		mmu_interval_notifier_remove(&map->notifier);
+ 	root = pci_find_parent_resource(dev, res);
+ 	if (!root) {
++		/*
++		 * If dev is behind a bridge, accesses will only reach it
++		 * if res is inside the relevant bridge window.
++		 */
++		if (pci_upstream_bridge(dev))
++			return -ENXIO;
 +
- 	if (map->notify.flags & UNMAP_NOTIFY_SEND_EVENT) {
- 		notify_remote_via_evtchn(map->notify.event);
- 		evtchn_put(map->notify.event);
-@@ -298,7 +301,7 @@ void gntdev_put_map(struct gntdev_priv *
- static int find_grant_ptes(pte_t *pte, unsigned long addr, void *data)
- {
- 	struct gntdev_grant_map *map = data;
--	unsigned int pgnr = (addr - map->vma->vm_start) >> PAGE_SHIFT;
-+	unsigned int pgnr = (addr - map->pages_vm_start) >> PAGE_SHIFT;
- 	int flags = map->flags | GNTMAP_application_map | GNTMAP_contains_pte |
- 		    (1 << _GNTMAP_guest_avail0);
- 	u64 pte_maddr;
-@@ -508,11 +511,7 @@ static void gntdev_vma_close(struct vm_a
- 	struct gntdev_priv *priv = file->private_data;
- 
- 	pr_debug("gntdev_vma_close %p\n", vma);
--	if (use_ptemod) {
--		WARN_ON(map->vma != vma);
--		mmu_interval_notifier_remove(&map->notifier);
--		map->vma = NULL;
--	}
-+
- 	vma->vm_private_data = NULL;
- 	gntdev_put_map(priv, map);
- }
-@@ -540,29 +539,30 @@ static bool gntdev_invalidate(struct mmu
- 	struct gntdev_grant_map *map =
- 		container_of(mn, struct gntdev_grant_map, notifier);
- 	unsigned long mstart, mend;
-+	unsigned long map_start, map_end;
- 
- 	if (!mmu_notifier_range_blockable(range))
- 		return false;
- 
-+	map_start = map->pages_vm_start;
-+	map_end = map->pages_vm_start + (map->count << PAGE_SHIFT);
-+
- 	/*
- 	 * If the VMA is split or otherwise changed the notifier is not
- 	 * updated, but we don't want to process VA's outside the modified
- 	 * VMA. FIXME: It would be much more understandable to just prevent
- 	 * modifying the VMA in the first place.
- 	 */
--	if (map->vma->vm_start >= range->end ||
--	    map->vma->vm_end <= range->start)
-+	if (map_start >= range->end || map_end <= range->start)
- 		return true;
- 
--	mstart = max(range->start, map->vma->vm_start);
--	mend = min(range->end, map->vma->vm_end);
-+	mstart = max(range->start, map_start);
-+	mend = min(range->end, map_end);
- 	pr_debug("map %d+%d (%lx %lx), range %lx %lx, mrange %lx %lx\n",
--			map->index, map->count,
--			map->vma->vm_start, map->vma->vm_end,
--			range->start, range->end, mstart, mend);
--	unmap_grant_pages(map,
--				(mstart - map->vma->vm_start) >> PAGE_SHIFT,
--				(mend - mstart) >> PAGE_SHIFT);
-+		 map->index, map->count, map_start, map_end,
-+		 range->start, range->end, mstart, mend);
-+	unmap_grant_pages(map, (mstart - map_start) >> PAGE_SHIFT,
-+			  (mend - mstart) >> PAGE_SHIFT);
- 
- 	return true;
- }
-@@ -1042,18 +1042,15 @@ static int gntdev_mmap(struct file *flip
- 		return -EINVAL;
- 
- 	pr_debug("map %d+%d at %lx (pgoff %lx)\n",
--			index, count, vma->vm_start, vma->vm_pgoff);
-+		 index, count, vma->vm_start, vma->vm_pgoff);
- 
- 	mutex_lock(&priv->lock);
- 	map = gntdev_find_map_index(priv, index, count);
- 	if (!map)
- 		goto unlock_out;
--	if (use_ptemod && map->vma)
--		goto unlock_out;
--	if (atomic_read(&map->live_grants)) {
--		err = -EAGAIN;
-+	if (!atomic_add_unless(&map->in_use, 1, 1))
- 		goto unlock_out;
--	}
-+
- 	refcount_inc(&map->users);
- 
- 	vma->vm_ops = &gntdev_vmops;
-@@ -1074,15 +1071,16 @@ static int gntdev_mmap(struct file *flip
- 			map->flags |= GNTMAP_readonly;
- 	}
- 
-+	map->pages_vm_start = vma->vm_start;
-+
- 	if (use_ptemod) {
--		map->vma = vma;
- 		err = mmu_interval_notifier_insert_locked(
- 			&map->notifier, vma->vm_mm, vma->vm_start,
- 			vma->vm_end - vma->vm_start, &gntdev_mmu_ops);
--		if (err) {
--			map->vma = NULL;
-+		if (err)
- 			goto out_unlock_put;
--		}
-+
-+		map->notifier_init = true;
- 	}
- 	mutex_unlock(&priv->lock);
- 
-@@ -1099,7 +1097,6 @@ static int gntdev_mmap(struct file *flip
- 		 */
- 		mmu_interval_read_begin(&map->notifier);
- 
--		map->pages_vm_start = vma->vm_start;
- 		err = apply_to_page_range(vma->vm_mm, vma->vm_start,
- 					  vma->vm_end - vma->vm_start,
- 					  find_grant_ptes, map);
-@@ -1128,13 +1125,8 @@ unlock_out:
- out_unlock_put:
- 	mutex_unlock(&priv->lock);
- out_put_map:
--	if (use_ptemod) {
-+	if (use_ptemod)
- 		unmap_grant_pages(map, 0, map->count);
--		if (map->vma) {
--			mmu_interval_notifier_remove(&map->notifier);
--			map->vma = NULL;
--		}
--	}
- 	gntdev_put_map(priv, map);
- 	return err;
- }
++		/*
++		 * On the root bus, assume the host bridge will forward
++		 * everything.
++		 */
+ 		if (res->flags & IORESOURCE_IO)
+ 			root = &ioport_resource;
+ 		else
 
 
