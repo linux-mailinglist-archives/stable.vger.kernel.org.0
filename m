@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6310E608C50
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 13:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90482608C73
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 13:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229596AbiJVLJU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 07:09:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44024 "EHLO
+        id S229971AbiJVLTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 07:19:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231236AbiJVLI4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 07:08:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6EE131857E;
-        Sat, 22 Oct 2022 03:27:40 -0700 (PDT)
+        with ESMTP id S230257AbiJVLTD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 07:19:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1695F231;
+        Sat, 22 Oct 2022 03:46:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC41660B7B;
-        Sat, 22 Oct 2022 08:06:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 012AFC433C1;
-        Sat, 22 Oct 2022 08:06:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4376FB82E45;
+        Sat, 22 Oct 2022 08:07:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A074C433D7;
+        Sat, 22 Oct 2022 08:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425988;
-        bh=v54vnW+bX4cKUN2tJYHQtuvmIGDk0z24Qkca/Gc9l6g=;
+        s=korg; t=1666426053;
+        bh=mfF7iVgzEiNCmdKqx1IbQXbWdrARJ0crLzZe8h5R+h0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l6GpWIJ6siapBAji6Wm6HaF6nnvMBtGRQISybi2Vz4U3E9UohYqZEzvqr0/VN1lxO
-         4SG5cjxiDE6MeCK8nlQY+xZ1TfvKq4XBUth9/hPiU9wT7qQoGpB46023BveTGbgtSn
-         ZZWsr1pHSkQmihkOCx1eiUJT/0A+POV1Igd+Gi4w=
+        b=wT4vddH4d0rJencWI6DWGxJReXc5bciO6T25XCibm5fNn3j1Z2ZmDeWcHnzEnNH1o
+         wwW7kMcfymS7oxY0JQl275TiJGZaCmSNdK57EaAW+NFTGvHzoKMlxB7uDr4u+lL1rX
+         IzHo6fzR9ofGUc4oaiOkVEIR1WWB1tG8RcI4WQ7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 681/717] staging: rtl8723bs: fix potential memory leak in rtw_init_drv_sw()
-Date:   Sat, 22 Oct 2022 09:29:20 +0200
-Message-Id: <20221022072528.588527042@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Lien <jeff.lien@wdc.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Chao Leng <lengchao@huawei.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 686/717] nvme: copy firmware_rev on each init
+Date:   Sat, 22 Oct 2022 09:29:25 +0200
+Message-Id: <20221022072528.833925702@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,126 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit 5a5aa9cce621e2c0e25a1e5d72d6be1749167cc0 ]
+[ Upstream commit a8eb6c1ba48bddea82e8d74cbe6e119f006be97d ]
 
-In rtw_init_drv_sw(), there are various init functions are called to
-populate the padapter structure and some checks for their return value.
-However, except for the first one error path, the other five error paths
-do not properly release the previous allocated resources, which leads to
-various memory leaks.
+The firmware revision can change on after a reset so copy the most
+recent info each time instead of just the first time, otherwise the
+sysfs firmware_rev entry may contain stale data.
 
-This patch fixes them and keeps the success and error separate.
-Note that these changes keep the form of `rtw_init_drv_sw()` in
-"drivers/staging/r8188eu/os_dep/os_intfs.c". As there is no proper device
-to test with, no runtime testing was performed.
-
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Link: https://lore.kernel.org/r/tencent_C3B899D2FC3F1BC827F3552E0B0734056006@qq.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Jeff Lien <jeff.lien@wdc.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Chao Leng <lengchao@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/os_dep/os_intfs.c | 60 +++++++++++----------
- 1 file changed, 31 insertions(+), 29 deletions(-)
+ drivers/nvme/host/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rtl8723bs/os_dep/os_intfs.c b/drivers/staging/rtl8723bs/os_dep/os_intfs.c
-index 380d8c9e1239..68bba3c0e757 100644
---- a/drivers/staging/rtl8723bs/os_dep/os_intfs.c
-+++ b/drivers/staging/rtl8723bs/os_dep/os_intfs.c
-@@ -664,51 +664,36 @@ void rtw_reset_drv_sw(struct adapter *padapter)
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 47fd9d528c83..698e65883d82 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2796,7 +2796,6 @@ static int nvme_init_subsystem(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
+ 	nvme_init_subnqn(subsys, ctrl, id);
+ 	memcpy(subsys->serial, id->sn, sizeof(subsys->serial));
+ 	memcpy(subsys->model, id->mn, sizeof(subsys->model));
+-	memcpy(subsys->firmware_rev, id->fr, sizeof(subsys->firmware_rev));
+ 	subsys->vendor_id = le16_to_cpu(id->vid);
+ 	subsys->cmic = id->cmic;
  
- u8 rtw_init_drv_sw(struct adapter *padapter)
- {
--	u8 ret8 = _SUCCESS;
--
- 	rtw_init_default_value(padapter);
+@@ -3015,6 +3014,8 @@ static int nvme_init_identify(struct nvme_ctrl *ctrl)
+ 				ctrl->quirks |= core_quirks[i].quirks;
+ 		}
+ 	}
++	memcpy(ctrl->subsys->firmware_rev, id->fr,
++	       sizeof(ctrl->subsys->firmware_rev));
  
- 	rtw_init_hal_com_default_value(padapter);
- 
--	if (rtw_init_cmd_priv(&padapter->cmdpriv)) {
--		ret8 = _FAIL;
--		goto exit;
--	}
-+	if (rtw_init_cmd_priv(&padapter->cmdpriv))
-+		return _FAIL;
- 
- 	padapter->cmdpriv.padapter = padapter;
- 
--	if (rtw_init_evt_priv(&padapter->evtpriv)) {
--		ret8 = _FAIL;
--		goto exit;
--	}
-+	if (rtw_init_evt_priv(&padapter->evtpriv))
-+		goto free_cmd_priv;
- 
--
--	if (rtw_init_mlme_priv(padapter) == _FAIL) {
--		ret8 = _FAIL;
--		goto exit;
--	}
-+	if (rtw_init_mlme_priv(padapter) == _FAIL)
-+		goto free_evt_priv;
- 
- 	init_mlme_ext_priv(padapter);
- 
--	if (_rtw_init_xmit_priv(&padapter->xmitpriv, padapter) == _FAIL) {
--		ret8 = _FAIL;
--		goto exit;
--	}
-+	if (_rtw_init_xmit_priv(&padapter->xmitpriv, padapter) == _FAIL)
-+		goto free_mlme_ext;
- 
--	if (_rtw_init_recv_priv(&padapter->recvpriv, padapter) == _FAIL) {
--		ret8 = _FAIL;
--		goto exit;
--	}
-+	if (_rtw_init_recv_priv(&padapter->recvpriv, padapter) == _FAIL)
-+		goto free_xmit_priv;
- 	/*  add for CONFIG_IEEE80211W, none 11w also can use */
- 	spin_lock_init(&padapter->security_key_mutex);
- 
- 	/*  We don't need to memset padapter->XXX to zero, because adapter is allocated by vzalloc(). */
- 	/* memset((unsigned char *)&padapter->securitypriv, 0, sizeof (struct security_priv)); */
- 
--	if (_rtw_init_sta_priv(&padapter->stapriv) == _FAIL) {
--		ret8 = _FAIL;
--		goto exit;
--	}
-+	if (_rtw_init_sta_priv(&padapter->stapriv) == _FAIL)
-+		goto free_recv_priv;
- 
- 	padapter->stapriv.padapter = padapter;
- 	padapter->setband = GHZ24_50;
-@@ -719,9 +704,26 @@ u8 rtw_init_drv_sw(struct adapter *padapter)
- 
- 	rtw_hal_dm_init(padapter);
- 
--exit:
-+	return _SUCCESS;
-+
-+free_recv_priv:
-+	_rtw_free_recv_priv(&padapter->recvpriv);
-+
-+free_xmit_priv:
-+	_rtw_free_xmit_priv(&padapter->xmitpriv);
-+
-+free_mlme_ext:
-+	free_mlme_ext_priv(&padapter->mlmeextpriv);
- 
--	return ret8;
-+	rtw_free_mlme_priv(&padapter->mlmepriv);
-+
-+free_evt_priv:
-+	rtw_free_evt_priv(&padapter->evtpriv);
-+
-+free_cmd_priv:
-+	rtw_free_cmd_priv(&padapter->cmdpriv);
-+
-+	return _FAIL;
- }
- 
- void rtw_cancel_all_timer(struct adapter *padapter)
+ 	if (force_apst && (ctrl->quirks & NVME_QUIRK_NO_DEEPEST_PS)) {
+ 		dev_warn(ctrl->device, "forcibly allowing all power states due to nvme_core.force_apst -- use at your own risk\n");
 -- 
 2.35.1
 
