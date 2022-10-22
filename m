@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D5AE6087B5
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 727D360885D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232593AbiJVIF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:05:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40988 "EHLO
+        id S233341AbiJVIQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:16:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232875AbiJVIEU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:20 -0400
+        with ESMTP id S233843AbiJVIPW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:15:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6238E2D2C24;
-        Sat, 22 Oct 2022 00:51:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1263C2C6EA3;
+        Sat, 22 Oct 2022 00:56:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C22CB82E03;
-        Sat, 22 Oct 2022 07:41:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E50C433C1;
-        Sat, 22 Oct 2022 07:41:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C89EB82E08;
+        Sat, 22 Oct 2022 07:41:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C66B6C433C1;
+        Sat, 22 Oct 2022 07:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424471;
-        bh=tQocI4AX+Xkhb6aZXEHJleSRliEKDtndK6ghaeMogRU=;
+        s=korg; t=1666424477;
+        bh=cNt7T6RmL3y/9iiO0cyR9PT7nxKXSZDGJ+iSkvgxvIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c2Q00ifCBe8r1fbckqdPW6/ttlvnTDDN+YULJBhhIanTZKifGdQTySNIQEZ3iP92L
-         qd8sP4SGWY2UFuBDcPOtydIqngABVkr7zqI9Z5Y2XrxQDnuV4/l8QSy9UXN+PJuznt
-         5ty/Og7rV25G0uLaDDo7moig0g6waZ0jVXlgknJs=
+        b=Ts5QmW25qpVUWv5PL6jYpACpazI3FQXg2Vz6uOJq9g6gxRMSBPJQoOrESeLEIhSX1
+         6qiYP+jJoKJ20yg826/D8qTmU6L7xSBDimFVoTDjVpoEWPdsm1W681fuYZF27PpP2K
+         HoeIsZTfkx/0Sho/z4GAd73r3dC6ejoMpFdU8mFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.19 158/717] blk-throttle: fix that io throttle can only work for single bio
-Date:   Sat, 22 Oct 2022 09:20:37 +0200
-Message-Id: <20221022072443.408341338@linuxfoundation.org>
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.19 159/717] blk-wbt: call rq_qos_add() after wb_normal is initialized
+Date:   Sat, 22 Oct 2022 09:20:38 +0200
+Message-Id: <20221022072443.637691100@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,182 +54,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yu Kuai <yukuai3@huawei.com>
 
-commit 320fb0f91e55ba248d4bad106b408e59099cfa89 upstream.
+commit 8c5035dfbb9475b67c82b3fdb7351236525bf52b upstream.
 
-Test scripts:
-cd /sys/fs/cgroup/blkio/
-echo "8:0 1024" > blkio.throttle.write_bps_device
-echo $$ > cgroup.procs
-dd if=/dev/zero of=/dev/sda bs=10k count=1 oflag=direct &
-dd if=/dev/zero of=/dev/sda bs=10k count=1 oflag=direct &
+Our test found a problem that wbt inflight counter is negative, which
+will cause io hang(noted that this problem doesn't exist in mainline):
 
-Test result:
-10240 bytes (10 kB, 10 KiB) copied, 10.0134 s, 1.0 kB/s
-10240 bytes (10 kB, 10 KiB) copied, 10.0135 s, 1.0 kB/s
+t1: device create	t2: issue io
+add_disk
+ blk_register_queue
+  wbt_enable_default
+   wbt_init
+    rq_qos_add
+    // wb_normal is still 0
+			/*
+			 * in mainline, disk can't be opened before
+			 * bdev_add(), however, in old kernels, disk
+			 * can be opened before blk_register_queue().
+			 */
+			blkdev_issue_flush
+                        // disk size is 0, however, it's not checked
+                         submit_bio_wait
+                          submit_bio
+                           blk_mq_submit_bio
+                            rq_qos_throttle
+                             wbt_wait
+			      bio_to_wbt_flags
+                               rwb_enabled
+			       // wb_normal is 0, inflight is not increased
 
-The problem is that the second bio is finished after 10s instead of 20s.
+    wbt_queue_depth_changed(&rwb->rqos);
+     wbt_update_limits
+     // wb_normal is initialized
+                            rq_qos_track
+                             wbt_track
+                              rq->wbt_flags |= bio_to_wbt_flags(rwb, bio);
+			      // wb_normal is not 0，wbt_flags will be set
+t3: io completion
+blk_mq_free_request
+ rq_qos_done
+  wbt_done
+   wbt_is_tracked
+   // return true
+   __wbt_done
+    wbt_rqw_done
+     atomic_dec_return(&rqw->inflight);
+     // inflight is decreased
 
-Root cause:
-1) second bio will be flagged:
+commit 8235b5c1e8c1 ("block: call bdev_add later in device_add_disk") can
+avoid this problem, however it's better to fix this problem in wbt:
 
-__blk_throtl_bio
- while (true) {
-  ...
-  if (sq->nr_queued[rw]) -> some bio is throttled already
-   break
- };
- bio_set_flag(bio, BIO_THROTTLED); -> flag the bio
+1) Lower kernel can't backport this patch due to lots of refactor.
+2) Root cause is that wbt call rq_qos_add() before wb_normal is
+initialized.
 
-2) flagged bio will be dispatched without waiting:
-
-throtl_dispatch_tg
- tg_may_dispatch
-  tg_with_in_bps_limit
-   if (bps_limit == U64_MAX || bio_flagged(bio, BIO_THROTTLED))
-    *wait = 0; -> wait time is zero
-    return true;
-
-commit 9f5ede3c01f9 ("block: throttle split bio in case of iops limit")
-support to count split bios for iops limit, thus it adds flagged bio
-checking in tg_with_in_bps_limit() so that split bios will only count
-once for bps limit, however, it introduce a new problem that io throttle
-won't work if multiple bios are throttled.
-
-In order to fix the problem, handle iops/bps limit in different ways:
-
-1) for iops limit, there is no flag to record if the bio is throttled,
-   and iops is always applied.
-2) for bps limit, original bio will be flagged with BIO_BPS_THROTTLED,
-   and io throttle will ignore bio with the flag.
-
-Noted this patch also remove the code to set flag in __bio_clone(), it's
-introduced in commit 111be8839817 ("block-throttle: avoid double
-charge"), and author thinks split bio can be resubmited and throttled
-again, which is wrong because split bio will continue to dispatch from
-caller.
-
-Fixes: 9f5ede3c01f9 ("block: throttle split bio in case of iops limit")
+Fixes: e34cbd307477 ("blk-wbt: add general throttling mechanism")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/r/20220829022240.3348319-2-yukuai1@huaweicloud.com
+Link: https://lore.kernel.org/r/20220913105749.3086243-1-yukuai1@huaweicloud.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bio.c               |    2 --
- block/blk-throttle.c      |   20 ++++++--------------
- block/blk-throttle.h      |    2 +-
- include/linux/bio.h       |    2 +-
- include/linux/blk_types.h |    2 +-
- 5 files changed, 9 insertions(+), 19 deletions(-)
+ block/blk-wbt.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -760,8 +760,6 @@ EXPORT_SYMBOL(bio_put);
- static int __bio_clone(struct bio *bio, struct bio *bio_src, gfp_t gfp)
- {
- 	bio_set_flag(bio, BIO_CLONED);
--	if (bio_flagged(bio_src, BIO_THROTTLED))
--		bio_set_flag(bio, BIO_THROTTLED);
- 	bio->bi_ioprio = bio_src->bi_ioprio;
- 	bio->bi_iter = bio_src->bi_iter;
- 
---- a/block/blk-throttle.c
-+++ b/block/blk-throttle.c
-@@ -811,7 +811,7 @@ static bool tg_with_in_bps_limit(struct
- 	unsigned int bio_size = throtl_bio_data_size(bio);
- 
- 	/* no need to throttle if this bio's bytes have been accounted */
--	if (bps_limit == U64_MAX || bio_flagged(bio, BIO_THROTTLED)) {
-+	if (bps_limit == U64_MAX || bio_flagged(bio, BIO_BPS_THROTTLED)) {
- 		if (wait)
- 			*wait = 0;
- 		return true;
-@@ -921,22 +921,13 @@ static void throtl_charge_bio(struct thr
- 	unsigned int bio_size = throtl_bio_data_size(bio);
- 
- 	/* Charge the bio to the group */
--	if (!bio_flagged(bio, BIO_THROTTLED)) {
-+	if (!bio_flagged(bio, BIO_BPS_THROTTLED)) {
- 		tg->bytes_disp[rw] += bio_size;
- 		tg->last_bytes_disp[rw] += bio_size;
- 	}
- 
- 	tg->io_disp[rw]++;
- 	tg->last_io_disp[rw]++;
--
--	/*
--	 * BIO_THROTTLED is used to prevent the same bio to be throttled
--	 * more than once as a throttled bio will go through blk-throtl the
--	 * second time when it eventually gets issued.  Set it when a bio
--	 * is being charged to a tg.
--	 */
--	if (!bio_flagged(bio, BIO_THROTTLED))
--		bio_set_flag(bio, BIO_THROTTLED);
- }
- 
- /**
-@@ -1026,6 +1017,7 @@ static void tg_dispatch_one_bio(struct t
- 	sq->nr_queued[rw]--;
- 
- 	throtl_charge_bio(tg, bio);
-+	bio_set_flag(bio, BIO_BPS_THROTTLED);
+--- a/block/blk-wbt.c
++++ b/block/blk-wbt.c
+@@ -843,6 +843,10 @@ int wbt_init(struct request_queue *q)
+ 	rwb->enable_state = WBT_STATE_ON_DEFAULT;
+ 	rwb->wc = 1;
+ 	rwb->rq_depth.default_depth = RWB_DEF_DEPTH;
++	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
++
++	wbt_queue_depth_changed(&rwb->rqos);
++	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
  
  	/*
- 	 * If our parent is another tg, we just need to transfer @bio to
-@@ -2159,8 +2151,10 @@ again:
- 		qn = &tg->qnode_on_parent[rw];
- 		sq = sq->parent_sq;
- 		tg = sq_to_tg(sq);
--		if (!tg)
-+		if (!tg) {
-+			bio_set_flag(bio, BIO_BPS_THROTTLED);
- 			goto out_unlock;
-+		}
- 	}
+ 	 * Assign rwb and add the stats callback.
+@@ -853,11 +857,6 @@ int wbt_init(struct request_queue *q)
  
- 	/* out-of-limit, queue to @tg */
-@@ -2189,8 +2183,6 @@ again:
- 	}
+ 	blk_stat_add_callback(q, rwb->cb);
  
- out_unlock:
--	bio_set_flag(bio, BIO_THROTTLED);
+-	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
 -
- #ifdef CONFIG_BLK_DEV_THROTTLING_LOW
- 	if (throttled || !td->track_bio_latency)
- 		bio->bi_issue.value |= BIO_ISSUE_THROTL_SKIP_LATENCY;
---- a/block/blk-throttle.h
-+++ b/block/blk-throttle.h
-@@ -175,7 +175,7 @@ static inline bool blk_throtl_bio(struct
- 	struct throtl_grp *tg = blkg_to_tg(bio->bi_blkg);
+-	wbt_queue_depth_changed(&rwb->rqos);
+-	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
+-
+ 	return 0;
  
- 	/* no need to throttle bps any more if the bio has been throttled */
--	if (bio_flagged(bio, BIO_THROTTLED) &&
-+	if (bio_flagged(bio, BIO_BPS_THROTTLED) &&
- 	    !(tg->flags & THROTL_TG_HAS_IOPS_LIMIT))
- 		return false;
- 
---- a/include/linux/bio.h
-+++ b/include/linux/bio.h
-@@ -509,7 +509,7 @@ static inline void bio_set_dev(struct bi
- {
- 	bio_clear_flag(bio, BIO_REMAPPED);
- 	if (bio->bi_bdev != bdev)
--		bio_clear_flag(bio, BIO_THROTTLED);
-+		bio_clear_flag(bio, BIO_BPS_THROTTLED);
- 	bio->bi_bdev = bdev;
- 	bio_associate_blkg(bio);
- }
---- a/include/linux/blk_types.h
-+++ b/include/linux/blk_types.h
-@@ -323,7 +323,7 @@ enum {
- 	BIO_QUIET,		/* Make BIO Quiet */
- 	BIO_CHAIN,		/* chained bio, ->bi_remaining in effect */
- 	BIO_REFFED,		/* bio has elevated ->bi_cnt */
--	BIO_THROTTLED,		/* This bio has already been subjected to
-+	BIO_BPS_THROTTLED,	/* This bio has already been subjected to
- 				 * throttling rules. Don't do it again. */
- 	BIO_TRACE_COMPLETION,	/* bio_endio() should trace the final completion
- 				 * of this bio. */
+ err_free:
 
 
