@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E98106085A9
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:37:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0E7F6085AD
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230304AbiJVHg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:36:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47132 "EHLO
+        id S230167AbiJVHh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:37:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230270AbiJVHge (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:36:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61E65357C5;
-        Sat, 22 Oct 2022 00:35:14 -0700 (PDT)
+        with ESMTP id S230286AbiJVHgu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:36:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F15A81843FB;
+        Sat, 22 Oct 2022 00:35:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D37460AD9;
-        Sat, 22 Oct 2022 07:35:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21DB8C433D6;
-        Sat, 22 Oct 2022 07:35:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69FDA60ADA;
+        Sat, 22 Oct 2022 07:35:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E6CEC433C1;
+        Sat, 22 Oct 2022 07:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424111;
-        bh=FAUBq+xOHHhAmdDXr0nUjCQSE5N3RTGbcKi+sVW2no4=;
+        s=korg; t=1666424114;
+        bh=nqOrFT/Y66TGULVPHHQkkVqwTkFRjIX6uhUPep+lG1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uGhlicha5W5p6nz0UBLnh0bBklqIdqqsfQjUMzZ0KRL856CHq8ouFRMgQwsIplSvJ
-         VAUI+mscD34GvME6npHwRvPJEq6Q/GkR1204j7fjmcy1A1fCM8Yq8A/f/CNLCbt6Rm
-         405pdp1Ugk8xDf3BbTVibsWKD1gdR2YG8PvKkh4Q=
+        b=AnLs+engcI05TfhztNYFBozcy9Y2708HEE84WZ0yZyEuscgcyYOmNfezTPSY0g6w4
+         P2UwTXkE5odLoc5/kxcER2qEQyZOuqB8iyY4sz9JlgSE/LXSuZTP2Z02bcKGAm5Hme
+         61sK/0j49J1Idqod9xDOY81SLH4EctclHpIcPWCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.19 004/717] ALSA: usb-audio: Fix potential memory leaks
-Date:   Sat, 22 Oct 2022 09:18:03 +0200
-Message-Id: <20221022072415.820715261@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Sabri N. Ferreiro" <snferreiro1@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.19 005/717] ALSA: usb-audio: Fix NULL dererence at error path
+Date:   Sat, 22 Oct 2022 09:18:04 +0200
+Message-Id: <20221022072415.997711105@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,43 +55,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 6382da0828995af87aa8b8bef28cc61aceb4aff3 upstream.
+commit 568be8aaf8a535f79c4db76cabe17b035aa2584d upstream.
 
-When the driver hits -ENOMEM at allocating a URB or a buffer, it
-aborts and goes to the error path that releases the all previously
-allocated resources.  However, when -ENOMEM hits at the middle of the
-sync EP URB allocation loop, the partially allocated URBs might be
-left without released, because ep->nurbs is still zero at that point.
+At an error path to release URB buffers and contexts, the driver might
+hit a NULL dererence for u->urb pointer, when u->buffer_size has been
+already set but the actual URB allocation failed.
 
-Fix it by setting ep->nurbs at first, so that the error handler loops
-over the full URB list.
+Fix it by adding the NULL check of urb.  Also, make sure that
+buffer_size is cleared after the error path or the close.
 
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220930100151.19461-1-tiwai@suse.de
+Reported-by: Sabri N. Ferreiro <snferreiro1@gmail.com>
+Link: https://lore.kernel.org/r/CAKG+3NRjTey+fFfUEGwuxL-pi_=T4cUskYG9OzpzHytF+tzYng@mail.gmail.com
+Link: https://lore.kernel.org/r/20220930100129.19445-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/endpoint.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/usb/endpoint.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 --- a/sound/usb/endpoint.c
 +++ b/sound/usb/endpoint.c
-@@ -1261,6 +1261,7 @@ static int sync_ep_set_params(struct snd
- 	if (!ep->syncbuf)
- 		return -ENOMEM;
+@@ -93,12 +93,13 @@ static inline unsigned get_usb_high_spee
+  */
+ static void release_urb_ctx(struct snd_urb_ctx *u)
+ {
+-	if (u->buffer_size)
++	if (u->urb && u->buffer_size)
+ 		usb_free_coherent(u->ep->chip->dev, u->buffer_size,
+ 				  u->urb->transfer_buffer,
+ 				  u->urb->transfer_dma);
+ 	usb_free_urb(u->urb);
+ 	u->urb = NULL;
++	u->buffer_size = 0;
+ }
  
-+	ep->nurbs = SYNC_URBS;
- 	for (i = 0; i < SYNC_URBS; i++) {
- 		struct snd_urb_ctx *u = &ep->urb[i];
- 		u->index = i;
-@@ -1280,8 +1281,6 @@ static int sync_ep_set_params(struct snd
- 		u->urb->complete = snd_complete_urb;
- 	}
- 
--	ep->nurbs = SYNC_URBS;
--
- 	return 0;
- 
- out_of_memory:
+ static const char *usb_error_string(int err)
 
 
