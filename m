@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4CA26086F3
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A9B26086EC
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232010AbiJVHzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:55:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55588 "EHLO
+        id S231923AbiJVHzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:55:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232091AbiJVHyB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 240C666F1D;
-        Sat, 22 Oct 2022 00:47:08 -0700 (PDT)
+        with ESMTP id S231772AbiJVHxh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:53:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CDCA66F2D;
+        Sat, 22 Oct 2022 00:47:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 690FF60B83;
-        Sat, 22 Oct 2022 07:46:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79804C433D6;
-        Sat, 22 Oct 2022 07:46:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B2EF60B81;
+        Sat, 22 Oct 2022 07:46:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 178F2C433C1;
+        Sat, 22 Oct 2022 07:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424766;
-        bh=dVDJSEzRrPtFqIsoE3zXwmOWCE8M6Zw0BQZP6LOW0Mw=;
+        s=korg; t=1666424769;
+        bh=W+SzmJ4+Ai0GJAXfRt/BGB8Dxa/vhps1D+4o/1qiegw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2EYNcA7anzzEdgiI04P+Ne0DWp6/g2dM8RaLbUwUARtNtafNaEPoWLZUo9wsTYzp/
-         zLSTVzEoboJCDwdZMk2anc6Kt9uCkICL6CO8l2lRndLg9f4HDDhwiRDVJyEbW30I4k
-         ir5ST+oSsjxQmMXJYZA/FfQaHDNzAu7f+avfGSLw=
+        b=BCDa3POgPft+maYowYoi+nXPlhn65fWlLHf2ozMR3XsxGF/yDwEkQ3Hs7zr6xJQRH
+         JxyXrmiTe1EjDWOMv8IF35m4mHONjhStExbPznc57on2mzlkIbV7oUGvi2ABI8gtIQ
+         jVrYyWpnxwhZJDSFpgX/WdYeDyo5AwddWRys8ljw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 269/717] cw1200: fix incorrect check to determine if no element is found in list
-Date:   Sat, 22 Oct 2022 09:22:28 +0200
-Message-Id: <20221022072501.951140149@linuxfoundation.org>
+        stable@vger.kernel.org, Khalil Blaiech <kblaiech@nvidia.com>,
+        Asmaa Mnebhi <asmaa@nvidia.com>, Wolfram Sang <wsa@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 270/717] i2c: mlxbf: support lock mechanism
+Date:   Sat, 22 Oct 2022 09:22:29 +0200
+Message-Id: <20221022072502.144621556@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,72 +53,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Asmaa Mnebhi <asmaa@nvidia.com>
 
-[ Upstream commit 86df5de5c632d3bd940f59bbb14ae912aa9cc363 ]
+[ Upstream commit 86067ccfa1424a26491542d6f6d7546d40b61a10 ]
 
-The bug is here: "} else if (item) {".
+Linux is not the only entity using the BlueField I2C busses so
+support a lock mechanism provided by hardware to avoid issues
+when multiple entities are trying to access the same bus.
 
-The list iterator value will *always* be set and non-NULL by
-list_for_each_entry(), so it is incorrect to assume that the iterator
-value will be NULL if the list is empty or no element is found in list.
+The lock is acquired whenever written explicitely or the lock
+register is read. So make sure it is always released at the end
+of a successful or failed transaction.
 
-Use a new value 'iter' as the list iterator, while use the old value
-'item' as a dedicated pointer to point to the found element, which
-1. can fix this bug, due to now 'item' is NULL only if it's not found.
-2. do not need to change all the uses of 'item' after the loop.
-3. can also limit the scope of the list iterator 'iter' *only inside*
-   the traversal loop by simply declaring 'iter' inside the loop in the
-   future, as usage of the iterator outside of the list_for_each_entry
-   is considered harmful. https://lkml.org/lkml/2022/2/17/1032
-
-Fixes: a910e4a94f692 ("cw1200: add driver for the ST-E CW1100 & CW1200 WLAN chipsets")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220413091723.17596-1-xiam0nd.tong@gmail.com
+Fixes: b5b5b32081cd206b (i2c: mlxbf: I2C SMBus driver for Mellanox BlueField SoC)
+Reviewed-by: Khalil Blaiech <kblaiech@nvidia.com>
+Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/st/cw1200/queue.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-mlxbf.c | 44 ++++++++++++++++++++++++++++++----
+ 1 file changed, 39 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/st/cw1200/queue.c b/drivers/net/wireless/st/cw1200/queue.c
-index e06da4b3b0d4..805a3c1bf8fe 100644
---- a/drivers/net/wireless/st/cw1200/queue.c
-+++ b/drivers/net/wireless/st/cw1200/queue.c
-@@ -91,23 +91,25 @@ static void __cw1200_queue_gc(struct cw1200_queue *queue,
- 			      bool unlock)
- {
- 	struct cw1200_queue_stats *stats = queue->stats;
--	struct cw1200_queue_item *item = NULL, *tmp;
-+	struct cw1200_queue_item *item = NULL, *iter, *tmp;
- 	bool wakeup_stats = false;
+diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
+index ad5efd7497d1..0e840eba4fd6 100644
+--- a/drivers/i2c/busses/i2c-mlxbf.c
++++ b/drivers/i2c/busses/i2c-mlxbf.c
+@@ -306,6 +306,7 @@ static u64 mlxbf_i2c_corepll_frequency;
+  * exact.
+  */
+ #define MLXBF_I2C_SMBUS_TIMEOUT   (300 * 1000) /* 300ms */
++#define MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT (300 * 1000) /* 300ms */
  
--	list_for_each_entry_safe(item, tmp, &queue->queue, head) {
--		if (time_is_after_jiffies(item->queue_timestamp + queue->ttl))
-+	list_for_each_entry_safe(iter, tmp, &queue->queue, head) {
-+		if (time_is_after_jiffies(iter->queue_timestamp + queue->ttl)) {
-+			item = iter;
- 			break;
-+		}
- 		--queue->num_queued;
--		--queue->link_map_cache[item->txpriv.link_id];
-+		--queue->link_map_cache[iter->txpriv.link_id];
- 		spin_lock_bh(&stats->lock);
- 		--stats->num_queued;
--		if (!--stats->link_map_cache[item->txpriv.link_id])
-+		if (!--stats->link_map_cache[iter->txpriv.link_id])
- 			wakeup_stats = true;
- 		spin_unlock_bh(&stats->lock);
- 		cw1200_debug_tx_ttl(stats->priv);
--		cw1200_queue_register_post_gc(head, item);
--		item->skb = NULL;
--		list_move_tail(&item->head, &queue->free_pool);
-+		cw1200_queue_register_post_gc(head, iter);
-+		iter->skb = NULL;
-+		list_move_tail(&iter->head, &queue->free_pool);
+ /* Encapsulates timing parameters. */
+ struct mlxbf_i2c_timings {
+@@ -514,6 +515,25 @@ static bool mlxbf_smbus_master_wait_for_idle(struct mlxbf_i2c_priv *priv)
+ 	return false;
+ }
+ 
++/*
++ * wait for the lock to be released before acquiring it.
++ */
++static bool mlxbf_i2c_smbus_master_lock(struct mlxbf_i2c_priv *priv)
++{
++	if (mlxbf_smbus_poll(priv->smbus->io, MLXBF_I2C_SMBUS_MASTER_GW,
++			   MLXBF_I2C_MASTER_LOCK_BIT, true,
++			   MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT))
++		return true;
++
++	return false;
++}
++
++static void mlxbf_i2c_smbus_master_unlock(struct mlxbf_i2c_priv *priv)
++{
++	/* Clear the gw to clear the lock */
++	writel(0, priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_GW);
++}
++
+ static bool mlxbf_i2c_smbus_transaction_success(u32 master_status,
+ 						u32 cause_status)
+ {
+@@ -705,10 +725,19 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 	slave = request->slave & GENMASK(6, 0);
+ 	addr = slave << 1;
+ 
+-	/* First of all, check whether the HW is idle. */
+-	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv)))
++	/*
++	 * Try to acquire the smbus gw lock before any reads of the GW register since
++	 * a read sets the lock.
++	 */
++	if (WARN_ON(!mlxbf_i2c_smbus_master_lock(priv)))
+ 		return -EBUSY;
+ 
++	/* Check whether the HW is idle */
++	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv))) {
++		ret = -EBUSY;
++		goto out_unlock;
++	}
++
+ 	/* Set first byte. */
+ 	data_desc[data_idx++] = addr;
+ 
+@@ -732,8 +761,10 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 			write_en = 1;
+ 			write_len += operation->length;
+ 			if (data_idx + operation->length >
+-					MLXBF_I2C_MASTER_DATA_DESC_SIZE)
+-				return -ENOBUFS;
++					MLXBF_I2C_MASTER_DATA_DESC_SIZE) {
++				ret = -ENOBUFS;
++				goto out_unlock;
++			}
+ 			memcpy(data_desc + data_idx,
+ 			       operation->buffer, operation->length);
+ 			data_idx += operation->length;
+@@ -765,7 +796,7 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 		ret = mlxbf_i2c_smbus_enable(priv, slave, write_len, block_en,
+ 					 pec_en, 0);
+ 		if (ret)
+-			return ret;
++			goto out_unlock;
  	}
  
- 	if (wakeup_stats)
+ 	if (read_en) {
+@@ -792,6 +823,9 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 			priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_FSM);
+ 	}
+ 
++out_unlock:
++	mlxbf_i2c_smbus_master_unlock(priv);
++
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
