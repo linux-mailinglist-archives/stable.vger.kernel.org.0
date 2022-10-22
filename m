@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A50460894F
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:32:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7202D60892D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbiJVIci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:32:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59156 "EHLO
+        id S233904AbiJVIbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:31:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229949AbiJVIb0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:31:26 -0400
+        with ESMTP id S234148AbiJVI3r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:29:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A232F2E5E03;
-        Sat, 22 Oct 2022 01:03:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC6F524B334;
+        Sat, 22 Oct 2022 01:02:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA649B82E1B;
-        Sat, 22 Oct 2022 07:44:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46A45C433D7;
-        Sat, 22 Oct 2022 07:44:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C012B82E19;
+        Sat, 22 Oct 2022 07:47:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6CFDC433C1;
+        Sat, 22 Oct 2022 07:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424692;
-        bh=D8oIh+1zXiFFvPpS+HgYcc84mQJZmkJPdY0WfYVOJTU=;
+        s=korg; t=1666424822;
+        bh=DxdqHRq9n3CnM6oqOwqOVl6LE5qMcE9fhLL5nLUgjn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NYy2RHtPQC+xoeIzgSdhrNONTfTAOlrrLige04YJRWst4pOmnZESgmpYc1bfcHzgX
-         Fwpou9YRKsBrTd+w+uwm6gudJhNJYAQCCgkTF5jISw4ki3tzkPwk67v6LCd3KWACfH
-         f1xwRn+xp5ayhMJN3BzO9wPrmuqlY6nQqNJt4s4I=
+        b=wn4SHrSmfkww5OWZr9F+TuB1FU0/HVOLfeM1jvhWXDJ7OONg+XCBhE3BqFcFDX9vM
+         m30wTpPY3K+60rnT6jTTAg8lM9v/dyj0a7ey7czXGtCoxMP1nPpEo8/g3xjlpimNw3
+         gpU8g9Iy3d+SSnbI7MmXDyDYy7NsZF7wYL1HS8eA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 241/717] wifi: mt76: sdio: poll sta stat when device transmits data
-Date:   Sat, 22 Oct 2022 09:22:00 +0200
-Message-Id: <20221022072457.603810048@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Micay <danielmicay@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 262/717] x86/microcode/AMD: Track patch allocation size explicitly
+Date:   Sat, 22 Oct 2022 09:22:21 +0200
+Message-Id: <20221022072500.994478851@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,39 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit a323e5f041dd11af5e3de19ed7ea95a97d588c11 ]
+[ Upstream commit 712f210a457d9c32414df246a72781550bc23ef6 ]
 
-It is not meaningful to poll sta stat when there is no data traffic.
-So polling sta stat when the device has transmitted data instead to save
-CPU power.
+In preparation for reducing the use of ksize(), record the actual
+allocation size for later memcpy(). This avoids copying extra
+(uninitialized!) bytes into the patch buffer when the requested
+allocation size isn't exactly the size of a kmalloc bucket.
+Additionally, fix potential future issues where runtime bounds checking
+will notice that the buffer was allocated to a smaller value than
+returned by ksize().
 
-That implies that it is unallowed the stat_work to work while MCU is being
-initialized in the really early stage to fix the possible time to time MCU
-initialization failure.
-
-Fixes: d39b52e31aa6 ("mt76: introduce mt76_sdio module")
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fixes: 757885e94a22 ("x86, microcode, amd: Early microcode patch loading support for AMD")
+Suggested-by: Daniel Micay <danielmicay@gmail.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/lkml/CA+DvKQ+bp7Y7gmaVhacjv9uF6Ar-o4tet872h4Q8RPYPJjcJQA@mail.gmail.com/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/sdio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/microcode.h    | 1 +
+ arch/x86/kernel/cpu/microcode/amd.c | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/sdio.c b/drivers/net/wireless/mediatek/mt76/sdio.c
-index 574687ca93a9..fa54ee112b0b 100644
---- a/drivers/net/wireless/mediatek/mt76/sdio.c
-+++ b/drivers/net/wireless/mediatek/mt76/sdio.c
-@@ -480,7 +480,7 @@ static void mt76s_status_worker(struct mt76_worker *w)
- 		if (ndata_frames > 0)
- 			resched = true;
+diff --git a/arch/x86/include/asm/microcode.h b/arch/x86/include/asm/microcode.h
+index 0c3d3440fe27..aa675783412f 100644
+--- a/arch/x86/include/asm/microcode.h
++++ b/arch/x86/include/asm/microcode.h
+@@ -9,6 +9,7 @@
+ struct ucode_patch {
+ 	struct list_head plist;
+ 	void *data;		/* Intel uses only this one */
++	unsigned int size;
+ 	u32 patch_id;
+ 	u16 equiv_cpu;
+ };
+diff --git a/arch/x86/kernel/cpu/microcode/amd.c b/arch/x86/kernel/cpu/microcode/amd.c
+index 8b2fcdfa6d31..615bc6efa1dd 100644
+--- a/arch/x86/kernel/cpu/microcode/amd.c
++++ b/arch/x86/kernel/cpu/microcode/amd.c
+@@ -788,6 +788,7 @@ static int verify_and_add_patch(u8 family, u8 *fw, unsigned int leftover,
+ 		kfree(patch);
+ 		return -EINVAL;
+ 	}
++	patch->size = *patch_size;
  
--		if (dev->drv->tx_status_data &&
-+		if (dev->drv->tx_status_data && ndata_frames > 0 &&
- 		    !test_and_set_bit(MT76_READING_STATS, &dev->phy.state) &&
- 		    !test_bit(MT76_STATE_SUSPEND, &dev->phy.state))
- 			ieee80211_queue_work(dev->hw, &dev->sdio.stat_work);
+ 	mc_hdr      = (struct microcode_header_amd *)(fw + SECTION_HDR_SIZE);
+ 	proc_id     = mc_hdr->processor_rev_id;
+@@ -869,7 +870,7 @@ load_microcode_amd(bool save, u8 family, const u8 *data, size_t size)
+ 		return ret;
+ 
+ 	memset(amd_ucode_patch, 0, PATCH_MAX_SIZE);
+-	memcpy(amd_ucode_patch, p->data, min_t(u32, ksize(p->data), PATCH_MAX_SIZE));
++	memcpy(amd_ucode_patch, p->data, min_t(u32, p->size, PATCH_MAX_SIZE));
+ 
+ 	return ret;
+ }
 -- 
 2.35.1
 
