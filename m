@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17255608C61
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 13:14:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 555C6608C78
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 13:19:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230316AbiJVLOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 07:14:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36178 "EHLO
+        id S230382AbiJVLTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 07:19:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231258AbiJVLOH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 07:14:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C28502F79A2;
-        Sat, 22 Oct 2022 03:36:12 -0700 (PDT)
+        with ESMTP id S230413AbiJVLTI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 07:19:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E68E42475F2;
+        Sat, 22 Oct 2022 03:46:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E4AFB80E4D;
-        Sat, 22 Oct 2022 08:06:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 783D4C433D6;
-        Sat, 22 Oct 2022 08:06:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8055B82E20;
+        Sat, 22 Oct 2022 08:06:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 302F3C433D6;
+        Sat, 22 Oct 2022 08:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425970;
-        bh=QmYPBt2tuHklhPv5OYIPoGItdJBIj0Kc3kuoPwcl3Q0=;
+        s=korg; t=1666425979;
+        bh=94z56aiI4+SooN/wyKW9c92h9jRrR2o8RQM1g9fDeF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L95dKkbDzvTH9EkX7y3JkUOjvvEZAF+1745g/LEpKe9IkcNtFq+k5xpjX8AwPJL3S
-         YjSr7RyB0z142+xs6IoW5c2xjePx5tXWG+DD6kdQSvqloxOadGVP06Y4dUu3iMB1Vh
-         WUAleLCf3C3JGz8ku3FlmgXzlKfdPuNBQxrj47pY=
+        b=ro7zgT/m05dXInNMAmKT4npILRM8JteIYhwKGE1rvl9SAzje4AGPJbivvYEPU+Tdg
+         TY0z4jXrSR8W460anAMlmGYcL4lUvJLLNiEKEpYHsCilIknrIJalWYD6W+y6rfH7py
+         q70cOsPmmhqUZNo8hEg4qz0RbmMY1LNUEG1iT2vA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 675/717] usb: host: xhci: Fix potential memory leak in xhci_alloc_stream_info()
-Date:   Sat, 22 Oct 2022 09:29:14 +0200
-Message-Id: <20221022072528.297892220@linuxfoundation.org>
+Subject: [PATCH 5.19 678/717] arm64: dts: imx8mp: Add snps,gfladj-refclk-lpm-sel quirk to USB nodes
+Date:   Sat, 22 Oct 2022 09:29:17 +0200
+Message-Id: <20221022072528.449215556@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,53 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 7e271f42a5cc3768cd2622b929ba66859ae21f97 ]
+[ Upstream commit 5c3d5ecf48ab06c709c012bf1e8f0c91e1fcd7ad ]
 
-xhci_alloc_stream_info() allocates stream context array for stream_info
-->stream_ctx_array with xhci_alloc_stream_ctx(). When some error occurs,
-stream_info->stream_ctx_array is not released, which will lead to a
-memory leak.
+With this set the SOF/ITP counter is based on ref_clk when 2.0 ports are
+suspended.
+snps,dis-u2-freeclk-exists-quirk can be removed as
+snps,gfladj-refclk-lpm-sel also clears the free running clock configuration
+bit.
 
-We can fix it by releasing the stream_info->stream_ctx_array with
-xhci_free_stream_ctx() on the error path to avoid the potential memory
-leak.
-
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220921123450.671459-2-mathias.nyman@linux.intel.com
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Link: https://lore.kernel.org/r/20220915062855.751881-4-alexander.stein@ew.tq-group.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-mem.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mp.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
-index 8c19e151a945..9e56aa28efcd 100644
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -641,7 +641,7 @@ struct xhci_stream_info *xhci_alloc_stream_info(struct xhci_hcd *xhci,
- 			num_stream_ctxs, &stream_info->ctx_array_dma,
- 			mem_flags);
- 	if (!stream_info->stream_ctx_array)
--		goto cleanup_ctx;
-+		goto cleanup_ring_array;
- 	memset(stream_info->stream_ctx_array, 0,
- 			sizeof(struct xhci_stream_ctx)*num_stream_ctxs);
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp.dtsi b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
+index 410d0d5e6f1e..7faf2d71ba4f 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
+@@ -1168,7 +1168,7 @@
+ 				interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
+ 				phys = <&usb3_phy0>, <&usb3_phy0>;
+ 				phy-names = "usb2-phy", "usb3-phy";
+-				snps,dis-u2-freeclk-exists-quirk;
++				snps,gfladj-refclk-lpm-sel-quirk;
+ 			};
  
-@@ -702,6 +702,11 @@ struct xhci_stream_info *xhci_alloc_stream_info(struct xhci_hcd *xhci,
- 	}
- 	xhci_free_command(xhci, stream_info->free_streams_command);
- cleanup_ctx:
-+	xhci_free_stream_ctx(xhci,
-+		stream_info->num_stream_ctxs,
-+		stream_info->stream_ctx_array,
-+		stream_info->ctx_array_dma);
-+cleanup_ring_array:
- 	kfree(stream_info->stream_rings);
- cleanup_info:
- 	kfree(stream_info);
+ 		};
+@@ -1210,7 +1210,7 @@
+ 				interrupts = <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
+ 				phys = <&usb3_phy1>, <&usb3_phy1>;
+ 				phy-names = "usb2-phy", "usb3-phy";
+-				snps,dis-u2-freeclk-exists-quirk;
++				snps,gfladj-refclk-lpm-sel-quirk;
+ 			};
+ 		};
+ 
 -- 
 2.35.1
 
