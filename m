@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5581E6085B2
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:37:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F07160857A
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:34:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230369AbiJVHhf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:37:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51636 "EHLO
+        id S230017AbiJVHeE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:34:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230363AbiJVHgy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:36:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4658F2498A8;
-        Sat, 22 Oct 2022 00:35:30 -0700 (PDT)
+        with ESMTP id S230103AbiJVHeD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:34:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA2B7230808;
+        Sat, 22 Oct 2022 00:34:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8A824CE1D33;
-        Sat, 22 Oct 2022 07:35:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89397C433D6;
-        Sat, 22 Oct 2022 07:35:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48AB260A5C;
+        Sat, 22 Oct 2022 07:34:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50187C433C1;
+        Sat, 22 Oct 2022 07:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424126;
-        bh=78i/cgAWTbQkSXWQ+NR65kH4S/tabs/wimPBpwk6rOQ=;
+        s=korg; t=1666424040;
+        bh=0LcxMqzKBXHZAcPKt0pyDjPeM3azFWJ3SFXQ6kVQIP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oa2kFztiO2AQDL3JCXftYywb+Ag4A0Lvblvsc+rTK4fKTv/632lKNUpB7EVl+HkBz
-         lz2zSLb8v1gt4GxOxYxPlX+fz1jW0GDuaR6fe/FFFNUxC1rGnVeSa/yGMq6AYsi69Y
-         wCdE8vmjuq6zcku+XIYl+R64lE8bVoJLdZo/FY08=
+        b=yKjIxHpEfhh993AEUH4nJu/U5WUDueWNBL+6Bj921jAty/WZEZuOKyo2pyUWSAaN5
+         8ba6XloYJjfpHZ7dtJ7ZPX6TRxwUD69Vay0QKRquLNmaTFuDxU6I0yCBKnKYuKV8zG
+         mIIv94ooID3BRHF3rbsKf7/i6+6FZVtlZxnTiMaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saranya Gopal <saranya.gopal@intel.com>,
-        Ninad Naik <ninad.naik@intel.com>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.19 009/717] ALSA: hda/realtek: Add Intel Reference SSID to support headset keys
-Date:   Sat, 22 Oct 2022 09:18:08 +0200
-Message-Id: <20221022072416.724433893@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Alexander Dahl <ada@thorsis.com>,
+        Peter Rosin <peda@axentia.se>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.19 010/717] mtd: rawnand: atmel: Unmap streaming DMA mappings
+Date:   Sat, 22 Oct 2022 09:18:09 +0200
+Message-Id: <20221022072416.900873665@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,34 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saranya Gopal <saranya.gopal@intel.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-commit 4f2e56a59b9947b3e698d3cabcb858765c12b1e8 upstream.
+commit 1161703c9bd664da5e3b2eb1a3bb40c210e026ea upstream.
 
-This patch fixes the issue with 3.5mm headset keys
-on RPL-P platform.
+Every dma_map_single() call should have its dma_unmap_single() counterpart,
+because the DMA address space is a shared resource and one could render the
+machine unusable by consuming all DMA addresses.
 
-[ Rearranged the entry in SSID order by tiwai ]
-
-Signed-off-by: Saranya Gopal <saranya.gopal@intel.com>
-Signed-off-by: Ninad Naik <ninad.naik@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221011044916.2278867-1-saranya.gopal@intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
+Cc: stable@vger.kernel.org
+Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Acked-by: Alexander Dahl <ada@thorsis.com>
+Reported-by: Peter Rosin <peda@axentia.se>
+Tested-by: Alexander Dahl <ada@thorsis.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Tested-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220728074014.145406-1-tudor.ambarus@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
+ drivers/mtd/nand/raw/atmel/nand-controller.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9398,6 +9398,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x10ec, 0x10f2, "Intel Reference board", ALC700_FIXUP_INTEL_REFERENCE),
- 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x10ec, 0x1230, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
-+	SND_PCI_QUIRK(0x10ec, 0x124c, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
- 	SND_PCI_QUIRK(0x10ec, 0x1252, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
- 	SND_PCI_QUIRK(0x10ec, 0x1254, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
- 	SND_PCI_QUIRK(0x10f7, 0x8338, "Panasonic CF-SZ6", ALC269_FIXUP_HEADSET_MODE),
+--- a/drivers/mtd/nand/raw/atmel/nand-controller.c
++++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
+@@ -405,6 +405,7 @@ static int atmel_nand_dma_transfer(struc
+ 
+ 	dma_async_issue_pending(nc->dmac);
+ 	wait_for_completion(&finished);
++	dma_unmap_single(nc->dev, buf_dma, len, dir);
+ 
+ 	return 0;
+ 
 
 
