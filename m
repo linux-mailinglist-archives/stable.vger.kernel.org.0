@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0201608B36
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA87608B5D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:15:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229872AbiJVKDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 06:03:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51152 "EHLO
+        id S230016AbiJVKPu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 06:15:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230271AbiJVKDI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:03:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8627430A42D;
-        Sat, 22 Oct 2022 02:19:07 -0700 (PDT)
+        with ESMTP id S230036AbiJVKPV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:15:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2239422B10;
+        Sat, 22 Oct 2022 02:32:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0110C60BA9;
-        Sat, 22 Oct 2022 08:02:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA901C433D7;
-        Sat, 22 Oct 2022 08:02:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4B85B82E03;
+        Sat, 22 Oct 2022 08:04:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11A27C433C1;
+        Sat, 22 Oct 2022 08:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425764;
-        bh=GE2YQiTOCkVprWu/xnAquC2VU2jYU3qYnrea42lOiBk=;
+        s=korg; t=1666425856;
+        bh=zvWGShizebvrdEFUd9n0bZ6NDl0vKJL3PrigdSbA9rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=co16kPiTxzl20xiGBiXP/fqQ8Rr050toob6K5JFYbOV/Zsj/VwuZUqJ0gdhx5OBv5
-         z8NWwEGkATsh7mt6nLXD7kIvVyi2B+zUe1Urp70qDN2yC92URMGLKQN0Hqdb67CHnA
-         Ksn3m44QK81LEolDTqOwnuSD5ByEE2BKfHzveEvw=
+        b=twCAaLJb85C9DNVsd9Np63lSQX4oG8X4TiHye6ESYXLdJL2GnKhZiMuuUz98yGFey
+         LunVKieF+6yXnnkKHzwjKhVKVInRwLPgeP0+vgGwe+F3vy8f5teGDDxnDWPjgW/AWD
+         dG5JgdT+0Fl4wqPYtAXbhKBH4W72RmBQEG8twmi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Yifan Zha <Yifan.Zha@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
+        stable@vger.kernel.org, hongao <hongao@uniontech.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 608/717] drm/admgpu: Skip CG/PG on SOC21 under SRIOV VF
-Date:   Sat, 22 Oct 2022 09:28:07 +0200
-Message-Id: <20221022072525.353474342@linuxfoundation.org>
+Subject: [PATCH 5.19 621/717] drm/amdgpu: fix initial connector audio value
+Date:   Sat, 22 Oct 2022 09:28:20 +0200
+Message-Id: <20221022072525.921840066@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,42 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifan Zha <Yifan.Zha@amd.com>
+From: hongao <hongao@uniontech.com>
 
-[ Upstream commit 828418259254863e0af5805bd712284e2bd88e3b ]
+[ Upstream commit 4bb71fce58f30df3f251118291d6b0187ce531e6 ]
 
-[Why]
-There is no CG(Clock Gating)/PG(Power Gating) requirement on SRIOV VF.
-For multi VF, VF should not enable any CG/PG features.
-For one VF, PF will program CG/PG related registers.
+This got lost somewhere along the way, This fixes
+audio not working until set_property was called.
 
-[How]
-Do not set any cg/pg flag bit at early init under sriov.
-
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Yifan Zha <Yifan.Zha@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: hongao <hongao@uniontech.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/soc21.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc21.c b/drivers/gpu/drm/amd/amdgpu/soc21.c
-index 8d5c452a9100..6d3bfb0f0346 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc21.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc21.c
-@@ -551,6 +551,10 @@ static int soc21_common_early_init(void *handle)
- 			AMD_PG_SUPPORT_JPEG |
- 			AMD_PG_SUPPORT_ATHUB |
- 			AMD_PG_SUPPORT_MMHUB;
-+		if (amdgpu_sriov_vf(adev)) {
-+			adev->cg_flags = 0;
-+			adev->pg_flags = 0;
-+		}
- 		adev->external_rev_id = adev->rev_id + 0x1; // TODO: need update
- 		break;
- 	case IP_VERSION(11, 0, 2):
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+index b7933c2ce765..491d4846fc02 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -1674,10 +1674,12 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 						   adev->mode_info.dither_property,
+ 						   AMDGPU_FMT_DITHER_DISABLE);
+ 
+-			if (amdgpu_audio != 0)
++			if (amdgpu_audio != 0) {
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
++			}
+ 
+ 			subpixel_order = SubPixelHorizontalRGB;
+ 			connector->interlace_allowed = true;
+@@ -1799,6 +1801,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
+ 			}
+ 			drm_object_attach_property(&amdgpu_connector->base.base,
+ 						   adev->mode_info.dither_property,
+@@ -1852,6 +1855,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
+ 			}
+ 			drm_object_attach_property(&amdgpu_connector->base.base,
+ 						   adev->mode_info.dither_property,
+@@ -1902,6 +1906,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
+ 			}
+ 			drm_object_attach_property(&amdgpu_connector->base.base,
+ 						   adev->mode_info.dither_property,
 -- 
 2.35.1
 
