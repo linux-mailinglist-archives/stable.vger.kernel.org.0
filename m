@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C8560894E
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:32:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D94CD608975
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:36:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233887AbiJVIch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:32:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33152 "EHLO
+        id S234033AbiJVIgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:36:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234519AbiJVIbH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:31:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EE772E5E0C;
-        Sat, 22 Oct 2022 01:03:19 -0700 (PDT)
+        with ESMTP id S234314AbiJVIev (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:34:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB8742D20CA;
+        Sat, 22 Oct 2022 01:04:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0BAE8B82E03;
-        Sat, 22 Oct 2022 08:03:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35A2CC433C1;
-        Sat, 22 Oct 2022 08:03:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F4B060BA2;
+        Sat, 22 Oct 2022 08:03:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A00BC433D6;
+        Sat, 22 Oct 2022 08:03:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425788;
-        bh=czNl4+zmuXGorycVi+NqCYslMNtgLRZLXGWQqwWbTkc=;
+        s=korg; t=1666425794;
+        bh=pMbxhj9oyvXcVZkWKcZXy1MVAYMbhd3RSfm4nlEApfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJf0AqZlaYhfs3bJP9pdWHQGcUJBZfPKaZK2DmQ40JrS0MvqFKtHgSErGU3uNOuFX
-         JaukZeIMZIqwNF3GHMXh/e68j4xOQ3bzqW+difofdywg8jDbHBre6trPZ4DeYHN/xI
-         vcRqy0VBZ7EaaVya22NmtS62QnFDzcQTA/bmTHfk=
+        b=A4DNURlnQANhraDhNNaBv0qXlRjStBU7FqV/XfdDvhuW0Mhb7cTgGludFGZCX6LPb
+         LogK2z+PQC41wK2tIJFUycnNkWWYDsGzZtGEbCMxBPGaf4bZrxyamMlCsd/Cq0OQo8
+         7z7u2PYXq/8yMbQnfM5Ec32NWlSiekMKpaCxn5eU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Muralidhar Reddy <muralidhar.reddy@intel.com>,
+        Chao Song <chao.song@intel.com>,
+        Curtis Malainey <curtis@malainey.com>,
+        Jairaj Arava <jairaj.arava@intel.com>,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 616/717] ALSA: intel-dspconfig: add ES8336 support for AlderLake-PS
-Date:   Sat, 22 Oct 2022 09:28:15 +0200
-Message-Id: <20221022072525.708704468@linuxfoundation.org>
+Subject: [PATCH 5.19 617/717] ASoC: SOF: pci: Change DMI match info to support all Chrome platforms
+Date:   Sat, 22 Oct 2022 09:28:16 +0200
+Message-Id: <20221022072525.748473991@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,38 +60,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muralidhar Reddy <muralidhar.reddy@intel.com>
+From: Jairaj Arava <jairaj.arava@intel.com>
 
-[ Upstream commit 9db1c9fa214ef41d098633ff40a87284ca6e1870 ]
+[ Upstream commit c1c1fc8103f794a10c5c15e3c17879caf4f42c8f ]
 
-added quirks for ESS8336 for AlderLake-PS
+In some Chrome platforms if OEM's use their own string as SYS_VENDOR than
+"Google", it leads to firmware load failure from intel/sof/community path.
+
+Hence, changing SYS_VENDOR to PRODUCT_FAMILY in which "Google" is used
+as common prefix and is supported in all Chrome platforms.
 
 Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Muralidhar Reddy <muralidhar.reddy@intel.com>
+Reviewed-by: Chao Song <chao.song@intel.com>
+Reviewed-by: Curtis Malainey <curtis@malainey.com>
+Signed-off-by: Jairaj Arava <jairaj.arava@intel.com>
+Signed-off-by: Curtis Malainey <cujomalainey@chromium.org>
+Signed-off-by: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220919114548.42769-1-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20220919114429.42700-1-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/intel-dsp-config.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/sof/sof-pci-dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/hda/intel-dsp-config.c b/sound/hda/intel-dsp-config.c
-index ec9cbb219bc1..dbc7dfd00c44 100644
---- a/sound/hda/intel-dsp-config.c
-+++ b/sound/hda/intel-dsp-config.c
-@@ -422,6 +422,11 @@ static const struct config_entry config_table[] = {
- 		.device = 0x51cd,
+diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
+index d627092b399d..643fd1036d60 100644
+--- a/sound/soc/sof/sof-pci-dev.c
++++ b/sound/soc/sof/sof-pci-dev.c
+@@ -138,7 +138,7 @@ static const struct dmi_system_id community_key_platforms[] = {
+ 		.ident = "Google Chromebooks",
+ 		.callback = chromebook_use_community_key,
+ 		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Google"),
++			DMI_MATCH(DMI_PRODUCT_FAMILY, "Google"),
+ 		}
  	},
- 	/* Alderlake-PS */
-+	{
-+		.flags = FLAG_SOF,
-+		.device = 0x51c9,
-+		.codec_hid =  &essx_83x6,
-+	},
- 	{
- 		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
- 		.device = 0x51c9,
+ 	{},
 -- 
 2.35.1
 
