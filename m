@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA7ED608C83
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 13:22:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5C37608C17
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230270AbiJVLWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 07:22:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33122 "EHLO
+        id S229866AbiJVK7P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 06:59:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230286AbiJVLVo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 07:21:44 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94245238244;
-        Sat, 22 Oct 2022 03:50:22 -0700 (PDT)
+        with ESMTP id S230494AbiJVK6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:58:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 745CC2E9E34;
+        Sat, 22 Oct 2022 03:17:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F1198CE2CA3;
-        Sat, 22 Oct 2022 07:50:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10EE1C433D6;
-        Sat, 22 Oct 2022 07:50:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20181B82DF6;
+        Sat, 22 Oct 2022 07:51:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25DC0C433C1;
+        Sat, 22 Oct 2022 07:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425023;
-        bh=mVlXKDyloWHczG4w8BODEuzPi+MoNX5tHp/3T8IM120=;
+        s=korg; t=1666425075;
+        bh=iyKhAeS+fL/4paGpY198m4bprWGcYWFl+THorYYK8i8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sh0bSzyHHMKUv5eCZ6JbbRarLP+IbqlW73NGf8cvWSG4pY2XyhCZgPEt5x32l8xuq
-         +1zajEQn9VOqCiPXRDpyRTwo9LhLR+ijuNIWp952EVwiGhgbgFDRx/GEpO7Uh3dCM/
-         NzBQyirJoVLHkwe/pZ1m2IbFdoEQsHMA8R7MjI24=
+        b=2UPPkWEO/lWymHKNOq5sS423ER7qDfqzYWKgpiiYUyeHFhD7HbJ9t2L02NPMZlxBX
+         CyPJOncFVBBmDrVVuVYjedTjNg2EoxLT5I2/F0vrxnxs8TNTl2YgvTzJCc5TDUe0OF
+         Fw8YmwHHruvKgjXxFYLLtU5bTHBPRJWhQ5Xojsd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 333/717] ALSA: usb-audio: Properly refcounting clock rate
-Date:   Sat, 22 Oct 2022 09:23:32 +0200
-Message-Id: <20221022072509.781401249@linuxfoundation.org>
+Subject: [PATCH 5.19 381/717] clk: meson: Hold reference returned by of_get_parent()
+Date:   Sat, 22 Oct 2022 09:24:20 +0200
+Message-Id: <20221022072514.134126867@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,68 +55,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 9a737e7f8b371e97eb649904276407cee2c9cf30 ]
+[ Upstream commit 89ab396d712f7c91fe94f55cff23460426f5fc81 ]
 
-We fixed the bug introduced by the patch for managing the shared
-clocks at the commit 809f44a0cc5a ("ALSA: usb-audio: Clear fixed clock
-rate at closing EP"), but it was merely a workaround.  By this change,
-the clock reference rate is cleared at each EP close, hence the still
-remaining EP may need a re-setup of rate unnecessarily.
+We should hold the reference returned by of_get_parent() and use it
+to call of_node_put() for refcount balance.
 
-This patch introduces the proper refcounting for the clock reference
-object so that the clock setup is done only when needed.
+Fixes: 88e2da81241e ("clk: meson: aoclk: refactor common code into dedicated file")
+Fixes: 6682bd4d443f ("clk: meson: factorise meson64 peripheral clock controller drivers")
+Fixes: bb6eddd1d28c ("clk: meson: meson8b: use the HHI syscon if available")
 
-Fixes: 809f44a0cc5a ("ALSA: usb-audio: Clear fixed clock rate at closing EP")
-Fixes: c11117b634f4 ("ALSA: usb-audio: Refcount multiple accesses on the single clock")
-Link: https://lore.kernel.org/r/20220920181126.4912-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220628141038.168383-1-windhl@126.com
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/endpoint.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/clk/meson/meson-aoclk.c | 5 ++++-
+ drivers/clk/meson/meson-eeclk.c | 5 ++++-
+ drivers/clk/meson/meson8b.c     | 5 ++++-
+ 3 files changed, 12 insertions(+), 3 deletions(-)
 
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -39,6 +39,7 @@ struct snd_usb_iface_ref {
- struct snd_usb_clock_ref {
- 	unsigned char clock;
- 	atomic_t locked;
-+	int opened;
- 	int rate;
- 	struct list_head list;
- };
-@@ -802,6 +803,7 @@ snd_usb_endpoint_open(struct snd_usb_aud
- 				ep = NULL;
- 				goto unlock;
- 			}
-+			ep->clock_ref->opened++;
- 		}
+diff --git a/drivers/clk/meson/meson-aoclk.c b/drivers/clk/meson/meson-aoclk.c
+index 27cd2c1f3f61..434cd8f9de82 100644
+--- a/drivers/clk/meson/meson-aoclk.c
++++ b/drivers/clk/meson/meson-aoclk.c
+@@ -38,6 +38,7 @@ int meson_aoclkc_probe(struct platform_device *pdev)
+ 	struct meson_aoclk_reset_controller *rstc;
+ 	struct meson_aoclk_data *data;
+ 	struct device *dev = &pdev->dev;
++	struct device_node *np;
+ 	struct regmap *regmap;
+ 	int ret, clkid;
  
- 		ep->cur_audiofmt = fp;
-@@ -925,8 +927,10 @@ void snd_usb_endpoint_close(struct snd_u
- 		endpoint_set_interface(chip, ep, false);
+@@ -49,7 +50,9 @@ int meson_aoclkc_probe(struct platform_device *pdev)
+ 	if (!rstc)
+ 		return -ENOMEM;
  
- 	if (!--ep->opened) {
--		if (ep->clock_ref && !atomic_read(&ep->clock_ref->locked))
--			ep->clock_ref->rate = 0;
-+		if (ep->clock_ref) {
-+			if (!--ep->clock_ref->opened)
-+				ep->clock_ref->rate = 0;
-+		}
- 		ep->iface = 0;
- 		ep->altsetting = 0;
- 		ep->cur_audiofmt = NULL;
-@@ -1633,8 +1637,7 @@ void snd_usb_endpoint_stop(struct snd_us
- 			WRITE_ONCE(ep->sync_source->sync_sink, NULL);
- 		stop_urbs(ep, false, keep_pending);
- 		if (ep->clock_ref)
--			if (!atomic_dec_return(&ep->clock_ref->locked))
--				ep->clock_ref->rate = 0;
-+			atomic_dec(&ep->clock_ref->locked);
- 	}
- }
+-	regmap = syscon_node_to_regmap(of_get_parent(dev->of_node));
++	np = of_get_parent(dev->of_node);
++	regmap = syscon_node_to_regmap(np);
++	of_node_put(np);
+ 	if (IS_ERR(regmap)) {
+ 		dev_err(dev, "failed to get regmap\n");
+ 		return PTR_ERR(regmap);
+diff --git a/drivers/clk/meson/meson-eeclk.c b/drivers/clk/meson/meson-eeclk.c
+index 8d5a5dab955a..0e5e6b57eb20 100644
+--- a/drivers/clk/meson/meson-eeclk.c
++++ b/drivers/clk/meson/meson-eeclk.c
+@@ -18,6 +18,7 @@ int meson_eeclkc_probe(struct platform_device *pdev)
+ {
+ 	const struct meson_eeclkc_data *data;
+ 	struct device *dev = &pdev->dev;
++	struct device_node *np;
+ 	struct regmap *map;
+ 	int ret, i;
  
+@@ -26,7 +27,9 @@ int meson_eeclkc_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 
+ 	/* Get the hhi system controller node */
+-	map = syscon_node_to_regmap(of_get_parent(dev->of_node));
++	np = of_get_parent(dev->of_node);
++	map = syscon_node_to_regmap(np);
++	of_node_put(np);
+ 	if (IS_ERR(map)) {
+ 		dev_err(dev,
+ 			"failed to get HHI regmap\n");
+diff --git a/drivers/clk/meson/meson8b.c b/drivers/clk/meson/meson8b.c
+index 8f3b7a94a667..827e78fb16a8 100644
+--- a/drivers/clk/meson/meson8b.c
++++ b/drivers/clk/meson/meson8b.c
+@@ -3792,12 +3792,15 @@ static void __init meson8b_clkc_init_common(struct device_node *np,
+ 			struct clk_hw_onecell_data *clk_hw_onecell_data)
+ {
+ 	struct meson8b_clk_reset *rstc;
++	struct device_node *parent_np;
+ 	const char *notifier_clk_name;
+ 	struct clk *notifier_clk;
+ 	struct regmap *map;
+ 	int i, ret;
+ 
+-	map = syscon_node_to_regmap(of_get_parent(np));
++	parent_np = of_get_parent(np);
++	map = syscon_node_to_regmap(parent_np);
++	of_node_put(parent_np);
+ 	if (IS_ERR(map)) {
+ 		pr_err("failed to get HHI regmap - Trying obsolete regs\n");
+ 		return;
+-- 
+2.35.1
+
 
 
