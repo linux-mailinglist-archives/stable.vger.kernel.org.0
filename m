@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F263608BAB
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C699D608B55
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:14:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230450AbiJVKcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 06:32:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54658 "EHLO
+        id S230184AbiJVKOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 06:14:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230373AbiJVKcl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:32:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10C423235CD;
-        Sat, 22 Oct 2022 02:48:50 -0700 (PDT)
+        with ESMTP id S230300AbiJVKOB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:14:01 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 412EAB03FB;
+        Sat, 22 Oct 2022 02:31:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A85860B0A;
-        Sat, 22 Oct 2022 07:52:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28C68C433C1;
-        Sat, 22 Oct 2022 07:52:42 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 07534CE2CAC;
+        Sat, 22 Oct 2022 07:53:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8C3BC433C1;
+        Sat, 22 Oct 2022 07:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425163;
-        bh=PiM5G2FI8VQ/X/sDFT0sCf2uTCLjmCF8dIB0FZuzEo4=;
+        s=korg; t=1666425180;
+        bh=4wv5WtR//CDdsvxu8xL/5g2O2bXmliW8UL1zS+PsHLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RUjxoYZx//+22+ogmrr6XIvUsLbZiLwcYiTnxVySCHvi8zEG8lm+BePoWbnpuxoS8
-         q3bVo0jjIZP8rt9cAEKF6I7n+9BfyWX0afcbW0dumKQ36P1eHFjISjmmEKpv7dy2d1
-         OiZn/NwPSWDkst5x79ujM2WUUOiTLBLIVzRGRbLQ=
+        b=wpa1+Tmadnty8pzd3Gn6oYmMvMjwJzv7T/ZaZV2h0nEbNbKY0qAh5qC9frEhG2s+g
+         xEzLIu/oTim3kMaur0cBjECfkPhin0tEtgNUz2I4Cr54IEDOUf/CRuM0g5+KRwXwO2
+         Tw7rEk15gOypjVLYIWMt/fvDzAn7Omz+d9TSYb+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Reichl <m.reichl@fivetechno.de>,
-        Michael Riesch <michael.riesch@wolfvision.net>,
-        Peter Geis <pgwipeout@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 411/717] phy: rockchip-inno-usb2: Return zero after otg sync
-Date:   Sat, 22 Oct 2022 09:24:50 +0200
-Message-Id: <20221022072516.272003002@linuxfoundation.org>
+        stable@vger.kernel.org, vincent.whitchurch@axis.com,
+        Jason Baron <jbaron@akamai.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jim Cromie <jim.cromie@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 417/717] dyndbg: fix static_branch manipulation
+Date:   Sat, 22 Oct 2022 09:24:56 +0200
+Message-Id: <20221022072516.673209048@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,62 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Geis <pgwipeout@gmail.com>
+From: Jim Cromie <jim.cromie@gmail.com>
 
-[ Upstream commit f340ed8664a55a467850ec1689996e63d9ee971a ]
+[ Upstream commit ee879be38bc87f8cedc79ae2742958db6533ca59 ]
 
-The otg sync state patch reuses the ret variable, but fails to set it to
-zero after use. This leads to a situation when the otg port is in
-peripheral mode where the otg phy aborts halfway through setup.  It also
-fails to account for a failure to register the extcon notifier. Fix this
-by using our own variable and skipping otg sync in case of failure.
+In https://lore.kernel.org/lkml/20211209150910.GA23668@axis.com/
 
-Fixes: 8dc60f8da22f ("phy: rockchip-inno-usb2: Sync initial otg state")
-Reported-by: Markus Reichl <m.reichl@fivetechno.de>
-Reported-by: Michael Riesch <michael.riesch@wolfvision.net>
-Signed-off-by: Peter Geis <pgwipeout@gmail.com>
-Tested-by: Michael Riesch <michael.riesch@wolfvision.net>
-Tested-by: Markus Reichl <m.reichl@fivetechno.de>
-Reviewed-by: Samuel Holland <samuel@sholland.org>
-Link: https://lore.kernel.org/r/20220902184543.1234835-1-pgwipeout@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Vincent's patch commented on, and worked around, a bug toggling
+static_branch's, when a 2nd PRINTK-ish flag was added.  The bug
+results in a premature static_branch_disable when the 1st of 2 flags
+was disabled.
+
+The cited commit computed newflags, but then in the JUMP_LABEL block,
+failed to use that result, instead using just one of the terms in it.
+Using newflags instead made the code work properly.
+
+This is Vincents test-case, reduced.  It needs the 2nd flag to
+demonstrate the bug, but it's explanatory here.
+
+pt_test() {
+    echo 5 > /sys/module/dynamic_debug/verbose
+
+    site="module tcp" # just one callsite
+    echo " $site =_ " > /proc/dynamic_debug/control # clear it
+
+    # A B ~A ~B
+    for flg in +T +p "-T #broke here" -p; do
+	echo " $site $flg " > /proc/dynamic_debug/control
+    done;
+
+    # A B ~B ~A
+    for flg in +T +p "-p #broke here" -T; do
+	echo " $site $flg " > /proc/dynamic_debug/control
+    done
+}
+pt_test
+
+Fixes: 84da83a6ffc0 dyndbg: combine flags & mask into a struct, simplify with it
+CC: vincent.whitchurch@axis.com
+Acked-by: Jason Baron <jbaron@akamai.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
+Link: https://lore.kernel.org/r/20220904214134.408619-2-jim.cromie@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/rockchip/phy-rockchip-inno-usb2.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ lib/dynamic_debug.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-index 5223d4c9afdf..39f14a5b78cd 100644
---- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-+++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-@@ -1124,7 +1124,7 @@ static int rockchip_usb2phy_otg_port_init(struct rockchip_usb2phy *rphy,
- 					  struct rockchip_usb2phy_port *rport,
- 					  struct device_node *child_np)
- {
--	int ret;
-+	int ret, id;
- 
- 	rport->port_id = USB2PHY_PORT_OTG;
- 	rport->port_cfg = &rphy->phy_cfg->port_cfgs[USB2PHY_PORT_OTG];
-@@ -1162,13 +1162,15 @@ static int rockchip_usb2phy_otg_port_init(struct rockchip_usb2phy *rphy,
- 
- 		ret = devm_extcon_register_notifier(rphy->dev, rphy->edev,
- 					EXTCON_USB_HOST, &rport->event_nb);
--		if (ret)
-+		if (ret) {
- 			dev_err(rphy->dev, "register USB HOST notifier failed\n");
-+			goto out;
-+		}
- 
- 		if (!of_property_read_bool(rphy->dev->of_node, "extcon")) {
- 			/* do initial sync of usb state */
--			ret = property_enabled(rphy->grf, &rport->port_cfg->utmi_id);
--			extcon_set_state_sync(rphy->edev, EXTCON_USB_HOST, !ret);
-+			id = property_enabled(rphy->grf, &rport->port_cfg->utmi_id);
-+			extcon_set_state_sync(rphy->edev, EXTCON_USB_HOST, !id);
- 		}
- 	}
- 
+diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
+index dd7f56af9aed..a56c1286ffa4 100644
+--- a/lib/dynamic_debug.c
++++ b/lib/dynamic_debug.c
+@@ -211,10 +211,11 @@ static int ddebug_change(const struct ddebug_query *query,
+ 				continue;
+ #ifdef CONFIG_JUMP_LABEL
+ 			if (dp->flags & _DPRINTK_FLAGS_PRINT) {
+-				if (!(modifiers->flags & _DPRINTK_FLAGS_PRINT))
++				if (!(newflags & _DPRINTK_FLAGS_PRINT))
+ 					static_branch_disable(&dp->key.dd_key_true);
+-			} else if (modifiers->flags & _DPRINTK_FLAGS_PRINT)
++			} else if (newflags & _DPRINTK_FLAGS_PRINT) {
+ 				static_branch_enable(&dp->key.dd_key_true);
++			}
+ #endif
+ 			dp->flags = newflags;
+ 			v4pr_info("changed %s:%d [%s]%s =%s\n",
 -- 
 2.35.1
 
