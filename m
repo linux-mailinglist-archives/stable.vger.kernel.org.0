@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F02446085F1
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63D216085E2
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:40:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229587AbiJVHlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:41:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33004 "EHLO
+        id S230467AbiJVHke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:40:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230519AbiJVHl3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:41:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C97002D762;
-        Sat, 22 Oct 2022 00:39:26 -0700 (PDT)
+        with ESMTP id S230328AbiJVHjl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:39:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B46C92BE883;
+        Sat, 22 Oct 2022 00:37:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BADAB82DB2;
-        Sat, 22 Oct 2022 07:37:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BC9AC433D6;
-        Sat, 22 Oct 2022 07:36:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21F6FB82D9F;
+        Sat, 22 Oct 2022 07:37:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74775C433D6;
+        Sat, 22 Oct 2022 07:37:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424219;
-        bh=jBoTbudxBixvFylnCwkGubpi1p23EEKMHTLT51gJ8yc=;
+        s=korg; t=1666424222;
+        bh=armA+utm4/fRQ9XPab00JtG4j1S4Qjzm6rdXp+Ft1Gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZV78V4vEcacLNqVOteInxngf0sBchFvD3o6EC965Uq5kPflbJFWVWB/gdBnhrTIG
-         lxnzjkFaddwXFWYRLS0jKUzx0X7gyIRiWfw243xy+tdse1ebRxIcPfG7YIJ/2Si0yK
-         kNlGnOKRDk1lOueTEoiszkwzdskaWLFA4PnkZKzw=
+        b=jrnuaAKwKnmFiXEGjzDI7hlIBBON1kEW1LAUHickutdSRUhdavq2ZHXw038g8jvgc
+         5ve65IAOtR0Q/7NyBLwFm7u3R6PJfr4lv4DpSgRFvHnlEprCbd9uJz5Ry0Dz2qygEL
+         Bskp/frFfa4EjnUspUcnCwKEZwAfAqOsR/9YikVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
         David Teigland <teigland@redhat.com>
-Subject: [PATCH 5.19 036/717] fs: dlm: fix race between test_bit() and queue_work()
-Date:   Sat, 22 Oct 2022 09:18:35 +0200
-Message-Id: <20221022072421.521048689@linuxfoundation.org>
+Subject: [PATCH 5.19 037/717] fs: dlm: handle -EBUSY first in lock arg validation
+Date:   Sat, 22 Oct 2022 09:18:36 +0200
+Message-Id: <20221022072421.703068835@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,51 +54,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Aring <aahringo@redhat.com>
 
-commit eef6ec9bf390e836a6c4029f3620fe49528aa1fe upstream.
+commit 44637ca41d551d409a481117b07fa209b330fca9 upstream.
 
-This patch fixes a race by using ls_cb_mutex around the bit
-operations and conditional code blocks for LSFL_CB_DELAY.
-
-The function dlm_callback_stop() expects to stop all callbacks and
-flush all currently queued onces. The set_bit() is not enough because
-there can still be queue_work() after the workqueue was flushed.
-To avoid queue_work() after set_bit(), surround both by ls_cb_mutex.
+During lock arg validation, first check for -EBUSY cases, then for
+-EINVAL cases. The -EINVAL checks look at lkb state variables
+which are not stable when an lkb is busy and would cause an
+-EBUSY result, e.g. lkb->lkb_grmode.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Alexander Aring <aahringo@redhat.com>
 Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dlm/ast.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/dlm/lock.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/fs/dlm/ast.c
-+++ b/fs/dlm/ast.c
-@@ -200,13 +200,13 @@ void dlm_add_cb(struct dlm_lkb *lkb, uin
- 	if (!prev_seq) {
- 		kref_get(&lkb->lkb_ref);
- 
-+		mutex_lock(&ls->ls_cb_mutex);
- 		if (test_bit(LSFL_CB_DELAY, &ls->ls_flags)) {
--			mutex_lock(&ls->ls_cb_mutex);
- 			list_add(&lkb->lkb_cb_list, &ls->ls_cb_delay);
--			mutex_unlock(&ls->ls_cb_mutex);
- 		} else {
- 			queue_work(ls->ls_callback_wq, &lkb->lkb_cb_work);
- 		}
-+		mutex_unlock(&ls->ls_cb_mutex);
- 	}
-  out:
- 	mutex_unlock(&lkb->lkb_cb_mutex);
-@@ -288,7 +288,9 @@ void dlm_callback_stop(struct dlm_ls *ls
- 
- void dlm_callback_suspend(struct dlm_ls *ls)
+--- a/fs/dlm/lock.c
++++ b/fs/dlm/lock.c
+@@ -2920,17 +2920,9 @@ static int set_unlock_args(uint32_t flag
+ static int validate_lock_args(struct dlm_ls *ls, struct dlm_lkb *lkb,
+ 			      struct dlm_args *args)
  {
-+	mutex_lock(&ls->ls_cb_mutex);
- 	set_bit(LSFL_CB_DELAY, &ls->ls_flags);
-+	mutex_unlock(&ls->ls_cb_mutex);
+-	int rv = -EINVAL;
++	int rv = -EBUSY;
  
- 	if (ls->ls_callback_wq)
- 		flush_workqueue(ls->ls_callback_wq);
+ 	if (args->flags & DLM_LKF_CONVERT) {
+-		if (lkb->lkb_flags & DLM_IFL_MSTCPY)
+-			goto out;
+-
+-		if (args->flags & DLM_LKF_QUECVT &&
+-		    !__quecvt_compat_matrix[lkb->lkb_grmode+1][args->mode+1])
+-			goto out;
+-
+-		rv = -EBUSY;
+ 		if (lkb->lkb_status != DLM_LKSTS_GRANTED)
+ 			goto out;
+ 
+@@ -2940,6 +2932,14 @@ static int validate_lock_args(struct dlm
+ 
+ 		if (is_overlap(lkb))
+ 			goto out;
++
++		rv = -EINVAL;
++		if (lkb->lkb_flags & DLM_IFL_MSTCPY)
++			goto out;
++
++		if (args->flags & DLM_LKF_QUECVT &&
++		    !__quecvt_compat_matrix[lkb->lkb_grmode+1][args->mode+1])
++			goto out;
+ 	}
+ 
+ 	lkb->lkb_exflags = args->flags;
 
 
