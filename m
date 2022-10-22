@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DB786086F4
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E59CF6086D1
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:53:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232017AbiJVHzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:55:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55592 "EHLO
+        id S232029AbiJVHxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:53:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232087AbiJVHyA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:00 -0400
+        with ESMTP id S231706AbiJVHwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:52:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C947B2CA7E2;
-        Sat, 22 Oct 2022 00:46:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17560AC297;
+        Sat, 22 Oct 2022 00:46:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9614B82DFE;
-        Sat, 22 Oct 2022 07:38:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 155CAC433D6;
-        Sat, 22 Oct 2022 07:38:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6790FB82DF6;
+        Sat, 22 Oct 2022 07:39:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A54DCC433D7;
+        Sat, 22 Oct 2022 07:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424337;
-        bh=J3hY5Ke9dVOuH+qLSGit5n24qZH/9BcKbPIcxeJC+gA=;
+        s=korg; t=1666424343;
+        bh=51YjOXF7uUIpZAbLElBdbO797UG/6ZCUOY1Q/ovFfzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uh1K5F2AcHc6tGdq4BwVzNoEGLan4/HDbGIO7A6hjqPGDoUuJOAgbTrPht+uaUNxK
-         fEG8rj1j1se0B5Bt3J8Cpc9xMbTyc2dWJVrmq4XWc4dGzuSXXA3j8pRH0N5Rbqo8OR
-         dPjsEPzA60nBsWIdlxdU0ZRX8BnqJuH/9plNEQQw=
+        b=1R+QU5QlqQOdXaZlu3FqBCt0jAZPRtqQCDAqLYlkj2L+x9V/Li6IZQqGEZRASguKL
+         W94tfRELVzXeAF2BpoWy4wfsIcQWQfdaRXEIPLRpZwjxwbWWdm1Pc9cigjN85fnFU9
+         dWSPmxEKKkneFjNS2/LeSrCf4QN2cEUYYdRgl8qs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+fba8e2116a12609b6c59@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.19 109/717] btrfs: fix race between quota enable and quota rescan ioctl
-Date:   Sat, 22 Oct 2022 09:19:48 +0200
-Message-Id: <20221022072434.704677757@linuxfoundation.org>
+Subject: [PATCH 5.19 111/717] btrfs: set generation before calling btrfs_clean_tree_block in btrfs_init_new_buffer
+Date:   Sat, 22 Oct 2022 09:19:50 +0200
+Message-Id: <20221022072435.073175744@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,60 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 331cd9461412e103d07595a10289de90004ac890 upstream.
+commit cbddcc4fa3443fe8cfb2ff8e210deb1f6a0eea38 upstream.
 
-When enabling quotas, at btrfs_quota_enable(), after committing the
-transaction, we change fs_info->quota_root to point to the quota root we
-created and set BTRFS_FS_QUOTA_ENABLED at fs_info->flags. Then we try
-to start the qgroup rescan worker, first by initializing it with a call
-to qgroup_rescan_init() - however if that fails we end up freeing the
-quota root but we leave fs_info->quota_root still pointing to it, this
-can later result in a use-after-free somewhere else.
+syzbot is reporting uninit-value in btrfs_clean_tree_block() [1], for
+commit bc877d285ca3dba2 ("btrfs: Deduplicate extent_buffer init code")
+missed that btrfs_set_header_generation() in btrfs_init_new_buffer() must
+not be moved to after clean_tree_block() because clean_tree_block() is
+calling btrfs_header_generation() since commit 55c69072d6bd5be1 ("Btrfs:
+Fix extent_buffer usage when nodesize != leafsize").
 
-We have previously set the flags BTRFS_FS_QUOTA_ENABLED and
-BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with -EINPROGRESS at
-btrfs_quota_enable(), which is possible if someone already called the
-quota rescan ioctl, and therefore started the rescan worker.
+Since memzero_extent_buffer() will reset "struct btrfs_header" part, we
+can't move btrfs_set_header_generation() to before memzero_extent_buffer().
+Just re-add btrfs_set_header_generation() before btrfs_clean_tree_block().
 
-So fix this by ignoring an -EINPROGRESS and asserting we can't get any
-other error.
-
-Reported-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/linux-btrfs/20220823015931.421355-1-yebin10@huawei.com/
+Link: https://syzkaller.appspot.com/bug?extid=fba8e2116a12609b6c59 [1]
+Reported-by: syzbot <syzbot+fba8e2116a12609b6c59@syzkaller.appspotmail.com>
+Fixes: bc877d285ca3dba2 ("btrfs: Deduplicate extent_buffer init code")
 CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/qgroup.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ fs/btrfs/extent-tree.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -1174,6 +1174,21 @@ out_add_root:
- 		fs_info->qgroup_rescan_running = true;
- 	        btrfs_queue_work(fs_info->qgroup_rescan_workers,
- 	                         &fs_info->qgroup_rescan_work);
-+	} else {
-+		/*
-+		 * We have set both BTRFS_FS_QUOTA_ENABLED and
-+		 * BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with
-+		 * -EINPROGRESS. That can happen because someone started the
-+		 * rescan worker by calling quota rescan ioctl before we
-+		 * attempted to initialize the rescan worker. Failure due to
-+		 * quotas disabled in the meanwhile is not possible, because
-+		 * we are holding a write lock on fs_info->subvol_sem, which
-+		 * is also acquired when disabling quotas.
-+		 * Ignore such error, and any other error would need to undo
-+		 * everything we did in the transaction we just committed.
-+		 */
-+		ASSERT(ret == -EINPROGRESS);
-+		ret = 0;
- 	}
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -4904,6 +4904,9 @@ btrfs_init_new_buffer(struct btrfs_trans
+ 	    !test_bit(BTRFS_ROOT_RESET_LOCKDEP_CLASS, &root->state))
+ 		lockdep_owner = BTRFS_FS_TREE_OBJECTID;
  
- out_free_path:
++	/* btrfs_clean_tree_block() accesses generation field. */
++	btrfs_set_header_generation(buf, trans->transid);
++
+ 	/*
+ 	 * This needs to stay, because we could allocate a freed block from an
+ 	 * old tree into a new tree, so we need to make sure this new block is
 
 
