@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C9F2608A56
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:51:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D2F7608AC4
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:06:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234515AbiJVIvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:51:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44258 "EHLO
+        id S232019AbiJVJGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 05:06:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234964AbiJVItP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:49:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4F5480F58;
-        Sat, 22 Oct 2022 01:10:33 -0700 (PDT)
+        with ESMTP id S234135AbiJVJEj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:04:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2A891B7B0;
+        Sat, 22 Oct 2022 01:19:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 625C360B94;
-        Sat, 22 Oct 2022 08:07:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59536C433D7;
-        Sat, 22 Oct 2022 08:07:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEAF760B9A;
+        Sat, 22 Oct 2022 08:07:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85AA5C433D7;
+        Sat, 22 Oct 2022 08:07:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426050;
-        bh=SfovaiwKGLjcp/SsOJAxEXvxF9kuiamt4gaWeahnRxA=;
+        s=korg; t=1666426060;
+        bh=cevrSgJp5/K+gljJsjmLJh8wwK0TipvFRgrsfKwaDf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X4qC1DPzOiZL+1dWi7NbGw9EwKuwy2enhjTYT6RvQqi0+vJw/6VEAE7AG8PvHlFGz
-         P8HjSxmBdO9iCTsMgBB1lMQEC/VHWXGfIwpf7Z6TbmQAgmqq4xREh5x+zmFWVx/CIX
-         VsS9CrDdfix09IRqaZzttqgK3m8q7Dhckh1hAacQ=
+        b=tPpJ7uzJ2RkAWj6iMiy3s/mFIilAvBVFXLjS1hUzrw/9mg89n6S+O8PNZquHnzHFk
+         pAWhbKBeNSNPKpvfE1yHgaytNPwnCYXE+/WPOOOkLsglWJN6RWAl/9tx9urUNH/LHt
+         PpApmNtx/vWnS2SvJuCWrBTO3++gPDyOJeIkMZGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Ravi Gunasekaran <r-gunasekaran@ti.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 703/717] net: ethernet: ti: davinci_mdio: fix build for mdio bitbang uses
-Date:   Sat, 22 Oct 2022 09:29:42 +0200
-Message-Id: <20221022072529.547751759@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 705/717] Revert "net/ieee802154: reject zero-sized raw_sendmsg()"
+Date:   Sat, 22 Oct 2022 09:29:44 +0200
+Message-Id: <20221022072529.625640698@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -58,46 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit 35bbe652c421037822aba29423f5f1f7d0d69f3f upstream.
+[ Upstream commit 2eb2756f6c9e9621e022d78321ce40a62c4520b5 ]
 
-davinci_mdio.c uses mdio bitbang APIs, so it should select
-MDIO_BITBANG to prevent build errors.
+This reverts commit 3a4d061c699bd3eedc80dc97a4b2a2e1af83c6f5.
 
-arm-linux-gnueabi-ld: drivers/net/ethernet/ti/davinci_mdio.o: in function `davinci_mdio_remove':
-drivers/net/ethernet/ti/davinci_mdio.c:649: undefined reference to `free_mdio_bitbang'
-arm-linux-gnueabi-ld: drivers/net/ethernet/ti/davinci_mdio.o: in function `davinci_mdio_probe':
-drivers/net/ethernet/ti/davinci_mdio.c:545: undefined reference to `alloc_mdio_bitbang'
-arm-linux-gnueabi-ld: drivers/net/ethernet/ti/davinci_mdio.o: in function `davinci_mdiobb_read':
-drivers/net/ethernet/ti/davinci_mdio.c:236: undefined reference to `mdiobb_read'
-arm-linux-gnueabi-ld: drivers/net/ethernet/ti/davinci_mdio.o: in function `davinci_mdiobb_write':
-drivers/net/ethernet/ti/davinci_mdio.c:253: undefined reference to `mdiobb_write'
+There is a v2 which does return zero if zero length is given.
 
-Fixes: d04807b80691 ("net: ethernet: ti: davinci_mdio: Add workaround for errata i2329")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Ravi Gunasekaran <r-gunasekaran@ti.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: Sudip Mukherjee (Codethink) <sudipm.mukherjee@gmail.com>
-Link: https://lore.kernel.org/r/20220824024216.4939-1-rdunlap@infradead.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20221005014750.3685555-1-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ net/ieee802154/socket.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/net/ethernet/ti/Kconfig
-+++ b/drivers/net/ethernet/ti/Kconfig
-@@ -33,6 +33,7 @@ config TI_DAVINCI_MDIO
- 	tristate "TI DaVinci MDIO Support"
- 	depends on ARCH_DAVINCI || ARCH_OMAP2PLUS || ARCH_KEYSTONE || ARCH_K3 || COMPILE_TEST
- 	select PHYLIB
-+	select MDIO_BITBANG
- 	help
- 	  This driver supports TI's DaVinci MDIO module.
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index cbd0e2ac4ffe..7889e1ef7fad 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -251,9 +251,6 @@ static int raw_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 		return -EOPNOTSUPP;
+ 	}
  
+-	if (!size)
+-		return -EINVAL;
+-
+ 	lock_sock(sk);
+ 	if (!sk->sk_bound_dev_if)
+ 		dev = dev_getfirstbyhwtype(sock_net(sk), ARPHRD_IEEE802154);
+-- 
+2.35.1
+
 
 
