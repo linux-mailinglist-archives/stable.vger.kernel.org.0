@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69589608718
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:56:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86DE2608723
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:56:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232238AbiJVH4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:56:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47390 "EHLO
+        id S232059AbiJVH43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:56:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232301AbiJVHyj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:39 -0400
+        with ESMTP id S232408AbiJVHyz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C4EF951F8;
-        Sat, 22 Oct 2022 00:47:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 851D2356D5;
+        Sat, 22 Oct 2022 00:47:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A268AB82E21;
-        Sat, 22 Oct 2022 07:46:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EAF1C433D6;
-        Sat, 22 Oct 2022 07:46:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45D00B82E0C;
+        Sat, 22 Oct 2022 07:46:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7CA1C433C1;
+        Sat, 22 Oct 2022 07:46:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424798;
-        bh=jOc7LW7IWzijjP0DhfLG0KzytqA6AuX/PkOEIoEOpsI=;
+        s=korg; t=1666424801;
+        bh=Ru4G+3ge//H9NJZQ0OiqM6QGQaZIT8gVzXirC+yW40U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0sEyyisHfz028LOIqlDOr8exRAAq+I6Q9n5IMQPbcM7wZu7ECXIbkiyRKKwE8Mz+
-         idRsZHehtujP2Z0OhVRmg/VcXmMDOgK+SfW1LInJUO+++kM1t+iEhlZ8+ldZs03Fau
-         qcfgRz6kn0Dp6tWSLqdZkJAMhjLVvDjhxdK98Gn8=
+        b=CFNYtnh9t8AMlbNi/4lgEgqedKr6w0QzY1XEjHFAtUlDsFnRxFQi4qoYSoOJ+fjwC
+         P2yjwJQBicmGXGCGqlX5EqhzKQz/r206eC3fkQHuntvvoht6NrQYKx95840WUJJuVs
+         e2WT/3+3Y0OM6wLNdvzvncNH7+P7j9wwjOhTQ7oQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
+        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
+        "Kevin(Yudong) Yang" <yyd@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 280/717] sctp: handle the error returned from sctp_auth_asoc_init_active_key
-Date:   Sat, 22 Oct 2022 09:22:39 +0200
-Message-Id: <20221022072503.424041248@linuxfoundation.org>
+Subject: [PATCH 5.19 281/717] tcp: fix tcp_cwnd_validate() to not forget is_cwnd_limited
+Date:   Sat, 22 Oct 2022 09:22:40 +0200
+Message-Id: <20221022072503.542307241@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,77 +56,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Neal Cardwell <ncardwell@google.com>
 
-[ Upstream commit 022152aaebe116a25c39818a07e175a8cd3c1e11 ]
+[ Upstream commit f4ce91ce12a7c6ead19b128ffa8cff6e3ded2a14 ]
 
-When it returns an error from sctp_auth_asoc_init_active_key(), the
-active_key is actually not updated. The old sh_key will be freeed
-while it's still used as active key in asoc. Then an use-after-free
-will be triggered when sending patckets, as found by syzbot:
+This commit fixes a bug in the tracking of max_packets_out and
+is_cwnd_limited. This bug can cause the connection to fail to remember
+that is_cwnd_limited is true, causing the connection to fail to grow
+cwnd when it should, causing throughput to be lower than it should be.
 
-  sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
-  sctp_set_owner_w net/sctp/socket.c:132 [inline]
-  sctp_sendmsg_to_asoc+0xbd5/0x1a20 net/sctp/socket.c:1863
-  sctp_sendmsg+0x1053/0x1d50 net/sctp/socket.c:2025
-  inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:819
-  sock_sendmsg_nosec net/socket.c:714 [inline]
-  sock_sendmsg+0xcf/0x120 net/socket.c:734
+The following event sequence is an example that triggers the bug:
 
-This patch is to fix it by not replacing the sh_key when it returns
-errors from sctp_auth_asoc_init_active_key() in sctp_auth_set_key().
-For sctp_auth_set_active_key(), old active_key_id will be set back
-to asoc->active_key_id when the same thing happens.
+ (a) The connection is cwnd_limited, but packets_out is not at its
+     peak due to TSO deferral deciding not to send another skb yet.
+     In such cases the connection can advance max_packets_seq and set
+     tp->is_cwnd_limited to true and max_packets_out to a small
+     number.
 
-Fixes: 58acd1009226 ("sctp: update active_key for asoc when old key is being replaced")
-Reported-by: syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
+(b) Then later in the round trip the connection is pacing-limited (not
+     cwnd-limited), and packets_out is larger. In such cases the
+     connection would raise max_packets_out to a bigger number but
+     (unexpectedly) flip tp->is_cwnd_limited from true to false.
+
+This commit fixes that bug.
+
+One straightforward fix would be to separately track (a) the next
+window after max_packets_out reaches a maximum, and (b) the next
+window after tp->is_cwnd_limited is set to true. But this would
+require consuming an extra u32 sequence number.
+
+Instead, to save space we track only the most important
+information. Specifically, we track the strongest available signal of
+the degree to which the cwnd is fully utilized:
+
+(1) If the connection is cwnd-limited then we remember that fact for
+the current window.
+
+(2) If the connection not cwnd-limited then we track the maximum
+number of outstanding packets in the current window.
+
+In particular, note that the new logic cannot trigger the buggy
+(a)/(b) sequence above because with the new logic a condition where
+tp->packets_out > tp->max_packets_out can only trigger an update of
+tp->is_cwnd_limited if tp->is_cwnd_limited is false.
+
+This first showed up in a testing of a BBRv2 dev branch, but this
+buggy behavior highlighted a general issue with the
+tcp_cwnd_validate() logic that can cause cwnd to fail to increase at
+the proper rate for any TCP congestion control, including Reno or
+CUBIC.
+
+Fixes: ca8a22634381 ("tcp: make cwnd-limited checks measurement-based, and gentler")
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Kevin(Yudong) Yang <yyd@google.com>
+Signed-off-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/auth.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ include/linux/tcp.h   |  2 +-
+ include/net/tcp.h     |  5 ++++-
+ net/ipv4/tcp.c        |  2 ++
+ net/ipv4/tcp_output.c | 19 ++++++++++++-------
+ 4 files changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/net/sctp/auth.c b/net/sctp/auth.c
-index db6b7373d16c..34964145514e 100644
---- a/net/sctp/auth.c
-+++ b/net/sctp/auth.c
-@@ -863,12 +863,17 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
- 	}
+diff --git a/include/linux/tcp.h b/include/linux/tcp.h
+index 1168302b7927..bb31d60addac 100644
+--- a/include/linux/tcp.h
++++ b/include/linux/tcp.h
+@@ -265,7 +265,7 @@ struct tcp_sock {
+ 	u32	packets_out;	/* Packets which are "in flight"	*/
+ 	u32	retrans_out;	/* Retransmitted packets out		*/
+ 	u32	max_packets_out;  /* max packets_out in last window */
+-	u32	max_packets_seq;  /* right edge of max_packets_out flight */
++	u32	cwnd_usage_seq;  /* right edge of cwnd usage tracking flight */
  
- 	list_del_init(&shkey->key_list);
--	sctp_auth_shkey_release(shkey);
- 	list_add(&cur_key->key_list, sh_keys);
+ 	u16	urg_data;	/* Saved octet of OOB data and control flags */
+ 	u8	ecn_flags;	/* ECN status bits.			*/
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 78a64e1b33a7..788b1f17b5e3 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1289,11 +1289,14 @@ static inline bool tcp_is_cwnd_limited(const struct sock *sk)
+ {
+ 	const struct tcp_sock *tp = tcp_sk(sk);
  
--	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
--		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+	if (asoc && asoc->active_key_id == auth_key->sca_keynumber &&
-+	    sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
-+		list_del_init(&cur_key->key_list);
-+		sctp_auth_shkey_release(cur_key);
-+		list_add(&shkey->key_list, sh_keys);
-+		return -ENOMEM;
-+	}
++	if (tp->is_cwnd_limited)
++		return true;
++
+ 	/* If in slow start, ensure cwnd grows to twice what was ACKed. */
+ 	if (tcp_in_slow_start(tp))
+ 		return tcp_snd_cwnd(tp) < 2 * tp->max_packets_out;
  
-+	sctp_auth_shkey_release(shkey);
- 	return 0;
+-	return tp->is_cwnd_limited;
++	return false;
  }
  
-@@ -902,8 +907,13 @@ int sctp_auth_set_active_key(struct sctp_endpoint *ep,
- 		return -EINVAL;
+ /* BBR congestion control needs pacing.
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index ab03977b6578..f82cd6eb7088 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -3042,6 +3042,8 @@ int tcp_disconnect(struct sock *sk, int flags)
+ 	tp->snd_ssthresh = TCP_INFINITE_SSTHRESH;
+ 	tcp_snd_cwnd_set(tp, TCP_INIT_CWND);
+ 	tp->snd_cwnd_cnt = 0;
++	tp->is_cwnd_limited = 0;
++	tp->max_packets_out = 0;
+ 	tp->window_clamp = 0;
+ 	tp->delivered = 0;
+ 	tp->delivered_ce = 0;
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index 84314de754f8..a16139cacc45 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1875,15 +1875,20 @@ static void tcp_cwnd_validate(struct sock *sk, bool is_cwnd_limited)
+ 	const struct tcp_congestion_ops *ca_ops = inet_csk(sk)->icsk_ca_ops;
+ 	struct tcp_sock *tp = tcp_sk(sk);
  
- 	if (asoc) {
-+		__u16  active_key_id = asoc->active_key_id;
-+
- 		asoc->active_key_id = key_id;
--		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+		if (sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
-+			asoc->active_key_id = active_key_id;
-+			return -ENOMEM;
-+		}
- 	} else
- 		ep->active_key_id = key_id;
+-	/* Track the maximum number of outstanding packets in each
+-	 * window, and remember whether we were cwnd-limited then.
++	/* Track the strongest available signal of the degree to which the cwnd
++	 * is fully utilized. If cwnd-limited then remember that fact for the
++	 * current window. If not cwnd-limited then track the maximum number of
++	 * outstanding packets in the current window. (If cwnd-limited then we
++	 * chose to not update tp->max_packets_out to avoid an extra else
++	 * clause with no functional impact.)
+ 	 */
+-	if (!before(tp->snd_una, tp->max_packets_seq) ||
+-	    tp->packets_out > tp->max_packets_out ||
+-	    is_cwnd_limited) {
+-		tp->max_packets_out = tp->packets_out;
+-		tp->max_packets_seq = tp->snd_nxt;
++	if (!before(tp->snd_una, tp->cwnd_usage_seq) ||
++	    is_cwnd_limited ||
++	    (!tp->is_cwnd_limited &&
++	     tp->packets_out > tp->max_packets_out)) {
+ 		tp->is_cwnd_limited = is_cwnd_limited;
++		tp->max_packets_out = tp->packets_out;
++		tp->cwnd_usage_seq = tp->snd_nxt;
+ 	}
  
+ 	if (tcp_is_cwnd_limited(sk)) {
 -- 
 2.35.1
 
