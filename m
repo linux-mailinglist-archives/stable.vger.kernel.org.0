@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9622B6086E5
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A55B7608681
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:50:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231869AbiJVHzM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:55:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56428 "EHLO
+        id S231650AbiJVHuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:50:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231962AbiJVHxL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:53:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 323A92CA7D0;
-        Sat, 22 Oct 2022 00:46:54 -0700 (PDT)
+        with ESMTP id S231854AbiJVHt0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B20D7173FD5;
+        Sat, 22 Oct 2022 00:45:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6DDA60BB8;
-        Sat, 22 Oct 2022 07:44:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8E9AC433C1;
-        Sat, 22 Oct 2022 07:44:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 549EAB82E13;
+        Sat, 22 Oct 2022 07:44:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C07C433C1;
+        Sat, 22 Oct 2022 07:44:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424687;
-        bh=7ZzkCr20JnkiwmkmTiSJfuITjuLNjcYgYZSQfOnkhSM=;
+        s=korg; t=1666424690;
+        bh=A50efcMezfHBVBM3mdxcEfLUQK/RuFshzE7sArVfLNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N79iC+JcO5weRvZgVn0krGCT9RebZqcYSzXC+7EDBbPBfjVApnhVDxel+lTAtZuZn
-         XtRyhcBgB0m5bd39zEa7cukjRzHT0KZt8STTfqFc0cf2dKi+BOZ1lgLRxCTuoUIsr+
-         eFQEH6sNgcDXNdL9VYaT+wxcBVdyXQcuKB6WUl/g=
+        b=vMvlb3I6pdwJSsQUOGxoaMPkI7PShgbivu6h84KGQD4Z3UclDqkWWIAn1wDSOMeoi
+         I6jmCH+zXkywMH7Sl/lYZnv704KNRZa8NHsDBACqo4zsLsogDrHfIH7r1jVbZVCKVm
+         4OrBVOiyw6KySDrE/qEf0V2jdpXm91Fa3N5tHBG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, YN Chen <YN.Chen@mediatek.com>,
         Sean Wang <sean.wang@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 239/717] wifi: mt76: mt7921u: fix race issue between reset and suspend/resume
-Date:   Sat, 22 Oct 2022 09:21:58 +0200
-Message-Id: <20221022072457.262097154@linuxfoundation.org>
+Subject: [PATCH 5.19 240/717] wifi: mt76: sdio: fix the deadlock caused by sdio->stat_work
+Date:   Sat, 22 Oct 2022 09:21:59 +0200
+Message-Id: <20221022072457.410525308@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,98 +55,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit 86f15d043ba7f13211d5c3e41961c3381fb12880 ]
+[ Upstream commit e5d78fd998be94fb459a3d625df7367849b997b8 ]
 
-It is unexpected that the reset work is running simultaneously with
-the suspend or resume context and it is possible that reset work is still
-running even after mt7921 is suspended if we don't fix the race issue.
+Because wake_work and sdio->stat_work share the same workqueue mt76->wq,
+if sdio->stat_work cannot acquire the mutex lock such as that was possibly
+held up by [mt7615, mt7921]_mutex_acquire. Additionally, if
+[mt7615, mt7921]_mutex_acquire was called by sdio->stat_work self, the wake
+would be blocked by itself. Thus, we move the stat_work into
+ieee80211_workqueue instead to break the deadlock.
 
-Thus, the suspend procedure should be waiting until the reset is completed
-at the beginning and ignore the subsequent the reset requests.
-
-In case there is an error that happens during either suspend or resume
-handler, we will schedule a reset task to recover the error before
-returning the error code to ensure we can immediately fix the error there.
-
-Fixes: df3e4143ba8a ("mt76: mt7921u: add suspend/resume support")
+Fixes: d39b52e31aa6 ("mt76: introduce mt76_sdio module")
 Co-developed-by: YN Chen <YN.Chen@mediatek.com>
 Signed-off-by: YN Chen <YN.Chen@mediatek.com>
 Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt7921/usb.c   | 28 ++++++++++++++++---
- 1 file changed, 24 insertions(+), 4 deletions(-)
+ drivers/net/wireless/mediatek/mt76/sdio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/usb.c b/drivers/net/wireless/mediatek/mt76/mt7921/usb.c
-index dc38baef273a..25b4a8001b9e 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/usb.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/usb.c
-@@ -292,11 +292,15 @@ static void mt7921u_disconnect(struct usb_interface *usb_intf)
- static int mt7921u_suspend(struct usb_interface *intf, pm_message_t state)
- {
- 	struct mt7921_dev *dev = usb_get_intfdata(intf);
-+	struct mt76_connac_pm *pm = &dev->pm;
- 	int err;
+diff --git a/drivers/net/wireless/mediatek/mt76/sdio.c b/drivers/net/wireless/mediatek/mt76/sdio.c
+index def7f325f5c5..574687ca93a9 100644
+--- a/drivers/net/wireless/mediatek/mt76/sdio.c
++++ b/drivers/net/wireless/mediatek/mt76/sdio.c
+@@ -483,7 +483,7 @@ static void mt76s_status_worker(struct mt76_worker *w)
+ 		if (dev->drv->tx_status_data &&
+ 		    !test_and_set_bit(MT76_READING_STATS, &dev->phy.state) &&
+ 		    !test_bit(MT76_STATE_SUSPEND, &dev->phy.state))
+-			queue_work(dev->wq, &dev->sdio.stat_work);
++			ieee80211_queue_work(dev->hw, &dev->sdio.stat_work);
+ 	} while (nframes > 0);
  
-+	pm->suspended = true;
-+	flush_work(&dev->reset_work);
-+
- 	err = mt76_connac_mcu_set_hif_suspend(&dev->mt76, true);
- 	if (err)
--		return err;
-+		goto failed;
- 
- 	mt76u_stop_rx(&dev->mt76);
- 	mt76u_stop_tx(&dev->mt76);
-@@ -304,11 +308,20 @@ static int mt7921u_suspend(struct usb_interface *intf, pm_message_t state)
- 	set_bit(MT76_STATE_SUSPEND, &dev->mphy.state);
- 
- 	return 0;
-+
-+failed:
-+	pm->suspended = false;
-+
-+	if (err < 0)
-+		mt7921_reset(&dev->mt76);
-+
-+	return err;
- }
- 
- static int mt7921u_resume(struct usb_interface *intf)
- {
- 	struct mt7921_dev *dev = usb_get_intfdata(intf);
-+	struct mt76_connac_pm *pm = &dev->pm;
- 	bool reinit = true;
- 	int err, i;
- 
-@@ -330,16 +343,23 @@ static int mt7921u_resume(struct usb_interface *intf)
- 	if (reinit || mt7921_dma_need_reinit(dev)) {
- 		err = mt7921u_dma_init(dev, true);
- 		if (err)
--			return err;
-+			goto failed;
+ 	if (resched)
+@@ -510,7 +510,7 @@ static void mt76s_tx_status_data(struct work_struct *work)
  	}
  
- 	clear_bit(MT76_STATE_SUSPEND, &dev->mphy.state);
- 
- 	err = mt76u_resume_rx(&dev->mt76);
- 	if (err < 0)
--		return err;
-+		goto failed;
-+
-+	err = mt76_connac_mcu_set_hif_suspend(&dev->mt76, false);
-+failed:
-+	pm->suspended = false;
-+
-+	if (err < 0)
-+		mt7921_reset(&dev->mt76);
- 
--	return mt76_connac_mcu_set_hif_suspend(&dev->mt76, false);
-+	return err;
+ 	if (count && test_bit(MT76_STATE_RUNNING, &dev->phy.state))
+-		queue_work(dev->wq, &sdio->stat_work);
++		ieee80211_queue_work(dev->hw, &sdio->stat_work);
+ 	else
+ 		clear_bit(MT76_READING_STATS, &dev->phy.state);
  }
- #endif /* CONFIG_PM */
- 
 -- 
 2.35.1
 
