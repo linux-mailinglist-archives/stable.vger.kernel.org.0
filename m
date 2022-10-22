@@ -2,114 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F6296084A4
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 07:39:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9995F608515
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 08:28:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229796AbiJVFjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 01:39:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60042 "EHLO
+        id S229576AbiJVG2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 02:28:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbiJVFju (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 01:39:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C197D4D816;
-        Fri, 21 Oct 2022 22:39:41 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82CD960A6E;
-        Sat, 22 Oct 2022 05:39:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40640C433D6;
-        Sat, 22 Oct 2022 05:39:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666417180;
-        bh=hqdMY7yPv6V7HyzJ2Rim7EGPPF8KuXBPRX6lKlqeDGg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hZz3xX8LTH1IjkRCd7879LdRGN5fqr1oSjqfYbs6qQga6C2KYW4qBkOnuWYErFZXm
-         d2eV8daHdyiRJXPxtaRqKYUMOfMtJsnDlDS89l6CYy8k+q/EoQgPQSYqnVWdQwp7zQ
-         VfZ4DRoBQKuKgdfH6WNxvyv0+lINu9Ud+fU9vjew=
-Date:   Sat, 22 Oct 2022 07:40:30 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Joe Korty <joe.korty@concurrent-rt.com>
-Cc:     Marc Zyngier <maz@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] arm64: arch_timer: XGene-1 has 31 bit, not 32 bit, arch
- timer.
-Message-ID: <Y1OCTh4z4qh8kx4I@kroah.com>
-References: <20221021153424.GA25677@zipoli.concurrent-rt.com>
- <864jvxnj65.wl-maz@kernel.org>
- <20221021194746.GA5830@zipoli.concurrent-rt.com>
+        with ESMTP id S229491AbiJVG2C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 02:28:02 -0400
+X-Greylist: delayed 17851 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 21 Oct 2022 23:28:00 PDT
+Received: from cloud.joominahost.com (cloud.joominahost.com [95.217.54.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4005D2AD9DD
+        for <stable@vger.kernel.org>; Fri, 21 Oct 2022 23:27:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=oraldesign-iran.com; s=default; h=Content-Transfer-Encoding:Content-Type:
+        MIME-Version:Message-ID:From:Date:Subject:To:Sender:Reply-To:Cc:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=XbJunz+GiZM77nGbTYw9fFDUPlkKOhTOsbz3zUgj9YI=; b=j3JJTPErq78hFfUZolRm/1GAet
+        t3RYFpWp7uDvKOEAu0OcRtDLsaUxXshjiPTpAnGEl8sn6HTgdBqcsQ8lDfHuoS8EPIhM1p5NEi4pp
+        DBdn8es01Z6/bT678ccg8l1C5bIpdSvgES+KVnVAp2biPI1VA1WG9qKl2S1Kwz7OfCqU0cwswO10e
+        mLuFTySa43ow3H3AHprFxYEU5+OS3d3ZV48E8jdFdqARVlOJlsJ0v+yobJJRa/wia3r5Eut/hAD6k
+        CkreNp8GpdvChfhdUW3W8341aq1qJjGPTsGSALav7n0NInVU7Im0eCL9wcydPJlm3/YqgbnNliI9G
+        EWlmKC0Q==;
+Received: from oraldesi by cloud.joominahost.com with local (Exim 4.95)
+        (envelope-from <info@oraldesign-iran.com>)
+        id 1om3LD-005Og7-Ns
+        for stable@vger.kernel.org;
+        Fri, 21 Oct 2022 21:30:23 -0400
+To:     stable@vger.kernel.org
+Subject: =?utf-8?B?2YXYtNiu2LXYp9iqINit2LPYp9ioINqp2KfYsdio2LHbjCDYqNix2KfbjCBi?=  =?utf-8?B?aWdfaG9tZV9tb3ZpZXNfc2V4IGlqcS5wYWdlLmxpbms=?=  =?utf-8?B?L3FDUUEjU29pbGQg2K/YsSDZhdix2qnYsiDYp9mI2LHYp9mEINiv24zYstin?=  =?utf-8?B?24zZhiDYp9uM2LHYp9mG?=
+X-PHP-Script: oraldesign-iran.com/index.php for 109.169.158.135
+X-PHP-Originating-Script: 1927:class.phpmailer.php
+Date:   Sat, 22 Oct 2022 01:30:23 +0000
+From:   =?utf-8?B?2YXYsdqp2LIg2KfZiNix2KfZhCDYr9uM2LLYp9uM2YYg2KfbjNix2KfZhg==?= 
+        <info@oraldesign-iran.com>
+Message-ID: <6e14eafeebba32aeb7f623d5877b9695@oraldesign-iran.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221021194746.GA5830@zipoli.concurrent-rt.com>
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-YourOrg-MailScanner-Information: Please contact the ISP for more information
+X-YourOrg-MailScanner-ID: 1om3LD-005Og7-Ns
+X-YourOrg-MailScanner: Found to be clean
+X-YourOrg-MailScanner-SpamCheck: 
+X-YourOrg-MailScanner-From: info@oraldesign-iran.com
+X-Spam-Status: Yes, score=5.6 required=5.0 tests=BAYES_50,DATE_IN_PAST_03_06,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PHP_SCRIPT,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLACK autolearn=no autolearn_force=no
+        version=3.4.6
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cloud.joominahost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1927 993] / [47 12]
+X-AntiAbuse: Sender Address Domain - oraldesign-iran.com
+X-Get-Message-Sender-Via: cloud.joominahost.com: authenticated_id: oraldesi/from_h
+X-Authenticated-Sender: cloud.joominahost.com: info@oraldesign-iran.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  1.7 URIBL_BLACK Contains an URL listed in the URIBL blacklist
+        *      [URIs: olr.page.link]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  1.6 DATE_IN_PAST_03_06 Date: is 3 to 6 hours before Received: date
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  1.7 PHP_SCRIPT Sent by PHP script
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 21, 2022 at 03:47:46PM -0400, Joe Korty wrote:
-> Hi Marc,
-> 
-> On Fri, Oct 21, 2022 at 07:08:50PM +0100, Marc Zyngier wrote:
-> > Sorry, but you'll have to provide a bit more of an analysis here. As
-> > far as I can tell, you're just changing a parameter without properly
-> > describing what breaks and how.
-> 
-> There isn't much to analyse.  For ages, 0x7fffffff (31 bits) was the
-> declared width of 'arch timer' for all arm architures, and that worked.
-> Your patch series made the declared width vary according to which chipset
-> was in use, which is good, but that rewrite changed the above mask for
-> the XGene-1 from 0x7fffffff to 0xffffffff.  That change broke timers
-> for the XGene-1 since it seems that, in actuality, it has only a 31 bit
-> wide arch timer.  Thus declaring that arch timer has 32-bits is wrong.
-> This mismatch between the actual and declared sizes would cause arithmetic
-> errors in the calculation of timer deltas which more than accounts for
-> the hrtimer failures I am seeing when running 5.16+ on my Mustang XGene1.
-> 
-> Only one line need change, the rest are fluff:
-> 
-> -             return CLOCKSOURCE_MASK(32);
-> +             return CLOCKSOURCE_MASK(31);
-> 
-> > Also, this isn't much of a patch.
-> 
-> I don't know what this means.  The patch contains all that is needed for
-> the fix, no more.  I could add more comments as to _why_ it is 31 bits
-> not 32, but I don't know why.  I only know that the motherboard behaves
-> as if 31 bits is all that is available in the hardware.
-> 
-> > Please see the documentation on how to properly submit one.
-> 
-> AFAICS, the only submission mistake is that the 'Cc: stable@vger.kernel.org'
-> line is missing.
+سلام big_home_movies_sex
+ ijq.page.link/qCQA#
+Soild عزیز به وب سایت ما خوش آمدید،
 
-No, you need a much better changelog text and probably subject line, and
-to properly cc: the correct maintainers and developers.  As my bot would
-say:
+از اینکه در وب سایت مرکز اورال دیزاین ایران ثبت نام نموده اید متشکریم.
 
-- Kernel development is done in public, please always cc: a public
-  mailing list with a patch submission.  Using the tool,
-  scripts/get_maintainer.pl on the patch will tell you what mailing list
-  to cc.
+شما هم اکنون می توانید در سایت https://www.oraldesign-iran.com/ با استفاده از نام کاربری و رمز عبور زیر وارد شوید:
 
-- You did not specify a description of why the patch is needed, or
-  possibly, any description at all, in the email body.  Please read the
-  section entitled "The canonical patch format" in the kernel file,
-  Documentation/SubmittingPatches for what is needed in order to
-  properly describe the change.
+نام کاربری: big_home_movies_sex ijq.page.link/qCQA#Soild
+رمز عبور: best_way_for_oral_sex
+ olr.page.link/KH9p#
+Bup
 
-- You did not write a descriptive Subject: for the patch, allowing Greg,
-  and everyone else, to know what this patch is all about.  Please read
-  the section entitled "The canonical patch format" in the kernel file,
-  Documentation/SubmittingPatches for what a proper Subject: line should
-  look like.
-
-
-Thanks,
-
-greg k-h
