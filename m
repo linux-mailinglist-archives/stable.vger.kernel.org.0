@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65441608A8E
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:00:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C135608993
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:37:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235045AbiJVJAr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 05:00:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37036 "EHLO
+        id S234363AbiJVIhf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:37:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235173AbiJVI7U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:59:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A7B9295B1F;
-        Sat, 22 Oct 2022 01:16:19 -0700 (PDT)
+        with ESMTP id S234576AbiJVIfx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:35:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A118153D1D;
+        Sat, 22 Oct 2022 01:04:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E44F60B23;
-        Sat, 22 Oct 2022 08:04:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40393C433C1;
-        Sat, 22 Oct 2022 08:04:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C18560ADC;
+        Sat, 22 Oct 2022 08:04:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53503C433D6;
+        Sat, 22 Oct 2022 08:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425881;
-        bh=68QUrxDYF+PVlFxrrny2cf5HOMi/5kXxGhpmdQA+QS0=;
+        s=korg; t=1666425884;
+        bh=eHV1aJFxZYib1ONBCUtCKxxKWY0nN7MLKb5IBx+tpRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Na9M/vZPiCzv5xFqRVLiJnppF0aEVWQtqopCGDV/5Qz1mN6frcoUICehK6Uu3Rifk
-         +N3Pr6lqkS3Nm/kRzAemTEd4qcAZGfeDVqodOgeQSiw4+2/p1n+pQeW9cUn0mqOnCV
-         0shRMDaGJu+ZxK7eOkSPmCN79oHJw/HRdzzmib6Y=
+        b=SEI+ECDov1noYbDcR7rOw8/SYsdf6k2sKvHpckl+8/cPgzNIIfFxDmi1wWRr57Egz
+         37w9Oum7wfS7jVna6YQKSoYELAeBxNZvsvi2ImNwVwQEwxct6ctLWA6uaK2sQ0HxNt
+         HsqCO4xdgWWEFD845UrYhSa8LOZdM18+b8ODcZKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
+        Linus Waleij <linus.walleij@linaro.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 646/717] btrfs: call __btrfs_remove_free_space_cache_locked on cache load failure
-Date:   Sat, 22 Oct 2022 09:28:45 +0200
-Message-Id: <20221022072527.027923827@linuxfoundation.org>
+Subject: [PATCH 5.19 647/717] ARM: 9233/1: stacktrace: Skip frame pointer boundary check for call_with_stack()
+Date:   Sat, 22 Oct 2022 09:28:46 +0200
+Message-Id: <20221022072527.063409588@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,150 +54,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Li Huafei <lihuafei1@huawei.com>
 
-[ Upstream commit 8a1ae2781dee9fc21ca82db682d37bea4bd074ad ]
+[ Upstream commit 5854e4d8530e6ed4c2532a71a6b0474e199d44dd ]
 
-Now that lockdep is staying enabled through our entire CI runs I started
-seeing the following stack in generic/475
+When using the frame pointer unwinder, it was found that the stack trace
+output of stack_trace_save() is incomplete if the stack contains
+call_with_stack():
 
-------------[ cut here ]------------
-WARNING: CPU: 1 PID: 2171864 at fs/btrfs/discard.c:604 btrfs_discard_update_discardable+0x98/0xb0
-CPU: 1 PID: 2171864 Comm: kworker/u4:0 Not tainted 5.19.0-rc8+ #789
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-Workqueue: btrfs-cache btrfs_work_helper
-RIP: 0010:btrfs_discard_update_discardable+0x98/0xb0
-RSP: 0018:ffffb857c2f7bad0 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: ffff8c85c605c200 RCX: 0000000000000001
-RDX: 0000000000000000 RSI: ffffffff86807c5b RDI: ffffffff868a831e
-RBP: ffff8c85c4c54000 R08: 0000000000000000 R09: 0000000000000000
-R10: ffff8c85c66932f0 R11: 0000000000000001 R12: ffff8c85c3899010
-R13: ffff8c85d5be4f40 R14: ffff8c85c4c54000 R15: ffff8c86114bfa80
-FS:  0000000000000000(0000) GS:ffff8c863bd00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f2e7f168160 CR3: 000000010289a004 CR4: 0000000000370ee0
-Call Trace:
+ [0x7f00002c] dump_stack_task+0x2c/0x90 [hrtimer]
+ [0x7f0000a0] hrtimer_hander+0x10/0x18 [hrtimer]
+ [0x801a67f0] __hrtimer_run_queues+0x1b0/0x3b4
+ [0x801a7350] hrtimer_run_queues+0xc4/0xd8
+ [0x801a597c] update_process_times+0x3c/0x88
+ [0x801b5a98] tick_periodic+0x50/0xd8
+ [0x801b5bf4] tick_handle_periodic+0x24/0x84
+ [0x8010ffc4] twd_handler+0x38/0x48
+ [0x8017d220] handle_percpu_devid_irq+0xa8/0x244
+ [0x80176e9c] generic_handle_domain_irq+0x2c/0x3c
+ [0x8052e3a8] gic_handle_irq+0x7c/0x90
+ [0x808ab15c] generic_handle_arch_irq+0x60/0x80
+ [0x8051191c] call_with_stack+0x1c/0x20
 
- __btrfs_remove_free_space_cache+0x27/0x30
- load_free_space_cache+0xad2/0xaf0
- caching_thread+0x40b/0x650
- ? lock_release+0x137/0x2d0
- btrfs_work_helper+0xf2/0x3e0
- ? lock_is_held_type+0xe2/0x140
- process_one_work+0x271/0x590
- ? process_one_work+0x590/0x590
- worker_thread+0x52/0x3b0
- ? process_one_work+0x590/0x590
- kthread+0xf0/0x120
- ? kthread_complete_and_exit+0x20/0x20
- ret_from_fork+0x1f/0x30
+For the frame pointer unwinder, unwind_frame() checks stackframe::fp by
+stackframe::sp. Since call_with_stack() switches the SP from one stack
+to another, stackframe::fp and stackframe: :sp will point to different
+stacks, so we can no longer check stackframe::fp by stackframe::sp. Skip
+checking stackframe::fp at this point to avoid this problem.
 
-This is the code
-
-        ctl = block_group->free_space_ctl;
-        discard_ctl = &block_group->fs_info->discard_ctl;
-
-        lockdep_assert_held(&ctl->tree_lock);
-
-We have a temporary free space ctl for loading the free space cache in
-order to avoid having allocations happening while we're loading the
-cache.  When we hit an error we free it all up, however this also calls
-btrfs_discard_update_discardable, which requires
-block_group->free_space_ctl->tree_lock to be held.  However this is our
-temporary ctl so this lock isn't held.  Fix this by calling
-__btrfs_remove_free_space_cache_locked instead so that we only clean up
-the entries and do not mess with the discardable stats.
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Li Huafei <lihuafei1@huawei.com>
+Reviewed-by: Linus Waleij <linus.walleij@linaro.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/free-space-cache.c |   53 +++++++++++++++++++++++++++-----------------
- 1 file changed, 33 insertions(+), 20 deletions(-)
+ arch/arm/kernel/stacktrace.c   | 40 ++++++++++++++++++++++++++++------
+ arch/arm/lib/call_with_stack.S |  2 ++
+ 2 files changed, 35 insertions(+), 7 deletions(-)
 
---- a/fs/btrfs/free-space-cache.c
-+++ b/fs/btrfs/free-space-cache.c
-@@ -48,6 +48,25 @@ static void bitmap_clear_bits(struct btr
- 			      struct btrfs_free_space *info, u64 offset,
- 			      u64 bytes, bool update_stats);
+diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
+index d0fa2037460a..af87040b0353 100644
+--- a/arch/arm/kernel/stacktrace.c
++++ b/arch/arm/kernel/stacktrace.c
+@@ -9,6 +9,8 @@
+ #include <asm/stacktrace.h>
+ #include <asm/traps.h>
  
-+static void __btrfs_remove_free_space_cache_locked(
-+				struct btrfs_free_space_ctl *ctl)
-+{
-+	struct btrfs_free_space *info;
-+	struct rb_node *node;
++#include "reboot.h"
 +
-+	while ((node = rb_last(&ctl->free_space_offset)) != NULL) {
-+		info = rb_entry(node, struct btrfs_free_space, offset_index);
-+		if (!info->bitmap) {
-+			unlink_free_space(ctl, info, true);
-+			kmem_cache_free(btrfs_free_space_cachep, info);
-+		} else {
-+			free_bitmap(ctl, info);
-+		}
+ #if defined(CONFIG_FRAME_POINTER) && !defined(CONFIG_ARM_UNWIND)
+ /*
+  * Unwind the current stack frame and store the new register values in the
+@@ -39,29 +41,53 @@
+  * Note that with framepointer enabled, even the leaf functions have the same
+  * prologue and epilogue, therefore we can ignore the LR value in this case.
+  */
+-int notrace unwind_frame(struct stackframe *frame)
 +
-+		cond_resched_lock(&ctl->tree_lock);
-+	}
-+}
++extern unsigned long call_with_stack_end;
 +
- static struct inode *__lookup_free_space_inode(struct btrfs_root *root,
- 					       struct btrfs_path *path,
- 					       u64 offset)
-@@ -881,7 +900,14 @@ out:
- 	return ret;
- free_cache:
- 	io_ctl_drop_pages(&io_ctl);
--	__btrfs_remove_free_space_cache(ctl);
++static int frame_pointer_check(struct stackframe *frame)
+ {
+ 	unsigned long high, low;
+ 	unsigned long fp = frame->fp;
++	unsigned long pc = frame->pc;
 +
 +	/*
-+	 * We need to call the _locked variant so we don't try to update the
-+	 * discard counters.
++	 * call_with_stack() is the only place we allow SP to jump from one
++	 * stack to another, with FP and SP pointing to different stacks,
++	 * skipping the FP boundary check at this point.
 +	 */
-+	spin_lock(&ctl->tree_lock);
-+	__btrfs_remove_free_space_cache_locked(ctl);
-+	spin_unlock(&ctl->tree_lock);
- 	goto out;
- }
++	if (pc >= (unsigned long)&call_with_stack &&
++			pc < (unsigned long)&call_with_stack_end)
++		return 0;
  
-@@ -1007,7 +1033,13 @@ int load_free_space_cache(struct btrfs_b
- 		if (ret == 0)
- 			ret = 1;
- 	} else {
-+		/*
-+		 * We need to call the _locked variant so we don't try to update
-+		 * the discard counters.
-+		 */
-+		spin_lock(&tmp_ctl.tree_lock);
- 		__btrfs_remove_free_space_cache(&tmp_ctl);
-+		spin_unlock(&tmp_ctl.tree_lock);
- 		btrfs_warn(fs_info,
- 			   "block group %llu has wrong amount of free space",
- 			   block_group->start);
-@@ -2970,25 +3002,6 @@ static void __btrfs_return_cluster_to_fr
- 	btrfs_put_block_group(block_group);
- }
+ 	/* only go to a higher address on the stack */
+ 	low = frame->sp;
+ 	high = ALIGN(low, THREAD_SIZE);
  
--static void __btrfs_remove_free_space_cache_locked(
--				struct btrfs_free_space_ctl *ctl)
--{
--	struct btrfs_free_space *info;
--	struct rb_node *node;
+-#ifdef CONFIG_CC_IS_CLANG
+ 	/* check current frame pointer is within bounds */
++#ifdef CONFIG_CC_IS_CLANG
+ 	if (fp < low + 4 || fp > high - 4)
+ 		return -EINVAL;
 -
--	while ((node = rb_last(&ctl->free_space_offset)) != NULL) {
--		info = rb_entry(node, struct btrfs_free_space, offset_index);
--		if (!info->bitmap) {
--			unlink_free_space(ctl, info, true);
--			kmem_cache_free(btrfs_free_space_cachep, info);
--		} else {
--			free_bitmap(ctl, info);
--		}
--
--		cond_resched_lock(&ctl->tree_lock);
--	}
--}
--
- void __btrfs_remove_free_space_cache(struct btrfs_free_space_ctl *ctl)
- {
- 	spin_lock(&ctl->tree_lock);
+-	frame->sp = frame->fp;
+-	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp));
+-	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp + 4));
+ #else
+-	/* check current frame pointer is within bounds */
+ 	if (fp < low + 12 || fp > high - 4)
+ 		return -EINVAL;
++#endif
++
++	return 0;
++}
++
++int notrace unwind_frame(struct stackframe *frame)
++{
++	unsigned long fp = frame->fp;
++
++	if (frame_pointer_check(frame))
++		return -EINVAL;
+ 
+ 	/* restore the registers from the stack frame */
++#ifdef CONFIG_CC_IS_CLANG
++	frame->sp = frame->fp;
++	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp));
++	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp + 4));
++#else
+ 	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 12));
+ 	frame->sp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 8));
+ 	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 4));
+diff --git a/arch/arm/lib/call_with_stack.S b/arch/arm/lib/call_with_stack.S
+index 0a268a6c513c..5030d4e8d126 100644
+--- a/arch/arm/lib/call_with_stack.S
++++ b/arch/arm/lib/call_with_stack.S
+@@ -46,4 +46,6 @@ UNWIND( .setfp	fpreg, sp	)
+ 	pop	{fpreg, pc}
+ UNWIND( .fnend			)
+ #endif
++	.globl call_with_stack_end
++call_with_stack_end:
+ ENDPROC(call_with_stack)
+-- 
+2.35.1
+
 
 
