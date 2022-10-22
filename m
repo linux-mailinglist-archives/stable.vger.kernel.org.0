@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCBB0608A45
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:50:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC215608A53
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:50:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234217AbiJVIuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:50:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36526 "EHLO
+        id S234926AbiJVIum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:50:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235094AbiJVItf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:49:35 -0400
+        with ESMTP id S235183AbiJVItz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:49:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D70CD28C318;
-        Sat, 22 Oct 2022 01:10:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 852F1277A1D;
+        Sat, 22 Oct 2022 01:11:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 813E9B82E0C;
-        Sat, 22 Oct 2022 08:08:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF247C433D7;
-        Sat, 22 Oct 2022 08:08:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82C9CB82E40;
+        Sat, 22 Oct 2022 08:08:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF05EC433C1;
+        Sat, 22 Oct 2022 08:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426081;
-        bh=QexgGbePdpSUxSJVDrDa2mgDst0/2mVL7ZvWwc9hdg0=;
+        s=korg; t=1666426084;
+        bh=30oaRr/+0z675hWSv80pGu8HA4e+AOyozO+DFfi9qj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M74X4bZyZuggXw6RsyOJBxG+/4oh3fDNYP81PyjBDHT/Sxsu9MmVoyNqSpx1IrMqM
-         IG5v/3q/6hPAYw4m5OCWgZ3/NzJ4N0sdMFXs2mZP5XSxfTL4ciSwSI0PcLvEPDyyG6
-         czfF34bD1WVQ28vMRYTH8ZH5eStvdrNioU6H+Jvc=
+        b=U880E7BfUUzLXmJsSAaaopKJqy3ZJfwYqIQdmf6VuXQ89FyPHteK/vFWURkP+aj03
+         ji/DZpFSbl1IPPke7jgEFZ9PdK/O6YKeog75CS5UE6HaHe0BkoK00s7cXzFyxy2rbT
+         4CHMg4jItEtvUd5j1DE6O+vX5jRncO5mZNpiOMmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.19 712/717] lib/Kconfig.debug: Add check for non-constant .{s,u}leb128 support to DWARF5
-Date:   Sat, 22 Oct 2022 09:29:51 +0200
-Message-Id: <20221022072529.954572792@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.19 713/717] HID: uclogic: Add missing suffix for digitalizers
+Date:   Sat, 22 Oct 2022 09:29:52 +0200
+Message-Id: <20221022072530.001085316@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,86 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: José Expósito <jose.exposito89@gmail.com>
 
-commit 0a6de78cff600cb991f2a1b7ed376935871796a0 upstream.
+commit 0977fda0587cbc5403651ba169e264aa01e8a026 upstream.
 
-When building with a RISC-V kernel with DWARF5 debug info using clang
-and the GNU assembler, several instances of the following error appear:
+The Pen (0x02) application usage was changed to Digitalizer (0x01) in
+commit f7d8e387d9ae ("HID: uclogic: Switch to Digitizer usage for
+styluses"). However, a suffix was not selected for the new usage.
 
-  /tmp/vgettimeofday-48aa35.s:2963: Error: non-constant .uleb128 is not supported
+Handle the digitalizer application usage in uclogic_input_configured()
+and add the required suffix.
 
-Dumping the .s file reveals these .uleb128 directives come from
-.debug_loc and .debug_ranges:
-
-  .Ldebug_loc0:
-          .byte   4                               # DW_LLE_offset_pair
-          .uleb128 .Lfunc_begin0-.Lfunc_begin0    #   starting offset
-          .uleb128 .Ltmp1-.Lfunc_begin0           #   ending offset
-          .byte   1                               # Loc expr size
-          .byte   90                              # DW_OP_reg10
-          .byte   0                               # DW_LLE_end_of_list
-
-  .Ldebug_ranges0:
-          .byte   4                               # DW_RLE_offset_pair
-          .uleb128 .Ltmp6-.Lfunc_begin0           #   starting offset
-          .uleb128 .Ltmp27-.Lfunc_begin0          #   ending offset
-          .byte   4                               # DW_RLE_offset_pair
-          .uleb128 .Ltmp28-.Lfunc_begin0          #   starting offset
-          .uleb128 .Ltmp30-.Lfunc_begin0          #   ending offset
-          .byte   0                               # DW_RLE_end_of_list
-
-There is an outstanding binutils issue to support a non-constant operand
-to .sleb128 and .uleb128 in GAS for RISC-V but there does not appear to
-be any movement on it, due to concerns over how it would work with
-linker relaxation.
-
-To avoid these build errors, prevent DWARF5 from being selected when
-using clang and an assembler that does not have support for these symbol
-deltas, which can be easily checked in Kconfig with as-instr plus the
-small test program from the dwz test suite from the binutils issue.
-
-Link: https://sourceware.org/bugzilla/show_bug.cgi?id=27215
-Link: https://github.com/ClangBuiltLinux/linux/issues/1719
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/Kconfig.debug |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/hid/hid-uclogic-core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -231,6 +231,11 @@ config DEBUG_INFO
- 	  in the "Debug information" choice below, indicating that debug
- 	  information will be generated for build targets.
- 
-+# Clang is known to generate .{s,u}leb128 with symbol deltas with DWARF5, which
-+# some targets may not support: https://sourceware.org/bugzilla/show_bug.cgi?id=27215
-+config AS_HAS_NON_CONST_LEB128
-+	def_bool $(as-instr,.uleb128 .Lexpr_end4 - .Lexpr_start3\n.Lexpr_start3:\n.Lexpr_end4:)
-+
- choice
- 	prompt "Debug information"
- 	depends on DEBUG_KERNEL
-@@ -253,7 +258,7 @@ config DEBUG_INFO_NONE
- config DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT
- 	bool "Rely on the toolchain's implicit default DWARF version"
- 	select DEBUG_INFO
--	depends on !CC_IS_CLANG || AS_IS_LLVM || CLANG_VERSION < 140000 || (AS_IS_GNU && AS_VERSION >= 23502)
-+	depends on !CC_IS_CLANG || AS_IS_LLVM || CLANG_VERSION < 140000 || (AS_IS_GNU && AS_VERSION >= 23502 && AS_HAS_NON_CONST_LEB128)
- 	help
- 	  The implicit default version of DWARF debug info produced by a
- 	  toolchain changes over time.
-@@ -277,7 +282,7 @@ config DEBUG_INFO_DWARF4
- config DEBUG_INFO_DWARF5
- 	bool "Generate DWARF Version 5 debuginfo"
- 	select DEBUG_INFO
--	depends on !CC_IS_CLANG || AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)
-+	depends on !CC_IS_CLANG || AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502 && AS_HAS_NON_CONST_LEB128)
- 	help
- 	  Generate DWARF v5 debug info. Requires binutils 2.35.2, gcc 5.0+ (gcc
- 	  5.0+ accepts the -gdwarf-5 flag but only had partial support for some
+--- a/drivers/hid/hid-uclogic-core.c
++++ b/drivers/hid/hid-uclogic-core.c
+@@ -153,6 +153,7 @@ static int uclogic_input_configured(stru
+ 			suffix = "Pad";
+ 			break;
+ 		case HID_DG_PEN:
++		case HID_DG_DIGITIZER:
+ 			suffix = "Pen";
+ 			break;
+ 		case HID_CP_CONSUMER_CONTROL:
 
 
