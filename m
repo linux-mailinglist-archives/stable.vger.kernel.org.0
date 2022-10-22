@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08AD4608835
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:11:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63733608AFA
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:18:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233253AbiJVILg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:11:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37142 "EHLO
+        id S231217AbiJVJSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 05:18:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233479AbiJVIJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:09:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F75C2A413;
-        Sat, 22 Oct 2022 00:54:33 -0700 (PDT)
+        with ESMTP id S231538AbiJVJRn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:17:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA95B300732;
+        Sat, 22 Oct 2022 01:31:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4E7A60B8E;
-        Sat, 22 Oct 2022 07:54:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C33FEC433D6;
-        Sat, 22 Oct 2022 07:54:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 095C360B26;
+        Sat, 22 Oct 2022 07:54:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDF30C433C1;
+        Sat, 22 Oct 2022 07:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425246;
-        bh=Fbe3KMtCdsW7s2zZrX5blXwHhz1QzTcZnQm6f1z/NVM=;
+        s=korg; t=1666425249;
+        bh=r7PNaX5jg937K92lGyiHI6AtzHOXbs4MRgqduWtMwJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jYD8dGs6U4z1PRw+GkGrj9GQ8HAn+EkLLCEq2m8hPrENE+mKE/nytkKVWMHetBDBb
-         FJ3Zcf+GzYGvpkHK62SjQ5/MGkR/uFvR6vv3VLjCRjtrSszmwYKzyf4Q/6vDxIC2xc
-         6jSy561uLycuo8Qz0MAxprStqKMg3p+Xqr8Zp3cM=
+        b=qvgwAB0oLcKPDLBq5ABvQo3SvJbeqG46i6ijZ43V/auglPliGfimCX5lNerl2xhac
+         nuV4m9BFNwNtsRjLMKN6zbi6Iu+xxQInUDJnnu8wsGokNg06W50mdxO7scX1CWIQxP
+         ye7dt1M+e2qCT3z00J3KQRKbL8wpx2DCW1Ix05dI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Guoqing Jiang <guoqing.jiang@linux.dev>,
-        Saurabh Sengar <ssengar@linux.microsoft.com>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 439/717] md: Replace snprintf with scnprintf
-Date:   Sat, 22 Oct 2022 09:25:18 +0200
-Message-Id: <20221022072517.765142728@linuxfoundation.org>
+        stable@vger.kernel.org, Song Liu <song@kernel.org>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 440/717] md/raid5: Ensure stripe_fill happens on non-read IO with journal
+Date:   Sat, 22 Oct 2022 09:25:19 +0200
+Message-Id: <20221022072517.796434253@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,66 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurabh Sengar <ssengar@linux.microsoft.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 1727fd5015d8f93474148f94e34cda5aa6ad4a43 ]
+[ Upstream commit e2eed85bc75138a9eeb63863d20f8904ac42a577 ]
 
-Current code produces a warning as shown below when total characters
-in the constituent block device names plus the slashes exceeds 200.
-snprintf() returns the number of characters generated from the given
-input, which could cause the expression “200 – len” to wrap around
-to a large positive number. Fix this by using scnprintf() instead,
-which returns the actual number of characters written into the buffer.
+When doing degrade/recover tests using the journal a kernel BUG
+is hit at drivers/md/raid5.c:4381 in handle_parity_checks5():
 
-[ 1513.267938] ------------[ cut here ]------------
-[ 1513.267943] WARNING: CPU: 15 PID: 37247 at <snip>/lib/vsprintf.c:2509 vsnprintf+0x2c8/0x510
-[ 1513.267944] Modules linked in:  <snip>
-[ 1513.267969] CPU: 15 PID: 37247 Comm: mdadm Not tainted 5.4.0-1085-azure #90~18.04.1-Ubuntu
-[ 1513.267969] Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS Hyper-V UEFI Release v4.1 05/09/2022
-[ 1513.267971] RIP: 0010:vsnprintf+0x2c8/0x510
-<-snip->
-[ 1513.267982] Call Trace:
-[ 1513.267986]  snprintf+0x45/0x70
-[ 1513.267990]  ? disk_name+0x71/0xa0
-[ 1513.267993]  dump_zones+0x114/0x240 [raid0]
-[ 1513.267996]  ? _cond_resched+0x19/0x40
-[ 1513.267998]  raid0_run+0x19e/0x270 [raid0]
-[ 1513.268000]  md_run+0x5e0/0xc50
-[ 1513.268003]  ? security_capable+0x3f/0x60
-[ 1513.268005]  do_md_run+0x19/0x110
-[ 1513.268006]  md_ioctl+0x195e/0x1f90
-[ 1513.268007]  blkdev_ioctl+0x91f/0x9f0
-[ 1513.268010]  block_ioctl+0x3d/0x50
-[ 1513.268012]  do_vfs_ioctl+0xa9/0x640
-[ 1513.268014]  ? __fput+0x162/0x260
-[ 1513.268016]  ksys_ioctl+0x75/0x80
-[ 1513.268017]  __x64_sys_ioctl+0x1a/0x20
-[ 1513.268019]  do_syscall_64+0x5e/0x200
-[ 1513.268021]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  BUG_ON(!test_bit(R5_UPTODATE, &dev->flags));
 
-Fixes: 766038846e875 ("md/raid0: replace printk() with pr_*()")
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Acked-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+This was found to occur because handle_stripe_fill() was skipped
+for stripes in the journal due to a condition in that function.
+Thus blocks were not fetched and R5_UPTODATE was not set when
+the code reached handle_parity_checks5().
+
+To fix this, don't skip handle_stripe_fill() unless the stripe is
+for read.
+
+Fixes: 07e83364845e ("md/r5cache: shift complex rmw from read path to write path")
+Link: https://lore.kernel.org/linux-raid/e05c4239-41a9-d2f7-3cfa-4aa9d2cea8c1@deltatee.com/
+Suggested-by: Song Liu <song@kernel.org>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid0.c | 2 +-
+ drivers/md/raid5.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
-index 78addfe4a0c9..857c49399c28 100644
---- a/drivers/md/raid0.c
-+++ b/drivers/md/raid0.c
-@@ -47,7 +47,7 @@ static void dump_zones(struct mddev *mddev)
- 		int len = 0;
- 
- 		for (k = 0; k < conf->strip_zone[j].nb_dev; k++)
--			len += snprintf(line+len, 200-len, "%s%pg", k?"/":"",
-+			len += scnprintf(line+len, 200-len, "%s%pg", k?"/":"",
- 				conf->devlist[j * raid_disks + k]->bdev);
- 		pr_debug("md: zone%d=[%s]\n", j, line);
- 
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 1c1310d539f2..d6cad962669a 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -3951,7 +3951,7 @@ static void handle_stripe_fill(struct stripe_head *sh,
+ 		 * back cache (prexor with orig_page, and then xor with
+ 		 * page) in the read path
+ 		 */
+-		if (s->injournal && s->failed) {
++		if (s->to_read && s->injournal && s->failed) {
+ 			if (test_bit(STRIPE_R5C_CACHING, &sh->state))
+ 				r5c_make_stripe_write_out(sh);
+ 			goto out;
 -- 
 2.35.1
 
