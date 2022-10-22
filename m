@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A2366088C1
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:22:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A89676088AE
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233674AbiJVIWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:22:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43656 "EHLO
+        id S233733AbiJVIU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:20:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233681AbiJVIUn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:20:43 -0400
+        with ESMTP id S233805AbiJVITq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:19:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B03B82DF46A;
-        Sat, 22 Oct 2022 00:58:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856E52DF44E;
+        Sat, 22 Oct 2022 00:58:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16664B82DFA;
-        Sat, 22 Oct 2022 07:41:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6252EC433D7;
-        Sat, 22 Oct 2022 07:41:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A708FB82DF9;
+        Sat, 22 Oct 2022 07:40:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F118AC433C1;
+        Sat, 22 Oct 2022 07:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424495;
-        bh=muXk5+zb//UYPKqFzeIirwUDgkQcWmRmo0xZyDuWdZY=;
+        s=korg; t=1666424421;
+        bh=FBSqfGdqenbLRx3kzmze2zovm+J2vRZ3J4A4qSTPPVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+hTERTZQICsM2vA6xZLGGfoMIQ6rbYg5N69M/QI7+T2lpNCOD0+mVQ73/I86TmCK
-         NxDNzaXK9/NnUYam2Vb9UfZ6Jw32YM9fZAGm1FSv0v9bxVeyClqXlA1VwhonF6BH9l
-         nlCXIPf28d8touhuIXZRxL5BprYxGTDbpdiLNfPk=
+        b=gNGLmX8+Fo6ekLPDvG3Ib7p6Pv9vaoPLHPupPEpBC9BXKA2I3cE/rHG/o6OqSf+3k
+         bUKEmQmbsNYmscT/IDnpIbXJGekLJwCJWXp86nmhlAWPzKfqXFjEDpWgHhwLedVA3d
+         wi+MMzcqlmU37s8vMi/nCD6ZiwQUwL/Vh8unYUvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
-        Breno Leitao <leitao@debian.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>, stable@kernel.org
-Subject: [PATCH 5.19 137/717] livepatch: fix race between fork and KLP transition
-Date:   Sat, 22 Oct 2022 09:20:16 +0200
-Message-Id: <20221022072439.781084021@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.19 140/717] ring-buffer: Allow splice to read previous partially read pages
+Date:   Sat, 22 Oct 2022 09:20:19 +0200
+Message-Id: <20221022072440.357709319@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,91 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rik van Riel <riel@surriel.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 747f7a2901174c9afa805dddfb7b24db6f65e985 upstream.
+commit fa8f4a89736b654125fb254b0db753ac68a5fced upstream.
 
-The KLP transition code depends on the TIF_PATCH_PENDING and
-the task->patch_state to stay in sync. On a normal (forward)
-transition, TIF_PATCH_PENDING will be set on every task in
-the system, while on a reverse transition (after a failed
-forward one) first TIF_PATCH_PENDING will be cleared from
-every task, followed by it being set on tasks that need to
-be transitioned back to the original code.
+If a page is partially read, and then the splice system call is run
+against the ring buffer, it will always fail to read, no matter how much
+is in the ring buffer. That's because the code path for a partial read of
+the page does will fail if the "full" flag is set.
 
-However, the fork code copies over the TIF_PATCH_PENDING flag
-from the parent to the child early on, in dup_task_struct and
-setup_thread_stack. Much later, klp_copy_process will set
-child->patch_state to match that of the parent.
+The splice system call wants full pages, so if the read of the ring buffer
+is not yet full, it should return zero, and the splice will block. But if
+a previous read was done, where the beginning has been consumed, it should
+still be given to the splice caller if the rest of the page has been
+written to.
 
-However, the parent's patch_state may have been changed by KLP loading
-or unloading since it was initially copied over into the child.
+This caused the splice command to never consume data in this scenario, and
+let the ring buffer just fill up and lose events.
 
-This results in the KLP code occasionally hitting this warning in
-klp_complete_transition:
+Link: https://lkml.kernel.org/r/20220927144317.46be6b80@gandalf.local.home
 
-        for_each_process_thread(g, task) {
-                WARN_ON_ONCE(test_tsk_thread_flag(task, TIF_PATCH_PENDING));
-                task->patch_state = KLP_UNDEFINED;
-        }
-
-Set, or clear, the TIF_PATCH_PENDING flag in the child task
-depending on whether or not it is needed at the time
-klp_copy_process is called, at a point in copy_process where the
-tasklist_lock is held exclusively, preventing races with the KLP
-code.
-
-The KLP code does have a few places where the state is changed
-without the tasklist_lock held, but those should not cause
-problems because klp_update_patch_state(current) cannot be
-called while the current task is in the middle of fork,
-klp_check_and_switch_task() which is called under the pi_lock,
-which prevents rescheduling, and manipulation of the patch
-state of idle tasks, which do not fork.
-
-This should prevent this warning from triggering again in the
-future, and close the race for both normal and reverse transitions.
-
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Reported-by: Breno Leitao <leitao@debian.org>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Fixes: d83a7cb375ee ("livepatch: change to a per-task consistency model")
-Cc: stable@kernel.org
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20220808150019.03d6a67b@imladris.surriel.com
+Cc: stable@vger.kernel.org
+Fixes: 8789a9e7df6bf ("ring-buffer: read page interface")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/livepatch/transition.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ kernel/trace/ring_buffer.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/kernel/livepatch/transition.c
-+++ b/kernel/livepatch/transition.c
-@@ -610,9 +610,23 @@ void klp_reverse_transition(void)
- /* Called from copy_process() during fork */
- void klp_copy_process(struct task_struct *child)
- {
--	child->patch_state = current->patch_state;
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -5616,7 +5616,15 @@ int ring_buffer_read_page(struct trace_b
+ 		unsigned int pos = 0;
+ 		unsigned int size;
  
--	/* TIF_PATCH_PENDING gets copied in setup_thread_stack() */
-+	/*
-+	 * The parent process may have gone through a KLP transition since
-+	 * the thread flag was copied in setup_thread_stack earlier. Bring
-+	 * the task flag up to date with the parent here.
-+	 *
-+	 * The operation is serialized against all klp_*_transition()
-+	 * operations by the tasklist_lock. The only exception is
-+	 * klp_update_patch_state(current), but we cannot race with
-+	 * that because we are current.
-+	 */
-+	if (test_tsk_thread_flag(current, TIF_PATCH_PENDING))
-+		set_tsk_thread_flag(child, TIF_PATCH_PENDING);
-+	else
-+		clear_tsk_thread_flag(child, TIF_PATCH_PENDING);
-+
-+	child->patch_state = current->patch_state;
- }
+-		if (full)
++		/*
++		 * If a full page is expected, this can still be returned
++		 * if there's been a previous partial read and the
++		 * rest of the page can be read and the commit page is off
++		 * the reader page.
++		 */
++		if (full &&
++		    (!read || (len < (commit - read)) ||
++		     cpu_buffer->reader_page == cpu_buffer->commit_page))
+ 			goto out_unlock;
  
- /*
+ 		if (len > (commit - read))
 
 
