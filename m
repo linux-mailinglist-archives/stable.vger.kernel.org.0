@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60DEE6085FE
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD74C608651
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:47:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231183AbiJVHmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:42:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43010 "EHLO
+        id S231576AbiJVHro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:47:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231127AbiJVHmP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:42:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58AB6192999;
-        Sat, 22 Oct 2022 00:40:41 -0700 (PDT)
+        with ESMTP id S231362AbiJVHrQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:47:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C640237EE;
+        Sat, 22 Oct 2022 00:44:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 107A8CE1D33;
-        Sat, 22 Oct 2022 07:37:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F4ACC433C1;
-        Sat, 22 Oct 2022 07:37:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF6C560B00;
+        Sat, 22 Oct 2022 07:37:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3E86C433B5;
+        Sat, 22 Oct 2022 07:37:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424234;
-        bh=1YuiLaIm3NwYdhiIKtcy3eB0YOyxO/hJJ4MIYrNFV1E=;
+        s=korg; t=1666424264;
+        bh=BX8VTQIPLJW77cNwpmkb/Yr53Pz0B1c4Ovk/HIEfias=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FpxxfuRkmD2WYJ9HKpkgpWUbovef/NQLOcJNX+HoYwdShjBtGU7a1zvn6oBnq3uYJ
-         GBJgKvJHDWbpXj1HAQkwIyqNhmM9PwZwiah2t2BELsyCldSm6B/iYnYvROY93I86iq
-         bnvpUaljxgbM6acyos181mNwqhU4UGrkf13fnjQg=
+        b=UdmnLe7oUh3DP8yaCBxrHQBTebUGzTTwhg0/Cfh9imjvchoqdiNTuiYF65x5KrPtp
+         RtonvjJtA7A0MqcdXM+4Zs5gN6Ku77A2tXKJRDcfx5mxFMck+vz7Q+1r01DLe/9FQ0
+         10vREhwLx1CCCW6jEGElIoRsB92PFcmMJswrNWQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hamza Mahfooz <hamza.mahfooz@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.19 063/717] Revert "drm/amdgpu: use dirty framebuffer helper"
-Date:   Sat, 22 Oct 2022 09:19:02 +0200
-Message-Id: <20221022072426.257868782@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.19 064/717] dmaengine: mxs: use platform_driver_register
+Date:   Sat, 22 Oct 2022 09:19:03 +0200
+Message-Id: <20221022072426.428089076@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,64 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hamza Mahfooz <hamza.mahfooz@amd.com>
+From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
 
-commit 17d819e2828cacca2e4c909044eb9798ed379cd2 upstream.
+commit 26696d4657167112a1079f86cba1739765c1360e upstream.
 
-This reverts commit 66f99628eb24409cb8feb5061f78283c8b65f820.
+Driver registration fails on SOC imx8mn as its supplier, the clock
+control module, is probed later than subsys initcall level. This driver
+uses platform_driver_probe which is not compatible with deferred probing
+and won't be probed again later if probe function fails due to clock not
+being available at that time.
 
-Unfortunately, that commit causes performance regressions on non-PSR
-setups. So, just revert it until FB_DAMAGE_CLIPS support can be added.
+This patch replaces the use of platform_driver_probe with
+platform_driver_register which will allow probing the driver later again
+when the clock control module will be available.
 
+The __init annotation has been dropped because it is not compatible with
+deferred probing. The code is not executed once and its memory cannot be
+freed.
+
+Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
+Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
 Cc: stable@vger.kernel.org
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2189
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216554
-Fixes: 66f99628eb2440 ("drm/amdgpu: use dirty framebuffer helper")
-Fixes: abbc7a3dafb91b ("drm/amdgpu: don't register a dirty callback for non-atomic")
-Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/gpu/drm/amd/amdgpu/amdgpu_display.c |   14 ++------------
- 1 file changed, 2 insertions(+), 12 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-@@ -35,8 +35,6 @@
- #include <linux/pci.h>
- #include <linux/pm_runtime.h>
- #include <drm/drm_crtc_helper.h>
--#include <drm/drm_damage_helper.h>
--#include <drm/drm_drv.h>
- #include <drm/drm_edid.h>
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_fb_helper.h>
-@@ -497,12 +495,6 @@ static const struct drm_framebuffer_func
- 	.create_handle = drm_gem_fb_create_handle,
+Link: https://lore.kernel.org/r/20220921170556.1055962-1-dario.binacchi@amarulasolutions.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+---
+ drivers/dma/mxs-dma.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
+
+--- a/drivers/dma/mxs-dma.c
++++ b/drivers/dma/mxs-dma.c
+@@ -670,7 +670,7 @@ static enum dma_status mxs_dma_tx_status
+ 	return mxs_chan->status;
+ }
+ 
+-static int __init mxs_dma_init(struct mxs_dma_engine *mxs_dma)
++static int mxs_dma_init(struct mxs_dma_engine *mxs_dma)
+ {
+ 	int ret;
+ 
+@@ -741,7 +741,7 @@ static struct dma_chan *mxs_dma_xlate(st
+ 				     ofdma->of_node);
+ }
+ 
+-static int __init mxs_dma_probe(struct platform_device *pdev)
++static int mxs_dma_probe(struct platform_device *pdev)
+ {
+ 	struct device_node *np = pdev->dev.of_node;
+ 	const struct mxs_dma_type *dma_type;
+@@ -839,10 +839,7 @@ static struct platform_driver mxs_dma_dr
+ 		.name	= "mxs-dma",
+ 		.of_match_table = mxs_dma_dt_ids,
+ 	},
++	.probe = mxs_dma_probe,
  };
  
--static const struct drm_framebuffer_funcs amdgpu_fb_funcs_atomic = {
--	.destroy = drm_gem_fb_destroy,
--	.create_handle = drm_gem_fb_create_handle,
--	.dirty = drm_atomic_helper_dirtyfb,
--};
--
- uint32_t amdgpu_display_supported_domains(struct amdgpu_device *adev,
- 					  uint64_t bo_flags)
- {
-@@ -1077,10 +1069,8 @@ static int amdgpu_display_gem_fb_verify_
- 	if (ret)
- 		goto err;
- 
--	if (drm_drv_uses_atomic_modeset(dev))
--		ret = drm_framebuffer_init(dev, &rfb->base, &amdgpu_fb_funcs_atomic);
--	else
--		ret = drm_framebuffer_init(dev, &rfb->base, &amdgpu_fb_funcs);
-+	ret = drm_framebuffer_init(dev, &rfb->base, &amdgpu_fb_funcs);
-+
- 	if (ret)
- 		goto err;
- 
+-static int __init mxs_dma_module_init(void)
+-{
+-	return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
+-}
+-subsys_initcall(mxs_dma_module_init);
++builtin_platform_driver(mxs_dma_driver);
 
 
