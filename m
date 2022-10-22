@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C523D608A71
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:55:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3157A6088A3
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:20:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231293AbiJVIzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:55:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38842 "EHLO
+        id S233593AbiJVIU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:20:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235021AbiJVIyE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:54:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B15B92F3DB5;
-        Sat, 22 Oct 2022 01:13:07 -0700 (PDT)
+        with ESMTP id S233740AbiJVITQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:19:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EED42DF454;
+        Sat, 22 Oct 2022 00:58:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 043EEB82E26;
-        Sat, 22 Oct 2022 07:48:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5958CC433D6;
-        Sat, 22 Oct 2022 07:48:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 766FD60B1B;
+        Sat, 22 Oct 2022 07:48:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 893BEC433D7;
+        Sat, 22 Oct 2022 07:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424889;
-        bh=zT6MDUv1/e0ceaKhgr+62ulahZ4sloOaOytnAgt472Y=;
+        s=korg; t=1666424894;
+        bh=c2ft1Iae6NDuIB9gttmxUKDBTR38ExvWyk+Gc+BZs0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2oPgO31EY3XgzCFS5eBicQfbpLGjOlMBmPW2LYWg2Pnc/qFxYzAgW11aPIOpUmcaX
-         iPNOi44Omx3wCiV454MmrH0U5fXf2MKN+3vbZ6uwSBpX3yjevtIGy1scd56VzcXF1d
-         HJnfMNMt4eEVh8wDUwcnu4YP8nAdidb644BeD++U=
+        b=ffnpsx5W0lH/6U6JuEs0dYEn/YVGKRvdrFlZYF7Q3ujX9pPOS7NG6stBi+36KWqXx
+         GeR4sQ52ChsWrDhTiOJRXV7a+/TF+L6oioZI+PGbLSQ4B8HI1LwpuMqGiIPjJ3agof
+         hgFQrEtPng34IjSmqKUhl/D94D+dOjOJW44Iykpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Prashant Malani <pmalani@chromium.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 314/717] platform/x86: msi-laptop: Fix old-ec check for backlight registering
-Date:   Sat, 22 Oct 2022 09:23:13 +0200
-Message-Id: <20221022072507.831291749@linuxfoundation.org>
+Subject: [PATCH 5.19 316/717] platform/chrome: cros_ec_typec: Correct alt mode index
+Date:   Sat, 22 Oct 2022 09:23:15 +0200
+Message-Id: <20221022072508.049503779@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,56 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Prashant Malani <pmalani@chromium.org>
 
-[ Upstream commit 83ac7a1c2ed5f17caa07cbbc84bad3c05dc3bf22 ]
+[ Upstream commit 4e477663e396f48c5cfc5f2d75d4b514f409516a ]
 
-Commit 2cc6c717799f ("msi-laptop: Port to new backlight interface
-selection API") replaced this check:
+Alt mode indices used by USB PD (Power Delivery) start with 1, not 0.
 
-	if (!quirks->old_ec_model || acpi_video_backlight_support())
-		pr_info("Brightness ignored, ...");
-	else
-		do_register();
+Update the alt mdoe registration code to factor this in to the alt mode
+descriptor.
 
-With:
-
-	if (quirks->old_ec_model ||
-	    acpi_video_get_backlight_type() == acpi_backlight_vendor)
-		do_register();
-
-But since the do_register() part was part of the else branch, the entire
-condition should be inverted.  So not only the 2 statements on either
-side of the || should be inverted, but the || itself should be replaced
-with a &&.
-
-In practice this has likely not been an issue because the new-ec models
-(old_ec_model==false) likely all support ACPI video backlight control,
-making acpi_video_get_backlight_type() return acpi_backlight_video
-turning the second part of the || also false when old_ec_model == false.
-
-Fixes: 2cc6c717799f ("msi-laptop: Port to new backlight interface selection API")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220825141336.208597-1-hdegoede@redhat.com
+Fixes: de0f49487db3 ("platform/chrome: cros_ec_typec: Register partner altmodes")
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
+Link: https://lore.kernel.org/r/20220819190807.1275937-3-pmalani@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/msi-laptop.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/platform/chrome/cros_ec_typec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
-index 24ffc8e2d2d1..0960205ee49f 100644
---- a/drivers/platform/x86/msi-laptop.c
-+++ b/drivers/platform/x86/msi-laptop.c
-@@ -1048,8 +1048,7 @@ static int __init msi_init(void)
- 		return -EINVAL;
+diff --git a/drivers/platform/chrome/cros_ec_typec.c b/drivers/platform/chrome/cros_ec_typec.c
+index 7cb2e35c4ded..1305a22a8831 100644
+--- a/drivers/platform/chrome/cros_ec_typec.c
++++ b/drivers/platform/chrome/cros_ec_typec.c
+@@ -669,7 +669,7 @@ static int cros_typec_register_altmodes(struct cros_typec_data *typec, int port_
+ 		for (j = 0; j < sop_disc->svids[i].mode_count; j++) {
+ 			memset(&desc, 0, sizeof(desc));
+ 			desc.svid = sop_disc->svids[i].svid;
+-			desc.mode = j;
++			desc.mode = j + 1;
+ 			desc.vdo = sop_disc->svids[i].mode_vdo[j];
  
- 	/* Register backlight stuff */
--
--	if (quirks->old_ec_model ||
-+	if (quirks->old_ec_model &&
- 	    acpi_video_get_backlight_type() == acpi_backlight_vendor) {
- 		struct backlight_properties props;
- 		memset(&props, 0, sizeof(struct backlight_properties));
+ 			if (is_partner)
 -- 
 2.35.1
 
