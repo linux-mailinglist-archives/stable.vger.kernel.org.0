@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04107608935
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2827F608921
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229576AbiJVIbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:31:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58068 "EHLO
+        id S233779AbiJVIbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:31:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234327AbiJVIa2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:30:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23BBA2D083A;
-        Sat, 22 Oct 2022 01:02:36 -0700 (PDT)
+        with ESMTP id S234032AbiJVI3Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:29:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE7682C1737;
+        Sat, 22 Oct 2022 01:01:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B26D9B82E13;
-        Sat, 22 Oct 2022 08:01:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E4BEC433D7;
-        Sat, 22 Oct 2022 08:01:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 44DBB60ADC;
+        Sat, 22 Oct 2022 08:01:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09933C43142;
+        Sat, 22 Oct 2022 08:01:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425713;
-        bh=YIPJ25ERBUQJfRKFkqLFPqinasOAti3V9lF/D6mb+20=;
+        s=korg; t=1666425716;
+        bh=F91BAdOXkp+xhwYRMD0QHptsZMxc0ARjOGzeltr8YbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=grFDLCm+K4jFQPVXID7HwcI0Uo1fFcl+A9KMHu0ecqMUDlhbQBTz9Ws8+/1e9s5wM
-         A07psv6vHoX6tSILoX4G6ZIYosgRymq5a1aNT7niMo5KuXm8dls8bP5X4+8uEYo440
-         sdwA8RlXao0YrpGdGk+zpgM/7B4PegBVExhzPivU=
+        b=VrA7DBdj7K79r6sG8jvcO8IyO+OUkxyfZGapubgS0ruEVWyi1J4/xoKvykQQtoWEV
+         JqHjxQOOcd/xLARZwYkZaRyxXxhHm1QaUF2blUAQEQwNLPU8Nbo46At5rG0wL8fQwR
+         FDllUjCEVAhPJphpGMnz74ZpTwdflPIOvOZWx1e0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mike Pattrick <mkp@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 561/717] openvswitch: Fix double reporting of drops in dropwatch
-Date:   Sat, 22 Oct 2022 09:27:20 +0200
-Message-Id: <20221022072523.192986693@linuxfoundation.org>
+Subject: [PATCH 5.19 562/717] openvswitch: Fix overreporting of drops in dropwatch
+Date:   Sat, 22 Oct 2022 09:27:21 +0200
+Message-Id: <20221022072523.240830899@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,48 +55,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Pattrick <mkp@redhat.com>
 
-[ Upstream commit 1100248a5c5ccd57059eb8d02ec077e839a23826 ]
+[ Upstream commit c21ab2afa2c64896a7f0e3cbc6845ec63dcfad2e ]
 
-Frames sent to userspace can be reported as dropped in
-ovs_dp_process_packet, however, if they are dropped in the netlink code
-then netlink_attachskb will report the same frame as dropped.
-
-This patch checks for error codes which indicate that the frame has
-already been freed.
+Currently queue_userspace_packet will call kfree_skb for all frames,
+whether or not an error occurred. This can result in a single dropped
+frame being reported as multiple drops in dropwatch. This functions
+caller may also call kfree_skb in case of an error. This patch will
+consume the skbs instead and allow caller's to use kfree_skb.
 
 Signed-off-by: Mike Pattrick <mkp@redhat.com>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2109946
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2109957
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/datapath.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ net/openvswitch/datapath.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
-index 6c9d153afbee..b68ba3c72519 100644
+index b68ba3c72519..93c596e3b22b 100644
 --- a/net/openvswitch/datapath.c
 +++ b/net/openvswitch/datapath.c
-@@ -252,10 +252,17 @@ void ovs_dp_process_packet(struct sk_buff *skb, struct sw_flow_key *key)
+@@ -558,8 +558,9 @@ static int queue_userspace_packet(struct datapath *dp, struct sk_buff *skb,
+ out:
+ 	if (err)
+ 		skb_tx_error(skb);
+-	kfree_skb(user_skb);
+-	kfree_skb(nskb);
++	consume_skb(user_skb);
++	consume_skb(nskb);
++
+ 	return err;
+ }
  
- 		upcall.mru = OVS_CB(skb)->mru;
- 		error = ovs_dp_upcall(dp, skb, key, &upcall, 0);
--		if (unlikely(error))
--			kfree_skb(skb);
--		else
-+		switch (error) {
-+		case 0:
-+		case -EAGAIN:
-+		case -ERESTARTSYS:
-+		case -EINTR:
- 			consume_skb(skb);
-+			break;
-+		default:
-+			kfree_skb(skb);
-+			break;
-+		}
- 		stats_counter = &stats->n_missed;
- 		goto out;
- 	}
 -- 
 2.35.1
 
