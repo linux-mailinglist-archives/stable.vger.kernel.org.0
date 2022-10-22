@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6041F6087AF
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91CC56087D2
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:06:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232569AbiJVIFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:05:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42864 "EHLO
+        id S232854AbiJVIGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:06:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232764AbiJVIEK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8B1627A318;
-        Sat, 22 Oct 2022 00:51:36 -0700 (PDT)
+        with ESMTP id S232406AbiJVIFR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:05:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3317F2C6E07;
+        Sat, 22 Oct 2022 00:52:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86C83B82E0B;
-        Sat, 22 Oct 2022 07:42:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8F63C433D6;
-        Sat, 22 Oct 2022 07:42:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 969CCB82E05;
+        Sat, 22 Oct 2022 07:44:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 120FAC433D6;
+        Sat, 22 Oct 2022 07:44:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424530;
-        bh=yXakOncocmAMdyM9Kp+4spb4pV7+704OueZkYTIj4p4=;
+        s=korg; t=1666424660;
+        bh=2eafooLCWzYB3jrawTGKwYMxHojxlE96ckfg/2CLZiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vwWMIRYb/WksO+dtHAvjxqdWQdJ+2b90933D5mq6B7UlZXA6yX8zuFwkKW8iaGQJg
-         cRM7Mq4c2eKreL5d4N1Zq9aQH76XAorPd8e33bToX9N5C692mx9glGATkSHSgyovNs
-         klqjagQGJyUPzBMKhRiONVEbsaJ1ovkLLEcBSUYU=
+        b=YTGbQucXIX4mC2iaKeO1TVOxWadX3v7k3Fvjd2EC/mX8GCBfiwTkgARF9mSfDDYHz
+         06bcLLZvnlMOS7LG3fk7DCdgDNyFbNsRFhDhvs+CBax+Qgk/oFPxa9YMCOfZ7Vf/Bn
+         kYao5NtlSvAGUD8Mta+aP12ABmMr457+uqaTA264=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Rui <ray.huang@amd.com>,
-        Perry Yuan <Perry.Yuan@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 181/717] cpufreq: amd-pstate: Fix initial highest_perf value
-Date:   Sat, 22 Oct 2022 09:21:00 +0200
-Message-Id: <20221022072447.617589858@linuxfoundation.org>
+        stable@vger.kernel.org, Bill Wendling <morbo@google.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.19 199/717] x86/paravirt: add extra clobbers with ZERO_CALL_USED_REGS enabled
+Date:   Sat, 22 Oct 2022 09:21:18 +0200
+Message-Id: <20221022072450.677685116@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,81 +55,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Perry Yuan <Perry.Yuan@amd.com>
+From: Bill Wendling <morbo@google.com>
 
-[ Upstream commit bedadcfb011fef55273bd686e8893fdd8911dcdb ]
+[ Upstream commit 8c86f29bfb18465d15b05cfd26a6454ec787b793 ]
 
-To avoid some new AMD processors use wrong highest perf when amd pstate
-driver loaded, this fix will query the highest perf from MSR register
-MSR_AMD_CPPC_CAP1 and cppc_acpi interface firstly, then compare with the
-highest perf value got by calling amd_get_highest_perf() function.
+The ZERO_CALL_USED_REGS feature may zero out caller-saved registers
+before returning.
 
-The lower value will be the correct highest perf we need to use.
-Otherwise the CPU max MHz will be incorrect if the
-amd_get_highest_perf() did not cover the new process family and model ID.
+In spurious_kernel_fault(), the "pte_offset_kernel()" call results in
+this assembly code:
 
-Like this lscpu info, the max frequency is incorrect.
+.Ltmp151:
+        #APP
+        # ALT: oldnstr
+.Ltmp152:
+.Ltmp153:
+.Ltmp154:
+        .section        .discard.retpoline_safe,"",@progbits
+        .quad   .Ltmp154
+        .text
 
-Vendor ID:               AuthenticAMD
-    Socket(s):           1
-    Stepping:            2
-    CPU max MHz:         5410.0000
-    CPU min MHz:         400.0000
-    BogoMIPS:            5600.54
+        callq   *pv_ops+536(%rip)
 
-Fixes: 3743d55b289c2 (x86, sched: Fix the AMD CPPC maximum performance value on certain AMD Ryzen generations)
-Acked-by: Huang Rui <ray.huang@amd.com>
-Signed-off-by: Perry Yuan <Perry.Yuan@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+.Ltmp155:
+        .section        .parainstructions,"a",@progbits
+        .p2align        3, 0x0
+        .quad   .Ltmp153
+        .byte   67
+        .byte   .Ltmp155-.Ltmp153
+        .short  1
+        .text
+.Ltmp156:
+        # ALT: padding
+        .zero   (-(((.Ltmp157-.Ltmp158)-(.Ltmp156-.Ltmp152))>0))*((.Ltmp157-.Ltmp158)-(.Ltmp156-.Ltmp152)),144
+.Ltmp159:
+        .section        .altinstructions,"a",@progbits
+.Ltmp160:
+        .long   .Ltmp152-.Ltmp160
+.Ltmp161:
+        .long   .Ltmp158-.Ltmp161
+        .short  33040
+        .byte   .Ltmp159-.Ltmp152
+        .byte   .Ltmp157-.Ltmp158
+        .text
+
+        .section        .altinstr_replacement,"ax",@progbits
+        # ALT: replacement 1
+.Ltmp158:
+        movq    %rdi, %rax
+.Ltmp157:
+        .text
+        #NO_APP
+.Ltmp162:
+        testb   $-128, %dil
+
+The "testb" here is using %dil, but the %rdi register was cleared before
+returning from "callq *pv_ops+536(%rip)". Adding the proper constraints
+results in the use of a different register:
+
+        movq    %r11, %rdi
+
+        # Similar to above.
+
+        testb   $-128, %r11b
+
+Link: https://github.com/KSPP/linux/issues/192
+Signed-off-by: Bill Wendling <morbo@google.com>
+Reported-and-tested-by: Nathan Chancellor <nathan@kernel.org>
+Fixes: 035f7f87b729 ("randstruct: Enable Clang support")
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/lkml/fa6df43b-8a1a-8ad1-0236-94d2a0b588fa@suse.com/
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220902213750.1124421-3-morbo@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/amd-pstate.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/paravirt_types.h | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/amd-pstate.c b/drivers/cpufreq/amd-pstate.c
-index 9ac75c1cde9c..365f3ad166a7 100644
---- a/drivers/cpufreq/amd-pstate.c
-+++ b/drivers/cpufreq/amd-pstate.c
-@@ -152,6 +152,7 @@ static inline int amd_pstate_enable(bool enable)
- static int pstate_init_perf(struct amd_cpudata *cpudata)
- {
- 	u64 cap1;
-+	u32 highest_perf;
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 89df6c6617f5..bc2e1b67319d 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -414,8 +414,17 @@ int paravirt_disable_iospace(void);
+ 				"=c" (__ecx)
+ #define PVOP_CALL_CLOBBERS	PVOP_VCALL_CLOBBERS, "=a" (__eax)
  
- 	int ret = rdmsrl_safe_on_cpu(cpudata->cpu, MSR_AMD_CPPC_CAP1,
- 				     &cap1);
-@@ -163,7 +164,11 @@ static int pstate_init_perf(struct amd_cpudata *cpudata)
- 	 *
- 	 * CPPC entry doesn't indicate the highest performance in some ASICs.
- 	 */
--	WRITE_ONCE(cpudata->highest_perf, amd_get_highest_perf());
-+	highest_perf = amd_get_highest_perf();
-+	if (highest_perf > AMD_CPPC_HIGHEST_PERF(cap1))
-+		highest_perf = AMD_CPPC_HIGHEST_PERF(cap1);
-+
-+	WRITE_ONCE(cpudata->highest_perf, highest_perf);
+-/* void functions are still allowed [re]ax for scratch */
++/*
++ * void functions are still allowed [re]ax for scratch.
++ *
++ * The ZERO_CALL_USED REGS feature may end up zeroing out callee-saved
++ * registers. Make sure we model this with the appropriate clobbers.
++ */
++#ifdef CONFIG_ZERO_CALL_USED_REGS
++#define PVOP_VCALLEE_CLOBBERS	"=a" (__eax), PVOP_VCALL_CLOBBERS
++#else
+ #define PVOP_VCALLEE_CLOBBERS	"=a" (__eax)
++#endif
+ #define PVOP_CALLEE_CLOBBERS	PVOP_VCALLEE_CLOBBERS
  
- 	WRITE_ONCE(cpudata->nominal_perf, AMD_CPPC_NOMINAL_PERF(cap1));
- 	WRITE_ONCE(cpudata->lowest_nonlinear_perf, AMD_CPPC_LOWNONLIN_PERF(cap1));
-@@ -175,12 +180,17 @@ static int pstate_init_perf(struct amd_cpudata *cpudata)
- static int cppc_init_perf(struct amd_cpudata *cpudata)
- {
- 	struct cppc_perf_caps cppc_perf;
-+	u32 highest_perf;
- 
- 	int ret = cppc_get_perf_caps(cpudata->cpu, &cppc_perf);
- 	if (ret)
- 		return ret;
- 
--	WRITE_ONCE(cpudata->highest_perf, amd_get_highest_perf());
-+	highest_perf = amd_get_highest_perf();
-+	if (highest_perf > cppc_perf.highest_perf)
-+		highest_perf = cppc_perf.highest_perf;
-+
-+	WRITE_ONCE(cpudata->highest_perf, highest_perf);
- 
- 	WRITE_ONCE(cpudata->nominal_perf, cppc_perf.nominal_perf);
- 	WRITE_ONCE(cpudata->lowest_nonlinear_perf,
+ #define EXTRA_CLOBBERS	 , "r8", "r9", "r10", "r11"
 -- 
 2.35.1
 
