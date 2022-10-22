@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EB7B608A39
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:48:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2AB3608AA8
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:04:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234546AbiJVIs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:48:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41742 "EHLO
+        id S230495AbiJVJEU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 05:04:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234649AbiJVIrW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:47:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25FC85D72D;
-        Sat, 22 Oct 2022 01:10:03 -0700 (PDT)
+        with ESMTP id S235030AbiJVJDU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:03:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 829B02FA5C9;
+        Sat, 22 Oct 2022 01:18:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1422C60ACE;
-        Sat, 22 Oct 2022 08:08:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04ECAC433D7;
-        Sat, 22 Oct 2022 08:08:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 067F260ADC;
+        Sat, 22 Oct 2022 08:15:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBC49C43470;
+        Sat, 22 Oct 2022 08:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426121;
-        bh=5NlSRbXHvRb/aa25XM64BKUcWStHvdySzp+8NaPB+vM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SnbUCUvnocpG6weh1QFoJNa9EwTTOpgn4HfF90TyH3Z49tUJnYY/26z69NjYO2Lxg
-         cXykfx23bTX2qWgKcskLKtJ46Dxzq4QhsHlfcv0BTtOIBF9PlJSsqRavPHZXb7js3D
-         0+m6v59KxboE07AmBrfrcp7+VuT1Q2OwkjowjMXQ=
+        s=korg; t=1666426520;
+        bh=bVwuHeyD6NBbvbw/CTdPYwlqiQGkMoa5incPyO51BKQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MRFmoRbI59ENHf6UMBZKAQrxouJc4uJwAqmTb+8OXfd8EhjZWHMcIwGQ3ZBEaEIJV
+         cIS+w0m8fbri1SdENSXiflOKcdrPBn7u6LGCJO5AGydXM8rcKJbypUU0ZuQQYVqVrt
+         7ExI4dXjD5EhLbkC2D9J8IZDgrLmpfVX+BdgmEWg=
+Date:   Sat, 22 Oct 2022 09:36:29 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.19 717/717] drm/i915/bios: Use hardcoded fp_timing size for generating LFP data pointers
-Date:   Sat, 22 Oct 2022 09:29:56 +0200
-Message-Id: <20221022072530.179352316@linuxfoundation.org>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
-References: <20221022072415.034382448@linuxfoundation.org>
-User-Agent: quilt/0.67
+To:     Evgenii Stepanov <eugenis@google.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] arm64/mm: Consolidate TCR_EL1 fields
+Message-ID: <Y1OdfXuLmp/gr1Z4@kroah.com>
+References: <20221021222811.2366215-1-eugenis@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221021222811.2366215-1-eugenis@google.com>
 X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -54,132 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+On Fri, Oct 21, 2022 at 03:28:11PM -0700, Evgenii Stepanov wrote:
+> From: Anshuman Khandual <anshuman.khandual@arm.com>
+> 
+> commit e921da6bc7cac5f0e8458fe5df18ae08eb538f54 upstream.
+> 
+> This renames and moves SYS_TCR_EL1_TCMA1 and SYS_TCR_EL1_TCMA0 definitions
+> into pgtable-hwdef.h thus consolidating all TCR fields in a single header.
+> This does not cause any functional change.
+> 
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-kernel@vger.kernel.org
+> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> Link: https://lore.kernel.org/r/1643121513-21854-1-git-send-email-anshuman.khandual@arm.com
+> Signed-off-by: Will Deacon <will@kernel.org>
+> ---
+>  arch/arm64/include/asm/pgtable-hwdef.h | 2 ++
+>  arch/arm64/include/asm/sysreg.h        | 4 ----
+>  arch/arm64/mm/proc.S                   | 2 +-
+>  3 files changed, 3 insertions(+), 5 deletions(-)
 
-commit d3a7051841f0a4bcb1ee26a1b721c6150cc4c2b1 upstream.
+What stable kernel branch(es) do you want this applied to?
 
-The current scheme for generating the LFP data table pointers
-(when the block including them is missing from the VBT) expects
-the 0xffff sequence to only appear in the fp_timing terminator
-entries. However some VBTs also have extra 0xffff sequences
-elsewhere in the LFP data. When looking for the terminators
-we may end up finding those extra sequeneces insted, which means
-we deduce the wrong size for the fp_timing table. The code
-then notices the inconsistent looking values and gives up on
-the generated data table pointers, preventing us from parsing
-the LFP data table entirely.
+thanks,
 
-Let's give up on the "search for the terminators" approach
-and instead just hardcode the expected size for the fp_timing
-table.
-
-We have enough sanity checks in place to make sure we
-shouldn't end up parsing total garbage even if that size
-should change in the future (although that seems unlikely
-as the fp_timing and dvo_timing tables have been declared
-obsolete as of VBT version 229).
-
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6592
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220818192223.29881-3-ville.syrjala@linux.intel.com
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- drivers/gpu/drm/i915/display/intel_bios.c |   46 +++++++++++-------------------
- 1 file changed, 18 insertions(+), 28 deletions(-)
-
---- a/drivers/gpu/drm/i915/display/intel_bios.c
-+++ b/drivers/gpu/drm/i915/display/intel_bios.c
-@@ -336,18 +336,6 @@ static bool fixup_lfp_data_ptrs(const vo
- 	return validate_lfp_data_ptrs(bdb, ptrs);
- }
- 
--static const void *find_fp_timing_terminator(const u8 *data, int size)
--{
--	int i;
--
--	for (i = 0; i < size - 1; i++) {
--		if (data[i] == 0xff && data[i+1] == 0xff)
--			return &data[i];
--	}
--
--	return NULL;
--}
--
- static int make_lfp_data_ptr(struct lvds_lfp_data_ptr_table *table,
- 			     int table_size, int total_size)
- {
-@@ -371,11 +359,22 @@ static void next_lfp_data_ptr(struct lvd
- static void *generate_lfp_data_ptrs(struct drm_i915_private *i915,
- 				    const void *bdb)
- {
--	int i, size, table_size, block_size, offset;
--	const void *t0, *t1, *block;
-+	int i, size, table_size, block_size, offset, fp_timing_size;
- 	struct bdb_lvds_lfp_data_ptrs *ptrs;
-+	const void *block;
- 	void *ptrs_block;
- 
-+	/*
-+	 * The hardcoded fp_timing_size is only valid for
-+	 * modernish VBTs. All older VBTs definitely should
-+	 * include block 41 and thus we don't need to
-+	 * generate one.
-+	 */
-+	if (i915->vbt.version < 155)
-+		return NULL;
-+
-+	fp_timing_size = 38;
-+
- 	block = find_raw_section(bdb, BDB_LVDS_LFP_DATA);
- 	if (!block)
- 		return NULL;
-@@ -384,17 +383,8 @@ static void *generate_lfp_data_ptrs(stru
- 
- 	block_size = get_blocksize(block);
- 
--	size = block_size;
--	t0 = find_fp_timing_terminator(block, size);
--	if (!t0)
--		return NULL;
--
--	size -= t0 - block - 2;
--	t1 = find_fp_timing_terminator(t0 + 2, size);
--	if (!t1)
--		return NULL;
--
--	size = t1 - t0;
-+	size = fp_timing_size + sizeof(struct lvds_dvo_timing) +
-+		sizeof(struct lvds_pnp_id);
- 	if (size * 16 > block_size)
- 		return NULL;
- 
-@@ -412,7 +402,7 @@ static void *generate_lfp_data_ptrs(stru
- 	table_size = sizeof(struct lvds_dvo_timing);
- 	size = make_lfp_data_ptr(&ptrs->ptr[0].dvo_timing, table_size, size);
- 
--	table_size = t0 - block + 2;
-+	table_size = fp_timing_size;
- 	size = make_lfp_data_ptr(&ptrs->ptr[0].fp_timing, table_size, size);
- 
- 	if (ptrs->ptr[0].fp_timing.table_size)
-@@ -427,14 +417,14 @@ static void *generate_lfp_data_ptrs(stru
- 		return NULL;
- 	}
- 
--	size = t1 - t0;
-+	size = fp_timing_size + sizeof(struct lvds_dvo_timing) +
-+		sizeof(struct lvds_pnp_id);
- 	for (i = 1; i < 16; i++) {
- 		next_lfp_data_ptr(&ptrs->ptr[i].fp_timing, &ptrs->ptr[i-1].fp_timing, size);
- 		next_lfp_data_ptr(&ptrs->ptr[i].dvo_timing, &ptrs->ptr[i-1].dvo_timing, size);
- 		next_lfp_data_ptr(&ptrs->ptr[i].panel_pnp_id, &ptrs->ptr[i-1].panel_pnp_id, size);
- 	}
- 
--	size = t1 - t0;
- 	table_size = sizeof(struct lvds_lfp_panel_name);
- 
- 	if (16 * (size + table_size) <= block_size) {
-
-
+greg k-h
