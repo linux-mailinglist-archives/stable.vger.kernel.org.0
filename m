@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2E97608A9F
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:03:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44D02608957
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232043AbiJVJDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 05:03:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34268 "EHLO
+        id S233931AbiJVIcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:32:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231627AbiJVJCz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:02:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A38562FA5D4;
-        Sat, 22 Oct 2022 01:18:10 -0700 (PDT)
+        with ESMTP id S233959AbiJVIb7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:31:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 937782D1285;
+        Sat, 22 Oct 2022 01:03:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7E0660BB8;
-        Sat, 22 Oct 2022 08:03:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADE0EC433D6;
-        Sat, 22 Oct 2022 08:03:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8AD9B82DEE;
+        Sat, 22 Oct 2022 08:03:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAB11C433D6;
+        Sat, 22 Oct 2022 08:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425801;
-        bh=k3ZzKbC9zNarUtRLUEgprjT0EFS8qIm+is5xwTEYpXA=;
+        s=korg; t=1666425807;
+        bh=73g0JsSReowuNUCn5pgQKkzbNbSYaz9WNv4ymMmfb/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X/WyWtuJZlgKxqtVukjR7L1b9jq1tN5Zwvo2zlxXIZiGl9leGf7ogYJ0xNElu9Knm
-         1wkrreNWRRILqZqzXUlY8iYn1mNhWGZImz885AsRdVaaVVpCdWSsA8XLY64GtQZts+
-         ghFzZPx67KwW1ST2R1eA/GGPZD0qw2utjGYHOSvk=
+        b=YZaEH6RTyOT9DOpgoaD2qImb/ekLbMtp1bYxspTVrpDaKcjQ4cO6K0GjHsAdeg4Sa
+         sSbE/buFdZjj0ZG4W6P8eDcUE98/2EN/smaPQvuKJrcIviUmmehbwX2KpZ5s/OZBp0
+         uLpChOal7ZFW3CnK51Q2xL+jXA1eKye6Ha0Bh/Dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Martynas Pumputis <m@lambda.lt>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 591/717] hwmon: (sht4x) do not overflow clamping operation on 32-bit platforms
-Date:   Sat, 22 Oct 2022 09:27:50 +0200
-Message-Id: <20221022072524.574695065@linuxfoundation.org>
+Subject: [PATCH 5.19 593/717] bpf: Adjust kprobe_multi entry_ip for CONFIG_X86_KERNEL_IBT
+Date:   Sat, 22 Oct 2022 09:27:52 +0200
+Message-Id: <20221022072524.669631658@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,36 +56,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit f9c0cf8f26de367c58e48b02b1cdb9c377626e6f ]
+[ Upstream commit c09eb2e578eb1668bbc84dc07e8d8bd6f04b9a02 ]
 
-On 32-bit platforms, long is 32 bits, so (long)UINT_MAX is less than
-(long)SHT4X_MIN_POLL_INTERVAL, which means the clamping operation is
-bogus. Fix this by clamping at INT_MAX, so that the upperbound is the
-same on all platforms.
+Martynas reported bpf_get_func_ip returning +4 address when
+CONFIG_X86_KERNEL_IBT option is enabled.
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Link: https://lore.kernel.org/r/20220924101151.4168414-1-Jason@zx2c4.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+When CONFIG_X86_KERNEL_IBT is enabled we'll have endbr instruction
+at the function entry, which screws return value of bpf_get_func_ip()
+helper that should return the function address.
+
+There's short term workaround for kprobe_multi bpf program made by
+Alexei [1], but we need this fixup also for bpf_get_attach_cookie,
+that returns cookie based on the entry_ip value.
+
+Moving the fixup in the fprobe handler, so both bpf_get_func_ip
+and bpf_get_attach_cookie get expected function address when
+CONFIG_X86_KERNEL_IBT option is enabled.
+
+Also renaming kprobe_multi_link_handler entry_ip argument to fentry_ip
+so it's clearer this is an ftrace __fentry__ ip.
+
+[1] commit 7f0059b58f02 ("selftests/bpf: Fix kprobe_multi test.")
+
+Cc: Peter Zijlstra <peterz@infradead.org>
+Reported-by: Martynas Pumputis <m@lambda.lt>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Link: https://lore.kernel.org/r/20220926153340.1621984-5-jolsa@kernel.org
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/sht4x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/bpf_trace.c                      | 20 +++++++++++++++++--
+ .../selftests/bpf/progs/kprobe_multi.c        |  4 +---
+ 2 files changed, 19 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hwmon/sht4x.c b/drivers/hwmon/sht4x.c
-index c19df3ade48e..13ac2d8f22c7 100644
---- a/drivers/hwmon/sht4x.c
-+++ b/drivers/hwmon/sht4x.c
-@@ -129,7 +129,7 @@ static int sht4x_read_values(struct sht4x_data *data)
+diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
+index 88589d74a892..af13fdf1d86c 100644
+--- a/kernel/trace/bpf_trace.c
++++ b/kernel/trace/bpf_trace.c
+@@ -1026,6 +1026,22 @@ static const struct bpf_func_proto bpf_get_func_ip_proto_tracing = {
+ 	.arg1_type	= ARG_PTR_TO_CTX,
+ };
  
- static ssize_t sht4x_interval_write(struct sht4x_data *data, long val)
++#ifdef CONFIG_X86_KERNEL_IBT
++static unsigned long get_entry_ip(unsigned long fentry_ip)
++{
++	u32 instr;
++
++	/* Being extra safe in here in case entry ip is on the page-edge. */
++	if (get_kernel_nofault(instr, (u32 *) fentry_ip - 1))
++		return fentry_ip;
++	if (is_endbr(instr))
++		fentry_ip -= ENDBR_INSN_SIZE;
++	return fentry_ip;
++}
++#else
++#define get_entry_ip(fentry_ip) fentry_ip
++#endif
++
+ BPF_CALL_1(bpf_get_func_ip_kprobe, struct pt_regs *, regs)
  {
--	data->update_interval = clamp_val(val, SHT4X_MIN_POLL_INTERVAL, UINT_MAX);
-+	data->update_interval = clamp_val(val, SHT4X_MIN_POLL_INTERVAL, INT_MAX);
- 
- 	return 0;
+ 	struct kprobe *kp = kprobe_running();
+@@ -2414,13 +2430,13 @@ kprobe_multi_link_prog_run(struct bpf_kprobe_multi_link *link,
  }
+ 
+ static void
+-kprobe_multi_link_handler(struct fprobe *fp, unsigned long entry_ip,
++kprobe_multi_link_handler(struct fprobe *fp, unsigned long fentry_ip,
+ 			  struct pt_regs *regs)
+ {
+ 	struct bpf_kprobe_multi_link *link;
+ 
+ 	link = container_of(fp, struct bpf_kprobe_multi_link, fp);
+-	kprobe_multi_link_prog_run(link, entry_ip, regs);
++	kprobe_multi_link_prog_run(link, get_entry_ip(fentry_ip), regs);
+ }
+ 
+ static int symbols_cmp_r(const void *a, const void *b, const void *priv)
+diff --git a/tools/testing/selftests/bpf/progs/kprobe_multi.c b/tools/testing/selftests/bpf/progs/kprobe_multi.c
+index 08f95a8155d1..98c3399e15c0 100644
+--- a/tools/testing/selftests/bpf/progs/kprobe_multi.c
++++ b/tools/testing/selftests/bpf/progs/kprobe_multi.c
+@@ -36,15 +36,13 @@ __u64 kretprobe_test6_result = 0;
+ __u64 kretprobe_test7_result = 0;
+ __u64 kretprobe_test8_result = 0;
+ 
+-extern bool CONFIG_X86_KERNEL_IBT __kconfig __weak;
+-
+ static void kprobe_multi_check(void *ctx, bool is_return)
+ {
+ 	if (bpf_get_current_pid_tgid() >> 32 != pid)
+ 		return;
+ 
+ 	__u64 cookie = test_cookie ? bpf_get_attach_cookie(ctx) : 0;
+-	__u64 addr = bpf_get_func_ip(ctx) - (CONFIG_X86_KERNEL_IBT ? 4 : 0);
++	__u64 addr = bpf_get_func_ip(ctx);
+ 
+ #define SET(__var, __addr, __cookie) ({			\
+ 	if (((const void *) addr == __addr) &&		\
 -- 
 2.35.1
 
