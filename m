@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 445BA6089DB
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:43:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0279B6089B5
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:40:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234828AbiJVInE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:43:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41534 "EHLO
+        id S234014AbiJVIkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:40:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234457AbiJVIlV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:41:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AB3F2E8D8A;
-        Sat, 22 Oct 2022 01:06:43 -0700 (PDT)
+        with ESMTP id S234371AbiJVIhh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:37:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDE4315A8DC;
+        Sat, 22 Oct 2022 01:05:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4E3DB82E1B;
-        Sat, 22 Oct 2022 08:05:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C9BDC433D6;
-        Sat, 22 Oct 2022 08:05:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D538560B40;
+        Sat, 22 Oct 2022 08:05:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E99B0C433D7;
+        Sat, 22 Oct 2022 08:05:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425909;
-        bh=nHlhI1QWXEppbMON++/kcW8SsBgmXCnr015giDmAqlE=;
+        s=korg; t=1666425913;
+        bh=KHeH/veQXK9e9vaTszK2hpVy92B/G+tiu9lNn5UDWDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OjxV7obM45MpqvLCGzwJNG+Z0GMH0wAG0yFITe6jJ+LVZUtYA0W4SRCzEOSvS3NYw
-         ZFUcrXkL1qmpd3fdfgM59J2NtI1NJufCn0kLvdVVTnsAPm6Rs1eMlfY44biUMqdQN3
-         enx3hZIY0iaKNq4cHFArLRJ+Sla65Qozve10fNJ4=
+        b=1x2YLjiaDaQcR4jRS5zOmmSktwE8XpRe1VjTKqiobw6r6ITTImuvwzi7A8Tky3X6E
+         AmCHL01KKLROP2q+ZxaPwttijWrjDUDJY9fPJq8zNnl7/1je8ZQW6RHcUYhPH8M323
+         ou+aJuNu7IP4ZSqgNR7ofjqPknmtVb0HlEraWsE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Or Cochvi <or.cochvi@intel.com>,
-        Khaled Almahallawy <khaled.almahallawy@intel.com>,
+        stable@vger.kernel.org, Jaehyun Chung <jaehyun.chung@amd.com>,
+        Jasdeep Dhillon <jdhillon@amd.com>,
+        Aric Cyr <aric.cyr@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 625/717] drm/dp: Dont rewrite link config when setting phy test pattern
-Date:   Sat, 22 Oct 2022 09:28:24 +0200
-Message-Id: <20221022072526.098026922@linuxfoundation.org>
+Subject: [PATCH 5.19 626/717] drm/amd/display: Remove interface for periodic interrupt 1
+Date:   Sat, 22 Oct 2022 09:28:25 +0200
+Message-Id: <20221022072526.146536060@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,98 +56,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khaled Almahallawy <khaled.almahallawy@intel.com>
+From: Aric Cyr <aric.cyr@amd.com>
 
-[ Upstream commit 7b4d8db657192066bc6f1f6635d348413dac1e18 ]
+[ Upstream commit 97d8d6f075bd8f988589be02b91f6fa644d0b0b8 ]
 
-The sequence for Source DP PHY CTS automation is [2][1]:
-1- Emulate successful Link Training(LT)
-2- Short HPD and change link rates and number of lanes by LT.
-(This is same flow for Link Layer CTS)
-3- Short HPD and change PHY test pattern and swing/pre-emphasis
-levels (This step should not trigger LT)
+[why]
+Only a single VLINE interrupt is available so interface should not
+expose the second one which is used by DMU firmware.
 
-The problem is with DP PHY compliance setup as follow:
+[how]
+Remove references to periodic_interrupt1 and VLINE1 from DC interfaces.
 
-     [DPTX + on board LTTPR]------Main Link--->[Scope]
-     	     	        ^                         |
-			|                         |
-			|                         |
-			----------Aux Ch------>[Aux Emulator]
-
-At step 3, before writing TRAINING_LANEx_SET/LINK_QUAL_PATTERN_SET
-to declare the pattern/swing requested by scope, we write link
-config in LINK_BW_SET/LANE_COUNT_SET on a port that has LTTPR.
-As LTTPR snoops aux transaction, LINK_BW_SET/LANE_COUNT_SET writes
-indicate a LT will start [Check DP 2.0 E11 -Sec 3.6.8.2 & 3.6.8.6.3],
-and LTTPR will reset the link and stop sending DP signals to
-DPTX/Scope causing the measurements to fail. Note that step 3 will
-not trigger LT and DP link will never recovered by the
-Aux Emulator/Scope.
-
-The reset of link can be tested with a monitor connected to LTTPR
-port simply by writing to LINK_BW_SET or LANE_COUNT_SET as follow
-
-  igt/tools/dpcd_reg write --offset=0x100 --value 0x14 --device=2
-
-OR
-
-  printf '\x14' | sudo dd of=/dev/drm_dp_aux2 bs=1 count=1 conv=notrunc
-  seek=$((0x100))
-
-This single aux write causes the screen to blank, sending short HPD to
-DPTX, setting LINK_STATUS_UPDATE = 1 in DPCD 0x204, and triggering LT.
-
-As stated in [1]:
-"Before any TX electrical testing can be performed, the link between a
-DPTX and DPRX (in this case, a piece of test equipment), including all
-LTTPRs within the path, shall be trained as defined in this Standard."
-
-In addition, changing Phy pattern/Swing/Pre-emphasis (Step 3) uses the
-same link rate and lane count applied on step 2, so no need to redo LT.
-
-The fix is to not rewrite link config in step 3, and just writes
-TRAINING_LANEx_SET and LINK_QUAL_PATTERN_SET
-
-[1]: DP 2.0 E11 - 3.6.11.1 LTTPR DPTX_PHY Electrical Compliance
-
-[2]: Configuring UnigrafDPTC Controller - Automation Test Sequence
-https://www.keysight.com/us/en/assets/9922-01244/help-files/
-D9040DPPC-DisplayPort-Test-Software-Online-Help-latest.chm
-
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Or Cochvi <or.cochvi@intel.com>
-Signed-off-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220916054900.415804-1-khaled.almahallawy@intel.com
+Reviewed-by: Jaehyun Chung <jaehyun.chung@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Signed-off-by: Aric Cyr <aric.cyr@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/display/drm_dp_helper.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c      | 16 +++------
+ drivers/gpu/drm/amd/display/dc/dc_stream.h    |  6 ++--
+ .../amd/display/dc/dcn10/dcn10_hw_sequencer.c | 35 ++++++-------------
+ .../amd/display/dc/dcn10/dcn10_hw_sequencer.h |  3 +-
+ .../gpu/drm/amd/display/dc/inc/hw_sequencer.h |  8 +----
+ 5 files changed, 18 insertions(+), 50 deletions(-)
 
-diff --git a/drivers/gpu/drm/display/drm_dp_helper.c b/drivers/gpu/drm/display/drm_dp_helper.c
-index e7c22c2ca90c..f27cd710bc86 100644
---- a/drivers/gpu/drm/display/drm_dp_helper.c
-+++ b/drivers/gpu/drm/display/drm_dp_helper.c
-@@ -2636,17 +2636,8 @@ int drm_dp_set_phy_test_pattern(struct drm_dp_aux *aux,
- 				struct drm_dp_phy_test_params *data, u8 dp_rev)
- {
- 	int err, i;
--	u8 link_config[2];
- 	u8 test_pattern;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 9dbd965d8afb..6ca29b887fce 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -2632,11 +2632,8 @@ static void copy_stream_update_to_stream(struct dc *dc,
+ 	if (update->abm_level)
+ 		stream->abm_level = *update->abm_level;
  
--	link_config[0] = drm_dp_link_rate_to_bw_code(data->link_rate);
--	link_config[1] = data->num_lanes;
--	if (data->enhanced_frame_cap)
--		link_config[1] |= DP_LANE_COUNT_ENHANCED_FRAME_EN;
--	err = drm_dp_dpcd_write(aux, DP_LINK_BW_SET, link_config, 2);
--	if (err < 0)
--		return err;
+-	if (update->periodic_interrupt0)
+-		stream->periodic_interrupt0 = *update->periodic_interrupt0;
 -
- 	test_pattern = data->phy_pattern;
- 	if (dp_rev < 0x12) {
- 		test_pattern = (test_pattern << 2) &
+-	if (update->periodic_interrupt1)
+-		stream->periodic_interrupt1 = *update->periodic_interrupt1;
++	if (update->periodic_interrupt)
++		stream->periodic_interrupt = *update->periodic_interrupt;
+ 
+ 	if (update->gamut_remap)
+ 		stream->gamut_remap_matrix = *update->gamut_remap;
+@@ -2723,13 +2720,8 @@ static void commit_planes_do_stream_update(struct dc *dc,
+ 
+ 		if (!pipe_ctx->top_pipe &&  !pipe_ctx->prev_odm_pipe && pipe_ctx->stream == stream) {
+ 
+-			if (stream_update->periodic_interrupt0 &&
+-					dc->hwss.setup_periodic_interrupt)
+-				dc->hwss.setup_periodic_interrupt(dc, pipe_ctx, VLINE0);
+-
+-			if (stream_update->periodic_interrupt1 &&
+-					dc->hwss.setup_periodic_interrupt)
+-				dc->hwss.setup_periodic_interrupt(dc, pipe_ctx, VLINE1);
++			if (stream_update->periodic_interrupt && dc->hwss.setup_periodic_interrupt)
++				dc->hwss.setup_periodic_interrupt(dc, pipe_ctx);
+ 
+ 			if ((stream_update->hdr_static_metadata && !stream->use_dynamic_meta) ||
+ 					stream_update->vrr_infopacket ||
+diff --git a/drivers/gpu/drm/amd/display/dc/dc_stream.h b/drivers/gpu/drm/amd/display/dc/dc_stream.h
+index 58941f4defb3..a7f319d404a1 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc_stream.h
++++ b/drivers/gpu/drm/amd/display/dc/dc_stream.h
+@@ -200,8 +200,7 @@ struct dc_stream_state {
+ 	/* DMCU info */
+ 	unsigned int abm_level;
+ 
+-	struct periodic_interrupt_config periodic_interrupt0;
+-	struct periodic_interrupt_config periodic_interrupt1;
++	struct periodic_interrupt_config periodic_interrupt;
+ 
+ 	/* from core_stream struct */
+ 	struct dc_context *ctx;
+@@ -268,8 +267,7 @@ struct dc_stream_update {
+ 	struct dc_info_packet *hdr_static_metadata;
+ 	unsigned int *abm_level;
+ 
+-	struct periodic_interrupt_config *periodic_interrupt0;
+-	struct periodic_interrupt_config *periodic_interrupt1;
++	struct periodic_interrupt_config *periodic_interrupt;
+ 
+ 	struct dc_info_packet *vrr_infopacket;
+ 	struct dc_info_packet *vsc_infopacket;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+index d9ab27991535..33c87e53b6a3 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -3623,7 +3623,7 @@ void dcn10_calc_vupdate_position(
+ {
+ 	const struct dc_crtc_timing *dc_crtc_timing = &pipe_ctx->stream->timing;
+ 	int vline_int_offset_from_vupdate =
+-			pipe_ctx->stream->periodic_interrupt0.lines_offset;
++			pipe_ctx->stream->periodic_interrupt.lines_offset;
+ 	int vupdate_offset_from_vsync = dc->hwss.get_vupdate_offset_from_vsync(pipe_ctx);
+ 	int start_position;
+ 
+@@ -3648,18 +3648,10 @@ void dcn10_calc_vupdate_position(
+ static void dcn10_cal_vline_position(
+ 		struct dc *dc,
+ 		struct pipe_ctx *pipe_ctx,
+-		enum vline_select vline,
+ 		uint32_t *start_line,
+ 		uint32_t *end_line)
+ {
+-	enum vertical_interrupt_ref_point ref_point = INVALID_POINT;
+-
+-	if (vline == VLINE0)
+-		ref_point = pipe_ctx->stream->periodic_interrupt0.ref_point;
+-	else if (vline == VLINE1)
+-		ref_point = pipe_ctx->stream->periodic_interrupt1.ref_point;
+-
+-	switch (ref_point) {
++	switch (pipe_ctx->stream->periodic_interrupt.ref_point) {
+ 	case START_V_UPDATE:
+ 		dcn10_calc_vupdate_position(
+ 				dc,
+@@ -3668,7 +3660,9 @@ static void dcn10_cal_vline_position(
+ 				end_line);
+ 		break;
+ 	case START_V_SYNC:
+-		// Suppose to do nothing because vsync is 0;
++		// vsync is line 0 so start_line is just the requested line offset
++		*start_line = pipe_ctx->stream->periodic_interrupt.lines_offset;
++		*end_line = *start_line + 2;
+ 		break;
+ 	default:
+ 		ASSERT(0);
+@@ -3678,24 +3672,15 @@ static void dcn10_cal_vline_position(
+ 
+ void dcn10_setup_periodic_interrupt(
+ 		struct dc *dc,
+-		struct pipe_ctx *pipe_ctx,
+-		enum vline_select vline)
++		struct pipe_ctx *pipe_ctx)
+ {
+ 	struct timing_generator *tg = pipe_ctx->stream_res.tg;
++	uint32_t start_line = 0;
++	uint32_t end_line = 0;
+ 
+-	if (vline == VLINE0) {
+-		uint32_t start_line = 0;
+-		uint32_t end_line = 0;
++	dcn10_cal_vline_position(dc, pipe_ctx, &start_line, &end_line);
+ 
+-		dcn10_cal_vline_position(dc, pipe_ctx, vline, &start_line, &end_line);
+-
+-		tg->funcs->setup_vertical_interrupt0(tg, start_line, end_line);
+-
+-	} else if (vline == VLINE1) {
+-		pipe_ctx->stream_res.tg->funcs->setup_vertical_interrupt1(
+-				tg,
+-				pipe_ctx->stream->periodic_interrupt1.lines_offset);
+-	}
++	tg->funcs->setup_vertical_interrupt0(tg, start_line, end_line);
+ }
+ 
+ void dcn10_setup_vupdate_interrupt(struct dc *dc, struct pipe_ctx *pipe_ctx)
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.h b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.h
+index 9ae07c77fdc0..0ef7bf7ddb75 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.h
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.h
+@@ -175,8 +175,7 @@ void dcn10_set_cursor_attribute(struct pipe_ctx *pipe_ctx);
+ void dcn10_set_cursor_sdr_white_level(struct pipe_ctx *pipe_ctx);
+ void dcn10_setup_periodic_interrupt(
+ 		struct dc *dc,
+-		struct pipe_ctx *pipe_ctx,
+-		enum vline_select vline);
++		struct pipe_ctx *pipe_ctx);
+ enum dc_status dcn10_set_clock(struct dc *dc,
+ 		enum dc_clock_type clock_type,
+ 		uint32_t clk_khz,
+diff --git a/drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h b/drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h
+index 05053f3b4ab7..21a9eedec092 100644
+--- a/drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h
++++ b/drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h
+@@ -32,11 +32,6 @@
+ #include "inc/hw/link_encoder.h"
+ #include "core_status.h"
+ 
+-enum vline_select {
+-	VLINE0,
+-	VLINE1
+-};
+-
+ struct pipe_ctx;
+ struct dc_state;
+ struct dc_stream_status;
+@@ -116,8 +111,7 @@ struct hw_sequencer_funcs {
+ 			int group_index, int group_size,
+ 			struct pipe_ctx *grouped_pipes[]);
+ 	void (*setup_periodic_interrupt)(struct dc *dc,
+-			struct pipe_ctx *pipe_ctx,
+-			enum vline_select vline);
++			struct pipe_ctx *pipe_ctx);
+ 	void (*set_drr)(struct pipe_ctx **pipe_ctx, int num_pipes,
+ 			struct dc_crtc_timing_adjust adjust);
+ 	void (*set_static_screen_control)(struct pipe_ctx **pipe_ctx,
 -- 
 2.35.1
 
