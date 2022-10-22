@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BC9460866C
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EE036086D0
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:53:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231325AbiJVHtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:49:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43748 "EHLO
+        id S232025AbiJVHxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:53:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231722AbiJVHtC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11DB9253BE6;
-        Sat, 22 Oct 2022 00:45:41 -0700 (PDT)
+        with ESMTP id S231755AbiJVHwg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:52:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 170655A140;
+        Sat, 22 Oct 2022 00:46:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13C9CB82E11;
-        Sat, 22 Oct 2022 07:44:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CE1BC433D6;
-        Sat, 22 Oct 2022 07:44:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F4EF60BA3;
+        Sat, 22 Oct 2022 07:44:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D75AC433D6;
+        Sat, 22 Oct 2022 07:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424665;
-        bh=B9Crd4kZ7xxEIngssS4tZiODPInOvcl9djs8Lvm56gQ=;
+        s=korg; t=1666424668;
+        bh=N/eEKm28DGri4kRdFiJuk/ocMDA5G7uunqNFPqEF9o8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Icf0Q84WsezApliw3j1e93wNrcxwvOM7k4exINpwyk4kwXK3xBIr/l5/fgRJJ0US/
-         yGzPFTaMp/rTx8eXzNQxoHxLDrlI35OM8cC6iefdG3Ha4UiCtyWRWv/vUWpu73aotr
-         rnoS61bobNpEKxZ4YEFf/A0HpBwNO3zOyk40AXhI=
+        b=w4nzGHsBrCX6AqB7B3z8riz9bPqqZ1t7ZuduoCeaAr7ccaFMljzv0BH0JZJAARo3q
+         hU8vkb2QSmF9ump4OhYl7okojCAGdh4OvLNSpwMj/wnLlzZgjrCV7/fyh4ml1fwFVx
+         oyglqkaEdlvSqBK+qZVCB7N9dGbYbkgXed/SRzCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Joanne Koong <joannelkoong@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 201/717] wifi: ath10k: add peer map clean up for peer delete in ath10k_sta_state()
-Date:   Sat, 22 Oct 2022 09:21:20 +0200
-Message-Id: <20221022072450.954387549@linuxfoundation.org>
+Subject: [PATCH 5.19 202/717] bpf: Fix non-static bpf_func_proto struct definitions
+Date:   Sat, 22 Oct 2022 09:21:21 +0200
+Message-Id: <20221022072451.091195507@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,203 +54,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <quic_wgong@quicinc.com>
+From: Joanne Koong <joannelkoong@gmail.com>
 
-[ Upstream commit f020d9570a04df0762a2ac5c50cf1d8c511c9164 ]
+[ Upstream commit dc368e1c658e4f478a45e8d1d5b0c8392ca87506 ]
 
-When peer delete failed in a disconnect operation, use-after-free
-detected by KFENCE in below log. It is because for each vdev_id and
-address, it has only one struct ath10k_peer, it is allocated in
-ath10k_peer_map_event(). When connected to an AP, it has more than
-one HTT_T2H_MSG_TYPE_PEER_MAP reported from firmware, then the
-array peer_map of struct ath10k will be set muti-elements to the
-same ath10k_peer in ath10k_peer_map_event(). When peer delete failed
-in ath10k_sta_state(), the ath10k_peer will be free for the 1st peer
-id in array peer_map of struct ath10k, and then use-after-free happened
-for the 2nd peer id because they map to the same ath10k_peer.
+This patch does two things:
 
-And clean up all peers in array peer_map for the ath10k_peer, then
-user-after-free disappeared
+1) Marks the dynptr bpf_func_proto structs that were added in [1]
+   as static, as pointed out by the kernel test robot in [2].
 
-peer map event log:
-[  306.911021] wlan0: authenticate with b0:2a:43:e6:75:0e
-[  306.957187] ath10k_pci 0000:01:00.0: mac vdev 0 peer create b0:2a:43:e6:75:0e (new sta) sta 1 / 32 peer 1 / 33
-[  306.957395] ath10k_pci 0000:01:00.0: htt peer map vdev 0 peer b0:2a:43:e6:75:0e id 246
-[  306.957404] ath10k_pci 0000:01:00.0: htt peer map vdev 0 peer b0:2a:43:e6:75:0e id 198
-[  306.986924] ath10k_pci 0000:01:00.0: htt peer map vdev 0 peer b0:2a:43:e6:75:0e id 166
+2) There are some bpf_func_proto structs marked as extern which can
+   instead be statically defined.
 
-peer unmap event log:
-[  435.715691] wlan0: deauthenticating from b0:2a:43:e6:75:0e by local choice (Reason: 3=DEAUTH_LEAVING)
-[  435.716802] ath10k_pci 0000:01:00.0: mac vdev 0 peer delete b0:2a:43:e6:75:0e sta ffff990e0e9c2b50 (sta gone)
-[  435.717177] ath10k_pci 0000:01:00.0: htt peer unmap vdev 0 peer b0:2a:43:e6:75:0e id 246
-[  435.717186] ath10k_pci 0000:01:00.0: htt peer unmap vdev 0 peer b0:2a:43:e6:75:0e id 198
-[  435.717193] ath10k_pci 0000:01:00.0: htt peer unmap vdev 0 peer b0:2a:43:e6:75:0e id 166
+  [1] https://lore.kernel.org/bpf/20220523210712.3641569-1-joannelkoong@gmail.com/
+  [2] https://lore.kernel.org/bpf/62ab89f2.Pko7sI08RAKdF8R6%25lkp@intel.com/
 
-use-after-free log:
-[21705.888627] wlan0: deauthenticating from d0:76:8f:82:be:75 by local choice (Reason: 3=DEAUTH_LEAVING)
-[21713.799910] ath10k_pci 0000:01:00.0: failed to delete peer d0:76:8f:82:be:75 for vdev 0: -110
-[21713.799925] ath10k_pci 0000:01:00.0: found sta peer d0:76:8f:82:be:75 (ptr 0000000000000000 id 102) entry on vdev 0 after it was supposedly removed
-[21713.799968] ==================================================================
-[21713.799991] BUG: KFENCE: use-after-free read in ath10k_sta_state+0x265/0xb8a [ath10k_core]
-[21713.799991]
-[21713.799997] Use-after-free read at 0x00000000abe1c75e (in kfence-#69):
-[21713.800010]  ath10k_sta_state+0x265/0xb8a [ath10k_core]
-[21713.800041]  drv_sta_state+0x115/0x677 [mac80211]
-[21713.800059]  __sta_info_destroy_part2+0xb1/0x133 [mac80211]
-[21713.800076]  __sta_info_flush+0x11d/0x162 [mac80211]
-[21713.800093]  ieee80211_set_disassoc+0x12d/0x2f4 [mac80211]
-[21713.800110]  ieee80211_mgd_deauth+0x26c/0x29b [mac80211]
-[21713.800137]  cfg80211_mlme_deauth+0x13f/0x1bb [cfg80211]
-[21713.800153]  nl80211_deauthenticate+0xf8/0x121 [cfg80211]
-[21713.800161]  genl_rcv_msg+0x38e/0x3be
-[21713.800166]  netlink_rcv_skb+0x89/0xf7
-[21713.800171]  genl_rcv+0x28/0x36
-[21713.800176]  netlink_unicast+0x179/0x24b
-[21713.800181]  netlink_sendmsg+0x3a0/0x40e
-[21713.800187]  sock_sendmsg+0x72/0x76
-[21713.800192]  ____sys_sendmsg+0x16d/0x1e3
-[21713.800196]  ___sys_sendmsg+0x95/0xd1
-[21713.800200]  __sys_sendmsg+0x85/0xbf
-[21713.800205]  do_syscall_64+0x43/0x55
-[21713.800210]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[21713.800213]
-[21713.800219] kfence-#69: 0x000000009149b0d5-0x000000004c0697fb, size=1064, cache=kmalloc-2k
-[21713.800219]
-[21713.800224] allocated by task 13 on cpu 0 at 21705.501373s:
-[21713.800241]  ath10k_peer_map_event+0x7e/0x154 [ath10k_core]
-[21713.800254]  ath10k_htt_t2h_msg_handler+0x586/0x1039 [ath10k_core]
-[21713.800265]  ath10k_htt_htc_t2h_msg_handler+0x12/0x28 [ath10k_core]
-[21713.800277]  ath10k_htc_rx_completion_handler+0x14c/0x1b5 [ath10k_core]
-[21713.800283]  ath10k_pci_process_rx_cb+0x195/0x1df [ath10k_pci]
-[21713.800294]  ath10k_ce_per_engine_service+0x55/0x74 [ath10k_core]
-[21713.800305]  ath10k_ce_per_engine_service_any+0x76/0x84 [ath10k_core]
-[21713.800310]  ath10k_pci_napi_poll+0x49/0x144 [ath10k_pci]
-[21713.800316]  net_rx_action+0xdc/0x361
-[21713.800320]  __do_softirq+0x163/0x29a
-[21713.800325]  asm_call_irq_on_stack+0x12/0x20
-[21713.800331]  do_softirq_own_stack+0x3c/0x48
-[21713.800337]  __irq_exit_rcu+0x9b/0x9d
-[21713.800342]  common_interrupt+0xc9/0x14d
-[21713.800346]  asm_common_interrupt+0x1e/0x40
-[21713.800351]  ksoftirqd_should_run+0x5/0x16
-[21713.800357]  smpboot_thread_fn+0x148/0x211
-[21713.800362]  kthread+0x150/0x15f
-[21713.800367]  ret_from_fork+0x22/0x30
-[21713.800370]
-[21713.800374] freed by task 708 on cpu 1 at 21713.799953s:
-[21713.800498]  ath10k_sta_state+0x2c6/0xb8a [ath10k_core]
-[21713.800515]  drv_sta_state+0x115/0x677 [mac80211]
-[21713.800532]  __sta_info_destroy_part2+0xb1/0x133 [mac80211]
-[21713.800548]  __sta_info_flush+0x11d/0x162 [mac80211]
-[21713.800565]  ieee80211_set_disassoc+0x12d/0x2f4 [mac80211]
-[21713.800581]  ieee80211_mgd_deauth+0x26c/0x29b [mac80211]
-[21713.800598]  cfg80211_mlme_deauth+0x13f/0x1bb [cfg80211]
-[21713.800614]  nl80211_deauthenticate+0xf8/0x121 [cfg80211]
-[21713.800619]  genl_rcv_msg+0x38e/0x3be
-[21713.800623]  netlink_rcv_skb+0x89/0xf7
-[21713.800628]  genl_rcv+0x28/0x36
-[21713.800632]  netlink_unicast+0x179/0x24b
-[21713.800637]  netlink_sendmsg+0x3a0/0x40e
-[21713.800642]  sock_sendmsg+0x72/0x76
-[21713.800646]  ____sys_sendmsg+0x16d/0x1e3
-[21713.800651]  ___sys_sendmsg+0x95/0xd1
-[21713.800655]  __sys_sendmsg+0x85/0xbf
-[21713.800659]  do_syscall_64+0x43/0x55
-[21713.800663]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Tested-on: QCA6174 hw3.2 PCI WLAN.RM.4.4.1-00288-QCARMSWPZ-1
-
-Fixes: d0eeafad1189 ("ath10k: Clean up peer when sta goes away.")
-Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220801141930.16794-1-quic_wgong@quicinc.com
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Joanne Koong <joannelkoong@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220616225407.1878436-1-joannelkoong@gmail.com
+Stable-dep-of: 883743422ced ("bpf: Fix ref_obj_id for dynptr data slices in verifier")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 54 ++++++++++++++-------------
- 1 file changed, 29 insertions(+), 25 deletions(-)
+ include/linux/bpf.h  |  3 ---
+ kernel/bpf/helpers.c | 12 ++++++------
+ kernel/bpf/syscall.c |  2 +-
+ 3 files changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 6407f509e91b..9a1c970f8f55 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -864,11 +864,36 @@ static int ath10k_peer_delete(struct ath10k *ar, u32 vdev_id, const u8 *addr)
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index ed352c00330c..647438166558 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -2273,12 +2273,9 @@ extern const struct bpf_func_proto bpf_for_each_map_elem_proto;
+ extern const struct bpf_func_proto bpf_btf_find_by_name_kind_proto;
+ extern const struct bpf_func_proto bpf_sk_setsockopt_proto;
+ extern const struct bpf_func_proto bpf_sk_getsockopt_proto;
+-extern const struct bpf_func_proto bpf_kallsyms_lookup_name_proto;
+ extern const struct bpf_func_proto bpf_find_vma_proto;
+ extern const struct bpf_func_proto bpf_loop_proto;
+-extern const struct bpf_func_proto bpf_strncmp_proto;
+ extern const struct bpf_func_proto bpf_copy_from_user_task_proto;
+-extern const struct bpf_func_proto bpf_kptr_xchg_proto;
+ 
+ const struct bpf_func_proto *tracing_prog_func_proto(
+   enum bpf_func_id func_id, const struct bpf_prog *prog);
+diff --git a/kernel/bpf/helpers.c b/kernel/bpf/helpers.c
+index fb03f40116eb..ed7649b04704 100644
+--- a/kernel/bpf/helpers.c
++++ b/kernel/bpf/helpers.c
+@@ -584,7 +584,7 @@ BPF_CALL_3(bpf_strncmp, const char *, s1, u32, s1_sz, const char *, s2)
+ 	return strncmp(s1, s2, s1_sz);
+ }
+ 
+-const struct bpf_func_proto bpf_strncmp_proto = {
++static const struct bpf_func_proto bpf_strncmp_proto = {
+ 	.func		= bpf_strncmp,
+ 	.gpl_only	= false,
+ 	.ret_type	= RET_INTEGER,
+@@ -1402,7 +1402,7 @@ BPF_CALL_2(bpf_kptr_xchg, void *, map_value, void *, ptr)
+  */
+ #define BPF_PTR_POISON ((void *)((0xeB9FUL << 2) + POISON_POINTER_DELTA))
+ 
+-const struct bpf_func_proto bpf_kptr_xchg_proto = {
++static const struct bpf_func_proto bpf_kptr_xchg_proto = {
+ 	.func         = bpf_kptr_xchg,
+ 	.gpl_only     = false,
+ 	.ret_type     = RET_PTR_TO_BTF_ID_OR_NULL,
+@@ -1489,7 +1489,7 @@ BPF_CALL_4(bpf_dynptr_from_mem, void *, data, u32, size, u64, flags, struct bpf_
+ 	return err;
+ }
+ 
+-const struct bpf_func_proto bpf_dynptr_from_mem_proto = {
++static const struct bpf_func_proto bpf_dynptr_from_mem_proto = {
+ 	.func		= bpf_dynptr_from_mem,
+ 	.gpl_only	= false,
+ 	.ret_type	= RET_INTEGER,
+@@ -1516,7 +1516,7 @@ BPF_CALL_5(bpf_dynptr_read, void *, dst, u32, len, struct bpf_dynptr_kern *, src
  	return 0;
  }
  
-+static void ath10k_peer_map_cleanup(struct ath10k *ar, struct ath10k_peer *peer)
-+{
-+	int peer_id, i;
-+
-+	lockdep_assert_held(&ar->conf_mutex);
-+
-+	for_each_set_bit(peer_id, peer->peer_ids,
-+			 ATH10K_MAX_NUM_PEER_IDS) {
-+		ar->peer_map[peer_id] = NULL;
-+	}
-+
-+	/* Double check that peer is properly un-referenced from
-+	 * the peer_map
-+	 */
-+	for (i = 0; i < ARRAY_SIZE(ar->peer_map); i++) {
-+		if (ar->peer_map[i] == peer) {
-+			ath10k_warn(ar, "removing stale peer_map entry for %pM (ptr %pK idx %d)\n",
-+				    peer->addr, peer, i);
-+			ar->peer_map[i] = NULL;
-+		}
-+	}
-+
-+	list_del(&peer->list);
-+	kfree(peer);
-+	ar->num_peers--;
-+}
-+
- static void ath10k_peer_cleanup(struct ath10k *ar, u32 vdev_id)
- {
- 	struct ath10k_peer *peer, *tmp;
--	int peer_id;
--	int i;
- 
- 	lockdep_assert_held(&ar->conf_mutex);
- 
-@@ -880,25 +905,7 @@ static void ath10k_peer_cleanup(struct ath10k *ar, u32 vdev_id)
- 		ath10k_warn(ar, "removing stale peer %pM from vdev_id %d\n",
- 			    peer->addr, vdev_id);
- 
--		for_each_set_bit(peer_id, peer->peer_ids,
--				 ATH10K_MAX_NUM_PEER_IDS) {
--			ar->peer_map[peer_id] = NULL;
--		}
--
--		/* Double check that peer is properly un-referenced from
--		 * the peer_map
--		 */
--		for (i = 0; i < ARRAY_SIZE(ar->peer_map); i++) {
--			if (ar->peer_map[i] == peer) {
--				ath10k_warn(ar, "removing stale peer_map entry for %pM (ptr %pK idx %d)\n",
--					    peer->addr, peer, i);
--				ar->peer_map[i] = NULL;
--			}
--		}
--
--		list_del(&peer->list);
--		kfree(peer);
--		ar->num_peers--;
-+		ath10k_peer_map_cleanup(ar, peer);
- 	}
- 	spin_unlock_bh(&ar->data_lock);
+-const struct bpf_func_proto bpf_dynptr_read_proto = {
++static const struct bpf_func_proto bpf_dynptr_read_proto = {
+ 	.func		= bpf_dynptr_read,
+ 	.gpl_only	= false,
+ 	.ret_type	= RET_INTEGER,
+@@ -1544,7 +1544,7 @@ BPF_CALL_5(bpf_dynptr_write, struct bpf_dynptr_kern *, dst, u32, offset, void *,
+ 	return 0;
  }
-@@ -7586,10 +7593,7 @@ static int ath10k_sta_state(struct ieee80211_hw *hw,
- 				/* Clean up the peer object as well since we
- 				 * must have failed to do this above.
- 				 */
--				list_del(&peer->list);
--				ar->peer_map[i] = NULL;
--				kfree(peer);
--				ar->num_peers--;
-+				ath10k_peer_map_cleanup(ar, peer);
- 			}
- 		}
- 		spin_unlock_bh(&ar->data_lock);
+ 
+-const struct bpf_func_proto bpf_dynptr_write_proto = {
++static const struct bpf_func_proto bpf_dynptr_write_proto = {
+ 	.func		= bpf_dynptr_write,
+ 	.gpl_only	= false,
+ 	.ret_type	= RET_INTEGER,
+@@ -1572,7 +1572,7 @@ BPF_CALL_3(bpf_dynptr_data, struct bpf_dynptr_kern *, ptr, u32, offset, u32, len
+ 	return (unsigned long)(ptr->data + ptr->offset + offset);
+ }
+ 
+-const struct bpf_func_proto bpf_dynptr_data_proto = {
++static const struct bpf_func_proto bpf_dynptr_data_proto = {
+ 	.func		= bpf_dynptr_data,
+ 	.gpl_only	= false,
+ 	.ret_type	= RET_PTR_TO_DYNPTR_MEM_OR_NULL,
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index d334aeb23407..7a3444988c84 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -5138,7 +5138,7 @@ BPF_CALL_4(bpf_kallsyms_lookup_name, const char *, name, int, name_sz, int, flag
+ 	return *res ? 0 : -ENOENT;
+ }
+ 
+-const struct bpf_func_proto bpf_kallsyms_lookup_name_proto = {
++static const struct bpf_func_proto bpf_kallsyms_lookup_name_proto = {
+ 	.func		= bpf_kallsyms_lookup_name,
+ 	.gpl_only	= false,
+ 	.ret_type	= RET_INTEGER,
 -- 
 2.35.1
 
