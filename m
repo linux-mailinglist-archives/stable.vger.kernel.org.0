@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F504608820
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:10:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D5AE6087B5
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233004AbiJVIKU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:10:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60216 "EHLO
+        id S232593AbiJVIF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:05:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232796AbiJVIHt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:07:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E90B92D6579;
-        Sat, 22 Oct 2022 00:53:21 -0700 (PDT)
+        with ESMTP id S232875AbiJVIEU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6238E2D2C24;
+        Sat, 22 Oct 2022 00:51:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76D4F60B26;
-        Sat, 22 Oct 2022 07:40:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CC58C433C1;
-        Sat, 22 Oct 2022 07:40:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C22CB82E03;
+        Sat, 22 Oct 2022 07:41:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E50C433C1;
+        Sat, 22 Oct 2022 07:41:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424455;
-        bh=YDvdxWfV1FcnbZUuL8IYRGcSN1JzkaRyWuTjHwTihzY=;
+        s=korg; t=1666424471;
+        bh=tQocI4AX+Xkhb6aZXEHJleSRliEKDtndK6ghaeMogRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GK8evJ0FDUeP4Jhudn9t76zU7vJSLzkjFbF5Vx4intRfW2oK01fTF008U4Z4ywTHq
-         iL8vjDRVTCYxZlfbn4PtsnH7p2cBa4ioxgff2E+WqgryOzn3bAGVeEwMUmyPHIkesY
-         dj1/sKLpiYI0eKunNoxO6Oc54dYCwZa6MA+uAT/k=
+        b=c2Q00ifCBe8r1fbckqdPW6/ttlvnTDDN+YULJBhhIanTZKifGdQTySNIQEZ3iP92L
+         qd8sP4SGWY2UFuBDcPOtydIqngABVkr7zqI9Z5Y2XrxQDnuV4/l8QSy9UXN+PJuznt
+         5ty/Og7rV25G0uLaDDo7moig0g6waZ0jVXlgknJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.19 152/717] tracing: Fix reading strings from synthetic events
-Date:   Sat, 22 Oct 2022 09:20:31 +0200
-Message-Id: <20221022072442.334611786@linuxfoundation.org>
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.19 158/717] blk-throttle: fix that io throttle can only work for single bio
+Date:   Sat, 22 Oct 2022 09:20:37 +0200
+Message-Id: <20221022072443.408341338@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,110 +52,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 0934ae9977c27133449b6dd8c6213970e7eece38 upstream.
+commit 320fb0f91e55ba248d4bad106b408e59099cfa89 upstream.
 
-The follow commands caused a crash:
+Test scripts:
+cd /sys/fs/cgroup/blkio/
+echo "8:0 1024" > blkio.throttle.write_bps_device
+echo $$ > cgroup.procs
+dd if=/dev/zero of=/dev/sda bs=10k count=1 oflag=direct &
+dd if=/dev/zero of=/dev/sda bs=10k count=1 oflag=direct &
 
-  # cd /sys/kernel/tracing
-  # echo 's:open char file[]' > dynamic_events
-  # echo 'hist:keys=common_pid:file=filename:onchange($file).trace(open,$file)' > events/syscalls/sys_enter_openat/trigger'
-  # echo 1 > events/synthetic/open/enable
+Test result:
+10240 bytes (10 kB, 10 KiB) copied, 10.0134 s, 1.0 kB/s
+10240 bytes (10 kB, 10 KiB) copied, 10.0135 s, 1.0 kB/s
 
-BOOM!
+The problem is that the second bio is finished after 10s instead of 20s.
 
-The problem is that the synthetic event field "char file[]" will read
-the value given to it as a string without any memory checks to make sure
-the address is valid. The above example will pass in the user space
-address and the sythetic event code will happily call strlen() on it
-and then strscpy() where either one will cause an oops when accessing
-user space addresses.
+Root cause:
+1) second bio will be flagged:
 
-Use the helper functions from trace_kprobe and trace_eprobe that can
-read strings safely (and actually succeed when the address is from user
-space and the memory is mapped in).
+__blk_throtl_bio
+ while (true) {
+  ...
+  if (sq->nr_queued[rw]) -> some bio is throttled already
+   break
+ };
+ bio_set_flag(bio, BIO_THROTTLED); -> flag the bio
 
-Now the above can show:
+2) flagged bio will be dispatched without waiting:
 
-     packagekitd-1721    [000] ...2.   104.597170: open: file=/usr/lib/rpm/fileattrs/cmake.attr
-    in:imjournal-978     [006] ...2.   104.599642: open: file=/var/lib/rsyslog/imjournal.state.tmp
-     packagekitd-1721    [000] ...2.   104.626308: open: file=/usr/lib/rpm/fileattrs/debuginfo.attr
+throtl_dispatch_tg
+ tg_may_dispatch
+  tg_with_in_bps_limit
+   if (bps_limit == U64_MAX || bio_flagged(bio, BIO_THROTTLED))
+    *wait = 0; -> wait time is zero
+    return true;
 
-Link: https://lkml.kernel.org/r/20221012104534.826549315@goodmis.org
+commit 9f5ede3c01f9 ("block: throttle split bio in case of iops limit")
+support to count split bios for iops limit, thus it adds flagged bio
+checking in tg_with_in_bps_limit() so that split bios will only count
+once for bps limit, however, it introduce a new problem that io throttle
+won't work if multiple bios are throttled.
 
-Cc: stable@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tom Zanussi <zanussi@kernel.org>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Fixes: bd82631d7ccdc ("tracing: Add support for dynamic strings to synthetic events")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+In order to fix the problem, handle iops/bps limit in different ways:
+
+1) for iops limit, there is no flag to record if the bio is throttled,
+   and iops is always applied.
+2) for bps limit, original bio will be flagged with BIO_BPS_THROTTLED,
+   and io throttle will ignore bio with the flag.
+
+Noted this patch also remove the code to set flag in __bio_clone(), it's
+introduced in commit 111be8839817 ("block-throttle: avoid double
+charge"), and author thinks split bio can be resubmited and throttled
+again, which is wrong because split bio will continue to dispatch from
+caller.
+
+Fixes: 9f5ede3c01f9 ("block: throttle split bio in case of iops limit")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20220829022240.3348319-2-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_synth.c |   23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ block/bio.c               |    2 --
+ block/blk-throttle.c      |   20 ++++++--------------
+ block/blk-throttle.h      |    2 +-
+ include/linux/bio.h       |    2 +-
+ include/linux/blk_types.h |    2 +-
+ 5 files changed, 9 insertions(+), 19 deletions(-)
 
---- a/kernel/trace/trace_events_synth.c
-+++ b/kernel/trace/trace_events_synth.c
-@@ -17,6 +17,8 @@
- /* for gfp flag names */
- #include <linux/trace_events.h>
- #include <trace/events/mmflags.h>
-+#include "trace_probe.h"
-+#include "trace_probe_kernel.h"
- 
- #include "trace_synth.h"
- 
-@@ -409,6 +411,7 @@ static unsigned int trace_string(struct
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -760,8 +760,6 @@ EXPORT_SYMBOL(bio_put);
+ static int __bio_clone(struct bio *bio, struct bio *bio_src, gfp_t gfp)
  {
- 	unsigned int len = 0;
- 	char *str_field;
-+	int ret;
+ 	bio_set_flag(bio, BIO_CLONED);
+-	if (bio_flagged(bio_src, BIO_THROTTLED))
+-		bio_set_flag(bio, BIO_THROTTLED);
+ 	bio->bi_ioprio = bio_src->bi_ioprio;
+ 	bio->bi_iter = bio_src->bi_iter;
  
- 	if (is_dynamic) {
- 		u32 data_offset;
-@@ -417,19 +420,27 @@ static unsigned int trace_string(struct
- 		data_offset += event->n_u64 * sizeof(u64);
- 		data_offset += data_size;
+--- a/block/blk-throttle.c
++++ b/block/blk-throttle.c
+@@ -811,7 +811,7 @@ static bool tg_with_in_bps_limit(struct
+ 	unsigned int bio_size = throtl_bio_data_size(bio);
  
--		str_field = (char *)entry + data_offset;
+ 	/* no need to throttle if this bio's bytes have been accounted */
+-	if (bps_limit == U64_MAX || bio_flagged(bio, BIO_THROTTLED)) {
++	if (bps_limit == U64_MAX || bio_flagged(bio, BIO_BPS_THROTTLED)) {
+ 		if (wait)
+ 			*wait = 0;
+ 		return true;
+@@ -921,22 +921,13 @@ static void throtl_charge_bio(struct thr
+ 	unsigned int bio_size = throtl_bio_data_size(bio);
+ 
+ 	/* Charge the bio to the group */
+-	if (!bio_flagged(bio, BIO_THROTTLED)) {
++	if (!bio_flagged(bio, BIO_BPS_THROTTLED)) {
+ 		tg->bytes_disp[rw] += bio_size;
+ 		tg->last_bytes_disp[rw] += bio_size;
+ 	}
+ 
+ 	tg->io_disp[rw]++;
+ 	tg->last_io_disp[rw]++;
 -
--		len = strlen(str_val) + 1;
--		strscpy(str_field, str_val, len);
-+		len = kern_fetch_store_strlen((unsigned long)str_val);
+-	/*
+-	 * BIO_THROTTLED is used to prevent the same bio to be throttled
+-	 * more than once as a throttled bio will go through blk-throtl the
+-	 * second time when it eventually gets issued.  Set it when a bio
+-	 * is being charged to a tg.
+-	 */
+-	if (!bio_flagged(bio, BIO_THROTTLED))
+-		bio_set_flag(bio, BIO_THROTTLED);
+ }
  
- 		data_offset |= len << 16;
- 		*(u32 *)&entry->fields[*n_u64] = data_offset;
+ /**
+@@ -1026,6 +1017,7 @@ static void tg_dispatch_one_bio(struct t
+ 	sq->nr_queued[rw]--;
  
-+		ret = kern_fetch_store_string((unsigned long)str_val, &entry->fields[*n_u64], entry);
-+
- 		(*n_u64)++;
- 	} else {
- 		str_field = (char *)&entry->fields[*n_u64];
+ 	throtl_charge_bio(tg, bio);
++	bio_set_flag(bio, BIO_BPS_THROTTLED);
  
--		strscpy(str_field, str_val, STR_VAR_LEN_MAX);
-+#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-+		if ((unsigned long)str_val < TASK_SIZE)
-+			ret = strncpy_from_user_nofault(str_field, str_val, STR_VAR_LEN_MAX);
-+		else
-+#endif
-+			ret = strncpy_from_kernel_nofault(str_field, str_val, STR_VAR_LEN_MAX);
-+
-+		if (ret < 0)
-+			strcpy(str_field, FAULT_STRING);
-+
- 		(*n_u64) += STR_VAR_LEN_MAX / sizeof(u64);
+ 	/*
+ 	 * If our parent is another tg, we just need to transfer @bio to
+@@ -2159,8 +2151,10 @@ again:
+ 		qn = &tg->qnode_on_parent[rw];
+ 		sq = sq->parent_sq;
+ 		tg = sq_to_tg(sq);
+-		if (!tg)
++		if (!tg) {
++			bio_set_flag(bio, BIO_BPS_THROTTLED);
+ 			goto out_unlock;
++		}
  	}
  
-@@ -462,7 +473,7 @@ static notrace void trace_event_raw_even
- 		val_idx = var_ref_idx[field_pos];
- 		str_val = (char *)(long)var_ref_vals[val_idx];
- 
--		len = strlen(str_val) + 1;
-+		len = kern_fetch_store_strlen((unsigned long)str_val);
- 
- 		fields_size += len;
+ 	/* out-of-limit, queue to @tg */
+@@ -2189,8 +2183,6 @@ again:
  	}
+ 
+ out_unlock:
+-	bio_set_flag(bio, BIO_THROTTLED);
+-
+ #ifdef CONFIG_BLK_DEV_THROTTLING_LOW
+ 	if (throttled || !td->track_bio_latency)
+ 		bio->bi_issue.value |= BIO_ISSUE_THROTL_SKIP_LATENCY;
+--- a/block/blk-throttle.h
++++ b/block/blk-throttle.h
+@@ -175,7 +175,7 @@ static inline bool blk_throtl_bio(struct
+ 	struct throtl_grp *tg = blkg_to_tg(bio->bi_blkg);
+ 
+ 	/* no need to throttle bps any more if the bio has been throttled */
+-	if (bio_flagged(bio, BIO_THROTTLED) &&
++	if (bio_flagged(bio, BIO_BPS_THROTTLED) &&
+ 	    !(tg->flags & THROTL_TG_HAS_IOPS_LIMIT))
+ 		return false;
+ 
+--- a/include/linux/bio.h
++++ b/include/linux/bio.h
+@@ -509,7 +509,7 @@ static inline void bio_set_dev(struct bi
+ {
+ 	bio_clear_flag(bio, BIO_REMAPPED);
+ 	if (bio->bi_bdev != bdev)
+-		bio_clear_flag(bio, BIO_THROTTLED);
++		bio_clear_flag(bio, BIO_BPS_THROTTLED);
+ 	bio->bi_bdev = bdev;
+ 	bio_associate_blkg(bio);
+ }
+--- a/include/linux/blk_types.h
++++ b/include/linux/blk_types.h
+@@ -323,7 +323,7 @@ enum {
+ 	BIO_QUIET,		/* Make BIO Quiet */
+ 	BIO_CHAIN,		/* chained bio, ->bi_remaining in effect */
+ 	BIO_REFFED,		/* bio has elevated ->bi_cnt */
+-	BIO_THROTTLED,		/* This bio has already been subjected to
++	BIO_BPS_THROTTLED,	/* This bio has already been subjected to
+ 				 * throttling rules. Don't do it again. */
+ 	BIO_TRACE_COMPLETION,	/* bio_endio() should trace the final completion
+ 				 * of this bio. */
 
 
