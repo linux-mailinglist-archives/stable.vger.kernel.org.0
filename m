@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3606087D9
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:06:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E1D36087E1
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232594AbiJVIGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:06:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35454 "EHLO
+        id S232919AbiJVIHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:07:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232537AbiJVIFV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:05:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E152C6E0D;
-        Sat, 22 Oct 2022 00:52:46 -0700 (PDT)
+        with ESMTP id S232629AbiJVIFf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:05:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D936F2C6E1E;
+        Sat, 22 Oct 2022 00:52:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 757BAB82D9F;
-        Sat, 22 Oct 2022 07:52:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7A78C433D6;
-        Sat, 22 Oct 2022 07:52:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A58BAB82E07;
+        Sat, 22 Oct 2022 07:52:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F33ECC43140;
+        Sat, 22 Oct 2022 07:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425137;
-        bh=nmvG3vBy2Gnd/UxyKgj0D3lIpS0zVnyNZ2NZnicV560=;
+        s=korg; t=1666425140;
+        bh=AaZSzvYv1XZWsFuV8C2YDIeqSY8bFZR2WRCjfZv866Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j07urjt1Ot1jNuQnTZ6vY+AMuNmZKB1a66DGG2Bp0vm2h+ShN6yO/we6k6QVyXYdE
-         AYrL/k8vpeqWJUUtO5A/sUZWHBnrJUafqlE9Advjsk7jrn+apq5+PDbJZQbl5/7DYp
-         uJqIi7fseLSKrziH2g0qYHSJDuzctpFJeJshhy5s=
+        b=Jgf2xstFq8DdLz5BsW9nEnU0v4PnDS0AO0Vv4pHbTWuPMsiirSL7oW4+zR8LYa+2+
+         xhatT/G52Owl11qQA4REiDDe/QGHBLW3UhNOIgyAIiud2k8Y9gnMcCscJc3yKjyjoh
+         1Zwjp79BRo2oAg8dqGGj4/gz+/Mw+JtCeZp3sAbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+ab99dc4c6e961eed8b8e@syzkaller.appspotmail.com,
+        Zhu Yanjun <yanjun.zhu@linux.dev>,
+        Li Zhijian <lizhijian@fujitsu.com>,
+        Bob Pearson <rpearsonhpe@gmail.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 403/717] media: xilinx: vipp: Fix refcount leak in xvip_graph_dma_init
-Date:   Sat, 22 Oct 2022 09:24:42 +0200
-Message-Id: <20221022072515.722008557@linuxfoundation.org>
+Subject: [PATCH 5.19 404/717] RDMA/rxe: Fix "kernel NULL pointer dereference" error
+Date:   Sat, 22 Oct 2022 09:24:43 +0200
+Message-Id: <20221022072515.791526756@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,54 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
 
-[ Upstream commit 1c78f19c3a0ea312a8178a6bfd8934eb93e9b10a ]
+[ Upstream commit a625ca30eff806395175ebad3ac1399014bdb280 ]
 
-of_get_child_by_name() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+When rxe_queue_init in the function rxe_qp_init_req fails,
+both qp->req.task.func and qp->req.task.arg are not initialized.
 
-Fixes: df3305156f98 ("[media] v4l: xilinx: Add Xilinx Video IP core")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Because of creation of qp fails, the function rxe_create_qp will
+call rxe_qp_do_cleanup to handle allocated resource.
+
+Before calling __rxe_do_task, both qp->req.task.func and
+qp->req.task.arg should be checked.
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20220822011615.805603-2-yanjun.zhu@linux.dev
+Reported-by: syzbot+ab99dc4c6e961eed8b8e@syzkaller.appspotmail.com
+Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
+Reviewed-by: Li Zhijian <lizhijian@fujitsu.com>
+Reviewed-by: Bob Pearson <rpearsonhpe@gmail.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/xilinx/xilinx-vipp.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/xilinx/xilinx-vipp.c b/drivers/media/platform/xilinx/xilinx-vipp.c
-index f34f8b077e03..0a16c218a50a 100644
---- a/drivers/media/platform/xilinx/xilinx-vipp.c
-+++ b/drivers/media/platform/xilinx/xilinx-vipp.c
-@@ -471,7 +471,7 @@ static int xvip_graph_dma_init(struct xvip_composite_device *xdev)
- {
- 	struct device_node *ports;
- 	struct device_node *port;
--	int ret;
-+	int ret = 0;
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index fd706dc3009d..173a4253406b 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -794,7 +794,9 @@ static void rxe_qp_do_cleanup(struct work_struct *work)
+ 	rxe_cleanup_task(&qp->comp.task);
  
- 	ports = of_get_child_by_name(xdev->dev->of_node, "ports");
- 	if (ports == NULL) {
-@@ -481,13 +481,14 @@ static int xvip_graph_dma_init(struct xvip_composite_device *xdev)
- 
- 	for_each_child_of_node(ports, port) {
- 		ret = xvip_graph_dma_init_one(xdev, port);
--		if (ret < 0) {
-+		if (ret) {
- 			of_node_put(port);
--			return ret;
-+			break;
- 		}
- 	}
- 
--	return 0;
-+	of_node_put(ports);
-+	return ret;
- }
- 
- static void xvip_graph_cleanup(struct xvip_composite_device *xdev)
+ 	/* flush out any receive wr's or pending requests */
+-	__rxe_do_task(&qp->req.task);
++	if (qp->req.task.func)
++		__rxe_do_task(&qp->req.task);
++
+ 	if (qp->sq.queue) {
+ 		__rxe_do_task(&qp->comp.task);
+ 		__rxe_do_task(&qp->req.task);
 -- 
 2.35.1
 
