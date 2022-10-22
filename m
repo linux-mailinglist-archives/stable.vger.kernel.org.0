@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D15FF608A61
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:52:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E31956088BD
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:22:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231172AbiJVIwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:52:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38062 "EHLO
+        id S233633AbiJVIWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:22:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234313AbiJVIvb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:51:31 -0400
+        with ESMTP id S233639AbiJVIUa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:20:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 775722F0DCC;
-        Sat, 22 Oct 2022 01:11:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DE402DE447;
+        Sat, 22 Oct 2022 00:58:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8290EB82E12;
-        Sat, 22 Oct 2022 07:57:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9AD2C433D7;
-        Sat, 22 Oct 2022 07:57:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E20CB82E28;
+        Sat, 22 Oct 2022 07:57:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E50E1C433D6;
+        Sat, 22 Oct 2022 07:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425432;
-        bh=P6mrvCB9xhdjNaQd5esO9PzJUs/Txx/H4cT1nbvnes4=;
+        s=korg; t=1666425435;
+        bh=n+52xSQrxTm+UqR0b2GceeHoHH/Do0/baJ2D045InPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1v3YgibuygT9wGSAlSIbMJNZzrOFAXudvdbP0PzHWCG/DJrdHKs8iqqGSH5c6u2Ds
-         Mh6dM/CacbTlSjzWqB4rMjmwxlXKdeUU6zsVguoZ6hgb8SuiIGbBFJbQAZiE16aVqX
-         xMXfSVXjPHhxdXCAGPKvFcUoYyKX3rWa2uGGVdbw=
+        b=Eo8kbrhAtbqI/ekNwWcaLDZ4LY5LwvRY7u/VwUAhM4/T+yezBkqNjD442mRDkJKie
+         GC5Ck8gGVw/o3KDApq1SaGbIs9avteB+uWJyBuFWAo3y/FwDLuEtf5LoAgbKFsk8Em
+         l0PMOhTyoRD7gtSvuuvnykz/qAX9K9kwp3TfOJ+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 500/717] x86/hyperv: Fix struct hv_enlightened_vmcs definition
-Date:   Sat, 22 Oct 2022 09:26:19 +0200
-Message-Id: <20221022072520.372130740@linuxfoundation.org>
+Subject: [PATCH 5.19 501/717] powerpc/64s: Fix GENERIC_CPU build flags for PPC970 / G5
+Date:   Sat, 22 Oct 2022 09:26:20 +0200
+Message-Id: <20221022072520.422189997@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,66 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit ea9da788a61e47e7ab9cbad397453e51cd82ac0d ]
+[ Upstream commit 58ec7f06b74e0d6e76c4110afce367c8b5f0837d ]
 
-Section 1.9 of TLFS v6.0b says:
+Big-endian GENERIC_CPU supports 970, but builds with -mcpu=power5.
+POWER5 is ISA v2.02 whereas 970 is v2.01 plus Altivec. 2.02 added
+the popcntb instruction which a compiler might use.
 
-"All structures are padded in such a way that fields are aligned
-naturally (that is, an 8-byte field is aligned to an offset of 8 bytes
-and so on)".
+Use -mcpu=power4.
 
-'struct enlightened_vmcs' has a glitch:
-
-...
-        struct {
-                u32                nested_flush_hypercall:1; /*   836: 0  4 */
-                u32                msr_bitmap:1;         /*   836: 1  4 */
-                u32                reserved:30;          /*   836: 2  4 */
-        } hv_enlightenments_control;                     /*   836     4 */
-        u32                        hv_vp_id;             /*   840     4 */
-        u64                        hv_vm_id;             /*   844     8 */
-        u64                        partition_assist_page; /*   852     8 */
-...
-
-And the observed values in 'partition_assist_page' make no sense at
-all. Fix the layout by padding the structure properly.
-
-Fixes: 68d1eb72ee99 ("x86/hyper-v: define struct hv_enlightened_vmcs and clean field bits")
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Link: https://lore.kernel.org/r/20220830133737.1539624-2-vkuznets@redhat.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 471d7ff8b51b ("powerpc/64s: Remove POWER4 support")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220921014103.587954-1-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/hyperv-tlfs.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
-index 0a9407dc0859..6f0acc45e67a 100644
---- a/arch/x86/include/asm/hyperv-tlfs.h
-+++ b/arch/x86/include/asm/hyperv-tlfs.h
-@@ -546,7 +546,7 @@ struct hv_enlightened_vmcs {
- 	u64 guest_rip;
- 
- 	u32 hv_clean_fields;
--	u32 hv_padding_32;
-+	u32 padding32_1;
- 	u32 hv_synthetic_controls;
- 	struct {
- 		u32 nested_flush_hypercall:1;
-@@ -554,7 +554,7 @@ struct hv_enlightened_vmcs {
- 		u32 reserved:30;
- 	}  __packed hv_enlightenments_control;
- 	u32 hv_vp_id;
--
-+	u32 padding32_2;
- 	u64 hv_vm_id;
- 	u64 partition_assist_page;
- 	u64 padding64_4[4];
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index d54e1fe03551..dbeba3e209c0 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -152,7 +152,7 @@ CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=power8
+ CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mtune=power9,-mtune=power8)
+ else
+ CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mtune=power7,$(call cc-option,-mtune=power5))
+-CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mcpu=power5,-mcpu=power4)
++CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=power4
+ endif
+ else ifdef CONFIG_PPC_BOOK3E_64
+ CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=powerpc64
 -- 
 2.35.1
 
