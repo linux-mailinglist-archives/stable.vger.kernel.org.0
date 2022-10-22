@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08AEC6089EF
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:45:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEAC66088ED
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234293AbiJVIpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:45:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33240 "EHLO
+        id S231158AbiJVIZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:25:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234831AbiJVIn5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:43:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14F772EA957;
-        Sat, 22 Oct 2022 01:07:36 -0700 (PDT)
+        with ESMTP id S233989AbiJVIYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:24:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B44C57564;
+        Sat, 22 Oct 2022 01:00:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 708A260B83;
-        Sat, 22 Oct 2022 07:59:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16257C433C1;
-        Sat, 22 Oct 2022 07:59:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EAE18B82E16;
+        Sat, 22 Oct 2022 07:59:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6055EC433C1;
+        Sat, 22 Oct 2022 07:59:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425595;
-        bh=KJQPpJ32UIqN4u7A8mzjqm34rg4kJPRAbyTUOPAsbIY=;
+        s=korg; t=1666425598;
+        bh=psaJ9l6m2dT3AwTJ14Cd2vhLcC+Ys2U7Ajn7QpIyigg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EyYMYy0XiVg2wqEGk118QpqI4Jwj7lUfHboCqgbkndWVHHMad91hfK1qhx/8C803T
-         J38Azsq5Qyb2u3SU3UXJ9TbOs/x46YZxwOHVqoo2OBL1RezjN1hIkQQzpR+alHpdGR
-         44I2RBx6I1Pur7OL+hdLlIiEUIXj8KpbtOudLbHQ=
+        b=rrp6h9llEbUoVuRReZ+qtj/Qx5SUMbOUQbs4fGRk+b9skgEfKBCC5rGOpwUwKQ2DB
+         1qyVZu52h32Og5pP/i4pJI/p3DBhEoIccIkj3xJKdgoPYwxe2J33DZ7J3Vjcf5csUv
+         ms+2DFC3nqS8irjeZ1fxEZ1sjJlZdaxUkdhco1bU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 551/717] ARM: decompressor: Include .data.rel.ro.local
-Date:   Sat, 22 Oct 2022 09:27:10 +0200
-Message-Id: <20221022072522.740344747@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Luya Tshimbalanga <luya@fedoraproject.org>
+Subject: [PATCH 5.19 552/717] ACPI: x86: Add a quirk for Dell Inspiron 14 2-in-1 for StorageD3Enable
+Date:   Sat, 22 Oct 2022 09:27:11 +0200
+Message-Id: <20221022072522.791506800@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,48 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 1b64daf413acd86c2c13f5443f6b4ef3690c8061 ]
+[ Upstream commit 018d6711c26e4bd26e20a819fcc7f8ab902608f3 ]
 
-The .data.rel.ro.local section has the same semantics as .data.rel.ro
-here, so include it in the .rodata section of the decompressor.
-Additionally since the .printk_index section isn't usable outside of
-the core kernel, discard it in the decompressor. Avoids these warnings:
+Dell Inspiron 14 2-in-1 has two ACPI nodes under GPP1 both with _ADR of
+0, both without _HID.  It's ambiguous which the kernel should take, but
+it seems to take "DEV0".  Unfortunately "DEV0" is missing the device
+property `StorageD3Enable` which is present on "NVME".
 
-arm-linux-gnueabi-ld: warning: orphan section `.data.rel.ro.local' from `arch/arm/boot/compressed/fdt_rw.o' being placed in section `.data.rel.ro.local'
-arm-linux-gnueabi-ld: warning: orphan section `.printk_index' from `arch/arm/boot/compressed/fdt_rw.o' being placed in section `.printk_index'
+To avoid this causing problems for suspend, add a quirk for this system
+to behave like `StorageD3Enable` property was found.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/linux-mm/202209080545.qMIVj7YM-lkp@intel.com
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216440
+Reported-and-tested-by: Luya Tshimbalanga <luya@fedoraproject.org>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/compressed/vmlinux.lds.S | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/acpi/x86/utils.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/compressed/vmlinux.lds.S b/arch/arm/boot/compressed/vmlinux.lds.S
-index 1bcb68ac4b01..3fcb3e62dc56 100644
---- a/arch/arm/boot/compressed/vmlinux.lds.S
-+++ b/arch/arm/boot/compressed/vmlinux.lds.S
-@@ -23,6 +23,7 @@ SECTIONS
-     *(.ARM.extab*)
-     *(.note.*)
-     *(.rel.*)
-+    *(.printk_index)
-     /*
-      * Discard any r/w data - this produces a link error if we have any,
-      * which is required for PIC decompression.  Local data generates
-@@ -57,6 +58,7 @@ SECTIONS
-     *(.rodata)
-     *(.rodata.*)
-     *(.data.rel.ro)
-+    *(.data.rel.ro.*)
-   }
-   .piggydata : {
-     *(.piggydata)
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index 664070fc8349..d7cdd8406c84 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -207,9 +207,26 @@ static const struct x86_cpu_id storage_d3_cpu_ids[] = {
+ 	{}
+ };
+ 
++static const struct dmi_system_id force_storage_d3_dmi[] = {
++	{
++		/*
++		 * _ADR is ambiguous between GPP1.DEV0 and GPP1.NVME
++		 * but .NVME is needed to get StorageD3Enable node
++		 * https://bugzilla.kernel.org/show_bug.cgi?id=216440
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 14 7425 2-in-1"),
++		}
++	},
++	{}
++};
++
+ bool force_storage_d3(void)
+ {
+-	return x86_match_cpu(storage_d3_cpu_ids);
++	const struct dmi_system_id *dmi_id = dmi_first_match(force_storage_d3_dmi);
++
++	return dmi_id || x86_match_cpu(storage_d3_cpu_ids);
+ }
+ 
+ /*
 -- 
 2.35.1
 
