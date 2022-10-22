@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6047A6087EE
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60C3E60881E
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:10:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233001AbiJVIHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:07:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58556 "EHLO
+        id S232822AbiJVIKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:10:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232804AbiJVIGE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:06:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A89352C2ADE;
-        Sat, 22 Oct 2022 00:52:59 -0700 (PDT)
+        with ESMTP id S233074AbiJVII2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:08:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98AEA2CB8BA;
+        Sat, 22 Oct 2022 00:53:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2A61B82E16;
-        Sat, 22 Oct 2022 07:52:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51BAAC433D7;
-        Sat, 22 Oct 2022 07:52:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8789860B83;
+        Sat, 22 Oct 2022 07:52:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8531FC43470;
+        Sat, 22 Oct 2022 07:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425160;
-        bh=eRxJ1kJpepxUkHWp5jwbtxrvWiVTvKzPrLq8OH8PndI=;
+        s=korg; t=1666425167;
+        bh=k9UmSSd24VoHD4EdvwgqSONVwGFzHEbaHDORRiPVUfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+BY4A4kr5Z0Zd+82Z3kxunPMiFf9voTuXVAAFc0qeE9E6mUz0CZeddy2YH6mXI16
-         k8sHERaL78gI/sajzGhJIDWWmolW5zvyWLeWec+nDtrwZdgEyyMGMdKzk5sVqzmP4+
-         JJPRfwdOqpS7Mx/pq3qSD1iZRsHHwBfC6pQR29WQ=
+        b=naz7o3c014gL0BG8ejmgL+BXYtjb6VfmbAl6bnX1uycoTAvNsFtgzY3bxlfnQ14OO
+         fLlVbyh/okQGAHZBXEdNmOXumvkprRxaz4Khl3DgIuzc7tAWzA+d9OCTXNgxjpMKK0
+         cWpmizbahHcHoPPvTPVQtTDD/3g1pZnJ7pe+lYxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Xu Yilun <yilun.xu@intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 410/717] fpga: prevent integer overflow in dfl_feature_ioctl_set_irq()
-Date:   Sat, 22 Oct 2022 09:24:49 +0200
-Message-Id: <20221022072516.217478075@linuxfoundation.org>
+        stable@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, dmaengine@vger.kernel.org,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 412/717] dmaengine: idxd: avoid deadlock in process_misc_interrupts()
+Date:   Sat, 22 Oct 2022 09:24:51 +0200
+Message-Id: <20221022072516.329391173@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,36 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jerry Snitselaar <jsnitsel@redhat.com>
 
-[ Upstream commit 939bc5453b8cbdde9f1e5110ce8309aedb1b501a ]
+[ Upstream commit 407171717a4f4d2d80825584643374a2dfdb0540 ]
 
-The "hdr.count * sizeof(s32)" multiplication can overflow on 32 bit
-systems leading to memory corruption.  Use array_size() to fix that.
+idxd_device_clear_state() now grabs the idxd->dev_lock
+itself, so don't grab the lock prior to calling it.
 
-Fixes: 322b598be4d9 ("fpga: dfl: introduce interrupt trigger setting API")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Xu Yilun <yilun.xu@intel.com>
-Link: https://lore.kernel.org/r/YxBAtYCM38dM7yzI@kili
-Signed-off-by: Xu Yilun <yilun.xu@intel.com>
+This was seen in testing after dmar fault occurred on system,
+resulting in lockup stack traces.
+
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Vinod Koul <vkoul@kernel.org>
+Cc: dmaengine@vger.kernel.org
+Fixes: cf4ac3fef338 ("dmaengine: idxd: fix lockdep warning on device driver removal")
+Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/20220823163709.2102468-1-jsnitsel@redhat.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fpga/dfl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/idxd/irq.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/fpga/dfl.c b/drivers/fpga/dfl.c
-index 6bff39ff21a0..eabaf495a481 100644
---- a/drivers/fpga/dfl.c
-+++ b/drivers/fpga/dfl.c
-@@ -1866,7 +1866,7 @@ long dfl_feature_ioctl_set_irq(struct platform_device *pdev,
- 		return -EINVAL;
- 
- 	fds = memdup_user((void __user *)(arg + sizeof(hdr)),
--			  hdr.count * sizeof(s32));
-+			  array_size(hdr.count, sizeof(s32)));
- 	if (IS_ERR(fds))
- 		return PTR_ERR(fds);
- 
+diff --git a/drivers/dma/idxd/irq.c b/drivers/dma/idxd/irq.c
+index 743ead5ebc57..5b9921475be6 100644
+--- a/drivers/dma/idxd/irq.c
++++ b/drivers/dma/idxd/irq.c
+@@ -324,13 +324,11 @@ static int process_misc_interrupts(struct idxd_device *idxd, u32 cause)
+ 			idxd->state = IDXD_DEV_HALTED;
+ 			idxd_wqs_quiesce(idxd);
+ 			idxd_wqs_unmap_portal(idxd);
+-			spin_lock(&idxd->dev_lock);
+ 			idxd_device_clear_state(idxd);
+ 			dev_err(&idxd->pdev->dev,
+ 				"idxd halted, need %s.\n",
+ 				gensts.reset_type == IDXD_DEVICE_RESET_FLR ?
+ 				"FLR" : "system reset");
+-			spin_unlock(&idxd->dev_lock);
+ 			return -ENXIO;
+ 		}
+ 	}
 -- 
 2.35.1
 
