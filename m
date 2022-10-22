@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DC4360858C
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BECAF608589
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:34:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230172AbiJVHez (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:34:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
+        id S230189AbiJVHes (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:34:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230190AbiJVHed (ORCPT
+        with ESMTP id S230164AbiJVHed (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:34:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2929A1F9EE;
-        Sat, 22 Oct 2022 00:34:25 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B7E926561;
+        Sat, 22 Oct 2022 00:34:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44DD0B82DF1;
-        Sat, 22 Oct 2022 07:34:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 823A4C433D7;
-        Sat, 22 Oct 2022 07:34:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8752860A5C;
+        Sat, 22 Oct 2022 07:34:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ABB4C433C1;
+        Sat, 22 Oct 2022 07:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424062;
-        bh=db2V0LRd+meO9yClRgIgT7wRDLvS+JUnwgMu5rf4fkg=;
+        s=korg; t=1666424065;
+        bh=CObaSo7Y/jwaBtljqRsg6xczal4y423u8EiZaZKe4sY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SXp/g9iTCFVDx4JNibCKgs2SU12FS8J/uqnSNbPf6v2PmArNZiUmhQSHRPCgLSLz4
-         gCU5G98+HHWVgGJteqxqPtzbNywhAMrQmbSni96ADL82To4BJiGd8KgykPfTijlHDR
-         cg3bSARydyIZz1EbuEkQmORsEd5d5EDkLlR3w7co=
+        b=Wn8jEu899xwfYwJcqc0YNOlvXbwdJfkFyiJfi5mnzUEF3gjXfvnUrvfUCOOQ4dtqO
+         eFzONSrUkALiYxd1BlglBLHcCE0ygI4HLDGhaKQ/3+vvqgGl6Zx5e3bqhrwgJ5G9uv
+         zbugEYXlHLLJlcYqMbqwRN8GaM4SWeqcywN0B4C0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
-        Gaurav Kohli <gauravkohli@linux.microsoft.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.19 016/717] hv_netvsc: Fix race between VF offering and VF association message from host
-Date:   Sat, 22 Oct 2022 09:18:15 +0200
-Message-Id: <20221022072417.934407805@linuxfoundation.org>
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Enzo Matsumiya <ematsumiya@suse.de>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.19 017/717] cifs: destage dirty pages before re-reading them for cache=none
+Date:   Sat, 22 Oct 2022 09:18:16 +0200
+Message-Id: <20221022072418.117632497@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,101 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaurav Kohli <gauravkohli@linux.microsoft.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit 365e1ececb2905f94cc10a5817c5b644a32a3ae2 upstream.
+commit bb44c31cdcac107344dd2fcc3bd0504a53575c51 upstream.
 
-During vm boot, there might be possibility that vf registration
-call comes before the vf association from host to vm.
-
-And this might break netvsc vf path, To prevent the same block
-vf registration until vf bind message comes from host.
+This is the opposite case of kernel bugzilla 216301.
+If we mmap a file using cache=none and then proceed to update the mmapped
+area these updates are not reflected in a later pread() of that part of the
+file.
+To fix this we must first destage any dirty pages in the range before
+we allow the pread() to proceed.
 
 Cc: stable@vger.kernel.org
-Fixes: 00d7ddba11436 ("hv_netvsc: pair VF based on serial number")
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Gaurav Kohli <gauravkohli@linux.microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Enzo Matsumiya <ematsumiya@suse.de>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hyperv/hyperv_net.h |    3 ++-
- drivers/net/hyperv/netvsc.c     |    4 ++++
- drivers/net/hyperv/netvsc_drv.c |   19 +++++++++++++++++++
- 3 files changed, 25 insertions(+), 1 deletion(-)
+ fs/cifs/file.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/net/hyperv/hyperv_net.h
-+++ b/drivers/net/hyperv/hyperv_net.h
-@@ -1051,7 +1051,8 @@ struct net_device_context {
- 	u32 vf_alloc;
- 	/* Serial number of the VF to team with */
- 	u32 vf_serial;
--
-+	/* completion variable to confirm vf association */
-+	struct completion vf_add;
- 	/* Is the current data path through the VF NIC? */
- 	bool  data_path_is_vf;
- 
---- a/drivers/net/hyperv/netvsc.c
-+++ b/drivers/net/hyperv/netvsc.c
-@@ -1580,6 +1580,10 @@ static void netvsc_send_vf(struct net_de
- 
- 	net_device_ctx->vf_alloc = nvmsg->msg.v4_msg.vf_assoc.allocated;
- 	net_device_ctx->vf_serial = nvmsg->msg.v4_msg.vf_assoc.serial;
-+
-+	if (net_device_ctx->vf_alloc)
-+		complete(&net_device_ctx->vf_add);
-+
- 	netdev_info(ndev, "VF slot %u %s\n",
- 		    net_device_ctx->vf_serial,
- 		    net_device_ctx->vf_alloc ? "added" : "removed");
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -2313,6 +2313,18 @@ static struct net_device *get_netvsc_bys
- 
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -4024,6 +4024,15 @@ static ssize_t __cifs_readv(
+ 		len = ctx->len;
  	}
  
-+	/* Fallback path to check synthetic vf with
-+	 * help of mac addr
-+	 */
-+	list_for_each_entry(ndev_ctx, &netvsc_dev_list, list) {
-+		ndev = hv_get_drvdata(ndev_ctx->device_ctx);
-+		if (ether_addr_equal(vf_netdev->perm_addr, ndev->perm_addr)) {
-+			netdev_notice(vf_netdev,
-+				      "falling back to mac addr based matching\n");
-+			return ndev;
++	if (direct) {
++		rc = filemap_write_and_wait_range(file->f_inode->i_mapping,
++						  offset, offset + len - 1);
++		if (rc) {
++			kref_put(&ctx->refcount, cifs_aio_ctx_release);
++			return -EAGAIN;
 +		}
 +	}
 +
- 	netdev_notice(vf_netdev,
- 		      "no netdev found for vf serial:%u\n", serial);
- 	return NULL;
-@@ -2409,6 +2421,11 @@ static int netvsc_vf_changed(struct net_
- 	if (net_device_ctx->data_path_is_vf == vf_is_up)
- 		return NOTIFY_OK;
+ 	/* grab a lock here due to read response handlers can access ctx */
+ 	mutex_lock(&ctx->aio_mutex);
  
-+	if (vf_is_up && !net_device_ctx->vf_alloc) {
-+		netdev_info(ndev, "Waiting for the VF association from host\n");
-+		wait_for_completion(&net_device_ctx->vf_add);
-+	}
-+
- 	ret = netvsc_switch_datapath(ndev, vf_is_up);
- 
- 	if (ret) {
-@@ -2440,6 +2457,7 @@ static int netvsc_unregister_vf(struct n
- 
- 	netvsc_vf_setxdp(vf_netdev, NULL);
- 
-+	reinit_completion(&net_device_ctx->vf_add);
- 	netdev_rx_handler_unregister(vf_netdev);
- 	netdev_upper_dev_unlink(vf_netdev, ndev);
- 	RCU_INIT_POINTER(net_device_ctx->vf_netdev, NULL);
-@@ -2479,6 +2497,7 @@ static int netvsc_probe(struct hv_device
- 
- 	INIT_DELAYED_WORK(&net_device_ctx->dwork, netvsc_link_change);
- 
-+	init_completion(&net_device_ctx->vf_add);
- 	spin_lock_init(&net_device_ctx->lock);
- 	INIT_LIST_HEAD(&net_device_ctx->reconfig_events);
- 	INIT_DELAYED_WORK(&net_device_ctx->vf_takeover, netvsc_vf_setup);
 
 
