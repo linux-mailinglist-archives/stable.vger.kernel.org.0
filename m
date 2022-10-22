@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4649608866
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D8D3608A66
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229587AbiJVIQt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:16:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54232 "EHLO
+        id S234894AbiJVIxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:53:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234027AbiJVIP6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:15:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6578C3FF08;
-        Sat, 22 Oct 2022 00:57:01 -0700 (PDT)
+        with ESMTP id S234998AbiJVIwa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:52:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF542F1429;
+        Sat, 22 Oct 2022 01:12:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8105960B9D;
-        Sat, 22 Oct 2022 07:56:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82756C433C1;
-        Sat, 22 Oct 2022 07:56:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F7EFB82E1C;
+        Sat, 22 Oct 2022 07:56:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F207C433D6;
+        Sat, 22 Oct 2022 07:56:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425389;
-        bh=GbVU7i6kJsHauPmUVr0+cCkaeydYSaa0G0xW5whq3uc=;
+        s=korg; t=1666425402;
+        bh=FimAQjt8rxHycJrSJpJ2hpiNp5LRScxtbelMosB/6Po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OfixWVNIV03+IVWN1hU5tVb82uiEw7CCAtNTgvgRLfVgPpv53X1WGpO6JkQRsb0t0
-         1Cy3m0jU2fgQ2CVgK/QklMSkRFSZWiYFmEKrpcHa+VNhfZhumYew58r4RavDC5j4Xb
-         zVHgmjxuUowwA/zhb7PuyQLNNxdWO42OBXp/UYsE=
+        b=UsPkMC/gd2gH2lyUHrTE3EFF++mLGl0rIes3mPqkPEwCtp277QO63javXiSJgFZtB
+         04Pqu8CMt7uMP0yLt1yAae4giHJBTbq64+PxKCU9YvNUtnBQnjOfeU9IlEb9y1Gx1D
+         gXRvYRCuXc0Qwsfa0tiXd4DHwZhPm8K28GbD2yVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Wu Bo <wubo40@huawei.com>,
         Mike Christie <michael.christie@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 458/717] scsi: iscsi: Rename iscsi_conn_queue_work()
-Date:   Sat, 22 Oct 2022 09:25:37 +0200
-Message-Id: <20221022072518.552040736@linuxfoundation.org>
+Subject: [PATCH 5.19 459/717] scsi: iscsi: Add recv workqueue helpers
+Date:   Sat, 22 Oct 2022 09:25:38 +0200
+Message-Id: <20221022072518.601109896@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -57,119 +56,104 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 4b9f8ce4d5e823e42944c5a0a4842b0f936365ad ]
+[ Upstream commit 8af809966c0b34cfacd8da9a412689b8e9910354 ]
 
-Rename iscsi_conn_queue_work() to iscsi_conn_queue_xmit() to reflect that
-it handles queueing of xmits only.
+Add helpers to allow the drivers to run their recv paths from libiscsi's
+workqueue.
 
-Link: https://lore.kernel.org/r/20220616224557.115234-2-michael.christie@oracle.com
+Link: https://lore.kernel.org/r/20220616224557.115234-3-michael.christie@oracle.com
 Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Wu Bo <wubo40@huawei.com>
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Stable-dep-of: 57569c37f0ad ("scsi: iscsi: iscsi_tcp: Fix null-ptr-deref while calling getpeername()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/cxgbi/libcxgbi.c |  2 +-
- drivers/scsi/iscsi_tcp.c      |  2 +-
- drivers/scsi/libiscsi.c       | 12 ++++++------
- include/scsi/libiscsi.h       |  2 +-
- 4 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/scsi/libiscsi.c | 29 +++++++++++++++++++++++++++--
+ include/scsi/libiscsi.h |  4 ++++
+ 2 files changed, 31 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/cxgbi/libcxgbi.c b/drivers/scsi/cxgbi/libcxgbi.c
-index 32abdf0fa9aa..af281e271f88 100644
---- a/drivers/scsi/cxgbi/libcxgbi.c
-+++ b/drivers/scsi/cxgbi/libcxgbi.c
-@@ -1455,7 +1455,7 @@ void cxgbi_conn_tx_open(struct cxgbi_sock *csk)
- 	if (conn) {
- 		log_debug(1 << CXGBI_DBG_SOCK,
- 			"csk 0x%p, cid %d.\n", csk, conn->id);
--		iscsi_conn_queue_work(conn);
-+		iscsi_conn_queue_xmit(conn);
- 	}
- }
- EXPORT_SYMBOL_GPL(cxgbi_conn_tx_open);
-diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
-index 52c6f70d60ec..da1dc345b873 100644
---- a/drivers/scsi/iscsi_tcp.c
-+++ b/drivers/scsi/iscsi_tcp.c
-@@ -205,7 +205,7 @@ static void iscsi_sw_tcp_write_space(struct sock *sk)
- 	old_write_space(sk);
- 
- 	ISCSI_SW_TCP_DBG(conn, "iscsi_write_space\n");
--	iscsi_conn_queue_work(conn);
-+	iscsi_conn_queue_xmit(conn);
- }
- 
- static void iscsi_sw_tcp_conn_set_callbacks(struct iscsi_conn *conn)
 diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 3ddb701cd29c..1bd772d9b804 100644
+index 1bd772d9b804..8f73c8d6ef22 100644
 --- a/drivers/scsi/libiscsi.c
 +++ b/drivers/scsi/libiscsi.c
-@@ -83,7 +83,7 @@ MODULE_PARM_DESC(debug_libiscsi_eh,
- 				"%s " dbg_fmt, __func__, ##arg);	\
- 	} while (0);
- 
--inline void iscsi_conn_queue_work(struct iscsi_conn *conn)
-+inline void iscsi_conn_queue_xmit(struct iscsi_conn *conn)
- {
- 	struct Scsi_Host *shost = conn->session->host;
- 	struct iscsi_host *ihost = shost_priv(shost);
-@@ -91,7 +91,7 @@ inline void iscsi_conn_queue_work(struct iscsi_conn *conn)
- 	if (ihost->workq)
- 		queue_work(ihost->workq, &conn->xmitwork);
+@@ -93,6 +93,16 @@ inline void iscsi_conn_queue_xmit(struct iscsi_conn *conn)
  }
--EXPORT_SYMBOL_GPL(iscsi_conn_queue_work);
-+EXPORT_SYMBOL_GPL(iscsi_conn_queue_xmit);
+ EXPORT_SYMBOL_GPL(iscsi_conn_queue_xmit);
  
++inline void iscsi_conn_queue_recv(struct iscsi_conn *conn)
++{
++	struct Scsi_Host *shost = conn->session->host;
++	struct iscsi_host *ihost = shost_priv(shost);
++
++	if (ihost->workq && !test_bit(ISCSI_CONN_FLAG_SUSPEND_RX, &conn->flags))
++		queue_work(ihost->workq, &conn->recvwork);
++}
++EXPORT_SYMBOL_GPL(iscsi_conn_queue_recv);
++
  static void __iscsi_update_cmdsn(struct iscsi_session *session,
  				 uint32_t exp_cmdsn, uint32_t max_cmdsn)
-@@ -765,7 +765,7 @@ __iscsi_conn_send_pdu(struct iscsi_conn *conn, struct iscsi_hdr *hdr,
- 			goto free_task;
- 	} else {
- 		list_add_tail(&task->running, &conn->mgmtqueue);
--		iscsi_conn_queue_work(conn);
-+		iscsi_conn_queue_xmit(conn);
- 	}
- 
- 	return task;
-@@ -1513,7 +1513,7 @@ void iscsi_requeue_task(struct iscsi_task *task)
- 		 */
- 		iscsi_put_task(task);
- 	}
--	iscsi_conn_queue_work(conn);
-+	iscsi_conn_queue_xmit(conn);
- 	spin_unlock_bh(&conn->session->frwd_lock);
- }
- EXPORT_SYMBOL_GPL(iscsi_requeue_task);
-@@ -1782,7 +1782,7 @@ int iscsi_queuecommand(struct Scsi_Host *host, struct scsi_cmnd *sc)
- 		}
- 	} else {
- 		list_add_tail(&task->running, &conn->cmdqueue);
--		iscsi_conn_queue_work(conn);
-+		iscsi_conn_queue_xmit(conn);
- 	}
- 
- 	session->queued_cmdsn++;
-@@ -1963,7 +1963,7 @@ EXPORT_SYMBOL_GPL(iscsi_suspend_tx);
- static void iscsi_start_tx(struct iscsi_conn *conn)
  {
- 	clear_bit(ISCSI_CONN_FLAG_SUSPEND_TX, &conn->flags);
--	iscsi_conn_queue_work(conn);
-+	iscsi_conn_queue_xmit(conn);
+@@ -1943,7 +1953,7 @@ EXPORT_SYMBOL_GPL(iscsi_suspend_queue);
+ 
+ /**
+  * iscsi_suspend_tx - suspend iscsi_data_xmit
+- * @conn: iscsi conn tp stop processing IO on.
++ * @conn: iscsi conn to stop processing IO on.
+  *
+  * This function sets the suspend bit to prevent iscsi_data_xmit
+  * from sending new IO, and if work is queued on the xmit thread
+@@ -1956,7 +1966,7 @@ void iscsi_suspend_tx(struct iscsi_conn *conn)
+ 
+ 	set_bit(ISCSI_CONN_FLAG_SUSPEND_TX, &conn->flags);
+ 	if (ihost->workq)
+-		flush_workqueue(ihost->workq);
++		flush_work(&conn->xmitwork);
+ }
+ EXPORT_SYMBOL_GPL(iscsi_suspend_tx);
+ 
+@@ -1966,6 +1976,21 @@ static void iscsi_start_tx(struct iscsi_conn *conn)
+ 	iscsi_conn_queue_xmit(conn);
  }
  
++/**
++ * iscsi_suspend_rx - Prevent recvwork from running again.
++ * @conn: iscsi conn to stop.
++ */
++void iscsi_suspend_rx(struct iscsi_conn *conn)
++{
++	struct Scsi_Host *shost = conn->session->host;
++	struct iscsi_host *ihost = shost_priv(shost);
++
++	set_bit(ISCSI_CONN_FLAG_SUSPEND_RX, &conn->flags);
++	if (ihost->workq)
++		flush_work(&conn->recvwork);
++}
++EXPORT_SYMBOL_GPL(iscsi_suspend_rx);
++
  /*
+  * We want to make sure a ping is in flight. It has timed out.
+  * And we are not busy processing a pdu that is making
 diff --git a/include/scsi/libiscsi.h b/include/scsi/libiscsi.h
-index 9758a4a9923f..51fb0c17815e 100644
+index 51fb0c17815e..5a10e5acfad2 100644
 --- a/include/scsi/libiscsi.h
 +++ b/include/scsi/libiscsi.h
-@@ -453,7 +453,7 @@ extern int iscsi_conn_get_addr_param(struct sockaddr_storage *addr,
+@@ -213,6 +213,8 @@ struct iscsi_conn {
+ 	struct list_head	cmdqueue;	/* data-path cmd queue */
+ 	struct list_head	requeue;	/* tasks needing another run */
+ 	struct work_struct	xmitwork;	/* per-conn. xmit workqueue */
++	/* recv */
++	struct work_struct	recvwork;
+ 	unsigned long		flags;		/* ISCSI_CONN_FLAGs */
+ 
+ 	/* negotiated params */
+@@ -452,8 +454,10 @@ extern int iscsi_conn_get_param(struct iscsi_cls_conn *cls_conn,
+ extern int iscsi_conn_get_addr_param(struct sockaddr_storage *addr,
  				     enum iscsi_param param, char *buf);
  extern void iscsi_suspend_tx(struct iscsi_conn *conn);
++extern void iscsi_suspend_rx(struct iscsi_conn *conn);
  extern void iscsi_suspend_queue(struct iscsi_conn *conn);
--extern void iscsi_conn_queue_work(struct iscsi_conn *conn);
-+extern void iscsi_conn_queue_xmit(struct iscsi_conn *conn);
+ extern void iscsi_conn_queue_xmit(struct iscsi_conn *conn);
++extern void iscsi_conn_queue_recv(struct iscsi_conn *conn);
  
  #define iscsi_conn_printk(prefix, _c, fmt, a...) \
  	iscsi_cls_conn_printk(prefix, ((struct iscsi_conn *)_c)->cls_conn, \
