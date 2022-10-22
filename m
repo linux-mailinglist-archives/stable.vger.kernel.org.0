@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCFF4608650
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:47:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6B4D6086CB
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:53:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231131AbiJVHrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:47:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58222 "EHLO
+        id S232013AbiJVHxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:53:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231552AbiJVHrN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:47:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CFFE15FCD;
-        Sat, 22 Oct 2022 00:44:37 -0700 (PDT)
+        with ESMTP id S231754AbiJVHwE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:52:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6A612C2AEA;
+        Sat, 22 Oct 2022 00:46:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAC4AB82E13;
-        Sat, 22 Oct 2022 07:43:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D3AFC433C1;
-        Sat, 22 Oct 2022 07:43:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E268660BA2;
+        Sat, 22 Oct 2022 07:43:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 015B9C433C1;
+        Sat, 22 Oct 2022 07:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424616;
-        bh=yVMy2NWsVdNDP54jbBTFxUQN5uZNosG28yGa4Gw8At0=;
+        s=korg; t=1666424619;
+        bh=KTZcokemeTem35PNMjBQHPCVWK2pq04hPNhpZ0yUFtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6SYq41iOjb1giQvKHakgz8nr/MnGMX2770riDDAzMbXgU8G2y/I8M+kgwUCPFSJU
-         TbbSjxyFTnntLMa7kvAL9yQR2qgoDbKtsMEFup5Dvq+O1qfsciIy/qaFh8WFeTpEbQ
-         Uovn9LI5j0atNhgtn/ppfAaFNy3RlH39kSI2OHJU=
+        b=WdLAHb0xQZYfsAoJjnn+P94E+HckkTYwP3kznLgyCFKg/DLsHHCvfWjiTcNT+s43g
+         7LgnBoSGzPn+jg7cenRdUZZbw4A8F5c4MP49hF0hvytpXR9WkUwW47QDlKolzDC73q
+         ooYgAdAc6R3zPOCEgBrLZKH9jzBIGJtB4hfVutJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 213/717] esp: choose the correct inner protocol for GSO on inter address family tunnels
-Date:   Sat, 22 Oct 2022 09:21:32 +0200
-Message-Id: <20221022072452.962173379@linuxfoundation.org>
+Subject: [PATCH 5.19 214/717] spi: mt7621: Fix an error message in mt7621_spi_probe()
+Date:   Sat, 22 Oct 2022 09:21:33 +0200
+Message-Id: <20221022072453.129048558@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,60 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 26dbd66eab8080be51759e48280da04015221e22 ]
+[ Upstream commit 2b2bf6b7faa9010fae10dc7de76627a3fdb525b3 ]
 
-Commit 23c7f8d7989e ("net: Fix esp GSO on inter address family
-tunnels.") is incomplete. It passes to skb_eth_gso_segment the
-protocol for the outer IP version, instead of the inner IP version, so
-we end up calling inet_gso_segment on an inner IPv6 packet and
-ipv6_gso_segment on an inner IPv4 packet and the packets are dropped.
+'status' is known to be 0 at this point. The expected error code is
+PTR_ERR(clk).
 
-This patch completes the fix by selecting the correct protocol based
-on the inner mode's family.
+Switch to dev_err_probe() in order to display the expected error code (in a
+human readable way).
+This also filters -EPROBE_DEFER cases, should it happen.
 
-Fixes: c35fe4106b92 ("xfrm: Add mode handlers for IPsec on layer 2")
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: 1ab7f2a43558 ("staging: mt7621-spi: add mt7621 support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Link: https://lore.kernel.org/r/928f3fb507d53ba0774df27cea0bbba4b055993b.1661599671.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/esp4_offload.c | 5 ++++-
- net/ipv6/esp6_offload.c | 5 ++++-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/spi/spi-mt7621.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
-index 935026f4c807..170152772d33 100644
---- a/net/ipv4/esp4_offload.c
-+++ b/net/ipv4/esp4_offload.c
-@@ -110,7 +110,10 @@ static struct sk_buff *xfrm4_tunnel_gso_segment(struct xfrm_state *x,
- 						struct sk_buff *skb,
- 						netdev_features_t features)
- {
--	return skb_eth_gso_segment(skb, features, htons(ETH_P_IP));
-+	__be16 type = x->inner_mode.family == AF_INET6 ? htons(ETH_P_IPV6)
-+						       : htons(ETH_P_IP);
-+
-+	return skb_eth_gso_segment(skb, features, type);
- }
+diff --git a/drivers/spi/spi-mt7621.c b/drivers/spi/spi-mt7621.c
+index b4b9b7309b5e..351b0ef52bbc 100644
+--- a/drivers/spi/spi-mt7621.c
++++ b/drivers/spi/spi-mt7621.c
+@@ -340,11 +340,9 @@ static int mt7621_spi_probe(struct platform_device *pdev)
+ 		return PTR_ERR(base);
  
- static struct sk_buff *xfrm4_transport_gso_segment(struct xfrm_state *x,
-diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
-index 3a293838a91d..79d43548279c 100644
---- a/net/ipv6/esp6_offload.c
-+++ b/net/ipv6/esp6_offload.c
-@@ -145,7 +145,10 @@ static struct sk_buff *xfrm6_tunnel_gso_segment(struct xfrm_state *x,
- 						struct sk_buff *skb,
- 						netdev_features_t features)
- {
--	return skb_eth_gso_segment(skb, features, htons(ETH_P_IPV6));
-+	__be16 type = x->inner_mode.family == AF_INET ? htons(ETH_P_IP)
-+						      : htons(ETH_P_IPV6);
-+
-+	return skb_eth_gso_segment(skb, features, type);
- }
+ 	clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(clk)) {
+-		dev_err(&pdev->dev, "unable to get SYS clock, err=%d\n",
+-			status);
+-		return PTR_ERR(clk);
+-	}
++	if (IS_ERR(clk))
++		return dev_err_probe(&pdev->dev, PTR_ERR(clk),
++				     "unable to get SYS clock\n");
  
- static struct sk_buff *xfrm6_transport_gso_segment(struct xfrm_state *x,
+ 	status = clk_prepare_enable(clk);
+ 	if (status)
 -- 
 2.35.1
 
