@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EE15608910
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F246608AA1
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234539AbiJVIbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:31:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37788 "EHLO
+        id S232180AbiJVJDi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 05:03:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230000AbiJVI2T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:28:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56B552D6540;
-        Sat, 22 Oct 2022 01:01:17 -0700 (PDT)
+        with ESMTP id S235000AbiJVJDP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:03:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4EB12FA5DD;
+        Sat, 22 Oct 2022 01:18:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D657B82E17;
-        Sat, 22 Oct 2022 07:49:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0214CC433D7;
-        Sat, 22 Oct 2022 07:49:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4B3F60B24;
+        Sat, 22 Oct 2022 07:49:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A80C433C1;
+        Sat, 22 Oct 2022 07:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424993;
-        bh=XQAYMWo06//zIHjMBtnXreMiMDYguIyBbLd57r3zYXE=;
+        s=korg; t=1666424996;
+        bh=OIyPrmQIsCOKB3WtDB3t9YMhRPWseYg73YUNm3OcaiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kkGVWq0PBZxzGX55+9eD9Y8tpyoeZJ2TTrVc0HiS+qJ4uVJhskW4EiFFW2rLVBhWx
-         XjGDckeXtZwu908LZ3vTpDLsvshFC8xCLF7fP8yqXMJoWuipiHbzELpSNYTbuJ9vpF
-         HX/d/3Qp/VK6xoCLLhIbWhZ5utNIKpyDMwv7sR6M=
+        b=GdX4p6vKVwqTSNfWVaGN2W02qApZvz38XqjebpiyS/7TGny9b9FIj+2isHl5gupbh
+         IKNw+fHX6KaDg/7f6ZNeu04Q9en/0VlF0rHpbAn6aY7Qw2NS38wD4knQG42fA/pVQr
+         ECv+XyP2NRTlUk2BCCxuBDvOGNpvVUKaTCynuDlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liang He <windhl@126.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 352/717] soc: qcom: smsm: Fix refcount leak bugs in qcom_smsm_probe()
-Date:   Sat, 22 Oct 2022 09:23:51 +0200
-Message-Id: <20221022072511.394210487@linuxfoundation.org>
+Subject: [PATCH 5.19 353/717] soc: qcom: smem_state: Add refcounting for the state->of_node
+Date:   Sat, 22 Oct 2022 09:23:52 +0200
+Message-Id: <20221022072511.527968726@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,102 +55,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liang He <windhl@126.com>
 
-[ Upstream commit af8f6f39b8afd772fda4f8e61823ef8c021bf382 ]
+[ Upstream commit 90681f53b9381c23ff7762a3b13826d620c272de ]
 
-There are two refcount leak bugs in qcom_smsm_probe():
+In qcom_smem_state_register() and qcom_smem_state_release(), we
+should better use of_node_get() and of_node_put() for the reference
+creation and destruction of 'device_node'.
 
-(1) The 'local_node' is escaped out from for_each_child_of_node() as
-the break of iteration, we should call of_node_put() for it in error
-path or when it is not used anymore.
-(2) The 'node' is escaped out from for_each_available_child_of_node()
-as the 'goto', we should call of_node_put() for it in goto target.
-
-Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
+Fixes: 9460ae2ff308 ("soc: qcom: Introduce common SMEM state machine code")
 Signed-off-by: Liang He <windhl@126.com>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220721135217.1301039-1-windhl@126.com
+Link: https://lore.kernel.org/r/20220721135217.1301039-2-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/smsm.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/soc/qcom/smem_state.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
-index 9df9bba242f3..3e8994d6110e 100644
---- a/drivers/soc/qcom/smsm.c
-+++ b/drivers/soc/qcom/smsm.c
-@@ -526,7 +526,7 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 	for (id = 0; id < smsm->num_hosts; id++) {
- 		ret = smsm_parse_ipc(smsm, id);
- 		if (ret < 0)
--			return ret;
-+			goto out_put;
- 	}
+diff --git a/drivers/soc/qcom/smem_state.c b/drivers/soc/qcom/smem_state.c
+index 31faf4aa868e..e848cc9a3cf8 100644
+--- a/drivers/soc/qcom/smem_state.c
++++ b/drivers/soc/qcom/smem_state.c
+@@ -136,6 +136,7 @@ static void qcom_smem_state_release(struct kref *ref)
+ 	struct qcom_smem_state *state = container_of(ref, struct qcom_smem_state, refcount);
  
- 	/* Acquire the main SMSM state vector */
-@@ -534,13 +534,14 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 			      smsm->num_entries * sizeof(u32));
- 	if (ret < 0 && ret != -EEXIST) {
- 		dev_err(&pdev->dev, "unable to allocate shared state entry\n");
--		return ret;
-+		goto out_put;
- 	}
- 
- 	states = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_SMSM_SHARED_STATE, NULL);
- 	if (IS_ERR(states)) {
- 		dev_err(&pdev->dev, "Unable to acquire shared state entry\n");
--		return PTR_ERR(states);
-+		ret = PTR_ERR(states);
-+		goto out_put;
- 	}
- 
- 	/* Acquire the list of interrupt mask vectors */
-@@ -548,13 +549,14 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 	ret = qcom_smem_alloc(QCOM_SMEM_HOST_ANY, SMEM_SMSM_CPU_INTR_MASK, size);
- 	if (ret < 0 && ret != -EEXIST) {
- 		dev_err(&pdev->dev, "unable to allocate smsm interrupt mask\n");
--		return ret;
-+		goto out_put;
- 	}
- 
- 	intr_mask = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_SMSM_CPU_INTR_MASK, NULL);
- 	if (IS_ERR(intr_mask)) {
- 		dev_err(&pdev->dev, "unable to acquire shared memory interrupt mask\n");
--		return PTR_ERR(intr_mask);
-+		ret = PTR_ERR(intr_mask);
-+		goto out_put;
- 	}
- 
- 	/* Setup the reference to the local state bits */
-@@ -565,7 +567,8 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 	smsm->state = qcom_smem_state_register(local_node, &smsm_state_ops, smsm);
- 	if (IS_ERR(smsm->state)) {
- 		dev_err(smsm->dev, "failed to register qcom_smem_state\n");
--		return PTR_ERR(smsm->state);
-+		ret = PTR_ERR(smsm->state);
-+		goto out_put;
- 	}
- 
- 	/* Register handlers for remote processor entries of interest. */
-@@ -595,16 +598,19 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 	}
- 
- 	platform_set_drvdata(pdev, smsm);
-+	of_node_put(local_node);
- 
- 	return 0;
- 
- unwind_interfaces:
-+	of_node_put(node);
- 	for (id = 0; id < smsm->num_entries; id++)
- 		if (smsm->entries[id].domain)
- 			irq_domain_remove(smsm->entries[id].domain);
- 
- 	qcom_smem_state_unregister(smsm->state);
--
-+out_put:
-+	of_node_put(local_node);
- 	return ret;
+ 	list_del(&state->list);
++	of_node_put(state->of_node);
+ 	kfree(state);
  }
+ 
+@@ -205,7 +206,7 @@ struct qcom_smem_state *qcom_smem_state_register(struct device_node *of_node,
+ 
+ 	kref_init(&state->refcount);
+ 
+-	state->of_node = of_node;
++	state->of_node = of_node_get(of_node);
+ 	state->ops = *ops;
+ 	state->priv = priv;
  
 -- 
 2.35.1
