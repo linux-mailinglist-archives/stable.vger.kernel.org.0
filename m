@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB5426089B8
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:40:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6047A6087EE
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:07:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234027AbiJVIkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:40:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56220 "EHLO
+        id S233001AbiJVIHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:07:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234499AbiJVIiu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:38:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2A7B1A7A22;
-        Sat, 22 Oct 2022 01:05:24 -0700 (PDT)
+        with ESMTP id S232804AbiJVIGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:06:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A89352C2ADE;
+        Sat, 22 Oct 2022 00:52:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A681860B6B;
-        Sat, 22 Oct 2022 07:52:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7395C433D6;
-        Sat, 22 Oct 2022 07:52:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2A61B82E16;
+        Sat, 22 Oct 2022 07:52:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51BAAC433D7;
+        Sat, 22 Oct 2022 07:52:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425155;
-        bh=Wmphf3AsPlAzcTCjF/2Rty8KRXokQysKlrzKnN12nkM=;
+        s=korg; t=1666425160;
+        bh=eRxJ1kJpepxUkHWp5jwbtxrvWiVTvKzPrLq8OH8PndI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gPW3MBKAiTTCiaR+/RAiRDK3VisNuvgnzdSOv2ehBVcHoBHm62rfUCDYFdArZhwNH
-         vzi6/YbS6/KJC6iXwT80JhmoRaKOpm7uXwFhK0SAtRpj9wY6fveEPejdTl56xhAi9H
-         BeTHFVXOWZgCLhTVKZ7MqoGtvlcKJiD+M4DTZstw=
+        b=U+BY4A4kr5Z0Zd+82Z3kxunPMiFf9voTuXVAAFc0qeE9E6mUz0CZeddy2YH6mXI16
+         k8sHERaL78gI/sajzGhJIDWWmolW5zvyWLeWec+nDtrwZdgEyyMGMdKzk5sVqzmP4+
+         JJPRfwdOqpS7Mx/pq3qSD1iZRsHHwBfC6pQR29WQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frederic Barrat <fbarrat@linux.ibm.com>,
-        Hangyu Hua <hbh25y@gmail.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 409/717] misc: ocxl: fix possible refcount leak in afu_ioctl()
-Date:   Sat, 22 Oct 2022 09:24:48 +0200
-Message-Id: <20221022072516.153083178@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Xu Yilun <yilun.xu@intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 410/717] fpga: prevent integer overflow in dfl_feature_ioctl_set_irq()
+Date:   Sat, 22 Oct 2022 09:24:49 +0200
+Message-Id: <20221022072516.217478075@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,36 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c3b69ba5114c860d730870c03ab4ee45276e5e35 ]
+[ Upstream commit 939bc5453b8cbdde9f1e5110ce8309aedb1b501a ]
 
-eventfd_ctx_put need to be called to put the refcount that gotten by
-eventfd_ctx_fdget when ocxl_irq_set_handler fails.
+The "hdr.count * sizeof(s32)" multiplication can overflow on 32 bit
+systems leading to memory corruption.  Use array_size() to fix that.
 
-Fixes: 060146614643 ("ocxl: move event_fd handling to frontend")
-Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20220824082600.36159-1-hbh25y@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 322b598be4d9 ("fpga: dfl: introduce interrupt trigger setting API")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Xu Yilun <yilun.xu@intel.com>
+Link: https://lore.kernel.org/r/YxBAtYCM38dM7yzI@kili
+Signed-off-by: Xu Yilun <yilun.xu@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/ocxl/file.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/fpga/dfl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/ocxl/file.c b/drivers/misc/ocxl/file.c
-index 6777c419a8da..d46dba2df5a1 100644
---- a/drivers/misc/ocxl/file.c
-+++ b/drivers/misc/ocxl/file.c
-@@ -257,6 +257,8 @@ static long afu_ioctl(struct file *file, unsigned int cmd,
- 		if (IS_ERR(ev_ctx))
- 			return PTR_ERR(ev_ctx);
- 		rc = ocxl_irq_set_handler(ctx, irq_id, irq_handler, irq_free, ev_ctx);
-+		if (rc)
-+			eventfd_ctx_put(ev_ctx);
- 		break;
+diff --git a/drivers/fpga/dfl.c b/drivers/fpga/dfl.c
+index 6bff39ff21a0..eabaf495a481 100644
+--- a/drivers/fpga/dfl.c
++++ b/drivers/fpga/dfl.c
+@@ -1866,7 +1866,7 @@ long dfl_feature_ioctl_set_irq(struct platform_device *pdev,
+ 		return -EINVAL;
  
- 	case OCXL_IOCTL_GET_METADATA:
+ 	fds = memdup_user((void __user *)(arg + sizeof(hdr)),
+-			  hdr.count * sizeof(s32));
++			  array_size(hdr.count, sizeof(s32)));
+ 	if (IS_ERR(fds))
+ 		return PTR_ERR(fds);
+ 
 -- 
 2.35.1
 
