@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68A52608868
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C479260885B
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233411AbiJVIQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:16:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50010 "EHLO
+        id S233146AbiJVIQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:16:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234049AbiJVIQD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:16:03 -0400
+        with ESMTP id S233861AbiJVIPZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:15:25 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BB6A625FF;
-        Sat, 22 Oct 2022 00:57:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC6832DA1AB;
+        Sat, 22 Oct 2022 00:56:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49267B82E12;
-        Sat, 22 Oct 2022 07:43:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E1D8C433D6;
-        Sat, 22 Oct 2022 07:43:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B530AB82DF8;
+        Sat, 22 Oct 2022 07:41:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00BFC433C1;
+        Sat, 22 Oct 2022 07:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424586;
-        bh=AQyPOa2XBCeGULnZKJoPc0UF3DJNyZXGL295k86aygc=;
+        s=korg; t=1666424514;
+        bh=RaCY5RAb8ZerKeM1IclPcawvKRfJOaSZ/TtnUxatBTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fdvH9ykYaxM8FGs5d9I8Wo4EKWZw+4Pp9kWgC9sZJ8qNH0+HMmgsLh7NiMqRp0EUc
-         8yOwlk0xyu5MfeXPoKB7E9MNIiz/yM88O5mU/HkGFA+eEacgSwvv07bYEPAsEaEVu7
-         Pdim6+2ub69XMHe86WXuYBfvIj1a6DGGovyySlic=
+        b=DgAL44duOAbi1WTf6l/lcecDXlKI0Lycu55PIxukf1D1AyjU5tVtN9p0M0/NLS3/S
+         W/L0Ax0gIiUcbi3PC5WhmVWS48KTOf7b+V0A8B5JAPiojZvf2TF4UaTZ25OnnNPe83
+         FHv71ttCrzle88Pqmg9katWNdBfrSka0UZNlXfBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.19 171/717] drm/i915: Fix watermark calculations for DG2 CCS modifiers
-Date:   Sat, 22 Oct 2022 09:20:50 +0200
-Message-Id: <20221022072445.784429696@linuxfoundation.org>
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.19 175/717] smb3: must initialize two ACL struct fields to zero
+Date:   Sat, 22 Oct 2022 09:20:54 +0200
+Message-Id: <20221022072446.511064179@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,50 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Steve French <stfrench@microsoft.com>
 
-commit ccfa6d35f9233702c924316cdf40c05b6ce88113 upstream.
+commit f09bd695af3b8ab46fc24e5d6954a24104c38387 upstream.
 
-Take the DG2 CCS modifiers into account when calculating the
-watermarks. Othwerwise we'll calculate the watermarks thinking these
-tile-4 modifiers are linear.
+Coverity spotted that we were not initalizing Stbz1 and Stbz2 to
+zero in create_sd_buf.
 
-The rc_surface part is actually a nop since that is not used
-for any glk+ platform.
-
-Cc: stable@vger.kernel.org
-Fixes: 4c3afa72138c ("drm/i915/dg2: Add support for DG2 render and media compression")
-Reviewed-by: Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221003111544.8007-5-ville.syrjala@linux.intel.com
-(cherry picked from commit f25d9f81a8e09ace4f04106995550bae1f522143)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Addresses-Coverity: 1513848 ("Uninitialized scalar variable")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/intel_pm.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/cifs/smb2pdu.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -5310,13 +5310,17 @@ skl_compute_wm_params(const struct intel
- 		      modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
- 		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS ||
- 		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS ||
--		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS_CC;
-+		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS_CC ||
-+		      modifier == I915_FORMAT_MOD_4_TILED_DG2_RC_CCS ||
-+		      modifier == I915_FORMAT_MOD_4_TILED_DG2_MC_CCS;
- 	wp->x_tiled = modifier == I915_FORMAT_MOD_X_TILED;
- 	wp->rc_surface = modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
- 			 modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
- 			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS ||
- 			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS ||
--			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS_CC;
-+			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS_CC ||
-+			 modifier == I915_FORMAT_MOD_4_TILED_DG2_RC_CCS ||
-+			 modifier == I915_FORMAT_MOD_4_TILED_DG2_MC_CCS;
- 	wp->is_planar = intel_format_info_is_yuv_semiplanar(format, modifier);
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -2410,7 +2410,7 @@ create_sd_buf(umode_t mode, bool set_own
+ 	unsigned int acelen, acl_size, ace_count;
+ 	unsigned int owner_offset = 0;
+ 	unsigned int group_offset = 0;
+-	struct smb3_acl acl;
++	struct smb3_acl acl = {};
  
- 	wp->width = width;
+ 	*len = roundup(sizeof(struct crt_sd_ctxt) + (sizeof(struct cifs_ace) * 4), 8);
+ 
+@@ -2483,6 +2483,7 @@ create_sd_buf(umode_t mode, bool set_own
+ 	acl.AclRevision = ACL_REVISION; /* See 2.4.4.1 of MS-DTYP */
+ 	acl.AclSize = cpu_to_le16(acl_size);
+ 	acl.AceCount = cpu_to_le16(ace_count);
++	/* acl.Sbz1 and Sbz2 MBZ so are not set here, but initialized above */
+ 	memcpy(aclptr, &acl, sizeof(struct smb3_acl));
+ 
+ 	buf->ccontext.DataLength = cpu_to_le32(ptr - (__u8 *)&buf->sd);
 
 
