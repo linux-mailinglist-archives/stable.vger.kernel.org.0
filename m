@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A80608926
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:31:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C523D608A71
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233865AbiJVIbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:31:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52734 "EHLO
+        id S231293AbiJVIzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:55:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234066AbiJVI3a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:29:30 -0400
+        with ESMTP id S235021AbiJVIyE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:54:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F27DC2E25E3;
-        Sat, 22 Oct 2022 01:01:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B15B92F3DB5;
+        Sat, 22 Oct 2022 01:13:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D838B82E21;
-        Sat, 22 Oct 2022 07:48:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BB44C433D6;
-        Sat, 22 Oct 2022 07:48:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 043EEB82E26;
+        Sat, 22 Oct 2022 07:48:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5958CC433D6;
+        Sat, 22 Oct 2022 07:48:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424887;
-        bh=v6XsYF2D1laF2NTZayhIX9dkIblRNqa009SYmswfqmg=;
+        s=korg; t=1666424889;
+        bh=zT6MDUv1/e0ceaKhgr+62ulahZ4sloOaOytnAgt472Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SHQT+cq4xIkzOqtVVgnJ5okLEgtGOFjPVy4ZW2M6xwEj749gCpi0lIdfbkXm9qYC0
-         zShbvl48XodWbdaVbrEKmaFYEpSmBEaxxtcd1K764M0CrCaij1WbryWmd6xgzEatQp
-         U+sRee/vU9XLP2/xzLWBHGpI3mNFq2k1OTcHNaXI=
+        b=2oPgO31EY3XgzCFS5eBicQfbpLGjOlMBmPW2LYWg2Pnc/qFxYzAgW11aPIOpUmcaX
+         iPNOi44Omx3wCiV454MmrH0U5fXf2MKN+3vbZ6uwSBpX3yjevtIGy1scd56VzcXF1d
+         HJnfMNMt4eEVh8wDUwcnu4YP8nAdidb644BeD++U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 313/717] ASoC: tas2764: Fix mute/unmute
-Date:   Sat, 22 Oct 2022 09:23:12 +0200
-Message-Id: <20221022072507.733879519@linuxfoundation.org>
+Subject: [PATCH 5.19 314/717] platform/x86: msi-laptop: Fix old-ec check for backlight registering
+Date:   Sat, 22 Oct 2022 09:23:13 +0200
+Message-Id: <20221022072507.831291749@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,134 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f5ad67f13623548e5aff847f89700c178aaf2a98 ]
+[ Upstream commit 83ac7a1c2ed5f17caa07cbbc84bad3c05dc3bf22 ]
 
-Because the PWR_CTRL field is modeled as the power state of the DAC
-widget, and at the same time it is used to implement mute/unmute, we
-need some additional book-keeping to have the right end result no matter
-the sequence of calls. Without this fix, one permanently mutes an
-ongoing stream by toggling the associated speaker pin control.
+Commit 2cc6c717799f ("msi-laptop: Port to new backlight interface
+selection API") replaced this check:
 
-(This mirrors commit 1e5907bcb3a3 ("ASoC: tas2770: Fix handling of
-mute/unmute") which was a fix to the tas2770 driver.)
+	if (!quirks->old_ec_model || acpi_video_backlight_support())
+		pr_info("Brightness ignored, ...");
+	else
+		do_register();
 
-Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20220825140241.53963-4-povik+lin@cutebit.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+With:
+
+	if (quirks->old_ec_model ||
+	    acpi_video_get_backlight_type() == acpi_backlight_vendor)
+		do_register();
+
+But since the do_register() part was part of the else branch, the entire
+condition should be inverted.  So not only the 2 statements on either
+side of the || should be inverted, but the || itself should be replaced
+with a &&.
+
+In practice this has likely not been an issue because the new-ec models
+(old_ec_model==false) likely all support ACPI video backlight control,
+making acpi_video_get_backlight_type() return acpi_backlight_video
+turning the second part of the || also false when old_ec_model == false.
+
+Fixes: 2cc6c717799f ("msi-laptop: Port to new backlight interface selection API")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220825141336.208597-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tas2764.c | 57 +++++++++++++++++++++-----------------
- 1 file changed, 32 insertions(+), 25 deletions(-)
+ drivers/platform/x86/msi-laptop.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
-index c11406bbe5bc..7ae7a5249f95 100644
---- a/sound/soc/codecs/tas2764.c
-+++ b/sound/soc/codecs/tas2764.c
-@@ -34,6 +34,9 @@ struct tas2764_priv {
- 	
- 	int v_sense_slot;
- 	int i_sense_slot;
-+
-+	bool dac_powered;
-+	bool unmuted;
- };
+diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
+index 24ffc8e2d2d1..0960205ee49f 100644
+--- a/drivers/platform/x86/msi-laptop.c
++++ b/drivers/platform/x86/msi-laptop.c
+@@ -1048,8 +1048,7 @@ static int __init msi_init(void)
+ 		return -EINVAL;
  
- static void tas2764_reset(struct tas2764_priv *tas2764)
-@@ -50,6 +53,26 @@ static void tas2764_reset(struct tas2764_priv *tas2764)
- 	usleep_range(1000, 2000);
- }
- 
-+static int tas2764_update_pwr_ctrl(struct tas2764_priv *tas2764)
-+{
-+	struct snd_soc_component *component = tas2764->component;
-+	unsigned int val;
-+	int ret;
-+
-+	if (tas2764->dac_powered)
-+		val = tas2764->unmuted ?
-+			TAS2764_PWR_CTRL_ACTIVE : TAS2764_PWR_CTRL_MUTE;
-+	else
-+		val = TAS2764_PWR_CTRL_SHUTDOWN;
-+
-+	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
-+					    TAS2764_PWR_CTRL_MASK, val);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
- #ifdef CONFIG_PM
- static int tas2764_codec_suspend(struct snd_soc_component *component)
- {
-@@ -82,9 +105,7 @@ static int tas2764_codec_resume(struct snd_soc_component *component)
- 		usleep_range(1000, 2000);
- 	}
- 
--	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
--					    TAS2764_PWR_CTRL_MASK,
--					    TAS2764_PWR_CTRL_ACTIVE);
-+	ret = tas2764_update_pwr_ctrl(tas2764);
- 
- 	if (ret < 0)
- 		return ret;
-@@ -118,14 +139,12 @@ static int tas2764_dac_event(struct snd_soc_dapm_widget *w,
- 
- 	switch (event) {
- 	case SND_SOC_DAPM_POST_PMU:
--		ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
--						    TAS2764_PWR_CTRL_MASK,
--						    TAS2764_PWR_CTRL_MUTE);
-+		tas2764->dac_powered = true;
-+		ret = tas2764_update_pwr_ctrl(tas2764);
- 		break;
- 	case SND_SOC_DAPM_PRE_PMD:
--		ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
--						    TAS2764_PWR_CTRL_MASK,
--						    TAS2764_PWR_CTRL_SHUTDOWN);
-+		tas2764->dac_powered = false;
-+		ret = tas2764_update_pwr_ctrl(tas2764);
- 		break;
- 	default:
- 		dev_err(tas2764->dev, "Unsupported event\n");
-@@ -170,17 +189,11 @@ static const struct snd_soc_dapm_route tas2764_audio_map[] = {
- 
- static int tas2764_mute(struct snd_soc_dai *dai, int mute, int direction)
- {
--	struct snd_soc_component *component = dai->component;
--	int ret;
+ 	/* Register backlight stuff */
 -
--	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
--					    TAS2764_PWR_CTRL_MASK,
--					    mute ? TAS2764_PWR_CTRL_MUTE : 0);
-+	struct tas2764_priv *tas2764 =
-+			snd_soc_component_get_drvdata(dai->component);
- 
--	if (ret < 0)
--		return ret;
--
--	return 0;
-+	tas2764->unmuted = !mute;
-+	return tas2764_update_pwr_ctrl(tas2764);
- }
- 
- static int tas2764_set_bitwidth(struct tas2764_priv *tas2764, int bitwidth)
-@@ -494,12 +507,6 @@ static int tas2764_codec_probe(struct snd_soc_component *component)
- 	if (ret < 0)
- 		return ret;
- 
--	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
--					    TAS2764_PWR_CTRL_MASK,
--					    TAS2764_PWR_CTRL_MUTE);
--	if (ret < 0)
--		return ret;
--
- 	return 0;
- }
- 
+-	if (quirks->old_ec_model ||
++	if (quirks->old_ec_model &&
+ 	    acpi_video_get_backlight_type() == acpi_backlight_vendor) {
+ 		struct backlight_properties props;
+ 		memset(&props, 0, sizeof(struct backlight_properties));
 -- 
 2.35.1
 
