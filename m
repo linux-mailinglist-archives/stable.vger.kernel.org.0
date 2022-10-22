@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B816E60893E
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:32:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 662FD608902
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:27:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233957AbiJVIb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:31:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59188 "EHLO
+        id S231317AbiJVI1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:27:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234433AbiJVIav (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:30:51 -0400
+        with ESMTP id S233897AbiJVI1M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:27:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 229EE2D0803;
-        Sat, 22 Oct 2022 01:02:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B06855D884;
+        Sat, 22 Oct 2022 01:01:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED899B82E07;
-        Sat, 22 Oct 2022 08:02:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49EEDC433C1;
-        Sat, 22 Oct 2022 08:01:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03FA8B82E3A;
+        Sat, 22 Oct 2022 08:00:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47592C433D7;
+        Sat, 22 Oct 2022 08:00:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425719;
-        bh=IebTnLpoWf7M4ciH6d0K8DIBt9yynGumrjjHuoyIgc4=;
+        s=korg; t=1666425629;
+        bh=/LmuOibYq4SSvlEYG9tQkbKyOyx/DdrdHV6RwtqcukY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BzXLvuEHbtz5nzxm8pXHompPxauEWwE2axXmXGDvuGRI6nYZGTiyXz6pfmBsTBEuK
-         ccwaT+adQTqFzL9IawkuewIFszV4qvb1+JBwc63Z2eSNnkSxdikjNYB2AtxN+mwcBD
-         jgwaX4uP7ZDZA4FOko9IOwx0ivkqCl04WT6CWnLU=
+        b=e91XYWv0pFF2EWHFRJpPF9k4iN2EpPywCtd9Ur7rcIRui/RvnyEctEaHUmoC3+WWQ
+         cVFhMw8T9tF1HoufetMDtCJRyChleBKSOspPwn1nowglaYOS+wQrL08XHYKBjfmUWb
+         OWTpKUhvn2Kbfy4xjFrHqTeUAvOkBXsALIXyziO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 563/717] tcp: annotate data-race around tcp_md5sig_pool_populated
-Date:   Sat, 22 Oct 2022 09:27:22 +0200
-Message-Id: <20221022072523.281628549@linuxfoundation.org>
+        stable@vger.kernel.org, Jane Chu <jane.chu@oracle.com>,
+        Borislav Petkov <bp@suse.de>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 564/717] x86/mce: Retrieve poison range from hardware
+Date:   Sat, 22 Oct 2022 09:27:23 +0200
+Message-Id: <20221022072523.321590110@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,70 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jane Chu <jane.chu@oracle.com>
 
-[ Upstream commit aacd467c0a576e5e44d2de4205855dc0fe43f6fb ]
+[ Upstream commit f9781bb18ed828e7b83b7bac4a4ad7cd497ee7d7 ]
 
-tcp_md5sig_pool_populated can be read while another thread
-changes its value.
+When memory poison consumption machine checks fire, MCE notifier
+handlers like nfit_handle_mce() record the impacted physical address
+range which is reported by the hardware in the MCi_MISC MSR. The error
+information includes data about blast radius, i.e. how many cachelines
+did the hardware determine are impacted. A recent change
 
-The race has no consequence because allocations
-are protected with tcp_md5sig_mutex.
+  7917f9cdb503 ("acpi/nfit: rely on mce->misc to determine poison granularity")
 
-This patch adds READ_ONCE() and WRITE_ONCE() to document
-the race and silence KCSAN.
+updated nfit_handle_mce() to stop hard coding the blast radius value of
+1 cacheline, and instead rely on the blast radius reported in 'struct
+mce' which can be up to 4K (64 cachelines).
 
-Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+It turns out that apei_mce_report_mem_error() had a similar problem in
+that it hard coded a blast radius of 4K rather than reading the blast
+radius from the error information. Fix apei_mce_report_mem_error() to
+convey the proper poison granularity.
+
+Signed-off-by: Jane Chu <jane.chu@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/7ed50fd8-521e-cade-77b1-738b8bfb8502@oracle.com
+Link: https://lore.kernel.org/r/20220826233851.1319100-1-jane.chu@oracle.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ arch/x86/kernel/cpu/mce/apei.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index f82cd6eb7088..83fa8886f868 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -4349,12 +4349,16 @@ static void __tcp_alloc_md5sig_pool(void)
- 	 * to memory. See smp_rmb() in tcp_get_md5sig_pool()
- 	 */
- 	smp_wmb();
--	tcp_md5sig_pool_populated = true;
-+	/* Paired with READ_ONCE() from tcp_alloc_md5sig_pool()
-+	 * and tcp_get_md5sig_pool().
-+	*/
-+	WRITE_ONCE(tcp_md5sig_pool_populated, true);
- }
- 
- bool tcp_alloc_md5sig_pool(void)
+diff --git a/arch/x86/kernel/cpu/mce/apei.c b/arch/x86/kernel/cpu/mce/apei.c
+index 717192915f28..8ed341714686 100644
+--- a/arch/x86/kernel/cpu/mce/apei.c
++++ b/arch/x86/kernel/cpu/mce/apei.c
+@@ -29,15 +29,26 @@
+ void apei_mce_report_mem_error(int severity, struct cper_sec_mem_err *mem_err)
  {
--	if (unlikely(!tcp_md5sig_pool_populated)) {
-+	/* Paired with WRITE_ONCE() from __tcp_alloc_md5sig_pool() */
-+	if (unlikely(!READ_ONCE(tcp_md5sig_pool_populated))) {
- 		mutex_lock(&tcp_md5sig_mutex);
+ 	struct mce m;
++	int lsb;
  
- 		if (!tcp_md5sig_pool_populated) {
-@@ -4365,7 +4369,8 @@ bool tcp_alloc_md5sig_pool(void)
+ 	if (!(mem_err->validation_bits & CPER_MEM_VALID_PA))
+ 		return;
  
- 		mutex_unlock(&tcp_md5sig_mutex);
- 	}
--	return tcp_md5sig_pool_populated;
-+	/* Paired with WRITE_ONCE() from __tcp_alloc_md5sig_pool() */
-+	return READ_ONCE(tcp_md5sig_pool_populated);
- }
- EXPORT_SYMBOL(tcp_alloc_md5sig_pool);
++	/*
++	 * Even if the ->validation_bits are set for address mask,
++	 * to be extra safe, check and reject an error radius '0',
++	 * and fall back to the default page size.
++	 */
++	if (mem_err->validation_bits & CPER_MEM_VALID_PA_MASK)
++		lsb = find_first_bit((void *)&mem_err->physical_addr_mask, PAGE_SHIFT);
++	else
++		lsb = PAGE_SHIFT;
++
+ 	mce_setup(&m);
+ 	m.bank = -1;
+ 	/* Fake a memory read error with unknown channel */
+ 	m.status = MCI_STATUS_VAL | MCI_STATUS_EN | MCI_STATUS_ADDRV | MCI_STATUS_MISCV | 0x9f;
+-	m.misc = (MCI_MISC_ADDR_PHYS << 6) | PAGE_SHIFT;
++	m.misc = (MCI_MISC_ADDR_PHYS << 6) | lsb;
  
-@@ -4381,7 +4386,8 @@ struct tcp_md5sig_pool *tcp_get_md5sig_pool(void)
- {
- 	local_bh_disable();
- 
--	if (tcp_md5sig_pool_populated) {
-+	/* Paired with WRITE_ONCE() from __tcp_alloc_md5sig_pool() */
-+	if (READ_ONCE(tcp_md5sig_pool_populated)) {
- 		/* coupled with smp_wmb() in __tcp_alloc_md5sig_pool() */
- 		smp_rmb();
- 		return this_cpu_ptr(&tcp_md5sig_pool);
+ 	if (severity >= GHES_SEV_RECOVERABLE)
+ 		m.status |= MCI_STATUS_UC;
 -- 
 2.35.1
 
