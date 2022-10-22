@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F63C608757
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:00:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 653FA608774
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:01:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232231AbiJVIAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:00:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49838 "EHLO
+        id S232470AbiJVIBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:01:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232424AbiJVH66 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:58:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D282157881;
-        Sat, 22 Oct 2022 00:49:04 -0700 (PDT)
+        with ESMTP id S232937AbiJVIAY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:00:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 876332670E7;
+        Sat, 22 Oct 2022 00:50:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF76BB82E22;
-        Sat, 22 Oct 2022 07:48:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 359DDC433D6;
-        Sat, 22 Oct 2022 07:48:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B95276092A;
+        Sat, 22 Oct 2022 07:48:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98645C433C1;
+        Sat, 22 Oct 2022 07:48:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424922;
-        bh=0AaFD66QoCu+aNMC5pc5YET2gdKwWwa6+Akg5ngrniw=;
+        s=korg; t=1666424928;
+        bh=phSnUqnY7Kv4or2QaTwjWCnYha4ABTmtG8iuKHhbVc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AmehfEeTcFg0WS4OwxR2zojA6veqk4affVAwEufd6/vk6FFwrb3eZS0QksGw3F//g
-         SgFJ5HdF7Vf0UKyEg1BN8S4d3BQJqJzf6eXkh4CsXo3K1/9VcEdjZN8BBZWdhB5a/C
-         mCb91YBUL7bKd1YVcxUAx3RjLkZN3fHQpolPbizs=
+        b=rleCEOgD592SzoCgauYcseqt2AX0DcYo0TWJ61G2jm+n6S7tAcdO3foLjLMhZu2Du
+         IqyFII2/WID2jootnTYPlrVDOgo/f2JRPg41dWMiLDzbek/uoqooJbbYsXGKB+Q7Lj
+         En8I2etcMLmQ6YKG7avpxIo4gifTjJ2ETz2bZnuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Pin-Yen Lin <treapking@chromium.org>,
+        Allen Chen <allen.chen@ite.com.tw>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 297/717] drm/bridge: Avoid uninitialized variable warning
-Date:   Sat, 22 Oct 2022 09:22:56 +0200
-Message-Id: <20221022072505.578097055@linuxfoundation.org>
+Subject: [PATCH 5.19 299/717] drm/bridge: it6505: Power on downstream device in .atomic_enable
+Date:   Sat, 22 Oct 2022 09:22:58 +0200
+Message-Id: <20221022072505.851111038@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,47 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Pin-Yen Lin <treapking@chromium.org>
 
-[ Upstream commit 7d1202738efda60155d98b370b3c70d336be0eea ]
+[ Upstream commit fbc1fdaa8338ec4ebd862d918a0ce3e12033e8a3 ]
 
-This code works, but technically it uses "num_in_bus_fmts" before it
-has been initialized so it leads to static checker warnings and probably
-KMEMsan warnings at run time.  Initialize the variable to zero to
-silence the warning.
+Send DPCD DP_SET_POWER_D0 command to the monitor in .atomic_enable
+callback. Without this command, some monitors won't show up again after
+changing the resolution.
 
-Fixes: f32df58acc68 ("drm/bridge: Add the necessary bits to support bus format negotiation")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/YrrIs3hoGcPVmXc5@kili
+Fixes: 46ca7da7f1e8 ("drm/bridge: it6505: Send DPCD SET_POWER to downstream")
+
+Signed-off-by: Pin-Yen Lin <treapking@chromium.org>
+Reviewed-by: Allen Chen <allen.chen@ite.com.tw>
+Fixes: 46ca7da7f1e8 ("drm/bridge: it6505: Send DPCD SET_POWER to downstream")
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220714173715.v2.1.I85af54e9ceda74ec69f661852825845f983fc343@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_bridge.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/ite-it6505.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_bridge.c b/drivers/gpu/drm/drm_bridge.c
-index c96847fc0ebc..36ca4092c1ab 100644
---- a/drivers/gpu/drm/drm_bridge.c
-+++ b/drivers/gpu/drm/drm_bridge.c
-@@ -823,8 +823,8 @@ static int select_bus_fmt_recursive(struct drm_bridge *first_bridge,
- 				    struct drm_connector_state *conn_state,
- 				    u32 out_bus_fmt)
- {
-+	unsigned int i, num_in_bus_fmts = 0;
- 	struct drm_bridge_state *cur_state;
--	unsigned int num_in_bus_fmts, i;
- 	struct drm_bridge *prev_bridge;
- 	u32 *in_bus_fmts;
- 	int ret;
-@@ -945,7 +945,7 @@ drm_atomic_bridge_chain_select_bus_fmts(struct drm_bridge *bridge,
- 	struct drm_connector *conn = conn_state->connector;
- 	struct drm_encoder *encoder = bridge->encoder;
- 	struct drm_bridge_state *last_bridge_state;
--	unsigned int i, num_out_bus_fmts;
-+	unsigned int i, num_out_bus_fmts = 0;
- 	struct drm_bridge *last_bridge;
- 	u32 *out_bus_fmts;
- 	int ret = 0;
+diff --git a/drivers/gpu/drm/bridge/ite-it6505.c b/drivers/gpu/drm/bridge/ite-it6505.c
+index 4b673c4792d7..e5626035f311 100644
+--- a/drivers/gpu/drm/bridge/ite-it6505.c
++++ b/drivers/gpu/drm/bridge/ite-it6505.c
+@@ -2945,6 +2945,9 @@ static void it6505_bridge_atomic_enable(struct drm_bridge *bridge,
+ 	if (ret)
+ 		dev_err(dev, "Failed to setup AVI infoframe: %d", ret);
+ 
++	it6505_drm_dp_link_set_power(&it6505->aux, &it6505->link,
++				     DP_SET_POWER_D0);
++
+ 	it6505_update_video_parameter(it6505, mode);
+ 
+ 	ret = it6505_send_video_infoframe(it6505, &frame);
 -- 
 2.35.1
 
