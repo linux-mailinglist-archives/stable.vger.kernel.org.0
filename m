@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0AD16088B4
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:21:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 972646087C3
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233804AbiJVIVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:21:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50226 "EHLO
+        id S232740AbiJVIFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:05:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233833AbiJVITv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:19:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01B242DF463;
-        Sat, 22 Oct 2022 00:58:19 -0700 (PDT)
+        with ESMTP id S233098AbiJVIEv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 783142CE633;
+        Sat, 22 Oct 2022 00:52:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0D5960AD7;
-        Sat, 22 Oct 2022 07:51:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1F73C433D6;
-        Sat, 22 Oct 2022 07:51:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E54AB80E44;
+        Sat, 22 Oct 2022 07:51:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5B06C433D6;
+        Sat, 22 Oct 2022 07:51:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425085;
-        bh=OIJs8jEJDlE4X49d2dwxy8tysOIHP5M9KVrpH9pEbiM=;
+        s=korg; t=1666425088;
+        bh=aMhgMqMGgRl1+zscEHQn3kdfGb1OaQRYRmBXmXDblFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vor8+8fB2olDE800GsBcmmAESl54nD9AqezAayB1fp9vPEKp3cRdwD+JqxxiXQc6/
-         AYkpofKE2ZhDFwaKNKHb54fDouOK7QCGj4EnBDk+ixxQpnQN4untmZvQj0CbNFL16f
-         f4T9GiTq+pvgVzuikKNQWuOWbZa2VKYs0jSd/4Vs=
+        b=YTFDb4nOOQRNILVx/vm2FgjCu9M6NnRqPxszTVTBivvxeIQcEk4HaEFD2oGciY1YE
+         AADJOEyfXjRDw6DRFvrhN9IfB4nuJ5sFtrn80vqxTrKKTrX8t+lY+F7vEolB08RQ1c
+         H10eBEJlxpAcljIanrrFlsknD6KA9t6GziEvhPwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liang He <windhl@126.com>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 384/717] clk: qoriq: Hold reference returned by of_get_parent()
-Date:   Sat, 22 Oct 2022 09:24:23 +0200
-Message-Id: <20221022072514.536010465@linuxfoundation.org>
+Subject: [PATCH 5.19 385/717] clk: berlin: Add of_node_put() for of_get_parent()
+Date:   Sat, 22 Oct 2022 09:24:24 +0200
+Message-Id: <20221022072514.593575782@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,52 +55,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liang He <windhl@126.com>
 
-[ Upstream commit a8ea4273bc26256ce3cce83164f0f51c5bf6e127 ]
+[ Upstream commit 37c381b812dcbfde9c3f1f3d3e75fdfc1b40d5bc ]
 
-In legacy_init_clockgen(), we need to hold the reference returned
-by of_get_parent() and use it to call of_node_put() for refcount
-balance.
+In berlin2_clock_setup() and berlin2q_clock_setup(), we need to
+call of_node_put() for the reference returned by of_get_parent()
+which has increased the refcount. We should call *_put() in fail
+path or when it is not used anymore.
 
-Beside, in create_sysclk(), we need to call of_node_put() on 'sysclk'
-also for refcount balance.
-
-Fixes: 0dfc86b3173f ("clk: qoriq: Move chip-specific knowledge into driver")
+Fixes: 26b3b6b959b2 ("clk: berlin: prepare simple-mfd conversion")
 Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220628143851.171299-1-windhl@126.com
+Link: https://lore.kernel.org/r/20220708084900.311684-1-windhl@126.com
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-qoriq.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/clk/berlin/bg2.c  | 5 ++++-
+ drivers/clk/berlin/bg2q.c | 6 +++++-
+ 2 files changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/clk-qoriq.c b/drivers/clk/clk-qoriq.c
-index 88898b97a443..5eddb9f0d6bd 100644
---- a/drivers/clk/clk-qoriq.c
-+++ b/drivers/clk/clk-qoriq.c
-@@ -1063,8 +1063,13 @@ static void __init _clockgen_init(struct device_node *np, bool legacy);
-  */
- static void __init legacy_init_clockgen(struct device_node *np)
- {
--	if (!clockgen.node)
--		_clockgen_init(of_get_parent(np), true);
-+	if (!clockgen.node) {
-+		struct device_node *parent_np;
-+
-+		parent_np = of_get_parent(np);
-+		_clockgen_init(parent_np, true);
-+		of_node_put(parent_np);
-+	}
- }
+diff --git a/drivers/clk/berlin/bg2.c b/drivers/clk/berlin/bg2.c
+index bccdfa00fd37..67a9edbba29c 100644
+--- a/drivers/clk/berlin/bg2.c
++++ b/drivers/clk/berlin/bg2.c
+@@ -500,12 +500,15 @@ static void __init berlin2_clock_setup(struct device_node *np)
+ 	int n, ret;
  
- /* Legacy node */
-@@ -1159,6 +1164,7 @@ static struct clk * __init create_sysclk(const char *name)
- 	sysclk = of_get_child_by_name(clockgen.node, "sysclk");
- 	if (sysclk) {
- 		clk = sysclk_from_fixed(sysclk, name);
-+		of_node_put(sysclk);
- 		if (!IS_ERR(clk))
- 			return clk;
+ 	clk_data = kzalloc(struct_size(clk_data, hws, MAX_CLKS), GFP_KERNEL);
+-	if (!clk_data)
++	if (!clk_data) {
++		of_node_put(parent_np);
+ 		return;
++	}
+ 	clk_data->num = MAX_CLKS;
+ 	hws = clk_data->hws;
+ 
+ 	gbase = of_iomap(parent_np, 0);
++	of_node_put(parent_np);
+ 	if (!gbase)
+ 		return;
+ 
+diff --git a/drivers/clk/berlin/bg2q.c b/drivers/clk/berlin/bg2q.c
+index e9518d35f262..dd2784bb75b6 100644
+--- a/drivers/clk/berlin/bg2q.c
++++ b/drivers/clk/berlin/bg2q.c
+@@ -286,19 +286,23 @@ static void __init berlin2q_clock_setup(struct device_node *np)
+ 	int n, ret;
+ 
+ 	clk_data = kzalloc(struct_size(clk_data, hws, MAX_CLKS), GFP_KERNEL);
+-	if (!clk_data)
++	if (!clk_data) {
++		of_node_put(parent_np);
+ 		return;
++	}
+ 	clk_data->num = MAX_CLKS;
+ 	hws = clk_data->hws;
+ 
+ 	gbase = of_iomap(parent_np, 0);
+ 	if (!gbase) {
++		of_node_put(parent_np);
+ 		pr_err("%pOF: Unable to map global base\n", np);
+ 		return;
  	}
+ 
+ 	/* BG2Q CPU PLL is not part of global registers */
+ 	cpupll_base = of_iomap(parent_np, 1);
++	of_node_put(parent_np);
+ 	if (!cpupll_base) {
+ 		pr_err("%pOF: Unable to map cpupll base\n", np);
+ 		iounmap(gbase);
 -- 
 2.35.1
 
