@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AFF660870D
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:56:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7940A608712
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:56:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232191AbiJVHz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:55:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39498 "EHLO
+        id S232210AbiJVH4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:56:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232218AbiJVHy0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:26 -0400
+        with ESMTP id S232244AbiJVHyb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6534951D8;
-        Sat, 22 Oct 2022 00:47:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9CCE63D3A;
+        Sat, 22 Oct 2022 00:47:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FEB6B82E17;
-        Sat, 22 Oct 2022 07:46:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C95FFC433D6;
-        Sat, 22 Oct 2022 07:46:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04FC9B82DF3;
+        Sat, 22 Oct 2022 07:46:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 723FAC433D6;
+        Sat, 22 Oct 2022 07:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424785;
-        bh=kUpBrIVqSlkp2SOCGgG54sjDPu8ZawxljH/7Mfewagg=;
+        s=korg; t=1666424787;
+        bh=qI9liugzN9G0XVfsXLBml/djNWH/lcscIH6cMpNxmU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a/EJbPL9p4PN61+z3JkI4qwD6Vs888Kh6WjbO1Al7YnTCBg1imq2NegOV0jz7FQKH
-         EIiwoVgSTVuTPlcORinvekoetKhCiCu3Tze8Sm5G2Anxled4v50lBuHfau/5aQJweg
-         YZeRNjYWp4UMeIUUwqc7jHC7UJyQOElwsqohRDHY=
+        b=VP/Z0QJqSJUdp5Oj1h5vjvZz7wTV0FB6K3m60vkZaOZfpsUUe0PhGdvA1/2yw6ALm
+         TGyz+jRGl5qMzlHeJTq95xxkDm2Ks/Hbc/fURQ+TAmrYPuWVx/ZuGxws70Zqcs+S5p
+         vZ1/WV+AUZKPZQt2yz/fok6paxeJmBCXAeRd2EPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Jes Sorensen <jes@trained-monkey.org>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 276/717] wifi: rtl8xxxu: Fix AIFS written to REG_EDCA_*_PARAM
-Date:   Sat, 22 Oct 2022 09:22:35 +0200
-Message-Id: <20221022072503.020943027@linuxfoundation.org>
+        stable@vger.kernel.org, Junichi Uekawa <uekawa@chromium.org>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 277/717] vhost/vsock: Use kvmalloc/kvfree for larger packets.
+Date:   Sat, 22 Oct 2022 09:22:36 +0200
+Message-Id: <20221022072503.105679795@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,96 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Junichi Uekawa <uekawa@chromium.org>
 
-[ Upstream commit 5574d3290449916397f3092dcd2bac92415498e1 ]
+[ Upstream commit 0e3f72931fc47bb81686020cc643cde5d9cd0bb8 ]
 
-ieee80211_tx_queue_params.aifs is not supposed to be written directly
-to the REG_EDCA_*_PARAM registers. Instead process it like the vendor
-drivers do. It's kinda hacky but it works.
+When copying a large file over sftp over vsock, data size is usually 32kB,
+and kmalloc seems to fail to try to allocate 32 32kB regions.
 
-This change boosts the download speed and makes it more stable.
+ vhost-5837: page allocation failure: order:4, mode:0x24040c0
+ Call Trace:
+  [<ffffffffb6a0df64>] dump_stack+0x97/0xdb
+  [<ffffffffb68d6aed>] warn_alloc_failed+0x10f/0x138
+  [<ffffffffb68d868a>] ? __alloc_pages_direct_compact+0x38/0xc8
+  [<ffffffffb664619f>] __alloc_pages_nodemask+0x84c/0x90d
+  [<ffffffffb6646e56>] alloc_kmem_pages+0x17/0x19
+  [<ffffffffb6653a26>] kmalloc_order_trace+0x2b/0xdb
+  [<ffffffffb66682f3>] __kmalloc+0x177/0x1f7
+  [<ffffffffb66e0d94>] ? copy_from_iter+0x8d/0x31d
+  [<ffffffffc0689ab7>] vhost_vsock_handle_tx_kick+0x1fa/0x301 [vhost_vsock]
+  [<ffffffffc06828d9>] vhost_worker+0xf7/0x157 [vhost]
+  [<ffffffffb683ddce>] kthread+0xfd/0x105
+  [<ffffffffc06827e2>] ? vhost_dev_set_owner+0x22e/0x22e [vhost]
+  [<ffffffffb683dcd1>] ? flush_kthread_worker+0xf3/0xf3
+  [<ffffffffb6eb332e>] ret_from_fork+0x4e/0x80
+  [<ffffffffb683dcd1>] ? flush_kthread_worker+0xf3/0xf3
 
-Tested with RTL8188FU but all the other supported chips should also
-benefit.
+Work around by doing kvmalloc instead.
 
-Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Acked-by: Jes Sorensen <jes@trained-monkey.org>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/038cc03f-3567-77ba-a7bd-c4930e3b2fad@gmail.com
+Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+Signed-off-by: Junichi Uekawa <uekawa@chromium.org>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/20220928064538.667678-1-uekawa@chromium.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 49 +++++++++++++++++++
- 1 file changed, 49 insertions(+)
+ drivers/vhost/vsock.c                   | 2 +-
+ net/vmw_vsock/virtio_transport_common.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index 5f9d6cce1114..57b5370a256b 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -4560,6 +4560,53 @@ rtl8xxxu_wireless_mode(struct ieee80211_hw *hw, struct ieee80211_sta *sta)
- 	return network_type;
- }
- 
-+static void rtl8xxxu_set_aifs(struct rtl8xxxu_priv *priv, u8 slot_time)
-+{
-+	u32 reg_edca_param[IEEE80211_NUM_ACS] = {
-+		[IEEE80211_AC_VO] = REG_EDCA_VO_PARAM,
-+		[IEEE80211_AC_VI] = REG_EDCA_VI_PARAM,
-+		[IEEE80211_AC_BE] = REG_EDCA_BE_PARAM,
-+		[IEEE80211_AC_BK] = REG_EDCA_BK_PARAM,
-+	};
-+	u32 val32;
-+	u16 wireless_mode = 0;
-+	u8 aifs, aifsn, sifs;
-+	int i;
-+
-+	if (priv->vif) {
-+		struct ieee80211_sta *sta;
-+
-+		rcu_read_lock();
-+		sta = ieee80211_find_sta(priv->vif, priv->vif->bss_conf.bssid);
-+		if (sta)
-+			wireless_mode = rtl8xxxu_wireless_mode(priv->hw, sta);
-+		rcu_read_unlock();
-+	}
-+
-+	if (priv->hw->conf.chandef.chan->band == NL80211_BAND_5GHZ ||
-+	    (wireless_mode & WIRELESS_MODE_N_24G))
-+		sifs = 16;
-+	else
-+		sifs = 10;
-+
-+	for (i = 0; i < IEEE80211_NUM_ACS; i++) {
-+		val32 = rtl8xxxu_read32(priv, reg_edca_param[i]);
-+
-+		/* It was set in conf_tx. */
-+		aifsn = val32 & 0xff;
-+
-+		/* aifsn not set yet or already fixed */
-+		if (aifsn < 2 || aifsn > 15)
-+			continue;
-+
-+		aifs = aifsn * slot_time + sifs;
-+
-+		val32 &= ~0xff;
-+		val32 |= aifs;
-+		rtl8xxxu_write32(priv, reg_edca_param[i], val32);
-+	}
-+}
-+
- static void
- rtl8xxxu_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 			  struct ieee80211_bss_conf *bss_conf, u32 changed)
-@@ -4679,6 +4726,8 @@ rtl8xxxu_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 		else
- 			val8 = 20;
- 		rtl8xxxu_write8(priv, REG_SLOT, val8);
-+
-+		rtl8xxxu_set_aifs(priv, val8);
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 368330417bde..5703775af129 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -393,7 +393,7 @@ vhost_vsock_alloc_pkt(struct vhost_virtqueue *vq,
+ 		return NULL;
  	}
  
- 	if (changed & BSS_CHANGED_BSSID) {
+-	pkt->buf = kmalloc(pkt->len, GFP_KERNEL);
++	pkt->buf = kvmalloc(pkt->len, GFP_KERNEL);
+ 	if (!pkt->buf) {
+ 		kfree(pkt);
+ 		return NULL;
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index ec2c2afbf0d0..3a12aee33e92 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1342,7 +1342,7 @@ EXPORT_SYMBOL_GPL(virtio_transport_recv_pkt);
+ 
+ void virtio_transport_free_pkt(struct virtio_vsock_pkt *pkt)
+ {
+-	kfree(pkt->buf);
++	kvfree(pkt->buf);
+ 	kfree(pkt);
+ }
+ EXPORT_SYMBOL_GPL(virtio_transport_free_pkt);
 -- 
 2.35.1
 
