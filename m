@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F07160857A
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:34:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04BB260857D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:34:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230017AbiJVHeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:34:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46878 "EHLO
+        id S230020AbiJVHeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:34:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230103AbiJVHeD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:34:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA2B7230808;
-        Sat, 22 Oct 2022 00:34:01 -0700 (PDT)
+        with ESMTP id S230043AbiJVHeG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:34:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6240213451;
+        Sat, 22 Oct 2022 00:34:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48AB260A5C;
-        Sat, 22 Oct 2022 07:34:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50187C433C1;
-        Sat, 22 Oct 2022 07:34:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F8D060ADB;
+        Sat, 22 Oct 2022 07:34:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64B75C433D6;
+        Sat, 22 Oct 2022 07:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424040;
-        bh=0LcxMqzKBXHZAcPKt0pyDjPeM3azFWJ3SFXQ6kVQIP8=;
+        s=korg; t=1666424043;
+        bh=FkjzUhUl5EbNNLaFPOUkRAlXaQ5oBJlhSD4w0qnx4nA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yKjIxHpEfhh993AEUH4nJu/U5WUDueWNBL+6Bj921jAty/WZEZuOKyo2pyUWSAaN5
-         8ba6XloYJjfpHZ7dtJ7ZPX6TRxwUD69Vay0QKRquLNmaTFuDxU6I0yCBKnKYuKV8zG
-         mIIv94ooID3BRHF3rbsKf7/i6+6FZVtlZxnTiMaQ=
+        b=VNj9T9DJX/oRugflZg0PUnUCHJ12fmEyIgVn0MTjRpSiPlnMsoGvZd4Apsbli2c0Y
+         kegqB23mYak7/OwNA55BdFMlcsezvDMgBiBNXoq1qaH6+V7GAlLhFiNFB+spZ92yPv
+         vzx5zW8hKtns8QZdmNvfNIyO61GqeL4mAvK+zrrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Alexander Dahl <ada@thorsis.com>,
-        Peter Rosin <peda@axentia.se>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.19 010/717] mtd: rawnand: atmel: Unmap streaming DMA mappings
-Date:   Sat, 22 Oct 2022 09:18:09 +0200
-Message-Id: <20221022072416.900873665@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Beld Zhang <beldzhang@gmail.com>
+Subject: [PATCH 5.19 011/717] io_uring/rw: fix unexpected link breakage
+Date:   Sat, 22 Oct 2022 09:18:10 +0200
+Message-Id: <20221022072417.091622636@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,39 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 1161703c9bd664da5e3b2eb1a3bb40c210e026ea upstream.
+commit bf68b5b34311ee57ed40749a1257a30b46127556 upstream.
 
-Every dma_map_single() call should have its dma_unmap_single() counterpart,
-because the DMA address space is a shared resource and one could render the
-machine unusable by consuming all DMA addresses.
+req->cqe.res is set in io_read() to the amount of bytes left to be done,
+which is used to figure out whether to fail a read or not. However,
+io_read() may do another without returning, and we stash the previous
+value into ->bytes_done but forget to update cqe.res. Then we ask a read
+to do strictly less than cqe.res but expect the return to be exactly
+cqe.res.
 
-Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
+Fix the bug by updating cqe.res for retries.
+
 Cc: stable@vger.kernel.org
-Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Acked-by: Alexander Dahl <ada@thorsis.com>
-Reported-by: Peter Rosin <peda@axentia.se>
-Tested-by: Alexander Dahl <ada@thorsis.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Tested-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220728074014.145406-1-tudor.ambarus@microchip.com
+Reported-and-Tested-by: Beld Zhang <beldzhang@gmail.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/3a1088440c7be98e5800267af922a67da0ef9f13.1664235732.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/atmel/nand-controller.c |    1 +
+ io_uring/io_uring.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/mtd/nand/raw/atmel/nand-controller.c
-+++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
-@@ -405,6 +405,7 @@ static int atmel_nand_dma_transfer(struc
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -4215,6 +4215,7 @@ static int io_read(struct io_kiocb *req,
+ 			return -EAGAIN;
+ 		}
  
- 	dma_async_issue_pending(nc->dmac);
- 	wait_for_completion(&finished);
-+	dma_unmap_single(nc->dev, buf_dma, len, dir);
- 
- 	return 0;
- 
++		req->cqe.res = iov_iter_count(&s->iter);
+ 		/*
+ 		 * Now retry read with the IOCB_WAITQ parts set in the iocb. If
+ 		 * we get -EIOCBQUEUED, then we'll get a notification when the
 
 
