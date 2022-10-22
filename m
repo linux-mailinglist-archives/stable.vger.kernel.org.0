@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6A9A6085F9
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:42:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC62C60862D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230328AbiJVHmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:42:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44772 "EHLO
+        id S231361AbiJVHpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:45:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231139AbiJVHlz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:41:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEF55EF5B6;
-        Sat, 22 Oct 2022 00:40:14 -0700 (PDT)
+        with ESMTP id S231598AbiJVHoh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:44:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BF742A9355;
+        Sat, 22 Oct 2022 00:43:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E18AB82E01;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C23160B3D;
+        Sat, 22 Oct 2022 07:39:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D944C433C1;
         Sat, 22 Oct 2022 07:39:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87438C433D6;
-        Sat, 22 Oct 2022 07:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424356;
-        bh=LUCqnL0CpNQQy7m2QqQFuPp6xdW28Ne5xn1QZwADrrY=;
+        s=korg; t=1666424359;
+        bh=DGwsmplE8Vkby6OIoLLT0zxoXaCbmjiNeby20xr9kEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GlhTD63GR/dN/saezdaWREv9yiwUnHW3BSxEmj1lur/TJG0J6X0xCnyTj7jMM9Qr5
-         dTTPjea/6ykYVQtq3O7z83+epPzz2F9i25aUKd2CTqbfF6rDPn7K53XRRVehjFOsiJ
-         HK/m7F2dUvNWOgzAcsad26POhjCUpKQVvRdaKZ4Y=
+        b=HSrupPQbIBK4us2n5dtjSvSxIoKYZsTJOG7EZATQT57v9gAuh7ZpI8zPV8iUa13ZQ
+         iJI5tw3uty1MdsEwZqD5zvvv58SY/EXOkF2SuUfVD/me88wwdoOLUnqH+GWm957GXL
+         P0P/Vw8MIKb96KRjv7eTsssFxaoFa14DhfJN3plE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aran Dalton <arda@allwinnertech.com>,
+        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
         Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.19 115/717] f2fs: increase the limit for reserve_root
-Date:   Sat, 22 Oct 2022 09:19:54 +0200
-Message-Id: <20221022072435.740997775@linuxfoundation.org>
+Subject: [PATCH 5.19 116/717] f2fs: fix to do sanity check on destination blkaddr during recovery
+Date:   Sat, 22 Oct 2022 09:19:55 +0200
+Message-Id: <20221022072435.970907619@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,39 +52,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Chao Yu <chao@kernel.org>
 
-commit da35fe96d12d15779f3cb74929b7ed03941cf983 upstream.
+commit 0ef4ca04a3f9223ff8bc440041c524b2123e09a3 upstream.
 
-This patch increases the threshold that limits the reserved root space from 0.2%
-to 12.5% by using simple shift operation.
+As Wenqing Liu reported in bugzilla:
 
-Typically Android sets 128MB, but if the storage capacity is 32GB, 0.2% which is
-around 64MB becomes too small. Let's relax it.
+https://bugzilla.kernel.org/show_bug.cgi?id=216456
+
+loop5: detected capacity change from 0 to 131072
+F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
+F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
+F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
+F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
+F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
+F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
+F2FS-fs (loop5): Bitmap was wrongly set, blk:5634
+------------[ cut here ]------------
+WARNING: CPU: 3 PID: 1013 at fs/f2fs/segment.c:2198
+RIP: 0010:update_sit_entry+0xa55/0x10b0 [f2fs]
+Call Trace:
+ <TASK>
+ f2fs_do_replace_block+0xa98/0x1890 [f2fs]
+ f2fs_replace_block+0xeb/0x180 [f2fs]
+ recover_data+0x1a69/0x6ae0 [f2fs]
+ f2fs_recover_fsync_data+0x120d/0x1fc0 [f2fs]
+ f2fs_fill_super+0x4665/0x61e0 [f2fs]
+ mount_bdev+0x2cf/0x3b0
+ legacy_get_tree+0xed/0x1d0
+ vfs_get_tree+0x81/0x2b0
+ path_mount+0x47e/0x19d0
+ do_mount+0xce/0xf0
+ __x64_sys_mount+0x12c/0x1a0
+ do_syscall_64+0x38/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+If we enable CONFIG_F2FS_CHECK_FS config, it will trigger a kernel panic
+instead of warning.
+
+The root cause is: in fuzzed image, SIT table is inconsistent with inode
+mapping table, result in triggering such warning during SIT table update.
+
+This patch introduces a new flag DATA_GENERIC_ENHANCE_UPDATE, w/ this
+flag, data block recovery flow can check destination blkaddr's validation
+in SIT table, and skip f2fs_replace_block() to avoid inconsistent status.
 
 Cc: stable@vger.kernel.org
-Reported-by: Aran Dalton <arda@allwinnertech.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
+Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
+Signed-off-by: Chao Yu <chao@kernel.org>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/super.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/f2fs/checkpoint.c |   10 +++++++++-
+ fs/f2fs/f2fs.h       |    4 ++++
+ fs/f2fs/recovery.c   |    8 ++++++++
+ 3 files changed, 21 insertions(+), 1 deletion(-)
 
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -298,10 +298,10 @@ static void f2fs_destroy_casefold_cache(
+--- a/fs/f2fs/checkpoint.c
++++ b/fs/f2fs/checkpoint.c
+@@ -140,7 +140,7 @@ static bool __is_bitmap_valid(struct f2f
+ 	unsigned int segno, offset;
+ 	bool exist;
  
- static inline void limit_reserve_root(struct f2fs_sb_info *sbi)
- {
--	block_t limit = min((sbi->user_block_count << 1) / 1000,
-+	block_t limit = min((sbi->user_block_count >> 3),
- 			sbi->user_block_count - sbi->reserved_blocks);
+-	if (type != DATA_GENERIC_ENHANCE && type != DATA_GENERIC_ENHANCE_READ)
++	if (type == DATA_GENERIC)
+ 		return true;
  
--	/* limit is 0.2% */
-+	/* limit is 12.5% */
- 	if (test_opt(sbi, RESERVE_ROOT) &&
- 			F2FS_OPTION(sbi).root_reserved_blocks > limit) {
- 		F2FS_OPTION(sbi).root_reserved_blocks = limit;
+ 	segno = GET_SEGNO(sbi, blkaddr);
+@@ -148,6 +148,13 @@ static bool __is_bitmap_valid(struct f2f
+ 	se = get_seg_entry(sbi, segno);
+ 
+ 	exist = f2fs_test_bit(offset, se->cur_valid_map);
++	if (exist && type == DATA_GENERIC_ENHANCE_UPDATE) {
++		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
++			 blkaddr, exist);
++		set_sbi_flag(sbi, SBI_NEED_FSCK);
++		return exist;
++	}
++
+ 	if (!exist && type == DATA_GENERIC_ENHANCE) {
+ 		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
+ 			 blkaddr, exist);
+@@ -185,6 +192,7 @@ bool f2fs_is_valid_blkaddr(struct f2fs_s
+ 	case DATA_GENERIC:
+ 	case DATA_GENERIC_ENHANCE:
+ 	case DATA_GENERIC_ENHANCE_READ:
++	case DATA_GENERIC_ENHANCE_UPDATE:
+ 		if (unlikely(blkaddr >= MAX_BLKADDR(sbi) ||
+ 				blkaddr < MAIN_BLKADDR(sbi))) {
+ 			f2fs_warn(sbi, "access invalid blkaddr:%u",
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -266,6 +266,10 @@ enum {
+ 					 * condition of read on truncated area
+ 					 * by extent_cache
+ 					 */
++	DATA_GENERIC_ENHANCE_UPDATE,	/*
++					 * strong check on range and segment
++					 * bitmap for update case
++					 */
+ 	META_GENERIC,
+ };
+ 
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -698,6 +698,14 @@ retry_prev:
+ 				goto err;
+ 			}
+ 
++			if (f2fs_is_valid_blkaddr(sbi, dest,
++					DATA_GENERIC_ENHANCE_UPDATE)) {
++				f2fs_err(sbi, "Inconsistent dest blkaddr:%u, ino:%lu, ofs:%u",
++					dest, inode->i_ino, dn.ofs_in_node);
++				err = -EFSCORRUPTED;
++				goto err;
++			}
++
+ 			/* write dummy data page */
+ 			f2fs_replace_block(sbi, &dn, src, dest,
+ 						ni.version, false, false);
 
 
