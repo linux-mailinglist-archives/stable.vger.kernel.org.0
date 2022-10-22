@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71D986088A9
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:20:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5764360886D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:17:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230189AbiJVIUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:20:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54234 "EHLO
+        id S230340AbiJVIQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:16:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233795AbiJVITo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:19:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E15D0D6BB4;
-        Sat, 22 Oct 2022 00:58:32 -0700 (PDT)
+        with ESMTP id S234074AbiJVIQH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:16:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E571E2CCA13;
+        Sat, 22 Oct 2022 00:57:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7486160B91;
-        Sat, 22 Oct 2022 07:56:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B239C433C1;
-        Sat, 22 Oct 2022 07:56:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBC0860AC3;
+        Sat, 22 Oct 2022 07:56:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3E10C4314C;
+        Sat, 22 Oct 2022 07:56:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425392;
-        bh=1Y7qpSB/p47Zdgo29zn1EKjizf5xN3DqjUZFK+QYqKQ=;
+        s=korg; t=1666425396;
+        bh=kEJlBh+wNtWmXqcwtAkfwDO8V/HHGFV5VPH8ZyBTNso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCbbhWt7zb9TKPWUQdTV0oZZVYa/GYwkhS3E/qExBJXXo7n1rgvhjhH4Ww01msjdv
-         nAU59SyHRPj51rG2WT88Dc+Tq4onCKixmwsKkIODzqFoDA4zIY9XBw+4ztl+L9231E
-         8m2wE0vuftUXxpY3RdGiHebnJTYKawYgwB1ke+Rc=
+        b=hUz/ueP2GksGPlESuPnNTjCY8clEMmKdQe6VFcTyMecW2kkgYPzpCrQt752yk5gby
+         j51Z4E39aIlotQA033GHfpEOrszkRbABHjhQlWxDElpWzeobDmGB32bi8QGEDLkZkn
+         fuFiM3beNsEiIYnttIYOz+M40Ua7Ng4pUjlfaE2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Yujun <linyujun809@huawei.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 485/717] clk: imx: scu: fix memleak on platform_device_add() fails
-Date:   Sat, 22 Oct 2022 09:26:04 +0200
-Message-Id: <20221022072519.828988984@linuxfoundation.org>
+Subject: [PATCH 5.19 486/717] clk: ti: Balance of_node_get() calls for of_find_node_by_name()
+Date:   Sat, 22 Oct 2022 09:26:05 +0200
+Message-Id: <20221022072519.859940424@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,40 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Yujun <linyujun809@huawei.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 855ae87a2073ebf1b395e020de54fdf9ce7d166f ]
+[ Upstream commit 058a3996b888ab60eb1857fb4fd28f1b89a9a95a ]
 
-No error handling is performed when platform_device_add()
-fails. Add error processing before return, and modified
-the return value.
+In ti_find_clock_provider(), of_find_node_by_name() will call
+of_node_put() for the 'from' argument, possibly putting the node one too
+many times. Let's maintain the of_node_get() from the previous search
+and only put when we're exiting the function early. This should avoid a
+misbalanced reference count on the node.
 
-Fixes: 77d8f3068c63 ("clk: imx: scu: add two cells binding support")
-Signed-off-by: Lin Yujun <linyujun809@huawei.com>
-Link: https://lore.kernel.org/r/20220914033206.98046-1-linyujun809@huawei.com
+Fixes: 51f661ef9a10 ("clk: ti: Add ti_find_clock_provider() to use clock-output-names")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220915031121.4003589-1-windhl@126.com
+[sboyd@kernel.org: Rewrite commit text, maintain reference instead of
+get again]
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-scu.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/clk/ti/clk.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/imx/clk-scu.c b/drivers/clk/imx/clk-scu.c
-index c56e406138db..1e6870f3671f 100644
---- a/drivers/clk/imx/clk-scu.c
-+++ b/drivers/clk/imx/clk-scu.c
-@@ -695,7 +695,11 @@ struct clk_hw *imx_clk_scu_alloc_dev(const char *name,
- 		pr_warn("%s: failed to attached the power domain %d\n",
- 			name, ret);
+diff --git a/drivers/clk/ti/clk.c b/drivers/clk/ti/clk.c
+index 121d8610beb1..6b2de32ef88d 100644
+--- a/drivers/clk/ti/clk.c
++++ b/drivers/clk/ti/clk.c
+@@ -148,11 +148,12 @@ static struct device_node *ti_find_clock_provider(struct device_node *from,
+ 			break;
+ 		}
+ 	}
+-	of_node_put(from);
+ 	kfree(tmp);
  
--	platform_device_add(pdev);
-+	ret = platform_device_add(pdev);
-+	if (ret) {
-+		platform_device_put(pdev);
-+		return ERR_PTR(ret);
+-	if (found)
++	if (found) {
++		of_node_put(from);
+ 		return np;
 +	}
  
- 	/* For API backwards compatiblilty, simply return NULL for success */
- 	return NULL;
+ 	/* Fall back to using old node name base provider name */
+ 	return of_find_node_by_name(from, name);
 -- 
 2.35.1
 
