@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E7136086CD
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:53:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 779BF6086C3
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:53:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232022AbiJVHxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:53:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54860 "EHLO
+        id S231978AbiJVHxM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:53:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231791AbiJVHwG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:52:06 -0400
+        with ESMTP id S231980AbiJVHvu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:51:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B7042C2AFF;
-        Sat, 22 Oct 2022 00:46:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 626F3AC299;
+        Sat, 22 Oct 2022 00:46:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 771D8B82E28;
-        Sat, 22 Oct 2022 07:45:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB40AC433D6;
-        Sat, 22 Oct 2022 07:45:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4CE6EB82E29;
+        Sat, 22 Oct 2022 07:45:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9132AC433D7;
+        Sat, 22 Oct 2022 07:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424732;
-        bh=7h9aWcGCfgx2rKr3+DGUU7gZV0M1EwXuVeR7W2iK1KQ=;
+        s=korg; t=1666424735;
+        bh=4WtSWs0+NqxbJeJz/1Xlp9+z0YYStOt8rbByNslallE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=emN9mDtVj3IS3r3i+RJpZWPV2zYr0HZ/H+goF+IBZBeXCewcrB44B2/Yr+0T+W5ts
-         h+xRP4tBteUOAnT/nByRJOk3sMHwVIlEVFHbjOZYgTOjpFY6f1jyj8l+uliccET884
-         K98NqwEXlx1pI5bO4cVoJyRI1YTc6JptJ2aRswTs=
+        b=QpTDnVYPT3SmCaBETY2mrYyBfDSg+YAW5xOfiaQ2PVUGwSjN0PV4GrtVPHqZZXnJL
+         bCjBUdo3cIfhMv3qMymqO+NJMZ5J0bSz3ubFtkSlJ7NKwPOam/BYAHeQBG2ZjViJbp
+         Oy+DrPWBBDSyVD4RC76bu60IH44GL+t/KmFb648Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+576dfca25381fb6fbc5f@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Antoine Tenart <atenart@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 255/717] Bluetooth: hci_{ldisc,serdev}: check percpu_init_rwsem() failure
-Date:   Sat, 22 Oct 2022 09:22:14 +0200
-Message-Id: <20221022072459.894957866@linuxfoundation.org>
+Subject: [PATCH 5.19 256/717] netfilter: conntrack: fix the gc rescheduling delay
+Date:   Sat, 22 Oct 2022 09:22:15 +0200
+Message-Id: <20221022072500.034465258@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,91 +53,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Antoine Tenart <atenart@kernel.org>
 
-[ Upstream commit 3124d320c22f3f4388d9ac5c8f37eaad0cefd6b1 ]
+[ Upstream commit 95eabdd207024312876d0ebed90b4c977e050e85 ]
 
-syzbot is reporting NULL pointer dereference at hci_uart_tty_close() [1],
-for rcu_sync_enter() is called without rcu_sync_init() due to
-hci_uart_tty_open() ignoring percpu_init_rwsem() failure.
+Commit 2cfadb761d3d ("netfilter: conntrack: revisit gc autotuning")
+changed the eviction rescheduling to the use average expiry of scanned
+entries (within 1-60s) by doing:
 
-While we are at it, fix that hci_uart_register_device() ignores
-percpu_init_rwsem() failure and hci_uart_unregister_device() does not
-call percpu_free_rwsem().
+  for (...) {
+      expires = clamp(nf_ct_expires(tmp), ...);
+      next_run += expires;
+      next_run /= 2;
+  }
 
-Link: https://syzkaller.appspot.com/bug?extid=576dfca25381fb6fbc5f [1]
-Reported-by: syzbot <syzbot+576dfca25381fb6fbc5f@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 67d2f8781b9f00d1 ("Bluetooth: hci_ldisc: Allow sleeping while proto locks are held.")
-Fixes: d73e172816652772 ("Bluetooth: hci_serdev: Init hci_uart proto_lock to avoid oops")
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+The issue is the above will make the average ('next_run' here) more
+dependent on the last expiration values than the firsts (for sets > 2).
+Depending on the expiration values used to compute the average, the
+result can be quite different than what's expected. To fix this we can
+do the following:
+
+  for (...) {
+      expires = clamp(nf_ct_expires(tmp), ...);
+      next_run += (expires - next_run) / ++count;
+  }
+
+Fixes: 2cfadb761d3d ("netfilter: conntrack: revisit gc autotuning")
+Cc: Florian Westphal <fw@strlen.de>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_ldisc.c  |  7 +++++--
- drivers/bluetooth/hci_serdev.c | 10 +++++++---
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ net/netfilter/nf_conntrack_core.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_ldisc.c b/drivers/bluetooth/hci_ldisc.c
-index f537673ede17..865112e96ff9 100644
---- a/drivers/bluetooth/hci_ldisc.c
-+++ b/drivers/bluetooth/hci_ldisc.c
-@@ -493,6 +493,11 @@ static int hci_uart_tty_open(struct tty_struct *tty)
- 		BT_ERR("Can't allocate control structure");
- 		return -ENFILE;
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 369aeabb94fe..6fdbffc85222 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -67,6 +67,7 @@ struct conntrack_gc_work {
+ 	struct delayed_work	dwork;
+ 	u32			next_bucket;
+ 	u32			avg_timeout;
++	u32			count;
+ 	u32			start_time;
+ 	bool			exiting;
+ 	bool			early_drop;
+@@ -1468,6 +1469,7 @@ static void gc_worker(struct work_struct *work)
+ 	unsigned int expired_count = 0;
+ 	unsigned long next_run;
+ 	s32 delta_time;
++	long count;
+ 
+ 	gc_work = container_of(work, struct conntrack_gc_work, dwork.work);
+ 
+@@ -1477,10 +1479,12 @@ static void gc_worker(struct work_struct *work)
+ 
+ 	if (i == 0) {
+ 		gc_work->avg_timeout = GC_SCAN_INTERVAL_INIT;
++		gc_work->count = 1;
+ 		gc_work->start_time = start_time;
  	}
-+	if (percpu_init_rwsem(&hu->proto_lock)) {
-+		BT_ERR("Can't allocate semaphore structure");
-+		kfree(hu);
-+		return -ENOMEM;
-+	}
  
- 	tty->disc_data = hu;
- 	hu->tty = tty;
-@@ -505,8 +510,6 @@ static int hci_uart_tty_open(struct tty_struct *tty)
- 	INIT_WORK(&hu->init_ready, hci_uart_init_work);
- 	INIT_WORK(&hu->write_work, hci_uart_write_work);
+ 	next_run = gc_work->avg_timeout;
++	count = gc_work->count;
  
--	percpu_init_rwsem(&hu->proto_lock);
--
- 	/* Flush any pending characters in the driver */
- 	tty_driver_flush_buffer(tty);
+ 	end_time = start_time + GC_SCAN_MAX_DURATION;
  
-diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
-index c0e5f42ec6b7..f16fd79bc02b 100644
---- a/drivers/bluetooth/hci_serdev.c
-+++ b/drivers/bluetooth/hci_serdev.c
-@@ -310,11 +310,12 @@ int hci_uart_register_device(struct hci_uart *hu,
+@@ -1500,8 +1504,8 @@ static void gc_worker(struct work_struct *work)
  
- 	serdev_device_set_client_ops(hu->serdev, &hci_serdev_client_ops);
+ 		hlist_nulls_for_each_entry_rcu(h, n, &ct_hash[i], hnnode) {
+ 			struct nf_conntrack_net *cnet;
+-			unsigned long expires;
+ 			struct net *net;
++			long expires;
  
-+	if (percpu_init_rwsem(&hu->proto_lock))
-+		return -ENOMEM;
-+
- 	err = serdev_device_open(hu->serdev);
- 	if (err)
--		return err;
--
--	percpu_init_rwsem(&hu->proto_lock);
-+		goto err_rwsem;
+ 			tmp = nf_ct_tuplehash_to_ctrack(h);
  
- 	err = p->open(hu);
- 	if (err)
-@@ -389,6 +390,8 @@ int hci_uart_register_device(struct hci_uart *hu,
- 	p->close(hu);
- err_open:
- 	serdev_device_close(hu->serdev);
-+err_rwsem:
-+	percpu_free_rwsem(&hu->proto_lock);
- 	return err;
- }
- EXPORT_SYMBOL_GPL(hci_uart_register_device);
-@@ -410,5 +413,6 @@ void hci_uart_unregister_device(struct hci_uart *hu)
- 		clear_bit(HCI_UART_PROTO_READY, &hu->flags);
- 		serdev_device_close(hu->serdev);
- 	}
-+	percpu_free_rwsem(&hu->proto_lock);
- }
- EXPORT_SYMBOL_GPL(hci_uart_unregister_device);
+@@ -1515,6 +1519,7 @@ static void gc_worker(struct work_struct *work)
+ 
+ 				gc_work->next_bucket = i;
+ 				gc_work->avg_timeout = next_run;
++				gc_work->count = count;
+ 
+ 				delta_time = nfct_time_stamp - gc_work->start_time;
+ 
+@@ -1530,8 +1535,8 @@ static void gc_worker(struct work_struct *work)
+ 			}
+ 
+ 			expires = clamp(nf_ct_expires(tmp), GC_SCAN_INTERVAL_MIN, GC_SCAN_INTERVAL_CLAMP);
++			expires = (expires - (long)next_run) / ++count;
+ 			next_run += expires;
+-			next_run /= 2u;
+ 
+ 			if (nf_conntrack_max95 == 0 || gc_worker_skip_ct(tmp))
+ 				continue;
+@@ -1572,6 +1577,7 @@ static void gc_worker(struct work_struct *work)
+ 		delta_time = nfct_time_stamp - end_time;
+ 		if (delta_time > 0 && i < hashsz) {
+ 			gc_work->avg_timeout = next_run;
++			gc_work->count = count;
+ 			gc_work->next_bucket = i;
+ 			next_run = 0;
+ 			goto early_exit;
 -- 
 2.35.1
 
