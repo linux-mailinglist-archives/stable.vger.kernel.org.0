@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A837F608877
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A7086087B3
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232858AbiJVIRY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:17:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50248 "EHLO
+        id S232431AbiJVIF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:05:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232976AbiJVIQ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:16:26 -0400
+        with ESMTP id S232862AbiJVIET (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72E62DAC1B;
-        Sat, 22 Oct 2022 00:57:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 478ED2D2C1B;
+        Sat, 22 Oct 2022 00:51:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2B8BB82E02;
-        Sat, 22 Oct 2022 07:39:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 105E3C433C1;
-        Sat, 22 Oct 2022 07:39:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9663AB82DFB;
+        Sat, 22 Oct 2022 07:41:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E2BBC433C1;
+        Sat, 22 Oct 2022 07:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424391;
-        bh=6BEkaoCyr1a3B8J21YBWZZrVNR7enMef3nl7AAJ8oEM=;
+        s=korg; t=1666424474;
+        bh=HJEF7endQpM+60VPzFKP7f1JvxvvavZo44m56jkX12A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tM1EbFO1QJDqKj5aDywwCaP8Sn44XTQmjb5t0nxiJwbMaIdiNAjSTvKO7jSEttAQB
-         zfBjCRPxhFfz7tk65cn5gwaMio4uK+l5LyNtzEQgoasJTq3fCDVcXW9FqLlm/f9D/2
-         PVzgqWrLA2if+pSpfcwFIVHqc0lJ/VZo+1zEDD5c=
+        b=HRWv8JX6/w93BX/QkPwAvqqocsg7JKqVIw77VNmerIEkFlnuE1uPyQBnQFGPpIwrH
+         Tn6Lv6GXEP4x2fqpGXXGYeHnJ3C2D3GcnUgFtlo0asE90pkmV0UhnCbfTX8QvguEZZ
+         QLYtY+DIfSQ03MYmZegRHK4YyFIpws1vC5mrm5io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Lukas Czerner <lczerner@redhat.com>, Jan Kara <jack@suse.cz>,
-        Jeff Layton <jlayton@kernel.org>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.19 127/717] ext4: dont increase iversion counter for ea_inodes
-Date:   Sat, 22 Oct 2022 09:20:06 +0200
-Message-Id: <20221022072437.958359393@linuxfoundation.org>
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.19 132/717] ext4: fix dir corruption when ext4_dx_add_entry() fails
+Date:   Sat, 22 Oct 2022 09:20:11 +0200
+Message-Id: <20221022072438.874019929@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,44 +52,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Czerner <lczerner@redhat.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 50f094a5580e6297bf10a807d16f0ee23fa576cf upstream.
+commit 7177dd009c7c04290891e9a534cd47d1b620bd04 upstream.
 
-ea_inodes are using i_version for storing part of the reference count so
-we really need to leave it alone.
+Following process may lead to fs corruption:
+1. ext4_create(dir/foo)
+ ext4_add_nondir
+  ext4_add_entry
+   ext4_dx_add_entry
+     a. add_dirent_to_buf
+      ext4_mark_inode_dirty
+      ext4_handle_dirty_metadata   // dir inode bh is recorded into journal
+     b. ext4_append    // dx_get_count(entries) == dx_get_limit(entries)
+       ext4_bread(EXT4_GET_BLOCKS_CREATE)
+        ext4_getblk
+         ext4_map_blocks
+          ext4_ext_map_blocks
+            ext4_mb_new_blocks
+             dquot_alloc_block
+              dquot_alloc_space_nodirty
+               inode_add_bytes    // update dir's i_blocks
+            ext4_ext_insert_extent
+	     ext4_ext_dirty  // record extent bh into journal
+              ext4_handle_dirty_metadata(bh)
+	      // record new block into journal
+       inode->i_size += inode->i_sb->s_blocksize   // new size(in mem)
+     c. ext4_handle_dirty_dx_node(bh2)
+	// record dir's new block(dx_node) into journal
+     d. ext4_handle_dirty_dx_node((frame - 1)->bh)
+     e. ext4_handle_dirty_dx_node(frame->bh)
+     f. do_split    // ret err!
+     g. add_dirent_to_buf
+	 ext4_mark_inode_dirty(dir)  // update raw_inode on disk(skipped)
+2. fsck -a /dev/sdb
+ drop last block(dx_node) which beyonds dir's i_size.
+  /dev/sdb: recovering journal
+  /dev/sdb contains a file system with errors, check forced.
+  /dev/sdb: Inode 12, end of extent exceeds allowed value
+	(logical block 128, physical block 3938, len 1)
+3. fsck -fn /dev/sdb
+ dx_node->entry[i].blk > dir->i_size
+  Pass 2: Checking directory structure
+  Problem in HTREE directory inode 12 (/dir): bad block number 128.
+  Clear HTree index? no
+  Problem in HTREE directory inode 12: block #3 has invalid depth (2)
+  Problem in HTREE directory inode 12: block #3 has bad max hash
+  Problem in HTREE directory inode 12: block #3 not referenced
 
-The problem can be reproduced by xfstest ext4/026 when iversion is
-enabled. Fix it by not calling inode_inc_iversion() for EXT4_EA_INODE_FL
-inodes in ext4_mark_iloc_dirty().
+Fix it by marking inode dirty directly inside ext4_append().
+Fetch a reproducer in [Link].
 
-Cc: stable@kernel.org
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216466
+Cc: stable@vger.kernel.org
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Link: https://lore.kernel.org/r/20220824160349.39664-1-lczerner@redhat.com
+Link: https://lore.kernel.org/r/20220911045204.516460-1-chengzhihao1@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/ext4/namei.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5731,7 +5731,12 @@ int ext4_mark_iloc_dirty(handle_t *handl
- 	}
- 	ext4_fc_track_inode(handle, inode);
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -85,15 +85,20 @@ static struct buffer_head *ext4_append(h
+ 		return bh;
+ 	inode->i_size += inode->i_sb->s_blocksize;
+ 	EXT4_I(inode)->i_disksize = inode->i_size;
++	err = ext4_mark_inode_dirty(handle, inode);
++	if (err)
++		goto out;
+ 	BUFFER_TRACE(bh, "get_write_access");
+ 	err = ext4_journal_get_write_access(handle, inode->i_sb, bh,
+ 					    EXT4_JTR_NONE);
+-	if (err) {
+-		brelse(bh);
+-		ext4_std_error(inode->i_sb, err);
+-		return ERR_PTR(err);
+-	}
++	if (err)
++		goto out;
+ 	return bh;
++
++out:
++	brelse(bh);
++	ext4_std_error(inode->i_sb, err);
++	return ERR_PTR(err);
+ }
  
--	if (IS_I_VERSION(inode))
-+	/*
-+	 * ea_inodes are using i_version for storing reference count, don't
-+	 * mess with it
-+	 */
-+	if (IS_I_VERSION(inode) &&
-+	    !(EXT4_I(inode)->i_flags & EXT4_EA_INODE_FL))
- 		inode_inc_iversion(inode);
- 
- 	/* the do_update_inode consumes one bh->b_count */
+ static int ext4_dx_csum_verify(struct inode *inode,
 
 
