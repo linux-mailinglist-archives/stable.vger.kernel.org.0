@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 401996089DF
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E88BE60896D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:36:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234832AbiJVInL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:43:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48384 "EHLO
+        id S231194AbiJVIf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:35:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234615AbiJVIlu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:41:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 471982E86F2;
-        Sat, 22 Oct 2022 01:06:41 -0700 (PDT)
+        with ESMTP id S234242AbiJVIef (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:34:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B2F2D129C;
+        Sat, 22 Oct 2022 01:04:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD85660B94;
-        Sat, 22 Oct 2022 08:03:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3C9AC433C1;
-        Sat, 22 Oct 2022 08:03:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D67260B9D;
+        Sat, 22 Oct 2022 08:03:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A96CC433D6;
+        Sat, 22 Oct 2022 08:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425782;
-        bh=wLs1MRVkbxT3b8aKqZEYPEL1jHZDMLOF9qfa9pKqlWM=;
+        s=korg; t=1666425785;
+        bh=VyRbyK2ww2404bbaV+nZGsh7aEeNQVyazO8tGuaL5hY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nam186kubsL1tYQwvXO9enRMUSP2DdwYyavlVc+JnhraC+fptcdCId0AeqNtNX2LA
-         1xEvcktzelu0Z5df/RdIUWdmTQtgBXQK/nejBSB95S8m1DsQ9MjbnKOmsWC148w4P/
-         SQAV2zp2XhPZr93fyKNm5NQxfj2rmc4RIHU3yRpo=
+        b=HDaaIGj97gHA3SFddkcBpE7XWI02ZOyKyx07JD9uyFZLTAWqYYWSRjtkp2Fzpu7lX
+         5GNb+nJdYa+9A0HW7GTwXFFsZL2LrgNMyeLlAmduRJ4ZX0SLWeZj/A40r5N8A5j4px
+         HXB9jZaTFYriQhLNresrHHkkTmAA3xCZZ0KFVDSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jorge Lopez <jorge.lopez2@hp.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 614/717] platform/x86: hp-wmi: Setting thermal profile fails with 0x06
-Date:   Sat, 22 Oct 2022 09:28:13 +0200
-Message-Id: <20221022072525.622695236@linuxfoundation.org>
+Subject: [PATCH 5.19 615/717] platform/x86: msi-laptop: Change DMI match / alias strings to fix module autoloading
+Date:   Sat, 22 Oct 2022 09:28:14 +0200
+Message-Id: <20221022072525.674204494@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,72 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorge Lopez <jorge.lopez2@hp.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 00b1829294b7c88ecba92c661fbe6fe347b364d2 ]
+[ Upstream commit 2a2565272a3628e45d61625e36ef17af7af4e3de ]
 
-Error 0x06 (invalid command parameter) is reported by hp-wmi module
-when reading the current thermal profile and then proceed to set it
-back. The failing condition occurs in Linux NixOS after user
-configures the thermal profile to ‘quiet mode’ in Windows.  Quiet Fan
-Mode is supported in Windows but was not supported in hp-wmi module.
+On a MSI S270 with Fedora 37 x86_64 / systemd-251.4 the module does not
+properly autoload.
 
-This fix adds support for PLATFORM_PROFILE_QUIET in hp-wmi module for
-HP notebooks other than HP Omen series.  Quiet thermal profile is not
-supported in HP Omen series notebooks.
+This is likely caused by issues with how systemd-udevd handles the single
+quote char (') which is part of the sys_vendor / chassis_vendor strings
+on this laptop. As a workaround remove the single quote char + everything
+behind it from the sys_vendor + chassis_vendor matches. This fixes
+the module not autoloading.
 
-Signed-off-by: Jorge Lopez <jorge.lopez2@hp.com>
-Link: https://lore.kernel.org/r/20220912192603.4001-1-jorge.lopez2@hp.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://github.com/systemd/systemd/issues/24715
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220917210407.647432-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/hp-wmi.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/platform/x86/msi-laptop.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
-index bc7020e9df9e..fc8dbbd6fc7c 100644
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -177,7 +177,8 @@ enum hp_thermal_profile_omen_v1 {
- enum hp_thermal_profile {
- 	HP_THERMAL_PROFILE_PERFORMANCE	= 0x00,
- 	HP_THERMAL_PROFILE_DEFAULT		= 0x01,
--	HP_THERMAL_PROFILE_COOL			= 0x02
-+	HP_THERMAL_PROFILE_COOL			= 0x02,
-+	HP_THERMAL_PROFILE_QUIET		= 0x03,
- };
- 
- #define IS_HWBLOCKED(x) ((x & HPWMI_POWER_FW_OR_HW) != HPWMI_POWER_FW_OR_HW)
-@@ -1194,6 +1195,9 @@ static int hp_wmi_platform_profile_get(struct platform_profile_handler *pprof,
- 	case HP_THERMAL_PROFILE_COOL:
- 		*profile =  PLATFORM_PROFILE_COOL;
- 		break;
-+	case HP_THERMAL_PROFILE_QUIET:
-+		*profile = PLATFORM_PROFILE_QUIET;
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
-@@ -1216,6 +1220,9 @@ static int hp_wmi_platform_profile_set(struct platform_profile_handler *pprof,
- 	case PLATFORM_PROFILE_COOL:
- 		tp =  HP_THERMAL_PROFILE_COOL;
- 		break;
-+	case PLATFORM_PROFILE_QUIET:
-+		tp = HP_THERMAL_PROFILE_QUIET;
-+		break;
- 	default:
- 		return -EOPNOTSUPP;
- 	}
-@@ -1263,6 +1270,8 @@ static int thermal_profile_setup(void)
- 
- 		platform_profile_handler.profile_get = hp_wmi_platform_profile_get;
- 		platform_profile_handler.profile_set = hp_wmi_platform_profile_set;
-+
-+		set_bit(PLATFORM_PROFILE_QUIET, platform_profile_handler.choices);
- 	}
- 
- 	set_bit(PLATFORM_PROFILE_COOL, platform_profile_handler.choices);
+diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
+index 3e935303b143..0e804b6c2d24 100644
+--- a/drivers/platform/x86/msi-laptop.c
++++ b/drivers/platform/x86/msi-laptop.c
+@@ -596,11 +596,10 @@ static const struct dmi_system_id msi_dmi_table[] __initconst = {
+ 	{
+ 		.ident = "MSI S270",
+ 		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD"),
++			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1013"),
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "0131"),
+-			DMI_MATCH(DMI_CHASSIS_VENDOR,
+-				  "MICRO-STAR INT'L CO.,LTD")
++			DMI_MATCH(DMI_CHASSIS_VENDOR, "MICRO-STAR INT")
+ 		},
+ 		.driver_data = &quirk_old_ec_model,
+ 		.callback = dmi_check_cb
+@@ -633,8 +632,7 @@ static const struct dmi_system_id msi_dmi_table[] __initconst = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "NOTEBOOK"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "SAM2000"),
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "0131"),
+-			DMI_MATCH(DMI_CHASSIS_VENDOR,
+-				  "MICRO-STAR INT'L CO.,LTD")
++			DMI_MATCH(DMI_CHASSIS_VENDOR, "MICRO-STAR INT")
+ 		},
+ 		.driver_data = &quirk_old_ec_model,
+ 		.callback = dmi_check_cb
 -- 
 2.35.1
 
