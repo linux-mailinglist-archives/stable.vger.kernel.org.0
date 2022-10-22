@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E33E608752
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:00:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A252B608777
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:02:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232091AbiJVIAp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:00:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
+        id S232508AbiJVICA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:02:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232354AbiJVH5t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:57:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 416C71705D;
-        Sat, 22 Oct 2022 00:48:40 -0700 (PDT)
+        with ESMTP id S232950AbiJVIA0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:00:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D72EE2681F0;
+        Sat, 22 Oct 2022 00:50:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83405B82DF0;
-        Sat, 22 Oct 2022 07:48:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F22EFC433D6;
-        Sat, 22 Oct 2022 07:48:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D554D60AD7;
+        Sat, 22 Oct 2022 07:48:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7F11C433D6;
+        Sat, 22 Oct 2022 07:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424884;
-        bh=68E9zNx4nfInYFDMqNQFvaQmUhl+e8RIQ89AnbruO/c=;
+        s=korg; t=1666424892;
+        bh=LMiQSmINL+WpJ+Efxa9vMNxwvWoH4bT4QVIx9zBBdls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zkwAnTZuJe9TvYaC2dtscU+NaUVoNJBCwtaUfGjl/L8V53Eq1qS9lWFO6AyOq6fKM
-         tqLf7g6y24bhKz4eNVmwWZ+srai8rP+TMiThCBIualKwES0I7AtQtyJ8qstnHNfDMq
-         Z6eC+Dzj52e2VdXTgo6WVqGzlHY9PcpmHaRT+ORw=
+        b=jd3jQsQ6jGifMreDjrFoO5KQV/8IThSbSOS8f+86frtV9BKIkMruUi8VmPl8F+CGF
+         vVHWPy/FoMD6j8Yt9BwQrwkotm2bbFTugcJF89SyYtg2xTh2aHcMCyH03OTUyEDeAF
+         R6JwcVffEwyTXyZE9ctJ8nfRXVBn6KTo9umdW3NA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 312/717] ASoC: tas2764: Drop conflicting set_bias_level power setting
-Date:   Sat, 22 Oct 2022 09:23:11 +0200
-Message-Id: <20221022072507.624459929@linuxfoundation.org>
+Subject: [PATCH 5.19 315/717] platform/x86: msi-laptop: Fix resource cleanup
+Date:   Sat, 22 Oct 2022 09:23:14 +0200
+Message-Id: <20221022072507.941071274@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,78 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 09273f38832406db19a8907a934687cc10660a6b ]
+[ Upstream commit 5523632aa10f906dfe2eb714ee748590dc7fc6b1 ]
 
-The driver is setting the PWR_CTRL field in both the set_bias_level
-callback and on DAPM events of the DAC widget (and also in the
-mute_stream method). Drop the set_bias_level callback altogether as the
-power setting it does is in conflict with the other code paths.
+Fix the input-device not getting free-ed on probe-errors and
+fix the msi_touchpad_dwork not getting cancelled on neither
+probe-errors nor on remove.
 
-(This mirrors commit c8a6ae3fe1c8 ("ASoC: tas2770: Drop conflicting
-set_bias_level power setting") which was a fix to the tas2770 driver.)
-
-Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20220825140241.53963-3-povik+lin@cutebit.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 143a4c0284dc ("msi-laptop: send out touchpad on/off key")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220825141336.208597-3-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tas2764.c | 33 ---------------------------------
- 1 file changed, 33 deletions(-)
+ drivers/platform/x86/msi-laptop.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
-index 00df36fb3ede..c11406bbe5bc 100644
---- a/sound/soc/codecs/tas2764.c
-+++ b/sound/soc/codecs/tas2764.c
-@@ -50,38 +50,6 @@ static void tas2764_reset(struct tas2764_priv *tas2764)
- 	usleep_range(1000, 2000);
- }
- 
--static int tas2764_set_bias_level(struct snd_soc_component *component,
--				 enum snd_soc_bias_level level)
--{
--	struct tas2764_priv *tas2764 = snd_soc_component_get_drvdata(component);
--
--	switch (level) {
--	case SND_SOC_BIAS_ON:
--		snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
--					      TAS2764_PWR_CTRL_MASK,
--					      TAS2764_PWR_CTRL_ACTIVE);
--		break;
--	case SND_SOC_BIAS_STANDBY:
--	case SND_SOC_BIAS_PREPARE:
--		snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
--					      TAS2764_PWR_CTRL_MASK,
--					      TAS2764_PWR_CTRL_MUTE);
--		break;
--	case SND_SOC_BIAS_OFF:
--		snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
--					      TAS2764_PWR_CTRL_MASK,
--					      TAS2764_PWR_CTRL_SHUTDOWN);
--		break;
--
--	default:
--		dev_err(tas2764->dev,
--				"wrong power level setting %d\n", level);
--		return -EINVAL;
--	}
--
--	return 0;
--}
--
- #ifdef CONFIG_PM
- static int tas2764_codec_suspend(struct snd_soc_component *component)
+diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
+index 0960205ee49f..3e935303b143 100644
+--- a/drivers/platform/x86/msi-laptop.c
++++ b/drivers/platform/x86/msi-laptop.c
+@@ -1116,6 +1116,8 @@ static int __init msi_init(void)
+ fail_create_group:
+ 	if (quirks->load_scm_model) {
+ 		i8042_remove_filter(msi_laptop_i8042_filter);
++		cancel_delayed_work_sync(&msi_touchpad_dwork);
++		input_unregister_device(msi_laptop_input_dev);
+ 		cancel_delayed_work_sync(&msi_rfkill_dwork);
+ 		cancel_work_sync(&msi_rfkill_work);
+ 		rfkill_cleanup();
+@@ -1136,6 +1138,7 @@ static void __exit msi_cleanup(void)
  {
-@@ -549,7 +517,6 @@ static const struct snd_soc_component_driver soc_component_driver_tas2764 = {
- 	.probe			= tas2764_codec_probe,
- 	.suspend		= tas2764_codec_suspend,
- 	.resume			= tas2764_codec_resume,
--	.set_bias_level		= tas2764_set_bias_level,
- 	.controls		= tas2764_snd_controls,
- 	.num_controls		= ARRAY_SIZE(tas2764_snd_controls),
- 	.dapm_widgets		= tas2764_dapm_widgets,
+ 	if (quirks->load_scm_model) {
+ 		i8042_remove_filter(msi_laptop_i8042_filter);
++		cancel_delayed_work_sync(&msi_touchpad_dwork);
+ 		input_unregister_device(msi_laptop_input_dev);
+ 		cancel_delayed_work_sync(&msi_rfkill_dwork);
+ 		cancel_work_sync(&msi_rfkill_work);
 -- 
 2.35.1
 
