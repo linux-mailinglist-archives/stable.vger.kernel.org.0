@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE5D60873C
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:58:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15DFF608754
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:00:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232179AbiJVH60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:58:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47424 "EHLO
+        id S232138AbiJVIAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:00:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232160AbiJVH4o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:56:44 -0400
+        with ESMTP id S232394AbiJVH6i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:58:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AAB5D6BB0;
-        Sat, 22 Oct 2022 00:48:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B63A546615;
+        Sat, 22 Oct 2022 00:48:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09539B82DF3;
-        Sat, 22 Oct 2022 07:48:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DC9AC433D6;
-        Sat, 22 Oct 2022 07:48:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35134B82E1F;
+        Sat, 22 Oct 2022 07:48:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E1E4C433C1;
+        Sat, 22 Oct 2022 07:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424881;
-        bh=LVfDi4HCdgetF0yIHxqNdI6P3WM866A87brlpoCcN4g=;
+        s=korg; t=1666424911;
+        bh=bf1vPmgo21IJELc6XjmdXWEzqUu73Vv87VkAI1mMerA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cwaphk65KCwrUn+7tuFMPK5mvXhc8eODGIbAGqrhRH/JzVmmbSyPmp71EpUSljg96
-         zomP+Tl3KRR/TvBWirYSeyiufFOCy/xqPr786HVR5qLsti2GtIAm58gNdKEN35tCrY
-         vtXWqq8Pz2zBBOcjUz0PfELhI14XKUoycpYKVv9E=
+        b=bQlNliMOmHaWWvpiP+J2lLtN28/WSuzoIv2taHx2GU6yxJengbeMBsxmJXYS99W92
+         uyB71MY8FNoVAgw4AUHjrMMh4clMJt+OBZXenaVp/qzkOm3AYuJsT3aW/0pzfHx+7l
+         5mvN9RainBkXl8fKAwtwrRvuHkjwi1ewCj2JExAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 294/717] net: mvpp2: fix mvpp2 debugfs leak
-Date:   Sat, 22 Oct 2022 09:22:53 +0200
-Message-Id: <20221022072505.284307316@linuxfoundation.org>
+Subject: [PATCH 5.19 295/717] drm: bridge: adv7511: fix CEC power down control register offset
+Date:   Sat, 22 Oct 2022 09:22:54 +0200
+Message-Id: <20221022072505.403153582@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,106 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Alvin Šipraga <alsi@bang-olufsen.dk>
 
-[ Upstream commit 0152dfee235e87660f52a117fc9f70dc55956bb4 ]
+[ Upstream commit 1d22b6033ea113a4c3850dfa2c0770885c81aec8 ]
 
-When mvpp2 is unloaded, the driver specific debugfs directory is not
-removed, which technically leads to a memory leak. However, this
-directory is only created when the first device is probed, so the
-hardware is present. Removing the module is only something a developer
-would to when e.g. testing out changes, so the module would be
-reloaded. So this memory leak is minor.
+The ADV7511_REG_CEC_CTRL = 0xE2 register is part of the main register
+map - not the CEC register map. As such, we shouldn't apply an offset to
+the register address. Doing so will cause us to address a bogus register
+for chips with a CEC register map offset (e.g. ADV7533).
 
-The original attempt in commit fe2c9c61f668 ("net: mvpp2: debugfs: fix
-memory leak when using debugfs_lookup()") that was labelled as a memory
-leak fix was not, it fixed a refcount leak, but in doing so created a
-problem when the module is reloaded - the directory already exists, but
-mvpp2_root is NULL, so we lose all debugfs entries. This fix has been
-reverted.
-
-This is the alternative fix, where we remove the offending directory
-whenever the driver is unloaded.
-
-Fixes: 21da57a23125 ("net: mvpp2: add a debugfs interface for the Header Parser")
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Marcin Wojtas <mw@semihalf.com>
-Link: https://lore.kernel.org/r/E1ofOAB-00CzkG-UO@rmk-PC.armlinux.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 3b1b975003e4 ("drm: adv7511/33: add HDMI CEC support")
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220612144854.2223873-2-alvin@pqrs.dk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2.h         |  1 +
- drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c | 10 ++++++++--
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c    | 13 ++++++++++++-
- 3 files changed, 21 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511.h     | 5 +----
+ drivers/gpu/drm/bridge/adv7511/adv7511_cec.c | 4 ++--
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-index ad73a488fc5f..11e603686a27 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-@@ -1530,6 +1530,7 @@ u32 mvpp2_read(struct mvpp2 *priv, u32 offset);
- void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name);
- 
- void mvpp2_dbgfs_cleanup(struct mvpp2 *priv);
-+void mvpp2_dbgfs_exit(void);
- 
- void mvpp23_rx_fifo_fc_en(struct mvpp2 *priv, int port, bool en);
- 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-index 4a3baa7e0142..75e83ea2a926 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-@@ -691,6 +691,13 @@ static int mvpp2_dbgfs_port_init(struct dentry *parent,
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511.h b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+index a031a0cd1f18..94de73cbeb2d 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511.h
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+@@ -394,10 +394,7 @@ void adv7511_cec_irq_process(struct adv7511 *adv7511, unsigned int irq1);
+ #else
+ static inline int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ {
+-	unsigned int offset = adv7511->type == ADV7533 ?
+-						ADV7533_REG_CEC_OFFSET : 0;
+-
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset,
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL,
+ 		     ADV7511_CEC_CTRL_POWER_DOWN);
  	return 0;
  }
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c b/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
+index 0b266f28f150..99964f5a5457 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
+@@ -359,7 +359,7 @@ int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ 		goto err_cec_alloc;
+ 	}
  
-+static struct dentry *mvpp2_root;
-+
-+void mvpp2_dbgfs_exit(void)
-+{
-+	debugfs_remove(mvpp2_root);
-+}
-+
- void mvpp2_dbgfs_cleanup(struct mvpp2 *priv)
- {
- 	debugfs_remove_recursive(priv->dbgfs_dir);
-@@ -700,10 +707,9 @@ void mvpp2_dbgfs_cleanup(struct mvpp2 *priv)
- 
- void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name)
- {
--	struct dentry *mvpp2_dir, *mvpp2_root;
-+	struct dentry *mvpp2_dir;
- 	int ret, i;
- 
--	mvpp2_root = debugfs_lookup(MVPP2_DRIVER_NAME, NULL);
- 	if (!mvpp2_root)
- 		mvpp2_root = debugfs_create_dir(MVPP2_DRIVER_NAME, NULL);
- 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index b84128b549b4..eaa51cd7456b 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -7706,7 +7706,18 @@ static struct platform_driver mvpp2_driver = {
- 	},
- };
- 
--module_platform_driver(mvpp2_driver);
-+static int __init mvpp2_driver_init(void)
-+{
-+	return platform_driver_register(&mvpp2_driver);
-+}
-+module_init(mvpp2_driver_init);
-+
-+static void __exit mvpp2_driver_exit(void)
-+{
-+	platform_driver_unregister(&mvpp2_driver);
-+	mvpp2_dbgfs_exit();
-+}
-+module_exit(mvpp2_driver_exit);
- 
- MODULE_DESCRIPTION("Marvell PPv2 Ethernet Driver - www.marvell.com");
- MODULE_AUTHOR("Marcin Wojtas <mw@semihalf.com>");
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset, 0);
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL, 0);
+ 	/* cec soft reset */
+ 	regmap_write(adv7511->regmap_cec,
+ 		     ADV7511_REG_CEC_SOFT_RESET + offset, 0x01);
+@@ -386,7 +386,7 @@ int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ 	dev_info(dev, "Initializing CEC failed with error %d, disabling CEC\n",
+ 		 ret);
+ err_cec_parse_dt:
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset,
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL,
+ 		     ADV7511_CEC_CTRL_POWER_DOWN);
+ 	return ret == -EPROBE_DEFER ? ret : 0;
+ }
 -- 
 2.35.1
 
