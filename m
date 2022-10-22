@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BAD1608713
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:56:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F5BC60871F
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:56:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232213AbiJVH4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:56:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56428 "EHLO
+        id S232254AbiJVH4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:56:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232255AbiJVHyc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84ED5951D6;
-        Sat, 22 Oct 2022 00:47:26 -0700 (PDT)
+        with ESMTP id S232387AbiJVHyx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD36B3FA07;
+        Sat, 22 Oct 2022 00:48:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C611760AD9;
-        Sat, 22 Oct 2022 07:47:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D83DDC433D6;
-        Sat, 22 Oct 2022 07:47:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15D99B82E04;
+        Sat, 22 Oct 2022 07:47:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84152C433D6;
+        Sat, 22 Oct 2022 07:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424844;
-        bh=qfRkPOfBXEFDRbBTB/Q/Jpv5q9piXIqG1CnSctn/W4I=;
+        s=korg; t=1666424846;
+        bh=ipVy3jWeRp0xJbTVsGRKB0dSH6uQrgwCt2Ovp5+8Yww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AJyJD069eW1hzVnFRd0wBO4vKT3l0kgQwzoTNLp84D8yS7FeS0af/Lm6YPdxq4Snr
-         E9hBXLyEtVKEpbKSyuQ99TsIaVT326lc4LgxIEHa58rDuWyYoQu86+JbbxrGVu+9Mk
-         RLrR1J98JIycmvc1+QJpmMv5peJQCXuyxiezY+ZQ=
+        b=jJ6MgLhBB5rbAHpwm2ru9lSu6+Wlc2zDqJdqzA34omWHBkvfxRYgxlmvjTztalDwz
+         BkufMn0PLCo4luzUIC++bTt382ZK6vlIlKogx/JKoTgosUrordSJQM/sNWhfmrBOlA
+         g+NxZOOTxeblC2A39RX3TihY7F/e1C3lq20pjGkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 267/717] spi/omap100k:Fix PM disable depth imbalance in omap1_spi100k_probe
-Date:   Sat, 22 Oct 2022 09:22:26 +0200
-Message-Id: <20221022072501.681024657@linuxfoundation.org>
+Subject: [PATCH 5.19 268/717] skmsg: Schedule psock work if the cached skb exists on the psock
+Date:   Sat, 22 Oct 2022 09:22:27 +0200
+Message-Id: <20221022072501.806164079@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,36 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit 29f65f2171c85a9633daa380df14009a365f42f2 ]
+[ Upstream commit bec217197b412d74168c6a42fc0f76d0cc9cad00 ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context.
+In sk_psock_backlog function, for ingress direction skb, if no new data
+packet arrives after the skb is cached, the cached skb does not have a
+chance to be added to the receive queue of psock. As a result, the cached
+skb cannot be received by the upper-layer application. Fix this by reschedule
+the psock work to dispose the cached skb in sk_msg_recvmsg function.
 
-Fixes:db91841b58f9a ("spi/omap100k: Convert to runtime PM")
-
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220924121310.78331-4-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20220907071311.60534-1-liujian56@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-omap-100k.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/skmsg.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/spi/spi-omap-100k.c b/drivers/spi/spi-omap-100k.c
-index 20b047172965..061f7394e5b9 100644
---- a/drivers/spi/spi-omap-100k.c
-+++ b/drivers/spi/spi-omap-100k.c
-@@ -412,6 +412,7 @@ static int omap1_spi100k_probe(struct platform_device *pdev)
- 	return status;
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index 69ac686c7cae..864cd7ded2ca 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -435,8 +435,10 @@ int sk_msg_recvmsg(struct sock *sk, struct sk_psock *psock, struct msghdr *msg,
+ 			if (copied + copy > len)
+ 				copy = len - copied;
+ 			copy = copy_page_to_iter(page, sge->offset, copy, iter);
+-			if (!copy)
+-				return copied ? copied : -EFAULT;
++			if (!copy) {
++				copied = copied ? copied : -EFAULT;
++				goto out;
++			}
  
- err_fck:
-+	pm_runtime_disable(&pdev->dev);
- 	clk_disable_unprepare(spi100k->fck);
- err_ick:
- 	clk_disable_unprepare(spi100k->ick);
+ 			copied += copy;
+ 			if (likely(!peek)) {
+@@ -456,7 +458,7 @@ int sk_msg_recvmsg(struct sock *sk, struct sk_psock *psock, struct msghdr *msg,
+ 				 * didn't copy the entire length lets just break.
+ 				 */
+ 				if (copy != sge->length)
+-					return copied;
++					goto out;
+ 				sk_msg_iter_var_next(i);
+ 			}
+ 
+@@ -478,7 +480,9 @@ int sk_msg_recvmsg(struct sock *sk, struct sk_psock *psock, struct msghdr *msg,
+ 		}
+ 		msg_rx = sk_psock_peek_msg(psock);
+ 	}
+-
++out:
++	if (psock->work_state.skb && copied > 0)
++		schedule_work(&psock->work);
+ 	return copied;
+ }
+ EXPORT_SYMBOL_GPL(sk_msg_recvmsg);
 -- 
 2.35.1
 
