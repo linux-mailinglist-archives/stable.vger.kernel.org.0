@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD1AE608852
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:16:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD7C60895D
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233207AbiJVIQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:16:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46880 "EHLO
+        id S234086AbiJVIdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:33:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233426AbiJVIOB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:14:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9E31EB77C;
-        Sat, 22 Oct 2022 00:55:11 -0700 (PDT)
+        with ESMTP id S233979AbiJVIcK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:32:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ABB72E533E;
+        Sat, 22 Oct 2022 01:03:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60F13B82DF2;
-        Sat, 22 Oct 2022 07:54:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA09FC433D6;
-        Sat, 22 Oct 2022 07:54:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E115C60B39;
+        Sat, 22 Oct 2022 07:54:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2426C433C1;
+        Sat, 22 Oct 2022 07:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425280;
-        bh=Lkr8BBYCeuGeSIQydNTEzXhG3Uyi1hcTr8C3WMh2Pj4=;
+        s=korg; t=1666425283;
+        bh=uVPtii6QQOmB4B6xF72ZYD0gNI18FJWJaZLcL+ZjKkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cMFV3snmE/yOqfqIybIsBqhIcxzbJQdLnO6cCk4yoDtruzVXUWBBaHUKF9WhoD8Vx
-         qHy/c9RJVUTxMHuObZfcQlEkqo7mkSzvFMDb50m4NjeyIz1MYJ7frxI0YtGGn0mFr9
-         JUWIVAsY2E9j9IVCzj5mS7B2S66CYuAYoTmg6jGk=
+        b=gP2XaaPE2t3t62LrYIKhH2Pdwtn8I1zvnRcFxppe0+7F92te8aOWE0XRmTR/vH2wM
+         6zr6wC04oBpL2oR0QvkF64OfCXDtGLTBezz/RPl7KmXy1ovPH6yB0lHEt6KPDFqChC
+         stkcnxcWqxYdtmMxK+qARE0muZWZyS3TEsUAtir8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Thara Gopinath <tgopinath@microsoft.com>,
-        Sherry Sun <sherry.sun@nxp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 449/717] tty: serial: fsl_lpuart: disable dma rx/tx use flags in lpuart_dma_shutdown
-Date:   Sat, 22 Oct 2022 09:25:28 +0200
-Message-Id: <20221022072518.120169495@linuxfoundation.org>
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 450/717] phy: qualcomm: call clk_disable_unprepare in the error handling
+Date:   Sat, 22 Oct 2022 09:25:29 +0200
+Message-Id: <20221022072518.166320864@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,97 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 316ae95c175a7d770d1bfe4c011192712f57aa4a ]
+[ Upstream commit c3966ced8eb8dc53b6c8d7f97d32cc8a2107d83e ]
 
-lpuart_dma_shutdown tears down lpuart dma, but lpuart_flush_buffer can
-still occur which in turn tries to access dma apis if lpuart_dma_tx_use
-flag is true. At this point since dma is torn down, these dma apis can
-abort. Set lpuart_dma_tx_use and the corresponding rx flag
-lpuart_dma_rx_use to false in lpuart_dma_shutdown so that dmas are not
-accessed after they are relinquished.
+Smatch reports the following error:
 
-Otherwise, when try to kill btattach, kernel may panic. This patch may
-fix this issue.
-root@imx8ulpevk:~# btattach -B /dev/ttyLP2 -S 115200
-^C[   90.182296] Internal error: synchronous external abort: 96000210 [#1] PREEMPT SMP
-[   90.189806] Modules linked in: moal(O) mlan(O)
-[   90.194258] CPU: 0 PID: 503 Comm: btattach Tainted: G           O      5.15.32-06136-g34eecdf2f9e4 #37
-[   90.203554] Hardware name: NXP i.MX8ULP 9X9 EVK (DT)
-[   90.208513] pstate: 600000c5 (nZCv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[   90.215470] pc : fsl_edma3_disable_request+0x8/0x60
-[   90.220358] lr : fsl_edma3_terminate_all+0x34/0x20c
-[   90.225237] sp : ffff800013f0bac0
-[   90.228548] x29: ffff800013f0bac0 x28: 0000000000000001 x27: ffff000008404800
-[   90.235681] x26: ffff000008404960 x25: ffff000008404a08 x24: ffff000008404a00
-[   90.242813] x23: ffff000008404a60 x22: 0000000000000002 x21: 0000000000000000
-[   90.249946] x20: ffff800013f0baf8 x19: ffff00000559c800 x18: 0000000000000000
-[   90.257078] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
-[   90.264211] x14: 0000000000000003 x13: 0000000000000000 x12: 0000000000000040
-[   90.271344] x11: ffff00000600c248 x10: ffff800013f0bb10 x9 : ffff000057bcb090
-[   90.278477] x8 : fffffc0000241a08 x7 : ffff00000534ee00 x6 : ffff000008404804
-[   90.285609] x5 : 0000000000000000 x4 : 0000000000000000 x3 : ffff0000055b3480
-[   90.292742] x2 : ffff8000135c0000 x1 : ffff00000534ee00 x0 : ffff00000559c800
-[   90.299876] Call trace:
-[   90.302321]  fsl_edma3_disable_request+0x8/0x60
-[   90.306851]  lpuart_flush_buffer+0x40/0x160
-[   90.311037]  uart_flush_buffer+0x88/0x120
-[   90.315050]  tty_driver_flush_buffer+0x20/0x30
-[   90.319496]  hci_uart_flush+0x44/0x90
-[   90.323162]  +0x34/0x12c
-[   90.327253]  tty_ldisc_close+0x38/0x70
-[   90.331005]  tty_ldisc_release+0xa8/0x190
-[   90.335018]  tty_release_struct+0x24/0x8c
-[   90.339022]  tty_release+0x3ec/0x4c0
-[   90.342593]  __fput+0x70/0x234
-[   90.345652]  ____fput+0x14/0x20
-[   90.348790]  task_work_run+0x84/0x17c
-[   90.352455]  do_exit+0x310/0x96c
-[   90.355688]  do_group_exit+0x3c/0xa0
-[   90.359259]  __arm64_sys_exit_group+0x1c/0x20
-[   90.363609]  invoke_syscall+0x48/0x114
-[   90.367362]  el0_svc_common.constprop.0+0xd4/0xfc
-[   90.372068]  do_el0_svc+0x2c/0x94
-[   90.375379]  el0_svc+0x28/0x80
-[   90.378438]  el0t_64_sync_handler+0xa8/0x130
-[   90.382711]  el0t_64_sync+0x1a0/0x1a4
-[   90.386376] Code: 17ffffda d503201f d503233f f9409802 (b9400041)
-[   90.392467] ---[ end trace 2f60524b4a43f1f6 ]---
-[   90.397073] note: btattach[503] exited with preempt_count 1
-[   90.402636] Fixing recursive fault but reboot is needed!
+drivers/phy/qualcomm/phy-qcom-usb-hsic.c:82 qcom_usb_hsic_phy_power_on()
+warn: 'uphy->cal_clk' from clk_prepare_enable() not released on lines:
+58.
+drivers/phy/qualcomm/phy-qcom-usb-hsic.c:82 qcom_usb_hsic_phy_power_on()
+warn: 'uphy->cal_sleep_clk' from clk_prepare_enable() not released on
+lines: 58.
+drivers/phy/qualcomm/phy-qcom-usb-hsic.c:82 qcom_usb_hsic_phy_power_on()
+warn: 'uphy->phy_clk' from clk_prepare_enable() not released on lines:
+58.
 
-Fixes: 6250cc30c4c4 ("tty: serial: fsl_lpuart: Use scatter/gather DMA for Tx")
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Thara Gopinath <tgopinath@microsoft.com>
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20220920111703.1532-1-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by calling proper clk_disable_unprepare calls.
+
+Fixes: 0b56e9a7e835 ("phy: Group vendor specific phy drivers")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://lore.kernel.org/r/20220914051334.69282-1-dzm91@hust.edu.cn
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/phy/qualcomm/phy-qcom-usb-hsic.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index cb83c66bd8a8..a6471af9653c 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1768,6 +1768,7 @@ static void lpuart_dma_shutdown(struct lpuart_port *sport)
- 	if (sport->lpuart_dma_rx_use) {
- 		del_timer_sync(&sport->lpuart_timer);
- 		lpuart_dma_rx_free(&sport->port);
-+		sport->lpuart_dma_rx_use = false;
- 	}
+diff --git a/drivers/phy/qualcomm/phy-qcom-usb-hsic.c b/drivers/phy/qualcomm/phy-qcom-usb-hsic.c
+index 716a77748ed8..20f6dd37c7c1 100644
+--- a/drivers/phy/qualcomm/phy-qcom-usb-hsic.c
++++ b/drivers/phy/qualcomm/phy-qcom-usb-hsic.c
+@@ -54,8 +54,10 @@ static int qcom_usb_hsic_phy_power_on(struct phy *phy)
  
- 	if (sport->lpuart_dma_tx_use) {
-@@ -1776,6 +1777,7 @@ static void lpuart_dma_shutdown(struct lpuart_port *sport)
- 			sport->dma_tx_in_progress = false;
- 			dmaengine_terminate_all(sport->dma_tx_chan);
- 		}
-+		sport->lpuart_dma_tx_use = false;
- 	}
+ 	/* Configure pins for HSIC functionality */
+ 	pins_default = pinctrl_lookup_state(uphy->pctl, PINCTRL_STATE_DEFAULT);
+-	if (IS_ERR(pins_default))
+-		return PTR_ERR(pins_default);
++	if (IS_ERR(pins_default)) {
++		ret = PTR_ERR(pins_default);
++		goto err_ulpi;
++	}
  
- 	if (sport->dma_tx_chan)
+ 	ret = pinctrl_select_state(uphy->pctl, pins_default);
+ 	if (ret)
 -- 
 2.35.1
 
