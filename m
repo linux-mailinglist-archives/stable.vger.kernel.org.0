@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D79B3608ADF
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:11:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FAC3608788
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:03:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231840AbiJVJLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 05:11:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37788 "EHLO
+        id S232209AbiJVIDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:03:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232165AbiJVJLa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:11:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BD32514E3;
-        Sat, 22 Oct 2022 01:25:42 -0700 (PDT)
+        with ESMTP id S232458AbiJVIBj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:01:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4035628B1A4;
+        Sat, 22 Oct 2022 00:50:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6564560B0C;
-        Sat, 22 Oct 2022 07:48:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 766DCC433C1;
-        Sat, 22 Oct 2022 07:48:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 390A060B49;
+        Sat, 22 Oct 2022 07:48:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48354C433C1;
+        Sat, 22 Oct 2022 07:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424902;
-        bh=CKtuwDOYPsb0DMnuLbGcnbkAajbl8yEKG+j15wLGQfA=;
+        s=korg; t=1666424916;
+        bh=ZgKxMsG8k59NViVoefO54z2B9yZQpBZLWjXNfWIvuok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3yjSkGKQ1+NLzAf42T76EK+ulDzpZarpQjMrYhqKF3aqP6Z7nvtgtU3JO2YemP3b
-         N3pE6TpE5XhflqeJKXpCWP7Lf+3aTC2sZ6NwK9oQvJ+hH381gFqfy7reMIesbdpPtQ
-         7J48jMsXzJVCZ63Hp6ut5hzCdwrZ9ehIiigLfW/Y=
+        b=AvCFikQTdkONowiA9cqeyuvqFlNx6ynYfiFh9U0V/MM2rreuUXySOooy/dnxW1SqW
+         B4gzROSqv4jFhgq4a18gEQcvdkPcVn+83OVwmq+FVt0VBAlqlAoAZUQF0jwgaNYcK1
+         kUf0ZdwZg3z6HGE2U46k0dXpn1wS897qg4XjeuFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pin-yen Lin <treapking@chromium.org>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Shao-Chuan Lee <shaochuan@chromium.org>,
+        Chia-I Wu <olvaffe@gmail.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 319/717] drm/bridge: it6505: Fix the order of DP_SET_POWER commands
-Date:   Sat, 22 Oct 2022 09:23:18 +0200
-Message-Id: <20221022072508.422913883@linuxfoundation.org>
+Subject: [PATCH 5.19 323/717] drm/virtio: set fb_modifiers_not_supported
+Date:   Sat, 22 Oct 2022 09:23:22 +0200
+Message-Id: <20221022072508.789883172@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,58 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pin-yen Lin <treapking@chromium.org>
+From: Chia-I Wu <olvaffe@gmail.com>
 
-[ Upstream commit 7c1dceaffd99247bf443606730515b54d6285969 ]
+[ Upstream commit 85faca8ca0f659263b5fb2385e4c231cc075bd84 ]
 
-Send DP_SET_POWER_D3 command to the downstream before stopping DP, so the
-suspend process will not be interrupted by the HPD interrupt. Also modify
-the order in .atomic_enable callback to make the callbacks symmetric.
+Without this, the drm core advertises LINEAR modifier which is
+incorrect.
 
-Fixes: 46ca7da7f1e8 ("drm/bridge: it6505: Send DPCD SET_POWER to downstream")
-Signed-off-by: Pin-yen Lin <treapking@chromium.org>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220830045756.1655954-1-treapking@chromium.org
+Also userspace virgl does not support modifiers.  For example, it causes
+chrome on ozone/drm to fail with "Failed to create scanout buffer".
+
+Fixes: 2af104290da5 ("drm: introduce fb_modifiers_not_supported flag in mode_config")
+Suggested-by: Shao-Chuan Lee <shaochuan@chromium.org>
+Signed-off-by: Chia-I Wu <olvaffe@gmail.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220831190601.1295129-1-olvaffe@gmail.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/ite-it6505.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_display.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/ite-it6505.c b/drivers/gpu/drm/bridge/ite-it6505.c
-index e5626035f311..a09d1a39ab0a 100644
---- a/drivers/gpu/drm/bridge/ite-it6505.c
-+++ b/drivers/gpu/drm/bridge/ite-it6505.c
-@@ -2945,9 +2945,6 @@ static void it6505_bridge_atomic_enable(struct drm_bridge *bridge,
- 	if (ret)
- 		dev_err(dev, "Failed to setup AVI infoframe: %d", ret);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index f73352e7b832..96e71813864a 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -348,6 +348,8 @@ int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev)
+ 	vgdev->ddev->mode_config.max_width = XRES_MAX;
+ 	vgdev->ddev->mode_config.max_height = YRES_MAX;
  
--	it6505_drm_dp_link_set_power(&it6505->aux, &it6505->link,
--				     DP_SET_POWER_D0);
--
- 	it6505_update_video_parameter(it6505, mode);
- 
- 	ret = it6505_send_video_infoframe(it6505, &frame);
-@@ -2957,6 +2954,9 @@ static void it6505_bridge_atomic_enable(struct drm_bridge *bridge,
- 
- 	it6505_int_mask_enable(it6505);
- 	it6505_video_reset(it6505);
++	vgdev->ddev->mode_config.fb_modifiers_not_supported = true;
 +
-+	it6505_drm_dp_link_set_power(&it6505->aux, &it6505->link,
-+				     DP_SET_POWER_D0);
- }
- 
- static void it6505_bridge_atomic_disable(struct drm_bridge *bridge,
-@@ -2968,9 +2968,9 @@ static void it6505_bridge_atomic_disable(struct drm_bridge *bridge,
- 	DRM_DEV_DEBUG_DRIVER(dev, "start");
- 
- 	if (it6505->powered) {
--		it6505_video_disable(it6505);
- 		it6505_drm_dp_link_set_power(&it6505->aux, &it6505->link,
- 					     DP_SET_POWER_D3);
-+		it6505_video_disable(it6505);
- 	}
- }
+ 	for (i = 0 ; i < vgdev->num_scanouts; ++i)
+ 		vgdev_output_init(vgdev, i);
  
 -- 
 2.35.1
