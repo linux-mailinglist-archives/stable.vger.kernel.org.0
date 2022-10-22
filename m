@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA073608B83
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 12:23:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1865608C76
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 13:19:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230251AbiJVKW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 06:22:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55416 "EHLO
+        id S231230AbiJVLTY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 07:19:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230261AbiJVKWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 06:22:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3874E31E5E4;
-        Sat, 22 Oct 2022 02:38:46 -0700 (PDT)
+        with ESMTP id S230263AbiJVLTD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 07:19:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D0CD5D0F6;
+        Sat, 22 Oct 2022 03:46:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8522760B1F;
-        Sat, 22 Oct 2022 07:59:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 570BEC433D7;
-        Sat, 22 Oct 2022 07:59:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CF29B82E0F;
+        Sat, 22 Oct 2022 07:59:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7A5CC433C1;
+        Sat, 22 Oct 2022 07:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425576;
-        bh=VV1OpKp2yHPswDsQUvrr44yQuL620U4g+koU7ZS60sw=;
+        s=korg; t=1666425589;
+        bh=sO3qeFRmk2abLCeiuvM40rE2MlBvScvIuhhFNrA1ZVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HXh8Y6Y8dICxfafGkPVLQGgYVlNxwyFLD4OXofXkOCFlOila4CgIBpoJaw2mVrkXL
-         M1p4Kx2ww6mweNqqJEaOLQ8DWN9qiRWUYkMQ5+1yVU3ri76e5olww4kIPRzJiNu+l7
-         N1/sarmscI/TwPAGZPqlWzhJE3yUNmUqtvvWEevo=
+        b=c0ozydwQproAfgt6JOcL2WYX79wb6CiuZ58OZsD2a/nYQIfhOohBQ68+WjQOTSuPj
+         pCHDp4nSpsdCEZzggGQmmgH2s+JH54wRt5fjlbN8LSRFBoL09vT6f5b9cBeRwaqIx6
+         l+y8wWoskVIPeFn3+ZQkc9r8bLf74xFZ94E3P6b4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 546/717] ACPI: tables: FPDT: Dont call acpi_os_map_memory() on invalid phys address
-Date:   Sat, 22 Oct 2022 09:27:05 +0200
-Message-Id: <20221022072522.509968479@linuxfoundation.org>
+Subject: [PATCH 5.19 550/717] thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash
+Date:   Sat, 22 Oct 2022 09:27:09 +0200
+Message-Id: <20221022072522.694733012@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,105 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 211391bf04b3c74e250c566eeff9cf808156c693 ]
+[ Upstream commit 68b99e94a4a2db6ba9b31fe0485e057b9354a640 ]
 
-On a Packard Bell Dot SC (Intel Atom N2600 model) there is a FPDT table
-which contains invalid physical addresses, with high bits set which fall
-outside the range of the CPU-s supported physical address range.
+When CPU 0 is offline and intel_powerclamp is used to inject
+idle, it generates kernel BUG:
 
-Calling acpi_os_map_memory() on such an invalid phys address leads to
-the below WARN_ON in ioremap triggering resulting in an oops/stacktrace.
+BUG: using smp_processor_id() in preemptible [00000000] code: bash/15687
+caller is debug_smp_processor_id+0x17/0x20
+CPU: 4 PID: 15687 Comm: bash Not tainted 5.19.0-rc7+ #57
+Call Trace:
+<TASK>
+dump_stack_lvl+0x49/0x63
+dump_stack+0x10/0x16
+check_preemption_disabled+0xdd/0xe0
+debug_smp_processor_id+0x17/0x20
+powerclamp_set_cur_state+0x7f/0xf9 [intel_powerclamp]
+...
+...
 
-Add code to verify the physical address before calling acpi_os_map_memory()
-to fix / avoid the oops.
+Here CPU 0 is the control CPU by default and changed to the current CPU,
+if CPU 0 offlined. This check has to be performed under cpus_read_lock(),
+hence the above warning.
 
-[    1.226900] ioremap: invalid physical address 3001000000000000
-[    1.226949] ------------[ cut here ]------------
-[    1.226962] WARNING: CPU: 1 PID: 1 at arch/x86/mm/ioremap.c:200 __ioremap_caller.cold+0x43/0x5f
-[    1.226996] Modules linked in:
-[    1.227016] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.0.0-rc3+ #490
-[    1.227029] Hardware name: Packard Bell dot s/SJE01_CT, BIOS V1.10 07/23/2013
-[    1.227038] RIP: 0010:__ioremap_caller.cold+0x43/0x5f
-[    1.227054] Code: 96 00 00 e9 f8 af 24 ff 89 c6 48 c7 c7 d8 0c 84 99 e8 6a 96 00 00 e9 76 af 24 ff 48 89 fe 48 c7 c7 a8 0c 84 99 e8 56 96 00 00 <0f> 0b e9 60 af 24 ff 48 8b 34 24 48 c7 c7 40 0d 84 99 e8 3f 96 00
-[    1.227067] RSP: 0000:ffffb18c40033d60 EFLAGS: 00010286
-[    1.227084] RAX: 0000000000000032 RBX: 3001000000000000 RCX: 0000000000000000
-[    1.227095] RDX: 0000000000000001 RSI: 00000000ffffdfff RDI: 00000000ffffffff
-[    1.227105] RBP: 3001000000000000 R08: 0000000000000000 R09: ffffb18c40033c18
-[    1.227115] R10: 0000000000000003 R11: ffffffff99d62fe8 R12: 0000000000000008
-[    1.227124] R13: 0003001000000000 R14: 0000000000001000 R15: 3001000000000000
-[    1.227135] FS:  0000000000000000(0000) GS:ffff913a3c080000(0000) knlGS:0000000000000000
-[    1.227146] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.227156] CR2: 0000000000000000 CR3: 0000000018c26000 CR4: 00000000000006e0
-[    1.227167] Call Trace:
-[    1.227176]  <TASK>
-[    1.227185]  ? acpi_os_map_iomem+0x1c9/0x1e0
-[    1.227215]  ? kmem_cache_alloc_trace+0x187/0x370
-[    1.227254]  acpi_os_map_iomem+0x1c9/0x1e0
-[    1.227288]  acpi_init_fpdt+0xa8/0x253
-[    1.227308]  ? acpi_debugfs_init+0x1f/0x1f
-[    1.227339]  do_one_initcall+0x5a/0x300
-[    1.227406]  ? rcu_read_lock_sched_held+0x3f/0x80
-[    1.227442]  kernel_init_freeable+0x28b/0x2cc
-[    1.227512]  ? rest_init+0x170/0x170
-[    1.227538]  kernel_init+0x16/0x140
-[    1.227552]  ret_from_fork+0x1f/0x30
-[    1.227639]  </TASK>
-[    1.227647] irq event stamp: 186819
-[    1.227656] hardirqs last  enabled at (186825): [<ffffffff98184a6e>] __up_console_sem+0x5e/0x70
-[    1.227672] hardirqs last disabled at (186830): [<ffffffff98184a53>] __up_console_sem+0x43/0x70
-[    1.227686] softirqs last  enabled at (186576): [<ffffffff980fbc9d>] __irq_exit_rcu+0xed/0x160
-[    1.227701] softirqs last disabled at (186569): [<ffffffff980fbc9d>] __irq_exit_rcu+0xed/0x160
-[    1.227715] ---[ end trace 0000000000000000 ]---
+Use get_cpu() instead of smp_processor_id() to avoid this BUG.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Suggested-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+[ rjw: Subject edits ]
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_fpdt.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/thermal/intel/intel_powerclamp.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/acpi_fpdt.c b/drivers/acpi/acpi_fpdt.c
-index 6922a44b3ce7..a2056c4c8cb7 100644
---- a/drivers/acpi/acpi_fpdt.c
-+++ b/drivers/acpi/acpi_fpdt.c
-@@ -143,6 +143,23 @@ static const struct attribute_group boot_attr_group = {
+diff --git a/drivers/thermal/intel/intel_powerclamp.c b/drivers/thermal/intel/intel_powerclamp.c
+index c841ab37e7c6..46cd799af148 100644
+--- a/drivers/thermal/intel/intel_powerclamp.c
++++ b/drivers/thermal/intel/intel_powerclamp.c
+@@ -532,8 +532,10 @@ static int start_power_clamp(void)
  
- static struct kobject *fpdt_kobj;
- 
-+#if defined CONFIG_X86 && defined CONFIG_PHYS_ADDR_T_64BIT
-+#include <linux/processor.h>
-+static bool fpdt_address_valid(u64 address)
-+{
-+	/*
-+	 * On some systems the table contains invalid addresses
-+	 * with unsuppored high address bits set, check for this.
-+	 */
-+	return !(address >> boot_cpu_data.x86_phys_bits);
-+}
-+#else
-+static bool fpdt_address_valid(u64 address)
-+{
-+	return true;
-+}
-+#endif
-+
- static int fpdt_process_subtable(u64 address, u32 subtable_type)
- {
- 	struct fpdt_subtable_header *subtable_header;
-@@ -151,6 +168,11 @@ static int fpdt_process_subtable(u64 address, u32 subtable_type)
- 	u32 length, offset;
- 	int result;
- 
-+	if (!fpdt_address_valid(address)) {
-+		pr_info(FW_BUG "invalid physical address: 0x%llx!\n", address);
-+		return -EINVAL;
+ 	/* prefer BSP */
+ 	control_cpu = 0;
+-	if (!cpu_online(control_cpu))
+-		control_cpu = smp_processor_id();
++	if (!cpu_online(control_cpu)) {
++		control_cpu = get_cpu();
++		put_cpu();
 +	}
-+
- 	subtable_header = acpi_os_map_memory(address, sizeof(*subtable_header));
- 	if (!subtable_header)
- 		return -ENOMEM;
+ 
+ 	clamping = true;
+ 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
 -- 
 2.35.1
 
