@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F666085DB
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:40:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1649B6085DC
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:40:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230520AbiJVHj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:39:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32852 "EHLO
+        id S230390AbiJVHkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:40:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230385AbiJVHjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:39:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6550A83229;
-        Sat, 22 Oct 2022 00:36:31 -0700 (PDT)
+        with ESMTP id S230413AbiJVHjM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:39:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD5B9F37F;
+        Sat, 22 Oct 2022 00:36:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3259DB82DF2;
-        Sat, 22 Oct 2022 07:36:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84130C433C1;
-        Sat, 22 Oct 2022 07:36:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 404A0B82DB2;
+        Sat, 22 Oct 2022 07:36:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96839C433D6;
+        Sat, 22 Oct 2022 07:36:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424185;
-        bh=Y4qDb4mZNU20ip9zLWEr74fGK+TtVytsTmrTYBy7Its=;
+        s=korg; t=1666424189;
+        bh=4o5hDaGZrryzhMIfNMSAmuAFWTiZqe00hWi8BwjboeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IyH7GbTu/y47N2jCKFOUmXbudbPBIxOSckrRKn0TuFGOdZqwJ60oRyYMiuQVywpKv
-         13ZAXhxukUS5/FAr5NzVY+dogwfDuih+sBim0IX8NUi93HJ9Bb3l+zQ6QouoFpbePZ
-         zsXSsQvtu4MHS1XjmZtjmkHPxF/ogYAkQvVceWWY=
+        b=qDczIKll8r1QGkGQ5A05qHBo8CZaNNVa/U4+jLr+KWhCc6Kd0iaRDe/DHL4VBCvoh
+         Ekh9h+1mJo+oISei/xvn/9piIyH60dDee0lX5GA6JicbfdYzsp1RxUHHEJt+gapxyk
+         iXlheVOLLbbe4vmZLflMNSY9hGPHBHRRG3P7nEOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.19 054/717] parisc: Fix userspace graphics card breakage due to pgtable special bit
-Date:   Sat, 22 Oct 2022 09:18:53 +0200
-Message-Id: <20221022072424.651114285@linuxfoundation.org>
+        stable@vger.kernel.org, Jisheng Zhang <jszhang@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.19 055/717] riscv: vdso: fix NULL deference in vdso_join_timens() when vfork
+Date:   Sat, 22 Oct 2022 09:18:54 +0200
+Message-Id: <20221022072424.849345168@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -51,84 +52,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Jisheng Zhang <jszhang@kernel.org>
 
-commit 70be49f2f6223ddd2fcddb0089a40864c37e1494 upstream.
+commit a8616d2dc193b6becc36b5f3cfeaa9ac7a5762f9 upstream.
 
-Commit df24e1783e6e ("parisc: Add vDSO support") introduced the vDSO
-support, for which a _PAGE_SPECIAL page table flag was needed.  Since we
-wanted to keep every page table entry in 32-bits, this patch re-used the
-existing - but yet unused - _PAGE_DMB flag (which triggers a hardware break
-if a page is accessed) to store the special bit.
+Testing tools/testing/selftests/timens/vfork_exec.c got below
+kernel log:
 
-But when graphics card memory is mmapped into userspace, the kernel uses
-vm_iomap_memory() which sets the the special flag. So, with the DMB bit
-set, every access to the graphics memory now triggered a hardware
-exception and segfaulted the userspace program.
+[    6.838454] Unable to handle kernel access to user memory without uaccess routines at virtual address 0000000000000020
+[    6.842255] Oops [#1]
+[    6.842871] Modules linked in:
+[    6.844249] CPU: 1 PID: 64 Comm: vfork_exec Not tainted 6.0.0-rc3-rt15+ #8
+[    6.845861] Hardware name: riscv-virtio,qemu (DT)
+[    6.848009] epc : vdso_join_timens+0xd2/0x110
+[    6.850097]  ra : vdso_join_timens+0xd2/0x110
+[    6.851164] epc : ffffffff8000635c ra : ffffffff8000635c sp : ff6000000181fbf0
+[    6.852562]  gp : ffffffff80cff648 tp : ff60000000fdb700 t0 : 3030303030303030
+[    6.853852]  t1 : 0000000000000030 t2 : 3030303030303030 s0 : ff6000000181fc40
+[    6.854984]  s1 : ff60000001e6c000 a0 : 0000000000000010 a1 : ffffffff8005654c
+[    6.856221]  a2 : 00000000ffffefff a3 : 0000000000000000 a4 : 0000000000000000
+[    6.858114]  a5 : 0000000000000000 a6 : 0000000000000008 a7 : 0000000000000038
+[    6.859484]  s2 : ff60000001e6c068 s3 : ff6000000108abb0 s4 : 0000000000000000
+[    6.860751]  s5 : 0000000000001000 s6 : ffffffff8089dc40 s7 : ffffffff8089dc38
+[    6.862029]  s8 : ffffffff8089dc30 s9 : ff60000000fdbe38 s10: 000000000000005e
+[    6.863304]  s11: ffffffff80cc3510 t3 : ffffffff80d1112f t4 : ffffffff80d1112f
+[    6.864565]  t5 : ffffffff80d11130 t6 : ff6000000181fa00
+[    6.865561] status: 0000000000000120 badaddr: 0000000000000020 cause: 000000000000000d
+[    6.868046] [<ffffffff8008dc94>] timens_commit+0x38/0x11a
+[    6.869089] [<ffffffff8008dde8>] timens_on_fork+0x72/0xb4
+[    6.870055] [<ffffffff80190096>] begin_new_exec+0x3c6/0x9f0
+[    6.871231] [<ffffffff801d826c>] load_elf_binary+0x628/0x1214
+[    6.872304] [<ffffffff8018ee7a>] bprm_execve+0x1f2/0x4e4
+[    6.873243] [<ffffffff8018f90c>] do_execveat_common+0x16e/0x1ee
+[    6.874258] [<ffffffff8018f9c8>] sys_execve+0x3c/0x48
+[    6.875162] [<ffffffff80003556>] ret_from_syscall+0x0/0x2
+[    6.877484] ---[ end trace 0000000000000000 ]---
 
-Fix this breakage by dropping the DMB bit when writing the page
-protection bits to the CPU TLB.
+This is because the mm->context.vdso_info is NULL in vfork case. From
+another side, mm->context.vdso_info either points to vdso info
+for RV64 or vdso info for compat, there's no need to bloat riscv's
+mm_context_t, we can handle the difference when setup the additional
+page for vdso.
 
-In addition this patch adds a small optimization: if huge pages aren't
-configured (which is at least the case for 32-bit kernels), then the
-special bit is stored in the hpage (HUGE PAGE) bit instead. That way we
-can skip to reset the DMB bit.
-
-Fixes: df24e1783e6e ("parisc: Add vDSO support")
-Cc: <stable@vger.kernel.org> # 5.18+
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+Suggested-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: 3092eb456375 ("riscv: compat: vdso: Add setup additional pages implementation")
+Link: https://lore.kernel.org/r/20220924070737.3048-1-jszhang@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/include/asm/pgtable.h |    7 ++++++-
- arch/parisc/kernel/entry.S        |    8 ++++++++
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ arch/riscv/include/asm/mmu.h |  1 -
+ arch/riscv/kernel/vdso.c     | 13 ++++++++++---
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
---- a/arch/parisc/include/asm/pgtable.h
-+++ b/arch/parisc/include/asm/pgtable.h
-@@ -192,6 +192,11 @@ extern void __update_cache(pte_t pte);
- #define _PAGE_PRESENT_BIT  22   /* (0x200) Software: translation valid */
- #define _PAGE_HPAGE_BIT    21   /* (0x400) Software: Huge Page */
- #define _PAGE_USER_BIT     20   /* (0x800) Software: User accessible page */
-+#ifdef CONFIG_HUGETLB_PAGE
-+#define _PAGE_SPECIAL_BIT  _PAGE_DMB_BIT  /* DMB feature is currently unused */
-+#else
-+#define _PAGE_SPECIAL_BIT  _PAGE_HPAGE_BIT /* use unused HUGE PAGE bit */
-+#endif
+diff --git a/arch/riscv/include/asm/mmu.h b/arch/riscv/include/asm/mmu.h
+index cedcf8ea3c76..0099dc116168 100644
+--- a/arch/riscv/include/asm/mmu.h
++++ b/arch/riscv/include/asm/mmu.h
+@@ -16,7 +16,6 @@ typedef struct {
+ 	atomic_long_t id;
+ #endif
+ 	void *vdso;
+-	void *vdso_info;
+ #ifdef CONFIG_SMP
+ 	/* A local icache flush is needed before user execution can resume. */
+ 	cpumask_t icache_stale_mask;
+diff --git a/arch/riscv/kernel/vdso.c b/arch/riscv/kernel/vdso.c
+index 69b05b6c181b..4abc9aebdfae 100644
+--- a/arch/riscv/kernel/vdso.c
++++ b/arch/riscv/kernel/vdso.c
+@@ -60,6 +60,11 @@ struct __vdso_info {
+ 	struct vm_special_mapping *cm;
+ };
  
- /* N.B. The bits are defined in terms of a 32 bit word above, so the */
- /*      following macro is ok for both 32 and 64 bit.                */
-@@ -219,7 +224,7 @@ extern void __update_cache(pte_t pte);
- #define _PAGE_PRESENT  (1 << xlate_pabit(_PAGE_PRESENT_BIT))
- #define _PAGE_HUGE     (1 << xlate_pabit(_PAGE_HPAGE_BIT))
- #define _PAGE_USER     (1 << xlate_pabit(_PAGE_USER_BIT))
--#define _PAGE_SPECIAL  (_PAGE_DMB)
-+#define _PAGE_SPECIAL  (1 << xlate_pabit(_PAGE_SPECIAL_BIT))
- 
- #define _PAGE_TABLE	(_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | _PAGE_DIRTY | _PAGE_ACCESSED)
- #define _PAGE_CHG_MASK	(PAGE_MASK | _PAGE_ACCESSED | _PAGE_DIRTY | _PAGE_SPECIAL)
---- a/arch/parisc/kernel/entry.S
-+++ b/arch/parisc/kernel/entry.S
-@@ -499,6 +499,10 @@
- 	 * Finally, _PAGE_READ goes in the top bit of PL1 (so we
- 	 * trigger an access rights trap in user space if the user
- 	 * tries to read an unreadable page */
-+#if _PAGE_SPECIAL_BIT == _PAGE_DMB_BIT
-+	/* need to drop DMB bit, as it's used as SPECIAL flag */
-+	depi		0,_PAGE_SPECIAL_BIT,1,\pte
++static struct __vdso_info vdso_info;
++#ifdef CONFIG_COMPAT
++static struct __vdso_info compat_vdso_info;
 +#endif
- 	depd            \pte,8,7,\prot
++
+ static int vdso_mremap(const struct vm_special_mapping *sm,
+ 		       struct vm_area_struct *new_vma)
+ {
+@@ -114,15 +119,18 @@ int vdso_join_timens(struct task_struct *task, struct time_namespace *ns)
+ {
+ 	struct mm_struct *mm = task->mm;
+ 	struct vm_area_struct *vma;
+-	struct __vdso_info *vdso_info = mm->context.vdso_info;
  
- 	/* PAGE_USER indicates the page can be read with user privileges,
-@@ -529,6 +533,10 @@
- 	 * makes the tlb entry for the differently formatted pa11
- 	 * insertion instructions */
- 	.macro		make_insert_tlb_11	spc,pte,prot
-+#if _PAGE_SPECIAL_BIT == _PAGE_DMB_BIT
-+	/* need to drop DMB bit, as it's used as SPECIAL flag */
-+	depi		0,_PAGE_SPECIAL_BIT,1,\pte
+ 	mmap_read_lock(mm);
+ 
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 		unsigned long size = vma->vm_end - vma->vm_start;
+ 
+-		if (vma_is_special_mapping(vma, vdso_info->dm))
++		if (vma_is_special_mapping(vma, vdso_info.dm))
+ 			zap_page_range(vma, vma->vm_start, size);
++#ifdef CONFIG_COMPAT
++		if (vma_is_special_mapping(vma, compat_vdso_info.dm))
++			zap_page_range(vma, vma->vm_start, size);
 +#endif
- 	zdep		\spc,30,15,\prot
- 	dep		\pte,8,7,\prot
- 	extru,=		\pte,_PAGE_NO_CACHE_BIT,1,%r0
+ 	}
+ 
+ 	mmap_read_unlock(mm);
+@@ -264,7 +272,6 @@ static int __setup_additional_pages(struct mm_struct *mm,
+ 
+ 	vdso_base += VVAR_SIZE;
+ 	mm->context.vdso = (void *)vdso_base;
+-	mm->context.vdso_info = (void *)vdso_info;
+ 
+ 	ret =
+ 	   _install_special_mapping(mm, vdso_base, vdso_text_len,
+-- 
+2.38.0
+
 
 
