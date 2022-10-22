@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E0656089EB
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:45:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ABA96089BA
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:40:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235386AbiJVIp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:45:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52862 "EHLO
+        id S234272AbiJVIkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:40:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234659AbiJVInW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:43:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D27762E96A8;
-        Sat, 22 Oct 2022 01:07:12 -0700 (PDT)
+        with ESMTP id S234632AbiJVIjX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:39:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E5EF2505F0;
+        Sat, 22 Oct 2022 01:05:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B22E4B82E33;
-        Sat, 22 Oct 2022 08:05:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C43D2C433C1;
-        Sat, 22 Oct 2022 08:05:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CAD160ADC;
+        Sat, 22 Oct 2022 08:05:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06B19C433D6;
+        Sat, 22 Oct 2022 08:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425937;
-        bh=LNGbMV8ZTXHP0BvFmkjIFu88R3KVUozTm+4VCWX6gBw=;
+        s=korg; t=1666425940;
+        bh=YBukERdAxHkU57EcJR6ZhFZ2hlJha5Z6ys8hKW3Glgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qv4/panUUqAihJU0ODJyGLa4XuUOrd1K1fW76bALmQ6kQDroCq2dhVoUn7j4hN/8d
-         /fCeuH7n8itKR5jeerwU52XrxJrZgeWIBSOFyvLuSb2+OiRauBRXUvJTLzN2HleMJv
-         0NNfk+vu4xLMlsGVvT5ZtO0lDIZN73bQCevk6A1M=
+        b=vfWDLaUmwChhDB3qlJCUO2D1Szh8FrnKcMzfN0i4cSInzQe2z5docbKt+ZoytklDH
+         wftEZuDVVDgM+rVtlIexiyRbicpoNbKGgJW4U1iKsRkrZtfKG0nsYrYCSLBQGvYHgB
+         rixL7VphuL30U9HjiBUnY0Rqf5ZVnW6gSeCZRhoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Hannes Reinecke <hare@suse.de>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 665/717] blk-throttle: prevent overflow while calculating wait time
-Date:   Sat, 22 Oct 2022 09:29:04 +0200
-Message-Id: <20221022072527.815483038@linuxfoundation.org>
+Subject: [PATCH 5.19 666/717] ata: libahci_platform: Sanity check the DT child nodes number
+Date:   Sat, 22 Oct 2022 09:29:05 +0200
+Message-Id: <20221022072527.857706859@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,49 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 8d6bbaada2e0a65f9012ac4c2506460160e7237a ]
+[ Upstream commit 3c132ea6508b34956e5ed88d04936983ec230601 ]
 
-There is a problem found by code review in tg_with_in_bps_limit() that
-'bps_limit * jiffy_elapsed_rnd' might overflow. Fix the problem by
-calling mul_u64_u64_div_u64() instead.
+Having greater than AHCI_MAX_PORTS (32) ports detected isn't that critical
+from the further AHCI-platform initialization point of view since
+exceeding the ports upper limit will cause allocating more resources than
+will be used afterwards. But detecting too many child DT-nodes doesn't
+seem right since it's very unlikely to have it on an ordinary platform. In
+accordance with the AHCI specification there can't be more than 32 ports
+implemented at least due to having the CAP.NP field of 5 bits wide and the
+PI register of dword size. Thus if such situation is found the DTB must
+have been corrupted and the data read from it shouldn't be reliable. Let's
+consider that as an erroneous situation and halt further resources
+allocation.
 
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/r/20220829022240.3348319-3-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Note it's logically more correct to have the nports set only after the
+initialization value is checked for being sane. So while at it let's make
+sure nports is assigned with a correct value.
+
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-throttle.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/ata/libahci_platform.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-throttle.c b/block/blk-throttle.c
-index 387783980024..acdd85a07f92 100644
---- a/block/blk-throttle.c
-+++ b/block/blk-throttle.c
-@@ -806,7 +806,7 @@ static bool tg_with_in_bps_limit(struct throtl_grp *tg, struct bio *bio,
- 				 u64 bps_limit, unsigned long *wait)
- {
- 	bool rw = bio_data_dir(bio);
--	u64 bytes_allowed, extra_bytes, tmp;
-+	u64 bytes_allowed, extra_bytes;
- 	unsigned long jiffy_elapsed, jiffy_wait, jiffy_elapsed_rnd;
- 	unsigned int bio_size = throtl_bio_data_size(bio);
+diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
+index 32495ae96567..986f1923a76d 100644
+--- a/drivers/ata/libahci_platform.c
++++ b/drivers/ata/libahci_platform.c
+@@ -451,14 +451,24 @@ struct ahci_host_priv *ahci_platform_get_resources(struct platform_device *pdev,
+ 		}
+ 	}
  
-@@ -824,10 +824,8 @@ static bool tg_with_in_bps_limit(struct throtl_grp *tg, struct bio *bio,
- 		jiffy_elapsed_rnd = tg->td->throtl_slice;
+-	hpriv->nports = child_nodes = of_get_child_count(dev->of_node);
++	/*
++	 * Too many sub-nodes most likely means having something wrong with
++	 * the firmware.
++	 */
++	child_nodes = of_get_child_count(dev->of_node);
++	if (child_nodes > AHCI_MAX_PORTS) {
++		rc = -EINVAL;
++		goto err_out;
++	}
  
- 	jiffy_elapsed_rnd = roundup(jiffy_elapsed_rnd, tg->td->throtl_slice);
--
--	tmp = bps_limit * jiffy_elapsed_rnd;
--	do_div(tmp, HZ);
--	bytes_allowed = tmp;
-+	bytes_allowed = mul_u64_u64_div_u64(bps_limit, (u64)jiffy_elapsed_rnd,
-+					    (u64)HZ);
+ 	/*
+ 	 * If no sub-node was found, we still need to set nports to
+ 	 * one in order to be able to use the
+ 	 * ahci_platform_[en|dis]able_[phys|regulators] functions.
+ 	 */
+-	if (!child_nodes)
++	if (child_nodes)
++		hpriv->nports = child_nodes;
++	else
+ 		hpriv->nports = 1;
  
- 	if (tg->bytes_disp[rw] + bio_size <= bytes_allowed) {
- 		if (wait)
+ 	hpriv->phys = devm_kcalloc(dev, hpriv->nports, sizeof(*hpriv->phys), GFP_KERNEL);
 -- 
 2.35.1
 
