@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4494160883C
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:12:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43487608845
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:12:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232816AbiJVIMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:12:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57592 "EHLO
+        id S233355AbiJVIMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:12:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232833AbiJVIKK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:10:10 -0400
+        with ESMTP id S230424AbiJVIKk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:10:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4D771834C;
-        Sat, 22 Oct 2022 00:54:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6174C371A3;
+        Sat, 22 Oct 2022 00:54:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E17CEB82E0B;
-        Sat, 22 Oct 2022 07:54:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5956AC433D6;
-        Sat, 22 Oct 2022 07:54:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DC4AB82E16;
+        Sat, 22 Oct 2022 07:54:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF0B0C433D6;
+        Sat, 22 Oct 2022 07:54:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425261;
-        bh=W/qDAiByOmW1Y7CEAQjz9gU5fPmSyXrCb/xo6AYIas8=;
+        s=korg; t=1666425268;
+        bh=0yp0MeoCQn55dZ0Ly+Cfe8r8xQVfv9yqt30m368kJ1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kRj5ZjjKrKElQ0Iryj0dz8aGZRzoKS7ajvembMVZJcbxIaSUVIqHS1POxc/L6JEdf
-         8Ztw4k5hhiz23powDVufy1O1VlS48PAIhql7rfLSEO8HpRS/1hxby8MbO422s6byPr
-         AeIkCn40dZyN4Quc9n4imso4fOXV0DSEEoHHMEXo=
+        b=sNRRZpj/NdGrNzVOHCPC/mqU7YdwfAc2Ur60N2gvwlPkPXYDxGk6H2UmyCPZ1Tb5b
+         Tp8NP+phee5xO1yNggmN34Xb0l/VavgLmaImWJ1Gy1ZLQdGsRp26nlV53SB/ooTcD8
+         yt4DqjLNNZ/KjFxTmg7Ed1BmhuLVhwRBtQJYV6tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Daisuke Matsuda <matsuda-daisuke@fujitsu.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org, Albert Briscoe <albertsbriscoe@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 443/717] IB: Set IOVA/LENGTH on IB_MR in core/uverbs layers
-Date:   Sat, 22 Oct 2022 09:25:22 +0200
-Message-Id: <20221022072517.901595870@linuxfoundation.org>
+Subject: [PATCH 5.19 445/717] usb: gadget: function: fix dangling pnp_string in f_printer.c
+Date:   Sat, 22 Oct 2022 09:25:24 +0200
+Message-Id: <20221022072517.968783270@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,91 +52,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daisuke Matsuda <matsuda-daisuke@fujitsu.com>
+From: Albert Briscoe <albertsbriscoe@gmail.com>
 
-[ Upstream commit 241f9a27e0fc0eaf23e3d52c8450f10648cd11f1 ]
+[ Upstream commit 24b7ba2f88e04800b54d462f376512e8c41b8a3c ]
 
-Set 'iova' and 'length' on ib_mr in ib_uverbs and ib_core layers to let all
-drivers have the members filled. Also, this commit removes redundancy in
-the respective drivers.
+When opts->pnp_string is changed with configfs, new memory is allocated for
+the string. It does not, however, update dev->pnp_string, even though the
+memory is freed. When rquesting the string, the host then gets old or
+corrupted data rather than the new string. The ieee 1284 id string should
+be allowed to change while the device is connected.
 
-Previously, commit 04c0a5fcfcf65 ("IB/uverbs: Set IOVA on IB MR in uverbs
-layer") changed to set 'iova', but seems to have missed 'length' and the
-ib_core layer at that time.
+The bug was introduced in commit fdc01cc286be ("usb: gadget: printer:
+Remove pnp_string static buffer"), which changed opts->pnp_string from a
+char[] to a char*.
+This patch changes dev->pnp_string from a char* to a char** pointing to
+opts->pnp_string.
 
-Fixes: 04c0a5fcfcf65 ("IB/uverbs: Set IOVA on IB MR in uverbs layer")
-Signed-off-by: Daisuke Matsuda <matsuda-daisuke@fujitsu.com>
-Link: https://lore.kernel.org/r/20220921080844.1616883-1-matsuda-daisuke@fujitsu.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: fdc01cc286be ("usb: gadget: printer: Remove pnp_string static buffer")
+Signed-off-by: Albert Briscoe <albertsbriscoe@gmail.com>
+Link: https://lore.kernel.org/r/20220911223753.20417-1-albertsbriscoe@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/uverbs_cmd.c    | 5 ++++-
- drivers/infiniband/core/verbs.c         | 2 ++
- drivers/infiniband/hw/hns/hns_roce_mr.c | 1 -
- drivers/infiniband/hw/mlx4/mr.c         | 1 -
- 4 files changed, 6 insertions(+), 3 deletions(-)
+ drivers/usb/gadget/function/f_printer.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
-index 046376bd68e2..4796f6a8828c 100644
---- a/drivers/infiniband/core/uverbs_cmd.c
-+++ b/drivers/infiniband/core/uverbs_cmd.c
-@@ -739,6 +739,7 @@ static int ib_uverbs_reg_mr(struct uverbs_attr_bundle *attrs)
- 	mr->uobject = uobj;
- 	atomic_inc(&pd->usecnt);
- 	mr->iova = cmd.hca_va;
-+	mr->length = cmd.length;
+diff --git a/drivers/usb/gadget/function/f_printer.c b/drivers/usb/gadget/function/f_printer.c
+index abec5c58f525..a881c69b1f2b 100644
+--- a/drivers/usb/gadget/function/f_printer.c
++++ b/drivers/usb/gadget/function/f_printer.c
+@@ -89,7 +89,7 @@ struct printer_dev {
+ 	u8			printer_cdev_open;
+ 	wait_queue_head_t	wait;
+ 	unsigned		q_len;
+-	char			*pnp_string;	/* We don't own memory! */
++	char			**pnp_string;	/* We don't own memory! */
+ 	struct usb_function	function;
+ };
  
- 	rdma_restrack_new(&mr->res, RDMA_RESTRACK_MR);
- 	rdma_restrack_set_name(&mr->res, NULL);
-@@ -861,8 +862,10 @@ static int ib_uverbs_rereg_mr(struct uverbs_attr_bundle *attrs)
- 			mr->pd = new_pd;
- 			atomic_inc(&new_pd->usecnt);
- 		}
--		if (cmd.flags & IB_MR_REREG_TRANS)
-+		if (cmd.flags & IB_MR_REREG_TRANS) {
- 			mr->iova = cmd.hca_va;
-+			mr->length = cmd.length;
-+		}
- 	}
+@@ -1000,16 +1000,16 @@ static int printer_func_setup(struct usb_function *f,
+ 			if ((wIndex>>8) != dev->interface)
+ 				break;
  
- 	memset(&resp, 0, sizeof(resp));
-diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
-index e54b3f1b730e..f8964c8cf0ad 100644
---- a/drivers/infiniband/core/verbs.c
-+++ b/drivers/infiniband/core/verbs.c
-@@ -2149,6 +2149,8 @@ struct ib_mr *ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
- 	mr->pd = pd;
- 	mr->dm = NULL;
- 	atomic_inc(&pd->usecnt);
-+	mr->iova =  virt_addr;
-+	mr->length = length;
+-			if (!dev->pnp_string) {
++			if (!*dev->pnp_string) {
+ 				value = 0;
+ 				break;
+ 			}
+-			value = strlen(dev->pnp_string);
++			value = strlen(*dev->pnp_string);
+ 			buf[0] = (value >> 8) & 0xFF;
+ 			buf[1] = value & 0xFF;
+-			memcpy(buf + 2, dev->pnp_string, value);
++			memcpy(buf + 2, *dev->pnp_string, value);
+ 			DBG(dev, "1284 PNP String: %x %s\n", value,
+-			    dev->pnp_string);
++			    *dev->pnp_string);
+ 			break;
  
- 	rdma_restrack_new(&mr->res, RDMA_RESTRACK_MR);
- 	rdma_restrack_parent_name(&mr->res, &pd->res);
-diff --git a/drivers/infiniband/hw/hns/hns_roce_mr.c b/drivers/infiniband/hw/hns/hns_roce_mr.c
-index 867972c2a894..dedfa56f5773 100644
---- a/drivers/infiniband/hw/hns/hns_roce_mr.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_mr.c
-@@ -249,7 +249,6 @@ struct ib_mr *hns_roce_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
- 		goto err_alloc_pbl;
+ 		case GET_PORT_STATUS: /* Get Port Status */
+@@ -1475,7 +1475,7 @@ static struct usb_function *gprinter_alloc(struct usb_function_instance *fi)
+ 	kref_init(&dev->kref);
+ 	++opts->refcnt;
+ 	dev->minor = opts->minor;
+-	dev->pnp_string = opts->pnp_string;
++	dev->pnp_string = &opts->pnp_string;
+ 	dev->q_len = opts->q_len;
+ 	mutex_unlock(&opts->lock);
  
- 	mr->ibmr.rkey = mr->ibmr.lkey = mr->key;
--	mr->ibmr.length = length;
- 
- 	return &mr->ibmr;
- 
-diff --git a/drivers/infiniband/hw/mlx4/mr.c b/drivers/infiniband/hw/mlx4/mr.c
-index 04a67b481608..a40bf58bcdd3 100644
---- a/drivers/infiniband/hw/mlx4/mr.c
-+++ b/drivers/infiniband/hw/mlx4/mr.c
-@@ -439,7 +439,6 @@ struct ib_mr *mlx4_ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
- 		goto err_mr;
- 
- 	mr->ibmr.rkey = mr->ibmr.lkey = mr->mmr.key;
--	mr->ibmr.length = length;
- 	mr->ibmr.page_size = 1U << shift;
- 
- 	return &mr->ibmr;
 -- 
 2.35.1
 
