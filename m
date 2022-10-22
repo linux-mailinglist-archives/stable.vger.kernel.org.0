@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC86D608679
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:49:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C39E60862F
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231612AbiJVHt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:49:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49564 "EHLO
+        id S231365AbiJVHpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:45:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231697AbiJVHtA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:49:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8C3C24AE1A;
-        Sat, 22 Oct 2022 00:45:41 -0700 (PDT)
+        with ESMTP id S231602AbiJVHoi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:44:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5907D402E1;
+        Sat, 22 Oct 2022 00:43:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7873F60ADA;
-        Sat, 22 Oct 2022 07:42:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 667CEC433C1;
-        Sat, 22 Oct 2022 07:42:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD25DB82E14;
+        Sat, 22 Oct 2022 07:42:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E7CBC433C1;
+        Sat, 22 Oct 2022 07:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424535;
-        bh=tsYIEnNeNXBKuktBDiK6adMOHZqbmAxFQCb+rNO0Bnc=;
+        s=korg; t=1666424538;
+        bh=kNhHrO3zOwOCwUFqeWaMpjDE+M8BL55uYkKdhNtLPMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H9p8V9ucd7fkvjnb9j6+/VX4kSpcgClvHZ1WJ5HyTDT6kO6FEfNjaIXve1xzld5VC
-         w8LS/HzRBwmOZD67hKHRe1z5VxKqsFwQvf4wB4ULLZCaneZoZQbfrNSmtx9HjX04j7
-         BC8Xfdx2Xg7rWcIRvYZDbikhX7RGOJilPOouqF5A=
+        b=nahiugeX8xqCn8dyxr1HkKEFfgjECWxWwQ9+P81/5kxzatFbLaDBHeoBltRuZUWN0
+         D0hc+3iOI52yWL/vm8gVqhCsuU9hveX20V4YYlmOtNYrfE/lBGjgwJQFCtrlFGQKol
+         eSceacViAKIEJZvAu/57AD+Wnk24j6bG7WHQsIA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Lin Yujun <linyujun809@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 182/717] sh: machvec: Use char[] for section boundaries
-Date:   Sat, 22 Oct 2022 09:21:01 +0200
-Message-Id: <20221022072447.821113921@linuxfoundation.org>
+Subject: [PATCH 5.19 183/717] MIPS: SGI-IP30: Fix platform-device leak in bridge_platform_create()
+Date:   Sat, 22 Oct 2022 09:21:02 +0200
+Message-Id: <20221022072448.021112492@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -58,80 +53,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Lin Yujun <linyujun809@huawei.com>
 
-[ Upstream commit c5783af354688b24abd359f7086c282ec74de993 ]
+[ Upstream commit 1e6d11fe72e311c1989991ee318d239f650fa318 ]
 
-As done for other sections, define the extern as a character array,
-which relaxes many of the compiler-time object size checks, which would
-otherwise assume it's a single long. Solves the following build error:
+In error case in bridge_platform_create after calling
+platform_device_add()/platform_device_add_data()/
+platform_device_add_resources(), release the failed
+'pdev' or it will be leak, call platform_device_put()
+to fix this problem.
 
-arch/sh/kernel/machvec.c: error: array subscript 'struct sh_machine_vector[0]' is partly outside array bounds of 'long int[1]' [-Werror=array-bounds]:  => 105:33
+Besides, 'pdev' is divided into 'pdev_wd' and 'pdev_bd',
+use platform_device_unregister() to release sgi_w1
+resources when xtalk-bridge registration fails.
 
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Cc: linux-sh@vger.kernel.org
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/lkml/alpine.DEB.2.22.394.2209050944290.964530@ramsan.of.borg/
-Fixes: 9655ad03af2d ("sh: Fixup machvec support.")
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Acked-by: Rich Felker <dalias@libc.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: fd27234f24ae ("MIPS: add support for SGI Octane (IP30)")
+Signed-off-by: Lin Yujun <linyujun809@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/include/asm/sections.h |  2 +-
- arch/sh/kernel/machvec.c       | 10 +++++-----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ arch/mips/sgi-ip30/ip30-xtalk.c | 70 +++++++++++++++++++++++----------
+ 1 file changed, 50 insertions(+), 20 deletions(-)
 
-diff --git a/arch/sh/include/asm/sections.h b/arch/sh/include/asm/sections.h
-index 8edb824049b9..0cb0ca149ac3 100644
---- a/arch/sh/include/asm/sections.h
-+++ b/arch/sh/include/asm/sections.h
-@@ -4,7 +4,7 @@
+diff --git a/arch/mips/sgi-ip30/ip30-xtalk.c b/arch/mips/sgi-ip30/ip30-xtalk.c
+index 8129524421cb..7ceb2b23ea1c 100644
+--- a/arch/mips/sgi-ip30/ip30-xtalk.c
++++ b/arch/mips/sgi-ip30/ip30-xtalk.c
+@@ -40,12 +40,15 @@ static void bridge_platform_create(int widget, int masterwid)
+ {
+ 	struct xtalk_bridge_platform_data *bd;
+ 	struct sgi_w1_platform_data *wd;
+-	struct platform_device *pdev;
++	struct platform_device *pdev_wd;
++	struct platform_device *pdev_bd;
+ 	struct resource w1_res;
  
- #include <asm-generic/sections.h>
+ 	wd = kzalloc(sizeof(*wd), GFP_KERNEL);
+-	if (!wd)
+-		goto no_mem;
++	if (!wd) {
++		pr_warn("xtalk:%x bridge create out of memory\n", widget);
++		return;
++	}
  
--extern long __machvec_start, __machvec_end;
-+extern char __machvec_start[], __machvec_end[];
- extern char __uncached_start, __uncached_end;
- extern char __start_eh_frame[], __stop_eh_frame[];
+ 	snprintf(wd->dev_id, sizeof(wd->dev_id), "bridge-%012lx",
+ 		 IP30_SWIN_BASE(widget));
+@@ -56,24 +59,35 @@ static void bridge_platform_create(int widget, int masterwid)
+ 	w1_res.end = w1_res.start + 3;
+ 	w1_res.flags = IORESOURCE_MEM;
  
-diff --git a/arch/sh/kernel/machvec.c b/arch/sh/kernel/machvec.c
-index d606679a211e..57efaf5b82ae 100644
---- a/arch/sh/kernel/machvec.c
-+++ b/arch/sh/kernel/machvec.c
-@@ -20,8 +20,8 @@
- #define MV_NAME_SIZE 32
+-	pdev = platform_device_alloc("sgi_w1", PLATFORM_DEVID_AUTO);
+-	if (!pdev) {
+-		kfree(wd);
+-		goto no_mem;
++	pdev_wd = platform_device_alloc("sgi_w1", PLATFORM_DEVID_AUTO);
++	if (!pdev_wd) {
++		pr_warn("xtalk:%x bridge create out of memory\n", widget);
++		goto err_kfree_wd;
++	}
++	if (platform_device_add_resources(pdev_wd, &w1_res, 1)) {
++		pr_warn("xtalk:%x bridge failed to add platform resources.\n", widget);
++		goto err_put_pdev_wd;
++	}
++	if (platform_device_add_data(pdev_wd, wd, sizeof(*wd))) {
++		pr_warn("xtalk:%x bridge failed to add platform data.\n", widget);
++		goto err_put_pdev_wd;
++	}
++	if (platform_device_add(pdev_wd)) {
++		pr_warn("xtalk:%x bridge failed to add platform device.\n", widget);
++		goto err_put_pdev_wd;
+ 	}
+-	platform_device_add_resources(pdev, &w1_res, 1);
+-	platform_device_add_data(pdev, wd, sizeof(*wd));
+ 	/* platform_device_add_data() duplicates the data */
+ 	kfree(wd);
+-	platform_device_add(pdev);
  
- #define for_each_mv(mv) \
--	for ((mv) = (struct sh_machine_vector *)&__machvec_start; \
--	     (mv) && (unsigned long)(mv) < (unsigned long)&__machvec_end; \
-+	for ((mv) = (struct sh_machine_vector *)__machvec_start; \
-+	     (mv) && (unsigned long)(mv) < (unsigned long)__machvec_end; \
- 	     (mv)++)
- 
- static struct sh_machine_vector * __init get_mv_byname(const char *name)
-@@ -87,8 +87,8 @@ void __init sh_mv_setup(void)
- 	if (!machvec_selected) {
- 		unsigned long machvec_size;
- 
--		machvec_size = ((unsigned long)&__machvec_end -
--				(unsigned long)&__machvec_start);
-+		machvec_size = ((unsigned long)__machvec_end -
-+				(unsigned long)__machvec_start);
- 
- 		/*
- 		 * Sanity check for machvec section alignment. Ensure
-@@ -102,7 +102,7 @@ void __init sh_mv_setup(void)
- 		 * vector (usually the only one) from .machvec.init.
- 		 */
- 		if (machvec_size >= sizeof(struct sh_machine_vector))
--			sh_mv = *(struct sh_machine_vector *)&__machvec_start;
-+			sh_mv = *(struct sh_machine_vector *)__machvec_start;
+ 	bd = kzalloc(sizeof(*bd), GFP_KERNEL);
+-	if (!bd)
+-		goto no_mem;
+-	pdev = platform_device_alloc("xtalk-bridge", PLATFORM_DEVID_AUTO);
+-	if (!pdev) {
+-		kfree(bd);
+-		goto no_mem;
++	if (!bd) {
++		pr_warn("xtalk:%x bridge create out of memory\n", widget);
++		goto err_unregister_pdev_wd;
++	}
++	pdev_bd = platform_device_alloc("xtalk-bridge", PLATFORM_DEVID_AUTO);
++	if (!pdev_bd) {
++		pr_warn("xtalk:%x bridge create out of memory\n", widget);
++		goto err_kfree_bd;
  	}
  
- 	pr_notice("Booting machvec: %s\n", get_system_type());
+ 	bd->bridge_addr	= IP30_RAW_SWIN_BASE(widget);
+@@ -93,15 +107,31 @@ static void bridge_platform_create(int widget, int masterwid)
+ 	bd->io.flags	= IORESOURCE_IO;
+ 	bd->io_offset	= IP30_SWIN_BASE(widget);
+ 
+-	platform_device_add_data(pdev, bd, sizeof(*bd));
++	if (platform_device_add_data(pdev_bd, bd, sizeof(*bd))) {
++		pr_warn("xtalk:%x bridge failed to add platform data.\n", widget);
++		goto err_put_pdev_bd;
++	}
++	if (platform_device_add(pdev_bd)) {
++		pr_warn("xtalk:%x bridge failed to add platform device.\n", widget);
++		goto err_put_pdev_bd;
++	}
+ 	/* platform_device_add_data() duplicates the data */
+ 	kfree(bd);
+-	platform_device_add(pdev);
+ 	pr_info("xtalk:%x bridge widget\n", widget);
+ 	return;
+ 
+-no_mem:
+-	pr_warn("xtalk:%x bridge create out of memory\n", widget);
++err_put_pdev_bd:
++	platform_device_put(pdev_bd);
++err_kfree_bd:
++	kfree(bd);
++err_unregister_pdev_wd:
++	platform_device_unregister(pdev_wd);
++	return;
++err_put_pdev_wd:
++	platform_device_put(pdev_wd);
++err_kfree_wd:
++	kfree(wd);
++	return;
+ }
+ 
+ static unsigned int __init xbow_widget_active(s8 wid)
 -- 
 2.35.1
 
