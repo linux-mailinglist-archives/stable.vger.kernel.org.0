@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B7FC6087C0
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 427EF6087CA
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:06:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232731AbiJVIFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:05:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58556 "EHLO
+        id S232786AbiJVIGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:06:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233070AbiJVIEr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B50982C5691;
-        Sat, 22 Oct 2022 00:52:15 -0700 (PDT)
+        with ESMTP id S233167AbiJVIFC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:05:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2131C2D52D7;
+        Sat, 22 Oct 2022 00:52:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9821160AFA;
-        Sat, 22 Oct 2022 07:51:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EE39C433C1;
-        Sat, 22 Oct 2022 07:51:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E1CDB82E0B;
+        Sat, 22 Oct 2022 07:51:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B679C433C1;
+        Sat, 22 Oct 2022 07:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425114;
-        bh=k/0uoSHWawpsg9nFOcifCvqikP2Riu3JdAP2ZeH8ki8=;
+        s=korg; t=1666425116;
+        bh=rhYqXIfMI++3S0ARFZg5jaYFP/KX9+BPprlJaA2RASY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVznnhEigNrZIvONi9tNhZzMM4dZexSAAwnD8s955RpXTPSqZeEL4/Q4TIBkf1DEm
-         QJQ4yBa/1+dX7txEoCOotsQ3ES+L15958EFzBy/01BoG+jk9o+EB2afGSZmW3zVidg
-         eM+w3gy2SY9edROcvGab3QNZfK6qClSZzLLTJAlw=
+        b=BCoU6HR5BaFCVrCWIN6ZjSfTf+g6pfpNiLzUaugyxhK62DBALKIMsALDCR1AG2LH/
+         TFXRDCmloqAhi2HoH2DFH5dkl3BdBZ8Wl+fUiFh7yPwVr9kz8e0b17u5+IpGhkMTjZ
+         LoWp8UPWECMwqne/NxYXmR7714dbT6N0kn93FnPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Ranostay <mranostay@ti.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Vaishnav Achath <vaishnav.a@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 364/717] arm64: dts: ti: k3-j7200: fix main pinmux range
-Date:   Sat, 22 Oct 2022 09:24:03 +0200
-Message-Id: <20221022072512.557784295@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 365/717] ARM: dts: exynos: correct s5k6a3 reset polarity on Midas family
+Date:   Sat, 22 Oct 2022 09:24:04 +0200
+Message-Id: <20221022072512.715375978@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,76 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Ranostay <mranostay@ti.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 0d0a0b4413460383331088b2203ba09a6971bc3a ]
+[ Upstream commit 3ba2d4bb9592bf7a6a3fe3dbe711ecfc3d004bab ]
 
-Range size of 0x2b4 was incorrect since there isn't 173 configurable
-pins for muxing. Additionally there is a non-addressable region in the
-mapping which requires splitting into two ranges.
+According to s5k6a3 driver code, the reset line for the chip appears to
+be active low. This also matches the typical polarity of reset lines in
+general. Let's fix it up as having correct polarity in DTS is important
+when the driver will be switched over to gpiod API.
 
-main_pmx0 -> 67 pins
-main_pmx1 -> 3 pins
-
-Fixes: d361ed88455f ("arm64: dts: ti: Add support for J7200 SoC")
-Signed-off-by: Matt Ranostay <mranostay@ti.com>
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Tested-by: Vaishnav Achath <vaishnav.a@ti.com>
-Link: https://lore.kernel.org/r/20220919205723.8342-1-mranostay@ti.com
+Fixes: b4fec64758ab ("ARM: dts: Add camera device nodes for Exynos4412 TRATS2 board")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220913164104.203957-1-dmitry.torokhov@gmail.com
+Link: https://lore.kernel.org/r/20220926104354.118578-2-krzysztof.kozlowski@linaro.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts | 10 ++++++----
- arch/arm64/boot/dts/ti/k3-j7200-main.dtsi             | 11 ++++++++++-
- 2 files changed, 16 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/exynos4412-midas.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts b/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
-index 121975dc8239..7e8552fd2b6a 100644
---- a/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
-+++ b/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
-@@ -134,15 +134,17 @@
- 		>;
- 	};
+diff --git a/arch/arm/boot/dts/exynos4412-midas.dtsi b/arch/arm/boot/dts/exynos4412-midas.dtsi
+index 23f50c9be527..6ca9108b7633 100644
+--- a/arch/arm/boot/dts/exynos4412-midas.dtsi
++++ b/arch/arm/boot/dts/exynos4412-midas.dtsi
+@@ -585,7 +585,7 @@
+ 		clocks = <&camera 1>;
+ 		clock-names = "extclk";
+ 		samsung,camclk-out = <1>;
+-		gpios = <&gpm1 6 GPIO_ACTIVE_HIGH>;
++		gpios = <&gpm1 6 GPIO_ACTIVE_LOW>;
  
--	main_usbss0_pins_default: main-usbss0-pins-default {
-+	vdd_sd_dv_pins_default: vdd-sd-dv-pins-default {
- 		pinctrl-single,pins = <
--			J721E_IOPAD(0x120, PIN_OUTPUT, 0) /* (T4) USB0_DRVVBUS */
-+			J721E_IOPAD(0xd0, PIN_OUTPUT, 7) /* (T5) SPI0_D1.GPIO0_55 */
- 		>;
- 	};
-+};
- 
--	vdd_sd_dv_pins_default: vdd-sd-dv-pins-default {
-+&main_pmx1 {
-+	main_usbss0_pins_default: main-usbss0-pins-default {
- 		pinctrl-single,pins = <
--			J721E_IOPAD(0xd0, PIN_OUTPUT, 7) /* (T5) SPI0_D1.GPIO0_55 */
-+			J721E_IOPAD(0x04, PIN_OUTPUT, 0) /* (T4) USB0_DRVVBUS */
- 		>;
- 	};
- };
-diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-index 16684a2f054d..e12a53f1857f 100644
---- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-@@ -295,7 +295,16 @@
- 	main_pmx0: pinctrl@11c000 {
- 		compatible = "pinctrl-single";
- 		/* Proxy 0 addressing */
--		reg = <0x00 0x11c000 0x00 0x2b4>;
-+		reg = <0x00 0x11c000 0x00 0x10c>;
-+		#pinctrl-cells = <1>;
-+		pinctrl-single,register-width = <32>;
-+		pinctrl-single,function-mask = <0xffffffff>;
-+	};
-+
-+	main_pmx1: pinctrl@11c11c {
-+		compatible = "pinctrl-single";
-+		/* Proxy 0 addressing */
-+		reg = <0x00 0x11c11c 0x00 0xc>;
- 		#pinctrl-cells = <1>;
- 		pinctrl-single,register-width = <32>;
- 		pinctrl-single,function-mask = <0xffffffff>;
+ 		port {
+ 			is_s5k6a3_ep: endpoint {
 -- 
 2.35.1
 
