@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D38666087F0
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:07:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 107436087C2
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232764AbiJVIH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:07:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51794 "EHLO
+        id S232616AbiJVIFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:05:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232822AbiJVIGF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:06:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD7032C6E1F;
-        Sat, 22 Oct 2022 00:52:50 -0700 (PDT)
+        with ESMTP id S233066AbiJVIEr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:04:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B39572D2C15;
+        Sat, 22 Oct 2022 00:52:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13192B82E2C;
-        Sat, 22 Oct 2022 07:50:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C711C433C1;
-        Sat, 22 Oct 2022 07:50:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48C5560AC3;
+        Sat, 22 Oct 2022 07:50:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F121C433D6;
+        Sat, 22 Oct 2022 07:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425036;
-        bh=ai7WfVWVVq/rsQxbxqD2P3T55B+WLzqUqFD0GQQ004k=;
+        s=korg; t=1666425039;
+        bh=Imcg6PqxiqOEVbjHUWQaLIebpbzwPLsygt+cDDqgv/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6dlImjyRRGoTafyrybcRYHprtNp7yNZtITMA6KbMwzoR4m6nm2FgAdFASGJTt7vR
-         LQjtzxMBIgCYPtZdyCbm6e/J/+yK49KOkRO6KKE3la/ta4TzA0QYptyLrthmaGp92q
-         WlrHBNyn0MU94/5Xc5i7X+4f/Re3DsR1DKRTUvOc=
+        b=wGRftH11scr546Gz42q2505T2gV5lgH2wfkSK7abWLqiqIMr8WVde3yYo7KhvDlwL
+         Us+sYi/BErGM6KaiejYmHMr6XXKH67pCBAuZAZqLln7JOBNDeI7sncVLIBjQrcjiI5
+         YGDfcL6Bb28g0plkR+6wtJzlnWZnUDgAWwDpIBDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 369/717] ARM: dts: exynos: fix polarity of VBUS GPIO of Origen
-Date:   Sat, 22 Oct 2022 09:24:08 +0200
-Message-Id: <20221022072513.004199583@linuxfoundation.org>
+Subject: [PATCH 5.19 370/717] iomap: iomap: fix memory corruption when recording errors during writeback
+Date:   Sat, 22 Oct 2022 09:24:09 +0200
+Message-Id: <20221022072513.059596689@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,37 +53,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Darrick J. Wong <djwong@kernel.org>
 
-[ Upstream commit a08137bd1e0a7ce951dce9ce4a83e39d379b6e1b ]
+[ Upstream commit 3d5f3ba1ac28059bdf7000cae2403e4e984308d2 ]
 
-EHCI Oxynos (drivers/usb/host/ehci-exynos.c) drives VBUS GPIO high when
-trying to power up the bus, therefore the GPIO in DTS must be marked as
-"active high". This will be important when EHCI driver is converted to
-gpiod API that respects declared polarities.
+Every now and then I see this crash on arm64:
 
-Fixes: 4e8991def565 ("ARM: dts: exynos: Enable AX88760 USB hub on Origen board")
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Link: https://lore.kernel.org/r/20220927220504.3744878-1-dmitry.torokhov@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Unable to handle kernel NULL pointer dereference at virtual address 00000000000000f8
+Buffer I/O error on dev dm-0, logical block 8733687, async page read
+Mem abort info:
+  ESR = 0x0000000096000006
+  EC = 0x25: DABT (current EL), IL = 32 bits
+  SET = 0, FnV = 0
+  EA = 0, S1PTW = 0
+  FSC = 0x06: level 2 translation fault
+Data abort info:
+  ISV = 0, ISS = 0x00000006
+  CM = 0, WnR = 0
+user pgtable: 64k pages, 42-bit VAs, pgdp=0000000139750000
+[00000000000000f8] pgd=0000000000000000, p4d=0000000000000000, pud=0000000000000000, pmd=0000000000000000
+Internal error: Oops: 96000006 [#1] PREEMPT SMP
+Buffer I/O error on dev dm-0, logical block 8733688, async page read
+Dumping ftrace buffer:
+Buffer I/O error on dev dm-0, logical block 8733689, async page read
+   (ftrace buffer empty)
+XFS (dm-0): log I/O error -5
+Modules linked in: dm_thin_pool dm_persistent_data
+XFS (dm-0): Metadata I/O Error (0x1) detected at xfs_trans_read_buf_map+0x1ec/0x590 [xfs] (fs/xfs/xfs_trans_buf.c:296).
+ dm_bio_prison
+XFS (dm-0): Please unmount the filesystem and rectify the problem(s)
+XFS (dm-0): xfs_imap_lookup: xfs_ialloc_read_agi() returned error -5, agno 0
+ dm_bufio dm_log_writes xfs nft_chain_nat xt_REDIRECT nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip6t_REJECT
+potentially unexpected fatal signal 6.
+ nf_reject_ipv6
+potentially unexpected fatal signal 6.
+ ipt_REJECT nf_reject_ipv4
+CPU: 1 PID: 122166 Comm: fsstress Tainted: G        W          6.0.0-rc5-djwa #rc5 3004c9f1de887ebae86015f2677638ce51ee7
+ rpcsec_gss_krb5 auth_rpcgss xt_tcpudp ip_set_hash_ip ip_set_hash_net xt_set nft_compat ip_set_hash_mac ip_set nf_tables
+Hardware name: QEMU KVM Virtual Machine, BIOS 1.5.1 06/16/2021
+pstate: 60001000 (nZCv daif -PAN -UAO -TCO -DIT +SSBS BTYPE=--)
+ ip_tables
+pc : 000003fd6d7df200
+ x_tables
+lr : 000003fd6d7df1ec
+ overlay nfsv4
+CPU: 0 PID: 54031 Comm: u4:3 Tainted: G        W          6.0.0-rc5-djwa #rc5 3004c9f1de887ebae86015f2677638ce51ee7405
+Hardware name: QEMU KVM Virtual Machine, BIOS 1.5.1 06/16/2021
+Workqueue: writeback wb_workfn
+sp : 000003ffd9522fd0
+ (flush-253:0)
+pstate: 60401005 (nZCv daif +PAN -UAO -TCO -DIT +SSBS BTYPE=--)
+pc : errseq_set+0x1c/0x100
+x29: 000003ffd9522fd0 x28: 0000000000000023 x27: 000002acefeb6780
+x26: 0000000000000005 x25: 0000000000000001 x24: 0000000000000000
+x23: 00000000ffffffff x22: 0000000000000005
+lr : __filemap_set_wb_err+0x24/0xe0
+ x21: 0000000000000006
+sp : fffffe000f80f760
+x29: fffffe000f80f760 x28: 0000000000000003 x27: fffffe000f80f9f8
+x26: 0000000002523000 x25: 00000000fffffffb x24: fffffe000f80f868
+x23: fffffe000f80fbb0 x22: fffffc0180c26a78 x21: 0000000002530000
+x20: 0000000000000000 x19: 0000000000000000 x18: 0000000000000000
+
+x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+x14: 0000000000000001 x13: 0000000000470af3 x12: fffffc0058f70000
+x11: 0000000000000040 x10: 0000000000001b20 x9 : fffffe000836b288
+x8 : fffffc00eb9fd480 x7 : 0000000000f83659 x6 : 0000000000000000
+x5 : 0000000000000869 x4 : 0000000000000005 x3 : 00000000000000f8
+x20: 000003fd6d740020 x19: 000000000001dd36 x18: 0000000000000001
+x17: 000003fd6d78704c x16: 0000000000000001 x15: 000002acfac87668
+x2 : 0000000000000ffa x1 : 00000000fffffffb x0 : 00000000000000f8
+Call trace:
+ errseq_set+0x1c/0x100
+ __filemap_set_wb_err+0x24/0xe0
+ iomap_do_writepage+0x5e4/0xd5c
+ write_cache_pages+0x208/0x674
+ iomap_writepages+0x34/0x60
+ xfs_vm_writepages+0x8c/0xcc [xfs 7a861f39c43631f15d3a5884246ba5035d4ca78b]
+x14: 0000000000000000 x13: 2064656e72757465 x12: 0000000000002180
+x11: 000003fd6d8a82d0 x10: 0000000000000000 x9 : 000003fd6d8ae288
+x8 : 0000000000000083 x7 : 00000000ffffffff x6 : 00000000ffffffee
+x5 : 00000000fbad2887 x4 : 000003fd6d9abb58 x3 : 000003fd6d740020
+x2 : 0000000000000006 x1 : 000000000001dd36 x0 : 0000000000000000
+CPU: 1 PID: 122167 Comm: fsstress Tainted: G        W          6.0.0-rc5-djwa #rc5 3004c9f1de887ebae86015f2677638ce51ee7
+ do_writepages+0x90/0x1c4
+ __writeback_single_inode+0x4c/0x4ac
+Hardware name: QEMU KVM Virtual Machine, BIOS 1.5.1 06/16/2021
+ writeback_sb_inodes+0x214/0x4ac
+ wb_writeback+0xf4/0x3b0
+pstate: 60001000 (nZCv daif -PAN -UAO -TCO -DIT +SSBS BTYPE=--)
+ wb_workfn+0xfc/0x580
+ process_one_work+0x1e8/0x480
+pc : 000003fd6d7df200
+ worker_thread+0x78/0x430
+
+This crash is a result of iomap_writepage_map encountering some sort of
+error during writeback and wanting to set that error code in the file
+mapping so that fsync will report it.  Unfortunately, the code
+dereferences folio->mapping after unlocking the folio, which means that
+another thread could have removed the page from the page cache
+(writeback doesn't hold the invalidation lock) and give it to somebody
+else.
+
+At best we crash the system like above; at worst, we corrupt memory or
+set an error on some other unsuspecting file while failing to record the
+problems with *this* file.  Regardless, fix the problem by reporting the
+error to the inode mapping.
+
+NOTE: Commit 598ecfbaa742 lifted the XFS writeback code to iomap, so
+this fix should be backported to XFS in the 4.6-5.4 kernels in addition
+to iomap in the 5.5-5.19 kernels.
+
+Fixes: e735c0079465 ("iomap: Convert iomap_add_to_ioend() to take a folio") # 5.17 onward
+Fixes: 598ecfbaa742 ("iomap: lift the xfs writeback code to iomap") # 5.5-5.16, needs backporting
+Fixes: 150d5be09ce4 ("xfs: remove xfs_cancel_ioend") # 4.6-5.4, needs backporting
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos4412-origen.dts | 2 +-
+ fs/iomap/buffered-io.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/exynos4412-origen.dts b/arch/arm/boot/dts/exynos4412-origen.dts
-index 6db09dba07ff..a3905e27b9cd 100644
---- a/arch/arm/boot/dts/exynos4412-origen.dts
-+++ b/arch/arm/boot/dts/exynos4412-origen.dts
-@@ -95,7 +95,7 @@
- };
+diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
+index d2a9f699e17e..f2f102dd5e6b 100644
+--- a/fs/iomap/buffered-io.c
++++ b/fs/iomap/buffered-io.c
+@@ -1412,7 +1412,7 @@ iomap_writepage_map(struct iomap_writepage_ctx *wpc,
+ 	if (!count)
+ 		folio_end_writeback(folio);
+ done:
+-	mapping_set_error(folio->mapping, error);
++	mapping_set_error(inode->i_mapping, error);
+ 	return error;
+ }
  
- &ehci {
--	samsung,vbus-gpio = <&gpx3 5 1>;
-+	samsung,vbus-gpio = <&gpx3 5 GPIO_ACTIVE_HIGH>;
- 	status = "okay";
- 	phys = <&exynos_usbphy 2>, <&exynos_usbphy 3>;
- 	phy-names = "hsic0", "hsic1";
 -- 
 2.35.1
 
