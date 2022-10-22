@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB4146086AE
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:52:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEDA46086B4
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:52:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231639AbiJVHwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:52:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54872 "EHLO
+        id S231816AbiJVHwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:52:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231603AbiJVHuz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:50:55 -0400
+        with ESMTP id S231751AbiJVHu5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:50:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A18AA2C5008;
-        Sat, 22 Oct 2022 00:46:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 985038A6DE;
+        Sat, 22 Oct 2022 00:46:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E21E360B9E;
-        Sat, 22 Oct 2022 07:43:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF674C433C1;
-        Sat, 22 Oct 2022 07:43:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF71560B3D;
+        Sat, 22 Oct 2022 07:44:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE747C433D6;
+        Sat, 22 Oct 2022 07:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424638;
-        bh=UP6/5bUIx86QqfWwa+jZPOVnwVLzQc1gxndFdDGRzKY=;
+        s=korg; t=1666424641;
+        bh=fOZI99R9xfcgoIm40CdSm7/zmpiNb38vJN2fwxj97xQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qfr3WgPc6YywoWel2r9V3stlVw/m2KRkI8CaNHIGs2I3eOA7+u5mI60cDHU0OIDZ5
-         a+rNxtSvR+Su2ncJ2TafdCiY09wKzIftqjY2g0/eOSKoS/R/tm5/Qxo0p+UFONp3B8
-         oGBLshhUjZRUo4HSGGDu5wOzEX5BXlu4KLQUbayo=
+        b=XwfLxX3GhSxhqhdMdHZPtGG4vawlKb4qhdSupzz2OtY/nsAFRV3O3SIkTnbyr5NO4
+         ZTy6r3DUiDN3dAW2GIWV6qcnZZouq6PGznF/MA6kx6myEQy2u69yh28P2QH61Q0EL1
+         4h7I+HpkxvamDm9nmX9WtFyN65z2PO2PVmJjKvA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manikanta Pubbisetty <quic_mpubbise@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 220/717] wifi: ath11k: Fix incorrect QMI message ID mappings
-Date:   Sat, 22 Oct 2022 09:21:39 +0200
-Message-Id: <20221022072454.078226564@linuxfoundation.org>
+Subject: [PATCH 5.19 221/717] bpf: Use this_cpu_{inc|dec|inc_return} for bpf_task_storage_busy
+Date:   Sat, 22 Oct 2022 09:21:40 +0200
+Message-Id: <20221022072454.252150939@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,150 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manikanta Pubbisetty <quic_mpubbise@quicinc.com>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit b3ca32308e46b6384fdcb7e64b3fca4f61aff14b ]
+[ Upstream commit 197827a05e13808c60f52632e9887eede63f1c16 ]
 
-QMI message IDs for some of the QMI messages were incorrectly
-defined in the original implementation. These have to be corrected
-to enable cold boot support on WCN6750. These corrections are
-applicable for all chipsets and will not impact them. Refactor the
-code accordingly.
+Now migrate_disable() does not disable preemption and under some
+architectures (e.g. arm64) __this_cpu_{inc|dec|inc_return} are neither
+preemption-safe nor IRQ-safe, so for fully preemptible kernel concurrent
+lookups or updates on the same task local storage and on the same CPU
+may make bpf_task_storage_busy be imbalanced, and
+bpf_task_storage_trylock() on the specific cpu will always fail.
 
-Tested-on: WCN6750 hw1.0 AHB WLAN.MSL.1.0.1-00887-QCAMSLSWPLZ-1
+Fixing it by using this_cpu_{inc|dec|inc_return} when manipulating
+bpf_task_storage_busy.
 
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-Signed-off-by: Manikanta Pubbisetty <quic_mpubbise@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220720134909.15626-2-quic_mpubbise@quicinc.com
+Fixes: bc235cdb423a ("bpf: Prevent deadlock from recursive bpf_task_storage_[get|delete]")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/r/20220901061938.3789460-2-houtao@huaweicloud.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/qmi.c | 38 ++++++++++++++++++++++++---
- drivers/net/wireless/ath/ath11k/qmi.h | 10 +++++--
- 2 files changed, 43 insertions(+), 5 deletions(-)
+ kernel/bpf/bpf_local_storage.c | 4 ++--
+ kernel/bpf/bpf_task_storage.c  | 8 ++++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/qmi.c b/drivers/net/wireless/ath/ath11k/qmi.c
-index 61ead37a944a..109f4b618428 100644
---- a/drivers/net/wireless/ath/ath11k/qmi.c
-+++ b/drivers/net/wireless/ath/ath11k/qmi.c
-@@ -1696,6 +1696,13 @@ static struct qmi_elem_info qmi_wlanfw_wlan_ini_resp_msg_v01_ei[] = {
- 	},
- };
- 
-+static struct qmi_elem_info qmi_wlfw_fw_init_done_ind_msg_v01_ei[] = {
-+	{
-+		.data_type = QMI_EOTI,
-+		.array_type = NO_ARRAY,
-+	},
-+};
-+
- static int ath11k_qmi_host_cap_send(struct ath11k_base *ab)
+diff --git a/kernel/bpf/bpf_local_storage.c b/kernel/bpf/bpf_local_storage.c
+index 8ce40fd869f6..d13ffb00e981 100644
+--- a/kernel/bpf/bpf_local_storage.c
++++ b/kernel/bpf/bpf_local_storage.c
+@@ -555,11 +555,11 @@ void bpf_local_storage_map_free(struct bpf_local_storage_map *smap,
+ 				struct bpf_local_storage_elem, map_node))) {
+ 			if (busy_counter) {
+ 				migrate_disable();
+-				__this_cpu_inc(*busy_counter);
++				this_cpu_inc(*busy_counter);
+ 			}
+ 			bpf_selem_unlink(selem, false);
+ 			if (busy_counter) {
+-				__this_cpu_dec(*busy_counter);
++				this_cpu_dec(*busy_counter);
+ 				migrate_enable();
+ 			}
+ 			cond_resched_rcu();
+diff --git a/kernel/bpf/bpf_task_storage.c b/kernel/bpf/bpf_task_storage.c
+index e9014dc62682..6f290623347e 100644
+--- a/kernel/bpf/bpf_task_storage.c
++++ b/kernel/bpf/bpf_task_storage.c
+@@ -26,20 +26,20 @@ static DEFINE_PER_CPU(int, bpf_task_storage_busy);
+ static void bpf_task_storage_lock(void)
  {
- 	struct qmi_wlanfw_host_cap_req_msg_v01 req;
-@@ -3006,6 +3013,10 @@ static void ath11k_qmi_msg_fw_ready_cb(struct qmi_handle *qmi_hdl,
- 	struct ath11k_base *ab = qmi->ab;
- 
- 	ath11k_dbg(ab, ATH11K_DBG_QMI, "qmi firmware ready\n");
-+
-+	ab->qmi.cal_done = 1;
-+	wake_up(&ab->qmi.cold_boot_waitq);
-+
- 	ath11k_qmi_driver_event_post(qmi, ATH11K_QMI_EVENT_FW_READY, NULL);
+ 	migrate_disable();
+-	__this_cpu_inc(bpf_task_storage_busy);
++	this_cpu_inc(bpf_task_storage_busy);
  }
  
-@@ -3018,11 +3029,22 @@ static void ath11k_qmi_msg_cold_boot_cal_done_cb(struct qmi_handle *qmi_hdl,
- 					      struct ath11k_qmi, handle);
- 	struct ath11k_base *ab = qmi->ab;
- 
--	ab->qmi.cal_done = 1;
--	wake_up(&ab->qmi.cold_boot_waitq);
- 	ath11k_dbg(ab, ATH11K_DBG_QMI, "qmi cold boot calibration done\n");
+ static void bpf_task_storage_unlock(void)
+ {
+-	__this_cpu_dec(bpf_task_storage_busy);
++	this_cpu_dec(bpf_task_storage_busy);
+ 	migrate_enable();
  }
  
-+static void ath11k_qmi_msg_fw_init_done_cb(struct qmi_handle *qmi_hdl,
-+					   struct sockaddr_qrtr *sq,
-+					   struct qmi_txn *txn,
-+					   const void *decoded)
-+{
-+	struct ath11k_qmi *qmi = container_of(qmi_hdl,
-+					      struct ath11k_qmi, handle);
-+	struct ath11k_base *ab = qmi->ab;
-+
-+	ath11k_qmi_driver_event_post(qmi, ATH11K_QMI_EVENT_FW_INIT_DONE, NULL);
-+	ath11k_dbg(ab, ATH11K_DBG_QMI, "qmi firmware init done\n");
-+}
-+
- static const struct qmi_msg_handler ath11k_qmi_msg_handlers[] = {
- 	{
- 		.type = QMI_INDICATION,
-@@ -3053,6 +3075,14 @@ static const struct qmi_msg_handler ath11k_qmi_msg_handlers[] = {
- 			sizeof(struct qmi_wlanfw_fw_cold_cal_done_ind_msg_v01),
- 		.fn = ath11k_qmi_msg_cold_boot_cal_done_cb,
- 	},
-+	{
-+		.type = QMI_INDICATION,
-+		.msg_id = QMI_WLFW_FW_INIT_DONE_IND_V01,
-+		.ei = qmi_wlfw_fw_init_done_ind_msg_v01_ei,
-+		.decoded_size =
-+			sizeof(struct qmi_wlfw_fw_init_done_ind_msg_v01),
-+		.fn = ath11k_qmi_msg_fw_init_done_cb,
-+	},
- };
- 
- static int ath11k_qmi_ops_new_server(struct qmi_handle *qmi_hdl,
-@@ -3145,7 +3175,7 @@ static void ath11k_qmi_driver_event_work(struct work_struct *work)
- 			}
- 
- 			break;
--		case ATH11K_QMI_EVENT_FW_READY:
-+		case ATH11K_QMI_EVENT_FW_INIT_DONE:
- 			clear_bit(ATH11K_FLAG_QMI_FAIL, &ab->dev_flags);
- 			if (test_bit(ATH11K_FLAG_REGISTERED, &ab->dev_flags)) {
- 				ath11k_hal_dump_srng_stats(ab);
-@@ -3168,6 +3198,8 @@ static void ath11k_qmi_driver_event_work(struct work_struct *work)
- 				set_bit(ATH11K_FLAG_REGISTERED, &ab->dev_flags);
- 			}
- 
-+			break;
-+		case ATH11K_QMI_EVENT_FW_READY:
- 			break;
- 		case ATH11K_QMI_EVENT_COLD_BOOT_CAL_DONE:
- 			break;
-diff --git a/drivers/net/wireless/ath/ath11k/qmi.h b/drivers/net/wireless/ath/ath11k/qmi.h
-index c83cf822be81..2ec56a34fa81 100644
---- a/drivers/net/wireless/ath/ath11k/qmi.h
-+++ b/drivers/net/wireless/ath/ath11k/qmi.h
-@@ -31,8 +31,9 @@
- 
- #define QMI_WLFW_REQUEST_MEM_IND_V01		0x0035
- #define QMI_WLFW_FW_MEM_READY_IND_V01		0x0037
--#define QMI_WLFW_COLD_BOOT_CAL_DONE_IND_V01	0x0021
--#define QMI_WLFW_FW_READY_IND_V01		0x0038
-+#define QMI_WLFW_COLD_BOOT_CAL_DONE_IND_V01	0x003E
-+#define QMI_WLFW_FW_READY_IND_V01		0x0021
-+#define QMI_WLFW_FW_INIT_DONE_IND_V01		0x0038
- 
- #define QMI_WLANFW_MAX_DATA_SIZE_V01		6144
- #define ATH11K_FIRMWARE_MODE_OFF		4
-@@ -69,6 +70,7 @@ enum ath11k_qmi_event_type {
- 	ATH11K_QMI_EVENT_FORCE_FW_ASSERT,
- 	ATH11K_QMI_EVENT_POWER_UP,
- 	ATH11K_QMI_EVENT_POWER_DOWN,
-+	ATH11K_QMI_EVENT_FW_INIT_DONE,
- 	ATH11K_QMI_EVENT_MAX,
- };
- 
-@@ -291,6 +293,10 @@ struct qmi_wlanfw_fw_cold_cal_done_ind_msg_v01 {
- 	char placeholder;
- };
- 
-+struct qmi_wlfw_fw_init_done_ind_msg_v01 {
-+	char placeholder;
-+};
-+
- #define QMI_WLANFW_CAP_REQ_MSG_V01_MAX_LEN		0
- #define QMI_WLANFW_CAP_RESP_MSG_V01_MAX_LEN		235
- #define QMI_WLANFW_CAP_REQ_V01				0x0024
+ static bool bpf_task_storage_trylock(void)
+ {
+ 	migrate_disable();
+-	if (unlikely(__this_cpu_inc_return(bpf_task_storage_busy) != 1)) {
+-		__this_cpu_dec(bpf_task_storage_busy);
++	if (unlikely(this_cpu_inc_return(bpf_task_storage_busy) != 1)) {
++		this_cpu_dec(bpf_task_storage_busy);
+ 		migrate_enable();
+ 		return false;
+ 	}
 -- 
 2.35.1
 
