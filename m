@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7940A608712
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:56:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF8576086FF
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 09:55:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232210AbiJVH4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 03:56:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43156 "EHLO
+        id S232122AbiJVHzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 03:55:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232244AbiJVHyb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9CCE63D3A;
-        Sat, 22 Oct 2022 00:47:33 -0700 (PDT)
+        with ESMTP id S232152AbiJVHyK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:54:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8961A165C86;
+        Sat, 22 Oct 2022 00:47:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04FC9B82DF3;
-        Sat, 22 Oct 2022 07:46:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 723FAC433D6;
-        Sat, 22 Oct 2022 07:46:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D11660AC7;
+        Sat, 22 Oct 2022 07:46:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71317C433D6;
+        Sat, 22 Oct 2022 07:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424787;
-        bh=qI9liugzN9G0XVfsXLBml/djNWH/lcscIH6cMpNxmU4=;
+        s=korg; t=1666424795;
+        bh=1vk9cCfPuQn9h6X3LRfdcgmD8iNffBsmLEgziE8/sDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VP/Z0QJqSJUdp5Oj1h5vjvZz7wTV0FB6K3m60vkZaOZfpsUUe0PhGdvA1/2yw6ALm
-         TGyz+jRGl5qMzlHeJTq95xxkDm2Ks/Hbc/fURQ+TAmrYPuWVx/ZuGxws70Zqcs+S5p
-         vZ1/WV+AUZKPZQt2yz/fok6paxeJmBCXAeRd2EPY=
+        b=Ed9HtI76yHNAaDwoPru4wIoyZqjOkZ8TejFPq+2PkQRPR3/6Yqaj9n7BGvO0ctwQl
+         lU7Ht6RY+I6PTCkMYT62Fn3Ke7E6QFV4O4XeF8IVusrQ0YnxUhcxNB4eTHEXFvg/At
+         308/9yWX17jxvzqYbvrAoGGQbj4eAN5gkE+OAq+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junichi Uekawa <uekawa@chromium.org>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 277/717] vhost/vsock: Use kvmalloc/kvfree for larger packets.
-Date:   Sat, 22 Oct 2022 09:22:36 +0200
-Message-Id: <20221022072503.105679795@linuxfoundation.org>
+Subject: [PATCH 5.19 279/717] mISDN: fix use-after-free bugs in l1oip timer handlers
+Date:   Sat, 22 Oct 2022 09:22:38 +0200
+Message-Id: <20221022072503.291343145@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,71 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junichi Uekawa <uekawa@chromium.org>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 0e3f72931fc47bb81686020cc643cde5d9cd0bb8 ]
+[ Upstream commit 2568a7e0832ee30b0a351016d03062ab4e0e0a3f ]
 
-When copying a large file over sftp over vsock, data size is usually 32kB,
-and kmalloc seems to fail to try to allocate 32 32kB regions.
+The l1oip_cleanup() traverses the l1oip_ilist and calls
+release_card() to cleanup module and stack. However,
+release_card() calls del_timer() to delete the timers
+such as keep_tl and timeout_tl. If the timer handler is
+running, the del_timer() will not stop it and result in
+UAF bugs. One of the processes is shown below:
 
- vhost-5837: page allocation failure: order:4, mode:0x24040c0
- Call Trace:
-  [<ffffffffb6a0df64>] dump_stack+0x97/0xdb
-  [<ffffffffb68d6aed>] warn_alloc_failed+0x10f/0x138
-  [<ffffffffb68d868a>] ? __alloc_pages_direct_compact+0x38/0xc8
-  [<ffffffffb664619f>] __alloc_pages_nodemask+0x84c/0x90d
-  [<ffffffffb6646e56>] alloc_kmem_pages+0x17/0x19
-  [<ffffffffb6653a26>] kmalloc_order_trace+0x2b/0xdb
-  [<ffffffffb66682f3>] __kmalloc+0x177/0x1f7
-  [<ffffffffb66e0d94>] ? copy_from_iter+0x8d/0x31d
-  [<ffffffffc0689ab7>] vhost_vsock_handle_tx_kick+0x1fa/0x301 [vhost_vsock]
-  [<ffffffffc06828d9>] vhost_worker+0xf7/0x157 [vhost]
-  [<ffffffffb683ddce>] kthread+0xfd/0x105
-  [<ffffffffc06827e2>] ? vhost_dev_set_owner+0x22e/0x22e [vhost]
-  [<ffffffffb683dcd1>] ? flush_kthread_worker+0xf3/0xf3
-  [<ffffffffb6eb332e>] ret_from_fork+0x4e/0x80
-  [<ffffffffb683dcd1>] ? flush_kthread_worker+0xf3/0xf3
+    (cleanup routine)          |        (timer handler)
+release_card()                 | l1oip_timeout()
+ ...                           |
+ del_timer()                   | ...
+ ...                           |
+ kfree(hc) //FREE              |
+                               | hc->timeout_on = 0 //USE
 
-Work around by doing kvmalloc instead.
+Fix by calling del_timer_sync() in release_card(), which
+makes sure the timer handlers have finished before the
+resources, such as l1oip and so on, have been deallocated.
 
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-Signed-off-by: Junichi Uekawa <uekawa@chromium.org>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Link: https://lore.kernel.org/r/20220928064538.667678-1-uekawa@chromium.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+What's more, the hc->workq and hc->socket_thread can kick
+those timers right back in. We add a bool flag to show
+if card is released. Then, check this flag in hc->workq
+and hc->socket_thread.
+
+Fixes: 3712b42d4b1b ("Add layer1 over IP support")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vsock.c                   | 2 +-
- net/vmw_vsock/virtio_transport_common.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/isdn/mISDN/l1oip.h      |  1 +
+ drivers/isdn/mISDN/l1oip_core.c | 13 +++++++------
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 368330417bde..5703775af129 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -393,7 +393,7 @@ vhost_vsock_alloc_pkt(struct vhost_virtqueue *vq,
- 		return NULL;
- 	}
+diff --git a/drivers/isdn/mISDN/l1oip.h b/drivers/isdn/mISDN/l1oip.h
+index 7ea10db20e3a..48133d022812 100644
+--- a/drivers/isdn/mISDN/l1oip.h
++++ b/drivers/isdn/mISDN/l1oip.h
+@@ -59,6 +59,7 @@ struct l1oip {
+ 	int			bundle;		/* bundle channels in one frm */
+ 	int			codec;		/* codec to use for transmis. */
+ 	int			limit;		/* limit number of bchannels */
++	bool			shutdown;	/* if card is released */
  
--	pkt->buf = kmalloc(pkt->len, GFP_KERNEL);
-+	pkt->buf = kvmalloc(pkt->len, GFP_KERNEL);
- 	if (!pkt->buf) {
- 		kfree(pkt);
- 		return NULL;
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index ec2c2afbf0d0..3a12aee33e92 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1342,7 +1342,7 @@ EXPORT_SYMBOL_GPL(virtio_transport_recv_pkt);
+ 	/* timer */
+ 	struct timer_list	keep_tl;
+diff --git a/drivers/isdn/mISDN/l1oip_core.c b/drivers/isdn/mISDN/l1oip_core.c
+index 2c40412466e6..a77195e378b7 100644
+--- a/drivers/isdn/mISDN/l1oip_core.c
++++ b/drivers/isdn/mISDN/l1oip_core.c
+@@ -275,7 +275,7 @@ l1oip_socket_send(struct l1oip *hc, u8 localcodec, u8 channel, u32 chanmask,
+ 	p = frame;
  
- void virtio_transport_free_pkt(struct virtio_vsock_pkt *pkt)
+ 	/* restart timer */
+-	if (time_before(hc->keep_tl.expires, jiffies + 5 * HZ))
++	if (time_before(hc->keep_tl.expires, jiffies + 5 * HZ) && !hc->shutdown)
+ 		mod_timer(&hc->keep_tl, jiffies + L1OIP_KEEPALIVE * HZ);
+ 	else
+ 		hc->keep_tl.expires = jiffies + L1OIP_KEEPALIVE * HZ;
+@@ -601,7 +601,9 @@ l1oip_socket_parse(struct l1oip *hc, struct sockaddr_in *sin, u8 *buf, int len)
+ 		goto multiframe;
+ 
+ 	/* restart timer */
+-	if (time_before(hc->timeout_tl.expires, jiffies + 5 * HZ) || !hc->timeout_on) {
++	if ((time_before(hc->timeout_tl.expires, jiffies + 5 * HZ) ||
++	     !hc->timeout_on) &&
++	    !hc->shutdown) {
+ 		hc->timeout_on = 1;
+ 		mod_timer(&hc->timeout_tl, jiffies + L1OIP_TIMEOUT * HZ);
+ 	} else /* only adjust timer */
+@@ -1232,11 +1234,10 @@ release_card(struct l1oip *hc)
  {
--	kfree(pkt->buf);
-+	kvfree(pkt->buf);
- 	kfree(pkt);
- }
- EXPORT_SYMBOL_GPL(virtio_transport_free_pkt);
+ 	int	ch;
+ 
+-	if (timer_pending(&hc->keep_tl))
+-		del_timer(&hc->keep_tl);
++	hc->shutdown = true;
+ 
+-	if (timer_pending(&hc->timeout_tl))
+-		del_timer(&hc->timeout_tl);
++	del_timer_sync(&hc->keep_tl);
++	del_timer_sync(&hc->timeout_tl);
+ 
+ 	cancel_work_sync(&hc->workq);
+ 
 -- 
 2.35.1
 
