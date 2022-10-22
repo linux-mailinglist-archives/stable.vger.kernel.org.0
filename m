@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99F3B608AAB
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:04:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8483F608A44
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:50:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231302AbiJVJEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 05:04:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58548 "EHLO
+        id S234476AbiJVIuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:50:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235090AbiJVJD1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:03:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95EE52FACF4;
-        Sat, 22 Oct 2022 01:18:36 -0700 (PDT)
+        with ESMTP id S234807AbiJVIrt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:47:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 235957D1D0;
+        Sat, 22 Oct 2022 01:10:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 13DA260B39;
-        Sat, 22 Oct 2022 08:06:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06459C433D6;
-        Sat, 22 Oct 2022 08:06:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86F02B82E19;
+        Sat, 22 Oct 2022 08:06:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3903C433C1;
+        Sat, 22 Oct 2022 08:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666426006;
-        bh=M+GQYKj7W9Q9eqQVTrqZvdk+oerpuJZZbVXvQ6MtdVg=;
+        s=korg; t=1666426012;
+        bh=eguKnLad2H8M6bUVtKYKwm5h06Y8UI6NP/VWTx8rUIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hFZI1nF9mVHWZOEz8hQ2MZcejhXv/TpTeQte8aGQDMH0uycwmr+fG77wlX/YJTYIA
-         BFRxYtn+x7kYh5y9gd4jJuypJSUuM57u+L+z1OSJajDp9F2OwxNSApn76ht/zxwwDP
-         hDmoCo9iczHC54QvgS9H5lcW3vq9rtIeMDKQsOIA=
+        b=G54kT+orGCcqgpWnboH36xHylUZBIlwD1TMx8kZ4q0w9S6Rbq85U4FZm8VVSweDSr
+         mLLJOD5BRwFPN3QRbn7PbSVauH6qYHgXTitu5TAoHpoxDK1N7YDao3k0SMT7f7WQd3
+         S2BR9+U9uyaM9jigSUXrcyIOnTwaRukk7VU1VekI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vaishnav Achath <vaishnav.a@ti.com>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 658/717] dmaengine: ti: k3-udma: Reset UDMA_CHAN_RT byte counters to prevent overflow
-Date:   Sat, 22 Oct 2022 09:28:57 +0200
-Message-Id: <20221022072527.497849815@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 660/717] nbd: Fix hung when signal interrupts nbd_start_device_ioctl()
+Date:   Sat, 22 Oct 2022 09:28:59 +0200
+Message-Id: <20221022072527.585225648@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,112 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vaishnav Achath <vaishnav.a@ti.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit 7c94dcfa8fcff2dba53915f1dabfee49a3df8b88 ]
+[ Upstream commit 1de7c3cf48fc41cd95adb12bd1ea9033a917798a ]
 
-UDMA_CHAN_RT_*BCNT_REG stores the real-time channel bytecount statistics.
-These registers are 32-bit hardware counters and the driver uses these
-counters to monitor the operational progress status for a channel, when
-transferring more than 4GB of data it was observed that these counters
-overflow and completion calculation of a operation gets affected and the
-transfer hangs indefinitely.
+syzbot reported hung task [1].  The following program is a simplified
+version of the reproducer:
 
-This commit adds changes to decrease the byte count for every complete
-transaction so that these registers never overflow and the proper byte
-count statistics is maintained for ongoing transaction by the RT counters.
+int main(void)
+{
+	int sv[2], fd;
 
-Earlier uc->bcnt used to maintain a count of the completed bytes at driver
-side, since the RT counters maintain the statistics of current transaction
-now, the maintenance of uc->bcnt is not necessary.
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0)
+		return 1;
+	if ((fd = open("/dev/nbd0", 0)) < 0)
+		return 1;
+	if (ioctl(fd, NBD_SET_SIZE_BLOCKS, 0x81) < 0)
+		return 1;
+	if (ioctl(fd, NBD_SET_SOCK, sv[0]) < 0)
+		return 1;
+	if (ioctl(fd, NBD_DO_IT) < 0)
+		return 1;
+	return 0;
+}
 
-Signed-off-by: Vaishnav Achath <vaishnav.a@ti.com>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20220802054835.19482-1-vaishnav.a@ti.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+When signal interrupt nbd_start_device_ioctl() waiting the condition
+atomic_read(&config->recv_threads) == 0, the task can hung because it
+waits the completion of the inflight IOs.
+
+This patch fixes the issue by clearing queue, not just shutdown, when
+signal interrupt nbd_start_device_ioctl().
+
+Link: https://syzkaller.appspot.com/bug?id=7d89a3ffacd2b83fdd39549bc4d8e0a89ef21239 [1]
+Reported-by: syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220907163502.577561-1-syoshida@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/k3-udma.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ drivers/block/nbd.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
-index 2f0d2c68c93c..fcfcde947b30 100644
---- a/drivers/dma/ti/k3-udma.c
-+++ b/drivers/dma/ti/k3-udma.c
-@@ -300,8 +300,6 @@ struct udma_chan {
- 
- 	struct udma_tx_drain tx_drain;
- 
--	u32 bcnt; /* number of bytes completed since the start of the channel */
--
- 	/* Channel configuration parameters */
- 	struct udma_chan_config config;
- 
-@@ -757,6 +755,20 @@ static void udma_reset_rings(struct udma_chan *uc)
- 	}
- }
- 
-+static void udma_decrement_byte_counters(struct udma_chan *uc, u32 val)
-+{
-+	if (uc->desc->dir == DMA_DEV_TO_MEM) {
-+		udma_rchanrt_write(uc, UDMA_CHAN_RT_BCNT_REG, val);
-+		udma_rchanrt_write(uc, UDMA_CHAN_RT_SBCNT_REG, val);
-+		udma_rchanrt_write(uc, UDMA_CHAN_RT_PEER_BCNT_REG, val);
-+	} else {
-+		udma_tchanrt_write(uc, UDMA_CHAN_RT_BCNT_REG, val);
-+		udma_tchanrt_write(uc, UDMA_CHAN_RT_SBCNT_REG, val);
-+		if (!uc->bchan)
-+			udma_tchanrt_write(uc, UDMA_CHAN_RT_PEER_BCNT_REG, val);
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 20e9c53eec53..3a3680b3c4fe 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1414,10 +1414,12 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd)
+ 	mutex_unlock(&nbd->config_lock);
+ 	ret = wait_event_interruptible(config->recv_wq,
+ 					 atomic_read(&config->recv_threads) == 0);
+-	if (ret)
++	if (ret) {
+ 		sock_shutdown(nbd);
+-	flush_workqueue(nbd->recv_workq);
++		nbd_clear_que(nbd);
 +	}
-+}
-+
- static void udma_reset_counters(struct udma_chan *uc)
- {
- 	u32 val;
-@@ -790,8 +802,6 @@ static void udma_reset_counters(struct udma_chan *uc)
- 		val = udma_rchanrt_read(uc, UDMA_CHAN_RT_PEER_BCNT_REG);
- 		udma_rchanrt_write(uc, UDMA_CHAN_RT_PEER_BCNT_REG, val);
- 	}
--
--	uc->bcnt = 0;
- }
  
- static int udma_reset_chan(struct udma_chan *uc, bool hard)
-@@ -1115,7 +1125,7 @@ static void udma_check_tx_completion(struct work_struct *work)
- 		if (uc->desc) {
- 			struct udma_desc *d = uc->desc;
- 
--			uc->bcnt += d->residue;
-+			udma_decrement_byte_counters(uc, d->residue);
- 			udma_start(uc);
- 			vchan_cookie_complete(&d->vd);
- 			break;
-@@ -1168,7 +1178,7 @@ static irqreturn_t udma_ring_irq_handler(int irq, void *data)
- 				vchan_cyclic_callback(&d->vd);
- 			} else {
- 				if (udma_is_desc_really_done(uc, d)) {
--					uc->bcnt += d->residue;
-+					udma_decrement_byte_counters(uc, d->residue);
- 					udma_start(uc);
- 					vchan_cookie_complete(&d->vd);
- 				} else {
-@@ -1204,7 +1214,7 @@ static irqreturn_t udma_udma_irq_handler(int irq, void *data)
- 			vchan_cyclic_callback(&d->vd);
- 		} else {
- 			/* TODO: figure out the real amount of data */
--			uc->bcnt += d->residue;
-+			udma_decrement_byte_counters(uc, d->residue);
- 			udma_start(uc);
- 			vchan_cookie_complete(&d->vd);
- 		}
-@@ -3809,7 +3819,6 @@ static enum dma_status udma_tx_status(struct dma_chan *chan,
- 			bcnt = udma_tchanrt_read(uc, UDMA_CHAN_RT_BCNT_REG);
- 		}
- 
--		bcnt -= uc->bcnt;
- 		if (bcnt && !(bcnt % uc->desc->residue))
- 			residue = 0;
- 		else
++	flush_workqueue(nbd->recv_workq);
+ 	mutex_lock(&nbd->config_lock);
+ 	nbd_bdev_reset(nbd);
+ 	/* user requested, ignore socket errors */
 -- 
 2.35.1
 
