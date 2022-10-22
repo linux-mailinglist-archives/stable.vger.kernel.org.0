@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C2226088BF
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:22:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B241F6088EF
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:25:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229822AbiJVIWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:22:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49458 "EHLO
+        id S231216AbiJVIZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:25:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233655AbiJVIUe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:20:34 -0400
+        with ESMTP id S234069AbiJVIYl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:24:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F6332B5BAC;
-        Sat, 22 Oct 2022 00:58:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 260F35D894;
+        Sat, 22 Oct 2022 01:00:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A172960ADC;
-        Sat, 22 Oct 2022 07:58:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1443C433C1;
-        Sat, 22 Oct 2022 07:58:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0DAA60B40;
+        Sat, 22 Oct 2022 07:58:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4598C433C1;
+        Sat, 22 Oct 2022 07:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425485;
-        bh=AlKGxA5oHb1mhMs88++LuDXBhLryEnVpofotGpHubyE=;
+        s=korg; t=1666425488;
+        bh=NI1fBXPVYlDZ4B6j6GMBIhhEi5k4CLiLesxDmWTMZN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5QaGctB2iYXQx0I2xwiGTzTqFv1pW/xRQkkMp2dj6iiEdiJpEzWvpRYlbZcyTCUN
-         W7vZc4c6sd47WzGeMEi0GfjoiASPDFW0/Ukh30Z7fVf5B7x/w7/jO7n9/uQbObjO9I
-         mB1g528tgRA1C6jmKfCrGcvGax+ZNj9By2rosJC4=
+        b=Q48ZTopRp9I5z4OnjJqvBCuB+HbLzOsxSkgHiMOLlH8alBh5jnqkeKG6ef98tAJzW
+         jdvViRoeCE8SzMlU/1OfDykjp6ISuaW3bSs5grrdq3YKcPhCvEehrumbbX3A9yXPRF
+         JcLCNz33JGanPAZ0llXIoRHTzzzUXIs2KnTF2GCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 516/717] iommu/omap: Fix buffer overflow in debugfs
-Date:   Sat, 22 Oct 2022 09:26:35 +0200
-Message-Id: <20221022072521.109506096@linuxfoundation.org>
+        stable@vger.kernel.org, Ignat Korchagin <ignat@cloudflare.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 517/717] crypto: akcipher - default implementation for setting a private key
+Date:   Sat, 22 Oct 2022 09:26:36 +0200
+Message-Id: <20221022072521.161399308@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -54,51 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Ignat Korchagin <ignat@cloudflare.com>
 
-[ Upstream commit 184233a5202786b20220acd2d04ddf909ef18f29 ]
+[ Upstream commit bc155c6c188c2f0c5749993b1405673d25a80389 ]
 
-There are two issues here:
+Changes from v1:
+  * removed the default implementation from set_pub_key: it is assumed that
+    an implementation must always have this callback defined as there are
+    no use case for an algorithm, which doesn't need a public key
 
-1) The "len" variable needs to be checked before the very first write.
-   Otherwise if omap2_iommu_dump_ctx() with "bytes" less than 32 it is a
-   buffer overflow.
-2) The snprintf() function returns the number of bytes that *would* have
-   been copied if there were enough space.  But we want to know the
-   number of bytes which were *actually* copied so use scnprintf()
-   instead.
+Many akcipher implementations (like ECDSA) support only signature
+verifications, so they don't have all callbacks defined.
 
-Fixes: bd4396f09a4a ("iommu/omap: Consolidate OMAP IOMMU modules")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://lore.kernel.org/r/YuvYh1JbE3v+abd5@kili
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Commit 78a0324f4a53 ("crypto: akcipher - default implementations for
+request callbacks") introduced default callbacks for sign/verify
+operations, which just return an error code.
+
+However, these are not enough, because before calling sign the caller would
+likely call set_priv_key first on the instantiated transform (as the
+in-kernel testmgr does). This function does not have a default stub, so the
+kernel crashes, when trying to set a private key on an akcipher, which
+doesn't support signature generation.
+
+I've noticed this, when trying to add a KAT vector for ECDSA signature to
+the testmgr.
+
+With this patch the testmgr returns an error in dmesg (as it should)
+instead of crashing the kernel NULL ptr dereference.
+
+Fixes: 78a0324f4a53 ("crypto: akcipher - default implementations for request callbacks")
+Signed-off-by: Ignat Korchagin <ignat@cloudflare.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/omap-iommu-debug.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ crypto/akcipher.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
-index a99afb5d9011..259f65291d90 100644
---- a/drivers/iommu/omap-iommu-debug.c
-+++ b/drivers/iommu/omap-iommu-debug.c
-@@ -32,12 +32,12 @@ static inline bool is_omap_iommu_detached(struct omap_iommu *obj)
- 		ssize_t bytes;						\
- 		const char *str = "%20s: %08x\n";			\
- 		const int maxcol = 32;					\
--		bytes = snprintf(p, maxcol, str, __stringify(name),	\
-+		if (len < maxcol)					\
-+			goto out;					\
-+		bytes = scnprintf(p, maxcol, str, __stringify(name),	\
- 				 iommu_read_reg(obj, MMU_##name));	\
- 		p += bytes;						\
- 		len -= bytes;						\
--		if (len < maxcol)					\
--			goto out;					\
- 	} while (0)
+diff --git a/crypto/akcipher.c b/crypto/akcipher.c
+index f866085c8a4a..ab975a420e1e 100644
+--- a/crypto/akcipher.c
++++ b/crypto/akcipher.c
+@@ -120,6 +120,12 @@ static int akcipher_default_op(struct akcipher_request *req)
+ 	return -ENOSYS;
+ }
  
- static ssize_t
++static int akcipher_default_set_key(struct crypto_akcipher *tfm,
++				     const void *key, unsigned int keylen)
++{
++	return -ENOSYS;
++}
++
+ int crypto_register_akcipher(struct akcipher_alg *alg)
+ {
+ 	struct crypto_alg *base = &alg->base;
+@@ -132,6 +138,8 @@ int crypto_register_akcipher(struct akcipher_alg *alg)
+ 		alg->encrypt = akcipher_default_op;
+ 	if (!alg->decrypt)
+ 		alg->decrypt = akcipher_default_op;
++	if (!alg->set_priv_key)
++		alg->set_priv_key = akcipher_default_set_key;
+ 
+ 	akcipher_prepare_alg(alg);
+ 	return crypto_register_alg(base);
 -- 
 2.35.1
 
