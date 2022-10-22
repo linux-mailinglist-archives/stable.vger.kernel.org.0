@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C5DF6088E1
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:23:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11DB46088E3
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:25:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233742AbiJVIXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:23:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43656 "EHLO
+        id S233630AbiJVIXu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:23:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbiJVIWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:22:23 -0400
+        with ESMTP id S233621AbiJVIW1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:22:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABA73171CEC;
-        Sat, 22 Oct 2022 00:59:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8C623B956;
+        Sat, 22 Oct 2022 00:59:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07A32B82E33;
-        Sat, 22 Oct 2022 07:59:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F5FDC433D6;
-        Sat, 22 Oct 2022 07:59:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 597F3B82DFA;
+        Sat, 22 Oct 2022 07:59:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B47DC433D6;
+        Sat, 22 Oct 2022 07:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425545;
-        bh=8x1GVGNt9XiIQqkjtVfsiusz1SyAaluOtV/zS6uMHq8=;
+        s=korg; t=1666425552;
+        bh=vu7rJYj1z+XfoxBx4lR0BrFlu16v+YMPOdlO7pyXxkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJ4aGTaBAE/Uzls8qK7/k7w7iu+szCDdKrwRdutQmRipgAThU1mvDDz8YH3SvLlpL
-         95Z2R9r9F6b+FXoKBLVRiL5HEdBIyhTGwOgfrS6Mr2ZLe7i6vwvFE7QqXadX0FsUoN
-         8EGJyuNib+x3hvB3RXbLm6YHiNIBwdOqpwCkdIUI=
+        b=a1XiWn27v3kSFkQTfDxiw0z0eaZQ/jnqlo8kURX0UtiEHhxDZ0i5bIxvm4vg3jNoW
+         q2+QMxaLMJmZ4zc67brD4MyLXGoeywjq6h473os0xsdjL9a49+aIc5ypVyemB9VBkB
+         XlNNuUrL7cLtPTg67eIR1FJmT5UpHscc2hOilj6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
+        Aaron Tomlin <atomlin@redhat.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 537/717] f2fs: fix to account FS_CP_DATA_IO correctly
-Date:   Sat, 22 Oct 2022 09:26:56 +0200
-Message-Id: <20221022072522.076491149@linuxfoundation.org>
+Subject: [PATCH 5.19 539/717] module: tracking: Keep a record of tainted unloaded modules only
+Date:   Sat, 22 Oct 2022 09:26:58 +0200
+Message-Id: <20221022072522.179159829@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,136 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Aaron Tomlin <atomlin@redhat.com>
 
-[ Upstream commit d80afefb17e01aa0c46a8eebc01882e0ebd8b0f6 ]
+[ Upstream commit 47cc75aa92837a9d3f15157d6272ff285585d75d ]
 
-f2fs_inode_info.cp_task was introduced for FS_CP_DATA_IO accounting
-since commit b0af6d491a6b ("f2fs: add app/fs io stat").
+This ensures that no module record/or entry is added to the
+unloaded_tainted_modules list if it does not carry a taint.
 
-However, cp_task usage coverage has been increased due to below
-commits:
-commit 040d2bb318d1 ("f2fs: fix to avoid deadloop if data_flush is on")
-commit 186857c5a14a ("f2fs: fix potential recursive call when enabling data_flush")
-
-So that, if data_flush mountoption is on, when data flush was
-triggered from background, the IO from data flush will be accounted
-as checkpoint IO type incorrectly.
-
-In order to fix this issue, this patch splits cp_task into two:
-a) cp_task: used for IO accounting
-b) wb_task: used to avoid deadlock
-
-Fixes: 040d2bb318d1 ("f2fs: fix to avoid deadloop if data_flush is on")
-Fixes: 186857c5a14a ("f2fs: fix potential recursive call when enabling data_flush")
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reported-by: Alexey Dobriyan <adobriyan@gmail.com>
+Fixes: 99bd9956551b ("module: Introduce module unload taint tracking")
+Signed-off-by: Aaron Tomlin <atomlin@redhat.com>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c | 13 +++++++++----
- fs/f2fs/data.c       |  4 ++--
- fs/f2fs/f2fs.h       |  4 +++-
- fs/f2fs/segment.c    |  2 +-
- 4 files changed, 15 insertions(+), 8 deletions(-)
+ kernel/module/tracking.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index 2a1930cfd513..5c77ae07150d 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -1063,7 +1063,8 @@ void f2fs_remove_dirty_inode(struct inode *inode)
- 	spin_unlock(&sbi->inode_lock[type]);
- }
+diff --git a/kernel/module/tracking.c b/kernel/module/tracking.c
+index 7f8133044d09..af52cabfe632 100644
+--- a/kernel/module/tracking.c
++++ b/kernel/module/tracking.c
+@@ -21,6 +21,9 @@ int try_add_tainted_module(struct module *mod)
  
--int f2fs_sync_dirty_inodes(struct f2fs_sb_info *sbi, enum inode_type type)
-+int f2fs_sync_dirty_inodes(struct f2fs_sb_info *sbi, enum inode_type type,
-+						bool from_cp)
- {
- 	struct list_head *head;
- 	struct inode *inode;
-@@ -1098,11 +1099,15 @@ int f2fs_sync_dirty_inodes(struct f2fs_sb_info *sbi, enum inode_type type)
- 	if (inode) {
- 		unsigned long cur_ino = inode->i_ino;
+ 	module_assert_mutex_or_preempt();
  
--		F2FS_I(inode)->cp_task = current;
-+		if (from_cp)
-+			F2FS_I(inode)->cp_task = current;
-+		F2FS_I(inode)->wb_task = current;
- 
- 		filemap_fdatawrite(inode->i_mapping);
- 
--		F2FS_I(inode)->cp_task = NULL;
-+		F2FS_I(inode)->wb_task = NULL;
-+		if (from_cp)
-+			F2FS_I(inode)->cp_task = NULL;
- 
- 		iput(inode);
- 		/* We need to give cpu to another writers. */
-@@ -1231,7 +1236,7 @@ static int block_operations(struct f2fs_sb_info *sbi)
- 	/* write all the dirty dentry pages */
- 	if (get_pages(sbi, F2FS_DIRTY_DENTS)) {
- 		f2fs_unlock_all(sbi);
--		err = f2fs_sync_dirty_inodes(sbi, DIR_INODE);
-+		err = f2fs_sync_dirty_inodes(sbi, DIR_INODE, true);
- 		if (err)
- 			return err;
- 		cond_resched();
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index f2a272613477..d3768115e3b8 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -2843,7 +2843,7 @@ int f2fs_write_single_data_page(struct page *page, int *submitted,
- 	}
- 	unlock_page(page);
- 	if (!S_ISDIR(inode->i_mode) && !IS_NOQUOTA(inode) &&
--			!F2FS_I(inode)->cp_task && allow_balance)
-+			!F2FS_I(inode)->wb_task && allow_balance)
- 		f2fs_balance_fs(sbi, need_balance_fs);
- 
- 	if (unlikely(f2fs_cp_error(sbi))) {
-@@ -3141,7 +3141,7 @@ static inline bool __should_serialize_io(struct inode *inode,
- 					struct writeback_control *wbc)
- {
- 	/* to avoid deadlock in path of data flush */
--	if (F2FS_I(inode)->cp_task)
-+	if (F2FS_I(inode)->wb_task)
- 		return false;
- 
- 	if (!S_ISREG(inode->i_mode))
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index f9d5110bbcd8..7896cbadbcd7 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -784,6 +784,7 @@ struct f2fs_inode_info {
- 	unsigned int clevel;		/* maximum level of given file name */
- 	struct task_struct *task;	/* lookup and create consistency */
- 	struct task_struct *cp_task;	/* separate cp/wb IO stats*/
-+	struct task_struct *wb_task;	/* indicate inode is in context of writeback */
- 	nid_t i_xattr_nid;		/* node id that contains xattrs */
- 	loff_t	last_disk_size;		/* lastly written file size */
- 	spinlock_t i_size_lock;		/* protect last_disk_size */
-@@ -3710,7 +3711,8 @@ int f2fs_recover_orphan_inodes(struct f2fs_sb_info *sbi);
- int f2fs_get_valid_checkpoint(struct f2fs_sb_info *sbi);
- void f2fs_update_dirty_folio(struct inode *inode, struct folio *folio);
- void f2fs_remove_dirty_inode(struct inode *inode);
--int f2fs_sync_dirty_inodes(struct f2fs_sb_info *sbi, enum inode_type type);
-+int f2fs_sync_dirty_inodes(struct f2fs_sb_info *sbi, enum inode_type type,
-+								bool from_cp);
- void f2fs_wait_on_all_pages(struct f2fs_sb_info *sbi, int type);
- u64 f2fs_get_sectors_written(struct f2fs_sb_info *sbi);
- int f2fs_write_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc);
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 52df19a0638b..b740ff81024e 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -469,7 +469,7 @@ void f2fs_balance_fs_bg(struct f2fs_sb_info *sbi, bool from_bg)
- 		mutex_lock(&sbi->flush_lock);
- 
- 		blk_start_plug(&plug);
--		f2fs_sync_dirty_inodes(sbi, FILE_INODE);
-+		f2fs_sync_dirty_inodes(sbi, FILE_INODE, false);
- 		blk_finish_plug(&plug);
- 
- 		mutex_unlock(&sbi->flush_lock);
++	if (!mod->taints)
++		goto out;
++
+ 	list_for_each_entry_rcu(mod_taint, &unloaded_tainted_modules, list,
+ 				lockdep_is_held(&module_mutex)) {
+ 		if (!strcmp(mod_taint->name, mod->name) &&
 -- 
 2.35.1
 
