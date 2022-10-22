@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4DF260875F
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:01:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4C5608764
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232307AbiJVIBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:01:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52012 "EHLO
+        id S232358AbiJVIBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:01:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232602AbiJVH7P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:59:15 -0400
+        with ESMTP id S232665AbiJVH73 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:59:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2365733865;
-        Sat, 22 Oct 2022 00:49:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 716D255C4B;
+        Sat, 22 Oct 2022 00:49:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFE4C60B39;
-        Sat, 22 Oct 2022 07:49:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEBF7C433C1;
-        Sat, 22 Oct 2022 07:49:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F30260B09;
+        Sat, 22 Oct 2022 07:49:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 111F3C433D6;
+        Sat, 22 Oct 2022 07:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424958;
-        bh=ZFXv7aOzeRfU+Zq9neF3kSmBsWRostughYrYNDVdW2A=;
+        s=korg; t=1666424966;
+        bh=WUE8FJWJv8eYvKiyEOnorlpexel6MZMk7An450XUA2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V17xEvmmxkE/ZHgfr9/zFkGZgXM6hIG6npl65fOkqOKxHvhhq9irdUfyzXu24VgaU
-         o1jrC2PXk6FpVeAAdW4BpKbiYtCaqZ8EeNGhEYeMYylMJFim2pvOANrmbwag1y+4Lb
-         c+6EjxgauuLsGRw/Par/+94gBLCs545dFyD6cHUE=
+        b=uDlCMbge/2EcMOKu1PYFX1ifvMDDL7wKBJZdjz7pUrWU+kuUeCcRBp8nZOaiwZfCS
+         iG6tP0/uofGmxBq4WbYeTcb8b8nVlmSkzUleB04SKxeumHjq5NOS3qe+q/zu6bN+VJ
+         HYo9pODsguY1va95e8smvvhQfBkblO9/8XTCUnaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Olivier Moysan <olivier.moysan@foss.st.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 340/717] ASoC: stm32: dfsdm: Fix PM disable depth imbalance in stm32_adfsdm_probe
-Date:   Sat, 22 Oct 2022 09:23:39 +0200
-Message-Id: <20221022072510.464360383@linuxfoundation.org>
+Subject: [PATCH 5.19 343/717] ASoC: wm8997: Fix PM disable depth imbalance in wm8997_probe
+Date:   Sat, 22 Oct 2022 09:23:42 +0200
+Message-Id: <20221022072510.723567530@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -56,52 +55,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit b9a0da5b2edcae2a901b85c8cc42efc5bec4bd7b ]
+[ Upstream commit 41a736ac20602f64773e80f0f5b32cde1830a44a ]
 
 The pm_runtime_enable will increase power disable depth. Thus
 a pairing decrement is needed on the error handling path to
 keep it balanced according to context. We fix it by moving
-pm_runtime_enable to the endding of stm32_adfsdm_probe.
+pm_runtime_enable to the endding of wm8997_probe
 
-Fixes:98e500a12f934 ("ASoC: stm32: dfsdm: add pm_runtime support for audio")
+Fixes:40843aea5a9bd ("ASoC: wm8997: Initial CODEC driver")
 
 Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Olivier Moysan <olivier.moysan@foss.st.com>
-Link: https://lore.kernel.org/r/20220927142601.64266-2-zhangqilong3@huawei.com
+Link: https://lore.kernel.org/r/20220928160116.125020-2-zhangqilong3@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/stm/stm32_adfsdm.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ sound/soc/codecs/wm8997.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/stm/stm32_adfsdm.c b/sound/soc/stm/stm32_adfsdm.c
-index 6ee714542b84..c0f964891b58 100644
---- a/sound/soc/stm/stm32_adfsdm.c
-+++ b/sound/soc/stm/stm32_adfsdm.c
-@@ -334,8 +334,6 @@ static int stm32_adfsdm_probe(struct platform_device *pdev)
- 
- 	dev_set_drvdata(&pdev->dev, priv);
+diff --git a/sound/soc/codecs/wm8997.c b/sound/soc/codecs/wm8997.c
+index 38ef631d1a1f..c8c711e555c0 100644
+--- a/sound/soc/codecs/wm8997.c
++++ b/sound/soc/codecs/wm8997.c
+@@ -1162,9 +1162,6 @@ static int wm8997_probe(struct platform_device *pdev)
+ 		regmap_update_bits(arizona->regmap, wm8997_digital_vu[i],
+ 				   WM8997_DIG_VU, WM8997_DIG_VU);
  
 -	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_idle(&pdev->dev);
 -
- 	ret = devm_snd_soc_register_component(&pdev->dev,
- 					      &stm32_adfsdm_dai_component,
- 					      &priv->dai_drv, 1);
-@@ -365,9 +363,13 @@ static int stm32_adfsdm_probe(struct platform_device *pdev)
- #endif
+ 	arizona_init_common(arizona);
  
- 	ret = snd_soc_add_component(component, NULL, 0);
--	if (ret < 0)
-+	if (ret < 0) {
- 		dev_err(&pdev->dev, "%s: Failed to register PCM platform\n",
- 			__func__);
-+		return ret;
-+	}
-+
+ 	ret = arizona_init_vol_limit(arizona);
+@@ -1183,6 +1180,9 @@ static int wm8997_probe(struct platform_device *pdev)
+ 		goto err_spk_irqs;
+ 	}
+ 
 +	pm_runtime_enable(&pdev->dev);
- 
++	pm_runtime_idle(&pdev->dev);
++
  	return ret;
- }
+ 
+ err_spk_irqs:
 -- 
 2.35.1
 
