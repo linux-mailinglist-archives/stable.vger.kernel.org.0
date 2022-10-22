@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B7006088CA
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B431608A04
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:46:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233720AbiJVIWo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:22:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51514 "EHLO
+        id S234751AbiJVIqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:46:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233722AbiJVIU5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:20:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91C742DF477;
-        Sat, 22 Oct 2022 00:58:51 -0700 (PDT)
+        with ESMTP id S235177AbiJVIot (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:44:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 696A12CB8D0;
+        Sat, 22 Oct 2022 01:08:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33CCA60B09;
-        Sat, 22 Oct 2022 07:58:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09389C433D6;
-        Sat, 22 Oct 2022 07:58:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E85160B9C;
+        Sat, 22 Oct 2022 07:58:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2193CC433D6;
+        Sat, 22 Oct 2022 07:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425530;
-        bh=R5xFzSHogEP2NN2e/wL2tnIj+3tgTrpSBrWmiZXApdA=;
+        s=korg; t=1666425533;
+        bh=XyPVQJbFTLvipGXK1VZ5NAIpvAx/eXTeDvTak5V8T+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qDDvXkD3EYzjQnMXli79oI7yzOSToyeiAF9jYXsdsfwMdtFDTqkLDrxw5NoLGRqyg
-         Yd6QLOTfcs0j1mA5hxiYhoyl04NqtP9GoALw9IH17dTN+apZvihFeGIASm8l8pHlzy
-         iPOwiGxoI6/6Xj4ZBSnCbYJwAyY6Ss+HwVRwLuac=
+        b=PdEzsNcLljOQGtWkv+98ElY2+y8Oqai9rmVIPXlXAjG3XxbZQA8Zcuzpj9yRArh9l
+         o1lK+QuNnUr3ReH4ksGGFD+OZ7SHDVKxxvKZPggKsVw4Xvs9KvU8guXxe2RyTVMHfG
+         bH7KRePhQjhyFsXGNpmpPqNwNQxdgBGHrwzWCrsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Sultan Alsawaf <sultan@kerneltoast.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 532/717] crypto: cavium - prevent integer overflow loading firmware
-Date:   Sat, 22 Oct 2022 09:26:51 +0200
-Message-Id: <20221022072521.848741405@linuxfoundation.org>
+Subject: [PATCH 5.19 533/717] random: schedule jitter credit for next jiffy, not in two jiffies
+Date:   Sat, 22 Oct 2022 09:26:52 +0200
+Message-Id: <20221022072521.900794646@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -53,54 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 2526d6bf27d15054bb0778b2f7bc6625fd934905 ]
+[ Upstream commit 122733471384be8c23f019fbbd46bdf7be561dcd ]
 
-The "code_length" value comes from the firmware file.  If your firmware
-is untrusted realistically there is probably very little you can do to
-protect yourself.  Still we try to limit the damage as much as possible.
-Also Smatch marks any data read from the filesystem as untrusted and
-prints warnings if it not capped correctly.
+Counterintuitively, mod_timer(..., jiffies + 1) will cause the timer to
+fire not in the next jiffy, but in two jiffies. The way to cause
+the timer to fire in the next jiffy is with mod_timer(..., jiffies).
+Doing so then lets us bump the upper bound back up again.
 
-The "ntohl(ucode->code_length) * 2" multiplication can have an
-integer overflow.
-
-Fixes: 9e2c7d99941d ("crypto: cavium - Add Support for Octeon-tx CPT Engine")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 50ee7529ec45 ("random: try to actively add entropy rather than passively wait for it")
+Fixes: 829d680e82a9 ("random: cap jitter samples per bit to factor of HZ")
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Sultan Alsawaf <sultan@kerneltoast.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/cavium/cpt/cptpf_main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/char/random.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/cavium/cpt/cptpf_main.c b/drivers/crypto/cavium/cpt/cptpf_main.c
-index 8c32d0eb8fcf..6872ac344001 100644
---- a/drivers/crypto/cavium/cpt/cptpf_main.c
-+++ b/drivers/crypto/cavium/cpt/cptpf_main.c
-@@ -253,6 +253,7 @@ static int cpt_ucode_load_fw(struct cpt_device *cpt, const u8 *fw, bool is_ae)
- 	const struct firmware *fw_entry;
- 	struct device *dev = &cpt->pdev->dev;
- 	struct ucode_header *ucode;
-+	unsigned int code_length;
- 	struct microcode *mcode;
- 	int j, ret = 0;
- 
-@@ -263,11 +264,12 @@ static int cpt_ucode_load_fw(struct cpt_device *cpt, const u8 *fw, bool is_ae)
- 	ucode = (struct ucode_header *)fw_entry->data;
- 	mcode = &cpt->mcode[cpt->next_mc_idx];
- 	memcpy(mcode->version, (u8 *)fw_entry->data, CPT_UCODE_VERSION_SZ);
--	mcode->code_size = ntohl(ucode->code_length) * 2;
--	if (!mcode->code_size) {
-+	code_length = ntohl(ucode->code_length);
-+	if (code_length == 0 || code_length >= INT_MAX / 2) {
- 		ret = -EINVAL;
- 		goto fw_release;
- 	}
-+	mcode->code_size = code_length * 2;
- 
- 	mcode->is_ae = is_ae;
- 	mcode->core_mask = 0ULL;
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index 8dfb28d5ae3f..5defbc479a5c 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1178,7 +1178,7 @@ static void __cold entropy_timer(struct timer_list *timer)
+  */
+ static void __cold try_to_generate_entropy(void)
+ {
+-	enum { NUM_TRIAL_SAMPLES = 8192, MAX_SAMPLES_PER_BIT = HZ / 30 };
++	enum { NUM_TRIAL_SAMPLES = 8192, MAX_SAMPLES_PER_BIT = HZ / 15 };
+ 	struct entropy_timer_state stack;
+ 	unsigned int i, num_different = 0;
+ 	unsigned long last = random_get_entropy();
+@@ -1197,7 +1197,7 @@ static void __cold try_to_generate_entropy(void)
+ 	timer_setup_on_stack(&stack.timer, entropy_timer, 0);
+ 	while (!crng_ready() && !signal_pending(current)) {
+ 		if (!timer_pending(&stack.timer))
+-			mod_timer(&stack.timer, jiffies + 1);
++			mod_timer(&stack.timer, jiffies);
+ 		mix_pool_bytes(&stack.entropy, sizeof(stack.entropy));
+ 		schedule();
+ 		stack.entropy = random_get_entropy();
 -- 
 2.35.1
 
