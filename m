@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F4093608767
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:01:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF900608768
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232183AbiJVIBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:01:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34814 "EHLO
+        id S232377AbiJVIBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:01:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232720AbiJVH7o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:59:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67CDA1CFC7;
-        Sat, 22 Oct 2022 00:49:53 -0700 (PDT)
+        with ESMTP id S232738AbiJVH7q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 03:59:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F0DE72975;
+        Sat, 22 Oct 2022 00:49:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD7EE60B1F;
-        Sat, 22 Oct 2022 07:49:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A53BAC433C1;
-        Sat, 22 Oct 2022 07:49:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61C2DB82DF6;
+        Sat, 22 Oct 2022 07:49:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6F0FC433D7;
+        Sat, 22 Oct 2022 07:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424980;
-        bh=gg1wQswyGA90Rm8bnUp+ZwCqX2EINFwKWxmb5fEPtvA=;
+        s=korg; t=1666424988;
+        bh=EDcfOZ9GiROdzrYcCV/i2Qx1Q4cPalUM4Bdj4HFS6+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xv/Gulr3m+ENM7TkkV0GsHfDEcEOccLsRhjVJbAP1a+B8WF6SfKvcSGfMSPJLJhGk
-         PesUsD3FhxcyrzL5+c6JEd6FApjZo+FDHdMwutdVJlkceDRKA9XD0LiLJHNJOhTLS3
-         CJ/WXyCwcuQZMelImL2AYIl4b32tqn0rjfzoZwgE=
+        b=XTie77RxBdAB48J9HR9mrbCedZbWfA1OfbgSP4E1Ra4bTt990L8rfucwz3pPYKYC+
+         kjfYldXgBhsV3R3bp4b+PGt5y/voKT7e89mBWG15faUrysw02OFpxJciDak6IlBS38
+         fY8U55JAwNBdz3IRo3HVtn/5SZS/aQFSxgDFYoxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brent Lu <brent.lu@intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 347/717] ALSA: hda/hdmi: Dont skip notification handling during PM operation
-Date:   Sat, 22 Oct 2022 09:23:46 +0200
-Message-Id: <20221022072511.020405718@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 350/717] memory: of: Fix refcount leak bug in of_lpddr3_get_ddr_timings()
+Date:   Sat, 22 Oct 2022 09:23:49 +0200
+Message-Id: <20221022072511.220388639@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,61 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 5226c7b9784eee215e3914f440b3c2e1764f67a8 ]
+[ Upstream commit 48af14fb0eaa63d9aa68f59fb0b205ec55a95636 ]
 
-The HDMI driver skips the notification handling from the graphics
-driver when the codec driver is being in the PM operation.  This
-behavior was introduced by the commit eb399d3c99d8 ("ALSA: hda - Skip
-ELD notification during PM process").  This skip may cause a problem,
-as we may miss the ELD update when the connection/disconnection
-happens right at the runtime-PM operation of the audio codec.
+We should add the of_node_put() when breaking out of
+for_each_child_of_node() as it will automatically increase
+and decrease the refcount.
 
-Although this workaround was valid at that time, it's no longer true;
-the fix was required just because the ELD update procedure needed to
-wake up the audio codec, which had lead to a runtime-resume during a
-runtime-suspend.  Meanwhile, the ELD update procedure doesn't need a
-codec wake up any longer since the commit 788d441a164c ("ALSA: hda -
-Use component ops for i915 HDMI/DP audio jack handling"); i.e. there
-is no much reason for skipping the notification.
-
-Let's drop those checks for addressing the missing notification.
-
-Fixes: 788d441a164c ("ALSA: hda - Use component ops for i915 HDMI/DP audio jack handling")
-Reported-by: Brent Lu <brent.lu@intel.com>
-Link: https://lore.kernel.org/r/20220927135807.4097052-1-brent.lu@intel.com
-Link: https://lore.kernel.org/r/20221001074809.7461-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 976897dd96db ("memory: Extend of_memory with LPDDR3 support")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220719085640.1210583-2-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/memory/of_memory.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index c239d9dbbaef..63c0c84348d0 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2747,9 +2747,6 @@ static void generic_acomp_pin_eld_notify(void *audio_ptr, int port, int dev_id)
- 	 */
- 	if (codec->core.dev.power.power_state.event == PM_EVENT_SUSPEND)
- 		return;
--	/* ditto during suspend/resume process itself */
--	if (snd_hdac_is_in_pm(&codec->core))
--		return;
- 
- 	check_presence_and_report(codec, pin_nid, dev_id);
- }
-@@ -2933,9 +2930,6 @@ static void intel_pin_eld_notify(void *audio_ptr, int port, int pipe)
- 	 */
- 	if (codec->core.dev.power.power_state.event == PM_EVENT_SUSPEND)
- 		return;
--	/* ditto during suspend/resume process itself */
--	if (snd_hdac_is_in_pm(&codec->core))
--		return;
- 
- 	snd_hdac_i915_set_bclk(&codec->bus->core);
- 	check_presence_and_report(codec, pin_nid, dev_id);
+diff --git a/drivers/memory/of_memory.c b/drivers/memory/of_memory.c
+index 8e2ef4bf6b17..fcd20d85d385 100644
+--- a/drivers/memory/of_memory.c
++++ b/drivers/memory/of_memory.c
+@@ -285,6 +285,7 @@ const struct lpddr3_timings
+ 		if (of_device_is_compatible(np_tim, tim_compat)) {
+ 			if (of_lpddr3_do_get_timings(np_tim, &timings[i])) {
+ 				devm_kfree(dev, timings);
++				of_node_put(np_tim);
+ 				goto default_timings;
+ 			}
+ 			i++;
 -- 
 2.35.1
 
