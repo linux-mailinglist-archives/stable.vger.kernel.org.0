@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 875696088DF
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D15FF608A61
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:52:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233683AbiJVIXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 04:23:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48930 "EHLO
+        id S231172AbiJVIwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:52:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233586AbiJVIWK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:22:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE3B0836C8;
-        Sat, 22 Oct 2022 00:59:05 -0700 (PDT)
+        with ESMTP id S234313AbiJVIvb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:51:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 775722F0DCC;
+        Sat, 22 Oct 2022 01:11:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B01960ADE;
-        Sat, 22 Oct 2022 07:57:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A801FC433D6;
-        Sat, 22 Oct 2022 07:57:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8290EB82E12;
+        Sat, 22 Oct 2022 07:57:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9AD2C433D7;
+        Sat, 22 Oct 2022 07:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425429;
-        bh=gjDljZl/wvRQcLjS5e2kmaL29MSYEY38YuRzoP9nEaE=;
+        s=korg; t=1666425432;
+        bh=P6mrvCB9xhdjNaQd5esO9PzJUs/Txx/H4cT1nbvnes4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sZwUK/eNDOt+o7fFrUwWYdBlyeVVMmbVw7MvNlZRp3aCZBBWw/hwD+g9Qv9IdZWjS
-         Rhigb1RQMS1lEzP2ahEEMiaVdKOwlAyrad5wFKQQrOS98s106vaRKk38VxapDBOeu/
-         C2Hc3K1B6ll3+5irMij0SFfN94MKmYajBZrhK+ek=
+        b=1v3YgibuygT9wGSAlSIbMJNZzrOFAXudvdbP0PzHWCG/DJrdHKs8iqqGSH5c6u2Ds
+         Mh6dM/CacbTlSjzWqB4rMjmwxlXKdeUU6zsVguoZ6hgb8SuiIGbBFJbQAZiE16aVqX
+         xMXfSVXjPHhxdXCAGPKvFcUoYyKX3rWa2uGGVdbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Rohan McLure <rmclure@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 499/717] powerpc: Fix fallocate and fadvise64_64 compat parameter combination
-Date:   Sat, 22 Oct 2022 09:26:18 +0200
-Message-Id: <20221022072520.337094485@linuxfoundation.org>
+Subject: [PATCH 5.19 500/717] x86/hyperv: Fix struct hv_enlightened_vmcs definition
+Date:   Sat, 22 Oct 2022 09:26:19 +0200
+Message-Id: <20221022072520.372130740@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -55,108 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohan McLure <rmclure@linux.ibm.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 016ff72bd2090903715c0f9422a44afbb966f4ee ]
+[ Upstream commit ea9da788a61e47e7ab9cbad397453e51cd82ac0d ]
 
-As reported[1] by Arnd, the arch-specific fadvise64_64 and fallocate
-compatibility handlers assume parameters are passed with 32-bit
-big-endian ABI. This affects the assignment of odd-even parameter pairs
-to the high or low words of a 64-bit syscall parameter.
+Section 1.9 of TLFS v6.0b says:
 
-Fix fadvise64_64 fallocate compat handlers to correctly swap upper/lower
-32 bits conditioned on endianness.
+"All structures are padded in such a way that fields are aligned
+naturally (that is, an 8-byte field is aligned to an offset of 8 bytes
+and so on)".
 
-A future patch will replace the arch-specific compat fallocate with an
-asm-generic implementation. This patch is intended for ease of
-back-port.
+'struct enlightened_vmcs' has a glitch:
 
-[1]: https://lore.kernel.org/all/be29926f-226e-48dc-871a-e29a54e80583@www.fastmail.com/
+...
+        struct {
+                u32                nested_flush_hypercall:1; /*   836: 0  4 */
+                u32                msr_bitmap:1;         /*   836: 1  4 */
+                u32                reserved:30;          /*   836: 2  4 */
+        } hv_enlightenments_control;                     /*   836     4 */
+        u32                        hv_vp_id;             /*   840     4 */
+        u64                        hv_vm_id;             /*   844     8 */
+        u64                        partition_assist_page; /*   852     8 */
+...
 
-Fixes: 57f48b4b74e7 ("powerpc/compat_sys: swap hi/lo parts of 64-bit syscall args in LE mode")
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Rohan McLure <rmclure@linux.ibm.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220921065605.1051927-9-rmclure@linux.ibm.com
+And the observed values in 'partition_assist_page' make no sense at
+all. Fix the layout by padding the structure properly.
+
+Fixes: 68d1eb72ee99 ("x86/hyper-v: define struct hv_enlightened_vmcs and clean field bits")
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Link: https://lore.kernel.org/r/20220830133737.1539624-2-vkuznets@redhat.com
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/syscalls.h | 12 ++++++++++++
- arch/powerpc/kernel/sys_ppc32.c     | 14 +-------------
- arch/powerpc/kernel/syscalls.c      |  4 ++--
- 3 files changed, 15 insertions(+), 15 deletions(-)
+ arch/x86/include/asm/hyperv-tlfs.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/syscalls.h b/arch/powerpc/include/asm/syscalls.h
-index a2b13e55254f..da40219b303a 100644
---- a/arch/powerpc/include/asm/syscalls.h
-+++ b/arch/powerpc/include/asm/syscalls.h
-@@ -8,6 +8,18 @@
- #include <linux/types.h>
- #include <linux/compat.h>
+diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
+index 0a9407dc0859..6f0acc45e67a 100644
+--- a/arch/x86/include/asm/hyperv-tlfs.h
++++ b/arch/x86/include/asm/hyperv-tlfs.h
+@@ -546,7 +546,7 @@ struct hv_enlightened_vmcs {
+ 	u64 guest_rip;
  
-+/*
-+ * long long munging:
-+ * The 32 bit ABI passes long longs in an odd even register pair.
-+ * High and low parts are swapped depending on endian mode,
-+ * so define a macro (similar to mips linux32) to handle that.
-+ */
-+#ifdef __LITTLE_ENDIAN__
-+#define merge_64(low, high) (((u64)high << 32) | low)
-+#else
-+#define merge_64(high, low) (((u64)high << 32) | low)
-+#endif
-+
- struct rtas_args;
- 
- asmlinkage long sys_mmap(unsigned long addr, size_t len,
-diff --git a/arch/powerpc/kernel/sys_ppc32.c b/arch/powerpc/kernel/sys_ppc32.c
-index 16ff0399a257..719bfc6d1e3f 100644
---- a/arch/powerpc/kernel/sys_ppc32.c
-+++ b/arch/powerpc/kernel/sys_ppc32.c
-@@ -56,18 +56,6 @@ unsigned long compat_sys_mmap2(unsigned long addr, size_t len,
- 	return sys_mmap(addr, len, prot, flags, fd, pgoff << 12);
- }
- 
--/* 
-- * long long munging:
-- * The 32 bit ABI passes long longs in an odd even register pair.
-- * High and low parts are swapped depending on endian mode,
-- * so define a macro (similar to mips linux32) to handle that.
-- */
--#ifdef __LITTLE_ENDIAN__
--#define merge_64(low, high) ((u64)high << 32) | low
--#else
--#define merge_64(high, low) ((u64)high << 32) | low
--#endif
+ 	u32 hv_clean_fields;
+-	u32 hv_padding_32;
++	u32 padding32_1;
+ 	u32 hv_synthetic_controls;
+ 	struct {
+ 		u32 nested_flush_hypercall:1;
+@@ -554,7 +554,7 @@ struct hv_enlightened_vmcs {
+ 		u32 reserved:30;
+ 	}  __packed hv_enlightenments_control;
+ 	u32 hv_vp_id;
 -
- compat_ssize_t compat_sys_pread64(unsigned int fd, char __user *ubuf, compat_size_t count,
- 			     u32 reg6, u32 pos1, u32 pos2)
- {
-@@ -94,7 +82,7 @@ asmlinkage int compat_sys_truncate64(const char __user * path, u32 reg4,
- asmlinkage long compat_sys_fallocate(int fd, int mode, u32 offset1, u32 offset2,
- 				     u32 len1, u32 len2)
- {
--	return ksys_fallocate(fd, mode, ((loff_t)offset1 << 32) | offset2,
-+	return ksys_fallocate(fd, mode, merge_64(offset1, offset2),
- 			     merge_64(len1, len2));
- }
- 
-diff --git a/arch/powerpc/kernel/syscalls.c b/arch/powerpc/kernel/syscalls.c
-index fc999140bc27..abc3fbb3c490 100644
---- a/arch/powerpc/kernel/syscalls.c
-+++ b/arch/powerpc/kernel/syscalls.c
-@@ -98,8 +98,8 @@ long ppc64_personality(unsigned long personality)
- long ppc_fadvise64_64(int fd, int advice, u32 offset_high, u32 offset_low,
- 		      u32 len_high, u32 len_low)
- {
--	return ksys_fadvise64_64(fd, (u64)offset_high << 32 | offset_low,
--				 (u64)len_high << 32 | len_low, advice);
-+	return ksys_fadvise64_64(fd, merge_64(offset_high, offset_low),
-+				 merge_64(len_high, len_low), advice);
- }
- 
- SYSCALL_DEFINE0(switch_endian)
++	u32 padding32_2;
+ 	u64 hv_vm_id;
+ 	u64 partition_assist_page;
+ 	u64 padding64_4[4];
 -- 
 2.35.1
 
