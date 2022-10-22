@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E3AB608AA0
-	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 11:03:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A52C608A4B
+	for <lists+stable@lfdr.de>; Sat, 22 Oct 2022 10:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231305AbiJVJDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Oct 2022 05:03:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55652 "EHLO
+        id S234560AbiJVIuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Oct 2022 04:50:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235133AbiJVJCx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 05:02:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47B822F92A7;
-        Sat, 22 Oct 2022 01:17:59 -0700 (PDT)
+        with ESMTP id S234942AbiJVItM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Oct 2022 04:49:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB6211CDCF7;
+        Sat, 22 Oct 2022 01:10:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCBA0B82E46;
-        Sat, 22 Oct 2022 08:06:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AEDFC433C1;
-        Sat, 22 Oct 2022 08:06:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA65460ADD;
+        Sat, 22 Oct 2022 08:06:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A5AC433C1;
+        Sat, 22 Oct 2022 08:06:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666425994;
-        bh=lDR61PbfI7H5eQX4Ti6CnNOBp3xkPZ74M3x0TE5CuNE=;
+        s=korg; t=1666425997;
+        bh=AovMnUVFaDgnuucVmCvW2YnL6/FL1thsQNXgFxRaPiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y9KaCJvpcKC9gVt6+b9W4cpRPq1pA+aoUmN6grNW75TJpBLWV80/EV7pWk6PK2Yhj
-         9WlV+ezBNj8mRcVoSUyxXWDvFYco+BWJk8hmsEvfwXZR7kVRLXCNuTLQSIazX0yNzQ
-         f3C2r04zQXUs1AfxWb0v9OVU54bfvCF4bvzPUyuI=
+        b=UhWx7ZuL0GCwf3DQQCRPGWG0E85sH9tVyF78GhaOtezCnoYkPT+SytG6eyJ+SxF5N
+         kVjuo7+AMstmQjZpZAZKgO5Vt7yRkxqFSujerCxmbh8eKlW9jUOHSDjskXVHVuDzGb
+         /SmGJTOOrldwj5Qiy9JW4Qgf5z64FETrXSWLwNe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Arun Easi <aeasi@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 682/717] staging: rtl8723bs: fix a potential memory leak in rtw_init_cmd_priv()
-Date:   Sat, 22 Oct 2022 09:29:21 +0200
-Message-Id: <20221022072528.637631891@linuxfoundation.org>
+Subject: [PATCH 5.19 683/717] scsi: tracing: Fix compile error in trace_array calls when TRACING is disabled
+Date:   Sat, 22 Oct 2022 09:29:22 +0200
+Message-Id: <20221022072528.688051704@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
 References: <20221022072415.034382448@linuxfoundation.org>
@@ -52,76 +55,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit 708056fba733a73d926772ea4ce9a42d240345da ]
+[ Upstream commit 1a77dd1c2bb5d4a58c16d198cf593720787c02e4 ]
 
-In rtw_init_cmd_priv(), if `pcmdpriv->rsp_allocated_buf` is allocated
-in failure, then `pcmdpriv->cmd_allocated_buf` will be not properly
-released. Besides, considering there are only two error paths and the
-first one can directly return, so we do not need implicitly jump to the
-`exit` tag to execute the error handler.
+Fix this compilation error seen when CONFIG_TRACING is not enabled:
 
-So this patch added `kfree(pcmdpriv->cmd_allocated_buf);` on the error
-path to release the resource and simplified the return logic of
-rtw_init_cmd_priv(). As there is no proper device to test with, no runtime
-testing was performed.
+drivers/scsi/qla2xxx/qla_os.c: In function 'qla_trace_init':
+drivers/scsi/qla2xxx/qla_os.c:2854:25: error: implicit declaration of function
+'trace_array_get_by_name'; did you mean 'trace_array_set_clr_event'?
+[-Werror=implicit-function-declaration]
+ 2854 |         qla_trc_array = trace_array_get_by_name("qla2xxx");
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~
+      |                         trace_array_set_clr_event
 
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Link: https://lore.kernel.org/r/tencent_2B7931B79BA38E22205C5A09EFDF11E48805@qq.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/scsi/qla2xxx/qla_os.c: In function 'qla_trace_uninit':
+drivers/scsi/qla2xxx/qla_os.c:2869:9: error: implicit declaration of function
+'trace_array_put' [-Werror=implicit-function-declaration]
+ 2869 |         trace_array_put(qla_trc_array);
+      |         ^~~~~~~~~~~~~~~
+
+Link: https://lore.kernel.org/r/20220907233308.4153-2-aeasi@marvell.com
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/core/rtw_cmd.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ include/linux/trace.h | 36 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 34 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/rtl8723bs/core/rtw_cmd.c b/drivers/staging/rtl8723bs/core/rtw_cmd.c
-index b4170f64d118..03c2c66dbf66 100644
---- a/drivers/staging/rtl8723bs/core/rtw_cmd.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_cmd.c
-@@ -161,8 +161,6 @@ static struct cmd_hdl wlancmds[] = {
+diff --git a/include/linux/trace.h b/include/linux/trace.h
+index bf169612ffe1..b5e16e438448 100644
+--- a/include/linux/trace.h
++++ b/include/linux/trace.h
+@@ -2,8 +2,6 @@
+ #ifndef _LINUX_TRACE_H
+ #define _LINUX_TRACE_H
  
- int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
- {
--	int res = 0;
+-#ifdef CONFIG_TRACING
 -
- 	init_completion(&pcmdpriv->cmd_queue_comp);
- 	init_completion(&pcmdpriv->terminate_cmdthread_comp);
+ #define TRACE_EXPORT_FUNCTION	BIT(0)
+ #define TRACE_EXPORT_EVENT	BIT(1)
+ #define TRACE_EXPORT_MARKER	BIT(2)
+@@ -28,6 +26,8 @@ struct trace_export {
+ 	int flags;
+ };
  
-@@ -175,18 +173,16 @@ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
- 
- 	pcmdpriv->cmd_allocated_buf = rtw_zmalloc(MAX_CMDSZ + CMDBUFF_ALIGN_SZ);
- 
--	if (!pcmdpriv->cmd_allocated_buf) {
--		res = -ENOMEM;
--		goto exit;
--	}
-+	if (!pcmdpriv->cmd_allocated_buf)
-+		return -ENOMEM;
- 
- 	pcmdpriv->cmd_buf = pcmdpriv->cmd_allocated_buf  +  CMDBUFF_ALIGN_SZ - ((SIZE_PTR)(pcmdpriv->cmd_allocated_buf) & (CMDBUFF_ALIGN_SZ-1));
- 
- 	pcmdpriv->rsp_allocated_buf = rtw_zmalloc(MAX_RSPSZ + 4);
- 
- 	if (!pcmdpriv->rsp_allocated_buf) {
--		res = -ENOMEM;
--		goto exit;
-+		kfree(pcmdpriv->cmd_allocated_buf);
-+		return -ENOMEM;
- 	}
- 
- 	pcmdpriv->rsp_buf = pcmdpriv->rsp_allocated_buf  +  4 - ((SIZE_PTR)(pcmdpriv->rsp_allocated_buf) & 3);
-@@ -196,8 +192,8 @@ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
- 	pcmdpriv->rsp_cnt = 0;
- 
- 	mutex_init(&pcmdpriv->sctx_mutex);
--exit:
--	return res;
++#ifdef CONFIG_TRACING
 +
-+	return 0;
- }
+ int register_ftrace_export(struct trace_export *export);
+ int unregister_ftrace_export(struct trace_export *export);
  
- static void c2h_wk_callback(struct work_struct *work);
+@@ -48,6 +48,38 @@ void osnoise_arch_unregister(void);
+ void osnoise_trace_irq_entry(int id);
+ void osnoise_trace_irq_exit(int id, const char *desc);
+ 
++#else /* CONFIG_TRACING */
++static inline int register_ftrace_export(struct trace_export *export)
++{
++	return -EINVAL;
++}
++static inline int unregister_ftrace_export(struct trace_export *export)
++{
++	return 0;
++}
++static inline void trace_printk_init_buffers(void)
++{
++}
++static inline int trace_array_printk(struct trace_array *tr, unsigned long ip,
++				     const char *fmt, ...)
++{
++	return 0;
++}
++static inline int trace_array_init_printk(struct trace_array *tr)
++{
++	return -EINVAL;
++}
++static inline void trace_array_put(struct trace_array *tr)
++{
++}
++static inline struct trace_array *trace_array_get_by_name(const char *name)
++{
++	return NULL;
++}
++static inline int trace_array_destroy(struct trace_array *tr)
++{
++	return 0;
++}
+ #endif	/* CONFIG_TRACING */
+ 
+ #endif	/* _LINUX_TRACE_H */
 -- 
 2.35.1
 
