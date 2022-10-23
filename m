@@ -2,123 +2,260 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35DF160919A
-	for <lists+stable@lfdr.de>; Sun, 23 Oct 2022 09:19:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3596B6091BE
+	for <lists+stable@lfdr.de>; Sun, 23 Oct 2022 10:04:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbiJWHTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Oct 2022 03:19:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48198 "EHLO
+        id S229967AbiJWIE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Oct 2022 04:04:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230099AbiJWHTj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Oct 2022 03:19:39 -0400
-Received: from qproxy6-pub.mail.unifiedlayer.com (qproxy6-pub.mail.unifiedlayer.com [69.89.23.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 767341C13B
-        for <stable@vger.kernel.org>; Sun, 23 Oct 2022 00:19:32 -0700 (PDT)
-Received: from gproxy4-pub.mail.unifiedlayer.com (unknown [69.89.23.142])
-        by qproxy6.mail.unifiedlayer.com (Postfix) with ESMTP id 7D5868028B29
-        for <stable@vger.kernel.org>; Sun, 23 Oct 2022 07:19:30 +0000 (UTC)
-Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
-        by progateway6.mail.pro1.eigbox.com (Postfix) with ESMTP id 3C06F100468E3
-        for <stable@vger.kernel.org>; Sun, 23 Oct 2022 07:19:08 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id mVGFoxFtyEmXjmVGFoYOTU; Sun, 23 Oct 2022 07:19:08 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=EaQN/NqC c=1 sm=1 tr=0 ts=6354eaec
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=Qawa6l4ZSaYA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=JxDKmwEoSRjvXxoG5FAA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=aVkx20vnZwOpPqA7zPMX4wbm4r3jbOKmsnfFEU8MZCg=; b=hp/P9dCpPsCLQYfd/MPW4OLOm3
-        pU7SLvGIt5zH3p/qNpo43eT6Dk+z//YIgGnT3NXeFDjoX89Di+CRZHM/+82xecBf2gYRO6Z98D1qZ
-        qr+9dR650lTc+B0aBP/vxzROfmrOxDxB37PAHjXzuI+pjmLwHsNW2+JTrVHRn/pGIEvWf0DateHRZ
-        +5VO8PPFp1motX4jpkeJA4f4LqlvlIVF3TGAM4zN8ZI+x+3ngl/yv4DrV7rFCz3jwnBY6i2/bac9r
-        yk32B3WHtyyFZMqbMkj2vYsvbjUBhKuORz3mRVqNwlkqoeOU7KXGHNcZsfJPqnzWa5AgbE+5pGunu
-        uvE9wmXg==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:54916 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1omVGD-0047Cg-6O;
-        Sun, 23 Oct 2022 01:19:05 -0600
-Subject: Re: [PATCH 5.19 000/717] 5.19.17-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-References: <20221022072415.034382448@linuxfoundation.org>
-In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <0b246203-5aac-e9ad-6a17-561ab86ef708@w6rz.net>
-Date:   Sun, 23 Oct 2022 00:19:00 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S229908AbiJWIE3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Oct 2022 04:04:29 -0400
+X-Greylist: delayed 91692 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 23 Oct 2022 01:04:23 PDT
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C04CF67
+        for <stable@vger.kernel.org>; Sun, 23 Oct 2022 01:04:23 -0700 (PDT)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1omVy0-0000aE-UN; Sun, 23 Oct 2022 10:04:20 +0200
+Message-ID: <bbf7afe7-6ed2-6708-d302-4ba657444c45@leemhuis.info>
+Date:   Sun, 23 Oct 2022 10:04:20 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1omVGD-0047Cg-6O
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:54916
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+Content-Language: en-US, de-DE
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+Subject: [Regression] CPU stalls and eventually causes a complete system
+ freeze with 6.0.3 due to "video/aperture: Disable and unregister sysfb
+ devices via aperture helpers"
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        Andreas <andreas.thalhammer@linux.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        ML dri-devel <dri-devel@lists.freedesktop.org>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+To:     Thomas Zimmermann <tzimmermann@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1666512263;584c52bc;
+X-HE-SMSGID: 1omVy0-0000aE-UN
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/22/22 12:17 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.19.17 release.
-> There are 717 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Note, this will be the LAST 5.19.y kernel to be released.  Please move
-> to the 6.0.y kernel branch at this point in time, as after this is
-> released, this branch will be end-of-life.
->
-> Responses should be made by Mon, 24 Oct 2022 07:19:57 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.17-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Hi, this is your Linux kernel regression tracker speaking.
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+I noticed a regression report in bugzilla.kernel.org. As many (most?)
+kernel developer don't keep an eye on it, I decided to forward it by
+mail. Quoting from https://bugzilla.kernel.org/show_bug.cgi?id=216616  :
 
-Tested-by: Ron Economos <re@w6rz.net>
+>  Andreas 2022-10-22 14:25:32 UTC
+> 
+> Created attachment 303074 [details]
+> dmesg
+> 
+> 6.0.2 works.
+> 
+> On 6.0.3 the system is very sluggish with graphic glitches all over the place in KDE Plasma Desktop X11 (no graphic glitches when using Wayland, but also sluggish). SDDM works fine.
+> 
+> Hardware: Lenovo Legion 5 Pro 16ACH6H: AMD Ryzen 7 5800H "Cezanne", hybrid graphics AMD "Green Sardine" (Vega 8 GCN 5.1, AMDGPU) and Nvidia GeForce RTX 3070 Mobile (GA104M, not working with nouveau, I'm not using the proprietary nvidia driver).
+> 
+> [reply] [−] Comment 1 Andreas 2022-10-22 14:27:15 UTC
+> 
+> Created attachment 303075 [details]
+> my kernel .config for 6.0.3
+> 
+> Only was CONFIG_HID_TOPRE added in 6.0.3, otherwise it is identical as my .config for 6.0.2.
+> 
+> [reply] [−] Comment 2 Andreas 2022-10-22 14:51:23 UTC
+> 
+> In /var/log/Xorg.0.log the only obvious difference is the last line:
+> ---- snap
+> randr: falling back to unsynchronized pixmap sharing
+> ---- snap
+> The line is present when I boot with 6.0.3, but isn't when I boot 6.0.2.
+> 
+> (Obviously this is when I login to KDE with X11, not with Wayland, from SDDM.)
+> 
+> [reply] [−] Comment 3 Andreas 2022-10-22 22:10:19 UTC
+> 
+> I did a git bisect on stable kernels 5.0.3 as bad and 5.0.2 as good, this is the result:
+> 
+> cfecfc98a78d97a49807531b5b224459bda877de is the first bad commit
+> commit cfecfc98a78d97a49807531b5b224459bda877de (HEAD, refs/bisect/bad)
+> Author: Thomas Zimmermann <tzimmermann@suse.de>
+> Date:   Mon Jul 18 09:23:18 2022 +0200
+> 
+>     video/aperture: Disable and unregister sysfb devices via aperture helpers
+>     
+>     [ Upstream commit 5e01376124309b4dbd30d413f43c0d9c2f60edea ]
+>     
+>     Call sysfb_disable() before removing conflicting devices in aperture
+>     helpers. Fixes sysfb state if fbdev has been disabled.
+>     
+>     Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>     Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+>     Fixes: fb84efa28a48 ("drm/aperture: Run fbdev removal before internal helpers")
+> 
+> [reply] [−] Comment 4 Andreas 2022-10-22 22:11:51 UTC
+> 
+> Link to the suspect patch:
+> 
+> https://patchwork.freedesktop.org/patch/msgid/20220718072322.8927-8-tzimmermann@suse.de
+> (or https://patchwork.freedesktop.org/patch/494608/)
+> 
+> [reply] [−] Comment 5 Andreas 2022-10-22 22:38:14 UTC
+> 
+> Okay, so I reverted v2-07-11-video-aperture-Disable-and-unregister-sysfb-devices-via-aperture-helpers.patch on stable 5.0.3 and the fault is gone.
+> 
+> I always logged out immediately, which worked (even though everything is very very sluggish). Also, when I killed the X session within a couple of seconds (15 or so), no error was shown (I used "systemctl stop sddm" from another virtual console).
+> 
+> Noteworthy: I once compiled a kernel from within the Plasma Desktop, while it was sluggish. The kernel compiled alright. When it was finished I moved the mouse to reboot, at which point it completely froze and I had to hard-reset the system.
+> 
+> While still running, after > 15 seconds, the fault looked like this (dmesg):
+> ---- snap ----
+> rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: { 13-.... } 7 jiffies s: 165 root: 0x2000/.
+> rcu: blocking rcu_node structures (internal RCU debug):
+> Task dump for CPU 13:
+> task:X               state:R  running task     stack:    0 pid: 4242 ppid:  4228 flags:0x00000008
+> Call Trace:
+>  <TASK>
+>  ? commit_tail+0xd7/0x130
+>  ? drm_atomic_helper_commit+0x126/0x150
+>  ? drm_atomic_commit+0xa4/0xe0
+>  ? drm_plane_get_damage_clips.cold+0x1c/0x1c
+>  ? drm_atomic_helper_dirtyfb+0x19e/0x280
+>  ? drm_mode_dirtyfb_ioctl+0x10f/0x1e0
+>  ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+>  ? drm_ioctl_kernel+0xc4/0x150
+>  ? drm_ioctl+0x246/0x3f0
+>  ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+>  ? __x64_sys_ioctl+0x91/0xd0
+>  ? do_syscall_64+0x60/0xd0
+>  ? entry_SYSCALL_64_after_hwframe+0x4b/0xb5
+>  </TASK>
+> rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: { 13-.... } 29 jiffies s: 165 root: 0x2000/.
+> rcu: blocking rcu_node structures (internal RCU debug):
+> Task dump for CPU 13:
+> task:X               state:R  running task     stack:    0 pid: 4242 ppid:  4228 flags:0x00000008
+> Call Trace:
+>  <TASK>
+>  ? commit_tail+0xd7/0x130
+>  ? drm_atomic_helper_commit+0x126/0x150
+>  ? drm_atomic_commit+0xa4/0xe0
+>  ? drm_plane_get_damage_clips.cold+0x1c/0x1c
+>  ? drm_atomic_helper_dirtyfb+0x19e/0x280
+>  ? drm_mode_dirtyfb_ioctl+0x10f/0x1e0
+>  ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+>  ? drm_ioctl_kernel+0xc4/0x150
+>  ? drm_ioctl+0x246/0x3f0
+>  ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+>  ? __x64_sys_ioctl+0x91/0xd0
+>  ? do_syscall_64+0x60/0xd0
+>  ? entry_SYSCALL_64_after_hwframe+0x4b/0xb5
+>  </TASK>
+> rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: { 13-.... } 8 jiffies s: 169 root: 0x2000/.
+> rcu: blocking rcu_node structures (internal RCU debug):
+> Task dump for CPU 13:
+> task:X               state:R  running task     stack:    0 pid: 4242 ppid:  4228 flags:0x0000400e
+> Call Trace:
+>  <TASK>
+>  ? memcpy_toio+0x76/0xc0
+>  ? drm_fb_memcpy_toio+0x76/0xb0
+>  ? drm_fb_blit_toio+0x75/0x2b0
+>  ? simpledrm_simple_display_pipe_update+0x132/0x150
+>  ? drm_atomic_helper_commit_planes+0xb6/0x230
+>  ? drm_atomic_helper_commit_tail+0x44/0x80
+>  ? commit_tail+0xd7/0x130
+>  ? drm_atomic_helper_commit+0x126/0x150
+>  ? drm_atomic_commit+0xa4/0xe0
+>  ? drm_plane_get_damage_clips.cold+0x1c/0x1c
+>  ? drm_atomic_helper_dirtyfb+0x19e/0x280
+>  ? drm_mode_dirtyfb_ioctl+0x10f/0x1e0
+>  ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+>  ? drm_ioctl_kernel+0xc4/0x150
+>  ? drm_ioctl+0x246/0x3f0
+>  ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+>  ? __x64_sys_ioctl+0x91/0xd0
+>  ? do_syscall_64+0x60/0xd0
+>  ? entry_SYSCALL_64_after_hwframe+0x4b/0xb5
+>  </TASK>
+> rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: { 13-.... } 30 jiffies s: 169 root: 0x2000/.
+> rcu: blocking rcu_node structures (internal RCU debug):
+> Task dump for CPU 13:
+> task:X               state:R  running task     stack:    0 pid: 4242 ppid:  4228 flags:0x0000400e
+> Call Trace:
+>  <TASK>
+>  ? memcpy_toio+0x76/0xc0
+>  ? memcpy_toio+0x1b/0xc0
+>  ? drm_fb_memcpy_toio+0x76/0xb0
+>  ? drm_fb_blit_toio+0x75/0x2b0
+>  ? simpledrm_simple_display_pipe_update+0x132/0x150
+>  ? drm_atomic_helper_commit_planes+0xb6/0x230
+>  ? drm_atomic_helper_commit_tail+0x44/0x80
+>  ? commit_tail+0xd7/0x130
+>  ? drm_atomic_helper_commit+0x126/0x150
+>  ? drm_atomic_commit+0xa4/0xe0
+>  ? drm_plane_get_damage_clips.cold+0x1c/0x1c
+>  ? drm_atomic_helper_dirtyfb+0x19e/0x280
+>  ? drm_mode_dirtyfb_ioctl+0x10f/0x1e0
+>  ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+>  ? drm_ioctl_kernel+0xc4/0x150
+>  ? drm_ioctl+0x246/0x3f0
+>  ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+>  ? __x64_sys_ioctl+0x91/0xd0
+>  ? do_syscall_64+0x60/0xd0
+>  ? entry_SYSCALL_64_after_hwframe+0x4b/0xb5
+>  </TASK>
+> rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: { 13-.... } 52 jiffies s: 169 root: 0x2000/.
+> rcu: blocking rcu_node structures (internal RCU debug):
+> Task dump for CPU 13:
+> task:X               state:R  running task     stack:    0 pid: 4242 ppid:  4228 flags:0x0000400e
+> Call Trace:
+>  <TASK>
+>  ? memcpy_toio+0x76/0xc0
+>  ? memcpy_toio+0x1b/0xc0
+>  ? drm_fb_memcpy_toio+0x76/0xb0
+>  ? drm_fb_blit_toio+0x75/0x2b0
+>  ? simpledrm_simple_display_pipe_update+0x132/0x150
+>  ? drm_atomic_helper_commit_planes+0xb6/0x230
+>  ? drm_atomic_helper_commit_tail+0x44/0x80
+>  ? commit_tail+0xd7/0x130
+>  ? drm_atomic_helper_commit+0x126/0x150
+>  ? drm_atomic_commit+0xa4/0xe0
+>  ? drm_plane_get_damage_clips.cold+0x1c/0x1c
+>  ? drm_atomic_helper_dirtyfb+0x19e/0x280
+>  ? drm_mode_dirtyfb_ioctl+0x10f/0x1e0
+>  ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+>  ? drm_ioctl_kernel+0xc4/0x150
+>  ? drm_ioctl+0x246/0x3f0
+>  ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+>  ? __x64_sys_ioctl+0x91/0xd0
+>  ? do_syscall_64+0x60/0xd0
+>  ? entry_SYSCALL_64_after_hwframe+0x4b/0xb5
+>  </TASK>
+> traps: avahi-ml[4447] general protection fault ip:7fdde6a37bc1 sp:7fdde07fc920 error:0 in module-zeroconf-publish.so[7fdde6a37000+3000]
+> 
 
+See the ticket for more details.
+
+BTW, let me use this mail to also add the report to the list of tracked
+regressions to ensure it's doesn't fall through the cracks:
+
+#regzbot introduced: cfecfc98a78d9
+https://bugzilla.kernel.org/show_bug.cgi?id=216616
+#regzbot ignore-activity
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+
+P.S.: As the Linux kernel's regression tracker I deal with a lot of
+reports and sometimes miss something important when writing mails like
+this. If that's the case here, don't hesitate to tell me in a public
+reply, it's in everyone's interest to set the public record straight.
