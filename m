@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A4F660A282
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:44:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2569E60A27B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:44:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230127AbiJXLox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:44:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40036 "EHLO
+        id S231222AbiJXLos (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:44:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231547AbiJXLn7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:43:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EE5F72EE6;
-        Mon, 24 Oct 2022 04:41:10 -0700 (PDT)
+        with ESMTP id S231491AbiJXLnv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:43:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04BB2722AE;
+        Mon, 24 Oct 2022 04:41:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63AA861269;
-        Mon, 24 Oct 2022 11:38:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 783E7C433C1;
-        Mon, 24 Oct 2022 11:38:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2D53B8114B;
+        Mon, 24 Oct 2022 11:38:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CBC9C433C1;
+        Mon, 24 Oct 2022 11:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611534;
-        bh=0AuyllYZlLRotjtidRW8mqdtseZlGF9ZjfVRkz43LCk=;
+        s=korg; t=1666611537;
+        bh=CGBcvrQd/p0n6IUwX80bJdyxLJsrY696W1INoFA4j84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQchmsv8kep718eXb3ifsyoTImF0CQq2iGinM/ratv5SFTjP/I9YWwBCzF7sx3cM+
-         XklZmbO6z+yA5P4UDlg9zFSxymPAflcvRMRikrgYGNEP6onB0hkeBK7UWP2rapge1+
-         ympP0Mslcq+/5LNd0LX4/8u+2q7I/jRoH2xYxwfQ=
+        b=0gnxS6m7c23VYeF+/Fv7gBDNIpPS/L+hAZDAvoeIRDx9YgWr8eKEl/B+kHwrMQNZb
+         f8l+Iu5Dl9kZMZTs8TJluj8m/nKSgJseQbJULHTPvo+DkW5YzfNBDV5BEjgi8FjUQZ
+         jgdqJnPnJvy1ANMdCmzBJ8aXbS02wu8kRO6WbhO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        stable <stable@kernel.org>,
-        Hongling Zeng <zenghongling@kylinos.cn>
-Subject: [PATCH 4.9 003/159] uas: ignore UAS for Thinkplus chips
-Date:   Mon, 24 Oct 2022 13:29:17 +0200
-Message-Id: <20221024112949.481436244@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 004/159] net: usb: qmi_wwan: Add new usb-id for Dell branded EM7455
+Date:   Mon, 24 Oct 2022 13:29:18 +0200
+Message-Id: <20221024112949.530220698@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -53,60 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongling Zeng <zenghongling@kylinos.cn>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-commit 0fb9703a3eade0bb84c635705d9c795345e55053 upstream.
+commit 797666cd5af041ffb66642fff62f7389f08566a2 upstream.
 
-The UAS mode of Thinkplus(0x17ef, 0x3899) is reported to influence
-performance and trigger kernel panic on several platforms with the
-following error message:
+Add support for Dell 5811e (EM7455) with USB-id 0x413c:0x81c2.
 
-[   39.702439] xhci_hcd 0000:0c:00.3: ERROR Transfer event for disabled
-               endpoint or incorrect stream ring
-[   39.702442] xhci_hcd 0000:0c:00.3: @000000026c61f810 00000000 00000000
-               1b000000 05038000
-
-[  720.545894][13] Workqueue: usb_hub_wq hub_event
-[  720.550971][13]  ffff88026c143c38 0000000000016300 ffff8802755bb900 ffff880
-                    26cb80000
-[  720.559673][13]  ffff88026c144000 ffff88026ca88100 0000000000000000 ffff880
-                    26cb80000
-[  720.568374][13]  ffff88026cb80000 ffff88026c143c50 ffffffff8186ae25 ffff880
-                    26ca880f8
-[  720.577076][13] Call Trace:
-[  720.580201][13]  [<ffffffff8186ae25>] schedule+0x35/0x80
-[  720.586137][13]  [<ffffffff8186b0ce>] schedule_preempt_disabled+0xe/0x10
-[  720.593623][13]  [<ffffffff8186cb94>] __mutex_lock_slowpath+0x164/0x1e0
-[  720.601012][13]  [<ffffffff8186cc3f>] mutex_lock+0x2f/0x40
-[  720.607141][13]  [<ffffffff8162b8e9>] usb_disconnect+0x59/0x290
-
-Falling back to USB mass storage can solve this problem, so ignore UAS
-function of this chip.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Hongling Zeng <zenghongling@kylinos.cn>
-Link: https://lore.kernel.org/r/1663902249837086.19.seg@mailgw
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Cc: stable@vger.kernel.org
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20220926150740.6684-3-linux@fw-web.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_uas.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -198,6 +198,13 @@ UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x99
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_NO_ATA_1X),
- 
-+/* Reported-by: Hongling Zeng <zenghongling@kylinos.cn> */
-+UNUSUAL_DEV(0x17ef, 0x3899, 0x0000, 0x9999,
-+		"Thinkplus",
-+		"External HDD",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
-+
- /* Reported-by: Hans de Goede <hdegoede@redhat.com> */
- UNUSUAL_DEV(0x2109, 0x0711, 0x0000, 0x9999,
- 		"VIA",
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -966,6 +966,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x413c, 0x81b3, 8)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
+ 	{QMI_FIXED_INTF(0x413c, 0x81b6, 8)},	/* Dell Wireless 5811e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81b6, 10)},	/* Dell Wireless 5811e */
++	{QMI_FIXED_INTF(0x413c, 0x81c2, 8)},	/* Dell Wireless 5811e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81cc, 8)},	/* Dell Wireless 5816e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81d7, 1)},	/* Dell Wireless 5821e preproduction config */
 
 
