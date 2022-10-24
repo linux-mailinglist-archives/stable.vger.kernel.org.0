@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8470260AD14
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:18:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9CC560AD07
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234776AbiJXORh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:17:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36976 "EHLO
+        id S234608AbiJXORZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:17:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235547AbiJXOOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:14:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B43F10B46;
-        Mon, 24 Oct 2022 05:54:40 -0700 (PDT)
+        with ESMTP id S235442AbiJXOOp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:14:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B9FAF5AC;
+        Mon, 24 Oct 2022 05:54:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6649761323;
-        Mon, 24 Oct 2022 12:16:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EFBFC433C1;
-        Mon, 24 Oct 2022 12:16:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F8F861330;
+        Mon, 24 Oct 2022 12:37:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8035BC433D6;
+        Mon, 24 Oct 2022 12:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613786;
-        bh=iHjA9UZZEe3lNIcO82e1PBlGNygInJEsytiPcnt3KpA=;
+        s=korg; t=1666615046;
+        bh=lA0JoAyBfqKQ2fpj8FNAGAyuZ3ZEHwQ7RpJkvR7YOiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VpBqEwO7rAuwJ95XTA0CztlhAcqJOrLBb5Ph2z3s/PesDh/KAFqFzXaMzy5l5ESqr
-         tCWqYgoVl5Z/GbPRg4IEm6CYw2Jxm6JLmGIdAKjKY9/OAXzQzYyhoCt++6x42nRKOT
-         9SB6kdFUmAyRfhKTbdy7oi6ysP8Jj5DxD0x5hbUI=
+        b=ZepKnfI5V33cgnj7/kVc851PD4zl5SgLI6ikHyTC9kLgsKlPv/UfSA8R73X8yyCZj
+         7LBm+qU19JzkHDz6l9IwXwjMJmQR00Y2IhV+7BkQGLm+UdINoxKh7feUbhi0wUYVct
+         +wfMuReABvn46D9Jw4JDyRKAnIJ59fM3R0JoMSlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 014/390] iio: adc: ad7923: fix channel readings for some variants
-Date:   Mon, 24 Oct 2022 13:26:51 +0200
-Message-Id: <20221024113023.162341121@linuxfoundation.org>
+        stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
+        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.15 072/530] gpio: rockchip: request GPIO mux to pinctrl when setting direction
+Date:   Mon, 24 Oct 2022 13:26:56 +0200
+Message-Id: <20221024113048.278272143@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
 
-commit f4f43f01cff2f29779343ade755191afd2581c77 upstream.
+commit 8ea8af6c8469156ac2042d83d73f6b74eb4b4b45 upstream.
 
-Some of the supported devices have 4 or 2 LSB trailing bits that should
-not be taken into account. Hence we need to shift these bits out which
-fits perfectly on the scan type shift property. This change fixes both
-raw and buffered reads.
+Before the split of gpio and pinctrl sections in their own driver,
+rockchip_set_mux was called in pinmux_ops.gpio_set_direction for
+configuring a pin in its GPIO function.
 
-Fixes: f2f7a449707e ("iio:adc:ad7923: Add support for the ad7904/ad7914/ad7924")
-Fixes: 851644a60d20 ("iio: adc: ad7923: Add support for the ad7908/ad7918/ad7928")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20220912081223.173584-2-nuno.sa@analog.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+This is essential for cases where pinctrl is "bypassed" by gpio
+consumers otherwise the GPIO function is not configured for the pin and
+it does not work. Such was the case for the sysfs/libgpiod userspace
+GPIO handling.
+
+Let's call pinctrl_gpio_direction_input/output when setting the
+direction of a GPIO so that the pinctrl core requests from the rockchip
+pinctrl driver to put the pin in its GPIO function.
+
+Fixes: 9ce9a02039de ("pinctrl/rockchip: drop the gpio related codes")
+Fixes: 936ee2675eee ("gpio/rockchip: add driver for rockchip gpio")
+Cc: stable@vger.kernel.org
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20220930132033.4003377-3-foss+kernel@0leil.net
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ad7923.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-rockchip.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/iio/adc/ad7923.c
-+++ b/drivers/iio/adc/ad7923.c
-@@ -93,6 +93,7 @@ enum ad7923_id {
- 			.sign = 'u',					\
- 			.realbits = (bits),				\
- 			.storagebits = 16,				\
-+			.shift = 12 - (bits),				\
- 			.endianness = IIO_BE,				\
- 		},							\
- 	}
-@@ -274,7 +275,8 @@ static int ad7923_read_raw(struct iio_de
- 			return ret;
+--- a/drivers/gpio/gpio-rockchip.c
++++ b/drivers/gpio/gpio-rockchip.c
+@@ -19,6 +19,7 @@
+ #include <linux/of_address.h>
+ #include <linux/of_device.h>
+ #include <linux/of_irq.h>
++#include <linux/pinctrl/consumer.h>
+ #include <linux/pinctrl/pinconf-generic.h>
+ #include <linux/regmap.h>
  
- 		if (chan->address == EXTRACT(ret, 12, 4))
--			*val = EXTRACT(ret, 0, 12);
-+			*val = EXTRACT(ret, chan->scan_type.shift,
-+				       chan->scan_type.realbits);
- 		else
- 			return -EIO;
+@@ -155,6 +156,12 @@ static int rockchip_gpio_set_direction(s
+ 	unsigned long flags;
+ 	u32 data = input ? 0 : 1;
  
++
++	if (input)
++		pinctrl_gpio_direction_input(bank->pin_base + offset);
++	else
++		pinctrl_gpio_direction_output(bank->pin_base + offset);
++
+ 	raw_spin_lock_irqsave(&bank->slock, flags);
+ 	rockchip_gpio_writel_bit(bank, offset, data, bank->gpio_regs->port_ddr);
+ 	raw_spin_unlock_irqrestore(&bank->slock, flags);
 
 
