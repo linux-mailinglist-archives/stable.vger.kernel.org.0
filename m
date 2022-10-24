@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A44760A572
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:25:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B813E60A7B5
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:56:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233374AbiJXMYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:24:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42812 "EHLO
+        id S231911AbiJXMzz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:55:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233674AbiJXMYC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:24:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C7732D772;
-        Mon, 24 Oct 2022 04:59:59 -0700 (PDT)
+        with ESMTP id S234554AbiJXMzX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:55:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB764E634;
+        Mon, 24 Oct 2022 05:15:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1320CB811D2;
-        Mon, 24 Oct 2022 11:55:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60B3AC433C1;
-        Mon, 24 Oct 2022 11:55:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C056612CA;
+        Mon, 24 Oct 2022 12:06:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A856C433D7;
+        Mon, 24 Oct 2022 12:06:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612552;
-        bh=VMRx9wwHDaT/MiBy+1sQ0ULWsCHQy9lDoV0BLn6XwFo=;
+        s=korg; t=1666613182;
+        bh=047Q3mGb+D9Rqs3g/v7llmzjHPdZKzlZ4a+uHakLGiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nyTKwyOgbjQpsUVQ7A7Ii3XP5K80AFrkSc7bqnVJ/OrZ+D4kyGvaXslbAjju8Io+O
-         L7cH9oUdFhr4urG98Bj7l9ldsyYfTSEU/pcoNlj5ivlssXVgdSibqN5HM3YPbm3Lm7
-         xXR2hL1opmvTNXuXOU+NzTbi61tSgQFHeYNlku9A=
+        b=RBqbMcH1TtzHTcKCwv78dFGYi3g7eT8spQf/Xia0d6l81dhWVmnytbbgXag6pWoti
+         n896QBm9PiuTuc3m61kyTa+hpPHT8RUQxK485XdME9ta6fXmJVzHS+4wWAITa6pFpB
+         UgL4Hx08XhnkhD6wuHRgzRMNMwqGLwbrYzmhTa/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>,
-        Pavel Rojtberg <rojtberg@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 031/229] Input: xpad - fix wireless 360 controller breaking after suspend
+        stable@vger.kernel.org, stable@kernel.org,
+        Alexey Lyashkov <alexey.lyashkov@gmail.com>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 040/255] jbd2: wake up journal waiters in FIFO order, not LIFO
 Date:   Mon, 24 Oct 2022 13:29:10 +0200
-Message-Id: <20221024113000.128741561@linuxfoundation.org>
+Message-Id: <20221024113003.764929384@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cameron Gutman <aicommander@gmail.com>
+From: Andrew Perepechko <anserper@ya.ru>
 
-commit a17b9841152e7f4621619902b347e2cc39c32996 upstream.
+commit 34fc8768ec6089565d6d73bad26724083cecf7bd upstream.
 
-Suspending and resuming the system can sometimes cause the out
-URB to get hung after a reset_resume. This causes LED setting
-and force feedback to break on resume. To avoid this, just drop
-the reset_resume callback so the USB core rebinds xpad to the
-wireless pads on resume if a reset happened.
+LIFO wakeup order is unfair and sometimes leads to a journal
+user not being able to get a journal handle for hundreds of
+transactions in a row.
 
-A nice side effect of this change is the LED ring on wireless
-controllers is now set correctly on system resume.
+FIFO wakeup can make things more fair.
 
-Cc: stable@vger.kernel.org
-Fixes: 4220f7db1e42 ("Input: xpad - workaround dead irq_out after suspend/ resume")
-Signed-off-by: Cameron Gutman <aicommander@gmail.com>
-Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
-Link: https://lore.kernel.org/r/20220818154411.510308-3-rojtberg@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: stable@kernel.org
+Signed-off-by: Alexey Lyashkov <alexey.lyashkov@gmail.com>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220907165959.1137482-1-alexey.lyashkov@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c |    1 -
- 1 file changed, 1 deletion(-)
+ fs/jbd2/commit.c      |    2 +-
+ fs/jbd2/transaction.c |    6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1997,7 +1997,6 @@ static struct usb_driver xpad_driver = {
- 	.disconnect	= xpad_disconnect,
- 	.suspend	= xpad_suspend,
- 	.resume		= xpad_resume,
--	.reset_resume	= xpad_resume,
- 	.id_table	= xpad_table,
- };
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -531,7 +531,7 @@ void jbd2_journal_commit_transaction(jou
+ 	journal->j_running_transaction = NULL;
+ 	start_time = ktime_get();
+ 	commit_transaction->t_log_start = journal->j_head;
+-	wake_up(&journal->j_wait_transaction_locked);
++	wake_up_all(&journal->j_wait_transaction_locked);
+ 	write_unlock(&journal->j_state_lock);
  
+ 	jbd_debug(3, "JBD2: commit phase 2a\n");
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -149,7 +149,7 @@ static void wait_transaction_locked(jour
+ 	int need_to_start;
+ 	tid_t tid = journal->j_running_transaction->t_tid;
+ 
+-	prepare_to_wait(&journal->j_wait_transaction_locked, &wait,
++	prepare_to_wait_exclusive(&journal->j_wait_transaction_locked, &wait,
+ 			TASK_UNINTERRUPTIBLE);
+ 	need_to_start = !tid_geq(journal->j_commit_request, tid);
+ 	read_unlock(&journal->j_state_lock);
+@@ -175,7 +175,7 @@ static void wait_transaction_switching(j
+ 		read_unlock(&journal->j_state_lock);
+ 		return;
+ 	}
+-	prepare_to_wait(&journal->j_wait_transaction_locked, &wait,
++	prepare_to_wait_exclusive(&journal->j_wait_transaction_locked, &wait,
+ 			TASK_UNINTERRUPTIBLE);
+ 	read_unlock(&journal->j_state_lock);
+ 	/*
+@@ -810,7 +810,7 @@ void jbd2_journal_unlock_updates (journa
+ 	write_lock(&journal->j_state_lock);
+ 	--journal->j_barrier_count;
+ 	write_unlock(&journal->j_state_lock);
+-	wake_up(&journal->j_wait_transaction_locked);
++	wake_up_all(&journal->j_wait_transaction_locked);
+ }
+ 
+ static void warn_dirty_buffer(struct buffer_head *bh)
 
 
