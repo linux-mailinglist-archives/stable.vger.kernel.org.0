@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F56960B805
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:40:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3772660B85E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:44:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233251AbiJXTkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:40:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33888 "EHLO
+        id S231472AbiJXTof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:44:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233290AbiJXTkK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:40:10 -0400
+        with ESMTP id S231286AbiJXTnT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:43:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90608100BEC;
-        Mon, 24 Oct 2022 11:10:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E1E6D8F70;
+        Mon, 24 Oct 2022 11:11:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB9D2B818D8;
-        Mon, 24 Oct 2022 12:37:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11200C433C1;
-        Mon, 24 Oct 2022 12:37:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26AC8B818D4;
+        Mon, 24 Oct 2022 12:38:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A2D1C43142;
+        Mon, 24 Oct 2022 12:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615062;
-        bh=9dV24TvSlpDgVsxGRinEj/gKG+RDtyGeSFeR1vF2EeM=;
+        s=korg; t=1666615085;
+        bh=a6b1NSqvH/b6gAlJZYFh0Q5qf/RCTEE7cuX29pmcyhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RiN2lgr9U/L+OorRl+0QshJavJjRZp3Gogq4yBtEQu32wmCwWW9W6asvyCwBrFd8g
-         ymVLynZQXriRtEt4Iwv5T8p4btKtdXoSUC2KIfR/tvjO4hitcatctsMyWfGiWIFMSt
-         H6xXahw6bfsb3O9DoMKOngn4icRuWerPS+w3aBOk=
+        b=Lkk6hxfPEwMTmn9CODMHCKxhGUNzocfNQEsinpTlkkWqqrm16+MULxi039R6WVlQJ
+         eKmRIzEFdx73xmZyU38V52NtUVCL+DQJBuGoznCC1wdvJ7pOA9ukFo9ZaopEOevsEV
+         +hzTSqwv+y+E4GBb0/ivvkJAKqCCRw50ryTc6Zes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Tom Zanussi <zanussi@kernel.org>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 108/530] ring-buffer: Check pending waiters when doing wake ups as well
-Date:   Mon, 24 Oct 2022 13:27:32 +0200
-Message-Id: <20221024113049.913942543@linuxfoundation.org>
+Subject: [PATCH 5.15 116/530] tracing: Add "(fault)" name injection to kernel probes
+Date:   Mon, 24 Oct 2022 13:27:40 +0200
+Message-Id: <20221024113050.287827419@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -55,43 +56,96 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit ec0bbc5ec5664dcee344f79373852117dc672c86 upstream.
+commit 2e9906f84fc7c99388bb7123ade167250d50f1c0 upstream.
 
-The wake up waiters only checks the "wakeup_full" variable and not the
-"full_waiters_pending". The full_waiters_pending is set when a waiter is
-added to the wait queue. The wakeup_full is only set when an event is
-triggered, and it clears the full_waiters_pending to avoid multiple calls
-to irq_work_queue().
+Have the specific functions for kernel probes that read strings to inject
+the "(fault)" name directly. trace_probes.c does this too (for uprobes)
+but as the code to read strings are going to be used by synthetic events
+(and perhaps other utilities), it simplifies the code by making sure those
+other uses do not need to implement the "(fault)" name injection as well.
 
-The irq_work callback really needs to check both wakeup_full as well as
-full_waiters_pending such that this code can be used to wake up waiters
-when a file is closed that represents the ring buffer and the waiters need
-to be woken up.
-
-Link: https://lkml.kernel.org/r/20220927231824.209460321@goodmis.org
+Link: https://lkml.kernel.org/r/20221012104534.644803645@goodmis.org
 
 Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>
-Fixes: 15693458c4bc0 ("tracing/ring-buffer: Move poll wake ups into ring buffer code")
+Cc: Tom Zanussi <zanussi@kernel.org>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Reviewed-by: Tom Zanussi <zanussi@kernel.org>
+Fixes: bd82631d7ccdc ("tracing: Add support for dynamic strings to synthetic events")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/trace/trace_probe_kernel.h |   31 +++++++++++++++++++++++++------
+ 1 file changed, 25 insertions(+), 6 deletions(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -881,8 +881,9 @@ static void rb_wake_up_waiters(struct ir
- 	struct rb_irq_work *rbwork = container_of(work, struct rb_irq_work, work);
+--- a/kernel/trace/trace_probe_kernel.h
++++ b/kernel/trace/trace_probe_kernel.h
+@@ -2,6 +2,8 @@
+ #ifndef __TRACE_PROBE_KERNEL_H_
+ #define __TRACE_PROBE_KERNEL_H_
  
- 	wake_up_all(&rbwork->waiters);
--	if (rbwork->wakeup_full) {
-+	if (rbwork->full_waiters_pending || rbwork->wakeup_full) {
- 		rbwork->wakeup_full = false;
-+		rbwork->full_waiters_pending = false;
- 		wake_up_all(&rbwork->full_waiters);
- 	}
++#define FAULT_STRING "(fault)"
++
+ /*
+  * This depends on trace_probe.h, but can not include it due to
+  * the way trace_probe_tmpl.h is used by trace_kprobe.c and trace_eprobe.c.
+@@ -13,8 +15,16 @@ static nokprobe_inline int
+ kern_fetch_store_strlen_user(unsigned long addr)
+ {
+ 	const void __user *uaddr =  (__force const void __user *)addr;
++	int ret;
+ 
+-	return strnlen_user_nofault(uaddr, MAX_STRING_SIZE);
++	ret = strnlen_user_nofault(uaddr, MAX_STRING_SIZE);
++	/*
++	 * strnlen_user_nofault returns zero on fault, insert the
++	 * FAULT_STRING when that occurs.
++	 */
++	if (ret <= 0)
++		return strlen(FAULT_STRING) + 1;
++	return ret;
+ }
+ 
+ /* Return the length of string -- including null terminal byte */
+@@ -34,7 +44,18 @@ kern_fetch_store_strlen(unsigned long ad
+ 		len++;
+ 	} while (c && ret == 0 && len < MAX_STRING_SIZE);
+ 
+-	return (ret < 0) ? ret : len;
++	/* For faults, return enough to hold the FAULT_STRING */
++	return (ret < 0) ? strlen(FAULT_STRING) + 1 : len;
++}
++
++static nokprobe_inline void set_data_loc(int ret, void *dest, void *__dest, void *base, int len)
++{
++	if (ret >= 0) {
++		*(u32 *)dest = make_data_loc(ret, __dest - base);
++	} else {
++		strscpy(__dest, FAULT_STRING, len);
++		ret = strlen(__dest) + 1;
++	}
+ }
+ 
+ /*
+@@ -55,8 +76,7 @@ kern_fetch_store_string_user(unsigned lo
+ 	__dest = get_loc_data(dest, base);
+ 
+ 	ret = strncpy_from_user_nofault(__dest, uaddr, maxlen);
+-	if (ret >= 0)
+-		*(u32 *)dest = make_data_loc(ret, __dest - base);
++	set_data_loc(ret, dest, __dest, base, maxlen);
+ 
+ 	return ret;
+ }
+@@ -87,8 +107,7 @@ kern_fetch_store_string(unsigned long ad
+ 	 * probing.
+ 	 */
+ 	ret = strncpy_from_kernel_nofault(__dest, (void *)addr, maxlen);
+-	if (ret >= 0)
+-		*(u32 *)dest = make_data_loc(ret, __dest - base);
++	set_data_loc(ret, dest, __dest, base, maxlen);
+ 
+ 	return ret;
  }
 
 
