@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3770A60AB43
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:47:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D73AA60AB46
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:48:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236285AbiJXNrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:47:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42904 "EHLO
+        id S236489AbiJXNsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:48:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236325AbiJXNqC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:46:02 -0400
+        with ESMTP id S236387AbiJXNq2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:46:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F6452808;
-        Mon, 24 Oct 2022 05:40:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0DC93640C;
+        Mon, 24 Oct 2022 05:40:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A651612B9;
-        Mon, 24 Oct 2022 12:39:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BED9C433D6;
-        Mon, 24 Oct 2022 12:39:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADAF0612E7;
+        Mon, 24 Oct 2022 12:39:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0BABC433D6;
+        Mon, 24 Oct 2022 12:39:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615177;
-        bh=A7BlILwg72M1EmbA1f/X+SRvG6p9eP2j0ab0qNOaeAs=;
+        s=korg; t=1666615180;
+        bh=yPRuM1u1faHElFFGE373PtSuyxKcSUMFtcQMtPH069k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmWysIoGES3QlQ8HAaQe/hLOOY3DZTsBhRhTXc3BLG2Z2v29vbZP8mlm5UOpc8TCI
-         DHazDQZ47mIHU99FPWHjHLggNzeWrGEXj2h7pYGlt95ijXhSSsC8MvuEtXmcCVg4Qb
-         MQcCzJ1OFUxkwmRBdLCp6Pbe4vehqZMn7Gn9x4NA=
+        b=ch3AYJUUxOOsniqJSsXOZahA5bY1zMxXtE/CMp719LUfIT97GY6vgdqjbr1NstEjb
+         zIEdrH4JeCVd1TJj4AJb8pjU8traWwNIH95euAiDL2QPF9OqlICEvL+WlhecDpEA3d
+         IK7QehDSSOvkT84p6BsfO2/paAlrRepi0LPWF3xg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 151/530] wifi: rtlwifi: 8192de: correct checking of IQK reload
-Date:   Mon, 24 Oct 2022 13:28:15 +0200
-Message-Id: <20221024113051.900839576@linuxfoundation.org>
+        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 152/530] wifi: ath10k: add peer map clean up for peer delete in ath10k_sta_state()
+Date:   Mon, 24 Oct 2022 13:28:16 +0200
+Message-Id: <20221024113051.934323843@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -52,50 +53,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Wen Gong <quic_wgong@quicinc.com>
 
-[ Upstream commit 93fbc1ebd978cf408ef5765e9c1630fce9a8621b ]
+[ Upstream commit f020d9570a04df0762a2ac5c50cf1d8c511c9164 ]
 
-Since IQK could spend time, we make a cache of IQK result matrix that looks
-like iqk_matrix[channel_idx].val[x][y], and we can reload the matrix if we
-have made a cache. To determine a cache is made, we check
-iqk_matrix[channel_idx].val[0][0].
+When peer delete failed in a disconnect operation, use-after-free
+detected by KFENCE in below log. It is because for each vdev_id and
+address, it has only one struct ath10k_peer, it is allocated in
+ath10k_peer_map_event(). When connected to an AP, it has more than
+one HTT_T2H_MSG_TYPE_PEER_MAP reported from firmware, then the
+array peer_map of struct ath10k will be set muti-elements to the
+same ath10k_peer in ath10k_peer_map_event(). When peer delete failed
+in ath10k_sta_state(), the ath10k_peer will be free for the 1st peer
+id in array peer_map of struct ath10k, and then use-after-free happened
+for the 2nd peer id because they map to the same ath10k_peer.
 
-The initial commit 7274a8c22980 ("rtlwifi: rtl8192de: Merge phy routines")
-make a mistake that checks incorrect iqk_matrix[channel_idx].val[0] that
-is always true, and this mistake is found by commit ee3db469dd31
-("wifi: rtlwifi: remove always-true condition pointed out by GCC 12"), so
-I recall the vendor driver to find fix and apply the correctness.
+And clean up all peers in array peer_map for the ath10k_peer, then
+user-after-free disappeared
 
-Fixes: 7274a8c22980 ("rtlwifi: rtl8192de: Merge phy routines")
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220801113345.42016-1-pkshih@realtek.com
+peer map event log:
+[  306.911021] wlan0: authenticate with b0:2a:43:e6:75:0e
+[  306.957187] ath10k_pci 0000:01:00.0: mac vdev 0 peer create b0:2a:43:e6:75:0e (new sta) sta 1 / 32 peer 1 / 33
+[  306.957395] ath10k_pci 0000:01:00.0: htt peer map vdev 0 peer b0:2a:43:e6:75:0e id 246
+[  306.957404] ath10k_pci 0000:01:00.0: htt peer map vdev 0 peer b0:2a:43:e6:75:0e id 198
+[  306.986924] ath10k_pci 0000:01:00.0: htt peer map vdev 0 peer b0:2a:43:e6:75:0e id 166
+
+peer unmap event log:
+[  435.715691] wlan0: deauthenticating from b0:2a:43:e6:75:0e by local choice (Reason: 3=DEAUTH_LEAVING)
+[  435.716802] ath10k_pci 0000:01:00.0: mac vdev 0 peer delete b0:2a:43:e6:75:0e sta ffff990e0e9c2b50 (sta gone)
+[  435.717177] ath10k_pci 0000:01:00.0: htt peer unmap vdev 0 peer b0:2a:43:e6:75:0e id 246
+[  435.717186] ath10k_pci 0000:01:00.0: htt peer unmap vdev 0 peer b0:2a:43:e6:75:0e id 198
+[  435.717193] ath10k_pci 0000:01:00.0: htt peer unmap vdev 0 peer b0:2a:43:e6:75:0e id 166
+
+use-after-free log:
+[21705.888627] wlan0: deauthenticating from d0:76:8f:82:be:75 by local choice (Reason: 3=DEAUTH_LEAVING)
+[21713.799910] ath10k_pci 0000:01:00.0: failed to delete peer d0:76:8f:82:be:75 for vdev 0: -110
+[21713.799925] ath10k_pci 0000:01:00.0: found sta peer d0:76:8f:82:be:75 (ptr 0000000000000000 id 102) entry on vdev 0 after it was supposedly removed
+[21713.799968] ==================================================================
+[21713.799991] BUG: KFENCE: use-after-free read in ath10k_sta_state+0x265/0xb8a [ath10k_core]
+[21713.799991]
+[21713.799997] Use-after-free read at 0x00000000abe1c75e (in kfence-#69):
+[21713.800010]  ath10k_sta_state+0x265/0xb8a [ath10k_core]
+[21713.800041]  drv_sta_state+0x115/0x677 [mac80211]
+[21713.800059]  __sta_info_destroy_part2+0xb1/0x133 [mac80211]
+[21713.800076]  __sta_info_flush+0x11d/0x162 [mac80211]
+[21713.800093]  ieee80211_set_disassoc+0x12d/0x2f4 [mac80211]
+[21713.800110]  ieee80211_mgd_deauth+0x26c/0x29b [mac80211]
+[21713.800137]  cfg80211_mlme_deauth+0x13f/0x1bb [cfg80211]
+[21713.800153]  nl80211_deauthenticate+0xf8/0x121 [cfg80211]
+[21713.800161]  genl_rcv_msg+0x38e/0x3be
+[21713.800166]  netlink_rcv_skb+0x89/0xf7
+[21713.800171]  genl_rcv+0x28/0x36
+[21713.800176]  netlink_unicast+0x179/0x24b
+[21713.800181]  netlink_sendmsg+0x3a0/0x40e
+[21713.800187]  sock_sendmsg+0x72/0x76
+[21713.800192]  ____sys_sendmsg+0x16d/0x1e3
+[21713.800196]  ___sys_sendmsg+0x95/0xd1
+[21713.800200]  __sys_sendmsg+0x85/0xbf
+[21713.800205]  do_syscall_64+0x43/0x55
+[21713.800210]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[21713.800213]
+[21713.800219] kfence-#69: 0x000000009149b0d5-0x000000004c0697fb, size=1064, cache=kmalloc-2k
+[21713.800219]
+[21713.800224] allocated by task 13 on cpu 0 at 21705.501373s:
+[21713.800241]  ath10k_peer_map_event+0x7e/0x154 [ath10k_core]
+[21713.800254]  ath10k_htt_t2h_msg_handler+0x586/0x1039 [ath10k_core]
+[21713.800265]  ath10k_htt_htc_t2h_msg_handler+0x12/0x28 [ath10k_core]
+[21713.800277]  ath10k_htc_rx_completion_handler+0x14c/0x1b5 [ath10k_core]
+[21713.800283]  ath10k_pci_process_rx_cb+0x195/0x1df [ath10k_pci]
+[21713.800294]  ath10k_ce_per_engine_service+0x55/0x74 [ath10k_core]
+[21713.800305]  ath10k_ce_per_engine_service_any+0x76/0x84 [ath10k_core]
+[21713.800310]  ath10k_pci_napi_poll+0x49/0x144 [ath10k_pci]
+[21713.800316]  net_rx_action+0xdc/0x361
+[21713.800320]  __do_softirq+0x163/0x29a
+[21713.800325]  asm_call_irq_on_stack+0x12/0x20
+[21713.800331]  do_softirq_own_stack+0x3c/0x48
+[21713.800337]  __irq_exit_rcu+0x9b/0x9d
+[21713.800342]  common_interrupt+0xc9/0x14d
+[21713.800346]  asm_common_interrupt+0x1e/0x40
+[21713.800351]  ksoftirqd_should_run+0x5/0x16
+[21713.800357]  smpboot_thread_fn+0x148/0x211
+[21713.800362]  kthread+0x150/0x15f
+[21713.800367]  ret_from_fork+0x22/0x30
+[21713.800370]
+[21713.800374] freed by task 708 on cpu 1 at 21713.799953s:
+[21713.800498]  ath10k_sta_state+0x2c6/0xb8a [ath10k_core]
+[21713.800515]  drv_sta_state+0x115/0x677 [mac80211]
+[21713.800532]  __sta_info_destroy_part2+0xb1/0x133 [mac80211]
+[21713.800548]  __sta_info_flush+0x11d/0x162 [mac80211]
+[21713.800565]  ieee80211_set_disassoc+0x12d/0x2f4 [mac80211]
+[21713.800581]  ieee80211_mgd_deauth+0x26c/0x29b [mac80211]
+[21713.800598]  cfg80211_mlme_deauth+0x13f/0x1bb [cfg80211]
+[21713.800614]  nl80211_deauthenticate+0xf8/0x121 [cfg80211]
+[21713.800619]  genl_rcv_msg+0x38e/0x3be
+[21713.800623]  netlink_rcv_skb+0x89/0xf7
+[21713.800628]  genl_rcv+0x28/0x36
+[21713.800632]  netlink_unicast+0x179/0x24b
+[21713.800637]  netlink_sendmsg+0x3a0/0x40e
+[21713.800642]  sock_sendmsg+0x72/0x76
+[21713.800646]  ____sys_sendmsg+0x16d/0x1e3
+[21713.800651]  ___sys_sendmsg+0x95/0xd1
+[21713.800655]  __sys_sendmsg+0x85/0xbf
+[21713.800659]  do_syscall_64+0x43/0x55
+[21713.800663]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Tested-on: QCA6174 hw3.2 PCI WLAN.RM.4.4.1-00288-QCARMSWPZ-1
+
+Fixes: d0eeafad1189 ("ath10k: Clean up peer when sta goes away.")
+Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220801141930.16794-1-quic_wgong@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/wireless/ath/ath10k/mac.c | 54 ++++++++++++++-------------
+ 1 file changed, 29 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c
-index 743e38a1aa51..4d153bd62c53 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/phy.c
-@@ -2386,11 +2386,10 @@ void rtl92d_phy_reload_iqk_setting(struct ieee80211_hw *hw, u8 channel)
- 			rtl_dbg(rtlpriv, COMP_SCAN, DBG_LOUD,
- 				"Just Read IQK Matrix reg for channel:%d....\n",
- 				channel);
--			_rtl92d_phy_patha_fill_iqk_matrix(hw, true,
--					rtlphy->iqk_matrix[
--					indexforchannel].value,	0,
--					(rtlphy->iqk_matrix[
--					indexforchannel].value[0][2] == 0));
-+			if (rtlphy->iqk_matrix[indexforchannel].value[0][0] != 0)
-+				_rtl92d_phy_patha_fill_iqk_matrix(hw, true,
-+					rtlphy->iqk_matrix[indexforchannel].value, 0,
-+					rtlphy->iqk_matrix[indexforchannel].value[0][2] == 0);
- 			if (IS_92D_SINGLEPHY(rtlhal->version)) {
- 				if ((rtlphy->iqk_matrix[
- 					indexforchannel].value[0][4] != 0)
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 8a80919b627f..8208434d7d2b 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -864,11 +864,36 @@ static int ath10k_peer_delete(struct ath10k *ar, u32 vdev_id, const u8 *addr)
+ 	return 0;
+ }
+ 
++static void ath10k_peer_map_cleanup(struct ath10k *ar, struct ath10k_peer *peer)
++{
++	int peer_id, i;
++
++	lockdep_assert_held(&ar->conf_mutex);
++
++	for_each_set_bit(peer_id, peer->peer_ids,
++			 ATH10K_MAX_NUM_PEER_IDS) {
++		ar->peer_map[peer_id] = NULL;
++	}
++
++	/* Double check that peer is properly un-referenced from
++	 * the peer_map
++	 */
++	for (i = 0; i < ARRAY_SIZE(ar->peer_map); i++) {
++		if (ar->peer_map[i] == peer) {
++			ath10k_warn(ar, "removing stale peer_map entry for %pM (ptr %pK idx %d)\n",
++				    peer->addr, peer, i);
++			ar->peer_map[i] = NULL;
++		}
++	}
++
++	list_del(&peer->list);
++	kfree(peer);
++	ar->num_peers--;
++}
++
+ static void ath10k_peer_cleanup(struct ath10k *ar, u32 vdev_id)
+ {
+ 	struct ath10k_peer *peer, *tmp;
+-	int peer_id;
+-	int i;
+ 
+ 	lockdep_assert_held(&ar->conf_mutex);
+ 
+@@ -880,25 +905,7 @@ static void ath10k_peer_cleanup(struct ath10k *ar, u32 vdev_id)
+ 		ath10k_warn(ar, "removing stale peer %pM from vdev_id %d\n",
+ 			    peer->addr, vdev_id);
+ 
+-		for_each_set_bit(peer_id, peer->peer_ids,
+-				 ATH10K_MAX_NUM_PEER_IDS) {
+-			ar->peer_map[peer_id] = NULL;
+-		}
+-
+-		/* Double check that peer is properly un-referenced from
+-		 * the peer_map
+-		 */
+-		for (i = 0; i < ARRAY_SIZE(ar->peer_map); i++) {
+-			if (ar->peer_map[i] == peer) {
+-				ath10k_warn(ar, "removing stale peer_map entry for %pM (ptr %pK idx %d)\n",
+-					    peer->addr, peer, i);
+-				ar->peer_map[i] = NULL;
+-			}
+-		}
+-
+-		list_del(&peer->list);
+-		kfree(peer);
+-		ar->num_peers--;
++		ath10k_peer_map_cleanup(ar, peer);
+ 	}
+ 	spin_unlock_bh(&ar->data_lock);
+ }
+@@ -7580,10 +7587,7 @@ static int ath10k_sta_state(struct ieee80211_hw *hw,
+ 				/* Clean up the peer object as well since we
+ 				 * must have failed to do this above.
+ 				 */
+-				list_del(&peer->list);
+-				ar->peer_map[i] = NULL;
+-				kfree(peer);
+-				ar->num_peers--;
++				ath10k_peer_map_cleanup(ar, peer);
+ 			}
+ 		}
+ 		spin_unlock_bh(&ar->data_lock);
 -- 
 2.35.1
 
