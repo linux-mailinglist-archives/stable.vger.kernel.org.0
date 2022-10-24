@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACF0B60A575
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:25:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74CBB60A74E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:49:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233394AbiJXMYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:24:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40682 "EHLO
+        id S234456AbiJXMsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:48:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233756AbiJXMYN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:24:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C64D37F8C;
-        Mon, 24 Oct 2022 05:00:10 -0700 (PDT)
+        with ESMTP id S234255AbiJXMmo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:42:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAFDD8A7EE;
+        Mon, 24 Oct 2022 05:08:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A795B811E0;
-        Mon, 24 Oct 2022 11:55:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABC89C433C1;
-        Mon, 24 Oct 2022 11:55:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F7FD612D4;
+        Mon, 24 Oct 2022 12:06:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B13C5C433C1;
+        Mon, 24 Oct 2022 12:06:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612558;
-        bh=FyCdJYzELcqWqBl95dcc8i6zX3vwHF5ZkCWr/GY/HQQ=;
+        s=korg; t=1666613193;
+        bh=9lSZ8aRNqxUmK/4jyig8irUcUZqPBRulXTjpjA2nuaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mw8ddgqmRcpKv/CE7zpye7vkn8KIbb4wFj6h0LZ47fkAqSs9Qk0fOgk5WvmRnjzsH
-         uGFpBEbKU+bwGc/nUwK/kdExQuw0fq03gvMDxJyUbSbBBezMH7J8OVKBI7UZxVLdvS
-         J56v9Df7n78I7cEA7hiq+cOe3dirAeGbA9cmxcrA=
+        b=WTNzZ5uFc+dTmt9k2csTbehDzNldzFNj/hHot+GdrOTAq+SCm8UXG0EYA/CEHlB5h
+         BFNYnkAafylPL5kMCE9uITe267zWPDOyampLZZPojKyWyEyKuf+MtJNilH3mKPyhaj
+         vUWHO0EKOoaxmqFKxN4E5u87fv1eIOJgg55l2c/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 033/229] ALSA: rawmidi: Drop register_mutex in snd_rawmidi_free()
-Date:   Mon, 24 Oct 2022 13:29:12 +0200
-Message-Id: <20221024113000.187580600@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Lalith Rajendran <lalithkraj@google.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 043/255] ext4: make ext4_lazyinit_thread freezable
+Date:   Mon, 24 Oct 2022 13:29:13 +0200
+Message-Id: <20221024113003.863221366@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,38 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Lalith Rajendran <lalithkraj@google.com>
 
-commit a70aef7982b012e86dfd39fbb235e76a21ae778a upstream.
+commit 3b575495ab8dbb4dbe85b4ac7f991693c3668ff5 upstream.
 
-The register_mutex taken around the dev_unregister callback call in
-snd_rawmidi_free() may potentially lead to a mutex deadlock, when OSS
-emulation and a hot unplug are involved.
+ext4_lazyinit_thread is not set freezable. Hence when the thread calls
+try_to_freeze it doesn't freeze during suspend and continues to send
+requests to the storage during suspend, resulting in suspend failures.
 
-Since the mutex doesn't protect the actual race (as the registration
-itself is already protected by another means), let's drop it.
-
-Link: https://lore.kernel.org/r/CAB7eexJP7w1B0mVgDF0dQ+gWor7UdkiwPczmL7pn91xx8xpzOA@mail.gmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221011070147.7611-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@kernel.org
+Signed-off-by: Lalith Rajendran <lalithkraj@google.com>
+Link: https://lore.kernel.org/r/20220818214049.1519544-1-lalithkraj@google.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/rawmidi.c |    2 --
- 1 file changed, 2 deletions(-)
+ fs/ext4/super.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/rawmidi.c
-+++ b/sound/core/rawmidi.c
-@@ -1655,10 +1655,8 @@ static int snd_rawmidi_free(struct snd_r
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3157,6 +3157,7 @@ static int ext4_lazyinit_thread(void *ar
+ 	unsigned long next_wakeup, cur;
  
- 	snd_info_free_entry(rmidi->proc_entry);
- 	rmidi->proc_entry = NULL;
--	mutex_lock(&register_mutex);
- 	if (rmidi->ops && rmidi->ops->dev_unregister)
- 		rmidi->ops->dev_unregister(rmidi);
--	mutex_unlock(&register_mutex);
+ 	BUG_ON(NULL == eli);
++	set_freezable();
  
- 	snd_rawmidi_free_substreams(&rmidi->streams[SNDRV_RAWMIDI_STREAM_INPUT]);
- 	snd_rawmidi_free_substreams(&rmidi->streams[SNDRV_RAWMIDI_STREAM_OUTPUT]);
+ cont_thread:
+ 	while (true) {
 
 
