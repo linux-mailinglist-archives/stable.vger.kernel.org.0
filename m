@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 351F260AAA3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:36:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF21360AA5A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231472AbiJXNfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:35:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46062 "EHLO
+        id S230174AbiJXNcR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:32:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234016AbiJXNbk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:31:40 -0400
+        with ESMTP id S236409AbiJXNbB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:31:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 587E92B197;
-        Mon, 24 Oct 2022 05:34:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 276C03499D;
+        Mon, 24 Oct 2022 05:33:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56C2B612CE;
-        Mon, 24 Oct 2022 12:34:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 684FEC433D7;
-        Mon, 24 Oct 2022 12:34:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6ECF6128D;
+        Mon, 24 Oct 2022 12:33:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7AACC433C1;
+        Mon, 24 Oct 2022 12:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614869;
-        bh=/Fp3rhfVmg3x7JN4aK8bbsqkhU3qJVhLfcr/czlmOqM=;
+        s=korg; t=1666614804;
+        bh=0LcxMqzKBXHZAcPKt0pyDjPeM3azFWJ3SFXQ6kVQIP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bP1bpPg4r+Etyb57PbBTONx3YflMChpe85m5CkoRYpiIBbMErCbJOHHANS8IySKx0
-         46hlwqt7eEToDRvJt1Eq3j7A2N/AY15DScZdBs8lTjJYscxKWioLkcdTKshrnLLR6j
-         HfFNPLqLAbD5bojkvr4oWqacnA/RqV4N3ereo3t4=
+        b=BMgk2GGG+8IGqJ02c0QiIB+blbx9RCSny5j0Kp7aCJIi/jyJfI/xB1UXzat6viAgs
+         8eioe91FoKbo7odYW2Y4CmT2qhHxac5x8rLXHKhQinVG2LBefPvVf0sVxWaLtr2jHT
+         uum5f6rlCfdEtB5S+j6oCLd3CbQQlNc0QMO+DcVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 007/530] ALSA: hda/realtek: Correct pin configs for ASUS G533Z
-Date:   Mon, 24 Oct 2022 13:25:51 +0200
-Message-Id: <20221024113045.331111801@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Alexander Dahl <ada@thorsis.com>,
+        Peter Rosin <peda@axentia.se>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.15 010/530] mtd: rawnand: atmel: Unmap streaming DMA mappings
+Date:   Mon, 24 Oct 2022 13:25:54 +0200
+Message-Id: <20221024113045.472019588@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -52,46 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke D. Jones <luke@ljones.dev>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-commit 66ba7c88507344dee68ad1acbdb630473ab36114 upstream.
+commit 1161703c9bd664da5e3b2eb1a3bb40c210e026ea upstream.
 
-The initial fix for ASUS G533Z was based on faulty information. This
-fixes the pincfg to values that have been verified with no existing
-module options or other hacks enabled.
+Every dma_map_single() call should have its dma_unmap_single() counterpart,
+because the DMA address space is a shared resource and one could render the
+machine unusable by consuming all DMA addresses.
 
-Enables headphone jack, and 5.1 surround.
-
-[ corrected the indent level by tiwai ]
-
-Fixes: bc2c23549ccd ("ALSA: hda/realtek: Add pincfg for ASUS G533Z HP jack")
-Signed-off-by: Luke D. Jones <luke@ljones.dev>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221010065702.35190-1-luke@ljones.dev
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
+Cc: stable@vger.kernel.org
+Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Acked-by: Alexander Dahl <ada@thorsis.com>
+Reported-by: Peter Rosin <peda@axentia.se>
+Tested-by: Alexander Dahl <ada@thorsis.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Tested-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220728074014.145406-1-tudor.ambarus@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/mtd/nand/raw/atmel/nand-controller.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8221,11 +8221,13 @@ static const struct hda_fixup alc269_fix
- 	[ALC285_FIXUP_ASUS_G533Z_PINS] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = (const struct hda_pintbl[]) {
--			{ 0x14, 0x90170120 },
-+			{ 0x14, 0x90170152 }, /* Speaker Surround Playback Switch */
-+			{ 0x19, 0x03a19020 }, /* Mic Boost Volume */
-+			{ 0x1a, 0x03a11c30 }, /* Mic Boost Volume */
-+			{ 0x1e, 0x90170151 }, /* Rear jack, IN OUT EAPD Detect */
-+			{ 0x21, 0x03211420 },
- 			{ }
- 		},
--		.chained = true,
--		.chain_id = ALC294_FIXUP_ASUS_G513_PINS,
- 	},
- 	[ALC294_FIXUP_ASUS_COEF_1B] = {
- 		.type = HDA_FIXUP_VERBS,
+--- a/drivers/mtd/nand/raw/atmel/nand-controller.c
++++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
+@@ -405,6 +405,7 @@ static int atmel_nand_dma_transfer(struc
+ 
+ 	dma_async_issue_pending(nc->dmac);
+ 	wait_for_completion(&finished);
++	dma_unmap_single(nc->dev, buf_dma, len, dir);
+ 
+ 	return 0;
+ 
 
 
