@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31FC660A5C6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A29E260A9E2
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233695AbiJXM2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:28:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45142 "EHLO
+        id S232729AbiJXN0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:26:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233826AbiJXM2V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B21D486822;
-        Mon, 24 Oct 2022 05:01:57 -0700 (PDT)
+        with ESMTP id S236308AbiJXNZB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:25:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58EDDA8CEC;
+        Mon, 24 Oct 2022 05:30:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFD1A612D6;
-        Mon, 24 Oct 2022 12:01:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE292C433C1;
-        Mon, 24 Oct 2022 12:01:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A97DA612B2;
+        Mon, 24 Oct 2022 12:29:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2236C433C1;
+        Mon, 24 Oct 2022 12:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612904;
-        bh=KVvd0PtzsKmWH3xk/PNjyBKeL2/HnerrXU27sC6DEu8=;
+        s=korg; t=1666614581;
+        bh=aB5UaX4PEnngZ+QuGyOLg8annvuPF1tnFpPw2lzRz5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eIYHZJex0sqHhYMMKI71ohxLVSKjcp5Gw38dQUwDC0PQ3ozpVIG3Wd65Gy99sAvZJ
-         GtXb/I+e3YU1PqDwCTaUbsMpIrjtTKq5F6GLN8by7clJfqifeAn+84foeBTZmFtY8T
-         mqR2Wsuzg+Gu41xnGxXt+3bX5nXq5aEXokdEfXFI=
+        b=KdyKJpLJgmFKoUktqz0ixUuE5OMWJ9LJa0akki710FoIwQRPUc4Ts18jHOs0ttuAZ
+         P1czPUGSnqWFAbY7f9sI8Hzd7nhqYd0pPcPoTrjr2QClbrF+/PFMBUiUCc4oZg9T38
+         N3NYEnEKDWH232SmA/PvMXUK+fTMHKuJf2aTPXVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 164/229] powerpc/64s: Fix GENERIC_CPU build flags for PPC970 / G5
+Subject: [PATCH 5.10 286/390] kbuild: rpm-pkg: fix breakage when V=1 is used
 Date:   Mon, 24 Oct 2022 13:31:23 +0200
-Message-Id: <20221024113004.373416626@linuxfoundation.org>
+Message-Id: <20221024113035.135868289@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 
-[ Upstream commit 58ec7f06b74e0d6e76c4110afce367c8b5f0837d ]
+[ Upstream commit 2e07005f4813a9ff6e895787e0c2d1fea859b033 ]
 
-Big-endian GENERIC_CPU supports 970, but builds with -mcpu=power5.
-POWER5 is ISA v2.02 whereas 970 is v2.01 plus Altivec. 2.02 added
-the popcntb instruction which a compiler might use.
+Doing make V=1 binrpm-pkg results in:
 
-Use -mcpu=power4.
+ Executing(%install): /bin/sh -e /var/tmp/rpm-tmp.EgV6qJ
+ + umask 022
+ + cd .
+ + /bin/rm -rf /home/scgl/rpmbuild/BUILDROOT/kernel-6.0.0_rc5+-1.s390x
+ + /bin/mkdir -p /home/scgl/rpmbuild/BUILDROOT
+ + /bin/mkdir /home/scgl/rpmbuild/BUILDROOT/kernel-6.0.0_rc5+-1.s390x
+ + mkdir -p /home/scgl/rpmbuild/BUILDROOT/kernel-6.0.0_rc5+-1.s390x/boot
+ + make -f ./Makefile image_name
+ + cp test -e include/generated/autoconf.h -a -e include/config/auto.conf || ( \ echo >&2; \ echo >&2 " ERROR: Kernel configuration is invalid."; \ echo >&2 " include/generated/autoconf.h or include/config/auto.conf are missing.";\ echo >&2 " Run 'make oldconfig && make prepare' on kernel src to fix it."; \ echo >&2 ; \ /bin/false) arch/s390/boot/bzImage /home/scgl/rpmbuild/BUILDROOT/kernel-6.0.0_rc5+-1.s390x/boot/vmlinuz-6.0.0-rc5+
+ cp: invalid option -- 'e'
+ Try 'cp --help' for more information.
+ error: Bad exit status from /var/tmp/rpm-tmp.EgV6qJ (%install)
 
-Fixes: 471d7ff8b51b ("powerpc/64s: Remove POWER4 support")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220921014103.587954-1-npiggin@gmail.com
+Because the make call to get the image name is verbose and prints
+additional information.
+
+Fixes: 993bdde94547 ("kbuild: add image_name to no-sync-config-targets")
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/package/mkspec | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index 26654d0c2af7..5987ae0d8fbb 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -165,7 +165,7 @@ CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=power8
- CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mtune=power9,-mtune=power8)
- else
- CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mtune=power7,$(call cc-option,-mtune=power5))
--CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mcpu=power5,-mcpu=power4)
-+CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=power4
- endif
- else ifdef CONFIG_PPC_BOOK3E_64
- CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=powerpc64
+diff --git a/scripts/package/mkspec b/scripts/package/mkspec
+index 7c477ca7dc98..951cc60e5a90 100755
+--- a/scripts/package/mkspec
++++ b/scripts/package/mkspec
+@@ -85,10 +85,10 @@ $S
+ 	mkdir -p %{buildroot}/boot
+ 	%ifarch ia64
+ 	mkdir -p %{buildroot}/boot/efi
+-	cp \$($MAKE image_name) %{buildroot}/boot/efi/vmlinuz-$KERNELRELEASE
++	cp \$($MAKE -s image_name) %{buildroot}/boot/efi/vmlinuz-$KERNELRELEASE
+ 	ln -s efi/vmlinuz-$KERNELRELEASE %{buildroot}/boot/
+ 	%else
+-	cp \$($MAKE image_name) %{buildroot}/boot/vmlinuz-$KERNELRELEASE
++	cp \$($MAKE -s image_name) %{buildroot}/boot/vmlinuz-$KERNELRELEASE
+ 	%endif
+ $M	$MAKE %{?_smp_mflags} INSTALL_MOD_PATH=%{buildroot} modules_install
+ 	$MAKE %{?_smp_mflags} INSTALL_HDR_PATH=%{buildroot}/usr headers_install
 -- 
 2.35.1
 
