@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91E7860A5BA
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:30:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD7660A7EB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233673AbiJXM2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:28:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45256 "EHLO
+        id S234961AbiJXNAr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:00:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233828AbiJXM2V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:21 -0400
+        with ESMTP id S235176AbiJXM7d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2A3786801;
-        Mon, 24 Oct 2022 05:01:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4501D79920;
+        Mon, 24 Oct 2022 05:19:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F371A6127D;
-        Mon, 24 Oct 2022 12:00:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 175CCC433C1;
-        Mon, 24 Oct 2022 12:00:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67D3F6129E;
+        Mon, 24 Oct 2022 12:10:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79665C433C1;
+        Mon, 24 Oct 2022 12:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612814;
-        bh=py1Zph9NUQ/OJNirFXbkvul6N/qlUoss8U2ugj+VCtU=;
+        s=korg; t=1666613442;
+        bh=JIglXPERcfYhEFaXJE8sshooRMTJ9fVV8Yw7NNMupAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tRIQGIRBZthN8AeZx2X77+0HVeCvFbSplqpdMJqPiSsLSvhsT6BWkqZAAT4y/aR32
-         F888jRoKAX457Fvd8Z2oT623zdY91F03xVZjY0t7v+sb4DJGIqq8PCI42C0v4qt+K5
-         t5ZIxAGW5iiK6SH+5wlrHDlZkq0RPoL4ZAFQC1YI=
+        b=TeH3tk2UbqQVssInwYnYbqov1800GjtedHXLo9iTczJZZ44cfERjlkP6ATD1dZAsJ
+         oWFNU0kI3dC/pTX1TxFRTJXK6/89zeiXBaX7pWBiJQ4ptZQ9m6U95ujIjk26cIjWt7
+         aO2Z5dH1FX2tlKcpsKdd6PlQQ76v3eUUbOPHCTrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
+        William Dean <williamsukatube@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 130/229] media: xilinx: vipp: Fix refcount leak in xvip_graph_dma_init
+Subject: [PATCH 5.4 139/255] mtd: devices: docg3: check the return value of devm_ioremap() in the probe
 Date:   Mon, 24 Oct 2022 13:30:49 +0200
-Message-Id: <20221024113003.210505896@linuxfoundation.org>
+Message-Id: <20221024113007.210068079@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: William Dean <williamsukatube@gmail.com>
 
-[ Upstream commit 1c78f19c3a0ea312a8178a6bfd8934eb93e9b10a ]
+[ Upstream commit 26e784433e6c65735cd6d93a8db52531970d9a60 ]
 
-of_get_child_by_name() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+The function devm_ioremap() in docg3_probe() can fail, so
+its return value should be checked.
 
-Fixes: df3305156f98 ("[media] v4l: xilinx: Add Xilinx Video IP core")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 82402aeb8c81e ("mtd: docg3: Use devm_*() functions")
+Reported-by: Hacash Robot <hacashRobot@santino.com>
+Signed-off-by: William Dean <williamsukatube@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220722091644.2937953-1-williamsukatube@163.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/xilinx/xilinx-vipp.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/mtd/devices/docg3.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/xilinx/xilinx-vipp.c b/drivers/media/platform/xilinx/xilinx-vipp.c
-index 6d95ec1e9a6b..9177db789b07 100644
---- a/drivers/media/platform/xilinx/xilinx-vipp.c
-+++ b/drivers/media/platform/xilinx/xilinx-vipp.c
-@@ -464,7 +464,7 @@ static int xvip_graph_dma_init(struct xvip_composite_device *xdev)
- {
- 	struct device_node *ports;
- 	struct device_node *port;
--	int ret;
-+	int ret = 0;
- 
- 	ports = of_get_child_by_name(xdev->dev->of_node, "ports");
- 	if (ports == NULL) {
-@@ -474,13 +474,14 @@ static int xvip_graph_dma_init(struct xvip_composite_device *xdev)
- 
- 	for_each_child_of_node(ports, port) {
- 		ret = xvip_graph_dma_init_one(xdev, port);
--		if (ret < 0) {
-+		if (ret) {
- 			of_node_put(port);
--			return ret;
-+			break;
- 		}
+diff --git a/drivers/mtd/devices/docg3.c b/drivers/mtd/devices/docg3.c
+index eb0f4600efd1..40f9b6dffe3d 100644
+--- a/drivers/mtd/devices/docg3.c
++++ b/drivers/mtd/devices/docg3.c
+@@ -1975,9 +1975,14 @@ static int __init docg3_probe(struct platform_device *pdev)
+ 		dev_err(dev, "No I/O memory resource defined\n");
+ 		return ret;
  	}
+-	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
  
--	return 0;
-+	of_node_put(ports);
-+	return ret;
- }
- 
- static void xvip_graph_cleanup(struct xvip_composite_device *xdev)
+ 	ret = -ENOMEM;
++	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
++	if (!base) {
++		dev_err(dev, "devm_ioremap dev failed\n");
++		return ret;
++	}
++
+ 	cascade = devm_kcalloc(dev, DOC_MAX_NBFLOORS, sizeof(*cascade),
+ 			       GFP_KERNEL);
+ 	if (!cascade)
 -- 
 2.35.1
 
