@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C8E860A738
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA16960A541
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234368AbiJXMs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:48:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60218 "EHLO
+        id S233513AbiJXMWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:22:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234627AbiJXMpW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7768E31DEA;
-        Mon, 24 Oct 2022 05:09:57 -0700 (PDT)
+        with ESMTP id S233305AbiJXMUi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:20:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC18B7C19F;
+        Mon, 24 Oct 2022 04:59:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37E4361218;
-        Mon, 24 Oct 2022 12:09:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A721C433D6;
-        Mon, 24 Oct 2022 12:09:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4325C612CC;
+        Mon, 24 Oct 2022 11:58:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57FA3C433D6;
+        Mon, 24 Oct 2022 11:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613358;
-        bh=ne2UJ6vabJsh3Q1TxGPkJc9EVVF+3J1pryip5BHrUoI=;
+        s=korg; t=1666612687;
+        bh=Enjz/4GrQEe05c4RvFIjHeawUyag1ck9dA7+R5QI1io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qs3fhHrdrGU0Dxe57ORM65fSntl19kX264q3ijLzYiTyufiq8YWlTEQeRzciK2Omi
-         ZA6zhgjyW+wfXFT/DOr+tmL/PwePINz+UzYNH6/DL3scB4oq24a06v61gsI0h+ANCE
-         xNuxCOkcoDmLLeCwCPm8Gn4xlRKRtZYul4aftNk8=
+        b=2tZVmwz6v4Y05JqjJrUTkFIgqe4lYwMsvyhVoFmfTOimEqZRsQMnB3xdGWwl86lkA
+         nLRYv4iIuqWYG5qIGIG8fRXASF438l/jDcvNhp3/mNvtFuNRfR85S8x+dUxrngnDH6
+         vb2AxxODEfU0u+YrWv4wqDE7IcXWcZ8xzeMVBLzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 089/255] drm/mipi-dsi: Detach devices when removing the host
+        stable@vger.kernel.org, Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 080/229] wifi: rtl8xxxu: gen2: Fix mistake in path B IQ calibration
 Date:   Mon, 24 Oct 2022 13:29:59 +0200
-Message-Id: <20221024113005.468986382@linuxfoundation.org>
+Message-Id: <20221024113001.658750801@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-[ Upstream commit 668a8f17b5290d04ef7343636a5588a0692731a1 ]
+[ Upstream commit e963a19c64ac0d2f8785d36a27391abd91ac77aa ]
 
-Whenever the MIPI-DSI host is unregistered, the code of
-mipi_dsi_host_unregister() loops over every device currently found on that
-bus and will unregister it.
+Found by comparing with the vendor driver. Currently this affects
+only the RTL8192EU, which is the only gen2 chip with 2 TX paths
+supported by this driver. It's unclear what kind of effect the
+mistake had in practice, since I don't have any RTL8192EU devices
+to test it.
 
-However, it doesn't detach it from the bus first, which leads to all kind
-of resource leaks if the host wants to perform some clean up whenever a
-device is detached.
-
-Fixes: 068a00233969 ("drm: Add MIPI DSI bus support")
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220711173939.1132294-2-maxime@cerno.tech
+Fixes: e1547c535ede ("rtl8xxxu: First stab at adding IQK calibration for 8723bu parts")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/30a59f3a-cfa9-8379-7af0-78a8f4c77cfd@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mipi_dsi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dsi.c b/drivers/gpu/drm/drm_mipi_dsi.c
-index b99f96dcc6f1..bb7f72ade628 100644
---- a/drivers/gpu/drm/drm_mipi_dsi.c
-+++ b/drivers/gpu/drm/drm_mipi_dsi.c
-@@ -300,6 +300,7 @@ static int mipi_dsi_remove_device_fn(struct device *dev, void *priv)
- {
- 	struct mipi_dsi_device *dsi = to_mipi_dsi_device(dev);
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index ccd76c1da40c..38f06ee98b35 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -2930,12 +2930,12 @@ bool rtl8xxxu_gen2_simularity_compare(struct rtl8xxxu_priv *priv,
+ 		}
  
-+	mipi_dsi_detach(dsi);
- 	mipi_dsi_device_unregister(dsi);
+ 		if (!(simubitmap & 0x30) && priv->tx_paths > 1) {
+-			/* path B RX OK */
++			/* path B TX OK */
+ 			for (i = 4; i < 6; i++)
+ 				result[3][i] = result[c1][i];
+ 		}
  
- 	return 0;
+-		if (!(simubitmap & 0x30) && priv->tx_paths > 1) {
++		if (!(simubitmap & 0xc0) && priv->tx_paths > 1) {
+ 			/* path B RX OK */
+ 			for (i = 6; i < 8; i++)
+ 				result[3][i] = result[c1][i];
 -- 
 2.35.1
 
