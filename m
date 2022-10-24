@@ -2,95 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD3260B2A5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C249260B4AF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 20:01:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233943AbiJXQue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:50:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59900 "EHLO
+        id S230435AbiJXSA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 14:00:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235159AbiJXQtI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 724A6C357B;
-        Mon, 24 Oct 2022 08:32:10 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC26BB81899;
-        Mon, 24 Oct 2022 12:56:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D561C433D6;
-        Mon, 24 Oct 2022 12:56:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616191;
-        bh=nInlbStH9a5FQ1hxPfb1aIWblv3RMo5lp/f/c/5RMyM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lN+wVUeaAZHWKvaCHCCmRd++x9lJ42W9wCLxbgqmVlFB8lRluAaFC/y5sBbBDmD4W
-         eVQYU9s/Wn2jL5UIm19NPe/Uo81XEVxk+ndGm2pZX0m6xdqIzb37CPWSA9gW9SStBs
-         6ZJ28kdvcnDz+uNOto7YdyUxRaJpbcZvuOTy+Xxs=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Chen Yu <yu.c.chen@intel.com>
-Subject: [PATCH 5.15 528/530] thermal: intel_powerclamp: Use first online CPU as control_cpu
-Date:   Mon, 24 Oct 2022 13:34:32 +0200
-Message-Id: <20221024113108.914155350@linuxfoundation.org>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S232761AbiJXR7v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:59:51 -0400
+X-Greylist: delayed 4790 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 24 Oct 2022 09:40:34 PDT
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [IPv6:2a00:da80:fff0:2::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02735DBBC6;
+        Mon, 24 Oct 2022 09:40:29 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 361B41C0023; Mon, 24 Oct 2022 15:46:48 +0200 (CEST)
+Date:   Mon, 24 Oct 2022 15:46:47 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Subject: Re: [PATCH 4.9 000/159] 4.9.331-rc1 review
+Message-ID: <20221024134647.GA28644@duo.ucw.cz>
+References: <20221024112949.358278806@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
+Content-Disposition: inline
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 4bb7f6c2781e46fc5bd00475a66df2ea30ef330d upstream.
+--jI8keyz6grp/JLjh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Commit 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead
-of smp_processor_id() to avoid crash") fixed an issue related to using
-smp_processor_id() in preemptible context by replacing it with a pair
-of get_cpu()/put_cpu(), but what is needed there really is any online
-CPU and not necessarily the one currently running the code.  Arguably,
-getting the one that's running the code in there is confusing.
+Hi!
 
-For this reason, simply give the control CPU role to the first online
-one which automatically will be CPU0 if it is online, so one check
-can be dropped from the code for an added benefit.
+> This is the start of the stable review cycle for the 4.9.331 release.
+> There are 159 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-Link: https://lore.kernel.org/linux-pm/20221011113646.GA12080@duo.ucw.cz/
-Fixes: 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/thermal/intel/intel_powerclamp.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+CIP testing did not find any problems here:
 
---- a/drivers/thermal/intel/intel_powerclamp.c
-+++ b/drivers/thermal/intel/intel_powerclamp.c
-@@ -531,11 +531,7 @@ static int start_power_clamp(void)
- 	cpus_read_lock();
- 
- 	/* prefer BSP */
--	control_cpu = 0;
--	if (!cpu_online(control_cpu)) {
--		control_cpu = get_cpu();
--		put_cpu();
--	}
-+	control_cpu = cpumask_first(cpu_online_mask);
- 
- 	clamping = true;
- 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+4.9.y
 
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
 
+Best regards,
+                                                                Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--jI8keyz6grp/JLjh
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY1aXRwAKCRAw5/Bqldv6
+8q2fAKCXIkYYsAxV0reHVRLrtEI3VaR6gACgnkq34VP/jox94XFAEPh6p4gjUS4=
+=aASu
+-----END PGP SIGNATURE-----
+
+--jI8keyz6grp/JLjh--
