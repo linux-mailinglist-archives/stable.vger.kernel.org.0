@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6C2560A5F1
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 037E560A952
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:18:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233856AbiJXMbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:31:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48924 "EHLO
+        id S230427AbiJXNSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:18:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233982AbiJXM3I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EFEE8769B;
-        Mon, 24 Oct 2022 05:02:44 -0700 (PDT)
+        with ESMTP id S235932AbiJXNRQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:17:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF9E7A3F44;
+        Mon, 24 Oct 2022 05:26:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D718B811FF;
-        Mon, 24 Oct 2022 11:59:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71D0DC433C1;
-        Mon, 24 Oct 2022 11:59:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6B95612BC;
+        Mon, 24 Oct 2022 12:25:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BED1EC433D6;
+        Mon, 24 Oct 2022 12:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612761;
-        bh=qKvP4bmsphMKHgqIDzfbkKxyiFWTwXsEYkyhH5HCDMQ=;
+        s=korg; t=1666614358;
+        bh=kV9d18G9T/YjzHDps5KKzk5SgDYJImYmuS9j/QndjsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PrbGetl6iYUWxzcOo5cXAXOieKQOwHYJ3ALqSQFL4+aq0xh2pB3TdBftCzTFB9IsX
-         LaP+6rPjlAriHUTRe19t6rrkPueMTDlrK2zB6A/x92w5EJNfQYCWhcpjNXCaf0SgJG
-         Jl2nErhZlkeZ7dHx9SAj8421nPZ64mhS3ESg8vpw=
+        b=HyYwiGp6QGYu6Bl3wtWd7+b6rfDJZBjsqymKpROaRWVBQELztrC4zRBAsm09+R+KD
+         c1DSZ1G0x4ZSBi6HD5zQJARMsrUXxzwqzwhFj6uPNIzN/2mT8cGtSTIwWvFyTpyM16
+         3fSedvyBrHCpzUTX5bAH4wqj6MwSn2kbz3Qhq3rU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Mark Zhang <markzhang@nvidia.com>,
+        Mark Bloch <mbloch@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 109/229] soc: qcom: smsm: Fix refcount leak bugs in qcom_smsm_probe()
+Subject: [PATCH 5.10 231/390] RDMA/cm: Use SLID in the work completion as the DLID in responder side
 Date:   Mon, 24 Oct 2022 13:30:28 +0200
-Message-Id: <20221024113002.533227679@linuxfoundation.org>
+Message-Id: <20221024113032.621977545@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,107 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Mark Zhang <markzhang@nvidia.com>
 
-[ Upstream commit af8f6f39b8afd772fda4f8e61823ef8c021bf382 ]
+[ Upstream commit b7d95040c13f61a4a6a859c5355faf583eff9658 ]
 
-There are two refcount leak bugs in qcom_smsm_probe():
+The responder should always use WC's SLID as the dlid, to follow the
+IB SPEC section "13.5.4.2 COMMON RESPONSE ACTIONS":
+A responder always takes the following actions in constructing a
+response packet:
+- The SLID of the received packet is used as the DLID in the response
+  packet.
 
-(1) The 'local_node' is escaped out from for_each_child_of_node() as
-the break of iteration, we should call of_node_put() for it in error
-path or when it is not used anymore.
-(2) The 'node' is escaped out from for_each_available_child_of_node()
-as the 'goto', we should call of_node_put() for it in goto target.
-
-Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220721135217.1301039-1-windhl@126.com
+Fixes: ac3a949fb2ff ("IB/CM: Set appropriate slid and dlid when handling CM request")
+Signed-off-by: Mark Zhang <markzhang@nvidia.com>
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Link: https://lore.kernel.org/r/cd17c240231e059d2fc07c17dfe555d548b917eb.1662631201.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/smsm.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/infiniband/core/cm.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
-index 5304529b41c9..a8a1dc49519e 100644
---- a/drivers/soc/qcom/smsm.c
-+++ b/drivers/soc/qcom/smsm.c
-@@ -519,7 +519,7 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 	for (id = 0; id < smsm->num_hosts; id++) {
- 		ret = smsm_parse_ipc(smsm, id);
- 		if (ret < 0)
--			return ret;
-+			goto out_put;
+--- a/drivers/infiniband/core/cm.c
++++ b/drivers/infiniband/core/cm.c
+@@ -1643,14 +1643,13 @@ static void cm_path_set_rec_type(struct
+ 
+ static void cm_format_path_lid_from_req(struct cm_req_msg *req_msg,
+ 					struct sa_path_rec *primary_path,
+-					struct sa_path_rec *alt_path)
++					struct sa_path_rec *alt_path,
++					struct ib_wc *wc)
+ {
+ 	u32 lid;
+ 
+ 	if (primary_path->rec_type != SA_PATH_REC_TYPE_OPA) {
+-		sa_path_set_dlid(primary_path,
+-				 IBA_GET(CM_REQ_PRIMARY_LOCAL_PORT_LID,
+-					 req_msg));
++		sa_path_set_dlid(primary_path, wc->slid);
+ 		sa_path_set_slid(primary_path,
+ 				 IBA_GET(CM_REQ_PRIMARY_REMOTE_PORT_LID,
+ 					 req_msg));
+@@ -1687,7 +1686,8 @@ static void cm_format_path_lid_from_req(
+ 
+ static void cm_format_paths_from_req(struct cm_req_msg *req_msg,
+ 				     struct sa_path_rec *primary_path,
+-				     struct sa_path_rec *alt_path)
++				     struct sa_path_rec *alt_path,
++				     struct ib_wc *wc)
+ {
+ 	primary_path->dgid =
+ 		*IBA_GET_MEM_PTR(CM_REQ_PRIMARY_LOCAL_PORT_GID, req_msg);
+@@ -1745,7 +1745,7 @@ static void cm_format_paths_from_req(str
+ 		if (sa_path_is_roce(alt_path))
+ 			alt_path->roce.route_resolved = false;
  	}
- 
- 	/* Acquire the main SMSM state vector */
-@@ -527,13 +527,14 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 			      smsm->num_entries * sizeof(u32));
- 	if (ret < 0 && ret != -EEXIST) {
- 		dev_err(&pdev->dev, "unable to allocate shared state entry\n");
--		return ret;
-+		goto out_put;
- 	}
- 
- 	states = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_SMSM_SHARED_STATE, NULL);
- 	if (IS_ERR(states)) {
- 		dev_err(&pdev->dev, "Unable to acquire shared state entry\n");
--		return PTR_ERR(states);
-+		ret = PTR_ERR(states);
-+		goto out_put;
- 	}
- 
- 	/* Acquire the list of interrupt mask vectors */
-@@ -541,13 +542,14 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 	ret = qcom_smem_alloc(QCOM_SMEM_HOST_ANY, SMEM_SMSM_CPU_INTR_MASK, size);
- 	if (ret < 0 && ret != -EEXIST) {
- 		dev_err(&pdev->dev, "unable to allocate smsm interrupt mask\n");
--		return ret;
-+		goto out_put;
- 	}
- 
- 	intr_mask = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_SMSM_CPU_INTR_MASK, NULL);
- 	if (IS_ERR(intr_mask)) {
- 		dev_err(&pdev->dev, "unable to acquire shared memory interrupt mask\n");
--		return PTR_ERR(intr_mask);
-+		ret = PTR_ERR(intr_mask);
-+		goto out_put;
- 	}
- 
- 	/* Setup the reference to the local state bits */
-@@ -558,7 +560,8 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 	smsm->state = qcom_smem_state_register(local_node, &smsm_state_ops, smsm);
- 	if (IS_ERR(smsm->state)) {
- 		dev_err(smsm->dev, "failed to register qcom_smem_state\n");
--		return PTR_ERR(smsm->state);
-+		ret = PTR_ERR(smsm->state);
-+		goto out_put;
- 	}
- 
- 	/* Register handlers for remote processor entries of interest. */
-@@ -588,16 +591,19 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 	}
- 
- 	platform_set_drvdata(pdev, smsm);
-+	of_node_put(local_node);
- 
- 	return 0;
- 
- unwind_interfaces:
-+	of_node_put(node);
- 	for (id = 0; id < smsm->num_entries; id++)
- 		if (smsm->entries[id].domain)
- 			irq_domain_remove(smsm->entries[id].domain);
- 
- 	qcom_smem_state_unregister(smsm->state);
--
-+out_put:
-+	of_node_put(local_node);
- 	return ret;
+-	cm_format_path_lid_from_req(req_msg, primary_path, alt_path);
++	cm_format_path_lid_from_req(req_msg, primary_path, alt_path, wc);
  }
  
--- 
-2.35.1
-
+ static u16 cm_get_bth_pkey(struct cm_work *work)
+@@ -2163,7 +2163,7 @@ static int cm_req_handler(struct cm_work
+ 	if (cm_req_has_alt_path(req_msg))
+ 		work->path[1].rec_type = work->path[0].rec_type;
+ 	cm_format_paths_from_req(req_msg, &work->path[0],
+-				 &work->path[1]);
++				 &work->path[1], work->mad_recv_wc->wc);
+ 	if (cm_id_priv->av.ah_attr.type == RDMA_AH_ATTR_TYPE_ROCE)
+ 		sa_path_set_dmac(&work->path[0],
+ 				 cm_id_priv->av.ah_attr.roce.dmac);
 
 
