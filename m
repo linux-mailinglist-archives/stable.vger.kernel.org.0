@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74BA560BAAB
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:40:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10E1160BB0B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:45:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234470AbiJXUjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:39:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40792 "EHLO
+        id S234810AbiJXUpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:45:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234596AbiJXUip (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:38:45 -0400
+        with ESMTP id S235564AbiJXUpG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:45:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B429A9E3;
-        Mon, 24 Oct 2022 11:49:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A3F918C942;
+        Mon, 24 Oct 2022 11:52:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCA15B819B8;
-        Mon, 24 Oct 2022 12:44:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34DA0C433C1;
-        Mon, 24 Oct 2022 12:44:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59D89B819AA;
+        Mon, 24 Oct 2022 12:43:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A81B1C433D6;
+        Mon, 24 Oct 2022 12:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615478;
-        bh=EmaDTsfjjX6VkFtwvm9RhgPGxlFp62StVDajk3ToO9U=;
+        s=korg; t=1666615416;
+        bh=5DPq8quTcRFNe6hitrL+3zKyCXpM8J1RY/qwMK/2jnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGldKGJFFtuZN4CP00EgIRQTt3vbYtE2Uf8h4aniKHWBc8fo9EyZIUxb1YuW7yYss
-         k/GzJ4zBNdx8QpO/ewnaJDROTqNxq2Gx6/ZhyJNoZbz1PZMVGZ/BS9I8JqGYh4u/6p
-         95fW1olFsiYlqB0YvnE1W4nOMdkG3DH8Md+3Wnek=
+        b=RE3Ll/kkiLAk2lNQcPhpVcFFxyQUlL9MtrZoF+9fujklmb5RmDPrzSd4b+R6XIRYz
+         0aUQLuEi4pXO+Zmd6CDoK8nBrCDj/pLtOYvnyO4a+oVz4/hSGO0TkNHjkG+m0aUIBU
+         qLaOp+QGSEV+HqqEv9hgjbRWfYLRPR8cjMxlVZvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 237/530] ASoC: codecs: tx-macro: fix kcontrol put
-Date:   Mon, 24 Oct 2022 13:29:41 +0200
-Message-Id: <20221024113055.822423707@linuxfoundation.org>
+Subject: [PATCH 5.15 243/530] ASoC: wm5102: Fix PM disable depth imbalance in wm5102_probe
+Date:   Mon, 24 Oct 2022 13:29:47 +0200
+Message-Id: <20221024113056.105559527@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,66 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit c1057a08af438e0cf5450c1d977a3011198ed2f8 ]
+[ Upstream commit fcbb60820cd3008bb44334a0395e5e57ccb77329 ]
 
-tx_macro_tx_mixer_put() and tx_macro_dec_mode_put() currently returns zero
-eventhough it changes the value.
-Fix this, so that change notifications are sent correctly.
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context. We fix it by moving
+pm_runtime_enable to the endding of wm5102_probe.
 
-Fixes: d207bdea0ca9 ("ASoC: codecs: lpass-tx-macro: add dapm widgets and route")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220906170112.1984-6-srinivas.kandagatla@linaro.org
+Fixes:93e8791dd34ca ("ASoC: wm5102: Initial driver")
+
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20220928160116.125020-4-zhangqilong3@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/lpass-tx-macro.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ sound/soc/codecs/wm5102.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
-index e4bbc6bd4925..feafb8a90ffe 100644
---- a/sound/soc/codecs/lpass-tx-macro.c
-+++ b/sound/soc/codecs/lpass-tx-macro.c
-@@ -815,17 +815,23 @@ static int tx_macro_tx_mixer_put(struct snd_kcontrol *kcontrol,
- 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
+diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
+index 621598608bf0..c8adce8936bc 100644
+--- a/sound/soc/codecs/wm5102.c
++++ b/sound/soc/codecs/wm5102.c
+@@ -2087,9 +2087,6 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		regmap_update_bits(arizona->regmap, wm5102_digital_vu[i],
+ 				   WM5102_DIG_VU, WM5102_DIG_VU);
  
- 	if (enable) {
-+		if (tx->active_decimator[dai_id] == dec_id)
-+			return 0;
-+
- 		set_bit(dec_id, &tx->active_ch_mask[dai_id]);
- 		tx->active_ch_cnt[dai_id]++;
- 		tx->active_decimator[dai_id] = dec_id;
- 	} else {
-+		if (tx->active_decimator[dai_id] == -1)
-+			return 0;
-+
- 		tx->active_ch_cnt[dai_id]--;
- 		clear_bit(dec_id, &tx->active_ch_mask[dai_id]);
- 		tx->active_decimator[dai_id] = -1;
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_idle(&pdev->dev);
+-
+ 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
+ 				  "ADSP2 Compressed IRQ", wm5102_adsp2_irq,
+ 				  wm5102);
+@@ -2122,6 +2119,9 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		goto err_spk_irqs;
  	}
- 	snd_soc_dapm_mixer_update_power(widget->dapm, kcontrol, enable, update);
  
--	return 0;
-+	return 1;
- }
- 
- static int tx_macro_enable_dec(struct snd_soc_dapm_widget *w,
-@@ -1011,9 +1017,12 @@ static int tx_macro_dec_mode_put(struct snd_kcontrol *kcontrol,
- 	int path = e->shift_l;
- 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
- 
-+	if (tx->dec_mode[path] == value)
-+		return 0;
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_idle(&pdev->dev);
 +
- 	tx->dec_mode[path] = value;
+ 	return ret;
  
--	return 0;
-+	return 1;
- }
- 
- static int tx_macro_get_bcs(struct snd_kcontrol *kcontrol,
+ err_spk_irqs:
 -- 
 2.35.1
 
