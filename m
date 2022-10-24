@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B41060A6D9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A858C60A9DF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230501AbiJXMkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:40:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
+        id S232814AbiJXN0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:26:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234164AbiJXMjM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:39:12 -0400
+        with ESMTP id S236151AbiJXNYd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:24:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51D6A8A1E3;
-        Mon, 24 Oct 2022 05:06:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9E19F74D;
+        Mon, 24 Oct 2022 05:30:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5017D612A5;
-        Mon, 24 Oct 2022 12:04:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66156C433C1;
-        Mon, 24 Oct 2022 12:04:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1603D61331;
+        Mon, 24 Oct 2022 12:29:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27E6AC433C1;
+        Mon, 24 Oct 2022 12:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613053;
-        bh=/uUdM+oKqHOU5RS8nYx4xunaSoAOYepM1eEAdpERTus=;
+        s=korg; t=1666614578;
+        bh=wzVrqqZRg7fswRLItuLjYSP7Zzpk6JKxUzObx4VK59E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SmAYl7lqRohZQeSovI7sAFKAWvUgdvLVj8Nx99mrF/o176k1KJjl5v3Gy1A4rJzfp
-         zRpX4yXL5M6S/SgzZKquR2TsYbCk3eH+4Rdosn9Swi+XHReVrfi2yn0cE2oPVSJ0iX
-         lIdjud49XIdCoZirW9agAFxwtXTyZ5OGjzGwiZww=
+        b=GKteBCsP0Zvgn7dIgWAQ8cY00GKpm4GHiukRQmtP98tqhu6Mp8XZBEVxXyShRriSc
+         JJWa6WSn6Q+W4b/TxF4KSyYi4Hte0DyKXFF3FxjfSgtHH6ocsXR5DK/KwaRBJW73Q/
+         KkJF71Yeoz9k67RzZYMGvuYOX+vLupNd0D91hlRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
-        Liu Jian <liujian56@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org,
+        Patrick Rudolph <patrick.rudolph@9elements.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 190/229] net: If sock is dead dont access socks sk_wq in sk_stream_wait_memory
-Date:   Mon, 24 Oct 2022 13:31:49 +0200
-Message-Id: <20221024113005.272954094@linuxfoundation.org>
+Subject: [PATCH 5.10 313/390] regulator: core: Prevent integer underflow
+Date:   Mon, 24 Oct 2022 13:31:50 +0200
+Message-Id: <20221024113036.294889422@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,104 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Patrick Rudolph <patrick.rudolph@9elements.com>
 
-[ Upstream commit 3f8ef65af927db247418d4e1db49164d7a158fc5 ]
+[ Upstream commit 8d8e16592022c9650df8aedfe6552ed478d7135b ]
 
-Fixes the below NULL pointer dereference:
+By using a ratio of delay to poll_enabled_time that is not integer
+time_remaining underflows and does not exit the loop as expected.
+As delay could be derived from DT and poll_enabled_time is defined
+in the driver this can easily happen.
 
-  [...]
-  [   14.471200] Call Trace:
-  [   14.471562]  <TASK>
-  [   14.471882]  lock_acquire+0x245/0x2e0
-  [   14.472416]  ? remove_wait_queue+0x12/0x50
-  [   14.473014]  ? _raw_spin_lock_irqsave+0x17/0x50
-  [   14.473681]  _raw_spin_lock_irqsave+0x3d/0x50
-  [   14.474318]  ? remove_wait_queue+0x12/0x50
-  [   14.474907]  remove_wait_queue+0x12/0x50
-  [   14.475480]  sk_stream_wait_memory+0x20d/0x340
-  [   14.476127]  ? do_wait_intr_irq+0x80/0x80
-  [   14.476704]  do_tcp_sendpages+0x287/0x600
-  [   14.477283]  tcp_bpf_push+0xab/0x260
-  [   14.477817]  tcp_bpf_sendmsg_redir+0x297/0x500
-  [   14.478461]  ? __local_bh_enable_ip+0x77/0xe0
-  [   14.479096]  tcp_bpf_send_verdict+0x105/0x470
-  [   14.479729]  tcp_bpf_sendmsg+0x318/0x4f0
-  [   14.480311]  sock_sendmsg+0x2d/0x40
-  [   14.480822]  ____sys_sendmsg+0x1b4/0x1c0
-  [   14.481390]  ? copy_msghdr_from_user+0x62/0x80
-  [   14.482048]  ___sys_sendmsg+0x78/0xb0
-  [   14.482580]  ? vmf_insert_pfn_prot+0x91/0x150
-  [   14.483215]  ? __do_fault+0x2a/0x1a0
-  [   14.483738]  ? do_fault+0x15e/0x5d0
-  [   14.484246]  ? __handle_mm_fault+0x56b/0x1040
-  [   14.484874]  ? lock_is_held_type+0xdf/0x130
-  [   14.485474]  ? find_held_lock+0x2d/0x90
-  [   14.486046]  ? __sys_sendmsg+0x41/0x70
-  [   14.486587]  __sys_sendmsg+0x41/0x70
-  [   14.487105]  ? intel_pmu_drain_pebs_core+0x350/0x350
-  [   14.487822]  do_syscall_64+0x34/0x80
-  [   14.488345]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-  [...]
+Use a signed iterator to make sure that the loop exits once
+the remaining time is negative.
 
-The test scenario has the following flow:
-
-thread1                               thread2
------------                           ---------------
- tcp_bpf_sendmsg
-  tcp_bpf_send_verdict
-   tcp_bpf_sendmsg_redir              sock_close
-    tcp_bpf_push_locked                 __sock_release
-     tcp_bpf_push                         //inet_release
-      do_tcp_sendpages                    sock->ops->release
-       sk_stream_wait_memory          	   // tcp_close
-          sk_wait_event                      sk->sk_prot->close
-           release_sock(__sk);
-            ***
-                                                lock_sock(sk);
-                                                  __tcp_close
-                                                    sock_orphan(sk)
-                                                      sk->sk_wq  = NULL
-                                                release_sock
-            ****
-           lock_sock(__sk);
-          remove_wait_queue(sk_sleep(sk), &wait);
-             sk_sleep(sk)
-             //NULL pointer dereference
-             &rcu_dereference_raw(sk->sk_wq)->wait
-
-While waiting for memory in thread1, the socket is released with its wait
-queue because thread2 has closed it. This caused by tcp_bpf_send_verdict
-didn't increase the f_count of psock->sk_redir->sk_socket->file in thread1.
-
-We should check if SOCK_DEAD flag is set on wakeup in sk_stream_wait_memory
-before accessing the wait queue.
-
-Suggested-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/bpf/20220823133755.314697-2-liujian56@huawei.com
+Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
+Link: https://lore.kernel.org/r/20220909125954.577669-1-patrick.rudolph@9elements.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/stream.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/regulator/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/stream.c b/net/core/stream.c
-index 3d98774cf128..7b411a91a81c 100644
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -159,7 +159,8 @@ int sk_stream_wait_memory(struct sock *sk, long *timeo_p)
- 		*timeo_p = current_timeo;
- 	}
- out:
--	remove_wait_queue(sk_sleep(sk), &wait);
-+	if (!sock_flag(sk, SOCK_DEAD))
-+		remove_wait_queue(sk_sleep(sk), &wait);
- 	return err;
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 317d701487ec..bf8ba73d6c7c 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -2544,7 +2544,7 @@ static int _regulator_do_enable(struct regulator_dev *rdev)
+ 	 * expired, return -ETIMEDOUT.
+ 	 */
+ 	if (rdev->desc->poll_enabled_time) {
+-		unsigned int time_remaining = delay;
++		int time_remaining = delay;
  
- do_error:
+ 		while (time_remaining > 0) {
+ 			_regulator_enable_delay(rdev->desc->poll_enabled_time);
 -- 
 2.35.1
 
