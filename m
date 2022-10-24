@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 953CE60B787
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:25:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A16F460B8C2
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:53:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232484AbiJXTZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:25:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
+        id S233822AbiJXTxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:53:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233373AbiJXTYO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:24:14 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBD8F3F316;
-        Mon, 24 Oct 2022 10:58:23 -0700 (PDT)
+        with ESMTP id S233594AbiJXTwj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:52:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70DF173C35;
+        Mon, 24 Oct 2022 11:17:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6D5C1CE1677;
-        Mon, 24 Oct 2022 12:36:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BD3AC433C1;
-        Mon, 24 Oct 2022 12:36:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E169EB817C1;
+        Mon, 24 Oct 2022 12:36:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0B0C433D6;
+        Mon, 24 Oct 2022 12:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614978;
-        bh=5of1Olx1A+AaRrxi8YE6LOXyOeDWn95p5vYiMDeZUi8=;
+        s=korg; t=1666614986;
+        bh=Vos19/Db4czhMT1CsuPRfjC462d6PLCeRGLl/whOJxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MoMQ8aNhsKdiBm3zzFcv8tkwymS33VYJsz0R4sd5slHEtTdTabRXS1xKkEQ4YatSf
-         ENHuAeU45gFTy2fJPGUDawm+aorl1rLJpgCufac37Rrrogd0q67xLi7VjMBZqulXEB
-         k30e07UKi6FMzerBlLCOQYkz5GeSP1wgU6bZORhk=
+        b=mKFmumV4r5ISFTK8Yd4MM0PQUuznghGYT3YJ4GkGuFIPJHYI26+nktKqHpkWj6o7o
+         PPtnszxk4/rIVXkNQYfTGhYf3xcmQjflQOHjeyEQbnXK1zVumzCGmvPJ0m/RkuHp1x
+         r3ovGSqf0gE/ui+dtUIIpsyS7kTrykjPquFy8cig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 076/530] ksmbd: Fix wrong return value and message length check in smb2_ioctl()
-Date:   Mon, 24 Oct 2022 13:27:00 +0200
-Message-Id: <20221024113048.459889622@linuxfoundation.org>
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 079/530] btrfs: fix race between quota enable and quota rescan ioctl
+Date:   Mon, 24 Oct 2022 13:27:03 +0200
+Message-Id: <20221024113048.585821482@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,56 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit b1763d265af62800ec96eeb79803c4c537dcef3a upstream.
+commit 331cd9461412e103d07595a10289de90004ac890 upstream.
 
-Commit c7803b05f74b ("smb3: fix ksmbd bigendian bug in oplock
-break, and move its struct to smbfs_common") use the defination
-of 'struct validate_negotiate_info_req' in smbfs_common, the
-array length of 'Dialects' changed from 1 to 4, but the protocol
-does not require the client to send all 4. This lead the request
-which satisfied with protocol and server to fail.
+When enabling quotas, at btrfs_quota_enable(), after committing the
+transaction, we change fs_info->quota_root to point to the quota root we
+created and set BTRFS_FS_QUOTA_ENABLED at fs_info->flags. Then we try
+to start the qgroup rescan worker, first by initializing it with a call
+to qgroup_rescan_init() - however if that fails we end up freeing the
+quota root but we leave fs_info->quota_root still pointing to it, this
+can later result in a use-after-free somewhere else.
 
-So just ensure the request payload has the 'DialectCount' in
-smb2_ioctl(), then fsctl_validate_negotiate_info() will use it
-to validate the payload length and each dialect.
+We have previously set the flags BTRFS_FS_QUOTA_ENABLED and
+BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with -EINPROGRESS at
+btrfs_quota_enable(), which is possible if someone already called the
+quota rescan ioctl, and therefore started the rescan worker.
 
-Also when the {in, out}_buf_len is less than the required, should
-goto out to initialize the status in the response header.
+So fix this by ignoring an -EINPROGRESS and asserting we can't get any
+other error.
 
-Fixes: f7db8fd03a4b ("ksmbd: add validation in smb2_ioctl")
-Cc: stable@vger.kernel.org
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Reported-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/linux-btrfs/20220823015931.421355-1-yebin10@huawei.com/
+CC: stable@vger.kernel.org # 4.19+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/smb2pdu.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ fs/btrfs/qgroup.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -7617,11 +7617,16 @@ int smb2_ioctl(struct ksmbd_work *work)
- 			goto out;
- 		}
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -1157,6 +1157,21 @@ out_add_root:
+ 		fs_info->qgroup_rescan_running = true;
+ 	        btrfs_queue_work(fs_info->qgroup_rescan_workers,
+ 	                         &fs_info->qgroup_rescan_work);
++	} else {
++		/*
++		 * We have set both BTRFS_FS_QUOTA_ENABLED and
++		 * BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with
++		 * -EINPROGRESS. That can happen because someone started the
++		 * rescan worker by calling quota rescan ioctl before we
++		 * attempted to initialize the rescan worker. Failure due to
++		 * quotas disabled in the meanwhile is not possible, because
++		 * we are holding a write lock on fs_info->subvol_sem, which
++		 * is also acquired when disabling quotas.
++		 * Ignore such error, and any other error would need to undo
++		 * everything we did in the transaction we just committed.
++		 */
++		ASSERT(ret == -EINPROGRESS);
++		ret = 0;
+ 	}
  
--		if (in_buf_len < sizeof(struct validate_negotiate_info_req))
--			return -EINVAL;
-+		if (in_buf_len < offsetof(struct validate_negotiate_info_req,
-+					  Dialects)) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
- 
--		if (out_buf_len < sizeof(struct validate_negotiate_info_rsp))
--			return -EINVAL;
-+		if (out_buf_len < sizeof(struct validate_negotiate_info_rsp)) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
- 
- 		ret = fsctl_validate_negotiate_info(conn,
- 			(struct validate_negotiate_info_req *)&req->Buffer[0],
+ out_free_path:
 
 
