@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AD5E60AAC2
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:38:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0877E60A7F7
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236114AbiJXNiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:38:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36886 "EHLO
+        id S234876AbiJXNAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:00:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236362AbiJXNf0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:35:26 -0400
+        with ESMTP id S234982AbiJXM7E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F67563FDC;
-        Mon, 24 Oct 2022 05:35:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4A495AC1;
+        Mon, 24 Oct 2022 05:18:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39388612B2;
-        Mon, 24 Oct 2022 12:35:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AA19C433C1;
-        Mon, 24 Oct 2022 12:35:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC9F5612FD;
+        Mon, 24 Oct 2022 12:16:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F320C433C1;
+        Mon, 24 Oct 2022 12:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614946;
-        bh=TkNEbl4rXpYuyrYqfn7l0bzdDIybOhdQxIHQuOiiLc8=;
+        s=korg; t=1666613776;
+        bh=oUV8zeZQN2y6uAKtvwYQIIk6Cb4xc8dJvWlOpMz+ogA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XKJurgiVbEMMYtYhP19s4075Lm+/+gYAjfhzF1pKv8+3KX2PqX/I2h+IbbugbYdvq
-         lgYsSQ9JW/c2FchHyXB6rN56OlA5RDlgG1P9+J9tzBlfvqtPNuBOqNBQoL8Q7K8AOf
-         2f/MGA1xW7lFBAdTM9+XYRRL9SJ11QhAw6mfmO0M=
+        b=vtiyyUWJE9TDCoiw3NwthZjG7TYL+JMCRD9PA6AzHJmUgeRpCqA4GE9tLIG/mgEoS
+         WxMuU47oJXkHiejRpaUgNuJUwTik+75uNVeDM2r+9bjH4M1NQ8Xp7ILCb/YCG/3URK
+         1DyltbX2PmNG/ETC2plL4MkCEQWtvInSTdcxqB5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anders Blomdell <anders.blomdell@control.lth.se>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: [PATCH 5.15 062/530] serial: 8250: Let drivers request full 16550A feature probing
-Date:   Mon, 24 Oct 2022 13:26:46 +0200
-Message-Id: <20221024113047.850200055@linuxfoundation.org>
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Enzo Matsumiya <ematsumiya@suse.de>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 010/390] cifs: destage dirty pages before re-reading them for cache=none
+Date:   Mon, 24 Oct 2022 13:26:47 +0200
+Message-Id: <20221024113022.976438310@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit 9906890c89e4dbd900ed87ad3040080339a7f411 upstream.
+commit bb44c31cdcac107344dd2fcc3bd0504a53575c51 upstream.
 
-A SERIAL_8250_16550A_VARIANTS configuration option has been recently
-defined that lets one request the 8250 driver not to probe for 16550A
-device features so as to reduce the driver's device startup time in
-virtual machines.
+This is the opposite case of kernel bugzilla 216301.
+If we mmap a file using cache=none and then proceed to update the mmapped
+area these updates are not reflected in a later pread() of that part of the
+file.
+To fix this we must first destage any dirty pages in the range before
+we allow the pread() to proceed.
 
-Some actual hardware devices require these features to have been fully
-determined however for their driver to work correctly, so define a flag
-to let drivers request full 16550A feature probing on a device-by-device
-basis if required regardless of the SERIAL_8250_16550A_VARIANTS option
-setting chosen.
-
-Fixes: dc56ecb81a0a ("serial: 8250: Support disabling mdelay-filled probes of 16550A variants")
-Cc: stable@vger.kernel.org # v5.6+
-Reported-by: Anders Blomdell <anders.blomdell@control.lth.se>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209202357520.41633@angie.orcam.me.uk
+Cc: stable@vger.kernel.org
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Enzo Matsumiya <ematsumiya@suse.de>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    3 ++-
- include/linux/serial_core.h         |    3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ fs/cifs/file.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1029,7 +1029,8 @@ static void autoconfig_16550a(struct uar
- 	up->port.type = PORT_16550A;
- 	up->capabilities |= UART_CAP_FIFO;
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -3936,6 +3936,15 @@ static ssize_t __cifs_readv(
+ 		len = ctx->len;
+ 	}
  
--	if (!IS_ENABLED(CONFIG_SERIAL_8250_16550A_VARIANTS))
-+	if (!IS_ENABLED(CONFIG_SERIAL_8250_16550A_VARIANTS) &&
-+	    !(up->port.flags & UPF_FULL_PROBE))
- 		return;
++	if (direct) {
++		rc = filemap_write_and_wait_range(file->f_inode->i_mapping,
++						  offset, offset + len - 1);
++		if (rc) {
++			kref_put(&ctx->refcount, cifs_aio_ctx_release);
++			return -EAGAIN;
++		}
++	}
++
+ 	/* grab a lock here due to read response handlers can access ctx */
+ 	mutex_lock(&ctx->aio_mutex);
  
- 	/*
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -100,7 +100,7 @@ struct uart_icount {
- 	__u32	buf_overrun;
- };
- 
--typedef unsigned int __bitwise upf_t;
-+typedef u64 __bitwise upf_t;
- typedef unsigned int __bitwise upstat_t;
- 
- struct uart_port {
-@@ -207,6 +207,7 @@ struct uart_port {
- #define UPF_FIXED_PORT		((__force upf_t) (1 << 29))
- #define UPF_DEAD		((__force upf_t) (1 << 30))
- #define UPF_IOREMAP		((__force upf_t) (1 << 31))
-+#define UPF_FULL_PROBE		((__force upf_t) (1ULL << 32))
- 
- #define __UPF_CHANGE_MASK	0x17fff
- #define UPF_CHANGE_MASK		((__force upf_t) __UPF_CHANGE_MASK)
 
 
