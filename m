@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBFB860A8D9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E925260A60E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235642AbiJXNL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:11:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
+        id S230342AbiJXMbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:31:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235989AbiJXNKV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:10:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3999A2337;
-        Mon, 24 Oct 2022 05:23:57 -0700 (PDT)
+        with ESMTP id S234223AbiJXM3k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 697CE85A8A;
+        Mon, 24 Oct 2022 05:03:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92B41612E4;
-        Mon, 24 Oct 2022 12:11:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6AA3C433D6;
-        Mon, 24 Oct 2022 12:11:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC718B81202;
+        Mon, 24 Oct 2022 12:01:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F594C433C1;
+        Mon, 24 Oct 2022 12:00:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613503;
-        bh=QI9wxZDgrBqPGWPZkZgZkNGHm56xUlzdIwnv5LHH7ho=;
+        s=korg; t=1666612859;
+        bh=X4ILSxOO+PtPkQ3PRZOz5fy7LXio65AbI2CUs50rEmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=butk5ILDT73S+ubSGXEY/U4v2Km0wyb2LRzZWswbFF4rlOKknXdtLgeA3H1c6ynba
-         zULLkNdxD1VoVO5nXpVWcqHNpe2rNCX7GjU7iu96A10p2/AwN3a+rrC6Z2M2Ql8h4+
-         hmOBCarFdkNSHBy3pjZoHqxet2H4By2iBVmyHidI=
+        b=VGPwWUoc0/ZCSY6d4c2w2Dux0ctz1BVcD6DJ6BffVT4JPNCu9UIRHl8EfuiZg5PS1
+         WyvCM81apAvRGvoQveGIAHf2s6kEi4DLbwKzU6XVf2d40Pc8fTkZocIL3Gp5pTlNOP
+         TI7vJS0VLtdIJu2k5A1aaC7llwbRAyXeQ9wZGmcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 154/255] serial: 8250: Fix restoring termios speed after suspend
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Philipp Hortmann <philipp.g.hortmann@gmail.com>,
+        Nam Cao <namcaov@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 145/229] staging: vt6655: fix some erroneous memory clean-up loops
 Date:   Mon, 24 Oct 2022 13:31:04 +0200
-Message-Id: <20221024113007.770480129@linuxfoundation.org>
+Message-Id: <20221024113003.706003076@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Nam Cao <namcaov@gmail.com>
 
-[ Upstream commit 379a33786d489ab81885ff0b3935cfeb36137fea ]
+[ Upstream commit 2a2db520e3ca5aafba7c211abfd397666c9b5f9d ]
 
-Since commit edc6afc54968 ("tty: switch to ktermios and new framework")
-termios speed is no longer stored only in c_cflag member but also in new
-additional c_ispeed and c_ospeed members. If BOTHER flag is set in c_cflag
-then termios speed is stored only in these new members.
+In some initialization functions of this driver, memory is allocated with
+'i' acting as an index variable and increasing from 0. The commit in
+"Fixes" introduces some clean-up codes in case of allocation failure,
+which free memory in reverse order with 'i' decreasing to 0. However,
+there are some problems:
+  - The case i=0 is left out. Thus memory is leaked.
+  - In case memory allocation fails right from the start, the memory
+    freeing loops will start with i=-1 and invalid memory locations will
+    be accessed.
 
-Since commit 027b57170bf8 ("serial: core: Fix initializing and restoring
-termios speed") termios speed is available also in struct console.
+One of these loops has been fixed in commit c8ff91535880 ("staging:
+vt6655: fix potential memory leak"). Fix the remaining erroneous loops.
 
-So properly restore also c_ispeed and c_ospeed members after suspend to fix
-restoring termios speed which is not represented by Bnnn constant.
-
-Fixes: 4516d50aabed ("serial: 8250: Use canary to restart console after suspend")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20220924104324.4035-1-pali@kernel.org
+Link: https://lore.kernel.org/linux-staging/Yx9H1zSpxmNqx6Xc@kadam/
+Fixes: 5341ee0adb17 ("staging: vt6655: check for memory allocation failures")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Tested-by: Philipp Hortmann <philipp.g.hortmann@gmail.com>
+Signed-off-by: Nam Cao <namcaov@gmail.com>
+Link: https://lore.kernel.org/r/20220912170429.29852-1-namcaov@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/staging/vt6655/device_main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index f8819f72304a..c1551319684f 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -3180,8 +3180,13 @@ static void serial8250_console_restore(struct uart_8250_port *up)
- 	unsigned int baud, quot, frac = 0;
+diff --git a/drivers/staging/vt6655/device_main.c b/drivers/staging/vt6655/device_main.c
+index 76f434c1c088..cf86b1efa821 100644
+--- a/drivers/staging/vt6655/device_main.c
++++ b/drivers/staging/vt6655/device_main.c
+@@ -567,7 +567,7 @@ static int device_init_rd0_ring(struct vnt_private *priv)
+ 	kfree(desc->rd_info);
  
- 	termios.c_cflag = port->cons->cflag;
--	if (port->state->port.tty && termios.c_cflag == 0)
-+	termios.c_ispeed = port->cons->ispeed;
-+	termios.c_ospeed = port->cons->ospeed;
-+	if (port->state->port.tty && termios.c_cflag == 0) {
- 		termios.c_cflag = port->state->port.tty->termios.c_cflag;
-+		termios.c_ispeed = port->state->port.tty->termios.c_ispeed;
-+		termios.c_ospeed = port->state->port.tty->termios.c_ospeed;
-+	}
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->aRD0Ring[i];
+ 		device_free_rx_buf(priv, desc);
+ 		kfree(desc->rd_info);
+@@ -613,7 +613,7 @@ static int device_init_rd1_ring(struct vnt_private *priv)
+ 	kfree(desc->rd_info);
  
- 	baud = serial8250_get_baud_rate(port, &termios, NULL);
- 	quot = serial8250_get_divisor(port, baud, &frac);
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->aRD1Ring[i];
+ 		device_free_rx_buf(priv, desc);
+ 		kfree(desc->rd_info);
+@@ -717,7 +717,7 @@ static int device_init_td1_ring(struct vnt_private *priv)
+ 	return 0;
+ 
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->apTD1Rings[i];
+ 		kfree(desc->td_info);
+ 	}
 -- 
 2.35.1
 
