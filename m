@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4547660B9E8
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:23:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D41760BB7A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 23:02:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234247AbiJXUXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:23:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35670 "EHLO
+        id S235202AbiJXVCG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 17:02:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234255AbiJXUWD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:22:03 -0400
+        with ESMTP id S234031AbiJXVBl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 17:01:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23968303D9;
-        Mon, 24 Oct 2022 11:38:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 107ACCA890;
+        Mon, 24 Oct 2022 12:07:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 197BCB815C9;
-        Mon, 24 Oct 2022 12:21:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D81EC433C1;
-        Mon, 24 Oct 2022 12:21:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53453B81986;
+        Mon, 24 Oct 2022 12:41:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB13C433D6;
+        Mon, 24 Oct 2022 12:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614100;
-        bh=uZJSkICK2C34aTV38fU/k4A7DgK2gMN2TrjVjEJdnXM=;
+        s=korg; t=1666615301;
+        bh=gbWOcWJVIeCSTWsZe9h9k7u01aFXM886CSuh3qHNISM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OEty9wcvIMqtqD52HKr0ri2n7VhGi50iRwwgwVo8jAT5Eh83d5Xf89o1JAjVUGerR
-         4vhXn0ufdVBmtCPnb1OX0wdCeVH8ssr+4e9eJrenEy7V8Mok3GhGve2QYXN29nixpx
-         H3nCuh3xOJekjsR1VucvV7iW907zW+By27Qk5cq4=
+        b=Upe2SmRSWqcW+j7E0wIpDkS2m6hhUcMm/qIStnhyFzpP/0hUJuR3bGhpIq/JzpdFg
+         27EgOktdoNcNLjNxNtKLTBd+G189fdcybR2cDkpGVISrAB69p45QUCVh56N4a9EGM+
+         19SWc/MbDn1wPt0EaOhqEo+6h6+ij56F+IDtKzOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanislav Fomichev <sdf@google.com>,
-        Lorenz Bauer <oss@lmb.io>, Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 115/390] bpf: btf: fix truncated last_member_type_id in btf_struct_resolve
+Subject: [PATCH 5.15 168/530] spi: qup: add missing clk_disable_unprepare on error in spi_qup_pm_resume_runtime()
 Date:   Mon, 24 Oct 2022 13:28:32 +0200
-Message-Id: <20221024113027.593674651@linuxfoundation.org>
+Message-Id: <20221024113052.653014735@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <oss@lmb.io>
+From: Xu Qiang <xuqiang36@huawei.com>
 
-[ Upstream commit a37a32583e282d8d815e22add29bc1e91e19951a ]
+[ Upstream commit 494a22765ce479c9f8ad181c5d24cffda9f534bb ]
 
-When trying to finish resolving a struct member, btf_struct_resolve
-saves the member type id in a u16 temporary variable. This truncates
-the 32 bit type id value if it exceeds UINT16_MAX.
+Add the missing clk_disable_unprepare() before return
+from spi_qup_pm_resume_runtime() in the error handling case.
 
-As a result, structs that have members with type ids > UINT16_MAX and
-which need resolution will fail with a message like this:
-
-    [67414] STRUCT ff_device size=120 vlen=12
-        effect_owners type_id=67434 bits_offset=960 Member exceeds struct_size
-
-Fix this by changing the type of last_member_type_id to u32.
-
-Fixes: a0791f0df7d2 ("bpf: fix BTF limits")
-Reviewed-by: Stanislav Fomichev <sdf@google.com>
-Signed-off-by: Lorenz Bauer <oss@lmb.io>
-Link: https://lore.kernel.org/r/20220910110120.339242-1-oss@lmb.io
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: dae1a7700b34 (“spi: qup: Handle clocks in pm_runtime suspend and resume”)
+Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
+Link: https://lore.kernel.org/r/20220825065324.68446-2-xuqiang36@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/btf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-qup.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index dc497eaf2266..9232938e3f96 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -2913,7 +2913,7 @@ static int btf_struct_resolve(struct btf_verifier_env *env,
- 	if (v->next_member) {
- 		const struct btf_type *last_member_type;
- 		const struct btf_member *last_member;
--		u16 last_member_type_id;
-+		u32 last_member_type_id;
+diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
+index 668d79922fac..f3877eeb3da6 100644
+--- a/drivers/spi/spi-qup.c
++++ b/drivers/spi/spi-qup.c
+@@ -1199,8 +1199,10 @@ static int spi_qup_pm_resume_runtime(struct device *device)
+ 		return ret;
  
- 		last_member = btf_type_member(v->t) + v->next_member - 1;
- 		last_member_type_id = last_member->type;
+ 	ret = clk_prepare_enable(controller->cclk);
+-	if (ret)
++	if (ret) {
++		clk_disable_unprepare(controller->iclk);
+ 		return ret;
++	}
+ 
+ 	/* Disable clocks auto gaiting */
+ 	config = readl_relaxed(controller->base + QUP_CONFIG);
 -- 
 2.35.1
 
