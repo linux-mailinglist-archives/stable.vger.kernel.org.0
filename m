@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38E7660B04D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:05:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE5860B028
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230367AbiJXQFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58392 "EHLO
+        id S232312AbiJXQCT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:02:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232473AbiJXQCs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:02:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9375E18BE1A;
-        Mon, 24 Oct 2022 07:55:53 -0700 (PDT)
+        with ESMTP id S232342AbiJXQAo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:00:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5D3D8991E;
+        Mon, 24 Oct 2022 07:55:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41BBCB8167E;
-        Mon, 24 Oct 2022 12:26:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FA35C433D7;
-        Mon, 24 Oct 2022 12:26:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80CF7B81181;
+        Mon, 24 Oct 2022 12:27:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3145C433C1;
+        Mon, 24 Oct 2022 12:27:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614415;
-        bh=NKs2j46xrycp+rC2BkWY1EBoIVk7nyn2lYjtSNXnOnU=;
+        s=korg; t=1666614421;
+        bh=xGYjKcOLlvZoNqj94TrqhJyt9N8mS9hRdIcXcQIs8x4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0pAjQzO++oqmjacpOqrZsXD/p1I3RxPN/OVAkMMdFCugOXoIQYMS68NNiWiTpTHY
-         w56M8UU20zzJ9ChUUBUsm///NlXL71KrZ5rWpQmqKYZckgwpKCpNe6Q7+mnpoKR17R
-         3ewcFGhTw/lmtB2VuspkGTrSKWddBg559WXcCgwA=
+        b=G/saWFEvaDSyI+0kFJPwq3KCw5yFe7T9YEXkmljxyWoccvFvTMAQXi5xgB1beWeNh
+         V0XamzQigfC4lAodl/TZIpGMSkmCBEbm8j0+FkY0h4PEhxpau6iEO5kRUSpm4eXMhm
+         Nc+th26rJra1TD4aDJhXe7kLkV9ozjfrtx4U8WU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 222/390] mtd: rawnand: fsl_elbc: Fix none ECC mode
-Date:   Mon, 24 Oct 2022 13:30:19 +0200
-Message-Id: <20221024113032.224298131@linuxfoundation.org>
+Subject: [PATCH 5.10 224/390] ata: fix ata_id_sense_reporting_enabled() and ata_id_has_sense_reporting()
+Date:   Mon, 24 Oct 2022 13:30:21 +0200
+Message-Id: <20221024113032.311407255@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -55,93 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit 049e43b9fd8fd2966940485da163d67e96ee3fea ]
+[ Upstream commit 690aa8c3ae308bc696ec8b1b357b995193927083 ]
 
-Commit f6424c22aa36 ("mtd: rawnand: fsl_elbc: Make SW ECC work") added
-support for specifying ECC mode via DTS and skipping autodetection.
+ACS-5 section
+7.13.6.41 Words 85..87, 120: Commands and feature sets supported or enabled
+states that:
 
-But it broke explicit specification of HW ECC mode in DTS as correct
-settings for HW ECC mode are applied only when NONE mode or nothing was
-specified in DTS file.
+If bit 15 of word 86 is set to one, bit 14 of word 119 is set to one,
+and bit 15 of word 119 is cleared to zero, then word 119 is valid.
 
-Also it started aliasing NONE mode to be same as when ECC mode was not
-specified and disallowed usage of ON_DIE mode.
+If bit 15 of word 86 is set to one, bit 14 of word 120 is set to one,
+and bit 15 of word 120 is cleared to zero, then word 120 is valid.
 
-Fix all these issues. Use autodetection of ECC mode only in case when mode
-was really not specified in DTS file by checking that ecc value is invalid.
-Set HW ECC settings either when HW ECC was specified in DTS or it was
-autodetected. And do not fail when ON_DIE mode is set.
+(This text also exists in really old ACS standards, e.g. ACS-3.)
 
-Fixes: f6424c22aa36 ("mtd: rawnand: fsl_elbc: Make SW ECC work")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220707184328.3845-1-pali@kernel.org
+Currently, ata_id_sense_reporting_enabled() and
+ata_id_has_sense_reporting() both check bit 15 of word 86,
+but neither of them check that bit 14 of word 119 is set to one,
+or that bit 15 of word 119 is cleared to zero.
+
+Additionally, make ata_id_sense_reporting_enabled() return false
+if !ata_id_has_sense_reporting(), similar to how e.g.
+ata_id_flush_ext_enabled() returns false if !ata_id_has_flush_ext().
+
+Fixes: e87fd28cf9a2 ("libata: Implement support for sense data reporting")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/fsl_elbc_nand.c | 28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ include/linux/ata.h | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/fsl_elbc_nand.c b/drivers/mtd/nand/raw/fsl_elbc_nand.c
-index b2af7f81fdf8..c174b6dc3c6b 100644
---- a/drivers/mtd/nand/raw/fsl_elbc_nand.c
-+++ b/drivers/mtd/nand/raw/fsl_elbc_nand.c
-@@ -727,36 +727,40 @@ static int fsl_elbc_attach_chip(struct nand_chip *chip)
- 	struct fsl_lbc_regs __iomem *lbc = ctrl->regs;
- 	unsigned int al;
+diff --git a/include/linux/ata.h b/include/linux/ata.h
+index 6e67aded28f8..734cc646ce35 100644
+--- a/include/linux/ata.h
++++ b/include/linux/ata.h
+@@ -770,16 +770,21 @@ static inline bool ata_id_has_read_log_dma_ext(const u16 *id)
  
--	switch (chip->ecc.engine_type) {
- 	/*
- 	 * if ECC was not chosen in DT, decide whether to use HW or SW ECC from
- 	 * CS Base Register
- 	 */
--	case NAND_ECC_ENGINE_TYPE_NONE:
-+	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_INVALID) {
- 		/* If CS Base Register selects full hardware ECC then use it */
- 		if ((in_be32(&lbc->bank[priv->bank].br) & BR_DECC) ==
- 		    BR_DECC_CHK_GEN) {
--			chip->ecc.read_page = fsl_elbc_read_page;
--			chip->ecc.write_page = fsl_elbc_write_page;
--			chip->ecc.write_subpage = fsl_elbc_write_subpage;
--
- 			chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
--			mtd_set_ooblayout(mtd, &fsl_elbc_ooblayout_ops);
--			chip->ecc.size = 512;
--			chip->ecc.bytes = 3;
--			chip->ecc.strength = 1;
- 		} else {
- 			/* otherwise fall back to default software ECC */
- 			chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
- 			chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
- 		}
-+	}
-+
-+	switch (chip->ecc.engine_type) {
-+	/* if HW ECC was chosen, setup ecc and oob layout */
-+	case NAND_ECC_ENGINE_TYPE_ON_HOST:
-+		chip->ecc.read_page = fsl_elbc_read_page;
-+		chip->ecc.write_page = fsl_elbc_write_page;
-+		chip->ecc.write_subpage = fsl_elbc_write_subpage;
-+		mtd_set_ooblayout(mtd, &fsl_elbc_ooblayout_ops);
-+		chip->ecc.size = 512;
-+		chip->ecc.bytes = 3;
-+		chip->ecc.strength = 1;
- 		break;
+ static inline bool ata_id_has_sense_reporting(const u16 *id)
+ {
+-	if (!(id[ATA_ID_CFS_ENABLE_2] & (1 << 15)))
++	if (!(id[ATA_ID_CFS_ENABLE_2] & BIT(15)))
++		return false;
++	if ((id[ATA_ID_COMMAND_SET_3] & (BIT(15) | BIT(14))) != BIT(14))
+ 		return false;
+-	return id[ATA_ID_COMMAND_SET_3] & (1 << 6);
++	return id[ATA_ID_COMMAND_SET_3] & BIT(6);
+ }
  
--	/* if SW ECC was chosen in DT, we do not need to set anything here */
-+	/* if none or SW ECC was chosen, we do not need to set anything here */
-+	case NAND_ECC_ENGINE_TYPE_NONE:
- 	case NAND_ECC_ENGINE_TYPE_SOFT:
-+	case NAND_ECC_ENGINE_TYPE_ON_DIE:
- 		break;
+ static inline bool ata_id_sense_reporting_enabled(const u16 *id)
+ {
+-	if (!(id[ATA_ID_CFS_ENABLE_2] & (1 << 15)))
++	if (!ata_id_has_sense_reporting(id))
++		return false;
++	/* ata_id_has_sense_reporting() == true, word 86 must have bit 15 set */
++	if ((id[ATA_ID_COMMAND_SET_4] & (BIT(15) | BIT(14))) != BIT(14))
+ 		return false;
+-	return id[ATA_ID_COMMAND_SET_4] & (1 << 6);
++	return id[ATA_ID_COMMAND_SET_4] & BIT(6);
+ }
  
--	/* should we also implement *_ECC_ENGINE_CONTROLLER to do as above? */
- 	default:
- 		return -EINVAL;
- 	}
+ /**
 -- 
 2.35.1
 
