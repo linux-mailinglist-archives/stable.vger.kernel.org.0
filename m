@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4379C60A77D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:51:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD16B60A636
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234438AbiJXMvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:51:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56306 "EHLO
+        id S233984AbiJXMc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:32:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234808AbiJXMta (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:49:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BC00923ED;
-        Mon, 24 Oct 2022 05:13:33 -0700 (PDT)
+        with ESMTP id S234483AbiJXMa1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:30:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C914038BE;
+        Mon, 24 Oct 2022 05:04:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36E2A612F3;
-        Mon, 24 Oct 2022 12:11:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 413E3C433B5;
-        Mon, 24 Oct 2022 12:11:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D986B81154;
+        Mon, 24 Oct 2022 11:44:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61EE2C433D7;
+        Mon, 24 Oct 2022 11:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613505;
-        bh=V2dOPSF3+RqJgCZ0dAjorrygamRapc5bi17muQbPhos=;
+        s=korg; t=1666611888;
+        bh=PafxsnHxx4dVwa3Z0lxLALA3Rw5PXommpfyQG/T/gxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JmRzCPD61aGrNBEKnHpnWHViaadflMAm3Uu1Udd0H6vuHO0BSSdKZ0QsopfK+fSUj
-         txviznu+DFlIHsDsOKXnZJQm8pEi5+TiCGncSydexO+RJm+Rz740pqyJuu9yoosV02
-         sAfoM1zipBJFYOU+9nJzubtSCHIFmNpTXiJld920=
+        b=x5S1Ed/qZDU3RhqRdMbAohunG7U63GUW1TjivY/x1XmWPyJn1HQwZgUXSdM12TkFp
+         joxucFO6/crF/6LGd6fiWesNIVReQbcR02wgWZfFD3CuZcG14/of9Tiz7J1RepmusU
+         B2VSYZ3XjHSgr2VSUQIq3oFTff+RluYZXm9UcHww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 163/255] clk: mediatek: mt8183: mfgcfg: Propagate rate changes to parent
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Miaoqian Lin <linmq006@gmail.com>
+Subject: [PATCH 4.9 119/159] powerpc/pci_dn: Add missing of_node_put()
 Date:   Mon, 24 Oct 2022 13:31:13 +0200
-Message-Id: <20221024113008.118489236@linuxfoundation.org>
+Message-Id: <20221024112953.844303100@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 9f94f545f258b15bfa6357eb62e1e307b712851e ]
+[ Upstream commit 110a1fcb6c4d55144d8179983a475f17a1d6f832 ]
 
-The only clock in the MT8183 MFGCFG block feeds the GPU. Propagate its
-rate change requests to its parent, so that DVFS for the GPU can work
-properly.
+In pci_add_device_node_info(), use of_node_put() to drop the reference
+to 'parent' returned by of_get_parent() to keep refcount balance.
 
-Fixes: acddfc2c261b ("clk: mediatek: Add MT8183 clock support")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220927101128.44758-3-angelogioacchino.delregno@collabora.com
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Fixes: cca87d303c85 ("powerpc/pci: Refactor pci_dn")
+Co-authored-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220701131750.240170-1-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mediatek/clk-mt8183-mfgcfg.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/pci_dn.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/mediatek/clk-mt8183-mfgcfg.c b/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
-index 37b4162c5882..3a33014eee7f 100644
---- a/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
-+++ b/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
-@@ -18,9 +18,9 @@ static const struct mtk_gate_regs mfg_cg_regs = {
- 	.sta_ofs = 0x0,
- };
+diff --git a/arch/powerpc/kernel/pci_dn.c b/arch/powerpc/kernel/pci_dn.c
+index c8f1b78fbd0e..3954e3bb944b 100644
+--- a/arch/powerpc/kernel/pci_dn.c
++++ b/arch/powerpc/kernel/pci_dn.c
+@@ -355,6 +355,7 @@ struct pci_dn *pci_add_device_node_info(struct pci_controller *hose,
+ 	INIT_LIST_HEAD(&pdn->list);
+ 	parent = of_get_parent(dn);
+ 	pdn->parent = parent ? PCI_DN(parent) : NULL;
++	of_node_put(parent);
+ 	if (pdn->parent)
+ 		list_add_tail(&pdn->list, &pdn->parent->child_list);
  
--#define GATE_MFG(_id, _name, _parent, _shift)			\
--	GATE_MTK(_id, _name, _parent, &mfg_cg_regs, _shift,	\
--		&mtk_clk_gate_ops_setclr)
-+#define GATE_MFG(_id, _name, _parent, _shift)				\
-+	GATE_MTK_FLAGS(_id, _name, _parent, &mfg_cg_regs, _shift,	\
-+		       &mtk_clk_gate_ops_setclr, CLK_SET_RATE_PARENT)
- 
- static const struct mtk_gate mfg_clks[] = {
- 	GATE_MFG(CLK_MFG_BG3D, "mfg_bg3d", "mfg_sel", 0)
 -- 
 2.35.1
 
