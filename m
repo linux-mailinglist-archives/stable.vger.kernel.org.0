@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBDFC60A7E5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A27F60AA59
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234824AbiJXNAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41042 "EHLO
+        id S230331AbiJXNcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:32:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234872AbiJXM6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:58:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C217F97D55;
-        Mon, 24 Oct 2022 05:17:20 -0700 (PDT)
+        with ESMTP id S236401AbiJXNa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:30:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46895ACA15;
+        Mon, 24 Oct 2022 05:33:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CBBA26131B;
-        Mon, 24 Oct 2022 12:14:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D99A1C433C1;
-        Mon, 24 Oct 2022 12:14:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DDB5B811A3;
+        Mon, 24 Oct 2022 12:04:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FEE7C433D6;
+        Mon, 24 Oct 2022 12:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613669;
-        bh=9XVHi6LjLIEvFxinmzDv+KRBll8JSc+JVj9D8ceuSkI=;
+        s=korg; t=1666613046;
+        bh=aEG1Q87LEw/VLXcyOS6H+7+xQgq198aUjuI9fqs0HMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XtLn2jT/SCxL9A3hh+Q4DmnH6S12CLdeQlmklTEoDQHJH3W+Kb3WvMcQrE+JSmHYZ
-         y4w+tbJCGY0j3vCTH+gdcEpzdARpjvTD6SbTlMoBZNIZYo8jkCJ8cFGLqqNg3D9g+0
-         6eBkBz6aEsLLl74OeTCE/AJ6O57Mt3ZJw/B8iAGo=
+        b=FKUqHlPDaKGiwFOIGk+cGwiGhpV+v6QHLRpSHs/zOUBKxuM8ISublCfNd1f+9MT8+
+         wnDR7/OX8YGLi8Aty0uE7aaJlE4KrxIYFCIme2D1iof+/Iekoh37PUHmyxPyfFO/7m
+         L4huEijVGIAORF6P92TWxZ/eMAkmX+NcSVlD4saA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Pattrick <mkp@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 194/255] openvswitch: Fix overreporting of drops in dropwatch
-Date:   Mon, 24 Oct 2022 13:31:44 +0200
-Message-Id: <20221024113009.435496843@linuxfoundation.org>
+        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 187/229] wifi: rt2x00: set correct TX_SW_CFG1 MAC register for MT7620
+Date:   Mon, 24 Oct 2022 13:31:46 +0200
+Message-Id: <20221024113005.161656239@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Pattrick <mkp@redhat.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit c21ab2afa2c64896a7f0e3cbc6845ec63dcfad2e ]
+[ Upstream commit eeb50acf15762b61921f9df18663f839f387c054 ]
 
-Currently queue_userspace_packet will call kfree_skb for all frames,
-whether or not an error occurred. This can result in a single dropped
-frame being reported as multiple drops in dropwatch. This functions
-caller may also call kfree_skb in case of an error. This patch will
-consume the skbs instead and allow caller's to use kfree_skb.
+Set correct TX_SW_CFG1 MAC register as it is done also in v3 of the
+vendor driver[1].
 
-Signed-off-by: Mike Pattrick <mkp@redhat.com>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2109957
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[1]: https://gitlab.com/dm38/padavan-ng/-/blob/master/trunk/proprietary/rt_wifi/rtpci/3.0.X.X/mt76x2/chips/rt6352.c#L531
+Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/4be38975ce600a34249e12d09a3cb758c6e71071.1663445157.git.daniel@makrotopia.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/datapath.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
-index 63f36d6cd3f6..41035ce0d23c 100644
---- a/net/openvswitch/datapath.c
-+++ b/net/openvswitch/datapath.c
-@@ -532,8 +532,9 @@ static int queue_userspace_packet(struct datapath *dp, struct sk_buff *skb,
- out:
- 	if (err)
- 		skb_tx_error(skb);
--	kfree_skb(user_skb);
--	kfree_skb(nskb);
-+	consume_skb(user_skb);
-+	consume_skb(nskb);
-+
- 	return err;
- }
- 
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+index 2a119f314c38..b8224b215532 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+@@ -5318,7 +5318,7 @@ static int rt2800_init_registers(struct rt2x00_dev *rt2x00dev)
+ 		rt2800_register_write(rt2x00dev, TX_SW_CFG0, 0x00000404);
+ 	} else if (rt2x00_rt(rt2x00dev, RT6352)) {
+ 		rt2800_register_write(rt2x00dev, TX_SW_CFG0, 0x00000401);
+-		rt2800_register_write(rt2x00dev, TX_SW_CFG1, 0x000C0000);
++		rt2800_register_write(rt2x00dev, TX_SW_CFG1, 0x000C0001);
+ 		rt2800_register_write(rt2x00dev, TX_SW_CFG2, 0x00000000);
+ 		rt2800_register_write(rt2x00dev, MIMO_PS_CFG, 0x00000002);
+ 		rt2800_register_write(rt2x00dev, TX_PIN_CFG, 0x00150F0F);
 -- 
 2.35.1
 
