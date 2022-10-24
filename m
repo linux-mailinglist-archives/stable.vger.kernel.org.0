@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37CD560AA30
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E2E960A807
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:01:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233143AbiJXNbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:31:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50720 "EHLO
+        id S234991AbiJXNAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:00:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236068AbiJXN3c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83816ABF30;
-        Mon, 24 Oct 2022 05:32:40 -0700 (PDT)
+        with ESMTP id S235244AbiJXM7o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DE669AC3B;
+        Mon, 24 Oct 2022 05:19:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C609761314;
-        Mon, 24 Oct 2022 12:29:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7973C433D6;
-        Mon, 24 Oct 2022 12:29:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25C6761257;
+        Mon, 24 Oct 2022 12:04:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38DE7C433C1;
+        Mon, 24 Oct 2022 12:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614552;
-        bh=8kvMFNiK8S3+BVnSHaJK1OdWmE6iurGgh/4op3yCUVY=;
+        s=korg; t=1666613061;
+        bh=rNP+Al6u5YeMGaU/bAoWFB6k46B24myAjYk+sEp9nMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YfpsV6P8o9gMeO6BM/g1AVNQwR3AVDDNosf8HaduyyjCOBU8R27caUpwFZXgX7Vyj
-         IuhvKC6ItuDZ4c2mhMB7KKt2aZHyrXDC+kB64yrk7pXDbUcKfQK4BzXYs4DftUsKfA
-         1KbsxA9DIYIPtDD8SU5ypAfaywJydAefrdUjqfpg=
+        b=F8rdWeWWY5NBUOfmK0KPFbaZbtuuphunuT8ZnOewF2cO5jvyLPsUJvJiKkYgA1d92
+         EoA6ZcuXF68rsgupPt/5H7c209JrjuZgpJyFCzLjk0OETjc8iKaZj1V1yg4Dr9O/o1
+         V2pBzsVjr0JyA9/JigJQc/N+DSXC81rzI7emvvcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+83672956c7aa6af698b3@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 304/390] NFSD: fix use-after-free on source server when doing inter-server copy
-Date:   Mon, 24 Oct 2022 13:31:41 +0200
-Message-Id: <20221024113035.948291024@linuxfoundation.org>
+Subject: [PATCH 4.19 183/229] Bluetooth: L2CAP: initialize delayed works at l2cap_chan_create()
+Date:   Mon, 24 Oct 2022 13:31:42 +0200
+Message-Id: <20221024113005.022499824@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dai Ngo <dai.ngo@oracle.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 019805fea91599b22dfa62ffb29c022f35abeb06 ]
+[ Upstream commit 2d2cb3066f2c90cd8ca540b36ba7a55e7f2406e0 ]
 
-Use-after-free occurred when the laundromat tried to free expired
-cpntf_state entry on the s2s_cp_stateids list after inter-server
-copy completed. The sc_cp_list that the expired copy state was
-inserted on was already freed.
+syzbot is reporting cancel_delayed_work() without INIT_DELAYED_WORK() at
+l2cap_chan_del() [1], for CONF_NOT_COMPLETE flag (which meant to prevent
+l2cap_chan_del() from calling cancel_delayed_work()) is cleared by timer
+which fires before l2cap_chan_del() is called by closing file descriptor
+created by socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_L2CAP).
 
-When COPY completes, the Linux client normally sends LOCKU(lock_state x),
-FREE_STATEID(lock_state x) and CLOSE(open_state y) to the source server.
-The nfs4_put_stid call from nfsd4_free_stateid cleans up the copy state
-from the s2s_cp_stateids list before freeing the lock state's stid.
+l2cap_bredr_sig_cmd(L2CAP_CONF_REQ) and l2cap_bredr_sig_cmd(L2CAP_CONF_RSP)
+are calling l2cap_ertm_init(chan), and they call l2cap_chan_ready() (which
+clears CONF_NOT_COMPLETE flag) only when l2cap_ertm_init(chan) succeeded.
 
-However, sometimes the CLOSE was sent before the FREE_STATEID request.
-When this happens, the nfsd4_close_open_stateid call from nfsd4_close
-frees all lock states on its st_locks list without cleaning up the copy
-state on the sc_cp_list list. When the time the FREE_STATEID arrives the
-server returns BAD_STATEID since the lock state was freed. This causes
-the use-after-free error to occur when the laundromat tries to free
-the expired cpntf_state.
+l2cap_sock_init() does not call l2cap_ertm_init(chan), and it instead sets
+CONF_NOT_COMPLETE flag by calling l2cap_chan_set_defaults(). However, when
+connect() is requested, "command 0x0409 tx timeout" happens after 2 seconds
+ from connect() request, and CONF_NOT_COMPLETE flag is cleared after 4
+seconds from connect() request, for l2cap_conn_start() from
+l2cap_info_timeout() callback scheduled by
 
-This patch adds a call to nfs4_free_cpntf_statelist in
-nfsd4_close_open_stateid to clean up the copy state before calling
-free_ol_stateid_reaplist to free the lock state's stid on the reaplist.
+  schedule_delayed_work(&conn->info_timer, L2CAP_INFO_TIMEOUT);
 
-Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+in l2cap_connect() is calling l2cap_chan_ready().
+
+Fix this problem by initializing delayed works used by L2CAP_MODE_ERTM
+mode as soon as l2cap_chan_create() allocates a channel, like I did in
+commit be8597239379f0f5 ("Bluetooth: initialize skb_queue_head at
+l2cap_chan_create()").
+
+Link: https://syzkaller.appspot.com/bug?extid=83672956c7aa6af698b3 [1]
+Reported-by: syzbot <syzbot+83672956c7aa6af698b3@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/bluetooth/l2cap_core.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index f1b503bec222..665d0eaeb8db 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -843,6 +843,7 @@ static struct nfs4_ol_stateid * nfs4_alloc_open_stateid(struct nfs4_client *clp)
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 65d20bdff023..7c280fcdcaa0 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -63,6 +63,9 @@ static void l2cap_send_disconn_req(struct l2cap_chan *chan, int err);
  
- static void nfs4_free_deleg(struct nfs4_stid *stid)
+ static void l2cap_tx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
+ 		     struct sk_buff_head *skbs, u8 event);
++static void l2cap_retrans_timeout(struct work_struct *work);
++static void l2cap_monitor_timeout(struct work_struct *work);
++static void l2cap_ack_timeout(struct work_struct *work);
+ 
+ static inline u8 bdaddr_type(u8 link_type, u8 bdaddr_type)
  {
-+	WARN_ON(!list_empty(&stid->sc_cp_list));
- 	kmem_cache_free(deleg_slab, stid);
- 	atomic_long_dec(&num_delegations);
- }
-@@ -1358,6 +1359,7 @@ static void nfs4_free_ol_stateid(struct nfs4_stid *stid)
- 	release_all_access(stp);
- 	if (stp->st_stateowner)
- 		nfs4_put_stateowner(stp->st_stateowner);
-+	WARN_ON(!list_empty(&stid->sc_cp_list));
- 	kmem_cache_free(stateid_slab, stid);
- }
+@@ -470,6 +473,9 @@ struct l2cap_chan *l2cap_chan_create(void)
+ 	write_unlock(&chan_list_lock);
  
-@@ -6207,6 +6209,7 @@ static void nfsd4_close_open_stateid(struct nfs4_ol_stateid *s)
- 	struct nfs4_client *clp = s->st_stid.sc_client;
- 	bool unhashed;
- 	LIST_HEAD(reaplist);
-+	struct nfs4_ol_stateid *stp;
+ 	INIT_DELAYED_WORK(&chan->chan_timer, l2cap_chan_timeout);
++	INIT_DELAYED_WORK(&chan->retrans_timer, l2cap_retrans_timeout);
++	INIT_DELAYED_WORK(&chan->monitor_timer, l2cap_monitor_timeout);
++	INIT_DELAYED_WORK(&chan->ack_timer, l2cap_ack_timeout);
  
- 	spin_lock(&clp->cl_lock);
- 	unhashed = unhash_open_stateid(s, &reaplist);
-@@ -6215,6 +6218,8 @@ static void nfsd4_close_open_stateid(struct nfs4_ol_stateid *s)
- 		if (unhashed)
- 			put_ol_stateid_locked(s, &reaplist);
- 		spin_unlock(&clp->cl_lock);
-+		list_for_each_entry(stp, &reaplist, st_locks)
-+			nfs4_free_cpntf_statelist(clp->net, &stp->st_stid);
- 		free_ol_stateid_reaplist(&reaplist);
- 	} else {
- 		spin_unlock(&clp->cl_lock);
+ 	chan->state = BT_OPEN;
+ 
+@@ -3154,10 +3160,6 @@ int l2cap_ertm_init(struct l2cap_chan *chan)
+ 	chan->rx_state = L2CAP_RX_STATE_RECV;
+ 	chan->tx_state = L2CAP_TX_STATE_XMIT;
+ 
+-	INIT_DELAYED_WORK(&chan->retrans_timer, l2cap_retrans_timeout);
+-	INIT_DELAYED_WORK(&chan->monitor_timer, l2cap_monitor_timeout);
+-	INIT_DELAYED_WORK(&chan->ack_timer, l2cap_ack_timeout);
+-
+ 	skb_queue_head_init(&chan->srej_q);
+ 
+ 	err = l2cap_seq_list_init(&chan->srej_list, chan->tx_win);
 -- 
 2.35.1
 
