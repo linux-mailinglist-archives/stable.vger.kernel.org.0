@@ -2,159 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA4760BE99
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 01:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85FBC60BD7E
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 00:35:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231169AbiJXXbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 19:31:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40284 "EHLO
+        id S231779AbiJXWfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 18:35:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231289AbiJXXbT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 19:31:19 -0400
-Received: from aposti.net (aposti.net [89.234.176.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1916FE93F;
-        Mon, 24 Oct 2022 14:52:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1666644741; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=fhJrUP+Njp6HsgAA/ZXoqJpzcRmNXj5pVHzoSisYMV4=;
-        b=X3ViSXvrs2DTVmBs1bS+Stp7Zsayi6JvxxstatJ+bXCQrKzYPB71+k+m1NyhYpgUfMubvJ
-        1dhLa4d241qWW23ro7HP2VPDT6HVtKb9MrcefjBfaOWEPUqVCF2iMd9coarbeAtB+h+dD8
-        8LWesp3qkUci38YVquaZ1QjiD5SP8lU=
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     od@opendingux.net, linux-pwm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-        Paul Cercueil <paul@crapouillou.net>, stable@vger.kernel.org
-Subject: [PATCH 2/5] pwm: jz4740: Fix pin level of disabled TCU2 channels, part 2
-Date:   Mon, 24 Oct 2022 21:52:10 +0100
-Message-Id: <20221024205213.327001-3-paul@crapouillou.net>
-In-Reply-To: <20221024205213.327001-1-paul@crapouillou.net>
-References: <20221024205213.327001-1-paul@crapouillou.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S231295AbiJXWez (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 18:34:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73E42639C;
+        Mon, 24 Oct 2022 13:57:23 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3987B80EE6;
+        Mon, 24 Oct 2022 20:55:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2635CC433D6;
+        Mon, 24 Oct 2022 20:55:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1666644918;
+        bh=RWfZq76bLUqotXvQc5HEgnCzF0wr9PgH34Km4oTHX/I=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=kUovkUWW6eyht23YSZg79tA07RjZ/xitXa1op+hJPEZjIsaiZD9E1TmtRG1amr5/0
+         6RF2OruMIlDda5pIxLC/hxP2yPNPkeQicdaa8G3jL7LFaIu8STDNWN5ePDvVoTQoSE
+         gMAyJW3bAmMR7nXCxHAaeXinA2lWMSQ3GYsL1Wcw=
+Date:   Mon, 24 Oct 2022 13:55:17 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Jan Kara <jack@suse.cz>
+Cc:     Arnd Bergmann <arnd@kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org, Thomas Schmitt <scdbackup@gmx.net>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Jeff Layton <jlayton@kernel.org>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] isofs: prevent file time rollover after year 2038
+Message-Id: <20221024135517.7d40b96a206020eca03e3802@linux-foundation.org>
+In-Reply-To: <20221024145121.2dj6sdeqvxndbhpt@quack3>
+References: <20221020160037.4002270-1-arnd@kernel.org>
+        <20221024122614.bkcehqr7gi3f23ca@quack3>
+        <20221024145121.2dj6sdeqvxndbhpt@quack3>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-After commit a020f22a4ff5 ("pwm: jz4740: Make PWM start with the active part"),
-the trick to set duty > period to properly shut down TCU2 channels did
-not work anymore, because of the polarity inversion.
+On Mon, 24 Oct 2022 16:51:21 +0200 Jan Kara <jack@suse.cz> wrote:
 
-Address this issue by restoring the proper polarity before disabling the
-channels.
+> > Thanks! I've added the patch to my tree and will push it to Linus.
+> 
+> Oh, I have noticed Andrew has merged the patch already into his tree. So
+> dropped from mine.
 
-Fixes: a020f22a4ff5 ("pwm: jz4740: Make PWM start with the active part")
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Cc: stable@vger.kernel.org
----
- drivers/pwm/pwm-jz4740.c | 62 ++++++++++++++++++++++++++--------------
- 1 file changed, 40 insertions(+), 22 deletions(-)
+You could have just added it and I'd drop my copy when Stephen tells
+us of the duplicate.  But whatever.
 
-diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
-index 228eb104bf1e..65462a0052af 100644
---- a/drivers/pwm/pwm-jz4740.c
-+++ b/drivers/pwm/pwm-jz4740.c
-@@ -97,6 +97,19 @@ static int jz4740_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
- 	return 0;
- }
- 
-+static void jz4740_pwm_set_polarity(struct jz4740_pwm_chip *jz,
-+				    unsigned int hwpwm,
-+				    enum pwm_polarity polarity)
-+{
-+	unsigned int value = 0;
-+
-+	if (polarity == PWM_POLARITY_INVERSED)
-+		value = TCU_TCSR_PWM_INITL_HIGH;
-+
-+	regmap_update_bits(jz->map, TCU_REG_TCSRc(hwpwm),
-+			   TCU_TCSR_PWM_INITL_HIGH, value);
-+}
-+
- static void jz4740_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
- {
- 	struct jz4740_pwm_chip *jz = to_jz4740(chip);
-@@ -130,6 +143,7 @@ static int jz4740_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- 	unsigned long long tmp = 0xffffull * NSEC_PER_SEC;
- 	struct clk *clk = pwm_get_chip_data(pwm);
- 	unsigned long period, duty;
-+	enum pwm_polarity polarity;
- 	long rate;
- 	int err;
- 
-@@ -169,6 +183,9 @@ static int jz4740_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- 	if (duty >= period)
- 		duty = period - 1;
- 
-+	/* Restore regular polarity before disabling the channel. */
-+	jz4740_pwm_set_polarity(jz4740, pwm->hwpwm, state->polarity);
-+
- 	jz4740_pwm_disable(chip, pwm);
- 
- 	err = clk_set_rate(clk, rate);
-@@ -190,29 +207,30 @@ static int jz4740_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- 	regmap_update_bits(jz4740->map, TCU_REG_TCSRc(pwm->hwpwm),
- 			   TCU_TCSR_PWM_SD, TCU_TCSR_PWM_SD);
- 
--	/*
--	 * Set polarity.
--	 *
--	 * The PWM starts in inactive state until the internal timer reaches the
--	 * duty value, then becomes active until the timer reaches the period
--	 * value. In theory, we should then use (period - duty) as the real duty
--	 * value, as a high duty value would otherwise result in the PWM pin
--	 * being inactive most of the time.
--	 *
--	 * Here, we don't do that, and instead invert the polarity of the PWM
--	 * when it is active. This trick makes the PWM start with its active
--	 * state instead of its inactive state.
--	 */
--	if ((state->polarity == PWM_POLARITY_NORMAL) ^ state->enabled)
--		regmap_update_bits(jz4740->map, TCU_REG_TCSRc(pwm->hwpwm),
--				   TCU_TCSR_PWM_INITL_HIGH, 0);
--	else
--		regmap_update_bits(jz4740->map, TCU_REG_TCSRc(pwm->hwpwm),
--				   TCU_TCSR_PWM_INITL_HIGH,
--				   TCU_TCSR_PWM_INITL_HIGH);
--
--	if (state->enabled)
-+	if (state->enabled) {
-+		/*
-+		 * Set polarity.
-+		 *
-+		 * The PWM starts in inactive state until the internal timer
-+		 * reaches the duty value, then becomes active until the timer
-+		 * reaches the period value. In theory, we should then use
-+		 * (period - duty) as the real duty value, as a high duty value
-+		 * would otherwise result in the PWM pin being inactive most of
-+		 * the time.
-+		 *
-+		 * Here, we don't do that, and instead invert the polarity of
-+		 * the PWM when it is active. This trick makes the PWM start
-+		 * with its active state instead of its inactive state.
-+		 */
-+		if (state->polarity == PWM_POLARITY_NORMAL)
-+			polarity = PWM_POLARITY_INVERSED;
-+		else
-+			polarity = PWM_POLARITY_NORMAL;
-+
-+		jz4740_pwm_set_polarity(jz4740, pwm->hwpwm, polarity);
-+
- 		jz4740_pwm_enable(chip, pwm);
-+	}
- 
- 	return 0;
- }
--- 
-2.35.1
-
+Maybe you owe us an ISOFS MAINTAINERS entry ;)
