@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB6660A531
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6922760A558
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232996AbiJXMVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:21:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40892 "EHLO
+        id S233530AbiJXMXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:23:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233017AbiJXMUB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:20:01 -0400
+        with ESMTP id S233525AbiJXMWm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:22:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 143E77B2BA;
-        Mon, 24 Oct 2022 04:58:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BEFD8323A;
+        Mon, 24 Oct 2022 04:59:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C73C3612D1;
-        Mon, 24 Oct 2022 11:47:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9221C433D7;
-        Mon, 24 Oct 2022 11:47:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9798B61297;
+        Mon, 24 Oct 2022 11:58:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A90AAC4347C;
+        Mon, 24 Oct 2022 11:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612062;
-        bh=Awcd/0SSmDN83dUDpNoaIq8lTcT014AjU8Qvxm5qHes=;
+        s=korg; t=1666612693;
+        bh=HWA7feJirUMvz4SMFoo8EJ7PDp2OxwPuFBriGn26Axk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MLjjHABWdhtW9WAWyU+HSDBLufPEEfEv9GZf6A5Wd9Ir5bT0TsVda5caUKDz53cm7
-         kUv7ra1VrYqq5YF+1ClkPJrOnLawctV1PYofcof9dTE7uQmuJ5qxCBj6QuPOK3iAlR
-         h6Z0K0EAmA1Mzu1RYwtY+cWN0Gm2iHwoJrxxcTxE=
+        b=d7H/ZAn8cAl76yLWLD4YBpzEE6dQinFAI/ASPuU6weJ2kXB8bB42hu8aQEzCy0Mpj
+         uEXLVzMew2jo/YeZrbufq27hjfT/Ua8VjTsxKg8vuIVW593+CnGG0ZFGfYgc3cWGLf
+         40coMLb3WJv1IwStmMGKkFJfJRcBXHhprqPzXt44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>
-Subject: [PATCH 4.14 055/210] fs: dlm: fix race between test_bit() and queue_work()
-Date:   Mon, 24 Oct 2022 13:29:32 +0200
-Message-Id: <20221024112958.796344237@linuxfoundation.org>
+        stable@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 054/229] fbdev: smscufx: Fix use-after-free in ufx_ops_open()
+Date:   Mon, 24 Oct 2022 13:29:33 +0200
+Message-Id: <20221024113000.821981870@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +52,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Hyunwoo Kim <imv4bel@gmail.com>
 
-commit eef6ec9bf390e836a6c4029f3620fe49528aa1fe upstream.
+commit 5610bcfe8693c02e2e4c8b31427f1bdbdecc839c upstream.
 
-This patch fixes a race by using ls_cb_mutex around the bit
-operations and conditional code blocks for LSFL_CB_DELAY.
+A race condition may occur if the user physically removes the
+USB device while calling open() for this device node.
 
-The function dlm_callback_stop() expects to stop all callbacks and
-flush all currently queued onces. The set_bit() is not enough because
-there can still be queue_work() after the workqueue was flushed.
-To avoid queue_work() after set_bit(), surround both by ls_cb_mutex.
+This is a race condition between the ufx_ops_open() function and
+the ufx_usb_disconnect() function, which may eventually result in UAF.
 
+So, add a mutex to the ufx_ops_open() and ufx_usb_disconnect() functions
+to avoid race contidion of krefs.
+
+Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dlm/ast.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/smscufx.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/fs/dlm/ast.c
-+++ b/fs/dlm/ast.c
-@@ -198,13 +198,13 @@ void dlm_add_cb(struct dlm_lkb *lkb, uin
- 	if (!prev_seq) {
- 		kref_get(&lkb->lkb_ref);
+--- a/drivers/video/fbdev/smscufx.c
++++ b/drivers/video/fbdev/smscufx.c
+@@ -140,6 +140,8 @@ static int ufx_submit_urb(struct ufx_dat
+ static int ufx_alloc_urb_list(struct ufx_data *dev, int count, size_t size);
+ static void ufx_free_urb_list(struct ufx_data *dev);
  
-+		mutex_lock(&ls->ls_cb_mutex);
- 		if (test_bit(LSFL_CB_DELAY, &ls->ls_flags)) {
--			mutex_lock(&ls->ls_cb_mutex);
- 			list_add(&lkb->lkb_cb_list, &ls->ls_cb_delay);
--			mutex_unlock(&ls->ls_cb_mutex);
- 		} else {
- 			queue_work(ls->ls_callback_wq, &lkb->lkb_cb_work);
- 		}
-+		mutex_unlock(&ls->ls_cb_mutex);
- 	}
-  out:
- 	mutex_unlock(&lkb->lkb_cb_mutex);
-@@ -284,7 +284,9 @@ void dlm_callback_stop(struct dlm_ls *ls
- 
- void dlm_callback_suspend(struct dlm_ls *ls)
++static DEFINE_MUTEX(disconnect_mutex);
++
+ /* reads a control register */
+ static int ufx_reg_read(struct ufx_data *dev, u32 index, u32 *data)
  {
-+	mutex_lock(&ls->ls_cb_mutex);
- 	set_bit(LSFL_CB_DELAY, &ls->ls_flags);
-+	mutex_unlock(&ls->ls_cb_mutex);
+@@ -1073,9 +1075,13 @@ static int ufx_ops_open(struct fb_info *
+ 	if (user == 0 && !console)
+ 		return -EBUSY;
  
- 	if (ls->ls_callback_wq)
- 		flush_workqueue(ls->ls_callback_wq);
++	mutex_lock(&disconnect_mutex);
++
+ 	/* If the USB device is gone, we don't accept new opens */
+-	if (dev->virtualized)
++	if (dev->virtualized) {
++		mutex_unlock(&disconnect_mutex);
+ 		return -ENODEV;
++	}
+ 
+ 	dev->fb_count++;
+ 
+@@ -1099,6 +1105,8 @@ static int ufx_ops_open(struct fb_info *
+ 	pr_debug("open /dev/fb%d user=%d fb_info=%p count=%d",
+ 		info->node, user, info, dev->fb_count);
+ 
++	mutex_unlock(&disconnect_mutex);
++
+ 	return 0;
+ }
+ 
+@@ -1746,6 +1754,8 @@ static void ufx_usb_disconnect(struct us
+ {
+ 	struct ufx_data *dev;
+ 
++	mutex_lock(&disconnect_mutex);
++
+ 	dev = usb_get_intfdata(interface);
+ 
+ 	pr_debug("USB disconnect starting\n");
+@@ -1766,6 +1776,8 @@ static void ufx_usb_disconnect(struct us
+ 	kref_put(&dev->kref, ufx_free);
+ 
+ 	/* consider ufx_data freed */
++
++	mutex_unlock(&disconnect_mutex);
+ }
+ 
+ static struct usb_driver ufx_driver = {
 
 
