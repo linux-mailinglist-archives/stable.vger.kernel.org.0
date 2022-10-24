@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EC0460B829
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:42:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59D9360B721
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:20:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231834AbiJXTmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:42:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36834 "EHLO
+        id S230200AbiJXTUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233504AbiJXTld (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:41:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC4DB157F5D;
-        Mon, 24 Oct 2022 11:11:23 -0700 (PDT)
+        with ESMTP id S231206AbiJXTTm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:19:42 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 574688558A;
+        Mon, 24 Oct 2022 10:56:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A44DFB811C3;
-        Mon, 24 Oct 2022 11:52:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC97EC433C1;
-        Mon, 24 Oct 2022 11:52:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1A9C8CE131D;
+        Mon, 24 Oct 2022 11:54:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EAFBC433B5;
+        Mon, 24 Oct 2022 11:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612355;
-        bh=pKq6STDJUV1Dof39xPqd3W5VALSdKIfQtmFHciFElP0=;
+        s=korg; t=1666612449;
+        bh=yqwMr7A4dyt1zETLxH21bVCLqABEenqVHFnpY7O232U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCFTPgKQGeLisWi3MP4ZDMRgdadGnvR9sOSwMqMjhxkJPELIgUwDqoJmMlOHaKVH/
-         dBErm38Fovc6YuRRX7pHaSzbN/jRyl/yPQaY72mj30JZPLLQUP3EjMSIBntTeQW1Oh
-         k1f/4/a/69+cmVcV8WT6dCrQtRFXeUQNMfEatQO4=
+        b=xHT7sHjcoaPmpaV+G7hFQtYemUPYBySZ0qKWeEYklTFhbB3Q7XRlYfPvNLYRD1/9O
+         CnAC3zxZwCGI6PVhK79C5s36bjQYx/EYZSvXruct0tZrSu6NwzrY1W6O3LKJzQvD5o
+         WMUvLZnpu8pJODOI0B05RCt3V/50UwNXFWwuGmJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 165/210] x86/entry: Work around Clang __bdos() bug
-Date:   Mon, 24 Oct 2022 13:31:22 +0200
-Message-Id: <20221024113002.320074738@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Coffin <alex.coffin@matician.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 173/210] wifi: brcmfmac: fix use-after-free bug in brcmf_netdev_start_xmit()
+Date:   Mon, 24 Oct 2022 13:31:30 +0200
+Message-Id: <20221024113002.569204279@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -58,64 +53,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Alexander Coffin <alex.coffin@matician.com>
 
-[ Upstream commit 3e1730842f142add55dc658929221521a9ea62b6 ]
+[ Upstream commit 3f42faf6db431e04bf942d2ebe3ae88975723478 ]
 
-Clang produces a false positive when building with CONFIG_FORTIFY_SOURCE=y
-and CONFIG_UBSAN_BOUNDS=y when operating on an array with a dynamic
-offset. Work around this by using a direct assignment of an empty
-instance. Avoids this warning:
+> ret = brcmf_proto_tx_queue_data(drvr, ifp->ifidx, skb);
 
-../include/linux/fortify-string.h:309:4: warning: call to __write_overflow_field declared with 'warn
-ing' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wat
-tribute-warning]
-                        __write_overflow_field(p_size_field, size);
-                        ^
+may be schedule, and then complete before the line
 
-which was isolated to the memset() call in xen_load_idt().
+> ndev->stats.tx_bytes += skb->len;
 
-Note that this looks very much like another bug that was worked around:
-https://github.com/ClangBuiltLinux/linux/issues/1592
+[   46.912801] ==================================================================
+[   46.920552] BUG: KASAN: use-after-free in brcmf_netdev_start_xmit+0x718/0x8c8 [brcmfmac]
+[   46.928673] Read of size 4 at addr ffffff803f5882e8 by task systemd-resolve/328
+[   46.935991]
+[   46.937514] CPU: 1 PID: 328 Comm: systemd-resolve Tainted: G           O      5.4.199-[REDACTED] #1
+[   46.947255] Hardware name: [REDACTED]
+[   46.954568] Call trace:
+[   46.957037]  dump_backtrace+0x0/0x2b8
+[   46.960719]  show_stack+0x24/0x30
+[   46.964052]  dump_stack+0x128/0x194
+[   46.967557]  print_address_description.isra.0+0x64/0x380
+[   46.972877]  __kasan_report+0x1d4/0x240
+[   46.976723]  kasan_report+0xc/0x18
+[   46.980138]  __asan_report_load4_noabort+0x18/0x20
+[   46.985027]  brcmf_netdev_start_xmit+0x718/0x8c8 [brcmfmac]
+[   46.990613]  dev_hard_start_xmit+0x1bc/0xda0
+[   46.994894]  sch_direct_xmit+0x198/0xd08
+[   46.998827]  __qdisc_run+0x37c/0x1dc0
+[   47.002500]  __dev_queue_xmit+0x1528/0x21f8
+[   47.006692]  dev_queue_xmit+0x24/0x30
+[   47.010366]  neigh_resolve_output+0x37c/0x678
+[   47.014734]  ip_finish_output2+0x598/0x2458
+[   47.018927]  __ip_finish_output+0x300/0x730
+[   47.023118]  ip_output+0x2e0/0x430
+[   47.026530]  ip_local_out+0x90/0x140
+[   47.030117]  igmpv3_sendpack+0x14c/0x228
+[   47.034049]  igmpv3_send_cr+0x384/0x6b8
+[   47.037895]  igmp_ifc_timer_expire+0x4c/0x118
+[   47.042262]  call_timer_fn+0x1cc/0xbe8
+[   47.046021]  __run_timers+0x4d8/0xb28
+[   47.049693]  run_timer_softirq+0x24/0x40
+[   47.053626]  __do_softirq+0x2c0/0x117c
+[   47.057387]  irq_exit+0x2dc/0x388
+[   47.060715]  __handle_domain_irq+0xb4/0x158
+[   47.064908]  gic_handle_irq+0x58/0xb0
+[   47.068581]  el0_irq_naked+0x50/0x5c
+[   47.072162]
+[   47.073665] Allocated by task 328:
+[   47.077083]  save_stack+0x24/0xb0
+[   47.080410]  __kasan_kmalloc.isra.0+0xc0/0xe0
+[   47.084776]  kasan_slab_alloc+0x14/0x20
+[   47.088622]  kmem_cache_alloc+0x15c/0x468
+[   47.092643]  __alloc_skb+0xa4/0x498
+[   47.096142]  igmpv3_newpack+0x158/0xd78
+[   47.099987]  add_grhead+0x210/0x288
+[   47.103485]  add_grec+0x6b0/0xb70
+[   47.106811]  igmpv3_send_cr+0x2e0/0x6b8
+[   47.110657]  igmp_ifc_timer_expire+0x4c/0x118
+[   47.115027]  call_timer_fn+0x1cc/0xbe8
+[   47.118785]  __run_timers+0x4d8/0xb28
+[   47.122457]  run_timer_softirq+0x24/0x40
+[   47.126389]  __do_softirq+0x2c0/0x117c
+[   47.130142]
+[   47.131643] Freed by task 180:
+[   47.134712]  save_stack+0x24/0xb0
+[   47.138041]  __kasan_slab_free+0x108/0x180
+[   47.142146]  kasan_slab_free+0x10/0x18
+[   47.145904]  slab_free_freelist_hook+0xa4/0x1b0
+[   47.150444]  kmem_cache_free+0x8c/0x528
+[   47.154292]  kfree_skbmem+0x94/0x108
+[   47.157880]  consume_skb+0x10c/0x5a8
+[   47.161466]  __dev_kfree_skb_any+0x88/0xa0
+[   47.165598]  brcmu_pkt_buf_free_skb+0x44/0x68 [brcmutil]
+[   47.171023]  brcmf_txfinalize+0xec/0x190 [brcmfmac]
+[   47.176016]  brcmf_proto_bcdc_txcomplete+0x1c0/0x210 [brcmfmac]
+[   47.182056]  brcmf_sdio_sendfromq+0x8dc/0x1e80 [brcmfmac]
+[   47.187568]  brcmf_sdio_dpc+0xb48/0x2108 [brcmfmac]
+[   47.192529]  brcmf_sdio_dataworker+0xc8/0x238 [brcmfmac]
+[   47.197859]  process_one_work+0x7fc/0x1a80
+[   47.201965]  worker_thread+0x31c/0xc40
+[   47.205726]  kthread+0x2d8/0x370
+[   47.208967]  ret_from_fork+0x10/0x18
+[   47.212546]
+[   47.214051] The buggy address belongs to the object at ffffff803f588280
+[   47.214051]  which belongs to the cache skbuff_head_cache of size 208
+[   47.227086] The buggy address is located 104 bytes inside of
+[   47.227086]  208-byte region [ffffff803f588280, ffffff803f588350)
+[   47.238814] The buggy address belongs to the page:
+[   47.243618] page:ffffffff00dd6200 refcount:1 mapcount:0 mapping:ffffff804b6bf800 index:0xffffff803f589900 compound_mapcount: 0
+[   47.255007] flags: 0x10200(slab|head)
+[   47.258689] raw: 0000000000010200 ffffffff00dfa980 0000000200000002 ffffff804b6bf800
+[   47.266439] raw: ffffff803f589900 0000000080190018 00000001ffffffff 0000000000000000
+[   47.274180] page dumped because: kasan: bad access detected
+[   47.279752]
+[   47.281251] Memory state around the buggy address:
+[   47.286051]  ffffff803f588180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[   47.293277]  ffffff803f588200: fb fb fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[   47.300502] >ffffff803f588280: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[   47.307723]                                                           ^
+[   47.314343]  ffffff803f588300: fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc fc
+[   47.321569]  ffffff803f588380: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
+[   47.328789] ==================================================================
 
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: x86@kernel.org
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: xen-devel@lists.xenproject.org
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/lkml/41527d69-e8ab-3f86-ff37-6b298c01d5bc@oracle.com
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Alexander Coffin <alex.coffin@matician.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220808174925.3922558-1-alex.coffin@matician.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/enlighten_pv.c | 3 ++-
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 88d084a57b14..3f38541c28d2 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -753,6 +753,7 @@ static void xen_load_idt(const struct desc_ptr *desc)
- {
- 	static DEFINE_SPINLOCK(lock);
- 	static struct trap_info traps[257];
-+	static const struct trap_info zero = { };
- 	unsigned out;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index 590bef2defb9..9c8102be1d0b 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -200,6 +200,7 @@ static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
+ 	struct brcmf_pub *drvr = ifp->drvr;
+ 	struct ethhdr *eh;
+ 	int head_delta;
++	unsigned int tx_bytes = skb->len;
  
- 	trace_xen_cpu_load_idt(desc);
-@@ -762,7 +763,7 @@ static void xen_load_idt(const struct desc_ptr *desc)
- 	memcpy(this_cpu_ptr(&idt_desc), desc, sizeof(idt_desc));
+ 	brcmf_dbg(DATA, "Enter, bsscfgidx=%d\n", ifp->bsscfgidx);
  
- 	out = xen_convert_trap_info(desc, traps, false);
--	memset(&traps[out], 0, sizeof(traps[0]));
-+	traps[out] = zero;
+@@ -254,7 +255,7 @@ static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
+ 		ndev->stats.tx_dropped++;
+ 	} else {
+ 		ndev->stats.tx_packets++;
+-		ndev->stats.tx_bytes += skb->len;
++		ndev->stats.tx_bytes += tx_bytes;
+ 	}
  
- 	xen_mc_flush();
- 	if (HYPERVISOR_set_trap_table(traps))
+ 	/* Return ok: we always eat the packet */
 -- 
 2.35.1
 
