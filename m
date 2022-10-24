@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE1760A56D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:25:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 486DD60A92F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233462AbiJXMYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:24:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40658 "EHLO
+        id S231787AbiJXNQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:16:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233549AbiJXMXs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:23:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887C6237ED;
-        Mon, 24 Oct 2022 04:59:48 -0700 (PDT)
+        with ESMTP id S235571AbiJXNOz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:14:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02119A2A84;
+        Mon, 24 Oct 2022 05:25:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC43D61252;
-        Mon, 24 Oct 2022 11:59:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE7DBC433D6;
-        Mon, 24 Oct 2022 11:59:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E742612DA;
+        Mon, 24 Oct 2022 12:25:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C86AC433C1;
+        Mon, 24 Oct 2022 12:25:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612788;
-        bh=OYkkBGYFwO3XqTSXEnulGFuXbO6MZt4+eTDcMl83zT4=;
+        s=korg; t=1666614305;
+        bh=A2cmLKhgaLuOHRm03hf+NAzBffCw+SrwMhodahhuDxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e+GGKs9YeUZRtEMf8DLY5nmad7yt+S6SMTyierEy/FJYDk+wd8gpN4Mc8RXuv11Gz
-         a0dOQh6XvSaB2ZhvKqmUnUrvCwfORInSF51nBCpMFO5rW4a6AGqM9ppn681njlNiwy
-         Ag8I6MFC1jd205J72pgjRkuP6xyMCO66rK7dfvTs=
+        b=gMCLksyBBQkQzXMMcDQ930DM7S37KLQyGEcH4rimJUHe0jG5wgJTIHlCIF8qFjR7A
+         Pj64KKlAcd1kUhtJtfXS7eDt2GS237uOaej4kjFP+5nOsoASnVMELJ0mfJG2HhaSOH
+         3nE15zeeirh/A9cL1oDFPrGsIoVSmcOBTRA3RILM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        syzbot+ab99dc4c6e961eed8b8e@syzkaller.appspotmail.com,
+        Zhu Yanjun <yanjun.zhu@linux.dev>,
+        Li Zhijian <lizhijian@fujitsu.com>,
+        Bob Pearson <rpearsonhpe@gmail.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 088/229] sctp: handle the error returned from sctp_auth_asoc_init_active_key
+Subject: [PATCH 5.10 210/390] RDMA/rxe: Fix "kernel NULL pointer dereference" error
 Date:   Mon, 24 Oct 2022 13:30:07 +0200
-Message-Id: <20221024113001.902489012@linuxfoundation.org>
+Message-Id: <20221024113031.725302420@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
 
-[ Upstream commit 022152aaebe116a25c39818a07e175a8cd3c1e11 ]
+[ Upstream commit a625ca30eff806395175ebad3ac1399014bdb280 ]
 
-When it returns an error from sctp_auth_asoc_init_active_key(), the
-active_key is actually not updated. The old sh_key will be freeed
-while it's still used as active key in asoc. Then an use-after-free
-will be triggered when sending patckets, as found by syzbot:
+When rxe_queue_init in the function rxe_qp_init_req fails,
+both qp->req.task.func and qp->req.task.arg are not initialized.
 
-  sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
-  sctp_set_owner_w net/sctp/socket.c:132 [inline]
-  sctp_sendmsg_to_asoc+0xbd5/0x1a20 net/sctp/socket.c:1863
-  sctp_sendmsg+0x1053/0x1d50 net/sctp/socket.c:2025
-  inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:819
-  sock_sendmsg_nosec net/socket.c:714 [inline]
-  sock_sendmsg+0xcf/0x120 net/socket.c:734
+Because of creation of qp fails, the function rxe_create_qp will
+call rxe_qp_do_cleanup to handle allocated resource.
 
-This patch is to fix it by not replacing the sh_key when it returns
-errors from sctp_auth_asoc_init_active_key() in sctp_auth_set_key().
-For sctp_auth_set_active_key(), old active_key_id will be set back
-to asoc->active_key_id when the same thing happens.
+Before calling __rxe_do_task, both qp->req.task.func and
+qp->req.task.arg should be checked.
 
-Fixes: 58acd1009226 ("sctp: update active_key for asoc when old key is being replaced")
-Reported-by: syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20220822011615.805603-2-yanjun.zhu@linux.dev
+Reported-by: syzbot+ab99dc4c6e961eed8b8e@syzkaller.appspotmail.com
+Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
+Reviewed-by: Li Zhijian <lizhijian@fujitsu.com>
+Reviewed-by: Bob Pearson <rpearsonhpe@gmail.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/auth.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/sctp/auth.c b/net/sctp/auth.c
-index 9e0c98df20da..9cf61a18098a 100644
---- a/net/sctp/auth.c
-+++ b/net/sctp/auth.c
-@@ -886,12 +886,17 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
- 	}
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index 2847ab4d9a5f..6acef6e923de 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -775,7 +775,9 @@ void rxe_qp_destroy(struct rxe_qp *qp)
+ 	rxe_cleanup_task(&qp->comp.task);
  
- 	list_del_init(&shkey->key_list);
--	sctp_auth_shkey_release(shkey);
- 	list_add(&cur_key->key_list, sh_keys);
- 
--	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
--		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+	if (asoc && asoc->active_key_id == auth_key->sca_keynumber &&
-+	    sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
-+		list_del_init(&cur_key->key_list);
-+		sctp_auth_shkey_release(cur_key);
-+		list_add(&shkey->key_list, sh_keys);
-+		return -ENOMEM;
-+	}
- 
-+	sctp_auth_shkey_release(shkey);
- 	return 0;
- }
- 
-@@ -920,8 +925,13 @@ int sctp_auth_set_active_key(struct sctp_endpoint *ep,
- 		return -EINVAL;
- 
- 	if (asoc) {
-+		__u16  active_key_id = asoc->active_key_id;
+ 	/* flush out any receive wr's or pending requests */
+-	__rxe_do_task(&qp->req.task);
++	if (qp->req.task.func)
++		__rxe_do_task(&qp->req.task);
 +
- 		asoc->active_key_id = key_id;
--		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+		if (sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
-+			asoc->active_key_id = active_key_id;
-+			return -ENOMEM;
-+		}
- 	} else
- 		ep->active_key_id = key_id;
- 
+ 	if (qp->sq.queue) {
+ 		__rxe_do_task(&qp->comp.task);
+ 		__rxe_do_task(&qp->req.task);
 -- 
 2.35.1
 
