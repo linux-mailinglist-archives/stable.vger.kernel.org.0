@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B00D260B5F7
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 20:44:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ABDE60B757
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:23:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232383AbiJXSox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 14:44:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51968 "EHLO
+        id S232014AbiJXTXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:23:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232628AbiJXSoL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 14:44:11 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D32612773;
-        Mon, 24 Oct 2022 10:26:25 -0700 (PDT)
+        with ESMTP id S232193AbiJXTVv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:21:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 205DE5E674;
+        Mon, 24 Oct 2022 10:57:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 09C8ECE13BE;
-        Mon, 24 Oct 2022 12:21:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD360C433D6;
-        Mon, 24 Oct 2022 12:21:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 177EEB81984;
+        Mon, 24 Oct 2022 12:41:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70899C433C1;
+        Mon, 24 Oct 2022 12:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614111;
-        bh=kv2aafQZWXxG9dFeHNnit7opfoXDwVGlj6UlCq69Ok8=;
+        s=korg; t=1666615287;
+        bh=786S+Dn2aWcaP69zrtbMp2Xt408gllhiKlEpepX6aYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OkAc5M48gTehdplOwUwLdXoprtGi/OalDqHDyZd1+zXQ8pTIkDHnRiNUh+M0+9o+Z
-         gzDii+N8hlz0X685ofSBBtXHOuIV1pmbrYrpNW9eX7UDtJaeLZ1/iHL5YQu36gnxTi
-         uoQW+fMxKQEPE1rVtFGQIgUrhSKfkP6MOJOte5gs=
+        b=g64ML5hVMTlldpEV5mjkDb7hN7PK/RGpNxfshKMtv2+G9uBmwxi3VKNEU6tDVjlId
+         UzAooCts0QCWXkRbgOZh3bcwtsyzwb8SMjAFUan5p4fNrJzguYLk4zbHab9r35qYZo
+         sNuN5xZVM26v7P534bjs9zhASxPIokokyzlNe51Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+78c55c7bc6f66e53dce2@syzkaller.appspotmail.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
+        Florian Westphal <fw@strlen.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 136/390] net: rds: dont hold sock lock when cancelling work from rds_tcp_reset_callbacks()
-Date:   Mon, 24 Oct 2022 13:28:53 +0200
-Message-Id: <20221024113028.462605528@linuxfoundation.org>
+Subject: [PATCH 5.15 192/530] netfilter: nft_fib: Fix for rpath check with VRF devices
+Date:   Mon, 24 Oct 2022 13:28:56 +0200
+Message-Id: <20221024113053.747340677@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Phil Sutter <phil@nwl.cc>
 
-[ Upstream commit a91b750fd6629354460282bbf5146c01b05c4859 ]
+[ Upstream commit 2a8a7c0eaa8747c16aa4a48d573aa920d5c00a5c ]
 
-syzbot is reporting lockdep warning at rds_tcp_reset_callbacks() [1], for
-commit ac3615e7f3cffe2a ("RDS: TCP: Reduce code duplication in
-rds_tcp_reset_callbacks()") added cancel_delayed_work_sync() into a section
-protected by lock_sock() without realizing that rds_send_xmit() might call
-lock_sock().
+Analogous to commit b575b24b8eee3 ("netfilter: Fix rpfilter
+dropping vrf packets by mistake") but for nftables fib expression:
+Add special treatment of VRF devices so that typical reverse path
+filtering via 'fib saddr . iif oif' expression works as expected.
 
-We don't need to protect cancel_delayed_work_sync() using lock_sock(), for
-even if rds_{send,recv}_worker() re-queued this work while __flush_work()
- from cancel_delayed_work_sync() was waiting for this work to complete,
-retried rds_{send,recv}_worker() is no-op due to the absence of RDS_CONN_UP
-bit.
-
-Link: https://syzkaller.appspot.com/bug?extid=78c55c7bc6f66e53dce2 [1]
-Reported-by: syzbot <syzbot+78c55c7bc6f66e53dce2@syzkaller.appspotmail.com>
-Co-developed-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+78c55c7bc6f66e53dce2@syzkaller.appspotmail.com>
-Fixes: ac3615e7f3cffe2a ("RDS: TCP: Reduce code duplication in rds_tcp_reset_callbacks()")
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f6d0cbcf09c50 ("netfilter: nf_tables: add fib expression")
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/tcp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/netfilter/nft_fib_ipv4.c | 3 +++
+ net/ipv6/netfilter/nft_fib_ipv6.c | 6 +++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/net/rds/tcp.c b/net/rds/tcp.c
-index 5327d130c4b5..b560d06e6d96 100644
---- a/net/rds/tcp.c
-+++ b/net/rds/tcp.c
-@@ -166,10 +166,10 @@ void rds_tcp_reset_callbacks(struct socket *sock,
- 	 */
- 	atomic_set(&cp->cp_state, RDS_CONN_RESETTING);
- 	wait_event(cp->cp_waitq, !test_bit(RDS_IN_XMIT, &cp->cp_flags));
--	lock_sock(osock->sk);
- 	/* reset receive side state for rds_tcp_data_recv() for osock  */
- 	cancel_delayed_work_sync(&cp->cp_send_w);
- 	cancel_delayed_work_sync(&cp->cp_recv_w);
-+	lock_sock(osock->sk);
- 	if (tc->t_tinc) {
- 		rds_inc_put(&tc->t_tinc->ti_inc);
- 		tc->t_tinc = NULL;
+diff --git a/net/ipv4/netfilter/nft_fib_ipv4.c b/net/ipv4/netfilter/nft_fib_ipv4.c
+index 03df986217b7..9e6f0f1275e2 100644
+--- a/net/ipv4/netfilter/nft_fib_ipv4.c
++++ b/net/ipv4/netfilter/nft_fib_ipv4.c
+@@ -83,6 +83,9 @@ void nft_fib4_eval(const struct nft_expr *expr, struct nft_regs *regs,
+ 	else
+ 		oif = NULL;
+ 
++	if (priv->flags & NFTA_FIB_F_IIF)
++		fl4.flowi4_oif = l3mdev_master_ifindex_rcu(oif);
++
+ 	if (nft_hook(pkt) == NF_INET_PRE_ROUTING &&
+ 	    nft_fib_is_loopback(pkt->skb, nft_in(pkt))) {
+ 		nft_fib_store_result(dest, priv, nft_in(pkt));
+diff --git a/net/ipv6/netfilter/nft_fib_ipv6.c b/net/ipv6/netfilter/nft_fib_ipv6.c
+index 92f3235fa287..602743f6dcee 100644
+--- a/net/ipv6/netfilter/nft_fib_ipv6.c
++++ b/net/ipv6/netfilter/nft_fib_ipv6.c
+@@ -37,6 +37,9 @@ static int nft_fib6_flowi_init(struct flowi6 *fl6, const struct nft_fib *priv,
+ 	if (ipv6_addr_type(&fl6->daddr) & IPV6_ADDR_LINKLOCAL) {
+ 		lookup_flags |= RT6_LOOKUP_F_IFACE;
+ 		fl6->flowi6_oif = get_ifindex(dev ? dev : pkt->skb->dev);
++	} else if ((priv->flags & NFTA_FIB_F_IIF) &&
++		   (netif_is_l3_master(dev) || netif_is_l3_slave(dev))) {
++		fl6->flowi6_oif = dev->ifindex;
+ 	}
+ 
+ 	if (ipv6_addr_type(&fl6->saddr) & IPV6_ADDR_UNICAST)
+@@ -193,7 +196,8 @@ void nft_fib6_eval(const struct nft_expr *expr, struct nft_regs *regs,
+ 	if (rt->rt6i_flags & (RTF_REJECT | RTF_ANYCAST | RTF_LOCAL))
+ 		goto put_rt_err;
+ 
+-	if (oif && oif != rt->rt6i_idev->dev)
++	if (oif && oif != rt->rt6i_idev->dev &&
++	    l3mdev_master_ifindex_rcu(rt->rt6i_idev->dev) != oif->ifindex)
+ 		goto put_rt_err;
+ 
+ 	nft_fib_store_result(dest, priv, rt->rt6i_idev->dev);
 -- 
 2.35.1
 
