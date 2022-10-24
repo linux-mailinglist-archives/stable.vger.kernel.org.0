@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39B3660AAFD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:42:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9542160A64B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:33:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235963AbiJXNms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:42:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46782 "EHLO
+        id S231983AbiJXMdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:33:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236750AbiJXNlL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:41:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8210B449D;
-        Mon, 24 Oct 2022 05:38:27 -0700 (PDT)
+        with ESMTP id S233901AbiJXMbj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:31:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C708820F55;
+        Mon, 24 Oct 2022 05:04:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6237C612FB;
-        Mon, 24 Oct 2022 12:12:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 749F8C433D6;
-        Mon, 24 Oct 2022 12:12:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7CCFB81134;
+        Mon, 24 Oct 2022 12:02:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C479C433C1;
+        Mon, 24 Oct 2022 12:02:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613565;
-        bh=2AM3Eiz+r0aH+ko3xrd6rXYRvTAlxBHpaH2e5ElP4F8=;
+        s=korg; t=1666612935;
+        bh=b5hxz7ELFsuA/ayGSxoTJzXWNM2liJklMoKmYT0WhN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fiV66G3LgKCTNwT6KE7Dxkydsv16fhPatOD6JFCDtEIm1ODLlcHpvbR02LyOzSAzz
-         9AfxQvhb9igSVWGvs1WmLpD+uRDbjEk/WiYYBxKjFFsagHQH1Gqs/wJ0clsqBdGjX2
-         pJOh7j57OfXeW5ElDPJ4yteenSUcWrHU2qy9J28o=
+        b=eQ8ecTBoX/FDJnQxjRuDb3yz6pLicC2MoeS6S9xrP0z7UJuezXA0JsQHoAPEeIleP
+         EXP++56Z5AqSIWZK450F47Mxv3kFEx7ldTUOe3ggQKNt7LhK+rhcKy1Z4D4GJPRtu8
+         SJBk4d2hfFCRRsxD58jTd8AwSfVxOppjzGbtl16Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 184/255] f2fs: fix race condition on setting FI_NO_EXTENT flag
+Subject: [PATCH 4.19 175/229] NFSD: Return nfserr_serverfault if splice_ok but buf->pages have data
 Date:   Mon, 24 Oct 2022 13:31:34 +0200
-Message-Id: <20221024113009.030107508@linuxfoundation.org>
+Message-Id: <20221024113004.748316952@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Anna Schumaker <Anna.Schumaker@Netapp.com>
 
-[ Upstream commit 07725adc55c0a414c10acb5c8c86cea34b95ddef ]
+[ Upstream commit 06981d560606ac48d61e5f4fff6738b925c93173 ]
 
-The following scenarios exist.
-process A:               process B:
-->f2fs_drop_extent_tree  ->f2fs_update_extent_cache_range
-                          ->f2fs_update_extent_tree_range
-                           ->write_lock
- ->set_inode_flag
-                           ->is_inode_flag_set
-                           ->__free_extent_tree // Shouldn't
-                                                // have been
-                                                // cleaned up
-                                                // here
-  ->write_lock
+This was discussed with Chuck as part of this patch set. Returning
+nfserr_resource was decided to not be the best error message here, and
+he suggested changing to nfserr_serverfault instead.
 
-In this case, the "FI_NO_EXTENT" flag is set between
-f2fs_update_extent_tree_range and is_inode_flag_set
-by other process. it leads to clearing the whole exten
-tree which should not have happened. And we fix it by
-move the setting it to the range of write_lock.
-
-Fixes:5f281fab9b9a3 ("f2fs: disable extent_cache for fcollapse/finsert inodes")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Link: https://lore.kernel.org/linux-nfs/20220907195259.926736-1-anna@kernel.org/T/#t
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/extent_cache.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/nfsd/nfs4xdr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/extent_cache.c b/fs/f2fs/extent_cache.c
-index e60078460ad1..05b17a741ccc 100644
---- a/fs/f2fs/extent_cache.c
-+++ b/fs/f2fs/extent_cache.c
-@@ -729,9 +729,8 @@ void f2fs_drop_extent_tree(struct inode *inode)
- 	if (!f2fs_may_extent_tree(inode))
- 		return;
+diff --git a/fs/nfsd/nfs4xdr.c b/fs/nfsd/nfs4xdr.c
+index f67c5de1aeb8..96b79bd90631 100644
+--- a/fs/nfsd/nfs4xdr.c
++++ b/fs/nfsd/nfs4xdr.c
+@@ -3594,7 +3594,7 @@ nfsd4_encode_read(struct nfsd4_compoundres *resp, __be32 nfserr,
+ 	if (resp->xdr.buf->page_len &&
+ 	    test_bit(RQ_SPLICE_OK, &resp->rqstp->rq_flags)) {
+ 		WARN_ON_ONCE(1);
+-		return nfserr_resource;
++		return nfserr_serverfault;
+ 	}
+ 	xdr_commit_encode(xdr);
  
--	set_inode_flag(inode, FI_NO_EXTENT);
--
- 	write_lock(&et->lock);
-+	set_inode_flag(inode, FI_NO_EXTENT);
- 	__free_extent_tree(sbi, et);
- 	if (et->largest.len) {
- 		et->largest.len = 0;
 -- 
 2.35.1
 
