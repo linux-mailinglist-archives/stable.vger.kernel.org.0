@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01B0760A7FA
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 704A760AB97
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:55:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234882AbiJXNAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41076 "EHLO
+        id S236534AbiJXNy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:54:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235011AbiJXM7I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:08 -0400
+        with ESMTP id S236591AbiJXNxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:53:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5515B9A9D0;
-        Mon, 24 Oct 2022 05:18:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 211EFBBE3A;
+        Mon, 24 Oct 2022 05:43:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3476461336;
-        Mon, 24 Oct 2022 12:16:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A850C433C1;
-        Mon, 24 Oct 2022 12:16:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A1FD612E4;
+        Mon, 24 Oct 2022 12:35:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 463ABC433D6;
+        Mon, 24 Oct 2022 12:35:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613794;
-        bh=Lo+CknCpFzfV4+jmHuHa+7rRUKqZ5GoheRpToAyZR2Q=;
+        s=korg; t=1666614933;
+        bh=Rk1kpjjh/1GHPWcIQq0Axwe2OW0md26RjPeSe1XOlAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QBs+AQLe2eSR3JQ7gUySDUeUqrhQb7LiKoeOBl1x/Uvh7PV6OmFuAw7eVkfaYbxam
-         KS7ks/uk/AC+oKMgr2vRyZVX11PZmw115opUQYUvm3sdS35bLxQV0JOAIADaO9JZNW
-         zUqPGADv+9neSWp+uhq1zGlXn0b0HhCa1PaslT9s=
+        b=JzQ6AZP7YupayTYPyW7ZJxvbVy707ueIeVKKLFTfqt4xHMmZSxBnvISntxdZYptuK
+         ic+nS63FLhP8r5crDvwb6dH4h028QZITaM9+GC2i/rOeIza6CXPvEEIUhLj/NNZKvM
+         Z1e1Ihx1r3sG4ZC/jj5gWwvFzw+mzaw7SzotzgsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Sabri N. Ferreiro" <snferreiro1@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 004/390] ALSA: usb-audio: Fix NULL dererence at error path
-Date:   Mon, 24 Oct 2022 13:26:41 +0200
-Message-Id: <20221024113022.716441526@linuxfoundation.org>
+        stable@vger.kernel.org, Carlos Llamas <cmllamas@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Liam Howlett <liam.howlett@oracle.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 058/530] mm/mmap: undo ->mmap() when arch_validate_flags() fails
+Date:   Mon, 24 Oct 2022 13:26:42 +0200
+Message-Id: <20221024113047.673447410@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +58,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Carlos Llamas <cmllamas@google.com>
 
-commit 568be8aaf8a535f79c4db76cabe17b035aa2584d upstream.
+commit deb0f6562884b5b4beb883d73e66a7d3a1b96d99 upstream.
 
-At an error path to release URB buffers and contexts, the driver might
-hit a NULL dererence for u->urb pointer, when u->buffer_size has been
-already set but the actual URB allocation failed.
+Commit c462ac288f2c ("mm: Introduce arch_validate_flags()") added a late
+check in mmap_region() to let architectures validate vm_flags.  The check
+needs to happen after calling ->mmap() as the flags can potentially be
+modified during this callback.
 
-Fix it by adding the NULL check of urb.  Also, make sure that
-buffer_size is cleared after the error path or the close.
+If arch_validate_flags() check fails we unmap and free the vma.  However,
+the error path fails to undo the ->mmap() call that previously succeeded
+and depending on the specific ->mmap() implementation this translates to
+reference increments, memory allocations and other operations what will
+not be cleaned up.
 
-Cc: <stable@vger.kernel.org>
-Reported-by: Sabri N. Ferreiro <snferreiro1@gmail.com>
-Link: https://lore.kernel.org/r/CAKG+3NRjTey+fFfUEGwuxL-pi_=T4cUskYG9OzpzHytF+tzYng@mail.gmail.com
-Link: https://lore.kernel.org/r/20220930100129.19445-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+There are several places (mainly device drivers) where this is an issue.
+However, one specific example is bpf_map_mmap() which keeps count of the
+mappings in map->writecnt.  The count is incremented on ->mmap() and then
+decremented on vm_ops->close().  When arch_validate_flags() fails this
+count is off since bpf_map_mmap_close() is never called.
+
+One can reproduce this issue in arm64 devices with MTE support.  Here the
+vm_flags are checked to only allow VM_MTE if VM_MTE_ALLOWED has been set
+previously.  From userspace then is enough to pass the PROT_MTE flag to
+mmap() syscall to trigger the arch_validate_flags() failure.
+
+The following program reproduces this issue:
+
+  #include <stdio.h>
+  #include <unistd.h>
+  #include <linux/unistd.h>
+  #include <linux/bpf.h>
+  #include <sys/mman.h>
+
+  int main(void)
+  {
+	union bpf_attr attr = {
+		.map_type = BPF_MAP_TYPE_ARRAY,
+		.key_size = sizeof(int),
+		.value_size = sizeof(long long),
+		.max_entries = 256,
+		.map_flags = BPF_F_MMAPABLE,
+	};
+	int fd;
+
+	fd = syscall(__NR_bpf, BPF_MAP_CREATE, &attr, sizeof(attr));
+	mmap(NULL, 4096, PROT_WRITE | PROT_MTE, MAP_SHARED, fd, 0);
+
+	return 0;
+  }
+
+By manually adding some log statements to the vm_ops callbacks we can
+confirm that when passing PROT_MTE to mmap() the map->writecnt is off upon
+->release():
+
+With PROT_MTE flag:
+  root@debian:~# ./bpf-test
+  [  111.263874] bpf_map_write_active_inc: map=9 writecnt=1
+  [  111.288763] bpf_map_release: map=9 writecnt=1
+
+Without PROT_MTE flag:
+  root@debian:~# ./bpf-test
+  [  157.816912] bpf_map_write_active_inc: map=10 writecnt=1
+  [  157.830442] bpf_map_write_active_dec: map=10 writecnt=0
+  [  157.832396] bpf_map_release: map=10 writecnt=0
+
+This patch fixes the above issue by calling vm_ops->close() when the
+arch_validate_flags() check fails, after this we can proceed to unmap and
+free the vma on the error path.
+
+Link: https://lkml.kernel.org/r/20220930003844.1210987-1-cmllamas@google.com
+Fixes: c462ac288f2c ("mm: Introduce arch_validate_flags()")
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Reviewed-by: Liam Howlett <liam.howlett@oracle.com>
+Cc: Christian Brauner (Microsoft) <brauner@kernel.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: <stable@vger.kernel.org>	[5.10+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/endpoint.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/mmap.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -73,12 +73,13 @@ static inline unsigned get_usb_high_spee
-  */
- static void release_urb_ctx(struct snd_urb_ctx *u)
- {
--	if (u->buffer_size)
-+	if (u->urb && u->buffer_size)
- 		usb_free_coherent(u->ep->chip->dev, u->buffer_size,
- 				  u->urb->transfer_buffer,
- 				  u->urb->transfer_dma);
- 	usb_free_urb(u->urb);
- 	u->urb = NULL;
-+	u->buffer_size = 0;
- }
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1836,7 +1836,7 @@ unsigned long mmap_region(struct file *f
+ 	if (!arch_validate_flags(vma->vm_flags)) {
+ 		error = -EINVAL;
+ 		if (file)
+-			goto unmap_and_free_vma;
++			goto close_and_free_vma;
+ 		else
+ 			goto free_vma;
+ 	}
+@@ -1876,6 +1876,9 @@ out:
  
- static const char *usb_error_string(int err)
+ 	return addr;
+ 
++close_and_free_vma:
++	if (vma->vm_ops && vma->vm_ops->close)
++		vma->vm_ops->close(vma);
+ unmap_and_free_vma:
+ 	fput(vma->vm_file);
+ 	vma->vm_file = NULL;
 
 
