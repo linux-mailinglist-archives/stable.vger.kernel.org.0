@@ -2,45 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E773460B55F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 20:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27FF260B80E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:41:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231641AbiJXSWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 14:22:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33632 "EHLO
+        id S229932AbiJXTk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:40:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230355AbiJXSW3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 14:22:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B120C27FAA5;
-        Mon, 24 Oct 2022 10:02:59 -0700 (PDT)
+        with ESMTP id S232003AbiJXTiu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:38:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDAE4AE20D
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 11:09:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E67061411;
-        Mon, 24 Oct 2022 14:49:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0067C433D6;
-        Mon, 24 Oct 2022 14:49:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 525BE6142F
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 14:54:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BADC433D7;
+        Mon, 24 Oct 2022 14:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666622960;
-        bh=aNMizm9PnkcQx8w7hMYma7rLH8oQC4gPO1zAZJ3CMGs=;
+        s=korg; t=1666623288;
+        bh=uT5cTsv2E/KUqRML8gWp0kJmPluU1HOGLovAMwVH0a0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uWMjJkTAfsf/pinEZUSdtix0BZ0ouTlhgNDG4jtRRn8atbJhICY2dYFTCwtWqSh/2
-         7cXdT9SexqmOpqETo3QkbAoifLEWgtY1jHZFhwvYVSFXgg7coHuUvTngkm2IE73eVY
-         PWgmwHtQJg496GVpYbMQinNZ2PEfPhZjk6A5Hi+M=
-Date:   Mon, 24 Oct 2022 16:50:08 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Takashi Iwai <tiwai@suse.de>
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6.0.y] Revert "ALSA: hda: Fix page fault in
- snd_hda_codec_shutdown()"
-Message-ID: <Y1amII/xslL7GB1I@kroah.com>
-References: <20221024143931.15722-1-tiwai@suse.de>
+        b=aV2fhHvYdxNxGjAc8lqdIfOImBL7fKAch14qPziMSvfmRieM+h9jIqYqFpciyePJT
+         JRXsPlcWRgrXB0bs2jrAHB+u/HMnzWOs6rXS54UyJhRr80ScN0XSNaLlIdtsb+0Tz/
+         D9ukWKQbE5SstirW3GWmb2nS8K7zy6SjBGrjdDcI=
+Date:   Mon, 24 Oct 2022 16:55:39 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Deucher, Alexander" <Alexander.Deucher@amd.com>
+Cc:     Salvatore Bonaccorso <carnil@debian.org>,
+        Diederik de Haas <didi.debian@cknow.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 1/2] Revert "drm/amdgpu: move nbio sdma_doorbell_range()
+ into sdma code for vega"
+Message-ID: <Y1ana7eNFN/CMNOg@kroah.com>
+References: <20221020153857.565160-1-alexander.deucher@amd.com>
+ <2651645.mvXUDI8C0e@bagend>
+ <Y1I4rC37gwl367rt@eldamar.lan>
+ <Y1Z5Km83Rcc3W0PY@kroah.com>
+ <BL1PR12MB51443BFF32835644A72F7A38F72E9@BL1PR12MB5144.namprd12.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221024143931.15722-1-tiwai@suse.de>
+In-Reply-To: <BL1PR12MB51443BFF32835644A72F7A38F72E9@BL1PR12MB5144.namprd12.prod.outlook.com>
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -50,22 +57,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 24, 2022 at 04:39:31PM +0200, Takashi Iwai wrote:
-> This reverts commit 7494e2e6c55ed192f2b91c821fd6832744ba8741.
-> 
-> Which was upstream commit f2bd1c5ae2cb0cf9525c9bffc0038c12dd7e1338.
-> 
-> The patch caused a regression leading to the missing HD-audio device
-> with ASoC SOF driver.  It was a part of large series and backporting
-> it alone breaks things while backporting the whole is too intrusive
-> as stable changes.  And, the issue the patch tries to address is a
-> corner case, hence it's better to revert.
-> 
-> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216613
-> Signed-off-by: Takashi Iwai <tiwai@suse.de>
-> ---
-> It's only for 6.0.y; 6.1-rc is fine
+On Mon, Oct 24, 2022 at 02:39:41PM +0000, Deucher, Alexander wrote:
+> [Public]
 
-Now queued up, thanks.
+Of course it is!
+
+> > -----Original Message-----
+> > From: Greg KH <gregkh@linuxfoundation.org>
+> > Sent: Monday, October 24, 2022 7:38 AM
+> > To: Salvatore Bonaccorso <carnil@debian.org>
+> > Cc: Diederik de Haas <didi.debian@cknow.org>; stable@vger.kernel.org;
+> > Deucher, Alexander <Alexander.Deucher@amd.com>; Shuah Khan
+> > <skhan@linuxfoundation.org>; Sasha Levin <sashal@kernel.org>
+> > Subject: Re: [PATCH 1/2] Revert "drm/amdgpu: move nbio
+> > sdma_doorbell_range() into sdma code for vega"
+
+This is horrid, please fix up your email system.
+
+> > On Fri, Oct 21, 2022 at 08:14:04AM +0200, Salvatore Bonaccorso wrote:
+> > > Hi,
+> > >
+> > > On Fri, Oct 21, 2022 at 02:29:22AM +0200, Diederik de Haas wrote:
+> > > > On Thursday, 20 October 2022 17:38:56 CEST Alex Deucher wrote:
+> > > > > This reverts commit 9f55f36f749a7608eeef57d7d72991a9bd557341.
+> > > > >
+> > > > > This patch was backported incorrectly when Sasha backported it and
+> > > > > the patch that caused the regression that this patch set fixed was
+> > > > > reverted in commit 412b844143e3 ("Revert "PCI/portdrv: Don't
+> > > > > disable AER reporting in get_port_device_capability()""). This
+> > > > > isn't necessary and causes a regression so drop it.
+> > > > >
+> > > > > Bug:
+> > > > >
+> > https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2F
+> > > > > gitlab.freedesktop.org%2Fdrm%2Famd%2F-
+> > %2Fissues%2F2216&amp;data=05
+> > > > >
+> > %7C01%7Calexander.deucher%40amd.com%7C5f932b93d7154b20994a08dab
+> > 5bf
+> > > > >
+> > 354e%7C3dd8961fe4884e608e11a82d994e183d%7C0%7C0%7C6380221300859
+> > 453
+> > > > >
+> > 54%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luM
+> > zIiLCJ
+> > > > >
+> > BTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7C%7C&amp;sdata=D9Gkpt0
+> > zCN5q
+> > > > > BWoSngMY%2FiJyHWiaAC34eWr2UfYRIjE%3D&amp;reserved=0
+> > > > > Cc: Shuah Khan <skhan@linuxfoundation.org>
+> > > > > Cc: Sasha Levin <sashal@kernel.org>
+> > > > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> > > > > Cc: <stable@vger.kernel.org>    # 5.10
+> > > > > ---
+> > > >
+> > > > I build a kernel with these 2 patches reverted and can confirm that
+> > > > that fixes the issue on my machine with a Radeon RX Vega 64 GPU.
+> > > > # lspci -nn | grep VGA
+> > > > 0b:00.0 VGA compatible controller [0300]: Advanced Micro Devices,
+> > > > Inc. [AMD/ ATI] Vega 10 XL/XT [Radeon RX Vega 56/64] [1002:687f]
+> > > > (rev c1)
+> > > >
+> > > > So feel free to add
+> > > >
+> > > > Tested-By: Diederik de Haas <didi.debian@cknow.org>
+> > >
+> > > Note additionally (probably only relevant for Greg while reviewing),
+> > > that the first of the commits which need to be reverted is already
+> > > queued as revert in queue-5.10.
+> > 
+> > Argh, that caused me to drop both of these from the review queue.
+> > 
+> > Can someone verify that this really still is needed on the latest 5.10-rc that
+> > was just sent out?  And if so, please send me whatever is really needed?
+> > 
+> > this got way too confusing...
+> 
+> These two patches need to be reverted from 5.10:
+> 9f55f36f749a7608eeef57d7d72991a9bd557341
+> 7b0db849ea030a70b8fb9c9afec67c81f955482e
+> 
+> I did not see either of the reverts in linux-5.10.y in the stable tree when I generated these 2 revert patches.  Where should I be looking to see proposed stable patches other than being possibly being cc'ed on a patch?  Shuah had proposed a patch to revert 9f55f36f749a7608eeef57d7d72991a9bd557341, but I didn't see it in linux-5.10.y and I added some additional details to the commit message to provide more background on why it was being reverted so I wasn't sure if it had been applied or not.
+
+/me hands you some '\n' characters....
+
+Look in the stable-queue git tree for what is queued up next.
+
+Now you can see all the emails for the 5.10-rc release on the list as
+well in the linux-stable-rc git tree if you want to look there instead.
+
+Can you check and make sure it's all correct now?
+
+thanks,
 
 greg k-h
