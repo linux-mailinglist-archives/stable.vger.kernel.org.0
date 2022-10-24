@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 179FD60A9DA
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 475EA60A7C8
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232459AbiJXN0B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:26:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49534 "EHLO
+        id S234761AbiJXM5n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:57:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236258AbiJXNYw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:24:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6270C1B79F;
-        Mon, 24 Oct 2022 05:31:01 -0700 (PDT)
+        with ESMTP id S234842AbiJXM5X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:57:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E82F3E;
+        Mon, 24 Oct 2022 05:16:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BB09612CF;
-        Mon, 24 Oct 2022 12:30:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AAA6C433D6;
-        Mon, 24 Oct 2022 12:30:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58350B8161C;
+        Mon, 24 Oct 2022 12:14:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE546C433B5;
+        Mon, 24 Oct 2022 12:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614620;
-        bh=t5hmdcnuv44cMjaNtCCxpqakrK7D417F3SSIMY/c0Z4=;
+        s=korg; t=1666613677;
+        bh=WujIfs+j3/xvbLjYXAar1kXfZEkI/DTx3bR9YyKbnfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cmo8sF30d3KocjFR4UGSo52Pa4BiQ3R0DiZi59++aH4/u3piEwQr3N2dK+HlQVCB4
-         EeEgy/UcfDeinsiT2sObcplNes8npHKI1jZTJD3/uM3/+ZKGxw7NYxNwuTHz19Q5QM
-         +ydgS3B9LdfyiACyyi9dmvLTx43RuyfrcPRbkBJw=
+        b=OIjVai5Os/llvlEmh5XJulLh0Um+C7BIcGzG0WR+qnaJcfQpWIwARX38m9vvqSGk7
+         uICrxU48HkNbSfiJYQ54b6jpDC7feXAg0wUudJIv25AIByL/8HfAuHn9MKLlf1FCR+
+         zhJITuWPjTGlIi6Uok3EPJn3/JLoG+NtBMqMCl1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Subject: [PATCH 5.10 331/390] drm: bridge: dw_hdmi: only trigger hotplug event on link change
-Date:   Mon, 24 Oct 2022 13:32:08 +0200
-Message-Id: <20221024113037.096221850@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 220/255] ARM: dts: imx6q: add missing properties for sram
+Date:   Mon, 24 Oct 2022 13:32:10 +0200
+Message-Id: <20221024113010.393558306@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit da09daf881082266e4075657fac53c7966de8e4d ]
+[ Upstream commit b11d083c5dcec7c42fe982c854706d404ddd3a5f ]
 
-There are two events that signal a real change of the link state: HPD going
-high means the sink is newly connected or wants the source to re-read the
-EDID, RX sense going low is a indication that the link has been disconnected.
+All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
+sram@900000: '#address-cells' is a required property
+sram@900000: '#size-cells' is a required property
+sram@900000: 'ranges' is a required property
 
-Ignore the other two events that also trigger interrupts, but don't need
-immediate attention: HPD going low does not necessarily mean the link has
-been lost and should not trigger a immediate read of the status. RX sense
-going high also does not require a detect cycle, as HPD going high is the
-right point in time to read the EDID.
-
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com> (v1)
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220826185733.3213248-1-l.stach@pengutronix.de
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/synopsys/dw-hdmi.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/imx6q.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-index b10228b9e3a9..356c7d0bd035 100644
---- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-+++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-@@ -2984,6 +2984,7 @@ static irqreturn_t dw_hdmi_irq(int irq, void *dev_id)
- {
- 	struct dw_hdmi *hdmi = dev_id;
- 	u8 intr_stat, phy_int_pol, phy_pol_mask, phy_stat;
-+	enum drm_connector_status status = connector_status_unknown;
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index d038f4117024..013080e709f8 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -158,6 +158,9 @@
+ 		ocram: sram@900000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x00900000 0x40000>;
++			ranges = <0 0x00900000 0x40000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
+ 		};
  
- 	intr_stat = hdmi_readb(hdmi, HDMI_IH_PHY_STAT0);
- 	phy_int_pol = hdmi_readb(hdmi, HDMI_PHY_POL0);
-@@ -3022,13 +3023,15 @@ static irqreturn_t dw_hdmi_irq(int irq, void *dev_id)
- 			cec_notifier_phys_addr_invalidate(hdmi->cec_notifier);
- 			mutex_unlock(&hdmi->cec_notifier_mutex);
- 		}
--	}
- 
--	if (intr_stat & HDMI_IH_PHY_STAT0_HPD) {
--		enum drm_connector_status status = phy_int_pol & HDMI_PHY_HPD
--						 ? connector_status_connected
--						 : connector_status_disconnected;
-+		if (phy_stat & HDMI_PHY_HPD)
-+			status = connector_status_connected;
-+
-+		if (!(phy_stat & (HDMI_PHY_HPD | HDMI_PHY_RX_SENSE)))
-+			status = connector_status_disconnected;
-+	}
- 
-+	if (status != connector_status_unknown) {
- 		dev_dbg(hdmi->dev, "EVENT=%s\n",
- 			status == connector_status_connected ?
- 			"plugin" : "plugout");
 -- 
 2.35.1
 
