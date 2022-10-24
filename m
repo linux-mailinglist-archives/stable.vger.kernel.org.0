@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68C0860A6D0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E00860AB51
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229999AbiJXMkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:40:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40094 "EHLO
+        id S236262AbiJXNuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:50:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233841AbiJXMhW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:37:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 895FF5DF3F;
-        Mon, 24 Oct 2022 05:06:31 -0700 (PDT)
+        with ESMTP id S236553AbiJXNtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:49:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C1784315A;
+        Mon, 24 Oct 2022 05:41:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44FB6612D6;
-        Mon, 24 Oct 2022 12:05:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 533D6C433C1;
-        Mon, 24 Oct 2022 12:05:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25420612BB;
+        Mon, 24 Oct 2022 12:40:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A8B2C433C1;
+        Mon, 24 Oct 2022 12:40:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613150;
-        bh=bZAdixgBkkbayO/PfynI242MpL8KYNSVLdsgYC5AH/w=;
+        s=korg; t=1666615232;
+        bh=p8AzEjztq7q2IyJfYkkjgBKY+ZxhYFTCr11TusZTo+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLvQ36vrrIBDt1lgyQZn89KWJhDq1eRl4RF9n3rzSaXE0FjnkjhSo1dlf092s6uM9
-         SD+FnqFko1InSivOPZwpPV58ZnOS4YevmF5LfOkZsXP/xAC3+109kyxuBb2i2DC681
-         /e1Cg0q2YlCl+iSUsmX/srj2z94oYzL1Tmd7Q4u0=
+        b=jDB5p/VUcyemZpOkOr9LB5QyY75yZ8gYwP7SlezCmholxcXG7AYH8C//QbyphMuz9
+         DqnhsvuoC2hFVfe/BG8MCI3Xs1P/GjuF6poD+5iueLBVKfSykKjZjQymiIaEJc2ZIN
+         4odvZGoNBkFX6UvnPMwRyOhdFCAcqBMqscMDf9fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 007/255] ALSA: hda/realtek: Add quirk for ASUS GV601R laptop
+        stable@vger.kernel.org, Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 173/530] wifi: rtl8xxxu: Remove copy-paste leftover in gen2_update_rate_mask
 Date:   Mon, 24 Oct 2022 13:28:37 +0200
-Message-Id: <20221024113002.700278375@linuxfoundation.org>
+Message-Id: <20221024113052.852651306@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke D. Jones <luke@ljones.dev>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-commit 2ea8e1297801f7b0220ebf6ae61a5b74ca83981e upstream.
+[ Upstream commit d5350756c03cdf18696295c6b11d7acc4dbf825c ]
 
-The ASUS ROG X16 (GV601R) series laptop has the same node-to-DAC pairs
-as early models and the G14, this includes bass speakers which are by
-default mapped incorrectly to the 0x06 node.
+It looks like a leftover from copying rtl8xxxu_update_rate_mask,
+which is used with the gen1 chips.
 
-Add a quirk to use the same DAC pairs as the G14.
+It wasn't causing any problems for my RTL8188FU test device, but it's
+clearly a mistake, so remove it.
 
-Signed-off-by: Luke D. Jones <luke@ljones.dev>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221010070347.36883-1-luke@ljones.dev
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f653e69009c6 ("rtl8xxxu: Implement basic 8723b specific update_rate_mask() function")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/d5544fe8-9798-28f1-54bd-6839a1974b10@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8280,6 +8280,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x1c52, "ASUS Zephyrus G15 2022", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
-+	SND_PCI_QUIRK(0x1043, 0x1f92, "ASUS ROG Flow X16", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
- 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x1043, 0x834a, "ASUS S101", ALC269_FIXUP_STEREO_DMIC),
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index a74ded84c2ac..fb2a5fc1a4e6 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -4338,15 +4338,14 @@ void rtl8xxxu_gen2_update_rate_mask(struct rtl8xxxu_priv *priv,
+ 	h2c.b_macid_cfg.ramask2 = (ramask >> 16) & 0xff;
+ 	h2c.b_macid_cfg.ramask3 = (ramask >> 24) & 0xff;
+ 
+-	h2c.ramask.arg = 0x80;
+ 	h2c.b_macid_cfg.data1 = rateid;
+ 	if (sgi)
+ 		h2c.b_macid_cfg.data1 |= BIT(7);
+ 
+ 	h2c.b_macid_cfg.data2 = bw;
+ 
+-	dev_dbg(&priv->udev->dev, "%s: rate mask %08x, arg %02x, size %zi\n",
+-		__func__, ramask, h2c.ramask.arg, sizeof(h2c.b_macid_cfg));
++	dev_dbg(&priv->udev->dev, "%s: rate mask %08x, rateid %02x, sgi %d, size %zi\n",
++		__func__, ramask, rateid, sgi, sizeof(h2c.b_macid_cfg));
+ 	rtl8xxxu_gen2_h2c_cmd(priv, &h2c, sizeof(h2c.b_macid_cfg));
+ }
+ 
+-- 
+2.35.1
+
 
 
