@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B02960A556
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF1E760A439
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:06:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233512AbiJXMXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:23:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41370 "EHLO
+        id S232684AbiJXMGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:06:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233517AbiJXMWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:22:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28ACAA447;
-        Mon, 24 Oct 2022 04:59:24 -0700 (PDT)
+        with ESMTP id S233083AbiJXMFE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:05:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FF6D7CAA2;
+        Mon, 24 Oct 2022 04:51:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC7686127C;
-        Mon, 24 Oct 2022 11:58:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFA70C433C1;
-        Mon, 24 Oct 2022 11:58:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57F29B811C0;
+        Mon, 24 Oct 2022 11:50:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACFB6C4314F;
+        Mon, 24 Oct 2022 11:49:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612730;
+        s=korg; t=1666612200;
         bh=xK4TJAnvmIYn/27eY3hx0LNJJauXMyCiuXPB+sk2Bhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RibFMv8QUds1gkZNQv+NqisbKHgSqIrQC6zNNpEiOmNQD7zOylUaw7tMmNLCdcQxh
-         mt3GmMNw35caGhP0xgFEa3ESaemwR/ED9vEfVALCLPKfkDOyznTmIPKpwbvlr6Mn+o
-         CKzu+ywk1AhJTyTdaSDUE3P/0R3A9L8Chyj+m2+Q=
+        b=QWXODkGgUiFSeb+Od8xymSOu3+++Jn82mPzmDwGbp0YyFch9rctlRhk0K+VwMkPZK
+         RBGZDTxR/v5SHcz+WzO/9It/mvCSMV5jwyRap4KcMQ4pNf2LLFcDhgSgavUa9IPmxB
+         bKmmTf13slKtTUs/f4eCE2JxyQJK9DSUxsl+Uzt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 098/229] platform/x86: msi-laptop: Fix resource cleanup
+Subject: [PATCH 4.14 100/210] platform/x86: msi-laptop: Fix resource cleanup
 Date:   Mon, 24 Oct 2022 13:30:17 +0200
-Message-Id: <20221024113002.205914876@linuxfoundation.org>
+Message-Id: <20221024113000.267229182@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
