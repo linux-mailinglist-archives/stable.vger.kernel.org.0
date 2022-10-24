@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6692F60A4ED
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:18:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0813760AA3F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233059AbiJXMSq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:18:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35776 "EHLO
+        id S230204AbiJXNbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:31:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233056AbiJXMRy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:17:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E5E80E8F;
-        Mon, 24 Oct 2022 04:56:49 -0700 (PDT)
+        with ESMTP id S236203AbiJXN35 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C28AAC48B;
+        Mon, 24 Oct 2022 05:33:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A75FDB8117E;
-        Mon, 24 Oct 2022 11:53:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09036C433D6;
-        Mon, 24 Oct 2022 11:53:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67910612DA;
+        Mon, 24 Oct 2022 12:29:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77BF6C433C1;
+        Mon, 24 Oct 2022 12:29:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612402;
-        bh=vvwgSjYLB6FyCR2+DSdzynHETnNIDB8EdTSjFM5J3rI=;
+        s=korg; t=1666614554;
+        bh=bPQpXuTiwSD2XHaeEE3f7S0MAGju3li9gNzgfMUaygQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gbcwPUIXTDLGuyTWW0TMMQz57XnMB2tGBrXW9sJknvg93WkyVTeO07F/VsbJvze7i
-         BtWVwhzFGzrrW7DMU1tHjKZ9XM8UBlRT8o3tjhiv+4hd5NafATQrpWqXaq6K+tn/lE
-         r/42OEWM/+LoGjackaG6SwkBqpeBANe39LVdm1aw=
+        b=iHvkMNfH6ks+deCJztQzk8uTwWJ4NGHxmo7ZtV8bAhqwNdA/veY/rqy9IiMuHUOX3
+         jKwWQHlANtnU/3sdaQ2aeRedCgWOEQ6ORFs4PPUhxJsFMWrL8uq5Gqko6BJoKefQLs
+         LR05G1G4w6mWaP7AmXMpkYj/oPV0aR8hzdUU7hms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 185/210] drm: Prevent drm_copy_field() to attempt copying a NULL pointer
+        stable@vger.kernel.org, Wright Feng <wright.feng@cypress.com>,
+        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 305/390] wifi: brcmfmac: fix invalid address access when enabling SCAN log level
 Date:   Mon, 24 Oct 2022 13:31:42 +0200
-Message-Id: <20221024113002.966489577@linuxfoundation.org>
+Message-Id: <20221024113035.997982350@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,85 +55,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Wright Feng <wright.feng@cypress.com>
 
-[ Upstream commit f6ee30407e883042482ad4ad30da5eaba47872ee ]
+[ Upstream commit aa666b68e73fc06d83c070d96180b9010cf5a960 ]
 
-There are some struct drm_driver fields that are required by drivers since
-drm_copy_field() attempts to copy them to user-space via DRM_IOCTL_VERSION.
+The variable i is changed when setting random MAC address and causes
+invalid address access when printing the value of pi->reqs[i]->reqid.
 
-But it can be possible that a driver has a bug and did not set some of the
-fields, which leads to drm_copy_field() attempting to copy a NULL pointer:
+We replace reqs index with ri to fix the issue.
 
-[ +10.395966] Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
-[  +0.010955] Mem abort info:
-[  +0.002835]   ESR = 0x0000000096000004
-[  +0.003872]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  +0.005395]   SET = 0, FnV = 0
-[  +0.003113]   EA = 0, S1PTW = 0
-[  +0.003182]   FSC = 0x04: level 0 translation fault
-[  +0.004964] Data abort info:
-[  +0.002919]   ISV = 0, ISS = 0x00000004
-[  +0.003886]   CM = 0, WnR = 0
-[  +0.003040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000115dad000
-[  +0.006536] [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
-[  +0.006925] Internal error: Oops: 96000004 [#1] SMP
-...
-[  +0.011113] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  +0.007061] pc : __pi_strlen+0x14/0x150
-[  +0.003895] lr : drm_copy_field+0x30/0x1a4
-[  +0.004156] sp : ffff8000094b3a50
-[  +0.003355] x29: ffff8000094b3a50 x28: ffff8000094b3b70 x27: 0000000000000040
-[  +0.007242] x26: ffff443743c2ba00 x25: 0000000000000000 x24: 0000000000000040
-[  +0.007243] x23: ffff443743c2ba00 x22: ffff8000094b3b70 x21: 0000000000000000
-[  +0.007241] x20: 0000000000000000 x19: ffff8000094b3b90 x18: 0000000000000000
-[  +0.007241] x17: 0000000000000000 x16: 0000000000000000 x15: 0000aaab14b9af40
-[  +0.007241] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
-[  +0.007239] x11: 0000000000000000 x10: 0000000000000000 x9 : ffffa524ad67d4d8
-[  +0.007242] x8 : 0101010101010101 x7 : 7f7f7f7f7f7f7f7f x6 : 6c6e6263606e7141
-[  +0.007239] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000000
-[  +0.007241] x2 : 0000000000000000 x1 : ffff8000094b3b90 x0 : 0000000000000000
-[  +0.007240] Call trace:
-[  +0.002475]  __pi_strlen+0x14/0x150
-[  +0.003537]  drm_version+0x84/0xac
-[  +0.003448]  drm_ioctl_kernel+0xa8/0x16c
-[  +0.003975]  drm_ioctl+0x270/0x580
-[  +0.003448]  __arm64_sys_ioctl+0xb8/0xfc
-[  +0.003978]  invoke_syscall+0x78/0x100
-[  +0.003799]  el0_svc_common.constprop.0+0x4c/0xf4
-[  +0.004767]  do_el0_svc+0x38/0x4c
-[  +0.003357]  el0_svc+0x34/0x100
-[  +0.003185]  el0t_64_sync_handler+0x11c/0x150
-[  +0.004418]  el0t_64_sync+0x190/0x194
-[  +0.003716] Code: 92402c04 b200c3e8 f13fc09f 5400088c (a9400c02)
-[  +0.006180] ---[ end trace 0000000000000000 ]---
+[  136.726473] Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
+[  136.737365] Mem abort info:
+[  136.740172]   ESR = 0x96000004
+[  136.743359]   Exception class = DABT (current EL), IL = 32 bits
+[  136.749294]   SET = 0, FnV = 0
+[  136.752481]   EA = 0, S1PTW = 0
+[  136.755635] Data abort info:
+[  136.758514]   ISV = 0, ISS = 0x00000004
+[  136.762487]   CM = 0, WnR = 0
+[  136.765522] user pgtable: 4k pages, 48-bit VAs, pgdp = 000000005c4e2577
+[  136.772265] [0000000000000000] pgd=0000000000000000
+[  136.777160] Internal error: Oops: 96000004 [#1] PREEMPT SMP
+[  136.782732] Modules linked in: brcmfmac(O) brcmutil(O) cfg80211(O) compat(O)
+[  136.789788] Process wificond (pid: 3175, stack limit = 0x00000000053048fb)
+[  136.796664] CPU: 3 PID: 3175 Comm: wificond Tainted: G           O      4.19.42-00001-g531a5f5 #1
+[  136.805532] Hardware name: Freescale i.MX8MQ EVK (DT)
+[  136.810584] pstate: 60400005 (nZCv daif +PAN -UAO)
+[  136.815429] pc : brcmf_pno_config_sched_scans+0x6cc/0xa80 [brcmfmac]
+[  136.821811] lr : brcmf_pno_config_sched_scans+0x67c/0xa80 [brcmfmac]
+[  136.828162] sp : ffff00000e9a3880
+[  136.831475] x29: ffff00000e9a3890 x28: ffff800020543400
+[  136.836786] x27: ffff8000b1008880 x26: ffff0000012bf6a0
+[  136.842098] x25: ffff80002054345c x24: ffff800088d22400
+[  136.847409] x23: ffff0000012bf638 x22: ffff0000012bf6d8
+[  136.852721] x21: ffff8000aced8fc0 x20: ffff8000ac164400
+[  136.858032] x19: ffff00000e9a3946 x18: 0000000000000000
+[  136.863343] x17: 0000000000000000 x16: 0000000000000000
+[  136.868655] x15: ffff0000093f3b37 x14: 0000000000000050
+[  136.873966] x13: 0000000000003135 x12: 0000000000000000
+[  136.879277] x11: 0000000000000000 x10: ffff000009a61888
+[  136.884589] x9 : 000000000000000f x8 : 0000000000000008
+[  136.889900] x7 : 303a32303d726464 x6 : ffff00000a1f957d
+[  136.895211] x5 : 0000000000000000 x4 : ffff00000e9a3942
+[  136.900523] x3 : 0000000000000000 x2 : ffff0000012cead8
+[  136.905834] x1 : ffff0000012bf6d8 x0 : 0000000000000000
+[  136.911146] Call trace:
+[  136.913623]  brcmf_pno_config_sched_scans+0x6cc/0xa80 [brcmfmac]
+[  136.919658]  brcmf_pno_start_sched_scan+0xa4/0x118 [brcmfmac]
+[  136.925430]  brcmf_cfg80211_sched_scan_start+0x80/0xe0 [brcmfmac]
+[  136.931636]  nl80211_start_sched_scan+0x140/0x308 [cfg80211]
+[  136.937298]  genl_rcv_msg+0x358/0x3f4
+[  136.940960]  netlink_rcv_skb+0xb4/0x118
+[  136.944795]  genl_rcv+0x34/0x48
+[  136.947935]  netlink_unicast+0x264/0x300
+[  136.951856]  netlink_sendmsg+0x2e4/0x33c
+[  136.955781]  __sys_sendto+0x120/0x19c
 
-Reported-by: Peter Robinson <pbrobinson@gmail.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220705100215.572498-3-javierm@redhat.com
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220722115632.620681-4-alvin@pqrs.dk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_ioctl.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../net/wireless/broadcom/brcm80211/brcmfmac/pno.c   | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_ioctl.c b/drivers/gpu/drm/drm_ioctl.c
-index 335fad8b209a..73dcf03e7e8c 100644
---- a/drivers/gpu/drm/drm_ioctl.c
-+++ b/drivers/gpu/drm/drm_ioctl.c
-@@ -439,6 +439,12 @@ static int drm_copy_field(char __user *buf, size_t *buf_len, const char *value)
- {
- 	size_t len;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c
+index fabfbb0b40b0..d0a7465be586 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c
+@@ -158,12 +158,12 @@ static int brcmf_pno_set_random(struct brcmf_if *ifp, struct brcmf_pno_info *pi)
+ 	struct brcmf_pno_macaddr_le pfn_mac;
+ 	u8 *mac_addr = NULL;
+ 	u8 *mac_mask = NULL;
+-	int err, i;
++	int err, i, ri;
  
-+	/* don't attempt to copy a NULL pointer */
-+	if (WARN_ONCE(!value, "BUG: the value to copy was not set!")) {
-+		*buf_len = 0;
-+		return 0;
-+	}
-+
- 	/* don't overflow userbuf */
- 	len = strlen(value);
- 	if (len > *buf_len)
+-	for (i = 0; i < pi->n_reqs; i++)
+-		if (pi->reqs[i]->flags & NL80211_SCAN_FLAG_RANDOM_ADDR) {
+-			mac_addr = pi->reqs[i]->mac_addr;
+-			mac_mask = pi->reqs[i]->mac_addr_mask;
++	for (ri = 0; ri < pi->n_reqs; ri++)
++		if (pi->reqs[ri]->flags & NL80211_SCAN_FLAG_RANDOM_ADDR) {
++			mac_addr = pi->reqs[ri]->mac_addr;
++			mac_mask = pi->reqs[ri]->mac_addr_mask;
+ 			break;
+ 		}
+ 
+@@ -185,7 +185,7 @@ static int brcmf_pno_set_random(struct brcmf_if *ifp, struct brcmf_pno_info *pi)
+ 	pfn_mac.mac[0] |= 0x02;
+ 
+ 	brcmf_dbg(SCAN, "enabling random mac: reqid=%llu mac=%pM\n",
+-		  pi->reqs[i]->reqid, pfn_mac.mac);
++		  pi->reqs[ri]->reqid, pfn_mac.mac);
+ 	err = brcmf_fil_iovar_data_set(ifp, "pfn_macaddr", &pfn_mac,
+ 				       sizeof(pfn_mac));
+ 	if (err)
 -- 
 2.35.1
 
