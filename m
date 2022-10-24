@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2019460A60C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74E7B60A96D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233810AbiJXMba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:31:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45122 "EHLO
+        id S231964AbiJXNUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:20:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234208AbiJXM3j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:39 -0400
+        with ESMTP id S236324AbiJXNTz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:19:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFE7E895F1;
-        Mon, 24 Oct 2022 05:03:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28BB9A7AA6;
+        Mon, 24 Oct 2022 05:28:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 292156128E;
-        Mon, 24 Oct 2022 12:02:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C5ECC433C1;
-        Mon, 24 Oct 2022 12:02:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F69E612F5;
+        Mon, 24 Oct 2022 12:14:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43565C433D6;
+        Mon, 24 Oct 2022 12:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612977;
-        bh=/BleCwNH4q+MxKT7DR0P99zio7f8ZwEn9aOrqdQJuJE=;
+        s=korg; t=1666613666;
+        bh=gePGUbRyCmr1HqTy+cXj6xywnpe9R20ipRt3gOynQyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTfOdAAaGCLlIr9/cNzTuzQ8Bu5P/PDG9zXMUQ9wgFBPyN44EkkQWFW2Yz5JJ7gt5
-         19gtG9ILGeQgO/VW162ETjoqrtwHXhnyvPvQSB7BAwgw+Hc2zIxdZSjP34KocCFlqI
-         LA4kll60HcF5cytvOscFqUQuS3sL2nMOyDWy5KIU=
+        b=nAYP8GDJLHWVJsCaaRExdA6yGO2zundKYuYWgI0IGxUSywO5ElPwCGbf9J5Teqt4m
+         qcvzI5Wo/mglyg9xsCKMOLkpjMvuo9uYw3a7Xe7E3led6VKa+aJ462bC0VGcQwf3CY
+         Y46k+Nvl/OdlAdBFTJgXY2NV65ykwbkSv4vh8Sno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Hawkins Jiawei <yin31149@gmail.com>,
+        stable@vger.kernel.org, Mike Pattrick <mkp@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 184/229] Bluetooth: hci_sysfs: Fix attempting to call device_add multiple times
+Subject: [PATCH 5.4 193/255] openvswitch: Fix double reporting of drops in dropwatch
 Date:   Mon, 24 Oct 2022 13:31:43 +0200
-Message-Id: <20221024113005.052777577@linuxfoundation.org>
+Message-Id: <20221024113009.397443479@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Mike Pattrick <mkp@redhat.com>
 
-[ Upstream commit 448a496f760664d3e2e79466aa1787e6abc922b5 ]
+[ Upstream commit 1100248a5c5ccd57059eb8d02ec077e839a23826 ]
 
-device_add shall not be called multiple times as stated in its
-documentation:
+Frames sent to userspace can be reported as dropped in
+ovs_dp_process_packet, however, if they are dropped in the netlink code
+then netlink_attachskb will report the same frame as dropped.
 
- 'Do not call this routine or device_register() more than once for
- any device structure'
+This patch checks for error codes which indicate that the frame has
+already been freed.
 
-Syzkaller reports a bug as follows [1]:
-------------[ cut here ]------------
-kernel BUG at lib/list_debug.c:33!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-[...]
-Call Trace:
- <TASK>
- __list_add include/linux/list.h:69 [inline]
- list_add_tail include/linux/list.h:102 [inline]
- kobj_kset_join lib/kobject.c:164 [inline]
- kobject_add_internal+0x18f/0x8f0 lib/kobject.c:214
- kobject_add_varg lib/kobject.c:358 [inline]
- kobject_add+0x150/0x1c0 lib/kobject.c:410
- device_add+0x368/0x1e90 drivers/base/core.c:3452
- hci_conn_add_sysfs+0x9b/0x1b0 net/bluetooth/hci_sysfs.c:53
- hci_le_cis_estabilished_evt+0x57c/0xae0 net/bluetooth/hci_event.c:6799
- hci_le_meta_evt+0x2b8/0x510 net/bluetooth/hci_event.c:7110
- hci_event_func net/bluetooth/hci_event.c:7440 [inline]
- hci_event_packet+0x63d/0xfd0 net/bluetooth/hci_event.c:7495
- hci_rx_work+0xae7/0x1230 net/bluetooth/hci_core.c:4007
- process_one_work+0x991/0x1610 kernel/workqueue.c:2289
- worker_thread+0x665/0x1080 kernel/workqueue.c:2436
- kthread+0x2e4/0x3a0 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
- </TASK>
-
-Link: https://syzkaller.appspot.com/bug?id=da3246e2d33afdb92d66bc166a0934c5b146404a
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Tested-by: Hawkins Jiawei <yin31149@gmail.com>
+Signed-off-by: Mike Pattrick <mkp@redhat.com>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2109946
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sysfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/openvswitch/datapath.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/hci_sysfs.c b/net/bluetooth/hci_sysfs.c
-index b69d88b88d2e..ccd2c377bf83 100644
---- a/net/bluetooth/hci_sysfs.c
-+++ b/net/bluetooth/hci_sysfs.c
-@@ -48,6 +48,9 @@ void hci_conn_add_sysfs(struct hci_conn *conn)
- 
- 	BT_DBG("conn %p", conn);
- 
-+	if (device_is_registered(&conn->dev))
-+		return;
-+
- 	dev_set_name(&conn->dev, "%s:%d", hdev->name, conn->handle);
- 
- 	if (device_add(&conn->dev) < 0) {
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index 4f097bd3339e..63f36d6cd3f6 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -236,10 +236,17 @@ void ovs_dp_process_packet(struct sk_buff *skb, struct sw_flow_key *key)
+ 		upcall.portid = ovs_vport_find_upcall_portid(p, skb);
+ 		upcall.mru = OVS_CB(skb)->mru;
+ 		error = ovs_dp_upcall(dp, skb, key, &upcall, 0);
+-		if (unlikely(error))
+-			kfree_skb(skb);
+-		else
++		switch (error) {
++		case 0:
++		case -EAGAIN:
++		case -ERESTARTSYS:
++		case -EINTR:
+ 			consume_skb(skb);
++			break;
++		default:
++			kfree_skb(skb);
++			break;
++		}
+ 		stats_counter = &stats->n_missed;
+ 		goto out;
+ 	}
 -- 
 2.35.1
 
