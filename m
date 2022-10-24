@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F22060A29E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B92A160A2A0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:46:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231535AbiJXLp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:45:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43456 "EHLO
+        id S229894AbiJXLqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:46:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231844AbiJXLog (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:44:36 -0400
+        with ESMTP id S231866AbiJXLoj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:44:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65DF110BE;
-        Mon, 24 Oct 2022 04:42:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B1F754A6;
+        Mon, 24 Oct 2022 04:42:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B93406129E;
-        Mon, 24 Oct 2022 11:40:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9F80C433C1;
-        Mon, 24 Oct 2022 11:40:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55FE9612A3;
+        Mon, 24 Oct 2022 11:40:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66641C433D6;
+        Mon, 24 Oct 2022 11:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611647;
-        bh=+I0xfy1z0X+lsymIB2vC9bMATzX/t2nZ5Oe46nZnOzY=;
+        s=korg; t=1666611649;
+        bh=HleRpNnRVYw5VRTljs6TvCLKvfcsk+4I4s4hYiy2qTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jidp2Y8nsnEnavBQn+EioPMg2cQv9p/mpOPe0XUCePdPln2UZ2Cp1Ldss6cN1Vy5r
-         qc1jba3UIl7MqR1hCTcN23ZkwL9ZO3UEXHn9kXpk+gQ065EovmO4iGXBYLsvLnsIQ3
-         PhRKMA2FOjW7rtdAQ+lOYIDe4OAyabggSyS9Zvso=
+        b=Ri3MVWqDsJdAS7Rly4z0ftWrrGCeyzV3nU/tKy9JHS2HF0j1i0Z/oVWBpo6rJjg/D
+         9f03aiq6DU4TDak/NOXkaQJP+Xzbw8nVSnaZWRwGci4tgBK8FkVW6p4xzPqatcV9/Y
+         I5oMFx9DAoBMbvQ5mpSbQRZ6mIVa1QTluKqogJ24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Jinke Han <hanjinke.666@bytedance.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 058/159] ext4: place buffer head allocation before handle start
-Date:   Mon, 24 Oct 2022 13:30:12 +0200
-Message-Id: <20221024112951.560021650@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 059/159] ring-buffer: Allow splice to read previous partially read pages
+Date:   Mon, 24 Oct 2022 13:30:13 +0200
+Message-Id: <20221024112951.590823450@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -53,49 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinke Han <hanjinke.666@bytedance.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit d1052d236eddf6aa851434db1897b942e8db9921 upstream.
+commit fa8f4a89736b654125fb254b0db753ac68a5fced upstream.
 
-In our product environment, we encounter some jbd hung waiting handles to
-stop while several writters were doing memory reclaim for buffer head
-allocation in delay alloc write path. Ext4 do buffer head allocation with
-holding transaction handle which may be blocked too long if the reclaim
-works not so smooth. According to our bcc trace, the reclaim time in
-buffer head allocation can reach 258s and the jbd transaction commit also
-take almost the same time meanwhile. Except for these extreme cases,
-we often see several seconds delays for cgroup memory reclaim on our
-servers. This is more likely to happen considering docker environment.
+If a page is partially read, and then the splice system call is run
+against the ring buffer, it will always fail to read, no matter how much
+is in the ring buffer. That's because the code path for a partial read of
+the page does will fail if the "full" flag is set.
 
-One thing to note, the allocation of buffer heads is as often as page
-allocation or more often when blocksize less than page size. Just like
-page cache allocation, we should also place the buffer head allocation
-before startting the handle.
+The splice system call wants full pages, so if the read of the ring buffer
+is not yet full, it should return zero, and the splice will block. But if
+a previous read was done, where the beginning has been consumed, it should
+still be given to the splice caller if the rest of the page has been
+written to.
 
-Cc: stable@kernel.org
-Signed-off-by: Jinke Han <hanjinke.666@bytedance.com>
-Link: https://lore.kernel.org/r/20220903012429.22555-1-hanjinke.666@bytedance.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+This caused the splice command to never consume data in this scenario, and
+let the ring buffer just fill up and lose events.
+
+Link: https://lkml.kernel.org/r/20220927144317.46be6b80@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Fixes: 8789a9e7df6bf ("ring-buffer: read page interface")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ kernel/trace/ring_buffer.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -1215,6 +1215,13 @@ retry_grab:
- 	page = grab_cache_page_write_begin(mapping, index, flags);
- 	if (!page)
- 		return -ENOMEM;
-+	/*
-+	 * The same as page allocation, we prealloc buffer heads before
-+	 * starting the handle.
-+	 */
-+	if (!page_has_buffers(page))
-+		create_empty_buffers(page, inode->i_sb->s_blocksize, 0);
-+
- 	unlock_page(page);
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -4623,7 +4623,15 @@ int ring_buffer_read_page(struct ring_bu
+ 		unsigned int pos = 0;
+ 		unsigned int size;
  
- retry_journal:
+-		if (full)
++		/*
++		 * If a full page is expected, this can still be returned
++		 * if there's been a previous partial read and the
++		 * rest of the page can be read and the commit page is off
++		 * the reader page.
++		 */
++		if (full &&
++		    (!read || (len < (commit - read)) ||
++		     cpu_buffer->reader_page == cpu_buffer->commit_page))
+ 			goto out_unlock;
+ 
+ 		if (len > (commit - read))
 
 
