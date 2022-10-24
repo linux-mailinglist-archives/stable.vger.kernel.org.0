@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5815E60B430
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:32:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A8BA60B2C1
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232941AbiJXRcE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:32:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39364 "EHLO
+        id S229544AbiJXQvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:51:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232940AbiJXRbe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:31:34 -0400
+        with ESMTP id S235406AbiJXQtb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888A343615;
-        Mon, 24 Oct 2022 09:06:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E39C717FD4A;
+        Mon, 24 Oct 2022 08:32:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3E89B816A9;
-        Mon, 24 Oct 2022 12:30:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 240F5C433D6;
-        Mon, 24 Oct 2022 12:30:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E537AB811EC;
+        Mon, 24 Oct 2022 12:03:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 469E9C433C1;
+        Mon, 24 Oct 2022 12:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614628;
-        bh=WtmUHpXH7zAUYwCL3i2VSbXYr6kSqUkFecpd0pNxcTY=;
+        s=korg; t=1666612985;
+        bh=IqXIc2zb1gPqjZAiZAuDXqBufstMjobSxTTlD79UXjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q22QP8Konm7p4P1vFgMeEkPJ/gqNB06zuzOi7z/Tw6IQJ9lElnyFrkDY2p0i/b1Ax
-         1SOYhMl5krRNTvD6x2PxKSZw65ha0z9RDKnCGkvppeLVCWU6HyH9rqdTQYdeP9leI4
-         8Fw4v+q6TOZ37PUy2d+CkRAzwc7xDicwUJ7yvUH8=
+        b=cGWUC15kFAwA7wcupt1PX4XhVR2VVQha1VQlYrYg0JhO7ZrDTCXM/iyRiRXbfjfqv
+         WFJ4x/F1Tqd70b5DtS3ajEZJCvUDSpB8xazf/O8K3USWg/CYKGcm0KapzLiR6rRFpD
+         JrZrGll04YsThrRoC48hCvh/EmaCxzkG0hhkItY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        stable@vger.kernel.org, David Gow <davidgow@google.com>,
+        Tales Aparecida <tales.aparecida@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 316/390] can: bcm: check the result of can_send() in bcm_can_tx()
-Date:   Mon, 24 Oct 2022 13:31:53 +0200
-Message-Id: <20221024113036.443708770@linuxfoundation.org>
+Subject: [PATCH 4.19 195/229] drm/amd/display: fix overflow on MIN_I64 definition
+Date:   Mon, 24 Oct 2022 13:31:54 +0200
+Message-Id: <20221024113005.440623785@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit 3fd7bfd28cfd68ae80a2fe92ea1615722cc2ee6e ]
+[ Upstream commit 6ae0632d17759852c07e2d1e0a31c728eb6ba246 ]
 
-If can_send() fail, it should not update frames_abs counter
-in bcm_can_tx(). Add the result check for can_send() in bcm_can_tx().
+The definition of MIN_I64 in bw_fixed.c can cause gcc to whinge about
+integer overflow, because it is treated as a positive value, which is
+then negated. The temporary positive value is not necessarily
+representable.
 
-Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Suggested-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Link: https://lore.kernel.org/all/9851878e74d6d37aee2f1ee76d68361a46f89458.1663206163.git.william.xuanziyang@huawei.com
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+This causes the following warning:
+../drivers/gpu/drm/amd/amdgpu/../display/dc/dml/calcs/bw_fixed.c:30:19:
+warning: integer overflow in expression ‘-9223372036854775808’ of type
+‘long long int’ results in ‘-9223372036854775808’ [-Woverflow]
+  30 |         (int64_t)(-(1LL << 63))
+     |                   ^
+
+Writing out (-MAX_I64 - 1) works instead.
+
+Signed-off-by: David Gow <davidgow@google.com>
+Signed-off-by: Tales Aparecida <tales.aparecida@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/bcm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/can/bcm.c b/net/can/bcm.c
-index e918a0f3cda2..afa82adaf6cd 100644
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -274,6 +274,7 @@ static void bcm_can_tx(struct bcm_op *op)
- 	struct sk_buff *skb;
- 	struct net_device *dev;
- 	struct canfd_frame *cf = op->frames + op->cfsiz * op->currframe;
-+	int err;
+diff --git a/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c b/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c
+index 6ca288fb5fb9..2d46bc527b21 100644
+--- a/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c
++++ b/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c
+@@ -26,12 +26,12 @@
+ #include "bw_fixed.h"
  
- 	/* no target device? => exit */
- 	if (!op->ifindex)
-@@ -298,11 +299,11 @@ static void bcm_can_tx(struct bcm_op *op)
- 	/* send with loopback */
- 	skb->dev = dev;
- 	can_skb_set_owner(skb, op->sk);
--	can_send(skb, 1);
-+	err = can_send(skb, 1);
-+	if (!err)
-+		op->frames_abs++;
  
--	/* update statistics */
- 	op->currframe++;
--	op->frames_abs++;
+-#define MIN_I64 \
+-	(int64_t)(-(1LL << 63))
+-
+ #define MAX_I64 \
+ 	(int64_t)((1ULL << 63) - 1)
  
- 	/* reached last frame? */
- 	if (op->currframe >= op->nframes)
++#define MIN_I64 \
++	(-MAX_I64 - 1)
++
+ #define FRACTIONAL_PART_MASK \
+ 	((1ULL << BW_FIXED_BITS_PER_FRACTIONAL_PART) - 1)
+ 
 -- 
 2.35.1
 
