@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D0360B9C9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:21:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 430BF60BB45
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:54:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234192AbiJXUVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:21:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52756 "EHLO
+        id S230520AbiJXUyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:54:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234193AbiJXUUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:20:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 890C5127BC9;
-        Mon, 24 Oct 2022 11:37:21 -0700 (PDT)
+        with ESMTP id S234761AbiJXUxe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:53:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A45F5A4BB8;
+        Mon, 24 Oct 2022 12:00:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51ABDB81714;
-        Mon, 24 Oct 2022 12:33:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8BCFC433D6;
-        Mon, 24 Oct 2022 12:33:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A4B86134F;
+        Mon, 24 Oct 2022 12:52:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C23DC433C1;
+        Mon, 24 Oct 2022 12:52:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614791;
-        bh=AW2HmN9TqaQ00WLNTP/efmBXWbdmYViKnrGlcIbwwjU=;
+        s=korg; t=1666615958;
+        bh=/NdS3g71STJA3Pftdp1Yvvm9X41utaI30ce2S5p5+E4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=esIBHyrfZld3/bmDjWGOPPjJel04SBoJ1mA5ByF31/LTD1AyYe/6AMrC2MQkCpBUT
-         MPErjeOjNr8qxF2wBLFTBGirFcHqqD3dXsNcbc9J9BnASou68aB9arPrsQfxQHD0vm
-         7ZFW7HhL/6wN3gDne55bSGecWp+AzAEzTp35W2Ec=
+        b=Hua/qtRjdvwkzSqG4FAn/nOd4zq0Kng152aokRXafu+QLqg6BTLSdrT6YoledjzG2
+         PGSRxUs24TARzv6VUs590LHJOvdwoCHc+nhrm79cQC9nxdfD1bt9jp9nIfXMLr924+
+         pn/WMA7oRBVGRGw5tG5vi6EDFVJARPqLXgI3ulmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Chen Yu <yu.c.chen@intel.com>
-Subject: [PATCH 5.10 388/390] thermal: intel_powerclamp: Use first online CPU as control_cpu
-Date:   Mon, 24 Oct 2022 13:33:05 +0200
-Message-Id: <20221024113039.490974083@linuxfoundation.org>
+        stable@vger.kernel.org, Zeng Jingxiang <linuszeng@tencent.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 447/530] gpu: lontium-lt9611: Fix NULL pointer dereference in lt9611_connector_init()
+Date:   Mon, 24 Oct 2022 13:33:11 +0200
+Message-Id: <20221024113105.273274733@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Zeng Jingxiang <linuszeng@tencent.com>
 
-commit 4bb7f6c2781e46fc5bd00475a66df2ea30ef330d upstream.
+[ Upstream commit ef8886f321c5dab8124b9153d25afa2a71d05323 ]
 
-Commit 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead
-of smp_processor_id() to avoid crash") fixed an issue related to using
-smp_processor_id() in preemptible context by replacing it with a pair
-of get_cpu()/put_cpu(), but what is needed there really is any online
-CPU and not necessarily the one currently running the code.  Arguably,
-getting the one that's running the code in there is confusing.
+A NULL check for bridge->encoder shows that it may be NULL, but it
+already been dereferenced on all paths leading to the check.
+812	if (!bridge->encoder) {
 
-For this reason, simply give the control CPU role to the first online
-one which automatically will be CPU0 if it is online, so one check
-can be dropped from the code for an added benefit.
+Dereference the pointer bridge->encoder.
+810	drm_connector_attach_encoder(&lt9611->connector, bridge->encoder);
 
-Link: https://lore.kernel.org/linux-pm/20221011113646.GA12080@duo.ucw.cz/
-Fixes: 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Zeng Jingxiang <linuszeng@tencent.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220727073119.1578972-1-zengjx95@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel/intel_powerclamp.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/gpu/drm/bridge/lontium-lt9611.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/thermal/intel/intel_powerclamp.c
-+++ b/drivers/thermal/intel/intel_powerclamp.c
-@@ -531,11 +531,7 @@ static int start_power_clamp(void)
- 	get_online_cpus();
+diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
+index 29b1ce2140ab..1dcc28a4d853 100644
+--- a/drivers/gpu/drm/bridge/lontium-lt9611.c
++++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
+@@ -816,13 +816,14 @@ static int lt9611_connector_init(struct drm_bridge *bridge, struct lt9611 *lt961
  
- 	/* prefer BSP */
--	control_cpu = 0;
--	if (!cpu_online(control_cpu)) {
--		control_cpu = get_cpu();
--		put_cpu();
--	}
-+	control_cpu = cpumask_first(cpu_online_mask);
+ 	drm_connector_helper_add(&lt9611->connector,
+ 				 &lt9611_bridge_connector_helper_funcs);
+-	drm_connector_attach_encoder(&lt9611->connector, bridge->encoder);
  
- 	clamping = true;
- 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
+ 	if (!bridge->encoder) {
+ 		DRM_ERROR("Parent encoder object not found");
+ 		return -ENODEV;
+ 	}
+ 
++	drm_connector_attach_encoder(&lt9611->connector, bridge->encoder);
++
+ 	return 0;
+ }
+ 
+-- 
+2.35.1
+
 
 
