@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20AB360A8DD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:12:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EC8760A591
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:26:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235668AbiJXNML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:12:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45902 "EHLO
+        id S233635AbiJXM0q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:26:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235995AbiJXNKW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:10:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB39237ED;
-        Mon, 24 Oct 2022 05:24:11 -0700 (PDT)
+        with ESMTP id S230472AbiJXMZb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:25:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFB5258140;
+        Mon, 24 Oct 2022 05:00:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27EB66126B;
-        Mon, 24 Oct 2022 12:22:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3490CC433C1;
-        Mon, 24 Oct 2022 12:22:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6FA6B8118A;
+        Mon, 24 Oct 2022 11:48:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 111AFC433D6;
+        Mon, 24 Oct 2022 11:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614171;
-        bh=MP1yxVGBMzqN7/KGr058ycVVbIuCkd0O/DCmCEKeALM=;
+        s=korg; t=1666612104;
+        bh=Sf4p/I5+I0rasfxMUpNRv3gda7JlSUROFiBRNveWqCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQLd8fVlNVxtEpwQBGP8dDJu4lurxDhvvehZdTol0AvnTAFasb7m6PnadaZmEQZ0Q
-         YxvqrZGp6TpxQpkqkMAm1i4ZB+5Iy3Dpyop097rwlYRDJfT+DWUMr/4f0SRTbLuYsR
-         VMusNC1NIWXUMjOzvWZcvhcQbldIINWsc+yw3tOo=
+        b=vi1rAUrhZfxizR3g36tsgkkye98QnJztEKh1rqMN81XdOfKOk9r9du9NSTnyVJIyw
+         k4Wwnaio3ARfTwy23AMkyj1Lvk1UREycdQJsoeTfESCLBqQfztDjfDHR1DFbZyFkCM
+         uvTJgEoW0ZGeffb//xIQ2MXUkU8Ma6+zJ3dV+t1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Kelin Wang <wangkelin2023@163.com>
-Subject: [PATCH 5.10 160/390] ASoC: eureka-tlv320: Hold reference returned from of_find_xxx API
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.14 040/210] random: clamp credited irq bits to maximum mixed
 Date:   Mon, 24 Oct 2022 13:29:17 +0200
-Message-Id: <20221024113029.513716431@linuxfoundation.org>
+Message-Id: <20221024112958.289237020@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +51,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit bfb735a3ceff0bab6473bac275da96f9b2a06dec ]
+commit e78a802a7b4febf53f2a92842f494b01062d85a8 upstream.
 
-In eukrea_tlv320_probe(), we need to hold the reference returned
-from of_find_compatible_node() which has increased the refcount
-and then call of_node_put() with it when done.
+Since the most that's mixed into the pool is sizeof(long)*2, don't
+credit more than that many bytes of entropy.
 
-Fixes: 66f232908de2 ("ASoC: eukrea-tlv320: Add DT support.")
-Co-authored-by: Kelin Wang <wangkelin2023@163.com>
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220914134354.3995587-1-windhl@126.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e3e33fc2ea7f ("random: do not use input pool from hard IRQs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/fsl/eukrea-tlv320.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/fsl/eukrea-tlv320.c b/sound/soc/fsl/eukrea-tlv320.c
-index e13271ea84de..29cf9234984d 100644
---- a/sound/soc/fsl/eukrea-tlv320.c
-+++ b/sound/soc/fsl/eukrea-tlv320.c
-@@ -86,7 +86,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 	int ret;
- 	int int_port = 0, ext_port;
- 	struct device_node *np = pdev->dev.of_node;
--	struct device_node *ssi_np = NULL, *codec_np = NULL;
-+	struct device_node *ssi_np = NULL, *codec_np = NULL, *tmp_np = NULL;
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -976,7 +976,7 @@ static void mix_interrupt_randomness(str
+ 	local_irq_enable();
  
- 	eukrea_tlv320.dev = &pdev->dev;
- 	if (np) {
-@@ -143,7 +143,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 	}
+ 	mix_pool_bytes(pool, sizeof(pool));
+-	credit_init_bits(max(1u, (count & U16_MAX) / 64));
++	credit_init_bits(clamp_t(unsigned int, (count & U16_MAX) / 64, 1, sizeof(pool) * 8));
  
- 	if (machine_is_eukrea_cpuimx27() ||
--	    of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux")) {
-+	    (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux"))) {
- 		imx_audmux_v1_configure_port(MX27_AUDMUX_HPCR1_SSI0,
- 			IMX_AUDMUX_V1_PCR_SYN |
- 			IMX_AUDMUX_V1_PCR_TFSDIR |
-@@ -158,10 +158,11 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 			IMX_AUDMUX_V1_PCR_SYN |
- 			IMX_AUDMUX_V1_PCR_RXDSEL(MX27_AUDMUX_HPCR1_SSI0)
- 		);
-+		of_node_put(tmp_np);
- 	} else if (machine_is_eukrea_cpuimx25sd() ||
- 		   machine_is_eukrea_cpuimx35sd() ||
- 		   machine_is_eukrea_cpuimx51sd() ||
--		   of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux")) {
-+		   (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux"))) {
- 		if (!np)
- 			ext_port = machine_is_eukrea_cpuimx25sd() ?
- 				4 : 3;
-@@ -178,6 +179,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 			IMX_AUDMUX_V2_PTCR_SYN,
- 			IMX_AUDMUX_V2_PDCR_RXDSEL(int_port)
- 		);
-+		of_node_put(tmp_np);
- 	} else {
- 		if (np) {
- 			/* The eukrea,asoc-tlv320 driver was explicitly
--- 
-2.35.1
-
+ 	memzero_explicit(pool, sizeof(pool));
+ }
 
 
