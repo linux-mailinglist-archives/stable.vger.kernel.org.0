@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7887860AFC5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:57:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F7460AC39
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:05:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231860AbiJXP52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 11:57:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37062 "EHLO
+        id S232161AbiJXODj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:03:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231878AbiJXP4t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:56:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9087C106A62;
-        Mon, 24 Oct 2022 07:51:38 -0700 (PDT)
+        with ESMTP id S233086AbiJXOCb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59A68C0690;
+        Mon, 24 Oct 2022 05:48:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4DCEB811D7;
-        Mon, 24 Oct 2022 12:29:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E28D9C433D6;
-        Mon, 24 Oct 2022 12:29:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5195B6132A;
+        Mon, 24 Oct 2022 12:47:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FD9DC433C1;
+        Mon, 24 Oct 2022 12:47:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614544;
-        bh=Xz/JYnNX+bv4d5sNBNrD5dHf4bfzzM5L7MEjHHLxJTw=;
+        s=korg; t=1666615665;
+        bh=ugBjsepRYvYP6ewZJtg3S2+9ioUPke2+iMbvqyO+qVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQQgnIeRsdjVFbwBnJicpowwdUv915+3gOQhtebb8ijEnZsbK3p10+fzUaOxs7veK
-         zLe6l0bfBKCSfkkn11WReudJbBHPhrVcc8NIuajGLYNz5iK5hqtGyLfJbyaQScDBdv
-         8i8FX8p2exBj5GDj3xRDd9exF4zUiOJyTuqhY9Ms=
+        b=nXhC89j0OUW/n7Yg6HO0dYfflrTUZbksQM2B8JhyceB60ueJeBiVIqmxidMh2UcnD
+         htFnycVRDTNksWaM3kLdCCLq4TfJK0jY18tQTKZdpXJXn3JixCW0ICWM7IDqB/EQjo
+         Yh63j84LNOewKALg3HiW839DHIpISrtoxskGRYd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-riscv@lists.infradead.org,
-        mingo@redhat.com, paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, zanussi@kernel.org, liaochang1@huawei.com,
-        chris.zjh@huawei.com, Yipeng Zou <zouyipeng@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Adam Skladowski <a_skl39@protonmail.com>,
+        Iskren Chernev <iskren.chernev@gmail.com>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 284/390] tracing: kprobe: Make gen test module work in arm and riscv
-Date:   Mon, 24 Oct 2022 13:31:21 +0200
-Message-Id: <20221024113035.043873542@linuxfoundation.org>
+Subject: [PATCH 5.15 338/530] clk: qcom: gcc-sm6115: Override default Alpha PLL regs
+Date:   Mon, 24 Oct 2022 13:31:22 +0200
+Message-Id: <20221024113100.306329571@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,111 +54,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yipeng Zou <zouyipeng@huawei.com>
+From: Adam Skladowski <a_skl39@protonmail.com>
 
-[ Upstream commit d8ef45d66c01425ff748e13ef7dd1da7a91cc93c ]
+[ Upstream commit 068a0605ef5a6b430e7278c169bfcd25b680b28f ]
 
-For now, this selftest module can only work in x86 because of the
-kprobe cmd was fixed use of x86 registers.
-This patch adapted to register names under arm and riscv, So that
-this module can be worked on those platform.
+The DEFAULT and BRAMMO PLL offsets are non-standard in downstream, but
+currently only BRAMMO ones are overridden. Override DEFAULT ones too.
 
-Link: https://lkml.kernel.org/r/20220919125629.238242-3-zouyipeng@huawei.com
+A very similar thing is happening in gcc-qcm2290 driver.
 
-Cc: <linux-riscv@lists.infradead.org>
-Cc: <mingo@redhat.com>
-Cc: <paul.walmsley@sifive.com>
-Cc: <palmer@dabbelt.com>
-Cc: <aou@eecs.berkeley.edu>
-Cc: <zanussi@kernel.org>
-Cc: <liaochang1@huawei.com>
-Cc: <chris.zjh@huawei.com>
-Fixes: 64836248dda2 ("tracing: Add kprobe event command generation test module")
-Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: cbe63bfdc54f ("clk: qcom: Add Global Clock controller (GCC) driver for SM6115")
+Signed-off-by: Adam Skladowski <a_skl39@protonmail.com>
+Signed-off-by: Iskren Chernev <iskren.chernev@gmail.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220830075620.974009-2-iskren.chernev@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/kprobe_event_gen_test.c | 47 +++++++++++++++++++++++++---
- 1 file changed, 43 insertions(+), 4 deletions(-)
+ drivers/clk/qcom/gcc-sm6115.c | 46 +++++++++++++++++++++++------------
+ 1 file changed, 30 insertions(+), 16 deletions(-)
 
-diff --git a/kernel/trace/kprobe_event_gen_test.c b/kernel/trace/kprobe_event_gen_test.c
-index e023154be0f8..80e04a1e1977 100644
---- a/kernel/trace/kprobe_event_gen_test.c
-+++ b/kernel/trace/kprobe_event_gen_test.c
-@@ -35,6 +35,45 @@
- static struct trace_event_file *gen_kprobe_test;
- static struct trace_event_file *gen_kretprobe_test;
+diff --git a/drivers/clk/qcom/gcc-sm6115.c b/drivers/clk/qcom/gcc-sm6115.c
+index 68fe9f6f0d2f..e24a977c2580 100644
+--- a/drivers/clk/qcom/gcc-sm6115.c
++++ b/drivers/clk/qcom/gcc-sm6115.c
+@@ -53,11 +53,25 @@ static struct pll_vco gpll10_vco[] = {
+ 	{ 750000000, 1500000000, 1 },
+ };
  
-+#define KPROBE_GEN_TEST_FUNC	"do_sys_open"
++static const u8 clk_alpha_pll_regs_offset[][PLL_OFF_MAX_REGS] = {
++	[CLK_ALPHA_PLL_TYPE_DEFAULT] =  {
++		[PLL_OFF_L_VAL] = 0x04,
++		[PLL_OFF_ALPHA_VAL] = 0x08,
++		[PLL_OFF_ALPHA_VAL_U] = 0x0c,
++		[PLL_OFF_TEST_CTL] = 0x10,
++		[PLL_OFF_TEST_CTL_U] = 0x14,
++		[PLL_OFF_USER_CTL] = 0x18,
++		[PLL_OFF_USER_CTL_U] = 0x1c,
++		[PLL_OFF_CONFIG_CTL] = 0x20,
++		[PLL_OFF_STATUS] = 0x24,
++	},
++};
 +
-+/* X86 */
-+#if defined(CONFIG_X86_64) || defined(CONFIG_X86_32)
-+#define KPROBE_GEN_TEST_ARG0	"dfd=%ax"
-+#define KPROBE_GEN_TEST_ARG1	"filename=%dx"
-+#define KPROBE_GEN_TEST_ARG2	"flags=%cx"
-+#define KPROBE_GEN_TEST_ARG3	"mode=+4($stack)"
-+
-+/* ARM64 */
-+#elif defined(CONFIG_ARM64)
-+#define KPROBE_GEN_TEST_ARG0	"dfd=%x0"
-+#define KPROBE_GEN_TEST_ARG1	"filename=%x1"
-+#define KPROBE_GEN_TEST_ARG2	"flags=%x2"
-+#define KPROBE_GEN_TEST_ARG3	"mode=%x3"
-+
-+/* ARM */
-+#elif defined(CONFIG_ARM)
-+#define KPROBE_GEN_TEST_ARG0	"dfd=%r0"
-+#define KPROBE_GEN_TEST_ARG1	"filename=%r1"
-+#define KPROBE_GEN_TEST_ARG2	"flags=%r2"
-+#define KPROBE_GEN_TEST_ARG3	"mode=%r3"
-+
-+/* RISCV */
-+#elif defined(CONFIG_RISCV)
-+#define KPROBE_GEN_TEST_ARG0	"dfd=%a0"
-+#define KPROBE_GEN_TEST_ARG1	"filename=%a1"
-+#define KPROBE_GEN_TEST_ARG2	"flags=%a2"
-+#define KPROBE_GEN_TEST_ARG3	"mode=%a3"
-+
-+/* others */
-+#else
-+#define KPROBE_GEN_TEST_ARG0	NULL
-+#define KPROBE_GEN_TEST_ARG1	NULL
-+#define KPROBE_GEN_TEST_ARG2	NULL
-+#define KPROBE_GEN_TEST_ARG3	NULL
-+#endif
-+
-+
- /*
-  * Test to make sure we can create a kprobe event, then add more
-  * fields.
-@@ -58,14 +97,14 @@ static int __init test_gen_kprobe_cmd(void)
- 	 * fields.
- 	 */
- 	ret = kprobe_event_gen_cmd_start(&cmd, "gen_kprobe_test",
--					 "do_sys_open",
--					 "dfd=%ax", "filename=%dx");
-+					 KPROBE_GEN_TEST_FUNC,
-+					 KPROBE_GEN_TEST_ARG0, KPROBE_GEN_TEST_ARG1);
- 	if (ret)
- 		goto free;
- 
- 	/* Use kprobe_event_add_fields to add the rest of the fields */
- 
--	ret = kprobe_event_add_fields(&cmd, "flags=%cx", "mode=+4($stack)");
-+	ret = kprobe_event_add_fields(&cmd, KPROBE_GEN_TEST_ARG2, KPROBE_GEN_TEST_ARG3);
- 	if (ret)
- 		goto free;
- 
-@@ -128,7 +167,7 @@ static int __init test_gen_kretprobe_cmd(void)
- 	 * Define the kretprobe event.
- 	 */
- 	ret = kretprobe_event_gen_cmd_start(&cmd, "gen_kretprobe_test",
--					    "do_sys_open",
-+					    KPROBE_GEN_TEST_FUNC,
- 					    "$retval");
- 	if (ret)
- 		goto free;
+ static struct clk_alpha_pll gpll0 = {
+ 	.offset = 0x0,
+ 	.vco_table = default_vco,
+ 	.num_vco = ARRAY_SIZE(default_vco),
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr = {
+ 		.enable_reg = 0x79000,
+ 		.enable_mask = BIT(0),
+@@ -83,7 +97,7 @@ static struct clk_alpha_pll_postdiv gpll0_out_aux2 = {
+ 	.post_div_table = post_div_table_gpll0_out_aux2,
+ 	.num_post_div = ARRAY_SIZE(post_div_table_gpll0_out_aux2),
+ 	.width = 4,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll0_out_aux2",
+ 		.parent_hws = (const struct clk_hw *[]){ &gpll0.clkr.hw },
+@@ -115,7 +129,7 @@ static struct clk_alpha_pll_postdiv gpll0_out_main = {
+ 	.post_div_table = post_div_table_gpll0_out_main,
+ 	.num_post_div = ARRAY_SIZE(post_div_table_gpll0_out_main),
+ 	.width = 4,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll0_out_main",
+ 		.parent_hws = (const struct clk_hw *[]){ &gpll0.clkr.hw },
+@@ -137,7 +151,7 @@ static struct clk_alpha_pll gpll10 = {
+ 	.offset = 0xa000,
+ 	.vco_table = gpll10_vco,
+ 	.num_vco = ARRAY_SIZE(gpll10_vco),
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr = {
+ 		.enable_reg = 0x79000,
+ 		.enable_mask = BIT(10),
+@@ -163,7 +177,7 @@ static struct clk_alpha_pll_postdiv gpll10_out_main = {
+ 	.post_div_table = post_div_table_gpll10_out_main,
+ 	.num_post_div = ARRAY_SIZE(post_div_table_gpll10_out_main),
+ 	.width = 4,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll10_out_main",
+ 		.parent_hws = (const struct clk_hw *[]){ &gpll10.clkr.hw },
+@@ -189,7 +203,7 @@ static struct clk_alpha_pll gpll11 = {
+ 	.vco_table = default_vco,
+ 	.num_vco = ARRAY_SIZE(default_vco),
+ 	.flags = SUPPORTS_DYNAMIC_UPDATE,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr = {
+ 		.enable_reg = 0x79000,
+ 		.enable_mask = BIT(11),
+@@ -215,7 +229,7 @@ static struct clk_alpha_pll_postdiv gpll11_out_main = {
+ 	.post_div_table = post_div_table_gpll11_out_main,
+ 	.num_post_div = ARRAY_SIZE(post_div_table_gpll11_out_main),
+ 	.width = 4,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll11_out_main",
+ 		.parent_hws = (const struct clk_hw *[]){ &gpll11.clkr.hw },
+@@ -229,7 +243,7 @@ static struct clk_alpha_pll gpll3 = {
+ 	.offset = 0x3000,
+ 	.vco_table = default_vco,
+ 	.num_vco = ARRAY_SIZE(default_vco),
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr = {
+ 		.enable_reg = 0x79000,
+ 		.enable_mask = BIT(3),
+@@ -248,7 +262,7 @@ static struct clk_alpha_pll gpll4 = {
+ 	.offset = 0x4000,
+ 	.vco_table = default_vco,
+ 	.num_vco = ARRAY_SIZE(default_vco),
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr = {
+ 		.enable_reg = 0x79000,
+ 		.enable_mask = BIT(4),
+@@ -274,7 +288,7 @@ static struct clk_alpha_pll_postdiv gpll4_out_main = {
+ 	.post_div_table = post_div_table_gpll4_out_main,
+ 	.num_post_div = ARRAY_SIZE(post_div_table_gpll4_out_main),
+ 	.width = 4,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll4_out_main",
+ 		.parent_hws = (const struct clk_hw *[]){ &gpll4.clkr.hw },
+@@ -287,7 +301,7 @@ static struct clk_alpha_pll gpll6 = {
+ 	.offset = 0x6000,
+ 	.vco_table = default_vco,
+ 	.num_vco = ARRAY_SIZE(default_vco),
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr = {
+ 		.enable_reg = 0x79000,
+ 		.enable_mask = BIT(6),
+@@ -313,7 +327,7 @@ static struct clk_alpha_pll_postdiv gpll6_out_main = {
+ 	.post_div_table = post_div_table_gpll6_out_main,
+ 	.num_post_div = ARRAY_SIZE(post_div_table_gpll6_out_main),
+ 	.width = 4,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll6_out_main",
+ 		.parent_hws = (const struct clk_hw *[]){ &gpll6.clkr.hw },
+@@ -326,7 +340,7 @@ static struct clk_alpha_pll gpll7 = {
+ 	.offset = 0x7000,
+ 	.vco_table = default_vco,
+ 	.num_vco = ARRAY_SIZE(default_vco),
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr = {
+ 		.enable_reg = 0x79000,
+ 		.enable_mask = BIT(7),
+@@ -352,7 +366,7 @@ static struct clk_alpha_pll_postdiv gpll7_out_main = {
+ 	.post_div_table = post_div_table_gpll7_out_main,
+ 	.num_post_div = ARRAY_SIZE(post_div_table_gpll7_out_main),
+ 	.width = 4,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll7_out_main",
+ 		.parent_hws = (const struct clk_hw *[]){ &gpll7.clkr.hw },
+@@ -380,7 +394,7 @@ static struct clk_alpha_pll gpll8 = {
+ 	.offset = 0x8000,
+ 	.vco_table = default_vco,
+ 	.num_vco = ARRAY_SIZE(default_vco),
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.flags = SUPPORTS_DYNAMIC_UPDATE,
+ 	.clkr = {
+ 		.enable_reg = 0x79000,
+@@ -407,7 +421,7 @@ static struct clk_alpha_pll_postdiv gpll8_out_main = {
+ 	.post_div_table = post_div_table_gpll8_out_main,
+ 	.num_post_div = ARRAY_SIZE(post_div_table_gpll8_out_main),
+ 	.width = 4,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll8_out_main",
+ 		.parent_hws = (const struct clk_hw *[]){ &gpll8.clkr.hw },
 -- 
 2.35.1
 
