@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD42660A7A7
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:54:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F2660A4DF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:18:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234524AbiJXMyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:54:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33374 "EHLO
+        id S233204AbiJXMR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:17:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234875AbiJXMyM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:54:12 -0400
+        with ESMTP id S233074AbiJXMQH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:16:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA2E62F000;
-        Mon, 24 Oct 2022 05:14:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E8B7AB1B;
+        Mon, 24 Oct 2022 04:56:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 631076129B;
-        Mon, 24 Oct 2022 12:00:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7691AC433C1;
-        Mon, 24 Oct 2022 12:00:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0C71612D3;
+        Mon, 24 Oct 2022 11:52:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF748C433D6;
+        Mon, 24 Oct 2022 11:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612835;
-        bh=ThUNefmVX7EPWeUHan2db69m+nsFLLtPDI0WYoWFkvU=;
+        s=korg; t=1666612363;
+        bh=sqEKswuUxTriNBWzsTySPH303zgQ9wiLoNPZnKShKxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n+HzZk5A6t+K+8n7NBjyas9Hd+1HWVrXrvAcseAef5F0x9/0dF+AscZEe0TiZkZun
-         KMgZwNvGTytktizga0C33gEt3tLPwYdzajGZMWVZe+D+J86fzv1qrkSZ+TFiFSS5yN
-         1WNeLMR4htrpmsQXQo9TroeGIVBPRZRZhFki7dFk=
+        b=LL9sXAzbiKU+xmq0W5kX/y0XmIKW0AS35CpJa7V9er5SkZ8CA1eEl/GExnY66frir
+         L3lIxFlkQSNGNWXjrEypuI3sESKvkpbwQhqXlwp9CcGKdsQpUMl9LBlxDc8tS8O1U+
+         y+jANXG2M6uZNdlFJ4fkxL7CFb7DFLkjGBY882fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        David Gow <davidgow@google.com>,
+        Julius Werner <jwerner@chromium.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Evan Green <evgreen@chromium.org>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 137/229] ata: fix ata_id_has_devslp()
+Subject: [PATCH 4.14 139/210] firmware: google: Test spinlock on panic path to avoid lockups
 Date:   Mon, 24 Oct 2022 13:30:56 +0200
-Message-Id: <20221024113003.443723005@linuxfoundation.org>
+Message-Id: <20221024113001.499468167@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +58,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-[ Upstream commit 9c6e09a434e1317e09b78b3b69cd384022ec9a03 ]
+[ Upstream commit 3e081438b8e639cc76ef1a5ce0c1bd8a154082c7 ]
 
-ACS-5 section
-7.13.6.36 Word 78: Serial ATA features supported
-states that:
+Currently the gsmi driver registers a panic notifier as well as
+reboot and die notifiers. The callbacks registered are called in
+atomic and very limited context - for instance, panic disables
+preemption and local IRQs, also all secondary CPUs (not executing
+the panic path) are shutdown.
 
-If word 76 is not 0000h or FFFFh, word 78 reports the features supported
-by the device. If this word is not supported, the word shall be cleared
-to zero.
+With that said, taking a spinlock in this scenario is a dangerous
+invitation for lockup scenarios. So, fix that by checking if the
+spinlock is free to acquire in the panic notifier callback - if not,
+bail-out and avoid a potential hang.
 
-(This text also exists in really old ACS standards, e.g. ACS-3.)
-
-Additionally, move the macro to the other ATA_ID_FEATURE_SUPP macros
-(which already have this check), thus making it more likely that the
-next ATA_ID_FEATURE_SUPP macro that is added will include this check.
-
-Fixes: 65fe1f0f66a5 ("ahci: implement aggressive SATA device sleep support")
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: 74c5b31c6618 ("driver: Google EFI SMI")
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: David Gow <davidgow@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Julius Werner <jwerner@chromium.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Reviewed-by: Evan Green <evgreen@chromium.org>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Link: https://lore.kernel.org/r/20220909200755.189679-1-gpiccoli@igalia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ata.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/firmware/google/gsmi.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/include/linux/ata.h b/include/linux/ata.h
-index 351e58312e7d..e9d24a23c0aa 100644
---- a/include/linux/ata.h
-+++ b/include/linux/ata.h
-@@ -581,6 +581,10 @@ struct ata_bmdma_prd {
- 	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
- 	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
- 	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 2)))
-+#define ata_id_has_devslp(id)	\
-+	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
-+	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
-+	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 8)))
- #define ata_id_iordy_disable(id) ((id)[ATA_ID_CAPABILITY] & (1 << 10))
- #define ata_id_has_iordy(id) ((id)[ATA_ID_CAPABILITY] & (1 << 11))
- #define ata_id_u32(id,n)	\
-@@ -593,7 +597,6 @@ struct ata_bmdma_prd {
- 
- #define ata_id_cdb_intr(id)	(((id)[ATA_ID_CONFIG] & 0x60) == 0x20)
- #define ata_id_has_da(id)	((id)[ATA_ID_SATA_CAPABILITY_2] & (1 << 4))
--#define ata_id_has_devslp(id)	((id)[ATA_ID_FEATURE_SUPP] & (1 << 8))
- #define ata_id_has_ncq_autosense(id) \
- 				((id)[ATA_ID_FEATURE_SUPP] & (1 << 7))
- 
+diff --git a/drivers/firmware/google/gsmi.c b/drivers/firmware/google/gsmi.c
+index 62337be07afc..2e3ef0eb6e82 100644
+--- a/drivers/firmware/google/gsmi.c
++++ b/drivers/firmware/google/gsmi.c
+@@ -661,6 +661,15 @@ static struct notifier_block gsmi_die_notifier = {
+ static int gsmi_panic_callback(struct notifier_block *nb,
+ 			       unsigned long reason, void *arg)
+ {
++
++	/*
++	 * Panic callbacks are executed with all other CPUs stopped,
++	 * so we must not attempt to spin waiting for gsmi_dev.lock
++	 * to be released.
++	 */
++	if (spin_is_locked(&gsmi_dev.lock))
++		return NOTIFY_DONE;
++
+ 	gsmi_shutdown_reason(GSMI_SHUTDOWN_PANIC);
+ 	return NOTIFY_DONE;
+ }
 -- 
 2.35.1
 
