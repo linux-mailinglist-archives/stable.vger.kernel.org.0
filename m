@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E55C60A532
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:21:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1676D60A940
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:17:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233074AbiJXMVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:21:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40714 "EHLO
+        id S231312AbiJXNRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:17:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233608AbiJXMT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:56 -0400
+        with ESMTP id S235880AbiJXNQ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:16:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2B583234;
-        Mon, 24 Oct 2022 04:58:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C0683136F;
+        Mon, 24 Oct 2022 05:26:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE1746128E;
-        Mon, 24 Oct 2022 11:49:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2775C433C1;
-        Mon, 24 Oct 2022 11:49:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A99E612BF;
+        Mon, 24 Oct 2022 12:25:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F0FDC433C1;
+        Mon, 24 Oct 2022 12:25:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612197;
-        bh=62cxHPxacIeJObyCUvpGDXSutCGffzA9SR9xi6Ab0Pw=;
+        s=korg; t=1666614326;
+        bh=nF7UiDWwEbfZz17cexrmnfVr+/EPs45zvkqcJM7ZsSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AvNa7M+45r94/B8gJ/AJk2db0EjEySjTY59BaWfkC4mp2RQRguRq62IMwPNK4vp9y
-         jJogRK6fM4+myxMEPMv+ilR7+AmFAz5tPbgwJ6OhLKeNAtNgzRm3NpfCD7smdef85D
-         wBawKM+P6fCocKAACk24ieBXWG2u7b8o9SGs54lw=
+        b=KXsGGbewz9fboYu6L1vTZ7zLl9ZvflAbMVMv83QDwe+kf4/7A7rTSEJKgyx/K7o1m
+         SMzvRIX9pTGX03cCk6/kzCvaQbcg1iHrAzSmXr7KMmWg8LiY0AXgk6DvheDLSAwwRG
+         pcoowAXQgfDHT87TtQguVuG6ifvJQKO2Ji2iVcLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+b8c672b0e22615c80fe0@syzkaller.appspotmail.com,
-        Khalid Masum <khalid.masum.92@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 065/210] nilfs2: fix use-after-free bug of struct nilfs_root
-Date:   Mon, 24 Oct 2022 13:29:42 +0200
-Message-Id: <20221024112959.153644357@linuxfoundation.org>
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 186/390] iio: adc: at91-sama5d2_adc: check return status for pressure and touch
+Date:   Mon, 24 Oct 2022 13:29:43 +0200
+Message-Id: <20221024113030.684509472@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit d325dc6eb763c10f591c239550b8c7e5466a5d09 upstream.
+[ Upstream commit d84ace944a3b24529798dbae1340dea098473155 ]
 
-If the beginning of the inode bitmap area is corrupted on disk, an inode
-with the same inode number as the root inode can be allocated and fail
-soon after.  In this case, the subsequent call to nilfs_clear_inode() on
-that bogus root inode will wrongly decrement the reference counter of
-struct nilfs_root, and this will erroneously free struct nilfs_root,
-causing kernel oopses.
+Check return status of at91_adc_read_position() and
+at91_adc_read_pressure() in at91_adc_read_info_raw().
 
-This fixes the problem by changing nilfs_new_inode() to skip reserved
-inode numbers while repairing the inode bitmap.
-
-Link: https://lkml.kernel.org/r/20221003150519.39789-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+b8c672b0e22615c80fe0@syzkaller.appspotmail.com
-Reported-by: Khalid Masum <khalid.masum.92@gmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6794e23fa3fe ("iio: adc: at91-sama5d2_adc: add support for oversampling resolution")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220803102855.2191070-3-claudiu.beznea@microchip.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/inode.c |   18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/iio/adc/at91-sama5d2_adc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/nilfs2/inode.c
-+++ b/fs/nilfs2/inode.c
-@@ -344,6 +344,7 @@ struct inode *nilfs_new_inode(struct ino
- 	struct inode *inode;
- 	struct nilfs_inode_info *ii;
- 	struct nilfs_root *root;
-+	struct buffer_head *bh;
- 	int err = -ENOMEM;
- 	ino_t ino;
+diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
+index 230e4111517e..fe41689c5da6 100644
+--- a/drivers/iio/adc/at91-sama5d2_adc.c
++++ b/drivers/iio/adc/at91-sama5d2_adc.c
+@@ -1355,8 +1355,10 @@ static int at91_adc_read_info_raw(struct iio_dev *indio_dev,
+ 		*val = tmp_val;
+ 		mutex_unlock(&st->lock);
+ 		iio_device_release_direct_mode(indio_dev);
++		if (ret > 0)
++			ret = at91_adc_adjust_val_osr(st, val);
  
-@@ -359,11 +360,26 @@ struct inode *nilfs_new_inode(struct ino
- 	ii->i_state = BIT(NILFS_I_NEW);
- 	ii->i_root = root;
+-		return at91_adc_adjust_val_osr(st, val);
++		return ret;
+ 	}
+ 	if (chan->type == IIO_PRESSURE) {
+ 		ret = iio_device_claim_direct_mode(indio_dev);
+@@ -1369,8 +1371,10 @@ static int at91_adc_read_info_raw(struct iio_dev *indio_dev,
+ 		*val = tmp_val;
+ 		mutex_unlock(&st->lock);
+ 		iio_device_release_direct_mode(indio_dev);
++		if (ret > 0)
++			ret = at91_adc_adjust_val_osr(st, val);
  
--	err = nilfs_ifile_create_inode(root->ifile, &ino, &ii->i_bh);
-+	err = nilfs_ifile_create_inode(root->ifile, &ino, &bh);
- 	if (unlikely(err))
- 		goto failed_ifile_create_inode;
- 	/* reference count of i_bh inherits from nilfs_mdt_read_block() */
+-		return at91_adc_adjust_val_osr(st, val);
++		return ret;
+ 	}
  
-+	if (unlikely(ino < NILFS_USER_INO)) {
-+		nilfs_msg(sb, KERN_WARNING,
-+			  "inode bitmap is inconsistent for reserved inodes");
-+		do {
-+			brelse(bh);
-+			err = nilfs_ifile_create_inode(root->ifile, &ino, &bh);
-+			if (unlikely(err))
-+				goto failed_ifile_create_inode;
-+		} while (ino < NILFS_USER_INO);
-+
-+		nilfs_msg(sb, KERN_INFO,
-+			  "repaired inode bitmap for reserved inodes");
-+	}
-+	ii->i_bh = bh;
-+
- 	atomic64_inc(&root->inodes_count);
- 	inode_init_owner(inode, dir, mode);
- 	inode->i_ino = ino;
+ 	/* in this case we have a voltage channel */
+-- 
+2.35.1
+
 
 
