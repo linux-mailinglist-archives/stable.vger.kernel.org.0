@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A29260A320
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:51:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E27960A367
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:55:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231610AbiJXLvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:51:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34658 "EHLO
+        id S232083AbiJXLz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:55:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231633AbiJXLts (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:49:48 -0400
+        with ESMTP id S232526AbiJXLy4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:54:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 336AF6F26C;
-        Mon, 24 Oct 2022 04:44:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC56C77397;
+        Mon, 24 Oct 2022 04:45:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97488B8117E;
-        Mon, 24 Oct 2022 11:44:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5723C433D6;
-        Mon, 24 Oct 2022 11:44:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49D9FB8117E;
+        Mon, 24 Oct 2022 11:44:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97EF1C433D6;
+        Mon, 24 Oct 2022 11:44:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611844;
-        bh=nKGmevzLQrtXkEM6g9KVEPyNFfuZdgp1sbhdc2Z129U=;
+        s=korg; t=1666611872;
+        bh=y1wRZcbuvsbN8CUT6eBVlfuApor1uiSqqouwpoaDWTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=scHvUF8plp3yE3SNN9RE4q9A6nEmmyyJikbU2RbGSGT1HXrb1jn4/3Nm3sU6h7TkW
-         hhHLf/rVaO5SNXzDQbzbdgdYQLOzattgjbZsromtMw5cSRXOm+AmiUJ7duTevJofFG
-         4ciJrnL65R/h99cTuARMpmJdm2HpI6eOELbSmdBY=
+        b=dM8j2llwR1gmiIDe2nBLjb2wYwq1x1O0s/z+SKoyh2NKILHwNZUR5N7OxlCfdd3RX
+         KmdW66MBBtkIm8PYm/Y2JnN4zNJPbHsgqxFl6A9mxbwS32VzmDJ7Q2puIeY2ySjsm5
+         qA71d4KWOjyWkblZGHt3ZxGHLX5Ly2w/SB+EQXOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 115/159] dmaengine: ioat: stop mod_timer from resurrecting deleted timer in __cleanup()
-Date:   Mon, 24 Oct 2022 13:31:09 +0200
-Message-Id: <20221024112953.683101678@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        "Ivan T. Ivanov" <iivanov@suse.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 116/159] clk: bcm2835: fix bcm2835_clock_rate_from_divisor declaration
+Date:   Mon, 24 Oct 2022 13:31:10 +0200
+Message-Id: <20221024112953.723975632@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -52,58 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 898ec89dbb55b8294695ad71694a0684e62b2a73 ]
+[ Upstream commit 0b919a3728691c172312dee99ba654055ccd8c84 ]
 
-User reports observing timer event report channel halted but no error
-observed in CHANERR register. The driver finished self-test and released
-channel resources. Debug shows that __cleanup() can call
-mod_timer() after the timer has been deleted and thus resurrect the
-timer. While harmless, it causes suprious error message to be emitted.
-Use mod_timer_pending() call to prevent deleted timer from being
-resurrected.
+The return value of bcm2835_clock_rate_from_divisor is always unsigned
+and also all caller expect this. So fix the declaration accordingly.
 
-Fixes: 3372de5813e4 ("dmaengine: ioatdma: removal of dma_v3.c and relevant ioat3 references")
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/166360672197.3851724.17040290563764838369.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 41691b8862e2 ("clk: bcm2835: Add support for programming the audio domain clocks")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Link: https://lore.kernel.org/r/20220904141037.38816-1-stefan.wahren@i2se.com
+Reviewed-by: Ivan T. Ivanov <iivanov@suse.de>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ioat/dma.c | 6 +++---
+ drivers/clk/bcm/clk-bcm2835.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/ioat/dma.c b/drivers/dma/ioat/dma.c
-index c5a45c57b8b8..36189a3337b1 100644
---- a/drivers/dma/ioat/dma.c
-+++ b/drivers/dma/ioat/dma.c
-@@ -663,7 +663,7 @@ static void __cleanup(struct ioatdma_chan *ioat_chan, dma_addr_t phys_complete)
- 	if (active - i == 0) {
- 		dev_dbg(to_dev(ioat_chan), "%s: cancel completion timeout\n",
- 			__func__);
--		mod_timer(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
-+		mod_timer_pending(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
- 	}
- 
- 	/* 5 microsecond delay per pending descriptor */
-@@ -685,7 +685,7 @@ static void ioat_cleanup(struct ioatdma_chan *ioat_chan)
- 
- 		if (chanerr &
- 		    (IOAT_CHANERR_HANDLE_MASK | IOAT_CHANERR_RECOVER_MASK)) {
--			mod_timer(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
-+			mod_timer_pending(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
- 			ioat_eh(ioat_chan);
- 		}
- 	}
-@@ -877,7 +877,7 @@ static void check_active(struct ioatdma_chan *ioat_chan)
- 	}
- 
- 	if (test_and_clear_bit(IOAT_CHAN_ACTIVE, &ioat_chan->state))
--		mod_timer(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
-+		mod_timer_pending(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
+diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+index 3f16b553982d..87cd8fde3a02 100644
+--- a/drivers/clk/bcm/clk-bcm2835.c
++++ b/drivers/clk/bcm/clk-bcm2835.c
+@@ -902,9 +902,9 @@ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
+ 	return div;
  }
  
- void ioat_timer_event(unsigned long data)
+-static long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
+-					    unsigned long parent_rate,
+-					    u32 div)
++static unsigned long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
++						     unsigned long parent_rate,
++						     u32 div)
+ {
+ 	const struct bcm2835_clock_data *data = clock->data;
+ 	u64 temp;
 -- 
 2.35.1
 
