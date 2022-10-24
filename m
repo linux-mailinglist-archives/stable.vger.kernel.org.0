@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13D8E60A35D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:55:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB69A60A3D5
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232080AbiJXLz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:55:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52138 "EHLO
+        id S229667AbiJXMAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:00:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232435AbiJXLyp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:54:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBBF6DF63;
-        Mon, 24 Oct 2022 04:45:57 -0700 (PDT)
+        with ESMTP id S232706AbiJXL7m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:59:42 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556057C32A;
+        Mon, 24 Oct 2022 04:48:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7099A6125A;
-        Mon, 24 Oct 2022 11:45:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83822C433D6;
-        Mon, 24 Oct 2022 11:45:56 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9B649CE1345;
+        Mon, 24 Oct 2022 11:46:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6CFBC43470;
+        Mon, 24 Oct 2022 11:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611956;
-        bh=95LMK2FHYuR8VaWLz6tOG2RAGmB64KKoFO2DUTDnvdw=;
+        s=korg; t=1666611962;
+        bh=sZfDOB834hhSVuiDo3MCa/tqco0ZuFkXP+70BfAQrcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7WNBwQ/jbxvkqyqpzkBTU65yEtvX6TB1q/XWmthC1V8yPE/tJBLduFwwNcGGBF9+
-         bKRJQEyuPINuHmp5g97Tywf5J7SzpNDWO1LJTH1nAwJj9zI6CzRqY1WGjJ2/7fZ8tV
-         D7xr3m67HQed4g2jdFLULbVj2KudbBWM9t2uPhIU=
+        b=R5CN6sUDsFGZWr+H3V6AfKJuY/GF4/0NNPXsZmkGXI7bKOhVAY6qkWxyLU+A4AS8I
+         iKYXg66MkMqTyuyXX/+gKvkaMcOxN1rTcClqnON2exZqPtQxdweEXAzaDVkYL1q5A0
+         FN1du+Z8TETzVG8ZGdoG0ZYu6z9E+5bzfBflKS2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 016/210] nvme: Fix IOC_PR_CLEAR and IOC_PR_RELEASE ioctls for nvme devices
-Date:   Mon, 24 Oct 2022 13:28:53 +0200
-Message-Id: <20221024112957.457544589@linuxfoundation.org>
+        stable@vger.kernel.org, Lori Hikichi <lori.hikichi@broadcom.com>,
+        Stephen Boyd <sboyd@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 018/210] clk: iproc: Minor tidy up of iproc pll data structures
+Date:   Mon, 24 Oct 2022 13:28:55 +0200
+Message-Id: <20221024112957.542806389@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -52,61 +53,267 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Lori Hikichi <lhikichi@broadcom.com>
 
-[ Upstream commit c292a337d0e45a292c301e3cd51c35aa0ae91e95 ]
+[ Upstream commit b33db49783763e1b2a63b12fbe0e91fb7147a987 ]
 
-The IOC_PR_CLEAR and IOC_PR_RELEASE ioctls are
-non-functional on NVMe devices because the nvme_pr_clear()
-and nvme_pr_release() functions set the IEKEY field incorrectly.
-The IEKEY field should be set only when the key is zero (i.e,
-not specified).  The current code does it backwards.
+There were a few fields in the iproc pll data structures that were
+holding information that was not true state information.
+Using stack variables is sufficient and simplifies the structure.
+There are not any functional changes in this commit.
 
-Furthermore, the NVMe spec describes the persistent
-reservation "clear" function as an option on the reservation
-release command. The current implementation of nvme_pr_clear()
-erroneously uses the reservation register command.
-
-Fix these errors. Note that NVMe version 1.3 and later specify
-that setting the IEKEY field will return an error of Invalid
-Field in Command.  The fix will set IEKEY when the key is zero,
-which is appropriate as these ioctls consider a zero key to
-be "unspecified", and the intention of the spec change is
-to require a valid key.
-
-Tested on a version 1.4 PCI NVMe device in an Azure VM.
-
-Fixes: 1673f1f08c88 ("nvme: move block_device_operations and ns/ctrl freeing to common code")
-Fixes: 1d277a637a71 ("NVMe: Add persistent reservation ops")
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Lori Hikichi <lori.hikichi@broadcom.com>
+Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
+Stable-dep-of: 1b24a132eba7 ("clk: iproc: Do not rely on node name for correct PLL setup")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/bcm/clk-iproc-pll.c | 83 ++++++++++++++-------------------
+ 1 file changed, 36 insertions(+), 47 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 487226531a7d..8e136867180a 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1351,14 +1351,14 @@ static int nvme_pr_preempt(struct block_device *bdev, u64 old, u64 new,
+diff --git a/drivers/clk/bcm/clk-iproc-pll.c b/drivers/clk/bcm/clk-iproc-pll.c
+index 375d8dd80d45..0e858dbf2505 100644
+--- a/drivers/clk/bcm/clk-iproc-pll.c
++++ b/drivers/clk/bcm/clk-iproc-pll.c
+@@ -69,16 +69,6 @@ enum vco_freq_range {
+ 	VCO_MAX       = 4000000000U,
+ };
  
- static int nvme_pr_clear(struct block_device *bdev, u64 key)
- {
--	u32 cdw10 = 1 | (key ? 1 << 3 : 0);
-+	u32 cdw10 = 1 | (key ? 0 : 1 << 3);
+-struct iproc_pll;
+-
+-struct iproc_clk {
+-	struct clk_hw hw;
+-	const char *name;
+-	struct iproc_pll *pll;
+-	unsigned long rate;
+-	const struct iproc_clk_ctrl *ctrl;
+-};
+-
+ struct iproc_pll {
+ 	void __iomem *status_base;
+ 	void __iomem *control_base;
+@@ -88,9 +78,12 @@ struct iproc_pll {
+ 	const struct iproc_pll_ctrl *ctrl;
+ 	const struct iproc_pll_vco_param *vco_param;
+ 	unsigned int num_vco_entries;
++};
  
--	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_register);
-+	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_release);
+-	struct clk_hw_onecell_data *clk_data;
+-	struct iproc_clk *clks;
++struct iproc_clk {
++	struct clk_hw hw;
++	struct iproc_pll *pll;
++	const struct iproc_clk_ctrl *ctrl;
+ };
+ 
+ #define to_iproc_clk(hw) container_of(hw, struct iproc_clk, hw)
+@@ -263,6 +256,7 @@ static int pll_set_rate(struct iproc_clk *clk, unsigned int rate_index,
+ 	u32 val;
+ 	enum kp_band kp_index;
+ 	unsigned long ref_freq;
++	const char *clk_name = clk_hw_get_name(&clk->hw);
+ 
+ 	/*
+ 	 * reference frequency = parent frequency / PDIV
+@@ -285,19 +279,19 @@ static int pll_set_rate(struct iproc_clk *clk, unsigned int rate_index,
+ 		kp_index = KP_BAND_HIGH_HIGH;
+ 	} else {
+ 		pr_err("%s: pll: %s has invalid rate: %lu\n", __func__,
+-				clk->name, rate);
++				clk_name, rate);
+ 		return -EINVAL;
+ 	}
+ 
+ 	kp = get_kp(ref_freq, kp_index);
+ 	if (kp < 0) {
+-		pr_err("%s: pll: %s has invalid kp\n", __func__, clk->name);
++		pr_err("%s: pll: %s has invalid kp\n", __func__, clk_name);
+ 		return kp;
+ 	}
+ 
+ 	ret = __pll_enable(pll);
+ 	if (ret) {
+-		pr_err("%s: pll: %s fails to enable\n", __func__, clk->name);
++		pr_err("%s: pll: %s fails to enable\n", __func__, clk_name);
+ 		return ret;
+ 	}
+ 
+@@ -354,7 +348,7 @@ static int pll_set_rate(struct iproc_clk *clk, unsigned int rate_index,
+ 
+ 	ret = pll_wait_for_lock(pll);
+ 	if (ret < 0) {
+-		pr_err("%s: pll: %s failed to lock\n", __func__, clk->name);
++		pr_err("%s: pll: %s failed to lock\n", __func__, clk_name);
+ 		return ret;
+ 	}
+ 
+@@ -390,16 +384,15 @@ static unsigned long iproc_pll_recalc_rate(struct clk_hw *hw,
+ 	u32 val;
+ 	u64 ndiv, ndiv_int, ndiv_frac;
+ 	unsigned int pdiv;
++	unsigned long rate;
+ 
+ 	if (parent_rate == 0)
+ 		return 0;
+ 
+ 	/* PLL needs to be locked */
+ 	val = readl(pll->status_base + ctrl->status.offset);
+-	if ((val & (1 << ctrl->status.shift)) == 0) {
+-		clk->rate = 0;
++	if ((val & (1 << ctrl->status.shift)) == 0)
+ 		return 0;
+-	}
+ 
+ 	/*
+ 	 * PLL output frequency =
+@@ -421,14 +414,14 @@ static unsigned long iproc_pll_recalc_rate(struct clk_hw *hw,
+ 	val = readl(pll->control_base + ctrl->pdiv.offset);
+ 	pdiv = (val >> ctrl->pdiv.shift) & bit_mask(ctrl->pdiv.width);
+ 
+-	clk->rate = (ndiv * parent_rate) >> 20;
++	rate = (ndiv * parent_rate) >> 20;
+ 
+ 	if (pdiv == 0)
+-		clk->rate *= 2;
++		rate *= 2;
+ 	else
+-		clk->rate /= pdiv;
++		rate /= pdiv;
+ 
+-	return clk->rate;
++	return rate;
  }
  
- static int nvme_pr_release(struct block_device *bdev, u64 key, enum pr_type type)
- {
--	u32 cdw10 = nvme_pr_type(type) << 8 | (key ? 1 << 3 : 0);
-+	u32 cdw10 = nvme_pr_type(type) << 8 | (key ? 0 : 1 << 3);
+ static long iproc_pll_round_rate(struct clk_hw *hw, unsigned long rate,
+@@ -518,6 +511,7 @@ static unsigned long iproc_clk_recalc_rate(struct clk_hw *hw,
+ 	struct iproc_pll *pll = clk->pll;
+ 	u32 val;
+ 	unsigned int mdiv;
++	unsigned long rate;
  
- 	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_release);
+ 	if (parent_rate == 0)
+ 		return 0;
+@@ -528,11 +522,11 @@ static unsigned long iproc_clk_recalc_rate(struct clk_hw *hw,
+ 		mdiv = 256;
+ 
+ 	if (ctrl->flags & IPROC_CLK_MCLK_DIV_BY_2)
+-		clk->rate = parent_rate / (mdiv * 2);
++		rate = parent_rate / (mdiv * 2);
+ 	else
+-		clk->rate = parent_rate / mdiv;
++		rate = parent_rate / mdiv;
+ 
+-	return clk->rate;
++	return rate;
  }
+ 
+ static long iproc_clk_round_rate(struct clk_hw *hw, unsigned long rate,
+@@ -583,10 +577,6 @@ static int iproc_clk_set_rate(struct clk_hw *hw, unsigned long rate,
+ 		val |= div << ctrl->mdiv.shift;
+ 	}
+ 	iproc_pll_write(pll, pll->control_base, ctrl->mdiv.offset, val);
+-	if (ctrl->flags & IPROC_CLK_MCLK_DIV_BY_2)
+-		clk->rate = parent_rate / (div * 2);
+-	else
+-		clk->rate = parent_rate / div;
+ 
+ 	return 0;
+ }
+@@ -629,6 +619,8 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 	struct iproc_clk *iclk;
+ 	struct clk_init_data init;
+ 	const char *parent_name;
++	struct iproc_clk *iclk_array;
++	struct clk_hw_onecell_data *clk_data;
+ 
+ 	if (WARN_ON(!pll_ctrl) || WARN_ON(!clk_ctrl))
+ 		return;
+@@ -637,14 +629,14 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 	if (WARN_ON(!pll))
+ 		return;
+ 
+-	pll->clk_data = kzalloc(sizeof(*pll->clk_data->hws) * num_clks +
+-				sizeof(*pll->clk_data), GFP_KERNEL);
+-	if (WARN_ON(!pll->clk_data))
++	clk_data = kzalloc(sizeof(*clk_data->hws) * num_clks +
++				sizeof(*clk_data), GFP_KERNEL);
++	if (WARN_ON(!clk_data))
+ 		goto err_clk_data;
+-	pll->clk_data->num = num_clks;
++	clk_data->num = num_clks;
+ 
+-	pll->clks = kcalloc(num_clks, sizeof(*pll->clks), GFP_KERNEL);
+-	if (WARN_ON(!pll->clks))
++	iclk_array = kcalloc(num_clks, sizeof(struct iproc_clk), GFP_KERNEL);
++	if (WARN_ON(!iclk_array))
+ 		goto err_clks;
+ 
+ 	pll->control_base = of_iomap(node, 0);
+@@ -674,9 +666,8 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 	/* initialize and register the PLL itself */
+ 	pll->ctrl = pll_ctrl;
+ 
+-	iclk = &pll->clks[0];
++	iclk = &iclk_array[0];
+ 	iclk->pll = pll;
+-	iclk->name = node->name;
+ 
+ 	init.name = node->name;
+ 	init.ops = &iproc_pll_ops;
+@@ -697,7 +688,7 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 	if (WARN_ON(ret))
+ 		goto err_pll_register;
+ 
+-	pll->clk_data->hws[0] = &iclk->hw;
++	clk_data->hws[0] = &iclk->hw;
+ 
+ 	/* now initialize and register all leaf clocks */
+ 	for (i = 1; i < num_clks; i++) {
+@@ -711,8 +702,7 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 		if (WARN_ON(ret))
+ 			goto err_clk_register;
+ 
+-		iclk = &pll->clks[i];
+-		iclk->name = clk_name;
++		iclk = &iclk_array[i];
+ 		iclk->pll = pll;
+ 		iclk->ctrl = &clk_ctrl[i];
+ 
+@@ -727,11 +717,10 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 		if (WARN_ON(ret))
+ 			goto err_clk_register;
+ 
+-		pll->clk_data->hws[i] = &iclk->hw;
++		clk_data->hws[i] = &iclk->hw;
+ 	}
+ 
+-	ret = of_clk_add_hw_provider(node, of_clk_hw_onecell_get,
+-				     pll->clk_data);
++	ret = of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
+ 	if (WARN_ON(ret))
+ 		goto err_clk_register;
+ 
+@@ -739,7 +728,7 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 
+ err_clk_register:
+ 	while (--i >= 0)
+-		clk_hw_unregister(pll->clk_data->hws[i]);
++		clk_hw_unregister(clk_data->hws[i]);
+ 
+ err_pll_register:
+ 	if (pll->status_base != pll->control_base)
+@@ -756,10 +745,10 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 	iounmap(pll->control_base);
+ 
+ err_pll_iomap:
+-	kfree(pll->clks);
++	kfree(iclk_array);
+ 
+ err_clks:
+-	kfree(pll->clk_data);
++	kfree(clk_data);
+ 
+ err_clk_data:
+ 	kfree(pll);
 -- 
 2.35.1
 
