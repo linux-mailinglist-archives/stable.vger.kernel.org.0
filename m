@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C629B60A47A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:11:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFE3160AC06
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:01:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232879AbiJXMLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:11:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60164 "EHLO
+        id S234120AbiJXOBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:01:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229947AbiJXMKB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:10:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BCC380496;
-        Mon, 24 Oct 2022 04:53:35 -0700 (PDT)
+        with ESMTP id S236845AbiJXOAG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:00:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9AF08E9BB;
+        Mon, 24 Oct 2022 05:47:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F12656122D;
-        Mon, 24 Oct 2022 11:50:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF66C433C1;
-        Mon, 24 Oct 2022 11:50:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDF2DB819D0;
+        Mon, 24 Oct 2022 12:45:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20E27C433C1;
+        Mon, 24 Oct 2022 12:45:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612218;
-        bh=DC0BF9IcilZ6vNyknUu5VstpmDbJb6Kcs0pf3U3tFKo=;
+        s=korg; t=1666615536;
+        bh=qk1x7FS+7/9XlMI7Pely4OH1lsNVEiXwS1ASEs8Kino=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQyQUsQPQ2qBKheLWxj8W3Jd+OPN1OLuj9HYJ2Vvi9itN2M48bhnzeFMje+18KWOk
-         NDbdNbT1cZ75ule69pmj402F7ZxpBytXxUtiPz1fFLiMRoEui9t/4MD9j2UIkKWLf8
-         oQlJqKCD3d4fcnEAFVtePKm4+LlXfvM5U/xM1zLM=
+        b=I96AqUshqSpINYAxpWk+zgOVJP97T0gE2GlIoZNxPSJ73yv8AUWiQnV5AoxZivLkg
+         tAesYV645rIA3KNhe+u5fWsZalG9OtfckHW+V71Yi9TAUvtGL9DiBf4t9Uj3p7EenQ
+         m99FX9kZNyRsDEIvYMxodzjNZuZdvqpJz6AFNHlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Yunke Cao <yunkec@google.com>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 115/210] iio: inkern: only release the device node when done with it
+Subject: [PATCH 5.15 288/530] media: uvcvideo: Use entity get_cur in uvc_ctrl_set
 Date:   Mon, 24 Oct 2022 13:30:32 +0200
-Message-Id: <20221024113000.724877639@linuxfoundation.org>
+Message-Id: <20221024113058.096628238@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +55,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Yunke Cao <yunkec@google.com>
 
-[ Upstream commit 79c3e84874c7d14f04ad58313b64955a0d2e9437 ]
+[ Upstream commit 5f36851c36b30f713f588ed2b60aa7b4512e2c76 ]
 
-'of_node_put()' can potentially release the memory pointed to by
-'iiospec.np' which would leave us with an invalid pointer (and we would
-still pass it in 'of_xlate()'). Note that it is not guaranteed for the
-of_node lifespan to be attached to the device (to which is attached)
-lifespan so that there is (even though very unlikely) the possibility
-for the node to be freed while the device is still around. Thus, as there
-are indeed some of_xlate users which do access the node, a race is indeed
-possible.
+Entity controls should get_cur using an entity-defined function
+instead of via a query. Fix this in uvc_ctrl_set.
 
-As such, we can only release the node after we are done with it.
-
-Fixes: 17d82b47a215d ("iio: Add OF support")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20220715122903.332535-2-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 65900c581d01 ("media: uvcvideo: Allow entity-defined get_info and get_cur")
+Signed-off-by: Yunke Cao <yunkec@google.com>
+Reviewed-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/inkern.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/usb/uvc/uvc_ctrl.c | 83 ++++++++++++++++++--------------
+ 1 file changed, 46 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
-index f12bad60a581..599069b4fe5d 100644
---- a/drivers/iio/inkern.c
-+++ b/drivers/iio/inkern.c
-@@ -139,9 +139,10 @@ static int __of_iio_channel_get(struct iio_channel *channel,
+diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
+index b3dde98499f4..5bb29fc49538 100644
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -988,36 +988,56 @@ static s32 __uvc_ctrl_get_value(struct uvc_control_mapping *mapping,
+ 	return value;
+ }
  
- 	idev = bus_find_device(&iio_bus_type, NULL, iiospec.np,
- 			       iio_dev_node_match);
--	of_node_put(iiospec.np);
--	if (idev == NULL)
-+	if (idev == NULL) {
-+		of_node_put(iiospec.np);
- 		return -EPROBE_DEFER;
-+	}
+-static int __uvc_ctrl_get(struct uvc_video_chain *chain,
+-	struct uvc_control *ctrl, struct uvc_control_mapping *mapping,
+-	s32 *value)
++static int __uvc_ctrl_load_cur(struct uvc_video_chain *chain,
++			       struct uvc_control *ctrl)
+ {
++	u8 *data;
+ 	int ret;
  
- 	indio_dev = dev_to_iio_dev(idev);
- 	channel->indio_dev = indio_dev;
-@@ -149,6 +150,7 @@ static int __of_iio_channel_get(struct iio_channel *channel,
- 		index = indio_dev->info->of_xlate(indio_dev, &iiospec);
- 	else
- 		index = __of_iio_simple_xlate(indio_dev, &iiospec);
-+	of_node_put(iiospec.np);
- 	if (index < 0)
- 		goto err_put;
- 	channel->channel = &indio_dev->channels[index];
+-	if ((ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR) == 0)
+-		return -EACCES;
++	if (ctrl->loaded)
++		return 0;
+ 
+-	if (!ctrl->loaded) {
+-		if (ctrl->entity->get_cur) {
+-			ret = ctrl->entity->get_cur(chain->dev,
+-				ctrl->entity,
+-				ctrl->info.selector,
+-				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
+-				ctrl->info.size);
+-		} else {
+-			ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR,
+-				ctrl->entity->id,
+-				chain->dev->intfnum,
+-				ctrl->info.selector,
+-				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
+-				ctrl->info.size);
+-		}
+-		if (ret < 0)
+-			return ret;
++	data = uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT);
+ 
++	if ((ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR) == 0) {
++		memset(data, 0, ctrl->info.size);
+ 		ctrl->loaded = 1;
++
++		return 0;
+ 	}
+ 
++	if (ctrl->entity->get_cur)
++		ret = ctrl->entity->get_cur(chain->dev, ctrl->entity,
++					    ctrl->info.selector, data,
++					    ctrl->info.size);
++	else
++		ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR,
++				     ctrl->entity->id, chain->dev->intfnum,
++				     ctrl->info.selector, data,
++				     ctrl->info.size);
++
++	if (ret < 0)
++		return ret;
++
++	ctrl->loaded = 1;
++
++	return ret;
++}
++
++static int __uvc_ctrl_get(struct uvc_video_chain *chain,
++			  struct uvc_control *ctrl,
++			  struct uvc_control_mapping *mapping,
++			  s32 *value)
++{
++	int ret;
++
++	if ((ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR) == 0)
++		return -EACCES;
++
++	ret = __uvc_ctrl_load_cur(chain, ctrl);
++	if (ret < 0)
++		return ret;
++
+ 	*value = __uvc_ctrl_get_value(mapping,
+ 				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT));
+ 
+@@ -1667,21 +1687,10 @@ int uvc_ctrl_set(struct uvc_fh *handle,
+ 	 * needs to be loaded from the device to perform the read-modify-write
+ 	 * operation.
+ 	 */
+-	if (!ctrl->loaded && (ctrl->info.size * 8) != mapping->size) {
+-		if ((ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR) == 0) {
+-			memset(uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
+-				0, ctrl->info.size);
+-		} else {
+-			ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR,
+-				ctrl->entity->id, chain->dev->intfnum,
+-				ctrl->info.selector,
+-				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
+-				ctrl->info.size);
+-			if (ret < 0)
+-				return ret;
+-		}
+-
+-		ctrl->loaded = 1;
++	if ((ctrl->info.size * 8) != mapping->size) {
++		ret = __uvc_ctrl_load_cur(chain, ctrl);
++		if (ret < 0)
++			return ret;
+ 	}
+ 
+ 	/* Backup the current value in case we need to rollback later. */
 -- 
 2.35.1
 
