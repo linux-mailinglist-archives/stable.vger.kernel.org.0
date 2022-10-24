@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D9A860BA89
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:38:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86C5660B98C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:14:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234615AbiJXUit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:38:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40002 "EHLO
+        id S233762AbiJXUO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:14:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234610AbiJXUiL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:38:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 256C4F593;
-        Mon, 24 Oct 2022 11:49:27 -0700 (PDT)
+        with ESMTP id S233985AbiJXUNw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:13:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15D8B2ED66;
+        Mon, 24 Oct 2022 11:32:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A59B61257;
-        Mon, 24 Oct 2022 12:51:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A7D0C43470;
-        Mon, 24 Oct 2022 12:51:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF439B81710;
+        Mon, 24 Oct 2022 12:31:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22069C433D6;
+        Mon, 24 Oct 2022 12:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615874;
-        bh=wptZSXMfTHCS8yg64d9eFyNTCBSG3MYIcBN8bHhvfOk=;
+        s=korg; t=1666614704;
+        bh=UMLoBgi4k5Lyf0I6VJ8FPvogfAyJm2Wqk4bnqOfZTXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0a0rc916Il6gPiPiiUaBeGDGNpOYd1b1LEf+EVXVD+sl5krvtSci3UNNCvFa3tDH0
-         4Qu71VF3YsZjKAL0IPKWvE7OGOC1SZVH+qwfWUUDmYhpXdohRc0Og+81C0gDvv9yO2
-         doAFKU6fzcu4vLMHK4NRjEHejdbFE4mRDQPYQ4Iw=
+        b=X5SruKY3ZEjxaWWwo+hpHsn4sxcazwzHt/Y1Y6WE4E/DuhpxcbnULV7XTsDkvrb08
+         baDXNFd8wEXa/Rce53BDWCVlf6ACqLi5OMXJw0YjZTd+L9EWZaCmj2RDXczLgYsjd6
+         OlidRUf7BK99QOVIMdAzrF3dRIdILomT1c/tKrfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quentin Monnet <quentin@isovalent.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Mingzhe Zou <mingzhe.zou@easystack.cn>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 416/530] bpftool: Clear errno after libcaps checks
+Subject: [PATCH 5.10 363/390] bcache: fix set_at_max_writeback_rate() for multiple attached devices
 Date:   Mon, 24 Oct 2022 13:32:40 +0200
-Message-Id: <20221024113103.925205821@linuxfoundation.org>
+Message-Id: <20221024113038.457305777@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +53,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Monnet <quentin@isovalent.com>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit cea558855c39b7f1f02ff50dcf701ca6596bc964 ]
+[ Upstream commit d2d05b88035d2d51a5bb6c5afec88a0880c73df4 ]
 
-When bpftool is linked against libcap, the library runs a "constructor"
-function to compute the number of capabilities of the running kernel
-[0], at the beginning of the execution of the program. As part of this,
-it performs multiple calls to prctl(). Some of these may fail, and set
-errno to a non-zero value:
+Inside set_at_max_writeback_rate() the calculation in following if()
+check is wrong,
+	if (atomic_inc_return(&c->idle_counter) <
+	    atomic_read(&c->attached_dev_nr) * 6)
 
-    # strace -e prctl ./bpftool version
-    prctl(PR_CAPBSET_READ, CAP_MAC_OVERRIDE) = 1
-    prctl(PR_CAPBSET_READ, 0x30 /* CAP_??? */) = -1 EINVAL (Invalid argument)
-    prctl(PR_CAPBSET_READ, CAP_CHECKPOINT_RESTORE) = 1
-    prctl(PR_CAPBSET_READ, 0x2c /* CAP_??? */) = -1 EINVAL (Invalid argument)
-    prctl(PR_CAPBSET_READ, 0x2a /* CAP_??? */) = -1 EINVAL (Invalid argument)
-    prctl(PR_CAPBSET_READ, 0x29 /* CAP_??? */) = -1 EINVAL (Invalid argument)
-    ** fprintf added at the top of main(): we have errno == 1
-    ./bpftool v7.0.0
-    using libbpf v1.0
-    features: libbfd, libbpf_strict, skeletons
-    +++ exited with 0 +++
+Because each attached backing device has its own writeback thread
+running and increasing c->idle_counter, the counter increates much
+faster than expected. The correct calculation should be,
+	(counter / dev_nr) < dev_nr * 6
+which equals to,
+	counter < dev_nr * dev_nr * 6
 
-This has been addressed in libcap 2.63 [1], but until this version is
-available everywhere, we can fix it on bpftool side.
+This patch fixes the above mistake with correct calculation, and helper
+routine idle_counter_exceeded() is added to make code be more clear.
 
-Let's clean errno at the beginning of the main() function, to make sure
-that these checks do not interfere with the batch mode, where we error
-out if errno is set after a bpftool command.
-
-  [0] https://git.kernel.org/pub/scm/libs/libcap/libcap.git/tree/libcap/cap_alloc.c?h=libcap-2.65#n20
-  [1] https://git.kernel.org/pub/scm/libs/libcap/libcap.git/commit/?id=f25a1b7e69f7b33e6afb58b3e38f3450b7d2d9a0
-
-Signed-off-by: Quentin Monnet <quentin@isovalent.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220815162205.45043-1-quentin@isovalent.com
+Reported-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
+Signed-off-by: Coly Li <colyli@suse.de>
+Acked-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
+Link: https://lore.kernel.org/r/20220919161647.81238-6-colyli@suse.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/main.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/md/bcache/writeback.c | 73 +++++++++++++++++++++++++----------
+ 1 file changed, 52 insertions(+), 21 deletions(-)
 
-diff --git a/tools/bpf/bpftool/main.c b/tools/bpf/bpftool/main.c
-index d27ec4f852bb..b70c023f3a57 100644
---- a/tools/bpf/bpftool/main.c
-+++ b/tools/bpf/bpftool/main.c
-@@ -404,6 +404,16 @@ int main(int argc, char **argv)
+diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
+index a878b959fbcd..3aa73da2c67b 100644
+--- a/drivers/md/bcache/writeback.c
++++ b/drivers/md/bcache/writeback.c
+@@ -119,6 +119,53 @@ static void __update_writeback_rate(struct cached_dev *dc)
+ 	dc->writeback_rate_target = target;
+ }
  
- 	setlinebuf(stdout);
- 
-+#ifdef USE_LIBCAP
-+	/* Libcap < 2.63 hooks before main() to compute the number of
-+	 * capabilities of the running kernel, and doing so it calls prctl()
-+	 * which may fail and set errno to non-zero.
-+	 * Let's reset errno to make sure this does not interfere with the
-+	 * batch mode.
-+	 */
-+	errno = 0;
-+#endif
++static bool idle_counter_exceeded(struct cache_set *c)
++{
++	int counter, dev_nr;
 +
- 	last_do_help = do_help;
- 	pretty_output = false;
- 	json_output = false;
++	/*
++	 * If c->idle_counter is overflow (idel for really long time),
++	 * reset as 0 and not set maximum rate this time for code
++	 * simplicity.
++	 */
++	counter = atomic_inc_return(&c->idle_counter);
++	if (counter <= 0) {
++		atomic_set(&c->idle_counter, 0);
++		return false;
++	}
++
++	dev_nr = atomic_read(&c->attached_dev_nr);
++	if (dev_nr == 0)
++		return false;
++
++	/*
++	 * c->idle_counter is increased by writeback thread of all
++	 * attached backing devices, in order to represent a rough
++	 * time period, counter should be divided by dev_nr.
++	 * Otherwise the idle time cannot be larger with more backing
++	 * device attached.
++	 * The following calculation equals to checking
++	 *	(counter / dev_nr) < (dev_nr * 6)
++	 */
++	if (counter < (dev_nr * dev_nr * 6))
++		return false;
++
++	return true;
++}
++
++/*
++ * Idle_counter is increased every time when update_writeback_rate() is
++ * called. If all backing devices attached to the same cache set have
++ * identical dc->writeback_rate_update_seconds values, it is about 6
++ * rounds of update_writeback_rate() on each backing device before
++ * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
++ * to each dc->writeback_rate.rate.
++ * In order to avoid extra locking cost for counting exact dirty cached
++ * devices number, c->attached_dev_nr is used to calculate the idle
++ * throushold. It might be bigger if not all cached device are in write-
++ * back mode, but it still works well with limited extra rounds of
++ * update_writeback_rate().
++ */
+ static bool set_at_max_writeback_rate(struct cache_set *c,
+ 				       struct cached_dev *dc)
+ {
+@@ -129,21 +176,8 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
+ 	/* Don't set max writeback rate if gc is running */
+ 	if (!c->gc_mark_valid)
+ 		return false;
+-	/*
+-	 * Idle_counter is increased everytime when update_writeback_rate() is
+-	 * called. If all backing devices attached to the same cache set have
+-	 * identical dc->writeback_rate_update_seconds values, it is about 6
+-	 * rounds of update_writeback_rate() on each backing device before
+-	 * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
+-	 * to each dc->writeback_rate.rate.
+-	 * In order to avoid extra locking cost for counting exact dirty cached
+-	 * devices number, c->attached_dev_nr is used to calculate the idle
+-	 * throushold. It might be bigger if not all cached device are in write-
+-	 * back mode, but it still works well with limited extra rounds of
+-	 * update_writeback_rate().
+-	 */
+-	if (atomic_inc_return(&c->idle_counter) <
+-	    atomic_read(&c->attached_dev_nr) * 6)
++
++	if (!idle_counter_exceeded(c))
+ 		return false;
+ 
+ 	if (atomic_read(&c->at_max_writeback_rate) != 1)
+@@ -157,13 +191,10 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
+ 	dc->writeback_rate_change = 0;
+ 
+ 	/*
+-	 * Check c->idle_counter and c->at_max_writeback_rate agagain in case
+-	 * new I/O arrives during before set_at_max_writeback_rate() returns.
+-	 * Then the writeback rate is set to 1, and its new value should be
+-	 * decided via __update_writeback_rate().
++	 * In case new I/O arrives during before
++	 * set_at_max_writeback_rate() returns.
+ 	 */
+-	if ((atomic_read(&c->idle_counter) <
+-	     atomic_read(&c->attached_dev_nr) * 6) ||
++	if (!idle_counter_exceeded(c) ||
+ 	    !atomic_read(&c->at_max_writeback_rate))
+ 		return false;
+ 
 -- 
 2.35.1
 
