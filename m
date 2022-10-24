@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0813760AA3F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2019460A60C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230204AbiJXNbv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:31:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40382 "EHLO
+        id S233810AbiJXMba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:31:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236203AbiJXN35 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:57 -0400
+        with ESMTP id S234208AbiJXM3j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C28AAC48B;
-        Mon, 24 Oct 2022 05:33:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFE7E895F1;
+        Mon, 24 Oct 2022 05:03:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67910612DA;
-        Mon, 24 Oct 2022 12:29:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77BF6C433C1;
-        Mon, 24 Oct 2022 12:29:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 292156128E;
+        Mon, 24 Oct 2022 12:02:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C5ECC433C1;
+        Mon, 24 Oct 2022 12:02:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614554;
-        bh=bPQpXuTiwSD2XHaeEE3f7S0MAGju3li9gNzgfMUaygQ=;
+        s=korg; t=1666612977;
+        bh=/BleCwNH4q+MxKT7DR0P99zio7f8ZwEn9aOrqdQJuJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iHvkMNfH6ks+deCJztQzk8uTwWJ4NGHxmo7ZtV8bAhqwNdA/veY/rqy9IiMuHUOX3
-         jKwWQHlANtnU/3sdaQ2aeRedCgWOEQ6ORFs4PPUhxJsFMWrL8uq5Gqko6BJoKefQLs
-         LR05G1G4w6mWaP7AmXMpkYj/oPV0aR8hzdUU7hms=
+        b=WTfOdAAaGCLlIr9/cNzTuzQ8Bu5P/PDG9zXMUQ9wgFBPyN44EkkQWFW2Yz5JJ7gt5
+         19gtG9ILGeQgO/VW162ETjoqrtwHXhnyvPvQSB7BAwgw+Hc2zIxdZSjP34KocCFlqI
+         LA4kll60HcF5cytvOscFqUQuS3sL2nMOyDWy5KIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wright Feng <wright.feng@cypress.com>,
-        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 305/390] wifi: brcmfmac: fix invalid address access when enabling SCAN log level
-Date:   Mon, 24 Oct 2022 13:31:42 +0200
-Message-Id: <20221024113035.997982350@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Hawkins Jiawei <yin31149@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 184/229] Bluetooth: hci_sysfs: Fix attempting to call device_add multiple times
+Date:   Mon, 24 Oct 2022 13:31:43 +0200
+Message-Id: <20221024113005.052777577@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,104 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wright Feng <wright.feng@cypress.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit aa666b68e73fc06d83c070d96180b9010cf5a960 ]
+[ Upstream commit 448a496f760664d3e2e79466aa1787e6abc922b5 ]
 
-The variable i is changed when setting random MAC address and causes
-invalid address access when printing the value of pi->reqs[i]->reqid.
+device_add shall not be called multiple times as stated in its
+documentation:
 
-We replace reqs index with ri to fix the issue.
+ 'Do not call this routine or device_register() more than once for
+ any device structure'
 
-[  136.726473] Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
-[  136.737365] Mem abort info:
-[  136.740172]   ESR = 0x96000004
-[  136.743359]   Exception class = DABT (current EL), IL = 32 bits
-[  136.749294]   SET = 0, FnV = 0
-[  136.752481]   EA = 0, S1PTW = 0
-[  136.755635] Data abort info:
-[  136.758514]   ISV = 0, ISS = 0x00000004
-[  136.762487]   CM = 0, WnR = 0
-[  136.765522] user pgtable: 4k pages, 48-bit VAs, pgdp = 000000005c4e2577
-[  136.772265] [0000000000000000] pgd=0000000000000000
-[  136.777160] Internal error: Oops: 96000004 [#1] PREEMPT SMP
-[  136.782732] Modules linked in: brcmfmac(O) brcmutil(O) cfg80211(O) compat(O)
-[  136.789788] Process wificond (pid: 3175, stack limit = 0x00000000053048fb)
-[  136.796664] CPU: 3 PID: 3175 Comm: wificond Tainted: G           O      4.19.42-00001-g531a5f5 #1
-[  136.805532] Hardware name: Freescale i.MX8MQ EVK (DT)
-[  136.810584] pstate: 60400005 (nZCv daif +PAN -UAO)
-[  136.815429] pc : brcmf_pno_config_sched_scans+0x6cc/0xa80 [brcmfmac]
-[  136.821811] lr : brcmf_pno_config_sched_scans+0x67c/0xa80 [brcmfmac]
-[  136.828162] sp : ffff00000e9a3880
-[  136.831475] x29: ffff00000e9a3890 x28: ffff800020543400
-[  136.836786] x27: ffff8000b1008880 x26: ffff0000012bf6a0
-[  136.842098] x25: ffff80002054345c x24: ffff800088d22400
-[  136.847409] x23: ffff0000012bf638 x22: ffff0000012bf6d8
-[  136.852721] x21: ffff8000aced8fc0 x20: ffff8000ac164400
-[  136.858032] x19: ffff00000e9a3946 x18: 0000000000000000
-[  136.863343] x17: 0000000000000000 x16: 0000000000000000
-[  136.868655] x15: ffff0000093f3b37 x14: 0000000000000050
-[  136.873966] x13: 0000000000003135 x12: 0000000000000000
-[  136.879277] x11: 0000000000000000 x10: ffff000009a61888
-[  136.884589] x9 : 000000000000000f x8 : 0000000000000008
-[  136.889900] x7 : 303a32303d726464 x6 : ffff00000a1f957d
-[  136.895211] x5 : 0000000000000000 x4 : ffff00000e9a3942
-[  136.900523] x3 : 0000000000000000 x2 : ffff0000012cead8
-[  136.905834] x1 : ffff0000012bf6d8 x0 : 0000000000000000
-[  136.911146] Call trace:
-[  136.913623]  brcmf_pno_config_sched_scans+0x6cc/0xa80 [brcmfmac]
-[  136.919658]  brcmf_pno_start_sched_scan+0xa4/0x118 [brcmfmac]
-[  136.925430]  brcmf_cfg80211_sched_scan_start+0x80/0xe0 [brcmfmac]
-[  136.931636]  nl80211_start_sched_scan+0x140/0x308 [cfg80211]
-[  136.937298]  genl_rcv_msg+0x358/0x3f4
-[  136.940960]  netlink_rcv_skb+0xb4/0x118
-[  136.944795]  genl_rcv+0x34/0x48
-[  136.947935]  netlink_unicast+0x264/0x300
-[  136.951856]  netlink_sendmsg+0x2e4/0x33c
-[  136.955781]  __sys_sendto+0x120/0x19c
+Syzkaller reports a bug as follows [1]:
+------------[ cut here ]------------
+kernel BUG at lib/list_debug.c:33!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+[...]
+Call Trace:
+ <TASK>
+ __list_add include/linux/list.h:69 [inline]
+ list_add_tail include/linux/list.h:102 [inline]
+ kobj_kset_join lib/kobject.c:164 [inline]
+ kobject_add_internal+0x18f/0x8f0 lib/kobject.c:214
+ kobject_add_varg lib/kobject.c:358 [inline]
+ kobject_add+0x150/0x1c0 lib/kobject.c:410
+ device_add+0x368/0x1e90 drivers/base/core.c:3452
+ hci_conn_add_sysfs+0x9b/0x1b0 net/bluetooth/hci_sysfs.c:53
+ hci_le_cis_estabilished_evt+0x57c/0xae0 net/bluetooth/hci_event.c:6799
+ hci_le_meta_evt+0x2b8/0x510 net/bluetooth/hci_event.c:7110
+ hci_event_func net/bluetooth/hci_event.c:7440 [inline]
+ hci_event_packet+0x63d/0xfd0 net/bluetooth/hci_event.c:7495
+ hci_rx_work+0xae7/0x1230 net/bluetooth/hci_core.c:4007
+ process_one_work+0x991/0x1610 kernel/workqueue.c:2289
+ worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+ kthread+0x2e4/0x3a0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+ </TASK>
 
-Signed-off-by: Wright Feng <wright.feng@cypress.com>
-Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220722115632.620681-4-alvin@pqrs.dk
+Link: https://syzkaller.appspot.com/bug?id=da3246e2d33afdb92d66bc166a0934c5b146404a
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Tested-by: Hawkins Jiawei <yin31149@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/broadcom/brcm80211/brcmfmac/pno.c   | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/bluetooth/hci_sysfs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c
-index fabfbb0b40b0..d0a7465be586 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c
-@@ -158,12 +158,12 @@ static int brcmf_pno_set_random(struct brcmf_if *ifp, struct brcmf_pno_info *pi)
- 	struct brcmf_pno_macaddr_le pfn_mac;
- 	u8 *mac_addr = NULL;
- 	u8 *mac_mask = NULL;
--	int err, i;
-+	int err, i, ri;
+diff --git a/net/bluetooth/hci_sysfs.c b/net/bluetooth/hci_sysfs.c
+index b69d88b88d2e..ccd2c377bf83 100644
+--- a/net/bluetooth/hci_sysfs.c
++++ b/net/bluetooth/hci_sysfs.c
+@@ -48,6 +48,9 @@ void hci_conn_add_sysfs(struct hci_conn *conn)
  
--	for (i = 0; i < pi->n_reqs; i++)
--		if (pi->reqs[i]->flags & NL80211_SCAN_FLAG_RANDOM_ADDR) {
--			mac_addr = pi->reqs[i]->mac_addr;
--			mac_mask = pi->reqs[i]->mac_addr_mask;
-+	for (ri = 0; ri < pi->n_reqs; ri++)
-+		if (pi->reqs[ri]->flags & NL80211_SCAN_FLAG_RANDOM_ADDR) {
-+			mac_addr = pi->reqs[ri]->mac_addr;
-+			mac_mask = pi->reqs[ri]->mac_addr_mask;
- 			break;
- 		}
+ 	BT_DBG("conn %p", conn);
  
-@@ -185,7 +185,7 @@ static int brcmf_pno_set_random(struct brcmf_if *ifp, struct brcmf_pno_info *pi)
- 	pfn_mac.mac[0] |= 0x02;
++	if (device_is_registered(&conn->dev))
++		return;
++
+ 	dev_set_name(&conn->dev, "%s:%d", hdev->name, conn->handle);
  
- 	brcmf_dbg(SCAN, "enabling random mac: reqid=%llu mac=%pM\n",
--		  pi->reqs[i]->reqid, pfn_mac.mac);
-+		  pi->reqs[ri]->reqid, pfn_mac.mac);
- 	err = brcmf_fil_iovar_data_set(ifp, "pfn_macaddr", &pfn_mac,
- 				       sizeof(pfn_mac));
- 	if (err)
+ 	if (device_add(&conn->dev) < 0) {
 -- 
 2.35.1
 
