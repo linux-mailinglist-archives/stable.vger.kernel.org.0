@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E96A60A5C3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:30:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C26E560A59F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:27:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231313AbiJXM2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:28:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45304 "EHLO
+        id S233685AbiJXM1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:27:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233711AbiJXM1s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:27:48 -0400
+        with ESMTP id S230323AbiJXM07 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:26:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F45B844C1;
-        Mon, 24 Oct 2022 05:01:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4146855A9;
+        Mon, 24 Oct 2022 05:01:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8EA24B8117E;
-        Mon, 24 Oct 2022 11:57:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED70CC433D6;
-        Mon, 24 Oct 2022 11:57:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E005B8114A;
+        Mon, 24 Oct 2022 11:39:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC687C433D6;
+        Mon, 24 Oct 2022 11:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612643;
-        bh=+a+45iTcgmJaN1eXRX6U24G2mAi3/f9sIfWs6mR2zE0=;
+        s=korg; t=1666611572;
+        bh=89u/RKNk6aKgLaW27g8p2OhkdxTPjr9yb5zFZbtSKWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jRYTy8liFQ9MfygCRJUEvvR0yr6DRx7413ygGV60SLXXJiD8evsSlxR61K5SALCvY
-         zEHNCrp/2e16iua5BK3Tk3GVcVFG8FUtlkCHkW/9eYGgGcOGw55Bza1agx6MkQ3U1x
-         He3aD0TVx5R+L4Uv3NsLjwYdbyRY0Y25nkcCoyuE=
+        b=J3Nw2quFTpnqX4LI3MujVO2aVV5LOT+1ffeXMdPFajPUElWSxeQeDY24L9tpY74aP
+         I7nswtOHjHRTRxWxux/1+lw4TBUx8h9U3cEePesVIXOmRLImzqfqSz0pCI/opDTTdZ
+         zZSC1X2sP4J3dfNnHCYySFzR1gxObrs3BACp5yms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 065/229] ring-buffer: Check pending waiters when doing wake ups as well
+        stable@vger.kernel.org, Hu Weiwen <sehuww@mail.scut.edu.cn>,
+        Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 4.9 030/159] ceph: dont truncate file in atomic_open
 Date:   Mon, 24 Oct 2022 13:29:44 +0200
-Message-Id: <20221024113001.192948457@linuxfoundation.org>
+Message-Id: <20221024112950.514548543@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +52,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Hu Weiwen <sehuww@mail.scut.edu.cn>
 
-commit ec0bbc5ec5664dcee344f79373852117dc672c86 upstream.
+commit 7cb9994754f8a36ae9e5ec4597c5c4c2d6c03832 upstream.
 
-The wake up waiters only checks the "wakeup_full" variable and not the
-"full_waiters_pending". The full_waiters_pending is set when a waiter is
-added to the wait queue. The wakeup_full is only set when an event is
-triggered, and it clears the full_waiters_pending to avoid multiple calls
-to irq_work_queue().
+Clear O_TRUNC from the flags sent in the MDS create request.
 
-The irq_work callback really needs to check both wakeup_full as well as
-full_waiters_pending such that this code can be used to wake up waiters
-when a file is closed that represents the ring buffer and the waiters need
-to be woken up.
+`atomic_open' is called before permission check. We should not do any
+modification to the file here. The caller will do the truncation
+afterward.
 
-Link: https://lkml.kernel.org/r/20220927231824.209460321@goodmis.org
-
-Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Fixes: 15693458c4bc0 ("tracing/ring-buffer: Move poll wake ups into ring buffer code")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: 124e68e74099 ("ceph: file operations")
+Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+[Xiubo: fixed a trivial conflict for 4.9 backport]
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ceph/file.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -542,8 +542,9 @@ static void rb_wake_up_waiters(struct ir
- 	struct rb_irq_work *rbwork = container_of(work, struct rb_irq_work, work);
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -354,6 +354,11 @@ int ceph_atomic_open(struct inode *dir,
+ 	err = ceph_init_dentry(dentry);
+ 	if (err < 0)
+ 		return err;
++	/*
++	 * Do not truncate the file, since atomic_open is called before the
++	 * permission check. The caller will do the truncation afterward.
++	 */
++	flags &= ~O_TRUNC;
  
- 	wake_up_all(&rbwork->waiters);
--	if (rbwork->wakeup_full) {
-+	if (rbwork->full_waiters_pending || rbwork->wakeup_full) {
- 		rbwork->wakeup_full = false;
-+		rbwork->full_waiters_pending = false;
- 		wake_up_all(&rbwork->full_waiters);
- 	}
- }
+ 	if (flags & O_CREAT) {
+ 		err = ceph_pre_init_acls(dir, &mode, &acls);
+@@ -384,9 +389,7 @@ int ceph_atomic_open(struct inode *dir,
+        req->r_args.open.mask = cpu_to_le32(mask);
+ 
+ 	req->r_locked_dir = dir;           /* caller holds dir->i_mutex */
+-	err = ceph_mdsc_do_request(mdsc,
+-				   (flags & (O_CREAT|O_TRUNC)) ? dir : NULL,
+-				   req);
++	err = ceph_mdsc_do_request(mdsc, (flags & O_CREAT) ? dir : NULL, req);
+ 	err = ceph_handle_snapdir(req, dentry, err);
+ 	if (err)
+ 		goto out_req;
 
 
