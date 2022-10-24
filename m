@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D05A60A7A1
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:54:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0371A60A4A0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:13:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231175AbiJXMy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:54:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60706 "EHLO
+        id S231441AbiJXMNn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:13:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234523AbiJXMxE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:53:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48294326D0;
-        Mon, 24 Oct 2022 05:14:16 -0700 (PDT)
+        with ESMTP id S232938AbiJXMNK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:13:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 545C111473;
+        Mon, 24 Oct 2022 04:54:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24727612FF;
-        Mon, 24 Oct 2022 12:12:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38E0DC433D6;
-        Mon, 24 Oct 2022 12:12:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8420612DB;
+        Mon, 24 Oct 2022 11:54:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6A92C43470;
+        Mon, 24 Oct 2022 11:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613547;
-        bh=AlKGxA5oHb1mhMs88++LuDXBhLryEnVpofotGpHubyE=;
+        s=korg; t=1666612444;
+        bh=m/QdiEsyaqsXyeYZVuoxXTWReCx/204ZsauJ1OlEs0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbfIA83KIIxpBwWK3zzg0448uAACtnfj2RRDQqt6WR92AL/++gjC+JhYRV6rH7pxa
-         /uHc9sSmnELJ+F1tZ04qyKql+OZxcutofNtWjlxkXZnMViYISlxJmGyLKomoy0TTQT
-         ++okFCTuoBpcU+k3NjK8dmaiUfxz5aw+u6c88TDc=
+        b=yXKhSn3c9zyz7azQCNhd95XmoXQZJScmipbraXVs3cYhKydUo7kPoFXc0mQxM5EPz
+         CDxEZ5VmpC0eFKjoxhCnsKAiODMVQe2Pg7eNPb5mpatCO/fe/L2edFRXMVal031cNP
+         Y9px+22nGJUmXvZ+8fT+sxwKCW2rJGvWSxRZtwrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 178/255] iommu/omap: Fix buffer overflow in debugfs
+        stable@vger.kernel.org,
+        syzbot <syzbot+2ca247c2d60c7023de7f@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 171/210] wifi: ath9k: avoid uninit memory read in ath9k_htc_rx_msg()
 Date:   Mon, 24 Oct 2022 13:31:28 +0200
-Message-Id: <20221024113008.763948658@linuxfoundation.org>
+Message-Id: <20221024113002.508144717@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +56,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 184233a5202786b20220acd2d04ddf909ef18f29 ]
+[ Upstream commit b383e8abed41cc6ff1a3b34de75df9397fa4878c ]
 
-There are two issues here:
+syzbot is reporting uninit value at ath9k_htc_rx_msg() [1], for
+ioctl(USB_RAW_IOCTL_EP_WRITE) can call ath9k_hif_usb_rx_stream() with
+pkt_len = 0 but ath9k_hif_usb_rx_stream() uses
+__dev_alloc_skb(pkt_len + 32, GFP_ATOMIC) based on an assumption that
+pkt_len is valid. As a result, ath9k_hif_usb_rx_stream() allocates skb
+with uninitialized memory and ath9k_htc_rx_msg() is reading from
+uninitialized memory.
 
-1) The "len" variable needs to be checked before the very first write.
-   Otherwise if omap2_iommu_dump_ctx() with "bytes" less than 32 it is a
-   buffer overflow.
-2) The snprintf() function returns the number of bytes that *would* have
-   been copied if there were enough space.  But we want to know the
-   number of bytes which were *actually* copied so use scnprintf()
-   instead.
+Since bytes accessed by ath9k_htc_rx_msg() is not known until
+ath9k_htc_rx_msg() is called, it would be difficult to check minimal valid
+pkt_len at "if (pkt_len > 2 * MAX_RX_BUF_SIZE) {" line in
+ath9k_hif_usb_rx_stream().
 
-Fixes: bd4396f09a4a ("iommu/omap: Consolidate OMAP IOMMU modules")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://lore.kernel.org/r/YuvYh1JbE3v+abd5@kili
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+We have two choices. One is to workaround by adding __GFP_ZERO so that
+ath9k_htc_rx_msg() sees 0 if pkt_len is invalid. The other is to let
+ath9k_htc_rx_msg() validate pkt_len before accessing. This patch chose
+the latter.
+
+Note that I'm not sure threshold condition is correct, for I can't find
+details on possible packet length used by this protocol.
+
+Link: https://syzkaller.appspot.com/bug?extid=2ca247c2d60c7023de7f [1]
+Reported-by: syzbot <syzbot+2ca247c2d60c7023de7f@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/7acfa1be-4b5c-b2ce-de43-95b0593fb3e5@I-love.SAKURA.ne.jp
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/omap-iommu-debug.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc_hst.c | 43 +++++++++++++++---------
+ 1 file changed, 28 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
-index a99afb5d9011..259f65291d90 100644
---- a/drivers/iommu/omap-iommu-debug.c
-+++ b/drivers/iommu/omap-iommu-debug.c
-@@ -32,12 +32,12 @@ static inline bool is_omap_iommu_detached(struct omap_iommu *obj)
- 		ssize_t bytes;						\
- 		const char *str = "%20s: %08x\n";			\
- 		const int maxcol = 32;					\
--		bytes = snprintf(p, maxcol, str, __stringify(name),	\
-+		if (len < maxcol)					\
-+			goto out;					\
-+		bytes = scnprintf(p, maxcol, str, __stringify(name),	\
- 				 iommu_read_reg(obj, MMU_##name));	\
- 		p += bytes;						\
- 		len -= bytes;						\
--		if (len < maxcol)					\
--			goto out;					\
- 	} while (0)
+diff --git a/drivers/net/wireless/ath/ath9k/htc_hst.c b/drivers/net/wireless/ath/ath9k/htc_hst.c
+index e37de14bc502..6d69cf69fd86 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_hst.c
++++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
+@@ -367,33 +367,27 @@ void ath9k_htc_txcompletion_cb(struct htc_target *htc_handle,
+ }
  
- static ssize_t
+ static void ath9k_htc_fw_panic_report(struct htc_target *htc_handle,
+-				      struct sk_buff *skb)
++				      struct sk_buff *skb, u32 len)
+ {
+ 	uint32_t *pattern = (uint32_t *)skb->data;
+ 
+-	switch (*pattern) {
+-	case 0x33221199:
+-		{
++	if (*pattern == 0x33221199 && len >= sizeof(struct htc_panic_bad_vaddr)) {
+ 		struct htc_panic_bad_vaddr *htc_panic;
+ 		htc_panic = (struct htc_panic_bad_vaddr *) skb->data;
+ 		dev_err(htc_handle->dev, "ath: firmware panic! "
+ 			"exccause: 0x%08x; pc: 0x%08x; badvaddr: 0x%08x.\n",
+ 			htc_panic->exccause, htc_panic->pc,
+ 			htc_panic->badvaddr);
+-		break;
+-		}
+-	case 0x33221299:
+-		{
++		return;
++	}
++	if (*pattern == 0x33221299) {
+ 		struct htc_panic_bad_epid *htc_panic;
+ 		htc_panic = (struct htc_panic_bad_epid *) skb->data;
+ 		dev_err(htc_handle->dev, "ath: firmware panic! "
+ 			"bad epid: 0x%08x\n", htc_panic->epid);
+-		break;
+-		}
+-	default:
+-		dev_err(htc_handle->dev, "ath: unknown panic pattern!\n");
+-		break;
++		return;
+ 	}
++	dev_err(htc_handle->dev, "ath: unknown panic pattern!\n");
+ }
+ 
+ /*
+@@ -414,16 +408,26 @@ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
+ 	if (!htc_handle || !skb)
+ 		return;
+ 
++	/* A valid message requires len >= 8.
++	 *
++	 *   sizeof(struct htc_frame_hdr) == 8
++	 *   sizeof(struct htc_ready_msg) == 8
++	 *   sizeof(struct htc_panic_bad_vaddr) == 16
++	 *   sizeof(struct htc_panic_bad_epid) == 8
++	 */
++	if (unlikely(len < sizeof(struct htc_frame_hdr)))
++		goto invalid;
+ 	htc_hdr = (struct htc_frame_hdr *) skb->data;
+ 	epid = htc_hdr->endpoint_id;
+ 
+ 	if (epid == 0x99) {
+-		ath9k_htc_fw_panic_report(htc_handle, skb);
++		ath9k_htc_fw_panic_report(htc_handle, skb, len);
+ 		kfree_skb(skb);
+ 		return;
+ 	}
+ 
+ 	if (epid < 0 || epid >= ENDPOINT_MAX) {
++invalid:
+ 		if (pipe_id != USB_REG_IN_PIPE)
+ 			dev_kfree_skb_any(skb);
+ 		else
+@@ -435,21 +439,30 @@ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
+ 
+ 		/* Handle trailer */
+ 		if (htc_hdr->flags & HTC_FLAGS_RECV_TRAILER) {
+-			if (be32_to_cpu(*(__be32 *) skb->data) == 0x00C60000)
++			if (be32_to_cpu(*(__be32 *) skb->data) == 0x00C60000) {
+ 				/* Move past the Watchdog pattern */
+ 				htc_hdr = (struct htc_frame_hdr *)(skb->data + 4);
++				len -= 4;
++			}
+ 		}
+ 
+ 		/* Get the message ID */
++		if (unlikely(len < sizeof(struct htc_frame_hdr) + sizeof(__be16)))
++			goto invalid;
+ 		msg_id = (__be16 *) ((void *) htc_hdr +
+ 				     sizeof(struct htc_frame_hdr));
+ 
+ 		/* Now process HTC messages */
+ 		switch (be16_to_cpu(*msg_id)) {
+ 		case HTC_MSG_READY_ID:
++			if (unlikely(len < sizeof(struct htc_ready_msg)))
++				goto invalid;
+ 			htc_process_target_rdy(htc_handle, htc_hdr);
+ 			break;
+ 		case HTC_MSG_CONNECT_SERVICE_RESPONSE_ID:
++			if (unlikely(len < sizeof(struct htc_frame_hdr) +
++				     sizeof(struct htc_conn_svc_rspmsg)))
++				goto invalid;
+ 			htc_process_conn_rsp(htc_handle, htc_hdr);
+ 			break;
+ 		default:
 -- 
 2.35.1
 
