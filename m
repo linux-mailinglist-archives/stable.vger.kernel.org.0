@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 894A760B85C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:44:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC43360B811
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:41:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230392AbiJXToY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:44:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38016 "EHLO
+        id S232683AbiJXTlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:41:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233453AbiJXTmo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:42:44 -0400
+        with ESMTP id S233230AbiJXTkh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:40:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1489D4A07;
-        Mon, 24 Oct 2022 11:11:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69511C5A7E;
+        Mon, 24 Oct 2022 11:10:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05F7BB8119F;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 986DEB811A2;
+        Mon, 24 Oct 2022 11:48:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE9CDC433C1;
         Mon, 24 Oct 2022 11:48:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 635BBC433C1;
-        Mon, 24 Oct 2022 11:48:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612080;
-        bh=CDq8FveJgeZh1rfJgeX4HZ9et2u3iDuKrkjXt/oPHxk=;
+        s=korg; t=1666612083;
+        bh=uBbLc8QAgT9cQGnph4PMHqBIqShqWIcTjog/nTwhBok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g67APvKJW91OrTdMcAA6EdvNuSlTEO40nUSjthxk+vIuS6oV3qcMT4nlOPkcSP4Xu
-         erX6SuR4e5Hv4c+SakNLXBc40xfHMNU+M4LESvzgXj0vDhRHkEMc5a9lYyU/qq5TG7
-         p+toWcAWpODNALjMVnpqGoPin2hGWKt5BIKocIuY=
+        b=1kQGJKjo7cSNLUHvo8vn4kk5pSz/1f+iHRH6IUtRyLPChIUsRymdkByFxLq1Ff4a4
+         uMKcwW8Q79VsJ3puYtRbZpOkmAR8/kOJNHvwS8JgOyWvgzXe5oAS7kOvvFPkXzBlDt
+         3Q+CMd+SM80dbNHdczFLsy07mDe/5aEyKqEeZqvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 061/210] parisc: fbdev/stifb: Align graphics memory size to 4MB
-Date:   Mon, 24 Oct 2022 13:29:38 +0200
-Message-Id: <20221024112959.009822666@linuxfoundation.org>
+        stable@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.14 062/210] UM: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
+Date:   Mon, 24 Oct 2022 13:29:39 +0200
+Message-Id: <20221024112959.049915255@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -51,31 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-commit aca7c13d3bee81a968337a5515411409ae9d095d upstream.
+commit 16c546e148fa6d14a019431436a6f7b4087dbccd upstream.
 
-Independend of the current graphics resolution, adjust the reported
-graphics card memory size to the next 4MB boundary.
-This fixes the fbtest program which expects a naturally aligned size.
+When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
+cpu_max_bits_warn() generates a runtime warning similar as below while
+we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
+instead of NR_CPUS to iterate CPUs.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>
+[    3.052463] ------------[ cut here ]------------
+[    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
+[    3.070072] Modules linked in: efivarfs autofs4
+[    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
+[    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
+[    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
+[    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
+[    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
+[    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
+[    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
+[    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
+[    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
+[    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
+[    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
+[    3.195868]         ...
+[    3.199917] Call Trace:
+[    3.203941] [<90000000002086d8>] show_stack+0x38/0x14c
+[    3.210666] [<9000000000cf846c>] dump_stack_lvl+0x60/0x88
+[    3.217625] [<900000000023d268>] __warn+0xd0/0x100
+[    3.223958] [<9000000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
+[    3.231150] [<9000000000210220>] show_cpuinfo+0x5e8/0x5f0
+[    3.238080] [<90000000004f578c>] seq_read_iter+0x354/0x4b4
+[    3.245098] [<90000000004c2e90>] new_sync_read+0x17c/0x1c4
+[    3.252114] [<90000000004c5174>] vfs_read+0x138/0x1d0
+[    3.258694] [<90000000004c55f8>] ksys_read+0x70/0x100
+[    3.265265] [<9000000000cfde9c>] do_syscall+0x7c/0x94
+[    3.271820] [<9000000000202fe4>] handle_syscall+0xc4/0x160
+[    3.281824] ---[ end trace 8b484262b4b8c24c ]---
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/stifb.c |    2 +-
+ arch/um/kernel/um_arch.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/stifb.c
-+++ b/drivers/video/fbdev/stifb.c
-@@ -1259,7 +1259,7 @@ static int __init stifb_init_fb(struct s
- 	
- 	/* limit fbsize to max visible screen size */
- 	if (fix->smem_len > yres*fix->line_length)
--		fix->smem_len = yres*fix->line_length;
-+		fix->smem_len = ALIGN(yres*fix->line_length, 4*1024*1024);
- 	
- 	fix->accel = FB_ACCEL_NONE;
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -77,7 +77,7 @@ static int show_cpuinfo(struct seq_file
  
+ static void *c_start(struct seq_file *m, loff_t *pos)
+ {
+-	return *pos < NR_CPUS ? cpu_data + *pos : NULL;
++	return *pos < nr_cpu_ids ? cpu_data + *pos : NULL;
+ }
+ 
+ static void *c_next(struct seq_file *m, void *v, loff_t *pos)
 
 
