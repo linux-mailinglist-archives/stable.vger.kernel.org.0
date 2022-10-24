@@ -2,309 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC01609F38
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 12:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62974609FD0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:09:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229730AbiJXKlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 06:41:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36306 "EHLO
+        id S230087AbiJXLJf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:09:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229783AbiJXKlu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 06:41:50 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47B4965276
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 03:41:45 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1omuts-0002An-Ch; Mon, 24 Oct 2022 12:41:44 +0200
-Message-ID: <958fd763-01b6-0167-ba6b-97cbd3bddcb6@leemhuis.info>
-Date:   Mon, 24 Oct 2022 12:41:43 +0200
+        with ESMTP id S230080AbiJXLJc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:09:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7E9E12A97
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 04:09:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB98D6121A
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 11:09:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3991C433C1;
+        Mon, 24 Oct 2022 11:09:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1666609757;
+        bh=mJk/7lCvD0v/wZqyy24hE9mXl4Knq2V24HtU+hYNJq4=;
+        h=Subject:To:Cc:From:Date:From;
+        b=AaGqf1W8/OZVvBx+/ydQpXF0E13T9ctWhA/MNXiU9/YlZdO8X84D3AV6H3tHI4Y0b
+         InyBulcBtwOBYoay3zEFnLuGrD6nUB3Mno9957tmvlcCBzuhReAJyCLx/pwRIP4ktw
+         izhvB+IqGbFKjwH/0qAbVgjuBnLuUWgQEEy0+YZ8=
+Subject: FAILED: patch "[PATCH] cgroup: Reorganize css_set_lock and kernfs path processing" failed to apply to 6.0-stable tree
+To:     mkoutny@suse.com, dan.carpenter@oracle.com, tj@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 24 Oct 2022 13:09:14 +0200
+Message-ID: <166660975421479@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [Regression] CPU stalls and eventually causes a complete system
- freeze with 6.0.3 due to "video/aperture: Disable and unregister sysfb
- devices via aperture helpers"
-Content-Language: en-US, de-DE
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Andreas <andreas.thalhammer@linux.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        ML dri-devel <dri-devel@lists.freedesktop.org>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-References: <bbf7afe7-6ed2-6708-d302-4ba657444c45@leemhuis.info>
- <668a8ffd-ffc7-e1cc-28b4-1caca1bcc3d6@suse.de>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <668a8ffd-ffc7-e1cc-28b4-1caca1bcc3d6@suse.de>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1666608107;ef297178;
-X-HE-SMSGID: 1omuts-0002An-Ch
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi! Thx for the reply.
 
-On 24.10.22 12:26, Thomas Zimmermann wrote:
-> Am 23.10.22 um 10:04 schrieb Thorsten Leemhuis:
->>
->> I noticed a regression report in bugzilla.kernel.org. As many (most?)
->> kernel developer don't keep an eye on it, I decided to forward it by
->> mail. Quoting from https://bugzilla.kernel.org/show_bug.cgi?id=216616  :
->>
->>>   Andreas 2022-10-22 14:25:32 UTC
->>>
->>> Created attachment 303074 [details]
->>> dmesg
-> 
-> I've looked at the kernel log and found that simpledrm has been loaded
-> *after* amdgpu, which should never happen. The problematic patch has
-> been taken from a long list of refactoring work on this code. No wonder
-> that it doesn't work as expected.
-> 
-> Please cherry-pick commit 9d69ef183815 ("fbdev/core: Remove
-> remove_conflicting_pci_framebuffers()") into the 6.0 stable branch and
-> report on the results. It should fix the problem.
+The patch below does not apply to the 6.0-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Greg, is that enough for you to pick this up? Or do you want Andreas to
-test first if it really fixes the reported problem?
+Possible dependencies:
 
-Ciao, Thorsten
+46307fd6e27a ("cgroup: Reorganize css_set_lock and kernfs path processing")
+4534dee94105 ("cgroup: cgroup: Honor caller's cgroup NS when resolving cgroup id")
+74e4b956eb1c ("cgroup: Honor caller's cgroup NS when resolving path")
 
+thanks,
 
->>> 6.0.2 works.
->>>
->>> On 6.0.3 the system is very sluggish with graphic glitches all over
->>> the place in KDE Plasma Desktop X11 (no graphic glitches when using
->>> Wayland, but also sluggish). SDDM works fine.
->>>
->>> Hardware: Lenovo Legion 5 Pro 16ACH6H: AMD Ryzen 7 5800H "Cezanne",
->>> hybrid graphics AMD "Green Sardine" (Vega 8 GCN 5.1, AMDGPU) and
->>> Nvidia GeForce RTX 3070 Mobile (GA104M, not working with nouveau, I'm
->>> not using the proprietary nvidia driver).
->>>
->>> [reply] [−] Comment 1 Andreas 2022-10-22 14:27:15 UTC
->>>
->>> Created attachment 303075 [details]
->>> my kernel .config for 6.0.3
->>>
->>> Only was CONFIG_HID_TOPRE added in 6.0.3, otherwise it is identical
->>> as my .config for 6.0.2.
->>>
->>> [reply] [−] Comment 2 Andreas 2022-10-22 14:51:23 UTC
->>>
->>> In /var/log/Xorg.0.log the only obvious difference is the last line:
->>> ---- snap
->>> randr: falling back to unsynchronized pixmap sharing
->>> ---- snap
->>> The line is present when I boot with 6.0.3, but isn't when I boot 6.0.2.
->>>
->>> (Obviously this is when I login to KDE with X11, not with Wayland,
->>> from SDDM.)
->>>
->>> [reply] [−] Comment 3 Andreas 2022-10-22 22:10:19 UTC
->>>
->>> I did a git bisect on stable kernels 5.0.3 as bad and 5.0.2 as good,
->>> this is the result:
->>>
->>> cfecfc98a78d97a49807531b5b224459bda877de is the first bad commit
->>> commit cfecfc98a78d97a49807531b5b224459bda877de (HEAD, refs/bisect/bad)
->>> Author: Thomas Zimmermann <tzimmermann@suse.de>
->>> Date:   Mon Jul 18 09:23:18 2022 +0200
->>>
->>>      video/aperture: Disable and unregister sysfb devices via
->>> aperture helpers
->>>           [ Upstream commit 5e01376124309b4dbd30d413f43c0d9c2f60edea ]
->>>           Call sysfb_disable() before removing conflicting devices in
->>> aperture
->>>      helpers. Fixes sysfb state if fbdev has been disabled.
->>>           Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
->>>      Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
->>>      Fixes: fb84efa28a48 ("drm/aperture: Run fbdev removal before
->>> internal helpers")
->>>
->>> [reply] [−] Comment 4 Andreas 2022-10-22 22:11:51 UTC
->>>
->>> Link to the suspect patch:
->>>
->>> https://patchwork.freedesktop.org/patch/msgid/20220718072322.8927-8-tzimmermann@suse.de
->>> (or https://patchwork.freedesktop.org/patch/494608/)
->>>
->>> [reply] [−] Comment 5 Andreas 2022-10-22 22:38:14 UTC
->>>
->>> Okay, so I reverted
->>> v2-07-11-video-aperture-Disable-and-unregister-sysfb-devices-via-aperture-helpers.patch on stable 5.0.3 and the fault is gone.
->>>
->>> I always logged out immediately, which worked (even though everything
->>> is very very sluggish). Also, when I killed the X session within a
->>> couple of seconds (15 or so), no error was shown (I used "systemctl
->>> stop sddm" from another virtual console).
->>>
->>> Noteworthy: I once compiled a kernel from within the Plasma Desktop,
->>> while it was sluggish. The kernel compiled alright. When it was
->>> finished I moved the mouse to reboot, at which point it completely
->>> froze and I had to hard-reset the system.
->>>
->>> While still running, after > 15 seconds, the fault looked like this
->>> (dmesg):
->>> ---- snap ----
->>> rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: {
->>> 13-.... } 7 jiffies s: 165 root: 0x2000/.
->>> rcu: blocking rcu_node structures (internal RCU debug):
->>> Task dump for CPU 13:
->>> task:X               state:R  running task     stack:    0 pid: 4242
->>> ppid:  4228 flags:0x00000008
->>> Call Trace:
->>>   <TASK>
->>>   ? commit_tail+0xd7/0x130
->>>   ? drm_atomic_helper_commit+0x126/0x150
->>>   ? drm_atomic_commit+0xa4/0xe0
->>>   ? drm_plane_get_damage_clips.cold+0x1c/0x1c
->>>   ? drm_atomic_helper_dirtyfb+0x19e/0x280
->>>   ? drm_mode_dirtyfb_ioctl+0x10f/0x1e0
->>>   ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
->>>   ? drm_ioctl_kernel+0xc4/0x150
->>>   ? drm_ioctl+0x246/0x3f0
->>>   ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
->>>   ? __x64_sys_ioctl+0x91/0xd0
->>>   ? do_syscall_64+0x60/0xd0
->>>   ? entry_SYSCALL_64_after_hwframe+0x4b/0xb5
->>>   </TASK>
->>> rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: {
->>> 13-.... } 29 jiffies s: 165 root: 0x2000/.
->>> rcu: blocking rcu_node structures (internal RCU debug):
->>> Task dump for CPU 13:
->>> task:X               state:R  running task     stack:    0 pid: 4242
->>> ppid:  4228 flags:0x00000008
->>> Call Trace:
->>>   <TASK>
->>>   ? commit_tail+0xd7/0x130
->>>   ? drm_atomic_helper_commit+0x126/0x150
->>>   ? drm_atomic_commit+0xa4/0xe0
->>>   ? drm_plane_get_damage_clips.cold+0x1c/0x1c
->>>   ? drm_atomic_helper_dirtyfb+0x19e/0x280
->>>   ? drm_mode_dirtyfb_ioctl+0x10f/0x1e0
->>>   ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
->>>   ? drm_ioctl_kernel+0xc4/0x150
->>>   ? drm_ioctl+0x246/0x3f0
->>>   ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
->>>   ? __x64_sys_ioctl+0x91/0xd0
->>>   ? do_syscall_64+0x60/0xd0
->>>   ? entry_SYSCALL_64_after_hwframe+0x4b/0xb5
->>>   </TASK>
->>> rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: {
->>> 13-.... } 8 jiffies s: 169 root: 0x2000/.
->>> rcu: blocking rcu_node structures (internal RCU debug):
->>> Task dump for CPU 13:
->>> task:X               state:R  running task     stack:    0 pid: 4242
->>> ppid:  4228 flags:0x0000400e
->>> Call Trace:
->>>   <TASK>
->>>   ? memcpy_toio+0x76/0xc0
->>>   ? drm_fb_memcpy_toio+0x76/0xb0
->>>   ? drm_fb_blit_toio+0x75/0x2b0
->>>   ? simpledrm_simple_display_pipe_update+0x132/0x150
->>>   ? drm_atomic_helper_commit_planes+0xb6/0x230
->>>   ? drm_atomic_helper_commit_tail+0x44/0x80
->>>   ? commit_tail+0xd7/0x130
->>>   ? drm_atomic_helper_commit+0x126/0x150
->>>   ? drm_atomic_commit+0xa4/0xe0
->>>   ? drm_plane_get_damage_clips.cold+0x1c/0x1c
->>>   ? drm_atomic_helper_dirtyfb+0x19e/0x280
->>>   ? drm_mode_dirtyfb_ioctl+0x10f/0x1e0
->>>   ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
->>>   ? drm_ioctl_kernel+0xc4/0x150
->>>   ? drm_ioctl+0x246/0x3f0
->>>   ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
->>>   ? __x64_sys_ioctl+0x91/0xd0
->>>   ? do_syscall_64+0x60/0xd0
->>>   ? entry_SYSCALL_64_after_hwframe+0x4b/0xb5
->>>   </TASK>
->>> rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: {
->>> 13-.... } 30 jiffies s: 169 root: 0x2000/.
->>> rcu: blocking rcu_node structures (internal RCU debug):
->>> Task dump for CPU 13:
->>> task:X               state:R  running task     stack:    0 pid: 4242
->>> ppid:  4228 flags:0x0000400e
->>> Call Trace:
->>>   <TASK>
->>>   ? memcpy_toio+0x76/0xc0
->>>   ? memcpy_toio+0x1b/0xc0
->>>   ? drm_fb_memcpy_toio+0x76/0xb0
->>>   ? drm_fb_blit_toio+0x75/0x2b0
->>>   ? simpledrm_simple_display_pipe_update+0x132/0x150
->>>   ? drm_atomic_helper_commit_planes+0xb6/0x230
->>>   ? drm_atomic_helper_commit_tail+0x44/0x80
->>>   ? commit_tail+0xd7/0x130
->>>   ? drm_atomic_helper_commit+0x126/0x150
->>>   ? drm_atomic_commit+0xa4/0xe0
->>>   ? drm_plane_get_damage_clips.cold+0x1c/0x1c
->>>   ? drm_atomic_helper_dirtyfb+0x19e/0x280
->>>   ? drm_mode_dirtyfb_ioctl+0x10f/0x1e0
->>>   ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
->>>   ? drm_ioctl_kernel+0xc4/0x150
->>>   ? drm_ioctl+0x246/0x3f0
->>>   ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
->>>   ? __x64_sys_ioctl+0x91/0xd0
->>>   ? do_syscall_64+0x60/0xd0
->>>   ? entry_SYSCALL_64_after_hwframe+0x4b/0xb5
->>>   </TASK>
->>> rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: {
->>> 13-.... } 52 jiffies s: 169 root: 0x2000/.
->>> rcu: blocking rcu_node structures (internal RCU debug):
->>> Task dump for CPU 13:
->>> task:X               state:R  running task     stack:    0 pid: 4242
->>> ppid:  4228 flags:0x0000400e
->>> Call Trace:
->>>   <TASK>
->>>   ? memcpy_toio+0x76/0xc0
->>>   ? memcpy_toio+0x1b/0xc0
->>>   ? drm_fb_memcpy_toio+0x76/0xb0
->>>   ? drm_fb_blit_toio+0x75/0x2b0
->>>   ? simpledrm_simple_display_pipe_update+0x132/0x150
->>>   ? drm_atomic_helper_commit_planes+0xb6/0x230
->>>   ? drm_atomic_helper_commit_tail+0x44/0x80
->>>   ? commit_tail+0xd7/0x130
->>>   ? drm_atomic_helper_commit+0x126/0x150
->>>   ? drm_atomic_commit+0xa4/0xe0
->>>   ? drm_plane_get_damage_clips.cold+0x1c/0x1c
->>>   ? drm_atomic_helper_dirtyfb+0x19e/0x280
->>>   ? drm_mode_dirtyfb_ioctl+0x10f/0x1e0
->>>   ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
->>>   ? drm_ioctl_kernel+0xc4/0x150
->>>   ? drm_ioctl+0x246/0x3f0
->>>   ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
->>>   ? __x64_sys_ioctl+0x91/0xd0
->>>   ? do_syscall_64+0x60/0xd0
->>>   ? entry_SYSCALL_64_after_hwframe+0x4b/0xb5
->>>   </TASK>
->>> traps: avahi-ml[4447] general protection fault ip:7fdde6a37bc1
->>> sp:7fdde07fc920 error:0 in module-zeroconf-publish.so[7fdde6a37000+3000]
->>>
->>
->> See the ticket for more details.
->>
->> BTW, let me use this mail to also add the report to the list of tracked
->> regressions to ensure it's doesn't fall through the cracks:
->>
->> #regzbot introduced: cfecfc98a78d9
->> https://bugzilla.kernel.org/show_bug.cgi?id=216616
->> #regzbot ignore-activity
->>
->> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
->>
->> P.S.: As the Linux kernel's regression tracker I deal with a lot of
->> reports and sometimes miss something important when writing mails like
->> this. If that's the case here, don't hesitate to tell me in a public
->> reply, it's in everyone's interest to set the public record straight.
-> 
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 46307fd6e27a3f678a1678b02e667678c22aa8cc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>
+Date: Mon, 10 Oct 2022 10:29:18 +0200
+Subject: [PATCH] cgroup: Reorganize css_set_lock and kernfs path processing
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The commit 74e4b956eb1c incorrectly wrapped kernfs_walk_and_get
+(might_sleep) under css_set_lock (spinlock). css_set_lock is needed by
+__cset_cgroup_from_root to ensure stable cset->cgrp_links but not for
+kernfs_walk_and_get.
+
+We only need to make sure that the returned root_cgrp won't be freed
+under us. This is given in the case of global root because it is static
+(cgrp_dfl_root.cgrp). When the root_cgrp is lower in the hierarchy, it
+is pinned by cgroup_ns->root_cset (and `current` task cannot switch
+namespace asynchronously so ns_proxy pins cgroup_ns).
+
+Note this reasoning won't hold for root cgroups in v1 hierarchies,
+therefore create a special-cased helper function just for the default
+hierarchy.
+
+Fixes: 74e4b956eb1c ("cgroup: Honor caller's cgroup NS when resolving path")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index 764bdd5fd8d1..ecf409e3c3a7 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -1392,6 +1392,9 @@ static void cgroup_destroy_root(struct cgroup_root *root)
+ 	cgroup_free_root(root);
+ }
+ 
++/*
++ * Returned cgroup is without refcount but it's valid as long as cset pins it.
++ */
+ static inline struct cgroup *__cset_cgroup_from_root(struct css_set *cset,
+ 					    struct cgroup_root *root)
+ {
+@@ -1403,6 +1406,7 @@ static inline struct cgroup *__cset_cgroup_from_root(struct css_set *cset,
+ 		res_cgroup = cset->dfl_cgrp;
+ 	} else {
+ 		struct cgrp_cset_link *link;
++		lockdep_assert_held(&css_set_lock);
+ 
+ 		list_for_each_entry(link, &cset->cgrp_links, cgrp_link) {
+ 			struct cgroup *c = link->cgrp;
+@@ -1414,6 +1418,7 @@ static inline struct cgroup *__cset_cgroup_from_root(struct css_set *cset,
+ 		}
+ 	}
+ 
++	BUG_ON(!res_cgroup);
+ 	return res_cgroup;
+ }
+ 
+@@ -1436,23 +1441,36 @@ current_cgns_cgroup_from_root(struct cgroup_root *root)
+ 
+ 	rcu_read_unlock();
+ 
+-	BUG_ON(!res);
+ 	return res;
+ }
+ 
++/*
++ * Look up cgroup associated with current task's cgroup namespace on the default
++ * hierarchy.
++ *
++ * Unlike current_cgns_cgroup_from_root(), this doesn't need locks:
++ * - Internal rcu_read_lock is unnecessary because we don't dereference any rcu
++ *   pointers.
++ * - css_set_lock is not needed because we just read cset->dfl_cgrp.
++ * - As a bonus returned cgrp is pinned with the current because it cannot
++ *   switch cgroup_ns asynchronously.
++ */
++static struct cgroup *current_cgns_cgroup_dfl(void)
++{
++	struct css_set *cset;
++
++	cset = current->nsproxy->cgroup_ns->root_cset;
++	return __cset_cgroup_from_root(cset, &cgrp_dfl_root);
++}
++
+ /* look up cgroup associated with given css_set on the specified hierarchy */
+ static struct cgroup *cset_cgroup_from_root(struct css_set *cset,
+ 					    struct cgroup_root *root)
+ {
+-	struct cgroup *res = NULL;
+-
+ 	lockdep_assert_held(&cgroup_mutex);
+ 	lockdep_assert_held(&css_set_lock);
+ 
+-	res = __cset_cgroup_from_root(cset, root);
+-
+-	BUG_ON(!res);
+-	return res;
++	return __cset_cgroup_from_root(cset, root);
+ }
+ 
+ /*
+@@ -6105,9 +6123,7 @@ struct cgroup *cgroup_get_from_id(u64 id)
+ 	if (!cgrp)
+ 		return ERR_PTR(-ENOENT);
+ 
+-	spin_lock_irq(&css_set_lock);
+-	root_cgrp = current_cgns_cgroup_from_root(&cgrp_dfl_root);
+-	spin_unlock_irq(&css_set_lock);
++	root_cgrp = current_cgns_cgroup_dfl();
+ 	if (!cgroup_is_descendant(cgrp, root_cgrp)) {
+ 		cgroup_put(cgrp);
+ 		return ERR_PTR(-ENOENT);
+@@ -6686,10 +6702,8 @@ struct cgroup *cgroup_get_from_path(const char *path)
+ 	struct cgroup *cgrp = ERR_PTR(-ENOENT);
+ 	struct cgroup *root_cgrp;
+ 
+-	spin_lock_irq(&css_set_lock);
+-	root_cgrp = current_cgns_cgroup_from_root(&cgrp_dfl_root);
++	root_cgrp = current_cgns_cgroup_dfl();
+ 	kn = kernfs_walk_and_get(root_cgrp->kn, path);
+-	spin_unlock_irq(&css_set_lock);
+ 	if (!kn)
+ 		goto out;
+ 
+
