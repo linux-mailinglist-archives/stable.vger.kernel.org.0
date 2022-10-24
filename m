@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3BFF60B8B8
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:53:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B188D60B77D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:25:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233782AbiJXTxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:53:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50372 "EHLO
+        id S231648AbiJXTYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:24:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233664AbiJXTwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:52:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C4FB1C438;
-        Mon, 24 Oct 2022 11:17:23 -0700 (PDT)
+        with ESMTP id S232520AbiJXTXE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:23:04 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA21C29C;
+        Mon, 24 Oct 2022 10:57:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5CBDB811BF;
-        Mon, 24 Oct 2022 12:32:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40F9DC433C1;
-        Mon, 24 Oct 2022 12:32:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 688DCCE1345;
+        Mon, 24 Oct 2022 12:33:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 693AEC433B5;
+        Mon, 24 Oct 2022 12:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614751;
-        bh=V9I1S9ZPJGwn5TpHKyAKfFQ4a5L+krK6cws/EQNVcSw=;
+        s=korg; t=1666614798;
+        bh=OjZ0L2KyAgkZPt75DZB7YHk9PytepHMPjogVsy2mw0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OobV/Hlbgv3M7yZYcMeP2o3CtQXNSgEg/GdUR8LHt33tF+bqxcDVALOIAA0+gpTTp
-         Tlm7PCxxOWtuk46PA+yBOOxgsVv/cXJHpP6CdbGdV4olalJ+Eegv5lEGQUPIBCwpLK
-         xjl5eVZdBeyZpJI3I6FqhKuZ+VkGCUuvhASKZhYg=
+        b=DDX6FhU7l0QX2G5OUh6WYgz3iyuXEInm/7K+jhHZslTUxRRV4iJ17AJLqQ1bApjGD
+         63bNkVJFyt7twku02t2R3KecHGDhF9skoGpdBqYCxbtjK9ANODuKonfdTRPSoNw9IH
+         eeuQzI/kpyk6UnCxOP2Vks+NfT3jMp5BEBYojLx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        David Bouman <dbouman03@gmail.com>
-Subject: [PATCH 5.10 379/390] io_uring/af_unix: defer registered files gc to io_uring release
-Date:   Mon, 24 Oct 2022 13:32:56 +0200
-Message-Id: <20221024113039.118238854@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 381/390] net: ieee802154: return -EINVAL for unknown addr type
+Date:   Mon, 24 Oct 2022 13:32:58 +0200
+Message-Id: <20221024113039.197309148@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -54,99 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ upstream commit 0091bfc81741b8d3aeb3b7ab8636f911b2de6e80 ]
+commit 30393181fdbc1608cc683b4ee99dcce05ffcc8c7 upstream.
 
-Instead of putting io_uring's registered files in unix_gc() we want it
-to be done by io_uring itself. The trick here is to consider io_uring
-registered files for cycle detection but not actually putting them down.
-Because io_uring can't register other ring instances, this will remove
-all refs to the ring file triggering the ->release path and clean up
-with io_ring_ctx_free().
+This patch adds handling to return -EINVAL for an unknown addr type. The
+current behaviour is to return 0 as successful but the size of an
+unknown addr type is not defined and should return an error like -EINVAL.
 
-Cc: stable@vger.kernel.org
-Fixes: 6b06314c47e1 ("io_uring: add file set registration")
-Reported-and-tested-by: David Bouman <dbouman03@gmail.com>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-[axboe: add kerneldoc comment to skb, fold in skb leak fix]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 94160108a70c ("net/ieee802154: fix uninit value bug in dgram_sendmsg")
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c          |    1 +
- include/linux/skbuff.h |    2 ++
- net/unix/garbage.c     |   20 ++++++++++++++++++++
- 3 files changed, 23 insertions(+)
+ include/net/ieee802154_netdev.h |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7301,6 +7301,7 @@ static int __io_sqe_files_scm(struct io_
- 	}
- 
- 	skb->sk = sk;
-+	skb->scm_io_uring = 1;
- 
- 	nr_files = 0;
- 	fpl->user = get_uid(ctx->user);
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -681,6 +681,7 @@ typedef unsigned char *sk_buff_data_t;
-  *	@csum_level: indicates the number of consecutive checksums found in
-  *		the packet minus one that have been verified as
-  *		CHECKSUM_UNNECESSARY (max 3)
-+ *	@scm_io_uring: SKB holds io_uring registered files
-  *	@dst_pending_confirm: need to confirm neighbour
-  *	@decrypted: Decrypted SKB
-  *	@napi_id: id of the NAPI struct this skb came from
-@@ -858,6 +859,7 @@ struct sk_buff {
- #ifdef CONFIG_TLS_DEVICE
- 	__u8			decrypted:1;
- #endif
-+	__u8			scm_io_uring:1;
- 
- #ifdef CONFIG_NET_SCHED
- 	__u16			tc_index;	/* traffic control index */
---- a/net/unix/garbage.c
-+++ b/net/unix/garbage.c
-@@ -204,6 +204,7 @@ void wait_for_unix_gc(void)
- /* The external entry point: unix_gc() */
- void unix_gc(void)
+--- a/include/net/ieee802154_netdev.h
++++ b/include/net/ieee802154_netdev.h
+@@ -185,21 +185,27 @@ static inline int
+ ieee802154_sockaddr_check_size(struct sockaddr_ieee802154 *daddr, int len)
  {
-+	struct sk_buff *next_skb, *skb;
- 	struct unix_sock *u;
- 	struct unix_sock *next;
- 	struct sk_buff_head hitlist;
-@@ -297,11 +298,30 @@ void unix_gc(void)
+ 	struct ieee802154_addr_sa *sa;
++	int ret = 0;
  
- 	spin_unlock(&unix_gc_lock);
+ 	sa = &daddr->addr;
+ 	if (len < IEEE802154_MIN_NAMELEN)
+ 		return -EINVAL;
+ 	switch (sa->addr_type) {
++	case IEEE802154_ADDR_NONE:
++		break;
+ 	case IEEE802154_ADDR_SHORT:
+ 		if (len < IEEE802154_NAMELEN_SHORT)
+-			return -EINVAL;
++			ret = -EINVAL;
+ 		break;
+ 	case IEEE802154_ADDR_LONG:
+ 		if (len < IEEE802154_NAMELEN_LONG)
+-			return -EINVAL;
++			ret = -EINVAL;
++		break;
++	default:
++		ret = -EINVAL;
+ 		break;
+ 	}
+-	return 0;
++	return ret;
+ }
  
-+	/* We need io_uring to clean its registered files, ignore all io_uring
-+	 * originated skbs. It's fine as io_uring doesn't keep references to
-+	 * other io_uring instances and so killing all other files in the cycle
-+	 * will put all io_uring references forcing it to go through normal
-+	 * release.path eventually putting registered files.
-+	 */
-+	skb_queue_walk_safe(&hitlist, skb, next_skb) {
-+		if (skb->scm_io_uring) {
-+			__skb_unlink(skb, &hitlist);
-+			skb_queue_tail(&skb->sk->sk_receive_queue, skb);
-+		}
-+	}
-+
- 	/* Here we are. Hitlist is filled. Die. */
- 	__skb_queue_purge(&hitlist);
- 
- 	spin_lock(&unix_gc_lock);
- 
-+	/* There could be io_uring registered files, just push them back to
-+	 * the inflight list
-+	 */
-+	list_for_each_entry_safe(u, next, &gc_candidates, link)
-+		list_move_tail(&u->link, &gc_inflight_list);
-+
- 	/* All candidates should have been detached by now. */
- 	BUG_ON(!list_empty(&gc_candidates));
- 
+ static inline void ieee802154_addr_from_sa(struct ieee802154_addr *a,
 
 
