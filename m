@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3814060A754
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:49:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9D9660A5CC
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:30:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234519AbiJXMtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:49:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58974 "EHLO
+        id S231658AbiJXM2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:28:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234587AbiJXMpL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF82127919;
-        Mon, 24 Oct 2022 05:09:45 -0700 (PDT)
+        with ESMTP id S233719AbiJXM1t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:27:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2C3886803;
+        Mon, 24 Oct 2022 05:01:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EDA1612F3;
-        Mon, 24 Oct 2022 12:07:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 815FBC433D6;
-        Mon, 24 Oct 2022 12:07:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B81E1B811EF;
+        Mon, 24 Oct 2022 11:57:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12EA7C433C1;
+        Mon, 24 Oct 2022 11:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613263;
-        bh=hURhAdwU43oF0/Pvc6MdAAwY52fvgvgudcuyGiMZYj0=;
+        s=korg; t=1666612635;
+        bh=Krt+Xlxa8gyzGMZVPSaqFF395LKyxhWwJdymKAbkvjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DZto/ZztecsvSDsOyb0dDn2aiqz6/YybrN2IhF8XB39nRpyQcKwiCWgitB8kMICe6
-         FYpsPxh9MrGsp4XiHz/c8WGA5lpcwc2G7PTlXUYLr53Q030h1pUeECh7qbT6TcImYJ
-         +gdOsCrPqLDjqH1KnojjCnY5fZVRji/vuS67AwsM=
+        b=Evv2zQ/knYl47KuNTrqnJ44UiLUQjTGUtEhjJfDcEV/5D2mHFDMOw+xcLKxfjKSkS
+         qYF/3Bdk88cWpiTmNeCjJrdBNMzWWEZOFvBlNyD+rLVdRBJvpax+6jNTVAMnMbDX1w
+         hfM36JsuzCXUKxTgvcAsPqjq82bSOn1oLJKSZ6s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanislav Fomichev <sdf@google.com>,
-        Lorenz Bauer <oss@lmb.io>, Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 071/255] bpf: btf: fix truncated last_member_type_id in btf_struct_resolve
+        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
+        Breno Leitao <leitao@debian.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>, stable@kernel.org
+Subject: [PATCH 4.19 062/229] livepatch: fix race between fork and KLP transition
 Date:   Mon, 24 Oct 2022 13:29:41 +0200
-Message-Id: <20221024113004.874478085@linuxfoundation.org>
+Message-Id: <20221024113001.087187890@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <oss@lmb.io>
+From: Rik van Riel <riel@surriel.com>
 
-[ Upstream commit a37a32583e282d8d815e22add29bc1e91e19951a ]
+commit 747f7a2901174c9afa805dddfb7b24db6f65e985 upstream.
 
-When trying to finish resolving a struct member, btf_struct_resolve
-saves the member type id in a u16 temporary variable. This truncates
-the 32 bit type id value if it exceeds UINT16_MAX.
+The KLP transition code depends on the TIF_PATCH_PENDING and
+the task->patch_state to stay in sync. On a normal (forward)
+transition, TIF_PATCH_PENDING will be set on every task in
+the system, while on a reverse transition (after a failed
+forward one) first TIF_PATCH_PENDING will be cleared from
+every task, followed by it being set on tasks that need to
+be transitioned back to the original code.
 
-As a result, structs that have members with type ids > UINT16_MAX and
-which need resolution will fail with a message like this:
+However, the fork code copies over the TIF_PATCH_PENDING flag
+from the parent to the child early on, in dup_task_struct and
+setup_thread_stack. Much later, klp_copy_process will set
+child->patch_state to match that of the parent.
 
-    [67414] STRUCT ff_device size=120 vlen=12
-        effect_owners type_id=67434 bits_offset=960 Member exceeds struct_size
+However, the parent's patch_state may have been changed by KLP loading
+or unloading since it was initially copied over into the child.
 
-Fix this by changing the type of last_member_type_id to u32.
+This results in the KLP code occasionally hitting this warning in
+klp_complete_transition:
 
-Fixes: a0791f0df7d2 ("bpf: fix BTF limits")
-Reviewed-by: Stanislav Fomichev <sdf@google.com>
-Signed-off-by: Lorenz Bauer <oss@lmb.io>
-Link: https://lore.kernel.org/r/20220910110120.339242-1-oss@lmb.io
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+        for_each_process_thread(g, task) {
+                WARN_ON_ONCE(test_tsk_thread_flag(task, TIF_PATCH_PENDING));
+                task->patch_state = KLP_UNDEFINED;
+        }
+
+Set, or clear, the TIF_PATCH_PENDING flag in the child task
+depending on whether or not it is needed at the time
+klp_copy_process is called, at a point in copy_process where the
+tasklist_lock is held exclusively, preventing races with the KLP
+code.
+
+The KLP code does have a few places where the state is changed
+without the tasklist_lock held, but those should not cause
+problems because klp_update_patch_state(current) cannot be
+called while the current task is in the middle of fork,
+klp_check_and_switch_task() which is called under the pi_lock,
+which prevents rescheduling, and manipulation of the patch
+state of idle tasks, which do not fork.
+
+This should prevent this warning from triggering again in the
+future, and close the race for both normal and reverse transitions.
+
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reported-by: Breno Leitao <leitao@debian.org>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Fixes: d83a7cb375ee ("livepatch: change to a per-task consistency model")
+Cc: stable@kernel.org
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20220808150019.03d6a67b@imladris.surriel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/btf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/livepatch/transition.c |   18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index b03087f110eb..a28bbec8c59f 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -2148,7 +2148,7 @@ static int btf_struct_resolve(struct btf_verifier_env *env,
- 	if (v->next_member) {
- 		const struct btf_type *last_member_type;
- 		const struct btf_member *last_member;
--		u16 last_member_type_id;
-+		u32 last_member_type_id;
+--- a/kernel/livepatch/transition.c
++++ b/kernel/livepatch/transition.c
+@@ -563,9 +563,23 @@ void klp_reverse_transition(void)
+ /* Called from copy_process() during fork */
+ void klp_copy_process(struct task_struct *child)
+ {
+-	child->patch_state = current->patch_state;
  
- 		last_member = btf_type_member(v->t) + v->next_member - 1;
- 		last_member_type_id = last_member->type;
--- 
-2.35.1
-
+-	/* TIF_PATCH_PENDING gets copied in setup_thread_stack() */
++	/*
++	 * The parent process may have gone through a KLP transition since
++	 * the thread flag was copied in setup_thread_stack earlier. Bring
++	 * the task flag up to date with the parent here.
++	 *
++	 * The operation is serialized against all klp_*_transition()
++	 * operations by the tasklist_lock. The only exception is
++	 * klp_update_patch_state(current), but we cannot race with
++	 * that because we are current.
++	 */
++	if (test_tsk_thread_flag(current, TIF_PATCH_PENDING))
++		set_tsk_thread_flag(child, TIF_PATCH_PENDING);
++	else
++		clear_tsk_thread_flag(child, TIF_PATCH_PENDING);
++
++	child->patch_state = current->patch_state;
+ }
+ 
+ /*
 
 
