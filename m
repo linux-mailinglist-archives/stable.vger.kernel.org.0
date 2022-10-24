@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B6B060A806
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:01:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B68460A6AB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:37:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234986AbiJXNAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33232 "EHLO
+        id S230085AbiJXMg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:36:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235226AbiJXM7l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C63659AFBC;
-        Mon, 24 Oct 2022 05:19:13 -0700 (PDT)
+        with ESMTP id S234651AbiJXMfj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:35:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25ADC474FA;
+        Mon, 24 Oct 2022 05:05:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41B15612FC;
-        Mon, 24 Oct 2022 12:13:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5880BC433C1;
-        Mon, 24 Oct 2022 12:13:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16DA0B811F9;
+        Mon, 24 Oct 2022 12:03:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65061C433D7;
+        Mon, 24 Oct 2022 12:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613629;
-        bh=w0xqP950AUhtyiNNQprU0ph6rEJaTU1Ue73KctpkwPU=;
+        s=korg; t=1666612998;
+        bh=bWLgJsdT1xT7yzgqkpyFEL+i9+i23FLq//RwWqB7Aog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PjsGWW5lSRDnXlG5/oVwc3jO75Uol41xk2tA0Y0dP8BVgm5jTrDjTYWDVJP4BnOfu
-         +5TTRVoQQo+tl15eVGo2anlhj0l+eNaHli7iiC+QbznyZHrQlfvr/+Xk/rtyeDt+/X
-         q4+yaDG+ciMcNiVp38Hx8CcO7Zf2/FyhZRgV85sc=
+        b=nIjiJGJWL5KcR/k5FoHk8Qb6H0s9OYt8q25g7mFYY8NdNkpanM2ygREKS1FaIY3cY
+         BxrkjZNo3tOTKP8Vf4p8XqOqF2XV7xzh6BU7Y0BZCwnD7qVnVUTEIbxidotIlnw6bJ
+         erLYqMb4M5xuydPoU/pd+viZvDoYVzYG4uHFvr8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Gaul <gaul@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 209/255] r8152: Rate limit overflow messages
+Subject: [PATCH 4.19 200/229] ARM: dts: imx7d-sdb: config the max pressure for tsc2046
 Date:   Mon, 24 Oct 2022 13:31:59 +0200
-Message-Id: <20221024113009.991748695@linuxfoundation.org>
+Message-Id: <20221024113005.616360725@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Gaul <gaul@gaul.org>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit 93e2be344a7db169b7119de21ac1bf253b8c6907 ]
+[ Upstream commit e7c4ebe2f9cd68588eb24ba4ed122e696e2d5272 ]
 
-My system shows almost 10 million of these messages over a 24-hour
-period which pollutes my logs.
+Use the general touchscreen method to config the max pressure for
+touch tsc2046(data sheet suggest 8 bit pressure), otherwise, for
+ABS_PRESSURE, when config the same max and min value, weston will
+meet the following issue,
 
-Signed-off-by: Andrew Gaul <gaul@google.com>
-Link: https://lore.kernel.org/r/20221002034128.2026653-1-gaul@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[17:19:39.183] event1  - ADS7846 Touchscreen: is tagged by udev as: Touchscreen
+[17:19:39.183] event1  - ADS7846 Touchscreen: kernel bug: device has min == max on ABS_PRESSURE
+[17:19:39.183] event1  - ADS7846 Touchscreen: was rejected
+[17:19:39.183] event1  - not using input device '/dev/input/event1'
+
+This will then cause the APP weston-touch-calibrator can't list touch devices.
+
+root@imx6ul7d:~# weston-touch-calibrator
+could not load cursor 'dnd-move'
+could not load cursor 'dnd-copy'
+could not load cursor 'dnd-none'
+No devices listed.
+
+And accroding to binding Doc, "ti,x-max", "ti,y-max", "ti,pressure-max"
+belong to the deprecated properties, so remove them. Also for "ti,x-min",
+"ti,y-min", "ti,x-plate-ohms", the value set in dts equal to the default
+value in driver, so are redundant, also remove here.
+
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/imx7d-sdb.dts | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 9042db982a08..dafdae6536a3 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -1479,7 +1479,9 @@ static void intr_callback(struct urb *urb)
- 			   "Stop submitting intr, status %d\n", status);
- 		return;
- 	case -EOVERFLOW:
--		netif_info(tp, intr, tp->netdev, "intr status -EOVERFLOW\n");
-+		if (net_ratelimit())
-+			netif_info(tp, intr, tp->netdev,
-+				   "intr status -EOVERFLOW\n");
- 		goto resubmit;
- 	/* -EPIPE:  should clear the halt */
- 	default:
+diff --git a/arch/arm/boot/dts/imx7d-sdb.dts b/arch/arm/boot/dts/imx7d-sdb.dts
+index 317f1bcc56e2..bd2c3c8f4ebb 100644
+--- a/arch/arm/boot/dts/imx7d-sdb.dts
++++ b/arch/arm/boot/dts/imx7d-sdb.dts
+@@ -163,12 +163,7 @@
+ 		interrupt-parent = <&gpio2>;
+ 		interrupts = <29 0>;
+ 		pendown-gpio = <&gpio2 29 GPIO_ACTIVE_HIGH>;
+-		ti,x-min = /bits/ 16 <0>;
+-		ti,x-max = /bits/ 16 <0>;
+-		ti,y-min = /bits/ 16 <0>;
+-		ti,y-max = /bits/ 16 <0>;
+-		ti,pressure-max = /bits/ 16 <0>;
+-		ti,x-plate-ohms = /bits/ 16 <400>;
++		touchscreen-max-pressure = <255>;
+ 		wakeup-source;
+ 	};
+ };
 -- 
 2.35.1
 
