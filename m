@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09EB860A890
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:07:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AE4D60A877
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235361AbiJXNH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:07:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54590 "EHLO
+        id S235367AbiJXNGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:06:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235360AbiJXNGJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:06:09 -0400
+        with ESMTP id S235422AbiJXNEp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:04:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA91B2CE22;
-        Mon, 24 Oct 2022 05:20:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 409DC82D32;
+        Mon, 24 Oct 2022 05:20:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F27A611B0;
-        Mon, 24 Oct 2022 12:20:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 750B2C433C1;
-        Mon, 24 Oct 2022 12:20:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0338061017;
+        Mon, 24 Oct 2022 12:20:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10CD1C433C1;
+        Mon, 24 Oct 2022 12:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614034;
-        bh=nL/pAzm+dIZFsdEKGBzZs3U4ggfZzyn+WAnDW5EQt4w=;
+        s=korg; t=1666614037;
+        bh=OV4m7KUP2Ogn00c80OLzn4F/OXzDpQCCIO99uKCA0Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mOeot6D9ih3nzfvvNX5WN3spDLUyPR9tvuJ5Y/agP0H+HHpxSuB8Nk+25hNMQ7DW1
-         bN3SZLa7ZAzWEapUD0fWMguRvJXAAt4vvftNI1AwqiSst6VvE4ojisMTaWumXt/hC2
-         UWJ3xC1zoDQ1if5bD+D7cwRerB+/qyvmqEwhOcmM=
+        b=hsuIQNO5X6/j0c4sZeLI3TWMumJixrB1g6MGEFu3vRkr3XQvNSMbswFSvYiAG4P2N
+         TJSxzLmzActcnNaUhS+M5hwe5Wd7UxEJ8cwczmGUnO3repqXYDkFXq0mkfqsp1DQdx
+         g/RxUha8uTVk5w+/ZWeXtKDXq+LOXgJe7zUKyESM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Jing Cai <jing.cai@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 107/390] Bluetooth: btusb: fix excessive stack usage
-Date:   Mon, 24 Oct 2022 13:28:24 +0200
-Message-Id: <20221024113027.248824888@linuxfoundation.org>
+Subject: [PATCH 5.10 108/390] Bluetooth: btusb: mediatek: fix WMT failure during runtime suspend
+Date:   Mon, 24 Oct 2022 13:28:25 +0200
+Message-Id: <20221024113027.300885336@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -53,112 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit 10888140f09c3472146dc206accd0cfa051d0ed4 ]
+[ Upstream commit fd3f106677bac70437dc12e76c827294ed495a44 ]
 
-Enlarging the size of 'struct btmtk_hci_wmt_cmd' makes it no longer
-fit on the kernel stack, as seen from this compiler warning:
+WMT cmd/event doesn't follow up the generic HCI cmd/event handling, it
+needs constantly polling control pipe until the host received the WMT
+event, thus, we should require to specifically acquire PM counter on the
+USB to prevent the interface from entering auto suspended while WMT
+cmd/event in progress.
 
-drivers/bluetooth/btusb.c:3365:12: error: stack frame size of 1036 bytes in function 'btusb_mtk_hci_wmt_sync' [-Werror,-Wframe-larger-than=]
-
-Change the function to dynamically allocate the buffer instead.
-As there are other sleeping functions called from the same location,
-using GFP_KERNEL should be fine here, and the runtime overhead should
-not matter as this is rarely called.
-
-Unfortunately, I could not figure out why the message size is
-increased in the previous patch. Using dynamic allocation means
-any size is possible now, but there is still a range check that
-limits the total size (including the five-byte header) to 255
-bytes, so whatever was intended there is now undone.
-
-Fixes: 48c13301e6ba ("Bluetooth: btusb: Fine-tune mt7663 mechanism.")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Stable-dep-of: fd3f106677ba ("Bluetooth: btusb: mediatek: fix WMT failure during runtime suspend")
+Fixes: a1c49c434e15 ("Bluetooth: btusb: Add protocol support for MediaTek MT7668U USB devices")
+Co-developed-by: Jing Cai <jing.cai@mediatek.com>
+Signed-off-by: Jing Cai <jing.cai@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ drivers/bluetooth/btusb.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
 diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index eb6e33d168d8..80a3d5019950 100644
+index 80a3d5019950..6efd981979bd 100644
 --- a/drivers/bluetooth/btusb.c
 +++ b/drivers/bluetooth/btusb.c
-@@ -2832,7 +2832,7 @@ struct btmtk_wmt_hdr {
- 
- struct btmtk_hci_wmt_cmd {
- 	struct btmtk_wmt_hdr hdr;
--	u8 data[1000];
-+	u8 data[];
- } __packed;
- 
- struct btmtk_hci_wmt_evt {
-@@ -3011,7 +3011,7 @@ static int btusb_mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	struct btmtk_hci_wmt_evt_funcc *wmt_evt_funcc;
- 	u32 hlen, status = BTMTK_WMT_INVALID;
- 	struct btmtk_hci_wmt_evt *wmt_evt;
--	struct btmtk_hci_wmt_cmd wc;
-+	struct btmtk_hci_wmt_cmd *wc;
- 	struct btmtk_wmt_hdr *hdr;
- 	int err;
- 
-@@ -3020,20 +3020,24 @@ static int btusb_mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	if (hlen > 255)
- 		return -EINVAL;
- 
--	hdr = (struct btmtk_wmt_hdr *)&wc;
-+	wc = kzalloc(hlen, GFP_KERNEL);
-+	if (!wc)
-+		return -ENOMEM;
-+
-+	hdr = &wc->hdr;
- 	hdr->dir = 1;
- 	hdr->op = wmt_params->op;
- 	hdr->dlen = cpu_to_le16(wmt_params->dlen + 1);
- 	hdr->flag = wmt_params->flag;
--	memcpy(wc.data, wmt_params->data, wmt_params->dlen);
-+	memcpy(wc->data, wmt_params->data, wmt_params->dlen);
+@@ -3033,15 +3033,29 @@ static int btusb_mtk_hci_wmt_sync(struct hci_dev *hdev,
  
  	set_bit(BTUSB_TX_WAIT_VND_EVT, &data->flags);
  
--	err = __hci_cmd_send(hdev, 0xfc6f, hlen, &wc);
-+	err = __hci_cmd_send(hdev, 0xfc6f, hlen, wc);
++	/* WMT cmd/event doesn't follow up the generic HCI cmd/event handling,
++	 * it needs constantly polling control pipe until the host received the
++	 * WMT event, thus, we should require to specifically acquire PM counter
++	 * on the USB to prevent the interface from entering auto suspended
++	 * while WMT cmd/event in progress.
++	 */
++	err = usb_autopm_get_interface(data->intf);
++	if (err < 0)
++		goto err_free_wc;
++
+ 	err = __hci_cmd_send(hdev, 0xfc6f, hlen, wc);
  
  	if (err < 0) {
  		clear_bit(BTUSB_TX_WAIT_VND_EVT, &data->flags);
--		return err;
-+		goto err_free_wc;
++		usb_autopm_put_interface(data->intf);
+ 		goto err_free_wc;
  	}
  
  	/* Submit control IN URB on demand to process the WMT event */
-@@ -3055,13 +3059,14 @@ static int btusb_mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	if (err == -EINTR) {
- 		bt_dev_err(hdev, "Execution of wmt command interrupted");
- 		clear_bit(BTUSB_TX_WAIT_VND_EVT, &data->flags);
--		return err;
-+		goto err_free_wc;
- 	}
- 
- 	if (err) {
- 		bt_dev_err(hdev, "Execution of wmt command timed out");
- 		clear_bit(BTUSB_TX_WAIT_VND_EVT, &data->flags);
--		return -ETIMEDOUT;
-+		err = -ETIMEDOUT;
-+		goto err_free_wc;
- 	}
- 
- 	/* Parse and handle the return WMT event */
-@@ -3097,7 +3102,8 @@ static int btusb_mtk_hci_wmt_sync(struct hci_dev *hdev,
- err_free_skb:
- 	kfree_skb(data->evt_skb);
- 	data->evt_skb = NULL;
--
-+err_free_wc:
-+	kfree(wc);
- 	return err;
- }
+ 	err = btusb_mtk_submit_wmt_recv_urb(hdev);
++
++	usb_autopm_put_interface(data->intf);
++
+ 	if (err < 0)
+ 		return err;
  
 -- 
 2.35.1
