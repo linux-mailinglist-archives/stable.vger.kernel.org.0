@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B887E60A60F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DDEA60AA18
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233884AbiJXMbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:31:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45142 "EHLO
+        id S229962AbiJXNbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:31:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234221AbiJXM3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:40 -0400
+        with ESMTP id S231490AbiJXN10 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:27:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91CB616588;
-        Mon, 24 Oct 2022 05:03:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3411B2EF4B;
+        Mon, 24 Oct 2022 05:31:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FB7D612E7;
-        Mon, 24 Oct 2022 12:03:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91C87C433C1;
-        Mon, 24 Oct 2022 12:03:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 879276132F;
+        Mon, 24 Oct 2022 12:31:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98522C433D6;
+        Mon, 24 Oct 2022 12:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612990;
-        bh=Nxy2U0gzgIzMrtOcaB91OFC1EoClhzcPB5ggCZdx4mw=;
+        s=korg; t=1666614673;
+        bh=Fn1K+X/+sml9GeVaAfUJeFE3H7qKf+y8us/IxIyghng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v7S8zZjMPynlI+VSZi7ijQgf4E3/TFkNwveLnBFLG3xASOshwx3dZ5FzIrQuaoShW
-         490GuM/S/51apGAXPB4HQ2VPjlli/eNsl+4Yji7LG/Z29WMQn07vfKchvl5hLFBXv8
-         xMovve2hiq0O2qkgeEaIh9a06FrwFnOfOW7Vi4+o=
+        b=UvmAVbmMn8xrUq8cZmNBCy5cHIUz0kbmMzGic0HT2QZOQCrbOrhJYRd5voE3hIJCB
+         em7db+mdICEPEjkDcAahGNVMPiau5/tmXGer4wpf4Of9x2n7G7mrM1E+nsgnIU94Cq
+         sQ3ozG/P/MtKtMMxxCti9LElXDipRKxN8M4+8Ayk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maya Matuszczyk <maccraft123mc@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 197/229] drm: panel-orientation-quirks: Add quirk for Anbernic Win600
+        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 319/390] wifi: rt2x00: set VGC gain for both chains of MT7620
 Date:   Mon, 24 Oct 2022 13:31:56 +0200
-Message-Id: <20221024113005.512681324@linuxfoundation.org>
+Message-Id: <20221024113036.573682550@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maya Matuszczyk <maccraft123mc@gmail.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit 770e19076065e079a32f33eb11be2057c87f1cde ]
+[ Upstream commit 0e09768c085709e10ece3b68f6ac921d3f6a9caa ]
 
-This device is another x86 gaming handheld, and as (hopefully) there is
-only one set of DMI IDs it's using DMI_EXACT_MATCH
+Set bbp66 for all chains of the MT7620.
 
-Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220803182402.1217293-1-maccraft123mc@gmail.com
+Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/29e161397e5c9d9399da0fe87d44458aa2b90a78.1663445157.git.daniel@makrotopia.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 265df1e67eb3..bea1d3e7e964 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -95,6 +95,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "One S1003"),
- 		},
- 		.driver_data = (void *)&lcd800x1280_rightside_up,
-+	}, {	/* Anbernic Win600 */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Anbernic"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Win600"),
-+		},
-+		.driver_data = (void *)&lcd720x1280_rightside_up,
- 	}, {	/* Asus T100HA */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+index 327f19cae4d7..94e5c3c373ba 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+@@ -5626,7 +5626,8 @@ static inline void rt2800_set_vgc(struct rt2x00_dev *rt2x00dev,
+ 	if (qual->vgc_level != vgc_level) {
+ 		if (rt2x00_rt(rt2x00dev, RT3572) ||
+ 		    rt2x00_rt(rt2x00dev, RT3593) ||
+-		    rt2x00_rt(rt2x00dev, RT3883)) {
++		    rt2x00_rt(rt2x00dev, RT3883) ||
++		    rt2x00_rt(rt2x00dev, RT6352)) {
+ 			rt2800_bbp_write_with_rx_chain(rt2x00dev, 66,
+ 						       vgc_level);
+ 		} else if (rt2x00_rt(rt2x00dev, RT5592)) {
 -- 
 2.35.1
 
