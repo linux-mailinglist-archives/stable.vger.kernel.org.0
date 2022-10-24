@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ACF960BA15
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:25:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6C9460BAFE
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:45:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231302AbiJXUZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:25:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38232 "EHLO
+        id S233268AbiJXUp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:45:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234420AbiJXUYh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:24:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ADE55B53F;
-        Mon, 24 Oct 2022 11:39:21 -0700 (PDT)
+        with ESMTP id S233444AbiJXUnl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:43:41 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 508D92A79F6;
+        Mon, 24 Oct 2022 11:51:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F4FAB81644;
-        Mon, 24 Oct 2022 12:19:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5764C433D7;
-        Mon, 24 Oct 2022 12:19:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 83976CE1626;
+        Mon, 24 Oct 2022 12:37:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77173C433D6;
+        Mon, 24 Oct 2022 12:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613982;
-        bh=2yfSzVrbOONMv0fjShFNQd3PpV2azSYsA/H7JtJyXRc=;
+        s=korg; t=1666615059;
+        bh=3xvPPvWzQmePh6RlMMVxusvvqnAQhgJqPfNOznnuano=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aq3zO1Q2tSUb/hJwnAwKxbVPL56rJiBYRaveoe75WjaUXKKaJftxo/11yyxqEXy42
-         OvB9Pes/MbMNRg8NINCbhEzIZBTJ/m5lbEBTWE+gjM6cHOBJlUtJYiEeow+XuDljSa
-         vcPPubkbDBxJ0gb1jG1sY9Bp6N8/ZOlGhWKXsAH0=
+        b=IxQAE9h1qPzVNT/G1VQYw+Y4HA4EeUhIEheazhFK4mSdc39YS/Si9Pr1blXRjpY83
+         2Hp2OjXYebvkhTRWXioP/8jE+fTkvCGX/EeOUaGc43xRg26mtt8F5OnnDE5W2eKQq/
+         nHvTSs7j4YWFDOQHKtYn2YIBaSrFPga94CrC8i30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
-        John Meneghini <jmeneghi@redhat.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 047/390] scsi: qedf: Populate sysfs attributes for vport
-Date:   Mon, 24 Oct 2022 13:27:24 +0200
-Message-Id: <20221024113024.629144741@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 107/530] ring-buffer: Have the shortest_full queue be the shortest not longest
+Date:   Mon, 24 Oct 2022 13:27:31 +0200
+Message-Id: <20221024113049.873081461@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 592642e6b11e620e4b43189f8072752429fc8dc3 upstream.
+commit 3b19d614b61b93a131f463817e08219c9ce1fee3 upstream.
 
-Few vport parameters were displayed by systool as 'Unknown' or 'NULL'.
-Copy speed, supported_speed, frame_size and update port_type for NPIV port.
+The logic to know when the shortest waiters on the ring buffer should be
+woken up or not has uses a less than instead of a greater than compare,
+which causes the shortest_full to actually be the longest.
 
-Link: https://lore.kernel.org/r/20220919134434.3513-1-njavali@marvell.com
+Link: https://lkml.kernel.org/r/20220927231823.718039222@goodmis.org
+
 Cc: stable@vger.kernel.org
-Tested-by: Guangwu Zhang <guazhang@redhat.com>
-Reviewed-by: John Meneghini <jmeneghi@redhat.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 2c2b0a78b3739 ("ring-buffer: Add percentage of ring buffer full to wake up reader")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qedf/qedf_main.c |   21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ kernel/trace/ring_buffer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -1917,6 +1917,27 @@ static int qedf_vport_create(struct fc_v
- 		fc_vport_setlink(vn_port);
- 	}
- 
-+	/* Set symbolic node name */
-+	if (base_qedf->pdev->device == QL45xxx)
-+		snprintf(fc_host_symbolic_name(vn_port->host), 256,
-+			 "Marvell FastLinQ 45xxx FCoE v%s", QEDF_VERSION);
-+
-+	if (base_qedf->pdev->device == QL41xxx)
-+		snprintf(fc_host_symbolic_name(vn_port->host), 256,
-+			 "Marvell FastLinQ 41xxx FCoE v%s", QEDF_VERSION);
-+
-+	/* Set supported speed */
-+	fc_host_supported_speeds(vn_port->host) = n_port->link_supported_speeds;
-+
-+	/* Set speed */
-+	vn_port->link_speed = n_port->link_speed;
-+
-+	/* Set port type */
-+	fc_host_port_type(vn_port->host) = FC_PORTTYPE_NPIV;
-+
-+	/* Set maxframe size */
-+	fc_host_maxframe_size(vn_port->host) = n_port->mfs;
-+
- 	QEDF_INFO(&(base_qedf->dbg_ctx), QEDF_LOG_NPIV, "vn_port=%p.\n",
- 		   vn_port);
- 
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -975,7 +975,7 @@ int ring_buffer_wait(struct trace_buffer
+ 			nr_pages = cpu_buffer->nr_pages;
+ 			dirty = ring_buffer_nr_dirty_pages(buffer, cpu);
+ 			if (!cpu_buffer->shortest_full ||
+-			    cpu_buffer->shortest_full < full)
++			    cpu_buffer->shortest_full > full)
+ 				cpu_buffer->shortest_full = full;
+ 			raw_spin_unlock_irqrestore(&cpu_buffer->reader_lock, flags);
+ 			if (!pagebusy &&
 
 
