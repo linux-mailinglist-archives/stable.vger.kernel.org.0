@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30CE560A5D3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A761960A62F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:32:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233850AbiJXMa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:30:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60532 "EHLO
+        id S233934AbiJXMcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:32:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233977AbiJXM3I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FE88876A9;
-        Mon, 24 Oct 2022 05:02:54 -0700 (PDT)
+        with ESMTP id S234369AbiJXMaK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:30:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03D6E11A24;
+        Mon, 24 Oct 2022 05:04:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F5A3612F0;
-        Mon, 24 Oct 2022 12:02:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0E5AC433C1;
-        Mon, 24 Oct 2022 12:02:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C09C2B811A6;
+        Mon, 24 Oct 2022 11:52:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD7DC433D6;
+        Mon, 24 Oct 2022 11:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612959;
-        bh=HBy6+WmctVCFgQnZHbWI3wpfmscQhg4m+1LqT9t11gg=;
+        s=korg; t=1666612326;
+        bh=0lbPNCsDRrqENwaCBcpPeVLGu2TkgjKhDAEw/yHaLpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fdi34MexhO9PSH7fYTllHDpXtCgO5tMYpiwkOcI2s0JpVRqJWhh20VbOVQ5otHyub
-         aD8dlcPCTF9ZFabrzWDhiYj0HVrmfbsxsF02aVgZdjp9j0CBjwiySy7MffoocOIHyW
-         xSeaI9uMBRk5hcMJ/7CTBDm6PhtIUgCswabzFDm8=
+        b=U5CAAWGeR+YW9yPkjnbUbT3KF6bgJkueqzAeaWDCsUyVhzXNcnJThen8YIcwJl0K1
+         UzRqU4g2uKE7CvP2DSa+C333Nwdt5jGoZrZQKq6DHkCPjOT/SwXoMKbzvGzwBOcJLT
+         6dYdSU6pwkTDeThbD5gfcGNVl6ZkVqZaKUZv7y58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 153/229] mfd: sm501: Add check for platform_driver_register()
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 155/210] powerpc/powernv: add missing of_node_put() in opal_export_attrs()
 Date:   Mon, 24 Oct 2022 13:31:12 +0200
-Message-Id: <20221024113003.961820486@linuxfoundation.org>
+Message-Id: <20221024113002.010570901@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 8325a6c24ad78b8c1acc3c42b098ee24105d68e5 ]
+[ Upstream commit 71a92e99c47900cc164620948b3863382cec4f1a ]
 
-As platform_driver_register() can return error numbers,
-it should be better to check platform_driver_register()
-and deal with the exception.
+After using 'np' returned by of_find_node_by_path(), of_node_put()
+need be called to decrease the refcount.
 
-Fixes: b6d6454fdb66 ("[PATCH] mfd: SM501 core driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/20220913091112.1739138-1-jiasheng@iscas.ac.cn
+Fixes: 11fe909d2362 ("powerpc/powernv: Add OPAL exports attributes to sysfs")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220906141703.118192-1-zhengyongjun3@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/sm501.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/powernv/opal.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/sm501.c b/drivers/mfd/sm501.c
-index ec1ac61a21ed..6254b4025b5e 100644
---- a/drivers/mfd/sm501.c
-+++ b/drivers/mfd/sm501.c
-@@ -1738,7 +1738,12 @@ static struct platform_driver sm501_plat_driver = {
- 
- static int __init sm501_base_init(void)
- {
--	platform_driver_register(&sm501_plat_driver);
-+	int ret;
-+
-+	ret = platform_driver_register(&sm501_plat_driver);
-+	if (ret < 0)
-+		return ret;
-+
- 	return pci_register_driver(&sm501_pci_driver);
- }
+diff --git a/arch/powerpc/platforms/powernv/opal.c b/arch/powerpc/platforms/powernv/opal.c
+index 597fcbf7a39e..c8bc9accd858 100644
+--- a/arch/powerpc/platforms/powernv/opal.c
++++ b/arch/powerpc/platforms/powernv/opal.c
+@@ -677,6 +677,7 @@ static void opal_export_attrs(void)
+ 	kobj = kobject_create_and_add("exports", opal_kobj);
+ 	if (!kobj) {
+ 		pr_warn("kobject_create_and_add() of exports failed\n");
++		of_node_put(np);
+ 		return;
+ 	}
  
 -- 
 2.35.1
