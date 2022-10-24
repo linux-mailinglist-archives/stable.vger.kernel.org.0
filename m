@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A2E60A7F4
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE9E60AB7C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234864AbiJXNA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42962 "EHLO
+        id S236544AbiJXNwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:52:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234946AbiJXM7A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:00 -0400
+        with ESMTP id S236546AbiJXNwO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:52:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A3EC80F64;
-        Mon, 24 Oct 2022 05:17:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5884BBE3D;
+        Mon, 24 Oct 2022 05:42:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8BBD6132D;
-        Mon, 24 Oct 2022 12:16:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C756EC433C1;
-        Mon, 24 Oct 2022 12:16:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D036612B3;
+        Mon, 24 Oct 2022 12:31:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF318C433D6;
+        Mon, 24 Oct 2022 12:31:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613763;
-        bh=zftqSdqfvE2rZqRBOmyDFukm7cI5x5ZeXi9nAfOkjDs=;
+        s=korg; t=1666614715;
+        bh=ZLHmBl7SgzlYxWJA7nPniQHE3Slsklt5AB8R/hjdLz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YRN1TqooAlCTC3Dlzx0m7+ljJf+XHhBhITe+NghdEzUniAOp/vWK7NCISiylvesAV
-         vegFYimDm0wlIcRKqgBiiPJfU1WgN0TJExYiCIJWSVfnLorsojv5QDO22h7RxKxQQ1
-         eyX5VuMHdQd+Emg3rPSI9lwv5a2mKuTBIn+8UhFg=
+        b=x0KOkgQluakBMDrjyXAhDQlsYkgju0MRK0erK2+3/B6zoMRBeSt/wlGqAcH3tDF6e
+         GgiWxKpXjRpdisNGRobIoDwpvrN61r8Gi0cKcngrhQgDD9nKYuuiQSsDBwfU2Ne+Ez
+         r93rUfG1y4Wz1uLWVytn3QJWsS7qgHLTTRwKHdyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.4 253/255] efi: libstub: drop pointless get_memory_map() call
-Date:   Mon, 24 Oct 2022 13:32:43 +0200
-Message-Id: <20221024113011.731732511@linuxfoundation.org>
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 367/390] md/raid5: Wait for MD_SB_CHANGE_PENDING in raid5d
+Date:   Mon, 24 Oct 2022 13:32:44 +0200
+Message-Id: <20221024113038.632818385@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,37 +52,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-commit d80ca810f096ff66f451e7a3ed2f0cd9ef1ff519 upstream.
+[ Upstream commit 5e2cf333b7bd5d3e62595a44d598a254c697cd74 ]
 
-Currently, the non-x86 stub code calls get_memory_map() redundantly,
-given that the data it returns is never used anywhere. So drop the call.
+A complicated deadlock exists when using the journal and an elevated
+group_thrtead_cnt. It was found with loop devices, but its not clear
+whether it can be seen with real disks. The deadlock can occur simply
+by writing data with an fio script.
 
-Cc: <stable@vger.kernel.org> # v4.14+
-Fixes: 24d7c494ce46 ("efi/arm-stub: Round up FDT allocation to mapping size")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When the deadlock occurs, multiple threads will hang in different ways:
+
+ 1) The group threads will hang in the blk-wbt code with bios waiting to
+    be submitted to the block layer:
+
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        ops_run_io+0x46b/0x1a30
+        handle_stripe+0xcd3/0x36b0
+        handle_active_stripes.constprop.0+0x6f6/0xa60
+        raid5_do_work+0x177/0x330
+
+    Or:
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        flush_deferred_bios+0x136/0x170
+        raid5_do_work+0x262/0x330
+
+ 2) The r5l_reclaim thread will hang in the same way, submitting a
+    bio to the block layer:
+
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        submit_bio+0x3f/0xf0
+        md_super_write+0x12f/0x1b0
+        md_update_sb.part.0+0x7c6/0xff0
+        md_update_sb+0x30/0x60
+        r5l_do_reclaim+0x4f9/0x5e0
+        r5l_reclaim_thread+0x69/0x30b
+
+    However, before hanging, the MD_SB_CHANGE_PENDING flag will be
+    set for sb_flags in r5l_write_super_and_discard_space(). This
+    flag will never be cleared because the submit_bio() call never
+    returns.
+
+ 3) Due to the MD_SB_CHANGE_PENDING flag being set, handle_stripe()
+    will do no processing on any pending stripes and re-set
+    STRIPE_HANDLE. This will cause the raid5d thread to enter an
+    infinite loop, constantly trying to handle the same stripes
+    stuck in the queue.
+
+    The raid5d thread has a blk_plug that holds a number of bios
+    that are also stuck waiting seeing the thread is in a loop
+    that never schedules. These bios have been accounted for by
+    blk-wbt thus preventing the other threads above from
+    continuing when they try to submit bios. --Deadlock.
+
+To fix this, add the same wait_event() that is used in raid5_do_work()
+to raid5d() such that if MD_SB_CHANGE_PENDING is set, the thread will
+schedule and wait until the flag is cleared. The schedule action will
+flush the plug which will allow the r5l_reclaim thread to continue,
+thus preventing the deadlock.
+
+However, md_check_recovery() calls can also clear MD_SB_CHANGE_PENDING
+from the same thread and can thus deadlock if the thread is put to
+sleep. So avoid waiting if md_check_recovery() is being called in the
+loop.
+
+It's not clear when the deadlock was introduced, but the similar
+wait_event() call in raid5_do_work() was added in 2017 by this
+commit:
+
+    16d997b78b15 ("md/raid5: simplfy delaying of writes while metadata
+                   is updated.")
+
+Link: https://lore.kernel.org/r/7f3b87b6-b52a-f737-51d7-a4eec5c44112@deltatee.com
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/libstub/fdt.c |    8 --------
- 1 file changed, 8 deletions(-)
+ drivers/md/raid5.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/firmware/efi/libstub/fdt.c
-+++ b/drivers/firmware/efi/libstub/fdt.c
-@@ -291,14 +291,6 @@ efi_status_t allocate_new_fdt_and_exit_b
- 		goto fail;
- 	}
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -36,6 +36,7 @@
+  */
  
--	/*
--	 * Now that we have done our final memory allocation (and free)
--	 * we can get the memory map key needed for exit_boot_services().
--	 */
--	status = efi_get_memory_map(sys_table, &map);
--	if (status != EFI_SUCCESS)
--		goto fail_free_new_fdt;
--
- 	status = update_fdt(sys_table, (void *)fdt_addr, fdt_size,
- 			    (void *)*new_fdt_addr, MAX_FDT_SIZE, cmdline_ptr,
- 			    initrd_addr, initrd_size);
+ #include <linux/blkdev.h>
++#include <linux/delay.h>
+ #include <linux/kthread.h>
+ #include <linux/raid/pq.h>
+ #include <linux/async_tx.h>
+@@ -6519,7 +6520,18 @@ static void raid5d(struct md_thread *thr
+ 			spin_unlock_irq(&conf->device_lock);
+ 			md_check_recovery(mddev);
+ 			spin_lock_irq(&conf->device_lock);
++
++			/*
++			 * Waiting on MD_SB_CHANGE_PENDING below may deadlock
++			 * seeing md_check_recovery() is needed to clear
++			 * the flag when using mdmon.
++			 */
++			continue;
+ 		}
++
++		wait_event_lock_irq(mddev->sb_wait,
++			!test_bit(MD_SB_CHANGE_PENDING, &mddev->sb_flags),
++			conf->device_lock);
+ 	}
+ 	pr_debug("%d stripes handled\n", handled);
+ 
 
 
