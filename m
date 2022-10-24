@@ -2,139 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00A5660990F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 06:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D032609A63
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 08:18:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230096AbiJXEH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 00:07:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47182 "EHLO
+        id S229667AbiJXGSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 02:18:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230093AbiJXEHZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 00:07:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B468D6AA36
-        for <stable@vger.kernel.org>; Sun, 23 Oct 2022 21:07:24 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AFF760FDA
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 04:07:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC74C433C1;
-        Mon, 24 Oct 2022 04:07:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666584443;
-        bh=HXyirKWpIXHQOUqXQWHR/9Al/NkActGtP1/nW2uMm44=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=M8Tgd2tKuHU/biicgtFRwaZqqe+DypetGVHIlAELY0kVYM7iB39TjJjK47M6hPyWH
-         pL2O+AVDvaR+0qGq/WTQXIsog3h2n9dFdtDCf4Xgfms54HrbKycaMws1h8dHKXKyTr
-         WuVGn31HLLo2ed1LqqXhr8M6jZnC0BX207qlcGuo=
-Date:   Mon, 24 Oct 2022 06:08:14 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     James Smart <jsmart2021@gmail.com>
-Cc:     Sasha Levin <alexander.levin@microsoft.com>,
-        stable <stable@vger.kernel.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Justin Tee <justintee8345@gmail.com>
-Subject: Re: LTS 5.15 and state of lpfc
-Message-ID: <Y1YPrvniFIaO/jzJ@kroah.com>
-References: <cdc7d1cf-3ad2-c2d2-8006-22bf51f8df4a@gmail.com>
+        with ESMTP id S229501AbiJXGSO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 02:18:14 -0400
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF58E1B;
+        Sun, 23 Oct 2022 23:18:12 -0700 (PDT)
+X-UUID: 451950a68d834db0b95e77b74606e3f3-20221024
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:References:CC:To:Subject:MIME-Version:Date:Message-ID; bh=4d4OABhk3db1wBMRWNegWhxHRdnBMljaS9nufvBF9VM=;
+        b=oTaOsrBZLxm3vaSkx/d71Z7fXU1K+yUYzjSVK/NadMfTBn15QTr0ycWC6Ozdsx7nbFGCQ6Rph3qcoPIECE9AW+YWO13ohbebXb5mXYc9TZ2+Re1yfU9DU1sVqPfu2N+DiYKqvim9ex1EfB2k1duWmJ4T42LIiv9R+L3w5l9/xHE=;
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.12,REQID:3b92bf8f-6a31-4200-9dd7-623b427c7342,IP:0,U
+        RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+        release,TS:0
+X-CID-META: VersionHash:62cd327,CLOUDID:17d877c8-03ab-4171-989e-341ab5339257,B
+        ulkID:nil,BulkQuantity:0,Recheck:0,SF:102,TC:nil,Content:0,EDM:-3,IP:nil,U
+        RL:0,File:nil,Bulk:nil,QS:nil,BEC:nil,COL:0
+X-UUID: 451950a68d834db0b95e77b74606e3f3-20221024
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
+        (envelope-from <macpaul.lin@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 19267619; Mon, 24 Oct 2022 14:18:08 +0800
+Received: from mtkmbs13n2.mediatek.inc (172.21.101.108) by
+ mtkmbs13n1.mediatek.inc (172.21.101.193) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.792.15; Mon, 24 Oct 2022 14:18:06 +0800
+Received: from [172.21.84.99] (172.21.84.99) by mtkmbs13n2.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.2.792.15 via Frontend
+ Transport; Mon, 24 Oct 2022 14:18:06 +0800
+Message-ID: <da9f8b90-e4d1-5893-f656-1bb0221ea7f7@mediatek.com>
+Date:   Mon, 24 Oct 2022 14:18:05 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cdc7d1cf-3ad2-c2d2-8006-22bf51f8df4a@gmail.com>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH v2] arm64: dts: mediatek: mt8195-demo: fix the memory size
+ of node secmon
+Content-Language: en-US
+To:     Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Fabien Parent <fparent@baylibre.com>,
+        <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     Miles Chen <miles.chen@mediatek.com>,
+        Bear Wang <bear.wang@mediatek.com>,
+        Pablo Sun <pablo.sun@mediatek.com>,
+        Macpaul Lin <macpaul@gmail.com>, <linux-usb@vger.kernel.org>,
+        <stable@vger.kernel.org>, Matthias Brugger <mbrugger@suse.com>
+References: <20220922091648.2821-1-macpaul.lin@mediatek.com>
+ <20220929084714.15143-1-macpaul.lin@mediatek.com>
+From:   Macpaul Lin <macpaul.lin@mediatek.com>
+In-Reply-To: <20220929084714.15143-1-macpaul.lin@mediatek.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_PASS,SPF_PASS,UNPARSEABLE_RELAY autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Oct 23, 2022 at 07:25:05PM -0700, James Smart wrote:
-> Greg, Sasha,
+On 9/29/22 16:47, Macpaul Lin wrote:
+> The size of device tree node secmon (bl31_secmon_reserved) was
+> incorrect. It should be increased to 2MiB (0x200000).
 > 
-> We were notified of an lpfc issue in the LTS 5.15 kernel. Its a pretty
-> fundamental error that keeps us from connecting to the FC switch.
+> The origin setting will cause some abnormal behavior due to
+> trusted-firmware-a and related firmware didn't load correctly.
+> The incorrect behavior may vary because of different software stacks.
+> For example, it will cause build error in some Yocto project because
+> it will check if there was enough memory to load trusted-firmware-a
+> to the reserved memory.
 > 
-> In the past several kernel releases, we have been reworking areas of the
-> driver to fix issues in the broader design rather than continuing to create
-> a patchwork on an issue-by-issue basis. This means there are a lot of
-> inter-related patches.
+> When mt8195-demo.dts sent to the upstream, at that time the size of
+> BL31 was small. Because supported functions and modules in BL31 are
+> basic sets when the board was under early development stage.
 > 
-> In this case, it appears that a portion of the "path split" rework was
-> pulled into 5.15, and the portion that wasn't picked up introduced the
-> error.
-> 
-> I had Justin look at simply reverting patches, which wasn't too bad, but we
-> have identified an issue in the result. The fix, of course, is embedded into
-> the "path split" patches.
-> 
-> I don't think we want to create one-off patches that won't move forward, so
-> I had him look at rolling forward to pick up all the "path split" patches.
-> This looks like a fairly viable alternative.  The steps are listed below.
-> This brings it up to a point that is pretty close to the content in 5.18.y
-> 
-> How do we best resolve this in the 5.15 LTS tree ?
-> 
-> -- james
-> 
-> 
-> 
-> Here are the steps to roll-forward:
-> 
-> 
-> 1.) git remote add -t 6.1/scsi-staging mkp-scsi
-> https://git.kernel.org/pub/scm/linux/kernel/git/mkp/scsi.git
-> 2.) git fetch mkp-scsi
-> 3.) git rebase -i 1c5e670d6a5a~
+> Now BL31 includes more firmwares of coprocessors and maturer functions
+> so the size has grown bigger in real applications. According to the value
+> reported by customers, we think reserved 2MiB for BL31 might be enough
+> for maybe the following 2 or 3 years.
 
-What will the rebase -i do?
+Dear Matthias, sorry for a gentle reminder. MediaTek hope this simple 
+fix could be applied to 6.1-rc and be picked-up to current stable tree 
+after v5.19. Thanks a lot.
 
+> Cc: stable@vger.kernel.org      # v5.19
+> Fixes: 6147314aeedc ("arm64: dts: mediatek: Add device-tree for MT8195 Demo board")
+> Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+> Reviewed-by: Miles Chen <miles.chen@mediatek.com>
+> ---
+> Changes for v2
+>   - Add more information about the size difference for BL31 in commit message.
+>     Thanks for Miles's review.
 > 
-> 4.) Remove the following commits:
-> 1c5e670d6a5a scsi: lpfc: SLI path split: Refactor lpfc_iocbq
-> c56cc7fefc31 scsi: lpfc: SLI path split: Refactor fast and slow paths to
-> native SLI4
-> b4543dbea84c scsi: lpfc: SLI path split: Refactor SCSI paths
-> 2b5ef6430c21 scsi: lpfc: Remove extra atomic_inc on cmd_pending in
-> queuecommand after VMID
-> 9a570069cdbb scsi: lpfc: Fix locking for lpfc_sli_iocbq_lookup()
-> 6e99860de6f4 scsi: lpfc: Fix element offset in __lpfc_sli_release_iocbq_s4()
-> 17bf429b913b scsi: lpfc: Resolve some cleanup issues following SLI path
-> refactoring
+>   arch/arm64/boot/dts/mediatek/mt8195-demo.dts | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> Rebase is expected to be clean after removal of mentioned patches.
+> diff --git a/arch/arm64/boot/dts/mediatek/mt8195-demo.dts b/arch/arm64/boot/dts/mediatek/mt8195-demo.dts
+> index 4fbd99eb496a..dec85d254838 100644
+> --- a/arch/arm64/boot/dts/mediatek/mt8195-demo.dts
+> +++ b/arch/arm64/boot/dts/mediatek/mt8195-demo.dts
+> @@ -56,10 +56,10 @@
+>   		#size-cells = <2>;
+>   		ranges;
+>   
+> -		/* 192 KiB reserved for ARM Trusted Firmware (BL31) */
+> +		/* 2 MiB reserved for ARM Trusted Firmware (BL31) */
+>   		bl31_secmon_reserved: secmon@54600000 {
+>   			no-map;
+> -			reg = <0 0x54600000 0x0 0x30000>;
+> +			reg = <0 0x54600000 0x0 0x200000>;
+>   		};
+>   
+>   		/* 12 MiB reserved for OP-TEE (BL32)
 
-Ah, you want the rebase to just remove the commits.  That is nice, but
-we can't do that as part of a released branch for obvious reasons.
-
-We need real reverts.
-
-> 5.) Cherry-pick SLI path split patches from mkp-scsi:
-> git cherry-pick a680a9298e7b 1b64aa9eae28 561341425bcc 6831ce129f19
-> cad93a089031 3bea83b68d54 3f607dcb43f1 e0367dfe90d6 9d41f08aa2eb
-> 351849800157 2d1928c57df6 61910d6a5243 3512ac094293 31a59f75702f
-> 0e082d926f59
-
-All of these commits are already in Linus's tree, right?  So why do we
-need an additional branch?
-
-> 
-> 6.) Cherry-pick the atomic_inc VMID fix:
-> git cherry-pick 0948a9c53860
-> 
-> 7.) Cherry-pick all known SLI path split fixes:
-> git cherry-pick 7294a9bcaa7e c26bd6602e1d c2024e3b33ee cc28fac16ab7
-> 775266207105 84c6f99e3907 596fc8adb171 44ba9786b673 24e1f056677e
-> e27f05147bff
-> 
-> All the cherry-picks are expected to apply cleanly.
-
-Can you just send a patch series that does all of this so that we know
-it is correct and works properly?  I'll be glad to take that into
-5.15.y.
-
-thanks,
-
-greg k-h
+Regards,
+Macpaul Lin
