@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6399660B8CD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:54:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2E3A60B8D1
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232694AbiJXTyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:54:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56730 "EHLO
+        id S233554AbiJXTyt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:54:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233821AbiJXTxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:53:52 -0400
+        with ESMTP id S233948AbiJXTyL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:54:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E9A3A3BA8;
-        Mon, 24 Oct 2022 11:17:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0643916085F;
+        Mon, 24 Oct 2022 11:18:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37B58B8170D;
-        Mon, 24 Oct 2022 12:34:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C2BC433D6;
-        Mon, 24 Oct 2022 12:34:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18599B811EF;
+        Mon, 24 Oct 2022 12:34:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B6BAC433D6;
+        Mon, 24 Oct 2022 12:34:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614848;
-        bh=CAaygUI3d5Iwg9TpDcUtziCnjlVX7gq+/9M0cwLO+2o=;
+        s=korg; t=1666614856;
+        bh=HyQXrJH1l3T0A4SR0/zGg1i70pBwz1wEYQUnliiTFqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lpHatSwTkTq0BnJgqBqfarPO6e8YptF9e1mVxusf/2p+uRQMCVy3MoEBcaaMrqR3l
-         8I08WMXEHZTfPJRp9xtESwLMGi9bn4QOogWNYacx8gte9IoFjNhbl13j095ivHMda+
-         jl7znAelQKZ+ZKxScqXTcRT75yMek+jWIrcrnBOQ=
+        b=pV6sdF+F9QEyxa/hJtZX5dpQlW88GRk99GW53XJ72VVkVQYrQFzl4en10mq7xHkz6
+         HFLd1S7N6t306zZfojHP6bDAZBcKGitvow0vzpHIW0oj886iJRLUTzY6/I6AK5DyTt
+         p+nHTNhqukNYbnhPhqHZ/MsIr7pxpFd2bPgOYy+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenchao Chen <wenchao.chen@unisoc.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 026/530] mmc: sdhci-sprd: Fix minimum clock limit
-Date:   Mon, 24 Oct 2022 13:26:10 +0200
-Message-Id: <20221024113046.203745254@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>
+Subject: [PATCH 5.15 029/530] fs: dlm: handle -EBUSY first in lock arg validation
+Date:   Mon, 24 Oct 2022 13:26:13 +0200
+Message-Id: <20221024113046.331299531@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,39 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenchao Chen <wenchao.chen@unisoc.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit 6e141772e6465f937458b35ddcfd0a981b6f5280 upstream.
+commit 44637ca41d551d409a481117b07fa209b330fca9 upstream.
 
-The Spreadtrum controller supports 100KHz minimal clock rate, which means
-that the current value 400KHz is wrong.
+During lock arg validation, first check for -EBUSY cases, then for
+-EINVAL cases. The -EINVAL checks look at lkb state variables
+which are not stable when an lkb is busy and would cause an
+-EBUSY result, e.g. lkb->lkb_grmode.
 
-Unfortunately this has also lead to fail to initialize some cards, which
-are allowed to require 100KHz to work. So, let's fix the problem by
-changing the minimal supported clock rate to 100KHz.
-
-Signed-off-by: Wenchao Chen <wenchao.chen@unisoc.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: fb8bd90f83c4 ("mmc: sdhci-sprd: Add Spreadtrum's initial host controller")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221011104935.10980-1-wenchao.chen666@gmail.com
-[Ulf: Clarified to commit-message]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-sprd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/dlm/lock.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/mmc/host/sdhci-sprd.c
-+++ b/drivers/mmc/host/sdhci-sprd.c
-@@ -296,7 +296,7 @@ static unsigned int sdhci_sprd_get_max_c
- 
- static unsigned int sdhci_sprd_get_min_clock(struct sdhci_host *host)
+--- a/fs/dlm/lock.c
++++ b/fs/dlm/lock.c
+@@ -2888,24 +2888,24 @@ static int set_unlock_args(uint32_t flag
+ static int validate_lock_args(struct dlm_ls *ls, struct dlm_lkb *lkb,
+ 			      struct dlm_args *args)
  {
--	return 400000;
-+	return 100000;
- }
+-	int rv = -EINVAL;
++	int rv = -EBUSY;
  
- static void sdhci_sprd_set_uhs_signaling(struct sdhci_host *host,
+ 	if (args->flags & DLM_LKF_CONVERT) {
+-		if (lkb->lkb_flags & DLM_IFL_MSTCPY)
++		if (lkb->lkb_status != DLM_LKSTS_GRANTED)
+ 			goto out;
+ 
+-		if (args->flags & DLM_LKF_QUECVT &&
+-		    !__quecvt_compat_matrix[lkb->lkb_grmode+1][args->mode+1])
++		if (lkb->lkb_wait_type)
+ 			goto out;
+ 
+-		rv = -EBUSY;
+-		if (lkb->lkb_status != DLM_LKSTS_GRANTED)
++		if (is_overlap(lkb))
+ 			goto out;
+ 
+-		if (lkb->lkb_wait_type)
++		rv = -EINVAL;
++		if (lkb->lkb_flags & DLM_IFL_MSTCPY)
+ 			goto out;
+ 
+-		if (is_overlap(lkb))
++		if (args->flags & DLM_LKF_QUECVT &&
++		    !__quecvt_compat_matrix[lkb->lkb_grmode+1][args->mode+1])
+ 			goto out;
+ 	}
+ 
 
 
