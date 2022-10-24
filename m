@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEEEE60AC28
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:03:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84F9860AC4C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234187AbiJXODG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:03:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50094 "EHLO
+        id S230337AbiJXOF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:05:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236946AbiJXOCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 814F2BEF95;
-        Mon, 24 Oct 2022 05:48:18 -0700 (PDT)
+        with ESMTP id S235310AbiJXOCt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED94645054;
+        Mon, 24 Oct 2022 05:48:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E78B461313;
-        Mon, 24 Oct 2022 12:37:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01113C433C1;
-        Mon, 24 Oct 2022 12:37:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C51D061347;
+        Mon, 24 Oct 2022 12:38:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD01AC433D6;
+        Mon, 24 Oct 2022 12:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615075;
-        bh=LGRvqM2j5vuLr7KKaqFWlA2XwuABWZFkef9uOBPwf60=;
+        s=korg; t=1666615138;
+        bh=KqCEdkhPcHZPtHS5XUueyb73weNWSVVYIaiahVplhzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o8aEDKOxM0UYh/kJ9HIRL3cX7UvrKcFTNwkygZ6dt0fOPIk86p5yxdamAtxOwczH2
-         Kx6DSOUw6EfM8lbJ8c8ahwKstc8Wc0v+vgFS35ORkuBGSfsVS53zy14cl5p+oXIWvs
-         +Yz3MDrACMItk5aEMN2EQ0Bw9kGfwSYdWCc4//9E=
+        b=Q9afi1B/kuysCin1rFzywseBKVsJKry9AUjLtTve/2GsL8HW0T+b72kY055XRavGn
+         iJ2cgezY7vXGMJBE/c2De2AvoLt9nw+zVTDSNe6q0GgscIX6pj0QAyn1cg+D81nftn
+         aO65G08UVQ+5f6b4eDyhPdVZJ1n0JT5yjC93+9ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 113/530] tracing: Wake up waiters when tracing is disabled
-Date:   Mon, 24 Oct 2022 13:27:37 +0200
-Message-Id: <20221024113050.140456372@linuxfoundation.org>
+        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.15 129/530] drm/nouveau: fix a use-after-free in nouveau_gem_prime_import_sg_table()
+Date:   Mon, 24 Oct 2022 13:27:53 +0200
+Message-Id: <20221024113050.893252016@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -52,43 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-commit 2b0fd9a59b7990c161fa1cb7b79edb22847c87c2 upstream.
+commit 540dfd188ea2940582841c1c220bd035a7db0e51 upstream.
 
-When tracing is disabled, there's no reason that waiters should stay
-waiting, wake them up, otherwise tasks get stuck when they should be
-flushing the buffers.
+nouveau_bo_init() is backed by ttm_bo_init() and ferries its return code
+back to the caller. On failures, ttm will call nouveau_bo_del_ttm() and
+free the memory.Thus, when nouveau_bo_init() returns an error, the gem
+object has already been released. Then the call to nouveau_bo_ref() will
+use the freed "nvbo->bo" and lead to a use-after-free bug.
 
-Cc: stable@vger.kernel.org
-Fixes: e30f53aad2202 ("tracing: Do not busy wait in buffer splice")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+We should delete the call to nouveau_bo_ref() to avoid the use-after-free.
+
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Fixes: 019cbd4a4feb ("drm/nouveau: Initialize GEM object before TTM object")
+Cc: Thierry Reding <treding@nvidia.com>
+Cc: <stable@vger.kernel.org> # v5.4+
+Link: https://patchwork.freedesktop.org/patch/msgid/20220705132546.2247677-1-niejianglei2021@163.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/nouveau/nouveau_prime.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -8291,6 +8291,10 @@ tracing_buffers_splice_read(struct file
- 		if (ret)
- 			goto out;
- 
-+		/* No need to wait after waking up when tracing is off */
-+		if (!tracer_tracing_is_on(iter->tr))
-+			goto out;
-+
- 		/* Make sure we see the new wait_index */
- 		smp_rmb();
- 		if (wait_index != iter->wait_index)
-@@ -9000,6 +9004,8 @@ rb_simple_write(struct file *filp, const
- 			tracer_tracing_off(tr);
- 			if (tr->current_trace->stop)
- 				tr->current_trace->stop(tr);
-+			/* Wake up any waiters */
-+			ring_buffer_wake_waiters(buffer, RING_BUFFER_ALL_CPUS);
- 		}
- 		mutex_unlock(&trace_types_lock);
+--- a/drivers/gpu/drm/nouveau/nouveau_prime.c
++++ b/drivers/gpu/drm/nouveau/nouveau_prime.c
+@@ -71,7 +71,6 @@ struct drm_gem_object *nouveau_gem_prime
+ 	ret = nouveau_bo_init(nvbo, size, align, NOUVEAU_GEM_DOMAIN_GART,
+ 			      sg, robj);
+ 	if (ret) {
+-		nouveau_bo_ref(NULL, &nvbo);
+ 		obj = ERR_PTR(ret);
+ 		goto unlock;
  	}
 
 
