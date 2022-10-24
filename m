@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03F9C60B43A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D0860B42E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230384AbiJXRcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:32:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54720 "EHLO
+        id S231981AbiJXRbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 13:31:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233428AbiJXRcF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:32:05 -0400
+        with ESMTP id S231984AbiJXRbY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:31:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E763DE0FC;
-        Mon, 24 Oct 2022 09:07:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 356CE4D142;
+        Mon, 24 Oct 2022 09:07:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4E66B81289;
-        Mon, 24 Oct 2022 12:26:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 424CAC433D6;
-        Mon, 24 Oct 2022 12:26:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A97EB815B1;
+        Mon, 24 Oct 2022 12:10:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAFAFC433C1;
+        Mon, 24 Oct 2022 12:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614410;
-        bh=43hCi9kwgxotGOGQYEO+J/HJrzuryoYkehb67txsiVk=;
+        s=korg; t=1666613435;
+        bh=F9QdaByYRJJaL62QU8goMier2SlNAtihGwndftq3eS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5t6zc8NwFQZ98kRD38v5AI4bwtUc+cEQuLqIFhBWDVzTkVgE4kuMpsBXhLQkiF6L
-         08nQvIORix2F7mnqfwhAzqdkj76inabSyCqxlh8/Os8hmKz0OKmzgFZ02u5rcBTWXZ
-         w719KU5aIT2G7THo1bwhDRNkH6rS44uZGkmAAkmo=
+        b=xrhaMr+ZPHT84G79Mj0rrBs6lU2EK4JJGpSd7JMUItJ+LtV2csQrJaiSsxDWvJLp9
+         Lg+1V9IkSHyatcoW9Kd46QHz3bCoSaqf/+gYCyLblMM7RgpwEpXIa44mhnvpIKGRg2
+         c0B8OesKjeANqorVHMlJeNNhzhGKmRFOyY40cT3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 249/390] mfd: lp8788: Fix an error handling path in lp8788_probe()
+        stable@vger.kernel.org, Frederic Barrat <fbarrat@linux.ibm.com>,
+        Hangyu Hua <hbh25y@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 136/255] misc: ocxl: fix possible refcount leak in afu_ioctl()
 Date:   Mon, 24 Oct 2022 13:30:46 +0200
-Message-Id: <20221024113033.461031082@linuxfoundation.org>
+Message-Id: <20221024113007.102279918@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit becfdcd75126b20b8ec10066c5e85b34f8994ad5 ]
+[ Upstream commit c3b69ba5114c860d730870c03ab4ee45276e5e35 ]
 
-Should an error occurs in mfd_add_devices(), some resources need to be
-released, as already done in the .remove() function.
+eventfd_ctx_put need to be called to put the refcount that gotten by
+eventfd_ctx_fdget when ocxl_irq_set_handler fails.
 
-Add an error handling path and a lp8788_irq_exit() call to undo a previous
-lp8788_irq_init().
-
-Fixes: eea6b7cc53aa ("mfd: Add lp8788 mfd driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/18398722da9df9490722d853e4797350189ae79b.1659261275.git.christophe.jaillet@wanadoo.fr
+Fixes: 060146614643 ("ocxl: move event_fd handling to frontend")
+Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Link: https://lore.kernel.org/r/20220824082600.36159-1-hbh25y@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/lp8788.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/misc/ocxl/file.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/mfd/lp8788.c b/drivers/mfd/lp8788.c
-index 768d556b3fe9..5c3d642c8e3a 100644
---- a/drivers/mfd/lp8788.c
-+++ b/drivers/mfd/lp8788.c
-@@ -195,8 +195,16 @@ static int lp8788_probe(struct i2c_client *cl, const struct i2c_device_id *id)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/misc/ocxl/file.c b/drivers/misc/ocxl/file.c
+index c742ab02ae18..e094809b54ff 100644
+--- a/drivers/misc/ocxl/file.c
++++ b/drivers/misc/ocxl/file.c
+@@ -259,6 +259,8 @@ static long afu_ioctl(struct file *file, unsigned int cmd,
+ 		if (IS_ERR(ev_ctx))
+ 			return PTR_ERR(ev_ctx);
+ 		rc = ocxl_irq_set_handler(ctx, irq_id, irq_handler, irq_free, ev_ctx);
++		if (rc)
++			eventfd_ctx_put(ev_ctx);
+ 		break;
  
--	return mfd_add_devices(lp->dev, -1, lp8788_devs,
--			       ARRAY_SIZE(lp8788_devs), NULL, 0, NULL);
-+	ret = mfd_add_devices(lp->dev, -1, lp8788_devs,
-+			      ARRAY_SIZE(lp8788_devs), NULL, 0, NULL);
-+	if (ret)
-+		goto err_exit_irq;
-+
-+	return 0;
-+
-+err_exit_irq:
-+	lp8788_irq_exit(lp);
-+	return ret;
- }
- 
- static int lp8788_remove(struct i2c_client *cl)
+ 	case OCXL_IOCTL_GET_METADATA:
 -- 
 2.35.1
 
