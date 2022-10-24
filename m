@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF0D860AC32
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:03:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB24B60ACFD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231532AbiJXODg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:03:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50238 "EHLO
+        id S234514AbiJXORL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:17:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236959AbiJXOCZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C55AB8FD54;
-        Mon, 24 Oct 2022 05:48:19 -0700 (PDT)
+        with ESMTP id S236184AbiJXOPN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:15:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82B9937427;
+        Mon, 24 Oct 2022 05:55:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9200161257;
-        Mon, 24 Oct 2022 12:35:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1346C433D6;
-        Mon, 24 Oct 2022 12:35:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D987FB8164E;
+        Mon, 24 Oct 2022 12:35:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DEE6C433D7;
+        Mon, 24 Oct 2022 12:35:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614923;
-        bh=9wnVQkB6VeEvEgltELShvZ6rUY1AmG0YjjZxUDUUUy0=;
+        s=korg; t=1666614925;
+        bh=Jm/wjfemqwD3BHdAZhQrcXEYvzl1G60yWCQYHFr+tcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oFVEANo11iD21vFNLjyaRvtBM/PlexuS0bB8U8pvBGqgLztPRCWskX4yE3zfDanze
-         qaL5BCtUxqorMOn1J/3DxcoZS6oqIKwe1r0fbPrTuPxVFvxPy3sXaJg75YmDymEi92
-         HwHc+p0oQg/WU0kpic89LLYJD5ZsSJbX60RT1S4Q=
+        b=Vdmf+NKMIl5Qk+qymSK+XcE/0NLeWyX9qWb15hpkbjcxLM8NlwdWDgHGD/0CSW77Y
+         2YfvhnPE2ORuVwU0yOaGqpzj/IgTaz/pVBM/6oAyMEvAD+NvcHt79B2uh2au75715Q
+         +MkjKHqVDn/jlpnKahD/b8bSynqH0SttHAtbMUTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 5.15 054/530] drm/virtio: Use appropriate atomic state in virtio_gpu_plane_cleanup_fb()
-Date:   Mon, 24 Oct 2022 13:26:38 +0200
-Message-Id: <20221024113047.479784422@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Takashi Iwai <tiwai@suse.de>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 5.15 055/530] drm/udl: Restore display mode on resume
+Date:   Mon, 24 Oct 2022 13:26:39 +0200
+Message-Id: <20221024113047.527423292@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,43 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 4656b3a26a9e9fe5f04bfd2ab55b066266ba7f4d upstream.
+commit 6d6e732835db92e66c28dbcf258a7e3d3c71420d upstream.
 
-Make virtio_gpu_plane_cleanup_fb() to clean the state which DRM core
-wants to clean up and not the current plane's state. Normally the older
-atomic state is cleaned up, but the newer state could also be cleaned up
-in case of aborted commits.
+Restore the display mode whne resuming from suspend. Currently, the
+display remains dark.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220630200726.1884320-6-dmitry.osipenko@collabora.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+On resume, the CRTC's mode does not change, but the 'active' flag
+changes to 'true'. Taking this into account when considering a mode
+switch restores the display mode.
+
+The bug is reproducable by using Gnome with udl and observing the
+adapter's suspend/resume behavior.
+
+Actually, the whole check added in udl_simple_display_pipe_enable()
+about the crtc_state->mode_changed was bogus.  We should drop the
+whole check and always apply the mode change in this function.
+
+[ tiwai -- Drop the mode_changed check entirely instead, per Daniel's
+  suggestion ]
+
+Fixes: 997d33c35618 ("drm/udl: Inline DPMS code into CRTC enable and disable functions")
+Cc: <stable@vger.kernel.org>
+Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220908095115.23396-2-tiwai@suse.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_plane.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/udl/udl_modeset.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -265,14 +265,14 @@ static int virtio_gpu_plane_prepare_fb(s
+--- a/drivers/gpu/drm/udl/udl_modeset.c
++++ b/drivers/gpu/drm/udl/udl_modeset.c
+@@ -381,9 +381,6 @@ udl_simple_display_pipe_enable(struct dr
+ 
+ 	udl_handle_damage(fb, &shadow_plane_state->data[0], 0, 0, fb->width, fb->height);
+ 
+-	if (!crtc_state->mode_changed)
+-		return;
+-
+ 	/* enable display */
+ 	udl_crtc_write_mode_to_hw(crtc);
  }
- 
- static void virtio_gpu_plane_cleanup_fb(struct drm_plane *plane,
--					struct drm_plane_state *old_state)
-+					struct drm_plane_state *state)
- {
- 	struct virtio_gpu_framebuffer *vgfb;
- 
--	if (!plane->state->fb)
-+	if (!state->fb)
- 		return;
- 
--	vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
-+	vgfb = to_virtio_gpu_framebuffer(state->fb);
- 	if (vgfb->fence) {
- 		dma_fence_put(&vgfb->fence->f);
- 		vgfb->fence = NULL;
 
 
