@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A57D60ABD1
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:57:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F8E660AB4E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236890AbiJXN5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:57:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41682 "EHLO
+        id S232066AbiJXNuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:50:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233393AbiJXN52 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:57:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F9E754181;
-        Mon, 24 Oct 2022 05:45:02 -0700 (PDT)
+        with ESMTP id S236403AbiJXNsP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:48:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8776AD9AE;
+        Mon, 24 Oct 2022 05:41:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77339612A4;
-        Mon, 24 Oct 2022 12:20:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84A3CC433C1;
-        Mon, 24 Oct 2022 12:20:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0137761328;
+        Mon, 24 Oct 2022 12:40:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1249FC433D7;
+        Mon, 24 Oct 2022 12:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614013;
-        bh=AEDN9xuNlbHo/e5IAl0M+CHnwhGvTQQAttrpcw65NuQ=;
+        s=korg; t=1666615219;
+        bh=fFJxq1r7OoRKTznu8EQk81DjmmljWqvlP3lj1HxHXLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v0UWxV8Cx6I5E2mMOj1nPEBHZS69QDf14bAs0kiDv9BtP3o95wDNRI6EKpTOlQ/uV
-         qwXRzY34eyiN7ZEQdNBRRc+wNN4i3TDma6c9aHRRh/9ec9jJVHcKxt1J3k9GvrTp4Q
-         hIDWmuHEAC+4RqNfXH8HFu5JqLWUXPp1x/kJIlsU=
+        b=OEZmaBe+iSMW1P36MUxMoHiRLBAxpAbQvzO6a9DsH7Rv8rvde6I6QrlRlhGUhAHp2
+         KrVU2Hrlg7iOpuTqmfH/5lZrP8f50VqhmWLwU/pnkgxgTV8qGWjMihhd7CRO3p+CY+
+         qdkFEDlR8Ez8feUEAFHB/AKzdlI7oeu+dhOPWTa4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Luczaj <mhal@rbox.co>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 5.10 082/390] KVM: x86/emulator: Fix handing of POP SS to correctly set interruptibility
-Date:   Mon, 24 Oct 2022 13:27:59 +0200
-Message-Id: <20221024113026.102951946@linuxfoundation.org>
+        stable@vger.kernel.org, Robert OCallahan <roc@ocallahan.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 137/530] userfaultfd: open userfaultfds with O_RDONLY
+Date:   Mon, 24 Oct 2022 13:28:01 +0200
+Message-Id: <20221024113051.261034618@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Luczaj <mhal@rbox.co>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit 6aa5c47c351b22c21205c87977c84809cd015fcf upstream.
+[ Upstream commit abec3d015fdfb7c63105c7e1c956188bf381aa55 ]
 
-The emulator checks the wrong variable while setting the CPU
-interruptibility state, the target segment is embedded in the instruction
-opcode, not the ModR/M register.  Fix the condition.
+Since userfaultfd doesn't implement a write operation, it is more
+appropriate to open it read-only.
 
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
-Fixes: a5457e7bcf9a ("KVM: emulate: POP SS triggers a MOV SS shadow too")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/20220821215900.1419215-1-mhal@rbox.co
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When userfaultfds are opened read-write like it is now, and such fd is
+passed from one process to another, SELinux will check both read and
+write permissions for the target process, even though it can't actually
+do any write operation on the fd later.
+
+Inspired by the following bug report, which has hit the SELinux scenario
+described above:
+https://bugzilla.redhat.com/show_bug.cgi?id=1974559
+
+Reported-by: Robert O'Callahan <roc@ocallahan.org>
+Fixes: 86039bd3b4e6 ("userfaultfd: add new syscall to provide memory externalization")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/emulate.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/userfaultfd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -2039,7 +2039,7 @@ static int em_pop_sreg(struct x86_emulat
- 	if (rc != X86EMUL_CONTINUE)
- 		return rc;
+diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+index 22bf14ab2d16..b56e8e31d967 100644
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -982,7 +982,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *new,
+ 	int fd;
  
--	if (ctxt->modrm_reg == VCPU_SREG_SS)
-+	if (seg == VCPU_SREG_SS)
- 		ctxt->interruptibility = KVM_X86_SHADOW_INT_MOV_SS;
- 	if (ctxt->op_bytes > 2)
- 		rsp_increment(ctxt, ctxt->op_bytes - 2);
+ 	fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, new,
+-			O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
++			O_RDONLY | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
+ 	if (fd < 0)
+ 		return fd;
+ 
+@@ -2097,7 +2097,7 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
+ 	mmgrab(ctx->mm);
+ 
+ 	fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, ctx,
+-			O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
++			O_RDONLY | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
+ 	if (fd < 0) {
+ 		mmdrop(ctx->mm);
+ 		kmem_cache_free(userfaultfd_ctx_cachep, ctx);
+-- 
+2.35.1
+
 
 
