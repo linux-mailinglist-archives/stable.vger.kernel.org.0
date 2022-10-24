@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57C0A60AFD6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:58:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7887860AFC5
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:57:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232148AbiJXP6g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 11:58:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36778 "EHLO
+        id S231860AbiJXP52 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:57:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232168AbiJXP5x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:57:53 -0400
+        with ESMTP id S231878AbiJXP4t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:56:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ED4D12B373;
-        Mon, 24 Oct 2022 07:52:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9087C106A62;
+        Mon, 24 Oct 2022 07:51:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 482BEB81196;
-        Mon, 24 Oct 2022 11:43:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 955EFC433C1;
-        Mon, 24 Oct 2022 11:43:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4DCEB811D7;
+        Mon, 24 Oct 2022 12:29:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E28D9C433D6;
+        Mon, 24 Oct 2022 12:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611825;
-        bh=9S9Jzqh/QQ0jJHUzmYwU6n8cgbVBAGr8mD+X8spS9Kk=;
+        s=korg; t=1666614544;
+        bh=Xz/JYnNX+bv4d5sNBNrD5dHf4bfzzM5L7MEjHHLxJTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+iSbkU3HGTiE2kHg6lrAITkURIqG0fXrV9+VOi9m1Y9xoui+Q/TXEIeCzntmBw28
-         gTi1rTm0YuZozbfpniSScW8qjikn8GxpQWlNKQbKfst4nIDmipfxUQUqKr596yo3y/
-         qLlSYCdYq1AutglIhUoFR0pbSYzLLvRrbwi/+Gzk=
+        b=YQQgnIeRsdjVFbwBnJicpowwdUv915+3gOQhtebb8ijEnZsbK3p10+fzUaOxs7veK
+         zLe6l0bfBKCSfkkn11WReudJbBHPhrVcc8NIuajGLYNz5iK5hqtGyLfJbyaQScDBdv
+         8i8FX8p2exBj5GDj3xRDd9exF4zUiOJyTuqhY9Ms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, linux-riscv@lists.infradead.org,
+        mingo@redhat.com, paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, zanussi@kernel.org, liaochang1@huawei.com,
+        chris.zjh@huawei.com, Yipeng Zou <zouyipeng@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 126/159] thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash
-Date:   Mon, 24 Oct 2022 13:31:20 +0200
-Message-Id: <20221024112954.112545109@linuxfoundation.org>
+Subject: [PATCH 5.10 284/390] tracing: kprobe: Make gen test module work in arm and riscv
+Date:   Mon, 24 Oct 2022 13:31:21 +0200
+Message-Id: <20221024113035.043873542@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +57,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Yipeng Zou <zouyipeng@huawei.com>
 
-[ Upstream commit 68b99e94a4a2db6ba9b31fe0485e057b9354a640 ]
+[ Upstream commit d8ef45d66c01425ff748e13ef7dd1da7a91cc93c ]
 
-When CPU 0 is offline and intel_powerclamp is used to inject
-idle, it generates kernel BUG:
+For now, this selftest module can only work in x86 because of the
+kprobe cmd was fixed use of x86 registers.
+This patch adapted to register names under arm and riscv, So that
+this module can be worked on those platform.
 
-BUG: using smp_processor_id() in preemptible [00000000] code: bash/15687
-caller is debug_smp_processor_id+0x17/0x20
-CPU: 4 PID: 15687 Comm: bash Not tainted 5.19.0-rc7+ #57
-Call Trace:
-<TASK>
-dump_stack_lvl+0x49/0x63
-dump_stack+0x10/0x16
-check_preemption_disabled+0xdd/0xe0
-debug_smp_processor_id+0x17/0x20
-powerclamp_set_cur_state+0x7f/0xf9 [intel_powerclamp]
-...
-...
+Link: https://lkml.kernel.org/r/20220919125629.238242-3-zouyipeng@huawei.com
 
-Here CPU 0 is the control CPU by default and changed to the current CPU,
-if CPU 0 offlined. This check has to be performed under cpus_read_lock(),
-hence the above warning.
-
-Use get_cpu() instead of smp_processor_id() to avoid this BUG.
-
-Suggested-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-[ rjw: Subject edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: <linux-riscv@lists.infradead.org>
+Cc: <mingo@redhat.com>
+Cc: <paul.walmsley@sifive.com>
+Cc: <palmer@dabbelt.com>
+Cc: <aou@eecs.berkeley.edu>
+Cc: <zanussi@kernel.org>
+Cc: <liaochang1@huawei.com>
+Cc: <chris.zjh@huawei.com>
+Fixes: 64836248dda2 ("tracing: Add kprobe event command generation test module")
+Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel_powerclamp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/trace/kprobe_event_gen_test.c | 47 +++++++++++++++++++++++++---
+ 1 file changed, 43 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/thermal/intel_powerclamp.c b/drivers/thermal/intel_powerclamp.c
-index afada655f861..492bb3ec6546 100644
---- a/drivers/thermal/intel_powerclamp.c
-+++ b/drivers/thermal/intel_powerclamp.c
-@@ -519,8 +519,10 @@ static int start_power_clamp(void)
+diff --git a/kernel/trace/kprobe_event_gen_test.c b/kernel/trace/kprobe_event_gen_test.c
+index e023154be0f8..80e04a1e1977 100644
+--- a/kernel/trace/kprobe_event_gen_test.c
++++ b/kernel/trace/kprobe_event_gen_test.c
+@@ -35,6 +35,45 @@
+ static struct trace_event_file *gen_kprobe_test;
+ static struct trace_event_file *gen_kretprobe_test;
  
- 	/* prefer BSP */
- 	control_cpu = 0;
--	if (!cpu_online(control_cpu))
--		control_cpu = smp_processor_id();
-+	if (!cpu_online(control_cpu)) {
-+		control_cpu = get_cpu();
-+		put_cpu();
-+	}
++#define KPROBE_GEN_TEST_FUNC	"do_sys_open"
++
++/* X86 */
++#if defined(CONFIG_X86_64) || defined(CONFIG_X86_32)
++#define KPROBE_GEN_TEST_ARG0	"dfd=%ax"
++#define KPROBE_GEN_TEST_ARG1	"filename=%dx"
++#define KPROBE_GEN_TEST_ARG2	"flags=%cx"
++#define KPROBE_GEN_TEST_ARG3	"mode=+4($stack)"
++
++/* ARM64 */
++#elif defined(CONFIG_ARM64)
++#define KPROBE_GEN_TEST_ARG0	"dfd=%x0"
++#define KPROBE_GEN_TEST_ARG1	"filename=%x1"
++#define KPROBE_GEN_TEST_ARG2	"flags=%x2"
++#define KPROBE_GEN_TEST_ARG3	"mode=%x3"
++
++/* ARM */
++#elif defined(CONFIG_ARM)
++#define KPROBE_GEN_TEST_ARG0	"dfd=%r0"
++#define KPROBE_GEN_TEST_ARG1	"filename=%r1"
++#define KPROBE_GEN_TEST_ARG2	"flags=%r2"
++#define KPROBE_GEN_TEST_ARG3	"mode=%r3"
++
++/* RISCV */
++#elif defined(CONFIG_RISCV)
++#define KPROBE_GEN_TEST_ARG0	"dfd=%a0"
++#define KPROBE_GEN_TEST_ARG1	"filename=%a1"
++#define KPROBE_GEN_TEST_ARG2	"flags=%a2"
++#define KPROBE_GEN_TEST_ARG3	"mode=%a3"
++
++/* others */
++#else
++#define KPROBE_GEN_TEST_ARG0	NULL
++#define KPROBE_GEN_TEST_ARG1	NULL
++#define KPROBE_GEN_TEST_ARG2	NULL
++#define KPROBE_GEN_TEST_ARG3	NULL
++#endif
++
++
+ /*
+  * Test to make sure we can create a kprobe event, then add more
+  * fields.
+@@ -58,14 +97,14 @@ static int __init test_gen_kprobe_cmd(void)
+ 	 * fields.
+ 	 */
+ 	ret = kprobe_event_gen_cmd_start(&cmd, "gen_kprobe_test",
+-					 "do_sys_open",
+-					 "dfd=%ax", "filename=%dx");
++					 KPROBE_GEN_TEST_FUNC,
++					 KPROBE_GEN_TEST_ARG0, KPROBE_GEN_TEST_ARG1);
+ 	if (ret)
+ 		goto free;
  
- 	clamping = true;
- 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
+ 	/* Use kprobe_event_add_fields to add the rest of the fields */
+ 
+-	ret = kprobe_event_add_fields(&cmd, "flags=%cx", "mode=+4($stack)");
++	ret = kprobe_event_add_fields(&cmd, KPROBE_GEN_TEST_ARG2, KPROBE_GEN_TEST_ARG3);
+ 	if (ret)
+ 		goto free;
+ 
+@@ -128,7 +167,7 @@ static int __init test_gen_kretprobe_cmd(void)
+ 	 * Define the kretprobe event.
+ 	 */
+ 	ret = kretprobe_event_gen_cmd_start(&cmd, "gen_kretprobe_test",
+-					    "do_sys_open",
++					    KPROBE_GEN_TEST_FUNC,
+ 					    "$retval");
+ 	if (ret)
+ 		goto free;
 -- 
 2.35.1
 
