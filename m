@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ABDB60B4ED
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 20:08:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC3AB60B5FF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 20:45:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232063AbiJXSIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 14:08:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54336 "EHLO
+        id S232580AbiJXSpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 14:45:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231962AbiJXSH5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 14:07:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ED90202727;
-        Mon, 24 Oct 2022 09:49:07 -0700 (PDT)
+        with ESMTP id S232543AbiJXSpS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 14:45:18 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A36BCAC498;
+        Mon, 24 Oct 2022 10:27:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34C6CB811D3;
-        Mon, 24 Oct 2022 11:59:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B7C4C433C1;
-        Mon, 24 Oct 2022 11:59:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2F614CE13CF;
+        Mon, 24 Oct 2022 12:26:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B69FC433C1;
+        Mon, 24 Oct 2022 12:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612753;
-        bh=tstd9ZdpUq6Dk1Sy6I/iF27IlR0OnBZfBh7L2kweZLA=;
+        s=korg; t=1666614384;
+        bh=l3lOmvb8DxNeJCwa8Zo59caxbNTlaKKRdNSZFh4rEMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVmKLZ4UJqLhOu5WQfeMWED1jtf3IX8xuvflJfy/GV3ERsy3VdyqK2kffUN2wuSuD
-         XH4CWlNOLzBUGvQM9VGNsoC19iNaBjDRXozBOfMu5sXZdnulszwxJWNVFf+MwBT472
-         PHyxYX4YipJ6i2r/AwhHF/i/z4upvz5ecep0ENEI=
+        b=lCblZg3g/HaucYtS6HBQZ9tDgdjRqjNy+C3g27SJqrghLgghPnT14DH4Ts1NpRlcq
+         BN1UkJtGbFuVC9RdN4KbmZiGTjgsgzcHvrRAiUdYANRlVVhfNL9sOM6ieKEJTwMTHv
+         HAcwLfSkdoooTbnetCvzd/AoWIUbyLczT/zNWX18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 106/229] ASoC: wm5110: Fix PM disable depth imbalance in wm5110_probe
-Date:   Mon, 24 Oct 2022 13:30:25 +0200
-Message-Id: <20221024113002.445463248@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Philipp Hortmann <philipp.g.hortmann@gmail.com>,
+        Nam Cao <namcaov@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 240/390] staging: vt6655: fix some erroneous memory clean-up loops
+Date:   Mon, 24 Oct 2022 13:30:37 +0200
+Message-Id: <20221024113033.029480414@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Nam Cao <namcaov@gmail.com>
 
-[ Upstream commit 86b46bf1feb83898d89a2b4a8d08d21e9ea277a7 ]
+[ Upstream commit 2a2db520e3ca5aafba7c211abfd397666c9b5f9d ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context. We fix it by moving
-pm_runtime_enable to the endding of wm5110_probe.
+In some initialization functions of this driver, memory is allocated with
+'i' acting as an index variable and increasing from 0. The commit in
+"Fixes" introduces some clean-up codes in case of allocation failure,
+which free memory in reverse order with 'i' decreasing to 0. However,
+there are some problems:
+  - The case i=0 is left out. Thus memory is leaked.
+  - In case memory allocation fails right from the start, the memory
+    freeing loops will start with i=-1 and invalid memory locations will
+    be accessed.
 
-Fixes:5c6af635fd772 ("ASoC: wm5110: Add audio CODEC driver")
+One of these loops has been fixed in commit c8ff91535880 ("staging:
+vt6655: fix potential memory leak"). Fix the remaining erroneous loops.
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220928160116.125020-3-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/linux-staging/Yx9H1zSpxmNqx6Xc@kadam/
+Fixes: 5341ee0adb17 ("staging: vt6655: check for memory allocation failures")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Tested-by: Philipp Hortmann <philipp.g.hortmann@gmail.com>
+Signed-off-by: Nam Cao <namcaov@gmail.com>
+Link: https://lore.kernel.org/r/20220912170429.29852-1-namcaov@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm5110.c | 6 +++---
+ drivers/staging/vt6655/device_main.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
-index e510aca55163..43a47312d71b 100644
---- a/sound/soc/codecs/wm5110.c
-+++ b/sound/soc/codecs/wm5110.c
-@@ -2453,9 +2453,6 @@ static int wm5110_probe(struct platform_device *pdev)
- 		regmap_update_bits(arizona->regmap, wm5110_digital_vu[i],
- 				   WM5110_DIG_VU, WM5110_DIG_VU);
+diff --git a/drivers/staging/vt6655/device_main.c b/drivers/staging/vt6655/device_main.c
+index 09ab6d6f2429..0dd70173a754 100644
+--- a/drivers/staging/vt6655/device_main.c
++++ b/drivers/staging/vt6655/device_main.c
+@@ -564,7 +564,7 @@ static int device_init_rd0_ring(struct vnt_private *priv)
+ 	kfree(desc->rd_info);
  
--	pm_runtime_enable(&pdev->dev);
--	pm_runtime_idle(&pdev->dev);
--
- 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
- 				  "ADSP2 Compressed IRQ", wm5110_adsp2_irq,
- 				  wm5110);
-@@ -2488,6 +2485,9 @@ static int wm5110_probe(struct platform_device *pdev)
- 		goto err_spk_irqs;
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->aRD0Ring[i];
+ 		device_free_rx_buf(priv, desc);
+ 		kfree(desc->rd_info);
+@@ -610,7 +610,7 @@ static int device_init_rd1_ring(struct vnt_private *priv)
+ 	kfree(desc->rd_info);
+ 
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->aRD1Ring[i];
+ 		device_free_rx_buf(priv, desc);
+ 		kfree(desc->rd_info);
+@@ -715,7 +715,7 @@ static int device_init_td1_ring(struct vnt_private *priv)
+ 	return 0;
+ 
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->apTD1Rings[i];
+ 		kfree(desc->td_info);
  	}
- 
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_idle(&pdev->dev);
-+
- 	return ret;
- 
- err_spk_irqs:
 -- 
 2.35.1
 
