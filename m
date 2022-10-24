@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 919F460A389
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:56:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 237C960A397
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:57:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232308AbiJXL4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:56:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56174 "EHLO
+        id S231977AbiJXL5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:57:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232152AbiJXLzg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:55:36 -0400
+        with ESMTP id S232231AbiJXL4B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:56:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B44C47B1DB;
-        Mon, 24 Oct 2022 04:46:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F5E21B1C2;
+        Mon, 24 Oct 2022 04:46:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4714FB8119F;
-        Mon, 24 Oct 2022 11:46:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94C72C433C1;
-        Mon, 24 Oct 2022 11:46:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5A87B810F5;
+        Mon, 24 Oct 2022 11:46:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38DBCC4314A;
+        Mon, 24 Oct 2022 11:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612003;
-        bh=V3WpwRAWt5cAB2K6+gSEMiz3McF42UPgqUC/ragvIrw=;
+        s=korg; t=1666612006;
+        bh=q0My1NRdS5ALMXpoYH2Fi1xX8qrY9UD0s3A2OdbcL/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EsVxHkRWNLKf4Tp3laRn7/Qv3BXOVSfc0c8BEkE89mTb1iOwXGSa4m9fEoJ0vgWva
-         Zc7DWhgSDdanGp9k2NnkMVDfZlKw9pY7DPzjCZAxP051ijJ9taVdF5JO/cyiPzmo5x
-         7iF6M0qgSRfEk8CNSiIk8zOQJ7yaGWvrYY5MERLY=
+        b=PJNyvUXrnaKiSVwi/BhOzUm+7JCs0+dIJrnkPt9vYXUJ8hKPVb37wdBnbP0aQ34uI
+         C0YxeD+vRHFPrL5ZrkIiEI1mJ2hOSPwL6dW0jWX1ZNdtu5SGjem6F5JxEDZQeplwj+
+         CZnUvzDmrpv5TGPvx5RaMXNDCbucUPnZg4VxiN9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 005/210] ntfs: fix BUG_ON in ntfs_lookup_inode_by_name()
-Date:   Mon, 24 Oct 2022 13:28:42 +0200
-Message-Id: <20221024112957.026155074@linuxfoundation.org>
+        stable@vger.kernel.org, Sergei Antonov <saproj@gmail.com>,
+        Jonas Jensen <jonas.jensen@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.14 006/210] mmc: moxart: fix 4-bit bus width and remove 8-bit bus width
+Date:   Mon, 24 Oct 2022 13:28:43 +0200
+Message-Id: <20221024112957.066576791@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -44,90 +44,85 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_SBL_A autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Sergei Antonov <saproj@gmail.com>
 
-commit 1b513f613731e2afc05550e8070d79fac80c661e upstream.
+commit 35ca91d1338ae158f6dcc0de5d1e86197924ffda upstream.
 
-Syzkaller reported BUG_ON as follows:
+According to the datasheet [1] at page 377, 4-bit bus width is turned on by
+bit 2 of the Bus Width Register. Thus the current bitmask is wrong: define
+BUS_WIDTH_4 BIT(1)
 
-------------[ cut here ]------------
-kernel BUG at fs/ntfs/dir.c:86!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
-CPU: 3 PID: 758 Comm: a.out Not tainted 5.19.0-next-20220808 #5
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-RIP: 0010:ntfs_lookup_inode_by_name+0xd11/0x2d10
-Code: ff e9 b9 01 00 00 e8 1e fe d6 fe 48 8b 7d 98 49 8d 5d 07 e8 91 85 29 ff 48 c7 45 98 00 00 00 00 e9 5a fb ff ff e8 ff fd d6 fe <0f> 0b e8 f8 fd d6 fe 0f 0b e8 f1 fd d6 fe 48 8b b5 50 ff ff ff 4c
-RSP: 0018:ffff888079607978 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: 0000000000008000 RCX: 0000000000000000
-RDX: ffff88807cf10000 RSI: ffffffff82a4a081 RDI: 0000000000000003
-RBP: ffff888079607a70 R08: 0000000000000001 R09: ffff88807a6d01d7
-R10: ffffed100f4da03a R11: 0000000000000000 R12: ffff88800f0fb110
-R13: ffff88800f0ee000 R14: ffff88800f0fb000 R15: 0000000000000001
-FS:  00007f33b63c7540(0000) GS:ffff888108580000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f33b635c090 CR3: 000000000f39e005 CR4: 0000000000770ee0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- <TASK>
- load_system_files+0x1f7f/0x3620
- ntfs_fill_super+0xa01/0x1be0
- mount_bdev+0x36a/0x440
- ntfs_mount+0x3a/0x50
- legacy_get_tree+0xfb/0x210
- vfs_get_tree+0x8f/0x2f0
- do_new_mount+0x30a/0x760
- path_mount+0x4de/0x1880
- __x64_sys_mount+0x2b3/0x340
- do_syscall_64+0x38/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f33b62ff9ea
-Code: 48 8b 0d a9 f4 0b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 f4 0b 00 f7 d8 64 89 01 48
-RSP: 002b:00007ffd0c471aa8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f33b62ff9ea
-RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffd0c471be0
-RBP: 00007ffd0c471c60 R08: 00007ffd0c471ae0 R09: 00007ffd0c471c24
-R10: 0000000000000000 R11: 0000000000000202 R12: 000055bac5afc160
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
-Modules linked in:
----[ end trace 0000000000000000 ]---
+BIT(1) does not work but BIT(2) works. This has been verified on real MOXA
+hardware with FTSDC010 controller revision 1_6_0.
 
-Fix this by adding sanity check on extended system files' directory inode
-to ensure that it is directory, just like ntfs_extend_init() when mounting
-ntfs3.
+The corrected value of BUS_WIDTH_4 mask collides with: define BUS_WIDTH_8
+BIT(2). Additionally, 8-bit bus width mode isn't supported according to the
+datasheet, so let's remove the corresponding code.
 
-Link: https://lkml.kernel.org/r/20220809064730.2316892-1-chenxiaosong2@huawei.com
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+[1]
+https://bitbucket.org/Kasreyn/mkrom-uc7112lx/src/master/documents/FIC8120_DS_v1.2.pdf
+
+Fixes: 1b66e94e6b99 ("mmc: moxart: Add MOXA ART SD/MMC driver")
+Signed-off-by: Sergei Antonov <saproj@gmail.com>
+Cc: Jonas Jensen <jonas.jensen@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220907205753.1577434-1-saproj@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs/super.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/host/moxart-mmc.c |   17 +++--------------
+ 1 file changed, 3 insertions(+), 14 deletions(-)
 
---- a/fs/ntfs/super.c
-+++ b/fs/ntfs/super.c
-@@ -2106,7 +2106,8 @@ get_ctx_vol_failed:
- 	// TODO: Initialize security.
- 	/* Get the extended system files' directory inode. */
- 	vol->extend_ino = ntfs_iget(sb, FILE_Extend);
--	if (IS_ERR(vol->extend_ino) || is_bad_inode(vol->extend_ino)) {
-+	if (IS_ERR(vol->extend_ino) || is_bad_inode(vol->extend_ino) ||
-+	    !S_ISDIR(vol->extend_ino->i_mode)) {
- 		if (!IS_ERR(vol->extend_ino))
- 			iput(vol->extend_ino);
- 		ntfs_error(sb, "Failed to load $Extend.");
+--- a/drivers/mmc/host/moxart-mmc.c
++++ b/drivers/mmc/host/moxart-mmc.c
+@@ -111,8 +111,8 @@
+ #define CLK_DIV_MASK		0x7f
+ 
+ /* REG_BUS_WIDTH */
+-#define BUS_WIDTH_8		BIT(2)
+-#define BUS_WIDTH_4		BIT(1)
++#define BUS_WIDTH_4_SUPPORT	BIT(3)
++#define BUS_WIDTH_4		BIT(2)
+ #define BUS_WIDTH_1		BIT(0)
+ 
+ #define MMC_VDD_360		23
+@@ -527,9 +527,6 @@ static void moxart_set_ios(struct mmc_ho
+ 	case MMC_BUS_WIDTH_4:
+ 		writel(BUS_WIDTH_4, host->base + REG_BUS_WIDTH);
+ 		break;
+-	case MMC_BUS_WIDTH_8:
+-		writel(BUS_WIDTH_8, host->base + REG_BUS_WIDTH);
+-		break;
+ 	default:
+ 		writel(BUS_WIDTH_1, host->base + REG_BUS_WIDTH);
+ 		break;
+@@ -646,16 +643,8 @@ static int moxart_probe(struct platform_
+ 		dmaengine_slave_config(host->dma_chan_rx, &cfg);
+ 	}
+ 
+-	switch ((readl(host->base + REG_BUS_WIDTH) >> 3) & 3) {
+-	case 1:
++	if (readl(host->base + REG_BUS_WIDTH) & BUS_WIDTH_4_SUPPORT)
+ 		mmc->caps |= MMC_CAP_4_BIT_DATA;
+-		break;
+-	case 2:
+-		mmc->caps |= MMC_CAP_4_BIT_DATA | MMC_CAP_8_BIT_DATA;
+-		break;
+-	default:
+-		break;
+-	}
+ 
+ 	writel(0, host->base + REG_INTERRUPT_MASK);
+ 
 
 
