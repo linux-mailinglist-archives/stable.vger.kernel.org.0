@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31B8460AC07
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:01:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEB2B60A579
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:25:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231629AbiJXOB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:01:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51416 "EHLO
+        id S230035AbiJXMYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:24:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236891AbiJXOAR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:00:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C90308E73A;
-        Mon, 24 Oct 2022 05:47:17 -0700 (PDT)
+        with ESMTP id S233559AbiJXMXL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:23:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F42D1C119;
+        Mon, 24 Oct 2022 04:59:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94FED612A4;
-        Mon, 24 Oct 2022 12:45:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FD6C433D6;
-        Mon, 24 Oct 2022 12:45:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58C0F61252;
+        Mon, 24 Oct 2022 11:59:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AE14C433C1;
+        Mon, 24 Oct 2022 11:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615531;
-        bh=lU1rMge4AvOB32EqEc1cYUnGuxCTzQQf26R06XK4qiY=;
+        s=korg; t=1666612769;
+        bh=cHT/tctzQJbGiXiQn4s+uUUWvv1Z72ev5clpduBCXxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DdJ2SXyiXRMcHbC3S+ee3oVgfPWInrXJpQWd+SFys6Ovji/bkwtGcC4v0GXQTv9Q6
-         G0ppDy3dHaL1jgYq+cyNEg4loxaTyWoA+Rq+3vV/tvd7H2qKGnOnHtHzDF4DWDa7NH
-         fkemlRGF7QELQ0PWIQ3XRDBDA/rA1+ZNRNK8sYVQ=
+        b=GPMJrVkwjJB/Tto61ezoEEuMcyRorrGSKq3t+SmwdENP6pjN/nLfLNVC4Am22kg5/
+         4y7RKc83HWpn8qyqVivu7J76UgCdFwBkwNBumj3r/iygAr26z0xroODp3kQ/HkotAS
+         1BhDqcMclNt46zX6U+f7YPw6vkpSb5NGmahTnXFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 286/530] media: meson: vdec: add missing clk_disable_unprepare on error in vdec_hevc_start()
+Subject: [PATCH 4.19 111/229] ARM: dts: turris-omnia: Fix mpp26 pin name and comment
 Date:   Mon, 24 Oct 2022 13:30:30 +0200
-Message-Id: <20221024113057.997955984@linuxfoundation.org>
+Message-Id: <20221024113002.595984668@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Qiang <xuqiang36@huawei.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit 4029372233e13e281f8c387f279f9f064ced3810 ]
+[ Upstream commit 49e93898f0dc177e645c22d0664813567fd9ec00 ]
 
-Add the missing clk_disable_unprepare() before return
-from vdec_hevc_start() in the error handling case.
+There is a bug in Turris Omnia's schematics, whereupon the MPP[26] pin,
+which is routed to CN11 pin header, is documented as SPI CS1, but
+MPP[26] pin does not support this function. Instead it controls chip
+select 2 if in "spi0" mode.
 
-Fixes: 823a7300340e (“media: meson: vdec: add common HEVC decoder support”)
-Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fix the name of the pin node in pinctrl node and fix the comment in SPI
+node.
+
+Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/meson/vdec/vdec_hevc.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/armada-385-turris-omnia.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/meson/vdec/vdec_hevc.c b/drivers/staging/media/meson/vdec/vdec_hevc.c
-index 9530e580e57a..afced435c907 100644
---- a/drivers/staging/media/meson/vdec/vdec_hevc.c
-+++ b/drivers/staging/media/meson/vdec/vdec_hevc.c
-@@ -167,8 +167,12 @@ static int vdec_hevc_start(struct amvdec_session *sess)
+diff --git a/arch/arm/boot/dts/armada-385-turris-omnia.dts b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+index fde4c302f08e..92e08486ec81 100644
+--- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
++++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+@@ -307,7 +307,7 @@
+ 		marvell,function = "spi0";
+ 	};
  
- 	clk_set_rate(core->vdec_hevc_clk, 666666666);
- 	ret = clk_prepare_enable(core->vdec_hevc_clk);
--	if (ret)
-+	if (ret) {
-+		if (core->platform->revision == VDEC_REVISION_G12A ||
-+		    core->platform->revision == VDEC_REVISION_SM1)
-+			clk_disable_unprepare(core->vdec_hevcf_clk);
- 		return ret;
-+	}
+-	spi0cs1_pins: spi0cs1-pins {
++	spi0cs2_pins: spi0cs2-pins {
+ 		marvell,pins = "mpp26";
+ 		marvell,function = "spi0";
+ 	};
+@@ -342,7 +342,7 @@
+ 		};
+ 	};
  
- 	if (core->platform->revision == VDEC_REVISION_SM1)
- 		regmap_update_bits(core->regmap_ao, AO_RTI_GEN_PWR_SLEEP0,
+-	/* MISO, MOSI, SCLK and CS1 are routed to pin header CN11 */
++	/* MISO, MOSI, SCLK and CS2 are routed to pin header CN11 */
+ };
+ 
+ &uart0 {
 -- 
 2.35.1
 
