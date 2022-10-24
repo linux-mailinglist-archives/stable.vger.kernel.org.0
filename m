@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A787B60ABEF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34A3760A463
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:10:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232282AbiJXN7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:59:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40362 "EHLO
+        id S232661AbiJXMKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:10:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236984AbiJXN7E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:59:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3DC2638DD;
-        Mon, 24 Oct 2022 05:46:11 -0700 (PDT)
+        with ESMTP id S232771AbiJXMH5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:07:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81BC97E321;
+        Mon, 24 Oct 2022 04:51:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BED4612DD;
-        Mon, 24 Oct 2022 12:46:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67A4CC433D6;
-        Mon, 24 Oct 2022 12:46:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB166B81199;
+        Mon, 24 Oct 2022 11:51:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E652C433C1;
+        Mon, 24 Oct 2022 11:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615570;
-        bh=d4xHh/EUCkCOVmUiHgDNQoi2lFnlAt1QKWLdSYAR6Ls=;
+        s=korg; t=1666612260;
+        bh=R2o+Cu2UAOttf3+FN46CvIfUeo5oZyZa9B5Y8e4wXF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WdDiX1+CFBdAOQDvrZGHbfyp0kZTPQq4jhdo+pdhw5olwABlJ+18VtkR6x3/lV2RU
-         oBOQjL19o/SclBJnMuTJoFcWLLszXpq8usR4ntc86nXZ3J6Ei06bO4pRLrtaBDKphg
-         WYMZs6vdFaYTvKKVFN1lLflXDHMrpLSp39MBeB2c=
+        b=DTDZXVRN7Ia0idxc5hTBbOaGJde+B+B5WYo1CUiMDt2GMSe/vX/VJFBhlSSXcC8kv
+         BPXxDaQlIUZGZCXPFrEU/g3+9INjJGMfhtM9vK2QhZ0xsavjGLkrmfEKtI9ooK/PF3
+         H3VnrkniBeBzH205vUYJogtp867OU0wa4SYPLjY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
-        William Dean <williamsukatube@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Jason Baron <jbaron@akamai.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jim Cromie <jim.cromie@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 302/530] mtd: devices: docg3: check the return value of devm_ioremap() in the probe
+Subject: [PATCH 4.14 129/210] dyndbg: let query-modname override actual module name
 Date:   Mon, 24 Oct 2022 13:30:46 +0200
-Message-Id: <20221024113058.737968780@linuxfoundation.org>
+Message-Id: <20221024113001.172915017@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Dean <williamsukatube@gmail.com>
+From: Jim Cromie <jim.cromie@gmail.com>
 
-[ Upstream commit 26e784433e6c65735cd6d93a8db52531970d9a60 ]
+[ Upstream commit e75ef56f74965f426dd819a41336b640ffdd8fbc ]
 
-The function devm_ioremap() in docg3_probe() can fail, so
-its return value should be checked.
+dyndbg's control-parser: ddebug_parse_query(), requires that search
+terms: module, func, file, lineno, are used only once in a query; a
+thing cannot be named both foo and bar.
 
-Fixes: 82402aeb8c81e ("mtd: docg3: Use devm_*() functions")
-Reported-by: Hacash Robot <hacashRobot@santino.com>
-Signed-off-by: William Dean <williamsukatube@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220722091644.2937953-1-williamsukatube@163.com
+The cited commit added an overriding module modname, taken from the
+module loader, which is authoritative.  So it set query.module 1st,
+which disallowed its use in the query-string.
+
+But now, its useful to allow a module-load to enable classes across a
+whole (or part of) a subsystem at once.
+
+  # enable (dynamic-debug in) drm only
+  modprobe drm dyndbg="class DRM_UT_CORE +p"
+
+  # get drm_helper too
+  modprobe drm dyndbg="class DRM_UT_CORE module drm* +p"
+
+  # get everything that knows DRM_UT_CORE
+  modprobe drm dyndbg="class DRM_UT_CORE module * +p"
+
+  # also for boot-args:
+  drm.dyndbg="class DRM_UT_CORE module * +p"
+
+So convert the override into a default, by filling it only when/after
+the query-string omitted the module.
+
+NB: the query class FOO handling is forthcoming.
+
+Fixes: 8e59b5cfb9a6 dynamic_debug: add modname arg to exec_query callchain
+Acked-by: Jason Baron <jbaron@akamai.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
+Link: https://lore.kernel.org/r/20220904214134.408619-8-jim.cromie@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/devices/docg3.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ lib/dynamic_debug.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mtd/devices/docg3.c b/drivers/mtd/devices/docg3.c
-index 5b0ae5ddad74..27c08f22dec8 100644
---- a/drivers/mtd/devices/docg3.c
-+++ b/drivers/mtd/devices/docg3.c
-@@ -1974,9 +1974,14 @@ static int __init docg3_probe(struct platform_device *pdev)
- 		dev_err(dev, "No I/O memory resource defined\n");
- 		return ret;
+diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
+index 91c451e0f474..01591a7b151f 100644
+--- a/lib/dynamic_debug.c
++++ b/lib/dynamic_debug.c
+@@ -327,10 +327,6 @@ static int ddebug_parse_query(char *words[], int nwords,
  	}
--	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
+ 	memset(query, 0, sizeof(*query));
  
- 	ret = -ENOMEM;
-+	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
-+	if (!base) {
-+		dev_err(dev, "devm_ioremap dev failed\n");
-+		return ret;
-+	}
+-	if (modname)
+-		/* support $modname.dyndbg=<multiple queries> */
+-		query->module = modname;
+-
+ 	for (i = 0; i < nwords; i += 2) {
+ 		if (!strcmp(words[i], "func")) {
+ 			rc = check_set(&query->function, words[i+1], "func");
+@@ -379,6 +375,13 @@ static int ddebug_parse_query(char *words[], int nwords,
+ 		if (rc)
+ 			return rc;
+ 	}
++	if (!query->module && modname)
++		/*
++		 * support $modname.dyndbg=<multiple queries>, when
++		 * not given in the query itself
++		 */
++		query->module = modname;
 +
- 	cascade = devm_kcalloc(dev, DOC_MAX_NBFLOORS, sizeof(*cascade),
- 			       GFP_KERNEL);
- 	if (!cascade)
+ 	vpr_info_dq(query, "parsed");
+ 	return 0;
+ }
 -- 
 2.35.1
 
