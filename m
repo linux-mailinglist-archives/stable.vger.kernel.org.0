@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2041660A9EC
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64F6360A8CC
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232023AbiJXNZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:25:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56512 "EHLO
+        id S235590AbiJXNLS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:11:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236127AbiJXNY3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:24:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA67918383;
-        Mon, 24 Oct 2022 05:30:42 -0700 (PDT)
+        with ESMTP id S235974AbiJXNKT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:10:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66D0EA2236;
+        Mon, 24 Oct 2022 05:23:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26F9E612FF;
-        Mon, 24 Oct 2022 12:29:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39700C433D6;
-        Mon, 24 Oct 2022 12:29:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83472B81202;
+        Mon, 24 Oct 2022 12:04:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D12D3C433C1;
+        Mon, 24 Oct 2022 12:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614570;
-        bh=Jad87ZPGbOMCQZjFg6peU5RSSRiKnGTlnlSYbcbi8sA=;
+        s=korg; t=1666613051;
+        bh=AV3dXYVdawBurlLUfKnkCxYe4h33AiN01pwO+9A7fS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hzI1oSKMH4D6t8Ir7PW6yB4NxGgIDPrz4eNrwDgEhNOsRq6JXQcNet8c+FG34iyEk
-         kRJ4RoP2V7fyFP6rIJXngxA1RljWgpoRibWtClUqUYTxIUXXj1V0hrGVjcmw+2pRw0
-         cHU6iv+5f/U8Mh1qwjbOxPjhcqniyWVtMHpujPmA=
+        b=xduJRwtE6Bx9EW//ISZ4limVgRRRPkh/xg5L6rF/f8xPP4fCqKUpzy0JsJd9Tnr+Z
+         Px+wtcKeRZYlDp2KJRTy8rnzY2bJNdVzedX55x6RghEf5CsCbrr73LtzW0TIPV2nEs
+         VvnJ+W3Oe+4bIgWvl6ltA/NXaoobo+bKR6kjXTh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        syzbot+5ec9bb042ddfe9644773@syzkaller.appspotmail.com,
-        Khalid Masum <khalid.masum.92@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 311/390] xfrm: Update ipcomp_scratches with NULL when freed
+        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 189/229] wifi: rt2x00: correctly set BBP register 86 for MT7620
 Date:   Mon, 24 Oct 2022 13:31:48 +0200
-Message-Id: <20221024113036.218746726@linuxfoundation.org>
+Message-Id: <20221024113005.238941629@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khalid Masum <khalid.masum.92@gmail.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit 8a04d2fc700f717104bfb95b0f6694e448a4537f ]
+[ Upstream commit c9aada64fe6493461127f1522d7e2f01792d2424 ]
 
-Currently if ipcomp_alloc_scratches() fails to allocate memory
-ipcomp_scratches holds obsolete address. So when we try to free the
-percpu scratches using ipcomp_free_scratches() it tries to vfree non
-existent vm area. Described below:
+Instead of 0 set the correct value for BBP register 86 for MT7620.
 
-static void * __percpu *ipcomp_alloc_scratches(void)
-{
-        ...
-        scratches = alloc_percpu(void *);
-        if (!scratches)
-                return NULL;
-ipcomp_scratches does not know about this allocation failure.
-Therefore holding the old obsolete address.
-        ...
-}
-
-So when we free,
-
-static void ipcomp_free_scratches(void)
-{
-        ...
-        scratches = ipcomp_scratches;
-Assigning obsolete address from ipcomp_scratches
-
-        if (!scratches)
-                return;
-
-        for_each_possible_cpu(i)
-               vfree(*per_cpu_ptr(scratches, i));
-Trying to free non existent page, causing warning: trying to vfree
-existent vm area.
-        ...
-}
-
-Fix this breakage by updating ipcomp_scrtches with NULL when scratches
-is freed
-
-Suggested-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reported-by: syzbot+5ec9bb042ddfe9644773@syzkaller.appspotmail.com
-Tested-by: syzbot+5ec9bb042ddfe9644773@syzkaller.appspotmail.com
-Signed-off-by: Khalid Masum <khalid.masum.92@gmail.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/257267247ee4fa7ebc6a5d0c4948b3f8119c0d77.1663445157.git.daniel@makrotopia.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_ipcomp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/xfrm/xfrm_ipcomp.c b/net/xfrm/xfrm_ipcomp.c
-index 0814320472f1..24ac6805275e 100644
---- a/net/xfrm/xfrm_ipcomp.c
-+++ b/net/xfrm/xfrm_ipcomp.c
-@@ -212,6 +212,7 @@ static void ipcomp_free_scratches(void)
- 		vfree(*per_cpu_ptr(scratches, i));
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+index 9469517ac65f..c9fa56b721b2 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+@@ -3658,7 +3658,10 @@ static void rt2800_config_channel(struct rt2x00_dev *rt2x00dev,
+ 		rt2800_bbp_write(rt2x00dev, 62, 0x37 - rt2x00dev->lna_gain);
+ 		rt2800_bbp_write(rt2x00dev, 63, 0x37 - rt2x00dev->lna_gain);
+ 		rt2800_bbp_write(rt2x00dev, 64, 0x37 - rt2x00dev->lna_gain);
+-		rt2800_bbp_write(rt2x00dev, 86, 0);
++		if (rt2x00_rt(rt2x00dev, RT6352))
++			rt2800_bbp_write(rt2x00dev, 86, 0x38);
++		else
++			rt2800_bbp_write(rt2x00dev, 86, 0);
+ 	}
  
- 	free_percpu(scratches);
-+	ipcomp_scratches = NULL;
- }
- 
- static void * __percpu *ipcomp_alloc_scratches(void)
+ 	if (rf->channel <= 14) {
 -- 
 2.35.1
 
