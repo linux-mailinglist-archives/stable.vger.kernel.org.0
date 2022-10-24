@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F5760ABD3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:57:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D59360A7F3
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236789AbiJXN5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:57:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37066 "EHLO
+        id S234873AbiJXNAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:00:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236772AbiJXN5e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:57:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A5FA61128;
-        Mon, 24 Oct 2022 05:45:15 -0700 (PDT)
+        with ESMTP id S234979AbiJXM7E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72E709938C;
+        Mon, 24 Oct 2022 05:17:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D1F8612DD;
-        Mon, 24 Oct 2022 12:31:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DFA5C433D6;
-        Mon, 24 Oct 2022 12:31:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54423612A0;
+        Mon, 24 Oct 2022 12:15:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67CF2C433D6;
+        Mon, 24 Oct 2022 12:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614701;
-        bh=eYYfN7zhVXu7HoSsesfCM1CBNUKWw1PFo052PAgMnNo=;
+        s=korg; t=1666613739;
+        bh=QR3O8uBGc8eFe5nbi7RUEstzEsOIsXyPelHp6Zn1iTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZnmZKdqyKAGS+sa3hf/Wi18sOMGCNc1rcikJzHkELZMgGL3DTwRO6HiKDKl9/YbSB
-         sgHPPEWQLokdK+sLrKgZ/TUoGvzgMituPzLthtwf5vdKCUBZAEfWq6gkNvt4W9mdLj
-         WqUSE0amRS1lx3CqgnqhxgR9mZR27Bzi/bKGisDo=
+        b=dxVH7Ne8WvT78ALfv5lTlAiK85dySVsHB8C9t9NqG2l8w5yPk27UJzEOWVM6TtWte
+         Zb+yibEJGcJTpou4ltEs1++AIdy/f6FG2TBNZj0V2EcDPOKX+4p40/aJbZK0j+1tfW
+         xBQEs/MUNlFbbqYjYqwfPKcKcCLwUbWJKbpsaUYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Hannes Reinecke <hare@suse.de>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        syzbot <syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 362/390] ata: libahci_platform: Sanity check the DT child nodes number
-Date:   Mon, 24 Oct 2022 13:32:39 +0200
-Message-Id: <20221024113038.411997440@linuxfoundation.org>
+Subject: [PATCH 5.4 250/255] net/ieee802154: dont warn zero-sized raw_sendmsg()
+Date:   Mon, 24 Oct 2022 13:32:40 +0200
+Message-Id: <20221024113011.611161417@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 3c132ea6508b34956e5ed88d04936983ec230601 ]
+[ Upstream commit b12e924a2f5b960373459c8f8a514f887adf5cac ]
 
-Having greater than AHCI_MAX_PORTS (32) ports detected isn't that critical
-from the further AHCI-platform initialization point of view since
-exceeding the ports upper limit will cause allocating more resources than
-will be used afterwards. But detecting too many child DT-nodes doesn't
-seem right since it's very unlikely to have it on an ordinary platform. In
-accordance with the AHCI specification there can't be more than 32 ports
-implemented at least due to having the CAP.NP field of 5 bits wide and the
-PI register of dword size. Thus if such situation is found the DTB must
-have been corrupted and the data read from it shouldn't be reliable. Let's
-consider that as an erroneous situation and halt further resources
-allocation.
+syzbot is hitting skb_assert_len() warning at __dev_queue_xmit() [1],
+for PF_IEEE802154 socket's zero-sized raw_sendmsg() request is hitting
+__dev_queue_xmit() with skb->len == 0.
 
-Note it's logically more correct to have the nports set only after the
-initialization value is checked for being sane. So while at it let's make
-sure nports is assigned with a correct value.
+Since PF_IEEE802154 socket's zero-sized raw_sendmsg() request was
+able to return 0, don't call __dev_queue_xmit() if packet length is 0.
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+  ----------
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+
+  int main(int argc, char *argv[])
+  {
+    struct sockaddr_in addr = { .sin_family = AF_INET, .sin_addr.s_addr = htonl(INADDR_LOOPBACK) };
+    struct iovec iov = { };
+    struct msghdr hdr = { .msg_name = &addr, .msg_namelen = sizeof(addr), .msg_iov = &iov, .msg_iovlen = 1 };
+    sendmsg(socket(PF_IEEE802154, SOCK_RAW, 0), &hdr, 0);
+    return 0;
+  }
+  ----------
+
+Note that this might be a sign that commit fd1894224407c484 ("bpf: Don't
+redirect packets with invalid pkt_len") should be reverted, for
+skb->len == 0 was acceptable for at least PF_IEEE802154 socket.
+
+Link: https://syzkaller.appspot.com/bug?extid=5ea725c25d06fb9114c4 [1]
+Reported-by: syzbot <syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com>
+Fixes: fd1894224407c484 ("bpf: Don't redirect packets with invalid pkt_len")
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20221005014750.3685555-2-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libahci_platform.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ net/ieee802154/socket.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
-index 0910441321f7..64d6da0a5303 100644
---- a/drivers/ata/libahci_platform.c
-+++ b/drivers/ata/libahci_platform.c
-@@ -451,14 +451,24 @@ struct ahci_host_priv *ahci_platform_get_resources(struct platform_device *pdev,
- 		}
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index a92b11999e5f..6d6c28581770 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -273,6 +273,10 @@ static int raw_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 		err = -EMSGSIZE;
+ 		goto out_dev;
  	}
- 
--	hpriv->nports = child_nodes = of_get_child_count(dev->of_node);
-+	/*
-+	 * Too many sub-nodes most likely means having something wrong with
-+	 * the firmware.
-+	 */
-+	child_nodes = of_get_child_count(dev->of_node);
-+	if (child_nodes > AHCI_MAX_PORTS) {
-+		rc = -EINVAL;
-+		goto err_out;
++	if (!size) {
++		err = 0;
++		goto out_dev;
 +	}
  
- 	/*
- 	 * If no sub-node was found, we still need to set nports to
- 	 * one in order to be able to use the
- 	 * ahci_platform_[en|dis]able_[phys|regulators] functions.
- 	 */
--	if (!child_nodes)
-+	if (child_nodes)
-+		hpriv->nports = child_nodes;
-+	else
- 		hpriv->nports = 1;
- 
- 	hpriv->phys = devm_kcalloc(dev, hpriv->nports, sizeof(*hpriv->phys), GFP_KERNEL);
+ 	hlen = LL_RESERVED_SPACE(dev);
+ 	tlen = dev->needed_tailroom;
 -- 
 2.35.1
 
