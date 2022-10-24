@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CBDF60A600
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 540C560ABF1
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233874AbiJXMbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:31:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51190 "EHLO
+        id S234829AbiJXN7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:59:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234142AbiJXM3Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9E1C88A0D;
-        Mon, 24 Oct 2022 05:03:14 -0700 (PDT)
+        with ESMTP id S237071AbiJXN7Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:59:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF2CBEAC3;
+        Mon, 24 Oct 2022 05:46:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4AB3B81200;
-        Mon, 24 Oct 2022 12:00:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42895C433C1;
-        Mon, 24 Oct 2022 12:00:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 832C5612DD;
+        Mon, 24 Oct 2022 12:46:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B9F3C433D6;
+        Mon, 24 Oct 2022 12:46:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612830;
-        bh=4/5oQa4SXwqMtAcGf0F3+o2IZAhzz6PX17NqEpDjG/M=;
+        s=korg; t=1666615591;
+        bh=obz5FPNMsHHx1sO6B0yQTmd5pxFcPPFY4b0ZdeXu71Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dBUqyZfSgKekWNwR+0O0nbePo7jjdY6hsCxUVurVHoB78roTA9xrKKHp4X+0Zugeg
-         e8V0nIs0M+oILFC/0aSsyXpGTb4/f/5b7OG/2Ty/Ahzwe22cl3g/AwAPoTfSQZgGBF
-         HWo1YFNJv7tMPiSVxXmsY/ny8urEuHhtqoJPmdZY=
+        b=DqMOrsMUizOCF5CoEfGZ9V+4bGYnBByog9q5eOCGYbK4dKCGla/VsmG6DLH8dc/0j
+         S7pqd56pIt2gAGzv/sWl1aPFQDd2iVXYGekoNckA3ycb5mlTMzw0LCI9p74j/hJFKy
+         hWIS5C4/qOxoK0XciRFP3VW6akzj25XiIyG62A78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
-        William Dean <williamsukatube@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 135/229] mtd: devices: docg3: check the return value of devm_ioremap() in the probe
+Subject: [PATCH 5.15 310/530] RDMA/siw: Always consume all skbuf data in sk_data_ready() upcall.
 Date:   Mon, 24 Oct 2022 13:30:54 +0200
-Message-Id: <20221024113003.372004673@linuxfoundation.org>
+Message-Id: <20221024113059.083190389@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Dean <williamsukatube@gmail.com>
+From: Bernard Metzler <bmt@zurich.ibm.com>
 
-[ Upstream commit 26e784433e6c65735cd6d93a8db52531970d9a60 ]
+[ Upstream commit 754209850df8367c954ac1de7671c7430b1f342c ]
 
-The function devm_ioremap() in docg3_probe() can fail, so
-its return value should be checked.
+For header and trailer/padding processing, siw did not consume new
+skb data until minimum amount present to fill current header or trailer
+structure, including potential payload padding. Not consuming any
+data during upcall may cause a receive stall, since tcp_read_sock()
+is not upcalling again if no new data arrive.
+A NFSoRDMA client got stuck at RDMA Write reception of unaligned
+payload, if the current skb did contain only the expected 3 padding
+bytes, but not the 4 bytes CRC trailer. Expecting 4 more bytes already
+arrived in another skb, and not consuming those 3 bytes in the current
+upcall left the Write incomplete, waiting for the CRC forever.
 
-Fixes: 82402aeb8c81e ("mtd: docg3: Use devm_*() functions")
-Reported-by: Hacash Robot <hacashRobot@santino.com>
-Signed-off-by: William Dean <williamsukatube@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220722091644.2937953-1-williamsukatube@163.com
+Fixes: 8b6a361b8c48 ("rdma/siw: receive path")
+Reported-by: Olga Kornievskaia <kolga@netapp.com>
+Tested-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
+Link: https://lore.kernel.org/r/20220920081202.223629-1-bmt@zurich.ibm.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/devices/docg3.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/infiniband/sw/siw/siw_qp_rx.c | 27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/mtd/devices/docg3.c b/drivers/mtd/devices/docg3.c
-index 512bd4c2eec0..740a09c9f67a 100644
---- a/drivers/mtd/devices/docg3.c
-+++ b/drivers/mtd/devices/docg3.c
-@@ -1990,9 +1990,14 @@ static int __init docg3_probe(struct platform_device *pdev)
- 		dev_err(dev, "No I/O memory resource defined\n");
- 		return ret;
- 	}
--	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
+diff --git a/drivers/infiniband/sw/siw/siw_qp_rx.c b/drivers/infiniband/sw/siw/siw_qp_rx.c
+index 875ea6f1b04a..fd721cc19682 100644
+--- a/drivers/infiniband/sw/siw/siw_qp_rx.c
++++ b/drivers/infiniband/sw/siw/siw_qp_rx.c
+@@ -961,27 +961,28 @@ int siw_proc_terminate(struct siw_qp *qp)
+ static int siw_get_trailer(struct siw_qp *qp, struct siw_rx_stream *srx)
+ {
+ 	struct sk_buff *skb = srx->skb;
++	int avail = min(srx->skb_new, srx->fpdu_part_rem);
+ 	u8 *tbuf = (u8 *)&srx->trailer.crc - srx->pad;
+ 	__wsum crc_in, crc_own = 0;
  
- 	ret = -ENOMEM;
-+	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
-+	if (!base) {
-+		dev_err(dev, "devm_ioremap dev failed\n");
-+		return ret;
-+	}
+ 	siw_dbg_qp(qp, "expected %d, available %d, pad %u\n",
+ 		   srx->fpdu_part_rem, srx->skb_new, srx->pad);
+ 
+-	if (srx->skb_new < srx->fpdu_part_rem)
+-		return -EAGAIN;
+-
+-	skb_copy_bits(skb, srx->skb_offset, tbuf, srx->fpdu_part_rem);
++	skb_copy_bits(skb, srx->skb_offset, tbuf, avail);
+ 
+-	if (srx->mpa_crc_hd && srx->pad)
+-		crypto_shash_update(srx->mpa_crc_hd, tbuf, srx->pad);
++	srx->skb_new -= avail;
++	srx->skb_offset += avail;
++	srx->skb_copied += avail;
++	srx->fpdu_part_rem -= avail;
+ 
+-	srx->skb_new -= srx->fpdu_part_rem;
+-	srx->skb_offset += srx->fpdu_part_rem;
+-	srx->skb_copied += srx->fpdu_part_rem;
++	if (srx->fpdu_part_rem)
++		return -EAGAIN;
+ 
+ 	if (!srx->mpa_crc_hd)
+ 		return 0;
+ 
++	if (srx->pad)
++		crypto_shash_update(srx->mpa_crc_hd, tbuf, srx->pad);
+ 	/*
+ 	 * CRC32 is computed, transmitted and received directly in NBO,
+ 	 * so there's never a reason to convert byte order.
+@@ -1083,10 +1084,9 @@ static int siw_get_hdr(struct siw_rx_stream *srx)
+ 	 * completely received.
+ 	 */
+ 	if (iwarp_pktinfo[opcode].hdr_len > sizeof(struct iwarp_ctrl_tagged)) {
+-		bytes = iwarp_pktinfo[opcode].hdr_len - MIN_DDP_HDR;
++		int hdrlen = iwarp_pktinfo[opcode].hdr_len;
+ 
+-		if (srx->skb_new < bytes)
+-			return -EAGAIN;
++		bytes = min_t(int, hdrlen - MIN_DDP_HDR, srx->skb_new);
+ 
+ 		skb_copy_bits(skb, srx->skb_offset,
+ 			      (char *)c_hdr + srx->fpdu_part_rcvd, bytes);
+@@ -1096,6 +1096,9 @@ static int siw_get_hdr(struct siw_rx_stream *srx)
+ 		srx->skb_new -= bytes;
+ 		srx->skb_offset += bytes;
+ 		srx->skb_copied += bytes;
 +
- 	cascade = devm_kcalloc(dev, DOC_MAX_NBFLOORS, sizeof(*cascade),
- 			       GFP_KERNEL);
- 	if (!cascade)
++		if (srx->fpdu_part_rcvd < hdrlen)
++			return -EAGAIN;
+ 	}
+ 
+ 	/*
 -- 
 2.35.1
 
