@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 448E660A6A3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:37:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEBA460A4C2
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:15:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231334AbiJXMgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:36:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45818 "EHLO
+        id S232988AbiJXMPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:15:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234551AbiJXMf0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:35:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A313D5FAF2;
-        Mon, 24 Oct 2022 05:05:25 -0700 (PDT)
+        with ESMTP id S233313AbiJXMOs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:14:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 732147739A;
+        Mon, 24 Oct 2022 04:55:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9C3A6129D;
-        Mon, 24 Oct 2022 12:05:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1B7AC433D6;
-        Mon, 24 Oct 2022 12:05:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 918116126B;
+        Mon, 24 Oct 2022 11:55:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3571C433C1;
+        Mon, 24 Oct 2022 11:55:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613106;
-        bh=N6tPm1EFvhXAzR4cNF8AAjV699h2J/V/7WVDj2y+q3M=;
+        s=korg; t=1666612513;
+        bh=7a+WTDLovQeSm3K4+3q8ZCqpy2ODJ1EzuBZHDte6j3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w/lxT7Qr1oFGbZORLAH5tMoK2aQn0xydNgUMyjeGCRY+AHqQhYcAAmnBykqR7y0u1
-         niwJzyYt6+FV1pqdZCCgWMCnrRSJJvaGpX8/5woIYknGw0OYkeoQIiACIfcU3dhneR
-         GkLwP/4WcdTssHcTfrGckRkQ0XAVlESfoIiETmfE=
+        b=MURE368QAnM1DEWIYCfn/kr14lRU6c5Ee+u/90UutcbrBDbL/EOU24NMQI1Fl/stu
+         SfvKYzho2VkFuYIKfQJ1xd+6Yuc92BeiT3nwg6TkGRDQuDVIq1qVuh3hQs8O5n3J9/
+         nCiwYNZGzxpRBB94quEeF3YPA7EzbIcvL6xXFGHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>, Tom Talpey <tom@talpey.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 011/255] cifs: Fix the error length of VALIDATE_NEGOTIATE_INFO message
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 4.19 002/229] docs: update mediator information in CoC docs
 Date:   Mon, 24 Oct 2022 13:28:41 +0200
-Message-Id: <20221024113002.822599107@linuxfoundation.org>
+Message-Id: <20221024112959.182109794@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit e98ecc6e94f4e6d21c06660b0f336df02836694f upstream.
+commit 8bfdfa0d6b929ede7b6189e0e546ceb6a124d05d upstream.
 
-Commit d5c7076b772a ("smb3: add smb3.1.1 to default dialect list")
-extend the dialects from 3 to 4, but forget to decrease the extended
-length when specific the dialect, then the message length is larger
-than expected.
+Update mediator information in the CoC interpretation document.
 
-This maybe leak some info through network because not initialize the
-message body.
-
-After apply this patch, the VALIDATE_NEGOTIATE_INFO message length is
-reduced from 28 bytes to 26 bytes.
-
-Fixes: d5c7076b772a ("smb3: add smb3.1.1 to default dialect list")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Cc: <stable@vger.kernel.org>
-Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220901212319.56644-1-skhan@linuxfoundation.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2pdu.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/process/code-of-conduct-interpretation.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -1100,9 +1100,9 @@ int smb3_validate_negotiate(const unsign
- 		pneg_inbuf->Dialects[0] =
- 			cpu_to_le16(server->vals->protocol_id);
- 		pneg_inbuf->DialectCount = cpu_to_le16(1);
--		/* structure is big enough for 3 dialects, sending only 1 */
-+		/* structure is big enough for 4 dialects, sending only 1 */
- 		inbuflen = sizeof(*pneg_inbuf) -
--				sizeof(pneg_inbuf->Dialects[0]) * 2;
-+				sizeof(pneg_inbuf->Dialects[0]) * 3;
- 	}
+--- a/Documentation/process/code-of-conduct-interpretation.rst
++++ b/Documentation/process/code-of-conduct-interpretation.rst
+@@ -51,7 +51,7 @@ the Technical Advisory Board (TAB) or ot
+ uncertain how to handle situations that come up.  It will not be
+ considered a violation report unless you want it to be.  If you are
+ uncertain about approaching the TAB or any other maintainers, please
+-reach out to our conflict mediator, Mishi Choudhary <mishi@linux.com>.
++reach out to our conflict mediator, Joanna Lee <joanna.lee@gesmer.com>.
  
- 	rc = SMB2_ioctl(xid, tcon, NO_FILE_ID, NO_FILE_ID,
+ In the end, "be kind to each other" is really what the end goal is for
+ everybody.  We know everyone is human and we all fail at times, but the
 
 
