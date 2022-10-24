@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ABD960BA92
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:38:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D22860BA75
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234325AbiJXUiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:38:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44196 "EHLO
+        id S234387AbiJXUhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:37:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234305AbiJXUiZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:38:25 -0400
+        with ESMTP id S234383AbiJXUgf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:36:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF827CB7C;
-        Mon, 24 Oct 2022 11:49:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28382645A;
+        Mon, 24 Oct 2022 11:48:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3170AB819CA;
-        Mon, 24 Oct 2022 12:45:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83887C433C1;
-        Mon, 24 Oct 2022 12:45:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77CFDB819CD;
+        Mon, 24 Oct 2022 12:45:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA5BFC433D6;
+        Mon, 24 Oct 2022 12:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615509;
-        bh=I9d031I2SDmf36pt9nJFhqyJf4Vp12w30552pTi83wQ=;
+        s=korg; t=1666615523;
+        bh=K4roTK2fnCmQiAynGRZx39W2zSKfyzroDBihQQeCMlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bWh5e2S7KAyJ3Enc2HxTBJEznoPcZvAXThF1ScCNDIiYkG+9nb+rSF+nyP/MT+Kmg
-         nb7BrKtrU2cTOV6zVsp8cAsLuHj1u1By1KooY7fImpAxFKc2pQ5D8O/zKhuffoXXkw
-         bRQz+/pteZNJ0KQjx6datpyV2839FzbVop89uTkk=
+        b=kIvyumD2WCY+9KeNV1FP1s9ViMlHe+re8kZL9uIZd03/sqGKAXo5egKC+MvsrnPf8
+         9Rfs7IMXlTmtGrGUFnpJXCexgSiBOMqsxiO5emx2CL9HRsnxQL4NSACKKu3Y5OmKx8
+         1wkezMfno7LIQizoIOyzHTs9KXntrs0OIa8Vx/iA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Sebastian Reichel <sre@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 279/530] clk: tegra: Fix refcount leak in tegra210_clock_init
-Date:   Mon, 24 Oct 2022 13:30:23 +0200
-Message-Id: <20221024113057.700322334@linuxfoundation.org>
+Subject: [PATCH 5.15 283/530] HSI: omap_ssi_port: Fix dma_map_sg error check
+Date:   Mon, 24 Oct 2022 13:30:27 +0200
+Message-Id: <20221024113057.878266888@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,35 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jack Wang <jinpu.wang@ionos.com>
 
-[ Upstream commit 56c78cb1f00a9dde8cd762131ce8f4c5eb046fbb ]
+[ Upstream commit 551e325bbd3fb8b5a686ac1e6cf76e5641461cf2 ]
 
-of_find_matching_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+dma_map_sg return 0 on error, in case of error return -EIO
+to caller.
 
-Fixes: 6b301a059eb2 ("clk: tegra: Add support for Tegra210 clocks")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220523142608.65074-1-linmq006@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Cc: Sebastian Reichel <sre@kernel.org>
+Cc: linux-kernel@vger.kernel.org (open list)
+Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-tegra210.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hsi/controllers/omap_ssi_port.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/tegra/clk-tegra210.c b/drivers/clk/tegra/clk-tegra210.c
-index b9099012dc7b..499f999e91e1 100644
---- a/drivers/clk/tegra/clk-tegra210.c
-+++ b/drivers/clk/tegra/clk-tegra210.c
-@@ -3748,6 +3748,7 @@ static void __init tegra210_clock_init(struct device_node *np)
- 	}
- 
- 	pmc_base = of_iomap(node, 0);
-+	of_node_put(node);
- 	if (!pmc_base) {
- 		pr_err("Can't map pmc registers\n");
- 		WARN_ON(1);
+diff --git a/drivers/hsi/controllers/omap_ssi_port.c b/drivers/hsi/controllers/omap_ssi_port.c
+index a0cb5be246e1..b9495b720f1b 100644
+--- a/drivers/hsi/controllers/omap_ssi_port.c
++++ b/drivers/hsi/controllers/omap_ssi_port.c
+@@ -230,10 +230,10 @@ static int ssi_start_dma(struct hsi_msg *msg, int lch)
+ 	if (msg->ttype == HSI_MSG_READ) {
+ 		err = dma_map_sg(&ssi->device, msg->sgt.sgl, msg->sgt.nents,
+ 							DMA_FROM_DEVICE);
+-		if (err < 0) {
++		if (!err) {
+ 			dev_dbg(&ssi->device, "DMA map SG failed !\n");
+ 			pm_runtime_put_autosuspend(omap_port->pdev);
+-			return err;
++			return -EIO;
+ 		}
+ 		csdp = SSI_DST_BURST_4x32_BIT | SSI_DST_MEMORY_PORT |
+ 			SSI_SRC_SINGLE_ACCESS0 | SSI_SRC_PERIPHERAL_PORT |
+@@ -247,10 +247,10 @@ static int ssi_start_dma(struct hsi_msg *msg, int lch)
+ 	} else {
+ 		err = dma_map_sg(&ssi->device, msg->sgt.sgl, msg->sgt.nents,
+ 							DMA_TO_DEVICE);
+-		if (err < 0) {
++		if (!err) {
+ 			dev_dbg(&ssi->device, "DMA map SG failed !\n");
+ 			pm_runtime_put_autosuspend(omap_port->pdev);
+-			return err;
++			return -EIO;
+ 		}
+ 		csdp = SSI_SRC_BURST_4x32_BIT | SSI_SRC_MEMORY_PORT |
+ 			SSI_DST_SINGLE_ACCESS0 | SSI_DST_PERIPHERAL_PORT |
 -- 
 2.35.1
 
