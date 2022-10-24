@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE7B860AB4D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:50:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9D7560A96B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231598AbiJXNuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:50:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55630 "EHLO
+        id S231438AbiJXNUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:20:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236438AbiJXNse (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:48:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0744B5FC2;
-        Mon, 24 Oct 2022 05:41:11 -0700 (PDT)
+        with ESMTP id S236257AbiJXNTn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:19:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1855AA6C05;
+        Mon, 24 Oct 2022 05:28:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6E5661333;
-        Mon, 24 Oct 2022 12:40:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E95FBC433B5;
-        Mon, 24 Oct 2022 12:40:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B55BEB810F5;
+        Mon, 24 Oct 2022 12:05:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D46C433C1;
+        Mon, 24 Oct 2022 12:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615227;
-        bh=FnsUOrukcgh1DXyUsVJwXEJVN6edZN1h+UOTYUDZUaI=;
+        s=korg; t=1666613145;
+        bh=dZdoUx1cfGig2aKa5ufWKxeODt8wBSQvHb3m16sWYFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jEUsx5qdOzbIxF28qLwdSg1h4ofKJUtVQsH/r/d7HT8YSdBYqqHOJK4Tm/JxZyLji
-         JgF1L8ew2K3tL8GGSX79FcAaMXMfgxKhB1FfqlUQQO2if2wDLB8R4L8e8/54BbIiF2
-         sChTamr+rv5HIay0mPxp7Xbv6ekrBLReAfGmTrgY=
+        b=n5uz2h2fZzRfw4GyLmFXgOy6EC6g1j4r9VwF79NGKFPUWSv3/ExdBL2cCs+aiwZSO
+         iHP8TopRLBa9Q3qvd2IP4Yi9rUhL4BFYZ1bwLm8e8LbTGsLCRhyImVE6DjyLVQIVB6
+         gbm/O9NidLTmCkvCVQdEKxeoNi1zv79XDWLsDkr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanislav Fomichev <sdf@google.com>,
-        Lorenz Bauer <oss@lmb.io>, Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 171/530] bpf: btf: fix truncated last_member_type_id in btf_struct_resolve
+        stable@vger.kernel.org,
+        Callum Osmotherly <callum.osmotherly@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 005/255] ALSA: hda/realtek: remove ALC289_FIXUP_DUAL_SPK for Dell 5530
 Date:   Mon, 24 Oct 2022 13:28:35 +0200
-Message-Id: <20221024113052.774846454@linuxfoundation.org>
+Message-Id: <20221024113002.638783406@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <oss@lmb.io>
+From: Callum Osmotherly <callum.osmotherly@gmail.com>
 
-[ Upstream commit a37a32583e282d8d815e22add29bc1e91e19951a ]
+commit 417b9c51f59734d852e47252476fadc293ad994a upstream.
 
-When trying to finish resolving a struct member, btf_struct_resolve
-saves the member type id in a u16 temporary variable. This truncates
-the 32 bit type id value if it exceeds UINT16_MAX.
+After some feedback from users with Dell Precision 5530 machines, this
+patch reverts the previous change to add ALC289_FIXUP_DUAL_SPK.
+While it improved the speaker output quality, it caused the headphone
+jack to have an audible "pop" sound when power saving was toggled.
 
-As a result, structs that have members with type ids > UINT16_MAX and
-which need resolution will fail with a message like this:
-
-    [67414] STRUCT ff_device size=120 vlen=12
-        effect_owners type_id=67434 bits_offset=960 Member exceeds struct_size
-
-Fix this by changing the type of last_member_type_id to u32.
-
-Fixes: a0791f0df7d2 ("bpf: fix BTF limits")
-Reviewed-by: Stanislav Fomichev <sdf@google.com>
-Signed-off-by: Lorenz Bauer <oss@lmb.io>
-Link: https://lore.kernel.org/r/20220910110120.339242-1-oss@lmb.io
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1885ff13d4c4 ("ALSA: hda/realtek: Enable 4-speaker output Dell Precision 5530 laptop")
+Signed-off-by: Callum Osmotherly <callum.osmotherly@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/Yz0uyN1zwZhnyRD6@piranha
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/btf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index 3cfba41a0829..7cb13b9f69a6 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -2983,7 +2983,7 @@ static int btf_struct_resolve(struct btf_verifier_env *env,
- 	if (v->next_member) {
- 		const struct btf_type *last_member_type;
- 		const struct btf_member *last_member;
--		u16 last_member_type_id;
-+		u32 last_member_type_id;
- 
- 		last_member = btf_type_member(v->t) + v->next_member - 1;
- 		last_member_type_id = last_member->type;
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8138,7 +8138,6 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1028, 0x0871, "Dell Precision 3630", ALC255_FIXUP_DELL_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0872, "Dell Precision 3630", ALC255_FIXUP_DELL_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0873, "Dell Precision 3930", ALC255_FIXUP_DUMMY_LINEOUT_VERB),
+-	SND_PCI_QUIRK(0x1028, 0x087d, "Dell Precision 5530", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x08ad, "Dell WYSE AIO", ALC225_FIXUP_DELL_WYSE_AIO_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x08ae, "Dell WYSE NB", ALC225_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x0935, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB),
 
 
