@@ -2,105 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E9A360B69D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:06:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4E560B75E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:23:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232589AbiJXTF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:05:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54878 "EHLO
+        id S232444AbiJXTXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:23:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233729AbiJXTFF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:05:05 -0400
-Received: from mail-qk1-x731.google.com (mail-qk1-x731.google.com [IPv6:2607:f8b0:4864:20::731])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 042E42250F;
-        Mon, 24 Oct 2022 10:44:45 -0700 (PDT)
-Received: by mail-qk1-x731.google.com with SMTP id m6so6527487qkm.4;
-        Mon, 24 Oct 2022 10:44:45 -0700 (PDT)
+        with ESMTP id S232392AbiJXTV5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:21:57 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105B93EA4A
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 10:57:29 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id d59-20020a17090a6f4100b00213202d77e1so2127829pjk.2
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 10:57:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=unDwZ00sZ6rH0gC+V3B9KQCdS9ESYoOoCdSDhEZSa1g=;
-        b=bU2S2f4cGJ6F8uw/FAJGFv9XKtWGBgRxNDkzXHES3yo9uTkliQ0gBa5x9jozTJCld5
-         daXZEr07YJhIVSQmtpdRjXET8y0PALuRDAC9612lX05iJbbP9qddxAXletgBnrlbPN4m
-         Sc2LTkiW1hEYi0ZcR060C5YXz4vQ/DuQ1rAP0VR4zp4iwWuQDbAZFOJhQyTXTPccQtq8
-         uWGhat+SZIAo/2MY/TDskbthsCMDFpmHoytGNrd8eFBhi3uJFzKE8EO3egSjH77AY36W
-         NPt37yTiqWuSekSio+beyHEz1S9ckXY/o4xhn7291iHSmk40/ycCaRopgqskQ0d5nYl3
-         9xpA==
+        d=chromium.org; s=google;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=aHRjtpJRM3U1ghY1hCFtCgckU5MadMj28s/UZ9ZqXJY=;
+        b=huM5ypBTUsffC1by9Jd9TL5QHxmbKm3XfeGX4DjCG2CA1f88rtNfIcdskO8MVHkZ96
+         Vesb6S2I1QxVDYiE1YZC336xhLf5LG+Ffg3a3xgl52ahBWt7nRsFgYugqfogVOhTYztP
+         bJvp7aFAa5/SlYxVzpmhRUN73Lh+HFi81d6cw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=unDwZ00sZ6rH0gC+V3B9KQCdS9ESYoOoCdSDhEZSa1g=;
-        b=GcB4/PgeRYOGxtMfnXyQhZ1ej3O5BO5ktz5Lcg0xHWrHwmr+Eg/7kjl2P5qMnVVfS3
-         JCH4U7o3YyBxrTtcFJGorAYhTHo5ZSeqSWoJ0KWH5ixR4O1QD9OQ5eu5qwIC5pkbFNJP
-         xjou3gYnClwAtIZTPYwKqPlkhM9Sua2yzEBVkpNHOxnIiXjF13fv+zxY0Ik71fVgqlRk
-         +KX5P94ulIMJ+J0Up/hH4hRbUB8y61a9LJIt7Lc26sZxeRfRVqa75yYEtKerP2N8adQK
-         29z6Mji9eRlbiKJOULyuYpEv7XKdNiz5w+ZB/o1GEMxNPjUD9I4krbfrThRZDBoTEqSY
-         zY+Q==
-X-Gm-Message-State: ACrzQf1adatEp+rKcUkt45BFqTLqLqXW4vvfJw8+zK8HwtOgP5HopiI9
-        FQ6mf5y/5XDA49SSDl8nrco=
-X-Google-Smtp-Source: AMsMyM7Anu0J0mkmKAyAJumElNE18SGBt6nfETtgJtXGiYys54lwjy/vvYVflO8qqSXLV4lfg3pw8g==
-X-Received: by 2002:a37:658b:0:b0:6f6:b1d7:d7e5 with SMTP id z133-20020a37658b000000b006f6b1d7d7e5mr1699543qkb.497.1666633399469;
-        Mon, 24 Oct 2022 10:43:19 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id u4-20020a05620a454400b006ce2c3c48ebsm339964qkp.77.2022.10.24.10.43.13
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=aHRjtpJRM3U1ghY1hCFtCgckU5MadMj28s/UZ9ZqXJY=;
+        b=XIW970/2u3RycCZepki/JXyR6GBmBwvzd4vtbKJ9iF5XW7C50rUBmi4xlzzCLRvtzL
+         C95bTU5W6H8WNiK6zPKPvoM3PeA4tjewUkUHODm9wRvD8EuassTyM3/k7uLlyT6nGYbd
+         dWSCxWmHkLRx6C8zS+rJ+T7b7v4i4spCL2zvapyJNs52QXSkCcZDY21oxhHf544U7sfK
+         brjL/PNXnPWjqKhp38YzzfJpIIqbxx+FRkxl1mAgJrXn8PJI5JCXN3IIBBuIVynIVdo1
+         ieUqKFeVwOcTJQJnFXzaxoo+Y41cmv0hSIAXpNZtpTpUBBeAA1pH26K2dLZR1pHPpDsK
+         YN0A==
+X-Gm-Message-State: ACrzQf3FWgBNFnCMGo0yNwBK+Jus4rduKxdeWeqpb/OzkIdlAg5XF7Ef
+        9tr/5hkcPvpLeIq2/3EKvqxPBQ==
+X-Google-Smtp-Source: AMsMyM5udnYbAi+mguFLjBH9/86VARsZ4rUjL1aBNXirhO+r5bbW6Xf3s3tZlK3VBYD0PAM8q0X5uw==
+X-Received: by 2002:a17:90a:1690:b0:212:f865:4f0e with SMTP id o16-20020a17090a169000b00212f8654f0emr11266624pja.197.1666634172695;
+        Mon, 24 Oct 2022 10:56:12 -0700 (PDT)
+Received: from localhost ([2620:15c:9d:2:808b:e2f6:edcf:ccb0])
+        by smtp.gmail.com with UTF8SMTPSA id d28-20020aa797bc000000b0056c0d129edfsm90824pfq.121.2022.10.24.10.56.10
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Oct 2022 10:43:19 -0700 (PDT)
-Message-ID: <0fd92814-226b-b61d-c57d-2bb79d312594@gmail.com>
-Date:   Mon, 24 Oct 2022 10:43:11 -0700
+        Mon, 24 Oct 2022 10:56:12 -0700 (PDT)
+From:   Brian Norris <briannorris@chromium.org>
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     Shawn Lin <shawn.lin@rock-chips.com>, linux-mmc@vger.kernel.org,
+        Al Cooper <alcooperx@gmail.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Broadcom internal kernel review list 
+        <bcm-kernel-feedback-list@broadcom.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        linux-kernel@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        linux-arm-msm@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Andy Gross <agross@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Brian Norris <briannorris@chromium.org>, stable@vger.kernel.org
+Subject: [PATCH v3 1/7] mmc: cqhci: Provide helper for resetting both SDHCI and CQHCI
+Date:   Mon, 24 Oct 2022 10:54:55 -0700
+Message-Id: <20221024105229.v3.1.Ie85faa09432bfe1b0890d8c24ff95e17f3097317@changeid>
+X-Mailer: git-send-email 2.38.0.135.g90850a2211-goog
+In-Reply-To: <20221024175501.2265400-1-briannorris@chromium.org>
+References: <20221024175501.2265400-1-briannorris@chromium.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH 5.4 000/255] 5.4.220-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-References: <20221024113002.471093005@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/24/22 04:28, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.220 release.
-> There are 255 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 26 Oct 2022 11:29:24 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.220-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Several SDHCI drivers need to deactivate command queueing in their reset
+hook (see sdhci_cqhci_reset() / sdhci-pci-core.c, for example), and
+several more are coming.
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+Those reset implementations have some small subtleties (e.g., ordering
+of initialization of SDHCI vs. CQHCI might leave us resetting with a
+NULL ->cqe_private), and are often identical across different host
+drivers.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+We also don't want to force a dependency between SDHCI and CQHCI, or
+vice versa; non-SDHCI drivers use CQHCI, and SDHCI drivers might support
+command queueing through some other means.
+
+So, implement a small helper, to avoid repeating the same mistakes in
+different drivers. Simply stick it in a header, because it's so small it
+doesn't deserve its own module right now, and inlining to each driver is
+pretty reasonable.
+
+This is marked for -stable, as it is an important prerequisite patch for
+several SDHCI controller bugfixes that follow.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+---
+
+Changes in v3:
+ - New in v3 (replacing a simple 'cqe_private == NULL' patch in v2)
+
+ drivers/mmc/host/sdhci-cqhci.h | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 drivers/mmc/host/sdhci-cqhci.h
+
+diff --git a/drivers/mmc/host/sdhci-cqhci.h b/drivers/mmc/host/sdhci-cqhci.h
+new file mode 100644
+index 000000000000..270ab1f1de3c
+--- /dev/null
++++ b/drivers/mmc/host/sdhci-cqhci.h
+@@ -0,0 +1,25 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Copyright 2022 The Chromium OS Authors
++ *
++ * Support that applies to the combination of SDHCI and CQHCI, while not
++ * expressing a dependency between the two modules.
++ */
++
++#ifndef __MMC_HOST_SDHCI_CQHCI_H__
++#define __MMC_HOST_SDHCI_CQHCI_H__
++
++#include "cqhci.h"
++#include "sdhci.h"
++
++static inline void sdhci_and_cqhci_reset(struct sdhci_host *host, u8 mask)
++{
++	if ((host->mmc->caps2 & MMC_CAP2_CQE) && (mask & SDHCI_RESET_ALL) &&
++	    host->mmc->cqe_private)
++		cqhci_deactivate(host->mmc);
++
++	sdhci_reset(host, mask);
++}
++
++
++#endif /* __MMC_HOST_SDHCI_CQHCI_H__ */
 -- 
-Florian
+2.38.0.135.g90850a2211-goog
 
