@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B4960A513
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A787B60ABEF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233248AbiJXMUU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:20:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52554 "EHLO
+        id S232282AbiJXN7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:59:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233516AbiJXMTn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:43 -0400
+        with ESMTP id S236984AbiJXN7E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:59:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95A698285C;
-        Mon, 24 Oct 2022 04:58:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3DC2638DD;
+        Mon, 24 Oct 2022 05:46:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D657A61254;
-        Mon, 24 Oct 2022 11:50:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E94C1C433C1;
-        Mon, 24 Oct 2022 11:50:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BED4612DD;
+        Mon, 24 Oct 2022 12:46:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67A4CC433D6;
+        Mon, 24 Oct 2022 12:46:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612255;
-        bh=3woiI64PEx05HutrOLVRH3ZjdrzIYvUydoHTUwinAaw=;
+        s=korg; t=1666615570;
+        bh=d4xHh/EUCkCOVmUiHgDNQoi2lFnlAt1QKWLdSYAR6Ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQGydnCTDjmWfYHWMuCr8s3j2wHwogakGxwV4NZUlpREZWiwwNieVwUAAC2zHTIkV
-         mtTA5/Xl8jqWweLUPgrsCFe9TvngU+3zfg1OeVam6i89j6PbVArwWq2fPnZgl5T2Em
-         U315CMcTiS3N79NY+2+JFOk1nnrXcwmAB8lpzBhw=
+        b=WdDiX1+CFBdAOQDvrZGHbfyp0kZTPQq4jhdo+pdhw5olwABlJ+18VtkR6x3/lV2RU
+         oBOQjL19o/SclBJnMuTJoFcWLLszXpq8usR4ntc86nXZ3J6Ei06bO4pRLrtaBDKphg
+         WYMZs6vdFaYTvKKVFN1lLflXDHMrpLSp39MBeB2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Jason Baron <jbaron@akamai.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jim Cromie <jim.cromie@gmail.com>,
+        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
+        William Dean <williamsukatube@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 128/210] dyndbg: fix module.dyndbg handling
-Date:   Mon, 24 Oct 2022 13:30:45 +0200
-Message-Id: <20221024113001.142535065@linuxfoundation.org>
+Subject: [PATCH 5.15 302/530] mtd: devices: docg3: check the return value of devm_ioremap() in the probe
+Date:   Mon, 24 Oct 2022 13:30:46 +0200
+Message-Id: <20221024113058.737968780@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Cromie <jim.cromie@gmail.com>
+From: William Dean <williamsukatube@gmail.com>
 
-[ Upstream commit 85d6b66d31c35158364058ee98fb69ab5bb6a6b1 ]
+[ Upstream commit 26e784433e6c65735cd6d93a8db52531970d9a60 ]
 
-For CONFIG_DYNAMIC_DEBUG=N, the ddebug_dyndbg_module_param_cb()
-stub-fn is too permissive:
+The function devm_ioremap() in docg3_probe() can fail, so
+its return value should be checked.
 
-bash-5.1# modprobe drm JUNKdyndbg
-bash-5.1# modprobe drm dyndbgJUNK
-[   42.933220] dyndbg param is supported only in CONFIG_DYNAMIC_DEBUG builds
-[   42.937484] ACPI: bus type drm_connector registered
-
-This caused no ill effects, because unknown parameters are either
-ignored by default with an "unknown parameter" warning, or ignored
-because dyndbg allows its no-effect use on non-dyndbg builds.
-
-But since the code has an explicit feedback message, it should be
-issued accurately.  Fix with strcmp for exact param-name match.
-
-Fixes: b48420c1d301 dynamic_debug: make dynamic-debug work for module initialization
-Reported-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Acked-by: Jason Baron <jbaron@akamai.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
-Link: https://lore.kernel.org/r/20220904214134.408619-3-jim.cromie@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 82402aeb8c81e ("mtd: docg3: Use devm_*() functions")
+Reported-by: Hacash Robot <hacashRobot@santino.com>
+Signed-off-by: William Dean <williamsukatube@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220722091644.2937953-1-williamsukatube@163.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/dynamic_debug.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/devices/docg3.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/dynamic_debug.h b/include/linux/dynamic_debug.h
-index 2fd8006153c3..921649db00f9 100644
---- a/include/linux/dynamic_debug.h
-+++ b/include/linux/dynamic_debug.h
-@@ -168,7 +168,7 @@ static inline int ddebug_remove_module(const char *mod)
- static inline int ddebug_dyndbg_module_param_cb(char *param, char *val,
- 						const char *modname)
- {
--	if (strstr(param, "dyndbg")) {
-+	if (!strcmp(param, "dyndbg")) {
- 		/* avoid pr_warn(), which wants pr_fmt() fully defined */
- 		printk(KERN_WARNING "dyndbg param is supported only in "
- 			"CONFIG_DYNAMIC_DEBUG builds\n");
+diff --git a/drivers/mtd/devices/docg3.c b/drivers/mtd/devices/docg3.c
+index 5b0ae5ddad74..27c08f22dec8 100644
+--- a/drivers/mtd/devices/docg3.c
++++ b/drivers/mtd/devices/docg3.c
+@@ -1974,9 +1974,14 @@ static int __init docg3_probe(struct platform_device *pdev)
+ 		dev_err(dev, "No I/O memory resource defined\n");
+ 		return ret;
+ 	}
+-	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
+ 
+ 	ret = -ENOMEM;
++	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
++	if (!base) {
++		dev_err(dev, "devm_ioremap dev failed\n");
++		return ret;
++	}
++
+ 	cascade = devm_kcalloc(dev, DOC_MAX_NBFLOORS, sizeof(*cascade),
+ 			       GFP_KERNEL);
+ 	if (!cascade)
 -- 
 2.35.1
 
