@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 772DE60B2AB
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:50:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 418C260B2BA
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235085AbiJXQuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:50:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60120 "EHLO
+        id S232413AbiJXQuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:50:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235185AbiJXQtL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F8A3255B1;
-        Mon, 24 Oct 2022 08:32:15 -0700 (PDT)
+        with ESMTP id S235331AbiJXQtZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D094415714;
+        Mon, 24 Oct 2022 08:32:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97657B8172E;
-        Mon, 24 Oct 2022 12:55:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1E8BC433D7;
-        Mon, 24 Oct 2022 12:55:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C494DB81A0A;
+        Mon, 24 Oct 2022 12:55:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B44DC433C1;
+        Mon, 24 Oct 2022 12:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616104;
-        bh=AovMnUVFaDgnuucVmCvW2YnL6/FL1thsQNXgFxRaPiw=;
+        s=korg; t=1666616109;
+        bh=wrATyctV2ohV737W7q/40WRodm8LvGQCPuOWW++0vFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NV2MiGtaNMUKjHE1LMuHIO+Y1BNncQFFKBFDWvdJ+uSGP97TEwW9hgTSww95DRW2V
-         H035yxBrWJHN9vpnWI4+cMmDVNdvBSdFFp2lW4YLqdaojLCxSByuEIYUFj1W4TnEzp
-         iuEG4+PbnpkO3+Fd19DqtguYaSIdNP4J/L05uaVs=
+        b=k0MdIMOJYddAPzQsFg0bpGm6TaWnG3DS+3DwKkna9RTvz+gazc0kHL0GAtj/uDrrW
+         WABJQ8hATg8jFKLLw1yrlCcWfQfe7YRNnfGDFOjmz/HBv/w0gGGH2mEkDAJYig+U3/
+         fFTr/AWP+dzHHX87dEmmJQAuLvYjJ+uz7nPCA6Rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Arun Easi <aeasi@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 503/530] scsi: tracing: Fix compile error in trace_array calls when TRACING is disabled
-Date:   Mon, 24 Oct 2022 13:34:07 +0200
-Message-Id: <20221024113107.805362542@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Lien <jeff.lien@wdc.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Chao Leng <lengchao@huawei.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 505/530] nvme: copy firmware_rev on each init
+Date:   Mon, 24 Oct 2022 13:34:09 +0200
+Message-Id: <20221024113107.892532032@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -55,97 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit 1a77dd1c2bb5d4a58c16d198cf593720787c02e4 ]
+[ Upstream commit a8eb6c1ba48bddea82e8d74cbe6e119f006be97d ]
 
-Fix this compilation error seen when CONFIG_TRACING is not enabled:
+The firmware revision can change on after a reset so copy the most
+recent info each time instead of just the first time, otherwise the
+sysfs firmware_rev entry may contain stale data.
 
-drivers/scsi/qla2xxx/qla_os.c: In function 'qla_trace_init':
-drivers/scsi/qla2xxx/qla_os.c:2854:25: error: implicit declaration of function
-'trace_array_get_by_name'; did you mean 'trace_array_set_clr_event'?
-[-Werror=implicit-function-declaration]
- 2854 |         qla_trc_array = trace_array_get_by_name("qla2xxx");
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~
-      |                         trace_array_set_clr_event
-
-drivers/scsi/qla2xxx/qla_os.c: In function 'qla_trace_uninit':
-drivers/scsi/qla2xxx/qla_os.c:2869:9: error: implicit declaration of function
-'trace_array_put' [-Werror=implicit-function-declaration]
- 2869 |         trace_array_put(qla_trc_array);
-      |         ^~~~~~~~~~~~~~~
-
-Link: https://lore.kernel.org/r/20220907233308.4153-2-aeasi@marvell.com
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Jeff Lien <jeff.lien@wdc.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Chao Leng <lengchao@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/trace.h | 36 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 34 insertions(+), 2 deletions(-)
+ drivers/nvme/host/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/trace.h b/include/linux/trace.h
-index bf169612ffe1..b5e16e438448 100644
---- a/include/linux/trace.h
-+++ b/include/linux/trace.h
-@@ -2,8 +2,6 @@
- #ifndef _LINUX_TRACE_H
- #define _LINUX_TRACE_H
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 76d8a72f52e2..3527a0667568 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2732,7 +2732,6 @@ static int nvme_init_subsystem(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
+ 	nvme_init_subnqn(subsys, ctrl, id);
+ 	memcpy(subsys->serial, id->sn, sizeof(subsys->serial));
+ 	memcpy(subsys->model, id->mn, sizeof(subsys->model));
+-	memcpy(subsys->firmware_rev, id->fr, sizeof(subsys->firmware_rev));
+ 	subsys->vendor_id = le16_to_cpu(id->vid);
+ 	subsys->cmic = id->cmic;
+ 	subsys->awupf = le16_to_cpu(id->awupf);
+@@ -2939,6 +2938,8 @@ static int nvme_init_identify(struct nvme_ctrl *ctrl)
+ 				ctrl->quirks |= core_quirks[i].quirks;
+ 		}
+ 	}
++	memcpy(ctrl->subsys->firmware_rev, id->fr,
++	       sizeof(ctrl->subsys->firmware_rev));
  
--#ifdef CONFIG_TRACING
--
- #define TRACE_EXPORT_FUNCTION	BIT(0)
- #define TRACE_EXPORT_EVENT	BIT(1)
- #define TRACE_EXPORT_MARKER	BIT(2)
-@@ -28,6 +26,8 @@ struct trace_export {
- 	int flags;
- };
- 
-+#ifdef CONFIG_TRACING
-+
- int register_ftrace_export(struct trace_export *export);
- int unregister_ftrace_export(struct trace_export *export);
- 
-@@ -48,6 +48,38 @@ void osnoise_arch_unregister(void);
- void osnoise_trace_irq_entry(int id);
- void osnoise_trace_irq_exit(int id, const char *desc);
- 
-+#else /* CONFIG_TRACING */
-+static inline int register_ftrace_export(struct trace_export *export)
-+{
-+	return -EINVAL;
-+}
-+static inline int unregister_ftrace_export(struct trace_export *export)
-+{
-+	return 0;
-+}
-+static inline void trace_printk_init_buffers(void)
-+{
-+}
-+static inline int trace_array_printk(struct trace_array *tr, unsigned long ip,
-+				     const char *fmt, ...)
-+{
-+	return 0;
-+}
-+static inline int trace_array_init_printk(struct trace_array *tr)
-+{
-+	return -EINVAL;
-+}
-+static inline void trace_array_put(struct trace_array *tr)
-+{
-+}
-+static inline struct trace_array *trace_array_get_by_name(const char *name)
-+{
-+	return NULL;
-+}
-+static inline int trace_array_destroy(struct trace_array *tr)
-+{
-+	return 0;
-+}
- #endif	/* CONFIG_TRACING */
- 
- #endif	/* _LINUX_TRACE_H */
+ 	if (force_apst && (ctrl->quirks & NVME_QUIRK_NO_DEEPEST_PS)) {
+ 		dev_warn(ctrl->device, "forcibly allowing all power states due to nvme_core.force_apst -- use at your own risk\n");
 -- 
 2.35.1
 
