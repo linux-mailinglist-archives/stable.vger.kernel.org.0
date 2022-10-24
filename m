@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5324E60A39D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:58:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22DC660A3CB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232302AbiJXL6L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:58:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40542 "EHLO
+        id S229671AbiJXMAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:00:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232111AbiJXL4q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:56:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B89D17A50C;
-        Mon, 24 Oct 2022 04:47:01 -0700 (PDT)
+        with ESMTP id S232543AbiJXL7P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:59:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6073E7C1E8;
+        Mon, 24 Oct 2022 04:48:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C682B8117E;
-        Mon, 24 Oct 2022 11:47:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82563C433D6;
-        Mon, 24 Oct 2022 11:46:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF9A36128E;
+        Mon, 24 Oct 2022 11:47:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFAD6C433C1;
+        Mon, 24 Oct 2022 11:47:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612019;
-        bh=TkptbBExfBRLdyiwMro7nVDIibC8wLql2SnkRMFzZd0=;
+        s=korg; t=1666612078;
+        bh=PXpipTnBrRLPqsNN64DZFWvxTM737PnWfsW5sg9ZY+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+0AVUKXTSAKZG8g/VA9MCwQTS03py3EGuPd5LZD2PM5RGJZEGJMqaWIHvx8EXuNu
-         BK9haJqvM1MRpG8oOhoVDzYtCEar4xIFoR/VjNXsi3xbrh0DuRotVmA0iCCwOoLxS1
-         TAnj2b4Uo00DHqflL6Pv3vMK2G7laYrMheN4/r/g=
+        b=LN8WMaNCCi7KFXAY/V1XaiaHhofeOI8JAxLDenexJp5QR4qZzXCr/1RC8zChm3otJ
+         uyIZDcy8MkHosRqwD1UuVZCB2rCt0YwjaUJxzFnGdUPVs3Ivx4hcgHKnrVw4zNHG1E
+         ms7U0rFsvMIawf+Yowi8cfl/MKHKD6b8lR2Mf5IY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ChanWoo Lee <cw9316.lee@samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Brian Norris <briannorris@chromium.org>
-Subject: [PATCH 4.14 032/210] mmc: core: Replace with already defined values for readability
-Date:   Mon, 24 Oct 2022 13:29:09 +0200
-Message-Id: <20221024112958.007222166@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Andrew Chernyakov <acherniakov@astralinux.ru>
+Subject: [PATCH 4.14 034/210] rpmsg: qcom: glink: replace strncpy() with strscpy_pad()
+Date:   Mon, 24 Oct 2022 13:29:11 +0200
+Message-Id: <20221024112958.072393418@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -54,33 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChanWoo Lee <cw9316.lee@samsung.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit e427266460826bea21b70f9b2bb29decfb2c2620 upstream.
+commit 766279a8f85df32345dbda03b102ca1ee3d5ddea upstream.
 
-SD_ROCR_S18A is already defined and is used to check the rocr value, so
-let's replace with already defined values for readability.
+The use of strncpy() is considered deprecated for NUL-terminated
+strings[1]. Replace strncpy() with strscpy_pad(), to keep existing
+pad-behavior of strncpy, similarly to commit 08de420a8014 ("rpmsg:
+glink: Replace strncpy() with strscpy_pad()").  This fixes W=1 warning:
 
-Signed-off-by: ChanWoo Lee <cw9316.lee@samsung.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220706004840.24812-1-cw9316.lee@samsung.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
+  In function ‘qcom_glink_rx_close’,
+    inlined from ‘qcom_glink_work’ at ../drivers/rpmsg/qcom_glink_native.c:1638:4:
+  drivers/rpmsg/qcom_glink_native.c:1549:17: warning: ‘strncpy’ specified bound 32 equals destination size [-Wstringop-truncation]
+   1549 |                 strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
+
+[1] https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings
+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220519073330.7187-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Andrew Chernyakov <acherniakov@astralinux.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/sd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rpmsg/qcom_glink_native.c |    2 +-
+ drivers/rpmsg/qcom_smd.c          |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -793,7 +793,7 @@ try_again:
- 	 * the CCS bit is set as well. We deliberately deviate from the spec in
- 	 * regards to this, which allows UHS-I to be supported for SDSC cards.
- 	 */
--	if (!mmc_host_is_spi(host) && rocr && (*rocr & 0x01000000)) {
-+	if (!mmc_host_is_spi(host) && rocr && (*rocr & SD_ROCR_S18A)) {
- 		err = mmc_set_uhs_voltage(host, pocr);
- 		if (err == -EAGAIN) {
- 			retries--;
+--- a/drivers/rpmsg/qcom_glink_native.c
++++ b/drivers/rpmsg/qcom_glink_native.c
+@@ -1447,7 +1447,7 @@ static void qcom_glink_rx_close(struct q
+ 	cancel_work_sync(&channel->intent_work);
+ 
+ 	if (channel->rpdev) {
+-		strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
++		strscpy_pad(chinfo.name, channel->name, sizeof(chinfo.name));
+ 		chinfo.src = RPMSG_ADDR_ANY;
+ 		chinfo.dst = RPMSG_ADDR_ANY;
+ 
+--- a/drivers/rpmsg/qcom_smd.c
++++ b/drivers/rpmsg/qcom_smd.c
+@@ -1000,7 +1000,7 @@ static int qcom_smd_create_device(struct
+ 
+ 	/* Assign public information to the rpmsg_device */
+ 	rpdev = &qsdev->rpdev;
+-	strncpy(rpdev->id.name, channel->name, RPMSG_NAME_SIZE);
++	strscpy_pad(rpdev->id.name, channel->name, RPMSG_NAME_SIZE);
+ 	rpdev->src = RPMSG_ADDR_ANY;
+ 	rpdev->dst = RPMSG_ADDR_ANY;
+ 
+@@ -1230,7 +1230,7 @@ static void qcom_channel_state_worker(st
+ 
+ 		spin_unlock_irqrestore(&edge->channels_lock, flags);
+ 
+-		strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
++		strscpy_pad(chinfo.name, channel->name, sizeof(chinfo.name));
+ 		chinfo.src = RPMSG_ADDR_ANY;
+ 		chinfo.dst = RPMSG_ADDR_ANY;
+ 		rpmsg_unregister_device(&edge->dev, &chinfo);
 
 
