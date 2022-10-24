@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2264B60A460
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:10:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 616E760A812
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232499AbiJXMKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:10:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38684 "EHLO
+        id S235043AbiJXNBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:01:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232735AbiJXMIw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:08:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8E7A7E812;
-        Mon, 24 Oct 2022 04:52:04 -0700 (PDT)
+        with ESMTP id S235349AbiJXNAA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:00:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E0EE11819;
+        Mon, 24 Oct 2022 05:19:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A6F3B811A5;
-        Mon, 24 Oct 2022 11:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68B3DC433D6;
-        Mon, 24 Oct 2022 11:51:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF4386129D;
+        Mon, 24 Oct 2022 12:10:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7ABDC433C1;
+        Mon, 24 Oct 2022 12:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612265;
-        bh=XoV/HGYuQ9mhk0KvT/OiLA1uLDSd1NUz6zNz71T1NOA=;
+        s=korg; t=1666613440;
+        bh=zAXf8WbaaT0rVM2JF9TeKwea6lfPVHe5p/pfXUS6HQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PsMPEJVrhCtPqEa+EUbCH9+8Mf66huYhYPcUYAwd3MsiysuUoGymoI0X/B6Osckql
-         ZupcGQfUt6j5kApAgM4ci0tzF1abDZ4v/6O1tXBn2vedlmi5K2+FtEhr594r550OU/
-         Te5hjeMDO3xFtWIeiUuTgzFekYqPGkY3NTnjta2s=
+        b=0ELsrGy7SJu2tq0z/68Dp6IoA3yUKLKB0+48QUQinqpRGjHYcHGYz7AypjaCq0tAR
+         v6nbBM9bq8o6CZOlDz3CNWssvC6Irs8WDbGs3rWZQxvFr7whKj+KIXmOYxfbhpHNE7
+         j6MZgGRc84AKL5BwD3t2sYbzYwxK068cE7rBTz0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@vger.kernel.org, Jason Baron <jbaron@akamai.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jim Cromie <jim.cromie@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 131/210] ata: fix ata_id_has_devslp()
+Subject: [PATCH 5.4 138/255] dyndbg: let query-modname override actual module name
 Date:   Mon, 24 Oct 2022 13:30:48 +0200
-Message-Id: <20221024113001.238323526@linuxfoundation.org>
+Message-Id: <20221024113007.162215977@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Jim Cromie <jim.cromie@gmail.com>
 
-[ Upstream commit 9c6e09a434e1317e09b78b3b69cd384022ec9a03 ]
+[ Upstream commit e75ef56f74965f426dd819a41336b640ffdd8fbc ]
 
-ACS-5 section
-7.13.6.36 Word 78: Serial ATA features supported
-states that:
+dyndbg's control-parser: ddebug_parse_query(), requires that search
+terms: module, func, file, lineno, are used only once in a query; a
+thing cannot be named both foo and bar.
 
-If word 76 is not 0000h or FFFFh, word 78 reports the features supported
-by the device. If this word is not supported, the word shall be cleared
-to zero.
+The cited commit added an overriding module modname, taken from the
+module loader, which is authoritative.  So it set query.module 1st,
+which disallowed its use in the query-string.
 
-(This text also exists in really old ACS standards, e.g. ACS-3.)
+But now, its useful to allow a module-load to enable classes across a
+whole (or part of) a subsystem at once.
 
-Additionally, move the macro to the other ATA_ID_FEATURE_SUPP macros
-(which already have this check), thus making it more likely that the
-next ATA_ID_FEATURE_SUPP macro that is added will include this check.
+  # enable (dynamic-debug in) drm only
+  modprobe drm dyndbg="class DRM_UT_CORE +p"
 
-Fixes: 65fe1f0f66a5 ("ahci: implement aggressive SATA device sleep support")
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+  # get drm_helper too
+  modprobe drm dyndbg="class DRM_UT_CORE module drm* +p"
+
+  # get everything that knows DRM_UT_CORE
+  modprobe drm dyndbg="class DRM_UT_CORE module * +p"
+
+  # also for boot-args:
+  drm.dyndbg="class DRM_UT_CORE module * +p"
+
+So convert the override into a default, by filling it only when/after
+the query-string omitted the module.
+
+NB: the query class FOO handling is forthcoming.
+
+Fixes: 8e59b5cfb9a6 dynamic_debug: add modname arg to exec_query callchain
+Acked-by: Jason Baron <jbaron@akamai.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
+Link: https://lore.kernel.org/r/20220904214134.408619-8-jim.cromie@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ata.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ lib/dynamic_debug.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/ata.h b/include/linux/ata.h
-index 90a4c166c0fa..c2beacc9e522 100644
---- a/include/linux/ata.h
-+++ b/include/linux/ata.h
-@@ -579,6 +579,10 @@ struct ata_bmdma_prd {
- 	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
- 	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
- 	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 2)))
-+#define ata_id_has_devslp(id)	\
-+	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
-+	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
-+	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 8)))
- #define ata_id_iordy_disable(id) ((id)[ATA_ID_CAPABILITY] & (1 << 10))
- #define ata_id_has_iordy(id) ((id)[ATA_ID_CAPABILITY] & (1 << 11))
- #define ata_id_u32(id,n)	\
-@@ -591,7 +595,6 @@ struct ata_bmdma_prd {
+diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
+index ccf05719b1ad..c9e1960fefc8 100644
+--- a/lib/dynamic_debug.c
++++ b/lib/dynamic_debug.c
+@@ -329,10 +329,6 @@ static int ddebug_parse_query(char *words[], int nwords,
+ 	}
+ 	memset(query, 0, sizeof(*query));
  
- #define ata_id_cdb_intr(id)	(((id)[ATA_ID_CONFIG] & 0x60) == 0x20)
- #define ata_id_has_da(id)	((id)[ATA_ID_SATA_CAPABILITY_2] & (1 << 4))
--#define ata_id_has_devslp(id)	((id)[ATA_ID_FEATURE_SUPP] & (1 << 8))
- #define ata_id_has_ncq_autosense(id) \
- 				((id)[ATA_ID_FEATURE_SUPP] & (1 << 7))
- 
+-	if (modname)
+-		/* support $modname.dyndbg=<multiple queries> */
+-		query->module = modname;
+-
+ 	for (i = 0; i < nwords; i += 2) {
+ 		if (!strcmp(words[i], "func")) {
+ 			rc = check_set(&query->function, words[i+1], "func");
+@@ -381,6 +377,13 @@ static int ddebug_parse_query(char *words[], int nwords,
+ 		if (rc)
+ 			return rc;
+ 	}
++	if (!query->module && modname)
++		/*
++		 * support $modname.dyndbg=<multiple queries>, when
++		 * not given in the query itself
++		 */
++		query->module = modname;
++
+ 	vpr_info_dq(query, "parsed");
+ 	return 0;
+ }
 -- 
 2.35.1
 
