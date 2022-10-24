@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C9A660A4AB
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:15:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4379C60A77D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:51:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232440AbiJXMPW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:15:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60144 "EHLO
+        id S234438AbiJXMvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:51:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233075AbiJXMOH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:14:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5361039119;
-        Mon, 24 Oct 2022 04:55:16 -0700 (PDT)
+        with ESMTP id S234808AbiJXMta (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:49:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BC00923ED;
+        Mon, 24 Oct 2022 05:13:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC8FF61252;
-        Mon, 24 Oct 2022 11:52:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF018C433C1;
-        Mon, 24 Oct 2022 11:52:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36E2A612F3;
+        Mon, 24 Oct 2022 12:11:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 413E3C433B5;
+        Mon, 24 Oct 2022 12:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612329;
-        bh=b+dCW2i6SlbVAsvvFo6j2dv3TAz1oQHd4db67WosFHs=;
+        s=korg; t=1666613505;
+        bh=V2dOPSF3+RqJgCZ0dAjorrygamRapc5bi17muQbPhos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IhVgpfb1xZYiU+MfMxCzQvV+i9ot3J7QvVj4IuzS2mwJ5kVw6Cq5RLIReCFJNT7oC
-         NVKDLFsqaF5SemR27DUu1WtbMNxmSTQ9E2StRv3hEsyoC1/v/ExjYg5sqKCqUP9Inq
-         YLRuiPRzXVdqHCJw2Jg8EjuuReYw+zgbnmhd6bhc=
+        b=JmRzCPD61aGrNBEKnHpnWHViaadflMAm3Uu1Udd0H6vuHO0BSSdKZ0QsopfK+fSUj
+         txviznu+DFlIHsDsOKXnZJQm8pEi5+TiCGncSydexO+RJm+Rz740pqyJuu9yoosV02
+         sAfoM1zipBJFYOU+9nJzubtSCHIFmNpTXiJld920=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 156/210] powerpc: Fix SPE Power ISA properties for e500v1 platforms
+Subject: [PATCH 5.4 163/255] clk: mediatek: mt8183: mfgcfg: Propagate rate changes to parent
 Date:   Mon, 24 Oct 2022 13:31:13 +0200
-Message-Id: <20221024113002.040725365@linuxfoundation.org>
+Message-Id: <20221024113008.118489236@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,145 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 37b9345ce7f4ab17538ea62def6f6d430f091355 ]
+[ Upstream commit 9f94f545f258b15bfa6357eb62e1e307b712851e ]
 
-Commit 2eb28006431c ("powerpc/e500v2: Add Power ISA properties to comply
-with ePAPR 1.1") introduced new include file e500v2_power_isa.dtsi and
-should have used it for all e500v2 platforms. But apparently it was used
-also for e500v1 platforms mpc8540, mpc8541, mpc8555 and mpc8560.
+The only clock in the MT8183 MFGCFG block feeds the GPU. Propagate its
+rate change requests to its parent, so that DVFS for the GPU can work
+properly.
 
-e500v1 cores compared to e500v2 do not support double precision floating
-point SPE instructions. Hence power-isa-sp.fd should not be set on e500v1
-platforms, which is in e500v2_power_isa.dtsi include file.
-
-Fix this issue by introducing a new e500v1_power_isa.dtsi include file and
-use it in all e500v1 device tree files.
-
-Fixes: 2eb28006431c ("powerpc/e500v2: Add Power ISA properties to comply with ePAPR 1.1")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220902212103.22534-1-pali@kernel.org
+Fixes: acddfc2c261b ("clk: mediatek: Add MT8183 clock support")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220927101128.44758-3-angelogioacchino.delregno@collabora.com
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/fsl/e500v1_power_isa.dtsi        | 51 +++++++++++++++++++
- arch/powerpc/boot/dts/fsl/mpc8540ads.dts      |  2 +-
- arch/powerpc/boot/dts/fsl/mpc8541cds.dts      |  2 +-
- arch/powerpc/boot/dts/fsl/mpc8555cds.dts      |  2 +-
- arch/powerpc/boot/dts/fsl/mpc8560ads.dts      |  2 +-
- 5 files changed, 55 insertions(+), 4 deletions(-)
- create mode 100644 arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi
+ drivers/clk/mediatek/clk-mt8183-mfgcfg.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi b/arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi
-new file mode 100644
-index 000000000000..7e2a90cde72e
---- /dev/null
-+++ b/arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi
-@@ -0,0 +1,51 @@
-+/*
-+ * e500v1 Power ISA Device Tree Source (include)
-+ *
-+ * Copyright 2012 Freescale Semiconductor Inc.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *     * Redistributions of source code must retain the above copyright
-+ *       notice, this list of conditions and the following disclaimer.
-+ *     * Redistributions in binary form must reproduce the above copyright
-+ *       notice, this list of conditions and the following disclaimer in the
-+ *       documentation and/or other materials provided with the distribution.
-+ *     * Neither the name of Freescale Semiconductor nor the
-+ *       names of its contributors may be used to endorse or promote products
-+ *       derived from this software without specific prior written permission.
-+ *
-+ *
-+ * ALTERNATIVELY, this software may be distributed under the terms of the
-+ * GNU General Public License ("GPL") as published by the Free Software
-+ * Foundation, either version 2 of that License or (at your option) any
-+ * later version.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY Freescale Semiconductor "AS IS" AND ANY
-+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-+ * DISCLAIMED. IN NO EVENT SHALL Freescale Semiconductor BE LIABLE FOR ANY
-+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ */
-+
-+/ {
-+	cpus {
-+		power-isa-version = "2.03";
-+		power-isa-b;		// Base
-+		power-isa-e;		// Embedded
-+		power-isa-atb;		// Alternate Time Base
-+		power-isa-cs;		// Cache Specification
-+		power-isa-e.le;		// Embedded.Little-Endian
-+		power-isa-e.pm;		// Embedded.Performance Monitor
-+		power-isa-ecl;		// Embedded Cache Locking
-+		power-isa-mmc;		// Memory Coherence
-+		power-isa-sp;		// Signal Processing Engine
-+		power-isa-sp.fs;	// SPE.Embedded Float Scalar Single
-+		power-isa-sp.fv;	// SPE.Embedded Float Vector
-+		mmu-type = "power-embedded";
-+	};
-+};
-diff --git a/arch/powerpc/boot/dts/fsl/mpc8540ads.dts b/arch/powerpc/boot/dts/fsl/mpc8540ads.dts
-index e6d0b166d68d..b4314aa6769c 100644
---- a/arch/powerpc/boot/dts/fsl/mpc8540ads.dts
-+++ b/arch/powerpc/boot/dts/fsl/mpc8540ads.dts
-@@ -11,7 +11,7 @@
+diff --git a/drivers/clk/mediatek/clk-mt8183-mfgcfg.c b/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
+index 37b4162c5882..3a33014eee7f 100644
+--- a/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
++++ b/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
+@@ -18,9 +18,9 @@ static const struct mtk_gate_regs mfg_cg_regs = {
+ 	.sta_ofs = 0x0,
+ };
  
- /dts-v1/;
+-#define GATE_MFG(_id, _name, _parent, _shift)			\
+-	GATE_MTK(_id, _name, _parent, &mfg_cg_regs, _shift,	\
+-		&mtk_clk_gate_ops_setclr)
++#define GATE_MFG(_id, _name, _parent, _shift)				\
++	GATE_MTK_FLAGS(_id, _name, _parent, &mfg_cg_regs, _shift,	\
++		       &mtk_clk_gate_ops_setclr, CLK_SET_RATE_PARENT)
  
--/include/ "e500v2_power_isa.dtsi"
-+/include/ "e500v1_power_isa.dtsi"
- 
- / {
- 	model = "MPC8540ADS";
-diff --git a/arch/powerpc/boot/dts/fsl/mpc8541cds.dts b/arch/powerpc/boot/dts/fsl/mpc8541cds.dts
-index 9fa2c734a988..48492c621edf 100644
---- a/arch/powerpc/boot/dts/fsl/mpc8541cds.dts
-+++ b/arch/powerpc/boot/dts/fsl/mpc8541cds.dts
-@@ -11,7 +11,7 @@
- 
- /dts-v1/;
- 
--/include/ "e500v2_power_isa.dtsi"
-+/include/ "e500v1_power_isa.dtsi"
- 
- / {
- 	model = "MPC8541CDS";
-diff --git a/arch/powerpc/boot/dts/fsl/mpc8555cds.dts b/arch/powerpc/boot/dts/fsl/mpc8555cds.dts
-index 272f08caea92..325c817dedeb 100644
---- a/arch/powerpc/boot/dts/fsl/mpc8555cds.dts
-+++ b/arch/powerpc/boot/dts/fsl/mpc8555cds.dts
-@@ -11,7 +11,7 @@
- 
- /dts-v1/;
- 
--/include/ "e500v2_power_isa.dtsi"
-+/include/ "e500v1_power_isa.dtsi"
- 
- / {
- 	model = "MPC8555CDS";
-diff --git a/arch/powerpc/boot/dts/fsl/mpc8560ads.dts b/arch/powerpc/boot/dts/fsl/mpc8560ads.dts
-index 7a822b08aa35..b5fb5ae3ed68 100644
---- a/arch/powerpc/boot/dts/fsl/mpc8560ads.dts
-+++ b/arch/powerpc/boot/dts/fsl/mpc8560ads.dts
-@@ -11,7 +11,7 @@
- 
- /dts-v1/;
- 
--/include/ "e500v2_power_isa.dtsi"
-+/include/ "e500v1_power_isa.dtsi"
- 
- / {
- 	model = "MPC8560ADS";
+ static const struct mtk_gate mfg_clks[] = {
+ 	GATE_MFG(CLK_MFG_BG3D, "mfg_bg3d", "mfg_sel", 0)
 -- 
 2.35.1
 
