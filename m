@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7126A60B8BA
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C61E60B8C1
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:53:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233537AbiJXTxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:53:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50402 "EHLO
+        id S233739AbiJXTxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:53:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233675AbiJXTwP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:52:15 -0400
+        with ESMTP id S233728AbiJXTwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:52:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A205635E0;
-        Mon, 24 Oct 2022 11:17:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B7AC103D82;
+        Mon, 24 Oct 2022 11:17:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E79CAB817BB;
-        Mon, 24 Oct 2022 12:36:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49A3EC433D6;
-        Mon, 24 Oct 2022 12:36:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01B4FB817B1;
+        Mon, 24 Oct 2022 12:37:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F29AC433C1;
+        Mon, 24 Oct 2022 12:37:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615007;
-        bh=OZ4fCuISKgc6bcCsN5lRSFJ3XFy5d5qi6Tn0vsWgpB0=;
+        s=korg; t=1666615020;
+        bh=uVz+BDY/wMcdakK3a2zAGCIAkzkiJQgDSwU4vNQtw5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m5/mK3429Z8zM/SN7d0+K6R9hClOQm0bmFljWpDP3zOhJoEtufxqhkcETWlGMgXoS
-         1WElqWFt61tBaRFICXtJmVPmmTrP3CSoOu+MFoPio73gD8U9V5Ej1McA8dm+N5QxAb
-         Am1i9IjW0PjntTcma0r/lKozU6uDdAJ1b4cTCzg4=
+        b=JcyjVgyzRgv+Acfk4pL1yDKHxmVJGy0U2MIsfkUWva6JIKwgobzN0JEq7v6M3gske
+         jLeMVJYLPH3ggqpuezvYo0vL41rq4CYIfThEcT1QCvUmvsKnlNyan+7mR7veqSEGpX
+         lwWFYiO6rZF6FRqGzbGluf+40iILo8ObsmUDxfAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        llvm@lists.linux.dev, Will Deacon <will@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.15 086/530] hardening: Avoid harmless Clang option under CONFIG_INIT_STACK_ALL_ZERO
-Date:   Mon, 24 Oct 2022 13:27:10 +0200
-Message-Id: <20221024113048.905560197@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 091/530] jbd2: add miss release buffer head in fc_do_one_pass()
+Date:   Mon, 24 Oct 2022 13:27:15 +0200
+Message-Id: <20221024113049.129215669@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -55,77 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Ye Bin <yebin10@huawei.com>
 
-commit f02003c860d921171be4a27e2893766eb3bc6871 upstream.
+commit dfff66f30f66b9524b661f311bbed8ff3d2ca49f upstream.
 
-Currently under Clang, CC_HAS_AUTO_VAR_INIT_ZERO requires an extra
--enable flag compared to CC_HAS_AUTO_VAR_INIT_PATTERN. GCC 12[1] will
-not, and will happily ignore the Clang-specific flag. However, its
-presence on the command-line is both cumbersome and confusing. Due to
-GCC's tolerant behavior, though, we can continue to use a single Kconfig
-cc-option test for the feature on both compilers, but then drop the
-Clang-specific option in the Makefile.
+In fc_do_one_pass() miss release buffer head after use which will lead
+to reference count leak.
 
-In other words, this patch does not change anything other than making the
-compiler command line shorter once GCC supports -ftrivial-auto-var-init=zero.
-
-[1] https://gcc.gnu.org/git/?p=gcc.git;a=commitdiff;h=a25e0b5e6ac8a77a71c229e0a7b744603365b0e9
-
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: llvm@lists.linux.dev
-Fixes: dcb7c0b9461c ("hardening: Clarify Kconfig text for auto-var-init")
-Suggested-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/lkml/20210914102837.6172-1-will@kernel.org/
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220917093805.1782845-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile                   |    6 +++---
- security/Kconfig.hardening |    5 ++++-
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ fs/jbd2/recovery.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/Makefile
-+++ b/Makefile
-@@ -844,12 +844,12 @@ endif
- 
- # Initialize all stack variables with a zero value.
- ifdef CONFIG_INIT_STACK_ALL_ZERO
--# Future support for zero initialization is still being debated, see
--# https://bugs.llvm.org/show_bug.cgi?id=45497. These flags are subject to being
--# renamed or dropped.
- KBUILD_CFLAGS	+= -ftrivial-auto-var-init=zero
-+ifdef CONFIG_CC_IS_CLANG
-+# https://bugs.llvm.org/show_bug.cgi?id=45497
- KBUILD_CFLAGS	+= -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang
- endif
-+endif
- 
- # While VLAs have been removed, GCC produces unreachable stack probes
- # for the randomize_kstack_offset feature. Disable it for all compilers.
---- a/security/Kconfig.hardening
-+++ b/security/Kconfig.hardening
-@@ -23,13 +23,16 @@ config CC_HAS_AUTO_VAR_INIT_PATTERN
- 	def_bool $(cc-option,-ftrivial-auto-var-init=pattern)
- 
- config CC_HAS_AUTO_VAR_INIT_ZERO
-+	# GCC ignores the -enable flag, so we can test for the feature with
-+	# a single invocation using the flag, but drop it as appropriate in
-+	# the Makefile, depending on the presence of Clang.
- 	def_bool $(cc-option,-ftrivial-auto-var-init=zero -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang)
- 
- choice
- 	prompt "Initialize kernel stack variables at function entry"
- 	default GCC_PLUGIN_STRUCTLEAK_BYREF_ALL if COMPILE_TEST && GCC_PLUGINS
- 	default INIT_STACK_ALL_PATTERN if COMPILE_TEST && CC_HAS_AUTO_VAR_INIT_PATTERN
--	default INIT_STACK_ALL_ZERO if CC_HAS_AUTO_VAR_INIT_PATTERN
-+	default INIT_STACK_ALL_ZERO if CC_HAS_AUTO_VAR_INIT_ZERO
- 	default INIT_STACK_NONE
- 	help
- 	  This option enables initialization of stack variables at
+--- a/fs/jbd2/recovery.c
++++ b/fs/jbd2/recovery.c
+@@ -256,6 +256,7 @@ static int fc_do_one_pass(journal_t *jou
+ 		err = journal->j_fc_replay_callback(journal, bh, pass,
+ 					next_fc_block - journal->j_fc_first,
+ 					expected_commit_id);
++		brelse(bh);
+ 		next_fc_block++;
+ 		if (err < 0 || err == JBD2_FC_REPLAY_STOP)
+ 			break;
 
 
