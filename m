@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FF8660A402
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FDAF60A6D8
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:41:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229841AbiJXMFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:05:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46550 "EHLO
+        id S230489AbiJXMkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:40:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232283AbiJXMCX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:02:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA04027162;
-        Mon, 24 Oct 2022 04:49:49 -0700 (PDT)
+        with ESMTP id S234127AbiJXMjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:39:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD98889922;
+        Mon, 24 Oct 2022 05:06:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6FDCB8119C;
-        Mon, 24 Oct 2022 11:47:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46F6CC433D7;
-        Mon, 24 Oct 2022 11:47:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E163612D2;
+        Mon, 24 Oct 2022 12:06:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A316CC433C1;
+        Mon, 24 Oct 2022 12:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612027;
-        bh=LSxeXqIfLkfCe1mrHfnM4jsex1rUwKaG6O4JFKNxDsw=;
+        s=korg; t=1666613214;
+        bh=G5rFMnbphdFlimTTrBxf0GATpB6Qn3yV8DwLPrEA5UM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eXwxZVg49w5jl3zUrh2Mb+l8OFT3uOy6+1zazYerRSPnaLzpLFRe/uTC8jWi7bnxy
-         +tGcQKb5c3d0QA1TdOQVIjNh08GYNhvtEm5nLiWa4SlYstL0WYSL23QL+qIC5GMWZI
-         dnC7Co8S4lIQA+X3vb7TQM92zt8nAvW2G59BmYYM=
+        b=V92o0Cvu9UeaO8MRSVUoeVYxRGi3mlgRWRcvPnuAH2Sg+S86gG+A9Qz/F2NnGUvaA
+         CZITvtIi+oUqdWEPLlvWTI1r7fux1tZLNxluAluI4E8x8/iJjMbW3VGkLVHkQKNU+7
+         9SmeFLmQ5xRC6ii7I1tlYYmbA3uUf4Y13UGiP0LU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 043/210] USB: serial: qcserial: add new usb-id for Dell branded EM7455
-Date:   Mon, 24 Oct 2022 13:29:20 +0200
-Message-Id: <20221024112958.394942248@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.4 051/255] media: cedrus: Set the platform driver data earlier
+Date:   Mon, 24 Oct 2022 13:29:21 +0200
+Message-Id: <20221024113004.124428205@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,29 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Wunderlich <frank-w@public-files.de>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-commit eee48781ea199e32c1d0c4732641c494833788ca upstream.
+commit 708938f8495147fe2e77a9a3e1015d8e6899323e upstream.
 
-Add support for Dell 5811e (EM7455) with USB-id 0x413c:0x81c2.
+The cedrus_hw_resume() crashes with NULL deference on driver probe if
+runtime PM is disabled because it uses platform data that hasn't been
+set up yet. Fix this by setting the platform data earlier during probe.
 
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 50e761516f2b (media: platform: Add Cedrus VPU decoder driver)
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reviewed-by: Samuel Holland <samuel@sholland.org>
+Acked-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/qcserial.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/media/sunxi/cedrus/cedrus.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/qcserial.c
-+++ b/drivers/usb/serial/qcserial.c
-@@ -181,6 +181,7 @@ static const struct usb_device_id id_tab
- 	{DEVICE_SWI(0x413c, 0x81b3)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
- 	{DEVICE_SWI(0x413c, 0x81b5)},	/* Dell Wireless 5811e QDL */
- 	{DEVICE_SWI(0x413c, 0x81b6)},	/* Dell Wireless 5811e QDL */
-+	{DEVICE_SWI(0x413c, 0x81c2)},	/* Dell Wireless 5811e */
- 	{DEVICE_SWI(0x413c, 0x81cb)},	/* Dell Wireless 5816e QDL */
- 	{DEVICE_SWI(0x413c, 0x81cc)},	/* Dell Wireless 5816e */
- 	{DEVICE_SWI(0x413c, 0x81cf)},   /* Dell Wireless 5819 */
+--- a/drivers/staging/media/sunxi/cedrus/cedrus.c
++++ b/drivers/staging/media/sunxi/cedrus/cedrus.c
+@@ -323,6 +323,8 @@ static int cedrus_probe(struct platform_
+ 	if (!dev)
+ 		return -ENOMEM;
+ 
++	platform_set_drvdata(pdev, dev);
++
+ 	dev->vfd = cedrus_video_device;
+ 	dev->dev = &pdev->dev;
+ 	dev->pdev = pdev;
+@@ -392,8 +394,6 @@ static int cedrus_probe(struct platform_
+ 		goto err_m2m_mc;
+ 	}
+ 
+-	platform_set_drvdata(pdev, dev);
+-
+ 	return 0;
+ 
+ err_m2m_mc:
 
 
