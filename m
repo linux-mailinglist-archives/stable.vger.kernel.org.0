@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A82660A638
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF8760A45D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:10:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229756AbiJXMcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:32:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45036 "EHLO
+        id S230107AbiJXMKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:10:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233719AbiJXMac (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:30:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C71EE20F70;
-        Mon, 24 Oct 2022 05:04:44 -0700 (PDT)
+        with ESMTP id S232810AbiJXMIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:08:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E2A7F090;
+        Mon, 24 Oct 2022 04:52:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98A44B811A5;
-        Mon, 24 Oct 2022 12:02:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDE9EC433C1;
-        Mon, 24 Oct 2022 12:02:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38FE1B81144;
+        Mon, 24 Oct 2022 11:44:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9096FC433D6;
+        Mon, 24 Oct 2022 11:44:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612930;
-        bh=KgnZvTami7Wf2KkSJ7asjZWoX20lDkMswAbmsI/MM1U=;
+        s=korg; t=1666611859;
+        bh=X/yaVTCsd4HiFHtbdFJlQ8rZWp6RFAEMkVoWeuW8S4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/531WpZnbhV75V9NR5JxZr94sPoPRBiyEljS1wVzyKyMwvKJYzFKqA0W8avi2uQU
-         kPcGC6mE8Vz0NIK5xbPaMshqrdZIEJDNdPSaPkq5PtRh/pNyd1CczG4yo16k6LCp27
-         sj62EEpgzGFN4rtbpJAX2LeMjUFb30idnqkjPqaE=
+        b=w+H08Hg77RY56cqTPTZFQ0SdKyDy688E3p/WeKjOJq+sOgU8UPvkCrPDIYdsyt9GQ
+         JS9eKJoNJJF95Z4sXfBvR0BGYkI4GsWaY8CzeFJw8tWkPEHLORC1qnNblvNtuFzGNV
+         O0/KWR5tguzfi2I2cN+1K6+TvbdOAFN+T0tr1Nxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 173/229] thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash
+Subject: [PATCH 4.9 138/159] drm: Prevent drm_copy_field() to attempt copying a NULL pointer
 Date:   Mon, 24 Oct 2022 13:31:32 +0200
-Message-Id: <20221024113004.689527133@linuxfoundation.org>
+Message-Id: <20221024112954.507005242@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit 68b99e94a4a2db6ba9b31fe0485e057b9354a640 ]
+[ Upstream commit f6ee30407e883042482ad4ad30da5eaba47872ee ]
 
-When CPU 0 is offline and intel_powerclamp is used to inject
-idle, it generates kernel BUG:
+There are some struct drm_driver fields that are required by drivers since
+drm_copy_field() attempts to copy them to user-space via DRM_IOCTL_VERSION.
 
-BUG: using smp_processor_id() in preemptible [00000000] code: bash/15687
-caller is debug_smp_processor_id+0x17/0x20
-CPU: 4 PID: 15687 Comm: bash Not tainted 5.19.0-rc7+ #57
-Call Trace:
-<TASK>
-dump_stack_lvl+0x49/0x63
-dump_stack+0x10/0x16
-check_preemption_disabled+0xdd/0xe0
-debug_smp_processor_id+0x17/0x20
-powerclamp_set_cur_state+0x7f/0xf9 [intel_powerclamp]
+But it can be possible that a driver has a bug and did not set some of the
+fields, which leads to drm_copy_field() attempting to copy a NULL pointer:
+
+[ +10.395966] Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
+[  +0.010955] Mem abort info:
+[  +0.002835]   ESR = 0x0000000096000004
+[  +0.003872]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  +0.005395]   SET = 0, FnV = 0
+[  +0.003113]   EA = 0, S1PTW = 0
+[  +0.003182]   FSC = 0x04: level 0 translation fault
+[  +0.004964] Data abort info:
+[  +0.002919]   ISV = 0, ISS = 0x00000004
+[  +0.003886]   CM = 0, WnR = 0
+[  +0.003040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000115dad000
+[  +0.006536] [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+[  +0.006925] Internal error: Oops: 96000004 [#1] SMP
 ...
-...
+[  +0.011113] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  +0.007061] pc : __pi_strlen+0x14/0x150
+[  +0.003895] lr : drm_copy_field+0x30/0x1a4
+[  +0.004156] sp : ffff8000094b3a50
+[  +0.003355] x29: ffff8000094b3a50 x28: ffff8000094b3b70 x27: 0000000000000040
+[  +0.007242] x26: ffff443743c2ba00 x25: 0000000000000000 x24: 0000000000000040
+[  +0.007243] x23: ffff443743c2ba00 x22: ffff8000094b3b70 x21: 0000000000000000
+[  +0.007241] x20: 0000000000000000 x19: ffff8000094b3b90 x18: 0000000000000000
+[  +0.007241] x17: 0000000000000000 x16: 0000000000000000 x15: 0000aaab14b9af40
+[  +0.007241] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
+[  +0.007239] x11: 0000000000000000 x10: 0000000000000000 x9 : ffffa524ad67d4d8
+[  +0.007242] x8 : 0101010101010101 x7 : 7f7f7f7f7f7f7f7f x6 : 6c6e6263606e7141
+[  +0.007239] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000000
+[  +0.007241] x2 : 0000000000000000 x1 : ffff8000094b3b90 x0 : 0000000000000000
+[  +0.007240] Call trace:
+[  +0.002475]  __pi_strlen+0x14/0x150
+[  +0.003537]  drm_version+0x84/0xac
+[  +0.003448]  drm_ioctl_kernel+0xa8/0x16c
+[  +0.003975]  drm_ioctl+0x270/0x580
+[  +0.003448]  __arm64_sys_ioctl+0xb8/0xfc
+[  +0.003978]  invoke_syscall+0x78/0x100
+[  +0.003799]  el0_svc_common.constprop.0+0x4c/0xf4
+[  +0.004767]  do_el0_svc+0x38/0x4c
+[  +0.003357]  el0_svc+0x34/0x100
+[  +0.003185]  el0t_64_sync_handler+0x11c/0x150
+[  +0.004418]  el0t_64_sync+0x190/0x194
+[  +0.003716] Code: 92402c04 b200c3e8 f13fc09f 5400088c (a9400c02)
+[  +0.006180] ---[ end trace 0000000000000000 ]---
 
-Here CPU 0 is the control CPU by default and changed to the current CPU,
-if CPU 0 offlined. This check has to be performed under cpus_read_lock(),
-hence the above warning.
-
-Use get_cpu() instead of smp_processor_id() to avoid this BUG.
-
-Suggested-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-[ rjw: Subject edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: Peter Robinson <pbrobinson@gmail.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220705100215.572498-3-javierm@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel_powerclamp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_ioctl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/thermal/intel_powerclamp.c b/drivers/thermal/intel_powerclamp.c
-index 8e8328347c0e..079c8c1a5f15 100644
---- a/drivers/thermal/intel_powerclamp.c
-+++ b/drivers/thermal/intel_powerclamp.c
-@@ -550,8 +550,10 @@ static int start_power_clamp(void)
+diff --git a/drivers/gpu/drm/drm_ioctl.c b/drivers/gpu/drm/drm_ioctl.c
+index faa084ff4f17..ec505929cae7 100644
+--- a/drivers/gpu/drm/drm_ioctl.c
++++ b/drivers/gpu/drm/drm_ioctl.c
+@@ -421,6 +421,12 @@ static int drm_copy_field(char __user *buf, size_t *buf_len, const char *value)
+ {
+ 	size_t len;
  
- 	/* prefer BSP */
- 	control_cpu = 0;
--	if (!cpu_online(control_cpu))
--		control_cpu = smp_processor_id();
-+	if (!cpu_online(control_cpu)) {
-+		control_cpu = get_cpu();
-+		put_cpu();
++	/* don't attempt to copy a NULL pointer */
++	if (WARN_ONCE(!value, "BUG: the value to copy was not set!")) {
++		*buf_len = 0;
++		return 0;
 +	}
- 
- 	clamping = true;
- 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
++
+ 	/* don't overflow userbuf */
+ 	len = strlen(value);
+ 	if (len > *buf_len)
 -- 
 2.35.1
 
