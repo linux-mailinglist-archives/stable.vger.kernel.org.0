@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D434560A627
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:32:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F7C60A73F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233947AbiJXMcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:32:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53272 "EHLO
+        id S234339AbiJXMsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:48:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234462AbiJXMaY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:30:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB145AE73;
-        Mon, 24 Oct 2022 05:04:36 -0700 (PDT)
+        with ESMTP id S232090AbiJXMmy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:42:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 657237E80C;
+        Mon, 24 Oct 2022 05:08:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFBCBB81199;
-        Mon, 24 Oct 2022 12:01:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31718C433D6;
-        Mon, 24 Oct 2022 12:01:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DFFB6125D;
+        Mon, 24 Oct 2022 11:51:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3AF4C433C1;
+        Mon, 24 Oct 2022 11:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612888;
-        bh=kwySQ/fNngrpXZFgbjUEf/ovc1grJsREpVvSQtKuUJ4=;
+        s=korg; t=1666612316;
+        bh=erAD5uHFs99vtk9Q9Iu4F3CHrxzngC84yqaARqMsmBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+SlfBvKEDx2HQIQjJjyGUDYRe8+/6LzCdlaQC8TFebthnt6KUWaODGRgq9AgBYop
-         4rLfwWyfzEEbOASGB2py+ea1Y1ETdfQDkoniuoVuYh8tvvAfy+HzWIiMJCraBoi+iT
-         7Jh2q71l4VpDkeQex6eoUHcxIDZnEsmPh+zvdZ90=
+        b=sciuVf8BEpSCfWQ4Eo69Ag+bt8mgCnrgyEtYa5xYP+ZARe/lnSB0s1LKBYijz37Uw
+         qsnp6prVb6RgZJj8aA3Oa9nC4ArfTE6T0MZFfZUwqgx0s2Lu4H/3sHGGQotdWEEM2B
+         qKS36GxDwgNfvd+il+kmICA59xysQxiSgxOMDBrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 150/229] mfd: fsl-imx25: Fix an error handling path in mx25_tsadc_setup_irq()
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 152/210] powerpc/math_emu/efp: Include module.h
 Date:   Mon, 24 Oct 2022 13:31:09 +0200
-Message-Id: <20221024113003.863134607@linuxfoundation.org>
+Message-Id: <20221024113001.909695419@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 3fa9e4cfb55da512ebfd57336fde468830719298 ]
+[ Upstream commit cfe0d370e0788625ce0df3239aad07a2506c1796 ]
 
-If devm_of_platform_populate() fails, some resources need to be
-released.
+When building with a recent version of clang, there are a couple of
+errors around the call to module_init():
 
-Introduce a mx25_tsadc_unset_irq() function that undoes
-mx25_tsadc_setup_irq() and call it both from the new error handling path
-of the probe and in the remove function.
+  arch/powerpc/math-emu/math_efp.c:927:1: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+  module_init(spe_mathemu_init);
+  ^
+  int
+  arch/powerpc/math-emu/math_efp.c:927:13: error: a parameter list without types is only allowed in a function definition
+  module_init(spe_mathemu_init);
+              ^
+  2 errors generated.
 
-Fixes: a55196eff6d6 ("mfd: fsl-imx25: Use devm_of_platform_populate()")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/d404e04828fc06bcfddf81f9f3e9b4babbe35415.1659269156.git.christophe.jaillet@wanadoo.fr
+module_init() is a macro, which is not getting expanded because module.h
+is not included in this file. Add the include so that the macro can
+expand properly, clearing up the build failure.
+
+Fixes: ac6f120369ff ("powerpc/85xx: Workaroudn e500 CPU erratum A005")
+[chleroy: added fixes tag]
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Link: https://lore.kernel.org/r/8403854a4c187459b2f4da3537f51227b70b9223.1662134272.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/fsl-imx25-tsadc.c | 32 ++++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
+ arch/powerpc/math-emu/math_efp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/fsl-imx25-tsadc.c b/drivers/mfd/fsl-imx25-tsadc.c
-index dbb85caaafed..2718fcb26786 100644
---- a/drivers/mfd/fsl-imx25-tsadc.c
-+++ b/drivers/mfd/fsl-imx25-tsadc.c
-@@ -89,6 +89,19 @@ static int mx25_tsadc_setup_irq(struct platform_device *pdev,
- 	return 0;
- }
+diff --git a/arch/powerpc/math-emu/math_efp.c b/arch/powerpc/math-emu/math_efp.c
+index 581f404caa1d..b9848179dbaa 100644
+--- a/arch/powerpc/math-emu/math_efp.c
++++ b/arch/powerpc/math-emu/math_efp.c
+@@ -21,6 +21,7 @@
  
-+static int mx25_tsadc_unset_irq(struct platform_device *pdev)
-+{
-+	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
-+	int irq = platform_get_irq(pdev, 0);
-+
-+	if (irq) {
-+		irq_set_chained_handler_and_data(irq, NULL, NULL);
-+		irq_domain_remove(tsadc->domain);
-+	}
-+
-+	return 0;
-+}
-+
- static void mx25_tsadc_setup_clk(struct platform_device *pdev,
- 				 struct mx25_tsadc *tsadc)
- {
-@@ -176,18 +189,21 @@ static int mx25_tsadc_probe(struct platform_device *pdev)
+ #include <linux/types.h>
+ #include <linux/prctl.h>
++#include <linux/module.h>
  
- 	platform_set_drvdata(pdev, tsadc);
- 
--	return devm_of_platform_populate(dev);
-+	ret = devm_of_platform_populate(dev);
-+	if (ret)
-+		goto err_irq;
-+
-+	return 0;
-+
-+err_irq:
-+	mx25_tsadc_unset_irq(pdev);
-+
-+	return ret;
- }
- 
- static int mx25_tsadc_remove(struct platform_device *pdev)
- {
--	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
--	int irq = platform_get_irq(pdev, 0);
--
--	if (irq) {
--		irq_set_chained_handler_and_data(irq, NULL, NULL);
--		irq_domain_remove(tsadc->domain);
--	}
-+	mx25_tsadc_unset_irq(pdev);
- 
- 	return 0;
- }
+ #include <linux/uaccess.h>
+ #include <asm/reg.h>
 -- 
 2.35.1
 
