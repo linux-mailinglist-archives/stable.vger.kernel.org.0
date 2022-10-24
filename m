@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 566C460BDCB
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 00:49:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C617C60BDE0
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 00:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230188AbiJXWt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 18:49:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50430 "EHLO
+        id S231421AbiJXWwi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 18:52:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231998AbiJXWsy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 18:48:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C2131BE90C;
-        Mon, 24 Oct 2022 14:10:53 -0700 (PDT)
+        with ESMTP id S231655AbiJXWwV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 18:52:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C99A6C4DB0;
+        Mon, 24 Oct 2022 14:14:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8CECACE16EC;
-        Mon, 24 Oct 2022 12:51:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66097C433C1;
-        Mon, 24 Oct 2022 12:51:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DEAC6126B;
+        Mon, 24 Oct 2022 12:54:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83BCFC433D7;
+        Mon, 24 Oct 2022 12:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615896;
-        bh=uFZzpqGeI0F+s1iei+vQqMl4q+FdPp2Sji8X1gj9HgQ=;
+        s=korg; t=1666616072;
+        bh=Mjn4/qIoEwvaxVE1kPrhLixrix51jKEM9yIhJiB4OnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WL5VQSCAKiiBeY7bijkqp35ZNiVl0rGJVTFimfNirZfHzeaFskDV5RMxj6Iulfhgh
-         TzHPjje2f1zvPlBIhLuwYbs8Z8rU0uE2slueMpnEms7uTDoO0CGgxtcFCBSaCVQOSq
-         lQxrg5ntCg5BaOHI5UpBLeU660d0+mBHlMVLJMqk=
+        b=vBZJsdUNw2MyiE5D9TYD1JPY/8vom0rognLtEqhNXeofWK9FGqT1G56Q96YAucxiZ
+         OGEGam5lzh2I7o+SF1miVbFLwGbJqYyIhvwjSbCU5ceKlg69kbeVhyi+/FUJR0NYpW
+         mJzCIni1GsMUy9bY+AzTzPrPqgJ6O19bawJBIIQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+2ca247c2d60c7023de7f@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 423/530] wifi: ath9k: avoid uninit memory read in ath9k_htc_rx_msg()
-Date:   Mon, 24 Oct 2022 13:32:47 +0200
-Message-Id: <20221024113104.240592655@linuxfoundation.org>
+Subject: [PATCH 5.15 463/530] ARM: dts: imx7d-sdb: config the max pressure for tsc2046
+Date:   Mon, 24 Oct 2022 13:33:27 +0200
+Message-Id: <20221024113106.005906229@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -56,147 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit b383e8abed41cc6ff1a3b34de75df9397fa4878c ]
+[ Upstream commit e7c4ebe2f9cd68588eb24ba4ed122e696e2d5272 ]
 
-syzbot is reporting uninit value at ath9k_htc_rx_msg() [1], for
-ioctl(USB_RAW_IOCTL_EP_WRITE) can call ath9k_hif_usb_rx_stream() with
-pkt_len = 0 but ath9k_hif_usb_rx_stream() uses
-__dev_alloc_skb(pkt_len + 32, GFP_ATOMIC) based on an assumption that
-pkt_len is valid. As a result, ath9k_hif_usb_rx_stream() allocates skb
-with uninitialized memory and ath9k_htc_rx_msg() is reading from
-uninitialized memory.
+Use the general touchscreen method to config the max pressure for
+touch tsc2046(data sheet suggest 8 bit pressure), otherwise, for
+ABS_PRESSURE, when config the same max and min value, weston will
+meet the following issue,
 
-Since bytes accessed by ath9k_htc_rx_msg() is not known until
-ath9k_htc_rx_msg() is called, it would be difficult to check minimal valid
-pkt_len at "if (pkt_len > 2 * MAX_RX_BUF_SIZE) {" line in
-ath9k_hif_usb_rx_stream().
+[17:19:39.183] event1  - ADS7846 Touchscreen: is tagged by udev as: Touchscreen
+[17:19:39.183] event1  - ADS7846 Touchscreen: kernel bug: device has min == max on ABS_PRESSURE
+[17:19:39.183] event1  - ADS7846 Touchscreen: was rejected
+[17:19:39.183] event1  - not using input device '/dev/input/event1'
 
-We have two choices. One is to workaround by adding __GFP_ZERO so that
-ath9k_htc_rx_msg() sees 0 if pkt_len is invalid. The other is to let
-ath9k_htc_rx_msg() validate pkt_len before accessing. This patch chose
-the latter.
+This will then cause the APP weston-touch-calibrator can't list touch devices.
 
-Note that I'm not sure threshold condition is correct, for I can't find
-details on possible packet length used by this protocol.
+root@imx6ul7d:~# weston-touch-calibrator
+could not load cursor 'dnd-move'
+could not load cursor 'dnd-copy'
+could not load cursor 'dnd-none'
+No devices listed.
 
-Link: https://syzkaller.appspot.com/bug?extid=2ca247c2d60c7023de7f [1]
-Reported-by: syzbot <syzbot+2ca247c2d60c7023de7f@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/7acfa1be-4b5c-b2ce-de43-95b0593fb3e5@I-love.SAKURA.ne.jp
+And accroding to binding Doc, "ti,x-max", "ti,y-max", "ti,pressure-max"
+belong to the deprecated properties, so remove them. Also for "ti,x-min",
+"ti,y-min", "ti,x-plate-ohms", the value set in dts equal to the default
+value in driver, so are redundant, also remove here.
+
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_hst.c | 43 +++++++++++++++---------
- 1 file changed, 28 insertions(+), 15 deletions(-)
+ arch/arm/boot/dts/imx7d-sdb.dts | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_hst.c b/drivers/net/wireless/ath/ath9k/htc_hst.c
-index 994ec48b2f66..ca05b07a45e6 100644
---- a/drivers/net/wireless/ath/ath9k/htc_hst.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
-@@ -364,33 +364,27 @@ void ath9k_htc_txcompletion_cb(struct htc_target *htc_handle,
- }
- 
- static void ath9k_htc_fw_panic_report(struct htc_target *htc_handle,
--				      struct sk_buff *skb)
-+				      struct sk_buff *skb, u32 len)
- {
- 	uint32_t *pattern = (uint32_t *)skb->data;
- 
--	switch (*pattern) {
--	case 0x33221199:
--		{
-+	if (*pattern == 0x33221199 && len >= sizeof(struct htc_panic_bad_vaddr)) {
- 		struct htc_panic_bad_vaddr *htc_panic;
- 		htc_panic = (struct htc_panic_bad_vaddr *) skb->data;
- 		dev_err(htc_handle->dev, "ath: firmware panic! "
- 			"exccause: 0x%08x; pc: 0x%08x; badvaddr: 0x%08x.\n",
- 			htc_panic->exccause, htc_panic->pc,
- 			htc_panic->badvaddr);
--		break;
--		}
--	case 0x33221299:
--		{
-+		return;
-+	}
-+	if (*pattern == 0x33221299) {
- 		struct htc_panic_bad_epid *htc_panic;
- 		htc_panic = (struct htc_panic_bad_epid *) skb->data;
- 		dev_err(htc_handle->dev, "ath: firmware panic! "
- 			"bad epid: 0x%08x\n", htc_panic->epid);
--		break;
--		}
--	default:
--		dev_err(htc_handle->dev, "ath: unknown panic pattern!\n");
--		break;
-+		return;
- 	}
-+	dev_err(htc_handle->dev, "ath: unknown panic pattern!\n");
- }
- 
- /*
-@@ -411,16 +405,26 @@ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
- 	if (!htc_handle || !skb)
- 		return;
- 
-+	/* A valid message requires len >= 8.
-+	 *
-+	 *   sizeof(struct htc_frame_hdr) == 8
-+	 *   sizeof(struct htc_ready_msg) == 8
-+	 *   sizeof(struct htc_panic_bad_vaddr) == 16
-+	 *   sizeof(struct htc_panic_bad_epid) == 8
-+	 */
-+	if (unlikely(len < sizeof(struct htc_frame_hdr)))
-+		goto invalid;
- 	htc_hdr = (struct htc_frame_hdr *) skb->data;
- 	epid = htc_hdr->endpoint_id;
- 
- 	if (epid == 0x99) {
--		ath9k_htc_fw_panic_report(htc_handle, skb);
-+		ath9k_htc_fw_panic_report(htc_handle, skb, len);
- 		kfree_skb(skb);
- 		return;
- 	}
- 
- 	if (epid < 0 || epid >= ENDPOINT_MAX) {
-+invalid:
- 		if (pipe_id != USB_REG_IN_PIPE)
- 			dev_kfree_skb_any(skb);
- 		else
-@@ -432,21 +436,30 @@ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
- 
- 		/* Handle trailer */
- 		if (htc_hdr->flags & HTC_FLAGS_RECV_TRAILER) {
--			if (be32_to_cpu(*(__be32 *) skb->data) == 0x00C60000)
-+			if (be32_to_cpu(*(__be32 *) skb->data) == 0x00C60000) {
- 				/* Move past the Watchdog pattern */
- 				htc_hdr = (struct htc_frame_hdr *)(skb->data + 4);
-+				len -= 4;
-+			}
- 		}
- 
- 		/* Get the message ID */
-+		if (unlikely(len < sizeof(struct htc_frame_hdr) + sizeof(__be16)))
-+			goto invalid;
- 		msg_id = (__be16 *) ((void *) htc_hdr +
- 				     sizeof(struct htc_frame_hdr));
- 
- 		/* Now process HTC messages */
- 		switch (be16_to_cpu(*msg_id)) {
- 		case HTC_MSG_READY_ID:
-+			if (unlikely(len < sizeof(struct htc_ready_msg)))
-+				goto invalid;
- 			htc_process_target_rdy(htc_handle, htc_hdr);
- 			break;
- 		case HTC_MSG_CONNECT_SERVICE_RESPONSE_ID:
-+			if (unlikely(len < sizeof(struct htc_frame_hdr) +
-+				     sizeof(struct htc_conn_svc_rspmsg)))
-+				goto invalid;
- 			htc_process_conn_rsp(htc_handle, htc_hdr);
- 			break;
- 		default:
+diff --git a/arch/arm/boot/dts/imx7d-sdb.dts b/arch/arm/boot/dts/imx7d-sdb.dts
+index e5f1bdbe7992..4e1a6cde90fe 100644
+--- a/arch/arm/boot/dts/imx7d-sdb.dts
++++ b/arch/arm/boot/dts/imx7d-sdb.dts
+@@ -206,12 +206,7 @@
+ 		interrupt-parent = <&gpio2>;
+ 		interrupts = <29 0>;
+ 		pendown-gpio = <&gpio2 29 GPIO_ACTIVE_HIGH>;
+-		ti,x-min = /bits/ 16 <0>;
+-		ti,x-max = /bits/ 16 <0>;
+-		ti,y-min = /bits/ 16 <0>;
+-		ti,y-max = /bits/ 16 <0>;
+-		ti,pressure-max = /bits/ 16 <0>;
+-		ti,x-plate-ohms = /bits/ 16 <400>;
++		touchscreen-max-pressure = <255>;
+ 		wakeup-source;
+ 	};
+ };
 -- 
 2.35.1
 
