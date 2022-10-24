@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6E660B7C2
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:32:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D92C60B833
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:43:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231955AbiJXTcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:32:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39908 "EHLO
+        id S230509AbiJXTms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:42:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233243AbiJXTcO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:32:14 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F4EE367A2;
-        Mon, 24 Oct 2022 11:02:41 -0700 (PDT)
+        with ESMTP id S232117AbiJXTlx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:41:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7D5A265C64;
+        Mon, 24 Oct 2022 11:11:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 95509CE136A;
-        Mon, 24 Oct 2022 11:54:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADAA1C433C1;
-        Mon, 24 Oct 2022 11:54:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED2DBB81144;
+        Mon, 24 Oct 2022 11:54:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54B85C433C1;
+        Mon, 24 Oct 2022 11:54:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612481;
-        bh=nU5shlmlTDL+WA15wXTBEMZOu70bg3gompzMDfGsWu8=;
+        s=korg; t=1666612483;
+        bh=5Vy4jq/SW/H+3NBkjZm5KJ4gAaL+cSLzxnmDanCaLrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iZdVAUtp/h9bRYMb6cConkvau5LV/f5eVVIPNkyOtqdaG/L63UcJmlJhV4mFKHaHM
-         DsleZ90NvngFtbZnJX7JUTjCLXR+OyOcYPe4+4iORk2oCrJJwsPRjOKJ5IM4Wq5m2/
-         67PV676oKSy1SNPfu4mnimPmdSyDL3CVSjDgg+vI=
+        b=ZFYER+HXM2Frq6TZY9nZleSw3N1gSs1wzpe3plILQSvUYDy+dmIpkZIoX0WWz3lQ6
+         /XP7aF9o3qYzTjp4fWrQGCTw5fs0dnLFmiSbQW8Qb0i2rujTC1kLCz0q3OA06J4qiL
+         IcdOcHhQ2wsBY2aMgp2OU8CcKT+KDYV997O4JSTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 204/210] net: ieee802154: return -EINVAL for unknown addr type
-Date:   Mon, 24 Oct 2022 13:32:01 +0200
-Message-Id: <20221024113003.608477909@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 205/210] net/ieee802154: dont warn zero-sized raw_sendmsg()
+Date:   Mon, 24 Oct 2022 13:32:02 +0200
+Message-Id: <20221024113003.651648084@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -52,54 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 30393181fdbc1608cc683b4ee99dcce05ffcc8c7 upstream.
+[ Upstream commit b12e924a2f5b960373459c8f8a514f887adf5cac ]
 
-This patch adds handling to return -EINVAL for an unknown addr type. The
-current behaviour is to return 0 as successful but the size of an
-unknown addr type is not defined and should return an error like -EINVAL.
+syzbot is hitting skb_assert_len() warning at __dev_queue_xmit() [1],
+for PF_IEEE802154 socket's zero-sized raw_sendmsg() request is hitting
+__dev_queue_xmit() with skb->len == 0.
 
-Fixes: 94160108a70c ("net/ieee802154: fix uninit value bug in dgram_sendmsg")
+Since PF_IEEE802154 socket's zero-sized raw_sendmsg() request was
+able to return 0, don't call __dev_queue_xmit() if packet length is 0.
+
+  ----------
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+
+  int main(int argc, char *argv[])
+  {
+    struct sockaddr_in addr = { .sin_family = AF_INET, .sin_addr.s_addr = htonl(INADDR_LOOPBACK) };
+    struct iovec iov = { };
+    struct msghdr hdr = { .msg_name = &addr, .msg_namelen = sizeof(addr), .msg_iov = &iov, .msg_iovlen = 1 };
+    sendmsg(socket(PF_IEEE802154, SOCK_RAW, 0), &hdr, 0);
+    return 0;
+  }
+  ----------
+
+Note that this might be a sign that commit fd1894224407c484 ("bpf: Don't
+redirect packets with invalid pkt_len") should be reverted, for
+skb->len == 0 was acceptable for at least PF_IEEE802154 socket.
+
+Link: https://syzkaller.appspot.com/bug?extid=5ea725c25d06fb9114c4 [1]
+Reported-by: syzbot <syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com>
+Fixes: fd1894224407c484 ("bpf: Don't redirect packets with invalid pkt_len")
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20221005014750.3685555-2-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ieee802154_netdev.h |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ net/ieee802154/socket.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/include/net/ieee802154_netdev.h
-+++ b/include/net/ieee802154_netdev.h
-@@ -193,21 +193,27 @@ static inline int
- ieee802154_sockaddr_check_size(struct sockaddr_ieee802154 *daddr, int len)
- {
- 	struct ieee802154_addr_sa *sa;
-+	int ret = 0;
- 
- 	sa = &daddr->addr;
- 	if (len < IEEE802154_MIN_NAMELEN)
- 		return -EINVAL;
- 	switch (sa->addr_type) {
-+	case IEEE802154_ADDR_NONE:
-+		break;
- 	case IEEE802154_ADDR_SHORT:
- 		if (len < IEEE802154_NAMELEN_SHORT)
--			return -EINVAL;
-+			ret = -EINVAL;
- 		break;
- 	case IEEE802154_ADDR_LONG:
- 		if (len < IEEE802154_NAMELEN_LONG)
--			return -EINVAL;
-+			ret = -EINVAL;
-+		break;
-+	default:
-+		ret = -EINVAL;
- 		break;
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index 16bf114118c3..a8929675b5ab 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -284,6 +284,10 @@ static int raw_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 		err = -EMSGSIZE;
+ 		goto out_dev;
  	}
--	return 0;
-+	return ret;
- }
++	if (!size) {
++		err = 0;
++		goto out_dev;
++	}
  
- static inline void ieee802154_addr_from_sa(struct ieee802154_addr *a,
+ 	hlen = LL_RESERVED_SPACE(dev);
+ 	tlen = dev->needed_tailroom;
+-- 
+2.35.1
+
 
 
