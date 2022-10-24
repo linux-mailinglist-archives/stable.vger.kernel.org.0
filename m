@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C276460A4EE
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:18:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 165E860A49E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:13:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231221AbiJXMSy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:18:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50344 "EHLO
+        id S230018AbiJXMNm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:13:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233095AbiJXMSH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:18:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CF8277542;
-        Mon, 24 Oct 2022 04:57:05 -0700 (PDT)
+        with ESMTP id S232860AbiJXMM7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:12:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0B6BFF;
+        Mon, 24 Oct 2022 04:54:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 567A0B811A1;
-        Mon, 24 Oct 2022 11:53:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4B50C433D6;
-        Mon, 24 Oct 2022 11:53:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5477E612C3;
+        Mon, 24 Oct 2022 11:53:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64064C433D6;
+        Mon, 24 Oct 2022 11:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612405;
-        bh=m6NQJ5EmDqzyBSscFVL9+7RWcSwAfWV9TMWJzvPm/kc=;
+        s=korg; t=1666612433;
+        bh=T1RzVjYOnfsNgB+jghQGsmTf4DSzu07LR8BVos8WFwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hiKIzA1zAInlGpBMMoB4C7wlWOL7Re7MhfZhge68XSw0yH5MPoZLt64PDKVzpzdgL
-         IsNf8RTfinOds2pjawK8p0oW+ZTEy6QGukwW3wI01kPnFbv44Wf1TL+Z2polw2J+w6
-         Hhw7fpx08hEbVvdfMm9Yf+jr7q0jODgRGsG/DCKc=
+        b=yC4nDoDcChHXyCW70fXrotDveOrj3iQhI3DSika2TKySqv4SNdT4gW8YtyALvBp1Q
+         b9af1PgrDoU4tFPlqbOSlyKT0nUMIwkbYVcF8lKkHljax6FxbR1/rt3NHfftooyNR+
+         PQGFQLAHaM76hmJ7iZ9g7GZEflNL4Uqs/UwhxolA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mike Pattrick <mkp@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 168/210] openvswitch: Fix double reporting of drops in dropwatch
-Date:   Mon, 24 Oct 2022 13:31:25 +0200
-Message-Id: <20221024113002.413948464@linuxfoundation.org>
+Subject: [PATCH 4.14 169/210] openvswitch: Fix overreporting of drops in dropwatch
+Date:   Mon, 24 Oct 2022 13:31:26 +0200
+Message-Id: <20221024113002.443916899@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -55,48 +55,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Pattrick <mkp@redhat.com>
 
-[ Upstream commit 1100248a5c5ccd57059eb8d02ec077e839a23826 ]
+[ Upstream commit c21ab2afa2c64896a7f0e3cbc6845ec63dcfad2e ]
 
-Frames sent to userspace can be reported as dropped in
-ovs_dp_process_packet, however, if they are dropped in the netlink code
-then netlink_attachskb will report the same frame as dropped.
-
-This patch checks for error codes which indicate that the frame has
-already been freed.
+Currently queue_userspace_packet will call kfree_skb for all frames,
+whether or not an error occurred. This can result in a single dropped
+frame being reported as multiple drops in dropwatch. This functions
+caller may also call kfree_skb in case of an error. This patch will
+consume the skbs instead and allow caller's to use kfree_skb.
 
 Signed-off-by: Mike Pattrick <mkp@redhat.com>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2109946
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2109957
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/datapath.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ net/openvswitch/datapath.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
-index 3248cf04d0b3..42616aca0ce4 100644
+index 42616aca0ce4..8319628ab428 100644
 --- a/net/openvswitch/datapath.c
 +++ b/net/openvswitch/datapath.c
-@@ -276,10 +276,17 @@ void ovs_dp_process_packet(struct sk_buff *skb, struct sw_flow_key *key)
- 		upcall.portid = ovs_vport_find_upcall_portid(p, skb);
- 		upcall.mru = OVS_CB(skb)->mru;
- 		error = ovs_dp_upcall(dp, skb, key, &upcall, 0);
--		if (unlikely(error))
--			kfree_skb(skb);
--		else
-+		switch (error) {
-+		case 0:
-+		case -EAGAIN:
-+		case -ERESTARTSYS:
-+		case -EINTR:
- 			consume_skb(skb);
-+			break;
-+		default:
-+			kfree_skb(skb);
-+			break;
-+		}
- 		stats_counter = &stats->n_missed;
- 		goto out;
- 	}
+@@ -553,8 +553,9 @@ static int queue_userspace_packet(struct datapath *dp, struct sk_buff *skb,
+ out:
+ 	if (err)
+ 		skb_tx_error(skb);
+-	kfree_skb(user_skb);
+-	kfree_skb(nskb);
++	consume_skb(user_skb);
++	consume_skb(nskb);
++
+ 	return err;
+ }
+ 
 -- 
 2.35.1
 
