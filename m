@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8141B60B77A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:25:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F56960B805
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:40:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229828AbiJXTYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:24:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45164 "EHLO
+        id S233251AbiJXTkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:40:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231863AbiJXTXJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:23:09 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAB7C20351;
-        Mon, 24 Oct 2022 10:57:47 -0700 (PDT)
+        with ESMTP id S233290AbiJXTkK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:40:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90608100BEC;
+        Mon, 24 Oct 2022 11:10:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6F661CE13BF;
-        Mon, 24 Oct 2022 12:19:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B34AC433D6;
-        Mon, 24 Oct 2022 12:19:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB9D2B818D8;
+        Mon, 24 Oct 2022 12:37:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11200C433C1;
+        Mon, 24 Oct 2022 12:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613976;
-        bh=6w1m8oTCk9uzWFr7+T1Vk2k2FAMBopqrgJZpxzytLWQ=;
+        s=korg; t=1666615062;
+        bh=9dV24TvSlpDgVsxGRinEj/gKG+RDtyGeSFeR1vF2EeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y0CzeDKyCSEmCuUMjLnd+gUt73PzT0Ht9NdPR6jnPko1Ue8xaeegCz9kwvv7mlz06
-         MpQw7p9BWqPXm+lsN+P/Cc4h2YNSx+yGZWNk+0LgPJEKEJIaJP6FgFSG88jSbJNPw9
-         dJSunFrfrEvKwc/px0O9O+zOqRczaCBS9f5P3BlM=
+        b=RiN2lgr9U/L+OorRl+0QshJavJjRZp3Gogq4yBtEQu32wmCwWW9W6asvyCwBrFd8g
+         ymVLynZQXriRtEt4Iwv5T8p4btKtdXoSUC2KIfR/tvjO4hitcatctsMyWfGiWIFMSt
+         H6xXahw6bfsb3O9DoMKOngn4icRuWerPS+w3aBOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kbuild@vger.kernel.org, llvm@lists.linux.dev,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.10 055/390] hardening: Remove Clangs enable flag for -ftrivial-auto-var-init=zero
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 108/530] ring-buffer: Check pending waiters when doing wake ups as well
 Date:   Mon, 24 Oct 2022 13:27:32 +0200
-Message-Id: <20221024113024.968446156@linuxfoundation.org>
+Message-Id: <20221024113049.913942543@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 607e57c6c62c00965ae276902c166834ce73014a upstream.
+commit ec0bbc5ec5664dcee344f79373852117dc672c86 upstream.
 
-Now that Clang's -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang
-option is no longer required, remove it from the command line. Clang 16
-and later will warn when it is used, which will cause Kconfig to think
-it can't use -ftrivial-auto-var-init=zero at all. Check for whether it
-is required and only use it when so.
+The wake up waiters only checks the "wakeup_full" variable and not the
+"full_waiters_pending". The full_waiters_pending is set when a waiter is
+added to the wait queue. The wakeup_full is only set when an event is
+triggered, and it clears the full_waiters_pending to avoid multiple calls
+to irq_work_queue().
 
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: linux-kbuild@vger.kernel.org
-Cc: llvm@lists.linux.dev
+The irq_work callback really needs to check both wakeup_full as well as
+full_waiters_pending such that this code can be used to wake up waiters
+when a file is closed that represents the ring buffer and the waiters need
+to be woken up.
+
+Link: https://lkml.kernel.org/r/20220927231824.209460321@goodmis.org
+
 Cc: stable@vger.kernel.org
-Fixes: f02003c860d9 ("hardening: Avoid harmless Clang option under CONFIG_INIT_STACK_ALL_ZERO")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 15693458c4bc0 ("tracing/ring-buffer: Move poll wake ups into ring buffer code")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile                   |    4 ++--
- security/Kconfig.hardening |   14 ++++++++++----
- 2 files changed, 12 insertions(+), 6 deletions(-)
+ kernel/trace/ring_buffer.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -817,8 +817,8 @@ endif
- # Initialize all stack variables with a zero value.
- ifdef CONFIG_INIT_STACK_ALL_ZERO
- KBUILD_CFLAGS	+= -ftrivial-auto-var-init=zero
--ifdef CONFIG_CC_IS_CLANG
--# https://bugs.llvm.org/show_bug.cgi?id=45497
-+ifdef CONFIG_CC_HAS_AUTO_VAR_INIT_ZERO_ENABLER
-+# https://github.com/llvm/llvm-project/issues/44842
- KBUILD_CFLAGS	+= -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang
- endif
- endif
---- a/security/Kconfig.hardening
-+++ b/security/Kconfig.hardening
-@@ -22,11 +22,17 @@ menu "Memory initialization"
- config CC_HAS_AUTO_VAR_INIT_PATTERN
- 	def_bool $(cc-option,-ftrivial-auto-var-init=pattern)
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -881,8 +881,9 @@ static void rb_wake_up_waiters(struct ir
+ 	struct rb_irq_work *rbwork = container_of(work, struct rb_irq_work, work);
  
--config CC_HAS_AUTO_VAR_INIT_ZERO
--	# GCC ignores the -enable flag, so we can test for the feature with
--	# a single invocation using the flag, but drop it as appropriate in
--	# the Makefile, depending on the presence of Clang.
-+config CC_HAS_AUTO_VAR_INIT_ZERO_BARE
-+	def_bool $(cc-option,-ftrivial-auto-var-init=zero)
-+
-+config CC_HAS_AUTO_VAR_INIT_ZERO_ENABLER
-+	# Clang 16 and later warn about using the -enable flag, but it
-+	# is required before then.
- 	def_bool $(cc-option,-ftrivial-auto-var-init=zero -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang)
-+	depends on !CC_HAS_AUTO_VAR_INIT_ZERO_BARE
-+
-+config CC_HAS_AUTO_VAR_INIT_ZERO
-+	def_bool CC_HAS_AUTO_VAR_INIT_ZERO_BARE || CC_HAS_AUTO_VAR_INIT_ZERO_ENABLER
- 
- choice
- 	prompt "Initialize kernel stack variables at function entry"
+ 	wake_up_all(&rbwork->waiters);
+-	if (rbwork->wakeup_full) {
++	if (rbwork->full_waiters_pending || rbwork->wakeup_full) {
+ 		rbwork->wakeup_full = false;
++		rbwork->full_waiters_pending = false;
+ 		wake_up_all(&rbwork->full_waiters);
+ 	}
+ }
 
 
