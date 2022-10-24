@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58ACA60A964
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A23EA60A8BD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231182AbiJXNUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:20:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50964 "EHLO
+        id S235502AbiJXNKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:10:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236022AbiJXNTC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:19:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D4A1A5722;
-        Mon, 24 Oct 2022 05:27:34 -0700 (PDT)
+        with ESMTP id S235406AbiJXNIi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:08:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FD1E9E683;
+        Mon, 24 Oct 2022 05:22:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 539C4B811BE;
-        Mon, 24 Oct 2022 12:05:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8EA6C433D6;
-        Mon, 24 Oct 2022 12:05:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2530612B3;
+        Mon, 24 Oct 2022 12:21:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EDC6C433D6;
+        Mon, 24 Oct 2022 12:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613127;
-        bh=tuRrGyRDE5pfd9u7YgYcnNL8Vy+H8he/V121FPx+c8w=;
+        s=korg; t=1666614103;
+        bh=jOc7LW7IWzijjP0DhfLG0KzytqA6AuX/PkOEIoEOpsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMIaN0oDx1KSUEeScdOwn3kXgJYgYLyEMgh0lljyU5pvTmyQtztpvO2evEAM4bLKL
-         /AMI34kxHKnRzxd91rXks5lwch8GM8RR6J67pcqhlT3R97ecHOT2Inpq0T70gLUcuG
-         cJxOGJPgrAU7B+KFJMjf7ERCF4NBjUSLE04DC/zU=
+        b=qbIqi1b7a62pfNEb3USTFnlA0YIk3s4IM8WVIkZiJ3Bam3UEOfadLoikrWEn9JIo5
+         wslyItDgcVkEf7/x+tr+Nzd2pPHpDnUncxMfa2rQRtk90WouYnLngdlbW6/IGB0QLK
+         NHZSl7Lim30Pg7IICjbPYX58Z9dFFbZsEaO/7n4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 019/255] can: kvaser_usb_leaf: Fix CAN state after restart
-Date:   Mon, 24 Oct 2022 13:28:49 +0200
-Message-Id: <20221024113003.075321750@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 133/390] sctp: handle the error returned from sctp_auth_asoc_init_active_key
+Date:   Mon, 24 Oct 2022 13:28:50 +0200
+Message-Id: <20221024113028.343180837@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 0be1a655fe68c8e6dcadbcbddb69cf2fb29881f5 upstream.
+[ Upstream commit 022152aaebe116a25c39818a07e175a8cd3c1e11 ]
 
-can_restart() expects CMD_START_CHIP to set the error state to
-ERROR_ACTIVE as it calls netif_carrier_on() immediately afterwards.
+When it returns an error from sctp_auth_asoc_init_active_key(), the
+active_key is actually not updated. The old sh_key will be freeed
+while it's still used as active key in asoc. Then an use-after-free
+will be triggered when sending patckets, as found by syzbot:
 
-Otherwise the user may immediately trigger restart again and hit a
-BUG_ON() in can_restart().
+  sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
+  sctp_set_owner_w net/sctp/socket.c:132 [inline]
+  sctp_sendmsg_to_asoc+0xbd5/0x1a20 net/sctp/socket.c:1863
+  sctp_sendmsg+0x1053/0x1d50 net/sctp/socket.c:2025
+  inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:819
+  sock_sendmsg_nosec net/socket.c:714 [inline]
+  sock_sendmsg+0xcf/0x120 net/socket.c:734
 
-Fix kvaser_usb_leaf set_mode(CMD_START_CHIP) to set the expected state.
+This patch is to fix it by not replacing the sh_key when it returns
+errors from sctp_auth_asoc_init_active_key() in sctp_auth_set_key().
+For sctp_auth_set_active_key(), old active_key_id will be set back
+to asoc->active_key_id when the same thing happens.
 
-Cc: stable@vger.kernel.org
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Tested-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010150829.199676-5-extja@kvaser.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 58acd1009226 ("sctp: update active_key for asoc when old key is being replaced")
+Reported-by: syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/sctp/auth.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -1435,6 +1435,8 @@ static int kvaser_usb_leaf_set_mode(stru
- 		err = kvaser_usb_leaf_simple_cmd_async(priv, CMD_START_CHIP);
- 		if (err)
- 			return err;
+diff --git a/net/sctp/auth.c b/net/sctp/auth.c
+index db6b7373d16c..34964145514e 100644
+--- a/net/sctp/auth.c
++++ b/net/sctp/auth.c
+@@ -863,12 +863,17 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
+ 	}
+ 
+ 	list_del_init(&shkey->key_list);
+-	sctp_auth_shkey_release(shkey);
+ 	list_add(&cur_key->key_list, sh_keys);
+ 
+-	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
+-		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
++	if (asoc && asoc->active_key_id == auth_key->sca_keynumber &&
++	    sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
++		list_del_init(&cur_key->key_list);
++		sctp_auth_shkey_release(cur_key);
++		list_add(&shkey->key_list, sh_keys);
++		return -ENOMEM;
++	}
+ 
++	sctp_auth_shkey_release(shkey);
+ 	return 0;
+ }
+ 
+@@ -902,8 +907,13 @@ int sctp_auth_set_active_key(struct sctp_endpoint *ep,
+ 		return -EINVAL;
+ 
+ 	if (asoc) {
++		__u16  active_key_id = asoc->active_key_id;
 +
-+		priv->can.state = CAN_STATE_ERROR_ACTIVE;
- 		break;
- 	default:
- 		return -EOPNOTSUPP;
+ 		asoc->active_key_id = key_id;
+-		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
++		if (sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
++			asoc->active_key_id = active_key_id;
++			return -ENOMEM;
++		}
+ 	} else
+ 		ep->active_key_id = key_id;
+ 
+-- 
+2.35.1
+
 
 
