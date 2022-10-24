@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B40B460B8CA
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:54:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7126A60B8BA
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:53:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233290AbiJXTx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:53:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59340 "EHLO
+        id S233537AbiJXTxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:53:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233602AbiJXTxL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:53:11 -0400
+        with ESMTP id S233675AbiJXTwP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:52:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7820A9F367;
-        Mon, 24 Oct 2022 11:17:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A205635E0;
+        Mon, 24 Oct 2022 11:17:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26822B8188A;
-        Mon, 24 Oct 2022 12:36:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80C9BC433C1;
-        Mon, 24 Oct 2022 12:36:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E79CAB817BB;
+        Mon, 24 Oct 2022 12:36:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49A3EC433D6;
+        Mon, 24 Oct 2022 12:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614999;
-        bh=+TZoul+YeufxacAPwI4xaoF7o3pAs7wolwp+n+JhmYg=;
+        s=korg; t=1666615007;
+        bh=OZ4fCuISKgc6bcCsN5lRSFJ3XFy5d5qi6Tn0vsWgpB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oRpUn5prTx49Q/Lf/b7bGEIB7to3J7qUecnnDwQ2NVf7sl2jumy6EF6S8v49Xfb4Z
-         zYbAwce6INO/SeLV2zzbH3lqDTMJA5NvTxdXopPE2s/ET3+2CznbrMScLoqM18V0YV
-         WWQJBhB75MrNtP6LlIk/XgJwtLNY4YWXkhdcCbtA=
+        b=m5/mK3429Z8zM/SN7d0+K6R9hClOQm0bmFljWpDP3zOhJoEtufxqhkcETWlGMgXoS
+         1WElqWFt61tBaRFICXtJmVPmmTrP3CSoOu+MFoPio73gD8U9V5Ej1McA8dm+N5QxAb
+         Am1i9IjW0PjntTcma0r/lKozU6uDdAJ1b4cTCzg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aran Dalton <arda@allwinnertech.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.15 083/530] f2fs: increase the limit for reserve_root
-Date:   Mon, 24 Oct 2022 13:27:07 +0200
-Message-Id: <20221024113048.777728642@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        llvm@lists.linux.dev, Will Deacon <will@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.15 086/530] hardening: Avoid harmless Clang option under CONFIG_INIT_STACK_ALL_ZERO
+Date:   Mon, 24 Oct 2022 13:27:10 +0200
+Message-Id: <20221024113048.905560197@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -52,39 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit da35fe96d12d15779f3cb74929b7ed03941cf983 upstream.
+commit f02003c860d921171be4a27e2893766eb3bc6871 upstream.
 
-This patch increases the threshold that limits the reserved root space from 0.2%
-to 12.5% by using simple shift operation.
+Currently under Clang, CC_HAS_AUTO_VAR_INIT_ZERO requires an extra
+-enable flag compared to CC_HAS_AUTO_VAR_INIT_PATTERN. GCC 12[1] will
+not, and will happily ignore the Clang-specific flag. However, its
+presence on the command-line is both cumbersome and confusing. Due to
+GCC's tolerant behavior, though, we can continue to use a single Kconfig
+cc-option test for the feature on both compilers, but then drop the
+Clang-specific option in the Makefile.
 
-Typically Android sets 128MB, but if the storage capacity is 32GB, 0.2% which is
-around 64MB becomes too small. Let's relax it.
+In other words, this patch does not change anything other than making the
+compiler command line shorter once GCC supports -ftrivial-auto-var-init=zero.
 
-Cc: stable@vger.kernel.org
-Reported-by: Aran Dalton <arda@allwinnertech.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+[1] https://gcc.gnu.org/git/?p=gcc.git;a=commitdiff;h=a25e0b5e6ac8a77a71c229e0a7b744603365b0e9
+
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: llvm@lists.linux.dev
+Fixes: dcb7c0b9461c ("hardening: Clarify Kconfig text for auto-var-init")
+Suggested-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/lkml/20210914102837.6172-1-will@kernel.org/
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/super.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Makefile                   |    6 +++---
+ security/Kconfig.hardening |    5 ++++-
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -306,10 +306,10 @@ static void f2fs_destroy_casefold_cache(
+--- a/Makefile
++++ b/Makefile
+@@ -844,12 +844,12 @@ endif
  
- static inline void limit_reserve_root(struct f2fs_sb_info *sbi)
- {
--	block_t limit = min((sbi->user_block_count << 1) / 1000,
-+	block_t limit = min((sbi->user_block_count >> 3),
- 			sbi->user_block_count - sbi->reserved_blocks);
+ # Initialize all stack variables with a zero value.
+ ifdef CONFIG_INIT_STACK_ALL_ZERO
+-# Future support for zero initialization is still being debated, see
+-# https://bugs.llvm.org/show_bug.cgi?id=45497. These flags are subject to being
+-# renamed or dropped.
+ KBUILD_CFLAGS	+= -ftrivial-auto-var-init=zero
++ifdef CONFIG_CC_IS_CLANG
++# https://bugs.llvm.org/show_bug.cgi?id=45497
+ KBUILD_CFLAGS	+= -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang
+ endif
++endif
  
--	/* limit is 0.2% */
-+	/* limit is 12.5% */
- 	if (test_opt(sbi, RESERVE_ROOT) &&
- 			F2FS_OPTION(sbi).root_reserved_blocks > limit) {
- 		F2FS_OPTION(sbi).root_reserved_blocks = limit;
+ # While VLAs have been removed, GCC produces unreachable stack probes
+ # for the randomize_kstack_offset feature. Disable it for all compilers.
+--- a/security/Kconfig.hardening
++++ b/security/Kconfig.hardening
+@@ -23,13 +23,16 @@ config CC_HAS_AUTO_VAR_INIT_PATTERN
+ 	def_bool $(cc-option,-ftrivial-auto-var-init=pattern)
+ 
+ config CC_HAS_AUTO_VAR_INIT_ZERO
++	# GCC ignores the -enable flag, so we can test for the feature with
++	# a single invocation using the flag, but drop it as appropriate in
++	# the Makefile, depending on the presence of Clang.
+ 	def_bool $(cc-option,-ftrivial-auto-var-init=zero -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang)
+ 
+ choice
+ 	prompt "Initialize kernel stack variables at function entry"
+ 	default GCC_PLUGIN_STRUCTLEAK_BYREF_ALL if COMPILE_TEST && GCC_PLUGINS
+ 	default INIT_STACK_ALL_PATTERN if COMPILE_TEST && CC_HAS_AUTO_VAR_INIT_PATTERN
+-	default INIT_STACK_ALL_ZERO if CC_HAS_AUTO_VAR_INIT_PATTERN
++	default INIT_STACK_ALL_ZERO if CC_HAS_AUTO_VAR_INIT_ZERO
+ 	default INIT_STACK_NONE
+ 	help
+ 	  This option enables initialization of stack variables at
 
 
