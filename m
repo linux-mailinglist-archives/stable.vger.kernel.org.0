@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 730E160ADE2
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:39:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E40B60AD0D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231377AbiJXOj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:39:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52870 "EHLO
+        id S234692AbiJXORb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:17:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237186AbiJXOjK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:39:10 -0400
+        with ESMTP id S237124AbiJXOP5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:15:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5602121801;
-        Mon, 24 Oct 2022 06:15:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B87FD78214;
+        Mon, 24 Oct 2022 05:55:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64A5D61150;
-        Mon, 24 Oct 2022 12:56:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 514A9C433D6;
-        Mon, 24 Oct 2022 12:56:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66EFA61278;
+        Mon, 24 Oct 2022 12:55:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 799A6C433C1;
+        Mon, 24 Oct 2022 12:55:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616180;
-        bh=6vbKmmz0ryFxKZLGyy2yrARzgTOezGzvxGBhsplRrh8=;
+        s=korg; t=1666616106;
+        bh=dNCuxLTTNKFz5VDNGJB5PQxnQFbJ48RYQ3+HDlVGbtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rzpi37FMhKnQhMkJdFqQL6i9aJ6TQSiPyeBPGyqJ9FNzsYv4zI/q376oO1j0t3AVO
-         o1bgJlAenYwsY75ECRLLUo8u+EDD4qs6fiGGO7oiwc9qCwQG/PhTUdIetYLHmizMXD
-         LzyGSOpA2GUlX0UfV6+kOYjXCljD4pE1QwQkEeIU=
+        b=GPlRSBjyhXIot7ea5Q0oYoBQymIIOFmd/9TYKRcj2RbRzS4z4ttHXldnwHQ5X14k6
+         BmiY4/3XQ+1y9BCnGBvC7bu56/a7hZ9ySRSCBNuSv0a4WvR0FBpE44NaoDC1jL5qrC
+         BuP6oZ5JcUVwWqdH1ylcb4AcnHRX+pLB69TkDpqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, sunghwan jung <onenowy@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 500/530] Revert "usb: storage: Add quirk for Samsung Fit flash"
-Date:   Mon, 24 Oct 2022 13:34:04 +0200
-Message-Id: <20221024113107.678397573@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+0f2f7e65a3007d39539f@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 504/530] ext2: Use kvmalloc() for group descriptor array
+Date:   Mon, 24 Oct 2022 13:34:08 +0200
+Message-Id: <20221024113107.844012970@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -52,57 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sunghwan jung <onenowy@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit ad5dbfc123e6ffbbde194e2a4603323e09f741ee ]
+[ Upstream commit e7c7fbb9a8574ebd89cc05db49d806c7476863ad ]
 
-This reverts commit 86d92f5465958752481269348d474414dccb1552,
-which fix the timeout issue for "Samsung Fit Flash".
+Array of group descriptor block buffers can get rather large. In theory
+in can reach 1MB for perfectly valid filesystem and even more for
+maliciously crafted ones. Use kvmalloc() to allocate the array to avoid
+straining memory allocator with large order allocations unnecessarily.
 
-But the commit affects not only "Samsung Fit Flash" but also other usb
-storages that use the same controller and causes severe performance
-regression.
-
- # hdparm -t /dev/sda (without the quirk)
- Timing buffered disk reads: 622 MB in  3.01 seconds = 206.66 MB/sec
-
- # hdparm -t /dev/sda (with the quirk)
- Timing buffered disk reads: 220 MB in  3.00 seconds =  73.32 MB/sec
-
-The commit author mentioned that "Issue was reproduced after device has
-bad block", so this quirk should be applied when we have the timeout
-issue with a device that has bad blocks.
-
-We revert the commit so that we apply this quirk by adding kernel
-paramters using a bootloader or other ways when we really need it,
-without the performance regression with devices that don't have the
-issue.
-
-Signed-off-by: sunghwan jung <onenowy@gmail.com>
-Link: https://lore.kernel.org/r/20220913114913.3073-1-onenowy@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot+0f2f7e65a3007d39539f@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_devs.h | 6 ------
- 1 file changed, 6 deletions(-)
+ fs/ext2/super.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index 4993227ab293..20dcbccb290b 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -1275,12 +1275,6 @@ UNUSUAL_DEV( 0x090a, 0x1200, 0x0000, 0x9999,
- 		USB_SC_RBC, USB_PR_BULK, NULL,
- 		0 ),
- 
--UNUSUAL_DEV(0x090c, 0x1000, 0x1100, 0x1100,
--		"Samsung",
--		"Flash Drive FIT",
--		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_MAX_SECTORS_64),
--
- /* aeb */
- UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
- 		"Feiya",
+diff --git a/fs/ext2/super.c b/fs/ext2/super.c
+index fd855574ef09..02d82f8fe85d 100644
+--- a/fs/ext2/super.c
++++ b/fs/ext2/super.c
+@@ -163,7 +163,7 @@ static void ext2_put_super (struct super_block * sb)
+ 	db_count = sbi->s_gdb_count;
+ 	for (i = 0; i < db_count; i++)
+ 		brelse(sbi->s_group_desc[i]);
+-	kfree(sbi->s_group_desc);
++	kvfree(sbi->s_group_desc);
+ 	kfree(sbi->s_debts);
+ 	percpu_counter_destroy(&sbi->s_freeblocks_counter);
+ 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
+@@ -1080,7 +1080,7 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+ 	}
+ 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
+ 		   EXT2_DESC_PER_BLOCK(sb);
+-	sbi->s_group_desc = kmalloc_array(db_count,
++	sbi->s_group_desc = kvmalloc_array(db_count,
+ 					   sizeof(struct buffer_head *),
+ 					   GFP_KERNEL);
+ 	if (sbi->s_group_desc == NULL) {
+@@ -1206,7 +1206,7 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+ 	for (i = 0; i < db_count; i++)
+ 		brelse(sbi->s_group_desc[i]);
+ failed_mount_group_desc:
+-	kfree(sbi->s_group_desc);
++	kvfree(sbi->s_group_desc);
+ 	kfree(sbi->s_debts);
+ failed_mount:
+ 	brelse(bh);
 -- 
 2.35.1
 
