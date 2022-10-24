@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3466A60A567
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:25:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5527260A62B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:32:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233480AbiJXMYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:24:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40696 "EHLO
+        id S231174AbiJXMby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:31:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233376AbiJXMXM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:23:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C93F511148;
-        Mon, 24 Oct 2022 04:59:42 -0700 (PDT)
+        with ESMTP id S234310AbiJXM37 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97305FD24;
+        Mon, 24 Oct 2022 05:04:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E1436125A;
-        Mon, 24 Oct 2022 11:59:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 313FDC433C1;
-        Mon, 24 Oct 2022 11:59:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2B03B811BF;
+        Mon, 24 Oct 2022 11:50:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5451EC433D6;
+        Mon, 24 Oct 2022 11:50:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612756;
-        bh=CZ7TxE+NMJnDnxO9IUXVaIiVtgKrEN7pRINPzURS98Q=;
+        s=korg; t=1666612202;
+        bh=VkJGykt6enmbqjkkAmJnzgGF+00pbCPjk/x2Pdbi/UM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3OSMN3LED6GZ6XXo1ZLYH10mouu3sh4jC849pws4D2TytQ4zcyVDEdQOQ/AKg/JR
-         RNUFcdEl5avcoVqmoguscBWuEnFpUyLWP54c7OeH8i8WUnrjMxlMEiIA7lWb1dOql7
-         nTTp1+gs0zKjI9acjP66XI5YN3rxNjNXlTnu+gsE=
+        b=auTRMjnVVecqm4+Sb/RZi1wULMxZfF9W3UkgpLrenwGQlFaKKpgKiooXVAjPQtDl/
+         EiZeKepcabcwtDsr4rKlw10IHN8g4GIIFfCLZWd06x/laPLucsfiTPORqGWgjpH6Mb
+         LGUTIAEU3HwndzSzdF8B0+YJ/78WZ2zAAaIsKyKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 107/229] ASoC: wm5102: Fix PM disable depth imbalance in wm5102_probe
+Subject: [PATCH 4.14 109/210] ARM: dts: turris-omnia: Fix mpp26 pin name and comment
 Date:   Mon, 24 Oct 2022 13:30:26 +0200
-Message-Id: <20221024113002.475044346@linuxfoundation.org>
+Message-Id: <20221024113000.547034483@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit fcbb60820cd3008bb44334a0395e5e57ccb77329 ]
+[ Upstream commit 49e93898f0dc177e645c22d0664813567fd9ec00 ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context. We fix it by moving
-pm_runtime_enable to the endding of wm5102_probe.
+There is a bug in Turris Omnia's schematics, whereupon the MPP[26] pin,
+which is routed to CN11 pin header, is documented as SPI CS1, but
+MPP[26] pin does not support this function. Instead it controls chip
+select 2 if in "spi0" mode.
 
-Fixes:93e8791dd34ca ("ASoC: wm5102: Initial driver")
+Fix the name of the pin node in pinctrl node and fix the comment in SPI
+node.
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220928160116.125020-4-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm5102.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/armada-385-turris-omnia.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
-index 7e817e1877c2..9b33c87c2fe4 100644
---- a/sound/soc/codecs/wm5102.c
-+++ b/sound/soc/codecs/wm5102.c
-@@ -2085,9 +2085,6 @@ static int wm5102_probe(struct platform_device *pdev)
- 		regmap_update_bits(arizona->regmap, wm5102_digital_vu[i],
- 				   WM5102_DIG_VU, WM5102_DIG_VU);
+diff --git a/arch/arm/boot/dts/armada-385-turris-omnia.dts b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+index 6c2d96cbd7cd..00f70c2fab24 100644
+--- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
++++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+@@ -340,7 +340,7 @@
+ 		marvell,function = "spi0";
+ 	};
  
--	pm_runtime_enable(&pdev->dev);
--	pm_runtime_idle(&pdev->dev);
--
- 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
- 				  "ADSP2 Compressed IRQ", wm5102_adsp2_irq,
- 				  wm5102);
-@@ -2120,6 +2117,9 @@ static int wm5102_probe(struct platform_device *pdev)
- 		goto err_spk_irqs;
- 	}
+-	spi0cs1_pins: spi0cs1-pins {
++	spi0cs2_pins: spi0cs2-pins {
+ 		marvell,pins = "mpp26";
+ 		marvell,function = "spi0";
+ 	};
+@@ -375,7 +375,7 @@
+ 		};
+ 	};
  
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_idle(&pdev->dev);
-+
- 	return ret;
+-	/* MISO, MOSI, SCLK and CS1 are routed to pin header CN11 */
++	/* MISO, MOSI, SCLK and CS2 are routed to pin header CN11 */
+ };
  
- err_spk_irqs:
+ &uart0 {
 -- 
 2.35.1
 
