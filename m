@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F3E60A7F5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56FA460A7FB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234929AbiJXNAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42436 "EHLO
+        id S234915AbiJXNAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:00:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235144AbiJXM7Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:25 -0400
+        with ESMTP id S235097AbiJXM7T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5B569AC1B;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5FB99A2AC;
         Mon, 24 Oct 2022 05:18:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 714AF612C3;
-        Mon, 24 Oct 2022 12:17:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 843A5C433D6;
-        Mon, 24 Oct 2022 12:17:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 531E8612DA;
+        Mon, 24 Oct 2022 12:17:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63701C433D7;
+        Mon, 24 Oct 2022 12:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613836;
-        bh=Ys3ka49cccFJzfsTCTuZ+erQPYHY5yRX3BygybRzjkA=;
+        s=korg; t=1666613844;
+        bh=RLkjsXNCeD9Aft4ml7uTuapdTsXixKA/dEjOa/v5+hA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uQwAPuVreDBRQzb+Q1lJi5xqGEWZueMXhWTDUFg4n97djBTGqA2tCFDo/aRf1Tkef
-         SDmuZXwAkdQ1PDrwOKhl+S+JX5CgdmrZBzfsIp+OwGyCO4jVOHBAsFnhKAvD0U0Ly0
-         C9SOsHEgmZ+xmrGntU23iZEPxkaZ6P6iqf6Z56V4=
+        b=x9MjdjA9KM/qObeu1WF3d/so3fvtkRATdxHxjy7OnnuUhnmBgDvPMS8nni7mV69Pn
+         /kD1+DxodV849x1fsG88eqJiO6b15Uw68VLpQJVbjha0B9jmh0ipB6pv3XmNl5l3F4
+         zECNN902EttNzRqCNGfGTDjcPCdjkK6zgM+Ss5Wc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 033/390] parisc: fbdev/stifb: Align graphics memory size to 4MB
-Date:   Mon, 24 Oct 2022 13:27:10 +0200
-Message-Id: <20221024113024.012872639@linuxfoundation.org>
+        stable@vger.kernel.org, Atish Patra <atishp@rivosinc.com>,
+        Andrew Bresticker <abrestic@rivosinc.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.10 035/390] riscv: Make VM_WRITE imply VM_READ
+Date:   Mon, 24 Oct 2022 13:27:12 +0200
+Message-Id: <20221024113024.103392568@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -51,31 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Andrew Bresticker <abrestic@rivosinc.com>
 
-commit aca7c13d3bee81a968337a5515411409ae9d095d upstream.
+commit 7ab72c597356be1e7f0f3d856e54ce78527f43c8 upstream.
 
-Independend of the current graphics resolution, adjust the reported
-graphics card memory size to the next 4MB boundary.
-This fixes the fbtest program which expects a naturally aligned size.
+RISC-V does not presently have write-only mappings as that PTE bit pattern
+is considered reserved in the privileged spec, so allow handling of read
+faults in VMAs that have VM_WRITE without VM_READ in order to be consistent
+with other architectures that have similar limitations.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>
+Fixes: 2139619bcad7 ("riscv: mmap with PROT_WRITE but no PROT_READ is invalid")
+Reviewed-by: Atish Patra <atishp@rivosinc.com>
+Signed-off-by: Andrew Bresticker <abrestic@rivosinc.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220915193702.2201018-2-abrestic@rivosinc.com/
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/stifb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/mm/fault.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/stifb.c
-+++ b/drivers/video/fbdev/stifb.c
-@@ -1257,7 +1257,7 @@ static int __init stifb_init_fb(struct s
- 	
- 	/* limit fbsize to max visible screen size */
- 	if (fix->smem_len > yres*fix->line_length)
--		fix->smem_len = yres*fix->line_length;
-+		fix->smem_len = ALIGN(yres*fix->line_length, 4*1024*1024);
- 	
- 	fix->accel = FB_ACCEL_NONE;
- 
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -167,7 +167,8 @@ static inline bool access_error(unsigned
+ 		}
+ 		break;
+ 	case EXC_LOAD_PAGE_FAULT:
+-		if (!(vma->vm_flags & VM_READ)) {
++		/* Write implies read */
++		if (!(vma->vm_flags & (VM_READ | VM_WRITE))) {
+ 			return true;
+ 		}
+ 		break;
 
 
