@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF21360AA5A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B9C260AA56
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230174AbiJXNcR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:32:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40376 "EHLO
+        id S233075AbiJXNcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:32:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236409AbiJXNbB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:31:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 276C03499D;
-        Mon, 24 Oct 2022 05:33:48 -0700 (PDT)
+        with ESMTP id S236367AbiJXNay (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:30:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69F75AD9A7;
+        Mon, 24 Oct 2022 05:33:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A6ECF6128D;
-        Mon, 24 Oct 2022 12:33:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7AACC433C1;
-        Mon, 24 Oct 2022 12:33:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3ED0B612DA;
+        Mon, 24 Oct 2022 12:33:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E9E4C433D6;
+        Mon, 24 Oct 2022 12:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614804;
-        bh=0LcxMqzKBXHZAcPKt0pyDjPeM3azFWJ3SFXQ6kVQIP8=;
+        s=korg; t=1666614806;
+        bh=7U0mQ0pDfxaJ2+wyh7qsALzju49NDwjTNZHMSl8ISxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BMgk2GGG+8IGqJ02c0QiIB+blbx9RCSny5j0Kp7aCJIi/jyJfI/xB1UXzat6viAgs
-         8eioe91FoKbo7odYW2Y4CmT2qhHxac5x8rLXHKhQinVG2LBefPvVf0sVxWaLtr2jHT
-         uum5f6rlCfdEtB5S+j6oCLd3CbQQlNc0QMO+DcVI=
+        b=LuJtJTfXdnGJ3ug6wKHUfFVnqzoIQSAAN+49iZGStOlpimpgQQLCOYn1MQs/trbl6
+         t59nJxQjaaELoDZznJKPLVIULrTtJDv7YeSVaNoF9049Zw4sOqeFY+h7Of/PlNcPOG
+         Fp6+lPif/5yiDIKjE6XwKTgOkRaZFbYC8D4gjvOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Alexander Dahl <ada@thorsis.com>,
-        Peter Rosin <peda@axentia.se>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.15 010/530] mtd: rawnand: atmel: Unmap streaming DMA mappings
-Date:   Mon, 24 Oct 2022 13:25:54 +0200
-Message-Id: <20221024113045.472019588@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 011/530] io_uring/net: dont update msg_name if not provided
+Date:   Mon, 24 Oct 2022 13:25:55 +0200
+Message-Id: <20221024113045.517604613@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -56,39 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 1161703c9bd664da5e3b2eb1a3bb40c210e026ea upstream.
+commit 6f10ae8a155446248055c7ddd480ef40139af788 upstream.
 
-Every dma_map_single() call should have its dma_unmap_single() counterpart,
-because the DMA address space is a shared resource and one could render the
-machine unusable by consuming all DMA addresses.
+io_sendmsg_copy_hdr() may clear msg->msg_name if the userspace didn't
+provide it, we should retain NULL in this case.
 
-Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
 Cc: stable@vger.kernel.org
-Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Acked-by: Alexander Dahl <ada@thorsis.com>
-Reported-by: Peter Rosin <peda@axentia.se>
-Tested-by: Alexander Dahl <ada@thorsis.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Tested-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220728074014.145406-1-tudor.ambarus@microchip.com
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/97d49f61b5ec76d0900df658cfde3aa59ff22121.1664486545.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/atmel/nand-controller.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/io_uring.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/atmel/nand-controller.c
-+++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
-@@ -405,6 +405,7 @@ static int atmel_nand_dma_transfer(struc
- 
- 	dma_async_issue_pending(nc->dmac);
- 	wait_for_completion(&finished);
-+	dma_unmap_single(nc->dev, buf_dma, len, dir);
- 
- 	return 0;
- 
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4762,7 +4762,8 @@ static int io_setup_async_msg(struct io_
+ 	async_msg = req->async_data;
+ 	req->flags |= REQ_F_NEED_CLEANUP;
+ 	memcpy(async_msg, kmsg, sizeof(*kmsg));
+-	async_msg->msg.msg_name = &async_msg->addr;
++	if (async_msg->msg.msg_name)
++		async_msg->msg.msg_name = &async_msg->addr;
+ 	/* if were using fast_iov, set it to the new one */
+ 	if (!async_msg->free_iov)
+ 		async_msg->msg.msg_iter.iov = async_msg->fast_iov;
 
 
