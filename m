@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3459660A275
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:44:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7216A60A3BE
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231329AbiJXLnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:43:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43386 "EHLO
+        id S230036AbiJXMAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:00:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231428AbiJXLnY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:43:24 -0400
+        with ESMTP id S232145AbiJXL6g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:58:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6900F10FCD;
-        Mon, 24 Oct 2022 04:40:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89AA72A278;
+        Mon, 24 Oct 2022 04:47:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E30036126B;
-        Mon, 24 Oct 2022 11:38:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFD6BC433D7;
-        Mon, 24 Oct 2022 11:38:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BDBF461280;
+        Mon, 24 Oct 2022 11:38:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AED4CC433D6;
+        Mon, 24 Oct 2022 11:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611518;
-        bh=CcO3P73nWihKfZZsy5MC4W4ujZ0qIP4yl3E6Fxe4K1Y=;
+        s=korg; t=1666611521;
+        bh=vDIOLrtOH91TGb5ga4pN6oJWrbydeWF2GLGCeCY+H/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vJSuuj0ng8DZkj0cVJhwwKzJeRHf0JidSo6fTa0QCBXtFgjJqllWoMAqib7qP6U5w
-         zrOi9pK2PAwEMHbgDY2D8/tagyyuB2MwphFzipmrZ75vc9NwUhIHZn5bYCUu2WZl/t
-         tMrtL7GFxWFm0NkXGTvencs7An/dnNIOufKSnUsw=
+        b=B+BdPdTdTwu6JCaa91eK2oS0h4q8I1R3vc0uiDTxaFRsRWM0GYhumVkXjUND4mkfY
+         v3DyzXq2skM361jTtrqg7/mfGmapZLm73oisFkfPZNwbDUIMhZ1GvCdzzKgv1Qml44
+         Z0S64wipGP3kb9DnUyYgwlHStINarFOCPzssDd5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <peilin.ye@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+dcd3e13cf4472f2e0ba1@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 010/159] usbnet: Fix memory leak in usbnet_disconnect()
-Date:   Mon, 24 Oct 2022 13:29:24 +0200
-Message-Id: <20221024112949.732978269@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 011/159] nvme: add new line after variable declatation
+Date:   Mon, 24 Oct 2022 13:29:25 +0200
+Message-Id: <20221024112949.772495354@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -54,54 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-[ Upstream commit a43206156263fbaf1f2b7f96257441f331e91bb7 ]
+[ Upstream commit f1c772d581843e3a14bbd62ef7e40b56fc307f27 ]
 
-Currently usbnet_disconnect() unanchors and frees all deferred URBs
-using usb_scuttle_anchored_urbs(), which does not free urb->context,
-causing a memory leak as reported by syzbot.
+Add a new line in functions nvme_pr_preempt(), nvme_pr_clear(), and
+nvme_pr_release() after variable declaration which follows the rest of
+the code in the nvme/host/core.c.
 
-Use a usb_get_from_anchor() while loop instead, similar to what we did
-in commit 19cfe912c37b ("Bluetooth: btusb: Fix memory leak in
-play_deferred").  Also free urb->sg.
+No functional change(s) in this patch.
 
-Reported-and-tested-by: syzbot+dcd3e13cf4472f2e0ba1@syzkaller.appspotmail.com
-Fixes: 69ee472f2706 ("usbnet & cdc-ether: Autosuspend for online devices")
-Fixes: 638c5115a794 ("USBNET: support DMA SG")
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Link: https://lore.kernel.org/r/20220923042551.2745-1-yepeilin.cs@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Stable-dep-of: c292a337d0e4 ("nvme: Fix IOC_PR_CLEAR and IOC_PR_RELEASE ioctls for nvme devices")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/usbnet.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
-index f1cb512c55ac..810e4e65e2a3 100644
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -1559,6 +1559,7 @@ void usbnet_disconnect (struct usb_interface *intf)
- 	struct usbnet		*dev;
- 	struct usb_device	*xdev;
- 	struct net_device	*net;
-+	struct urb		*urb;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 9561a247d0dc..051bc7430af2 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1044,18 +1044,21 @@ static int nvme_pr_preempt(struct block_device *bdev, u64 old, u64 new,
+ 		enum pr_type type, bool abort)
+ {
+ 	u32 cdw10 = nvme_pr_type(type) << 8 | (abort ? 2 : 1);
++
+ 	return nvme_pr_command(bdev, cdw10, old, new, nvme_cmd_resv_acquire);
+ }
  
- 	dev = usb_get_intfdata(intf);
- 	usb_set_intfdata(intf, NULL);
-@@ -1575,7 +1576,11 @@ void usbnet_disconnect (struct usb_interface *intf)
- 	net = dev->net;
- 	unregister_netdev (net);
+ static int nvme_pr_clear(struct block_device *bdev, u64 key)
+ {
+ 	u32 cdw10 = 1 | (key ? 1 << 3 : 0);
++
+ 	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_register);
+ }
  
--	usb_scuttle_anchored_urbs(&dev->deferred);
-+	while ((urb = usb_get_from_anchor(&dev->deferred))) {
-+		dev_kfree_skb(urb->context);
-+		kfree(urb->sg);
-+		usb_free_urb(urb);
-+	}
+ static int nvme_pr_release(struct block_device *bdev, u64 key, enum pr_type type)
+ {
+ 	u32 cdw10 = nvme_pr_type(type) << 8 | (key ? 1 << 3 : 0);
++
+ 	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_release);
+ }
  
- 	if (dev->driver_info->unbind)
- 		dev->driver_info->unbind (dev, intf);
 -- 
 2.35.1
 
