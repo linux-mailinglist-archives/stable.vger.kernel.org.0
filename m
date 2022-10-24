@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E624960B061
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C139560B44E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232991AbiJXQFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:05:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33192 "EHLO
+        id S231580AbiJXRhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 13:37:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233171AbiJXQES (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:18 -0400
+        with ESMTP id S233614AbiJXRgl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:36:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 156D31C93C;
-        Mon, 24 Oct 2022 07:56:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FF46237967;
+        Mon, 24 Oct 2022 09:11:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64A2AB81202;
-        Mon, 24 Oct 2022 12:24:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B82B1C433B5;
-        Mon, 24 Oct 2022 12:24:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E0E9B81675;
+        Mon, 24 Oct 2022 12:24:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A0E8C433C1;
+        Mon, 24 Oct 2022 12:24:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614258;
-        bh=NRSfbYdbXRVMYB9NY6/edprAupDWT9LhGIIB9kC9TEk=;
+        s=korg; t=1666614266;
+        bh=eSPGLgJoJM+kPIS2tJYcph+18AVY0zIp3pvdV3W6xAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FMTi2A0pNtDg8N7GHr5SgVOvPv7zk9jA9kCh3mTMs5vbihZOUtQLkuzz9lISXQ0lV
-         mWIYk7fzUcOrncfGo1U0evmaAJzAVFep440cY6+Shh6CmTgDnlM7MpBnt7DJ2u2jX6
-         XIhAUvMmCRmBQcyl+dxkYgdemQIpKst87BK0FMZI=
+        b=amSUHUNDcDxuAWJRy9rXcvezA0fSXCJ7Y/iUdjd/dvPzQcm9y4DwYAxhRnYWtFkeQ
+         QBzTqsmurr15XmVCQnBXFxgDFNHszIDxsFEzUpINt2oLn0tJDGZ/Ae6503ct07K/01
+         +1IFKqxGCXPTvix4OsVCDjHyXbpZjrqSDi7oEvgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 193/390] usb: common: add function to get interval expressed in us unit
-Date:   Mon, 24 Oct 2022 13:29:50 +0200
-Message-Id: <20221024113030.992402303@linuxfoundation.org>
+Subject: [PATCH 5.10 196/390] clk: meson: Hold reference returned by of_get_parent()
+Date:   Mon, 24 Oct 2022 13:29:53 +0200
+Message-Id: <20221024113031.133178832@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -52,187 +55,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit fb95c7cf5600b7b74412f27dfb39a1e13fd8a90d ]
+[ Upstream commit 89ab396d712f7c91fe94f55cff23460426f5fc81 ]
 
-Add a new function to convert bInterval into the time expressed
-in 1us unit.
+We should hold the reference returned by of_get_parent() and use it
+to call of_node_put() for refcount balance.
 
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/25c8a09b055f716c1e5bf11fea72c3418f844482.1615170625.git.chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: b6155eaf6b05 ("usb: common: debug: Check non-standard control requests")
+Fixes: 88e2da81241e ("clk: meson: aoclk: refactor common code into dedicated file")
+Fixes: 6682bd4d443f ("clk: meson: factorise meson64 peripheral clock controller drivers")
+Fixes: bb6eddd1d28c ("clk: meson: meson8b: use the HHI syscon if available")
+
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220628141038.168383-1-windhl@126.com
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/common/common.c | 41 +++++++++++++++++++++++++++++++++++++
- drivers/usb/core/devices.c  | 21 ++++---------------
- drivers/usb/core/endpoint.c | 35 ++++---------------------------
- include/linux/usb/ch9.h     |  3 +++
- 4 files changed, 52 insertions(+), 48 deletions(-)
+ drivers/clk/meson/meson-aoclk.c | 5 ++++-
+ drivers/clk/meson/meson-eeclk.c | 5 ++++-
+ drivers/clk/meson/meson8b.c     | 5 ++++-
+ 3 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/common/common.c b/drivers/usb/common/common.c
-index fc21cf2d36f6..675e8a4e683a 100644
---- a/drivers/usb/common/common.c
-+++ b/drivers/usb/common/common.c
-@@ -165,6 +165,47 @@ enum usb_dr_mode usb_get_dr_mode(struct device *dev)
- }
- EXPORT_SYMBOL_GPL(usb_get_dr_mode);
+diff --git a/drivers/clk/meson/meson-aoclk.c b/drivers/clk/meson/meson-aoclk.c
+index 3a6d84cd6601..67d8a0d30221 100644
+--- a/drivers/clk/meson/meson-aoclk.c
++++ b/drivers/clk/meson/meson-aoclk.c
+@@ -36,6 +36,7 @@ int meson_aoclkc_probe(struct platform_device *pdev)
+ 	struct meson_aoclk_reset_controller *rstc;
+ 	struct meson_aoclk_data *data;
+ 	struct device *dev = &pdev->dev;
++	struct device_node *np;
+ 	struct regmap *regmap;
+ 	int ret, clkid;
  
-+/**
-+ * usb_decode_interval - Decode bInterval into the time expressed in 1us unit
-+ * @epd: The descriptor of the endpoint
-+ * @speed: The speed that the endpoint works as
-+ *
-+ * Function returns the interval expressed in 1us unit for servicing
-+ * endpoint for data transfers.
-+ */
-+unsigned int usb_decode_interval(const struct usb_endpoint_descriptor *epd,
-+				 enum usb_device_speed speed)
-+{
-+	unsigned int interval = 0;
-+
-+	switch (usb_endpoint_type(epd)) {
-+	case USB_ENDPOINT_XFER_CONTROL:
-+		/* uframes per NAK */
-+		if (speed == USB_SPEED_HIGH)
-+			interval = epd->bInterval;
-+		break;
-+	case USB_ENDPOINT_XFER_ISOC:
-+		interval = 1 << (epd->bInterval - 1);
-+		break;
-+	case USB_ENDPOINT_XFER_BULK:
-+		/* uframes per NAK */
-+		if (speed == USB_SPEED_HIGH && usb_endpoint_dir_out(epd))
-+			interval = epd->bInterval;
-+		break;
-+	case USB_ENDPOINT_XFER_INT:
-+		if (speed >= USB_SPEED_HIGH)
-+			interval = 1 << (epd->bInterval - 1);
-+		else
-+			interval = epd->bInterval;
-+		break;
-+	}
-+
-+	interval *= (speed >= USB_SPEED_HIGH) ? 125 : 1000;
-+
-+	return interval;
-+}
-+EXPORT_SYMBOL_GPL(usb_decode_interval);
-+
- #ifdef CONFIG_OF
- /**
-  * of_usb_get_dr_mode_by_phy - Get dual role mode for the controller device
-diff --git a/drivers/usb/core/devices.c b/drivers/usb/core/devices.c
-index 1ef2de6e375a..d8b0041de612 100644
---- a/drivers/usb/core/devices.c
-+++ b/drivers/usb/core/devices.c
-@@ -157,38 +157,25 @@ static char *usb_dump_endpoint_descriptor(int speed, char *start, char *end,
- 	switch (usb_endpoint_type(desc)) {
- 	case USB_ENDPOINT_XFER_CONTROL:
- 		type = "Ctrl";
--		if (speed == USB_SPEED_HIGH)	/* uframes per NAK */
--			interval = desc->bInterval;
--		else
--			interval = 0;
- 		dir = 'B';			/* ctrl is bidirectional */
- 		break;
- 	case USB_ENDPOINT_XFER_ISOC:
- 		type = "Isoc";
--		interval = 1 << (desc->bInterval - 1);
- 		break;
- 	case USB_ENDPOINT_XFER_BULK:
- 		type = "Bulk";
--		if (speed == USB_SPEED_HIGH && dir == 'O') /* uframes per NAK */
--			interval = desc->bInterval;
--		else
--			interval = 0;
- 		break;
- 	case USB_ENDPOINT_XFER_INT:
- 		type = "Int.";
--		if (speed == USB_SPEED_HIGH || speed >= USB_SPEED_SUPER)
--			interval = 1 << (desc->bInterval - 1);
--		else
--			interval = desc->bInterval;
- 		break;
- 	default:	/* "can't happen" */
- 		return start;
- 	}
--	interval *= (speed == USB_SPEED_HIGH ||
--		     speed >= USB_SPEED_SUPER) ? 125 : 1000;
--	if (interval % 1000)
-+
-+	interval = usb_decode_interval(desc, speed);
-+	if (interval % 1000) {
- 		unit = 'u';
--	else {
-+	} else {
- 		unit = 'm';
- 		interval /= 1000;
- 	}
-diff --git a/drivers/usb/core/endpoint.c b/drivers/usb/core/endpoint.c
-index 1c2c04079676..fc3341f2bb61 100644
---- a/drivers/usb/core/endpoint.c
-+++ b/drivers/usb/core/endpoint.c
-@@ -84,40 +84,13 @@ static ssize_t interval_show(struct device *dev, struct device_attribute *attr,
- 			     char *buf)
+@@ -47,7 +48,9 @@ int meson_aoclkc_probe(struct platform_device *pdev)
+ 	if (!rstc)
+ 		return -ENOMEM;
+ 
+-	regmap = syscon_node_to_regmap(of_get_parent(dev->of_node));
++	np = of_get_parent(dev->of_node);
++	regmap = syscon_node_to_regmap(np);
++	of_node_put(np);
+ 	if (IS_ERR(regmap)) {
+ 		dev_err(dev, "failed to get regmap\n");
+ 		return PTR_ERR(regmap);
+diff --git a/drivers/clk/meson/meson-eeclk.c b/drivers/clk/meson/meson-eeclk.c
+index a7cb1e7aedc4..18ae38787268 100644
+--- a/drivers/clk/meson/meson-eeclk.c
++++ b/drivers/clk/meson/meson-eeclk.c
+@@ -17,6 +17,7 @@ int meson_eeclkc_probe(struct platform_device *pdev)
  {
- 	struct ep_device *ep = to_ep_device(dev);
-+	unsigned int interval;
- 	char unit;
--	unsigned interval = 0;
--	unsigned in;
+ 	const struct meson_eeclkc_data *data;
+ 	struct device *dev = &pdev->dev;
++	struct device_node *np;
+ 	struct regmap *map;
+ 	int ret, i;
  
--	in = (ep->desc->bEndpointAddress & USB_DIR_IN);
--
--	switch (usb_endpoint_type(ep->desc)) {
--	case USB_ENDPOINT_XFER_CONTROL:
--		if (ep->udev->speed == USB_SPEED_HIGH)
--			/* uframes per NAK */
--			interval = ep->desc->bInterval;
--		break;
--
--	case USB_ENDPOINT_XFER_ISOC:
--		interval = 1 << (ep->desc->bInterval - 1);
--		break;
--
--	case USB_ENDPOINT_XFER_BULK:
--		if (ep->udev->speed == USB_SPEED_HIGH && !in)
--			/* uframes per NAK */
--			interval = ep->desc->bInterval;
--		break;
--
--	case USB_ENDPOINT_XFER_INT:
--		if (ep->udev->speed == USB_SPEED_HIGH)
--			interval = 1 << (ep->desc->bInterval - 1);
--		else
--			interval = ep->desc->bInterval;
--		break;
--	}
--	interval *= (ep->udev->speed == USB_SPEED_HIGH) ? 125 : 1000;
--	if (interval % 1000)
-+	interval = usb_decode_interval(ep->desc, ep->udev->speed);
-+	if (interval % 1000) {
- 		unit = 'u';
--	else {
-+	} else {
- 		unit = 'm';
- 		interval /= 1000;
- 	}
-diff --git a/include/linux/usb/ch9.h b/include/linux/usb/ch9.h
-index abdd310c77f0..74debc824645 100644
---- a/include/linux/usb/ch9.h
-+++ b/include/linux/usb/ch9.h
-@@ -90,6 +90,9 @@ extern enum usb_ssp_rate usb_get_maximum_ssp_rate(struct device *dev);
-  */
- extern const char *usb_state_string(enum usb_device_state state);
+@@ -25,7 +26,9 @@ int meson_eeclkc_probe(struct platform_device *pdev)
+ 		return -EINVAL;
  
-+unsigned int usb_decode_interval(const struct usb_endpoint_descriptor *epd,
-+				 enum usb_device_speed speed);
-+
- #ifdef CONFIG_TRACING
- /**
-  * usb_decode_ctrl - Returns human readable representation of control request.
+ 	/* Get the hhi system controller node */
+-	map = syscon_node_to_regmap(of_get_parent(dev->of_node));
++	np = of_get_parent(dev->of_node);
++	map = syscon_node_to_regmap(np);
++	of_node_put(np);
+ 	if (IS_ERR(map)) {
+ 		dev_err(dev,
+ 			"failed to get HHI regmap\n");
+diff --git a/drivers/clk/meson/meson8b.c b/drivers/clk/meson/meson8b.c
+index 862f0756b50f..1da9d212f8b7 100644
+--- a/drivers/clk/meson/meson8b.c
++++ b/drivers/clk/meson/meson8b.c
+@@ -3735,13 +3735,16 @@ static void __init meson8b_clkc_init_common(struct device_node *np,
+ 			struct clk_hw_onecell_data *clk_hw_onecell_data)
+ {
+ 	struct meson8b_clk_reset *rstc;
++	struct device_node *parent_np;
+ 	const char *notifier_clk_name;
+ 	struct clk *notifier_clk;
+ 	void __iomem *clk_base;
+ 	struct regmap *map;
+ 	int i, ret;
+ 
+-	map = syscon_node_to_regmap(of_get_parent(np));
++	parent_np = of_get_parent(np);
++	map = syscon_node_to_regmap(parent_np);
++	of_node_put(parent_np);
+ 	if (IS_ERR(map)) {
+ 		pr_info("failed to get HHI regmap - Trying obsolete regs\n");
+ 
 -- 
 2.35.1
 
