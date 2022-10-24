@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6451F60A7AA
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07BDF60A6FE
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:43:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234600AbiJXMzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:55:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60698 "EHLO
+        id S234078AbiJXMnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:43:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234946AbiJXMyW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:54:22 -0400
+        with ESMTP id S234081AbiJXMlz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:41:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB20D14D2E;
-        Mon, 24 Oct 2022 05:14:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720C28A7FB;
+        Mon, 24 Oct 2022 05:08:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 23004612B3;
-        Mon, 24 Oct 2022 11:56:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 348DFC433D6;
-        Mon, 24 Oct 2022 11:56:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0581612B9;
+        Mon, 24 Oct 2022 11:56:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C03D2C433D6;
+        Mon, 24 Oct 2022 11:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612606;
-        bh=5/+T7+Hbc+gs+Q2MxLjLyv7qCijM55C8bgamH/I/2XQ=;
+        s=korg; t=1666612609;
+        bh=2Q21U+OZtgQgt7+d3W97F/pzkhbw11NkEC8p2AfJ2q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ge9O/pTENp2klJzHO4VlyiHqLK3YDCVeS45Wt6/+sEumoQ9FwY/Wg56ridGV1/G+B
-         6Msr6nl1wtyO74eKN4IaF+8t4f1W2tXpWGcC5dCHDKrJJ09l9leMmGfOZ1rOd0YHim
-         7stdK2V+zCQxH6F652gIUO24ZIId/IZkx15uLxpk=
+        b=urhT5ZuajtL4XZ+Y1udKcnzab0aupcjTfsS6nF4Pp4F923OghplBappwQTQWHI0Fl
+         om6tsh963BgZ9juqga7Q9Hg3gFSoI6rzFB38SBhRG9kJsm7iEcyQJ2BED8/hSmSDms
+         0BI1/8FNIpzfzaZopawAjIRFZCSZfwoTL6g/av3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 020/229] nilfs2: replace WARN_ONs by nilfs_error for checkpoint acquisition failure
-Date:   Mon, 24 Oct 2022 13:28:59 +0200
-Message-Id: <20221024112959.796764482@linuxfoundation.org>
+        stable@vger.kernel.org, Hu Weiwen <sehuww@mail.scut.edu.cn>,
+        Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 4.19 021/229] ceph: dont truncate file in atomic_open
+Date:   Mon, 24 Oct 2022 13:29:00 +0200
+Message-Id: <20221024112959.826609588@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
 References: <20221024112959.085534368@linuxfoundation.org>
@@ -54,58 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Hu Weiwen <sehuww@mail.scut.edu.cn>
 
-commit 723ac751208f6d6540191689cfbf6c77135a7a1b upstream.
+commit 7cb9994754f8a36ae9e5ec4597c5c4c2d6c03832 upstream.
 
-If creation or finalization of a checkpoint fails due to anomalies in the
-checkpoint metadata on disk, a kernel warning is generated.
+Clear O_TRUNC from the flags sent in the MDS create request.
 
-This patch replaces the WARN_ONs by nilfs_error, so that a kernel, booted
-with panic_on_warn, does not panic.  A nilfs_error is appropriate here to
-handle the abnormal filesystem condition.
+`atomic_open' is called before permission check. We should not do any
+modification to the file here. The caller will do the truncation
+afterward.
 
-This also replaces the detected error codes with an I/O error so that
-neither of the internal error codes is returned to callers.
-
-Link: https://lkml.kernel.org/r/20220929123330.19658-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 124e68e74099 ("ceph: file operations")
+Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+[Xiubo: fixed a trivial conflict for 5.10 backport]
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/segment.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ fs/ceph/file.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -880,9 +880,11 @@ static int nilfs_segctor_create_checkpoi
- 		nilfs_mdt_mark_dirty(nilfs->ns_cpfile);
- 		nilfs_cpfile_put_checkpoint(
- 			nilfs->ns_cpfile, nilfs->ns_cno, bh_cp);
--	} else
--		WARN_ON(err == -EINVAL || err == -ENOENT);
--
-+	} else if (err == -EINVAL || err == -ENOENT) {
-+		nilfs_error(sci->sc_super,
-+			    "checkpoint creation failed due to metadata corruption.");
-+		err = -EIO;
-+	}
- 	return err;
- }
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -446,6 +446,12 @@ int ceph_atomic_open(struct inode *dir,
+ 	if (dentry->d_name.len > NAME_MAX)
+ 		return -ENAMETOOLONG;
  
-@@ -896,7 +898,11 @@ static int nilfs_segctor_fill_in_checkpo
- 	err = nilfs_cpfile_get_checkpoint(nilfs->ns_cpfile, nilfs->ns_cno, 0,
- 					  &raw_cp, &bh_cp);
- 	if (unlikely(err)) {
--		WARN_ON(err == -EINVAL || err == -ENOENT);
-+		if (err == -EINVAL || err == -ENOENT) {
-+			nilfs_error(sci->sc_super,
-+				    "checkpoint finalization failed due to metadata corruption.");
-+			err = -EIO;
-+		}
- 		goto failed_ibh;
- 	}
- 	raw_cp->cp_snapshot_list.ssl_next = 0;
++	/*
++	 * Do not truncate the file, since atomic_open is called before the
++	 * permission check. The caller will do the truncation afterward.
++	 */
++	flags &= ~O_TRUNC;
++
+ 	if (flags & O_CREAT) {
+ 		if (ceph_quota_is_max_files_exceeded(dir))
+ 			return -EDQUOT;
+@@ -478,9 +484,7 @@ int ceph_atomic_open(struct inode *dir,
+ 
+ 	req->r_parent = dir;
+ 	set_bit(CEPH_MDS_R_PARENT_LOCKED, &req->r_req_flags);
+-	err = ceph_mdsc_do_request(mdsc,
+-				   (flags & (O_CREAT|O_TRUNC)) ? dir : NULL,
+-				   req);
++	err = ceph_mdsc_do_request(mdsc, (flags & O_CREAT) ? dir : NULL, req);
+ 	err = ceph_handle_snapdir(req, dentry, err);
+ 	if (err)
+ 		goto out_req;
 
 
