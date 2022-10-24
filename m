@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7985160AC59
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E2BB60AFB2
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232689AbiJXOGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:06:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48118 "EHLO
+        id S231623AbiJXPzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:55:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234393AbiJXOD4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:03:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA3CC14BD;
-        Mon, 24 Oct 2022 05:48:52 -0700 (PDT)
+        with ESMTP id S231797AbiJXPy6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:54:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DFE5B4883;
+        Mon, 24 Oct 2022 07:50:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA7CF61257;
-        Mon, 24 Oct 2022 12:48:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6959C433D6;
-        Mon, 24 Oct 2022 12:48:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7ADB2B8169B;
+        Mon, 24 Oct 2022 12:29:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC426C433D6;
+        Mon, 24 Oct 2022 12:29:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615732;
-        bh=uoL8KYvLmqiYOgLbt1BZk+v5+ngS5M6ut9BacMM7LMw=;
+        s=korg; t=1666614597;
+        bh=fzcrBvCZW7mXwVLKymyezTswcQKSn+eSTCs7/2xGe8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fvYxW8v3sexJkaUR7SvqdoYwq3/lDwvPu9PWVgvG53lU/naM4mnnYqQgfJMQ5Gn2w
-         8v2xUHAImGoUtGVCgJLPWLtC4J58UFU2FyrXmfPN7GoDlmILJgYkmg/nq9s6Awq1Yf
-         x1K4ocDaYAg+ZLlhCtnesdDYdpmTIHH0aXypFBn4=
+        b=yLb3ubnsaWN+LGMJWFdDKBDpFYeNbMzSETWf58PSo9DKaBBDth4XMB9dQ/eJHhBT1
+         KcpprNVRJkrj91s2fsZv78y9ppS66Gy5ykAlXmrKm1emF50s1I6ZLya22sFQt2DLK5
+         bBFcNDyozjjgoRXEsCopEDomEmgvrzC9c8DljxWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Yan <yanaijie@huawei.com>,
-        Duoming Zhou <duoming@zju.edu.cn>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 332/530] scsi: libsas: Fix use-after-free bug in smp_execute_task_sg()
-Date:   Mon, 24 Oct 2022 13:31:16 +0200
-Message-Id: <20221024113100.042146539@linuxfoundation.org>
+        stable@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>,
+        John Garry <john.garry@huawei.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 282/390] iommu/iova: Fix module config properly
+Date:   Mon, 24 Oct 2022 13:31:19 +0200
+Message-Id: <20221024113034.963397269@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 46ba53c30666717cb06c2b3c5d896301cd00d0c0 ]
+[ Upstream commit 4f58330fcc8482aa90674e1f40f601e82f18ed4a ]
 
-When executing SMP task failed, the smp_execute_task_sg() calls del_timer()
-to delete "slow_task->timer". However, if the timer handler
-sas_task_internal_timedout() is running, the del_timer() in
-smp_execute_task_sg() will not stop it and a UAF will happen. The process
-is shown below:
+IOMMU_IOVA is intended to be an optional library for users to select as
+and when they desire. Since it can be a module now, this means that
+built-in code which has chosen not to select it should not fail to link
+if it happens to have selected as a module by someone else. Replace
+IS_ENABLED() with IS_REACHABLE() to do the right thing.
 
-      (thread 1)               |        (thread 2)
-smp_execute_task_sg()          | sas_task_internal_timedout()
- ...                           |
- del_timer()                   |
- ...                           |  ...
- sas_free_task(task)           |
-  kfree(task->slow_task) //FREE|
-                               |  task->slow_task->... //USE
-
-Fix by calling del_timer_sync() in smp_execute_task_sg(), which makes sure
-the timer handler have finished before the "task->slow_task" is
-deallocated.
-
-Link: https://lore.kernel.org/r/20220920144213.10536-1-duoming@zju.edu.cn
-Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+CC: Thierry Reding <thierry.reding@gmail.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Fixes: 15bbdec3931e ("iommu: Make the iova library a module")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/548c2f683ca379aface59639a8f0cccc3a1ac050.1663069227.git.robin.murphy@arm.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libsas/sas_expander.c | 2 +-
+ include/linux/iova.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
-index c2150a818423..9ae35631135d 100644
---- a/drivers/scsi/libsas/sas_expander.c
-+++ b/drivers/scsi/libsas/sas_expander.c
-@@ -85,7 +85,7 @@ static int smp_execute_task_sg(struct domain_device *dev,
- 		res = i->dft->lldd_execute_task(task, GFP_KERNEL);
+diff --git a/include/linux/iova.h b/include/linux/iova.h
+index a0637abffee8..6c19b09e9663 100644
+--- a/include/linux/iova.h
++++ b/include/linux/iova.h
+@@ -132,7 +132,7 @@ static inline unsigned long iova_pfn(struct iova_domain *iovad, dma_addr_t iova)
+ 	return iova >> iova_shift(iovad);
+ }
  
- 		if (res) {
--			del_timer(&task->slow_task->timer);
-+			del_timer_sync(&task->slow_task->timer);
- 			pr_notice("executing SMP task failed:%d\n", res);
- 			break;
- 		}
+-#if IS_ENABLED(CONFIG_IOMMU_IOVA)
++#if IS_REACHABLE(CONFIG_IOMMU_IOVA)
+ int iova_cache_get(void);
+ void iova_cache_put(void);
+ 
 -- 
 2.35.1
 
