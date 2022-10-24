@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44BDB60A4E6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:18:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C069160A9D9
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232943AbiJXMSh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:18:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42476 "EHLO
+        id S232273AbiJXNZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:25:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233167AbiJXMQ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:16:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9FA7814FD;
-        Mon, 24 Oct 2022 04:56:36 -0700 (PDT)
+        with ESMTP id S236136AbiJXNY3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:24:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECDCD9AFC2;
+        Mon, 24 Oct 2022 05:30:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F193B81186;
-        Mon, 24 Oct 2022 11:52:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B025C433D6;
-        Mon, 24 Oct 2022 11:52:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EAE5612DD;
+        Mon, 24 Oct 2022 12:27:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3390DC433D6;
+        Mon, 24 Oct 2022 12:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612371;
-        bh=e/KEj574MmNa/M0sn4QvklxgLeOlAyMdJQf52uy5n4c=;
+        s=korg; t=1666614439;
+        bh=64gELA0nUsV9N2NViMDvTXlYD/PS9XrRDXeAPBJL2d8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZY3Sw3xgXggeSkY96fjQfH5yJOQ8eWrsUaC/Mb5SZ78YGxmVBRnYEKIHzX5ByJqR1
-         CIoKVdKGcAYdxak56Z/P7uYHP8h2VRKSw33ug9R8JXy1s150JdWoIfYXBEAEkn+Jiv
-         xUqU/vkMr80VDONQ/dsEtkGZkuE0ctBz/cIipjhk=
+        b=rpdbnwu7YXgTy+FbHOJZLPpCAPgypD9REhfjLHeW9t9x881IVcZPkg04Mzlmw/pP6
+         gSExtAygP7zr5+LU39G/QgGJVK+a7oEFmKKZlo+e7IuRNneLeEHsFOWGEOe8KONy55
+         OV6MPGZ+LUaJKDxMl5s//yvPbWCiUOWhkM9m4zWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 142/210] mfd: intel_soc_pmic: Fix an error handling path in intel_soc_pmic_i2c_probe()
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 262/390] clk: ast2600: BCLK comes from EPLL
 Date:   Mon, 24 Oct 2022 13:30:59 +0200
-Message-Id: <20221024113001.588033162@linuxfoundation.org>
+Message-Id: <20221024113034.040784273@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit 48749cabba109397b4e7dd556e85718ec0ec114d ]
+[ Upstream commit b8c1dc9c00b252b3be853720a71b05ed451ddd9f ]
 
-The commit in Fixes: has added a pwm_add_table() call in the probe() and
-a pwm_remove_table() call in the remove(), but forget to update the error
-handling path of the probe.
+This correction was made in the u-boot SDK recently. There are no
+in-tree users of this clock so the impact is minimal.
 
-Add the missing pwm_remove_table() call.
-
-Fixes: a3aa9a93df9f ("mfd: intel_soc_pmic_core: ADD PWM lookup table for CRC PMIC based PWM")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/20220801114211.36267-1-andriy.shevchenko@linux.intel.com
+Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
+Link: https://github.com/AspeedTech-BMC/u-boot/commit/8ad54a5ae15f27fea5e894cc2539a20d90019717
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20220421040426.171256-1-joel@jms.id.au
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel_soc_pmic_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/clk-ast2600.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/intel_soc_pmic_core.c b/drivers/mfd/intel_soc_pmic_core.c
-index 36adf9e8153e..eb9ff34294e6 100644
---- a/drivers/mfd/intel_soc_pmic_core.c
-+++ b/drivers/mfd/intel_soc_pmic_core.c
-@@ -119,6 +119,7 @@ static int intel_soc_pmic_i2c_probe(struct i2c_client *i2c,
- 	return 0;
+diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
+index 24dab2312bc6..9c3305bcb27a 100644
+--- a/drivers/clk/clk-ast2600.c
++++ b/drivers/clk/clk-ast2600.c
+@@ -622,7 +622,7 @@ static int aspeed_g6_clk_probe(struct platform_device *pdev)
+ 	regmap_write(map, 0x308, 0x12000); /* 3x3 = 9 */
  
- err_del_irq_chip:
-+	pwm_remove_table(crc_pwm_lookup, ARRAY_SIZE(crc_pwm_lookup));
- 	regmap_del_irq_chip(pmic->irq, pmic->irq_chip_data);
- 	return ret;
- }
+ 	/* P-Bus (BCLK) clock divider */
+-	hw = clk_hw_register_divider_table(dev, "bclk", "hpll", 0,
++	hw = clk_hw_register_divider_table(dev, "bclk", "epll", 0,
+ 			scu_g6_base + ASPEED_G6_CLK_SELECTION1, 20, 3, 0,
+ 			ast2600_div_table,
+ 			&aspeed_g6_clk_lock);
 -- 
 2.35.1
 
