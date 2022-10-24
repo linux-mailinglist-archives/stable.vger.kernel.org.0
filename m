@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 836EE60A51C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61EF460AA1A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233343AbiJXMUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:20:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37440 "EHLO
+        id S230033AbiJXNbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:31:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233563AbiJXMTv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A20CD82D34;
-        Mon, 24 Oct 2022 04:58:26 -0700 (PDT)
+        with ESMTP id S232505AbiJXN10 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:27:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E138AA37E;
+        Mon, 24 Oct 2022 05:31:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70DAEB811C2;
-        Mon, 24 Oct 2022 11:54:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C74A0C433D6;
-        Mon, 24 Oct 2022 11:54:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 684B561290;
+        Mon, 24 Oct 2022 12:31:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BA58C433C1;
+        Mon, 24 Oct 2022 12:31:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612473;
-        bh=iEJsBoW3YU23uXGXgTyOnGGgbdob3FhR9ZJsI+4No/o=;
+        s=korg; t=1666614680;
+        bh=9F/WwTjHJoxdBWqRa6iOQ5UCJYl2sd5H82WhROoztuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YbHUs+SLPQjbxrXeJsqvXcWIDWoywz+g6Ij/ftyvqNQrguYBsZ7grt+Fo77oWEvHQ
-         OwjFBAmEX+CWK9hwFG+roXwga3jbhbDAQZqW5DIQ8rNaTkqqb4KbwKfLqECBBeASAp
-         D6tNB7sikGW6+PQTvJWopRcLKH1pX3q3IXYypR0o=
+        b=BR4geQnmAZyt76ZPwnakLo+VwBIN1X1fLjsRZzPK0kuG98dIwnRFYdNu6veLds+E4
+         gkQBvUmrxyN0QCq5TjxxnCvY5NepyaUvUz+y4LLNUcNTMNP2FHiU47jpEhbC/VGZ9Q
+         k5QLGKpRfmh1XOYkyTi9YmnDn4XJxgPzS5pHsBgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, sunghwan jung <onenowy@gmail.com>,
+        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
+        Liu Jian <liujian56@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 201/210] Revert "usb: storage: Add quirk for Samsung Fit flash"
-Date:   Mon, 24 Oct 2022 13:31:58 +0200
-Message-Id: <20221024113003.504733937@linuxfoundation.org>
+Subject: [PATCH 5.10 322/390] net: If sock is dead dont access socks sk_wq in sk_stream_wait_memory
+Date:   Mon, 24 Oct 2022 13:31:59 +0200
+Message-Id: <20221024113036.715388452@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,57 +56,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sunghwan jung <onenowy@gmail.com>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit ad5dbfc123e6ffbbde194e2a4603323e09f741ee ]
+[ Upstream commit 3f8ef65af927db247418d4e1db49164d7a158fc5 ]
 
-This reverts commit 86d92f5465958752481269348d474414dccb1552,
-which fix the timeout issue for "Samsung Fit Flash".
+Fixes the below NULL pointer dereference:
 
-But the commit affects not only "Samsung Fit Flash" but also other usb
-storages that use the same controller and causes severe performance
-regression.
+  [...]
+  [   14.471200] Call Trace:
+  [   14.471562]  <TASK>
+  [   14.471882]  lock_acquire+0x245/0x2e0
+  [   14.472416]  ? remove_wait_queue+0x12/0x50
+  [   14.473014]  ? _raw_spin_lock_irqsave+0x17/0x50
+  [   14.473681]  _raw_spin_lock_irqsave+0x3d/0x50
+  [   14.474318]  ? remove_wait_queue+0x12/0x50
+  [   14.474907]  remove_wait_queue+0x12/0x50
+  [   14.475480]  sk_stream_wait_memory+0x20d/0x340
+  [   14.476127]  ? do_wait_intr_irq+0x80/0x80
+  [   14.476704]  do_tcp_sendpages+0x287/0x600
+  [   14.477283]  tcp_bpf_push+0xab/0x260
+  [   14.477817]  tcp_bpf_sendmsg_redir+0x297/0x500
+  [   14.478461]  ? __local_bh_enable_ip+0x77/0xe0
+  [   14.479096]  tcp_bpf_send_verdict+0x105/0x470
+  [   14.479729]  tcp_bpf_sendmsg+0x318/0x4f0
+  [   14.480311]  sock_sendmsg+0x2d/0x40
+  [   14.480822]  ____sys_sendmsg+0x1b4/0x1c0
+  [   14.481390]  ? copy_msghdr_from_user+0x62/0x80
+  [   14.482048]  ___sys_sendmsg+0x78/0xb0
+  [   14.482580]  ? vmf_insert_pfn_prot+0x91/0x150
+  [   14.483215]  ? __do_fault+0x2a/0x1a0
+  [   14.483738]  ? do_fault+0x15e/0x5d0
+  [   14.484246]  ? __handle_mm_fault+0x56b/0x1040
+  [   14.484874]  ? lock_is_held_type+0xdf/0x130
+  [   14.485474]  ? find_held_lock+0x2d/0x90
+  [   14.486046]  ? __sys_sendmsg+0x41/0x70
+  [   14.486587]  __sys_sendmsg+0x41/0x70
+  [   14.487105]  ? intel_pmu_drain_pebs_core+0x350/0x350
+  [   14.487822]  do_syscall_64+0x34/0x80
+  [   14.488345]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  [...]
 
- # hdparm -t /dev/sda (without the quirk)
- Timing buffered disk reads: 622 MB in  3.01 seconds = 206.66 MB/sec
+The test scenario has the following flow:
 
- # hdparm -t /dev/sda (with the quirk)
- Timing buffered disk reads: 220 MB in  3.00 seconds =  73.32 MB/sec
+thread1                               thread2
+-----------                           ---------------
+ tcp_bpf_sendmsg
+  tcp_bpf_send_verdict
+   tcp_bpf_sendmsg_redir              sock_close
+    tcp_bpf_push_locked                 __sock_release
+     tcp_bpf_push                         //inet_release
+      do_tcp_sendpages                    sock->ops->release
+       sk_stream_wait_memory          	   // tcp_close
+          sk_wait_event                      sk->sk_prot->close
+           release_sock(__sk);
+            ***
+                                                lock_sock(sk);
+                                                  __tcp_close
+                                                    sock_orphan(sk)
+                                                      sk->sk_wq  = NULL
+                                                release_sock
+            ****
+           lock_sock(__sk);
+          remove_wait_queue(sk_sleep(sk), &wait);
+             sk_sleep(sk)
+             //NULL pointer dereference
+             &rcu_dereference_raw(sk->sk_wq)->wait
 
-The commit author mentioned that "Issue was reproduced after device has
-bad block", so this quirk should be applied when we have the timeout
-issue with a device that has bad blocks.
+While waiting for memory in thread1, the socket is released with its wait
+queue because thread2 has closed it. This caused by tcp_bpf_send_verdict
+didn't increase the f_count of psock->sk_redir->sk_socket->file in thread1.
 
-We revert the commit so that we apply this quirk by adding kernel
-paramters using a bootloader or other ways when we really need it,
-without the performance regression with devices that don't have the
-issue.
+We should check if SOCK_DEAD flag is set on wakeup in sk_stream_wait_memory
+before accessing the wait queue.
 
-Signed-off-by: sunghwan jung <onenowy@gmail.com>
-Link: https://lore.kernel.org/r/20220913114913.3073-1-onenowy@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/bpf/20220823133755.314697-2-liujian56@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_devs.h | 6 ------
- 1 file changed, 6 deletions(-)
+ net/core/stream.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index 8c186ab5b5f7..8b38dd7d89b7 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -1294,12 +1294,6 @@ UNUSUAL_DEV( 0x090a, 0x1200, 0x0000, 0x9999,
- 		USB_SC_RBC, USB_PR_BULK, NULL,
- 		0 ),
+diff --git a/net/core/stream.c b/net/core/stream.c
+index a166a32b411f..a61130504827 100644
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -159,7 +159,8 @@ int sk_stream_wait_memory(struct sock *sk, long *timeo_p)
+ 		*timeo_p = current_timeo;
+ 	}
+ out:
+-	remove_wait_queue(sk_sleep(sk), &wait);
++	if (!sock_flag(sk, SOCK_DEAD))
++		remove_wait_queue(sk_sleep(sk), &wait);
+ 	return err;
  
--UNUSUAL_DEV(0x090c, 0x1000, 0x1100, 0x1100,
--		"Samsung",
--		"Flash Drive FIT",
--		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_MAX_SECTORS_64),
--
- /* aeb */
- UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
- 		"Feiya",
+ do_error:
 -- 
 2.35.1
 
