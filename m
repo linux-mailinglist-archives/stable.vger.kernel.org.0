@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A426C60A9E8
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CBDF60A600
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230137AbiJXNZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:25:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57648 "EHLO
+        id S233874AbiJXMbS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:31:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229943AbiJXNXd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:23:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 301CA48A15;
-        Mon, 24 Oct 2022 05:30:08 -0700 (PDT)
+        with ESMTP id S234142AbiJXM3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9E1C88A0D;
+        Mon, 24 Oct 2022 05:03:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2BA46130D;
-        Mon, 24 Oct 2022 12:28:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CDB0C433D6;
-        Mon, 24 Oct 2022 12:28:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4AB3B81200;
+        Mon, 24 Oct 2022 12:00:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42895C433C1;
+        Mon, 24 Oct 2022 12:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614502;
-        bh=TLmvnCPtLOgPxWcVAByO0Hko9TcXO+3EfUVjcv844dA=;
+        s=korg; t=1666612830;
+        bh=4/5oQa4SXwqMtAcGf0F3+o2IZAhzz6PX17NqEpDjG/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3ZiNkjISBBPt0w3ZhK38EmloNykAyDdQgh+7OdsXSRX8f5uI0j9ri8FY4v0GBWYs
-         em0Za6FUTDokHFJb+Mqf7p5CPuerIX3xjd8BR6G4ABs7nti0ULbdp1I22fwEwiEJjq
-         5eRuktUuPIGutVCV6fEErJbWVHcGl9AfZvlJR0ho=
+        b=dBUqyZfSgKekWNwR+0O0nbePo7jjdY6hsCxUVurVHoB78roTA9xrKKHp4X+0Zugeg
+         e8V0nIs0M+oILFC/0aSsyXpGTb4/f/5b7OG/2Ty/Ahzwe22cl3g/AwAPoTfSQZgGBF
+         HWo1YFNJv7tMPiSVxXmsY/ny8urEuHhtqoJPmdZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Luca Ceresoli <luca@lucaceresoli.net>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
+        William Dean <williamsukatube@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 256/390] clk: vc5: Fix 5P49V6901 outputs disabling when enabling FOD
-Date:   Mon, 24 Oct 2022 13:30:53 +0200
-Message-Id: <20221024113033.784470315@linuxfoundation.org>
+Subject: [PATCH 4.19 135/229] mtd: devices: docg3: check the return value of devm_ioremap() in the probe
+Date:   Mon, 24 Oct 2022 13:30:54 +0200
+Message-Id: <20221024113003.372004673@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: William Dean <williamsukatube@gmail.com>
 
-[ Upstream commit c388cc804016cf0f65afdc2362b120aa594ff3e6 ]
+[ Upstream commit 26e784433e6c65735cd6d93a8db52531970d9a60 ]
 
-We have discovered random glitches during the system boot up procedure.
-The problem investigation led us to the weird outcomes: when none of the
-Renesas 5P49V6901 ports are explicitly enabled by the kernel driver, the
-glitches disappeared. It was a mystery since the SoC external clock
-domains were fed with different 5P49V6901 outputs. The driver code didn't
-seem like bogus either. We almost despaired to find out a root cause when
-the solution has been found for a more modern revision of the chip. It
-turned out the 5P49V6901 clock generator stopped its output for a short
-period of time during the VC5_OUT_DIV_CONTROL register writing. The same
-problem was found for the 5P49V6965 revision of the chip and was
-successfully fixed in commit fc336ae622df ("clk: vc5: fix output disabling
-when enabling a FOD") by enabling the "bypass_sync" flag hidden inside
-"Unused Factory Reserved Register". Even though the 5P49V6901 registers
-description and programming guide doesn't provide any intel regarding that
-flag, setting it up anyway in the officially unused register completely
-eliminated the denoted glitches. Thus let's activate the functionality
-submitted in commit fc336ae622df ("clk: vc5: fix output disabling when
-enabling a FOD") for the Renesas 5P49V6901 chip too in order to remove the
-ports implicit inter-dependency.
+The function devm_ioremap() in docg3_probe() can fail, so
+its return value should be checked.
 
-Fixes: dbf6b16f5683 ("clk: vc5: Add support for IDT VersaClock 5P49V6901")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
-Link: https://lore.kernel.org/r/20220929225402.9696-2-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 82402aeb8c81e ("mtd: docg3: Use devm_*() functions")
+Reported-by: Hacash Robot <hacashRobot@santino.com>
+Signed-off-by: William Dean <williamsukatube@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220722091644.2937953-1-williamsukatube@163.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-versaclock5.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/devices/docg3.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-versaclock5.c b/drivers/clk/clk-versaclock5.c
-index 4e741f94baf0..eb597ea7bb87 100644
---- a/drivers/clk/clk-versaclock5.c
-+++ b/drivers/clk/clk-versaclock5.c
-@@ -1116,7 +1116,7 @@ static const struct vc5_chip_info idt_5p49v6901_info = {
- 	.model = IDT_VC6_5P49V6901,
- 	.clk_fod_cnt = 4,
- 	.clk_out_cnt = 5,
--	.flags = VC5_HAS_PFD_FREQ_DBL,
-+	.flags = VC5_HAS_PFD_FREQ_DBL | VC5_HAS_BYPASS_SYNC_BIT,
- };
+diff --git a/drivers/mtd/devices/docg3.c b/drivers/mtd/devices/docg3.c
+index 512bd4c2eec0..740a09c9f67a 100644
+--- a/drivers/mtd/devices/docg3.c
++++ b/drivers/mtd/devices/docg3.c
+@@ -1990,9 +1990,14 @@ static int __init docg3_probe(struct platform_device *pdev)
+ 		dev_err(dev, "No I/O memory resource defined\n");
+ 		return ret;
+ 	}
+-	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
  
- static const struct vc5_chip_info idt_5p49v6965_info = {
+ 	ret = -ENOMEM;
++	base = devm_ioremap(dev, ress->start, DOC_IOSPACE_SIZE);
++	if (!base) {
++		dev_err(dev, "devm_ioremap dev failed\n");
++		return ret;
++	}
++
+ 	cascade = devm_kcalloc(dev, DOC_MAX_NBFLOORS, sizeof(*cascade),
+ 			       GFP_KERNEL);
+ 	if (!cascade)
 -- 
 2.35.1
 
