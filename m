@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5784960A5D4
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F106F60A440
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:07:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233758AbiJXMbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:31:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45124 "EHLO
+        id S229773AbiJXMHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:07:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234074AbiJXM3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:17 -0400
+        with ESMTP id S229936AbiJXMFJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:05:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E9E7165A4;
-        Mon, 24 Oct 2022 05:03:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B263A7D1F1;
+        Mon, 24 Oct 2022 04:51:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2BCAFB81211;
-        Mon, 24 Oct 2022 12:00:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 817AFC4314C;
-        Mon, 24 Oct 2022 12:00:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07CB1B811C2;
+        Mon, 24 Oct 2022 11:50:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63185C433C1;
+        Mon, 24 Oct 2022 11:50:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612827;
-        bh=cX7muafZA+6IXcnJmeJJuaf5i1SDb/EPnsgDONjK2lI=;
+        s=korg; t=1666612231;
+        bh=+xRN65h8XMr3o6/9muZHdrbyw84AGq59Ye/oG3pC+jM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tCZqH/jbW83hOoF+uBj5fCh/RjLd2N9/KAC8fEjA2D62Q5/3KP+ccGzIt7gq4bXY5
-         dgZFCvHFCUfLNXmjAsoYV9mtIbJWQEopDM8n86W0GIosMd2M7sP5jrXAubaIxfrB5k
-         UznCfAmumCDM1SCVhT6Aj7qFfgxDdlYFefC+bz4o=
+        b=t9w4b3nuipwro2rbGguMhmxDNvAvAFX7w1R+h/kqLNKkGle/AsYYf3zPCllSypqYD
+         +DRcIRdkS08phfsYt/0O9gX+3VudrNrre6rzZ03tFOOGL+pBj9w78ynYaj8todbf3j
+         ux+p4l9rbcNHvluPQbsMUvQWoqGztnfbkntyMvI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 117/229] iio: adc: at91-sama5d2_adc: fix AT91_SAMA5D2_MR_TRACKTIM_MAX
+Subject: [PATCH 4.14 119/210] clk: tegra: Fix refcount leak in tegra114_clock_init
 Date:   Mon, 24 Oct 2022 13:30:36 +0200
-Message-Id: <20221024113002.783265313@linuxfoundation.org>
+Message-Id: <20221024113000.846085929@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit bb73d5d9164c57c4bb916739a98e5cd8e0a5ed8c ]
+[ Upstream commit db16a80c76ea395766913082b1e3f939dde29b2c ]
 
-All ADC HW versions handled by this driver (SAMA5D2, SAM9X60, SAMA7G5)
-have MR.TRACKTIM on 4 bits. Fix AT91_SAMA5D2_MR_TRACKTIM_MAX to reflect
-this.
+of_find_matching_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 27e177190891 ("iio:adc:at91_adc8xx: introduce new atmel adc driver")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220803102855.2191070-2-claudiu.beznea@microchip.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 2cb5efefd6f7 ("clk: tegra: Implement clocks for Tegra114")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220523143834.7587-1-linmq006@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/at91-sama5d2_adc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/tegra/clk-tegra114.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
-index 129c3adad4c0..141badb8707e 100644
---- a/drivers/iio/adc/at91-sama5d2_adc.c
-+++ b/drivers/iio/adc/at91-sama5d2_adc.c
-@@ -81,7 +81,7 @@
- #define	AT91_SAMA5D2_MR_ANACH		BIT(23)
- /* Tracking Time */
- #define	AT91_SAMA5D2_MR_TRACKTIM(v)	((v) << 24)
--#define	AT91_SAMA5D2_MR_TRACKTIM_MAX	0xff
-+#define	AT91_SAMA5D2_MR_TRACKTIM_MAX	0xf
- /* Transfer Time */
- #define	AT91_SAMA5D2_MR_TRANSFER(v)	((v) << 28)
- #define	AT91_SAMA5D2_MR_TRANSFER_MAX	0x3
+diff --git a/drivers/clk/tegra/clk-tegra114.c b/drivers/clk/tegra/clk-tegra114.c
+index fd1a99c05c2d..8c071a8fc710 100644
+--- a/drivers/clk/tegra/clk-tegra114.c
++++ b/drivers/clk/tegra/clk-tegra114.c
+@@ -1343,6 +1343,7 @@ static void __init tegra114_clock_init(struct device_node *np)
+ 	}
+ 
+ 	pmc_base = of_iomap(node, 0);
++	of_node_put(node);
+ 	if (!pmc_base) {
+ 		pr_err("Can't map pmc registers\n");
+ 		WARN_ON(1);
 -- 
 2.35.1
 
