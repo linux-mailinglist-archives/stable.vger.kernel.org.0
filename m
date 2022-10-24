@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A7360AD7F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:25:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A95C60AE5A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:58:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235842AbiJXOZg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:25:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46792 "EHLO
+        id S232733AbiJXO6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:58:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237011AbiJXOYQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:24:16 -0400
+        with ESMTP id S233920AbiJXO5y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:57:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D72E7FFBF;
-        Mon, 24 Oct 2022 05:59:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850455143A;
+        Mon, 24 Oct 2022 06:35:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 566466133A;
-        Mon, 24 Oct 2022 12:46:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B091C433C1;
-        Mon, 24 Oct 2022 12:46:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D80E7612A0;
+        Mon, 24 Oct 2022 12:27:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EADE9C433C1;
+        Mon, 24 Oct 2022 12:27:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615612;
-        bh=ZkshCHsyO1rC8pyvPzMQSAM621jXH3L7CdrkbOc2lTE=;
+        s=korg; t=1666614455;
+        bh=6S8wkVtGZt0abelM+HE995JPE3aIj7ImAwxa7yJSGBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QIH8AL/ODKtjLrubblmRt/DHtHxHFlzOczf5C33k8sOY0LQjB62kzttpQcXvGnBFa
-         3tZlIYGttZDATEI9kVQJ+7DTQOlPLRrVL+Jy8LExeFvSMlk03ijrM89Od3C0hZyoSS
-         FN0px516zyXxGTuonN7KvWrHFd45SlVcFoudEU8A=
+        b=gFl6nXr/Mk7NW7ND0cOyVqqN2sGDZjHK4Uv83Z+Ig6WQQau0wGD8GIIxO4JT55kPs
+         yOblhYfGS1ZR2nq+3qJj0zfuQbg+WeP3Vahja4IB3LoECeXZbRxHwi0MiIJ03ICz91
+         UKi6UJwnIKd6goxaOqLK+AtoDKBOo+7LtT5KXG30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Guoqing Jiang <guoqing.jiang@linux.dev>,
-        Saurabh Sengar <ssengar@linux.microsoft.com>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 317/530] md: Replace snprintf with scnprintf
-Date:   Mon, 24 Oct 2022 13:31:01 +0200
-Message-Id: <20221024113059.372378113@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 268/390] x86/hyperv: Fix struct hv_enlightened_vmcs definition
+Date:   Mon, 24 Oct 2022 13:31:05 +0200
+Message-Id: <20221024113034.330762947@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurabh Sengar <ssengar@linux.microsoft.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 1727fd5015d8f93474148f94e34cda5aa6ad4a43 ]
+[ Upstream commit ea9da788a61e47e7ab9cbad397453e51cd82ac0d ]
 
-Current code produces a warning as shown below when total characters
-in the constituent block device names plus the slashes exceeds 200.
-snprintf() returns the number of characters generated from the given
-input, which could cause the expression “200 – len” to wrap around
-to a large positive number. Fix this by using scnprintf() instead,
-which returns the actual number of characters written into the buffer.
+Section 1.9 of TLFS v6.0b says:
 
-[ 1513.267938] ------------[ cut here ]------------
-[ 1513.267943] WARNING: CPU: 15 PID: 37247 at <snip>/lib/vsprintf.c:2509 vsnprintf+0x2c8/0x510
-[ 1513.267944] Modules linked in:  <snip>
-[ 1513.267969] CPU: 15 PID: 37247 Comm: mdadm Not tainted 5.4.0-1085-azure #90~18.04.1-Ubuntu
-[ 1513.267969] Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS Hyper-V UEFI Release v4.1 05/09/2022
-[ 1513.267971] RIP: 0010:vsnprintf+0x2c8/0x510
-<-snip->
-[ 1513.267982] Call Trace:
-[ 1513.267986]  snprintf+0x45/0x70
-[ 1513.267990]  ? disk_name+0x71/0xa0
-[ 1513.267993]  dump_zones+0x114/0x240 [raid0]
-[ 1513.267996]  ? _cond_resched+0x19/0x40
-[ 1513.267998]  raid0_run+0x19e/0x270 [raid0]
-[ 1513.268000]  md_run+0x5e0/0xc50
-[ 1513.268003]  ? security_capable+0x3f/0x60
-[ 1513.268005]  do_md_run+0x19/0x110
-[ 1513.268006]  md_ioctl+0x195e/0x1f90
-[ 1513.268007]  blkdev_ioctl+0x91f/0x9f0
-[ 1513.268010]  block_ioctl+0x3d/0x50
-[ 1513.268012]  do_vfs_ioctl+0xa9/0x640
-[ 1513.268014]  ? __fput+0x162/0x260
-[ 1513.268016]  ksys_ioctl+0x75/0x80
-[ 1513.268017]  __x64_sys_ioctl+0x1a/0x20
-[ 1513.268019]  do_syscall_64+0x5e/0x200
-[ 1513.268021]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+"All structures are padded in such a way that fields are aligned
+naturally (that is, an 8-byte field is aligned to an offset of 8 bytes
+and so on)".
 
-Fixes: 766038846e875 ("md/raid0: replace printk() with pr_*()")
+'struct enlightened_vmcs' has a glitch:
+
+...
+        struct {
+                u32                nested_flush_hypercall:1; /*   836: 0  4 */
+                u32                msr_bitmap:1;         /*   836: 1  4 */
+                u32                reserved:30;          /*   836: 2  4 */
+        } hv_enlightenments_control;                     /*   836     4 */
+        u32                        hv_vp_id;             /*   840     4 */
+        u64                        hv_vm_id;             /*   844     8 */
+        u64                        partition_assist_page; /*   852     8 */
+...
+
+And the observed values in 'partition_assist_page' make no sense at
+all. Fix the layout by padding the structure properly.
+
+Fixes: 68d1eb72ee99 ("x86/hyper-v: define struct hv_enlightened_vmcs and clean field bits")
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
 Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Acked-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Link: https://lore.kernel.org/r/20220830133737.1539624-2-vkuznets@redhat.com
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid0.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/hyperv-tlfs.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/md/raid0.c
-+++ b/drivers/md/raid0.c
-@@ -48,7 +48,7 @@ static void dump_zones(struct mddev *mdd
- 		int len = 0;
+diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
+index 0ed20e8bba9e..ae7192b75136 100644
+--- a/arch/x86/include/asm/hyperv-tlfs.h
++++ b/arch/x86/include/asm/hyperv-tlfs.h
+@@ -474,7 +474,7 @@ struct hv_enlightened_vmcs {
+ 	u64 guest_rip;
  
- 		for (k = 0; k < conf->strip_zone[j].nb_dev; k++)
--			len += snprintf(line+len, 200-len, "%s%s", k?"/":"",
-+			len += scnprintf(line+len, 200-len, "%s%s", k?"/":"",
- 					bdevname(conf->devlist[j*raid_disks
- 							       + k]->bdev, b));
- 		pr_debug("md: zone%d=[%s]\n", j, line);
+ 	u32 hv_clean_fields;
+-	u32 hv_padding_32;
++	u32 padding32_1;
+ 	u32 hv_synthetic_controls;
+ 	struct {
+ 		u32 nested_flush_hypercall:1;
+@@ -482,7 +482,7 @@ struct hv_enlightened_vmcs {
+ 		u32 reserved:30;
+ 	}  __packed hv_enlightenments_control;
+ 	u32 hv_vp_id;
+-
++	u32 padding32_2;
+ 	u64 hv_vm_id;
+ 	u64 partition_assist_page;
+ 	u64 padding64_4[4];
+-- 
+2.35.1
+
 
 
