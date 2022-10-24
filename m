@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAE8460A4A3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:13:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8858860A5ED
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232770AbiJXMNy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:13:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59336 "EHLO
+        id S233721AbiJXMam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:30:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232710AbiJXMNT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:13:19 -0400
+        with ESMTP id S233881AbiJXM2e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694E81C410;
-        Mon, 24 Oct 2022 04:54:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D39A87098;
+        Mon, 24 Oct 2022 05:02:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F504612B3;
-        Mon, 24 Oct 2022 11:54:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71AF3C433D6;
-        Mon, 24 Oct 2022 11:54:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E64E612FC;
+        Mon, 24 Oct 2022 12:02:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D4B2C433D7;
+        Mon, 24 Oct 2022 12:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612446;
-        bh=/XB4y2LpgVtKSLfj2FRGEXMsobFlbWAbbPzG5tqVxqA=;
+        s=korg; t=1666612922;
+        bh=XHcyysHE7tX7QDs1ULU7fgwf6UOTOZ2Xr0MsncCmixE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RZKjxdQ9BC+/khYxsp+tmmdscO06X1tZI1GGCQbHgmFAw8/sJKeFz7MkYjYNRp52I
-         6/2GfwhCzitFK5hob0Y7sMLU0OA72VFWNuNcvHvRDOf9TBWLfA9+xSuYNUDksAXNpb
-         srECbKOQrTkcwraxn9gTWDVyLol904IbQ1ib2GLA=
+        b=QpsjF7SRWqjDPVdznNEagbLctOjGlYQIZX0BE8ay4KKFI0ogqtDV+qN1qmhSOZyNZ
+         e2x767TqRh2jYrassNe+I/DfmtFs4rkeUHl6ljJwo0FIbmz10EfgogMZY63CYfi+mU
+         ExYblOOzy6BCwgILf+xQbHqvSNZ6xHGv/79jEk7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        syzbot+5ec9bb042ddfe9644773@syzkaller.appspotmail.com,
-        Khalid Masum <khalid.masum.92@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Arvid Norlander <lkml@vorpal.se>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 172/210] xfrm: Update ipcomp_scratches with NULL when freed
+Subject: [PATCH 4.19 170/229] ACPI: video: Add Toshiba Satellite/Portege Z830 quirk
 Date:   Mon, 24 Oct 2022 13:31:29 +0200
-Message-Id: <20221024113002.538535839@linuxfoundation.org>
+Message-Id: <20221024113004.584483642@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khalid Masum <khalid.masum.92@gmail.com>
+From: Arvid Norlander <lkml@vorpal.se>
 
-[ Upstream commit 8a04d2fc700f717104bfb95b0f6694e448a4537f ]
+[ Upstream commit 574160b8548deff8b80b174f03201e94ab8431e2 ]
 
-Currently if ipcomp_alloc_scratches() fails to allocate memory
-ipcomp_scratches holds obsolete address. So when we try to free the
-percpu scratches using ipcomp_free_scratches() it tries to vfree non
-existent vm area. Described below:
+Toshiba Satellite Z830 needs the quirk video_disable_backlight_sysfs_if
+for proper backlight control after suspend/resume cycles.
 
-static void * __percpu *ipcomp_alloc_scratches(void)
-{
-        ...
-        scratches = alloc_percpu(void *);
-        if (!scratches)
-                return NULL;
-ipcomp_scratches does not know about this allocation failure.
-Therefore holding the old obsolete address.
-        ...
-}
+Toshiba Portege Z830 is simply the same laptop rebranded for certain
+markets (I looked through the manual to other language sections to confirm
+this) and thus also needs this quirk.
 
-So when we free,
+Thanks to Hans de Goede for suggesting this fix.
 
-static void ipcomp_free_scratches(void)
-{
-        ...
-        scratches = ipcomp_scratches;
-Assigning obsolete address from ipcomp_scratches
-
-        if (!scratches)
-                return;
-
-        for_each_possible_cpu(i)
-               vfree(*per_cpu_ptr(scratches, i));
-Trying to free non existent page, causing warning: trying to vfree
-existent vm area.
-        ...
-}
-
-Fix this breakage by updating ipcomp_scrtches with NULL when scratches
-is freed
-
-Suggested-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reported-by: syzbot+5ec9bb042ddfe9644773@syzkaller.appspotmail.com
-Tested-by: syzbot+5ec9bb042ddfe9644773@syzkaller.appspotmail.com
-Signed-off-by: Khalid Masum <khalid.masum.92@gmail.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Link: https://www.spinics.net/lists/platform-driver-x86/msg34394.html
+Suggested-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Arvid Norlander <lkml@vorpal.se>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Arvid Norlander <lkml@vorpal.se>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_ipcomp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/acpi_video.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/net/xfrm/xfrm_ipcomp.c b/net/xfrm/xfrm_ipcomp.c
-index a00ec715aa46..32aed1d0f6ee 100644
---- a/net/xfrm/xfrm_ipcomp.c
-+++ b/net/xfrm/xfrm_ipcomp.c
-@@ -216,6 +216,7 @@ static void ipcomp_free_scratches(void)
- 		vfree(*per_cpu_ptr(scratches, i));
- 
- 	free_percpu(scratches);
-+	ipcomp_scratches = NULL;
- }
- 
- static void * __percpu *ipcomp_alloc_scratches(void)
+diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
+index ac54fc03cf81..eb7fca6f9444 100644
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -511,6 +511,22 @@ static const struct dmi_system_id video_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE R830"),
+ 		},
+ 	},
++	{
++	 .callback = video_disable_backlight_sysfs_if,
++	 .ident = "Toshiba Satellite Z830",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE Z830"),
++		},
++	},
++	{
++	 .callback = video_disable_backlight_sysfs_if,
++	 .ident = "Toshiba Portege Z830",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE Z830"),
++		},
++	},
+ 	/*
+ 	 * Some machine's _DOD IDs don't have bit 31(Device ID Scheme) set
+ 	 * but the IDs actually follow the Device ID Scheme.
 -- 
 2.35.1
 
