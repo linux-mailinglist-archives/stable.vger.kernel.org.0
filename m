@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A58A60A95A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:20:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31B8460AC07
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:01:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231521AbiJXNSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:18:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46346 "EHLO
+        id S231629AbiJXOB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:01:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235898AbiJXNRi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:17:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09A88A4B89;
-        Mon, 24 Oct 2022 05:26:30 -0700 (PDT)
+        with ESMTP id S236891AbiJXOAR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:00:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C90308E73A;
+        Mon, 24 Oct 2022 05:47:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03705611B0;
-        Mon, 24 Oct 2022 12:26:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A136C433D6;
-        Mon, 24 Oct 2022 12:26:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94FED612A4;
+        Mon, 24 Oct 2022 12:45:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FD6C433D6;
+        Mon, 24 Oct 2022 12:45:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614363;
-        bh=TfrcbV3cdle516hYDyZttZDzKbIWhSzetpvS4GzUd0g=;
+        s=korg; t=1666615531;
+        bh=lU1rMge4AvOB32EqEc1cYUnGuxCTzQQf26R06XK4qiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l24Eg5oIVBhwOgZgaqi7SPlBxsflkxn2Mu7DAg9JierRWl5gB/sT19crAGI9b0yCS
-         vXPZikKydH9sChGI5H8hellFR3jOF+dqyg4vxHr2uPZib7IH6Bb7rDFm+FVXA5W7cM
-         28Tsgj3QlU/xcCnpZjuZI+XzFG2rfiu5KaXZgiHI=
+        b=DdJ2SXyiXRMcHbC3S+ee3oVgfPWInrXJpQWd+SFys6Ovji/bkwtGcC4v0GXQTv9Q6
+         G0ppDy3dHaL1jgYq+cyNEg4loxaTyWoA+Rq+3vV/tvd7H2qKGnOnHtHzDF4DWDa7NH
+         fkemlRGF7QELQ0PWIQ3XRDBDA/rA1+ZNRNK8sYVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Artem S. Tashkinov" <aros@gmx.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 233/390] xhci: Dont show warning for reinit on known broken suspend
+Subject: [PATCH 5.15 286/530] media: meson: vdec: add missing clk_disable_unprepare on error in vdec_hevc_start()
 Date:   Mon, 24 Oct 2022 13:30:30 +0200
-Message-Id: <20221024113032.712141035@linuxfoundation.org>
+Message-Id: <20221024113057.997955984@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Xu Qiang <xuqiang36@huawei.com>
 
-[ Upstream commit 484d6f7aa3283d082c87654b7fe7a7f725423dfb ]
+[ Upstream commit 4029372233e13e281f8c387f279f9f064ced3810 ]
 
-commit 8b328f8002bc ("xhci: re-initialize the HC during resume if HCE was
-set") introduced a new warning message when the host controller error
-was set and re-initializing.
+Add the missing clk_disable_unprepare() before return
+from vdec_hevc_start() in the error handling case.
 
-This is expected behavior on some designs which already set
-`xhci->broken_suspend` so the new warning is alarming to some users.
-
-Modify the code to only show the warning if this was a surprising behavior
-to the XHCI driver.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216470
-Fixes: 8b328f8002bc ("xhci: re-initialize the HC during resume if HCE was set")
-Reported-by: Artem S. Tashkinov <aros@gmx.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220921123450.671459-4-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 823a7300340e (“media: meson: vdec: add common HEVC decoder support”)
+Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/media/meson/vdec/vdec_hevc.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 7b16b6b45af7..8918e6ae5c4b 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1163,7 +1163,8 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
- 	/* re-initialize the HC on Restore Error, or Host Controller Error */
- 	if (temp & (STS_SRE | STS_HCE)) {
- 		reinit_xhc = true;
--		xhci_warn(xhci, "xHC error in resume, USBSTS 0x%x, Reinit\n", temp);
-+		if (!xhci->broken_suspend)
-+			xhci_warn(xhci, "xHC error in resume, USBSTS 0x%x, Reinit\n", temp);
- 	}
+diff --git a/drivers/staging/media/meson/vdec/vdec_hevc.c b/drivers/staging/media/meson/vdec/vdec_hevc.c
+index 9530e580e57a..afced435c907 100644
+--- a/drivers/staging/media/meson/vdec/vdec_hevc.c
++++ b/drivers/staging/media/meson/vdec/vdec_hevc.c
+@@ -167,8 +167,12 @@ static int vdec_hevc_start(struct amvdec_session *sess)
  
- 	if (reinit_xhc) {
+ 	clk_set_rate(core->vdec_hevc_clk, 666666666);
+ 	ret = clk_prepare_enable(core->vdec_hevc_clk);
+-	if (ret)
++	if (ret) {
++		if (core->platform->revision == VDEC_REVISION_G12A ||
++		    core->platform->revision == VDEC_REVISION_SM1)
++			clk_disable_unprepare(core->vdec_hevcf_clk);
+ 		return ret;
++	}
+ 
+ 	if (core->platform->revision == VDEC_REVISION_SM1)
+ 		regmap_update_bits(core->regmap_ao, AO_RTI_GEN_PWR_SLEEP0,
 -- 
 2.35.1
 
