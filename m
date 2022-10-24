@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8796360BACF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:41:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5FE460BB55
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:56:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234741AbiJXUlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:41:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49858 "EHLO
+        id S233930AbiJXU4U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:56:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234749AbiJXUkg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:40:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68D0E633C;
-        Mon, 24 Oct 2022 11:50:24 -0700 (PDT)
+        with ESMTP id S233989AbiJXU4D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:56:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495562C4C9E;
+        Mon, 24 Oct 2022 12:02:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B38FB819AE;
-        Mon, 24 Oct 2022 12:44:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C110EC433C1;
-        Mon, 24 Oct 2022 12:44:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8CB1B815B4;
+        Mon, 24 Oct 2022 12:10:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4930DC43142;
+        Mon, 24 Oct 2022 12:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615455;
-        bh=MTNv8JnE6MiRzxARwECZGU+i0VFrs3+sQWe2gpwpDN8=;
+        s=korg; t=1666613408;
+        bh=G1iDAf3f6Jpdzk94UbQC3Rkti0Ys811hQbx2+MSiH9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRKiszhBnZWFOkw6cYZ3pzoFlFnOTXSDDj/q/5u5DBvuS6lL1E/hUOziPn3OkN6MO
-         BTuQp0r4l5qaGxTJuJN6YRCX0gCbK+wMHB3bYutoJl2e/W7yio3H00LXoDPoBsCCN4
-         2Ui7PeDSNQ7MnJc+vGloPoNBVZKCH837iSkLnMdg=
+        b=CuPfMEny0Ift32isBMGhUf5Sb8cc6xfGJa3gcHy3iLipCswGQZ2pl8DhXaq8Aroxd
+         DcV6cKisSGwUm6ZlY2C+3WwXBBkfBWYmwW7e1YZqVWib86lAm7322XgW8Z0ETNfzsW
+         ZypnnrzQH1BF4mDYNLY64oW0T7iCggLKT47TUEAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 257/530] soc/tegra: fuse: Drop Kconfig dependency on TEGRA20_APB_DMA
-Date:   Mon, 24 Oct 2022 13:30:01 +0200
-Message-Id: <20221024113056.698007590@linuxfoundation.org>
+Subject: [PATCH 5.4 095/255] drm/bridge: megachips: Fix a null pointer dereference bug
+Date:   Mon, 24 Oct 2022 13:30:05 +0200
+Message-Id: <20221024113005.647585310@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 2254182807fc09ba9dec9a42ef239e373796f1b2 ]
+[ Upstream commit 1ff673333d46d2c1b053ebd0c1c7c7c79e36943e ]
 
-The DMA subsystem could be entirely disabled in Kconfig and then the
-TEGRA20_APB_DMA option isn't available too. Hence kernel configuration
-fails if DMADEVICES Kconfig option is disabled due to the unsatisfiable
-dependency.
+When removing the module we will get the following warning:
 
-The FUSE driver isn't a critical driver and currently it only provides
-NVMEM interface to userspace which isn't known to be widely used, and
-thus, it's fine if FUSE driver fails to load.
+[   31.911505] i2c-core: driver [stdp2690-ge-b850v3-fw] unregistered
+[   31.912484] general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN PTI
+[   31.913338] KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+[   31.915280] RIP: 0010:drm_bridge_remove+0x97/0x130
+[   31.921825] Call Trace:
+[   31.922533]  stdp4028_ge_b850v3_fw_remove+0x34/0x60 [megachips_stdpxxxx_ge_b850v3_fw]
+[   31.923139]  i2c_device_remove+0x181/0x1f0
 
-Let's remove the erroneous Kconfig dependency and let the FUSE driver to
-fail the probing if DMA is unavailable.
+The two bridges (stdp2690, stdp4028) do not probe at the same time, so
+the driver does not call ge_b850v3_resgiter() when probing, causing the
+driver to try to remove the object that has not been initialized.
 
-Fixes: 19d41e5e9c68 ("soc/tegra: fuse: Add APB DMA dependency for Tegra20")
-Reported-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209301
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Fix this by checking whether both the bridges are probed.
+
+Fixes: 11632d4aa2b3 ("drm/bridge: megachips: Ensure both bridges are probed before registration")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220830073450.1897020-1-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/tegra/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/soc/tegra/Kconfig b/drivers/soc/tegra/Kconfig
-index 8b53ed1cc67e..1224e1c8c2c9 100644
---- a/drivers/soc/tegra/Kconfig
-+++ b/drivers/soc/tegra/Kconfig
-@@ -136,7 +136,6 @@ config SOC_TEGRA_FUSE
- 	def_bool y
- 	depends on ARCH_TEGRA
- 	select SOC_BUS
--	select TEGRA20_APB_DMA if ARCH_TEGRA_2x_SOC
+diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+index 5302dd90a7a5..b72f6f541d4e 100644
+--- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
++++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+@@ -279,7 +279,9 @@ static void ge_b850v3_lvds_remove(void)
+ 	 * This check is to avoid both the drivers
+ 	 * removing the bridge in their remove() function
+ 	 */
+-	if (!ge_b850v3_lvds_ptr)
++	if (!ge_b850v3_lvds_ptr ||
++	    !ge_b850v3_lvds_ptr->stdp2690_i2c ||
++		!ge_b850v3_lvds_ptr->stdp4028_i2c)
+ 		goto out;
  
- config SOC_TEGRA_FLOWCTRL
- 	bool
+ 	drm_bridge_remove(&ge_b850v3_lvds_ptr->bridge);
 -- 
 2.35.1
 
