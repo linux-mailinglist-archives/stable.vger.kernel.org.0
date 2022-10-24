@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE2E60A869
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:05:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAE3260A85E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:05:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235162AbiJXNFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:05:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34802 "EHLO
+        id S235223AbiJXNFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:05:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235339AbiJXNEa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:04:30 -0400
+        with ESMTP id S235372AbiJXNEj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:04:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32C3D481D6;
-        Mon, 24 Oct 2022 05:20:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72BC74D4F2;
+        Mon, 24 Oct 2022 05:20:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB57761290;
-        Mon, 24 Oct 2022 12:19:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC018C433C1;
-        Mon, 24 Oct 2022 12:19:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E8A66129D;
+        Mon, 24 Oct 2022 12:19:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 735A3C433D6;
+        Mon, 24 Oct 2022 12:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613990;
-        bh=QOgwnGXtJ5WnEebGLcaB/JmKLZooNWI4me6Yyig3MGY=;
+        s=korg; t=1666613992;
+        bh=hn6W96T8z04EogJtNH5PSoub5gNDEco86kNA8E7waSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cXdP8FySH0xqUD52fcZa7P8pupP5CY/cL7bpccX5dcURa8AXDhJSit+vHmbCCVXdn
-         6f4dtfkftC37LPvA6mzkFzGK0fabBCzQ2sjQybG+fec70/xiaGFqIgEwBQO2UN3wkb
-         wavF1WOiviRSjwM9Yc3viuIBo7lnYSQGmKUq1fqk=
+        b=uf3ORQ4dFYf2jalbFOn8wQ1Jkl+jTLa/Q6KS96IdeKWQuRyEHqFzCPdsnZnmYbI6R
+         zRS0Dm58loifcCRkHEhLqgKKu6OcmkSr6RwbJY11f5i+fOUsc7fU4rfzRX1tEjTgND
+         yj9iBvIld/xhVKKj0s5Gwr5/wl6pFSEzEj6IXTX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
-Subject: [PATCH 5.10 091/390] selinux: use "grep -E" instead of "egrep"
-Date:   Mon, 24 Oct 2022 13:28:08 +0200
-Message-Id: <20221024113026.506157090@linuxfoundation.org>
+        stable@vger.kernel.org, Robert OCallahan <roc@ocallahan.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 092/390] userfaultfd: open userfaultfds with O_RDONLY
+Date:   Mon, 24 Oct 2022 13:28:09 +0200
+Message-Id: <20221024113026.545715262@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -53,37 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit c969bb8dbaf2f3628927eae73e7c579a74cf1b6e upstream.
+[ Upstream commit abec3d015fdfb7c63105c7e1c956188bf381aa55 ]
 
-The latest version of grep claims that egrep is now obsolete so the build
-now contains warnings that look like:
-	egrep: warning: egrep is obsolescent; using grep -E
-fix this by using "grep -E" instead.
+Since userfaultfd doesn't implement a write operation, it is more
+appropriate to open it read-only.
 
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Eric Paris <eparis@parisplace.org>
-Cc: selinux@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[PM: tweak to remove vdso reference, cleanup subj line]
+When userfaultfds are opened read-write like it is now, and such fd is
+passed from one process to another, SELinux will check both read and
+write permissions for the target process, even though it can't actually
+do any write operation on the fd later.
+
+Inspired by the following bug report, which has hit the SELinux scenario
+described above:
+https://bugzilla.redhat.com/show_bug.cgi?id=1974559
+
+Reported-by: Robert O'Callahan <roc@ocallahan.org>
+Fixes: 86039bd3b4e6 ("userfaultfd: add new syscall to provide memory externalization")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/selinux/install_policy.sh |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/userfaultfd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/scripts/selinux/install_policy.sh
-+++ b/scripts/selinux/install_policy.sh
-@@ -78,7 +78,7 @@ cd /etc/selinux/dummy/contexts/files
- $SF -F file_contexts /
+diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+index aef0da5d6f63..a3074a9d71a6 100644
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -974,7 +974,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
+ 	int fd;
  
- mounts=`cat /proc/$$/mounts | \
--	egrep "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
-+	grep -E "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
- 	awk '{ print $2 '}`
- $SF -F file_contexts $mounts
+ 	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, new,
+-			      O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS));
++			      O_RDONLY | (new->flags & UFFD_SHARED_FCNTL_FLAGS));
+ 	if (fd < 0)
+ 		return fd;
  
+@@ -1987,7 +1987,7 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
+ 	mmgrab(ctx->mm);
+ 
+ 	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, ctx,
+-			      O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS));
++			      O_RDONLY | (flags & UFFD_SHARED_FCNTL_FLAGS));
+ 	if (fd < 0) {
+ 		mmdrop(ctx->mm);
+ 		kmem_cache_free(userfaultfd_ctx_cachep, ctx);
+-- 
+2.35.1
+
 
 
