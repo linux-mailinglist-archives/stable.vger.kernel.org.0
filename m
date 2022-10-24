@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D276760B221
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C44C60B454
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:37:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234688AbiJXQmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:42:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58916 "EHLO
+        id S231452AbiJXRhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 13:37:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234591AbiJXQlu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:41:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B81A4D4D1;
-        Mon, 24 Oct 2022 08:28:51 -0700 (PDT)
+        with ESMTP id S233764AbiJXRhd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:37:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A3512636;
+        Mon, 24 Oct 2022 09:12:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE703B819A7;
-        Mon, 24 Oct 2022 12:43:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D143C433D6;
-        Mon, 24 Oct 2022 12:42:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03165B815E8;
+        Mon, 24 Oct 2022 12:23:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D6F1C433D6;
+        Mon, 24 Oct 2022 12:23:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615379;
-        bh=0M6ldLkPIHOA6wq73aLHiYig4mC6FQqYwNyvlLZ3uo0=;
+        s=korg; t=1666614218;
+        bh=cHT/tctzQJbGiXiQn4s+uUUWvv1Z72ev5clpduBCXxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kvIEuqwSkk+kYcc4bL4jQfQmsNA8OLD07UQZu8vBUobTCMldb1DyXlxSqKwLi18xl
-         W5I2COxLRK3LSs7hrdttxjgNQt7fEMkdS7CoHiDpMw/8GBAfdaJN0b1CoNB7j1Ac0b
-         PxzWzzFvW0i6ec+PKO6AzuEuOyyZ2X5BsdwIw660=
+        b=Ax9WYOH5Pb1Bm2oyEO9cWUhNXrSJra8srf1BITPHvr509X9XTV6hQDI2XZ+IqToB/
+         iCPHVcvwe4ppnoe3Isz1IH0hbuHVtLe63RjoVJ0sxIN1rVbQOwDVU5j+Kgm4h2Ua1M
+         6uJZM9IsM/sp0g3tYneIQMvdA2gC7SkEVPG5Pw0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 227/530] ASoC: rsnd: Add check for rsnd_mod_power_on
-Date:   Mon, 24 Oct 2022 13:29:31 +0200
-Message-Id: <20221024113055.362937639@linuxfoundation.org>
+Subject: [PATCH 5.10 176/390] ARM: dts: turris-omnia: Fix mpp26 pin name and comment
+Date:   Mon, 24 Oct 2022 13:29:33 +0200
+Message-Id: <20221024113030.221691548@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,114 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit 376be51caf8871419bbcbb755e1e615d30dc3153 ]
+[ Upstream commit 49e93898f0dc177e645c22d0664813567fd9ec00 ]
 
-As rsnd_mod_power_on() can return negative numbers,
-it should be better to check the return value and
-deal with the exception.
+There is a bug in Turris Omnia's schematics, whereupon the MPP[26] pin,
+which is routed to CN11 pin header, is documented as SPI CS1, but
+MPP[26] pin does not support this function. Instead it controls chip
+select 2 if in "spi0" mode.
 
-Fixes: e7d850dd10f4 ("ASoC: rsnd: use mod base common method on SSI-parent")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20220902013030.3691266-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix the name of the pin node in pinctrl node and fix the comment in SPI
+node.
+
+Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/ctu.c | 6 +++++-
- sound/soc/sh/rcar/dvc.c | 6 +++++-
- sound/soc/sh/rcar/mix.c | 6 +++++-
- sound/soc/sh/rcar/src.c | 5 ++++-
- sound/soc/sh/rcar/ssi.c | 4 +++-
- 5 files changed, 22 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/armada-385-turris-omnia.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/sh/rcar/ctu.c b/sound/soc/sh/rcar/ctu.c
-index 6156445bcb69..e39eb2ac7e95 100644
---- a/sound/soc/sh/rcar/ctu.c
-+++ b/sound/soc/sh/rcar/ctu.c
-@@ -171,7 +171,11 @@ static int rsnd_ctu_init(struct rsnd_mod *mod,
- 			 struct rsnd_dai_stream *io,
- 			 struct rsnd_priv *priv)
- {
--	rsnd_mod_power_on(mod);
-+	int ret;
-+
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
+diff --git a/arch/arm/boot/dts/armada-385-turris-omnia.dts b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+index fde4c302f08e..92e08486ec81 100644
+--- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
++++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
+@@ -307,7 +307,7 @@
+ 		marvell,function = "spi0";
+ 	};
  
- 	rsnd_ctu_activation(mod);
+-	spi0cs1_pins: spi0cs1-pins {
++	spi0cs2_pins: spi0cs2-pins {
+ 		marvell,pins = "mpp26";
+ 		marvell,function = "spi0";
+ 	};
+@@ -342,7 +342,7 @@
+ 		};
+ 	};
  
-diff --git a/sound/soc/sh/rcar/dvc.c b/sound/soc/sh/rcar/dvc.c
-index 5137e03a9d7c..16befcbc312c 100644
---- a/sound/soc/sh/rcar/dvc.c
-+++ b/sound/soc/sh/rcar/dvc.c
-@@ -186,7 +186,11 @@ static int rsnd_dvc_init(struct rsnd_mod *mod,
- 			 struct rsnd_dai_stream *io,
- 			 struct rsnd_priv *priv)
- {
--	rsnd_mod_power_on(mod);
-+	int ret;
-+
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
+-	/* MISO, MOSI, SCLK and CS1 are routed to pin header CN11 */
++	/* MISO, MOSI, SCLK and CS2 are routed to pin header CN11 */
+ };
  
- 	rsnd_dvc_activation(mod);
- 
-diff --git a/sound/soc/sh/rcar/mix.c b/sound/soc/sh/rcar/mix.c
-index 3572c2c5686c..1de0e085804c 100644
---- a/sound/soc/sh/rcar/mix.c
-+++ b/sound/soc/sh/rcar/mix.c
-@@ -146,7 +146,11 @@ static int rsnd_mix_init(struct rsnd_mod *mod,
- 			 struct rsnd_dai_stream *io,
- 			 struct rsnd_priv *priv)
- {
--	rsnd_mod_power_on(mod);
-+	int ret;
-+
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
- 
- 	rsnd_mix_activation(mod);
- 
-diff --git a/sound/soc/sh/rcar/src.c b/sound/soc/sh/rcar/src.c
-index 0ea84ae57c6a..f832165e46bc 100644
---- a/sound/soc/sh/rcar/src.c
-+++ b/sound/soc/sh/rcar/src.c
-@@ -463,11 +463,14 @@ static int rsnd_src_init(struct rsnd_mod *mod,
- 			 struct rsnd_priv *priv)
- {
- 	struct rsnd_src *src = rsnd_mod_to_src(mod);
-+	int ret;
- 
- 	/* reset sync convert_rate */
- 	src->sync.val = 0;
- 
--	rsnd_mod_power_on(mod);
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
- 
- 	rsnd_src_activation(mod);
- 
-diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
-index 43c5e27dc5c8..7ade6c5ed96f 100644
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -480,7 +480,9 @@ static int rsnd_ssi_init(struct rsnd_mod *mod,
- 
- 	ssi->usrcnt++;
- 
--	rsnd_mod_power_on(mod);
-+	ret = rsnd_mod_power_on(mod);
-+	if (ret < 0)
-+		return ret;
- 
- 	rsnd_ssi_config_init(mod, io);
- 
+ &uart0 {
 -- 
 2.35.1
 
