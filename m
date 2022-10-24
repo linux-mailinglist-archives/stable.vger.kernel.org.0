@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC2B560A602
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C306C60A763
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:49:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233876AbiJXMbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:31:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60580 "EHLO
+        id S231918AbiJXMto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:49:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234152AbiJXM32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EB1788DCA;
-        Mon, 24 Oct 2022 05:03:27 -0700 (PDT)
+        with ESMTP id S232287AbiJXMrs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:47:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 908469184B;
+        Mon, 24 Oct 2022 05:12:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDB91B811E0;
-        Mon, 24 Oct 2022 12:00:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51F3CC433D7;
-        Mon, 24 Oct 2022 12:00:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3904D61252;
+        Mon, 24 Oct 2022 12:11:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D07AC433C1;
+        Mon, 24 Oct 2022 12:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612843;
-        bh=chCnK0CTUE8MKF84sALHRdUDz6uWT3Lh249NPivG9qI=;
+        s=korg; t=1666613471;
+        bh=NwiRgoGNNgwSk51Vc6rEQuhFQM5Y9IwYt/EDlaVrrCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DHTm01rKIgI+yuO48s4aeQxaqpMO+hCwxRos3uJDAxrxsiuh3RHFdThKzgZlmQmxW
-         As6p3ten/adgPboEhRM0IMjhvOLuW/nrl+kWcC1+55MleUxnaqycsbOm/kjAMV+bO6
-         QllOi8Xu9XOjeJupbv48lx63dHABgqiSk2eirRzM=
+        b=LBBuclyt0fxruzcZQH7fW6R0THoP7BGCDRiPn4KccOlbTW12Y0jflcyXUDdRxdOgh
+         xwV04EsaJVCvQVpAmar7TjIJ0blws+TKedyKTnKHSwSrQeL7HYZuBoSrErNpXMEFJw
+         iQ0Jw8kGU8ZIriyiYiiYMHtkS/5wYMdxRo5G9dUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Song Liu <song@kernel.org>,
-        Logan Gunthorpe <logang@deltatee.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 140/229] md/raid5: Ensure stripe_fill happens on non-read IO with journal
+Subject: [PATCH 5.4 149/255] drivers: serial: jsm: fix some leaks in probe
 Date:   Mon, 24 Oct 2022 13:30:59 +0200
-Message-Id: <20221024113003.540404190@linuxfoundation.org>
+Message-Id: <20221024113007.570051825@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit e2eed85bc75138a9eeb63863d20f8904ac42a577 ]
+[ Upstream commit 1d5859ef229e381f4db38dce8ed58e4bf862006b ]
 
-When doing degrade/recover tests using the journal a kernel BUG
-is hit at drivers/md/raid5.c:4381 in handle_parity_checks5():
+This error path needs to unwind instead of just returning directly.
 
-  BUG_ON(!test_bit(R5_UPTODATE, &dev->flags));
-
-This was found to occur because handle_stripe_fill() was skipped
-for stripes in the journal due to a condition in that function.
-Thus blocks were not fetched and R5_UPTODATE was not set when
-the code reached handle_parity_checks5().
-
-To fix this, don't skip handle_stripe_fill() unless the stripe is
-for read.
-
-Fixes: 07e83364845e ("md/r5cache: shift complex rmw from read path to write path")
-Link: https://lore.kernel.org/linux-raid/e05c4239-41a9-d2f7-3cfa-4aa9d2cea8c1@deltatee.com/
-Suggested-by: Song Liu <song@kernel.org>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Fixes: 03a8482c17dd ("drivers: serial: jsm: Enable support for Digi Classic adapters")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YyxFh1+lOeZ9WfKO@kili
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid5.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/jsm/jsm_driver.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 6f04473f0838..3310f670a4ab 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -3723,7 +3723,7 @@ static void handle_stripe_fill(struct stripe_head *sh,
- 		 * back cache (prexor with orig_page, and then xor with
- 		 * page) in the read path
- 		 */
--		if (s->injournal && s->failed) {
-+		if (s->to_read && s->injournal && s->failed) {
- 			if (test_bit(STRIPE_R5C_CACHING, &sh->state))
- 				r5c_make_stripe_write_out(sh);
- 			goto out;
+diff --git a/drivers/tty/serial/jsm/jsm_driver.c b/drivers/tty/serial/jsm/jsm_driver.c
+index 592e51d8944e..07e9be9865c7 100644
+--- a/drivers/tty/serial/jsm/jsm_driver.c
++++ b/drivers/tty/serial/jsm/jsm_driver.c
+@@ -212,7 +212,8 @@ static int jsm_probe_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 
+ 		break;
+ 	default:
+-		return -ENXIO;
++		rc = -ENXIO;
++		goto out_kfree_brd;
+ 	}
+ 
+ 	rc = request_irq(brd->irq, brd->bd_ops->intr, IRQF_SHARED, "JSM", brd);
 -- 
 2.35.1
 
