@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 164AA60A458
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:08:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E02760AAF0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:42:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230150AbiJXMIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:08:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36846 "EHLO
+        id S236074AbiJXNm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:42:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232717AbiJXMHC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:07:02 -0400
+        with ESMTP id S236873AbiJXNl1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:41:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543657E825;
-        Mon, 24 Oct 2022 04:51:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47AA6B5172;
+        Mon, 24 Oct 2022 05:39:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1993612BB;
-        Mon, 24 Oct 2022 11:51:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0257C433D6;
-        Mon, 24 Oct 2022 11:51:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCA8D612CA;
+        Mon, 24 Oct 2022 12:27:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9D1FC433D7;
+        Mon, 24 Oct 2022 12:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612308;
-        bh=d9UGACqchgTVt9QM+LfeOMJn5Ue0zcjSQFeX0MyUg+I=;
+        s=korg; t=1666614463;
+        bh=l0qQ2lCaxTmpz63zjBz0GZTyNJRYUHWb1NPdjSlk1wE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6/sLLx/st9288usTyPbuFLr3YpwmynNCfuSbQe/yFh9zh6ScFTHW16R1JYHcztNj
-         TGTU+QkyM1NLdDwKG6RJXVCJAriOCr+WfVymQ3Z0Rx2p5rHdKWh3a7QB8ZbyTEAqdt
-         owc6edM5r03eXbD3idApmJAz0pvcTT+w+GALMiHU=
+        b=sHF3CwuYPYCBXaXNg+aLK9Kh13GaX4QwIejoA620qolQMcTRnc53ASl5K4PjjRs3g
+         Iai9qsyMiyWI5L2YN9N4OgAycxr5MPgnNclDxaC10NuScvGh/gslODC6uxHaH/dWHl
+         0IJoPzYoFqV+Pds1VsAznmgdl5rZQfOkSYjR3HiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        "Ivan T. Ivanov" <iivanov@suse.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 149/210] clk: bcm2835: fix bcm2835_clock_rate_from_divisor declaration
-Date:   Mon, 24 Oct 2022 13:31:06 +0200
-Message-Id: <20221024113001.813660149@linuxfoundation.org>
+Subject: [PATCH 5.10 270/390] powerpc: Fix SPE Power ISA properties for e500v1 platforms
+Date:   Mon, 24 Oct 2022 13:31:07 +0200
+Message-Id: <20221024113034.430278937@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 0b919a3728691c172312dee99ba654055ccd8c84 ]
+[ Upstream commit 37b9345ce7f4ab17538ea62def6f6d430f091355 ]
 
-The return value of bcm2835_clock_rate_from_divisor is always unsigned
-and also all caller expect this. So fix the declaration accordingly.
+Commit 2eb28006431c ("powerpc/e500v2: Add Power ISA properties to comply
+with ePAPR 1.1") introduced new include file e500v2_power_isa.dtsi and
+should have used it for all e500v2 platforms. But apparently it was used
+also for e500v1 platforms mpc8540, mpc8541, mpc8555 and mpc8560.
 
-Fixes: 41691b8862e2 ("clk: bcm2835: Add support for programming the audio domain clocks")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/20220904141037.38816-1-stefan.wahren@i2se.com
-Reviewed-by: Ivan T. Ivanov <iivanov@suse.de>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+e500v1 cores compared to e500v2 do not support double precision floating
+point SPE instructions. Hence power-isa-sp.fd should not be set on e500v1
+platforms, which is in e500v2_power_isa.dtsi include file.
+
+Fix this issue by introducing a new e500v1_power_isa.dtsi include file and
+use it in all e500v1 device tree files.
+
+Fixes: 2eb28006431c ("powerpc/e500v2: Add Power ISA properties to comply with ePAPR 1.1")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220902212103.22534-1-pali@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .../boot/dts/fsl/e500v1_power_isa.dtsi        | 51 +++++++++++++++++++
+ arch/powerpc/boot/dts/fsl/mpc8540ads.dts      |  2 +-
+ arch/powerpc/boot/dts/fsl/mpc8541cds.dts      |  2 +-
+ arch/powerpc/boot/dts/fsl/mpc8555cds.dts      |  2 +-
+ arch/powerpc/boot/dts/fsl/mpc8560ads.dts      |  2 +-
+ 5 files changed, 55 insertions(+), 4 deletions(-)
+ create mode 100644 arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index 8ccd72cc66ba..be217c876e25 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -984,9 +984,9 @@ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
- 	return div;
- }
+diff --git a/arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi b/arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi
+new file mode 100644
+index 000000000000..7e2a90cde72e
+--- /dev/null
++++ b/arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi
+@@ -0,0 +1,51 @@
++/*
++ * e500v1 Power ISA Device Tree Source (include)
++ *
++ * Copyright 2012 Freescale Semiconductor Inc.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of Freescale Semiconductor nor the
++ *       names of its contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ *
++ * ALTERNATIVELY, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") as published by the Free Software
++ * Foundation, either version 2 of that License or (at your option) any
++ * later version.
++ *
++ * THIS SOFTWARE IS PROVIDED BY Freescale Semiconductor "AS IS" AND ANY
++ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
++ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED. IN NO EVENT SHALL Freescale Semiconductor BE LIABLE FOR ANY
++ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
++ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
++ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
++ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ */
++
++/ {
++	cpus {
++		power-isa-version = "2.03";
++		power-isa-b;		// Base
++		power-isa-e;		// Embedded
++		power-isa-atb;		// Alternate Time Base
++		power-isa-cs;		// Cache Specification
++		power-isa-e.le;		// Embedded.Little-Endian
++		power-isa-e.pm;		// Embedded.Performance Monitor
++		power-isa-ecl;		// Embedded Cache Locking
++		power-isa-mmc;		// Memory Coherence
++		power-isa-sp;		// Signal Processing Engine
++		power-isa-sp.fs;	// SPE.Embedded Float Scalar Single
++		power-isa-sp.fv;	// SPE.Embedded Float Vector
++		mmu-type = "power-embedded";
++	};
++};
+diff --git a/arch/powerpc/boot/dts/fsl/mpc8540ads.dts b/arch/powerpc/boot/dts/fsl/mpc8540ads.dts
+index 18a885130538..e03ae130162b 100644
+--- a/arch/powerpc/boot/dts/fsl/mpc8540ads.dts
++++ b/arch/powerpc/boot/dts/fsl/mpc8540ads.dts
+@@ -7,7 +7,7 @@
  
--static long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
--					    unsigned long parent_rate,
--					    u32 div)
-+static unsigned long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
-+						     unsigned long parent_rate,
-+						     u32 div)
- {
- 	const struct bcm2835_clock_data *data = clock->data;
- 	u64 temp;
+ /dts-v1/;
+ 
+-/include/ "e500v2_power_isa.dtsi"
++/include/ "e500v1_power_isa.dtsi"
+ 
+ / {
+ 	model = "MPC8540ADS";
+diff --git a/arch/powerpc/boot/dts/fsl/mpc8541cds.dts b/arch/powerpc/boot/dts/fsl/mpc8541cds.dts
+index ac381e7b1c60..a2a6c5cf852e 100644
+--- a/arch/powerpc/boot/dts/fsl/mpc8541cds.dts
++++ b/arch/powerpc/boot/dts/fsl/mpc8541cds.dts
+@@ -7,7 +7,7 @@
+ 
+ /dts-v1/;
+ 
+-/include/ "e500v2_power_isa.dtsi"
++/include/ "e500v1_power_isa.dtsi"
+ 
+ / {
+ 	model = "MPC8541CDS";
+diff --git a/arch/powerpc/boot/dts/fsl/mpc8555cds.dts b/arch/powerpc/boot/dts/fsl/mpc8555cds.dts
+index 9f58db2a7e66..901b6ff06dfb 100644
+--- a/arch/powerpc/boot/dts/fsl/mpc8555cds.dts
++++ b/arch/powerpc/boot/dts/fsl/mpc8555cds.dts
+@@ -7,7 +7,7 @@
+ 
+ /dts-v1/;
+ 
+-/include/ "e500v2_power_isa.dtsi"
++/include/ "e500v1_power_isa.dtsi"
+ 
+ / {
+ 	model = "MPC8555CDS";
+diff --git a/arch/powerpc/boot/dts/fsl/mpc8560ads.dts b/arch/powerpc/boot/dts/fsl/mpc8560ads.dts
+index a24722ccaebf..c2f9aea78b29 100644
+--- a/arch/powerpc/boot/dts/fsl/mpc8560ads.dts
++++ b/arch/powerpc/boot/dts/fsl/mpc8560ads.dts
+@@ -7,7 +7,7 @@
+ 
+ /dts-v1/;
+ 
+-/include/ "e500v2_power_isa.dtsi"
++/include/ "e500v1_power_isa.dtsi"
+ 
+ / {
+ 	model = "MPC8560ADS";
 -- 
 2.35.1
 
