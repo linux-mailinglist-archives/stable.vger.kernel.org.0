@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD1D60A9DD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A82660A638
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230347AbiJXNZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:25:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56510 "EHLO
+        id S229756AbiJXMcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:32:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233747AbiJXNXh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:23:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46A3A5072F;
-        Mon, 24 Oct 2022 05:30:12 -0700 (PDT)
+        with ESMTP id S233719AbiJXMac (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:30:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C71EE20F70;
+        Mon, 24 Oct 2022 05:04:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD4EB61328;
-        Mon, 24 Oct 2022 12:28:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC79EC433C1;
-        Mon, 24 Oct 2022 12:28:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98A44B811A5;
+        Mon, 24 Oct 2022 12:02:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDE9EC433C1;
+        Mon, 24 Oct 2022 12:02:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614523;
-        bh=SQBhvpbr67nNnwBS9iLoISYpMqP1aXfZOUUFaVU+bMg=;
+        s=korg; t=1666612930;
+        bh=KgnZvTami7Wf2KkSJ7asjZWoX20lDkMswAbmsI/MM1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jOJwNlQk/bc7Y1f4MO3jGG0G262z/aomhlQ8tcnOdXvb2qkRDQpvERoNZxWn3MZ3M
-         i8yb/Vs/Ma4coqK8bEWnVjc2o8QmHuuOwI7K8KQZ0f7vd98YwgGtVzWKIxy8slXcFv
-         5TSAZkTou9cu+CbNhcwOz0qDLJ9WFGd69zzjVwCo=
+        b=x/531WpZnbhV75V9NR5JxZr94sPoPRBiyEljS1wVzyKyMwvKJYzFKqA0W8avi2uQU
+         kPcGC6mE8Vz0NIK5xbPaMshqrdZIEJDNdPSaPkq5PtRh/pNyd1CczG4yo16k6LCp27
+         sj62EEpgzGFN4rtbpJAX2LeMjUFb30idnqkjPqaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
-        linux-kselftest@vger.kernel.org,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Stefan Berger <stefanb@linux.ibm.com>,
+        stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 294/390] selftest: tpm2: Add Client.__del__() to close /dev/tpm* handle
-Date:   Mon, 24 Oct 2022 13:31:31 +0200
-Message-Id: <20221024113035.525923548@linuxfoundation.org>
+Subject: [PATCH 4.19 173/229] thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash
+Date:   Mon, 24 Oct 2022 13:31:32 +0200
+Message-Id: <20221024113004.689527133@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 2d869f0b458547386fbcd8cf3004b271b7347b7f ]
+[ Upstream commit 68b99e94a4a2db6ba9b31fe0485e057b9354a640 ]
 
-The following output can bee seen when the test is executed:
+When CPU 0 is offline and intel_powerclamp is used to inject
+idle, it generates kernel BUG:
 
-  test_flush_context (tpm2_tests.SpaceTest) ... \
-    /usr/lib64/python3.6/unittest/case.py:605: ResourceWarning: \
-    unclosed file <_io.FileIO name='/dev/tpmrm0' mode='rb+' closefd=True>
+BUG: using smp_processor_id() in preemptible [00000000] code: bash/15687
+caller is debug_smp_processor_id+0x17/0x20
+CPU: 4 PID: 15687 Comm: bash Not tainted 5.19.0-rc7+ #57
+Call Trace:
+<TASK>
+dump_stack_lvl+0x49/0x63
+dump_stack+0x10/0x16
+check_preemption_disabled+0xdd/0xe0
+debug_smp_processor_id+0x17/0x20
+powerclamp_set_cur_state+0x7f/0xf9 [intel_powerclamp]
+...
+...
 
-An instance of Client does not implicitly close /dev/tpm* handle, once it
-gets destroyed. Close the file handle in the class destructor
-Client.__del__().
+Here CPU 0 is the control CPU by default and changed to the current CPU,
+if CPU 0 offlined. This check has to be performed under cpus_read_lock(),
+hence the above warning.
 
-Fixes: 6ea3dfe1e0732 ("selftests: add TPM 2.0 tests")
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: linux-kselftest@vger.kernel.org
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Use get_cpu() instead of smp_processor_id() to avoid this BUG.
+
+Suggested-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+[ rjw: Subject edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/tpm2/tpm2.py | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/thermal/intel_powerclamp.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/tpm2/tpm2.py b/tools/testing/selftests/tpm2/tpm2.py
-index f34486cd7342..3e67fdb518ec 100644
---- a/tools/testing/selftests/tpm2/tpm2.py
-+++ b/tools/testing/selftests/tpm2/tpm2.py
-@@ -370,6 +370,10 @@ class Client:
-             fcntl.fcntl(self.tpm, fcntl.F_SETFL, flags)
-             self.tpm_poll = select.poll()
+diff --git a/drivers/thermal/intel_powerclamp.c b/drivers/thermal/intel_powerclamp.c
+index 8e8328347c0e..079c8c1a5f15 100644
+--- a/drivers/thermal/intel_powerclamp.c
++++ b/drivers/thermal/intel_powerclamp.c
+@@ -550,8 +550,10 @@ static int start_power_clamp(void)
  
-+    def __del__(self):
-+        if self.tpm:
-+            self.tpm.close()
-+
-     def close(self):
-         self.tpm.close()
+ 	/* prefer BSP */
+ 	control_cpu = 0;
+-	if (!cpu_online(control_cpu))
+-		control_cpu = smp_processor_id();
++	if (!cpu_online(control_cpu)) {
++		control_cpu = get_cpu();
++		put_cpu();
++	}
  
+ 	clamping = true;
+ 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
 -- 
 2.35.1
 
