@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A8BA60B2C1
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 291BE60B115
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:16:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229544AbiJXQvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:51:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33322 "EHLO
+        id S233734AbiJXQQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:16:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235406AbiJXQtb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E39C717FD4A;
-        Mon, 24 Oct 2022 08:32:47 -0700 (PDT)
+        with ESMTP id S234723AbiJXQPH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:15:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1152419023;
+        Mon, 24 Oct 2022 08:02:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E537AB811EC;
-        Mon, 24 Oct 2022 12:03:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 469E9C433C1;
-        Mon, 24 Oct 2022 12:03:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A37CB8160D;
+        Mon, 24 Oct 2022 12:13:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95B13C433C1;
+        Mon, 24 Oct 2022 12:13:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612985;
-        bh=IqXIc2zb1gPqjZAiZAuDXqBufstMjobSxTTlD79UXjo=;
+        s=korg; t=1666613613;
+        bh=4tiZo8G5eXP4COk8VAfglXey3elPrZGGdqNUfwvzuq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cGWUC15kFAwA7wcupt1PX4XhVR2VVQha1VQlYrYg0JhO7ZrDTCXM/iyRiRXbfjfqv
-         WFJ4x/F1Tqd70b5DtS3ajEZJCvUDSpB8xazf/O8K3USWg/CYKGcm0KapzLiR6rRFpD
-         JrZrGll04YsThrRoC48hCvh/EmaCxzkG0hhkItY4=
+        b=hlSk5fZnRIvlwM8F0hpinjxAJ937snNPcMwiQMYrvgBmpiF0Kp+KUpQmcZiGWYHa1
+         Gb1RSb1F/ooenaunAdKEc/q149VGWVochG6lJQGVIbsLaPF9X2LcXsGVjOTid3knsh
+         SI0DbjBrYQGeBCo3xQJLgsjrFbxSPr8SildBmq3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Gow <davidgow@google.com>,
-        Tales Aparecida <tales.aparecida@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 195/229] drm/amd/display: fix overflow on MIN_I64 definition
+        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 204/255] wifi: rt2x00: set VGC gain for both chains of MT7620
 Date:   Mon, 24 Oct 2022 13:31:54 +0200
-Message-Id: <20221024113005.440623785@linuxfoundation.org>
+Message-Id: <20221024113009.816394402@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Gow <davidgow@google.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit 6ae0632d17759852c07e2d1e0a31c728eb6ba246 ]
+[ Upstream commit 0e09768c085709e10ece3b68f6ac921d3f6a9caa ]
 
-The definition of MIN_I64 in bw_fixed.c can cause gcc to whinge about
-integer overflow, because it is treated as a positive value, which is
-then negated. The temporary positive value is not necessarily
-representable.
+Set bbp66 for all chains of the MT7620.
 
-This causes the following warning:
-../drivers/gpu/drm/amd/amdgpu/../display/dc/dml/calcs/bw_fixed.c:30:19:
-warning: integer overflow in expression ‘-9223372036854775808’ of type
-‘long long int’ results in ‘-9223372036854775808’ [-Woverflow]
-  30 |         (int64_t)(-(1LL << 63))
-     |                   ^
-
-Writing out (-MAX_I64 - 1) works instead.
-
-Signed-off-by: David Gow <davidgow@google.com>
-Signed-off-by: Tales Aparecida <tales.aparecida@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/29e161397e5c9d9399da0fe87d44458aa2b90a78.1663445157.git.daniel@makrotopia.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c b/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c
-index 6ca288fb5fb9..2d46bc527b21 100644
---- a/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c
-+++ b/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c
-@@ -26,12 +26,12 @@
- #include "bw_fixed.h"
- 
- 
--#define MIN_I64 \
--	(int64_t)(-(1LL << 63))
--
- #define MAX_I64 \
- 	(int64_t)((1ULL << 63) - 1)
- 
-+#define MIN_I64 \
-+	(-MAX_I64 - 1)
-+
- #define FRACTIONAL_PART_MASK \
- 	((1ULL << BW_FIXED_BITS_PER_FRACTIONAL_PART) - 1)
- 
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+index 20491ff6bb76..ab0d673253f0 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+@@ -5629,7 +5629,8 @@ static inline void rt2800_set_vgc(struct rt2x00_dev *rt2x00dev,
+ 	if (qual->vgc_level != vgc_level) {
+ 		if (rt2x00_rt(rt2x00dev, RT3572) ||
+ 		    rt2x00_rt(rt2x00dev, RT3593) ||
+-		    rt2x00_rt(rt2x00dev, RT3883)) {
++		    rt2x00_rt(rt2x00dev, RT3883) ||
++		    rt2x00_rt(rt2x00dev, RT6352)) {
+ 			rt2800_bbp_write_with_rx_chain(rt2x00dev, 66,
+ 						       vgc_level);
+ 		} else if (rt2x00_rt(rt2x00dev, RT5592)) {
 -- 
 2.35.1
 
