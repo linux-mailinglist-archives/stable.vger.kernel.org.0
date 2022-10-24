@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B52C60B6D8
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E436B60B857
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:44:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232727AbiJXTMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:12:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50290 "EHLO
+        id S229839AbiJXToX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:44:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232712AbiJXTLy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:11:54 -0400
+        with ESMTP id S233427AbiJXTmO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:42:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8FC9CF1B2;
-        Mon, 24 Oct 2022 10:50:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB4DE09B7;
+        Mon, 24 Oct 2022 11:11:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 172A1B819A4;
-        Mon, 24 Oct 2022 12:42:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C647C433C1;
-        Mon, 24 Oct 2022 12:42:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2934DB8118F;
+        Mon, 24 Oct 2022 11:47:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C692C433D6;
+        Mon, 24 Oct 2022 11:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615371;
-        bh=zbp4AXKUfv3HaM7iZ3pIS42q/U+YgNKon4cYmy2Inrs=;
+        s=korg; t=1666612072;
+        bh=6F0okbPNaJVmpOAkAP8nAQh12Kr7LsC4w3octjhvero=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E1hp3UWX1M1WcVKx4/c3UMXUbuDX36xYyrkAKLOYZEFA9j6giTwcjOMk8SIkhylWk
-         ULMU9F735mTKLZYAxTGfV39JkqxeLFZw4JwzScUqMfrXDmB5UeyUFXmwZoWpnXyVF0
-         u6F0EhqQF7cnu6JdMyNW6KBGzIU08zI3xM5IXB8I=
+        b=nEqfpkspUJB02q6UCO1ynUvKNwn34M58B+3Jilf5JSQ44sJfSWtqZiKLCxQXW4VDq
+         xvJKXX3zg8loMn9MmwizjAxE3mhhkGkqEZP9WQ8yU9j9mJ+od07o4lE7mqz1q3bL6K
+         2fiDcEKz1PBl35s9VKxezZ/Nppw7WcuexqNoO/ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prashant Malani <pmalani@chromium.org>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Tzung-Bi Shih <tzungbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 224/530] platform/chrome: cros_ec_typec: Correct alt mode index
-Date:   Mon, 24 Oct 2022 13:29:28 +0200
-Message-Id: <20221024113055.230599539@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        linux-arm-msm@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 059/210] regulator: qcom_rpm: Fix circular deferral regression
+Date:   Mon, 24 Oct 2022 13:29:36 +0200
+Message-Id: <20221024112958.948588326@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +56,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 4e477663e396f48c5cfc5f2d75d4b514f409516a ]
+commit 8478ed5844588703a1a4c96a004b1525fbdbdd5e upstream.
 
-Alt mode indices used by USB PD (Power Delivery) start with 1, not 0.
+On recent kernels, the PM8058 L16 (or any other PM8058 LDO-regulator)
+does not come up if they are supplied by an SMPS-regulator. This
+is not very strange since the regulators are registered in a long
+array and the L-regulators are registered before the S-regulators,
+and if an L-regulator defers, it will never get around to registering
+the S-regulator that it needs.
 
-Update the alt mdoe registration code to factor this in to the alt mode
-descriptor.
+See arch/arm/boot/dts/qcom-apq8060-dragonboard.dts:
 
-Fixes: de0f49487db3 ("platform/chrome: cros_ec_typec: Register partner altmodes")
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
-Link: https://lore.kernel.org/r/20220819190807.1275937-3-pmalani@chromium.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+pm8058-regulators {
+    (...)
+    vdd_l13_l16-supply = <&pm8058_s4>;
+    (...)
+
+Ooops.
+
+Fix this by moving the PM8058 S-regulators first in the array.
+
+Do the same for the PM8901 S-regulators (though this is currently
+not causing any problems with out device trees) so that the pattern
+of registration order is the same on all PMnnnn chips.
+
+Fixes: 087a1b5cdd55 ("regulator: qcom: Rework to single platform device")
+Cc: stable@vger.kernel.org
+Cc: Andy Gross <agross@kernel.org>
+Cc: Bjorn Andersson <andersson@kernel.org>
+Cc: Konrad Dybcio <konrad.dybcio@somainline.org>
+Cc: linux-arm-msm@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220909112529.239143-1-linus.walleij@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/chrome/cros_ec_typec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/qcom_rpm-regulator.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/platform/chrome/cros_ec_typec.c b/drivers/platform/chrome/cros_ec_typec.c
-index 4027c3ef90d7..aadb8d237aef 100644
---- a/drivers/platform/chrome/cros_ec_typec.c
-+++ b/drivers/platform/chrome/cros_ec_typec.c
-@@ -691,7 +691,7 @@ static int cros_typec_register_altmodes(struct cros_typec_data *typec, int port_
- 		for (j = 0; j < sop_disc->svids[i].mode_count; j++) {
- 			memset(&desc, 0, sizeof(desc));
- 			desc.svid = sop_disc->svids[i].svid;
--			desc.mode = j;
-+			desc.mode = j + 1;
- 			desc.vdo = sop_disc->svids[i].mode_vdo[j];
+--- a/drivers/regulator/qcom_rpm-regulator.c
++++ b/drivers/regulator/qcom_rpm-regulator.c
+@@ -820,6 +820,12 @@ static const struct rpm_regulator_data r
+ };
  
- 			if (is_partner)
--- 
-2.35.1
-
+ static const struct rpm_regulator_data rpm_pm8058_regulators[] = {
++	{ "s0",   QCOM_RPM_PM8058_SMPS0,  &pm8058_smps, "vdd_s0" },
++	{ "s1",   QCOM_RPM_PM8058_SMPS1,  &pm8058_smps, "vdd_s1" },
++	{ "s2",   QCOM_RPM_PM8058_SMPS2,  &pm8058_smps, "vdd_s2" },
++	{ "s3",   QCOM_RPM_PM8058_SMPS3,  &pm8058_smps, "vdd_s3" },
++	{ "s4",   QCOM_RPM_PM8058_SMPS4,  &pm8058_smps, "vdd_s4" },
++
+ 	{ "l0",   QCOM_RPM_PM8058_LDO0,   &pm8058_nldo, "vdd_l0_l1_lvs"	},
+ 	{ "l1",   QCOM_RPM_PM8058_LDO1,   &pm8058_nldo, "vdd_l0_l1_lvs" },
+ 	{ "l2",   QCOM_RPM_PM8058_LDO2,   &pm8058_pldo, "vdd_l2_l11_l12" },
+@@ -847,12 +853,6 @@ static const struct rpm_regulator_data r
+ 	{ "l24",  QCOM_RPM_PM8058_LDO24,  &pm8058_nldo, "vdd_l23_l24_l25" },
+ 	{ "l25",  QCOM_RPM_PM8058_LDO25,  &pm8058_nldo, "vdd_l23_l24_l25" },
+ 
+-	{ "s0",   QCOM_RPM_PM8058_SMPS0,  &pm8058_smps, "vdd_s0" },
+-	{ "s1",   QCOM_RPM_PM8058_SMPS1,  &pm8058_smps, "vdd_s1" },
+-	{ "s2",   QCOM_RPM_PM8058_SMPS2,  &pm8058_smps, "vdd_s2" },
+-	{ "s3",   QCOM_RPM_PM8058_SMPS3,  &pm8058_smps, "vdd_s3" },
+-	{ "s4",   QCOM_RPM_PM8058_SMPS4,  &pm8058_smps, "vdd_s4" },
+-
+ 	{ "lvs0", QCOM_RPM_PM8058_LVS0, &pm8058_switch, "vdd_l0_l1_lvs" },
+ 	{ "lvs1", QCOM_RPM_PM8058_LVS1, &pm8058_switch, "vdd_l0_l1_lvs" },
+ 
+@@ -861,6 +861,12 @@ static const struct rpm_regulator_data r
+ };
+ 
+ static const struct rpm_regulator_data rpm_pm8901_regulators[] = {
++	{ "s0",   QCOM_RPM_PM8901_SMPS0, &pm8901_ftsmps, "vdd_s0" },
++	{ "s1",   QCOM_RPM_PM8901_SMPS1, &pm8901_ftsmps, "vdd_s1" },
++	{ "s2",   QCOM_RPM_PM8901_SMPS2, &pm8901_ftsmps, "vdd_s2" },
++	{ "s3",   QCOM_RPM_PM8901_SMPS3, &pm8901_ftsmps, "vdd_s3" },
++	{ "s4",   QCOM_RPM_PM8901_SMPS4, &pm8901_ftsmps, "vdd_s4" },
++
+ 	{ "l0",   QCOM_RPM_PM8901_LDO0, &pm8901_nldo, "vdd_l0" },
+ 	{ "l1",   QCOM_RPM_PM8901_LDO1, &pm8901_pldo, "vdd_l1" },
+ 	{ "l2",   QCOM_RPM_PM8901_LDO2, &pm8901_pldo, "vdd_l2" },
+@@ -869,12 +875,6 @@ static const struct rpm_regulator_data r
+ 	{ "l5",   QCOM_RPM_PM8901_LDO5, &pm8901_pldo, "vdd_l5" },
+ 	{ "l6",   QCOM_RPM_PM8901_LDO6, &pm8901_pldo, "vdd_l6" },
+ 
+-	{ "s0",   QCOM_RPM_PM8901_SMPS0, &pm8901_ftsmps, "vdd_s0" },
+-	{ "s1",   QCOM_RPM_PM8901_SMPS1, &pm8901_ftsmps, "vdd_s1" },
+-	{ "s2",   QCOM_RPM_PM8901_SMPS2, &pm8901_ftsmps, "vdd_s2" },
+-	{ "s3",   QCOM_RPM_PM8901_SMPS3, &pm8901_ftsmps, "vdd_s3" },
+-	{ "s4",   QCOM_RPM_PM8901_SMPS4, &pm8901_ftsmps, "vdd_s4" },
+-
+ 	{ "lvs0", QCOM_RPM_PM8901_LVS0, &pm8901_switch, "lvs0_in" },
+ 	{ "lvs1", QCOM_RPM_PM8901_LVS1, &pm8901_switch, "lvs1_in" },
+ 	{ "lvs2", QCOM_RPM_PM8901_LVS2, &pm8901_switch, "lvs2_in" },
 
 
