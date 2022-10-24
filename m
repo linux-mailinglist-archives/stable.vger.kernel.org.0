@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 002BC60A2FD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:49:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D026560A304
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:50:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231768AbiJXLt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:49:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60764 "EHLO
+        id S231817AbiJXLuA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:50:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231733AbiJXLsB (ORCPT
+        with ESMTP id S231731AbiJXLsB (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:48:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC033A161;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC9075FD7;
         Mon, 24 Oct 2022 04:43:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9383612A0;
-        Mon, 24 Oct 2022 11:42:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B744DC433D6;
-        Mon, 24 Oct 2022 11:42:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E6F1A61298;
+        Mon, 24 Oct 2022 11:42:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04D63C433D6;
+        Mon, 24 Oct 2022 11:42:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611768;
-        bh=R2o+Cu2UAOttf3+FN46CvIfUeo5oZyZa9B5Y8e4wXF0=;
+        s=korg; t=1666611773;
+        bh=6b9qQMB8K1T9HlZwNftxCzmN5s2QJzdCsETri9vqOrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JNG7aefQfLXn9od6GWQWvgJY2AKw3MBmlmjHpBPr/T1ByszvXnAs5vWgBEkSE9eZw
-         yhvQvSBtFR6KVUAdkgeJ25uHJZ7oNs8qGQ6cVs6HbTE1dtFgYRDM8EWLJ2JnC3bsE7
-         2xpndMXyNZWAZe/vZ2S0U4MIALHURf6+qEpxBnfw=
+        b=s44jVeZYHYkPpGLrHk9sUhELFEgG/BhPzgZN7jTFTPKLVX+Q40+v8Pat99QaS18e+
+         MHQZNz5w8PdP2D1qjfMR9R5S3eUXrjKQvm+Rk9sL9qOQNe+bjOHz4SCIdK2kpPH9S/
+         AlQRHdVecXsXdLpyRh8496SYtmnpF2mpAHZFF7NE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Baron <jbaron@akamai.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jim Cromie <jim.cromie@gmail.com>,
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 103/159] dyndbg: let query-modname override actual module name
-Date:   Mon, 24 Oct 2022 13:30:57 +0200
-Message-Id: <20221024112953.207373954@linuxfoundation.org>
+Subject: [PATCH 4.9 105/159] ata: fix ata_id_has_devslp()
+Date:   Mon, 24 Oct 2022 13:30:59 +0200
+Message-Id: <20221024112953.276522056@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -54,78 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Cromie <jim.cromie@gmail.com>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit e75ef56f74965f426dd819a41336b640ffdd8fbc ]
+[ Upstream commit 9c6e09a434e1317e09b78b3b69cd384022ec9a03 ]
 
-dyndbg's control-parser: ddebug_parse_query(), requires that search
-terms: module, func, file, lineno, are used only once in a query; a
-thing cannot be named both foo and bar.
+ACS-5 section
+7.13.6.36 Word 78: Serial ATA features supported
+states that:
 
-The cited commit added an overriding module modname, taken from the
-module loader, which is authoritative.  So it set query.module 1st,
-which disallowed its use in the query-string.
+If word 76 is not 0000h or FFFFh, word 78 reports the features supported
+by the device. If this word is not supported, the word shall be cleared
+to zero.
 
-But now, its useful to allow a module-load to enable classes across a
-whole (or part of) a subsystem at once.
+(This text also exists in really old ACS standards, e.g. ACS-3.)
 
-  # enable (dynamic-debug in) drm only
-  modprobe drm dyndbg="class DRM_UT_CORE +p"
+Additionally, move the macro to the other ATA_ID_FEATURE_SUPP macros
+(which already have this check), thus making it more likely that the
+next ATA_ID_FEATURE_SUPP macro that is added will include this check.
 
-  # get drm_helper too
-  modprobe drm dyndbg="class DRM_UT_CORE module drm* +p"
-
-  # get everything that knows DRM_UT_CORE
-  modprobe drm dyndbg="class DRM_UT_CORE module * +p"
-
-  # also for boot-args:
-  drm.dyndbg="class DRM_UT_CORE module * +p"
-
-So convert the override into a default, by filling it only when/after
-the query-string omitted the module.
-
-NB: the query class FOO handling is forthcoming.
-
-Fixes: 8e59b5cfb9a6 dynamic_debug: add modname arg to exec_query callchain
-Acked-by: Jason Baron <jbaron@akamai.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
-Link: https://lore.kernel.org/r/20220904214134.408619-8-jim.cromie@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 65fe1f0f66a5 ("ahci: implement aggressive SATA device sleep support")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/dynamic_debug.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ include/linux/ata.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
-index 91c451e0f474..01591a7b151f 100644
---- a/lib/dynamic_debug.c
-+++ b/lib/dynamic_debug.c
-@@ -327,10 +327,6 @@ static int ddebug_parse_query(char *words[], int nwords,
- 	}
- 	memset(query, 0, sizeof(*query));
+diff --git a/include/linux/ata.h b/include/linux/ata.h
+index 8e5e7bf4a37f..315a7eaba655 100644
+--- a/include/linux/ata.h
++++ b/include/linux/ata.h
+@@ -572,6 +572,10 @@ struct ata_bmdma_prd {
+ 	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
+ 	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
+ 	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 2)))
++#define ata_id_has_devslp(id)	\
++	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
++	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
++	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 8)))
+ #define ata_id_iordy_disable(id) ((id)[ATA_ID_CAPABILITY] & (1 << 10))
+ #define ata_id_has_iordy(id) ((id)[ATA_ID_CAPABILITY] & (1 << 11))
+ #define ata_id_u32(id,n)	\
+@@ -584,7 +588,6 @@ struct ata_bmdma_prd {
  
--	if (modname)
--		/* support $modname.dyndbg=<multiple queries> */
--		query->module = modname;
--
- 	for (i = 0; i < nwords; i += 2) {
- 		if (!strcmp(words[i], "func")) {
- 			rc = check_set(&query->function, words[i+1], "func");
-@@ -379,6 +375,13 @@ static int ddebug_parse_query(char *words[], int nwords,
- 		if (rc)
- 			return rc;
- 	}
-+	if (!query->module && modname)
-+		/*
-+		 * support $modname.dyndbg=<multiple queries>, when
-+		 * not given in the query itself
-+		 */
-+		query->module = modname;
-+
- 	vpr_info_dq(query, "parsed");
- 	return 0;
- }
+ #define ata_id_cdb_intr(id)	(((id)[ATA_ID_CONFIG] & 0x60) == 0x20)
+ #define ata_id_has_da(id)	((id)[ATA_ID_SATA_CAPABILITY_2] & (1 << 4))
+-#define ata_id_has_devslp(id)	((id)[ATA_ID_FEATURE_SUPP] & (1 << 8))
+ #define ata_id_has_ncq_autosense(id) \
+ 				((id)[ATA_ID_FEATURE_SUPP] & (1 << 7))
+ 
 -- 
 2.35.1
 
