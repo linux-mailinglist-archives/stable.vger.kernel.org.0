@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15F5460B764
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:23:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85BD860B71E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:20:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230270AbiJXTX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:23:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34660 "EHLO
+        id S231856AbiJXTUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:20:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231225AbiJXTWf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:22:35 -0400
+        with ESMTP id S233512AbiJXTTb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:19:31 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105563DBE5;
-        Mon, 24 Oct 2022 10:57:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A859814F5;
+        Mon, 24 Oct 2022 10:56:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0C04BCE1369;
-        Mon, 24 Oct 2022 11:53:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3710C433C1;
-        Mon, 24 Oct 2022 11:53:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2FC48CE136E;
+        Mon, 24 Oct 2022 11:54:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CF07C433D7;
+        Mon, 24 Oct 2022 11:54:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612436;
-        bh=iQieQ4Y/Cp6gHS2C7Lg2w/a+l9Ieo+k4kqJju/g1xY4=;
+        s=korg; t=1666612491;
+        bh=XeXgFmBb2J/4H2fAnQcF2pRLaqG6XK2GwrF5T7orXxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7OibFfoBNzu8/fN5abML/2hzCLHjivTdsFSvcXSjFdzqftgqmUTh/jPvFZxdVun/
-         YJdj71Bm6T7jsYrVZD+moin9frmYE6WfENwA8Q1qm/3Jurtxmnok+oxJfcN2zFcpjr
-         dpixHWEtJWhcYrC7hoZ82Pw0Jy43Mlk1kWpI98bU=
+        b=k9JpPzCE01Ev+BZPPOSNaxm+si1a14BbiRJaI1+ADVEZ2USDPFl/xOFs8qiNXMJiz
+         nF1JNIabWuIpIogPh3Ux1KyOeOm6Sqbm8wxQDK+K9QcEtXceFz6YJwKjTn892tvQN8
+         sZKv4aQ23jztzxUDUINWwfmZh4SbBlROHBd5um2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com,
-        Shigeru Yoshida <syoshida@redhat.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 196/210] nbd: Fix hung when signal interrupts nbd_start_device_ioctl()
-Date:   Mon, 24 Oct 2022 13:31:53 +0200
-Message-Id: <20221024113003.321506243@linuxfoundation.org>
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 198/210] md/raid5: Wait for MD_SB_CHANGE_PENDING in raid5d
+Date:   Mon, 24 Oct 2022 13:31:55 +0200
+Message-Id: <20221024113003.395495277@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -55,67 +52,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shigeru Yoshida <syoshida@redhat.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 1de7c3cf48fc41cd95adb12bd1ea9033a917798a ]
+[ Upstream commit 5e2cf333b7bd5d3e62595a44d598a254c697cd74 ]
 
-syzbot reported hung task [1].  The following program is a simplified
-version of the reproducer:
+A complicated deadlock exists when using the journal and an elevated
+group_thrtead_cnt. It was found with loop devices, but its not clear
+whether it can be seen with real disks. The deadlock can occur simply
+by writing data with an fio script.
 
-int main(void)
-{
-	int sv[2], fd;
+When the deadlock occurs, multiple threads will hang in different ways:
 
-	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0)
-		return 1;
-	if ((fd = open("/dev/nbd0", 0)) < 0)
-		return 1;
-	if (ioctl(fd, NBD_SET_SIZE_BLOCKS, 0x81) < 0)
-		return 1;
-	if (ioctl(fd, NBD_SET_SOCK, sv[0]) < 0)
-		return 1;
-	if (ioctl(fd, NBD_DO_IT) < 0)
-		return 1;
-	return 0;
-}
+ 1) The group threads will hang in the blk-wbt code with bios waiting to
+    be submitted to the block layer:
 
-When signal interrupt nbd_start_device_ioctl() waiting the condition
-atomic_read(&config->recv_threads) == 0, the task can hung because it
-waits the completion of the inflight IOs.
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        ops_run_io+0x46b/0x1a30
+        handle_stripe+0xcd3/0x36b0
+        handle_active_stripes.constprop.0+0x6f6/0xa60
+        raid5_do_work+0x177/0x330
 
-This patch fixes the issue by clearing queue, not just shutdown, when
-signal interrupt nbd_start_device_ioctl().
+    Or:
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        flush_deferred_bios+0x136/0x170
+        raid5_do_work+0x262/0x330
 
-Link: https://syzkaller.appspot.com/bug?id=7d89a3ffacd2b83fdd39549bc4d8e0a89ef21239 [1]
-Reported-by: syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com
-Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220907163502.577561-1-syoshida@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+ 2) The r5l_reclaim thread will hang in the same way, submitting a
+    bio to the block layer:
+
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        submit_bio+0x3f/0xf0
+        md_super_write+0x12f/0x1b0
+        md_update_sb.part.0+0x7c6/0xff0
+        md_update_sb+0x30/0x60
+        r5l_do_reclaim+0x4f9/0x5e0
+        r5l_reclaim_thread+0x69/0x30b
+
+    However, before hanging, the MD_SB_CHANGE_PENDING flag will be
+    set for sb_flags in r5l_write_super_and_discard_space(). This
+    flag will never be cleared because the submit_bio() call never
+    returns.
+
+ 3) Due to the MD_SB_CHANGE_PENDING flag being set, handle_stripe()
+    will do no processing on any pending stripes and re-set
+    STRIPE_HANDLE. This will cause the raid5d thread to enter an
+    infinite loop, constantly trying to handle the same stripes
+    stuck in the queue.
+
+    The raid5d thread has a blk_plug that holds a number of bios
+    that are also stuck waiting seeing the thread is in a loop
+    that never schedules. These bios have been accounted for by
+    blk-wbt thus preventing the other threads above from
+    continuing when they try to submit bios. --Deadlock.
+
+To fix this, add the same wait_event() that is used in raid5_do_work()
+to raid5d() such that if MD_SB_CHANGE_PENDING is set, the thread will
+schedule and wait until the flag is cleared. The schedule action will
+flush the plug which will allow the r5l_reclaim thread to continue,
+thus preventing the deadlock.
+
+However, md_check_recovery() calls can also clear MD_SB_CHANGE_PENDING
+from the same thread and can thus deadlock if the thread is put to
+sleep. So avoid waiting if md_check_recovery() is being called in the
+loop.
+
+It's not clear when the deadlock was introduced, but the similar
+wait_event() call in raid5_do_work() was added in 2017 by this
+commit:
+
+    16d997b78b15 ("md/raid5: simplfy delaying of writes while metadata
+                   is updated.")
+
+Link: https://lore.kernel.org/r/7f3b87b6-b52a-f737-51d7-a4eec5c44112@deltatee.com
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/md/raid5.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 338d02a67afb..f01b8860ba14 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1258,10 +1258,12 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
- 	mutex_unlock(&nbd->config_lock);
- 	ret = wait_event_interruptible(config->recv_wq,
- 					 atomic_read(&config->recv_threads) == 0);
--	if (ret)
-+	if (ret) {
- 		sock_shutdown(nbd);
--	flush_workqueue(nbd->recv_workq);
-+		nbd_clear_que(nbd);
-+	}
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 78b48dca3fda..dc053a43a3dc 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -44,6 +44,7 @@
+  */
  
-+	flush_workqueue(nbd->recv_workq);
- 	mutex_lock(&nbd->config_lock);
- 	bd_set_size(bdev, 0);
- 	/* user requested, ignore socket errors */
+ #include <linux/blkdev.h>
++#include <linux/delay.h>
+ #include <linux/kthread.h>
+ #include <linux/raid/pq.h>
+ #include <linux/async_tx.h>
+@@ -6308,7 +6309,18 @@ static void raid5d(struct md_thread *thread)
+ 			spin_unlock_irq(&conf->device_lock);
+ 			md_check_recovery(mddev);
+ 			spin_lock_irq(&conf->device_lock);
++
++			/*
++			 * Waiting on MD_SB_CHANGE_PENDING below may deadlock
++			 * seeing md_check_recovery() is needed to clear
++			 * the flag when using mdmon.
++			 */
++			continue;
+ 		}
++
++		wait_event_lock_irq(mddev->sb_wait,
++			!test_bit(MD_SB_CHANGE_PENDING, &mddev->sb_flags),
++			conf->device_lock);
+ 	}
+ 	pr_debug("%d stripes handled\n", handled);
+ 
 -- 
 2.35.1
 
