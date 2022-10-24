@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B5A760A39B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E4B360A270
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232271AbiJXL6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:58:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57572 "EHLO
+        id S231418AbiJXLn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:43:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232300AbiJXL4p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:56:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CF467B59B;
-        Mon, 24 Oct 2022 04:47:09 -0700 (PDT)
+        with ESMTP id S231419AbiJXLnM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:43:12 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9728D481E4;
+        Mon, 24 Oct 2022 04:40:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99D63612C4;
-        Mon, 24 Oct 2022 11:47:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC842C433C1;
-        Mon, 24 Oct 2022 11:47:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E26DACE1316;
+        Mon, 24 Oct 2022 11:39:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8541C433D6;
+        Mon, 24 Oct 2022 11:38:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612025;
-        bh=8QijUqrZkNGn8CSBqyXrNCQH2/o5uhewWiu4+YkLQb0=;
+        s=korg; t=1666611540;
+        bh=2wJzM/OpT+moIcK13Z8XJcyYyeF+rkw2CkY7TGKvMG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JeCo3H+P5Lx2YeYhtWWAoWoJuFzPzYZm6mtCaOZ892KI8kSxXmfiHLxhE58ajW/6s
-         vQKnidtF1TgvCFoTbh5q0RB6iaOTh1o6xTmvoZ1iHEc39548KgDuAUDXaN9Tnrzuxw
-         sfTiX4EPUhydHml+nk1lGzUUMhQ+T5gXc3znyFwQ=
+        b=tMC+rg2rpUtig8/KWYN6KytYmwXQ42EsJVecrk4aI7epXH4eh4DXPFm71PETqF8BZ
+         SxxO6YzfdbntjGTSq8qjoXkv74Cv4hux5O8wFZSHsHk6Ye/5PfAcxQT0pzg+F8pgFC
+         8m0jFanwdXQizg4ZrRL0qquEbO1rOSh84m4U2Y2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        hdthky <hdthky0@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 042/210] scsi: stex: Properly zero out the passthrough command structure
+        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.9 005/159] ntfs: fix BUG_ON in ntfs_lookup_inode_by_name()
 Date:   Mon, 24 Oct 2022 13:29:19 +0200
-Message-Id: <20221024112958.359182596@linuxfoundation.org>
+Message-Id: <20221024112949.566093029@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,68 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: ChenXiaoSong <chenxiaosong2@huawei.com>
 
-commit 6022f210461fef67e6e676fd8544ca02d1bcfa7a upstream.
+commit 1b513f613731e2afc05550e8070d79fac80c661e upstream.
 
-The passthrough structure is declared off of the stack, so it needs to be
-set to zero before copied back to userspace to prevent any unintentional
-data leakage.  Switch things to be statically allocated which will fill the
-unused fields with 0 automatically.
+Syzkaller reported BUG_ON as follows:
 
-Link: https://lore.kernel.org/r/YxrjN3OOw2HHl9tx@kroah.com
-Cc: stable@kernel.org
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Reported-by: hdthky <hdthky0@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+------------[ cut here ]------------
+kernel BUG at fs/ntfs/dir.c:86!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
+CPU: 3 PID: 758 Comm: a.out Not tainted 5.19.0-next-20220808 #5
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+RIP: 0010:ntfs_lookup_inode_by_name+0xd11/0x2d10
+Code: ff e9 b9 01 00 00 e8 1e fe d6 fe 48 8b 7d 98 49 8d 5d 07 e8 91 85 29 ff 48 c7 45 98 00 00 00 00 e9 5a fb ff ff e8 ff fd d6 fe <0f> 0b e8 f8 fd d6 fe 0f 0b e8 f1 fd d6 fe 48 8b b5 50 ff ff ff 4c
+RSP: 0018:ffff888079607978 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 0000000000008000 RCX: 0000000000000000
+RDX: ffff88807cf10000 RSI: ffffffff82a4a081 RDI: 0000000000000003
+RBP: ffff888079607a70 R08: 0000000000000001 R09: ffff88807a6d01d7
+R10: ffffed100f4da03a R11: 0000000000000000 R12: ffff88800f0fb110
+R13: ffff88800f0ee000 R14: ffff88800f0fb000 R15: 0000000000000001
+FS:  00007f33b63c7540(0000) GS:ffff888108580000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f33b635c090 CR3: 000000000f39e005 CR4: 0000000000770ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ load_system_files+0x1f7f/0x3620
+ ntfs_fill_super+0xa01/0x1be0
+ mount_bdev+0x36a/0x440
+ ntfs_mount+0x3a/0x50
+ legacy_get_tree+0xfb/0x210
+ vfs_get_tree+0x8f/0x2f0
+ do_new_mount+0x30a/0x760
+ path_mount+0x4de/0x1880
+ __x64_sys_mount+0x2b3/0x340
+ do_syscall_64+0x38/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f33b62ff9ea
+Code: 48 8b 0d a9 f4 0b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 f4 0b 00 f7 d8 64 89 01 48
+RSP: 002b:00007ffd0c471aa8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f33b62ff9ea
+RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffd0c471be0
+RBP: 00007ffd0c471c60 R08: 00007ffd0c471ae0 R09: 00007ffd0c471c24
+R10: 0000000000000000 R11: 0000000000000202 R12: 000055bac5afc160
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
+
+Fix this by adding sanity check on extended system files' directory inode
+to ensure that it is directory, just like ntfs_extend_init() when mounting
+ntfs3.
+
+Link: https://lkml.kernel.org/r/20220809064730.2316892-1-chenxiaosong2@huawei.com
+Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Cc: Anton Altaparmakov <anton@tuxera.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/stex.c      |   17 +++++++++--------
- include/scsi/scsi_cmnd.h |    2 +-
- 2 files changed, 10 insertions(+), 9 deletions(-)
+ fs/ntfs/super.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/stex.c
-+++ b/drivers/scsi/stex.c
-@@ -673,16 +673,17 @@ stex_queuecommand_lck(struct scsi_cmnd *
- 		return 0;
- 	case PASSTHRU_CMD:
- 		if (cmd->cmnd[1] == PASSTHRU_GET_DRVVER) {
--			struct st_drvver ver;
-+			const struct st_drvver ver = {
-+				.major = ST_VER_MAJOR,
-+				.minor = ST_VER_MINOR,
-+				.oem = ST_OEM,
-+				.build = ST_BUILD_VER,
-+				.signature[0] = PASSTHRU_SIGNATURE,
-+				.console_id = host->max_id - 1,
-+				.host_no = hba->host->host_no,
-+			};
- 			size_t cp_len = sizeof(ver);
- 
--			ver.major = ST_VER_MAJOR;
--			ver.minor = ST_VER_MINOR;
--			ver.oem = ST_OEM;
--			ver.build = ST_BUILD_VER;
--			ver.signature[0] = PASSTHRU_SIGNATURE;
--			ver.console_id = host->max_id - 1;
--			ver.host_no = hba->host->host_no;
- 			cp_len = scsi_sg_copy_from_buffer(cmd, &ver, cp_len);
- 			cmd->result = sizeof(ver) == cp_len ?
- 				DID_OK << 16 | COMMAND_COMPLETE << 8 :
---- a/include/scsi/scsi_cmnd.h
-+++ b/include/scsi/scsi_cmnd.h
-@@ -225,7 +225,7 @@ static inline struct scsi_data_buffer *s
- }
- 
- static inline int scsi_sg_copy_from_buffer(struct scsi_cmnd *cmd,
--					   void *buf, int buflen)
-+					   const void *buf, int buflen)
- {
- 	return sg_copy_from_buffer(scsi_sglist(cmd), scsi_sg_count(cmd),
- 				   buf, buflen);
+--- a/fs/ntfs/super.c
++++ b/fs/ntfs/super.c
+@@ -2108,7 +2108,8 @@ get_ctx_vol_failed:
+ 	// TODO: Initialize security.
+ 	/* Get the extended system files' directory inode. */
+ 	vol->extend_ino = ntfs_iget(sb, FILE_Extend);
+-	if (IS_ERR(vol->extend_ino) || is_bad_inode(vol->extend_ino)) {
++	if (IS_ERR(vol->extend_ino) || is_bad_inode(vol->extend_ino) ||
++	    !S_ISDIR(vol->extend_ino->i_mode)) {
+ 		if (!IS_ERR(vol->extend_ino))
+ 			iput(vol->extend_ino);
+ 		ntfs_error(sb, "Failed to load $Extend.");
 
 
