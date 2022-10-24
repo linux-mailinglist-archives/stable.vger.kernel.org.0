@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ABF660A1A9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:32:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C443260A341
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:53:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229535AbiJXLcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:32:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56764 "EHLO
+        id S232088AbiJXLxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:53:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230272AbiJXLb5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:31:57 -0400
+        with ESMTP id S231983AbiJXLwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:52:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F88955C58;
-        Mon, 24 Oct 2022 04:31:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17DBE317FF;
+        Mon, 24 Oct 2022 04:44:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BB6C6125D;
-        Mon, 24 Oct 2022 11:31:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F441C433C1;
-        Mon, 24 Oct 2022 11:31:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9533D61254;
+        Mon, 24 Oct 2022 11:44:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8801C433D7;
+        Mon, 24 Oct 2022 11:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611110;
-        bh=pA708DfDAlUs9/8gMiAzDR60U/q1IY8dcr1tgyu+yFQ=;
+        s=korg; t=1666611894;
+        bh=oyLbuAvGHpzGiRHM5PDQER02O7OkAB/aDBnlGorzYC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBBJJXLxWGB5ZKRU7hJnDalV/cSFwKv/BvSh361z4uoYcDV2ORhZl81wlprhK6jHv
-         rTnZNPZF7Z59sis5ZJBLgrl5gkXR5/mj8sXhXLZyxJ34s9nxE9V4x/vkB84jXP1Dk3
-         WnfUqc9KxzzPyj78JHOQtSdhQY7sV/0LcpSmqyis=
+        b=jZeVMXD8XRxbi/RBUKpplb+0/fo89KLU060cu/45Ly77tNLyLdo00oB55ZNs2kyou
+         yOflB4flZSBBGNvcGf0Dsybk3m20zHT3b1VgKZiIm1PYKfluK+pGyOkhzU7gY18ug4
+         Ny7M2WyUPDKwD+vc+pvKKNyPorajuee+ZvMYYYEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Huang <tim.huang@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 13/20] drm/amd/pm: update SMU IP v13.0.4 driver interface version
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 121/159] iommu/omap: Fix buffer overflow in debugfs
 Date:   Mon, 24 Oct 2022 13:31:15 +0200
-Message-Id: <20221024112934.963501610@linuxfoundation.org>
+Message-Id: <20221024112953.918265596@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112934.415391158@linuxfoundation.org>
-References: <20221024112934.415391158@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Huang <tim.huang@amd.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 853fdb49160e9c30674fd8e4a2eabc06bf70b13a upstream.
+[ Upstream commit 184233a5202786b20220acd2d04ddf909ef18f29 ]
 
-Update the SMU driver interface version to V7.
+There are two issues here:
 
-Signed-off-by: Tim Huang <tim.huang@amd.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.0.x
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+1) The "len" variable needs to be checked before the very first write.
+   Otherwise if omap2_iommu_dump_ctx() with "bytes" less than 32 it is a
+   buffer overflow.
+2) The snprintf() function returns the number of bytes that *would* have
+   been copied if there were enough space.  But we want to know the
+   number of bytes which were *actually* copied so use scnprintf()
+   instead.
+
+Fixes: bd4396f09a4a ("iommu/omap: Consolidate OMAP IOMMU modules")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/YuvYh1JbE3v+abd5@kili
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h |   17 ++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/iommu/omap-iommu-debug.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h
-+++ b/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h
-@@ -27,7 +27,7 @@
- // *** IMPORTANT ***
- // SMU TEAM: Always increment the interface version if
- // any structure is changed in this file
--#define PMFW_DRIVER_IF_VERSION 5
-+#define PMFW_DRIVER_IF_VERSION 7
+diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
+index cec33e90e399..a15c4d99b888 100644
+--- a/drivers/iommu/omap-iommu-debug.c
++++ b/drivers/iommu/omap-iommu-debug.c
+@@ -35,12 +35,12 @@ static inline bool is_omap_iommu_detached(struct omap_iommu *obj)
+ 		ssize_t bytes;						\
+ 		const char *str = "%20s: %08x\n";			\
+ 		const int maxcol = 32;					\
+-		bytes = snprintf(p, maxcol, str, __stringify(name),	\
++		if (len < maxcol)					\
++			goto out;					\
++		bytes = scnprintf(p, maxcol, str, __stringify(name),	\
+ 				 iommu_read_reg(obj, MMU_##name));	\
+ 		p += bytes;						\
+ 		len -= bytes;						\
+-		if (len < maxcol)					\
+-			goto out;					\
+ 	} while (0)
  
- typedef struct {
-   int32_t value;
-@@ -163,8 +163,8 @@ typedef struct {
-   uint16_t DclkFrequency;               //[MHz]
-   uint16_t MemclkFrequency;             //[MHz]
-   uint16_t spare;                       //[centi]
--  uint16_t UvdActivity;                 //[centi]
-   uint16_t GfxActivity;                 //[centi]
-+  uint16_t UvdActivity;                 //[centi]
- 
-   uint16_t Voltage[2];                  //[mV] indices: VDDCR_VDD, VDDCR_SOC
-   uint16_t Current[2];                  //[mA] indices: VDDCR_VDD, VDDCR_SOC
-@@ -199,6 +199,19 @@ typedef struct {
-   uint16_t DeviceState;
-   uint16_t CurTemp;                     //[centi-Celsius]
-   uint16_t spare2;
-+
-+  uint16_t AverageGfxclkFrequency;
-+  uint16_t AverageFclkFrequency;
-+  uint16_t AverageGfxActivity;
-+  uint16_t AverageSocclkFrequency;
-+  uint16_t AverageVclkFrequency;
-+  uint16_t AverageVcnActivity;
-+  uint16_t AverageDRAMReads;          //Filtered DF Bandwidth::DRAM Reads
-+  uint16_t AverageDRAMWrites;         //Filtered DF Bandwidth::DRAM Writes
-+  uint16_t AverageSocketPower;        //Filtered value of CurrentSocketPower
-+  uint16_t AverageCorePower;          //Filtered of [sum of CorePower[8]])
-+  uint16_t AverageCoreC0Residency[8]; //Filtered of [average C0 residency %  per core]
-+  uint32_t MetricsCounter;            //Counts the # of metrics table parameter reads per update to the metrics table, i.e. if the metrics table update happens every 1 second, this value could be up to 1000 if the smu collected metrics data every cycle, or as low as 0 if the smu was asleep the whole time. Reset to 0 after writing.
- } SmuMetrics_t;
- 
- typedef struct {
+ static ssize_t
+-- 
+2.35.1
+
 
 
