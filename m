@@ -2,50 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2AB60A2F5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:49:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA4D860A1A0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:31:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231732AbiJXLtx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:49:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32880 "EHLO
+        id S229851AbiJXLbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:31:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231889AbiJXLtK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:49:10 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B7DB4AD70;
-        Mon, 24 Oct 2022 04:43:45 -0700 (PDT)
+        with ESMTP id S229535AbiJXLbm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:31:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67B4F54C92;
+        Mon, 24 Oct 2022 04:31:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 90EFDCE134D;
-        Mon, 24 Oct 2022 11:43:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F414C433D6;
-        Mon, 24 Oct 2022 11:43:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04B246124A;
+        Mon, 24 Oct 2022 11:31:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F06BC433D6;
+        Mon, 24 Oct 2022 11:31:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611783;
-        bh=oKN9viX4e06D0KhEWdRPQUYrtQaktvqyp40hiQNA+ZU=;
+        s=korg; t=1666611100;
+        bh=qmEFW0fJBE9f21+UkGHuAk8h4xaJA2B7CXNSIEtfcvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xw1EX1wOHZIB5Vf+6ViBi2BVT9Qotp/US00NdivGDvg8/+G+8Fs9zImBH7UdzKKaL
-         2+jYF90MwiicqLEQLy2frsHw4FMXGps7XU6w7BuGWB02sbYzJ17t8lH7UDxmHW2QjU
-         1xvVfuEsb8vPiR+FRvAU/un9WL9R8eLWwq4X0muY=
+        b=k/hluu41OjvGP+FqpSy3ekcPoikY+LW046p0xffxpFkaMVRC44sR46OVQKRyqAFdn
+         F6sSC4Z9EMKDhzzCpQF5WMoY+MwvHAbtPG2ZM9prJZlHl4CbMdNQ/dsrBXicgllDCv
+         epwvi0kCOeNCH85xskKouw42e8Ptb+wb8m03FbaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        David Gow <davidgow@google.com>,
-        Julius Werner <jwerner@chromium.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Evan Green <evgreen@chromium.org>,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 109/159] firmware: google: Test spinlock on panic path to avoid lockups
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 6.0 01/20] drm/i915/bios: Validate fp_timing terminator presence
 Date:   Mon, 24 Oct 2022 13:31:03 +0200
-Message-Id: <20221024112953.430987428@linuxfoundation.org>
+Message-Id: <20221024112934.482437706@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024112934.415391158@linuxfoundation.org>
+References: <20221024112934.415391158@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,59 +56,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guilherme G. Piccoli <gpiccoli@igalia.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 3e081438b8e639cc76ef1a5ce0c1bd8a154082c7 ]
+commit 4e78d6023c15c6acce8fbe42e13027c460395522 upstream.
 
-Currently the gsmi driver registers a panic notifier as well as
-reboot and die notifiers. The callbacks registered are called in
-atomic and very limited context - for instance, panic disables
-preemption and local IRQs, also all secondary CPUs (not executing
-the panic path) are shutdown.
+Validate the LFP data block a bit hardwer by making sure the
+fp_timing terminators (0xffff) are where we expect them to be.
 
-With that said, taking a spinlock in this scenario is a dangerous
-invitation for lockup scenarios. So, fix that by checking if the
-spinlock is free to acquire in the panic notifier callback - if not,
-bail-out and avoid a potential hang.
-
-Fixes: 74c5b31c6618 ("driver: Google EFI SMI")
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: David Gow <davidgow@google.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Julius Werner <jwerner@chromium.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Reviewed-by: Evan Green <evgreen@chromium.org>
-Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-Link: https://lore.kernel.org/r/20220909200755.189679-1-gpiccoli@igalia.com
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220818192223.29881-2-ville.syrjala@linux.intel.com
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/google/gsmi.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/i915/display/intel_bios.c |   60 ++++++++++++++++--------------
+ 1 file changed, 32 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/firmware/google/gsmi.c b/drivers/firmware/google/gsmi.c
-index 98cdfc2ee0df..6fd5f6776735 100644
---- a/drivers/firmware/google/gsmi.c
-+++ b/drivers/firmware/google/gsmi.c
-@@ -661,6 +661,15 @@ static struct notifier_block gsmi_die_notifier = {
- static int gsmi_panic_callback(struct notifier_block *nb,
- 			       unsigned long reason, void *arg)
- {
-+
-+	/*
-+	 * Panic callbacks are executed with all other CPUs stopped,
-+	 * so we must not attempt to spin waiting for gsmi_dev.lock
-+	 * to be released.
-+	 */
-+	if (spin_is_locked(&gsmi_dev.lock))
-+		return NOTIFY_DONE;
-+
- 	gsmi_shutdown_reason(GSMI_SHUTDOWN_PANIC);
- 	return NOTIFY_DONE;
+--- a/drivers/gpu/drm/i915/display/intel_bios.c
++++ b/drivers/gpu/drm/i915/display/intel_bios.c
+@@ -135,18 +135,6 @@ static u32 raw_block_offset(const void *
+ 	return block - bdb;
  }
--- 
-2.35.1
-
+ 
+-/* size of the block excluding the header */
+-static u32 raw_block_size(const void *bdb, enum bdb_block_id section_id)
+-{
+-	const void *block;
+-
+-	block = find_raw_section(bdb, section_id);
+-	if (!block)
+-		return 0;
+-
+-	return get_blocksize(block);
+-}
+-
+ struct bdb_block_entry {
+ 	struct list_head node;
+ 	enum bdb_block_id section_id;
+@@ -231,9 +219,14 @@ static bool validate_lfp_data_ptrs(const
+ {
+ 	int fp_timing_size, dvo_timing_size, panel_pnp_id_size, panel_name_size;
+ 	int data_block_size, lfp_data_size;
++	const void *data_block;
+ 	int i;
+ 
+-	data_block_size = raw_block_size(bdb, BDB_LVDS_LFP_DATA);
++	data_block = find_raw_section(bdb, BDB_LVDS_LFP_DATA);
++	if (!data_block)
++		return false;
++
++	data_block_size = get_blocksize(data_block);
+ 	if (data_block_size == 0)
+ 		return false;
+ 
+@@ -261,21 +254,6 @@ static bool validate_lfp_data_ptrs(const
+ 	if (16 * lfp_data_size > data_block_size)
+ 		return false;
+ 
+-	/*
+-	 * Except for vlv/chv machines all real VBTs seem to have 6
+-	 * unaccounted bytes in the fp_timing table. And it doesn't
+-	 * appear to be a really intentional hole as the fp_timing
+-	 * 0xffff terminator is always within those 6 missing bytes.
+-	 */
+-	if (fp_timing_size + dvo_timing_size + panel_pnp_id_size != lfp_data_size &&
+-	    fp_timing_size + 6 + dvo_timing_size + panel_pnp_id_size != lfp_data_size)
+-		return false;
+-
+-	if (ptrs->ptr[0].fp_timing.offset + fp_timing_size > ptrs->ptr[0].dvo_timing.offset ||
+-	    ptrs->ptr[0].dvo_timing.offset + dvo_timing_size != ptrs->ptr[0].panel_pnp_id.offset ||
+-	    ptrs->ptr[0].panel_pnp_id.offset + panel_pnp_id_size != lfp_data_size)
+-		return false;
+-
+ 	/* make sure the table entries have uniform size */
+ 	for (i = 1; i < 16; i++) {
+ 		if (ptrs->ptr[i].fp_timing.table_size != fp_timing_size ||
+@@ -289,6 +267,23 @@ static bool validate_lfp_data_ptrs(const
+ 			return false;
+ 	}
+ 
++	/*
++	 * Except for vlv/chv machines all real VBTs seem to have 6
++	 * unaccounted bytes in the fp_timing table. And it doesn't
++	 * appear to be a really intentional hole as the fp_timing
++	 * 0xffff terminator is always within those 6 missing bytes.
++	 */
++	if (fp_timing_size + 6 + dvo_timing_size + panel_pnp_id_size == lfp_data_size)
++		fp_timing_size += 6;
++
++	if (fp_timing_size + dvo_timing_size + panel_pnp_id_size != lfp_data_size)
++		return false;
++
++	if (ptrs->ptr[0].fp_timing.offset + fp_timing_size != ptrs->ptr[0].dvo_timing.offset ||
++	    ptrs->ptr[0].dvo_timing.offset + dvo_timing_size != ptrs->ptr[0].panel_pnp_id.offset ||
++	    ptrs->ptr[0].panel_pnp_id.offset + panel_pnp_id_size != lfp_data_size)
++		return false;
++
+ 	/* make sure the tables fit inside the data block */
+ 	for (i = 0; i < 16; i++) {
+ 		if (ptrs->ptr[i].fp_timing.offset + fp_timing_size > data_block_size ||
+@@ -300,6 +295,15 @@ static bool validate_lfp_data_ptrs(const
+ 	if (ptrs->panel_name.offset + 16 * panel_name_size > data_block_size)
+ 		return false;
+ 
++	/* make sure fp_timing terminators are present at expected locations */
++	for (i = 0; i < 16; i++) {
++		const u16 *t = data_block + ptrs->ptr[i].fp_timing.offset +
++			fp_timing_size - 2;
++
++		if (*t != 0xffff)
++			return false;
++	}
++
+ 	return true;
+ }
+ 
 
 
