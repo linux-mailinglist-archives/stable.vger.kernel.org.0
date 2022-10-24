@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93FBF60A410
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D650960A56F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:25:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232268AbiJXMFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:05:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46864 "EHLO
+        id S233339AbiJXMYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:24:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232608AbiJXMDz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:03:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5684D2F649;
-        Mon, 24 Oct 2022 04:49:54 -0700 (PDT)
+        with ESMTP id S233786AbiJXMYS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:24:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A2F85FA8;
+        Mon, 24 Oct 2022 05:00:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 23B20B811A6;
-        Mon, 24 Oct 2022 11:48:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E5DBC433C1;
-        Mon, 24 Oct 2022 11:48:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A048B811E6;
+        Mon, 24 Oct 2022 11:56:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B084C433B5;
+        Mon, 24 Oct 2022 11:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612101;
-        bh=TMvR2MeejFZ+Q3PY0N79YCpGWHa+6Q5n9P36TzDFrTQ=;
+        s=korg; t=1666612571;
+        bh=MPx8MYZaOpRhJircYdIbMtxUIK98qNQOL2IsJCYo8Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m7OQka/bJGqW3Kqewqd8J/NvhTu2hASYZbIh+s7auPwHwxNMV88Asn4VUoSR9JKtH
-         fCurSwy6tY72lQk0IcahVrRsz+PI7xyJLiR0NOwNfMPc7KyvkxSmfSmPObE4DAku7u
-         YINyr4mO+7K4d+KhPPtbwNmsDRo8rwyvZxBsN8zA=
+        b=sz6U8loaYMgwSKHqpZ71LGpQcWIP+nMdiOXq1Oh7amVNN/XtX8Smpx3c/dXlB/TIk
+         8MfxGBMxfnm241msD4iiE9w54yPoG6UNCZ8ptDjDS6DZwP6BO8HlmynWa1NzHUJVpo
+         EoPLInAtPDH1Ki4yxmR+YD62Eh0iJu8MOsciyb60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hu Weiwen <sehuww@mail.scut.edu.cn>,
-        Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 4.14 039/210] ceph: dont truncate file in atomic_open
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Alexander Dahl <ada@thorsis.com>,
+        Peter Rosin <peda@axentia.se>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.19 037/229] mtd: rawnand: atmel: Unmap streaming DMA mappings
 Date:   Mon, 24 Oct 2022 13:29:16 +0200
-Message-Id: <20221024112958.258391812@linuxfoundation.org>
+Message-Id: <20221024113000.304537542@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,52 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hu Weiwen <sehuww@mail.scut.edu.cn>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-commit 7cb9994754f8a36ae9e5ec4597c5c4c2d6c03832 upstream.
+commit 1161703c9bd664da5e3b2eb1a3bb40c210e026ea upstream.
 
-Clear O_TRUNC from the flags sent in the MDS create request.
+Every dma_map_single() call should have its dma_unmap_single() counterpart,
+because the DMA address space is a shared resource and one could render the
+machine unusable by consuming all DMA addresses.
 
-`atomic_open' is called before permission check. We should not do any
-modification to the file here. The caller will do the truncation
-afterward.
-
-Fixes: 124e68e74099 ("ceph: file operations")
-Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
-Reviewed-by: Xiubo Li <xiubli@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-[Xiubo: fixed a trivial conflict for 5.10 backport]
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
+Cc: stable@vger.kernel.org
+Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Acked-by: Alexander Dahl <ada@thorsis.com>
+Reported-by: Peter Rosin <peda@axentia.se>
+Tested-by: Alexander Dahl <ada@thorsis.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Tested-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220728074014.145406-1-tudor.ambarus@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/file.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/mtd/nand/raw/atmel/nand-controller.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -381,6 +381,12 @@ int ceph_atomic_open(struct inode *dir,
- 	if (dentry->d_name.len > NAME_MAX)
- 		return -ENAMETOOLONG;
+--- a/drivers/mtd/nand/raw/atmel/nand-controller.c
++++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
+@@ -398,6 +398,7 @@ static int atmel_nand_dma_transfer(struc
  
-+	/*
-+	 * Do not truncate the file, since atomic_open is called before the
-+	 * permission check. The caller will do the truncation afterward.
-+	 */
-+	flags &= ~O_TRUNC;
-+
- 	if (flags & O_CREAT) {
- 		err = ceph_pre_init_acls(dir, &mode, &acls);
- 		if (err < 0)
-@@ -411,9 +417,7 @@ int ceph_atomic_open(struct inode *dir,
+ 	dma_async_issue_pending(nc->dmac);
+ 	wait_for_completion(&finished);
++	dma_unmap_single(nc->dev, buf_dma, len, dir);
  
- 	req->r_parent = dir;
- 	set_bit(CEPH_MDS_R_PARENT_LOCKED, &req->r_req_flags);
--	err = ceph_mdsc_do_request(mdsc,
--				   (flags & (O_CREAT|O_TRUNC)) ? dir : NULL,
--				   req);
-+	err = ceph_mdsc_do_request(mdsc, (flags & O_CREAT) ? dir : NULL, req);
- 	err = ceph_handle_snapdir(req, dentry, err);
- 	if (err)
- 		goto out_req;
+ 	return 0;
+ 
 
 
