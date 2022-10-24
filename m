@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F2560A53B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:22:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDE1A60A8BE
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233135AbiJXMWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:22:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40992 "EHLO
+        id S235509AbiJXNKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:10:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233233AbiJXMUS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:20:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D6847B7A8;
-        Mon, 24 Oct 2022 04:58:58 -0700 (PDT)
+        with ESMTP id S235545AbiJXNI6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:08:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A169E6AD;
+        Mon, 24 Oct 2022 05:22:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A678AB811D3;
-        Mon, 24 Oct 2022 11:55:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3FCEC433C1;
-        Mon, 24 Oct 2022 11:55:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77F1D612A1;
+        Mon, 24 Oct 2022 12:21:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86A7AC433C1;
+        Mon, 24 Oct 2022 12:21:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612510;
-        bh=XGcTzqv5yDKn4JVe+5V7/VB4DHTX2abKHi6H8xwzecI=;
+        s=korg; t=1666614113;
+        bh=FDJj57zct8g34Bx1kgQb5O2g5HvH0eUpe2PeLXP760g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xV11g1IHhIT3I5AamcPDLg5evsH9lduKAlG8vpHTbsJ+EvtGeCwRnb82ThXt9eBsD
-         vGK22+cr1IJLfRZCYqzcPMcksIoe1DselgbSx9ELV9mJVxDjmuAFc9IRgVqnQRAKob
-         k/1Z6vZvqWCCD3hAUei7NFWOXp/eY2gBMcpKME18=
+        b=D1XK1AxqWAL/74Y6kh44AOcAJMUHx0BT5WXJnC6fMASzkWEuqRIXTpK+Y/CTcDHuF
+         8WOBmhMME7pnstJIvBsWSKlPhP6eebjtV8g6BALZXiQY1iwcGkKKb4tL8Z7Y3A2yLS
+         B7k28MyY7YceLpwkYc3GIAe68K11mZKI9rmxDfV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ChanWoo Lee <cw9316.lee@samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Brian Norris <briannorris@chromium.org>
-Subject: [PATCH 4.19 015/229] mmc: core: Replace with already defined values for readability
+        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 137/390] bnx2x: fix potential memory leak in bnx2x_tpa_stop()
 Date:   Mon, 24 Oct 2022 13:28:54 +0200
-Message-Id: <20221024112959.634831426@linuxfoundation.org>
+Message-Id: <20221024113028.509395386@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChanWoo Lee <cw9316.lee@samsung.com>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-commit e427266460826bea21b70f9b2bb29decfb2c2620 upstream.
+[ Upstream commit b43f9acbb8942b05252be83ac25a81cec70cc192 ]
 
-SD_ROCR_S18A is already defined and is used to check the rocr value, so
-let's replace with already defined values for readability.
+bnx2x_tpa_stop() allocates a memory chunk from new_data with
+bnx2x_frag_alloc(). The new_data should be freed when gets some error.
+But when "pad + len > fp->rx_buf_size" is true, bnx2x_tpa_stop() returns
+without releasing the new_data, which will lead to a memory leak.
 
-Signed-off-by: ChanWoo Lee <cw9316.lee@samsung.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220706004840.24812-1-cw9316.lee@samsung.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We should free the new_data with bnx2x_frag_free() when "pad + len >
+fp->rx_buf_size" is true.
+
+Fixes: 07b0f00964def8af9321cfd6c4a7e84f6362f728 ("bnx2x: fix possible panic under memory stress")
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -787,7 +787,7 @@ try_again:
- 	 * the CCS bit is set as well. We deliberately deviate from the spec in
- 	 * regards to this, which allows UHS-I to be supported for SDSC cards.
- 	 */
--	if (!mmc_host_is_spi(host) && rocr && (*rocr & 0x01000000)) {
-+	if (!mmc_host_is_spi(host) && rocr && (*rocr & SD_ROCR_S18A)) {
- 		err = mmc_set_uhs_voltage(host, pocr);
- 		if (err == -EAGAIN) {
- 			retries--;
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+index 198e041d8410..4f669e7c7558 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
+@@ -788,6 +788,7 @@ static void bnx2x_tpa_stop(struct bnx2x *bp, struct bnx2x_fastpath *fp,
+ 			BNX2X_ERR("skb_put is about to fail...  pad %d  len %d  rx_buf_size %d\n",
+ 				  pad, len, fp->rx_buf_size);
+ 			bnx2x_panic();
++			bnx2x_frag_free(fp, new_data);
+ 			return;
+ 		}
+ #endif
+-- 
+2.35.1
+
 
 
