@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F5D60B2C3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:51:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E8A860B467
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:42:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235188AbiJXQvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:51:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34412 "EHLO
+        id S233977AbiJXRmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 13:42:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235436AbiJXQtf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB7DFB62;
-        Mon, 24 Oct 2022 08:32:53 -0700 (PDT)
+        with ESMTP id S232386AbiJXRmD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:42:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A7EB15730;
+        Mon, 24 Oct 2022 09:16:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6EE22B818B2;
-        Mon, 24 Oct 2022 12:53:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EF3AC433D7;
-        Mon, 24 Oct 2022 12:53:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3024661342;
+        Mon, 24 Oct 2022 12:53:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42CB7C433B5;
+        Mon, 24 Oct 2022 12:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616022;
-        bh=BZEIFEUmeeXSxmDXckwWq4R0JJOlPtiqcyBKnTZUr8w=;
+        s=korg; t=1666616027;
+        bh=rF0Z1n8ZahFsnQetr8NOszhwHON8zApjpn+DDXx+PWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AZ86wXSXzbkvLWd2tKnvEILTy/Vt+aBkZhJsO3uIrku232Uez0N+AFhVaEpc19YUs
-         0nn/Fz0Oo5cTmBb4OAEA3gQ94f3T6FJU6fg7Gf6Wpd7Y2G6UlDKQpXu/98O4MqG3eM
-         fDHVoUjDOkqWkQeIA3ReF9HbxL6l+X2e1FmiVBCA=
+        b=l5DoLStjH5KMoK48kF5G7DsG8Ud1nFUVF5kCt2qbjHns3gy2GVo/yTuiQ7snh/1y8
+         xouShGVKkf2D5hlPKi+abWLL81qbhK2b+cD2VkPNBdq760ACw0l4F4Io0/Em1ziPgL
+         qaizo1BQ6qn0Xi4r6Nh2Wq9sRwY+ZB+9vqSS/FHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 472/530] btrfs: dump extra info if one free space cache has more bitmaps than it should
-Date:   Mon, 24 Oct 2022 13:33:36 +0200
-Message-Id: <20221024113106.405859063@linuxfoundation.org>
+Subject: [PATCH 5.15 474/530] btrfs: dont print information about space cache or tree every remount
+Date:   Mon, 24 Oct 2022 13:33:38 +0200
+Message-Id: <20221024113106.498269353@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,63 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
 
-[ Upstream commit 62cd9d4474282a1eb84f945955c56cbfc42e1ffe ]
+[ Upstream commit dbecac26630014d336a8e5ea67096ff18210fb9c ]
 
-There is an internal report on hitting the following ASSERT() in
-recalculate_thresholds():
+btrfs currently prints information about space cache or free space tree
+being in use on every remount, regardless whether such remount actually
+enabled or disabled one of these features.
 
- 	ASSERT(ctl->total_bitmaps <= max_bitmaps);
+This is actually unnecessary since providing remount options changing the
+state of these features will explicitly print the appropriate notice.
 
-Above @max_bitmaps is calculated using the following variables:
+Let's instead print such unconditional information just on an initial mount
+to avoid filling the kernel log when, for example, laptop-mode-tools
+remount the fs on some events.
 
-- bytes_per_bg
-  8 * 4096 * 4096 (128M) for x86_64/x86.
-
-- block_group->length
-  The length of the block group.
-
-@max_bitmaps is the rounded up value of block_group->length / 128M.
-
-Normally one free space cache should not have more bitmaps than above
-value, but when it happens the ASSERT() can be triggered if
-CONFIG_BTRFS_ASSERT is also enabled.
-
-But the ASSERT() itself won't provide enough info to know which is going
-wrong.
-Is the bg too small thus it only allows one bitmap?
-Or is there something else wrong?
-
-So although I haven't found extra reports or crash dump to do further
-investigation, add the extra info to make it more helpful to debug.
-
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/free-space-cache.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/btrfs/super.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/fs/btrfs/free-space-cache.c b/fs/btrfs/free-space-cache.c
-index da0eee7c9e5f..529907ea3825 100644
---- a/fs/btrfs/free-space-cache.c
-+++ b/fs/btrfs/free-space-cache.c
-@@ -672,6 +672,12 @@ static void recalculate_thresholds(struct btrfs_free_space_ctl *ctl)
+diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+index 969bf0724fdf..442fcd1b14a6 100644
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -574,6 +574,7 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+ 	int saved_compress_level;
+ 	bool saved_compress_force;
+ 	int no_compress = 0;
++	const bool remounting = test_bit(BTRFS_FS_STATE_REMOUNTING, &info->fs_state);
  
- 	max_bitmaps = max_t(u64, max_bitmaps, 1);
+ 	if (btrfs_fs_compat_ro(info, FREE_SPACE_TREE))
+ 		btrfs_set_opt(info->mount_opt, FREE_SPACE_TREE);
+@@ -1065,10 +1066,12 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+ 	}
+ 	if (!ret)
+ 		ret = btrfs_check_mountopts_zoned(info);
+-	if (!ret && btrfs_test_opt(info, SPACE_CACHE))
+-		btrfs_info(info, "disk space caching is enabled");
+-	if (!ret && btrfs_test_opt(info, FREE_SPACE_TREE))
+-		btrfs_info(info, "using free space tree");
++	if (!ret && !remounting) {
++		if (btrfs_test_opt(info, SPACE_CACHE))
++			btrfs_info(info, "disk space caching is enabled");
++		if (btrfs_test_opt(info, FREE_SPACE_TREE))
++			btrfs_info(info, "using free space tree");
++	}
+ 	return ret;
+ }
  
-+	if (ctl->total_bitmaps > max_bitmaps)
-+		btrfs_err(block_group->fs_info,
-+"invalid free space control: bg start=%llu len=%llu total_bitmaps=%u unit=%u max_bitmaps=%llu bytes_per_bg=%llu",
-+			  block_group->start, block_group->length,
-+			  ctl->total_bitmaps, ctl->unit, max_bitmaps,
-+			  bytes_per_bg);
- 	ASSERT(ctl->total_bitmaps <= max_bitmaps);
- 
- 	/*
 -- 
 2.35.1
 
