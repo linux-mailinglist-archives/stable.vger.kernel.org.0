@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 506B460A504
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F3F160A751
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:49:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233141AbiJXMUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:20:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50548 "EHLO
+        id S234486AbiJXMs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:48:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233386AbiJXMTU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBCB082D19;
-        Mon, 24 Oct 2022 04:58:06 -0700 (PDT)
+        with ESMTP id S234150AbiJXMn7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:43:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21688D238;
+        Mon, 24 Oct 2022 05:09:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E16B612A4;
-        Mon, 24 Oct 2022 11:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36C2BC433C1;
-        Mon, 24 Oct 2022 11:51:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72D016127C;
+        Mon, 24 Oct 2022 12:01:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83F04C433C1;
+        Mon, 24 Oct 2022 12:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612305;
-        bh=OFe+RVcm/duytjcmCEfORAPp9ogoeTNcHx8fd2aVeYI=;
+        s=korg; t=1666612864;
+        bh=QfbezyjWpztvIn6kmbJZe6R4MYsY5rpGEHS+AHAMDcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fucp+aCTDz1wn7PMKuCKr9ax0oPOfMFIc/tfHNdqQYgVJQl2VJxPPVVQuHp4rQRjw
-         OHEZqlwWYqnjVvoq5UsECnOJP1qNF2AhzjhJJYrAxJA1dcxP015xQ9fcIthlIJmChD
-         l9CcRHUzXg1YNBic9kqgJUBkNNKoaCLHAu4MTack=
+        b=d+12GOEjAbUiPPgtorRxOzJYXOgw48G24YC8oxJujQQKMv1/IO1RYkk6zT4Fz21OD
+         va4gGect4O0tGg2BqKAbGHNudRjwCUZa+yBFnmTkm5NuxSTXjgXhgdfpTcJtkwj9Fn
+         0zjWQRrDqA29pW6fVF6UMAYl35WXWTDNRxectdoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Collins <collinsd@codeaurora.org>,
-        Fenglin Wu <quic_fenglinw@quicinc.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 148/210] spmi: pmic-arb: correct duplicate APID to PPID mapping logic
-Date:   Mon, 24 Oct 2022 13:31:05 +0200
-Message-Id: <20221024113001.783345527@linuxfoundation.org>
+Subject: [PATCH 4.19 147/229] serial: 8250: Fix restoring termios speed after suspend
+Date:   Mon, 24 Oct 2022 13:31:06 +0200
+Message-Id: <20221024113003.764937284@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Collins <collinsd@codeaurora.org>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 1f1693118c2476cb1666ad357edcf3cf48bf9b16 ]
+[ Upstream commit 379a33786d489ab81885ff0b3935cfeb36137fea ]
 
-Correct the way that duplicate PPID mappings are handled for PMIC
-arbiter v5.  The final APID mapped to a given PPID should be the
-one which has write owner = APPS EE, if it exists, or if not
-that, then the first APID mapped to the PPID, if it exists.
+Since commit edc6afc54968 ("tty: switch to ktermios and new framework")
+termios speed is no longer stored only in c_cflag member but also in new
+additional c_ispeed and c_ospeed members. If BOTHER flag is set in c_cflag
+then termios speed is stored only in these new members.
 
-Fixes: 40f318f0ed67 ("spmi: pmic-arb: add support for HW version 5")
-Signed-off-by: David Collins <collinsd@codeaurora.org>
-Signed-off-by: Fenglin Wu <quic_fenglinw@quicinc.com>
-Link: https://lore.kernel.org/r/1655004286-11493-7-git-send-email-quic_fenglinw@quicinc.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lore.kernel.org/r/20220930005019.2663064-8-sboyd@kernel.org
+Since commit 027b57170bf8 ("serial: core: Fix initializing and restoring
+termios speed") termios speed is available also in struct console.
+
+So properly restore also c_ispeed and c_ospeed members after suspend to fix
+restoring termios speed which is not represented by Bnnn constant.
+
+Fixes: 4516d50aabed ("serial: 8250: Use canary to restart console after suspend")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20220924104324.4035-1-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spmi/spmi-pmic-arb.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/tty/serial/8250/8250_port.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spmi/spmi-pmic-arb.c b/drivers/spmi/spmi-pmic-arb.c
-index 360b8218f322..0eb156aa4975 100644
---- a/drivers/spmi/spmi-pmic-arb.c
-+++ b/drivers/spmi/spmi-pmic-arb.c
-@@ -867,7 +867,8 @@ static int pmic_arb_read_apid_map_v5(struct spmi_pmic_arb *pmic_arb)
- 	 * version 5, there is more than one APID mapped to each PPID.
- 	 * The owner field for each of these mappings specifies the EE which is
- 	 * allowed to write to the APID.  The owner of the last (highest) APID
--	 * for a given PPID will receive interrupts from the PPID.
-+	 * which has the IRQ owner bit set for a given PPID will receive
-+	 * interrupts from the PPID.
- 	 */
- 	for (i = 0; ; i++, apidd++) {
- 		offset = pmic_arb->ver_ops->apid_map_offset(i);
-@@ -890,16 +891,16 @@ static int pmic_arb_read_apid_map_v5(struct spmi_pmic_arb *pmic_arb)
- 		apid = pmic_arb->ppid_to_apid[ppid] & ~PMIC_ARB_APID_VALID;
- 		prev_apidd = &pmic_arb->apid_data[apid];
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index f11d1202566e..6fc89888a52e 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -3269,8 +3269,13 @@ static void serial8250_console_restore(struct uart_8250_port *up)
+ 	unsigned int baud, quot, frac = 0;
  
--		if (valid && is_irq_ee &&
--				prev_apidd->write_ee == pmic_arb->ee) {
-+		if (!valid || apidd->write_ee == pmic_arb->ee) {
-+			/* First PPID mapping or one for this EE */
-+			pmic_arb->ppid_to_apid[ppid] = i | PMIC_ARB_APID_VALID;
-+		} else if (valid && is_irq_ee &&
-+			   prev_apidd->write_ee == pmic_arb->ee) {
- 			/*
- 			 * Duplicate PPID mapping after the one for this EE;
- 			 * override the irq owner
- 			 */
- 			prev_apidd->irq_ee = apidd->irq_ee;
--		} else if (!valid || is_irq_ee) {
--			/* First PPID mapping or duplicate for another EE */
--			pmic_arb->ppid_to_apid[ppid] = i | PMIC_ARB_APID_VALID;
- 		}
+ 	termios.c_cflag = port->cons->cflag;
+-	if (port->state->port.tty && termios.c_cflag == 0)
++	termios.c_ispeed = port->cons->ispeed;
++	termios.c_ospeed = port->cons->ospeed;
++	if (port->state->port.tty && termios.c_cflag == 0) {
+ 		termios.c_cflag = port->state->port.tty->termios.c_cflag;
++		termios.c_ispeed = port->state->port.tty->termios.c_ispeed;
++		termios.c_ospeed = port->state->port.tty->termios.c_ospeed;
++	}
  
- 		apidd->ppid = ppid;
+ 	baud = serial8250_get_baud_rate(port, &termios, NULL);
+ 	quot = serial8250_get_divisor(port, baud, &frac);
 -- 
 2.35.1
 
