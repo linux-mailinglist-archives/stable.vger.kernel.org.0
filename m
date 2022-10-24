@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C306C60A763
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 228FA60AB56
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:50:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231918AbiJXMto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:49:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56434 "EHLO
+        id S236403AbiJXNuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:50:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232287AbiJXMrs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:47:48 -0400
+        with ESMTP id S236679AbiJXNtl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:49:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 908469184B;
-        Mon, 24 Oct 2022 05:12:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4003CB8C39;
+        Mon, 24 Oct 2022 05:41:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3904D61252;
-        Mon, 24 Oct 2022 12:11:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D07AC433C1;
-        Mon, 24 Oct 2022 12:11:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD195612E1;
+        Mon, 24 Oct 2022 12:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C20A2C433D6;
+        Mon, 24 Oct 2022 12:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613471;
-        bh=NwiRgoGNNgwSk51Vc6rEQuhFQM5Y9IwYt/EDlaVrrCg=;
+        s=korg; t=1666614442;
+        bh=krC0t6qtfnr3qlEDbOeoZ9RVBO7XPwtUOgKJvaaBlDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LBBuclyt0fxruzcZQH7fW6R0THoP7BGCDRiPn4KccOlbTW12Y0jflcyXUDdRxdOgh
-         xwV04EsaJVCvQVpAmar7TjIJ0blws+TKedyKTnKHSwSrQeL7HYZuBoSrErNpXMEFJw
-         iQ0Jw8kGU8ZIriyiYiiYMHtkS/5wYMdxRo5G9dUQ=
+        b=KXrfiV64x+RGiDh4z3ERxSGmyL8GSy3JTaEeak3R6EzQb/oWIAQh7E8OyxzGuUWmd
+         gmId3xS/+gKFDf/wFnSe9sHN4qO+yd3NU8crgdcAygP+gSsUeF3Iwev1rGOexwBzrM
+         3uitSdrifQ0Qkjk7TPZrnadTRVVrZtRfuP0Q3KfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 149/255] drivers: serial: jsm: fix some leaks in probe
-Date:   Mon, 24 Oct 2022 13:30:59 +0200
-Message-Id: <20221024113007.570051825@linuxfoundation.org>
+Subject: [PATCH 5.10 263/390] mailbox: bcm-ferxrm-mailbox: Fix error check for dma_map_sg
+Date:   Mon, 24 Oct 2022 13:31:00 +0200
+Message-Id: <20221024113034.090423319@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jack Wang <jinpu.wang@ionos.com>
 
-[ Upstream commit 1d5859ef229e381f4db38dce8ed58e4bf862006b ]
+[ Upstream commit 6b207ce8a96a71e966831e3a13c38143ba9a73c1 ]
 
-This error path needs to unwind instead of just returning directly.
+dma_map_sg return 0 on error, fix the error check, and return -EIO
+to caller.
 
-Fixes: 03a8482c17dd ("drivers: serial: jsm: Enable support for Digi Classic adapters")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YyxFh1+lOeZ9WfKO@kili
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: dbc049eee730 ("mailbox: Add driver for Broadcom FlexRM ring manager")
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/jsm/jsm_driver.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mailbox/bcm-flexrm-mailbox.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/serial/jsm/jsm_driver.c b/drivers/tty/serial/jsm/jsm_driver.c
-index 592e51d8944e..07e9be9865c7 100644
---- a/drivers/tty/serial/jsm/jsm_driver.c
-+++ b/drivers/tty/serial/jsm/jsm_driver.c
-@@ -212,7 +212,8 @@ static int jsm_probe_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+diff --git a/drivers/mailbox/bcm-flexrm-mailbox.c b/drivers/mailbox/bcm-flexrm-mailbox.c
+index bee33abb5308..e913ed1e34c6 100644
+--- a/drivers/mailbox/bcm-flexrm-mailbox.c
++++ b/drivers/mailbox/bcm-flexrm-mailbox.c
+@@ -632,15 +632,15 @@ static int flexrm_spu_dma_map(struct device *dev, struct brcm_message *msg)
  
- 		break;
- 	default:
--		return -ENXIO;
-+		rc = -ENXIO;
-+		goto out_kfree_brd;
+ 	rc = dma_map_sg(dev, msg->spu.src, sg_nents(msg->spu.src),
+ 			DMA_TO_DEVICE);
+-	if (rc < 0)
+-		return rc;
++	if (!rc)
++		return -EIO;
+ 
+ 	rc = dma_map_sg(dev, msg->spu.dst, sg_nents(msg->spu.dst),
+ 			DMA_FROM_DEVICE);
+-	if (rc < 0) {
++	if (!rc) {
+ 		dma_unmap_sg(dev, msg->spu.src, sg_nents(msg->spu.src),
+ 			     DMA_TO_DEVICE);
+-		return rc;
++		return -EIO;
  	}
  
- 	rc = request_irq(brd->irq, brd->bd_ops->intr, IRQF_SHARED, "JSM", brd);
+ 	return 0;
 -- 
 2.35.1
 
