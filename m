@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB9A660A830
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:02:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84B0460A838
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:03:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234885AbiJXNCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:02:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33506 "EHLO
+        id S235170AbiJXNC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:02:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234946AbiJXNBJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:01:09 -0400
+        with ESMTP id S235113AbiJXNBZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:01:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4232D237C4;
-        Mon, 24 Oct 2022 05:19:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4FBE2613F;
+        Mon, 24 Oct 2022 05:19:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2ACEE612BF;
-        Mon, 24 Oct 2022 12:18:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC15C433C1;
-        Mon, 24 Oct 2022 12:18:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67B7F6129B;
+        Mon, 24 Oct 2022 12:18:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C032C433C1;
+        Mon, 24 Oct 2022 12:18:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613884;
-        bh=tuRrGyRDE5pfd9u7YgYcnNL8Vy+H8he/V121FPx+c8w=;
+        s=korg; t=1666613889;
+        bh=Awcd/0SSmDN83dUDpNoaIq8lTcT014AjU8Qvxm5qHes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3cq3+HI7JAeIxf9YVurfkgVBuz0Btfmd/DJ8HPWjEHEvM79+ORAD0wdGt9ZWDe/1
-         Hmyy+jIrCze4dMEBTgaf2x4BVqLt4GGmLjRNermfoTuX4o0V+Mv5e58FbLk074kJ5b
-         zSrmPD3cKCsIQ1kzvb4Ge/8gX2baFEFCCYptxW8k=
+        b=fgOdXZXWvmuZEbsVKqvaoxIjR2SiFephtXXyEYO/34tlZP0q1IRVWx/dfZiYZCBmv
+         bU2gu+otncjJ2YkVfGEHSDWbSSqqHPlN0IGiN2cB9GCtHmj1eME0k9nrAZSz8kRlr7
+         kCKfylLA3AihoiUPN15r/v+++a7nCBZw8z7+Vd3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 021/390] can: kvaser_usb_leaf: Fix CAN state after restart
-Date:   Mon, 24 Oct 2022 13:26:58 +0200
-Message-Id: <20221024113023.449163692@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>
+Subject: [PATCH 5.10 023/390] fs: dlm: fix race between test_bit() and queue_work()
+Date:   Mon, 24 Oct 2022 13:27:00 +0200
+Message-Id: <20221024113023.535702880@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -53,40 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit 0be1a655fe68c8e6dcadbcbddb69cf2fb29881f5 upstream.
+commit eef6ec9bf390e836a6c4029f3620fe49528aa1fe upstream.
 
-can_restart() expects CMD_START_CHIP to set the error state to
-ERROR_ACTIVE as it calls netif_carrier_on() immediately afterwards.
+This patch fixes a race by using ls_cb_mutex around the bit
+operations and conditional code blocks for LSFL_CB_DELAY.
 
-Otherwise the user may immediately trigger restart again and hit a
-BUG_ON() in can_restart().
-
-Fix kvaser_usb_leaf set_mode(CMD_START_CHIP) to set the expected state.
+The function dlm_callback_stop() expects to stop all callbacks and
+flush all currently queued onces. The set_bit() is not enough because
+there can still be queue_work() after the workqueue was flushed.
+To avoid queue_work() after set_bit(), surround both by ls_cb_mutex.
 
 Cc: stable@vger.kernel.org
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Tested-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010150829.199676-5-extja@kvaser.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/dlm/ast.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -1435,6 +1435,8 @@ static int kvaser_usb_leaf_set_mode(stru
- 		err = kvaser_usb_leaf_simple_cmd_async(priv, CMD_START_CHIP);
- 		if (err)
- 			return err;
-+
-+		priv->can.state = CAN_STATE_ERROR_ACTIVE;
- 		break;
- 	default:
- 		return -EOPNOTSUPP;
+--- a/fs/dlm/ast.c
++++ b/fs/dlm/ast.c
+@@ -198,13 +198,13 @@ void dlm_add_cb(struct dlm_lkb *lkb, uin
+ 	if (!prev_seq) {
+ 		kref_get(&lkb->lkb_ref);
+ 
++		mutex_lock(&ls->ls_cb_mutex);
+ 		if (test_bit(LSFL_CB_DELAY, &ls->ls_flags)) {
+-			mutex_lock(&ls->ls_cb_mutex);
+ 			list_add(&lkb->lkb_cb_list, &ls->ls_cb_delay);
+-			mutex_unlock(&ls->ls_cb_mutex);
+ 		} else {
+ 			queue_work(ls->ls_callback_wq, &lkb->lkb_cb_work);
+ 		}
++		mutex_unlock(&ls->ls_cb_mutex);
+ 	}
+  out:
+ 	mutex_unlock(&lkb->lkb_cb_mutex);
+@@ -284,7 +284,9 @@ void dlm_callback_stop(struct dlm_ls *ls
+ 
+ void dlm_callback_suspend(struct dlm_ls *ls)
+ {
++	mutex_lock(&ls->ls_cb_mutex);
+ 	set_bit(LSFL_CB_DELAY, &ls->ls_flags);
++	mutex_unlock(&ls->ls_cb_mutex);
+ 
+ 	if (ls->ls_callback_wq)
+ 		flush_workqueue(ls->ls_callback_wq);
 
 
