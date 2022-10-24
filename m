@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC38360B9A7
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:16:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4233460BA0E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:25:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234155AbiJXUQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:16:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51146 "EHLO
+        id S232283AbiJXUZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:25:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233342AbiJXUQC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:16:02 -0400
+        with ESMTP id S234055AbiJXUXx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:23:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48F1D963BB;
-        Mon, 24 Oct 2022 11:33:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A1B1402E;
+        Mon, 24 Oct 2022 11:38:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15271B81145;
-        Mon, 24 Oct 2022 11:44:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63989C433C1;
-        Mon, 24 Oct 2022 11:44:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C4F6B819DC;
+        Mon, 24 Oct 2022 12:48:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B577C433D7;
+        Mon, 24 Oct 2022 12:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611867;
-        bh=X12gymILKrBqN2UagWsYOuLELZwdwf54zxIm9HZty9Q=;
+        s=korg; t=1666615710;
+        bh=whpjSLgFOwluMyDP5s1KRTKjvJu5FSA0Wxy6pCWsZP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lgX8DkCK23UCn7qWWCv68BuQCeHxFwLH9X1qJuSYy39eZQOHN7KrmBSQyssPRNVEV
-         e8LKblkM96qmLMIbtxuK9zSAv46A3GUk5RFHLbhxay8eRfmS48OAjcj3YHbfmXoKOG
-         5fSwSLU0mqO1G0wdU7WndHf+Pl1yc2s5munCdWKM=
+        b=UHZLradk01yTFHvhcB/Lz18NCanUazGVs5oydPkl6151om8K+rD8NRjL53A3y/ckr
+         Ub8Q4EzvHRgKa9RAd3CA7RWGzo/fLiKfhTS/oEWQ6ZZUs4I0i0FE+CNTk3o+SRqlgL
+         WxPOE15Okxsh3aQwyn/2fb6Rphl0D0KKQOg19Q1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 141/159] ARM: dts: imx7d-sdb: config the max pressure for tsc2046
-Date:   Mon, 24 Oct 2022 13:31:35 +0200
-Message-Id: <20221024112954.607235171@linuxfoundation.org>
+Subject: [PATCH 5.15 354/530] clk: baikal-t1: Add SATA internal ref clock buffer
+Date:   Mon, 24 Oct 2022 13:31:38 +0200
+Message-Id: <20221024113101.045510122@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +54,232 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit e7c4ebe2f9cd68588eb24ba4ed122e696e2d5272 ]
+[ Upstream commit 081a9b7c74eae4e12b2cb1b86720f836a8f29247 ]
 
-Use the general touchscreen method to config the max pressure for
-touch tsc2046(data sheet suggest 8 bit pressure), otherwise, for
-ABS_PRESSURE, when config the same max and min value, weston will
-meet the following issue,
+It turns out the internal SATA reference clock signal will stay
+unavailable for the SATA interface consumer until the buffer on it's way
+is ungated. So aside with having the actual clock divider enabled we need
+to ungate a buffer placed on the signal way to the SATA controller (most
+likely some rudiment from the initial SoC release). Seeing the switch flag
+is placed in the same register as the SATA-ref clock divider at a
+non-standard ffset, let's implement it as a separate clock controller with
+the set-rate propagation to the parental clock divider wrapper. As such
+we'll be able to disable/enable and still change the original clock source
+rate.
 
-[17:19:39.183] event1  - ADS7846 Touchscreen: is tagged by udev as: Touchscreen
-[17:19:39.183] event1  - ADS7846 Touchscreen: kernel bug: device has min == max on ABS_PRESSURE
-[17:19:39.183] event1  - ADS7846 Touchscreen: was rejected
-[17:19:39.183] event1  - not using input device '/dev/input/event1'
-
-This will then cause the APP weston-touch-calibrator can't list touch devices.
-
-root@imx6ul7d:~# weston-touch-calibrator
-could not load cursor 'dnd-move'
-could not load cursor 'dnd-copy'
-could not load cursor 'dnd-none'
-No devices listed.
-
-And accroding to binding Doc, "ti,x-max", "ti,y-max", "ti,pressure-max"
-belong to the deprecated properties, so remove them. Also for "ti,x-min",
-"ti,y-min", "ti,x-plate-ohms", the value set in dts equal to the default
-value in driver, so are redundant, also remove here.
-
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 353afa3a8d2e ("clk: Add Baikal-T1 CCU Dividers driver")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Link: https://lore.kernel.org/r/20220929225402.9696-5-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx7d-sdb.dts | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/clk/baikal-t1/ccu-div.c     | 64 +++++++++++++++++++++++++++++
+ drivers/clk/baikal-t1/ccu-div.h     |  4 ++
+ drivers/clk/baikal-t1/clk-ccu-div.c | 18 +++++++-
+ 3 files changed, 85 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx7d-sdb.dts b/arch/arm/boot/dts/imx7d-sdb.dts
-index 2f33c463cbce..83867357f135 100644
---- a/arch/arm/boot/dts/imx7d-sdb.dts
-+++ b/arch/arm/boot/dts/imx7d-sdb.dts
-@@ -126,12 +126,7 @@
- 		interrupt-parent = <&gpio2>;
- 		interrupts = <29 0>;
- 		pendown-gpio = <&gpio2 29 GPIO_ACTIVE_HIGH>;
--		ti,x-min = /bits/ 16 <0>;
--		ti,x-max = /bits/ 16 <0>;
--		ti,y-min = /bits/ 16 <0>;
--		ti,y-max = /bits/ 16 <0>;
--		ti,pressure-max = /bits/ 16 <0>;
--		ti,x-plate-ohms = /bits/ 16 <400>;
-+		touchscreen-max-pressure = <255>;
- 		wakeup-source;
- 	};
+diff --git a/drivers/clk/baikal-t1/ccu-div.c b/drivers/clk/baikal-t1/ccu-div.c
+index bbfa3526ee10..a6642f3d33d4 100644
+--- a/drivers/clk/baikal-t1/ccu-div.c
++++ b/drivers/clk/baikal-t1/ccu-div.c
+@@ -34,6 +34,7 @@
+ #define CCU_DIV_CTL_CLKDIV_MASK(_width) \
+ 	GENMASK((_width) + CCU_DIV_CTL_CLKDIV_FLD - 1, CCU_DIV_CTL_CLKDIV_FLD)
+ #define CCU_DIV_CTL_LOCK_SHIFTED	BIT(27)
++#define CCU_DIV_CTL_GATE_REF_BUF	BIT(28)
+ #define CCU_DIV_CTL_LOCK_NORMAL		BIT(31)
+ 
+ #define CCU_DIV_RST_DELAY_US		1
+@@ -170,6 +171,40 @@ static int ccu_div_gate_is_enabled(struct clk_hw *hw)
+ 	return !!(val & CCU_DIV_CTL_EN);
+ }
+ 
++static int ccu_div_buf_enable(struct clk_hw *hw)
++{
++	struct ccu_div *div = to_ccu_div(hw);
++	unsigned long flags;
++
++	spin_lock_irqsave(&div->lock, flags);
++	regmap_update_bits(div->sys_regs, div->reg_ctl,
++			   CCU_DIV_CTL_GATE_REF_BUF, 0);
++	spin_unlock_irqrestore(&div->lock, flags);
++
++	return 0;
++}
++
++static void ccu_div_buf_disable(struct clk_hw *hw)
++{
++	struct ccu_div *div = to_ccu_div(hw);
++	unsigned long flags;
++
++	spin_lock_irqsave(&div->lock, flags);
++	regmap_update_bits(div->sys_regs, div->reg_ctl,
++			   CCU_DIV_CTL_GATE_REF_BUF, CCU_DIV_CTL_GATE_REF_BUF);
++	spin_unlock_irqrestore(&div->lock, flags);
++}
++
++static int ccu_div_buf_is_enabled(struct clk_hw *hw)
++{
++	struct ccu_div *div = to_ccu_div(hw);
++	u32 val = 0;
++
++	regmap_read(div->sys_regs, div->reg_ctl, &val);
++
++	return !(val & CCU_DIV_CTL_GATE_REF_BUF);
++}
++
+ static unsigned long ccu_div_var_recalc_rate(struct clk_hw *hw,
+ 					     unsigned long parent_rate)
+ {
+@@ -323,6 +358,7 @@ static const struct ccu_div_dbgfs_bit ccu_div_bits[] = {
+ 	CCU_DIV_DBGFS_BIT_ATTR("div_en", CCU_DIV_CTL_EN),
+ 	CCU_DIV_DBGFS_BIT_ATTR("div_rst", CCU_DIV_CTL_RST),
+ 	CCU_DIV_DBGFS_BIT_ATTR("div_bypass", CCU_DIV_CTL_SET_CLKDIV),
++	CCU_DIV_DBGFS_BIT_ATTR("div_buf", CCU_DIV_CTL_GATE_REF_BUF),
+ 	CCU_DIV_DBGFS_BIT_ATTR("div_lock", CCU_DIV_CTL_LOCK_NORMAL)
  };
+ 
+@@ -441,6 +477,9 @@ static void ccu_div_var_debug_init(struct clk_hw *hw, struct dentry *dentry)
+ 			continue;
+ 		}
+ 
++		if (!strcmp("div_buf", name))
++			continue;
++
+ 		bits[didx] = ccu_div_bits[bidx];
+ 		bits[didx].div = div;
+ 
+@@ -477,6 +516,21 @@ static void ccu_div_gate_debug_init(struct clk_hw *hw, struct dentry *dentry)
+ 				   &ccu_div_dbgfs_fixed_clkdiv_fops);
+ }
+ 
++static void ccu_div_buf_debug_init(struct clk_hw *hw, struct dentry *dentry)
++{
++	struct ccu_div *div = to_ccu_div(hw);
++	struct ccu_div_dbgfs_bit *bit;
++
++	bit = kmalloc(sizeof(*bit), GFP_KERNEL);
++	if (!bit)
++		return;
++
++	*bit = ccu_div_bits[3];
++	bit->div = div;
++	debugfs_create_file_unsafe(bit->name, ccu_div_dbgfs_mode, dentry, bit,
++				   &ccu_div_dbgfs_bit_fops);
++}
++
+ static void ccu_div_fixed_debug_init(struct clk_hw *hw, struct dentry *dentry)
+ {
+ 	struct ccu_div *div = to_ccu_div(hw);
+@@ -489,6 +543,7 @@ static void ccu_div_fixed_debug_init(struct clk_hw *hw, struct dentry *dentry)
+ 
+ #define ccu_div_var_debug_init NULL
+ #define ccu_div_gate_debug_init NULL
++#define ccu_div_buf_debug_init NULL
+ #define ccu_div_fixed_debug_init NULL
+ 
+ #endif /* !CONFIG_DEBUG_FS */
+@@ -520,6 +575,13 @@ static const struct clk_ops ccu_div_gate_ops = {
+ 	.debug_init = ccu_div_gate_debug_init
+ };
+ 
++static const struct clk_ops ccu_div_buf_ops = {
++	.enable = ccu_div_buf_enable,
++	.disable = ccu_div_buf_disable,
++	.is_enabled = ccu_div_buf_is_enabled,
++	.debug_init = ccu_div_buf_debug_init
++};
++
+ static const struct clk_ops ccu_div_fixed_ops = {
+ 	.recalc_rate = ccu_div_fixed_recalc_rate,
+ 	.round_rate = ccu_div_fixed_round_rate,
+@@ -566,6 +628,8 @@ struct ccu_div *ccu_div_hw_register(const struct ccu_div_init_data *div_init)
+ 	} else if (div_init->type == CCU_DIV_GATE) {
+ 		hw_init.ops = &ccu_div_gate_ops;
+ 		div->divider = div_init->divider;
++	} else if (div_init->type == CCU_DIV_BUF) {
++		hw_init.ops = &ccu_div_buf_ops;
+ 	} else if (div_init->type == CCU_DIV_FIXED) {
+ 		hw_init.ops = &ccu_div_fixed_ops;
+ 		div->divider = div_init->divider;
+diff --git a/drivers/clk/baikal-t1/ccu-div.h b/drivers/clk/baikal-t1/ccu-div.h
+index b6a9c8e45318..4eb49ff4803c 100644
+--- a/drivers/clk/baikal-t1/ccu-div.h
++++ b/drivers/clk/baikal-t1/ccu-div.h
+@@ -15,8 +15,10 @@
+ 
+ /*
+  * CCU Divider private clock IDs
++ * @CCU_SYS_SATA_CLK: CCU SATA internal clock
+  * @CCU_SYS_XGMAC_CLK: CCU XGMAC internal clock
+  */
++#define CCU_SYS_SATA_CLK		-1
+ #define CCU_SYS_XGMAC_CLK		-2
+ 
+ /*
+@@ -37,11 +39,13 @@
+  * enum ccu_div_type - CCU Divider types
+  * @CCU_DIV_VAR: Clocks gate with variable divider.
+  * @CCU_DIV_GATE: Clocks gate with fixed divider.
++ * @CCU_DIV_BUF: Clock gate with no divider.
+  * @CCU_DIV_FIXED: Ungateable clock with fixed divider.
+  */
+ enum ccu_div_type {
+ 	CCU_DIV_VAR,
+ 	CCU_DIV_GATE,
++	CCU_DIV_BUF,
+ 	CCU_DIV_FIXED
+ };
+ 
+diff --git a/drivers/clk/baikal-t1/clk-ccu-div.c b/drivers/clk/baikal-t1/clk-ccu-div.c
+index 3953ae5664be..90f4fda406ee 100644
+--- a/drivers/clk/baikal-t1/clk-ccu-div.c
++++ b/drivers/clk/baikal-t1/clk-ccu-div.c
+@@ -76,6 +76,16 @@
+ 		.divider = _divider				\
+ 	}
+ 
++#define CCU_DIV_BUF_INFO(_id, _name, _pname, _base, _flags)	\
++	{							\
++		.id = _id,					\
++		.name = _name,					\
++		.parent_name = _pname,				\
++		.base = _base,					\
++		.type = CCU_DIV_BUF,				\
++		.flags = _flags					\
++	}
++
+ #define CCU_DIV_FIXED_INFO(_id, _name, _pname, _divider)	\
+ 	{							\
+ 		.id = _id,					\
+@@ -188,11 +198,14 @@ static const struct ccu_div_rst_map axi_rst_map[] = {
+  * for the SoC devices registers IO-operations.
+  */
+ static const struct ccu_div_info sys_info[] = {
+-	CCU_DIV_VAR_INFO(CCU_SYS_SATA_REF_CLK, "sys_sata_ref_clk",
++	CCU_DIV_VAR_INFO(CCU_SYS_SATA_CLK, "sys_sata_clk",
+ 			 "sata_clk", CCU_SYS_SATA_REF_BASE, 4,
+ 			 CLK_SET_RATE_GATE,
+ 			 CCU_DIV_SKIP_ONE | CCU_DIV_LOCK_SHIFTED |
+ 			 CCU_DIV_RESET_DOMAIN),
++	CCU_DIV_BUF_INFO(CCU_SYS_SATA_REF_CLK, "sys_sata_ref_clk",
++			 "sys_sata_clk", CCU_SYS_SATA_REF_BASE,
++			 CLK_SET_RATE_PARENT),
+ 	CCU_DIV_VAR_INFO(CCU_SYS_APB_CLK, "sys_apb_clk",
+ 			 "pcie_clk", CCU_SYS_APB_BASE, 5,
+ 			 CLK_IS_CRITICAL, CCU_DIV_RESET_DOMAIN),
+@@ -398,6 +411,9 @@ static int ccu_div_clk_register(struct ccu_div_data *data)
+ 			init.base = info->base;
+ 			init.sys_regs = data->sys_regs;
+ 			init.divider = info->divider;
++		} else if (init.type == CCU_DIV_BUF) {
++			init.base = info->base;
++			init.sys_regs = data->sys_regs;
+ 		} else {
+ 			init.divider = info->divider;
+ 		}
 -- 
 2.35.1
 
