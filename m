@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A55860A913
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:15:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A44760A572
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233575AbiJXNPC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:15:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32814 "EHLO
+        id S233374AbiJXMYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:24:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235899AbiJXNOG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:14:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74D4F3FA2C;
-        Mon, 24 Oct 2022 05:25:07 -0700 (PDT)
+        with ESMTP id S233674AbiJXMYC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:24:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C7732D772;
+        Mon, 24 Oct 2022 04:59:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02379612BF;
-        Mon, 24 Oct 2022 12:24:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14C8DC433C1;
-        Mon, 24 Oct 2022 12:24:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1320CB811D2;
+        Mon, 24 Oct 2022 11:55:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60B3AC433C1;
+        Mon, 24 Oct 2022 11:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614242;
-        bh=LMiQSmINL+WpJ+Efxa9vMNxwvWoH4bT4QVIx9zBBdls=;
+        s=korg; t=1666612552;
+        bh=VMRx9wwHDaT/MiBy+1sQ0ULWsCHQy9lDoV0BLn6XwFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8pTGWGRtzIYLpeBzsxfYjVe5/GDGyj8HjomMECYcgbwlWszYKxImav5XioEwNER2
-         UgYpNq+ZccGLIJ8bN9zsbMqf2FzT4+w63QBlpF7vohAca2v5sm8yhAA3x2mT0bazQl
-         PIOm2AowlniCnQX61gtC0Mzz1JWWqBcIlSwIFDDA=
+        b=nyTKwyOgbjQpsUVQ7A7Ii3XP5K80AFrkSc7bqnVJ/OrZ+D4kyGvaXslbAjju8Io+O
+         L7cH9oUdFhr4urG98Bj7l9ldsyYfTSEU/pcoNlj5ivlssXVgdSibqN5HM3YPbm3Lm7
+         xXR2hL1opmvTNXuXOU+NzTbi61tSgQFHeYNlku9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 153/390] platform/x86: msi-laptop: Fix resource cleanup
+        stable@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>,
+        Pavel Rojtberg <rojtberg@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 031/229] Input: xpad - fix wireless 360 controller breaking after suspend
 Date:   Mon, 24 Oct 2022 13:29:10 +0200
-Message-Id: <20221024113029.193870351@linuxfoundation.org>
+Message-Id: <20221024113000.128741561@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Cameron Gutman <aicommander@gmail.com>
 
-[ Upstream commit 5523632aa10f906dfe2eb714ee748590dc7fc6b1 ]
+commit a17b9841152e7f4621619902b347e2cc39c32996 upstream.
 
-Fix the input-device not getting free-ed on probe-errors and
-fix the msi_touchpad_dwork not getting cancelled on neither
-probe-errors nor on remove.
+Suspending and resuming the system can sometimes cause the out
+URB to get hung after a reset_resume. This causes LED setting
+and force feedback to break on resume. To avoid this, just drop
+the reset_resume callback so the USB core rebinds xpad to the
+wireless pads on resume if a reset happened.
 
-Fixes: 143a4c0284dc ("msi-laptop: send out touchpad on/off key")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220825141336.208597-3-hdegoede@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+A nice side effect of this change is the LED ring on wireless
+controllers is now set correctly on system resume.
+
+Cc: stable@vger.kernel.org
+Fixes: 4220f7db1e42 ("Input: xpad - workaround dead irq_out after suspend/ resume")
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+Link: https://lore.kernel.org/r/20220818154411.510308-3-rojtberg@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/msi-laptop.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/joystick/xpad.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
-index 0960205ee49f..3e935303b143 100644
---- a/drivers/platform/x86/msi-laptop.c
-+++ b/drivers/platform/x86/msi-laptop.c
-@@ -1116,6 +1116,8 @@ static int __init msi_init(void)
- fail_create_group:
- 	if (quirks->load_scm_model) {
- 		i8042_remove_filter(msi_laptop_i8042_filter);
-+		cancel_delayed_work_sync(&msi_touchpad_dwork);
-+		input_unregister_device(msi_laptop_input_dev);
- 		cancel_delayed_work_sync(&msi_rfkill_dwork);
- 		cancel_work_sync(&msi_rfkill_work);
- 		rfkill_cleanup();
-@@ -1136,6 +1138,7 @@ static void __exit msi_cleanup(void)
- {
- 	if (quirks->load_scm_model) {
- 		i8042_remove_filter(msi_laptop_i8042_filter);
-+		cancel_delayed_work_sync(&msi_touchpad_dwork);
- 		input_unregister_device(msi_laptop_input_dev);
- 		cancel_delayed_work_sync(&msi_rfkill_dwork);
- 		cancel_work_sync(&msi_rfkill_work);
--- 
-2.35.1
-
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -1997,7 +1997,6 @@ static struct usb_driver xpad_driver = {
+ 	.disconnect	= xpad_disconnect,
+ 	.suspend	= xpad_suspend,
+ 	.resume		= xpad_resume,
+-	.reset_resume	= xpad_resume,
+ 	.id_table	= xpad_table,
+ };
+ 
 
 
