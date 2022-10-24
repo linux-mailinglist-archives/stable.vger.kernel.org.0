@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97EBF60BB03
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:45:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 311B860BAE8
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234768AbiJXUpa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:45:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34238 "EHLO
+        id S234701AbiJXUmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:42:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235241AbiJXUoS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:44:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E50A89CFB;
-        Mon, 24 Oct 2022 11:52:22 -0700 (PDT)
+        with ESMTP id S234881AbiJXUlT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:41:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64246114DCA;
+        Mon, 24 Oct 2022 11:50:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57B51B8197D;
-        Mon, 24 Oct 2022 12:45:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B13DCC433C1;
-        Mon, 24 Oct 2022 12:45:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E566B815D8;
+        Mon, 24 Oct 2022 12:11:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64583C433D6;
+        Mon, 24 Oct 2022 12:11:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615539;
-        bh=Z+XBH40KQKJ6mwwRFWxhpy+0S5J1kKgnrFfFRwErVss=;
+        s=korg; t=1666613484;
+        bh=X38VWH2et6l8j7ErF92H2f0hZx1DchmzPhdw98JHFCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEiH1r1FFVtuEn13L3eHr3YpUUhcM0N8x7Jd5O4cjX1CZDrtwpUF09aj4Fkgwdo4C
-         l89uXmMC2z+AEP8u6qIgi44aIuBfbO9b8uU1sFwUw5634cmPIsezt1yRodY3TQ3pHK
-         YBhhKxh1QaeVV8t+AvbMXtMpdiQnuYdfz+DRvsQI=
+        b=OhzG9GdBMMr0oDwsstn/J/B5k5VHjVEYcXTS7Kb6eZ5cVLTpibyaIei09EPy31+X6
+         ocjz3jWe97dZyX+09yc0eUNQog5K0r622YUrO+8Kx4wkXJoE7v8EepMfW3vYN58sVx
+         P8TlAGb0e6JFmOOkWKh54J9sHD42psML2NPVlmQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 289/530] media: xilinx: vipp: Fix refcount leak in xvip_graph_dma_init
-Date:   Mon, 24 Oct 2022 13:30:33 +0200
-Message-Id: <20221024113058.146330552@linuxfoundation.org>
+Subject: [PATCH 5.4 124/255] clk: oxnas: Hold reference returned by of_get_parent()
+Date:   Mon, 24 Oct 2022 13:30:34 +0200
+Message-Id: <20221024113006.681951284@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 1c78f19c3a0ea312a8178a6bfd8934eb93e9b10a ]
+[ Upstream commit 1d6aa08c54cd0e005210ab8e3b1e92ede70f8a4f ]
 
-of_get_child_by_name() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+In oxnas_stdclk_probe(), we need to hold the reference returned by
+of_get_parent() and use it to call of_node_put() for refcount
+balance.
 
-Fixes: df3305156f98 ("[media] v4l: xilinx: Add Xilinx Video IP core")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 0bbd72b4c64f ("clk: Add Oxford Semiconductor OXNAS Standard Clocks")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220628143155.170550-1-windhl@126.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/xilinx/xilinx-vipp.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/clk/clk-oxnas.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/xilinx/xilinx-vipp.c b/drivers/media/platform/xilinx/xilinx-vipp.c
-index 2ce31d7ce1a6..5896a662da3b 100644
---- a/drivers/media/platform/xilinx/xilinx-vipp.c
-+++ b/drivers/media/platform/xilinx/xilinx-vipp.c
-@@ -472,7 +472,7 @@ static int xvip_graph_dma_init(struct xvip_composite_device *xdev)
+diff --git a/drivers/clk/clk-oxnas.c b/drivers/clk/clk-oxnas.c
+index 78d5ea669fea..2fe36f579ac5 100644
+--- a/drivers/clk/clk-oxnas.c
++++ b/drivers/clk/clk-oxnas.c
+@@ -207,7 +207,7 @@ static const struct of_device_id oxnas_stdclk_dt_ids[] = {
+ 
+ static int oxnas_stdclk_probe(struct platform_device *pdev)
  {
- 	struct device_node *ports;
- 	struct device_node *port;
--	int ret;
-+	int ret = 0;
+-	struct device_node *np = pdev->dev.of_node;
++	struct device_node *np = pdev->dev.of_node, *parent_np;
+ 	const struct oxnas_stdclk_data *data;
+ 	const struct of_device_id *id;
+ 	struct regmap *regmap;
+@@ -219,7 +219,9 @@ static int oxnas_stdclk_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	data = id->data;
  
- 	ports = of_get_child_by_name(xdev->dev->of_node, "ports");
- 	if (ports == NULL) {
-@@ -482,13 +482,14 @@ static int xvip_graph_dma_init(struct xvip_composite_device *xdev)
- 
- 	for_each_child_of_node(ports, port) {
- 		ret = xvip_graph_dma_init_one(xdev, port);
--		if (ret < 0) {
-+		if (ret) {
- 			of_node_put(port);
--			return ret;
-+			break;
- 		}
- 	}
- 
--	return 0;
-+	of_node_put(ports);
-+	return ret;
- }
- 
- static void xvip_graph_cleanup(struct xvip_composite_device *xdev)
+-	regmap = syscon_node_to_regmap(of_get_parent(np));
++	parent_np = of_get_parent(np);
++	regmap = syscon_node_to_regmap(parent_np);
++	of_node_put(parent_np);
+ 	if (IS_ERR(regmap)) {
+ 		dev_err(&pdev->dev, "failed to have parent regmap\n");
+ 		return PTR_ERR(regmap);
 -- 
 2.35.1
 
