@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF49060AC4F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9E4E60AC4D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230396AbiJXOGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:06:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47480 "EHLO
+        id S234104AbiJXOGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:06:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235066AbiJXODL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:03:11 -0400
+        with ESMTP id S236925AbiJXOEE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:04:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56C78C06B9;
-        Mon, 24 Oct 2022 05:48:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA7B8C14BF;
+        Mon, 24 Oct 2022 05:48:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 902A7B819D8;
-        Mon, 24 Oct 2022 12:45:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBF3DC433D7;
-        Mon, 24 Oct 2022 12:45:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77523B819D1;
+        Mon, 24 Oct 2022 12:45:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C593C433D6;
+        Mon, 24 Oct 2022 12:45:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615544;
-        bh=UpGV3MCFoWwSYcI8v9uQ//HwCNdnrEZeTGv2SdVdgNY=;
+        s=korg; t=1666615547;
+        bh=/5ds8THcDCm+5PmPmp8K3FVYXTCqAe8lvJoZGPdMjYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ishv0RYWZT45G8ktoRNHpBbIEvQ+ary8/QUGINvoTUYzSw49HWBxc8gAuS+SHkpkl
-         Lod4raKLDcLS28Pv37rE2T/8pRwTLlnuZABY6Y7ZWXwFoVTNmIGoBNnZlcx5BWCj71
-         ljUPmDwDLwDPxPDKCmcS2Xoa9yWWzANI5k/LbtBM=
+        b=zUP2jhsexDVlJpefWpDi4l37fDjerR5QbfMKMLMyuKpSKHLoprUnDpIx+5IEztktK
+         48kXG4RSHDjmCnkWDfbn9h9/C4HycdbvoDZUrfZhPwf2AuVDLVasfDgMkOfAr9/z/f
+         8qEdL/9Ak058YOLDnXgf/CDPe3FFGxG3dGsSMOpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ab99dc4c6e961eed8b8e@syzkaller.appspotmail.com,
-        Zhu Yanjun <yanjun.zhu@linux.dev>,
+        stable@vger.kernel.org, Zhu Yanjun <yanjun.zhu@linux.dev>,
         Li Zhijian <lizhijian@fujitsu.com>,
         Bob Pearson <rpearsonhpe@gmail.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 290/530] RDMA/rxe: Fix "kernel NULL pointer dereference" error
-Date:   Mon, 24 Oct 2022 13:30:34 +0200
-Message-Id: <20221024113058.185846533@linuxfoundation.org>
+Subject: [PATCH 5.15 291/530] RDMA/rxe: Fix the error caused by qp->sk
+Date:   Mon, 24 Oct 2022 13:30:35 +0200
+Message-Id: <20221024113058.236229583@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -59,44 +57,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhu Yanjun <yanjun.zhu@linux.dev>
 
-[ Upstream commit a625ca30eff806395175ebad3ac1399014bdb280 ]
+[ Upstream commit 548ce2e66725dcba4e27d1e8ac468d5dd17fd509 ]
 
-When rxe_queue_init in the function rxe_qp_init_req fails,
-both qp->req.task.func and qp->req.task.arg are not initialized.
+When sock_create_kern in the function rxe_qp_init_req fails,
+qp->sk is set to NULL.
 
-Because of creation of qp fails, the function rxe_create_qp will
-call rxe_qp_do_cleanup to handle allocated resource.
+Then the function rxe_create_qp will call rxe_qp_do_cleanup
+to handle allocated resource.
 
-Before calling __rxe_do_task, both qp->req.task.func and
-qp->req.task.arg should be checked.
+Before handling qp->sk, this variable should be checked.
 
 Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20220822011615.805603-2-yanjun.zhu@linux.dev
-Reported-by: syzbot+ab99dc4c6e961eed8b8e@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20220822011615.805603-3-yanjun.zhu@linux.dev
 Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
 Reviewed-by: Li Zhijian <lizhijian@fujitsu.com>
 Reviewed-by: Bob Pearson <rpearsonhpe@gmail.com>
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_qp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
-index 661b83d65af3..4a6eb6de3b08 100644
+index 4a6eb6de3b08..57ebf4871608 100644
 --- a/drivers/infiniband/sw/rxe/rxe_qp.c
 +++ b/drivers/infiniband/sw/rxe/rxe_qp.c
-@@ -793,7 +793,9 @@ void rxe_qp_destroy(struct rxe_qp *qp)
- 	rxe_cleanup_task(&qp->comp.task);
+@@ -835,8 +835,10 @@ static void rxe_qp_do_cleanup(struct work_struct *work)
  
- 	/* flush out any receive wr's or pending requests */
--	__rxe_do_task(&qp->req.task);
-+	if (qp->req.task.func)
-+		__rxe_do_task(&qp->req.task);
-+
- 	if (qp->sq.queue) {
- 		__rxe_do_task(&qp->comp.task);
- 		__rxe_do_task(&qp->req.task);
+ 	free_rd_atomic_resources(qp);
+ 
+-	kernel_sock_shutdown(qp->sk, SHUT_RDWR);
+-	sock_release(qp->sk);
++	if (qp->sk) {
++		kernel_sock_shutdown(qp->sk, SHUT_RDWR);
++		sock_release(qp->sk);
++	}
+ }
+ 
+ /* called when the last reference to the qp is dropped */
 -- 
 2.35.1
 
