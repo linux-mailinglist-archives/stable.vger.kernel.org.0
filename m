@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF49F60A2F0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:49:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA5A960A33A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:52:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231646AbiJXLtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:49:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
+        id S232021AbiJXLw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:52:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231913AbiJXLtN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:49:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 140D36D877;
-        Mon, 24 Oct 2022 04:43:51 -0700 (PDT)
+        with ESMTP id S231922AbiJXLwO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:52:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EB8C193CC;
+        Mon, 24 Oct 2022 04:44:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF9DDB81185;
-        Mon, 24 Oct 2022 11:43:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3980FC433D6;
-        Mon, 24 Oct 2022 11:43:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06D6461254;
+        Mon, 24 Oct 2022 11:43:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A4C6C433C1;
+        Mon, 24 Oct 2022 11:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611812;
-        bh=5dRIdOu21Z2t660M+e7TugsnjlgCx4ggxlqHzOl1Bis=;
+        s=korg; t=1666611786;
+        bh=+Ub/dlT9bc0ho4n4CTPaoj1vtKAy4tRTp1Z1r8ySh94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0KkNXYFpoKiCUe8H1At6qUzcJB61OdbJ0l9THcv/8dOtRnYkuQn/C4G9R11LoqqK
-         5zrhxbrjdmo0ZtFTGLXPNiIaiuv91+gyDDvuaCivTxbeNvhkybRrTTeRpAnCwpPDiO
-         L8v+oJ6LhgHtYtlaK2wEECwBDVDQkN/8r2K6Y0aM=
+        b=i3cI1W+8+MacI7D8XIHvCV6w/IPmcuOy6YqbV2sSA7/w8Uwq/mw6Nw8Dk1c2rsTin
+         jp2OpRk2a9L11Wzl/Qha0QSDBSMkzHV7dNddP1co6fAWQPF6gqpMA078hFokVipIfu
+         RDmplrV3DuEk7Vm3+XvfciwHRfyU7aLXx1exifL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Kelin Wang <wangkelin2023@163.com>
-Subject: [PATCH 4.9 080/159] ASoC: eureka-tlv320: Hold reference returned from of_find_xxx API
-Date:   Mon, 24 Oct 2022 13:30:34 +0200
-Message-Id: <20221024112952.351647448@linuxfoundation.org>
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 083/159] soc: qcom: smsm: Fix refcount leak bugs in qcom_smsm_probe()
+Date:   Mon, 24 Oct 2022 13:30:37 +0200
+Message-Id: <20221024112952.448915558@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -56,65 +55,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liang He <windhl@126.com>
 
-[ Upstream commit bfb735a3ceff0bab6473bac275da96f9b2a06dec ]
+[ Upstream commit af8f6f39b8afd772fda4f8e61823ef8c021bf382 ]
 
-In eukrea_tlv320_probe(), we need to hold the reference returned
-from of_find_compatible_node() which has increased the refcount
-and then call of_node_put() with it when done.
+There are two refcount leak bugs in qcom_smsm_probe():
 
-Fixes: 66f232908de2 ("ASoC: eukrea-tlv320: Add DT support.")
-Co-authored-by: Kelin Wang <wangkelin2023@163.com>
+(1) The 'local_node' is escaped out from for_each_child_of_node() as
+the break of iteration, we should call of_node_put() for it in error
+path or when it is not used anymore.
+(2) The 'node' is escaped out from for_each_available_child_of_node()
+as the 'goto', we should call of_node_put() for it in goto target.
+
+Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
 Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220914134354.3995587-1-windhl@126.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220721135217.1301039-1-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/eukrea-tlv320.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/soc/qcom/smsm.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/fsl/eukrea-tlv320.c b/sound/soc/fsl/eukrea-tlv320.c
-index 38132143b7d5..10da7fd2d054 100644
---- a/sound/soc/fsl/eukrea-tlv320.c
-+++ b/sound/soc/fsl/eukrea-tlv320.c
-@@ -88,7 +88,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 	int ret;
- 	int int_port = 0, ext_port;
- 	struct device_node *np = pdev->dev.of_node;
--	struct device_node *ssi_np = NULL, *codec_np = NULL;
-+	struct device_node *ssi_np = NULL, *codec_np = NULL, *tmp_np = NULL;
- 
- 	eukrea_tlv320.dev = &pdev->dev;
- 	if (np) {
-@@ -145,7 +145,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
+index 01bc8528f24d..87ab37807e3f 100644
+--- a/drivers/soc/qcom/smsm.c
++++ b/drivers/soc/qcom/smsm.c
+@@ -515,7 +515,7 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 	for (id = 0; id < smsm->num_hosts; id++) {
+ 		ret = smsm_parse_ipc(smsm, id);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put;
  	}
  
- 	if (machine_is_eukrea_cpuimx27() ||
--	    of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux")) {
-+	    (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux"))) {
- 		imx_audmux_v1_configure_port(MX27_AUDMUX_HPCR1_SSI0,
- 			IMX_AUDMUX_V1_PCR_SYN |
- 			IMX_AUDMUX_V1_PCR_TFSDIR |
-@@ -160,10 +160,11 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 			IMX_AUDMUX_V1_PCR_SYN |
- 			IMX_AUDMUX_V1_PCR_RXDSEL(MX27_AUDMUX_HPCR1_SSI0)
- 		);
-+		of_node_put(tmp_np);
- 	} else if (machine_is_eukrea_cpuimx25sd() ||
- 		   machine_is_eukrea_cpuimx35sd() ||
- 		   machine_is_eukrea_cpuimx51sd() ||
--		   of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux")) {
-+		   (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux"))) {
- 		if (!np)
- 			ext_port = machine_is_eukrea_cpuimx25sd() ?
- 				4 : 3;
-@@ -180,6 +181,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 			IMX_AUDMUX_V2_PTCR_SYN,
- 			IMX_AUDMUX_V2_PDCR_RXDSEL(int_port)
- 		);
-+		of_node_put(tmp_np);
- 	} else {
- 		if (np) {
- 			/* The eukrea,asoc-tlv320 driver was explicitly
+ 	/* Acquire the main SMSM state vector */
+@@ -523,13 +523,14 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 			      smsm->num_entries * sizeof(u32));
+ 	if (ret < 0 && ret != -EEXIST) {
+ 		dev_err(&pdev->dev, "unable to allocate shared state entry\n");
+-		return ret;
++		goto out_put;
+ 	}
+ 
+ 	states = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_SMSM_SHARED_STATE, NULL);
+ 	if (IS_ERR(states)) {
+ 		dev_err(&pdev->dev, "Unable to acquire shared state entry\n");
+-		return PTR_ERR(states);
++		ret = PTR_ERR(states);
++		goto out_put;
+ 	}
+ 
+ 	/* Acquire the list of interrupt mask vectors */
+@@ -537,13 +538,14 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 	ret = qcom_smem_alloc(QCOM_SMEM_HOST_ANY, SMEM_SMSM_CPU_INTR_MASK, size);
+ 	if (ret < 0 && ret != -EEXIST) {
+ 		dev_err(&pdev->dev, "unable to allocate smsm interrupt mask\n");
+-		return ret;
++		goto out_put;
+ 	}
+ 
+ 	intr_mask = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_SMSM_CPU_INTR_MASK, NULL);
+ 	if (IS_ERR(intr_mask)) {
+ 		dev_err(&pdev->dev, "unable to acquire shared memory interrupt mask\n");
+-		return PTR_ERR(intr_mask);
++		ret = PTR_ERR(intr_mask);
++		goto out_put;
+ 	}
+ 
+ 	/* Setup the reference to the local state bits */
+@@ -554,7 +556,8 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 	smsm->state = qcom_smem_state_register(local_node, &smsm_state_ops, smsm);
+ 	if (IS_ERR(smsm->state)) {
+ 		dev_err(smsm->dev, "failed to register qcom_smem_state\n");
+-		return PTR_ERR(smsm->state);
++		ret = PTR_ERR(smsm->state);
++		goto out_put;
+ 	}
+ 
+ 	/* Register handlers for remote processor entries of interest. */
+@@ -584,16 +587,19 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	platform_set_drvdata(pdev, smsm);
++	of_node_put(local_node);
+ 
+ 	return 0;
+ 
+ unwind_interfaces:
++	of_node_put(node);
+ 	for (id = 0; id < smsm->num_entries; id++)
+ 		if (smsm->entries[id].domain)
+ 			irq_domain_remove(smsm->entries[id].domain);
+ 
+ 	qcom_smem_state_unregister(smsm->state);
+-
++out_put:
++	of_node_put(local_node);
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
