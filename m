@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8F2160B700
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:15:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C639760B828
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:42:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231923AbiJXTPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:15:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54794 "EHLO
+        id S231724AbiJXTmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:42:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232068AbiJXTO3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:14:29 -0400
+        with ESMTP id S233460AbiJXTl3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:41:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68C2C7F25E;
-        Mon, 24 Oct 2022 10:53:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1CF8263F15;
+        Mon, 24 Oct 2022 11:11:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84654B81975;
-        Mon, 24 Oct 2022 12:41:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4211C433C1;
-        Mon, 24 Oct 2022 12:41:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1889DB811D8;
+        Mon, 24 Oct 2022 11:55:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45F5BC433C1;
+        Mon, 24 Oct 2022 11:55:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615306;
-        bh=t3dMiH4XJXVQqT24zBIQwudtQaBoBJjPnA3eH7aaObo=;
+        s=korg; t=1666612515;
+        bh=ijZSo/cdeKszAc/rK+X/Vy4APaR0n/bBdD5341uT48Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3Jqyta5v4tOn1sGi/8z9sj1yyxgiSGAG/jo3Neby/ClORV8OBYsOi804LhnGlX8J
-         2v+VcG9t4WpxB/I8Su5ZoluCiy93aOEMPPWPirWZN7e8R9eRm+FEGjrgCTmX9lZp5n
-         wwtsVLxFNe+x08Wpw7NA4CuC1CA4cnGMived+4vE=
+        b=cbLxqiRytFYmBfMT0SQFBhg0c52p8/tNcljVufLmg5LiJFNMAYpjSJvqJH5HeELSS
+         FoHpNFhWB2pTo7Qn+hbV4Qrthd/fholl2W7hn9SC25MtaW4CGZC8kn8nWaSnlNDHwX
+         sotujj+18nlNQeVd2sGt2XYyNIAJ98WDinRaAz50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Markus Schneider-Pargmann <msp@baylibre.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 170/530] spi: meson-spicc: do not rely on busy flag in pow2 clk ops
-Date:   Mon, 24 Oct 2022 13:28:34 +0200
-Message-Id: <20221024113052.735450811@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Danilo Cezar Zanella <danilo.zanella@iag.usp.br>
+Subject: [PATCH 4.19 003/229] ARM: fix function graph tracer and unwinder dependencies
+Date:   Mon, 24 Oct 2022 13:28:42 +0200
+Message-Id: <20221024112959.221989184@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 36acf80fc0c4b5ebe6fa010b524d442ee7f08fd3 ]
+commit 503621628b32782a07b2318e4112bd4372aa3401 upstream.
 
-Since [1], controller's busy flag isn't set anymore when the
-__spi_transfer_message_noqueue() is used instead of the
-__spi_pump_transfer_message() logic for spi_sync transfers.
+Naresh Kamboju recently reported that the function-graph tracer crashes
+on ARM. The function-graph tracer assumes that the kernel is built with
+frame pointers.
 
-Since the pow2 clock ops were limited to only be available when a
-transfer is ongoing (between prepare_transfer_hardware and
-unprepare_transfer_hardware callbacks), the only way to track this
-down is to check for the controller cur_msg.
+We explicitly disabled the function-graph tracer when building Thumb2,
+since the Thumb2 ABI doesn't have frame pointers.
 
-[1] ae7d2346dc89 ("spi: Don't use the message queue if possible in spi_sync")
+We recently changed the way the unwinder method was selected, which
+seems to have made it more likely that we can end up with the function-
+graph tracer enabled but without the kernel built with frame pointers.
 
-Fixes: 09992025dacd ("spi: meson-spicc: add local pow2 clock ops to preserve rate between messages")
-Fixes: ae7d2346dc89 ("spi: Don't use the message queue if possible in spi_sync")
-Reported-by: Markus Schneider-Pargmann <msp@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Tested-by: Markus Schneider-Pargmann <msp@baylibre.com>
-Link: https://lore.kernel.org/r/20220908121803.919943-1-narmstrong@baylibre.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix up the function graph tracer dependencies so the option is not
+available when we have no possibility of having frame pointers, and
+adjust the dependencies on the unwinder option to hide the non-frame
+pointer unwinder options if the function-graph tracer is enabled.
+
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reported-by: Danilo Cezar Zanella <danilo.zanella@iag.usp.br>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-meson-spicc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/Kconfig       |    2 +-
+ arch/arm/Kconfig.debug |    6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/spi/spi-meson-spicc.c b/drivers/spi/spi-meson-spicc.c
-index e4cb52e1fe26..6974a1c947aa 100644
---- a/drivers/spi/spi-meson-spicc.c
-+++ b/drivers/spi/spi-meson-spicc.c
-@@ -537,7 +537,7 @@ static unsigned long meson_spicc_pow2_recalc_rate(struct clk_hw *hw,
- 	struct clk_divider *divider = to_clk_divider(hw);
- 	struct meson_spicc_device *spicc = pow2_clk_to_spicc(divider);
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -68,7 +68,7 @@ config ARM
+ 	select HAVE_EFFICIENT_UNALIGNED_ACCESS if (CPU_V6 || CPU_V6K || CPU_V7) && MMU
+ 	select HAVE_EXIT_THREAD
+ 	select HAVE_FTRACE_MCOUNT_RECORD if (!XIP_KERNEL)
+-	select HAVE_FUNCTION_GRAPH_TRACER if (!THUMB2_KERNEL)
++	select HAVE_FUNCTION_GRAPH_TRACER if (!THUMB2_KERNEL && !CC_IS_CLANG)
+ 	select HAVE_FUNCTION_TRACER if (!XIP_KERNEL)
+ 	select HAVE_FUTEX_CMPXCHG if FUTEX
+ 	select HAVE_GCC_PLUGINS
+--- a/arch/arm/Kconfig.debug
++++ b/arch/arm/Kconfig.debug
+@@ -47,8 +47,8 @@ config DEBUG_WX
  
--	if (!spicc->master->cur_msg || !spicc->master->busy)
-+	if (!spicc->master->cur_msg)
- 		return 0;
+ choice
+ 	prompt "Choose kernel unwinder"
+-	default UNWINDER_ARM if AEABI && !FUNCTION_GRAPH_TRACER
+-	default UNWINDER_FRAME_POINTER if !AEABI || FUNCTION_GRAPH_TRACER
++	default UNWINDER_ARM if AEABI
++	default UNWINDER_FRAME_POINTER if !AEABI
+ 	help
+ 	  This determines which method will be used for unwinding kernel stack
+ 	  traces for panics, oopses, bugs, warnings, perf, /proc/<pid>/stack,
+@@ -65,7 +65,7 @@ config UNWINDER_FRAME_POINTER
  
- 	return clk_divider_ops.recalc_rate(hw, parent_rate);
-@@ -549,7 +549,7 @@ static int meson_spicc_pow2_determine_rate(struct clk_hw *hw,
- 	struct clk_divider *divider = to_clk_divider(hw);
- 	struct meson_spicc_device *spicc = pow2_clk_to_spicc(divider);
- 
--	if (!spicc->master->cur_msg || !spicc->master->busy)
-+	if (!spicc->master->cur_msg)
- 		return -EINVAL;
- 
- 	return clk_divider_ops.determine_rate(hw, req);
-@@ -561,7 +561,7 @@ static int meson_spicc_pow2_set_rate(struct clk_hw *hw, unsigned long rate,
- 	struct clk_divider *divider = to_clk_divider(hw);
- 	struct meson_spicc_device *spicc = pow2_clk_to_spicc(divider);
- 
--	if (!spicc->master->cur_msg || !spicc->master->busy)
-+	if (!spicc->master->cur_msg)
- 		return -EINVAL;
- 
- 	return clk_divider_ops.set_rate(hw, rate, parent_rate);
--- 
-2.35.1
-
+ config UNWINDER_ARM
+ 	bool "ARM EABI stack unwinder"
+-	depends on AEABI
++	depends on AEABI && !FUNCTION_GRAPH_TRACER
+ 	select ARM_UNWIND
+ 	help
+ 	  This option enables stack unwinding support in the kernel
 
 
