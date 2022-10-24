@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 554F960B29C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:50:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 957E660B2CA
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:51:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231908AbiJXQuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:50:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40264 "EHLO
+        id S234972AbiJXQvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:51:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234990AbiJXQrR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:47:17 -0400
+        with ESMTP id S235502AbiJXQtq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D049A2E9C0;
-        Mon, 24 Oct 2022 08:31:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE28122BC6;
+        Mon, 24 Oct 2022 08:33:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 592B5B818E2;
-        Mon, 24 Oct 2022 12:55:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD793C433C1;
-        Mon, 24 Oct 2022 12:55:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00B92B81A1C;
+        Mon, 24 Oct 2022 12:55:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58B5AC433D6;
+        Mon, 24 Oct 2022 12:55:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616146;
-        bh=KvRsyww8TBRu9FFqzoB2wsOyRcPdvHSJA+Z6NdlXCMI=;
+        s=korg; t=1666616148;
+        bh=407NwDvLPJKqzLB7rgTrwzWR7eY9drwpc2gxmRqi+5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HyR8pNxZAFx5LRq9ipaebj+TcyAKg561muZI/M3Jt/ZZxQWmRPW30KXq6EXGwvuGO
-         uqXsJM1nidYkIL/atJniEIcHb4INqqyhFqn+pZymilHbkSlgAlGnu4lt1syeebMSha
-         Y3GiZIlU22IpJJicjmodGXewpPYe3bXWInPf8yqA=
+        b=iKdKmVBGbT+2NGDegG2eGnmtbh6//QkVpNDGhCttjEIvuZYxJBXFEZrDU95Ynwzls
+         ID4jYDKGFGoYy73BmZDKzsIhcHoeIzNsBeoChPRAxhZ4Tb3/wdVt3qstM5gQboqSIe
+         L/4pyjNYJUIDaLJ1golC9VkC3YN+9fHdhZkYqAwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 518/530] ALSA: usb-audio: Fix last interface check for registration
-Date:   Mon, 24 Oct 2022 13:34:22 +0200
-Message-Id: <20221024113108.455825729@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <yujie.liu@intel.com>,
+        Yu Kuai <yukuai3@huawei.com>, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 519/530] blk-wbt: fix that rwb->wc is always set to 1 in wbt_init()
+Date:   Mon, 24 Oct 2022 13:34:23 +0200
+Message-Id: <20221024113108.503193211@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -51,40 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 39efc9c8a973ddff5918191525d1679d0fb368ea upstream.
+commit 285febabac4a16655372d23ff43e89ff6f216691 upstream.
 
-The recent fix in commit 6392dcd1d0c7 ("ALSA: usb-audio: Register card
-at the last interface") tried to delay the card registration until the
-last found interface is probed.  It assumed that the probe callback
-gets called for those later interfaces, but it's not always true; as
-the driver loops over the descriptor and probes the matching ones,
-it's not separately called via multiple probe calls.  This results in
-the missing card registration, i.e. no sound device.
+commit 8c5035dfbb94 ("blk-wbt: call rq_qos_add() after wb_normal is
+initialized") moves wbt_set_write_cache() before rq_qos_add(), which
+is wrong because wbt_rq_qos() is still NULL.
 
-For addressing this problem, replace the check whether the last
-interface is processed with usb_interface_claimed() instead of the
-comparison with the probe interface number.
+Fix the problem by removing wbt_set_write_cache() and setting 'rwb->wc'
+directly. Noted that this patch also remove the redundant setting of
+'rab->wc'.
 
-Fixes: 6392dcd1d0c7 ("ALSA: usb-audio: Register card at the last interface")
-Link: https://lore.kernel.org/r/20220915085947.7922-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 8c5035dfbb94 ("blk-wbt: call rq_qos_add() after wb_normal is initialized")
+Reported-by: kernel test robot <yujie.liu@intel.com>
+Link: https://lore.kernel.org/r/202210081045.77ddf59b-yujie.liu@intel.com
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20221009101038.1692875-1-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/card.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-wbt.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -883,7 +883,7 @@ static int usb_audio_probe(struct usb_in
- 	 * one given via option
- 	 */
- 	if (check_delayed_register_option(chip) == ifnum ||
--	    chip->last_iface == ifnum) {
-+	    usb_interface_claimed(usb_ifnum_to_if(dev, chip->last_iface))) {
- 		err = snd_card_register(chip->card);
- 		if (err < 0)
- 			goto __error;
+--- a/block/blk-wbt.c
++++ b/block/blk-wbt.c
+@@ -841,12 +841,11 @@ int wbt_init(struct request_queue *q)
+ 	rwb->last_comp = rwb->last_issue = jiffies;
+ 	rwb->win_nsec = RWB_WINDOW_NSEC;
+ 	rwb->enable_state = WBT_STATE_ON_DEFAULT;
+-	rwb->wc = 1;
++	rwb->wc = test_bit(QUEUE_FLAG_WC, &q->queue_flags);
+ 	rwb->rq_depth.default_depth = RWB_DEF_DEPTH;
+ 	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
+ 
+ 	wbt_queue_depth_changed(&rwb->rqos);
+-	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
+ 
+ 	/*
+ 	 * Assign rwb and add the stats callback.
 
 
