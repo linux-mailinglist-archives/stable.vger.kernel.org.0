@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66BAC60A999
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:23:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0460A60A963
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233069AbiJXNXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:23:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56518 "EHLO
+        id S230448AbiJXNUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:20:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233097AbiJXNWK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:22:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D3A2D1F3;
-        Mon, 24 Oct 2022 05:29:39 -0700 (PDT)
+        with ESMTP id S231362AbiJXNSR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:18:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D295F2FFFE;
+        Mon, 24 Oct 2022 05:26:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB765B81331;
-        Mon, 24 Oct 2022 12:08:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BB2BC433D6;
-        Mon, 24 Oct 2022 12:08:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F25061268;
+        Mon, 24 Oct 2022 12:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73D68C433C1;
+        Mon, 24 Oct 2022 12:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613316;
-        bh=y839G3eWhqbFg+CH70M0j3cZIXcSKYZtss7cD99g68g=;
+        s=korg; t=1666614210;
+        bh=Uhl66iM0KuPXimYo3oJQbWlMZPTK9qOjxrbDCHLHOMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+gL/QiFhnEa0b16YIqf+yT5+u8scvHb4hrp17GJrm+Gjunb+P/upyJQH2FvQ8Jtf
-         603K9FGwVgtKMusU8Cf6luTQlaDoRFYPOe7rTfxQ9x0MQQkQQM9qjeaTtideIpnlbN
-         SeSEPNy9c4jm08u2j33VFRZJ3AvVJVpOF33NBmXk=
+        b=0pmMUtfwt8v8Riu+/xzP00baZEyhAxcCRBYVdJk3I5zQqGc1Zu7ay0zV9fyu/ikxY
+         sz9FtMctD5Jv6yyj7xgGJZlxx9e4enPFlmi08H7iu9hFwhNXHBPs1qtXfcouQBIokx
+         wacVbHq9SNqiK8NDLz6hyhr/7LCeMaLbhWXkLUzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/255] ARM: 9247/1: mm: set readonly for MT_MEMORY_RO with ARM_LPAE
+Subject: [PATCH 5.10 174/390] soc: qcom: smsm: Fix refcount leak bugs in qcom_smsm_probe()
 Date:   Mon, 24 Oct 2022 13:29:31 +0200
-Message-Id: <20221024113004.533977981@linuxfoundation.org>
+Message-Id: <20221024113030.123651577@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Kefeng <wangkefeng.wang@huawei.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 14ca1a4690750bb54e1049e49f3140ef48958a6e ]
+[ Upstream commit af8f6f39b8afd772fda4f8e61823ef8c021bf382 ]
 
-MT_MEMORY_RO is introduced by commit 598f0a99fa8a ("ARM: 9210/1:
-Mark the FDT_FIXED sections as shareable"), which is a readonly
-memory type for FDT area, but there are some different between
-ARM_LPAE and non-ARM_LPAE, we need to setup PMD_SECT_AP2 and
-L_PMD_SECT_RDONLY for MT_MEMORY_RO when ARM_LAPE enabled.
+There are two refcount leak bugs in qcom_smsm_probe():
 
-non-ARM_LPAE	0xff800000-0xffa00000           2M PGD KERNEL      ro NX SHD
-ARM_LPAE	0xff800000-0xffc00000           4M PMD RW NX SHD
-ARM_LPAE+fix	0xff800000-0xffc00000           4M PMD ro NX SHD
+(1) The 'local_node' is escaped out from for_each_child_of_node() as
+the break of iteration, we should call of_node_put() for it in error
+path or when it is not used anymore.
+(2) The 'node' is escaped out from for_each_available_child_of_node()
+as the 'goto', we should call of_node_put() for it in goto target.
 
-Fixes: 598f0a99fa8a ("ARM: 9210/1: Mark the FDT_FIXED sections as shareable")
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220721135217.1301039-1-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/mmu.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/soc/qcom/smsm.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
-index 463cbb0631be..5becec790379 100644
---- a/arch/arm/mm/mmu.c
-+++ b/arch/arm/mm/mmu.c
-@@ -320,7 +320,11 @@ static struct mem_type mem_types[] __ro_after_init = {
- 		.prot_pte  = L_PTE_PRESENT | L_PTE_YOUNG | L_PTE_DIRTY |
- 			     L_PTE_XN | L_PTE_RDONLY,
- 		.prot_l1   = PMD_TYPE_TABLE,
-+#ifdef CONFIG_ARM_LPAE
-+		.prot_sect = PMD_TYPE_SECT | L_PMD_SECT_RDONLY | PMD_SECT_AP2,
-+#else
- 		.prot_sect = PMD_TYPE_SECT,
-+#endif
- 		.domain    = DOMAIN_KERNEL,
- 	},
- 	[MT_ROM] = {
+diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
+index 6564f15c5319..acba67dfbc85 100644
+--- a/drivers/soc/qcom/smsm.c
++++ b/drivers/soc/qcom/smsm.c
+@@ -511,7 +511,7 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 	for (id = 0; id < smsm->num_hosts; id++) {
+ 		ret = smsm_parse_ipc(smsm, id);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put;
+ 	}
+ 
+ 	/* Acquire the main SMSM state vector */
+@@ -519,13 +519,14 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 			      smsm->num_entries * sizeof(u32));
+ 	if (ret < 0 && ret != -EEXIST) {
+ 		dev_err(&pdev->dev, "unable to allocate shared state entry\n");
+-		return ret;
++		goto out_put;
+ 	}
+ 
+ 	states = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_SMSM_SHARED_STATE, NULL);
+ 	if (IS_ERR(states)) {
+ 		dev_err(&pdev->dev, "Unable to acquire shared state entry\n");
+-		return PTR_ERR(states);
++		ret = PTR_ERR(states);
++		goto out_put;
+ 	}
+ 
+ 	/* Acquire the list of interrupt mask vectors */
+@@ -533,13 +534,14 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 	ret = qcom_smem_alloc(QCOM_SMEM_HOST_ANY, SMEM_SMSM_CPU_INTR_MASK, size);
+ 	if (ret < 0 && ret != -EEXIST) {
+ 		dev_err(&pdev->dev, "unable to allocate smsm interrupt mask\n");
+-		return ret;
++		goto out_put;
+ 	}
+ 
+ 	intr_mask = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_SMSM_CPU_INTR_MASK, NULL);
+ 	if (IS_ERR(intr_mask)) {
+ 		dev_err(&pdev->dev, "unable to acquire shared memory interrupt mask\n");
+-		return PTR_ERR(intr_mask);
++		ret = PTR_ERR(intr_mask);
++		goto out_put;
+ 	}
+ 
+ 	/* Setup the reference to the local state bits */
+@@ -550,7 +552,8 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 	smsm->state = qcom_smem_state_register(local_node, &smsm_state_ops, smsm);
+ 	if (IS_ERR(smsm->state)) {
+ 		dev_err(smsm->dev, "failed to register qcom_smem_state\n");
+-		return PTR_ERR(smsm->state);
++		ret = PTR_ERR(smsm->state);
++		goto out_put;
+ 	}
+ 
+ 	/* Register handlers for remote processor entries of interest. */
+@@ -580,16 +583,19 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	platform_set_drvdata(pdev, smsm);
++	of_node_put(local_node);
+ 
+ 	return 0;
+ 
+ unwind_interfaces:
++	of_node_put(node);
+ 	for (id = 0; id < smsm->num_entries; id++)
+ 		if (smsm->entries[id].domain)
+ 			irq_domain_remove(smsm->entries[id].domain);
+ 
+ 	qcom_smem_state_unregister(smsm->state);
+-
++out_put:
++	of_node_put(local_node);
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
