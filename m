@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5709660A557
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:23:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E131160A3FD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233584AbiJXMXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:23:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47374 "EHLO
+        id S232579AbiJXMDs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:03:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233518AbiJXMWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:22:37 -0400
+        with ESMTP id S232504AbiJXMB6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:01:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 047AB2E6B5;
-        Mon, 24 Oct 2022 04:59:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3BDD13F11;
+        Mon, 24 Oct 2022 04:49:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92041612E8;
-        Mon, 24 Oct 2022 11:58:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3E5BC433D6;
-        Mon, 24 Oct 2022 11:58:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A02B161286;
+        Mon, 24 Oct 2022 11:49:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2F60C433C1;
+        Mon, 24 Oct 2022 11:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612717;
-        bh=dwYvbXJVWzetlCsNi7yucSsFrcK5alNlEyvytNaqAD8=;
+        s=korg; t=1666612171;
+        bh=HA9MCoEoC8QqmrO+2/VbuNC0X/ywxoU5lg6FjR2ETcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vWL0S/ZgBBo/tA55e9BPZlevVRiEY0gA/UTbJegviHhwB0p0HXERwx4Wvw63N0DmR
-         bUiMnrTo/KAOIBt4X3G/06SLpAcdx3yEP1S02CE3vq3B6l+qniZugpxeLUpn+4QD2T
-         TBB6aG23COuSw1svp3VTF+pqeGQe+TXkG8xxOP00=
+        b=C+r25CL2ZORvV/2FylmmFEde6pNdTjchJBH0sXyFMH8eswrtw1lt1anMSTq8zDgPo
+         AhkK2zVfzCliyBD9PA6Ng1/fQCmEo2BY4L+/joT2VLSOrWylIseaZq8lNcE0aUziWV
+         X3Zw2IdHZLZIXLmK3jIHePj94ixjQ/FMA3cEj120=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
+        "Kevin(Yudong) Yang" <yyd@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 093/229] net: mvpp2: fix mvpp2 debugfs leak
+Subject: [PATCH 4.14 095/210] tcp: fix tcp_cwnd_validate() to not forget is_cwnd_limited
 Date:   Mon, 24 Oct 2022 13:30:12 +0200
-Message-Id: <20221024113002.058382203@linuxfoundation.org>
+Message-Id: <20221024113000.110431859@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,105 +56,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Neal Cardwell <ncardwell@google.com>
 
-[ Upstream commit 0152dfee235e87660f52a117fc9f70dc55956bb4 ]
+[ Upstream commit f4ce91ce12a7c6ead19b128ffa8cff6e3ded2a14 ]
 
-When mvpp2 is unloaded, the driver specific debugfs directory is not
-removed, which technically leads to a memory leak. However, this
-directory is only created when the first device is probed, so the
-hardware is present. Removing the module is only something a developer
-would to when e.g. testing out changes, so the module would be
-reloaded. So this memory leak is minor.
+This commit fixes a bug in the tracking of max_packets_out and
+is_cwnd_limited. This bug can cause the connection to fail to remember
+that is_cwnd_limited is true, causing the connection to fail to grow
+cwnd when it should, causing throughput to be lower than it should be.
 
-The original attempt in commit fe2c9c61f668 ("net: mvpp2: debugfs: fix
-memory leak when using debugfs_lookup()") that was labelled as a memory
-leak fix was not, it fixed a refcount leak, but in doing so created a
-problem when the module is reloaded - the directory already exists, but
-mvpp2_root is NULL, so we lose all debugfs entries. This fix has been
-reverted.
+The following event sequence is an example that triggers the bug:
 
-This is the alternative fix, where we remove the offending directory
-whenever the driver is unloaded.
+ (a) The connection is cwnd_limited, but packets_out is not at its
+     peak due to TSO deferral deciding not to send another skb yet.
+     In such cases the connection can advance max_packets_seq and set
+     tp->is_cwnd_limited to true and max_packets_out to a small
+     number.
 
-Fixes: 21da57a23125 ("net: mvpp2: add a debugfs interface for the Header Parser")
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Marcin Wojtas <mw@semihalf.com>
-Link: https://lore.kernel.org/r/E1ofOAB-00CzkG-UO@rmk-PC.armlinux.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+(b) Then later in the round trip the connection is pacing-limited (not
+     cwnd-limited), and packets_out is larger. In such cases the
+     connection would raise max_packets_out to a bigger number but
+     (unexpectedly) flip tp->is_cwnd_limited from true to false.
+
+This commit fixes that bug.
+
+One straightforward fix would be to separately track (a) the next
+window after max_packets_out reaches a maximum, and (b) the next
+window after tp->is_cwnd_limited is set to true. But this would
+require consuming an extra u32 sequence number.
+
+Instead, to save space we track only the most important
+information. Specifically, we track the strongest available signal of
+the degree to which the cwnd is fully utilized:
+
+(1) If the connection is cwnd-limited then we remember that fact for
+the current window.
+
+(2) If the connection not cwnd-limited then we track the maximum
+number of outstanding packets in the current window.
+
+In particular, note that the new logic cannot trigger the buggy
+(a)/(b) sequence above because with the new logic a condition where
+tp->packets_out > tp->max_packets_out can only trigger an update of
+tp->is_cwnd_limited if tp->is_cwnd_limited is false.
+
+This first showed up in a testing of a BBRv2 dev branch, but this
+buggy behavior highlighted a general issue with the
+tcp_cwnd_validate() logic that can cause cwnd to fail to increase at
+the proper rate for any TCP congestion control, including Reno or
+CUBIC.
+
+Fixes: ca8a22634381 ("tcp: make cwnd-limited checks measurement-based, and gentler")
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Kevin(Yudong) Yang <yyd@google.com>
+Signed-off-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2.h         |  1 +
- drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c | 10 ++++++++--
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c    | 13 ++++++++++++-
- 3 files changed, 21 insertions(+), 3 deletions(-)
+ include/linux/tcp.h   |  2 +-
+ include/net/tcp.h     |  5 ++++-
+ net/ipv4/tcp.c        |  2 ++
+ net/ipv4/tcp_output.c | 19 ++++++++++++-------
+ 4 files changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-index 46911b67b039..23f60bc5d48f 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-@@ -1107,5 +1107,6 @@ void mvpp2_percpu_write_relaxed(struct mvpp2 *priv, int cpu, u32 offset,
- void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name);
+diff --git a/include/linux/tcp.h b/include/linux/tcp.h
+index 61eb40fef759..b9bc6e3e4ef9 100644
+--- a/include/linux/tcp.h
++++ b/include/linux/tcp.h
+@@ -245,7 +245,7 @@ struct tcp_sock {
+ 	u32	packets_out;	/* Packets which are "in flight"	*/
+ 	u32	retrans_out;	/* Retransmitted packets out		*/
+ 	u32	max_packets_out;  /* max packets_out in last window */
+-	u32	max_packets_seq;  /* right edge of max_packets_out flight */
++	u32	cwnd_usage_seq;  /* right edge of cwnd usage tracking flight */
  
- void mvpp2_dbgfs_cleanup(struct mvpp2 *priv);
-+void mvpp2_dbgfs_exit(void);
+ 	u16	urg_data;	/* Saved octet of OOB data and control flags */
+ 	u8	ecn_flags;	/* ECN status bits.			*/
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 5e719f9d60fd..003638f73ffa 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1228,11 +1228,14 @@ static inline bool tcp_is_cwnd_limited(const struct sock *sk)
+ {
+ 	const struct tcp_sock *tp = tcp_sk(sk);
  
- #endif
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-index 87d9cbe10cec..004e0fac5455 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-@@ -648,6 +648,13 @@ static int mvpp2_dbgfs_port_init(struct dentry *parent,
- 	return 0;
++	if (tp->is_cwnd_limited)
++		return true;
++
+ 	/* If in slow start, ensure cwnd grows to twice what was ACKed. */
+ 	if (tcp_in_slow_start(tp))
+ 		return tp->snd_cwnd < 2 * tp->max_packets_out;
+ 
+-	return tp->is_cwnd_limited;
++	return false;
  }
  
-+static struct dentry *mvpp2_root;
-+
-+void mvpp2_dbgfs_exit(void)
-+{
-+	debugfs_remove(mvpp2_root);
-+}
-+
- void mvpp2_dbgfs_cleanup(struct mvpp2 *priv)
- {
- 	debugfs_remove_recursive(priv->dbgfs_dir);
-@@ -655,10 +662,9 @@ void mvpp2_dbgfs_cleanup(struct mvpp2 *priv)
+ /* Something is really bad, we could not queue an additional packet,
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index a0fd9ef2d2c6..783d0cd4fcbd 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -2366,6 +2366,8 @@ int tcp_disconnect(struct sock *sk, int flags)
+ 	icsk->icsk_probes_out = 0;
+ 	tp->snd_ssthresh = TCP_INFINITE_SSTHRESH;
+ 	tp->snd_cwnd_cnt = 0;
++	tp->is_cwnd_limited = 0;
++	tp->max_packets_out = 0;
+ 	tp->window_clamp = 0;
+ 	tp->delivered = 0;
+ 	if (icsk->icsk_ca_ops->release)
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index 6b6dfb08dde4..2a9e55411ac4 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1618,15 +1618,20 @@ static void tcp_cwnd_validate(struct sock *sk, bool is_cwnd_limited)
+ 	const struct tcp_congestion_ops *ca_ops = inet_csk(sk)->icsk_ca_ops;
+ 	struct tcp_sock *tp = tcp_sk(sk);
  
- void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name)
- {
--	struct dentry *mvpp2_dir, *mvpp2_root;
-+	struct dentry *mvpp2_dir;
- 	int ret, i;
+-	/* Track the maximum number of outstanding packets in each
+-	 * window, and remember whether we were cwnd-limited then.
++	/* Track the strongest available signal of the degree to which the cwnd
++	 * is fully utilized. If cwnd-limited then remember that fact for the
++	 * current window. If not cwnd-limited then track the maximum number of
++	 * outstanding packets in the current window. (If cwnd-limited then we
++	 * chose to not update tp->max_packets_out to avoid an extra else
++	 * clause with no functional impact.)
+ 	 */
+-	if (!before(tp->snd_una, tp->max_packets_seq) ||
+-	    tp->packets_out > tp->max_packets_out ||
+-	    is_cwnd_limited) {
+-		tp->max_packets_out = tp->packets_out;
+-		tp->max_packets_seq = tp->snd_nxt;
++	if (!before(tp->snd_una, tp->cwnd_usage_seq) ||
++	    is_cwnd_limited ||
++	    (!tp->is_cwnd_limited &&
++	     tp->packets_out > tp->max_packets_out)) {
+ 		tp->is_cwnd_limited = is_cwnd_limited;
++		tp->max_packets_out = tp->packets_out;
++		tp->cwnd_usage_seq = tp->snd_nxt;
+ 	}
  
--	mvpp2_root = debugfs_lookup(MVPP2_DRIVER_NAME, NULL);
- 	if (!mvpp2_root)
- 		mvpp2_root = debugfs_create_dir(MVPP2_DRIVER_NAME, NULL);
- 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index 52fdb200a0c7..788fe627e78a 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -5417,7 +5417,18 @@ static struct platform_driver mvpp2_driver = {
- 	},
- };
- 
--module_platform_driver(mvpp2_driver);
-+static int __init mvpp2_driver_init(void)
-+{
-+	return platform_driver_register(&mvpp2_driver);
-+}
-+module_init(mvpp2_driver_init);
-+
-+static void __exit mvpp2_driver_exit(void)
-+{
-+	platform_driver_unregister(&mvpp2_driver);
-+	mvpp2_dbgfs_exit();
-+}
-+module_exit(mvpp2_driver_exit);
- 
- MODULE_DESCRIPTION("Marvell PPv2 Ethernet Driver - www.marvell.com");
- MODULE_AUTHOR("Marcin Wojtas <mw@semihalf.com>");
+ 	if (tcp_is_cwnd_limited(sk)) {
 -- 
 2.35.1
 
