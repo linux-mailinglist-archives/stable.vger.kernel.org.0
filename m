@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2569E60A27B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:44:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A059F60A3A0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:58:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231222AbiJXLos (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:44:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43454 "EHLO
+        id S232149AbiJXL6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:58:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231491AbiJXLnv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:43:51 -0400
+        with ESMTP id S232156AbiJXL4r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:56:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04BB2722AE;
-        Mon, 24 Oct 2022 04:41:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F10A7B29E;
+        Mon, 24 Oct 2022 04:47:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2D53B8114B;
-        Mon, 24 Oct 2022 11:38:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CBC9C433C1;
-        Mon, 24 Oct 2022 11:38:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9F12B8119F;
+        Mon, 24 Oct 2022 11:47:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C6E1C433C1;
+        Mon, 24 Oct 2022 11:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611537;
-        bh=CGBcvrQd/p0n6IUwX80bJdyxLJsrY696W1INoFA4j84=;
+        s=korg; t=1666612022;
+        bh=HcpGPCOEX3wCd/MN7AXOwedC+Kl55GIaCX/bTzIOc+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0gnxS6m7c23VYeF+/Fv7gBDNIpPS/L+hAZDAvoeIRDx9YgWr8eKEl/B+kHwrMQNZb
-         f8l+Iu5Dl9kZMZTs8TJluj8m/nKSgJseQbJULHTPvo+DkW5YzfNBDV5BEjgi8FjUQZ
-         jgdqJnPnJvy1ANMdCmzBJ8aXbS02wu8kRO6WbhO4=
+        b=mbct1K4VR9qd1EaMv8x71mfEl9J1qHvUahqEikOWK1pJqTCn5Gu0VMvDWPp8Skeeq
+         DD+PMyUE3d+8TMefQ/Felj5paAOJWkFMWM4hIxRL9TMqzb7ppP+9B1xEOUyKq6r1ZU
+         6OtlJcAABUwI/+kVjSluGlMVlFAPNyq6704ZANbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 004/159] net: usb: qmi_wwan: Add new usb-id for Dell branded EM7455
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 4.14 041/210] ALSA: hda: Fix position reporting on Poulsbo
 Date:   Mon, 24 Oct 2022 13:29:18 +0200
-Message-Id: <20221024112949.530220698@linuxfoundation.org>
+Message-Id: <20221024112958.323821272@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,31 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Wunderlich <frank-w@public-files.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 797666cd5af041ffb66642fff62f7389f08566a2 upstream.
+commit 56e696c0f0c71b77fff921fc94b58a02f0445b2c upstream.
 
-Add support for Dell 5811e (EM7455) with USB-id 0x413c:0x81c2.
+Hans reported that his Sony VAIO VPX11S1E showed the broken sound
+behavior at the start of the stream for a couple of seconds, and it
+turned out that the position_fix=1 option fixes the issue.  It implies
+that the position reporting is inaccurate, and very likely hitting on
+all Poulsbo devices.
 
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Cc: stable@vger.kernel.org
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20220926150740.6684-3-linux@fw-web.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The patch applies the workaround for Poulsbo generically to switch to
+LPIB mode instead of the default position buffer.
+
+Reported-and-tested-by: Hans de Goede <hdegoede@redhat.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/3e8697e1-87c6-7a7b-d2e8-b21f1d2f181b@redhat.com
+Link: https://lore.kernel.org/r/20221001142124.7241-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/qmi_wwan.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/hda_intel.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -966,6 +966,7 @@ static const struct usb_device_id produc
- 	{QMI_FIXED_INTF(0x413c, 0x81b3, 8)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
- 	{QMI_FIXED_INTF(0x413c, 0x81b6, 8)},	/* Dell Wireless 5811e */
- 	{QMI_FIXED_INTF(0x413c, 0x81b6, 10)},	/* Dell Wireless 5811e */
-+	{QMI_FIXED_INTF(0x413c, 0x81c2, 8)},	/* Dell Wireless 5811e */
- 	{QMI_FIXED_INTF(0x413c, 0x81cc, 8)},	/* Dell Wireless 5816e */
- 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
- 	{QMI_FIXED_INTF(0x413c, 0x81d7, 1)},	/* Dell Wireless 5821e preproduction config */
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2571,7 +2571,8 @@ static const struct pci_device_id azx_id
+ 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_NOPM },
+ 	/* Poulsbo */
+ 	{ PCI_DEVICE(0x8086, 0x811b),
+-	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_BASE },
++	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_BASE |
++	  AZX_DCAPS_POSFIX_LPIB },
+ 	/* Oaktrail */
+ 	{ PCI_DEVICE(0x8086, 0x080a),
+ 	  .driver_data = AZX_DRIVER_SCH | AZX_DCAPS_INTEL_PCH_BASE },
 
 
