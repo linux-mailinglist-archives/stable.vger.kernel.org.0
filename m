@@ -2,52 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B668F60B9C2
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:20:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B95E360BB0A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:45:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232149AbiJXUUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:20:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49566 "EHLO
+        id S235015AbiJXUpd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:45:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232493AbiJXUU2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:20:28 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F49A9D50A;
-        Mon, 24 Oct 2022 11:37:00 -0700 (PDT)
+        with ESMTP id S235168AbiJXUoL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:44:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A148175AF;
+        Mon, 24 Oct 2022 11:52:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C9908CE13C4;
-        Mon, 24 Oct 2022 12:24:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EE03C433C1;
-        Mon, 24 Oct 2022 12:24:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8357AB811B6;
+        Mon, 24 Oct 2022 12:06:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E113CC433D6;
+        Mon, 24 Oct 2022 12:06:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614245;
-        bh=baId3y2PnKov3b1F4NURKQxj97Z3GYNXAxDixrtp190=;
+        s=korg; t=1666613185;
+        bh=XTVhTzc/xTN+HjoQQ+gMakvgeYZ5zzi8LY0H4wMCYgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FpXD+ofYTey4GSaqnI9/wEILYSeDS8A1GQTvRnR25ozcY+bIP744jEUNEL12UC7bT
-         BwMyRbAbRp3qxwWF0z08okMJvGqy7StUCTg9jsfqywVjm5tY8/bDJfBtFj4PdMG1Zo
-         uSmB8m7pHMsrJiQnUT26B3NamdqypvVjUn8I+eA0=
+        b=mzjp5qz8f2z2bMbej0OFbyUNuJBdL4KQR0iD7O+Xi05pmvKK5VKHbWypNgBCh/sDW
+         lRHOXXxkRYlJV39J/KPZOJm4pLFYfGTQFFKDqujSdu+zDO7KO1qFMdTfgjMNeiUn/k
+         1omPnu42yO46/vaDDdNo3UGx157NYmzFPfocpvtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Dillon Min <dillon.minfei@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        dri-devel@lists.freedesktop.org, David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 154/390] drm: fix drm_mipi_dbi build errors
+        stable@vger.kernel.org, stable@kernel.org,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        syzbot+bd13648a53ed6933ca49@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Lukas Czerner <lczerner@redhat.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 041/255] ext4: avoid crash when inline data creation follows DIO write
 Date:   Mon, 24 Oct 2022 13:29:11 +0200
-Message-Id: <20221024113029.232783928@linuxfoundation.org>
+Message-Id: <20221024113003.793730758@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,62 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit eb7de496451bd969e203f02f66585131228ba4ae ]
+commit 4bb26f2885ac6930984ee451b952c5a6042f2c0e upstream.
 
-drm_mipi_dbi needs lots of DRM_KMS_HELPER support, so select
-that Kconfig symbol like it is done is most other uses, and
-the way that it was before MIPS_DBI was moved from tinydrm
-to its core location.
+When inode is created and written to using direct IO, there is nothing
+to clear the EXT4_STATE_MAY_INLINE_DATA flag. Thus when inode gets
+truncated later to say 1 byte and written using normal write, we will
+try to store the data as inline data. This confuses the code later
+because the inode now has both normal block and inline data allocated
+and the confusion manifests for example as:
 
-Fixes these build errors:
+kernel BUG at fs/ext4/inode.c:2721!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 359 Comm: repro Not tainted 5.19.0-rc8-00001-g31ba1e3b8305-dirty #15
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-1.fc36 04/01/2014
+RIP: 0010:ext4_writepages+0x363d/0x3660
+RSP: 0018:ffffc90000ccf260 EFLAGS: 00010293
+RAX: ffffffff81e1abcd RBX: 0000008000000000 RCX: ffff88810842a180
+RDX: 0000000000000000 RSI: 0000008000000000 RDI: 0000000000000000
+RBP: ffffc90000ccf650 R08: ffffffff81e17d58 R09: ffffed10222c680b
+R10: dfffe910222c680c R11: 1ffff110222c680a R12: ffff888111634128
+R13: ffffc90000ccf880 R14: 0000008410000000 R15: 0000000000000001
+FS:  00007f72635d2640(0000) GS:ffff88811b000000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000565243379180 CR3: 000000010aa74000 CR4: 0000000000150eb0
+Call Trace:
+ <TASK>
+ do_writepages+0x397/0x640
+ filemap_fdatawrite_wbc+0x151/0x1b0
+ file_write_and_wait_range+0x1c9/0x2b0
+ ext4_sync_file+0x19e/0xa00
+ vfs_fsync_range+0x17b/0x190
+ ext4_buffered_write_iter+0x488/0x530
+ ext4_file_write_iter+0x449/0x1b90
+ vfs_write+0xbcd/0xf40
+ ksys_write+0x198/0x2c0
+ __x64_sys_write+0x7b/0x90
+ do_syscall_64+0x3d/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ </TASK>
 
-ld: drivers/gpu/drm/drm_mipi_dbi.o: in function `mipi_dbi_buf_copy':
-drivers/gpu/drm/drm_mipi_dbi.c:205: undefined reference to `drm_gem_fb_get_obj'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:211: undefined reference to `drm_gem_fb_begin_cpu_access'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:215: undefined reference to `drm_gem_fb_vmap'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:222: undefined reference to `drm_fb_swab'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:224: undefined reference to `drm_fb_memcpy'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:227: undefined reference to `drm_fb_xrgb8888_to_rgb565'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:235: undefined reference to `drm_gem_fb_vunmap'
-ld: drivers/gpu/drm/drm_mipi_dbi.c:237: undefined reference to `drm_gem_fb_end_cpu_access'
-ld: drivers/gpu/drm/drm_mipi_dbi.o: in function `mipi_dbi_dev_init_with_formats':
-ld: drivers/gpu/drm/drm_mipi_dbi.o:/X64/../drivers/gpu/drm/drm_mipi_dbi.c:469: undefined reference to `drm_gem_fb_create_with_dirty'
+Fix the problem by clearing EXT4_STATE_MAY_INLINE_DATA when we are doing
+direct IO write to a file.
 
-Fixes: 174102f4de23 ("drm/tinydrm: Move mipi-dbi")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Dillon Min <dillon.minfei@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Noralf Trønnes <noralf@tronnes.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Thierry Reding <thierry.reding@gmail.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220823004243.11596-1-rdunlap@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@kernel.org
+Reported-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Reported-by: syzbot+bd13648a53ed6933ca49@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=a1e89d09bbbcbd5c4cb45db230ee28c822953984
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Tested-by: Tadeusz Struk<tadeusz.struk@linaro.org>
+Link: https://lore.kernel.org/r/20220727155753.13969-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/file.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-index ca868271f4c4..4e9b3a95fa7c 100644
---- a/drivers/gpu/drm/Kconfig
-+++ b/drivers/gpu/drm/Kconfig
-@@ -30,6 +30,7 @@ menuconfig DRM
- config DRM_MIPI_DBI
- 	tristate
- 	depends on DRM
-+	select DRM_KMS_HELPER
+--- a/fs/ext4/file.c
++++ b/fs/ext4/file.c
+@@ -505,6 +505,12 @@ loff_t ext4_llseek(struct file *file, lo
+ 		inode_unlock_shared(inode);
+ 		break;
+ 	}
++	/*
++	 * Make sure inline data cannot be created anymore since we are going
++	 * to allocate blocks for DIO. We know the inode does not have any
++	 * inline data now because ext4_dio_supported() checked for that.
++	 */
++	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
  
- config DRM_MIPI_DSI
- 	bool
--- 
-2.35.1
-
+ 	if (offset < 0)
+ 		return offset;
 
 
