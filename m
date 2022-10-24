@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 650EC60A9EF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00C8160A7AD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233145AbiJXN0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:26:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51130 "EHLO
+        id S232308AbiJXMzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:55:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236330AbiJXNZK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:25:10 -0400
+        with ESMTP id S231911AbiJXMy1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:54:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8F28A87AB;
-        Mon, 24 Oct 2022 05:31:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78967201B3;
+        Mon, 24 Oct 2022 05:15:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 403FB6130D;
-        Mon, 24 Oct 2022 12:30:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52273C433D7;
-        Mon, 24 Oct 2022 12:30:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9C106121A;
+        Mon, 24 Oct 2022 12:04:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE001C433D6;
+        Mon, 24 Oct 2022 12:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614654;
-        bh=ESBlktG6PmlJe5kVaKRkcjiBK0TRHMnkGcZgp4o3+AI=;
+        s=korg; t=1666613085;
+        bh=Z6Jp/s2PYgjHFNbyhiSArB81BC6Uh7z2TR6mIj/hsJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=irUdgLNkMEfI2w040eP1DERi3vkMNApEiBVLsPPaX/lrHaeAQPwuICOxkAupcnxI9
-         2Qr9QrFDyQMjJ8zREvkLkd4VjEgROlZF9gscUP95JBJL3i6aSjyCZw9drB60efH7CS
-         s6Cw+bLDYD3VDhigUepUdb44rBDjzBB188qnvTmM=
+        b=u6Krc4ig5wuTlJvS9/Bl+j6E68bURc996UbCJF+5xIh5azFRl72o4lxBahOXRwSOS
+         rJQfDBzNerr50NrReDAwAnxacAvpqhpoi7MzDRdLUkwMv9ki8feBOEu1b1NZwkpQIa
+         QgJFG1EdFry86B78qxGXdinHPNWHMvB5uFbXCX3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 343/390] ARM: dts: imx6q: add missing properties for sram
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.19 221/229] perf intel-pt: Fix segfault in intel_pt_print_info() with uClibc
 Date:   Mon, 24 Oct 2022 13:32:20 +0200
-Message-Id: <20221024113037.595675195@linuxfoundation.org>
+Message-Id: <20221024113006.403705714@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit b11d083c5dcec7c42fe982c854706d404ddd3a5f ]
+commit 5a3d47071f0ced0431ef82a5fb6bd077ed9493db upstream.
 
-All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
-sram@900000: '#address-cells' is a required property
-sram@900000: '#size-cells' is a required property
-sram@900000: 'ranges' is a required property
+uClibc segfaulted because NULL was passed as the format to fprintf().
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+That happened because one of the format strings was missing and
+intel_pt_print_info() didn't check that before calling fprintf().
+
+Add the missing format string, and check format is not NULL before calling
+fprintf().
+
+Fixes: 11fa7cb86b56d361 ("perf tools: Pass Intel PT information for decoding MTC and CYC")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221012082259.22394-2-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6q.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/util/intel-pt.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
-index 5277e3903291..afec1677e6ba 100644
---- a/arch/arm/boot/dts/imx6q.dtsi
-+++ b/arch/arm/boot/dts/imx6q.dtsi
-@@ -163,6 +163,9 @@
- 		ocram: sram@900000 {
- 			compatible = "mmio-sram";
- 			reg = <0x00900000 0x40000>;
-+			ranges = <0 0x00900000 0x40000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
- 		};
+--- a/tools/perf/util/intel-pt.c
++++ b/tools/perf/util/intel-pt.c
+@@ -2373,6 +2373,7 @@ static const char * const intel_pt_info_
+ 	[INTEL_PT_SNAPSHOT_MODE]	= "  Snapshot mode       %"PRId64"\n",
+ 	[INTEL_PT_PER_CPU_MMAPS]	= "  Per-cpu maps        %"PRId64"\n",
+ 	[INTEL_PT_MTC_BIT]		= "  MTC bit             %#"PRIx64"\n",
++	[INTEL_PT_MTC_FREQ_BITS]	= "  MTC freq bits       %#"PRIx64"\n",
+ 	[INTEL_PT_TSC_CTC_N]		= "  TSC:CTC numerator   %"PRIu64"\n",
+ 	[INTEL_PT_TSC_CTC_D]		= "  TSC:CTC denominator %"PRIu64"\n",
+ 	[INTEL_PT_CYC_BIT]		= "  CYC bit             %#"PRIx64"\n",
+@@ -2387,8 +2388,12 @@ static void intel_pt_print_info(u64 *arr
+ 	if (!dump_trace)
+ 		return;
  
--- 
-2.35.1
-
+-	for (i = start; i <= finish; i++)
+-		fprintf(stdout, intel_pt_info_fmts[i], arr[i]);
++	for (i = start; i <= finish; i++) {
++		const char *fmt = intel_pt_info_fmts[i];
++
++		if (fmt)
++			fprintf(stdout, fmt, arr[i]);
++	}
+ }
+ 
+ static void intel_pt_print_info_str(const char *name, const char *str)
 
 
