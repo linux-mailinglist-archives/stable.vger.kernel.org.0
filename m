@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFEF260A805
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D97E60A729
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234984AbiJXNAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43014 "EHLO
+        id S234285AbiJXMsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:48:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235212AbiJXM7j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:39 -0400
+        with ESMTP id S234210AbiJXMmV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:42:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E1289AFAC;
-        Mon, 24 Oct 2022 05:19:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4849F7E80B;
+        Mon, 24 Oct 2022 05:08:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6726261281;
-        Mon, 24 Oct 2022 12:10:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7842CC433D6;
-        Mon, 24 Oct 2022 12:10:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B629861281;
+        Mon, 24 Oct 2022 11:42:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8B26C43470;
+        Mon, 24 Oct 2022 11:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613400;
-        bh=zT6MDUv1/e0ceaKhgr+62ulahZ4sloOaOytnAgt472Y=;
+        s=korg; t=1666611726;
+        bh=iy6+dzbMrtUn8z3Bzy2JPrniPwMyWDR81wptzzfv+ZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N/sVcOidM1moFKEGs80QigbJ0Y4hbXDkmdIS+kCvSSpdPp3YM0QIytf/VaB00cGjg
-         Tx8Ka6LsPlts9aGIM4gQc7n3wK7wbPd5enpks/F+0+O6HuCR5NXbpapeYDNAuYzsnH
-         MeF8Kx8Z7LCtzmvOx0RuX4v3XxP5CJZo1qNGbvQM=
+        b=jIEbhME1sh8Uk+j2wwWZ2a0JdV2CUFc5rGNxo/KtluAvQzJ7Gk0lF52jcfkq8l3+/
+         d3K+7ZAZ+sPuZ3Hn5pqBKVamVUKuyjMKt1SS8eU2xEeQitW0FF18wo2wt7TIIT7PMr
+         cWoyk5W03HlvBnd0ssitJegUzSRoDOex4OeeyBws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/255] platform/x86: msi-laptop: Fix old-ec check for backlight registering
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.9 048/159] quota: Check next/prev free block number after reading from quota file
 Date:   Mon, 24 Oct 2022 13:30:02 +0200
-Message-Id: <20221024113005.556081298@linuxfoundation.org>
+Message-Id: <20221024112951.159251294@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +52,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 83ac7a1c2ed5f17caa07cbbc84bad3c05dc3bf22 ]
+commit 6c8ea8b8cd4722efd419f91ca46a2dc81b7d89a3 upstream.
 
-Commit 2cc6c717799f ("msi-laptop: Port to new backlight interface
-selection API") replaced this check:
+Following process:
+ Init: v2_read_file_info: <3> dqi_free_blk 0 dqi_free_entry 5 dqi_blks 6
 
-	if (!quirks->old_ec_model || acpi_video_backlight_support())
-		pr_info("Brightness ignored, ...");
-	else
-		do_register();
+ Step 1. chown bin f_a -> dquot_acquire -> v2_write_dquot:
+  qtree_write_dquot
+   do_insert_tree
+    find_free_dqentry
+     get_free_dqblk
+      write_blk(info->dqi_blocks) // info->dqi_blocks = 6, failure. The
+	   content in physical block (corresponding to blk 6) is random.
 
-With:
+ Step 2. chown root f_a -> dquot_transfer -> dqput_all -> dqput ->
+         ext4_release_dquot -> v2_release_dquot -> qtree_delete_dquot:
+  dquot_release
+   remove_tree
+    free_dqentry
+     put_free_dqblk(6)
+      info->dqi_free_blk = blk    // info->dqi_free_blk = 6
 
-	if (quirks->old_ec_model ||
-	    acpi_video_get_backlight_type() == acpi_backlight_vendor)
-		do_register();
+ Step 3. drop cache (buffer head for block 6 is released)
 
-But since the do_register() part was part of the else branch, the entire
-condition should be inverted.  So not only the 2 statements on either
-side of the || should be inverted, but the || itself should be replaced
-with a &&.
+ Step 4. chown bin f_b -> dquot_acquire -> commit_dqblk -> v2_write_dquot:
+  qtree_write_dquot
+   do_insert_tree
+    find_free_dqentry
+     get_free_dqblk
+      dh = (struct qt_disk_dqdbheader *)buf
+      blk = info->dqi_free_blk     // 6
+      ret = read_blk(info, blk, buf)  // The content of buf is random
+      info->dqi_free_blk = le32_to_cpu(dh->dqdh_next_free)  // random blk
 
-In practice this has likely not been an issue because the new-ec models
-(old_ec_model==false) likely all support ACPI video backlight control,
-making acpi_video_get_backlight_type() return acpi_backlight_video
-turning the second part of the || also false when old_ec_model == false.
+ Step 5. chown bin f_c -> notify_change -> ext4_setattr -> dquot_transfer:
+  dquot = dqget -> acquire_dquot -> ext4_acquire_dquot -> dquot_acquire ->
+          commit_dqblk -> v2_write_dquot -> dq_insert_tree:
+   do_insert_tree
+    find_free_dqentry
+     get_free_dqblk
+      blk = info->dqi_free_blk    // If blk < 0 and blk is not an error
+				     code, it will be returned as dquot
 
-Fixes: 2cc6c717799f ("msi-laptop: Port to new backlight interface selection API")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220825141336.208597-1-hdegoede@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  transfer_to[USRQUOTA] = dquot  // A random negative value
+  __dquot_transfer(transfer_to)
+   dquot_add_inodes(transfer_to[cnt])
+    spin_lock(&dquot->dq_dqb_lock)  // page fault
+
+, which will lead to kernel page fault:
+ Quota error (device sda): qtree_write_dquot: Error -8000 occurred
+ while creating quota
+ BUG: unable to handle page fault for address: ffffffffffffe120
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ Oops: 0002 [#1] PREEMPT SMP
+ CPU: 0 PID: 5974 Comm: chown Not tainted 6.0.0-rc1-00004
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+ RIP: 0010:_raw_spin_lock+0x3a/0x90
+ Call Trace:
+  dquot_add_inodes+0x28/0x270
+  __dquot_transfer+0x377/0x840
+  dquot_transfer+0xde/0x540
+  ext4_setattr+0x405/0x14d0
+  notify_change+0x68e/0x9f0
+  chown_common+0x300/0x430
+  __x64_sys_fchownat+0x29/0x40
+
+In order to avoid accessing invalid quota memory address, this patch adds
+block number checking of next/prev free block read from quota file.
+
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216372
+Fixes: 1da177e4c3f4152 ("Linux-2.6.12-rc2")
+CC: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220923134555.2623931-2-chengzhihao1@huawei.com
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/msi-laptop.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/quota/quota_tree.c |   38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
-diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
-index 24ffc8e2d2d1..0960205ee49f 100644
---- a/drivers/platform/x86/msi-laptop.c
-+++ b/drivers/platform/x86/msi-laptop.c
-@@ -1048,8 +1048,7 @@ static int __init msi_init(void)
- 		return -EINVAL;
+--- a/fs/quota/quota_tree.c
++++ b/fs/quota/quota_tree.c
+@@ -79,6 +79,35 @@ static ssize_t write_blk(struct qtree_me
+ 	return ret;
+ }
  
- 	/* Register backlight stuff */
--
--	if (quirks->old_ec_model ||
-+	if (quirks->old_ec_model &&
- 	    acpi_video_get_backlight_type() == acpi_backlight_vendor) {
- 		struct backlight_properties props;
- 		memset(&props, 0, sizeof(struct backlight_properties));
--- 
-2.35.1
-
++static inline int do_check_range(struct super_block *sb, const char *val_name,
++				 uint val, uint min_val, uint max_val)
++{
++	if (val < min_val || val > max_val) {
++		quota_error(sb, "Getting %s %u out of range %u-%u",
++			    val_name, val, min_val, max_val);
++		return -EUCLEAN;
++	}
++
++	return 0;
++}
++
++static int check_dquot_block_header(struct qtree_mem_dqinfo *info,
++				    struct qt_disk_dqdbheader *dh)
++{
++	int err = 0;
++
++	err = do_check_range(info->dqi_sb, "dqdh_next_free",
++			     le32_to_cpu(dh->dqdh_next_free), 0,
++			     info->dqi_blocks - 1);
++	if (err)
++		return err;
++	err = do_check_range(info->dqi_sb, "dqdh_prev_free",
++			     le32_to_cpu(dh->dqdh_prev_free), 0,
++			     info->dqi_blocks - 1);
++
++	return err;
++}
++
+ /* Remove empty block from list and return it */
+ static int get_free_dqblk(struct qtree_mem_dqinfo *info)
+ {
+@@ -93,6 +122,9 @@ static int get_free_dqblk(struct qtree_m
+ 		ret = read_blk(info, blk, buf);
+ 		if (ret < 0)
+ 			goto out_buf;
++		ret = check_dquot_block_header(info, dh);
++		if (ret)
++			goto out_buf;
+ 		info->dqi_free_blk = le32_to_cpu(dh->dqdh_next_free);
+ 	}
+ 	else {
+@@ -240,6 +272,9 @@ static uint find_free_dqentry(struct qtr
+ 		*err = read_blk(info, blk, buf);
+ 		if (*err < 0)
+ 			goto out_buf;
++		*err = check_dquot_block_header(info, dh);
++		if (*err)
++			goto out_buf;
+ 	} else {
+ 		blk = get_free_dqblk(info);
+ 		if ((int)blk < 0) {
+@@ -432,6 +467,9 @@ static int free_dqentry(struct qtree_mem
+ 		goto out_buf;
+ 	}
+ 	dh = (struct qt_disk_dqdbheader *)buf;
++	ret = check_dquot_block_header(info, dh);
++	if (ret)
++		goto out_buf;
+ 	le16_add_cpu(&dh->dqdh_entries, -1);
+ 	if (!le16_to_cpu(dh->dqdh_entries)) {	/* Block got free? */
+ 		ret = remove_free_dqentry(info, buf, blk);
 
 
