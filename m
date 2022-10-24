@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7700E60B803
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:40:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C9F160B85F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:44:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232299AbiJXTka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:40:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43308 "EHLO
+        id S231642AbiJXToh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:44:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232381AbiJXTjo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:39:44 -0400
+        with ESMTP id S233483AbiJXToC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:44:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 906EED8EE0;
-        Mon, 24 Oct 2022 11:10:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDEB01DDDCA;
+        Mon, 24 Oct 2022 11:12:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 766D1B818B3;
-        Mon, 24 Oct 2022 12:53:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2DCBC433C1;
-        Mon, 24 Oct 2022 12:53:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE1FCB81913;
+        Mon, 24 Oct 2022 12:53:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 331C7C43141;
+        Mon, 24 Oct 2022 12:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615987;
-        bh=yFuQDbmPwq9RUn5jwmUlLE30FAy6zEC5lrzi0/RXyRk=;
+        s=korg; t=1666616013;
+        bh=eMMz/bzyjKDaTSFfsHVIqdswAnQO2E3Q+3QAdTBksh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+HvxNspQsDMCEJfUcFeArycvqqUgfQUPUe4YjeSYpRLdvwPuOoeD7P1yLyK+sbe1
-         x77EAPlTSL2cRCBwZTKixwxC5OAg4zuJzZ2W25ab1i5W0hFE13g7nhwyYjO8U2MXYj
-         9SoyN7NAiMV13LsXVjxvL7M18QBkt8XSMgpjnv5Y=
+        b=J6TkXxDzKMWOg+vE3W0JSExd0idXrL7VZnHkxAOGNN637+LL4ZShJFq5qRlWH6uYN
+         OLIhA+64UexJfgU4vACESJ1K8bf33wKMHu5otf7JqqTOU/sMFaYXJdCjztjxkypAwb
+         U+rXfcQ0TEOhW+VdoMpZ3caVo136kmBpGJB4WryI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, hongao <hongao@uniontech.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Or Cochvi <or.cochvi@intel.com>,
+        Khaled Almahallawy <khaled.almahallawy@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 457/530] drm/amdgpu: fix initial connector audio value
-Date:   Mon, 24 Oct 2022 13:33:21 +0200
-Message-Id: <20221024113105.746025776@linuxfoundation.org>
+Subject: [PATCH 5.15 461/530] drm/dp: Dont rewrite link config when setting phy test pattern
+Date:   Mon, 24 Oct 2022 13:33:25 +0200
+Message-Id: <20221024113105.926291542@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,62 +55,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hongao <hongao@uniontech.com>
+From: Khaled Almahallawy <khaled.almahallawy@intel.com>
 
-[ Upstream commit 4bb71fce58f30df3f251118291d6b0187ce531e6 ]
+[ Upstream commit 7b4d8db657192066bc6f1f6635d348413dac1e18 ]
 
-This got lost somewhere along the way, This fixes
-audio not working until set_property was called.
+The sequence for Source DP PHY CTS automation is [2][1]:
+1- Emulate successful Link Training(LT)
+2- Short HPD and change link rates and number of lanes by LT.
+(This is same flow for Link Layer CTS)
+3- Short HPD and change PHY test pattern and swing/pre-emphasis
+levels (This step should not trigger LT)
 
-Signed-off-by: hongao <hongao@uniontech.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The problem is with DP PHY compliance setup as follow:
+
+     [DPTX + on board LTTPR]------Main Link--->[Scope]
+     	     	        ^                         |
+			|                         |
+			|                         |
+			----------Aux Ch------>[Aux Emulator]
+
+At step 3, before writing TRAINING_LANEx_SET/LINK_QUAL_PATTERN_SET
+to declare the pattern/swing requested by scope, we write link
+config in LINK_BW_SET/LANE_COUNT_SET on a port that has LTTPR.
+As LTTPR snoops aux transaction, LINK_BW_SET/LANE_COUNT_SET writes
+indicate a LT will start [Check DP 2.0 E11 -Sec 3.6.8.2 & 3.6.8.6.3],
+and LTTPR will reset the link and stop sending DP signals to
+DPTX/Scope causing the measurements to fail. Note that step 3 will
+not trigger LT and DP link will never recovered by the
+Aux Emulator/Scope.
+
+The reset of link can be tested with a monitor connected to LTTPR
+port simply by writing to LINK_BW_SET or LANE_COUNT_SET as follow
+
+  igt/tools/dpcd_reg write --offset=0x100 --value 0x14 --device=2
+
+OR
+
+  printf '\x14' | sudo dd of=/dev/drm_dp_aux2 bs=1 count=1 conv=notrunc
+  seek=$((0x100))
+
+This single aux write causes the screen to blank, sending short HPD to
+DPTX, setting LINK_STATUS_UPDATE = 1 in DPCD 0x204, and triggering LT.
+
+As stated in [1]:
+"Before any TX electrical testing can be performed, the link between a
+DPTX and DPRX (in this case, a piece of test equipment), including all
+LTTPRs within the path, shall be trained as defined in this Standard."
+
+In addition, changing Phy pattern/Swing/Pre-emphasis (Step 3) uses the
+same link rate and lane count applied on step 2, so no need to redo LT.
+
+The fix is to not rewrite link config in step 3, and just writes
+TRAINING_LANEx_SET and LINK_QUAL_PATTERN_SET
+
+[1]: DP 2.0 E11 - 3.6.11.1 LTTPR DPTX_PHY Electrical Compliance
+
+[2]: Configuring UnigrafDPTC Controller - Automation Test Sequence
+https://www.keysight.com/us/en/assets/9922-01244/help-files/
+D9040DPPC-DisplayPort-Test-Software-Online-Help-latest.chm
+
+Cc: Imre Deak <imre.deak@intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Or Cochvi <or.cochvi@intel.com>
+Signed-off-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220916054900.415804-1-khaled.almahallawy@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_dp_helper.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-index a09876bb7ec8..4b1d62ebf8dd 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-@@ -1671,10 +1671,12 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 						   adev->mode_info.dither_property,
- 						   AMDGPU_FMT_DITHER_DISABLE);
+diff --git a/drivers/gpu/drm/drm_dp_helper.c b/drivers/gpu/drm/drm_dp_helper.c
+index 7bb24523a749..b8815e7f5832 100644
+--- a/drivers/gpu/drm/drm_dp_helper.c
++++ b/drivers/gpu/drm/drm_dp_helper.c
+@@ -2376,17 +2376,8 @@ int drm_dp_set_phy_test_pattern(struct drm_dp_aux *aux,
+ 				struct drm_dp_phy_test_params *data, u8 dp_rev)
+ {
+ 	int err, i;
+-	u8 link_config[2];
+ 	u8 test_pattern;
  
--			if (amdgpu_audio != 0)
-+			if (amdgpu_audio != 0) {
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
-+			}
- 
- 			subpixel_order = SubPixelHorizontalRGB;
- 			connector->interlace_allowed = true;
-@@ -1796,6 +1798,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
- 			}
- 			drm_object_attach_property(&amdgpu_connector->base.base,
- 						   adev->mode_info.dither_property,
-@@ -1849,6 +1852,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
- 			}
- 			drm_object_attach_property(&amdgpu_connector->base.base,
- 						   adev->mode_info.dither_property,
-@@ -1899,6 +1903,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
- 			}
- 			drm_object_attach_property(&amdgpu_connector->base.base,
- 						   adev->mode_info.dither_property,
+-	link_config[0] = drm_dp_link_rate_to_bw_code(data->link_rate);
+-	link_config[1] = data->num_lanes;
+-	if (data->enhanced_frame_cap)
+-		link_config[1] |= DP_LANE_COUNT_ENHANCED_FRAME_EN;
+-	err = drm_dp_dpcd_write(aux, DP_LINK_BW_SET, link_config, 2);
+-	if (err < 0)
+-		return err;
+-
+ 	test_pattern = data->phy_pattern;
+ 	if (dp_rev < 0x12) {
+ 		test_pattern = (test_pattern << 2) &
 -- 
 2.35.1
 
