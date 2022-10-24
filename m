@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA2DA60A2DE
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:48:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8547460A283
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:44:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231770AbiJXLsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:48:33 -0400
+        id S231260AbiJXLoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:44:54 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231395AbiJXLrw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:47:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6251A2873B;
-        Mon, 24 Oct 2022 04:43:12 -0700 (PDT)
+        with ESMTP id S231573AbiJXLoC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:44:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 636E873C23;
+        Mon, 24 Oct 2022 04:41:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7ADC561274;
-        Mon, 24 Oct 2022 11:39:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DD69C433C1;
-        Mon, 24 Oct 2022 11:39:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DA5561278;
+        Mon, 24 Oct 2022 11:39:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CEF8C433D7;
+        Mon, 24 Oct 2022 11:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611579;
-        bh=nW8JXdz9lLh+C6f5ic/RdrY42SCc5YXBCjzwXfQCsbI=;
+        s=korg; t=1666611588;
+        bh=0uhDIdfk1epcziMHFK+ZKD1E2NsUZQU+n1FAp35sSls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B7DONObCk+Zs589nlTlku83IRDVC6Lz+n6Yqe2qI7xpEiD/6oeYeD5l4L6/9QDjxA
-         JxYBEe82RfLg9lfBnzkQM4yk05p4zPjNSSxIRTg1ejPXHzJ5nmFLADL0828KFBZ9E7
-         ItZ/0TgQrZjUkslR4yRMHtY7z8B8FiXCjGrmLpCM=
+        b=a/QMcWoXEiUs/kSOhgiA93hC7/VVYohdgIvVsWfhJsjF+f64RC7hSnJ5F5fqGR9IQ
+         pgO+fKt7tqt9jPawRqn2qi7dzSZ+pjopOcYHWjVe/Zc+MbF6iJ4mzasTQkSNEDKhfn
+         mpnmRyOASCzTXXBEmDsfsvDnup95kFXYwTCde/pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        hdthky <hdthky0@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 033/159] scsi: stex: Properly zero out the passthrough command structure
-Date:   Mon, 24 Oct 2022 13:29:47 +0200
-Message-Id: <20221024112950.609329923@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.9 035/159] random: avoid reading two cache lines on irq randomness
+Date:   Mon, 24 Oct 2022 13:29:49 +0200
+Message-Id: <20221024112950.680129573@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -56,68 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 6022f210461fef67e6e676fd8544ca02d1bcfa7a upstream.
+commit 9ee0507e896b45af6d65408c77815800bce30008 upstream.
 
-The passthrough structure is declared off of the stack, so it needs to be
-set to zero before copied back to userspace to prevent any unintentional
-data leakage.  Switch things to be statically allocated which will fill the
-unused fields with 0 automatically.
+In order to avoid reading and dirtying two cache lines on every IRQ,
+move the work_struct to the bottom of the fast_pool struct. add_
+interrupt_randomness() always touches .pool and .count, which are
+currently split, because .mix pushes everything down. Instead, move .mix
+to the bottom, so that .pool and .count are always in the first cache
+line, since .mix is only accessed when the pool is full.
 
-Link: https://lore.kernel.org/r/YxrjN3OOw2HHl9tx@kroah.com
-Cc: stable@kernel.org
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Reported-by: hdthky <hdthky0@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
+Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/stex.c      |   17 +++++++++--------
- include/scsi/scsi_cmnd.h |    2 +-
- 2 files changed, 10 insertions(+), 9 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/stex.c
-+++ b/drivers/scsi/stex.c
-@@ -653,16 +653,17 @@ stex_queuecommand_lck(struct scsi_cmnd *
- 		return 0;
- 	case PASSTHRU_CMD:
- 		if (cmd->cmnd[1] == PASSTHRU_GET_DRVVER) {
--			struct st_drvver ver;
-+			const struct st_drvver ver = {
-+				.major = ST_VER_MAJOR,
-+				.minor = ST_VER_MINOR,
-+				.oem = ST_OEM,
-+				.build = ST_BUILD_VER,
-+				.signature[0] = PASSTHRU_SIGNATURE,
-+				.console_id = host->max_id - 1,
-+				.host_no = hba->host->host_no,
-+			};
- 			size_t cp_len = sizeof(ver);
- 
--			ver.major = ST_VER_MAJOR;
--			ver.minor = ST_VER_MINOR;
--			ver.oem = ST_OEM;
--			ver.build = ST_BUILD_VER;
--			ver.signature[0] = PASSTHRU_SIGNATURE;
--			ver.console_id = host->max_id - 1;
--			ver.host_no = hba->host->host_no;
- 			cp_len = scsi_sg_copy_from_buffer(cmd, &ver, cp_len);
- 			cmd->result = sizeof(ver) == cp_len ?
- 				DID_OK << 16 | COMMAND_COMPLETE << 8 :
---- a/include/scsi/scsi_cmnd.h
-+++ b/include/scsi/scsi_cmnd.h
-@@ -214,7 +214,7 @@ static inline struct scsi_data_buffer *s
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -891,10 +891,10 @@ void __init add_bootloader_randomness(co
  }
  
- static inline int scsi_sg_copy_from_buffer(struct scsi_cmnd *cmd,
--					   void *buf, int buflen)
-+					   const void *buf, int buflen)
- {
- 	return sg_copy_from_buffer(scsi_sglist(cmd), scsi_sg_count(cmd),
- 				   buf, buflen);
+ struct fast_pool {
+-	struct work_struct mix;
+ 	unsigned long pool[4];
+ 	unsigned long last;
+ 	unsigned int count;
++	struct work_struct mix;
+ };
+ 
+ static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
 
 
