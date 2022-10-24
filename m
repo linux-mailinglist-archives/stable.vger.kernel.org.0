@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A033B60A286
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:45:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F7F460A3CF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231274AbiJXLoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:44:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43746 "EHLO
+        id S230122AbiJXMA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:00:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231640AbiJXLoL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:44:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 120DF74351;
-        Mon, 24 Oct 2022 04:41:27 -0700 (PDT)
+        with ESMTP id S232641AbiJXL71 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:59:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 346997C746;
+        Mon, 24 Oct 2022 04:48:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F60BB81134;
-        Mon, 24 Oct 2022 11:39:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C79AC433D7;
-        Mon, 24 Oct 2022 11:39:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89CB461286;
+        Mon, 24 Oct 2022 11:48:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AFFEC433D6;
+        Mon, 24 Oct 2022 11:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611596;
-        bh=M+kMlfAoQikrPHbtIag+tmDBlxG1n/qkIVokq8i/99U=;
+        s=korg; t=1666612115;
+        bh=YHuPAPNZLMhlbumDyYRCxAabMIxWjD5pgSzSNeDaNJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVVjGITcuWlkzcXaSfk2skPKX7IK42uWuu2SHajJYX9p8+ivCOTe0WwQILlgvXayS
-         2Bcstit9r02LzLmpSMTzE9CP1XYADOIEkyfK7YlXRjTrj6UkVVbvf9XVEif03XDC3e
-         BSuKKV51oXnIsfWhMLauoNM0jajNC7FJ0m/TjJkw=
+        b=TW8/MEUP4cgg5XWTpwI1dD6siqR5dA4NOMVyU9/Gect/XXIKZxeORWWKeYmSknT1G
+         iAG32rzQ0kKCx3q3yFDQmd8gONDHArKFh4cOBHTRRfDhST7YjKsP2k3L83/Y9NkvkH
+         iIdE7H1H+iY6Ug8vU5eP6PQBgBFmc06E7YLFbBH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jasper Poppe <jgpoppe@gmail.com>,
-        Jeremy Palmer <jpalmer@linz.govt.nz>,
-        Ruineka <ruinairas1992@gmail.com>,
-        Cleber de Mattos Casali <clebercasali@gmail.com>,
-        Kyle Gospodnetich <me@kylegospodneti.ch>,
-        Pavel Rojtberg <rojtberg@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 038/159] Input: xpad - add supported devices as contributed on github
-Date:   Mon, 24 Oct 2022 13:29:52 +0200
-Message-Id: <20221024112950.772909658@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Jiazi.Li" <jiazi.li@transsion.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 076/210] ring-buffer: Fix race between reset page and reading page
+Date:   Mon, 24 Oct 2022 13:29:53 +0200
+Message-Id: <20221024112959.537331298@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,104 +54,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Rojtberg <rojtberg@gmail.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit b382c5e37344883dc97525d05f1f6b788f549985 upstream.
+commit a0fcaaed0c46cf9399d3a2d6e0c87ddb3df0e044 upstream.
 
-This is based on multiple commits at https://github.com/paroj/xpad
+The ring buffer is broken up into sub buffers (currently of page size).
+Each sub buffer has a pointer to its "tail" (the last event written to the
+sub buffer). When a new event is requested, the tail is locally
+incremented to cover the size of the new event. This is done in a way that
+there is no need for locking.
 
+If the tail goes past the end of the sub buffer, the process of moving to
+the next sub buffer takes place. After setting the current sub buffer to
+the next one, the previous one that had the tail go passed the end of the
+sub buffer needs to be reset back to the original tail location (before
+the new event was requested) and the rest of the sub buffer needs to be
+"padded".
+
+The race happens when a reader takes control of the sub buffer. As readers
+do a "swap" of sub buffers from the ring buffer to get exclusive access to
+the sub buffer, it replaces the "head" sub buffer with an empty sub buffer
+that goes back into the writable portion of the ring buffer. This swap can
+happen as soon as the writer moves to the next sub buffer and before it
+updates the last sub buffer with padding.
+
+Because the sub buffer can be released to the reader while the writer is
+still updating the padding, it is possible for the reader to see the event
+that goes past the end of the sub buffer. This can cause obvious issues.
+
+To fix this, add a few memory barriers so that the reader definitely sees
+the updates to the sub buffer, and also waits until the writer has put
+back the "tail" of the sub buffer back to the last event that was written
+on it.
+
+To be paranoid, it will only spin for 1 second, otherwise it will
+warn and shutdown the ring buffer code. 1 second should be enough as
+the writer does have preemption disabled. If the writer doesn't move
+within 1 second (with preemption disabled) something is horribly
+wrong. No interrupt should last 1 second!
+
+Link: https://lore.kernel.org/all/20220830120854.7545-1-jiazi.li@transsion.com/
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216369
+Link: https://lkml.kernel.org/r/20220929104909.0650a36c@gandalf.local.home
+
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jasper Poppe <jgpoppe@gmail.com>
-Signed-off-by: Jeremy Palmer <jpalmer@linz.govt.nz>
-Signed-off-by: Ruineka <ruinairas1992@gmail.com>
-Signed-off-by: Cleber de Mattos Casali <clebercasali@gmail.com>
-Signed-off-by: Kyle Gospodnetich <me@kylegospodneti.ch>
-Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
-Link: https://lore.kernel.org/r/20220818154411.510308-2-rojtberg@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: c7b0930857e22 ("ring-buffer: prevent adding write in discarded area")
+Reported-by: Jiazi.Li <jiazi.li@transsion.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ kernel/trace/ring_buffer.c |   33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -129,6 +129,8 @@ static const struct xpad_device {
- 	u8 xtype;
- } xpad_device[] = {
- 	{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, XTYPE_XBOX360 },
-+	{ 0x03eb, 0xff01, "Wooting One (Legacy)", 0, XTYPE_XBOX360 },
-+	{ 0x03eb, 0xff02, "Wooting Two (Legacy)", 0, XTYPE_XBOX360 },
- 	{ 0x044f, 0x0f00, "Thrustmaster Wheel", 0, XTYPE_XBOX },
- 	{ 0x044f, 0x0f03, "Thrustmaster Wheel", 0, XTYPE_XBOX },
- 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
-@@ -259,6 +261,7 @@ static const struct xpad_device {
- 	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
-+	{ 0x0f0d, 0x00c5, "Hori Fighting Commander ONE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0f30, 0x010b, "Philips Recoil", 0, XTYPE_XBOX },
- 	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
- 	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
-@@ -275,6 +278,7 @@ static const struct xpad_device {
- 	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
- 	{ 0x1430, 0xf801, "RedOctane Controller", 0, XTYPE_XBOX360 },
- 	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", 0, XTYPE_XBOX360 },
-+	{ 0x146b, 0x0604, "Bigben Interactive DAIJA Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x1532, 0x0037, "Razer Sabertooth", 0, XTYPE_XBOX360 },
- 	{ 0x1532, 0x0a00, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x1532, 0x0a03, "Razer Wildcat", 0, XTYPE_XBOXONE },
-@@ -339,6 +343,7 @@ static const struct xpad_device {
- 	{ 0x24c6, 0x5502, "Hori Fighting Stick VX Alt", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5503, "Hori Fighting Edge", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5506, "Hori SOULCALIBUR V Stick", 0, XTYPE_XBOX360 },
-+	{ 0x24c6, 0x5510, "Hori Fighting Commander ONE (Xbox 360/PC Mode)", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x550d, "Hori GEM Xbox controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x550e, "Hori Real Arcade Pro V Kai 360", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x551a, "PowerA FUSION Pro Controller", 0, XTYPE_XBOXONE },
-@@ -348,6 +353,14 @@ static const struct xpad_device {
- 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
-+	{ 0x2563, 0x058d, "OneXPlayer Gamepad", 0, XTYPE_XBOX360 },
-+	{ 0x2dc8, 0x2000, "8BitDo Pro 2 Wired Controller fox Xbox", 0, XTYPE_XBOXONE },
-+	{ 0x31e3, 0x1100, "Wooting One", 0, XTYPE_XBOX360 },
-+	{ 0x31e3, 0x1200, "Wooting Two", 0, XTYPE_XBOX360 },
-+	{ 0x31e3, 0x1210, "Wooting Lekker", 0, XTYPE_XBOX360 },
-+	{ 0x31e3, 0x1220, "Wooting Two HE", 0, XTYPE_XBOX360 },
-+	{ 0x31e3, 0x1300, "Wooting 60HE (AVR)", 0, XTYPE_XBOX360 },
-+	{ 0x31e3, 0x1310, "Wooting 60HE (ARM)", 0, XTYPE_XBOX360 },
- 	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
- 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
- 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
-@@ -433,6 +446,7 @@ static const signed short xpad_abs_trigg
- static const struct usb_device_id xpad_table[] = {
- 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
- 	XPAD_XBOX360_VENDOR(0x0079),		/* GPD Win 2 Controller */
-+	XPAD_XBOX360_VENDOR(0x03eb),		/* Wooting Keyboards (Legacy) */
- 	XPAD_XBOX360_VENDOR(0x044f),		/* Thrustmaster X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
- 	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
-@@ -443,6 +457,7 @@ static const struct usb_device_id xpad_t
- 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
- 	XPAD_XBOXONE_VENDOR(0x0738),		/* Mad Catz FightStick TE 2 */
- 	XPAD_XBOX360_VENDOR(0x07ff),		/* Mad Catz GamePad */
-+	XPAD_XBOX360_VENDOR(0x0c12),		/* Zeroplus X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
- 	XPAD_XBOXONE_VENDOR(0x0e6f),		/* 0x0e6f X-Box One controllers */
- 	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori Controllers */
-@@ -463,8 +478,12 @@ static const struct usb_device_id xpad_t
- 	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA Controllers */
- 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
- 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
-+	XPAD_XBOX360_VENDOR(0x2563),		/* OneXPlayer Gamepad */
-+	XPAD_XBOX360_VENDOR(0x260d),		/* Dareu H101 */
-+	XPAD_XBOXONE_VENDOR(0x2dc8),		/* 8BitDo Pro 2 Wired Controller for Xbox */
- 	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
- 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
-+	XPAD_XBOX360_VENDOR(0x31e3),		/* Wooting Keyboards */
- 	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
- 	{ }
- };
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -2096,6 +2096,9 @@ rb_reset_tail(struct ring_buffer_per_cpu
+ 		/* Mark the rest of the page with padding */
+ 		rb_event_set_padding(event);
+ 
++		/* Make sure the padding is visible before the write update */
++		smp_wmb();
++
+ 		/* Set the write back to the previous setting */
+ 		local_sub(length, &tail_page->write);
+ 		return;
+@@ -2107,6 +2110,9 @@ rb_reset_tail(struct ring_buffer_per_cpu
+ 	/* time delta must be non zero */
+ 	event->time_delta = 1;
+ 
++	/* Make sure the padding is visible before the tail_page->write update */
++	smp_wmb();
++
+ 	/* Set write to end of buffer */
+ 	length = (tail + length) - BUF_PAGE_SIZE;
+ 	local_sub(length, &tail_page->write);
+@@ -3697,6 +3703,33 @@ rb_get_reader_page(struct ring_buffer_pe
+ 	arch_spin_unlock(&cpu_buffer->lock);
+ 	local_irq_restore(flags);
+ 
++	/*
++	 * The writer has preempt disable, wait for it. But not forever
++	 * Although, 1 second is pretty much "forever"
++	 */
++#define USECS_WAIT	1000000
++        for (nr_loops = 0; nr_loops < USECS_WAIT; nr_loops++) {
++		/* If the write is past the end of page, a writer is still updating it */
++		if (likely(!reader || rb_page_write(reader) <= BUF_PAGE_SIZE))
++			break;
++
++		udelay(1);
++
++		/* Get the latest version of the reader write value */
++		smp_rmb();
++	}
++
++	/* The writer is not moving forward? Something is wrong */
++	if (RB_WARN_ON(cpu_buffer, nr_loops == USECS_WAIT))
++		reader = NULL;
++
++	/*
++	 * Make sure we see any padding after the write update
++	 * (see rb_reset_tail())
++	 */
++	smp_rmb();
++
++
+ 	return reader;
+ }
+ 
 
 
