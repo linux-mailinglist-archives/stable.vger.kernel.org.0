@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B12E360B6C4
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:10:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7765E60B7C6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:33:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230438AbiJXTKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:10:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47582 "EHLO
+        id S232588AbiJXTdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:33:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231915AbiJXTJx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:09:53 -0400
+        with ESMTP id S230006AbiJXTcu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:32:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE4AEE01;
-        Mon, 24 Oct 2022 10:49:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01601D73E5;
+        Mon, 24 Oct 2022 11:03:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2606B8118A;
-        Mon, 24 Oct 2022 12:04:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1105AC433C1;
-        Mon, 24 Oct 2022 12:04:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54178B816AF;
+        Mon, 24 Oct 2022 12:30:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EFBCC433D7;
+        Mon, 24 Oct 2022 12:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613043;
-        bh=BN27ZtVKkJ3LHKlBDcv2Kvb9Ok07kbOCpdjRtHGbjVk=;
+        s=korg; t=1666614639;
+        bh=Rb9Cpi+DHBOf+LtpoHqa9AhLp5UsfP7z+yEnGXy9dsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KM4FLZvhVLo/SRcuGafTh3rI7bTvLsplNhDff9uj4qdboQQnnVMdxPsqZzKxk+vad
-         lkXnD1SZtJ7ANlhuvgO2Fu4S48abAluJtQ0E1RMnI3INq5UySeJGecGHcbFq0MuhsH
-         SGGv1Q7PjDUw1dP7eU6yjh57fCQ6f+GpTP629UW8=
+        b=0ijuYElF0bGi62adrIGP93RBmdI20x126a0i4nsXwOdJh7jsZLoNhqrhUkU1mK4n6
+         wL6DX0UHaG4dhmz0zqyDuwVV++Boif2cjMcVJdokRL6/3yb38pzh43E9w2++ngwqTJ
+         VSw1qVzksC/bhUoVpFogguVz+fVIxtE29fDwKnAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org, hongao <hongao@uniontech.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 215/229] usb: host: xhci: Fix potential memory leak in xhci_alloc_stream_info()
+Subject: [PATCH 5.10 337/390] drm/amdgpu: fix initial connector audio value
 Date:   Mon, 24 Oct 2022 13:32:14 +0200
-Message-Id: <20221024113006.173383163@linuxfoundation.org>
+Message-Id: <20221024113037.353781579@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: hongao <hongao@uniontech.com>
 
-[ Upstream commit 7e271f42a5cc3768cd2622b929ba66859ae21f97 ]
+[ Upstream commit 4bb71fce58f30df3f251118291d6b0187ce531e6 ]
 
-xhci_alloc_stream_info() allocates stream context array for stream_info
-->stream_ctx_array with xhci_alloc_stream_ctx(). When some error occurs,
-stream_info->stream_ctx_array is not released, which will lead to a
-memory leak.
+This got lost somewhere along the way, This fixes
+audio not working until set_property was called.
 
-We can fix it by releasing the stream_info->stream_ctx_array with
-xhci_free_stream_ctx() on the error path to avoid the potential memory
-leak.
-
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220921123450.671459-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: hongao <hongao@uniontech.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-mem.c | 7 ++++++-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 7 ++++++-
  1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
-index 798823ce2b34..7de21722d455 100644
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -650,7 +650,7 @@ struct xhci_stream_info *xhci_alloc_stream_info(struct xhci_hcd *xhci,
- 			num_stream_ctxs, &stream_info->ctx_array_dma,
- 			mem_flags);
- 	if (!stream_info->stream_ctx_array)
--		goto cleanup_ctx;
-+		goto cleanup_ring_array;
- 	memset(stream_info->stream_ctx_array, 0,
- 			sizeof(struct xhci_stream_ctx)*num_stream_ctxs);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+index df1f9b88a53f..98d3661336a4 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -1671,10 +1671,12 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 						   adev->mode_info.dither_property,
+ 						   AMDGPU_FMT_DITHER_DISABLE);
  
-@@ -711,6 +711,11 @@ struct xhci_stream_info *xhci_alloc_stream_info(struct xhci_hcd *xhci,
- 	}
- 	xhci_free_command(xhci, stream_info->free_streams_command);
- cleanup_ctx:
-+	xhci_free_stream_ctx(xhci,
-+		stream_info->num_stream_ctxs,
-+		stream_info->stream_ctx_array,
-+		stream_info->ctx_array_dma);
-+cleanup_ring_array:
- 	kfree(stream_info->stream_rings);
- cleanup_info:
- 	kfree(stream_info);
+-			if (amdgpu_audio != 0)
++			if (amdgpu_audio != 0) {
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
++			}
+ 
+ 			subpixel_order = SubPixelHorizontalRGB;
+ 			connector->interlace_allowed = true;
+@@ -1796,6 +1798,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
+ 			}
+ 			drm_object_attach_property(&amdgpu_connector->base.base,
+ 						   adev->mode_info.dither_property,
+@@ -1849,6 +1852,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
+ 			}
+ 			drm_object_attach_property(&amdgpu_connector->base.base,
+ 						   adev->mode_info.dither_property,
+@@ -1899,6 +1903,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
+ 				drm_object_attach_property(&amdgpu_connector->base.base,
+ 							   adev->mode_info.audio_property,
+ 							   AMDGPU_AUDIO_AUTO);
++				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
+ 			}
+ 			drm_object_attach_property(&amdgpu_connector->base.base,
+ 						   adev->mode_info.dither_property,
 -- 
 2.35.1
 
