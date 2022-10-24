@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AD3E60A1AF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:32:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA49D60A316
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230290AbiJXLcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:32:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57178 "EHLO
+        id S231838AbiJXLu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:50:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230175AbiJXLcK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:32:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B605E55C;
-        Mon, 24 Oct 2022 04:31:58 -0700 (PDT)
+        with ESMTP id S231836AbiJXLtE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:49:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA25E4C61E;
+        Mon, 24 Oct 2022 04:43:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD2A061251;
-        Mon, 24 Oct 2022 11:31:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD99EC433C1;
-        Mon, 24 Oct 2022 11:31:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94B2961297;
+        Mon, 24 Oct 2022 11:43:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7A48C433C1;
+        Mon, 24 Oct 2022 11:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611116;
-        bh=eLrnmTlnmMdpbACYZc3GPWxthCIJh0Mjw7MbfVQmRL8=;
+        s=korg; t=1666611818;
+        bh=nMsxlgLRGEX0FtD0r/V/YW2d/mRCby5PdiPhCodz1Z4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQKeGs3LVhowZ+EgQ5dagqKnxJ8B7g7N0yrgZUFG6xXAKr9TPWkmlxpf5gpwXxO+j
-         ZM0f3ZU4nYoCE2gsbGKHzBI+EEOGfZZrFLzkQf/7M9rVMXlnXJsNno2bQ42oHM81QL
-         wJFaKE/tvg+wq81hWzER1kmGzy7lG/+0i1mXi+L8=
+        b=mLIQHt9KZRLyIUsGg4b4oe2jQlWz4kAZ3rkpSEYACBNTAv29xZ7iNSldI5cuLqa+H
+         DecT4MbdH14zZaWFx2Ilixo66AS7lyqQ7N+oxVzlJKRQXD9g9x+O+gLxr8zSLSfDnz
+         RqxY37z8pM2+3F8ejrDlj2MvGbkgb1R4laTS9WPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 6.0 15/20] efi: efivars: Fix variable writes without query_variable_store()
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Arvid Norlander <lkml@vorpal.se>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 123/159] ACPI: video: Add Toshiba Satellite/Portege Z830 quirk
 Date:   Mon, 24 Oct 2022 13:31:17 +0200
-Message-Id: <20221024112935.030619098@linuxfoundation.org>
+Message-Id: <20221024112953.990430064@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112934.415391158@linuxfoundation.org>
-References: <20221024112934.415391158@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,117 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Arvid Norlander <lkml@vorpal.se>
 
-commit 8a254d90a77580244ec57e82bca7eb65656cc167 upstream.
+[ Upstream commit 574160b8548deff8b80b174f03201e94ab8431e2 ]
 
-Commit bbc6d2c6ef22 ("efi: vars: Switch to new wrapper layer")
-refactored the efivars layer so that the 'business logic' related to
-which UEFI variables affect the boot flow in which way could be moved
-out of it, and into the efivarfs driver.
+Toshiba Satellite Z830 needs the quirk video_disable_backlight_sysfs_if
+for proper backlight control after suspend/resume cycles.
 
-This inadvertently broke setting variables on firmware implementations
-that lack the QueryVariableInfo() boot service, because we no longer
-tolerate a EFI_UNSUPPORTED result from check_var_size() when calling
-efivar_entry_set_get_size(), which now ends up calling check_var_size()
-a second time inadvertently.
+Toshiba Portege Z830 is simply the same laptop rebranded for certain
+markets (I looked through the manual to other language sections to confirm
+this) and thus also needs this quirk.
 
-If QueryVariableInfo() is missing, we support writes of up to 64k -
-let's move that logic into check_var_size(), and drop the redundant
-call.
+Thanks to Hans de Goede for suggesting this fix.
 
-Cc: <stable@vger.kernel.org> # v6.0
-Fixes: bbc6d2c6ef22 ("efi: vars: Switch to new wrapper layer")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://www.spinics.net/lists/platform-driver-x86/msg34394.html
+Suggested-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Arvid Norlander <lkml@vorpal.se>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Arvid Norlander <lkml@vorpal.se>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/vars.c |   10 +++++-----
- fs/efivarfs/vars.c          |   16 ----------------
- include/linux/efi.h         |    3 ---
- 3 files changed, 5 insertions(+), 24 deletions(-)
+ drivers/acpi/acpi_video.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/firmware/efi/vars.c
-+++ b/drivers/firmware/efi/vars.c
-@@ -7,6 +7,7 @@
-  */
- 
- #include <linux/types.h>
-+#include <linux/sizes.h>
- #include <linux/errno.h>
- #include <linux/init.h>
- #include <linux/module.h>
-@@ -20,19 +21,19 @@ static struct efivars *__efivars;
- 
- static DEFINE_SEMAPHORE(efivars_lock);
- 
--efi_status_t check_var_size(u32 attributes, unsigned long size)
-+static efi_status_t check_var_size(u32 attributes, unsigned long size)
- {
- 	const struct efivar_operations *fops;
- 
- 	fops = __efivars->ops;
- 
- 	if (!fops->query_variable_store)
--		return EFI_UNSUPPORTED;
-+		return (size <= SZ_64K) ? EFI_SUCCESS : EFI_OUT_OF_RESOURCES;
- 
- 	return fops->query_variable_store(attributes, size, false);
- }
--EXPORT_SYMBOL_NS_GPL(check_var_size, EFIVAR);
- 
-+static
- efi_status_t check_var_size_nonblocking(u32 attributes, unsigned long size)
- {
- 	const struct efivar_operations *fops;
-@@ -40,11 +41,10 @@ efi_status_t check_var_size_nonblocking(
- 	fops = __efivars->ops;
- 
- 	if (!fops->query_variable_store)
--		return EFI_UNSUPPORTED;
-+		return (size <= SZ_64K) ? EFI_SUCCESS : EFI_OUT_OF_RESOURCES;
- 
- 	return fops->query_variable_store(attributes, size, true);
- }
--EXPORT_SYMBOL_NS_GPL(check_var_size_nonblocking, EFIVAR);
- 
- /**
-  * efivars_kobject - get the kobject for the registered efivars
---- a/fs/efivarfs/vars.c
-+++ b/fs/efivarfs/vars.c
-@@ -651,22 +651,6 @@ int efivar_entry_set_get_size(struct efi
- 	if (err)
- 		return err;
- 
--	/*
--	 * Ensure that the available space hasn't shrunk below the safe level
--	 */
--	status = check_var_size(attributes, *size + ucs2_strsize(name, 1024));
--	if (status != EFI_SUCCESS) {
--		if (status != EFI_UNSUPPORTED) {
--			err = efi_status_to_err(status);
--			goto out;
--		}
--
--		if (*size > 65536) {
--			err = -ENOSPC;
--			goto out;
--		}
--	}
--
- 	status = efivar_set_variable_locked(name, vendor, attributes, *size,
- 					    data, false);
- 	if (status != EFI_SUCCESS) {
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -1055,9 +1055,6 @@ efi_status_t efivar_set_variable_locked(
- efi_status_t efivar_set_variable(efi_char16_t *name, efi_guid_t *vendor,
- 				 u32 attr, unsigned long data_size, void *data);
- 
--efi_status_t check_var_size(u32 attributes, unsigned long size);
--efi_status_t check_var_size_nonblocking(u32 attributes, unsigned long size);
--
- #if IS_ENABLED(CONFIG_EFI_CAPSULE_LOADER)
- extern bool efi_capsule_pending(int *reset_type);
- 
+diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
+index ea0573176894..209903c2ee85 100644
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -485,6 +485,22 @@ static struct dmi_system_id video_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE R830"),
+ 		},
+ 	},
++	{
++	 .callback = video_disable_backlight_sysfs_if,
++	 .ident = "Toshiba Satellite Z830",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE Z830"),
++		},
++	},
++	{
++	 .callback = video_disable_backlight_sysfs_if,
++	 .ident = "Toshiba Portege Z830",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE Z830"),
++		},
++	},
+ 	/*
+ 	 * Some machine's _DOD IDs don't have bit 31(Device ID Scheme) set
+ 	 * but the IDs actually follow the Device ID Scheme.
+-- 
+2.35.1
+
 
 
