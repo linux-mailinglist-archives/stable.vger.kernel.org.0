@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 287A660BA71
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:37:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F0060BC78
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 23:48:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234553AbiJXUh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40792 "EHLO
+        id S230074AbiJXVsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 17:48:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234405AbiJXUgl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:36:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 868AF1BF84A;
-        Mon, 24 Oct 2022 11:48:18 -0700 (PDT)
+        with ESMTP id S230265AbiJXVrw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 17:47:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D90B0A571E;
+        Mon, 24 Oct 2022 12:59:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7CFD1B819EB;
-        Mon, 24 Oct 2022 12:48:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8D92C433C1;
-        Mon, 24 Oct 2022 12:48:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0C77B815F6;
+        Mon, 24 Oct 2022 12:12:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 017FBC433D6;
+        Mon, 24 Oct 2022 12:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615692;
-        bh=V2dOPSF3+RqJgCZ0dAjorrygamRapc5bi17muQbPhos=;
+        s=korg; t=1666613555;
+        bh=fzcrBvCZW7mXwVLKymyezTswcQKSn+eSTCs7/2xGe8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pwBMJIXmwiyqqnA+gojJT7wBK0Tk7IaChHcMT6UUtop9YpVk4vjBneIFnz3qVVVtI
-         XBXFj53M7xeYMysHUrRla5ViZgm96sMibjfNk+plouSYC5MwlLAGbUcbR2qXVbE0Xe
-         BXZceE6un/Xwo6spYG2dJENN9ZmqHwbXR+V6W52U=
+        b=qCiOgUxqXTEekqdxYFZOsiTrzb1xBKNoDq49wmNC29OMg5GsiggFCcUJbV2Di5Afn
+         QudTPrzVQQXAeWSfGWZabvWYqUPRgm16x7M23ls5GzNuL6dZJZVKFi7nUBbjB62+C9
+         fYs15zvr4hGmi7IWq8pre7p4IQdlbw85YyxqlghU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 347/530] clk: mediatek: mt8183: mfgcfg: Propagate rate changes to parent
+        stable@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>,
+        John Garry <john.garry@huawei.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 181/255] iommu/iova: Fix module config properly
 Date:   Mon, 24 Oct 2022 13:31:31 +0200
-Message-Id: <20221024113100.713371624@linuxfoundation.org>
+Message-Id: <20221024113008.882222839@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 9f94f545f258b15bfa6357eb62e1e307b712851e ]
+[ Upstream commit 4f58330fcc8482aa90674e1f40f601e82f18ed4a ]
 
-The only clock in the MT8183 MFGCFG block feeds the GPU. Propagate its
-rate change requests to its parent, so that DVFS for the GPU can work
-properly.
+IOMMU_IOVA is intended to be an optional library for users to select as
+and when they desire. Since it can be a module now, this means that
+built-in code which has chosen not to select it should not fail to link
+if it happens to have selected as a module by someone else. Replace
+IS_ENABLED() with IS_REACHABLE() to do the right thing.
 
-Fixes: acddfc2c261b ("clk: mediatek: Add MT8183 clock support")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220927101128.44758-3-angelogioacchino.delregno@collabora.com
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+CC: Thierry Reding <thierry.reding@gmail.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Fixes: 15bbdec3931e ("iommu: Make the iova library a module")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/548c2f683ca379aface59639a8f0cccc3a1ac050.1663069227.git.robin.murphy@arm.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mediatek/clk-mt8183-mfgcfg.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/iova.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/mediatek/clk-mt8183-mfgcfg.c b/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
-index 37b4162c5882..3a33014eee7f 100644
---- a/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
-+++ b/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
-@@ -18,9 +18,9 @@ static const struct mtk_gate_regs mfg_cg_regs = {
- 	.sta_ofs = 0x0,
- };
+diff --git a/include/linux/iova.h b/include/linux/iova.h
+index a0637abffee8..6c19b09e9663 100644
+--- a/include/linux/iova.h
++++ b/include/linux/iova.h
+@@ -132,7 +132,7 @@ static inline unsigned long iova_pfn(struct iova_domain *iovad, dma_addr_t iova)
+ 	return iova >> iova_shift(iovad);
+ }
  
--#define GATE_MFG(_id, _name, _parent, _shift)			\
--	GATE_MTK(_id, _name, _parent, &mfg_cg_regs, _shift,	\
--		&mtk_clk_gate_ops_setclr)
-+#define GATE_MFG(_id, _name, _parent, _shift)				\
-+	GATE_MTK_FLAGS(_id, _name, _parent, &mfg_cg_regs, _shift,	\
-+		       &mtk_clk_gate_ops_setclr, CLK_SET_RATE_PARENT)
+-#if IS_ENABLED(CONFIG_IOMMU_IOVA)
++#if IS_REACHABLE(CONFIG_IOMMU_IOVA)
+ int iova_cache_get(void);
+ void iova_cache_put(void);
  
- static const struct mtk_gate mfg_clks[] = {
- 	GATE_MFG(CLK_MFG_BG3D, "mfg_bg3d", "mfg_sel", 0)
 -- 
 2.35.1
 
