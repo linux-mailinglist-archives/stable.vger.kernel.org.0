@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38EF560A342
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0256760A2A6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:46:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232090AbiJXLxL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:53:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60726 "EHLO
+        id S231573AbiJXLqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:46:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232054AbiJXLwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:52:47 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 757AC140D1;
-        Mon, 24 Oct 2022 04:44:50 -0700 (PDT)
+        with ESMTP id S231126AbiJXLpK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:45:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEBE775CD5;
+        Mon, 24 Oct 2022 04:42:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5DE38CE1331;
-        Mon, 24 Oct 2022 11:40:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B31AC433D6;
-        Mon, 24 Oct 2022 11:40:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99993612AB;
+        Mon, 24 Oct 2022 11:41:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF1CCC433C1;
+        Mon, 24 Oct 2022 11:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611657;
-        bh=pS5WP/5RnEfDdJOQcfOSKRNblYIG0koFCLEF4yVIa44=;
+        s=korg; t=1666611663;
+        bh=N9qKZYT7mOJgyhIRE5pCqOGzv5ItisKgr4od6nYdI7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SUIeEzcB+TygSa55iKR8/Z/zeBgrEPL+nPX9/SIy/4pIYbHyA+oOi/nF1lLdMmqFs
-         q0yMrHr2PwLTK9GP0wBaVWDTMLZgpZccS/YrG8tWi4AulZYFVW0mMvDh6KkmjO7V0Q
-         0ZIw+Hyi8D5eYxOC6B7CXhg7x9TCgIgPIBqCHfiU=
+        b=MyDN1wqEn1UCdNBjRQRzOtoesmmWc1qL7Kf4gIW/9GfzqJ49DQkw6OCRUSsPUDYiC
+         aYcAVNXyjMPKlmTPRF0DAz99YoffmM++Msxf9yPkvClLS2gB/2B/wJAMLxRfnVZTvh
+         CvQ/VdLHoZhaaomm6OJmdCXaF8I1idpkcqSSV2uY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Luczaj <mhal@rbox.co>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 4.9 062/159] KVM: x86/emulator: Fix handing of POP SS to correctly set interruptibility
-Date:   Mon, 24 Oct 2022 13:30:16 +0200
-Message-Id: <20221024112951.717779337@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 064/159] sh: machvec: Use char[] for section boundaries
+Date:   Mon, 24 Oct 2022 13:30:18 +0200
+Message-Id: <20221024112951.802269614@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -52,34 +58,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Luczaj <mhal@rbox.co>
+From: Kees Cook <keescook@chromium.org>
 
-commit 6aa5c47c351b22c21205c87977c84809cd015fcf upstream.
+[ Upstream commit c5783af354688b24abd359f7086c282ec74de993 ]
 
-The emulator checks the wrong variable while setting the CPU
-interruptibility state, the target segment is embedded in the instruction
-opcode, not the ModR/M register.  Fix the condition.
+As done for other sections, define the extern as a character array,
+which relaxes many of the compiler-time object size checks, which would
+otherwise assume it's a single long. Solves the following build error:
 
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
-Fixes: a5457e7bcf9a ("KVM: emulate: POP SS triggers a MOV SS shadow too")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/20220821215900.1419215-1-mhal@rbox.co
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+arch/sh/kernel/machvec.c: error: array subscript 'struct sh_machine_vector[0]' is partly outside array bounds of 'long int[1]' [-Werror=array-bounds]:  => 105:33
+
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: linux-sh@vger.kernel.org
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/lkml/alpine.DEB.2.22.394.2209050944290.964530@ramsan.of.borg/
+Fixes: 9655ad03af2d ("sh: Fixup machvec support.")
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Acked-by: Rich Felker <dalias@libc.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/emulate.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/sh/include/asm/sections.h |  2 +-
+ arch/sh/kernel/machvec.c       | 10 +++++-----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -1980,7 +1980,7 @@ static int em_pop_sreg(struct x86_emulat
- 	if (rc != X86EMUL_CONTINUE)
- 		return rc;
+diff --git a/arch/sh/include/asm/sections.h b/arch/sh/include/asm/sections.h
+index 7a99e6af6372..9ec764c4ffe9 100644
+--- a/arch/sh/include/asm/sections.h
++++ b/arch/sh/include/asm/sections.h
+@@ -3,7 +3,7 @@
  
--	if (ctxt->modrm_reg == VCPU_SREG_SS)
-+	if (seg == VCPU_SREG_SS)
- 		ctxt->interruptibility = KVM_X86_SHADOW_INT_MOV_SS;
- 	if (ctxt->op_bytes > 2)
- 		rsp_increment(ctxt, ctxt->op_bytes - 2);
+ #include <asm-generic/sections.h>
+ 
+-extern long __machvec_start, __machvec_end;
++extern char __machvec_start[], __machvec_end[];
+ extern char __uncached_start, __uncached_end;
+ extern char __start_eh_frame[], __stop_eh_frame[];
+ 
+diff --git a/arch/sh/kernel/machvec.c b/arch/sh/kernel/machvec.c
+index ec05f491c347..a9f797a76e7c 100644
+--- a/arch/sh/kernel/machvec.c
++++ b/arch/sh/kernel/machvec.c
+@@ -22,8 +22,8 @@
+ #define MV_NAME_SIZE 32
+ 
+ #define for_each_mv(mv) \
+-	for ((mv) = (struct sh_machine_vector *)&__machvec_start; \
+-	     (mv) && (unsigned long)(mv) < (unsigned long)&__machvec_end; \
++	for ((mv) = (struct sh_machine_vector *)__machvec_start; \
++	     (mv) && (unsigned long)(mv) < (unsigned long)__machvec_end; \
+ 	     (mv)++)
+ 
+ static struct sh_machine_vector * __init get_mv_byname(const char *name)
+@@ -89,8 +89,8 @@ void __init sh_mv_setup(void)
+ 	if (!machvec_selected) {
+ 		unsigned long machvec_size;
+ 
+-		machvec_size = ((unsigned long)&__machvec_end -
+-				(unsigned long)&__machvec_start);
++		machvec_size = ((unsigned long)__machvec_end -
++				(unsigned long)__machvec_start);
+ 
+ 		/*
+ 		 * Sanity check for machvec section alignment. Ensure
+@@ -104,7 +104,7 @@ void __init sh_mv_setup(void)
+ 		 * vector (usually the only one) from .machvec.init.
+ 		 */
+ 		if (machvec_size >= sizeof(struct sh_machine_vector))
+-			sh_mv = *(struct sh_machine_vector *)&__machvec_start;
++			sh_mv = *(struct sh_machine_vector *)__machvec_start;
+ 	}
+ 
+ 	printk(KERN_NOTICE "Booting machvec: %s\n", get_system_type());
+-- 
+2.35.1
+
 
 
