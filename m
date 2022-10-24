@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D625C60AD30
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:20:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 907C960AC9B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:11:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231965AbiJXOUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:20:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56336 "EHLO
+        id S232181AbiJXOK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:10:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235284AbiJXOS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:18:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CA529591;
-        Mon, 24 Oct 2022 05:56:37 -0700 (PDT)
+        with ESMTP id S235387AbiJXOJL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:09:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAFCAC4C1A;
+        Mon, 24 Oct 2022 05:51:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A354612BE;
-        Mon, 24 Oct 2022 12:12:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF9D2C433D6;
-        Mon, 24 Oct 2022 12:12:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DFFFB8169E;
+        Mon, 24 Oct 2022 12:29:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3D11C433D6;
+        Mon, 24 Oct 2022 12:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613537;
-        bh=jiBE9ldZ95s6Eq+IwVdkpKMHD+c7DRPI0PUQXSs9z2A=;
+        s=korg; t=1666614589;
+        bh=c0fLL7Bh+LtakEfa2Bn6MBNMSqnGSRdb47GlY6/se8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWqtFfOiHxgC6MXJunjMBSFbJRYE+ZD4aRy6wetm4/VahkNYepenAZk52u/dFLAT1
-         reUY/On5lKN60qPFk5K2jAXqV9V4yKJko0DbiNNgK4OUTCdx1rBGtu9VULTJWdMKLG
-         NVHrZfU1O/Z4QycJABrG6OYhhq/x3BpAdgHfDUpo=
+        b=KLQ8Ws6ddUYLCiKDOpRrFli2pADnVl4asqs7S/eZzm0tbf5lxzv4Zlp5ssI0PAiKD
+         N1KFvshLHh2Dv394DQNdCtm4C+5MO/CHDpspISeCvaV9DO3n0F7ZMpUtgUrClT+Rj4
+         ocd2UsIUFnA4xMF/+IHfe5HhbI2jKm2ccsVc6h8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Vincent Knecht <vincent.knecht@mailoo.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 174/255] x86/hyperv: Fix struct hv_enlightened_vmcs definition
-Date:   Mon, 24 Oct 2022 13:31:24 +0200
-Message-Id: <20221024113008.599077327@linuxfoundation.org>
+Subject: [PATCH 5.10 289/390] thermal/drivers/qcom/tsens-v0_1: Fix MSM8939 fourth sensor hw_id
+Date:   Mon, 24 Oct 2022 13:31:26 +0200
+Message-Id: <20221024113035.274825292@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Vincent Knecht <vincent.knecht@mailoo.org>
 
-[ Upstream commit ea9da788a61e47e7ab9cbad397453e51cd82ac0d ]
+[ Upstream commit b0c883e900702f408d62cf92b0ef01303ed69be9 ]
 
-Section 1.9 of TLFS v6.0b says:
+Reading temperature from this sensor fails with 'Invalid argument'.
 
-"All structures are padded in such a way that fields are aligned
-naturally (that is, an 8-byte field is aligned to an offset of 8 bytes
-and so on)".
+Looking at old vendor dts [1], its hw_id should be 3 instead of 4.
+Change this hw_id accordingly.
 
-'struct enlightened_vmcs' has a glitch:
+[1] https://github.com/msm8916-mainline/android_kernel_qcom_msm8916/blob/master/arch/arm/boot/dts/qcom/msm8939-common.dtsi#L511
 
-...
-        struct {
-                u32                nested_flush_hypercall:1; /*   836: 0  4 */
-                u32                msr_bitmap:1;         /*   836: 1  4 */
-                u32                reserved:30;          /*   836: 2  4 */
-        } hv_enlightenments_control;                     /*   836     4 */
-        u32                        hv_vp_id;             /*   840     4 */
-        u64                        hv_vm_id;             /*   844     8 */
-        u64                        partition_assist_page; /*   852     8 */
-...
-
-And the observed values in 'partition_assist_page' make no sense at
-all. Fix the layout by padding the structure properly.
-
-Fixes: 68d1eb72ee99 ("x86/hyper-v: define struct hv_enlightened_vmcs and clean field bits")
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Link: https://lore.kernel.org/r/20220830133737.1539624-2-vkuznets@redhat.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 332bc8ebab2c ("thermal: qcom: tsens-v0_1: Add support for MSM8939")
+Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Bjorn Andersson <andersson@kernel.org>
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Link: https://lore.kernel.org/r/20220811105014.7194-1-vincent.knecht@mailoo.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/hyperv-tlfs.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/thermal/qcom/tsens-v0_1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
-index 7741e211f7f5..333e61e6dbe7 100644
---- a/arch/x86/include/asm/hyperv-tlfs.h
-+++ b/arch/x86/include/asm/hyperv-tlfs.h
-@@ -721,7 +721,7 @@ struct hv_enlightened_vmcs {
- 	u64 guest_rip;
+diff --git a/drivers/thermal/qcom/tsens-v0_1.c b/drivers/thermal/qcom/tsens-v0_1.c
+index 4ffa2e2c0145..9b8ba429a304 100644
+--- a/drivers/thermal/qcom/tsens-v0_1.c
++++ b/drivers/thermal/qcom/tsens-v0_1.c
+@@ -522,7 +522,7 @@ static const struct tsens_ops ops_8939 = {
+ struct tsens_plat_data data_8939 = {
+ 	.num_sensors	= 10,
+ 	.ops		= &ops_8939,
+-	.hw_ids		= (unsigned int []){ 0, 1, 2, 4, 5, 6, 7, 8, 9, 10 },
++	.hw_ids		= (unsigned int []){ 0, 1, 2, 3, 5, 6, 7, 8, 9, 10 },
  
- 	u32 hv_clean_fields;
--	u32 hv_padding_32;
-+	u32 padding32_1;
- 	u32 hv_synthetic_controls;
- 	struct {
- 		u32 nested_flush_hypercall:1;
-@@ -729,7 +729,7 @@ struct hv_enlightened_vmcs {
- 		u32 reserved:30;
- 	}  __packed hv_enlightenments_control;
- 	u32 hv_vp_id;
--
-+	u32 padding32_2;
- 	u64 hv_vm_id;
- 	u64 partition_assist_page;
- 	u64 padding64_4[4];
+ 	.feat		= &tsens_v0_1_feat,
+ 	.fields	= tsens_v0_1_regfields,
 -- 
 2.35.1
 
