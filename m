@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E4F560A930
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:16:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5709660A557
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:23:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235903AbiJXNQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:16:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36466 "EHLO
+        id S233584AbiJXMXi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:23:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235682AbiJXNPH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:15:07 -0400
+        with ESMTP id S233518AbiJXMWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:22:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75836A3AA1;
-        Mon, 24 Oct 2022 05:25:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 047AB2E6B5;
+        Mon, 24 Oct 2022 04:59:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE8B9612E9;
-        Mon, 24 Oct 2022 12:25:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2EE1C433D6;
-        Mon, 24 Oct 2022 12:25:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92041612E8;
+        Mon, 24 Oct 2022 11:58:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3E5BC433D6;
+        Mon, 24 Oct 2022 11:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614321;
-        bh=WCxNMtFl2Q+Rc1wx6uCV54UdQ6DKM+t655IJa/Q5eO8=;
+        s=korg; t=1666612717;
+        bh=dwYvbXJVWzetlCsNi7yucSsFrcK5alNlEyvytNaqAD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hiwHv4pUKmh8KbjVRtB+Y8wyY5RE1bChvIyLvGfxbjP9BPxJONN7aclNVjrcNYT5Y
-         TQ5aseKPhXy40h2aAz1/U9k3sSSElJ1xBvwReUmQVC24AcXf7aWtdJJ5fpBUDR7uFc
-         zGcJv0dygOcU2dEdNVfSSMvWcdK5UPfi42LwE0T8=
+        b=vWL0S/ZgBBo/tA55e9BPZlevVRiEY0gA/UTbJegviHhwB0p0HXERwx4Wvw63N0DmR
+         bUiMnrTo/KAOIBt4X3G/06SLpAcdx3yEP1S02CE3vq3B6l+qniZugpxeLUpn+4QD2T
+         TBB6aG23COuSw1svp3VTF+pqeGQe+TXkG8xxOP00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jie Hai <haijie1@huawei.com>,
-        Zhou Wang <wangzhou1@hisilicon.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 215/390] dmaengine: hisilicon: Fix CQ head update
+        stable@vger.kernel.org,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Marcin Wojtas <mw@semihalf.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 093/229] net: mvpp2: fix mvpp2 debugfs leak
 Date:   Mon, 24 Oct 2022 13:30:12 +0200
-Message-Id: <20221024113031.946374675@linuxfoundation.org>
+Message-Id: <20221024113002.058382203@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +55,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Hai <haijie1@huawei.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 94477a79cf80e8ab55b68f14bc579a12ddea1e0b ]
+[ Upstream commit 0152dfee235e87660f52a117fc9f70dc55956bb4 ]
 
-After completion of data transfer of one or multiple descriptors,
-the completion status and the current head pointer to submission
-queue are written into the CQ and interrupt can be generated to
-inform the software. In interrupt process CQ is read and cq_head
-is updated.
+When mvpp2 is unloaded, the driver specific debugfs directory is not
+removed, which technically leads to a memory leak. However, this
+directory is only created when the first device is probed, so the
+hardware is present. Removing the module is only something a developer
+would to when e.g. testing out changes, so the module would be
+reloaded. So this memory leak is minor.
 
-hisi_dma_irq updates cq_head only when the completion status is
-success. When an abnormal interrupt reports, cq_head will not update
-which will cause subsequent interrupt processes read the error CQ
-and never report the correct status.
+The original attempt in commit fe2c9c61f668 ("net: mvpp2: debugfs: fix
+memory leak when using debugfs_lookup()") that was labelled as a memory
+leak fix was not, it fixed a refcount leak, but in doing so created a
+problem when the module is reloaded - the directory already exists, but
+mvpp2_root is NULL, so we lose all debugfs entries. This fix has been
+reverted.
 
-This patch updates cq_head whenever CQ is accessed.
+This is the alternative fix, where we remove the offending directory
+whenever the driver is unloaded.
 
-Fixes: e9f08b65250d ("dmaengine: hisilicon: Add Kunpeng DMA engine support")
-Signed-off-by: Jie Hai <haijie1@huawei.com>
-Acked-by: Zhou Wang <wangzhou1@hisilicon.com>
-Link: https://lore.kernel.org/r/20220830062251.52993-3-haijie1@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 21da57a23125 ("net: mvpp2: add a debugfs interface for the Header Parser")
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Marcin Wojtas <mw@semihalf.com>
+Link: https://lore.kernel.org/r/E1ofOAB-00CzkG-UO@rmk-PC.armlinux.org.uk
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/hisi_dma.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2.h         |  1 +
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c | 10 ++++++++--
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c    | 13 ++++++++++++-
+ 3 files changed, 21 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/hisi_dma.c b/drivers/dma/hisi_dma.c
-index 7cedf91e86a9..08ec90dd4c46 100644
---- a/drivers/dma/hisi_dma.c
-+++ b/drivers/dma/hisi_dma.c
-@@ -442,12 +442,10 @@ static irqreturn_t hisi_dma_irq(int irq, void *data)
- 	desc = chan->desc;
- 	cqe = chan->cq + chan->cq_head;
- 	if (desc) {
-+		chan->cq_head = (chan->cq_head + 1) % hdma_dev->chan_depth;
-+		hisi_dma_chan_write(hdma_dev->base, HISI_DMA_CQ_HEAD_PTR,
-+				    chan->qp_num, chan->cq_head);
- 		if (FIELD_GET(STATUS_MASK, cqe->w0) == STATUS_SUCC) {
--			chan->cq_head = (chan->cq_head + 1) %
--					hdma_dev->chan_depth;
--			hisi_dma_chan_write(hdma_dev->base,
--					    HISI_DMA_CQ_HEAD_PTR, chan->qp_num,
--					    chan->cq_head);
- 			vchan_cookie_complete(&desc->vd);
- 		} else {
- 			dev_err(&hdma_dev->pdev->dev, "task error!\n");
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
+index 46911b67b039..23f60bc5d48f 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
+@@ -1107,5 +1107,6 @@ void mvpp2_percpu_write_relaxed(struct mvpp2 *priv, int cpu, u32 offset,
+ void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name);
+ 
+ void mvpp2_dbgfs_cleanup(struct mvpp2 *priv);
++void mvpp2_dbgfs_exit(void);
+ 
+ #endif
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
+index 87d9cbe10cec..004e0fac5455 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
+@@ -648,6 +648,13 @@ static int mvpp2_dbgfs_port_init(struct dentry *parent,
+ 	return 0;
+ }
+ 
++static struct dentry *mvpp2_root;
++
++void mvpp2_dbgfs_exit(void)
++{
++	debugfs_remove(mvpp2_root);
++}
++
+ void mvpp2_dbgfs_cleanup(struct mvpp2 *priv)
+ {
+ 	debugfs_remove_recursive(priv->dbgfs_dir);
+@@ -655,10 +662,9 @@ void mvpp2_dbgfs_cleanup(struct mvpp2 *priv)
+ 
+ void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name)
+ {
+-	struct dentry *mvpp2_dir, *mvpp2_root;
++	struct dentry *mvpp2_dir;
+ 	int ret, i;
+ 
+-	mvpp2_root = debugfs_lookup(MVPP2_DRIVER_NAME, NULL);
+ 	if (!mvpp2_root)
+ 		mvpp2_root = debugfs_create_dir(MVPP2_DRIVER_NAME, NULL);
+ 
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index 52fdb200a0c7..788fe627e78a 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -5417,7 +5417,18 @@ static struct platform_driver mvpp2_driver = {
+ 	},
+ };
+ 
+-module_platform_driver(mvpp2_driver);
++static int __init mvpp2_driver_init(void)
++{
++	return platform_driver_register(&mvpp2_driver);
++}
++module_init(mvpp2_driver_init);
++
++static void __exit mvpp2_driver_exit(void)
++{
++	platform_driver_unregister(&mvpp2_driver);
++	mvpp2_dbgfs_exit();
++}
++module_exit(mvpp2_driver_exit);
+ 
+ MODULE_DESCRIPTION("Marvell PPv2 Ethernet Driver - www.marvell.com");
+ MODULE_AUTHOR("Marcin Wojtas <mw@semihalf.com>");
 -- 
 2.35.1
 
