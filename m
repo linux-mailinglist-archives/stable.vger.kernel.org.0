@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCF4F60A99B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:23:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3769760A6BC
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:38:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235858AbiJXNXH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:23:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59420 "EHLO
+        id S234021AbiJXMi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:38:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232290AbiJXNW3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:22:29 -0400
+        with ESMTP id S232017AbiJXMgv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:36:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1328A27B20;
-        Mon, 24 Oct 2022 05:29:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0421C89830;
+        Mon, 24 Oct 2022 05:06:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DE086121A;
-        Mon, 24 Oct 2022 12:20:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 348B5C433C1;
-        Mon, 24 Oct 2022 12:20:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38D33612D2;
+        Mon, 24 Oct 2022 12:05:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A7DEC433C1;
+        Mon, 24 Oct 2022 12:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614050;
-        bh=gbWOcWJVIeCSTWsZe9h9k7u01aFXM886CSuh3qHNISM=;
+        s=korg; t=1666613129;
+        bh=WPMtADYKcNR6ClKvdDNddtOONdzXkZDJTJ5hrPhY3hM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=glmoucV+4/XZq3d1LfhwLRzpbWjgUN0drDcXO2Q/BDg3Y7ZUI7YFh+c5Oy7qFFpC8
-         u23qHwZclpj++pW2CW9lVa3xwtpPEfEjncQWqVgFaplJXsJuDKO7V/iGwqWWTGfhN0
-         Nfd+k/7XWZ67j9m5wLrafiStTSy73cH5YgiqZN2Q=
+        b=hXzecuUra+DX0jTjeI6gB5yEftan+4Ho+NnuYjTZmgUpUNtFBbF1P/It9yvb4xCX3
+         uPcReAGXCyAX+GOKbkXmWF6+M1R6OVVD9Kx5IXj5OdBU1peP+hGAJ1AdFkcVCMn33A
+         q6rT9AIgveEj96FrGBEKeGNh7D/NBYxF8F2lksKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 112/390] spi: qup: add missing clk_disable_unprepare on error in spi_qup_pm_resume_runtime()
-Date:   Mon, 24 Oct 2022 13:28:29 +0200
-Message-Id: <20221024113027.475723989@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 002/255] ALSA: rawmidi: Drop register_mutex in snd_rawmidi_free()
+Date:   Mon, 24 Oct 2022 13:28:32 +0200
+Message-Id: <20221024113002.546814497@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +51,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Qiang <xuqiang36@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 494a22765ce479c9f8ad181c5d24cffda9f534bb ]
+commit a70aef7982b012e86dfd39fbb235e76a21ae778a upstream.
 
-Add the missing clk_disable_unprepare() before return
-from spi_qup_pm_resume_runtime() in the error handling case.
+The register_mutex taken around the dev_unregister callback call in
+snd_rawmidi_free() may potentially lead to a mutex deadlock, when OSS
+emulation and a hot unplug are involved.
 
-Fixes: dae1a7700b34 (“spi: qup: Handle clocks in pm_runtime suspend and resume”)
-Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
-Link: https://lore.kernel.org/r/20220825065324.68446-2-xuqiang36@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since the mutex doesn't protect the actual race (as the registration
+itself is already protected by another means), let's drop it.
+
+Link: https://lore.kernel.org/r/CAB7eexJP7w1B0mVgDF0dQ+gWor7UdkiwPczmL7pn91xx8xpzOA@mail.gmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221011070147.7611-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-qup.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/core/rawmidi.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
-index 668d79922fac..f3877eeb3da6 100644
---- a/drivers/spi/spi-qup.c
-+++ b/drivers/spi/spi-qup.c
-@@ -1199,8 +1199,10 @@ static int spi_qup_pm_resume_runtime(struct device *device)
- 		return ret;
+--- a/sound/core/rawmidi.c
++++ b/sound/core/rawmidi.c
+@@ -1662,10 +1662,8 @@ static int snd_rawmidi_free(struct snd_r
  
- 	ret = clk_prepare_enable(controller->cclk);
--	if (ret)
-+	if (ret) {
-+		clk_disable_unprepare(controller->iclk);
- 		return ret;
-+	}
+ 	snd_info_free_entry(rmidi->proc_entry);
+ 	rmidi->proc_entry = NULL;
+-	mutex_lock(&register_mutex);
+ 	if (rmidi->ops && rmidi->ops->dev_unregister)
+ 		rmidi->ops->dev_unregister(rmidi);
+-	mutex_unlock(&register_mutex);
  
- 	/* Disable clocks auto gaiting */
- 	config = readl_relaxed(controller->base + QUP_CONFIG);
--- 
-2.35.1
-
+ 	snd_rawmidi_free_substreams(&rmidi->streams[SNDRV_RAWMIDI_STREAM_INPUT]);
+ 	snd_rawmidi_free_substreams(&rmidi->streams[SNDRV_RAWMIDI_STREAM_OUTPUT]);
 
 
