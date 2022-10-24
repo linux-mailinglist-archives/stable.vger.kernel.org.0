@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85BD860B71E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BE1B60B86F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231856AbiJXTUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:20:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46020 "EHLO
+        id S232964AbiJXTp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:45:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233512AbiJXTTb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:19:31 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A859814F5;
-        Mon, 24 Oct 2022 10:56:08 -0700 (PDT)
+        with ESMTP id S233591AbiJXToJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:44:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62012196B63;
+        Mon, 24 Oct 2022 11:12:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2FC48CE136E;
-        Mon, 24 Oct 2022 11:54:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CF07C433D7;
-        Mon, 24 Oct 2022 11:54:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CEC6CB811CB;
+        Mon, 24 Oct 2022 11:54:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 301B5C4314B;
+        Mon, 24 Oct 2022 11:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612491;
-        bh=XeXgFmBb2J/4H2fAnQcF2pRLaqG6XK2GwrF5T7orXxI=;
+        s=korg; t=1666612470;
+        bh=f6PvnzB2NTuAawVlsGsqh/PREkZdKYRgw4IKCn33zoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k9JpPzCE01Ev+BZPPOSNaxm+si1a14BbiRJaI1+ADVEZ2USDPFl/xOFs8qiNXMJiz
-         nF1JNIabWuIpIogPh3Ux1KyOeOm6Sqbm8wxQDK+K9QcEtXceFz6YJwKjTn892tvQN8
-         sZKv4aQ23jztzxUDUINWwfmZh4SbBlROHBd5um2I=
+        b=y9nM0RJULq/ER9Y7EVfF5ymqOtesz2jMHh9KSN1Xkve5fojNCELpqqLvp+RusxaFh
+         1lcRzUTQleLfIN6FIZG0d4aJJeVUhvdwM/ZyvWlzsOTycYMyuEHqJv/3RoTTZ6FZU2
+         sVIA1Hqfp/hdZM5u0Jgr10iyIWOD+uofeJXcFPF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 198/210] md/raid5: Wait for MD_SB_CHANGE_PENDING in raid5d
-Date:   Mon, 24 Oct 2022 13:31:55 +0200
-Message-Id: <20221024113003.395495277@linuxfoundation.org>
+        stable@vger.kernel.org, Robin Guo <guoweibin@inspur.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 200/210] usb: musb: Fix musb_gadget.c rxstate overflow bug
+Date:   Mon, 24 Oct 2022 13:31:57 +0200
+Message-Id: <20221024113003.474849741@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -52,143 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Robin Guo <guoweibin@inspur.com>
 
-[ Upstream commit 5e2cf333b7bd5d3e62595a44d598a254c697cd74 ]
+[ Upstream commit eea4c860c3b366369eff0489d94ee4f0571d467d ]
 
-A complicated deadlock exists when using the journal and an elevated
-group_thrtead_cnt. It was found with loop devices, but its not clear
-whether it can be seen with real disks. The deadlock can occur simply
-by writing data with an fio script.
+The usb function device call musb_gadget_queue() adds the passed
+request to musb_ep::req_list,If the (request->length > musb_ep->packet_sz)
+and (is_buffer_mapped(req) return false),the rxstate() will copy all data
+in fifo to request->buf which may cause request->buf out of bounds.
 
-When the deadlock occurs, multiple threads will hang in different ways:
+Fix it by add the length check :
+fifocnt = min_t(unsigned, request->length - request->actual, fifocnt);
 
- 1) The group threads will hang in the blk-wbt code with bios waiting to
-    be submitted to the block layer:
-
-        io_schedule+0x70/0xb0
-        rq_qos_wait+0x153/0x210
-        wbt_wait+0x115/0x1b0
-        io_schedule+0x70/0xb0
-        rq_qos_wait+0x153/0x210
-        wbt_wait+0x115/0x1b0
-        __rq_qos_throttle+0x38/0x60
-        blk_mq_submit_bio+0x589/0xcd0
-        wbt_wait+0x115/0x1b0
-        __rq_qos_throttle+0x38/0x60
-        blk_mq_submit_bio+0x589/0xcd0
-        __submit_bio+0xe6/0x100
-        submit_bio_noacct_nocheck+0x42e/0x470
-        submit_bio_noacct+0x4c2/0xbb0
-        ops_run_io+0x46b/0x1a30
-        handle_stripe+0xcd3/0x36b0
-        handle_active_stripes.constprop.0+0x6f6/0xa60
-        raid5_do_work+0x177/0x330
-
-    Or:
-        io_schedule+0x70/0xb0
-        rq_qos_wait+0x153/0x210
-        wbt_wait+0x115/0x1b0
-        __rq_qos_throttle+0x38/0x60
-        blk_mq_submit_bio+0x589/0xcd0
-        __submit_bio+0xe6/0x100
-        submit_bio_noacct_nocheck+0x42e/0x470
-        submit_bio_noacct+0x4c2/0xbb0
-        flush_deferred_bios+0x136/0x170
-        raid5_do_work+0x262/0x330
-
- 2) The r5l_reclaim thread will hang in the same way, submitting a
-    bio to the block layer:
-
-        io_schedule+0x70/0xb0
-        rq_qos_wait+0x153/0x210
-        wbt_wait+0x115/0x1b0
-        __rq_qos_throttle+0x38/0x60
-        blk_mq_submit_bio+0x589/0xcd0
-        __submit_bio+0xe6/0x100
-        submit_bio_noacct_nocheck+0x42e/0x470
-        submit_bio_noacct+0x4c2/0xbb0
-        submit_bio+0x3f/0xf0
-        md_super_write+0x12f/0x1b0
-        md_update_sb.part.0+0x7c6/0xff0
-        md_update_sb+0x30/0x60
-        r5l_do_reclaim+0x4f9/0x5e0
-        r5l_reclaim_thread+0x69/0x30b
-
-    However, before hanging, the MD_SB_CHANGE_PENDING flag will be
-    set for sb_flags in r5l_write_super_and_discard_space(). This
-    flag will never be cleared because the submit_bio() call never
-    returns.
-
- 3) Due to the MD_SB_CHANGE_PENDING flag being set, handle_stripe()
-    will do no processing on any pending stripes and re-set
-    STRIPE_HANDLE. This will cause the raid5d thread to enter an
-    infinite loop, constantly trying to handle the same stripes
-    stuck in the queue.
-
-    The raid5d thread has a blk_plug that holds a number of bios
-    that are also stuck waiting seeing the thread is in a loop
-    that never schedules. These bios have been accounted for by
-    blk-wbt thus preventing the other threads above from
-    continuing when they try to submit bios. --Deadlock.
-
-To fix this, add the same wait_event() that is used in raid5_do_work()
-to raid5d() such that if MD_SB_CHANGE_PENDING is set, the thread will
-schedule and wait until the flag is cleared. The schedule action will
-flush the plug which will allow the r5l_reclaim thread to continue,
-thus preventing the deadlock.
-
-However, md_check_recovery() calls can also clear MD_SB_CHANGE_PENDING
-from the same thread and can thus deadlock if the thread is put to
-sleep. So avoid waiting if md_check_recovery() is being called in the
-loop.
-
-It's not clear when the deadlock was introduced, but the similar
-wait_event() call in raid5_do_work() was added in 2017 by this
-commit:
-
-    16d997b78b15 ("md/raid5: simplfy delaying of writes while metadata
-                   is updated.")
-
-Link: https://lore.kernel.org/r/7f3b87b6-b52a-f737-51d7-a4eec5c44112@deltatee.com
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Robin Guo <guoweibin@inspur.com>
+Link: https://lore.kernel.org/r/20220906102119.1b071d07a8391ff115e6d1ef@inspur.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid5.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/usb/musb/musb_gadget.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 78b48dca3fda..dc053a43a3dc 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -44,6 +44,7 @@
-  */
+diff --git a/drivers/usb/musb/musb_gadget.c b/drivers/usb/musb/musb_gadget.c
+index 319c5a1b4a6a..8fd68f45a8df 100644
+--- a/drivers/usb/musb/musb_gadget.c
++++ b/drivers/usb/musb/musb_gadget.c
+@@ -785,6 +785,9 @@ static void rxstate(struct musb *musb, struct musb_request *req)
+ 			musb_writew(epio, MUSB_RXCSR, csr);
  
- #include <linux/blkdev.h>
-+#include <linux/delay.h>
- #include <linux/kthread.h>
- #include <linux/raid/pq.h>
- #include <linux/async_tx.h>
-@@ -6308,7 +6309,18 @@ static void raid5d(struct md_thread *thread)
- 			spin_unlock_irq(&conf->device_lock);
- 			md_check_recovery(mddev);
- 			spin_lock_irq(&conf->device_lock);
-+
-+			/*
-+			 * Waiting on MD_SB_CHANGE_PENDING below may deadlock
-+			 * seeing md_check_recovery() is needed to clear
-+			 * the flag when using mdmon.
-+			 */
-+			continue;
- 		}
-+
-+		wait_event_lock_irq(mddev->sb_wait,
-+			!test_bit(MD_SB_CHANGE_PENDING, &mddev->sb_flags),
-+			conf->device_lock);
- 	}
- 	pr_debug("%d stripes handled\n", handled);
- 
+ buffer_aint_mapped:
++			fifo_count = min_t(unsigned int,
++					request->length - request->actual,
++					(unsigned int)fifo_count);
+ 			musb_read_fifo(musb_ep->hw_ep, fifo_count, (u8 *)
+ 					(request->buf + request->actual));
+ 			request->actual += fifo_count;
 -- 
 2.35.1
 
