@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91FA260AAF6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:42:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75C4760A615
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:32:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236129AbiJXNmn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:42:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54450 "EHLO
+        id S231542AbiJXMb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:31:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236926AbiJXNlj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:41:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 015AC7CE1F;
-        Mon, 24 Oct 2022 05:39:14 -0700 (PDT)
+        with ESMTP id S234323AbiJXMaB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:30:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 545A2356EA;
+        Mon, 24 Oct 2022 05:04:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1B8B612E7;
-        Mon, 24 Oct 2022 12:30:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1505C433C1;
-        Mon, 24 Oct 2022 12:30:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8719361295;
+        Mon, 24 Oct 2022 12:03:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97DDEC433C1;
+        Mon, 24 Oct 2022 12:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614631;
-        bh=o3vtTwlB4jCOZ2PyHCmxu2zJ9FHZxZzmrmeAx8nin9U=;
+        s=korg; t=1666613038;
+        bh=c9KwSiNVgBXBuKA/mG8YVGWL/opA9IdLJkp3LRCodbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+VZh+4awW8ieTbOPH0617svpX/bJT0q+Cn6DX0qzSVCbt3g7nCQvKIm+VMJ/cCyB
-         h+p37F1Yb9g9aR+ZvnXFHd+omKKfyDemqpbYeAM338GPAzAg0YrgTg37ngnQ5ZAJVW
-         dqPkiqegploHJP/q9td/ukP7LK6lntHm0FFaOOvw=
+        b=YbdfvEj2ScSh0UmzMbT1QJW7K6CYLcMSa0fKiiFBbkyzMU1tbZiO8Xqt64YeUyBKz
+         Igf9Af0s5Iqb/bkXdMhOWIFo1HarNc+rD93h6zF3+iBNV+CW4DV9CnTPtnNNM9484h
+         MohChdSypAjREgukUwIcX3ExhvFHDQYD9iGEC9cM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jameson Thies <jthies@google.com>,
-        Prashant Malani <pmalani@chromium.org>,
-        Benson Leung <bleung@chromium.org>,
-        Tzung-Bi Shih <tzungbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 334/390] platform/chrome: cros_ec: Notify the PM of wake events during resume
-Date:   Mon, 24 Oct 2022 13:32:11 +0200
-Message-Id: <20221024113037.220491883@linuxfoundation.org>
+        stable@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 213/229] HID: roccat: Fix use-after-free in roccat_read()
+Date:   Mon, 24 Oct 2022 13:32:12 +0200
+Message-Id: <20221024113006.104138122@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +52,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jameson Thies <jthies@google.com>
+From: Hyunwoo Kim <imv4bel@gmail.com>
 
-[ Upstream commit 8edd2752b0aa498b3a61f3caee8f79f7e0567fad ]
+[ Upstream commit cacdb14b1c8d3804a3a7d31773bc7569837b71a4 ]
 
-cros_ec_handle_event in the cros_ec driver can notify the PM of wake
-events. When a device is suspended, cros_ec_handle_event will not check
-MKBP events. Instead, received MKBP events are checked during resume by
-cros_ec_report_events_during_suspend. But
-cros_ec_report_events_during_suspend cannot notify the PM if received
-events are wake events, causing wake events to not be reported if
-received while the device is suspended.
+roccat_report_event() is responsible for registering
+roccat-related reports in struct roccat_device.
 
-Update cros_ec_report_events_during_suspend to notify the PM of wake
-events during resume by calling pm_wakeup_event.
+int roccat_report_event(int minor, u8 const *data)
+{
+	struct roccat_device *device;
+	struct roccat_reader *reader;
+	struct roccat_report *report;
+	uint8_t *new_value;
 
-Signed-off-by: Jameson Thies <jthies@google.com>
-Reviewed-by: Prashant Malani <pmalani@chromium.org>
-Reviewed-by: Benson Leung <bleung@chromium.org>
-Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
-Link: https://lore.kernel.org/r/20220913204954.2931042-1-jthies@google.com
+	device = devices[minor];
+
+	new_value = kmemdup(data, device->report_size, GFP_ATOMIC);
+	if (!new_value)
+		return -ENOMEM;
+
+	report = &device->cbuf[device->cbuf_end];
+
+	/* passing NULL is safe */
+	kfree(report->value);
+	...
+
+The registered report is stored in the struct roccat_device member
+"struct roccat_report cbuf[ROCCAT_CBUF_SIZE];".
+If more reports are received than the "ROCCAT_CBUF_SIZE" value,
+kfree() the saved report from cbuf[0] and allocates a new reprot.
+Since there is no lock when this kfree() is performed,
+kfree() can be performed even while reading the saved report.
+
+static ssize_t roccat_read(struct file *file, char __user *buffer,
+		size_t count, loff_t *ppos)
+{
+	struct roccat_reader *reader = file->private_data;
+	struct roccat_device *device = reader->device;
+	struct roccat_report *report;
+	ssize_t retval = 0, len;
+	DECLARE_WAITQUEUE(wait, current);
+
+	mutex_lock(&device->cbuf_lock);
+
+	...
+
+	report = &device->cbuf[reader->cbuf_start];
+	/*
+	 * If report is larger than requested amount of data, rest of report
+	 * is lost!
+	 */
+	len = device->report_size > count ? count : device->report_size;
+
+	if (copy_to_user(buffer, report->value, len)) {
+		retval = -EFAULT;
+		goto exit_unlock;
+	}
+	...
+
+The roccat_read() function receives the device->cbuf report and
+delivers it to the user through copy_to_user().
+If the N+ROCCAT_CBUF_SIZE th report is received while copying of
+the Nth report->value is in progress, the pointer that copy_to_user()
+is working on is kfree()ed and UAF read may occur. (race condition)
+
+Since the device node of this driver does not set separate permissions,
+this is not a security vulnerability, but because it is used for
+requesting screen display of profile or dpi settings,
+a user using the roccat device can apply udev to this device node or
+There is a possibility to use it by giving.
+
+Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/hid/hid-roccat.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
-index c4de8c4db193..5a622666a075 100644
---- a/drivers/platform/chrome/cros_ec.c
-+++ b/drivers/platform/chrome/cros_ec.c
-@@ -332,10 +332,16 @@ EXPORT_SYMBOL(cros_ec_suspend);
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index 5be8de70c651..c9cec00b4e6e 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -260,6 +260,8 @@ int roccat_report_event(int minor, u8 const *data)
+ 	if (!new_value)
+ 		return -ENOMEM;
  
- static void cros_ec_report_events_during_suspend(struct cros_ec_device *ec_dev)
- {
-+	bool wake_event;
++	mutex_lock(&device->cbuf_lock);
 +
- 	while (ec_dev->mkbp_event_supported &&
--	       cros_ec_get_next_event(ec_dev, NULL, NULL) > 0)
-+	       cros_ec_get_next_event(ec_dev, &wake_event, NULL) > 0) {
- 		blocking_notifier_call_chain(&ec_dev->event_notifier,
- 					     1, ec_dev);
+ 	report = &device->cbuf[device->cbuf_end];
+ 
+ 	/* passing NULL is safe */
+@@ -279,6 +281,8 @@ int roccat_report_event(int minor, u8 const *data)
+ 			reader->cbuf_start = (reader->cbuf_start + 1) % ROCCAT_CBUF_SIZE;
+ 	}
+ 
++	mutex_unlock(&device->cbuf_lock);
 +
-+		if (wake_event && device_may_wakeup(ec_dev->dev))
-+			pm_wakeup_event(ec_dev->dev, 0);
-+	}
+ 	wake_up_interruptible(&device->wait);
+ 	return 0;
  }
- 
- /**
 -- 
 2.35.1
 
