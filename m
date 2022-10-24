@@ -2,41 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDA8B609FD1
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:09:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 865F260A18C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:27:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230025AbiJXLJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:09:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50854 "EHLO
+        id S230190AbiJXL1x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:27:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230153AbiJXLJj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:09:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 021815F7F
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 04:09:27 -0700 (PDT)
+        with ESMTP id S230134AbiJXL1w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:27:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 104B75B136
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 04:27:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D93C61217
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 11:09:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE1B2C433C1;
-        Mon, 24 Oct 2022 11:09:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B786AB8111D
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 11:27:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 131A5C433C1;
+        Mon, 24 Oct 2022 11:27:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666609766;
-        bh=7eOLCls4k18+fACy16KoO3zoduCoXLHKpTjIyajBmM8=;
-        h=Subject:To:Cc:From:Date:From;
-        b=IJJOf+XbK52NOnf1pM/p8uDe7PVmGutDUreoBGSd3CAff/WhB3chf0ou1nZw8bEqC
-         2TsTbWcfWKePPJT54awxRhiCUQk7lTvRWjtMG9be5RGujxb0o7PvIuzSMZQ0WOSp4d
-         rPACfdERsSRyEu+iu1knGNex7nDOSBgkhM1SKOzw=
-Subject: FAILED: patch "[PATCH] cgroup: Reorganize css_set_lock and kernfs path processing" failed to apply to 5.15-stable tree
-To:     mkoutny@suse.com, dan.carpenter@oracle.com, tj@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Oct 2022 13:09:15 +0200
-Message-ID: <166660975519549@kroah.com>
+        s=korg; t=1666610869;
+        bh=K48NBAqgWRo1mETUSlqGN+xaE/Pq/ZahWJY6fwSb5EA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=T56euOfBdEzjb+7ecAQnQL6UYh4mtgXlASkJmeiRtnBSCVX1odBlUG03sdqb0BjAh
+         mGxZH7FIH56a9eHvffUiIa/Pl8ai+HV5TK3ebKF16V0VcqOtCTw0+1wn7DpNXovgPj
+         UhzsVx4Xcu5lnaWnKhEu3i1eU0KFehGLs/fLErYs=
+Date:   Mon, 24 Oct 2022 13:27:46 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Thorsten Leemhuis <regressions@leemhuis.info>
+Cc:     Andreas <andreas.thalhammer@linux.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        ML dri-devel <dri-devel@lists.freedesktop.org>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [Regression] CPU stalls and eventually causes a complete system
+ freeze with 6.0.3 due to "video/aperture: Disable and unregister sysfb
+ devices via aperture helpers"
+Message-ID: <Y1Z2sq9RyEnIdixD@kroah.com>
+References: <bbf7afe7-6ed2-6708-d302-4ba657444c45@leemhuis.info>
+ <668a8ffd-ffc7-e1cc-28b4-1caca1bcc3d6@suse.de>
+ <958fd763-01b6-0167-ba6b-97cbd3bddcb6@leemhuis.info>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <958fd763-01b6-0167-ba6b-97cbd3bddcb6@leemhuis.info>
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -46,149 +61,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Oct 24, 2022 at 12:41:43PM +0200, Thorsten Leemhuis wrote:
+> Hi! Thx for the reply.
+> 
+> On 24.10.22 12:26, Thomas Zimmermann wrote:
+> > Am 23.10.22 um 10:04 schrieb Thorsten Leemhuis:
+> >>
+> >> I noticed a regression report in bugzilla.kernel.org. As many (most?)
+> >> kernel developer don't keep an eye on it, I decided to forward it by
+> >> mail. Quoting from https://bugzilla.kernel.org/show_bug.cgi?id=216616† :
+> >>
+> >>> † Andreas 2022-10-22 14:25:32 UTC
+> >>>
+> >>> Created attachment 303074 [details]
+> >>> dmesg
+> > 
+> > I've looked at the kernel log and found that simpledrm has been loaded
+> > *after* amdgpu, which should never happen. The problematic patch has
+> > been taken from a long list of refactoring work on this code. No wonder
+> > that it doesn't work as expected.
+> > 
+> > Please cherry-pick commit 9d69ef183815 ("fbdev/core: Remove
+> > remove_conflicting_pci_framebuffers()") into the 6.0 stable branch and
+> > report on the results. It should fix the problem.
+> 
+> Greg, is that enough for you to pick this up? Or do you want Andreas to
+> test first if it really fixes the reported problem?
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-Possible dependencies:
-
-46307fd6e27a ("cgroup: Reorganize css_set_lock and kernfs path processing")
-4534dee94105 ("cgroup: cgroup: Honor caller's cgroup NS when resolving cgroup id")
-74e4b956eb1c ("cgroup: Honor caller's cgroup NS when resolving path")
-e210a89f5b07 ("cgroup.c: add helper __cset_cgroup_from_root to cleanup duplicated codes")
-be288169712f ("cgroup: reduce dependency on cgroup_mutex")
+This should be good enough.  If this does NOT fix the issue, please let
+me know.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 46307fd6e27a3f678a1678b02e667678c22aa8cc Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>
-Date: Mon, 10 Oct 2022 10:29:18 +0200
-Subject: [PATCH] cgroup: Reorganize css_set_lock and kernfs path processing
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-The commit 74e4b956eb1c incorrectly wrapped kernfs_walk_and_get
-(might_sleep) under css_set_lock (spinlock). css_set_lock is needed by
-__cset_cgroup_from_root to ensure stable cset->cgrp_links but not for
-kernfs_walk_and_get.
-
-We only need to make sure that the returned root_cgrp won't be freed
-under us. This is given in the case of global root because it is static
-(cgrp_dfl_root.cgrp). When the root_cgrp is lower in the hierarchy, it
-is pinned by cgroup_ns->root_cset (and `current` task cannot switch
-namespace asynchronously so ns_proxy pins cgroup_ns).
-
-Note this reasoning won't hold for root cgroups in v1 hierarchies,
-therefore create a special-cased helper function just for the default
-hierarchy.
-
-Fixes: 74e4b956eb1c ("cgroup: Honor caller's cgroup NS when resolving path")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Michal Koutn√Ω <mkoutny@suse.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index 764bdd5fd8d1..ecf409e3c3a7 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -1392,6 +1392,9 @@ static void cgroup_destroy_root(struct cgroup_root *root)
- 	cgroup_free_root(root);
- }
- 
-+/*
-+ * Returned cgroup is without refcount but it's valid as long as cset pins it.
-+ */
- static inline struct cgroup *__cset_cgroup_from_root(struct css_set *cset,
- 					    struct cgroup_root *root)
- {
-@@ -1403,6 +1406,7 @@ static inline struct cgroup *__cset_cgroup_from_root(struct css_set *cset,
- 		res_cgroup = cset->dfl_cgrp;
- 	} else {
- 		struct cgrp_cset_link *link;
-+		lockdep_assert_held(&css_set_lock);
- 
- 		list_for_each_entry(link, &cset->cgrp_links, cgrp_link) {
- 			struct cgroup *c = link->cgrp;
-@@ -1414,6 +1418,7 @@ static inline struct cgroup *__cset_cgroup_from_root(struct css_set *cset,
- 		}
- 	}
- 
-+	BUG_ON(!res_cgroup);
- 	return res_cgroup;
- }
- 
-@@ -1436,23 +1441,36 @@ current_cgns_cgroup_from_root(struct cgroup_root *root)
- 
- 	rcu_read_unlock();
- 
--	BUG_ON(!res);
- 	return res;
- }
- 
-+/*
-+ * Look up cgroup associated with current task's cgroup namespace on the default
-+ * hierarchy.
-+ *
-+ * Unlike current_cgns_cgroup_from_root(), this doesn't need locks:
-+ * - Internal rcu_read_lock is unnecessary because we don't dereference any rcu
-+ *   pointers.
-+ * - css_set_lock is not needed because we just read cset->dfl_cgrp.
-+ * - As a bonus returned cgrp is pinned with the current because it cannot
-+ *   switch cgroup_ns asynchronously.
-+ */
-+static struct cgroup *current_cgns_cgroup_dfl(void)
-+{
-+	struct css_set *cset;
-+
-+	cset = current->nsproxy->cgroup_ns->root_cset;
-+	return __cset_cgroup_from_root(cset, &cgrp_dfl_root);
-+}
-+
- /* look up cgroup associated with given css_set on the specified hierarchy */
- static struct cgroup *cset_cgroup_from_root(struct css_set *cset,
- 					    struct cgroup_root *root)
- {
--	struct cgroup *res = NULL;
--
- 	lockdep_assert_held(&cgroup_mutex);
- 	lockdep_assert_held(&css_set_lock);
- 
--	res = __cset_cgroup_from_root(cset, root);
--
--	BUG_ON(!res);
--	return res;
-+	return __cset_cgroup_from_root(cset, root);
- }
- 
- /*
-@@ -6105,9 +6123,7 @@ struct cgroup *cgroup_get_from_id(u64 id)
- 	if (!cgrp)
- 		return ERR_PTR(-ENOENT);
- 
--	spin_lock_irq(&css_set_lock);
--	root_cgrp = current_cgns_cgroup_from_root(&cgrp_dfl_root);
--	spin_unlock_irq(&css_set_lock);
-+	root_cgrp = current_cgns_cgroup_dfl();
- 	if (!cgroup_is_descendant(cgrp, root_cgrp)) {
- 		cgroup_put(cgrp);
- 		return ERR_PTR(-ENOENT);
-@@ -6686,10 +6702,8 @@ struct cgroup *cgroup_get_from_path(const char *path)
- 	struct cgroup *cgrp = ERR_PTR(-ENOENT);
- 	struct cgroup *root_cgrp;
- 
--	spin_lock_irq(&css_set_lock);
--	root_cgrp = current_cgns_cgroup_from_root(&cgrp_dfl_root);
-+	root_cgrp = current_cgns_cgroup_dfl();
- 	kn = kernfs_walk_and_get(root_cgrp->kn, path);
--	spin_unlock_irq(&css_set_lock);
- 	if (!kn)
- 		goto out;
- 
-
