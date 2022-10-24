@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BAB360ABA5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:55:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09DF460A62A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:32:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236547AbiJXNzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:55:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48848 "EHLO
+        id S233918AbiJXMcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:32:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236718AbiJXNxp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:53:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A566DB8792;
-        Mon, 24 Oct 2022 05:43:31 -0700 (PDT)
+        with ESMTP id S234344AbiJXMaF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:30:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16CB631EF6;
+        Mon, 24 Oct 2022 05:03:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC9CF612A1;
-        Mon, 24 Oct 2022 12:43:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E00A6C433C1;
-        Mon, 24 Oct 2022 12:43:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4CDB6B81147;
+        Mon, 24 Oct 2022 11:46:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA6F3C433C1;
+        Mon, 24 Oct 2022 11:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615382;
-        bh=jOc7LW7IWzijjP0DhfLG0KzytqA6AuX/PkOEIoEOpsI=;
+        s=korg; t=1666611983;
+        bh=MLYHlpHej6WatiXz/o2H6bBtG1Sl1y9g5508EWQT3AE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zwp3G7yd9fvPsd17cMohsVdtkJU0I8AIuTYxXWsFQ8gFsIdBdG1fMjVdpPzBv8s4e
-         BfoCtECn486PRRG0WbIl1VKA/JCTRI3hu6EA/Hc98k/Irta06NbrXlDNkTZl9ycT9w
-         ERn45q7Ely8Bgb0ld54qYjPS4fyVhzXEOniTJqD8=
+        b=tSJ3IOrtDzEZvQBbwx9rJcNxfYfjGlV9H95S64Ja0Qv2MJEZtYon4y/qAV7NTTVAC
+         PueHDq44VSt57bhukZiy2QgzqBO9bhRSzhNI/QG/kLjjVR8aXcDUwUW+f6UlkHVVZv
+         jnimvtUmhwY9ukAgETvfbaEruOK4JtLS/MoCsmQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 198/530] sctp: handle the error returned from sctp_auth_asoc_init_active_key
+        stable@vger.kernel.org, Swati Agarwal <swati.agarwal@xilinx.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 025/210] dmaengine: xilinx_dma: Report error in case of dma_set_mask_and_coherent API failure
 Date:   Mon, 24 Oct 2022 13:29:02 +0200
-Message-Id: <20221024113054.011267003@linuxfoundation.org>
+Message-Id: <20221024112957.780094879@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Swati Agarwal <swati.agarwal@xilinx.com>
 
-[ Upstream commit 022152aaebe116a25c39818a07e175a8cd3c1e11 ]
+[ Upstream commit 8f2b6bc79c32f0fa60df000ae387a790ec80eae9 ]
 
-When it returns an error from sctp_auth_asoc_init_active_key(), the
-active_key is actually not updated. The old sh_key will be freeed
-while it's still used as active key in asoc. Then an use-after-free
-will be triggered when sending patckets, as found by syzbot:
+The driver does not handle the failure case while calling
+dma_set_mask_and_coherent API.
 
-  sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
-  sctp_set_owner_w net/sctp/socket.c:132 [inline]
-  sctp_sendmsg_to_asoc+0xbd5/0x1a20 net/sctp/socket.c:1863
-  sctp_sendmsg+0x1053/0x1d50 net/sctp/socket.c:2025
-  inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:819
-  sock_sendmsg_nosec net/socket.c:714 [inline]
-  sock_sendmsg+0xcf/0x120 net/socket.c:734
+In case of failure, capture the return value of API and then report an
+error.
 
-This patch is to fix it by not replacing the sh_key when it returns
-errors from sctp_auth_asoc_init_active_key() in sctp_auth_set_key().
-For sctp_auth_set_active_key(), old active_key_id will be set back
-to asoc->active_key_id when the same thing happens.
+Addresses-coverity: Unchecked return value (CHECKED_RETURN)
 
-Fixes: 58acd1009226 ("sctp: update active_key for asoc when old key is being replaced")
-Reported-by: syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
+Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/20220817061125.4720-4-swati.agarwal@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/auth.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/dma/xilinx/xilinx_dma.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/net/sctp/auth.c b/net/sctp/auth.c
-index db6b7373d16c..34964145514e 100644
---- a/net/sctp/auth.c
-+++ b/net/sctp/auth.c
-@@ -863,12 +863,17 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
- 	}
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index 9319349e69d2..b4d00bc461db 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -2585,7 +2585,11 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+ 		xdev->ext_addr = false;
  
- 	list_del_init(&shkey->key_list);
--	sctp_auth_shkey_release(shkey);
- 	list_add(&cur_key->key_list, sh_keys);
- 
--	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
--		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+	if (asoc && asoc->active_key_id == auth_key->sca_keynumber &&
-+	    sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
-+		list_del_init(&cur_key->key_list);
-+		sctp_auth_shkey_release(cur_key);
-+		list_add(&shkey->key_list, sh_keys);
-+		return -ENOMEM;
+ 	/* Set the dma mask bits */
+-	dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
++	err = dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
++	if (err < 0) {
++		dev_err(xdev->dev, "DMA mask error %d\n", err);
++		goto disable_clks;
 +	}
  
-+	sctp_auth_shkey_release(shkey);
- 	return 0;
- }
- 
-@@ -902,8 +907,13 @@ int sctp_auth_set_active_key(struct sctp_endpoint *ep,
- 		return -EINVAL;
- 
- 	if (asoc) {
-+		__u16  active_key_id = asoc->active_key_id;
-+
- 		asoc->active_key_id = key_id;
--		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+		if (sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
-+			asoc->active_key_id = active_key_id;
-+			return -ENOMEM;
-+		}
- 	} else
- 		ep->active_key_id = key_id;
- 
+ 	/* Initialize the DMA engine */
+ 	xdev->common.dev = &pdev->dev;
 -- 
 2.35.1
 
