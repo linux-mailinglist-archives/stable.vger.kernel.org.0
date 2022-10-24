@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7636F60A1C0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:33:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 804C860A331
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:52:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230107AbiJXLdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:33:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57192 "EHLO
+        id S232023AbiJXLwO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:52:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230301AbiJXLcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:32:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFABD6068F;
-        Mon, 24 Oct 2022 04:32:19 -0700 (PDT)
+        with ESMTP id S231907AbiJXLvD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:51:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A14021A8;
+        Mon, 24 Oct 2022 04:44:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1AE161251;
-        Mon, 24 Oct 2022 11:32:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8121C433D6;
-        Mon, 24 Oct 2022 11:32:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A62EB81151;
+        Mon, 24 Oct 2022 11:43:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDEA1C433D6;
+        Mon, 24 Oct 2022 11:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611137;
-        bh=nInlbStH9a5FQ1hxPfb1aIWblv3RMo5lp/f/c/5RMyM=;
+        s=korg; t=1666611794;
+        bh=7Mf8pAymLKtC4kysmJdpY7SrgzbFoAL52CT2NFcnYPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MDWNg7apRfJPOnTX6yzSJszcqk5EkYrL+IQ4lrRsmrxO1HwPdT4eK/VFBt6/1BoBw
-         QN6c1Y9oSaS62mpPmpO2rlWJAopO2GEVleE0o4qPcBXdxt916lZDOEUSTE20dS3ddC
-         syXZRCV4nP7/EpUhvRT7wCBRPROogjsiscHkaR2g=
+        b=m3KbnQI60kOsMSBkPkEquHR2eTX3FcMN8fhDElSYGE3j5iH9+N9cqlpM0Wvixoo4s
+         rmINt9CjBoZXdad9QYrCe9XK81fQitrCZ7nMYNNqftjnvyVh0dEHj0BWzUwBaEHhA4
+         R3ANZDA9oN9HdOWM1dSiZhsDJs5AJWkuCPULivCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Chen Yu <yu.c.chen@intel.com>
-Subject: [PATCH 6.0 04/20] thermal: intel_powerclamp: Use first online CPU as control_cpu
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 112/159] mfd: lp8788: Fix an error handling path in lp8788_probe()
 Date:   Mon, 24 Oct 2022 13:31:06 +0200
-Message-Id: <20221024112934.600700322@linuxfoundation.org>
+Message-Id: <20221024112953.555782463@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112934.415391158@linuxfoundation.org>
-References: <20221024112934.415391158@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 4bb7f6c2781e46fc5bd00475a66df2ea30ef330d upstream.
+[ Upstream commit becfdcd75126b20b8ec10066c5e85b34f8994ad5 ]
 
-Commit 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead
-of smp_processor_id() to avoid crash") fixed an issue related to using
-smp_processor_id() in preemptible context by replacing it with a pair
-of get_cpu()/put_cpu(), but what is needed there really is any online
-CPU and not necessarily the one currently running the code.  Arguably,
-getting the one that's running the code in there is confusing.
+Should an error occurs in mfd_add_devices(), some resources need to be
+released, as already done in the .remove() function.
 
-For this reason, simply give the control CPU role to the first online
-one which automatically will be CPU0 if it is online, so one check
-can be dropped from the code for an added benefit.
+Add an error handling path and a lp8788_irq_exit() call to undo a previous
+lp8788_irq_init().
 
-Link: https://lore.kernel.org/linux-pm/20221011113646.GA12080@duo.ucw.cz/
-Fixes: 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: eea6b7cc53aa ("mfd: Add lp8788 mfd driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/18398722da9df9490722d853e4797350189ae79b.1659261275.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel/intel_powerclamp.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/mfd/lp8788.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/thermal/intel/intel_powerclamp.c
-+++ b/drivers/thermal/intel/intel_powerclamp.c
-@@ -531,11 +531,7 @@ static int start_power_clamp(void)
- 	cpus_read_lock();
+diff --git a/drivers/mfd/lp8788.c b/drivers/mfd/lp8788.c
+index acf616559512..e47150cdf747 100644
+--- a/drivers/mfd/lp8788.c
++++ b/drivers/mfd/lp8788.c
+@@ -199,8 +199,16 @@ static int lp8788_probe(struct i2c_client *cl, const struct i2c_device_id *id)
+ 	if (ret)
+ 		return ret;
  
- 	/* prefer BSP */
--	control_cpu = 0;
--	if (!cpu_online(control_cpu)) {
--		control_cpu = get_cpu();
--		put_cpu();
--	}
-+	control_cpu = cpumask_first(cpu_online_mask);
+-	return mfd_add_devices(lp->dev, -1, lp8788_devs,
+-			       ARRAY_SIZE(lp8788_devs), NULL, 0, NULL);
++	ret = mfd_add_devices(lp->dev, -1, lp8788_devs,
++			      ARRAY_SIZE(lp8788_devs), NULL, 0, NULL);
++	if (ret)
++		goto err_exit_irq;
++
++	return 0;
++
++err_exit_irq:
++	lp8788_irq_exit(lp);
++	return ret;
+ }
  
- 	clamping = true;
- 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
+ static int lp8788_remove(struct i2c_client *cl)
+-- 
+2.35.1
+
 
 
