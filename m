@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12BAF60B9BF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:20:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D75D260BAD0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:41:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234069AbiJXUUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:20:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58620 "EHLO
+        id S234755AbiJXUlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:41:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234123AbiJXUUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:20:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F8C88FD40;
-        Mon, 24 Oct 2022 11:36:52 -0700 (PDT)
+        with ESMTP id S234751AbiJXUkg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:40:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71EF6265;
+        Mon, 24 Oct 2022 11:50:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 729E6CE13CA;
-        Mon, 24 Oct 2022 12:23:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DC8BC433D6;
-        Mon, 24 Oct 2022 12:23:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 680B1B819B3;
+        Mon, 24 Oct 2022 12:44:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD439C433C1;
+        Mon, 24 Oct 2022 12:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614226;
-        bh=3HHEogK/GgH7Bj0ZbubU+2O46uGu6KFNZBsMl3GyFTQ=;
+        s=korg; t=1666615468;
+        bh=MP1yxVGBMzqN7/KGr058ycVVbIuCkd0O/DCmCEKeALM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IR/CyQ4r+46rOrS1Sn533A2RdmRo1LZoVFIULmGp/j3WcBV/6RrIOu/I1fl8FqQPY
-         KsGjnTPruX1ZjQVFQOIBQhpdtkOA90UfK+mtT3u4H6OA6p1wf13zL2/XegP2IBWkNo
-         3anELfSSKydfjdOzNQbWM+knKWloPwxdzECeVSH0=
+        b=MTCf9y0yO5Jlaaln6dChYgeZToKIcqRK1EvwFLBmbq1OdBCoVvj4cMs1LVhWREBIi
+         FWl1EJw6DDbnz6QI8dIlu422Xu6osuqQN5Rs0iyz0QyVyvEXIgdoFm67SN6+lIP3b6
+         kpAvJ1HReutcGZH2cxdRbimx5zZMlPkKfSkSa42A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Ben Widawsky <bwidawsk@kernel.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        linux-ia64@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Keith Mannthey <kmannth@us.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 179/390] ia64: export memory_add_physaddr_to_nid to fix cxl build error
-Date:   Mon, 24 Oct 2022 13:29:36 +0200
-Message-Id: <20221024113030.363399091@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Kelin Wang <wangkelin2023@163.com>
+Subject: [PATCH 5.15 233/530] ASoC: eureka-tlv320: Hold reference returned from of_find_xxx API
+Date:   Mon, 24 Oct 2022 13:29:37 +0200
+Message-Id: <20221024113055.632850809@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,44 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 97c318bfbe84efded246e80428054f300042f110 ]
+[ Upstream commit bfb735a3ceff0bab6473bac275da96f9b2a06dec ]
 
-cxl_pmem.ko uses memory_add_physaddr_to_nid() but ia64 does not export it,
-so this causes a build error:
+In eukrea_tlv320_probe(), we need to hold the reference returned
+from of_find_compatible_node() which has increased the refcount
+and then call of_node_put() with it when done.
 
-ERROR: modpost: "memory_add_physaddr_to_nid" [drivers/cxl/cxl_pmem.ko] undefined!
-
-Fix this by exporting that function.
-
-Fixes: 8c2676a5870a ("hot-add-mem x86_64: memory_add_physaddr_to_nid node fixup")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Ben Widawsky <bwidawsk@kernel.org>
-Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: linux-ia64@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Keith Mannthey <kmannth@us.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 66f232908de2 ("ASoC: eukrea-tlv320: Add DT support.")
+Co-authored-by: Kelin Wang <wangkelin2023@163.com>
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220914134354.3995587-1-windhl@126.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/mm/numa.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/fsl/eukrea-tlv320.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/ia64/mm/numa.c b/arch/ia64/mm/numa.c
-index f34964271101..6cd002e8163d 100644
---- a/arch/ia64/mm/numa.c
-+++ b/arch/ia64/mm/numa.c
-@@ -106,5 +106,6 @@ int memory_add_physaddr_to_nid(u64 addr)
- 		return 0;
- 	return nid;
- }
-+EXPORT_SYMBOL(memory_add_physaddr_to_nid);
- #endif
- #endif
+diff --git a/sound/soc/fsl/eukrea-tlv320.c b/sound/soc/fsl/eukrea-tlv320.c
+index e13271ea84de..29cf9234984d 100644
+--- a/sound/soc/fsl/eukrea-tlv320.c
++++ b/sound/soc/fsl/eukrea-tlv320.c
+@@ -86,7 +86,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 	int ret;
+ 	int int_port = 0, ext_port;
+ 	struct device_node *np = pdev->dev.of_node;
+-	struct device_node *ssi_np = NULL, *codec_np = NULL;
++	struct device_node *ssi_np = NULL, *codec_np = NULL, *tmp_np = NULL;
+ 
+ 	eukrea_tlv320.dev = &pdev->dev;
+ 	if (np) {
+@@ -143,7 +143,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	if (machine_is_eukrea_cpuimx27() ||
+-	    of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux")) {
++	    (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux"))) {
+ 		imx_audmux_v1_configure_port(MX27_AUDMUX_HPCR1_SSI0,
+ 			IMX_AUDMUX_V1_PCR_SYN |
+ 			IMX_AUDMUX_V1_PCR_TFSDIR |
+@@ -158,10 +158,11 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 			IMX_AUDMUX_V1_PCR_SYN |
+ 			IMX_AUDMUX_V1_PCR_RXDSEL(MX27_AUDMUX_HPCR1_SSI0)
+ 		);
++		of_node_put(tmp_np);
+ 	} else if (machine_is_eukrea_cpuimx25sd() ||
+ 		   machine_is_eukrea_cpuimx35sd() ||
+ 		   machine_is_eukrea_cpuimx51sd() ||
+-		   of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux")) {
++		   (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux"))) {
+ 		if (!np)
+ 			ext_port = machine_is_eukrea_cpuimx25sd() ?
+ 				4 : 3;
+@@ -178,6 +179,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 			IMX_AUDMUX_V2_PTCR_SYN,
+ 			IMX_AUDMUX_V2_PDCR_RXDSEL(int_port)
+ 		);
++		of_node_put(tmp_np);
+ 	} else {
+ 		if (np) {
+ 			/* The eukrea,asoc-tlv320 driver was explicitly
 -- 
 2.35.1
 
