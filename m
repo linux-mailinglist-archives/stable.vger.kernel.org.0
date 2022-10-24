@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 804C860A331
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:52:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B045E60A1C4
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232023AbiJXLwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:52:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60430 "EHLO
+        id S229556AbiJXLdW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:33:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231907AbiJXLvD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:51:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A14021A8;
-        Mon, 24 Oct 2022 04:44:27 -0700 (PDT)
+        with ESMTP id S229904AbiJXLci (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:32:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51F866173F;
+        Mon, 24 Oct 2022 04:32:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A62EB81151;
-        Mon, 24 Oct 2022 11:43:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDEA1C433D6;
-        Mon, 24 Oct 2022 11:43:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B2FE6125A;
+        Mon, 24 Oct 2022 11:32:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C1EFC433C1;
+        Mon, 24 Oct 2022 11:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611794;
-        bh=7Mf8pAymLKtC4kysmJdpY7SrgzbFoAL52CT2NFcnYPE=;
+        s=korg; t=1666611139;
+        bh=ls/FY9lIc8Kn+4qnUhrnD5jdUO7ASdakq191rkjNnn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3KbnQI60kOsMSBkPkEquHR2eTX3FcMN8fhDElSYGE3j5iH9+N9cqlpM0Wvixoo4s
-         rmINt9CjBoZXdad9QYrCe9XK81fQitrCZ7nMYNNqftjnvyVh0dEHj0BWzUwBaEHhA4
-         R3ANZDA9oN9HdOWM1dSiZhsDJs5AJWkuCPULivCk=
+        b=Xu4Yt9bh+wGUtgjjFC+/H9HxJuAVvvixqq7HBKJW5TjjMzRVjgyOPRNQ/XHmFcVgh
+         B1Ri1K3OWKnZTD4SsFSnlBeSYUGqymDsa+m+g597aXe1k69XlJVt/XzmdC0E3DfYiY
+         JzlfsJ9OjD7KSurg7cP/piqqL+2LyYUDABkYAyro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 112/159] mfd: lp8788: Fix an error handling path in lp8788_probe()
-Date:   Mon, 24 Oct 2022 13:31:06 +0200
-Message-Id: <20221024112953.555782463@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.0 05/20] io_uring/net: fail zc send when unsupported by socket
+Date:   Mon, 24 Oct 2022 13:31:07 +0200
+Message-Id: <20221024112934.634360980@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024112934.415391158@linuxfoundation.org>
+References: <20221024112934.415391158@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit becfdcd75126b20b8ec10066c5e85b34f8994ad5 ]
+commit edf81438799ccead7122948446d7e44b083e788d upstream.
 
-Should an error occurs in mfd_add_devices(), some resources need to be
-released, as already done in the .remove() function.
+If a protocol doesn't support zerocopy it will silently fall back to
+copying. This type of behaviour has always been a source of troubles
+so it's better to fail such requests instead.
 
-Add an error handling path and a lp8788_irq_exit() call to undo a previous
-lp8788_irq_init().
-
-Fixes: eea6b7cc53aa ("mfd: Add lp8788 mfd driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/18398722da9df9490722d853e4797350189ae79b.1659261275.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # 6.0
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/2db3c7f16bb6efab4b04569cd16e6242b40c5cb3.1666346426.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mfd/lp8788.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ io_uring/net.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/mfd/lp8788.c b/drivers/mfd/lp8788.c
-index acf616559512..e47150cdf747 100644
---- a/drivers/mfd/lp8788.c
-+++ b/drivers/mfd/lp8788.c
-@@ -199,8 +199,16 @@ static int lp8788_probe(struct i2c_client *cl, const struct i2c_device_id *id)
- 	if (ret)
- 		return ret;
+--- a/io_uring/net.c
++++ b/io_uring/net.c
+@@ -1001,6 +1001,8 @@ int io_send_zc(struct io_kiocb *req, uns
+ 	sock = sock_from_file(req->file);
+ 	if (unlikely(!sock))
+ 		return -ENOTSOCK;
++	if (!test_bit(SOCK_SUPPORT_ZC, &sock->flags))
++		return -EOPNOTSUPP;
  
--	return mfd_add_devices(lp->dev, -1, lp8788_devs,
--			       ARRAY_SIZE(lp8788_devs), NULL, 0, NULL);
-+	ret = mfd_add_devices(lp->dev, -1, lp8788_devs,
-+			      ARRAY_SIZE(lp8788_devs), NULL, 0, NULL);
-+	if (ret)
-+		goto err_exit_irq;
-+
-+	return 0;
-+
-+err_exit_irq:
-+	lp8788_irq_exit(lp);
-+	return ret;
- }
- 
- static int lp8788_remove(struct i2c_client *cl)
--- 
-2.35.1
-
+ 	msg.msg_name = NULL;
+ 	msg.msg_control = NULL;
 
 
