@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A40960A5F5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF35B60A9EB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233710AbiJXMaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:30:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60610 "EHLO
+        id S232334AbiJXNZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:25:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233870AbiJXM2b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:31 -0400
+        with ESMTP id S236150AbiJXNYd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:24:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4AF386F9D;
-        Mon, 24 Oct 2022 05:02:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA5CA8CF0;
+        Mon, 24 Oct 2022 05:30:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 117EA612BF;
-        Mon, 24 Oct 2022 12:01:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B474C433C1;
-        Mon, 24 Oct 2022 12:01:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14FBF61280;
+        Mon, 24 Oct 2022 12:29:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27905C433D7;
+        Mon, 24 Oct 2022 12:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612909;
-        bh=ntOrOjNGLafpbrPL0IZcl4RkV1kMjXDeWbs/qhFGiXg=;
+        s=korg; t=1666614586;
+        bh=afOYIS3FPYL4NSLiTIHXXLe3RlmHLDq9fyBIsk/Z1Ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wyTZDyH62gFc1Vda9kVD4hWKSCQy+IroJvSy77meEoAfHNHPGjk72Vqfg2DugOQVq
-         cXbN+z/sl57KXMbcLStkgQj7PE5hloheZ1FKtY9m5t6RNcns9U2OpxHenIwZxSuh+c
-         vv/WOWA39QxVxjeEZLsFW+Zsed3ARxN77K6ILXAM=
+        b=oLKWArC45giydtcq55y2AZkKEauX45CeRxRvwWKJSOvc4ti9lx8KHg/9LoLPRG47B
+         W5SiHToO+Vk1IRKYbUWMb/Mw6EROuL3lwxwhkFp2JVKRRR0uasAIrtoy9kBDOu4HA+
+         wUZyRctj0VNGsKQJTDKm9LhBkX5y7rVGi1bpJkuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 166/229] iommu/omap: Fix buffer overflow in debugfs
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 288/390] crypto: cavium - prevent integer overflow loading firmware
 Date:   Mon, 24 Oct 2022 13:31:25 +0200
-Message-Id: <20221024113004.450933795@linuxfoundation.org>
+Message-Id: <20221024113035.229417744@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +55,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 184233a5202786b20220acd2d04ddf909ef18f29 ]
+[ Upstream commit 2526d6bf27d15054bb0778b2f7bc6625fd934905 ]
 
-There are two issues here:
+The "code_length" value comes from the firmware file.  If your firmware
+is untrusted realistically there is probably very little you can do to
+protect yourself.  Still we try to limit the damage as much as possible.
+Also Smatch marks any data read from the filesystem as untrusted and
+prints warnings if it not capped correctly.
 
-1) The "len" variable needs to be checked before the very first write.
-   Otherwise if omap2_iommu_dump_ctx() with "bytes" less than 32 it is a
-   buffer overflow.
-2) The snprintf() function returns the number of bytes that *would* have
-   been copied if there were enough space.  But we want to know the
-   number of bytes which were *actually* copied so use scnprintf()
-   instead.
+The "ntohl(ucode->code_length) * 2" multiplication can have an
+integer overflow.
 
-Fixes: bd4396f09a4a ("iommu/omap: Consolidate OMAP IOMMU modules")
+Fixes: 9e2c7d99941d ("crypto: cavium - Add Support for Octeon-tx CPT Engine")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://lore.kernel.org/r/YuvYh1JbE3v+abd5@kili
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/omap-iommu-debug.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/crypto/cavium/cpt/cptpf_main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
-index 5ce55fabc9d8..726702d01522 100644
---- a/drivers/iommu/omap-iommu-debug.c
-+++ b/drivers/iommu/omap-iommu-debug.c
-@@ -35,12 +35,12 @@ static inline bool is_omap_iommu_detached(struct omap_iommu *obj)
- 		ssize_t bytes;						\
- 		const char *str = "%20s: %08x\n";			\
- 		const int maxcol = 32;					\
--		bytes = snprintf(p, maxcol, str, __stringify(name),	\
-+		if (len < maxcol)					\
-+			goto out;					\
-+		bytes = scnprintf(p, maxcol, str, __stringify(name),	\
- 				 iommu_read_reg(obj, MMU_##name));	\
- 		p += bytes;						\
- 		len -= bytes;						\
--		if (len < maxcol)					\
--			goto out;					\
- 	} while (0)
+diff --git a/drivers/crypto/cavium/cpt/cptpf_main.c b/drivers/crypto/cavium/cpt/cptpf_main.c
+index 781949027451..d9362199423f 100644
+--- a/drivers/crypto/cavium/cpt/cptpf_main.c
++++ b/drivers/crypto/cavium/cpt/cptpf_main.c
+@@ -254,6 +254,7 @@ static int cpt_ucode_load_fw(struct cpt_device *cpt, const u8 *fw, bool is_ae)
+ 	const struct firmware *fw_entry;
+ 	struct device *dev = &cpt->pdev->dev;
+ 	struct ucode_header *ucode;
++	unsigned int code_length;
+ 	struct microcode *mcode;
+ 	int j, ret = 0;
  
- static ssize_t
+@@ -264,11 +265,12 @@ static int cpt_ucode_load_fw(struct cpt_device *cpt, const u8 *fw, bool is_ae)
+ 	ucode = (struct ucode_header *)fw_entry->data;
+ 	mcode = &cpt->mcode[cpt->next_mc_idx];
+ 	memcpy(mcode->version, (u8 *)fw_entry->data, CPT_UCODE_VERSION_SZ);
+-	mcode->code_size = ntohl(ucode->code_length) * 2;
+-	if (!mcode->code_size) {
++	code_length = ntohl(ucode->code_length);
++	if (code_length == 0 || code_length >= INT_MAX / 2) {
+ 		ret = -EINVAL;
+ 		goto fw_release;
+ 	}
++	mcode->code_size = code_length * 2;
+ 
+ 	mcode->is_ae = is_ae;
+ 	mcode->core_mask = 0ULL;
 -- 
 2.35.1
 
