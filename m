@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A67E60A2F8
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:49:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0239460A362
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231748AbiJXLtz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:49:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43420 "EHLO
+        id S232112AbiJXLz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:55:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231640AbiJXLr4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:47:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 041EB39113;
-        Mon, 24 Oct 2022 04:43:25 -0700 (PDT)
+        with ESMTP id S232158AbiJXLyB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:54:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F13E5E66C;
+        Mon, 24 Oct 2022 04:45:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55BA9612A1;
-        Mon, 24 Oct 2022 11:43:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 645E7C433C1;
-        Mon, 24 Oct 2022 11:43:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97353B8113E;
+        Mon, 24 Oct 2022 11:43:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F10C5C433D6;
+        Mon, 24 Oct 2022 11:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611804;
-        bh=XANlg89LU61ZOChVCr9nFWhOtkDHXvdO19qftwk0xXM=;
+        s=korg; t=1666611807;
+        bh=zD0FwWMtuvEHwgXDG8EE8STBstU/5oT2fFFmNlKbN9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbukvFCzRaVz/ZBu6fvsXWBYXNH9LQsGxfXI298eNfU/AY6mn1By2vqaa1f26hDj4
-         nohhJQDSLGUt4ex4qKtdHypR9qqiIJwYQDXi9+9lCNMYc3Va6GdNyZm/7SEWUkc0LO
-         1N2AAda+1AaqG5gCIZz42BMPQ4z1Gj/75HaiXXRE=
+        b=FY92Yl9vif2DyIHpbRZsSgjoSA92Keufg01wZMTm4EpwGRj4m/lXuwFJyJdAB2LCy
+         c5lawr8guJgrPjGohcgbf7IcEVbhhkLli40R2vYbpBO6vFlEb4StrJnOgJKTSghb1G
+         jRBSAY1n49L4qRuYgTzXfzm//xZdY7jwE8QX9VFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 087/159] ARM: Drop CMDLINE_* dependency on ATAGS
-Date:   Mon, 24 Oct 2022 13:30:41 +0200
-Message-Id: <20221024112952.585102228@linuxfoundation.org>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 088/159] ARM: dts: exynos: fix polarity of VBUS GPIO of Origen
+Date:   Mon, 24 Oct 2022 13:30:42 +0200
+Message-Id: <20221024112952.624832621@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -54,43 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 136f4b1ec7c962ee37a787e095fd37b058d72bd3 ]
+[ Upstream commit a08137bd1e0a7ce951dce9ce4a83e39d379b6e1b ]
 
-On arm32, the configuration options to specify the kernel command line
-type depend on ATAGS.  However, the actual CMDLINE cofiguration option
-does not depend on ATAGS, and the code that handles this is not specific
-to ATAGS (see drivers/of/fdt.c:early_init_dt_scan_chosen()).
+EHCI Oxynos (drivers/usb/host/ehci-exynos.c) drives VBUS GPIO high when
+trying to power up the bus, therefore the GPIO in DTS must be marked as
+"active high". This will be important when EHCI driver is converted to
+gpiod API that respects declared polarities.
 
-Hence users who desire to override the kernel command line on arm32 must
-enable support for ATAGS, even on a pure-DT system.  Other architectures
-(arm64, loongarch, microblaze, nios2, powerpc, and riscv) do not impose
-such a restriction.
-
-Hence drop the dependency on ATAGS.
-
-Fixes: bd51e2f595580fb6 ("ARM: 7506/1: allow for ATAGS to be configured out when DT support is selected")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 4e8991def565 ("ARM: dts: exynos: Enable AX88760 USB hub on Origen board")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20220927220504.3744878-1-dmitry.torokhov@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm/boot/dts/exynos4412-origen.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 0429d1d20393..25eaf3775904 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -1961,7 +1961,6 @@ config CMDLINE
- choice
- 	prompt "Kernel command line type" if CMDLINE != ""
- 	default CMDLINE_FROM_BOOTLOADER
--	depends on ATAGS
+diff --git a/arch/arm/boot/dts/exynos4412-origen.dts b/arch/arm/boot/dts/exynos4412-origen.dts
+index a1ab6f94bb64..62f9623d1fb1 100644
+--- a/arch/arm/boot/dts/exynos4412-origen.dts
++++ b/arch/arm/boot/dts/exynos4412-origen.dts
+@@ -90,7 +90,7 @@
+ };
  
- config CMDLINE_FROM_BOOTLOADER
- 	bool "Use bootloader kernel arguments if available"
+ &ehci {
+-	samsung,vbus-gpio = <&gpx3 5 1>;
++	samsung,vbus-gpio = <&gpx3 5 GPIO_ACTIVE_HIGH>;
+ 	status = "okay";
+ 
+ 	port@1{
 -- 
 2.35.1
 
