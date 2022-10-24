@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D9060AD6A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:23:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97EC860AC21
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:03:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235745AbiJXOXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:23:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45330 "EHLO
+        id S236630AbiJXOC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:02:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235758AbiJXOV7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:21:59 -0400
+        with ESMTP id S233689AbiJXOCA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C88D0CD6;
-        Mon, 24 Oct 2022 05:58:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1710C804AF;
+        Mon, 24 Oct 2022 05:47:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDC19612E1;
-        Mon, 24 Oct 2022 12:47:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A39B1C433C1;
-        Mon, 24 Oct 2022 12:47:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C9A3612BB;
+        Mon, 24 Oct 2022 12:47:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72556C433D6;
+        Mon, 24 Oct 2022 12:47:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615639;
-        bh=g2Fm0I3RQejCSozGXWCq1hr/XeMtu0MQASCSx31teHs=;
+        s=korg; t=1666615641;
+        bh=2jkvL5g/HD5FsyAP8TMFn08xR4PzTjIkzrqUWM+1a30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MPK5JF6d+dawQemxVLpSuOxd59TCNcbjbUUk1RZ9ZIpaF5/nfV866m8ebbkvknmPm
-         we8W+5cO9UMJr4KZqe3LLtTo44HFobMQYKJTqw6s9/j0pZaCjrU/hXfeEf6xcKLwQE
-         +lIoPGijlrmQc3jNACJj2qDL4HfckAJO364JB9h0=
+        b=h1zltsGYwinTc5sQVydGJeStuzW7zSVqOACRBKqajgLDRTORoyknR8ttT6YTlTC7g
+         7+SWNKZUkrMLTETXgjl8acAYD7bS9e2r66JUdx5cjImf2kZFzRjk7BEV0O1K+mOlD/
+         RYPwaEt00A1Chnrug9ipCd22KwvhRQlzMmTz+EUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, vincent.whitchurch@axis.com,
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Jason Baron <jbaron@akamai.com>,
         Daniel Vetter <daniel.vetter@ffwll.ch>,
         Jim Cromie <jim.cromie@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 297/530] dyndbg: fix static_branch manipulation
-Date:   Mon, 24 Oct 2022 13:30:41 +0200
-Message-Id: <20221024113058.510839876@linuxfoundation.org>
+Subject: [PATCH 5.15 298/530] dyndbg: fix module.dyndbg handling
+Date:   Mon, 24 Oct 2022 13:30:42 +0200
+Message-Id: <20221024113058.551730447@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -57,70 +58,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jim Cromie <jim.cromie@gmail.com>
 
-[ Upstream commit ee879be38bc87f8cedc79ae2742958db6533ca59 ]
+[ Upstream commit 85d6b66d31c35158364058ee98fb69ab5bb6a6b1 ]
 
-In https://lore.kernel.org/lkml/20211209150910.GA23668@axis.com/
+For CONFIG_DYNAMIC_DEBUG=N, the ddebug_dyndbg_module_param_cb()
+stub-fn is too permissive:
 
-Vincent's patch commented on, and worked around, a bug toggling
-static_branch's, when a 2nd PRINTK-ish flag was added.  The bug
-results in a premature static_branch_disable when the 1st of 2 flags
-was disabled.
+bash-5.1# modprobe drm JUNKdyndbg
+bash-5.1# modprobe drm dyndbgJUNK
+[   42.933220] dyndbg param is supported only in CONFIG_DYNAMIC_DEBUG builds
+[   42.937484] ACPI: bus type drm_connector registered
 
-The cited commit computed newflags, but then in the JUMP_LABEL block,
-failed to use that result, instead using just one of the terms in it.
-Using newflags instead made the code work properly.
+This caused no ill effects, because unknown parameters are either
+ignored by default with an "unknown parameter" warning, or ignored
+because dyndbg allows its no-effect use on non-dyndbg builds.
 
-This is Vincents test-case, reduced.  It needs the 2nd flag to
-demonstrate the bug, but it's explanatory here.
+But since the code has an explicit feedback message, it should be
+issued accurately.  Fix with strcmp for exact param-name match.
 
-pt_test() {
-    echo 5 > /sys/module/dynamic_debug/verbose
-
-    site="module tcp" # just one callsite
-    echo " $site =_ " > /proc/dynamic_debug/control # clear it
-
-    # A B ~A ~B
-    for flg in +T +p "-T #broke here" -p; do
-	echo " $site $flg " > /proc/dynamic_debug/control
-    done;
-
-    # A B ~B ~A
-    for flg in +T +p "-p #broke here" -T; do
-	echo " $site $flg " > /proc/dynamic_debug/control
-    done
-}
-pt_test
-
-Fixes: 84da83a6ffc0 dyndbg: combine flags & mask into a struct, simplify with it
-CC: vincent.whitchurch@axis.com
+Fixes: b48420c1d301 dynamic_debug: make dynamic-debug work for module initialization
+Reported-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 Acked-by: Jason Baron <jbaron@akamai.com>
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
-Link: https://lore.kernel.org/r/20220904214134.408619-2-jim.cromie@gmail.com
+Link: https://lore.kernel.org/r/20220904214134.408619-3-jim.cromie@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/dynamic_debug.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/linux/dynamic_debug.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
-index 84c16309cc63..00e6507972d8 100644
---- a/lib/dynamic_debug.c
-+++ b/lib/dynamic_debug.c
-@@ -207,10 +207,11 @@ static int ddebug_change(const struct ddebug_query *query,
- 				continue;
- #ifdef CONFIG_JUMP_LABEL
- 			if (dp->flags & _DPRINTK_FLAGS_PRINT) {
--				if (!(modifiers->flags & _DPRINTK_FLAGS_PRINT))
-+				if (!(newflags & _DPRINTK_FLAGS_PRINT))
- 					static_branch_disable(&dp->key.dd_key_true);
--			} else if (modifiers->flags & _DPRINTK_FLAGS_PRINT)
-+			} else if (newflags & _DPRINTK_FLAGS_PRINT) {
- 				static_branch_enable(&dp->key.dd_key_true);
-+			}
- #endif
- 			dp->flags = newflags;
- 			v2pr_info("changed %s:%d [%s]%s =%s\n",
+diff --git a/include/linux/dynamic_debug.h b/include/linux/dynamic_debug.h
+index dce631e678dd..f30b01aa9fa4 100644
+--- a/include/linux/dynamic_debug.h
++++ b/include/linux/dynamic_debug.h
+@@ -201,7 +201,7 @@ static inline int ddebug_remove_module(const char *mod)
+ static inline int ddebug_dyndbg_module_param_cb(char *param, char *val,
+ 						const char *modname)
+ {
+-	if (strstr(param, "dyndbg")) {
++	if (!strcmp(param, "dyndbg")) {
+ 		/* avoid pr_warn(), which wants pr_fmt() fully defined */
+ 		printk(KERN_WARNING "dyndbg param is supported only in "
+ 			"CONFIG_DYNAMIC_DEBUG builds\n");
 -- 
 2.35.1
 
