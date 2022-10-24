@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE71D60A9E3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28BED60A497
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:13:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229886AbiJXNZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:25:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57418 "EHLO
+        id S232972AbiJXMNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:13:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229983AbiJXNXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:23:31 -0400
+        with ESMTP id S232941AbiJXMMX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:12:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 238095FF5D;
-        Mon, 24 Oct 2022 05:30:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086954B495;
+        Mon, 24 Oct 2022 04:54:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EE45612FD;
-        Mon, 24 Oct 2022 12:28:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E9DEC433D6;
-        Mon, 24 Oct 2022 12:28:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48452612DD;
+        Mon, 24 Oct 2022 11:53:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58763C433C1;
+        Mon, 24 Oct 2022 11:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614536;
-        bh=GkeTiV1jLGPSKAFxenl8FDBEIWxxDohqsgMKG+3O+rU=;
+        s=korg; t=1666612386;
+        bh=NJCqAoZMT1hBBgidJI6oolu+SE17C6YShP1K46PYaBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s9vHXgRqDGbfWiqHs65y3LPodk1MWLaS7dB9vvJ3pyaa+2TgAi7W0WVsAmOHkuLM2
-         dTnEfI469rdllQM3D/67oQTldyKCCIUqS95Ul0RSQ2NYk3UJ13mZujyGBw1Er8PlBW
-         V5SN1lnXgBBN7LtDFUyzhvb2uvMH0gOPyEH2g44Q=
+        b=cSFbbyRY8t24TBkJagEYae59pJZ8zh1JUoaWWfQV95hbtFjftH1GXePx3YyNuxb3r
+         DR56KTTjn3A22Z+rWDbzdDyWvZRzYWtMN+hcbdMf3ZJgJh7FSrUqoqelznOh05wPxK
+         SuDAieHgPV6Dw4AKEWnbu4Lp4LsEyUrKMBt/D7zM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Qin <chao.qin@intel.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 299/390] powercap: intel_rapl: fix UBSAN shift-out-of-bounds issue
+        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 179/210] wifi: rt2x00: set SoC wmac clock register
 Date:   Mon, 24 Oct 2022 13:31:36 +0200
-Message-Id: <20221024113035.746902883@linuxfoundation.org>
+Message-Id: <20221024113002.777680514@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Qin <chao.qin@intel.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit 2d93540014387d1c73b9ccc4d7895320df66d01b ]
+[ Upstream commit cbde6ed406a51092d9e8a2df058f5f8490f27443 ]
 
-When value < time_unit, the parameter of ilog2() will be zero and
-the return value is -1. u64(-1) is too large for shift exponent
-and then will trigger shift-out-of-bounds:
+Instead of using the default value 33 (pci), set US_CYC_CNT init based
+on Programming guide:
+If available, set chipset bus clock with fallback to cpu clock/3.
 
-shift exponent 18446744073709551615 is too large for 32-bit type 'int'
-Call Trace:
- rapl_compute_time_window_core
- rapl_write_data_raw
- set_time_window
- store_constraint_time_window_us
-
-Signed-off-by: Chao Qin <chao.qin@intel.com>
-Acked-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/3e275d259f476f597dab91a9c395015ef3fe3284.1663445157.git.daniel@makrotopia.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/powercap/intel_rapl_common.c | 3 +++
- 1 file changed, 3 insertions(+)
+ .../net/wireless/ralink/rt2x00/rt2800lib.c    | 21 +++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/drivers/powercap/intel_rapl_common.c b/drivers/powercap/intel_rapl_common.c
-index a13a07f475d2..285420c1eb7c 100644
---- a/drivers/powercap/intel_rapl_common.c
-+++ b/drivers/powercap/intel_rapl_common.c
-@@ -938,6 +938,9 @@ static u64 rapl_compute_time_window_core(struct rapl_package *rp, u64 value,
- 		y = value & 0x1f;
- 		value = (1 << y) * (4 + f) * rp->time_unit / 4;
- 	} else {
-+		if (value < rp->time_unit)
-+			return 0;
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+index 0c90bf0540b9..57fa472b5c4e 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+@@ -5567,6 +5567,27 @@ static int rt2800_init_registers(struct rt2x00_dev *rt2x00dev)
+ 		reg = rt2800_register_read(rt2x00dev, US_CYC_CNT);
+ 		rt2x00_set_field32(&reg, US_CYC_CNT_CLOCK_CYCLE, 125);
+ 		rt2800_register_write(rt2x00dev, US_CYC_CNT, reg);
++	} else if (rt2x00_is_soc(rt2x00dev)) {
++		struct clk *clk = clk_get_sys("bus", NULL);
++		int rate;
 +
- 		do_div(value, rp->time_unit);
- 		y = ilog2(value);
- 		f = div64_u64(4 * (value - (1 << y)), 1 << y);
++		if (IS_ERR(clk)) {
++			clk = clk_get_sys("cpu", NULL);
++
++			if (IS_ERR(clk)) {
++				rate = 125;
++			} else {
++				rate = clk_get_rate(clk) / 3000000;
++				clk_put(clk);
++			}
++		} else {
++			rate = clk_get_rate(clk) / 1000000;
++			clk_put(clk);
++		}
++
++		reg = rt2800_register_read(rt2x00dev, US_CYC_CNT);
++		rt2x00_set_field32(&reg, US_CYC_CNT_CLOCK_CYCLE, rate);
++		rt2800_register_write(rt2x00dev, US_CYC_CNT, reg);
+ 	}
+ 
+ 	reg = rt2800_register_read(rt2x00dev, HT_FBK_CFG0);
 -- 
 2.35.1
 
