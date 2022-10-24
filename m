@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F9A660A956
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:18:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C31E60A8B9
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230295AbiJXNSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:18:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50170 "EHLO
+        id S235388AbiJXNKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:10:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234325AbiJXNRb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:17:31 -0400
+        with ESMTP id S235931AbiJXNKN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:10:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8166050F8B;
-        Mon, 24 Oct 2022 05:26:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92A8A223E;
+        Mon, 24 Oct 2022 05:23:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 60E9A61281;
-        Mon, 24 Oct 2022 12:22:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77A0FC433D7;
-        Mon, 24 Oct 2022 12:22:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2A4D612CE;
+        Mon, 24 Oct 2022 11:56:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1BA1C433B5;
+        Mon, 24 Oct 2022 11:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614176;
-        bh=Ro8YsoiH1vaVl94vaZKoWoomP6ZZtJl0riym3dzXH/0=;
+        s=korg; t=1666612582;
+        bh=FfZJQ7cgeQy24SFeoZdkQ03d0JuMApp87TbnvR3NJuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P0eKcMRtlc2ZgU+YGFcFyQbau6gIASEl6Ka6d2OzWrMw0RmjxVvJcBU8kcTRuLOiL
-         qm0yPXt9O8GVl7OSh0zuNZpggOuuNTJ0G+TI3CWUcqW06s9Sx2/VFE8aGQ76L6Gu/Z
-         uhRdO0GgxbO6qd2qTx4ySR4HYirgc+iQjbLmZgOM=
+        b=oiMB7LtUniRe63rJNt2aBAp6EwTS5Q4g2PDmG55rrhTTMePxUhUGEve+Fsjowtb0v
+         S+Rg76UJOyQz6vr5kKzW+0yT8Z23ES80YRuLo4QA8dHbs8Zg6gWsfO9ueWn7bSmGY2
+         bJgpJlWZu2LeP5oZQGBllF/hnNF8FMdjfSC2snxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 162/390] drm/msm/dp: correct 1.62G link rate at dp_catalog_ctrl_config_msa()
-Date:   Mon, 24 Oct 2022 13:29:19 +0200
-Message-Id: <20221024113029.610820560@linuxfoundation.org>
+        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
+        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 041/229] can: kvaser_usb_leaf: Fix overread with an invalid command
+Date:   Mon, 24 Oct 2022 13:29:20 +0200
+Message-Id: <20221024113000.423621759@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +53,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-[ Upstream commit aa0bff10af1c4b92e6b56e3e1b7f81c660d3ba78 ]
+commit 1499ecaea9d2ba68d5e18d80573b4561a8dc4ee7 upstream.
 
-At current implementation there is an extra 0 at 1.62G link rate which
-cause no correct pixel_div selected for 1.62G link rate to calculate
-mvid and nvid. This patch delete the extra 0 to have mvid and nvid be
-calculated correctly.
+For command events read from the device,
+kvaser_usb_leaf_read_bulk_callback() verifies that cmd->len does not
+exceed the size of the received data, but the actual kvaser_cmd handlers
+will happily read any kvaser_cmd fields without checking for cmd->len.
 
-Changes in v2:
--- fix Fixes tag's text
+This can cause an overread if the last cmd in the buffer is shorter than
+expected for the command type (with cmd->len showing the actual short
+size).
 
-Changes in v3:
--- fix misspelling of "Reviewed-by"
+Maximum overread seems to be 22 bytes (CMD_LEAF_LOG_MESSAGE), some of
+which are delivered to userspace as-is.
 
-Fixes: 937f941ca06f  ("drm/msm/dp: Use qmp phy for DP PLL and PHY")
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/499328/
-Link: https://lore.kernel.org/r/1661372150-3764-1-git-send-email-quic_khsieh@quicinc.com
-[DB: rewrapped commit message]
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix that by verifying the length of command before handling it.
+
+This issue can only occur after RX URBs have been set up, i.e. the
+interface has been opened at least once.
+
+Cc: stable@vger.kernel.org
+Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
+Tested-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010150829.199676-2-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dp/dp_catalog.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c |   75 +++++++++++++++++++++++
+ 1 file changed, 75 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_catalog.c b/drivers/gpu/drm/msm/dp/dp_catalog.c
-index 2da6982efdbf..613348b022fe 100644
---- a/drivers/gpu/drm/msm/dp/dp_catalog.c
-+++ b/drivers/gpu/drm/msm/dp/dp_catalog.c
-@@ -416,7 +416,7 @@ void dp_catalog_ctrl_config_msa(struct dp_catalog *dp_catalog,
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -309,6 +309,38 @@ struct kvaser_cmd {
+ 	} u;
+ } __packed;
  
- 	if (rate == link_rate_hbr3)
- 		pixel_div = 6;
--	else if (rate == 1620000 || rate == 270000)
-+	else if (rate == 162000 || rate == 270000)
- 		pixel_div = 2;
- 	else if (rate == link_rate_hbr2)
- 		pixel_div = 4;
--- 
-2.35.1
-
++#define CMD_SIZE_ANY 0xff
++#define kvaser_fsize(field) sizeof_field(struct kvaser_cmd, field)
++
++static const u8 kvaser_usb_leaf_cmd_sizes_leaf[] = {
++	[CMD_START_CHIP_REPLY]		= kvaser_fsize(u.simple),
++	[CMD_STOP_CHIP_REPLY]		= kvaser_fsize(u.simple),
++	[CMD_GET_CARD_INFO_REPLY]	= kvaser_fsize(u.cardinfo),
++	[CMD_TX_ACKNOWLEDGE]		= kvaser_fsize(u.tx_acknowledge_header),
++	[CMD_GET_SOFTWARE_INFO_REPLY]	= kvaser_fsize(u.leaf.softinfo),
++	[CMD_RX_STD_MESSAGE]		= kvaser_fsize(u.leaf.rx_can),
++	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.leaf.rx_can),
++	[CMD_LEAF_LOG_MESSAGE]		= kvaser_fsize(u.leaf.log_message),
++	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.leaf.chip_state_event),
++	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.error_event),
++	/* ignored events: */
++	[CMD_FLUSH_QUEUE_REPLY]		= CMD_SIZE_ANY,
++};
++
++static const u8 kvaser_usb_leaf_cmd_sizes_usbcan[] = {
++	[CMD_START_CHIP_REPLY]		= kvaser_fsize(u.simple),
++	[CMD_STOP_CHIP_REPLY]		= kvaser_fsize(u.simple),
++	[CMD_GET_CARD_INFO_REPLY]	= kvaser_fsize(u.cardinfo),
++	[CMD_TX_ACKNOWLEDGE]		= kvaser_fsize(u.tx_acknowledge_header),
++	[CMD_GET_SOFTWARE_INFO_REPLY]	= kvaser_fsize(u.usbcan.softinfo),
++	[CMD_RX_STD_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
++	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
++	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.usbcan.chip_state_event),
++	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.usbcan.error_event),
++	/* ignored events: */
++	[CMD_USBCAN_CLOCK_OVERFLOW_EVENT] = CMD_SIZE_ANY,
++};
++
+ /* Summary of a kvaser error event, for a unified Leaf/Usbcan error
+  * handling. Some discrepancies between the two families exist:
+  *
+@@ -396,6 +428,43 @@ static const struct kvaser_usb_dev_cfg k
+ 	.bittiming_const = &kvaser_usb_flexc_bittiming_const,
+ };
+ 
++static int kvaser_usb_leaf_verify_size(const struct kvaser_usb *dev,
++				       const struct kvaser_cmd *cmd)
++{
++	/* buffer size >= cmd->len ensured by caller */
++	u8 min_size = 0;
++
++	switch (dev->driver_info->family) {
++	case KVASER_LEAF:
++		if (cmd->id < ARRAY_SIZE(kvaser_usb_leaf_cmd_sizes_leaf))
++			min_size = kvaser_usb_leaf_cmd_sizes_leaf[cmd->id];
++		break;
++	case KVASER_USBCAN:
++		if (cmd->id < ARRAY_SIZE(kvaser_usb_leaf_cmd_sizes_usbcan))
++			min_size = kvaser_usb_leaf_cmd_sizes_usbcan[cmd->id];
++		break;
++	}
++
++	if (min_size == CMD_SIZE_ANY)
++		return 0;
++
++	if (min_size) {
++		min_size += CMD_HEADER_LEN;
++		if (cmd->len >= min_size)
++			return 0;
++
++		dev_err_ratelimited(&dev->intf->dev,
++				    "Received command %u too short (size %u, needed %u)",
++				    cmd->id, cmd->len, min_size);
++		return -EIO;
++	}
++
++	dev_warn_ratelimited(&dev->intf->dev,
++			     "Unhandled command (%d, size %d)\n",
++			     cmd->id, cmd->len);
++	return -EINVAL;
++}
++
+ static void *
+ kvaser_usb_leaf_frame_to_cmd(const struct kvaser_usb_net_priv *priv,
+ 			     const struct sk_buff *skb, int *frame_len,
+@@ -503,6 +572,9 @@ static int kvaser_usb_leaf_wait_cmd(cons
+ end:
+ 	kfree(buf);
+ 
++	if (err == 0)
++		err = kvaser_usb_leaf_verify_size(dev, cmd);
++
+ 	return err;
+ }
+ 
+@@ -1137,6 +1209,9 @@ static void kvaser_usb_leaf_stop_chip_re
+ static void kvaser_usb_leaf_handle_command(const struct kvaser_usb *dev,
+ 					   const struct kvaser_cmd *cmd)
+ {
++	if (kvaser_usb_leaf_verify_size(dev, cmd) < 0)
++		return;
++
+ 	switch (cmd->id) {
+ 	case CMD_START_CHIP_REPLY:
+ 		kvaser_usb_leaf_start_chip_reply(dev, cmd);
 
 
