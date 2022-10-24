@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52F3F60B739
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:22:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2F9560B81A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231614AbiJXTV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:21:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40990 "EHLO
+        id S231214AbiJXTlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:41:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232371AbiJXTVO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:21:14 -0400
+        with ESMTP id S232772AbiJXTlS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:41:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70886109D44;
-        Mon, 24 Oct 2022 10:56:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA83C25ED2E;
+        Mon, 24 Oct 2022 11:11:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FBCCB81993;
-        Mon, 24 Oct 2022 12:42:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF761C433D6;
-        Mon, 24 Oct 2022 12:42:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C21D8B811E3;
+        Mon, 24 Oct 2022 11:56:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B85EC433D6;
+        Mon, 24 Oct 2022 11:56:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615332;
-        bh=w37r33LIb9FKUf6H97lfeWvSi5XF2Tniw+6hjdytPr4=;
+        s=korg; t=1666612574;
+        bh=oPcGZNPOVZFp9ic2M+WBGGfeOaLqyr96TvPpJbQRVoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gwKio5oyw82X+j/h566UDPVwe2IuaAdfk0OGp6kkO7qyHQVchgaMUwQeATFlnp91S
-         nP18GCF0vjOsPcq0ie4KzZTYpK9Wn1m616OU57e0CzrMSWWjIowqVuQpg3sjXP8PBL
-         zurCMYhL8NBbRZZYxa4Vlfg1aiA8uZDJSK+TVUWE=
+        b=jzqRBVDpilwy1GlvHyKHqfuD5wVVWezGWNItVf3GbMAqiWy/3ii+3NmQgLujWXC0k
+         29XScArLczgdYaf5/g9aKkSrFmsPSJkxXeznZaBZpZb6dUu6Z/R0Q/O6k+IVXFK7zb
+         PjYj133+9e5fvPri9e2Qz5fe29lSNZJ1I6Dpo95E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 211/530] drm/mipi-dsi: Detach devices when removing the host
-Date:   Mon, 24 Oct 2022 13:29:15 +0200
-Message-Id: <20221024113054.622531204@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 038/229] iio: dac: ad5593r: Fix i2c read protocol requirements
+Date:   Mon, 24 Oct 2022 13:29:17 +0200
+Message-Id: <20221024113000.334009591@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-[ Upstream commit 668a8f17b5290d04ef7343636a5588a0692731a1 ]
+commit 558a25f903b4af6361b7fbeea08a6446a0745653 upstream.
 
-Whenever the MIPI-DSI host is unregistered, the code of
-mipi_dsi_host_unregister() loops over every device currently found on that
-bus and will unregister it.
+For reliable operation across the full range of supported
+interface rates, the AD5593R needs a STOP condition between
+address write, and data read (like show in the datasheet Figure 40)
+so in turn i2c_smbus_read_word_swapped cannot be used.
 
-However, it doesn't detach it from the bus first, which leads to all kind
-of resource leaks if the host wants to perform some clean up whenever a
-device is detached.
+While at it, a simple helper was added to make the code simpler.
 
-Fixes: 068a00233969 ("drm: Add MIPI DSI bus support")
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220711173939.1132294-2-maxime@cerno.tech
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 56ca9db862bf ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220913073413.140475-2-nuno.sa@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_mipi_dsi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/dac/ad5593r.c |   46 +++++++++++++++++++++++++++-------------------
+ 1 file changed, 27 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dsi.c b/drivers/gpu/drm/drm_mipi_dsi.c
-index 5dd475e82995..2c43d54766f3 100644
---- a/drivers/gpu/drm/drm_mipi_dsi.c
-+++ b/drivers/gpu/drm/drm_mipi_dsi.c
-@@ -300,6 +300,7 @@ static int mipi_dsi_remove_device_fn(struct device *dev, void *priv)
+--- a/drivers/iio/dac/ad5593r.c
++++ b/drivers/iio/dac/ad5593r.c
+@@ -15,6 +15,8 @@
+ #include <linux/of.h>
+ #include <linux/acpi.h>
+ 
++#include <asm/unaligned.h>
++
+ #define AD5593R_MODE_CONF		(0 << 4)
+ #define AD5593R_MODE_DAC_WRITE		(1 << 4)
+ #define AD5593R_MODE_ADC_READBACK	(4 << 4)
+@@ -22,6 +24,24 @@
+ #define AD5593R_MODE_GPIO_READBACK	(6 << 4)
+ #define AD5593R_MODE_REG_READBACK	(7 << 4)
+ 
++static int ad5593r_read_word(struct i2c_client *i2c, u8 reg, u16 *value)
++{
++	int ret;
++	u8 buf[2];
++
++	ret = i2c_smbus_write_byte(i2c, reg);
++	if (ret < 0)
++		return ret;
++
++	ret = i2c_master_recv(i2c, buf, sizeof(buf));
++	if (ret < 0)
++		return ret;
++
++	*value = get_unaligned_be16(buf);
++
++	return 0;
++}
++
+ static int ad5593r_write_dac(struct ad5592r_state *st, unsigned chan, u16 value)
  {
- 	struct mipi_dsi_device *dsi = to_mipi_dsi_device(dev);
+ 	struct i2c_client *i2c = to_i2c_client(st->dev);
+@@ -40,13 +60,7 @@ static int ad5593r_read_adc(struct ad559
+ 	if (val < 0)
+ 		return (int) val;
  
-+	mipi_dsi_detach(dsi);
- 	mipi_dsi_device_unregister(dsi);
+-	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_ADC_READBACK);
+-	if (val < 0)
+-		return (int) val;
+-
+-	*value = (u16) val;
+-
+-	return 0;
++	return ad5593r_read_word(i2c, AD5593R_MODE_ADC_READBACK, value);
+ }
  
- 	return 0;
--- 
-2.35.1
-
+ static int ad5593r_reg_write(struct ad5592r_state *st, u8 reg, u16 value)
+@@ -60,25 +74,19 @@ static int ad5593r_reg_write(struct ad55
+ static int ad5593r_reg_read(struct ad5592r_state *st, u8 reg, u16 *value)
+ {
+ 	struct i2c_client *i2c = to_i2c_client(st->dev);
+-	s32 val;
+-
+-	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_REG_READBACK | reg);
+-	if (val < 0)
+-		return (int) val;
+ 
+-	*value = (u16) val;
+-
+-	return 0;
++	return ad5593r_read_word(i2c, AD5593R_MODE_REG_READBACK | reg, value);
+ }
+ 
+ static int ad5593r_gpio_read(struct ad5592r_state *st, u8 *value)
+ {
+ 	struct i2c_client *i2c = to_i2c_client(st->dev);
+-	s32 val;
++	u16 val;
++	int ret;
+ 
+-	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_GPIO_READBACK);
+-	if (val < 0)
+-		return (int) val;
++	ret = ad5593r_read_word(i2c, AD5593R_MODE_GPIO_READBACK, &val);
++	if (ret)
++		return ret;
+ 
+ 	*value = (u8) val;
+ 
 
 
