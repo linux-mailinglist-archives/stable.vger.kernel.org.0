@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 339A460A4BB
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:15:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07E5960A8E4
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232981AbiJXMPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:15:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59852 "EHLO
+        id S235711AbiJXNM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:12:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233314AbiJXMOs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:14:48 -0400
+        with ESMTP id S236026AbiJXNK3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:10:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC2DBF44;
-        Mon, 24 Oct 2022 04:55:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A60C55F7C;
+        Mon, 24 Oct 2022 05:24:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CD686129E;
-        Mon, 24 Oct 2022 11:55:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5219C433C1;
-        Mon, 24 Oct 2022 11:55:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 324FF61291;
+        Mon, 24 Oct 2022 12:21:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41F61C433D6;
+        Mon, 24 Oct 2022 12:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612502;
-        bh=H6SVqnoMJtqjUi9uRgeMH0tCUlsjckGSZG/7dl6Ssrk=;
+        s=korg; t=1666614108;
+        bh=6O4z8Vt1okk5kqyVrnSRDcWXI5nJOhSa6Y7hw/EFT0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ayFnQDQmhBpqWgNGpgoUyhzD+ywSIQTd8SLlGcQ8MguSV5C5gObw6+NwJRu4TD500
-         NJEflaYTTWyxwpxM2i1ROWh2UDVa3GLRi3pGMbbtmgiK1pV9lIBHmMwdJRTPAjchdu
-         hN4K62B4JXr0dbZcU0sjGH30JmVaOns5HN+DvJxA=
+        b=wYZhaXHKcdC5dc7sPAw/4bYuQuiJzcFHxz0AcR1VVUSd24o/vtsSsWKwxMS9S7ZQc
+         /ga8wFUC8vi3dyEILUbX1lny6WV2PVHnaAhnFVulJexOvJdjBX1B8akf6Oe/1SbeOD
+         EEjmwsAeAw6mhrvXAt1Yo5f68JMM7J1lvu4kqrxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Straub <lukasstraub2@web.de>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 4.19 012/229] um: Cleanup compiler warning in arch/x86/um/tls_32.c
-Date:   Mon, 24 Oct 2022 13:28:51 +0200
-Message-Id: <20221024112959.535925369@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 135/390] spi: Ensure that sg_table wont be used after being freed
+Date:   Mon, 24 Oct 2022 13:28:52 +0200
+Message-Id: <20221024113028.425937864@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Straub <lukasstraub2@web.de>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit d27fff3499671dc23a08efd01cdb8b3764a391c4 ]
+[ Upstream commit 8e9204cddcc3fea9affcfa411715ba4f66e97587 ]
 
-arch.tls_array is statically allocated so checking for NULL doesn't
-make sense. This causes the compiler warning below.
+SPI code checks for non-zero sgt->orig_nents to determine if the buffer
+has been DMA-mapped. Ensure that sg_table is really zeroed after free to
+avoid potential NULL pointer dereference if the given SPI xfer object is
+reused again without being DMA-mapped.
 
-Remove the checks to silence these warnings.
-
-../arch/x86/um/tls_32.c: In function 'get_free_idx':
-../arch/x86/um/tls_32.c:68:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
-   68 |         if (!t->arch.tls_array)
-      |             ^
-In file included from ../arch/x86/um/asm/processor.h:10,
-                 from ../include/linux/rcupdate.h:30,
-                 from ../include/linux/rculist.h:11,
-                 from ../include/linux/pid.h:5,
-                 from ../include/linux/sched.h:14,
-                 from ../arch/x86/um/tls_32.c:7:
-../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
-   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
-      |                               ^~~~~~~~~
-../arch/x86/um/tls_32.c: In function 'get_tls_entry':
-../arch/x86/um/tls_32.c:243:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
-  243 |         if (!t->arch.tls_array)
-      |             ^
-../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
-   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
-      |                               ^~~~~~~~~
-
-Signed-off-by: Lukas Straub <lukasstraub2@web.de>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 0c17ba73c08f ("spi: Fix cache corruption due to DMA/PIO overlap")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20220930113408.19720-1-m.szyprowski@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/um/tls_32.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/spi/spi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/um/tls_32.c b/arch/x86/um/tls_32.c
-index 5bd949da7a4a..b69ab2409430 100644
---- a/arch/x86/um/tls_32.c
-+++ b/arch/x86/um/tls_32.c
-@@ -65,9 +65,6 @@ static int get_free_idx(struct task_struct* task)
- 	struct thread_struct *t = &task->thread;
- 	int idx;
- 
--	if (!t->arch.tls_array)
--		return GDT_ENTRY_TLS_MIN;
--
- 	for (idx = 0; idx < GDT_ENTRY_TLS_ENTRIES; idx++)
- 		if (!t->arch.tls_array[idx].present)
- 			return idx + GDT_ENTRY_TLS_MIN;
-@@ -242,9 +239,6 @@ static int get_tls_entry(struct task_struct *task, struct user_desc *info,
- {
- 	struct thread_struct *t = &task->thread;
- 
--	if (!t->arch.tls_array)
--		goto clear;
--
- 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
- 		return -EINVAL;
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 6ea7b286c80c..857a1399850c 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -946,6 +946,8 @@ void spi_unmap_buf(struct spi_controller *ctlr, struct device *dev,
+ 	if (sgt->orig_nents) {
+ 		dma_unmap_sg(dev, sgt->sgl, sgt->orig_nents, dir);
+ 		sg_free_table(sgt);
++		sgt->orig_nents = 0;
++		sgt->nents = 0;
+ 	}
+ }
  
 -- 
 2.35.1
