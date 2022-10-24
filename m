@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 122A460A7C0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:57:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84EF360A997
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:23:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234715AbiJXM46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:56:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60862 "EHLO
+        id S229721AbiJXNXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:23:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234712AbiJXM4c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:56:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B3068D0D6;
-        Mon, 24 Oct 2022 05:15:56 -0700 (PDT)
+        with ESMTP id S232767AbiJXNWJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:22:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 376E41A5;
+        Mon, 24 Oct 2022 05:29:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 312BE61291;
-        Mon, 24 Oct 2022 12:12:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 468F3C433C1;
-        Mon, 24 Oct 2022 12:12:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53E65612A1;
+        Mon, 24 Oct 2022 12:27:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6851FC433D6;
+        Mon, 24 Oct 2022 12:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613573;
-        bh=72IdrIRDfHiRyzadDUK1d/TKQj32QPvspPY4OjhOf2M=;
+        s=korg; t=1666614465;
+        bh=wq/nKH4U/hcOoZ8jQjN/KSVSJfCus0aPmsR5bOW/2xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pc6JA6IAVaTEQClLtRlLwjFsEgJtb2J8tWxE8iJcjkF7QVHqrxdG8huKrsYdNJYFG
-         olgBl/pUd7APmUk8EbA1yEH21A2YBcP3vEo5ozlAxakt+lU0ez1XikHhYWmVHm7atB
-         MX4z4+tTNN4Bb+2cq1Bew+ylqpQ5MYFIRllO3w3o=
+        b=nQ+3/juHrRKDOH9xaZ38qjRkE0aDBVQdN3bHKf7C+ZiRI2gpQ6OqKA00qaYdX7XZg
+         TbjexPOOfSDVhASnZabtgMzCrNPNNy38/Gb357xcOqjLl2SWVAZHfVMDCaqjtrAlBG
+         ULNn4C1bkkId7pW7AgEr1eOj3YSQq1NakU/EggUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 158/255] mfd: fsl-imx25: Fix an error handling path in mx25_tsadc_setup_irq()
+        stable@vger.kernel.org, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 271/390] crypto: sahara - dont sleep when in softirq
 Date:   Mon, 24 Oct 2022 13:31:08 +0200
-Message-Id: <20221024113007.902329329@linuxfoundation.org>
+Message-Id: <20221024113034.469304263@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 3fa9e4cfb55da512ebfd57336fde468830719298 ]
+[ Upstream commit 108586eba094b318e6a831f977f4ddcc403a15da ]
 
-If devm_of_platform_populate() fails, some resources need to be
-released.
+Function of sahara_aes_crypt maybe could be called by function
+of crypto_skcipher_encrypt during the rx softirq, so it is not
+allowed to use mutex lock.
 
-Introduce a mx25_tsadc_unset_irq() function that undoes
-mx25_tsadc_setup_irq() and call it both from the new error handling path
-of the probe and in the remove function.
-
-Fixes: a55196eff6d6 ("mfd: fsl-imx25: Use devm_of_platform_populate()")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/d404e04828fc06bcfddf81f9f3e9b4babbe35415.1659269156.git.christophe.jaillet@wanadoo.fr
+Fixes: c0c3c89ae347 ("crypto: sahara - replace tasklets with...")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/fsl-imx25-tsadc.c | 32 ++++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
+ drivers/crypto/sahara.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/mfd/fsl-imx25-tsadc.c b/drivers/mfd/fsl-imx25-tsadc.c
-index a016b39fe9b0..95103b2cc471 100644
---- a/drivers/mfd/fsl-imx25-tsadc.c
-+++ b/drivers/mfd/fsl-imx25-tsadc.c
-@@ -84,6 +84,19 @@ static int mx25_tsadc_setup_irq(struct platform_device *pdev,
- 	return 0;
- }
+diff --git a/drivers/crypto/sahara.c b/drivers/crypto/sahara.c
+index d60679c79822..2043dd061121 100644
+--- a/drivers/crypto/sahara.c
++++ b/drivers/crypto/sahara.c
+@@ -25,10 +25,10 @@
+ #include <linux/kernel.h>
+ #include <linux/kthread.h>
+ #include <linux/module.h>
+-#include <linux/mutex.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
++#include <linux/spinlock.h>
  
-+static int mx25_tsadc_unset_irq(struct platform_device *pdev)
-+{
-+	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
-+	int irq = platform_get_irq(pdev, 0);
-+
-+	if (irq) {
-+		irq_set_chained_handler_and_data(irq, NULL, NULL);
-+		irq_domain_remove(tsadc->domain);
-+	}
-+
-+	return 0;
-+}
-+
- static void mx25_tsadc_setup_clk(struct platform_device *pdev,
- 				 struct mx25_tsadc *tsadc)
- {
-@@ -171,18 +184,21 @@ static int mx25_tsadc_probe(struct platform_device *pdev)
+ #define SHA_BUFFER_LEN		PAGE_SIZE
+ #define SAHARA_MAX_SHA_BLOCK_SIZE	SHA256_BLOCK_SIZE
+@@ -195,7 +195,7 @@ struct sahara_dev {
+ 	void __iomem		*regs_base;
+ 	struct clk		*clk_ipg;
+ 	struct clk		*clk_ahb;
+-	struct mutex		queue_mutex;
++	spinlock_t		queue_spinlock;
+ 	struct task_struct	*kthread;
+ 	struct completion	dma_completion;
  
- 	platform_set_drvdata(pdev, tsadc);
+@@ -641,9 +641,9 @@ static int sahara_aes_crypt(struct skcipher_request *req, unsigned long mode)
  
--	return devm_of_platform_populate(dev);
-+	ret = devm_of_platform_populate(dev);
-+	if (ret)
-+		goto err_irq;
-+
-+	return 0;
-+
-+err_irq:
-+	mx25_tsadc_unset_irq(pdev);
-+
-+	return ret;
- }
+ 	rctx->mode = mode;
  
- static int mx25_tsadc_remove(struct platform_device *pdev)
- {
--	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
--	int irq = platform_get_irq(pdev, 0);
--
--	if (irq) {
--		irq_set_chained_handler_and_data(irq, NULL, NULL);
--		irq_domain_remove(tsadc->domain);
--	}
-+	mx25_tsadc_unset_irq(pdev);
+-	mutex_lock(&dev->queue_mutex);
++	spin_lock_bh(&dev->queue_spinlock);
+ 	err = crypto_enqueue_request(&dev->queue, &req->base);
+-	mutex_unlock(&dev->queue_mutex);
++	spin_unlock_bh(&dev->queue_spinlock);
  
- 	return 0;
- }
+ 	wake_up_process(dev->kthread);
+ 
+@@ -1042,10 +1042,10 @@ static int sahara_queue_manage(void *data)
+ 	do {
+ 		__set_current_state(TASK_INTERRUPTIBLE);
+ 
+-		mutex_lock(&dev->queue_mutex);
++		spin_lock_bh(&dev->queue_spinlock);
+ 		backlog = crypto_get_backlog(&dev->queue);
+ 		async_req = crypto_dequeue_request(&dev->queue);
+-		mutex_unlock(&dev->queue_mutex);
++		spin_unlock_bh(&dev->queue_spinlock);
+ 
+ 		if (backlog)
+ 			backlog->complete(backlog, -EINPROGRESS);
+@@ -1091,9 +1091,9 @@ static int sahara_sha_enqueue(struct ahash_request *req, int last)
+ 		rctx->first = 1;
+ 	}
+ 
+-	mutex_lock(&dev->queue_mutex);
++	spin_lock_bh(&dev->queue_spinlock);
+ 	ret = crypto_enqueue_request(&dev->queue, &req->base);
+-	mutex_unlock(&dev->queue_mutex);
++	spin_unlock_bh(&dev->queue_spinlock);
+ 
+ 	wake_up_process(dev->kthread);
+ 
+@@ -1454,7 +1454,7 @@ static int sahara_probe(struct platform_device *pdev)
+ 
+ 	crypto_init_queue(&dev->queue, SAHARA_QUEUE_LENGTH);
+ 
+-	mutex_init(&dev->queue_mutex);
++	spin_lock_init(&dev->queue_spinlock);
+ 
+ 	dev_ptr = dev;
+ 
 -- 
 2.35.1
 
