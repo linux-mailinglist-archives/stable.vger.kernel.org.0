@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5FE460BB55
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:56:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF91860BAE2
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:42:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233930AbiJXU4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:56:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50202 "EHLO
+        id S234927AbiJXUlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:41:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233989AbiJXU4D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:56:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495562C4C9E;
-        Mon, 24 Oct 2022 12:02:20 -0700 (PDT)
+        with ESMTP id S234800AbiJXUku (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:40:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63D2E5073C;
+        Mon, 24 Oct 2022 11:50:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8CB1B815B4;
-        Mon, 24 Oct 2022 12:10:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4930DC43142;
-        Mon, 24 Oct 2022 12:10:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C7FFB819BE;
+        Mon, 24 Oct 2022 12:44:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBFCC433C1;
+        Mon, 24 Oct 2022 12:44:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613408;
-        bh=G1iDAf3f6Jpdzk94UbQC3Rkti0Ys811hQbx2+MSiH9k=;
+        s=korg; t=1666615483;
+        bh=rTECyuwnDRsfCecgHfMJhEbyMSE/f5if0+WnpjsNg1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CuPfMEny0Ift32isBMGhUf5Sb8cc6xfGJa3gcHy3iLipCswGQZ2pl8DhXaq8Aroxd
-         DcV6cKisSGwUm6ZlY2C+3WwXBBkfBWYmwW7e1YZqVWib86lAm7322XgW8Z0ETNfzsW
-         ZypnnrzQH1BF4mDYNLY64oW0T7iCggLKT47TUEAQ=
+        b=f5WVg3lJfdNJAupjWzXO/5PoPEkC5viMaiqZW8slCQlF2fHw2+GtALO+i9ScZzEH5
+         O4UOHoTukkXoP3GQhxytqLj3x2Jz0o2YQhFrgdx6x8I1e6vuAEkFgQ+tXo5EuHt5oJ
+         9uBz/e4lwR+wSWBbBBidXcOlYC7AnTRpTEmhgvxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 095/255] drm/bridge: megachips: Fix a null pointer dereference bug
+        stable@vger.kernel.org, Josh Triplett <josh@joshtriplett.org>,
+        Lukas Czerner <lczerner@redhat.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 261/530] ext4: dont run ext4lazyinit for read-only filesystems
 Date:   Mon, 24 Oct 2022 13:30:05 +0200
-Message-Id: <20221024113005.647585310@linuxfoundation.org>
+Message-Id: <20221024113056.873876510@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Josh Triplett <josh@joshtriplett.org>
 
-[ Upstream commit 1ff673333d46d2c1b053ebd0c1c7c7c79e36943e ]
+[ Upstream commit 426d15ad11419066f7042ffa8fbf1b5c21a1ecbe ]
 
-When removing the module we will get the following warning:
+On a read-only filesystem, we won't invoke the block allocator, so we
+don't need to prefetch the block bitmaps.
 
-[   31.911505] i2c-core: driver [stdp2690-ge-b850v3-fw] unregistered
-[   31.912484] general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN PTI
-[   31.913338] KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-[   31.915280] RIP: 0010:drm_bridge_remove+0x97/0x130
-[   31.921825] Call Trace:
-[   31.922533]  stdp4028_ge_b850v3_fw_remove+0x34/0x60 [megachips_stdpxxxx_ge_b850v3_fw]
-[   31.923139]  i2c_device_remove+0x181/0x1f0
+This avoids starting and running the ext4lazyinit thread at all on a
+system with no read-write ext4 filesystems (for instance, a container VM
+with read-only filesystems underneath an overlayfs).
 
-The two bridges (stdp2690, stdp4028) do not probe at the same time, so
-the driver does not call ge_b850v3_resgiter() when probing, causing the
-driver to try to remove the object that has not been initialized.
-
-Fix this by checking whether both the bridges are probed.
-
-Fixes: 11632d4aa2b3 ("drm/bridge: megachips: Ensure both bridges are probed before registration")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220830073450.1897020-1-zheyuma97@gmail.com
+Fixes: 21175ca434c5 ("ext4: make prefetch_block_bitmaps default")
+Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Link: https://lore.kernel.org/r/48b41da1498fcac3287e2e06b660680646c1c050.1659323972.git.josh@joshtriplett.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/ext4/super.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-index 5302dd90a7a5..b72f6f541d4e 100644
---- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-+++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-@@ -279,7 +279,9 @@ static void ge_b850v3_lvds_remove(void)
- 	 * This check is to avoid both the drivers
- 	 * removing the bridge in their remove() function
- 	 */
--	if (!ge_b850v3_lvds_ptr)
-+	if (!ge_b850v3_lvds_ptr ||
-+	    !ge_b850v3_lvds_ptr->stdp2690_i2c ||
-+		!ge_b850v3_lvds_ptr->stdp4028_i2c)
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index eec41990fa65..985d79fb6128 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3587,9 +3587,9 @@ int ext4_register_li_request(struct super_block *sb,
+ 		goto out;
+ 	}
+ 
+-	if (test_opt(sb, NO_PREFETCH_BLOCK_BITMAPS) &&
+-	    (first_not_zeroed == ngroups || sb_rdonly(sb) ||
+-	     !test_opt(sb, INIT_INODE_TABLE)))
++	if (sb_rdonly(sb) ||
++	    (test_opt(sb, NO_PREFETCH_BLOCK_BITMAPS) &&
++	     (first_not_zeroed == ngroups || !test_opt(sb, INIT_INODE_TABLE))))
  		goto out;
  
- 	drm_bridge_remove(&ge_b850v3_lvds_ptr->bridge);
+ 	elr = ext4_li_request_new(sb, first_not_zeroed);
 -- 
 2.35.1
 
