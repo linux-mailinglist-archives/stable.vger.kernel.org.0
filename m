@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A23EA60A8BD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2FE260A6CB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:41:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235502AbiJXNKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:10:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55238 "EHLO
+        id S232094AbiJXMk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:40:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235406AbiJXNIi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:08:38 -0400
+        with ESMTP id S232303AbiJXMhC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:37:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FD1E9E683;
-        Mon, 24 Oct 2022 05:22:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E1D8994A;
+        Mon, 24 Oct 2022 05:06:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2530612B3;
-        Mon, 24 Oct 2022 12:21:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EDC6C433D6;
-        Mon, 24 Oct 2022 12:21:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D382E612F0;
+        Mon, 24 Oct 2022 12:05:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E350CC433C1;
+        Mon, 24 Oct 2022 12:05:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614103;
-        bh=jOc7LW7IWzijjP0DhfLG0KzytqA6AuX/PkOEIoEOpsI=;
+        s=korg; t=1666613132;
+        bh=urrhEJtct4bcw8a1xS0BclzyA+n+yNouVsNJBzE1OLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qbIqi1b7a62pfNEb3USTFnlA0YIk3s4IM8WVIkZiJ3Bam3UEOfadLoikrWEn9JIo5
-         wslyItDgcVkEf7/x+tr+Nzd2pPHpDnUncxMfa2rQRtk90WouYnLngdlbW6/IGB0QLK
-         NHZSl7Lim30Pg7IICjbPYX58Z9dFFbZsEaO/7n4w=
+        b=zY9mTwZYwgq1EomY6r3eQMa+2znDocgz+/K1hq5N3Sd9EtewKYPUtegt0V6w+GvZ7
+         v0h7mhkCIw5MULJUUSDLmeKUPw4HI4atuDY/kWEy8Muk6fF4bJ0acSDYZo9dIndr/3
+         dW8G7MIN0BdWWJqm9F76fiv7j9y6Lw4zOufkEDmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 133/390] sctp: handle the error returned from sctp_auth_asoc_init_active_key
+        stable@vger.kernel.org, Wenchao Chen <wenchao.chen@unisoc.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 020/255] mmc: sdhci-sprd: Fix minimum clock limit
 Date:   Mon, 24 Oct 2022 13:28:50 +0200
-Message-Id: <20221024113028.343180837@linuxfoundation.org>
+Message-Id: <20221024113003.109807512@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Wenchao Chen <wenchao.chen@unisoc.com>
 
-[ Upstream commit 022152aaebe116a25c39818a07e175a8cd3c1e11 ]
+commit 6e141772e6465f937458b35ddcfd0a981b6f5280 upstream.
 
-When it returns an error from sctp_auth_asoc_init_active_key(), the
-active_key is actually not updated. The old sh_key will be freeed
-while it's still used as active key in asoc. Then an use-after-free
-will be triggered when sending patckets, as found by syzbot:
+The Spreadtrum controller supports 100KHz minimal clock rate, which means
+that the current value 400KHz is wrong.
 
-  sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
-  sctp_set_owner_w net/sctp/socket.c:132 [inline]
-  sctp_sendmsg_to_asoc+0xbd5/0x1a20 net/sctp/socket.c:1863
-  sctp_sendmsg+0x1053/0x1d50 net/sctp/socket.c:2025
-  inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:819
-  sock_sendmsg_nosec net/socket.c:714 [inline]
-  sock_sendmsg+0xcf/0x120 net/socket.c:734
+Unfortunately this has also lead to fail to initialize some cards, which
+are allowed to require 100KHz to work. So, let's fix the problem by
+changing the minimal supported clock rate to 100KHz.
 
-This patch is to fix it by not replacing the sh_key when it returns
-errors from sctp_auth_asoc_init_active_key() in sctp_auth_set_key().
-For sctp_auth_set_active_key(), old active_key_id will be set back
-to asoc->active_key_id when the same thing happens.
-
-Fixes: 58acd1009226 ("sctp: update active_key for asoc when old key is being replaced")
-Reported-by: syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Wenchao Chen <wenchao.chen@unisoc.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: fb8bd90f83c4 ("mmc: sdhci-sprd: Add Spreadtrum's initial host controller")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221011104935.10980-1-wenchao.chen666@gmail.com
+[Ulf: Clarified to commit-message]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/auth.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/mmc/host/sdhci-sprd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sctp/auth.c b/net/sctp/auth.c
-index db6b7373d16c..34964145514e 100644
---- a/net/sctp/auth.c
-+++ b/net/sctp/auth.c
-@@ -863,12 +863,17 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
- 	}
+--- a/drivers/mmc/host/sdhci-sprd.c
++++ b/drivers/mmc/host/sdhci-sprd.c
+@@ -295,7 +295,7 @@ static unsigned int sdhci_sprd_get_max_c
  
- 	list_del_init(&shkey->key_list);
--	sctp_auth_shkey_release(shkey);
- 	list_add(&cur_key->key_list, sh_keys);
- 
--	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
--		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+	if (asoc && asoc->active_key_id == auth_key->sca_keynumber &&
-+	    sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
-+		list_del_init(&cur_key->key_list);
-+		sctp_auth_shkey_release(cur_key);
-+		list_add(&shkey->key_list, sh_keys);
-+		return -ENOMEM;
-+	}
- 
-+	sctp_auth_shkey_release(shkey);
- 	return 0;
+ static unsigned int sdhci_sprd_get_min_clock(struct sdhci_host *host)
+ {
+-	return 400000;
++	return 100000;
  }
  
-@@ -902,8 +907,13 @@ int sctp_auth_set_active_key(struct sctp_endpoint *ep,
- 		return -EINVAL;
- 
- 	if (asoc) {
-+		__u16  active_key_id = asoc->active_key_id;
-+
- 		asoc->active_key_id = key_id;
--		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+		if (sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
-+			asoc->active_key_id = active_key_id;
-+			return -ENOMEM;
-+		}
- 	} else
- 		ep->active_key_id = key_id;
- 
--- 
-2.35.1
-
+ static void sdhci_sprd_set_uhs_signaling(struct sdhci_host *host,
 
 
