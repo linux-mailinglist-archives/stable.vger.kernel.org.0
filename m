@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FDD560A992
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 814A360A4B6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:15:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234029AbiJXNWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:22:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46246 "EHLO
+        id S232929AbiJXMP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:15:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235880AbiJXNVE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:21:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACED61C12B;
-        Mon, 24 Oct 2022 05:29:32 -0700 (PDT)
+        with ESMTP id S233293AbiJXMOo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:14:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E58F67822C;
+        Mon, 24 Oct 2022 04:55:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA1A4B81154;
-        Mon, 24 Oct 2022 12:05:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 115F0C433D6;
-        Mon, 24 Oct 2022 12:05:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA7E7612B9;
+        Mon, 24 Oct 2022 11:55:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 083D2C433C1;
+        Mon, 24 Oct 2022 11:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613111;
-        bh=BOKv1toqEPokUS2/ZA55I1RNQdLtChwRSiwtQ+1O2tw=;
+        s=korg; t=1666612518;
+        bh=CKXWZAtQuVRe+X7bbPl5H9fJbh3N4z3sK9sltqAfEyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VEhhN1G6ERue2eWgBcf56B1SvPDIf5OXPtknI5Z8LWzNIAgP9s3kjUgRlsPnO7X60
-         MKG9ywHhKG5pCQlIO6AX4HmsMLswVztIGGKIROvbS4Ca7IY660iPapUjCIht7EMyaO
-         Xm1c4HDI8ZLdTm5d47M8++BC50SrGGaunms5ubuY=
+        b=f3pP83NdUfPLytgmptuPk5oyyGX49Hh48YhjTgnwjQH/JL7EKZGdK5UsVPf1ycLnY
+         jfzxdeyN0sw04zyT7QnKqyQxbITjyM0EnOSBCfgcZx/be3x3+PJLSq6kpjpyycUy2W
+         UBT4gieFnMjr72dGSGFHUG8CAOHArnK7wT1vrqJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 013/255] iio: pressure: dps310: Refactor startup procedure
+        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Hao Sun <sunhao.th@gmail.com>, Jiacheng Xu <stitch@zju.edu.cn>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 4.19 004/229] fs: fix UAF/GPF bug in nilfs_mdt_destroy
 Date:   Mon, 24 Oct 2022 13:28:43 +0200
-Message-Id: <20221024113002.881684704@linuxfoundation.org>
+Message-Id: <20221024112959.252205817@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,239 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit c2329717bdd3fa62f8a2f3d8d85ad0bee4556bd7 upstream.
+commit 2e488f13755ffbb60f307e991b27024716a33b29 upstream.
 
-Move the startup procedure into a function, and correct a missing
-check on the return code for writing the PRS_CFG register.
+In alloc_inode, inode_init_always() could return -ENOMEM if
+security_inode_alloc() fails, which causes inode->i_private
+uninitialized. Then nilfs_is_metadata_file_inode() returns
+true and nilfs_free_inode() wrongly calls nilfs_mdt_destroy(),
+which frees the uninitialized inode->i_private
+and leads to crashes(e.g., UAF/GPF).
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220915195719.136812-2-eajames@linux.ibm.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fix this by moving security_inode_alloc just prior to
+this_cpu_inc(nr_inodes)
+
+Link: https://lkml.kernel.org/r/CAFcO6XOcf1Jj2SeGt=jJV59wmhESeSKpfR0omdFRq+J9nD1vfQ@mail.gmail.com
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Reported-by: Hao Sun <sunhao.th@gmail.com>
+Reported-by: Jiacheng Xu <stitch@zju.edu.cn>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/pressure/dps310.c |  188 ++++++++++++++++++++++--------------------
- 1 file changed, 99 insertions(+), 89 deletions(-)
+ fs/inode.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/iio/pressure/dps310.c
-+++ b/drivers/iio/pressure/dps310.c
-@@ -159,6 +159,102 @@ static int dps310_get_coefs(struct dps31
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -166,8 +166,6 @@ int inode_init_always(struct super_block
+ 	inode->i_wb_frn_history = 0;
+ #endif
+ 
+-	if (security_inode_alloc(inode))
+-		goto out;
+ 	spin_lock_init(&inode->i_lock);
+ 	lockdep_set_class(&inode->i_lock, &sb->s_type->i_lock_key);
+ 
+@@ -195,11 +193,12 @@ int inode_init_always(struct super_block
+ 	inode->i_fsnotify_mask = 0;
+ #endif
+ 	inode->i_flctx = NULL;
++
++	if (unlikely(security_inode_alloc(inode)))
++		return -ENOMEM;
+ 	this_cpu_inc(nr_inodes);
+ 
  	return 0;
+-out:
+-	return -ENOMEM;
  }
+ EXPORT_SYMBOL(inode_init_always);
  
-+/*
-+ * Some versions of the chip will read temperatures in the ~60C range when
-+ * it's actually ~20C. This is the manufacturer recommended workaround
-+ * to correct the issue. The registers used below are undocumented.
-+ */
-+static int dps310_temp_workaround(struct dps310_data *data)
-+{
-+	int rc;
-+	int reg;
-+
-+	rc = regmap_read(data->regmap, 0x32, &reg);
-+	if (rc)
-+		return rc;
-+
-+	/*
-+	 * If bit 1 is set then the device is okay, and the workaround does not
-+	 * need to be applied
-+	 */
-+	if (reg & BIT(1))
-+		return 0;
-+
-+	rc = regmap_write(data->regmap, 0x0e, 0xA5);
-+	if (rc)
-+		return rc;
-+
-+	rc = regmap_write(data->regmap, 0x0f, 0x96);
-+	if (rc)
-+		return rc;
-+
-+	rc = regmap_write(data->regmap, 0x62, 0x02);
-+	if (rc)
-+		return rc;
-+
-+	rc = regmap_write(data->regmap, 0x0e, 0x00);
-+	if (rc)
-+		return rc;
-+
-+	return regmap_write(data->regmap, 0x0f, 0x00);
-+}
-+
-+static int dps310_startup(struct dps310_data *data)
-+{
-+	int rc;
-+	int ready;
-+
-+	/*
-+	 * Set up pressure sensor in single sample, one measurement per second
-+	 * mode
-+	 */
-+	rc = regmap_write(data->regmap, DPS310_PRS_CFG, 0);
-+	if (rc)
-+		return rc;
-+
-+	/*
-+	 * Set up external (MEMS) temperature sensor in single sample, one
-+	 * measurement per second mode
-+	 */
-+	rc = regmap_write(data->regmap, DPS310_TMP_CFG, DPS310_TMP_EXT);
-+	if (rc)
-+		return rc;
-+
-+	/* Temp and pressure shifts are disabled when PRC <= 8 */
-+	rc = regmap_write_bits(data->regmap, DPS310_CFG_REG,
-+			       DPS310_PRS_SHIFT_EN | DPS310_TMP_SHIFT_EN, 0);
-+	if (rc)
-+		return rc;
-+
-+	/* MEAS_CFG doesn't update correctly unless first written with 0 */
-+	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
-+			       DPS310_MEAS_CTRL_BITS, 0);
-+	if (rc)
-+		return rc;
-+
-+	/* Turn on temperature and pressure measurement in the background */
-+	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
-+			       DPS310_MEAS_CTRL_BITS, DPS310_PRS_EN |
-+			       DPS310_TEMP_EN | DPS310_BACKGROUND);
-+	if (rc)
-+		return rc;
-+
-+	/*
-+	 * Calibration coefficients required for reporting temperature.
-+	 * They are available 40ms after the device has started
-+	 */
-+	rc = regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready,
-+				      ready & DPS310_COEF_RDY, 10000, 40000);
-+	if (rc)
-+		return rc;
-+
-+	rc = dps310_get_coefs(data);
-+	if (rc)
-+		return rc;
-+
-+	return dps310_temp_workaround(data);
-+}
-+
- static int dps310_get_pres_precision(struct dps310_data *data)
- {
- 	int rc;
-@@ -677,52 +773,12 @@ static const struct iio_info dps310_info
- 	.write_raw = dps310_write_raw,
- };
- 
--/*
-- * Some verions of chip will read temperatures in the ~60C range when
-- * its actually ~20C. This is the manufacturer recommended workaround
-- * to correct the issue. The registers used below are undocumented.
-- */
--static int dps310_temp_workaround(struct dps310_data *data)
--{
--	int rc;
--	int reg;
--
--	rc = regmap_read(data->regmap, 0x32, &reg);
--	if (rc < 0)
--		return rc;
--
--	/*
--	 * If bit 1 is set then the device is okay, and the workaround does not
--	 * need to be applied
--	 */
--	if (reg & BIT(1))
--		return 0;
--
--	rc = regmap_write(data->regmap, 0x0e, 0xA5);
--	if (rc < 0)
--		return rc;
--
--	rc = regmap_write(data->regmap, 0x0f, 0x96);
--	if (rc < 0)
--		return rc;
--
--	rc = regmap_write(data->regmap, 0x62, 0x02);
--	if (rc < 0)
--		return rc;
--
--	rc = regmap_write(data->regmap, 0x0e, 0x00);
--	if (rc < 0)
--		return rc;
--
--	return regmap_write(data->regmap, 0x0f, 0x00);
--}
--
- static int dps310_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
- {
- 	struct dps310_data *data;
- 	struct iio_dev *iio;
--	int rc, ready;
-+	int rc;
- 
- 	iio = devm_iio_device_alloc(&client->dev,  sizeof(*data));
- 	if (!iio)
-@@ -748,54 +804,8 @@ static int dps310_probe(struct i2c_clien
- 	if (rc)
- 		return rc;
- 
--	/*
--	 * Set up pressure sensor in single sample, one measurement per second
--	 * mode
--	 */
--	rc = regmap_write(data->regmap, DPS310_PRS_CFG, 0);
--
--	/*
--	 * Set up external (MEMS) temperature sensor in single sample, one
--	 * measurement per second mode
--	 */
--	rc = regmap_write(data->regmap, DPS310_TMP_CFG, DPS310_TMP_EXT);
--	if (rc < 0)
--		return rc;
--
--	/* Temp and pressure shifts are disabled when PRC <= 8 */
--	rc = regmap_write_bits(data->regmap, DPS310_CFG_REG,
--			       DPS310_PRS_SHIFT_EN | DPS310_TMP_SHIFT_EN, 0);
--	if (rc < 0)
--		return rc;
--
--	/* MEAS_CFG doesn't update correctly unless first written with 0 */
--	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
--			       DPS310_MEAS_CTRL_BITS, 0);
--	if (rc < 0)
--		return rc;
--
--	/* Turn on temperature and pressure measurement in the background */
--	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
--			       DPS310_MEAS_CTRL_BITS, DPS310_PRS_EN |
--			       DPS310_TEMP_EN | DPS310_BACKGROUND);
--	if (rc < 0)
--		return rc;
--
--	/*
--	 * Calibration coefficients required for reporting temperature.
--	 * They are available 40ms after the device has started
--	 */
--	rc = regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready,
--				      ready & DPS310_COEF_RDY, 10000, 40000);
--	if (rc < 0)
--		return rc;
--
--	rc = dps310_get_coefs(data);
--	if (rc < 0)
--		return rc;
--
--	rc = dps310_temp_workaround(data);
--	if (rc < 0)
-+	rc = dps310_startup(data);
-+	if (rc)
- 		return rc;
- 
- 	rc = devm_iio_device_register(&client->dev, iio);
 
 
