@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9B4C60A50C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24E0060A5E6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233226AbiJXMUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:20:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40706 "EHLO
+        id S233793AbiJXMas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:30:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233495AbiJXMTk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D55167AB3D;
-        Mon, 24 Oct 2022 04:58:10 -0700 (PDT)
+        with ESMTP id S233913AbiJXM2j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D6F586833;
+        Mon, 24 Oct 2022 05:02:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B18886129A;
-        Mon, 24 Oct 2022 11:51:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5057C433C1;
-        Mon, 24 Oct 2022 11:51:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A966961252;
+        Mon, 24 Oct 2022 12:00:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD10EC433C1;
+        Mon, 24 Oct 2022 12:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612263;
-        bh=0hQmG0yLukZImX36wFn80tQrPCt+zD0IZ/UYg3RA9+Q=;
+        s=korg; t=1666612809;
+        bh=YqqfBLDCHIre+JSjFqMR5fczi5ijx+iG1FyyUcTV2kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gcMYBNzZRLomqzmATpLhDN44XwFh8CocnT8Ub/iXflqY891xZcSCVPR5rR6KZOngc
-         PttzhwjHl1Xmx3Rc+xE/3ph1PBvv7FDC7PCbh9LFK7kdT0tlM5ZV/UCGmx3DzVVpV1
-         DmwvlzaGXSuTf+z3X7ecx9Ov2HJrrXIqUaL66cYw=
+        b=WVqE6JYZYPPIuk9mUKlyFomUtVMjtR+rmUaZFUlWW5/XJM296uDYLNfwCN9UKQeR9
+         PTptuqLZU6xmzWfYUGfiOV/qAG6+MUb+SAPT1ABczbhEQQbFHhdcA/+Ld3pPVAAsCc
+         QSx53sl2qifZ+0w0Lk7mrDKRz7tcttaV3ljiIW/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 130/210] ata: fix ata_id_sense_reporting_enabled() and ata_id_has_sense_reporting()
+Subject: [PATCH 4.19 128/229] media: exynos4-is: fimc-is: Add of_node_put() when breaking out of loop
 Date:   Mon, 24 Oct 2022 13:30:47 +0200
-Message-Id: <20221024113001.208606349@linuxfoundation.org>
+Message-Id: <20221024113003.147757617@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 690aa8c3ae308bc696ec8b1b357b995193927083 ]
+[ Upstream commit 211f8304fa21aaedc2c247f0c9d6c7f1aaa61ad7 ]
 
-ACS-5 section
-7.13.6.41 Words 85..87, 120: Commands and feature sets supported or enabled
-states that:
+In fimc_is_register_subdevs(), we need to call of_node_put() for
+the reference 'i2c_bus' when breaking out of the
+for_each_compatible_node() which has increased the refcount.
 
-If bit 15 of word 86 is set to one, bit 14 of word 119 is set to one,
-and bit 15 of word 119 is cleared to zero, then word 119 is valid.
-
-If bit 15 of word 86 is set to one, bit 14 of word 120 is set to one,
-and bit 15 of word 120 is cleared to zero, then word 120 is valid.
-
-(This text also exists in really old ACS standards, e.g. ACS-3.)
-
-Currently, ata_id_sense_reporting_enabled() and
-ata_id_has_sense_reporting() both check bit 15 of word 86,
-but neither of them check that bit 14 of word 119 is set to one,
-or that bit 15 of word 119 is cleared to zero.
-
-Additionally, make ata_id_sense_reporting_enabled() return false
-if !ata_id_has_sense_reporting(), similar to how e.g.
-ata_id_flush_ext_enabled() returns false if !ata_id_has_flush_ext().
-
-Fixes: e87fd28cf9a2 ("libata: Implement support for sense data reporting")
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: 9a761e436843 ("[media] exynos4-is: Add Exynos4x12 FIMC-IS driver")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ata.h | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/media/platform/exynos4-is/fimc-is.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/ata.h b/include/linux/ata.h
-index c7a353825450..90a4c166c0fa 100644
---- a/include/linux/ata.h
-+++ b/include/linux/ata.h
-@@ -784,16 +784,21 @@ static inline bool ata_id_has_read_log_dma_ext(const u16 *id)
+diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
+index 0f3f82bd4d20..6f59fe02c727 100644
+--- a/drivers/media/platform/exynos4-is/fimc-is.c
++++ b/drivers/media/platform/exynos4-is/fimc-is.c
+@@ -217,6 +217,7 @@ static int fimc_is_register_subdevs(struct fimc_is *is)
  
- static inline bool ata_id_has_sense_reporting(const u16 *id)
- {
--	if (!(id[ATA_ID_CFS_ENABLE_2] & (1 << 15)))
-+	if (!(id[ATA_ID_CFS_ENABLE_2] & BIT(15)))
-+		return false;
-+	if ((id[ATA_ID_COMMAND_SET_3] & (BIT(15) | BIT(14))) != BIT(14))
- 		return false;
--	return id[ATA_ID_COMMAND_SET_3] & (1 << 6);
-+	return id[ATA_ID_COMMAND_SET_3] & BIT(6);
- }
- 
- static inline bool ata_id_sense_reporting_enabled(const u16 *id)
- {
--	if (!(id[ATA_ID_CFS_ENABLE_2] & (1 << 15)))
-+	if (!ata_id_has_sense_reporting(id))
-+		return false;
-+	/* ata_id_has_sense_reporting() == true, word 86 must have bit 15 set */
-+	if ((id[ATA_ID_COMMAND_SET_4] & (BIT(15) | BIT(14))) != BIT(14))
- 		return false;
--	return id[ATA_ID_COMMAND_SET_4] & (1 << 6);
-+	return id[ATA_ID_COMMAND_SET_4] & BIT(6);
- }
- 
- /**
+ 			if (ret < 0 || index >= FIMC_IS_SENSORS_NUM) {
+ 				of_node_put(child);
++				of_node_put(i2c_bus);
+ 				return ret;
+ 			}
+ 			index++;
 -- 
 2.35.1
 
