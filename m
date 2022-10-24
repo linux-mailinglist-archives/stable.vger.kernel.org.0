@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73D7260ACF3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15A6960ACF1
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234418AbiJXORA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:17:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57698 "EHLO
+        id S234391AbiJXOQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:16:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236991AbiJXOP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:15:29 -0400
+        with ESMTP id S237046AbiJXOPm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:15:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D3F352826;
-        Mon, 24 Oct 2022 05:55:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DABAD62A73;
+        Mon, 24 Oct 2022 05:55:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14D46612D5;
-        Mon, 24 Oct 2022 12:54:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A3AEC433C1;
-        Mon, 24 Oct 2022 12:54:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38EAA612E7;
+        Mon, 24 Oct 2022 12:55:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A01EC433C1;
+        Mon, 24 Oct 2022 12:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616075;
-        bh=TWhaQ473v7czgusdWlqqUndbnHAzvtf0Y5h/S757e4A=;
+        s=korg; t=1666616101;
+        bh=XTvP40iNi0+Eiwq3T0oEZhoWupUubEI8vDr3+gwG8iI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vcnME7Zc1NN03hnOESblXJ0gZEsSDSlxspmn0/GPxNirRy3Q84DsVtVFjNat9t8Fn
-         /0p24mHnsIT59f/I1IGvEgBjEVIWnDqofzoYWvcAabrX6hWVhze1VmWUHZdA/cYWbV
-         kVfwcOSAy/pjiVdrjwxUKY35ZDff/ZYYQSI00fLY=
+        b=UE95Q3GyIQRwCr4KgjrEj3HYhgcfis2C7wNcJpb1Ay2XTShN6rBX5h4bNNMaJr0l8
+         h9Ac21F9QsH50JzlKRAWGvjmSi8QBX92+RFji26gz7mxXCGogXKtFsnyU/jDS6fzBz
+         o/5GwxODBGGSUUNMdWgJlvQ6Jp51BtfES7rDci3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mingzhe Zou <mingzhe.zou@easystack.cn>,
-        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 490/530] bcache: fix set_at_max_writeback_rate() for multiple attached devices
-Date:   Mon, 24 Oct 2022 13:33:54 +0200
-Message-Id: <20221024113107.233897247@linuxfoundation.org>
+        stable@vger.kernel.org, Dylan Yudaken <dylany@fb.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 494/530] eventfd: guard wake_up in eventfd fs calls as well
+Date:   Mon, 24 Oct 2022 13:33:58 +0200
+Message-Id: <20221024113107.410156953@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,134 +52,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Dylan Yudaken <dylany@fb.com>
 
-[ Upstream commit d2d05b88035d2d51a5bb6c5afec88a0880c73df4 ]
+[ Upstream commit 9f0deaa12d832f488500a5afe9b912e9b3cfc432 ]
 
-Inside set_at_max_writeback_rate() the calculation in following if()
-check is wrong,
-	if (atomic_inc_return(&c->idle_counter) <
-	    atomic_read(&c->attached_dev_nr) * 6)
+Guard wakeups that the user can trigger, and that may end up triggering a
+call back into eventfd_signal. This is in addition to the current approach
+that only guards in eventfd_signal.
 
-Because each attached backing device has its own writeback thread
-running and increasing c->idle_counter, the counter increates much
-faster than expected. The correct calculation should be,
-	(counter / dev_nr) < dev_nr * 6
-which equals to,
-	counter < dev_nr * dev_nr * 6
+Rename in_eventfd_signal -> in_eventfd at the same time to reflect this.
 
-This patch fixes the above mistake with correct calculation, and helper
-routine idle_counter_exceeded() is added to make code be more clear.
+Without this there would be a deadlock in the following code using libaio:
 
-Reported-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
-Signed-off-by: Coly Li <colyli@suse.de>
-Acked-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
-Link: https://lore.kernel.org/r/20220919161647.81238-6-colyli@suse.de
+int main()
+{
+	struct io_context *ctx = NULL;
+	struct iocb iocb;
+	struct iocb *iocbs[] = { &iocb };
+	int evfd;
+        uint64_t val = 1;
+
+	evfd = eventfd(0, EFD_CLOEXEC);
+	assert(!io_setup(2, &ctx));
+	io_prep_poll(&iocb, evfd, POLLIN);
+	io_set_eventfd(&iocb, evfd);
+	assert(1 == io_submit(ctx, 1, iocbs));
+        write(evfd, &val, 8);
+}
+
+Signed-off-by: Dylan Yudaken <dylany@fb.com>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/20220816135959.1490641-1-dylany@fb.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/writeback.c | 73 +++++++++++++++++++++++++----------
- 1 file changed, 52 insertions(+), 21 deletions(-)
+ fs/eventfd.c            | 10 +++++++---
+ include/linux/eventfd.h |  2 +-
+ include/linux/sched.h   |  2 +-
+ 3 files changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
-index 96a07839864b..ee7ad999e924 100644
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -157,6 +157,53 @@ static void __update_writeback_rate(struct cached_dev *dc)
- 	dc->writeback_rate_target = target;
+diff --git a/fs/eventfd.c b/fs/eventfd.c
+index 3627dd7d25db..c0ffee99ad23 100644
+--- a/fs/eventfd.c
++++ b/fs/eventfd.c
+@@ -69,17 +69,17 @@ __u64 eventfd_signal(struct eventfd_ctx *ctx, __u64 n)
+ 	 * it returns false, the eventfd_signal() call should be deferred to a
+ 	 * safe context.
+ 	 */
+-	if (WARN_ON_ONCE(current->in_eventfd_signal))
++	if (WARN_ON_ONCE(current->in_eventfd))
+ 		return 0;
+ 
+ 	spin_lock_irqsave(&ctx->wqh.lock, flags);
+-	current->in_eventfd_signal = 1;
++	current->in_eventfd = 1;
+ 	if (ULLONG_MAX - ctx->count < n)
+ 		n = ULLONG_MAX - ctx->count;
+ 	ctx->count += n;
+ 	if (waitqueue_active(&ctx->wqh))
+ 		wake_up_locked_poll(&ctx->wqh, EPOLLIN);
+-	current->in_eventfd_signal = 0;
++	current->in_eventfd = 0;
+ 	spin_unlock_irqrestore(&ctx->wqh.lock, flags);
+ 
+ 	return n;
+@@ -253,8 +253,10 @@ static ssize_t eventfd_read(struct kiocb *iocb, struct iov_iter *to)
+ 		__set_current_state(TASK_RUNNING);
+ 	}
+ 	eventfd_ctx_do_read(ctx, &ucnt);
++	current->in_eventfd = 1;
+ 	if (waitqueue_active(&ctx->wqh))
+ 		wake_up_locked_poll(&ctx->wqh, EPOLLOUT);
++	current->in_eventfd = 0;
+ 	spin_unlock_irq(&ctx->wqh.lock);
+ 	if (unlikely(copy_to_iter(&ucnt, sizeof(ucnt), to) != sizeof(ucnt)))
+ 		return -EFAULT;
+@@ -301,8 +303,10 @@ static ssize_t eventfd_write(struct file *file, const char __user *buf, size_t c
+ 	}
+ 	if (likely(res > 0)) {
+ 		ctx->count += ucnt;
++		current->in_eventfd = 1;
+ 		if (waitqueue_active(&ctx->wqh))
+ 			wake_up_locked_poll(&ctx->wqh, EPOLLIN);
++		current->in_eventfd = 0;
+ 	}
+ 	spin_unlock_irq(&ctx->wqh.lock);
+ 
+diff --git a/include/linux/eventfd.h b/include/linux/eventfd.h
+index 305d5f19093b..30eb30d6909b 100644
+--- a/include/linux/eventfd.h
++++ b/include/linux/eventfd.h
+@@ -46,7 +46,7 @@ void eventfd_ctx_do_read(struct eventfd_ctx *ctx, __u64 *cnt);
+ 
+ static inline bool eventfd_signal_allowed(void)
+ {
+-	return !current->in_eventfd_signal;
++	return !current->in_eventfd;
  }
  
-+static bool idle_counter_exceeded(struct cache_set *c)
-+{
-+	int counter, dev_nr;
-+
-+	/*
-+	 * If c->idle_counter is overflow (idel for really long time),
-+	 * reset as 0 and not set maximum rate this time for code
-+	 * simplicity.
-+	 */
-+	counter = atomic_inc_return(&c->idle_counter);
-+	if (counter <= 0) {
-+		atomic_set(&c->idle_counter, 0);
-+		return false;
-+	}
-+
-+	dev_nr = atomic_read(&c->attached_dev_nr);
-+	if (dev_nr == 0)
-+		return false;
-+
-+	/*
-+	 * c->idle_counter is increased by writeback thread of all
-+	 * attached backing devices, in order to represent a rough
-+	 * time period, counter should be divided by dev_nr.
-+	 * Otherwise the idle time cannot be larger with more backing
-+	 * device attached.
-+	 * The following calculation equals to checking
-+	 *	(counter / dev_nr) < (dev_nr * 6)
-+	 */
-+	if (counter < (dev_nr * dev_nr * 6))
-+		return false;
-+
-+	return true;
-+}
-+
-+/*
-+ * Idle_counter is increased every time when update_writeback_rate() is
-+ * called. If all backing devices attached to the same cache set have
-+ * identical dc->writeback_rate_update_seconds values, it is about 6
-+ * rounds of update_writeback_rate() on each backing device before
-+ * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
-+ * to each dc->writeback_rate.rate.
-+ * In order to avoid extra locking cost for counting exact dirty cached
-+ * devices number, c->attached_dev_nr is used to calculate the idle
-+ * throushold. It might be bigger if not all cached device are in write-
-+ * back mode, but it still works well with limited extra rounds of
-+ * update_writeback_rate().
-+ */
- static bool set_at_max_writeback_rate(struct cache_set *c,
- 				       struct cached_dev *dc)
- {
-@@ -167,21 +214,8 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
- 	/* Don't set max writeback rate if gc is running */
- 	if (!c->gc_mark_valid)
- 		return false;
--	/*
--	 * Idle_counter is increased everytime when update_writeback_rate() is
--	 * called. If all backing devices attached to the same cache set have
--	 * identical dc->writeback_rate_update_seconds values, it is about 6
--	 * rounds of update_writeback_rate() on each backing device before
--	 * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
--	 * to each dc->writeback_rate.rate.
--	 * In order to avoid extra locking cost for counting exact dirty cached
--	 * devices number, c->attached_dev_nr is used to calculate the idle
--	 * throushold. It might be bigger if not all cached device are in write-
--	 * back mode, but it still works well with limited extra rounds of
--	 * update_writeback_rate().
--	 */
--	if (atomic_inc_return(&c->idle_counter) <
--	    atomic_read(&c->attached_dev_nr) * 6)
-+
-+	if (!idle_counter_exceeded(c))
- 		return false;
+ #else /* CONFIG_EVENTFD */
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index dcba347cbffa..e418935f8db6 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -933,7 +933,7 @@ struct task_struct {
+ #endif
+ #ifdef CONFIG_EVENTFD
+ 	/* Recursion prevention for eventfd_signal() */
+-	unsigned			in_eventfd_signal:1;
++	unsigned			in_eventfd:1;
+ #endif
  
- 	if (atomic_read(&c->at_max_writeback_rate) != 1)
-@@ -195,13 +229,10 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
- 	dc->writeback_rate_change = 0;
- 
- 	/*
--	 * Check c->idle_counter and c->at_max_writeback_rate agagain in case
--	 * new I/O arrives during before set_at_max_writeback_rate() returns.
--	 * Then the writeback rate is set to 1, and its new value should be
--	 * decided via __update_writeback_rate().
-+	 * In case new I/O arrives during before
-+	 * set_at_max_writeback_rate() returns.
- 	 */
--	if ((atomic_read(&c->idle_counter) <
--	     atomic_read(&c->attached_dev_nr) * 6) ||
-+	if (!idle_counter_exceeded(c) ||
- 	    !atomic_read(&c->at_max_writeback_rate))
- 		return false;
- 
+ 	unsigned long			atomic_flags; /* Flags requiring atomic access. */
 -- 
 2.35.1
 
