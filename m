@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A643C60B066
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C7E860B241
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:44:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233014AbiJXQF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:05:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38632 "EHLO
+        id S234434AbiJXQoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:44:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233227AbiJXQEW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21EDFA6C1E;
-        Mon, 24 Oct 2022 07:56:33 -0700 (PDT)
+        with ESMTP id S234846AbiJXQn6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:43:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57B1D7CA89;
+        Mon, 24 Oct 2022 08:30:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 601D4B815BB;
-        Mon, 24 Oct 2022 12:26:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B64B5C433C1;
-        Mon, 24 Oct 2022 12:26:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8588B815C6;
+        Mon, 24 Oct 2022 12:10:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2958EC433D6;
+        Mon, 24 Oct 2022 12:10:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614366;
-        bh=C9siqbLD2F5XDOB1ZhiQzMJY91MtUGHqYucspe1q/+I=;
+        s=korg; t=1666613445;
+        bh=Tk2fsYBZfN8OwxsAmt0/Cuy5y7W6WHDkl/a0c6JLf78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xJVWRb9HkEiN9GTnFli6xl19LX4GXmbdwV8IYTBYYowPwWiVKZLR37Z7+ib5+0T0o
-         rp/Ye1PC2I1oz+eC2ombIoi5qQAQNE3E330cIyQHrfPHDfuInZed65ws1Ibajt6L5U
-         cUGCgKfZ+VtgMdrY+5EUhqEujF9Hy0RMz++MapOA=
+        b=QWO6bgvUHu2jkoT07pG5b6h7VXbNcChEzUcFklV2jD+F0x/l01bzkUKDRAvNLC1w+
+         R7daCv4rehkK0PxpaLL/YyjX6lGBWkkmwIgNfu6uPo5AOtEzZEvlso3mf1N+iJ3zeA
+         ZxWrMFUX8ZLh6nlmcsR2HLjwEFNh8R40N9xZk8EA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Albert Briscoe <albertsbriscoe@gmail.com>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 234/390] usb: gadget: function: fix dangling pnp_string in f_printer.c
-Date:   Mon, 24 Oct 2022 13:30:31 +0200
-Message-Id: <20221024113032.754593015@linuxfoundation.org>
+Subject: [PATCH 5.4 122/255] iio: ABI: Fix wrong format of differential capacitance channel ABI.
+Date:   Mon, 24 Oct 2022 13:30:32 +0200
+Message-Id: <20221024113006.603673582@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,74 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Albert Briscoe <albertsbriscoe@gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 24b7ba2f88e04800b54d462f376512e8c41b8a3c ]
+[ Upstream commit 1efc41035f1841acf0af2bab153158e27ce94f10 ]
 
-When opts->pnp_string is changed with configfs, new memory is allocated for
-the string. It does not, however, update dev->pnp_string, even though the
-memory is freed. When rquesting the string, the host then gets old or
-corrupted data rather than the new string. The ieee 1284 id string should
-be allowed to change while the device is connected.
+in_ only occurs once in these attributes.
 
-The bug was introduced in commit fdc01cc286be ("usb: gadget: printer:
-Remove pnp_string static buffer"), which changed opts->pnp_string from a
-char[] to a char*.
-This patch changes dev->pnp_string from a char* to a char** pointing to
-opts->pnp_string.
-
-Fixes: fdc01cc286be ("usb: gadget: printer: Remove pnp_string static buffer")
-Signed-off-by: Albert Briscoe <albertsbriscoe@gmail.com>
-Link: https://lore.kernel.org/r/20220911223753.20417-1-albertsbriscoe@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0baf29d658c7 ("staging:iio:documentation Add abi docs for capacitance adcs.")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220626122938.582107-3-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_printer.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ Documentation/ABI/testing/sysfs-bus-iio | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_printer.c b/drivers/usb/gadget/function/f_printer.c
-index 236ecc968998..c13bb29a160e 100644
---- a/drivers/usb/gadget/function/f_printer.c
-+++ b/drivers/usb/gadget/function/f_printer.c
-@@ -87,7 +87,7 @@ struct printer_dev {
- 	u8			printer_cdev_open;
- 	wait_queue_head_t	wait;
- 	unsigned		q_len;
--	char			*pnp_string;	/* We don't own memory! */
-+	char			**pnp_string;	/* We don't own memory! */
- 	struct usb_function	function;
- };
+diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
+index c3767d4d01a6..4d873e813949 100644
+--- a/Documentation/ABI/testing/sysfs-bus-iio
++++ b/Documentation/ABI/testing/sysfs-bus-iio
+@@ -138,7 +138,7 @@ Description:
+ 		Raw capacitance measurement from channel Y. Units after
+ 		application of scale and offset are nanofarads.
  
-@@ -999,16 +999,16 @@ static int printer_func_setup(struct usb_function *f,
- 			if ((wIndex>>8) != dev->interface)
- 				break;
- 
--			if (!dev->pnp_string) {
-+			if (!*dev->pnp_string) {
- 				value = 0;
- 				break;
- 			}
--			value = strlen(dev->pnp_string);
-+			value = strlen(*dev->pnp_string);
- 			buf[0] = (value >> 8) & 0xFF;
- 			buf[1] = value & 0xFF;
--			memcpy(buf + 2, dev->pnp_string, value);
-+			memcpy(buf + 2, *dev->pnp_string, value);
- 			DBG(dev, "1284 PNP String: %x %s\n", value,
--			    dev->pnp_string);
-+			    *dev->pnp_string);
- 			break;
- 
- 		case GET_PORT_STATUS: /* Get Port Status */
-@@ -1471,7 +1471,7 @@ static struct usb_function *gprinter_alloc(struct usb_function_instance *fi)
- 	kref_init(&dev->kref);
- 	++opts->refcnt;
- 	dev->minor = opts->minor;
--	dev->pnp_string = opts->pnp_string;
-+	dev->pnp_string = &opts->pnp_string;
- 	dev->q_len = opts->q_len;
- 	mutex_unlock(&opts->lock);
- 
+-What:		/sys/.../iio:deviceX/in_capacitanceY-in_capacitanceZ_raw
++What:		/sys/.../iio:deviceX/in_capacitanceY-capacitanceZ_raw
+ KernelVersion:	3.2
+ Contact:	linux-iio@vger.kernel.org
+ Description:
 -- 
 2.35.1
 
