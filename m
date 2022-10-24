@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C31E60A8B9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51A8060A6DB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:41:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235388AbiJXNKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:10:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36912 "EHLO
+        id S231147AbiJXMkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:40:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235931AbiJXNKN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:10:13 -0400
+        with ESMTP id S234205AbiJXMjP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:39:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92A8A223E;
-        Mon, 24 Oct 2022 05:23:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9AE38A1F2;
+        Mon, 24 Oct 2022 05:06:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2A4D612CE;
-        Mon, 24 Oct 2022 11:56:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1BA1C433B5;
-        Mon, 24 Oct 2022 11:56:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0420361252;
+        Mon, 24 Oct 2022 12:06:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17A98C433C1;
+        Mon, 24 Oct 2022 12:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612582;
-        bh=FfZJQ7cgeQy24SFeoZdkQ03d0JuMApp87TbnvR3NJuY=;
+        s=korg; t=1666613211;
+        bh=mnZrPTVXa7PbvUf39H6Md7ZmnvlQMMndqMjFvHUqwe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oiMB7LtUniRe63rJNt2aBAp6EwTS5Q4g2PDmG55rrhTTMePxUhUGEve+Fsjowtb0v
-         S+Rg76UJOyQz6vr5kKzW+0yT8Z23ES80YRuLo4QA8dHbs8Zg6gWsfO9ueWn7bSmGY2
-         bJgpJlWZu2LeP5oZQGBllF/hnNF8FMdjfSC2snxE=
+        b=UEqYTW2hXHfSdPBtAq8lUcYRKfBRa/1RDyqrVVy+w+aF/Z8x+k2TW3MFTv6kfz3SV
+         jpDydDkwNtDnAMRWGZxn8kzWkNxylwVL1t33I2v7ESSU55lrdVsiw5ZQQgpnJJHxzW
+         Ocvjwc/SBg4YcZiQna60SCKUN/QGpOvgE+EAeZ3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 041/229] can: kvaser_usb_leaf: Fix overread with an invalid command
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Jiazi.Li" <jiazi.li@transsion.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 050/255] ring-buffer: Fix race between reset page and reading page
 Date:   Mon, 24 Oct 2022 13:29:20 +0200
-Message-Id: <20221024113000.423621759@linuxfoundation.org>
+Message-Id: <20221024113004.095004506@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,143 +54,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 1499ecaea9d2ba68d5e18d80573b4561a8dc4ee7 upstream.
+commit a0fcaaed0c46cf9399d3a2d6e0c87ddb3df0e044 upstream.
 
-For command events read from the device,
-kvaser_usb_leaf_read_bulk_callback() verifies that cmd->len does not
-exceed the size of the received data, but the actual kvaser_cmd handlers
-will happily read any kvaser_cmd fields without checking for cmd->len.
+The ring buffer is broken up into sub buffers (currently of page size).
+Each sub buffer has a pointer to its "tail" (the last event written to the
+sub buffer). When a new event is requested, the tail is locally
+incremented to cover the size of the new event. This is done in a way that
+there is no need for locking.
 
-This can cause an overread if the last cmd in the buffer is shorter than
-expected for the command type (with cmd->len showing the actual short
-size).
+If the tail goes past the end of the sub buffer, the process of moving to
+the next sub buffer takes place. After setting the current sub buffer to
+the next one, the previous one that had the tail go passed the end of the
+sub buffer needs to be reset back to the original tail location (before
+the new event was requested) and the rest of the sub buffer needs to be
+"padded".
 
-Maximum overread seems to be 22 bytes (CMD_LEAF_LOG_MESSAGE), some of
-which are delivered to userspace as-is.
+The race happens when a reader takes control of the sub buffer. As readers
+do a "swap" of sub buffers from the ring buffer to get exclusive access to
+the sub buffer, it replaces the "head" sub buffer with an empty sub buffer
+that goes back into the writable portion of the ring buffer. This swap can
+happen as soon as the writer moves to the next sub buffer and before it
+updates the last sub buffer with padding.
 
-Fix that by verifying the length of command before handling it.
+Because the sub buffer can be released to the reader while the writer is
+still updating the padding, it is possible for the reader to see the event
+that goes past the end of the sub buffer. This can cause obvious issues.
 
-This issue can only occur after RX URBs have been set up, i.e. the
-interface has been opened at least once.
+To fix this, add a few memory barriers so that the reader definitely sees
+the updates to the sub buffer, and also waits until the writer has put
+back the "tail" of the sub buffer back to the last event that was written
+on it.
 
+To be paranoid, it will only spin for 1 second, otherwise it will
+warn and shutdown the ring buffer code. 1 second should be enough as
+the writer does have preemption disabled. If the writer doesn't move
+within 1 second (with preemption disabled) something is horribly
+wrong. No interrupt should last 1 second!
+
+Link: https://lore.kernel.org/all/20220830120854.7545-1-jiazi.li@transsion.com/
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216369
+Link: https://lkml.kernel.org/r/20220929104909.0650a36c@gandalf.local.home
+
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: stable@vger.kernel.org
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Tested-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010150829.199676-2-extja@kvaser.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: c7b0930857e22 ("ring-buffer: prevent adding write in discarded area")
+Reported-by: Jiazi.Li <jiazi.li@transsion.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c |   75 +++++++++++++++++++++++
- 1 file changed, 75 insertions(+)
+ kernel/trace/ring_buffer.c |   33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -309,6 +309,38 @@ struct kvaser_cmd {
- 	} u;
- } __packed;
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -2191,6 +2191,9 @@ rb_reset_tail(struct ring_buffer_per_cpu
+ 		/* Mark the rest of the page with padding */
+ 		rb_event_set_padding(event);
  
-+#define CMD_SIZE_ANY 0xff
-+#define kvaser_fsize(field) sizeof_field(struct kvaser_cmd, field)
++		/* Make sure the padding is visible before the write update */
++		smp_wmb();
 +
-+static const u8 kvaser_usb_leaf_cmd_sizes_leaf[] = {
-+	[CMD_START_CHIP_REPLY]		= kvaser_fsize(u.simple),
-+	[CMD_STOP_CHIP_REPLY]		= kvaser_fsize(u.simple),
-+	[CMD_GET_CARD_INFO_REPLY]	= kvaser_fsize(u.cardinfo),
-+	[CMD_TX_ACKNOWLEDGE]		= kvaser_fsize(u.tx_acknowledge_header),
-+	[CMD_GET_SOFTWARE_INFO_REPLY]	= kvaser_fsize(u.leaf.softinfo),
-+	[CMD_RX_STD_MESSAGE]		= kvaser_fsize(u.leaf.rx_can),
-+	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.leaf.rx_can),
-+	[CMD_LEAF_LOG_MESSAGE]		= kvaser_fsize(u.leaf.log_message),
-+	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.leaf.chip_state_event),
-+	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.error_event),
-+	/* ignored events: */
-+	[CMD_FLUSH_QUEUE_REPLY]		= CMD_SIZE_ANY,
-+};
-+
-+static const u8 kvaser_usb_leaf_cmd_sizes_usbcan[] = {
-+	[CMD_START_CHIP_REPLY]		= kvaser_fsize(u.simple),
-+	[CMD_STOP_CHIP_REPLY]		= kvaser_fsize(u.simple),
-+	[CMD_GET_CARD_INFO_REPLY]	= kvaser_fsize(u.cardinfo),
-+	[CMD_TX_ACKNOWLEDGE]		= kvaser_fsize(u.tx_acknowledge_header),
-+	[CMD_GET_SOFTWARE_INFO_REPLY]	= kvaser_fsize(u.usbcan.softinfo),
-+	[CMD_RX_STD_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
-+	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
-+	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.usbcan.chip_state_event),
-+	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.usbcan.error_event),
-+	/* ignored events: */
-+	[CMD_USBCAN_CLOCK_OVERFLOW_EVENT] = CMD_SIZE_ANY,
-+};
-+
- /* Summary of a kvaser error event, for a unified Leaf/Usbcan error
-  * handling. Some discrepancies between the two families exist:
-  *
-@@ -396,6 +428,43 @@ static const struct kvaser_usb_dev_cfg k
- 	.bittiming_const = &kvaser_usb_flexc_bittiming_const,
- };
+ 		/* Set the write back to the previous setting */
+ 		local_sub(length, &tail_page->write);
+ 		return;
+@@ -2202,6 +2205,9 @@ rb_reset_tail(struct ring_buffer_per_cpu
+ 	/* time delta must be non zero */
+ 	event->time_delta = 1;
  
-+static int kvaser_usb_leaf_verify_size(const struct kvaser_usb *dev,
-+				       const struct kvaser_cmd *cmd)
-+{
-+	/* buffer size >= cmd->len ensured by caller */
-+	u8 min_size = 0;
++	/* Make sure the padding is visible before the tail_page->write update */
++	smp_wmb();
 +
-+	switch (dev->driver_info->family) {
-+	case KVASER_LEAF:
-+		if (cmd->id < ARRAY_SIZE(kvaser_usb_leaf_cmd_sizes_leaf))
-+			min_size = kvaser_usb_leaf_cmd_sizes_leaf[cmd->id];
-+		break;
-+	case KVASER_USBCAN:
-+		if (cmd->id < ARRAY_SIZE(kvaser_usb_leaf_cmd_sizes_usbcan))
-+			min_size = kvaser_usb_leaf_cmd_sizes_usbcan[cmd->id];
-+		break;
+ 	/* Set write to end of buffer */
+ 	length = (tail + length) - BUF_PAGE_SIZE;
+ 	local_sub(length, &tail_page->write);
+@@ -3864,6 +3870,33 @@ rb_get_reader_page(struct ring_buffer_pe
+ 	arch_spin_unlock(&cpu_buffer->lock);
+ 	local_irq_restore(flags);
+ 
++	/*
++	 * The writer has preempt disable, wait for it. But not forever
++	 * Although, 1 second is pretty much "forever"
++	 */
++#define USECS_WAIT	1000000
++        for (nr_loops = 0; nr_loops < USECS_WAIT; nr_loops++) {
++		/* If the write is past the end of page, a writer is still updating it */
++		if (likely(!reader || rb_page_write(reader) <= BUF_PAGE_SIZE))
++			break;
++
++		udelay(1);
++
++		/* Get the latest version of the reader write value */
++		smp_rmb();
 +	}
 +
-+	if (min_size == CMD_SIZE_ANY)
-+		return 0;
++	/* The writer is not moving forward? Something is wrong */
++	if (RB_WARN_ON(cpu_buffer, nr_loops == USECS_WAIT))
++		reader = NULL;
 +
-+	if (min_size) {
-+		min_size += CMD_HEADER_LEN;
-+		if (cmd->len >= min_size)
-+			return 0;
++	/*
++	 * Make sure we see any padding after the write update
++	 * (see rb_reset_tail())
++	 */
++	smp_rmb();
 +
-+		dev_err_ratelimited(&dev->intf->dev,
-+				    "Received command %u too short (size %u, needed %u)",
-+				    cmd->id, cmd->len, min_size);
-+		return -EIO;
-+	}
 +
-+	dev_warn_ratelimited(&dev->intf->dev,
-+			     "Unhandled command (%d, size %d)\n",
-+			     cmd->id, cmd->len);
-+	return -EINVAL;
-+}
-+
- static void *
- kvaser_usb_leaf_frame_to_cmd(const struct kvaser_usb_net_priv *priv,
- 			     const struct sk_buff *skb, int *frame_len,
-@@ -503,6 +572,9 @@ static int kvaser_usb_leaf_wait_cmd(cons
- end:
- 	kfree(buf);
- 
-+	if (err == 0)
-+		err = kvaser_usb_leaf_verify_size(dev, cmd);
-+
- 	return err;
+ 	return reader;
  }
  
-@@ -1137,6 +1209,9 @@ static void kvaser_usb_leaf_stop_chip_re
- static void kvaser_usb_leaf_handle_command(const struct kvaser_usb *dev,
- 					   const struct kvaser_cmd *cmd)
- {
-+	if (kvaser_usb_leaf_verify_size(dev, cmd) < 0)
-+		return;
-+
- 	switch (cmd->id) {
- 	case CMD_START_CHIP_REPLY:
- 		kvaser_usb_leaf_start_chip_reply(dev, cmd);
 
 
