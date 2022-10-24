@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE17060A72C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 683D960A485
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:11:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234224AbiJXMsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:48:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58762 "EHLO
+        id S232913AbiJXMLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:11:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234713AbiJXMpd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:33 -0400
+        with ESMTP id S232827AbiJXMLR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:11:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E3520BE1;
-        Mon, 24 Oct 2022 05:09:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 053C2356CF;
+        Mon, 24 Oct 2022 04:53:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 062C261254;
-        Mon, 24 Oct 2022 12:09:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17F1BC433D6;
-        Mon, 24 Oct 2022 12:09:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C3A26126B;
+        Mon, 24 Oct 2022 11:41:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23222C433D6;
+        Mon, 24 Oct 2022 11:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613361;
-        bh=2Vjaw+jnNPYG7C987hDFRmh/ww6z2y9ybP/IXCozQTs=;
+        s=korg; t=1666611660;
+        bh=DGqJfFMgG4TmWzz5+DVYmlWy4iPs6CceCKlcZx+zjH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jOjUGyq0IzlmWu9kmm6mkur/pupHbEG0AB5gO9F3p8RqSfS+v4KT/QoWIRW3zRb+N
-         BCsE0mlQo/w/5KpAdEoFgQHEDOMALt7tcyYaFuLlNJWS+SnnkBQxQHTgk2SHj7nAmE
-         CEF+2ncMsbdDvHQpzu68uODC8ExOa8XzgER+SIzc=
+        b=mjqP74QWXeQ7HQQrrYjVZlGIKufqgePio8NWllMPn6f791M8k/KnodrKKNW26s5Mu
+         7Mzg5aWa24I4G1wN4S30p21NxDNgPymC75hAI7QoVNYOx6zFoRsGcrrKarkYeA+x6D
+         8Lu/wkusFwn6xSGgQhPyjNx4nyYAEEMJRhaERPcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brent Lu <brent.lu@intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 107/255] ALSA: hda/hdmi: Dont skip notification handling during PM operation
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+Subject: [PATCH 4.9 063/159] selinux: use "grep -E" instead of "egrep"
 Date:   Mon, 24 Oct 2022 13:30:17 +0200
-Message-Id: <20221024113006.021031087@linuxfoundation.org>
+Message-Id: <20221024112951.764643056@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,63 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 5226c7b9784eee215e3914f440b3c2e1764f67a8 ]
+commit c969bb8dbaf2f3628927eae73e7c579a74cf1b6e upstream.
 
-The HDMI driver skips the notification handling from the graphics
-driver when the codec driver is being in the PM operation.  This
-behavior was introduced by the commit eb399d3c99d8 ("ALSA: hda - Skip
-ELD notification during PM process").  This skip may cause a problem,
-as we may miss the ELD update when the connection/disconnection
-happens right at the runtime-PM operation of the audio codec.
+The latest version of grep claims that egrep is now obsolete so the build
+now contains warnings that look like:
+	egrep: warning: egrep is obsolescent; using grep -E
+fix this by using "grep -E" instead.
 
-Although this workaround was valid at that time, it's no longer true;
-the fix was required just because the ELD update procedure needed to
-wake up the audio codec, which had lead to a runtime-resume during a
-runtime-suspend.  Meanwhile, the ELD update procedure doesn't need a
-codec wake up any longer since the commit 788d441a164c ("ALSA: hda -
-Use component ops for i915 HDMI/DP audio jack handling"); i.e. there
-is no much reason for skipping the notification.
-
-Let's drop those checks for addressing the missing notification.
-
-Fixes: 788d441a164c ("ALSA: hda - Use component ops for i915 HDMI/DP audio jack handling")
-Reported-by: Brent Lu <brent.lu@intel.com>
-Link: https://lore.kernel.org/r/20220927135807.4097052-1-brent.lu@intel.com
-Link: https://lore.kernel.org/r/20221001074809.7461-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Eric Paris <eparis@parisplace.org>
+Cc: selinux@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[PM: tweak to remove vdso reference, cleanup subj line]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_hdmi.c | 6 ------
- 1 file changed, 6 deletions(-)
+ scripts/selinux/install_policy.sh |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 169e74299987..091a7fe85451 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2570,9 +2570,6 @@ static void generic_acomp_pin_eld_notify(void *audio_ptr, int port, int dev_id)
- 	 */
- 	if (codec->core.dev.power.power_state.event == PM_EVENT_SUSPEND)
- 		return;
--	/* ditto during suspend/resume process itself */
--	if (snd_hdac_is_in_pm(&codec->core))
--		return;
+--- a/scripts/selinux/install_policy.sh
++++ b/scripts/selinux/install_policy.sh
+@@ -56,7 +56,7 @@ fi
+ cd /etc/selinux/dummy/contexts/files
+ $SF file_contexts /
  
- 	check_presence_and_report(codec, pin_nid, dev_id);
- }
-@@ -2775,9 +2772,6 @@ static void intel_pin_eld_notify(void *audio_ptr, int port, int pipe)
- 	 */
- 	if (codec->core.dev.power.power_state.event == PM_EVENT_SUSPEND)
- 		return;
--	/* ditto during suspend/resume process itself */
--	if (snd_hdac_is_in_pm(&codec->core))
--		return;
+-mounts=`cat /proc/$$/mounts | egrep "ext2|ext3|xfs|jfs|ext4|ext4dev|gfs2" | awk '{ print $2 '}`
++mounts=`cat /proc/$$/mounts | grep -E "ext2|ext3|xfs|jfs|ext4|ext4dev|gfs2" | awk '{ print $2 '}`
+ $SF file_contexts $mounts
  
- 	snd_hdac_i915_set_bclk(&codec->bus->core);
- 	check_presence_and_report(codec, pin_nid, dev_id);
--- 
-2.35.1
-
+ 
 
 
