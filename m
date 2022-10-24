@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE70860A539
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96C1C60A573
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233121AbiJXMWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:22:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42890 "EHLO
+        id S233387AbiJXMYr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:24:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233098AbiJXMUD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:20:03 -0400
+        with ESMTP id S233238AbiJXMXf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:23:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7914183223;
-        Mon, 24 Oct 2022 04:58:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE4E413CCC;
+        Mon, 24 Oct 2022 04:59:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3292C612BF;
-        Mon, 24 Oct 2022 11:50:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D8CEC433B5;
-        Mon, 24 Oct 2022 11:50:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE5EB6129E;
+        Mon, 24 Oct 2022 11:59:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09C8EC433D6;
+        Mon, 24 Oct 2022 11:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612210;
-        bh=7mkua9TtQY1bbz8Pik2tYh3kVXMe/0nuNR7b/SAw73I=;
+        s=korg; t=1666612764;
+        bh=E6nMjH9elQkFPPehNJVGitkxW67b30EoBEbRIBxoJYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+rblkMD6kNZ2pXCylZ3C/eCTYB0K5ew7KxALelTiqRkFKhkCTsXySPqahR4Aw0g2
-         u03AEz5GzkGt+4ALtO8tec/eyJnBgsyyA9So2vsOO/oUu6wY1B0Ui7BcMh5Kd89AQs
-         y0OtNqcuE8+qdwfi8R+4jdRsxT6y9wWTMW3FNP0g=
+        b=UgulYvEc533CIu836IRc5LjGl4+pjTti3XUF44cfnGQTHOGC+kzGB3NqwN1lM1adn
+         mdCAagw4ONQ/xNy6K/Uit/JdxLknDttgO+JAUhisbZWNThsI95fHaN5bOxQjU9tlxL
+         tWKgbhIdctBU3qqP0AcCDR7Oe5RlfIoj3jyY8XP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 112/210] ARM: Drop CMDLINE_* dependency on ATAGS
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 110/229] soc: qcom: smem_state: Add refcounting for the state->of_node
 Date:   Mon, 24 Oct 2022 13:30:29 +0200
-Message-Id: <20221024113000.635406550@linuxfoundation.org>
+Message-Id: <20221024113002.566943406@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 136f4b1ec7c962ee37a787e095fd37b058d72bd3 ]
+[ Upstream commit 90681f53b9381c23ff7762a3b13826d620c272de ]
 
-On arm32, the configuration options to specify the kernel command line
-type depend on ATAGS.  However, the actual CMDLINE cofiguration option
-does not depend on ATAGS, and the code that handles this is not specific
-to ATAGS (see drivers/of/fdt.c:early_init_dt_scan_chosen()).
+In qcom_smem_state_register() and qcom_smem_state_release(), we
+should better use of_node_get() and of_node_put() for the reference
+creation and destruction of 'device_node'.
 
-Hence users who desire to override the kernel command line on arm32 must
-enable support for ATAGS, even on a pure-DT system.  Other architectures
-(arm64, loongarch, microblaze, nios2, powerpc, and riscv) do not impose
-such a restriction.
-
-Hence drop the dependency on ATAGS.
-
-Fixes: bd51e2f595580fb6 ("ARM: 7506/1: allow for ATAGS to be configured out when DT support is selected")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 9460ae2ff308 ("soc: qcom: Introduce common SMEM state machine code")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220721135217.1301039-2-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/soc/qcom/smem_state.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 3793642e0223..6fe7085cf7bd 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -1951,7 +1951,6 @@ config CMDLINE
- choice
- 	prompt "Kernel command line type" if CMDLINE != ""
- 	default CMDLINE_FROM_BOOTLOADER
--	depends on ATAGS
+diff --git a/drivers/soc/qcom/smem_state.c b/drivers/soc/qcom/smem_state.c
+index d5437ca76ed9..1502cf037a6b 100644
+--- a/drivers/soc/qcom/smem_state.c
++++ b/drivers/soc/qcom/smem_state.c
+@@ -144,6 +144,7 @@ static void qcom_smem_state_release(struct kref *ref)
+ 	struct qcom_smem_state *state = container_of(ref, struct qcom_smem_state, refcount);
  
- config CMDLINE_FROM_BOOTLOADER
- 	bool "Use bootloader kernel arguments if available"
+ 	list_del(&state->list);
++	of_node_put(state->of_node);
+ 	kfree(state);
+ }
+ 
+@@ -177,7 +178,7 @@ struct qcom_smem_state *qcom_smem_state_register(struct device_node *of_node,
+ 
+ 	kref_init(&state->refcount);
+ 
+-	state->of_node = of_node;
++	state->of_node = of_node_get(of_node);
+ 	state->ops = *ops;
+ 	state->priv = priv;
+ 
 -- 
 2.35.1
 
