@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B94A60AD00
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D160460ACE4
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234546AbiJXORQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:17:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36584 "EHLO
+        id S234054AbiJXOQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:16:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235982AbiJXOPK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:15:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFB992A95F;
-        Mon, 24 Oct 2022 05:55:01 -0700 (PDT)
+        with ESMTP id S236202AbiJXOPN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:15:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 063382126E;
+        Mon, 24 Oct 2022 05:55:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BC0961311;
-        Mon, 24 Oct 2022 12:53:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D7B2C433C1;
-        Mon, 24 Oct 2022 12:53:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FD1561281;
+        Mon, 24 Oct 2022 12:54:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 517E9C433D7;
+        Mon, 24 Oct 2022 12:54:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616025;
-        bh=7FXfU3fxAOkwYQHvDuPlODgyMhi5tjDD9JNi8SuERLQ=;
+        s=korg; t=1666616040;
+        bh=C7El9trPxMiStklp7uiGfwL+maeAvCDhRvisZCZ/KXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SeFphH2nEpmohTd6z8sgXNyn4dmye9Z6kycsGb2VO+CsazxfPHulrJ9PCUHDyv3qS
-         eSTrRS80R9kJRUNeW1DmsqnjMHBhcP/byw0U5iX5zZy2acervUWaC1alyzMePn1tfb
-         A7ojUCFn8NPCR4u1raZ1rdx6evSou4i/4Ra6CqqQ=
+        b=XwoHLlahBVsQzEUlz1G7WMUe1QgdDLYvEf5NMnNSwWbjeAYWWKF+8vi5eqnTjZn9K
+         +m/c1NNHCR60hXVXeh6My+XbQVgHzvfok3y5yqlR5Qbtm6GCI2Lp5mQW3o7i9Up4KX
+         pIESnYeg04SE1ItX0asmpodZdBf3pCoBl6IeBmDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        Quanyang Wang <quanyang.wang@windriver.com>,
+        Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 473/530] btrfs: scrub: try to fix super block errors
-Date:   Mon, 24 Oct 2022 13:33:37 +0200
-Message-Id: <20221024113106.453117596@linuxfoundation.org>
+Subject: [PATCH 5.15 479/530] clk: zynqmp: pll: rectify rate rounding in zynqmp_pll_round_rate
+Date:   Mon, 24 Oct 2022 13:33:43 +0200
+Message-Id: <20221024113106.737538083@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,145 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Quanyang Wang <quanyang.wang@windriver.com>
 
-[ Upstream commit f9eab5f0bba76742af654f33d517bf62a0db8f12 ]
+[ Upstream commit 30eaf02149ecc3c5815e45d27187bf09e925071d ]
 
-[BUG]
-The following script shows that, although scrub can detect super block
-errors, it never tries to fix it:
+The function zynqmp_pll_round_rate is used to find a most appropriate
+PLL frequency which the hardware can generate according to the desired
+frequency. For example, if the desired frequency is 297MHz, considering
+the limited range from PS_PLL_VCO_MIN (1.5GHz) to PS_PLL_VCO_MAX (3.0GHz)
+of PLL, zynqmp_pll_round_rate should return 1.872GHz (297MHz * 5).
 
-	mkfs.btrfs -f -d raid1 -m raid1 $dev1 $dev2
-	xfs_io -c "pwrite 67108864 4k" $dev2
+There are two problems with the current code of zynqmp_pll_round_rate:
 
-	mount $dev1 $mnt
-	btrfs scrub start -B $dev2
-	btrfs scrub start -Br $dev2
-	umount $mnt
+1) When the rate is below PS_PLL_VCO_MIN, it can't find a correct rate
+when the parameter "rate" is an integer multiple of *prate, in other words,
+if "f" is zero, zynqmp_pll_round_rate won't return a valid frequency which
+is from PS_PLL_VCO_MIN to PS_PLL_VCO_MAX. For example, *prate is 33MHz
+and the rate is 660MHz, zynqmp_pll_round_rate will not boost up rate and
+just return 660MHz, and this will cause clk_calc_new_rates failure since
+zynqmp_pll_round_rate returns an invalid rate out of its boundaries.
 
-The first scrub reports the super error correctly:
+2) Even if the rate is higher than PS_PLL_VCO_MIN, there is still a risk
+that zynqmp_pll_round_rate returns an invalid rate because the function
+DIV_ROUND_CLOSEST makes some loss in the fractional part. If the parent
+clock *prate is 33333333Hz and we want to set the PLL rate to 1.5GHz,
+this function will return 1499999985Hz by using the formula below:
+    value = *prate * DIV_ROUND_CLOSEST(rate, *prate)).
+This value is also invalid since it's slightly smaller than PS_PLL_VCO_MIN.
+because DIV_ROUND_CLOSEST makes some loss in the fractional part.
 
-  scrub done for f3289218-abd3-41ac-a630-202f766c0859
-  Scrub started:    Tue Aug  2 14:44:11 2022
-  Status:           finished
-  Duration:         0:00:00
-  Total to scrub:   1.26GiB
-  Rate:             0.00B/s
-  Error summary:    super=1
-    Corrected:      0
-    Uncorrectable:  0
-    Unverified:     0
-
-But the second read-only scrub still reports the same super error:
-
-  Scrub started:    Tue Aug  2 14:44:11 2022
-  Status:           finished
-  Duration:         0:00:00
-  Total to scrub:   1.26GiB
-  Rate:             0.00B/s
-  Error summary:    super=1
-    Corrected:      0
-    Uncorrectable:  0
-    Unverified:     0
-
-[CAUSE]
-The comments already shows that super block can be easily fixed by
-committing a transaction:
-
-	/*
-	 * If we find an error in a super block, we just report it.
-	 * They will get written with the next transaction commit
-	 * anyway
-	 */
-
-But the truth is, such assumption is not always true, and since scrub
-should try to repair every error it found (except for read-only scrub),
-we should really actively commit a transaction to fix this.
-
-[FIX]
-Just commit a transaction if we found any super block errors, after
-everything else is done.
-
-We cannot do this just after scrub_supers(), as
-btrfs_commit_transaction() will try to pause and wait for the running
-scrub, thus we can not call it with scrub_lock hold.
-
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
+Link: https://lore.kernel.org/r/20220826142030.213805-1-quanyang.wang@windriver.com
+Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/scrub.c | 36 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 36 insertions(+)
+ drivers/clk/zynqmp/pll.c | 31 +++++++++++++++----------------
+ 1 file changed, 15 insertions(+), 16 deletions(-)
 
-diff --git a/fs/btrfs/scrub.c b/fs/btrfs/scrub.c
-index 0785d9d645fc..ca8d6979c788 100644
---- a/fs/btrfs/scrub.c
-+++ b/fs/btrfs/scrub.c
-@@ -4072,6 +4072,7 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
- 	int ret;
- 	struct btrfs_device *dev;
- 	unsigned int nofs_flag;
-+	bool need_commit = false;
+diff --git a/drivers/clk/zynqmp/pll.c b/drivers/clk/zynqmp/pll.c
+index 036e4ff64a2f..bc066f300345 100644
+--- a/drivers/clk/zynqmp/pll.c
++++ b/drivers/clk/zynqmp/pll.c
+@@ -102,26 +102,25 @@ static long zynqmp_pll_round_rate(struct clk_hw *hw, unsigned long rate,
+ 				  unsigned long *prate)
+ {
+ 	u32 fbdiv;
+-	long rate_div, f;
++	u32 mult, div;
  
- 	if (btrfs_fs_closing(fs_info))
- 		return -EAGAIN;
-@@ -4177,6 +4178,12 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
- 	 */
- 	nofs_flag = memalloc_nofs_save();
- 	if (!is_dev_replace) {
-+		u64 old_super_errors;
-+
-+		spin_lock(&sctx->stat_lock);
-+		old_super_errors = sctx->stat.super_errors;
-+		spin_unlock(&sctx->stat_lock);
-+
- 		btrfs_info(fs_info, "scrub: started on devid %llu", devid);
- 		/*
- 		 * by holding device list mutex, we can
-@@ -4185,6 +4192,16 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
- 		mutex_lock(&fs_info->fs_devices->device_list_mutex);
- 		ret = scrub_supers(sctx, dev);
- 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
-+
-+		spin_lock(&sctx->stat_lock);
-+		/*
-+		 * Super block errors found, but we can not commit transaction
-+		 * at current context, since btrfs_commit_transaction() needs
-+		 * to pause the current running scrub (hold by ourselves).
-+		 */
-+		if (sctx->stat.super_errors > old_super_errors && !sctx->readonly)
-+			need_commit = true;
-+		spin_unlock(&sctx->stat_lock);
+-	/* Enable the fractional mode if needed */
+-	rate_div = (rate * FRAC_DIV) / *prate;
+-	f = rate_div % FRAC_DIV;
+-	if (f) {
+-		if (rate > PS_PLL_VCO_MAX) {
+-			fbdiv = rate / PS_PLL_VCO_MAX;
+-			rate = rate / (fbdiv + 1);
+-		}
+-		if (rate < PS_PLL_VCO_MIN) {
+-			fbdiv = DIV_ROUND_UP(PS_PLL_VCO_MIN, rate);
+-			rate = rate * fbdiv;
+-		}
+-		return rate;
++	/* Let rate fall inside the range PS_PLL_VCO_MIN ~ PS_PLL_VCO_MAX */
++	if (rate > PS_PLL_VCO_MAX) {
++		div = DIV_ROUND_UP(rate, PS_PLL_VCO_MAX);
++		rate = rate / div;
++	}
++	if (rate < PS_PLL_VCO_MIN) {
++		mult = DIV_ROUND_UP(PS_PLL_VCO_MIN, rate);
++		rate = rate * mult;
  	}
  
- 	if (!ret)
-@@ -4211,6 +4228,25 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
- 	scrub_workers_put(fs_info);
- 	scrub_put_ctx(sctx);
- 
-+	/*
-+	 * We found some super block errors before, now try to force a
-+	 * transaction commit, as scrub has finished.
-+	 */
-+	if (need_commit) {
-+		struct btrfs_trans_handle *trans;
-+
-+		trans = btrfs_start_transaction(fs_info->tree_root, 0);
-+		if (IS_ERR(trans)) {
-+			ret = PTR_ERR(trans);
-+			btrfs_err(fs_info,
-+	"scrub: failed to start transaction to fix super block errors: %d", ret);
-+			return ret;
-+		}
-+		ret = btrfs_commit_transaction(trans);
-+		if (ret < 0)
-+			btrfs_err(fs_info,
-+	"scrub: failed to commit transaction to fix super block errors: %d", ret);
+ 	fbdiv = DIV_ROUND_CLOSEST(rate, *prate);
+-	fbdiv = clamp_t(u32, fbdiv, PLL_FBDIV_MIN, PLL_FBDIV_MAX);
+-	return *prate * fbdiv;
++	if (fbdiv < PLL_FBDIV_MIN || fbdiv > PLL_FBDIV_MAX) {
++		fbdiv = clamp_t(u32, fbdiv, PLL_FBDIV_MIN, PLL_FBDIV_MAX);
++		rate = *prate * fbdiv;
 +	}
- 	return ret;
- out:
- 	scrub_workers_put(fs_info);
++
++	return rate;
+ }
+ 
+ /**
 -- 
 2.35.1
 
