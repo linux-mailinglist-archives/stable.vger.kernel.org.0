@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02B7360BB23
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:48:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D2160BABF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:40:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235156AbiJXUsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:48:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58640 "EHLO
+        id S234814AbiJXUkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:40:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234107AbiJXUrH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:47:07 -0400
+        with ESMTP id S234345AbiJXUjX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:39:23 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C9E1F617;
-        Mon, 24 Oct 2022 11:54:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61D83B603F;
+        Mon, 24 Oct 2022 11:50:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2C57B818BE;
-        Mon, 24 Oct 2022 12:46:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AA92C433D6;
-        Mon, 24 Oct 2022 12:46:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6C04B818CE;
+        Mon, 24 Oct 2022 12:47:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47A43C433D6;
+        Mon, 24 Oct 2022 12:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615615;
-        bh=XS0Hdfl2pYxATSwpgJxBoi+EwwhRfcxcGSPPYm0CGE8=;
+        s=korg; t=1666615620;
+        bh=PxotsaKLlKY7b4HcUMIZ3OuGfX1704mNrjuqwc66VrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KwTzGaSwDp2I8kJFatyGBsIT4xSCexIWexy6bh2vXMgZeRhuJdSzPOch7b5kytylB
-         Ij+hRibHSEdLUaOCgQaqdG/6dhZMWREZ9Yy8TvlgPyWdsIZP7+QB3Wrw2hYNEvd/gU
-         mRCqXL4KdjvnUJ+Fy5HRk5Z6ybWB1v9wENc0nh4g=
+        b=vHSg5d1SglgT4zbemxJN7GUjJ8jbR/lCJVMCbAKWhH4ztZXLeJ8kTgq2+7/jtLmbg
+         BQmccvbf8z0Jus16dsNSum5oKgiPUIr+uzml/ESCT+MKlhWSfq95+ZctSstLzr2WHL
+         GwKcv0MNCVdsIsPxZfVdEBtH0W89pZ+Q29Nq6ho8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Song Liu <song@kernel.org>,
-        Logan Gunthorpe <logang@deltatee.com>,
+        stable@vger.kernel.org, Mark Zhang <markzhang@nvidia.com>,
+        Mark Bloch <mbloch@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 318/530] md/raid5: Ensure stripe_fill happens on non-read IO with journal
-Date:   Mon, 24 Oct 2022 13:31:02 +0200
-Message-Id: <20221024113059.422789802@linuxfoundation.org>
+Subject: [PATCH 5.15 320/530] RDMA/cm: Use SLID in the work completion as the DLID in responder side
+Date:   Mon, 24 Oct 2022 13:31:04 +0200
+Message-Id: <20221024113059.517174358@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,43 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Mark Zhang <markzhang@nvidia.com>
 
-[ Upstream commit e2eed85bc75138a9eeb63863d20f8904ac42a577 ]
+[ Upstream commit b7d95040c13f61a4a6a859c5355faf583eff9658 ]
 
-When doing degrade/recover tests using the journal a kernel BUG
-is hit at drivers/md/raid5.c:4381 in handle_parity_checks5():
+The responder should always use WC's SLID as the dlid, to follow the
+IB SPEC section "13.5.4.2 COMMON RESPONSE ACTIONS":
+A responder always takes the following actions in constructing a
+response packet:
+- The SLID of the received packet is used as the DLID in the response
+  packet.
 
-  BUG_ON(!test_bit(R5_UPTODATE, &dev->flags));
-
-This was found to occur because handle_stripe_fill() was skipped
-for stripes in the journal due to a condition in that function.
-Thus blocks were not fetched and R5_UPTODATE was not set when
-the code reached handle_parity_checks5().
-
-To fix this, don't skip handle_stripe_fill() unless the stripe is
-for read.
-
-Fixes: 07e83364845e ("md/r5cache: shift complex rmw from read path to write path")
-Link: https://lore.kernel.org/linux-raid/e05c4239-41a9-d2f7-3cfa-4aa9d2cea8c1@deltatee.com/
-Suggested-by: Song Liu <song@kernel.org>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Fixes: ac3a949fb2ff ("IB/CM: Set appropriate slid and dlid when handling CM request")
+Signed-off-by: Mark Zhang <markzhang@nvidia.com>
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Link: https://lore.kernel.org/r/cd17c240231e059d2fc07c17dfe555d548b917eb.1662631201.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid5.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/cm.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -3936,7 +3936,7 @@ static void handle_stripe_fill(struct st
- 		 * back cache (prexor with orig_page, and then xor with
- 		 * page) in the read path
- 		 */
--		if (s->injournal && s->failed) {
-+		if (s->to_read && s->injournal && s->failed) {
- 			if (test_bit(STRIPE_R5C_CACHING, &sh->state))
- 				r5c_make_stripe_write_out(sh);
- 			goto out;
+diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
+index b985e0d9bc05..5c910f5c01b3 100644
+--- a/drivers/infiniband/core/cm.c
++++ b/drivers/infiniband/core/cm.c
+@@ -1632,14 +1632,13 @@ static void cm_path_set_rec_type(struct ib_device *ib_device, u32 port_num,
+ 
+ static void cm_format_path_lid_from_req(struct cm_req_msg *req_msg,
+ 					struct sa_path_rec *primary_path,
+-					struct sa_path_rec *alt_path)
++					struct sa_path_rec *alt_path,
++					struct ib_wc *wc)
+ {
+ 	u32 lid;
+ 
+ 	if (primary_path->rec_type != SA_PATH_REC_TYPE_OPA) {
+-		sa_path_set_dlid(primary_path,
+-				 IBA_GET(CM_REQ_PRIMARY_LOCAL_PORT_LID,
+-					 req_msg));
++		sa_path_set_dlid(primary_path, wc->slid);
+ 		sa_path_set_slid(primary_path,
+ 				 IBA_GET(CM_REQ_PRIMARY_REMOTE_PORT_LID,
+ 					 req_msg));
+@@ -1676,7 +1675,8 @@ static void cm_format_path_lid_from_req(struct cm_req_msg *req_msg,
+ 
+ static void cm_format_paths_from_req(struct cm_req_msg *req_msg,
+ 				     struct sa_path_rec *primary_path,
+-				     struct sa_path_rec *alt_path)
++				     struct sa_path_rec *alt_path,
++				     struct ib_wc *wc)
+ {
+ 	primary_path->dgid =
+ 		*IBA_GET_MEM_PTR(CM_REQ_PRIMARY_LOCAL_PORT_GID, req_msg);
+@@ -1734,7 +1734,7 @@ static void cm_format_paths_from_req(struct cm_req_msg *req_msg,
+ 		if (sa_path_is_roce(alt_path))
+ 			alt_path->roce.route_resolved = false;
+ 	}
+-	cm_format_path_lid_from_req(req_msg, primary_path, alt_path);
++	cm_format_path_lid_from_req(req_msg, primary_path, alt_path, wc);
+ }
+ 
+ static u16 cm_get_bth_pkey(struct cm_work *work)
+@@ -2148,7 +2148,7 @@ static int cm_req_handler(struct cm_work *work)
+ 	if (cm_req_has_alt_path(req_msg))
+ 		work->path[1].rec_type = work->path[0].rec_type;
+ 	cm_format_paths_from_req(req_msg, &work->path[0],
+-				 &work->path[1]);
++				 &work->path[1], work->mad_recv_wc->wc);
+ 	if (cm_id_priv->av.ah_attr.type == RDMA_AH_ATTR_TYPE_ROCE)
+ 		sa_path_set_dmac(&work->path[0],
+ 				 cm_id_priv->av.ah_attr.roce.dmac);
+-- 
+2.35.1
+
 
 
