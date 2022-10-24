@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEDEF60A5A4
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3072660A6D4
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:41:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233773AbiJXM1v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:27:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60536 "EHLO
+        id S230373AbiJXMkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:40:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233200AbiJXM1F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:27:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5B087C308;
-        Mon, 24 Oct 2022 05:01:33 -0700 (PDT)
+        with ESMTP id S230254AbiJXMiq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:38:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FC7189ACD;
+        Mon, 24 Oct 2022 05:06:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 759B7B811DA;
-        Mon, 24 Oct 2022 11:56:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD01DC433D6;
-        Mon, 24 Oct 2022 11:56:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8DEA612DA;
+        Mon, 24 Oct 2022 12:06:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC8B8C433D6;
+        Mon, 24 Oct 2022 12:06:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612569;
-        bh=Z3gWvSE3fw+Ff54MumYb9CCVjoFOZxUJC1XFP/tVtqs=;
+        s=korg; t=1666613198;
+        bh=QU6jcTM5tFiqBhEpEDUebcCTZlgBib+XeTwuUsseiyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G36qwIvBX2a18myutdbA8J0fsC2lgryl8RQylS5jvy5g0zbLD92rvssWcZo+JjKZM
-         5P/5P9jEJidVCOSyanlaIY1d20DOOVZEXI8cjp+33GG3xBmMvXyvlXXso99XIVYoUG
-         jsScRMN+BndTQYYEj1hX648V4FZqeUcxELIjf14c=
+        b=0h5+sHIepDjG5IvtcEvd2LEO/IcDhyuNio63oH0RmR7IvyqnSvtDtub1ctw9ULdOo
+         DpZrT3RTut92W/GY/ToJy2346pBesxdWx3W5wT5Bvg++j6TKTFKc+jDMXbMGTt9iZh
+         Eq84gqVTv8cwhYWI9nbA9kSQX4IHYb1aHZ2XR/+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Callum Osmotherly <callum.osmotherly@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 036/229] ALSA: hda/realtek: remove ALC289_FIXUP_DUAL_SPK for Dell 5530
+        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
+        Breno Leitao <leitao@debian.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>, stable@kernel.org
+Subject: [PATCH 5.4 045/255] livepatch: fix race between fork and KLP transition
 Date:   Mon, 24 Oct 2022 13:29:15 +0200
-Message-Id: <20221024113000.275548420@linuxfoundation.org>
+Message-Id: <20221024113003.931359535@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Callum Osmotherly <callum.osmotherly@gmail.com>
+From: Rik van Riel <riel@surriel.com>
 
-commit 417b9c51f59734d852e47252476fadc293ad994a upstream.
+commit 747f7a2901174c9afa805dddfb7b24db6f65e985 upstream.
 
-After some feedback from users with Dell Precision 5530 machines, this
-patch reverts the previous change to add ALC289_FIXUP_DUAL_SPK.
-While it improved the speaker output quality, it caused the headphone
-jack to have an audible "pop" sound when power saving was toggled.
+The KLP transition code depends on the TIF_PATCH_PENDING and
+the task->patch_state to stay in sync. On a normal (forward)
+transition, TIF_PATCH_PENDING will be set on every task in
+the system, while on a reverse transition (after a failed
+forward one) first TIF_PATCH_PENDING will be cleared from
+every task, followed by it being set on tasks that need to
+be transitioned back to the original code.
 
-Fixes: 1885ff13d4c4 ("ALSA: hda/realtek: Enable 4-speaker output Dell Precision 5530 laptop")
-Signed-off-by: Callum Osmotherly <callum.osmotherly@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Yz0uyN1zwZhnyRD6@piranha
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+However, the fork code copies over the TIF_PATCH_PENDING flag
+from the parent to the child early on, in dup_task_struct and
+setup_thread_stack. Much later, klp_copy_process will set
+child->patch_state to match that of the parent.
+
+However, the parent's patch_state may have been changed by KLP loading
+or unloading since it was initially copied over into the child.
+
+This results in the KLP code occasionally hitting this warning in
+klp_complete_transition:
+
+        for_each_process_thread(g, task) {
+                WARN_ON_ONCE(test_tsk_thread_flag(task, TIF_PATCH_PENDING));
+                task->patch_state = KLP_UNDEFINED;
+        }
+
+Set, or clear, the TIF_PATCH_PENDING flag in the child task
+depending on whether or not it is needed at the time
+klp_copy_process is called, at a point in copy_process where the
+tasklist_lock is held exclusively, preventing races with the KLP
+code.
+
+The KLP code does have a few places where the state is changed
+without the tasklist_lock held, but those should not cause
+problems because klp_update_patch_state(current) cannot be
+called while the current task is in the middle of fork,
+klp_check_and_switch_task() which is called under the pi_lock,
+which prevents rescheduling, and manipulation of the patch
+state of idle tasks, which do not fork.
+
+This should prevent this warning from triggering again in the
+future, and close the race for both normal and reverse transitions.
+
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reported-by: Breno Leitao <leitao@debian.org>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Fixes: d83a7cb375ee ("livepatch: change to a per-task consistency model")
+Cc: stable@kernel.org
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20220808150019.03d6a67b@imladris.surriel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 -
- 1 file changed, 1 deletion(-)
+ kernel/livepatch/transition.c |   18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7081,7 +7081,6 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1028, 0x0871, "Dell Precision 3630", ALC255_FIXUP_DELL_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1028, 0x0872, "Dell Precision 3630", ALC255_FIXUP_DELL_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1028, 0x0873, "Dell Precision 3930", ALC255_FIXUP_DUMMY_LINEOUT_VERB),
--	SND_PCI_QUIRK(0x1028, 0x087d, "Dell Precision 5530", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x08ad, "Dell WYSE AIO", ALC225_FIXUP_DELL_WYSE_AIO_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x08ae, "Dell WYSE NB", ALC225_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x0935, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB),
+--- a/kernel/livepatch/transition.c
++++ b/kernel/livepatch/transition.c
+@@ -611,9 +611,23 @@ void klp_reverse_transition(void)
+ /* Called from copy_process() during fork */
+ void klp_copy_process(struct task_struct *child)
+ {
+-	child->patch_state = current->patch_state;
+ 
+-	/* TIF_PATCH_PENDING gets copied in setup_thread_stack() */
++	/*
++	 * The parent process may have gone through a KLP transition since
++	 * the thread flag was copied in setup_thread_stack earlier. Bring
++	 * the task flag up to date with the parent here.
++	 *
++	 * The operation is serialized against all klp_*_transition()
++	 * operations by the tasklist_lock. The only exception is
++	 * klp_update_patch_state(current), but we cannot race with
++	 * that because we are current.
++	 */
++	if (test_tsk_thread_flag(current, TIF_PATCH_PENDING))
++		set_tsk_thread_flag(child, TIF_PATCH_PENDING);
++	else
++		clear_tsk_thread_flag(child, TIF_PATCH_PENDING);
++
++	child->patch_state = current->patch_state;
+ }
+ 
+ /*
 
 
