@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C9F60A7BC
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:56:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE76660A469
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234725AbiJXM4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:56:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33372 "EHLO
+        id S229767AbiJXMKP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:10:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234749AbiJXM4K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:56:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6E8D77E84;
-        Mon, 24 Oct 2022 05:15:43 -0700 (PDT)
+        with ESMTP id S233133AbiJXMJq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:09:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED09B7FE56;
+        Mon, 24 Oct 2022 04:53:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91D096127C;
-        Mon, 24 Oct 2022 12:12:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A03C6C433D6;
-        Mon, 24 Oct 2022 12:12:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 308FDB811BD;
+        Mon, 24 Oct 2022 11:51:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8830EC433D7;
+        Mon, 24 Oct 2022 11:51:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613571;
-        bh=0EsrBRhNjT/7EWbcf7qA2B5MZSx/S7gsSGue+kr9cJk=;
+        s=korg; t=1666612310;
+        bh=rJmvJX1Yd+VCFEKraff9jIv/6wTZs/svtd+hRJMqLjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fNNkFhTiWmIrJ/3BBY5IEb2d08nOoxH4VPPBHQqhHxoPNgUF29naTISpQD1uCGceX
-         R0lL/5uUMbcTLd1Mhp1PFphuOYIrDRAebeSczbl4YWu/lMaOtXEtIxDNFol0MRvVjo
-         4iYx7tOrvq2VG81PmkroCaPzruFrWqfbsvVirRGg=
+        b=ORiidTyuUdxkJEFguaQY6akdLgOTFhZlCsYVP/OPWQYYFyKFw41bP+awILNwmS/2s
+         1Ex5AifMtb1KVecW+T0J8+U3Dv93Eu9OVQZK7xVbW5sOze0BScz6ZkUWa6PjePT+Ap
+         lGbacPB1HPYsgTntP604Q2bTq6zacU67wWyiLu3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 157/255] mfd: intel_soc_pmic: Fix an error handling path in intel_soc_pmic_i2c_probe()
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 150/210] clk: ti: dra7-atl: Fix reference leak in of_dra7_atl_clk_probe
 Date:   Mon, 24 Oct 2022 13:31:07 +0200
-Message-Id: <20221024113007.870720716@linuxfoundation.org>
+Message-Id: <20221024113001.843666014@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 48749cabba109397b4e7dd556e85718ec0ec114d ]
+[ Upstream commit 9c59a01caba26ec06fefd6ca1f22d5fd1de57d63 ]
 
-The commit in Fixes: has added a pwm_add_table() call in the probe() and
-a pwm_remove_table() call in the remove(), but forget to update the error
-handling path of the probe.
+pm_runtime_get_sync() will increment pm usage counter.
+Forgetting to putting operation will result in reference leak.
+Add missing pm_runtime_put_sync in some error paths.
 
-Add the missing pwm_remove_table() call.
-
-Fixes: a3aa9a93df9f ("mfd: intel_soc_pmic_core: ADD PWM lookup table for CRC PMIC based PWM")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/20220801114211.36267-1-andriy.shevchenko@linux.intel.com
+Fixes: 9ac33b0ce81f ("CLK: TI: Driver for DRA7 ATL (Audio Tracking Logic)")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220602030838.52057-1-linmq006@gmail.com
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel_soc_pmic_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/ti/clk-dra7-atl.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/intel_soc_pmic_core.c b/drivers/mfd/intel_soc_pmic_core.c
-index c9f35378d391..4d9b2ad9b086 100644
---- a/drivers/mfd/intel_soc_pmic_core.c
-+++ b/drivers/mfd/intel_soc_pmic_core.c
-@@ -111,6 +111,7 @@ static int intel_soc_pmic_i2c_probe(struct i2c_client *i2c,
- 	return 0;
+diff --git a/drivers/clk/ti/clk-dra7-atl.c b/drivers/clk/ti/clk-dra7-atl.c
+index beb672a215b6..a4b6f3ac2d34 100644
+--- a/drivers/clk/ti/clk-dra7-atl.c
++++ b/drivers/clk/ti/clk-dra7-atl.c
+@@ -252,14 +252,16 @@ static int of_dra7_atl_clk_probe(struct platform_device *pdev)
+ 		if (rc) {
+ 			pr_err("%s: failed to lookup atl clock %d\n", __func__,
+ 			       i);
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto pm_put;
+ 		}
  
- err_del_irq_chip:
-+	pwm_remove_table(crc_pwm_lookup, ARRAY_SIZE(crc_pwm_lookup));
- 	regmap_del_irq_chip(pmic->irq, pmic->irq_chip_data);
+ 		clk = of_clk_get_from_provider(&clkspec);
+ 		if (IS_ERR(clk)) {
+ 			pr_err("%s: failed to get atl clock %d from provider\n",
+ 			       __func__, i);
+-			return PTR_ERR(clk);
++			ret = PTR_ERR(clk);
++			goto pm_put;
+ 		}
+ 
+ 		cdesc = to_atl_desc(__clk_get_hw(clk));
+@@ -292,8 +294,9 @@ static int of_dra7_atl_clk_probe(struct platform_device *pdev)
+ 		if (cdesc->enabled)
+ 			atl_clk_enable(__clk_get_hw(clk));
+ 	}
+-	pm_runtime_put_sync(cinfo->dev);
+ 
++pm_put:
++	pm_runtime_put_sync(cinfo->dev);
  	return ret;
  }
+ 
 -- 
 2.35.1
 
