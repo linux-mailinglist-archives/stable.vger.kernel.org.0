@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57F2660A4FC
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0A0060ABAF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232997AbiJXMUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:20:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51016 "EHLO
+        id S236605AbiJXNzH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:55:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233299AbiJXMTI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5087B29B;
-        Mon, 24 Oct 2022 04:57:46 -0700 (PDT)
+        with ESMTP id S236729AbiJXNxx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:53:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE5F2BCBBB;
+        Mon, 24 Oct 2022 05:43:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A26F61300;
-        Mon, 24 Oct 2022 11:57:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D26BC433C1;
-        Mon, 24 Oct 2022 11:57:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06D766130D;
+        Mon, 24 Oct 2022 12:43:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 199F2C433C1;
+        Mon, 24 Oct 2022 12:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612648;
-        bh=jUROC4zzUDnOqA3R2EJJIUBUUCj8PuAErpT09V3rKDk=;
+        s=korg; t=1666615413;
+        bh=HwiXSdroz8eQ6MEaXKUECvcjmJX8KqgXnrZziaxBMv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bDsBFMNf5nfDP8KIxRmsB7cvRYQVnPabDPN/+6IbL0k/SCFR1EB6KPMrg1NgNuRhB
-         58iLy30bEwNbXavpZ0z/4aq/i1xp/r2mzKWtGen62WAZ3sGux6qx84CP1V5iJFz8Mq
-         t2cIQnyBi/j8laYW5LoQuvkZ84m3eUxW7EIG16oA=
+        b=cDZVQHahFSIY6Wh3hjHpQFF/MrA5+TzCVMVWdQiFgbcp0d5hEaA+Gl2+xbvau2oaE
+         grTCTpZzBNoaY07fTmIm9YuPCBfVm31a8ogQcloBv4pu+kf/EZYXGy2cVzVsKp5LLL
+         U+WlpPoHJ0duzXA1JCUB82jFt3YHuCjTOEaYQzoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Luczaj <mhal@rbox.co>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 4.19 067/229] KVM: x86/emulator: Fix handing of POP SS to correctly set interruptibility
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 242/530] ASoC: wm5110: Fix PM disable depth imbalance in wm5110_probe
 Date:   Mon, 24 Oct 2022 13:29:46 +0200
-Message-Id: <20221024113001.252481650@linuxfoundation.org>
+Message-Id: <20221024113056.056635336@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Luczaj <mhal@rbox.co>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-commit 6aa5c47c351b22c21205c87977c84809cd015fcf upstream.
+[ Upstream commit 86b46bf1feb83898d89a2b4a8d08d21e9ea277a7 ]
 
-The emulator checks the wrong variable while setting the CPU
-interruptibility state, the target segment is embedded in the instruction
-opcode, not the ModR/M register.  Fix the condition.
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context. We fix it by moving
+pm_runtime_enable to the endding of wm5110_probe.
 
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
-Fixes: a5457e7bcf9a ("KVM: emulate: POP SS triggers a MOV SS shadow too")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/20220821215900.1419215-1-mhal@rbox.co
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes:5c6af635fd772 ("ASoC: wm5110: Add audio CODEC driver")
+
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20220928160116.125020-3-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/emulate.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/wm5110.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -1975,7 +1975,7 @@ static int em_pop_sreg(struct x86_emulat
- 	if (rc != X86EMUL_CONTINUE)
- 		return rc;
+diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
+index 7c6e01720d65..66a4827c16bd 100644
+--- a/sound/soc/codecs/wm5110.c
++++ b/sound/soc/codecs/wm5110.c
+@@ -2458,9 +2458,6 @@ static int wm5110_probe(struct platform_device *pdev)
+ 		regmap_update_bits(arizona->regmap, wm5110_digital_vu[i],
+ 				   WM5110_DIG_VU, WM5110_DIG_VU);
  
--	if (ctxt->modrm_reg == VCPU_SREG_SS)
-+	if (seg == VCPU_SREG_SS)
- 		ctxt->interruptibility = KVM_X86_SHADOW_INT_MOV_SS;
- 	if (ctxt->op_bytes > 2)
- 		rsp_increment(ctxt, ctxt->op_bytes - 2);
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_idle(&pdev->dev);
+-
+ 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
+ 				  "ADSP2 Compressed IRQ", wm5110_adsp2_irq,
+ 				  wm5110);
+@@ -2493,6 +2490,9 @@ static int wm5110_probe(struct platform_device *pdev)
+ 		goto err_spk_irqs;
+ 	}
+ 
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_idle(&pdev->dev);
++
+ 	return ret;
+ 
+ err_spk_irqs:
+-- 
+2.35.1
+
 
 
