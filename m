@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC9160AB3A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:46:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBFB660A865
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:05:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236391AbiJXNq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:46:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43610 "EHLO
+        id S235031AbiJXNE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:04:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236620AbiJXNor (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:44:47 -0400
+        with ESMTP id S235193AbiJXNDS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:03:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A120245067;
-        Mon, 24 Oct 2022 05:40:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 895DD42E76;
+        Mon, 24 Oct 2022 05:20:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9651261325;
-        Mon, 24 Oct 2022 12:38:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5A79C433C1;
-        Mon, 24 Oct 2022 12:38:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B8C161257;
+        Mon, 24 Oct 2022 12:19:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE796C433D6;
+        Mon, 24 Oct 2022 12:19:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615133;
-        bh=muXk5+zb//UYPKqFzeIirwUDgkQcWmRmo0xZyDuWdZY=;
+        s=korg; t=1666613966;
+        bh=oLbaysdckFsCFXPruC8D3Mw/qR8/jEbOJJDf6dgc8hM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2s0CiBMN9jRkQ36wsWQGgVy6fYgj/httYjUXGgBSOyaoXcnzsvmuWu7TQMldUunq
-         xfGdUS50U6dF63P2qJLlfnecN3YDtuKtFhX3/7STUrZdP9H9GJ/dGdTiIPQaEvjXEd
-         x18U4n/WFuIfKp6rNnE7TSH3o6zJNyDA2RT+gF34=
+        b=om+PYy+4f1lOPGyy2dWpbhO89z9kHWIHG+DO+to3Ht540KY17LQK+8eGXtVWbiSHg
+         rcah3H0QXWnsrpy86r4fHM85JMi6sp6p56Ol0NE4Q6p3azJO4IIw/VZkUGLk/wtpmD
+         3YVLL27Jya1SVxunmeixounO7kVPHhGukuNJmtMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
-        Breno Leitao <leitao@debian.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>, stable@kernel.org
-Subject: [PATCH 5.15 104/530] livepatch: fix race between fork and KLP transition
+        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.10 051/390] f2fs: fix to do sanity check on destination blkaddr during recovery
 Date:   Mon, 24 Oct 2022 13:27:28 +0200
-Message-Id: <20221024113049.730688936@linuxfoundation.org>
+Message-Id: <20221024113024.804522470@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +52,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rik van Riel <riel@surriel.com>
+From: Chao Yu <chao@kernel.org>
 
-commit 747f7a2901174c9afa805dddfb7b24db6f65e985 upstream.
+commit 0ef4ca04a3f9223ff8bc440041c524b2123e09a3 upstream.
 
-The KLP transition code depends on the TIF_PATCH_PENDING and
-the task->patch_state to stay in sync. On a normal (forward)
-transition, TIF_PATCH_PENDING will be set on every task in
-the system, while on a reverse transition (after a failed
-forward one) first TIF_PATCH_PENDING will be cleared from
-every task, followed by it being set on tasks that need to
-be transitioned back to the original code.
+As Wenqing Liu reported in bugzilla:
 
-However, the fork code copies over the TIF_PATCH_PENDING flag
-from the parent to the child early on, in dup_task_struct and
-setup_thread_stack. Much later, klp_copy_process will set
-child->patch_state to match that of the parent.
+https://bugzilla.kernel.org/show_bug.cgi?id=216456
 
-However, the parent's patch_state may have been changed by KLP loading
-or unloading since it was initially copied over into the child.
+loop5: detected capacity change from 0 to 131072
+F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
+F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
+F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
+F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
+F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
+F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
+F2FS-fs (loop5): Bitmap was wrongly set, blk:5634
+------------[ cut here ]------------
+WARNING: CPU: 3 PID: 1013 at fs/f2fs/segment.c:2198
+RIP: 0010:update_sit_entry+0xa55/0x10b0 [f2fs]
+Call Trace:
+ <TASK>
+ f2fs_do_replace_block+0xa98/0x1890 [f2fs]
+ f2fs_replace_block+0xeb/0x180 [f2fs]
+ recover_data+0x1a69/0x6ae0 [f2fs]
+ f2fs_recover_fsync_data+0x120d/0x1fc0 [f2fs]
+ f2fs_fill_super+0x4665/0x61e0 [f2fs]
+ mount_bdev+0x2cf/0x3b0
+ legacy_get_tree+0xed/0x1d0
+ vfs_get_tree+0x81/0x2b0
+ path_mount+0x47e/0x19d0
+ do_mount+0xce/0xf0
+ __x64_sys_mount+0x12c/0x1a0
+ do_syscall_64+0x38/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-This results in the KLP code occasionally hitting this warning in
-klp_complete_transition:
+If we enable CONFIG_F2FS_CHECK_FS config, it will trigger a kernel panic
+instead of warning.
 
-        for_each_process_thread(g, task) {
-                WARN_ON_ONCE(test_tsk_thread_flag(task, TIF_PATCH_PENDING));
-                task->patch_state = KLP_UNDEFINED;
-        }
+The root cause is: in fuzzed image, SIT table is inconsistent with inode
+mapping table, result in triggering such warning during SIT table update.
 
-Set, or clear, the TIF_PATCH_PENDING flag in the child task
-depending on whether or not it is needed at the time
-klp_copy_process is called, at a point in copy_process where the
-tasklist_lock is held exclusively, preventing races with the KLP
-code.
+This patch introduces a new flag DATA_GENERIC_ENHANCE_UPDATE, w/ this
+flag, data block recovery flow can check destination blkaddr's validation
+in SIT table, and skip f2fs_replace_block() to avoid inconsistent status.
 
-The KLP code does have a few places where the state is changed
-without the tasklist_lock held, but those should not cause
-problems because klp_update_patch_state(current) cannot be
-called while the current task is in the middle of fork,
-klp_check_and_switch_task() which is called under the pi_lock,
-which prevents rescheduling, and manipulation of the patch
-state of idle tasks, which do not fork.
-
-This should prevent this warning from triggering again in the
-future, and close the race for both normal and reverse transitions.
-
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Reported-by: Breno Leitao <leitao@debian.org>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Fixes: d83a7cb375ee ("livepatch: change to a per-task consistency model")
-Cc: stable@kernel.org
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20220808150019.03d6a67b@imladris.surriel.com
+Cc: stable@vger.kernel.org
+Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/livepatch/transition.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ fs/f2fs/checkpoint.c |   10 +++++++++-
+ fs/f2fs/f2fs.h       |    4 ++++
+ fs/f2fs/recovery.c   |    8 ++++++++
+ 3 files changed, 21 insertions(+), 1 deletion(-)
 
---- a/kernel/livepatch/transition.c
-+++ b/kernel/livepatch/transition.c
-@@ -610,9 +610,23 @@ void klp_reverse_transition(void)
- /* Called from copy_process() during fork */
- void klp_copy_process(struct task_struct *child)
- {
--	child->patch_state = current->patch_state;
+--- a/fs/f2fs/checkpoint.c
++++ b/fs/f2fs/checkpoint.c
+@@ -136,7 +136,7 @@ static bool __is_bitmap_valid(struct f2f
+ 	unsigned int segno, offset;
+ 	bool exist;
  
--	/* TIF_PATCH_PENDING gets copied in setup_thread_stack() */
-+	/*
-+	 * The parent process may have gone through a KLP transition since
-+	 * the thread flag was copied in setup_thread_stack earlier. Bring
-+	 * the task flag up to date with the parent here.
-+	 *
-+	 * The operation is serialized against all klp_*_transition()
-+	 * operations by the tasklist_lock. The only exception is
-+	 * klp_update_patch_state(current), but we cannot race with
-+	 * that because we are current.
-+	 */
-+	if (test_tsk_thread_flag(current, TIF_PATCH_PENDING))
-+		set_tsk_thread_flag(child, TIF_PATCH_PENDING);
-+	else
-+		clear_tsk_thread_flag(child, TIF_PATCH_PENDING);
+-	if (type != DATA_GENERIC_ENHANCE && type != DATA_GENERIC_ENHANCE_READ)
++	if (type == DATA_GENERIC)
+ 		return true;
+ 
+ 	segno = GET_SEGNO(sbi, blkaddr);
+@@ -144,6 +144,13 @@ static bool __is_bitmap_valid(struct f2f
+ 	se = get_seg_entry(sbi, segno);
+ 
+ 	exist = f2fs_test_bit(offset, se->cur_valid_map);
++	if (exist && type == DATA_GENERIC_ENHANCE_UPDATE) {
++		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
++			 blkaddr, exist);
++		set_sbi_flag(sbi, SBI_NEED_FSCK);
++		return exist;
++	}
 +
-+	child->patch_state = current->patch_state;
- }
+ 	if (!exist && type == DATA_GENERIC_ENHANCE) {
+ 		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
+ 			 blkaddr, exist);
+@@ -181,6 +188,7 @@ bool f2fs_is_valid_blkaddr(struct f2fs_s
+ 	case DATA_GENERIC:
+ 	case DATA_GENERIC_ENHANCE:
+ 	case DATA_GENERIC_ENHANCE_READ:
++	case DATA_GENERIC_ENHANCE_UPDATE:
+ 		if (unlikely(blkaddr >= MAX_BLKADDR(sbi) ||
+ 				blkaddr < MAIN_BLKADDR(sbi))) {
+ 			f2fs_warn(sbi, "access invalid blkaddr:%u",
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -235,6 +235,10 @@ enum {
+ 					 * condition of read on truncated area
+ 					 * by extent_cache
+ 					 */
++	DATA_GENERIC_ENHANCE_UPDATE,	/*
++					 * strong check on range and segment
++					 * bitmap for update case
++					 */
+ 	META_GENERIC,
+ };
  
- /*
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -661,6 +661,14 @@ retry_prev:
+ 				goto err;
+ 			}
+ 
++			if (f2fs_is_valid_blkaddr(sbi, dest,
++					DATA_GENERIC_ENHANCE_UPDATE)) {
++				f2fs_err(sbi, "Inconsistent dest blkaddr:%u, ino:%lu, ofs:%u",
++					dest, inode->i_ino, dn.ofs_in_node);
++				err = -EFSCORRUPTED;
++				goto err;
++			}
++
+ 			/* write dummy data page */
+ 			f2fs_replace_block(sbi, &dn, src, dest,
+ 						ni.version, false, false);
 
 
