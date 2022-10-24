@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03C5E60A5D6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB6E660A905
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:14:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231838AbiJXMah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:30:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60606 "EHLO
+        id S233565AbiJXNOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:14:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233874AbiJXM2c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9626486892;
-        Mon, 24 Oct 2022 05:02:13 -0700 (PDT)
+        with ESMTP id S235595AbiJXNNV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:13:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32AFD2B257;
+        Mon, 24 Oct 2022 05:24:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19677B811BB;
-        Mon, 24 Oct 2022 11:58:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73049C433D6;
-        Mon, 24 Oct 2022 11:58:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0091612F0;
+        Mon, 24 Oct 2022 12:23:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09208C433C1;
+        Mon, 24 Oct 2022 12:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612695;
-        bh=MJMYAYbebJ4eMXZJ9gKN+EzXQUKtgGBJb83mkrtYU5Y=;
+        s=korg; t=1666614221;
+        bh=BBEZSL/kEaLKT0nn3CDJDaoaCe8MaFX+1kU7JZ+z9Ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENtezN+kAmXuXxsoEKVxxjuIQrRoYkc4RjEtzaiCGMjMxF3shcErEnTGJeWdSVms1
-         AHcrtdaTR44T7LShFWqVfDkhGTVafJ2lcFQ+98wer3fU7bxZliuRfNXax7eQfgX/2t
-         bONtFofeybvypByUOz+hWrtTaT7GQoR6wGRwq3n0=
+        b=G1RMljIeVAiHdhKr+ZvhANY/WKCXvl884UtyaltgRZxbnFx5Rh2DOl1jYGmw2CXqL
+         q+Vx/gU+s0NeF2RVLm9V3J8zj13HFjUfokJjPs1oIKTFbdvCLItmZdfS/sZTwYAiwp
+         VgRjsk9B9spsfo1I5rkM8w5Tn/lVDjJcQUrJ6zhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 055/229] btrfs: fix race between quota enable and quota rescan ioctl
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 177/390] ARM: dts: kirkwood: lsxl: fix serial line
 Date:   Mon, 24 Oct 2022 13:29:34 +0200
-Message-Id: <20221024113000.860747439@linuxfoundation.org>
+Message-Id: <20221024113030.271848890@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Michael Walle <michael@walle.cc>
 
-commit 331cd9461412e103d07595a10289de90004ac890 upstream.
+[ Upstream commit 04eabc6ac10fda9424606d9a7ab6ab9a5d95350a ]
 
-When enabling quotas, at btrfs_quota_enable(), after committing the
-transaction, we change fs_info->quota_root to point to the quota root we
-created and set BTRFS_FS_QUOTA_ENABLED at fs_info->flags. Then we try
-to start the qgroup rescan worker, first by initializing it with a call
-to qgroup_rescan_init() - however if that fails we end up freeing the
-quota root but we leave fs_info->quota_root still pointing to it, this
-can later result in a use-after-free somewhere else.
+Commit 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl
+settings") unknowingly broke the serial output on this board. Before
+this commit, the pinmux was still configured by the bootloader and the
+kernel didn't reconfigured it again. This was an oversight by the
+initial board support where the pinmux for the serial line was never
+configured by the kernel. But with this commit, the serial line will be
+reconfigured to the wrong pins. This is especially confusing, because
+the output still works, but the input doesn't. Presumingly, the input is
+reconfigured to MPP10, but the output is connected to both MPP11 and
+MPP5.
 
-We have previously set the flags BTRFS_FS_QUOTA_ENABLED and
-BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with -EINPROGRESS at
-btrfs_quota_enable(), which is possible if someone already called the
-quota rescan ioctl, and therefore started the rescan worker.
+Override the pinmux in the board device tree.
 
-So fix this by ignoring an -EINPROGRESS and asserting we can't get any
-other error.
-
-Reported-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/linux-btrfs/20220823015931.421355-1-yebin10@huawei.com/
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl settings")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/qgroup.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ arch/arm/boot/dts/kirkwood-lsxl.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -1035,6 +1035,21 @@ out_add_root:
- 		fs_info->qgroup_rescan_running = true;
- 	        btrfs_queue_work(fs_info->qgroup_rescan_workers,
- 	                         &fs_info->qgroup_rescan_work);
-+	} else {
-+		/*
-+		 * We have set both BTRFS_FS_QUOTA_ENABLED and
-+		 * BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with
-+		 * -EINPROGRESS. That can happen because someone started the
-+		 * rescan worker by calling quota rescan ioctl before we
-+		 * attempted to initialize the rescan worker. Failure due to
-+		 * quotas disabled in the meanwhile is not possible, because
-+		 * we are holding a write lock on fs_info->subvol_sem, which
-+		 * is also acquired when disabling quotas.
-+		 * Ignore such error, and any other error would need to undo
-+		 * everything we did in the transaction we just committed.
-+		 */
-+		ASSERT(ret == -EINPROGRESS);
-+		ret = 0;
- 	}
+diff --git a/arch/arm/boot/dts/kirkwood-lsxl.dtsi b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
+index 7b151acb9984..321a40a98ed2 100644
+--- a/arch/arm/boot/dts/kirkwood-lsxl.dtsi
++++ b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
+@@ -10,6 +10,11 @@
  
- out_free_path:
+ 	ocp@f1000000 {
+ 		pinctrl: pin-controller@10000 {
++			/* Non-default UART pins */
++			pmx_uart0: pmx-uart0 {
++				marvell,pins = "mpp4", "mpp5";
++			};
++
+ 			pmx_power_hdd: pmx-power-hdd {
+ 				marvell,pins = "mpp10";
+ 				marvell,function = "gpo";
+-- 
+2.35.1
+
 
 
