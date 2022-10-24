@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8CB160B899
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:52:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F0AD60B8A6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:52:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232920AbiJXTv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:51:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56726 "EHLO
+        id S233552AbiJXTwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:52:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232137AbiJXTvb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:51:31 -0400
+        with ESMTP id S233557AbiJXTvr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:51:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAFDF8980C;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD5BC5073E;
         Mon, 24 Oct 2022 11:17:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA8C4B816A4;
-        Mon, 24 Oct 2022 12:33:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0619CC433D6;
-        Mon, 24 Oct 2022 12:33:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97290B8171B;
+        Mon, 24 Oct 2022 12:33:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E648DC433C1;
+        Mon, 24 Oct 2022 12:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614817;
-        bh=LKzotlONbnZIXGa7AgoINdc1KVArDb4wRqS7Xv8qXCU=;
+        s=korg; t=1666614825;
+        bh=lHA+zVgSOdyqCjkiWL6eqbyOGZwAZZm29Yp/49MU+HM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r7OVsK5A4GgukZiGOINg4R2iF6UhCr8nNdOy83Dv/ibkVVwPzzXR23WP8j7ODGwhH
-         jXp5m2+2R8E7y32pu+NAUdaTe/A1Mr17E3WwFs+AByhe3fLLr9YJwd5j/JsZ/W4d8l
-         FRQFd3dT2Jk0W0r9MT8Wz0DI5RbwCKfqi+01ij0k=
+        b=amAh61bEiYY8derGj+RfX0I1J5GaSa2BK6yB4yqDDIEtlTVTG46axI1KUAMoUYD99
+         HGfHzfUQOaOVqyPrssR+Gnl7oX12InBb+9Qazt/uQFE9tN+zsP+HqpBKglwXHCIf+9
+         UK4k44ymO6ggipFuOwi8YdMdXoOAEbOqj4SkJG3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Stable@vger.kernel.org,
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 015/530] iio: dac: ad5593r: Fix i2c read protocol requirements
-Date:   Mon, 24 Oct 2022 13:25:59 +0200
-Message-Id: <20221024113045.707143123@linuxfoundation.org>
+Subject: [PATCH 5.15 018/530] iio: pressure: dps310: Refactor startup procedure
+Date:   Mon, 24 Oct 2022 13:26:02 +0200
+Message-Id: <20221024113045.853469548@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -55,110 +54,239 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-commit 558a25f903b4af6361b7fbeea08a6446a0745653 upstream.
+commit c2329717bdd3fa62f8a2f3d8d85ad0bee4556bd7 upstream.
 
-For reliable operation across the full range of supported
-interface rates, the AD5593R needs a STOP condition between
-address write, and data read (like show in the datasheet Figure 40)
-so in turn i2c_smbus_read_word_swapped cannot be used.
+Move the startup procedure into a function, and correct a missing
+check on the return code for writing the PRS_CFG register.
 
-While at it, a simple helper was added to make the code simpler.
-
-Fixes: 56ca9db862bf ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220913073413.140475-2-nuno.sa@analog.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220915195719.136812-2-eajames@linux.ibm.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/dac/ad5593r.c |   46 +++++++++++++++++++++++++++-------------------
- 1 file changed, 27 insertions(+), 19 deletions(-)
+ drivers/iio/pressure/dps310.c |  188 ++++++++++++++++++++++--------------------
+ 1 file changed, 99 insertions(+), 89 deletions(-)
 
---- a/drivers/iio/dac/ad5593r.c
-+++ b/drivers/iio/dac/ad5593r.c
-@@ -13,6 +13,8 @@
- #include <linux/module.h>
- #include <linux/mod_devicetable.h>
+--- a/drivers/iio/pressure/dps310.c
++++ b/drivers/iio/pressure/dps310.c
+@@ -159,6 +159,102 @@ static int dps310_get_coefs(struct dps31
+ 	return 0;
+ }
  
-+#include <asm/unaligned.h>
-+
- #define AD5593R_MODE_CONF		(0 << 4)
- #define AD5593R_MODE_DAC_WRITE		(1 << 4)
- #define AD5593R_MODE_ADC_READBACK	(4 << 4)
-@@ -20,6 +22,24 @@
- #define AD5593R_MODE_GPIO_READBACK	(6 << 4)
- #define AD5593R_MODE_REG_READBACK	(7 << 4)
- 
-+static int ad5593r_read_word(struct i2c_client *i2c, u8 reg, u16 *value)
++/*
++ * Some versions of the chip will read temperatures in the ~60C range when
++ * it's actually ~20C. This is the manufacturer recommended workaround
++ * to correct the issue. The registers used below are undocumented.
++ */
++static int dps310_temp_workaround(struct dps310_data *data)
 +{
-+	int ret;
-+	u8 buf[2];
++	int rc;
++	int reg;
 +
-+	ret = i2c_smbus_write_byte(i2c, reg);
-+	if (ret < 0)
-+		return ret;
++	rc = regmap_read(data->regmap, 0x32, &reg);
++	if (rc)
++		return rc;
 +
-+	ret = i2c_master_recv(i2c, buf, sizeof(buf));
-+	if (ret < 0)
-+		return ret;
++	/*
++	 * If bit 1 is set then the device is okay, and the workaround does not
++	 * need to be applied
++	 */
++	if (reg & BIT(1))
++		return 0;
 +
-+	*value = get_unaligned_be16(buf);
++	rc = regmap_write(data->regmap, 0x0e, 0xA5);
++	if (rc)
++		return rc;
 +
-+	return 0;
++	rc = regmap_write(data->regmap, 0x0f, 0x96);
++	if (rc)
++		return rc;
++
++	rc = regmap_write(data->regmap, 0x62, 0x02);
++	if (rc)
++		return rc;
++
++	rc = regmap_write(data->regmap, 0x0e, 0x00);
++	if (rc)
++		return rc;
++
++	return regmap_write(data->regmap, 0x0f, 0x00);
 +}
 +
- static int ad5593r_write_dac(struct ad5592r_state *st, unsigned chan, u16 value)
++static int dps310_startup(struct dps310_data *data)
++{
++	int rc;
++	int ready;
++
++	/*
++	 * Set up pressure sensor in single sample, one measurement per second
++	 * mode
++	 */
++	rc = regmap_write(data->regmap, DPS310_PRS_CFG, 0);
++	if (rc)
++		return rc;
++
++	/*
++	 * Set up external (MEMS) temperature sensor in single sample, one
++	 * measurement per second mode
++	 */
++	rc = regmap_write(data->regmap, DPS310_TMP_CFG, DPS310_TMP_EXT);
++	if (rc)
++		return rc;
++
++	/* Temp and pressure shifts are disabled when PRC <= 8 */
++	rc = regmap_write_bits(data->regmap, DPS310_CFG_REG,
++			       DPS310_PRS_SHIFT_EN | DPS310_TMP_SHIFT_EN, 0);
++	if (rc)
++		return rc;
++
++	/* MEAS_CFG doesn't update correctly unless first written with 0 */
++	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
++			       DPS310_MEAS_CTRL_BITS, 0);
++	if (rc)
++		return rc;
++
++	/* Turn on temperature and pressure measurement in the background */
++	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
++			       DPS310_MEAS_CTRL_BITS, DPS310_PRS_EN |
++			       DPS310_TEMP_EN | DPS310_BACKGROUND);
++	if (rc)
++		return rc;
++
++	/*
++	 * Calibration coefficients required for reporting temperature.
++	 * They are available 40ms after the device has started
++	 */
++	rc = regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready,
++				      ready & DPS310_COEF_RDY, 10000, 40000);
++	if (rc)
++		return rc;
++
++	rc = dps310_get_coefs(data);
++	if (rc)
++		return rc;
++
++	return dps310_temp_workaround(data);
++}
++
+ static int dps310_get_pres_precision(struct dps310_data *data)
  {
- 	struct i2c_client *i2c = to_i2c_client(st->dev);
-@@ -38,13 +58,7 @@ static int ad5593r_read_adc(struct ad559
- 	if (val < 0)
- 		return (int) val;
+ 	int rc;
+@@ -677,52 +773,12 @@ static const struct iio_info dps310_info
+ 	.write_raw = dps310_write_raw,
+ };
  
--	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_ADC_READBACK);
--	if (val < 0)
--		return (int) val;
+-/*
+- * Some verions of chip will read temperatures in the ~60C range when
+- * its actually ~20C. This is the manufacturer recommended workaround
+- * to correct the issue. The registers used below are undocumented.
+- */
+-static int dps310_temp_workaround(struct dps310_data *data)
+-{
+-	int rc;
+-	int reg;
 -
--	*value = (u16) val;
+-	rc = regmap_read(data->regmap, 0x32, &reg);
+-	if (rc < 0)
+-		return rc;
 -
--	return 0;
-+	return ad5593r_read_word(i2c, AD5593R_MODE_ADC_READBACK, value);
- }
- 
- static int ad5593r_reg_write(struct ad5592r_state *st, u8 reg, u16 value)
-@@ -58,25 +72,19 @@ static int ad5593r_reg_write(struct ad55
- static int ad5593r_reg_read(struct ad5592r_state *st, u8 reg, u16 *value)
+-	/*
+-	 * If bit 1 is set then the device is okay, and the workaround does not
+-	 * need to be applied
+-	 */
+-	if (reg & BIT(1))
+-		return 0;
+-
+-	rc = regmap_write(data->regmap, 0x0e, 0xA5);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = regmap_write(data->regmap, 0x0f, 0x96);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = regmap_write(data->regmap, 0x62, 0x02);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = regmap_write(data->regmap, 0x0e, 0x00);
+-	if (rc < 0)
+-		return rc;
+-
+-	return regmap_write(data->regmap, 0x0f, 0x00);
+-}
+-
+ static int dps310_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
  {
- 	struct i2c_client *i2c = to_i2c_client(st->dev);
--	s32 val;
+ 	struct dps310_data *data;
+ 	struct iio_dev *iio;
+-	int rc, ready;
++	int rc;
+ 
+ 	iio = devm_iio_device_alloc(&client->dev,  sizeof(*data));
+ 	if (!iio)
+@@ -747,54 +803,8 @@ static int dps310_probe(struct i2c_clien
+ 	if (rc)
+ 		return rc;
+ 
+-	/*
+-	 * Set up pressure sensor in single sample, one measurement per second
+-	 * mode
+-	 */
+-	rc = regmap_write(data->regmap, DPS310_PRS_CFG, 0);
 -
--	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_REG_READBACK | reg);
--	if (val < 0)
--		return (int) val;
- 
--	*value = (u16) val;
+-	/*
+-	 * Set up external (MEMS) temperature sensor in single sample, one
+-	 * measurement per second mode
+-	 */
+-	rc = regmap_write(data->regmap, DPS310_TMP_CFG, DPS310_TMP_EXT);
+-	if (rc < 0)
+-		return rc;
 -
--	return 0;
-+	return ad5593r_read_word(i2c, AD5593R_MODE_REG_READBACK | reg, value);
- }
+-	/* Temp and pressure shifts are disabled when PRC <= 8 */
+-	rc = regmap_write_bits(data->regmap, DPS310_CFG_REG,
+-			       DPS310_PRS_SHIFT_EN | DPS310_TMP_SHIFT_EN, 0);
+-	if (rc < 0)
+-		return rc;
+-
+-	/* MEAS_CFG doesn't update correctly unless first written with 0 */
+-	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
+-			       DPS310_MEAS_CTRL_BITS, 0);
+-	if (rc < 0)
+-		return rc;
+-
+-	/* Turn on temperature and pressure measurement in the background */
+-	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
+-			       DPS310_MEAS_CTRL_BITS, DPS310_PRS_EN |
+-			       DPS310_TEMP_EN | DPS310_BACKGROUND);
+-	if (rc < 0)
+-		return rc;
+-
+-	/*
+-	 * Calibration coefficients required for reporting temperature.
+-	 * They are available 40ms after the device has started
+-	 */
+-	rc = regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready,
+-				      ready & DPS310_COEF_RDY, 10000, 40000);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = dps310_get_coefs(data);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = dps310_temp_workaround(data);
+-	if (rc < 0)
++	rc = dps310_startup(data);
++	if (rc)
+ 		return rc;
  
- static int ad5593r_gpio_read(struct ad5592r_state *st, u8 *value)
- {
- 	struct i2c_client *i2c = to_i2c_client(st->dev);
--	s32 val;
-+	u16 val;
-+	int ret;
- 
--	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_GPIO_READBACK);
--	if (val < 0)
--		return (int) val;
-+	ret = ad5593r_read_word(i2c, AD5593R_MODE_GPIO_READBACK, &val);
-+	if (ret)
-+		return ret;
- 
- 	*value = (u8) val;
- 
+ 	rc = devm_iio_device_register(&client->dev, iio);
 
 
