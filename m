@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB2D860BB1C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C7660BBC6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 23:12:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234482AbiJXUrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:47:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38874 "EHLO
+        id S233622AbiJXVML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 17:12:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235142AbiJXUqc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:46:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B5911A3D;
-        Mon, 24 Oct 2022 11:54:21 -0700 (PDT)
+        with ESMTP id S230336AbiJXVLg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 17:11:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 630C92CF4B9;
+        Mon, 24 Oct 2022 12:17:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98481612FB;
-        Mon, 24 Oct 2022 12:39:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD7C0C433C1;
-        Mon, 24 Oct 2022 12:39:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70F13B818ED;
+        Mon, 24 Oct 2022 12:40:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEC36C433D6;
+        Mon, 24 Oct 2022 12:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615167;
-        bh=EYLYx3bDsQItGVbTLVcNlZR3otBYcw1zafLK5+iRb7g=;
+        s=korg; t=1666615214;
+        bh=QOgwnGXtJ5WnEebGLcaB/JmKLZooNWI4me6Yyig3MGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+ioCZkFsCjljdMPqCEt9PvzHeOKHxQ2sbwLlM5kA4+MA7YD25skNqxjlEo7I2Nuz
-         bQE7zQgnSYvRVeXzCKcJ43hdikaNrBOg5/R5MtLF4e4NW1k3vCPyhvzvxTorJ74J57
-         oDIBVNVbF6b7UQRe6BoJjGd03rut7pxkRK6+scPA=
+        b=iRWckKq9EnFrLYDrC9GJuEKNbFu2r0czBkpMruu5cF+43M//pVLghWgIC2JP7swHf
+         GgCyD+kJ1nFBTXFCiY2zlwv63iHT62DNWBdo1uNsavJNOJJOSO7RJIgXbzcTMOa9Nf
+         bpLn5com/5n51xFU8nOfbfVrrxx4NM1QP2fATgU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.15 130/530] drm/i915: Fix watermark calculations for gen12+ RC CCS modifier
-Date:   Mon, 24 Oct 2022 13:27:54 +0200
-Message-Id: <20221024113050.937271224@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+Subject: [PATCH 5.15 135/530] selinux: use "grep -E" instead of "egrep"
+Date:   Mon, 24 Oct 2022 13:27:59 +0200
+Message-Id: <20221024113051.162387424@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -55,47 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit c56453a00f19ccddee302f5f9fe96b80e0b47fd3 upstream.
+commit c969bb8dbaf2f3628927eae73e7c579a74cf1b6e upstream.
 
-Take the gen12+ RC CCS modifier into account when calculating the
-watermarks. Othwerwise we'll calculate the watermarks thinking this
-Y-tiled modifier is linear.
+The latest version of grep claims that egrep is now obsolete so the build
+now contains warnings that look like:
+	egrep: warning: egrep is obsolescent; using grep -E
+fix this by using "grep -E" instead.
 
-The rc_surface part is actually a nop since that is not used
-for any glk+ platform.
-
-v2: Split RC CCS vs. MC CCS to separate patches
-
-Cc: stable@vger.kernel.org
-Fixes: b3e57bccd68a ("drm/i915/tgl: Gen-12 render decompression")
-Reviewed-by: Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221003111544.8007-2-ville.syrjala@linux.intel.com
-(cherry picked from commit a89a96a586114f67598c6391c75678b4dba5c2da)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Eric Paris <eparis@parisplace.org>
+Cc: selinux@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[PM: tweak to remove vdso reference, cleanup subj line]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/intel_pm.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ scripts/selinux/install_policy.sh |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -5402,10 +5402,12 @@ skl_compute_wm_params(const struct intel
- 	wp->y_tiled = modifier == I915_FORMAT_MOD_Y_TILED ||
- 		      modifier == I915_FORMAT_MOD_Yf_TILED ||
- 		      modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
--		      modifier == I915_FORMAT_MOD_Yf_TILED_CCS;
-+		      modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
-+		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS;
- 	wp->x_tiled = modifier == I915_FORMAT_MOD_X_TILED;
- 	wp->rc_surface = modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
--			 modifier == I915_FORMAT_MOD_Yf_TILED_CCS;
-+			 modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
-+			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS;
- 	wp->is_planar = intel_format_info_is_yuv_semiplanar(format, modifier);
+--- a/scripts/selinux/install_policy.sh
++++ b/scripts/selinux/install_policy.sh
+@@ -78,7 +78,7 @@ cd /etc/selinux/dummy/contexts/files
+ $SF -F file_contexts /
  
- 	wp->width = width;
+ mounts=`cat /proc/$$/mounts | \
+-	egrep "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
++	grep -E "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
+ 	awk '{ print $2 '}`
+ $SF -F file_contexts $mounts
+ 
 
 
