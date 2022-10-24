@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B644060A90A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:15:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29DEF60ABB6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:55:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235685AbiJXNPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:15:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34428 "EHLO
+        id S236708AbiJXNzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:55:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236010AbiJXNO3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:14:29 -0400
+        with ESMTP id S236872AbiJXNyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:54:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF992558F6;
-        Mon, 24 Oct 2022 05:25:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C0D5BE2C2;
+        Mon, 24 Oct 2022 05:44:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79983612DF;
-        Mon, 24 Oct 2022 12:24:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BA06C433C1;
-        Mon, 24 Oct 2022 12:24:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B49FD612C9;
+        Mon, 24 Oct 2022 12:44:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCF6FC433C1;
+        Mon, 24 Oct 2022 12:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614273;
-        bh=aMhgMqMGgRl1+zscEHQn3kdfGb1OaQRYRmBXmXDblFE=;
+        s=korg; t=1666615442;
+        bh=886F7+QHCEAnDMEkfjueOSSJcarr3O9tSlES4/xq6vE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xuuz4J9SvyE18GpjJQZPFfjQreME7g+kOXum7ZuXKC7pem0EzXzV23yPb1IR7xh9v
-         T7SW0c02HMSf4BteNd1mx5SRXLCvU4Q0q2AqBTBzSK6851FSokij74/2LTznNs2zDn
-         RWIGbbEUIWgWojp11jcDXnbMF6SV9J9mhKwn6uE4=
+        b=zn03B/0Cciu4XNi4N6qp5pIhy5ZRJoA5/6lBMh2ET05niaVDFpNRMO6zVXlSAI8WD
+         ZZ0veM6mnTwPy9d2TEZT2DuIPZPf4z4SqoPA4ytexKaZSb0A7zA2c5UDzkIy4hHcJa
+         gdpw2CK/Vn0Ja3TfwDk6Rz4SVbionCPl54T8501Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 199/390] clk: berlin: Add of_node_put() for of_get_parent()
+Subject: [PATCH 5.15 252/530] ARM: dts: imx6qdl-kontron-samx6i: hook up DDC i2c bus
 Date:   Mon, 24 Oct 2022 13:29:56 +0200
-Message-Id: <20221024113031.260034287@linuxfoundation.org>
+Message-Id: <20221024113056.510332388@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 37c381b812dcbfde9c3f1f3d3e75fdfc1b40d5bc ]
+[ Upstream commit afd8f77957e3e83adf21d9229c61ff37f44a177a ]
 
-In berlin2_clock_setup() and berlin2q_clock_setup(), we need to
-call of_node_put() for the reference returned by of_get_parent()
-which has increased the refcount. We should call *_put() in fail
-path or when it is not used anymore.
+i2c2 is routed to the pins dedicated as DDC in the module standard.
+Reduce clock rate to 100kHz to be in line with VESA standard and hook
+this bus up to the HDMI node.
 
-Fixes: 26b3b6b959b2 ("clk: berlin: prepare simple-mfd conversion")
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220708084900.311684-1-windhl@126.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 708ed2649ad8 ("ARM: dts: imx6qdl-kontron-samx6i: increase i2c-frequency")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+[m.felsch@pengutronix.de: add fixes line]
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/berlin/bg2.c  | 5 ++++-
- drivers/clk/berlin/bg2q.c | 6 +++++-
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/berlin/bg2.c b/drivers/clk/berlin/bg2.c
-index bccdfa00fd37..67a9edbba29c 100644
---- a/drivers/clk/berlin/bg2.c
-+++ b/drivers/clk/berlin/bg2.c
-@@ -500,12 +500,15 @@ static void __init berlin2_clock_setup(struct device_node *np)
- 	int n, ret;
+diff --git a/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi b/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
+index 6b791d515e29..683f6e58ab23 100644
+--- a/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
+@@ -263,6 +263,10 @@
+ 	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
+ };
  
- 	clk_data = kzalloc(struct_size(clk_data, hws, MAX_CLKS), GFP_KERNEL);
--	if (!clk_data)
-+	if (!clk_data) {
-+		of_node_put(parent_np);
- 		return;
-+	}
- 	clk_data->num = MAX_CLKS;
- 	hws = clk_data->hws;
++&hdmi {
++	ddc-i2c-bus = <&i2c2>;
++};
++
+ &i2c_intern {
+ 	pmic@8 {
+ 		compatible = "fsl,pfuze100";
+@@ -387,7 +391,7 @@
  
- 	gbase = of_iomap(parent_np, 0);
-+	of_node_put(parent_np);
- 	if (!gbase)
- 		return;
- 
-diff --git a/drivers/clk/berlin/bg2q.c b/drivers/clk/berlin/bg2q.c
-index e9518d35f262..dd2784bb75b6 100644
---- a/drivers/clk/berlin/bg2q.c
-+++ b/drivers/clk/berlin/bg2q.c
-@@ -286,19 +286,23 @@ static void __init berlin2q_clock_setup(struct device_node *np)
- 	int n, ret;
- 
- 	clk_data = kzalloc(struct_size(clk_data, hws, MAX_CLKS), GFP_KERNEL);
--	if (!clk_data)
-+	if (!clk_data) {
-+		of_node_put(parent_np);
- 		return;
-+	}
- 	clk_data->num = MAX_CLKS;
- 	hws = clk_data->hws;
- 
- 	gbase = of_iomap(parent_np, 0);
- 	if (!gbase) {
-+		of_node_put(parent_np);
- 		pr_err("%pOF: Unable to map global base\n", np);
- 		return;
- 	}
- 
- 	/* BG2Q CPU PLL is not part of global registers */
- 	cpupll_base = of_iomap(parent_np, 1);
-+	of_node_put(parent_np);
- 	if (!cpupll_base) {
- 		pr_err("%pOF: Unable to map cpupll base\n", np);
- 		iounmap(gbase);
+ /* HDMI_CTRL */
+ &i2c2 {
+-	clock-frequency = <375000>;
++	clock-frequency = <100000>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_i2c2>;
+ };
 -- 
 2.35.1
 
