@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FB9A60A910
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:15:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94FA760ABAE
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235677AbiJXNPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:15:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43754 "EHLO
+        id S236646AbiJXNzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:55:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235975AbiJXNOR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:14:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B4D97AB1B;
-        Mon, 24 Oct 2022 05:25:28 -0700 (PDT)
+        with ESMTP id S236767AbiJXNyD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:54:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ADEEBC603;
+        Mon, 24 Oct 2022 05:43:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F318612BC;
-        Mon, 24 Oct 2022 12:24:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 709C9C433C1;
-        Mon, 24 Oct 2022 12:24:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8509F612FF;
+        Mon, 24 Oct 2022 12:43:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B6ECC433C1;
+        Mon, 24 Oct 2022 12:43:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614281;
-        bh=MXrEhhsTFOLm8+h3IlgHPhePRebQau9ZYKXn4VVTL/Y=;
+        s=korg; t=1666615403;
+        bh=0FgWjyKLI2um8JGHlqz65laz4O0Ndws/2JkNnZQ5x/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MH4Pzop2o+POvk801Vbm/qKk+NUcTAhL1oyndEFOzcgN23aK4iehSVJvSJNcU056e
-         y405mYYR5KNZf7NLNSBMYxVNZsyXD6wzty80vUsfrWpoEaIDNC57wzExT3cwDhi25S
-         VV8cNshKW/Frlsa/a75yhZc0u4ekPZ1yseQbwI5M=
+        b=e26Mpln/PiNpVZ6IShUH/vn39lR74MJBpsdULGdBokqh0znIJ5wsWWIIEsmIMSxbQ
+         ZViyaAPrlXpQKqbcPei3BlHILv0ivo49Ee0I/9y/oogfhMbl+lbZfQFm7bheN0BEyP
+         s8W97SXjDFo2GKm72RV0cAqzJhn8zwKnfVEFspIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 184/390] ARM: dts: exynos: fix polarity of VBUS GPIO of Origen
-Date:   Mon, 24 Oct 2022 13:29:41 +0200
-Message-Id: <20221024113030.606259701@linuxfoundation.org>
+Subject: [PATCH 5.15 238/530] ASoC: da7219: Fix an error handling path in da7219_register_dai_clks()
+Date:   Mon, 24 Oct 2022 13:29:42 +0200
+Message-Id: <20221024113055.874671211@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit a08137bd1e0a7ce951dce9ce4a83e39d379b6e1b ]
+[ Upstream commit abb4e4349afe7eecdb0499582f1c777031e3a7c8 ]
 
-EHCI Oxynos (drivers/usb/host/ehci-exynos.c) drives VBUS GPIO high when
-trying to power up the bus, therefore the GPIO in DTS must be marked as
-"active high". This will be important when EHCI driver is converted to
-gpiod API that respects declared polarities.
+If clk_hw_register() fails, the corresponding clk should not be
+unregistered.
 
-Fixes: 4e8991def565 ("ARM: dts: exynos: Enable AX88760 USB hub on Origen board")
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Link: https://lore.kernel.org/r/20220927220504.3744878-1-dmitry.torokhov@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+To handle errors from loops, clean up partial iterations before doing the
+goto.  So add a clk_hw_unregister().
+Then use a while (--i >= 0) loop in the unwind section.
+
+Fixes: 78013a1cf297 ("ASoC: da7219: Fix clock handling around codec level probe")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/e4acceab57a0d9e477a8d5890a45c5309e553e7c.1663875789.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos4412-origen.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/da7219.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos4412-origen.dts b/arch/arm/boot/dts/exynos4412-origen.dts
-index c2e793b69e7d..e2d76ea4404e 100644
---- a/arch/arm/boot/dts/exynos4412-origen.dts
-+++ b/arch/arm/boot/dts/exynos4412-origen.dts
-@@ -95,7 +95,7 @@
- };
+diff --git a/sound/soc/codecs/da7219.c b/sound/soc/codecs/da7219.c
+index c7493549a9a5..da4c24b8dae5 100644
+--- a/sound/soc/codecs/da7219.c
++++ b/sound/soc/codecs/da7219.c
+@@ -2196,6 +2196,7 @@ static int da7219_register_dai_clks(struct snd_soc_component *component)
+ 			dai_clk_lookup = clkdev_hw_create(dai_clk_hw, init.name,
+ 							  "%s", dev_name(dev));
+ 			if (!dai_clk_lookup) {
++				clk_hw_unregister(dai_clk_hw);
+ 				ret = -ENOMEM;
+ 				goto err;
+ 			} else {
+@@ -2217,12 +2218,12 @@ static int da7219_register_dai_clks(struct snd_soc_component *component)
+ 	return 0;
  
- &ehci {
--	samsung,vbus-gpio = <&gpx3 5 1>;
-+	samsung,vbus-gpio = <&gpx3 5 GPIO_ACTIVE_HIGH>;
- 	status = "okay";
- 	phys = <&exynos_usbphy 2>, <&exynos_usbphy 3>;
- 	phy-names = "hsic0", "hsic1";
+ err:
+-	do {
++	while (--i >= 0) {
+ 		if (da7219->dai_clks_lookup[i])
+ 			clkdev_drop(da7219->dai_clks_lookup[i]);
+ 
+ 		clk_hw_unregister(&da7219->dai_clks_hw[i]);
+-	} while (i-- > 0);
++	}
+ 
+ 	if (np)
+ 		kfree(da7219->clk_hw_data);
 -- 
 2.35.1
 
