@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B50560B97D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:13:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F34B760BA09
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:25:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233253AbiJXUNa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:13:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37626 "EHLO
+        id S231712AbiJXUY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:24:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233183AbiJXUM5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:12:57 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F9554C00C;
-        Mon, 24 Oct 2022 11:31:26 -0700 (PDT)
+        with ESMTP id S233302AbiJXUX3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:23:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E04701CDCDE;
+        Mon, 24 Oct 2022 11:38:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F3EC6CE16FC;
-        Mon, 24 Oct 2022 12:54:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1346AC433C1;
-        Mon, 24 Oct 2022 12:54:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD12161298;
+        Mon, 24 Oct 2022 12:53:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D102EC433C1;
+        Mon, 24 Oct 2022 12:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616096;
-        bh=fummW0x/o/r/SgB1ZUE91SpUwlijrDtb+JgfkTDdCV0=;
+        s=korg; t=1666616030;
+        bh=emIx/+3Q8BsgCf+v6rmowQa5eTKpefi3ZwOFOIBfSkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oBUXLdqQhSdKqVOYMNYn1yOjSS4bifFR8e5+DEBCRx4yVfemmEWL7uriyYxyFkXqn
-         eJvcNdOKXQk7QU6O0/YljEvufgoigvJyFzQZs1MJJ+PfdmkDVbkoKXsf7Smd5u8YkV
-         ogeTXaVvcNbH+uP1PMgdJ3wjlQA/nYPtQehi33OY=
+        b=qM+bLZKEIX0JyXH4/8PHo5oLDX3b5TbTQwHOSaYs6N7QQaU2MrrP3dQWuTWDf2JoA
+         h/lcfPEGO8NXQU3OkCssnmu+7FFJ6zHoT458IBWdHsXDKyYzcRakvOBbd5A2TS57cU
+         xi7exCvECg91tFj0evR9WLRvvdgDCezSiKc7+ACY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 469/530] ARM: dts: imx6sx: add missing properties for sram
-Date:   Mon, 24 Oct 2022 13:33:33 +0200
-Message-Id: <20221024113106.275606298@linuxfoundation.org>
+Subject: [PATCH 5.15 475/530] ARM: 9242/1: kasan: Only map modules if CONFIG_KASAN_VMALLOC=n
+Date:   Mon, 24 Oct 2022 13:33:39 +0200
+Message-Id: <20221024113106.539687901@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,45 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Alex Sverdlin <alexander.sverdlin@nokia.com>
 
-[ Upstream commit 415432c008b2bce8138841356ba444631cabaa50 ]
+[ Upstream commit 823f606ab6b4759a1faf0388abcf4fb0776710d2 ]
 
-All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
-sram@900000: '#address-cells' is a required property
-sram@900000: '#size-cells' is a required property
-sram@900000: 'ranges' is a required property
+In case CONFIG_KASAN_VMALLOC=y kasan_populate_vmalloc() allocates the
+shadow pages dynamically. But even worse is that kasan_release_vmalloc()
+releases them, which is not compatible with create_mapping() of
+MODULES_VADDR..MODULES_END range:
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+BUG: Bad page state in process kworker/9:1  pfn:2068b
+page:e5e06160 refcount:0 mapcount:0 mapping:00000000 index:0x0
+flags: 0x1000(reserved)
+raw: 00001000 e5e06164 e5e06164 00000000 00000000 00000000 ffffffff 00000000
+page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
+bad because of flags: 0x1000(reserved)
+Modules linked in: ip_tables
+CPU: 9 PID: 154 Comm: kworker/9:1 Not tainted 5.4.188-... #1
+Hardware name: LSI Axxia AXM55XX
+Workqueue: events do_free_init
+unwind_backtrace
+show_stack
+dump_stack
+bad_page
+free_pcp_prepare
+free_unref_page
+kasan_depopulate_vmalloc_pte
+__apply_to_page_range
+apply_to_existing_page_range
+kasan_release_vmalloc
+__purge_vmap_area_lazy
+_vm_unmap_aliases.part.0
+__vunmap
+do_free_init
+process_one_work
+worker_thread
+kthread
+
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6sx.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/mm/kasan_init.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
-index 8516730778df..8bef5440278b 100644
---- a/arch/arm/boot/dts/imx6sx.dtsi
-+++ b/arch/arm/boot/dts/imx6sx.dtsi
-@@ -164,12 +164,18 @@
- 		ocram_s: sram@8f8000 {
- 			compatible = "mmio-sram";
- 			reg = <0x008f8000 0x4000>;
-+			ranges = <0 0x008f8000 0x4000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 			clocks = <&clks IMX6SX_CLK_OCRAM_S>;
- 		};
+diff --git a/arch/arm/mm/kasan_init.c b/arch/arm/mm/kasan_init.c
+index 4b1619584b23..948ada4a2938 100644
+--- a/arch/arm/mm/kasan_init.c
++++ b/arch/arm/mm/kasan_init.c
+@@ -264,12 +264,17 @@ void __init kasan_init(void)
  
- 		ocram: sram@900000 {
- 			compatible = "mmio-sram";
- 			reg = <0x00900000 0x20000>;
-+			ranges = <0 0x00900000 0x20000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 			clocks = <&clks IMX6SX_CLK_OCRAM>;
- 		};
+ 	/*
+ 	 * 1. The module global variables are in MODULES_VADDR ~ MODULES_END,
+-	 *    so we need to map this area.
++	 *    so we need to map this area if CONFIG_KASAN_VMALLOC=n. With
++	 *    VMALLOC support KASAN will manage this region dynamically,
++	 *    refer to kasan_populate_vmalloc() and ARM's implementation of
++	 *    module_alloc().
+ 	 * 2. PKMAP_BASE ~ PKMAP_BASE+PMD_SIZE's shadow and MODULES_VADDR
+ 	 *    ~ MODULES_END's shadow is in the same PMD_SIZE, so we can't
+ 	 *    use kasan_populate_zero_shadow.
+ 	 */
+-	create_mapping((void *)MODULES_VADDR, (void *)(PKMAP_BASE + PMD_SIZE));
++	if (!IS_ENABLED(CONFIG_KASAN_VMALLOC) && IS_ENABLED(CONFIG_MODULES))
++		create_mapping((void *)MODULES_VADDR, (void *)(MODULES_END));
++	create_mapping((void *)PKMAP_BASE, (void *)(PKMAP_BASE + PMD_SIZE));
  
+ 	/*
+ 	 * KAsan may reuse the contents of kasan_early_shadow_pte directly, so
 -- 
 2.35.1
 
