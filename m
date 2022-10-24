@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D000B60B075
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90BAE60B338
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:00:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232958AbiJXQFh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:05:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38590 "EHLO
+        id S229962AbiJXRAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 13:00:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233007AbiJXQEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CB6E1E5764;
-        Mon, 24 Oct 2022 07:56:21 -0700 (PDT)
+        with ESMTP id S232254AbiJXQ6Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:58:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15D4B43600;
+        Mon, 24 Oct 2022 08:37:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A163B8114A;
-        Mon, 24 Oct 2022 12:26:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B1BDC433C1;
-        Mon, 24 Oct 2022 12:26:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18594B81217;
+        Mon, 24 Oct 2022 12:00:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EF7FC433D6;
+        Mon, 24 Oct 2022 12:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614381;
-        bh=npCRfkXpyD3oFS/RTYI4IZ26DGEUxTCME7Uv6lz4OjQ=;
+        s=korg; t=1666612856;
+        bh=HG44hPgTBmWsbYCtnrIvirEw6ej6b3jB0V16siZzCW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AhhkDcS0OGAsR+3db1qHYVsL9FsaGRBHe/bS3tCF82kQEuyOpqNPIlHp0hewRVcD3
-         amRQiO4JdiaTUXZGAo/b1tzkyJth/TfPNd8Q+ZaYWh3r8aPopkQ/XQXfAsfueMBuEW
-         C65/bb3UhLT7x0dYbSOsSHldWCSRAmuacPVJytPQ=
+        b=JOuH62u1icqRJpcRqs+gf9R41VRDXQ8Yf49RUmdpY7jhgpMoiUqaV8uXQw5Jb3SHb
+         rxGg6krjoNi62fW+c30b/uhzsqHFWF+U598wNz86EAd0eLBmxpmYIWxmLgIVUMlsQv
+         AVZpDCjN9nbivPyn09Ok6wc8au863MjUutyGzrQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 239/390] phy: qualcomm: call clk_disable_unprepare in the error handling
-Date:   Mon, 24 Oct 2022 13:30:36 +0200
-Message-Id: <20221024113032.978853565@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 118/229] iio: adc: at91-sama5d2_adc: check return status for pressure and touch
+Date:   Mon, 24 Oct 2022 13:30:37 +0200
+Message-Id: <20221024113002.811943227@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit c3966ced8eb8dc53b6c8d7f97d32cc8a2107d83e ]
+[ Upstream commit d84ace944a3b24529798dbae1340dea098473155 ]
 
-Smatch reports the following error:
+Check return status of at91_adc_read_position() and
+at91_adc_read_pressure() in at91_adc_read_info_raw().
 
-drivers/phy/qualcomm/phy-qcom-usb-hsic.c:82 qcom_usb_hsic_phy_power_on()
-warn: 'uphy->cal_clk' from clk_prepare_enable() not released on lines:
-58.
-drivers/phy/qualcomm/phy-qcom-usb-hsic.c:82 qcom_usb_hsic_phy_power_on()
-warn: 'uphy->cal_sleep_clk' from clk_prepare_enable() not released on
-lines: 58.
-drivers/phy/qualcomm/phy-qcom-usb-hsic.c:82 qcom_usb_hsic_phy_power_on()
-warn: 'uphy->phy_clk' from clk_prepare_enable() not released on lines:
-58.
-
-Fix this by calling proper clk_disable_unprepare calls.
-
-Fixes: 0b56e9a7e835 ("phy: Group vendor specific phy drivers")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://lore.kernel.org/r/20220914051334.69282-1-dzm91@hust.edu.cn
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 6794e23fa3fe ("iio: adc: at91-sama5d2_adc: add support for oversampling resolution")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220803102855.2191070-3-claudiu.beznea@microchip.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-usb-hsic.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/iio/adc/at91-sama5d2_adc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-usb-hsic.c b/drivers/phy/qualcomm/phy-qcom-usb-hsic.c
-index 04d18d52f700..d4741c2dbbb5 100644
---- a/drivers/phy/qualcomm/phy-qcom-usb-hsic.c
-+++ b/drivers/phy/qualcomm/phy-qcom-usb-hsic.c
-@@ -54,8 +54,10 @@ static int qcom_usb_hsic_phy_power_on(struct phy *phy)
+diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
+index 141badb8707e..b355899f54cc 100644
+--- a/drivers/iio/adc/at91-sama5d2_adc.c
++++ b/drivers/iio/adc/at91-sama5d2_adc.c
+@@ -1329,8 +1329,10 @@ static int at91_adc_read_info_raw(struct iio_dev *indio_dev,
+ 		*val = tmp_val;
+ 		mutex_unlock(&st->lock);
+ 		iio_device_release_direct_mode(indio_dev);
++		if (ret > 0)
++			ret = at91_adc_adjust_val_osr(st, val);
  
- 	/* Configure pins for HSIC functionality */
- 	pins_default = pinctrl_lookup_state(uphy->pctl, PINCTRL_STATE_DEFAULT);
--	if (IS_ERR(pins_default))
--		return PTR_ERR(pins_default);
-+	if (IS_ERR(pins_default)) {
-+		ret = PTR_ERR(pins_default);
-+		goto err_ulpi;
-+	}
+-		return at91_adc_adjust_val_osr(st, val);
++		return ret;
+ 	}
+ 	if (chan->type == IIO_PRESSURE) {
+ 		ret = iio_device_claim_direct_mode(indio_dev);
+@@ -1343,8 +1345,10 @@ static int at91_adc_read_info_raw(struct iio_dev *indio_dev,
+ 		*val = tmp_val;
+ 		mutex_unlock(&st->lock);
+ 		iio_device_release_direct_mode(indio_dev);
++		if (ret > 0)
++			ret = at91_adc_adjust_val_osr(st, val);
  
- 	ret = pinctrl_select_state(uphy->pctl, pins_default);
- 	if (ret)
+-		return at91_adc_adjust_val_osr(st, val);
++		return ret;
+ 	}
+ 
+ 	/* in this case we have a voltage channel */
 -- 
 2.35.1
 
