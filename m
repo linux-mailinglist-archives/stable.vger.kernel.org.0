@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 173A160AB36
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:46:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C38C60A848
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236370AbiJXNqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:46:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35962 "EHLO
+        id S235234AbiJXNDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:03:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236608AbiJXNol (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:44:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38BC733422;
-        Mon, 24 Oct 2022 05:40:12 -0700 (PDT)
+        with ESMTP id S235102AbiJXNC3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:02:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB1231094;
+        Mon, 24 Oct 2022 05:19:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11D9D61346;
-        Mon, 24 Oct 2022 12:38:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22AA4C433C1;
-        Mon, 24 Oct 2022 12:38:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 913B4612B3;
+        Mon, 24 Oct 2022 12:18:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A68CBC433C1;
+        Mon, 24 Oct 2022 12:18:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615101;
-        bh=cNt7T6RmL3y/9iiO0cyR9PT7nxKXSZDGJ+iSkvgxvIQ=;
+        s=korg; t=1666613937;
+        bh=33E8OtbXA+omniS78pGr4BYD5QNAbqZlBs6p6TcOjE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mnhxr8BGtnZ90Wg1MiV7L3S/yWBX6ovJi8jqpBtSnMsqQW9tg2wWRwycYPeF56ORh
-         M9sHBnDhP6o/PH32MbL5Zt9yNm5D7MWYRAkYwn6sm+MBTy57gfdEeJZpXHoeQx2YrT
-         gj/j26wMDpyA+M4O5xQ6K6ISVWGaOtMocnkGj5FM=
+        b=E7N/fsxG+O9YnNEcxiqNLaIAdWoOoBvrPxH7K5DxXfQ18z2cua4x3xF7yCkU+IqJg
+         nKbpeArs0e9vRVrtpYlR8GQjp99JBM3Ijz8cnUyqidZjgPthawVtX9/fzKQqqzcJCq
+         2xyBa7zKU1OZtwqEY18hWMjm5YElXIeuA+6Rl05o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 122/530] blk-wbt: call rq_qos_add() after wb_normal is initialized
-Date:   Mon, 24 Oct 2022 13:27:46 +0200
-Message-Id: <20221024113050.576356910@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 070/390] ext4: update state->fc_regions_size after successful memory allocation
+Date:   Mon, 24 Oct 2022 13:27:47 +0200
+Message-Id: <20221024113025.576979255@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,95 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 8c5035dfbb9475b67c82b3fdb7351236525bf52b upstream.
+commit 27cd49780381c6ccbf248798e5e8fd076200ffba upstream.
 
-Our test found a problem that wbt inflight counter is negative, which
-will cause io hang(noted that this problem doesn't exist in mainline):
+To avoid to 'state->fc_regions_size' mismatch with 'state->fc_regions'
+when fail to reallocate 'fc_reqions',only update 'state->fc_regions_size'
+after 'state->fc_regions' is allocated successfully.
 
-t1: device create	t2: issue io
-add_disk
- blk_register_queue
-  wbt_enable_default
-   wbt_init
-    rq_qos_add
-    // wb_normal is still 0
-			/*
-			 * in mainline, disk can't be opened before
-			 * bdev_add(), however, in old kernels, disk
-			 * can be opened before blk_register_queue().
-			 */
-			blkdev_issue_flush
-                        // disk size is 0, however, it's not checked
-                         submit_bio_wait
-                          submit_bio
-                           blk_mq_submit_bio
-                            rq_qos_throttle
-                             wbt_wait
-			      bio_to_wbt_flags
-                               rwb_enabled
-			       // wb_normal is 0, inflight is not increased
-
-    wbt_queue_depth_changed(&rwb->rqos);
-     wbt_update_limits
-     // wb_normal is initialized
-                            rq_qos_track
-                             wbt_track
-                              rq->wbt_flags |= bio_to_wbt_flags(rwb, bio);
-			      // wb_normal is not 0，wbt_flags will be set
-t3: io completion
-blk_mq_free_request
- rq_qos_done
-  wbt_done
-   wbt_is_tracked
-   // return true
-   __wbt_done
-    wbt_rqw_done
-     atomic_dec_return(&rqw->inflight);
-     // inflight is decreased
-
-commit 8235b5c1e8c1 ("block: call bdev_add later in device_add_disk") can
-avoid this problem, however it's better to fix this problem in wbt:
-
-1) Lower kernel can't backport this patch due to lots of refactor.
-2) Root cause is that wbt call rq_qos_add() before wb_normal is
-initialized.
-
-Fixes: e34cbd307477 ("blk-wbt: add general throttling mechanism")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20220913105749.3086243-1-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220921064040.3693255-4-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-wbt.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ fs/ext4/fast_commit.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/block/blk-wbt.c
-+++ b/block/blk-wbt.c
-@@ -843,6 +843,10 @@ int wbt_init(struct request_queue *q)
- 	rwb->enable_state = WBT_STATE_ON_DEFAULT;
- 	rwb->wc = 1;
- 	rwb->rq_depth.default_depth = RWB_DEF_DEPTH;
-+	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
-+
-+	wbt_queue_depth_changed(&rwb->rqos);
-+	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -1586,14 +1586,15 @@ int ext4_fc_record_regions(struct super_
+ 	if (state->fc_regions_used == state->fc_regions_size) {
+ 		struct ext4_fc_alloc_region *fc_regions;
  
- 	/*
- 	 * Assign rwb and add the stats callback.
-@@ -853,11 +857,6 @@ int wbt_init(struct request_queue *q)
- 
- 	blk_stat_add_callback(q, rwb->cb);
- 
--	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
--
--	wbt_queue_depth_changed(&rwb->rqos);
--	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
--
- 	return 0;
- 
- err_free:
+-		state->fc_regions_size +=
+-			EXT4_FC_REPLAY_REALLOC_INCREMENT;
+ 		fc_regions = krealloc(state->fc_regions,
+-				      state->fc_regions_size *
+-				      sizeof(struct ext4_fc_alloc_region),
++				      sizeof(struct ext4_fc_alloc_region) *
++				      (state->fc_regions_size +
++				       EXT4_FC_REPLAY_REALLOC_INCREMENT),
+ 				      GFP_KERNEL);
+ 		if (!fc_regions)
+ 			return -ENOMEM;
++		state->fc_regions_size +=
++			EXT4_FC_REPLAY_REALLOC_INCREMENT;
+ 		state->fc_regions = fc_regions;
+ 	}
+ 	region = &state->fc_regions[state->fc_regions_used++];
 
 
