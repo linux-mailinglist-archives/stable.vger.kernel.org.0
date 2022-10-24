@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EB8F60A3C5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C379560A3CD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232380AbiJXMA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:00:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57648 "EHLO
+        id S230372AbiJXMA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:00:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232597AbiJXL7V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:59:21 -0400
+        with ESMTP id S232572AbiJXL7S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:59:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4624B76566;
-        Mon, 24 Oct 2022 04:48:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C98512A70C;
+        Mon, 24 Oct 2022 04:47:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D9B16125D;
-        Mon, 24 Oct 2022 11:48:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6102BC433C1;
-        Mon, 24 Oct 2022 11:48:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59DC461286;
+        Mon, 24 Oct 2022 11:39:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72873C433D6;
+        Mon, 24 Oct 2022 11:39:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612088;
-        bh=AigwrwtcfRO68yBZHTNgX6TxImqDnWA9jhU6WuQ3pdI=;
+        s=korg; t=1666611566;
+        bh=fzdObW4Tz01b4F6wuAJJY5sICvfv8+U/Svx9awbkDJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wxu7A8C+aARCPx6R6pHGrNnJSAXGaJoBL7z6u4GXzzRenPbVO8QxR1Wur53dCnC5P
-         IBH7GVqLuWxS3j0eQI+ns6FVobtS+aTCvv1FK3yFiDQcP6wrtR/+Chw1EMS3hwi3v4
-         2vMx4Kj7FV10KrJyyz94gXog7l+Zhtqgw6RWKnr8=
+        b=hXOLf5NOyXk1YzivyOZxgSost0vHaePp6Aek/HhBP9Ca/PmcmGuJRtdUE1vEt9IK6
+         uSboZJ61+Hj4RpOJtERSj+5Tpof8npVsYJNKhh3UrZcMG0dUk99C4avCLieNj4hQZt
+         6rprdXWo5Eq6b8Iv0g99xRTuxi/lIIBbqyA0NQdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 064/210] fbdev: smscufx: Fix use-after-free in ufx_ops_open()
-Date:   Mon, 24 Oct 2022 13:29:41 +0200
-Message-Id: <20221024112959.111451423@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+7381dc4ad60658ca4c05@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.9 028/159] nilfs2: fix leak of nilfs_root in case of writer thread creation failure
+Date:   Mon, 24 Oct 2022 13:29:42 +0200
+Message-Id: <20221024112950.436896065@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,79 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <imv4bel@gmail.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 5610bcfe8693c02e2e4c8b31427f1bdbdecc839c upstream.
+commit d0d51a97063db4704a5ef6bc978dddab1636a306 upstream.
 
-A race condition may occur if the user physically removes the
-USB device while calling open() for this device node.
+If nilfs_attach_log_writer() failed to create a log writer thread, it
+frees a data structure of the log writer without any cleanup.  After
+commit e912a5b66837 ("nilfs2: use root object to get ifile"), this causes
+a leak of struct nilfs_root, which started to leak an ifile metadata inode
+and a kobject on that struct.
 
-This is a race condition between the ufx_ops_open() function and
-the ufx_usb_disconnect() function, which may eventually result in UAF.
+In addition, if the kernel is booted with panic_on_warn, the above
+ifile metadata inode leak will cause the following panic when the
+nilfs2 kernel module is removed:
 
-So, add a mutex to the ufx_ops_open() and ufx_usb_disconnect() functions
-to avoid race contidion of krefs.
+  kmem_cache_destroy nilfs2_inode_cache: Slab cache still has objects when
+  called from nilfs_destroy_cachep+0x16/0x3a [nilfs2]
+  WARNING: CPU: 8 PID: 1464 at mm/slab_common.c:494 kmem_cache_destroy+0x138/0x140
+  ...
+  RIP: 0010:kmem_cache_destroy+0x138/0x140
+  Code: 00 20 00 00 e8 a9 55 d8 ff e9 76 ff ff ff 48 8b 53 60 48 c7 c6 20 70 65 86 48 c7 c7 d8 69 9c 86 48 8b 4c 24 28 e8 ef 71 c7 00 <0f> 0b e9 53 ff ff ff c3 48 81 ff ff 0f 00 00 77 03 31 c0 c3 53 48
+  ...
+  Call Trace:
+   <TASK>
+   ? nilfs_palloc_freev.cold.24+0x58/0x58 [nilfs2]
+   nilfs_destroy_cachep+0x16/0x3a [nilfs2]
+   exit_nilfs_fs+0xa/0x1b [nilfs2]
+    __x64_sys_delete_module+0x1d9/0x3a0
+   ? __sanitizer_cov_trace_pc+0x1a/0x50
+   ? syscall_trace_enter.isra.19+0x119/0x190
+   do_syscall_64+0x34/0x80
+   entry_SYSCALL_64_after_hwframe+0x63/0xcd
+   ...
+   </TASK>
+  Kernel panic - not syncing: panic_on_warn set ...
 
-Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
+This patch fixes these issues by calling nilfs_detach_log_writer() cleanup
+function if spawning the log writer thread fails.
+
+Link: https://lkml.kernel.org/r/20221007085226.57667-1-konishi.ryusuke@gmail.com
+Fixes: e912a5b66837 ("nilfs2: use root object to get ifile")
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+7381dc4ad60658ca4c05@syzkaller.appspotmail.com
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/smscufx.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ fs/nilfs2/segment.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/video/fbdev/smscufx.c
-+++ b/drivers/video/fbdev/smscufx.c
-@@ -140,6 +140,8 @@ static int ufx_submit_urb(struct ufx_dat
- static int ufx_alloc_urb_list(struct ufx_data *dev, int count, size_t size);
- static void ufx_free_urb_list(struct ufx_data *dev);
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -2796,10 +2796,9 @@ int nilfs_attach_log_writer(struct super
+ 	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
  
-+static DEFINE_MUTEX(disconnect_mutex);
+ 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
+-	if (err) {
+-		kfree(nilfs->ns_writer);
+-		nilfs->ns_writer = NULL;
+-	}
++	if (unlikely(err))
++		nilfs_detach_log_writer(sb);
 +
- /* reads a control register */
- static int ufx_reg_read(struct ufx_data *dev, u32 index, u32 *data)
- {
-@@ -1073,9 +1075,13 @@ static int ufx_ops_open(struct fb_info *
- 	if (user == 0 && !console)
- 		return -EBUSY;
- 
-+	mutex_lock(&disconnect_mutex);
-+
- 	/* If the USB device is gone, we don't accept new opens */
--	if (dev->virtualized)
-+	if (dev->virtualized) {
-+		mutex_unlock(&disconnect_mutex);
- 		return -ENODEV;
-+	}
- 
- 	dev->fb_count++;
- 
-@@ -1100,6 +1106,8 @@ static int ufx_ops_open(struct fb_info *
- 	pr_debug("open /dev/fb%d user=%d fb_info=%p count=%d",
- 		info->node, user, info, dev->fb_count);
- 
-+	mutex_unlock(&disconnect_mutex);
-+
- 	return 0;
+ 	return err;
  }
  
-@@ -1762,6 +1770,8 @@ static void ufx_usb_disconnect(struct us
- {
- 	struct ufx_data *dev;
- 
-+	mutex_lock(&disconnect_mutex);
-+
- 	dev = usb_get_intfdata(interface);
- 
- 	pr_debug("USB disconnect starting\n");
-@@ -1782,6 +1792,8 @@ static void ufx_usb_disconnect(struct us
- 	kref_put(&dev->kref, ufx_free);
- 
- 	/* consider ufx_data freed */
-+
-+	mutex_unlock(&disconnect_mutex);
- }
- 
- static struct usb_driver ufx_driver = {
 
 
