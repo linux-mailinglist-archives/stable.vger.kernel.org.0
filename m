@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BEC760A8B6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87A0060A50E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235494AbiJXNKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:10:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39532 "EHLO
+        id S233235AbiJXMUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:20:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235543AbiJXNI5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:08:57 -0400
+        with ESMTP id S233483AbiJXMTk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6A59C2C8;
-        Mon, 24 Oct 2022 05:22:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FE1282D14;
+        Mon, 24 Oct 2022 04:58:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5501E612DA;
-        Mon, 24 Oct 2022 12:22:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B531C433D6;
-        Mon, 24 Oct 2022 12:22:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED61F6129E;
+        Mon, 24 Oct 2022 11:56:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08E1EC433C1;
+        Mon, 24 Oct 2022 11:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614121;
-        bh=XI3reBzmSXhzDFcdk4Qld6RMRqmDgTm82u4lh23kt8c=;
+        s=korg; t=1666612566;
+        bh=F//YHv1bkUtABcaNo0CCRonpfHuEaxZGVHMrMkrR4lY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LRd8DypqmPg9+yrP8Nj8Co/N4NfAcB80x0s1E+uKhjosUjylu2ANIu91YoKl0/ARf
-         5L4yZJ1cZHHSAUIH9a90UKau8nQO5pL2eRsDU5II564FN8uIuFui6V72e4A9d7Mjuj
-         TopnrNOqCaHIjmxfQ0sftmBe1pCYWOMn+/cogh7U=
+        b=irx3rxgJzsVnCmLHJ6evza4kILRLkyt+7bdDU/PUq2mozPOu39yDa97x+uOYvEa5A
+         dEs1kNtYW+3KBRjSH+tg79A2feGobG+uLZRxM7UamsHJ6KsWr5AJzv1YcfPmld7npz
+         xG3hedm6vN3d290U9UgcvzVSaFH7kCgyzhhk9QhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 140/390] net: mvpp2: fix mvpp2 debugfs leak
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+2b32eb36c1a825b7a74c@syzkaller.appspotmail.com,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.19 018/229] nilfs2: fix NULL pointer dereference at nilfs_bmap_lookup_at_level()
 Date:   Mon, 24 Oct 2022 13:28:57 +0200
-Message-Id: <20221024113028.631068399@linuxfoundation.org>
+Message-Id: <20221024112959.727858779@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,108 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-[ Upstream commit 0152dfee235e87660f52a117fc9f70dc55956bb4 ]
+commit 21a87d88c2253350e115029f14fe2a10a7e6c856 upstream.
 
-When mvpp2 is unloaded, the driver specific debugfs directory is not
-removed, which technically leads to a memory leak. However, this
-directory is only created when the first device is probed, so the
-hardware is present. Removing the module is only something a developer
-would to when e.g. testing out changes, so the module would be
-reloaded. So this memory leak is minor.
+If the i_mode field in inode of metadata files is corrupted on disk, it
+can cause the initialization of bmap structure, which should have been
+called from nilfs_read_inode_common(), not to be called.  This causes a
+lockdep warning followed by a NULL pointer dereference at
+nilfs_bmap_lookup_at_level().
 
-The original attempt in commit fe2c9c61f668 ("net: mvpp2: debugfs: fix
-memory leak when using debugfs_lookup()") that was labelled as a memory
-leak fix was not, it fixed a refcount leak, but in doing so created a
-problem when the module is reloaded - the directory already exists, but
-mvpp2_root is NULL, so we lose all debugfs entries. This fix has been
-reverted.
+This patch fixes these issues by adding a missing sanitiy check for the
+i_mode field of metadata file's inode.
 
-This is the alternative fix, where we remove the offending directory
-whenever the driver is unloaded.
-
-Fixes: 21da57a23125 ("net: mvpp2: add a debugfs interface for the Header Parser")
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Marcin Wojtas <mw@semihalf.com>
-Link: https://lore.kernel.org/r/E1ofOAB-00CzkG-UO@rmk-PC.armlinux.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20221002030804.29978-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+2b32eb36c1a825b7a74c@syzkaller.appspotmail.com
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2.h         |  1 +
- drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c | 10 ++++++++--
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c    | 13 ++++++++++++-
- 3 files changed, 21 insertions(+), 3 deletions(-)
+ fs/nilfs2/inode.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-index d825eb021b22..e999ac2de34e 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-@@ -1434,6 +1434,7 @@ u32 mvpp2_read(struct mvpp2 *priv, u32 offset);
- void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name);
+--- a/fs/nilfs2/inode.c
++++ b/fs/nilfs2/inode.c
+@@ -451,6 +451,8 @@ int nilfs_read_inode_common(struct inode
+ 	inode->i_atime.tv_nsec = le32_to_cpu(raw_inode->i_mtime_nsec);
+ 	inode->i_ctime.tv_nsec = le32_to_cpu(raw_inode->i_ctime_nsec);
+ 	inode->i_mtime.tv_nsec = le32_to_cpu(raw_inode->i_mtime_nsec);
++	if (nilfs_is_metadata_file_inode(inode) && !S_ISREG(inode->i_mode))
++		return -EIO; /* this inode is for metadata and corrupted */
+ 	if (inode->i_nlink == 0)
+ 		return -ESTALE; /* this inode is deleted */
  
- void mvpp2_dbgfs_cleanup(struct mvpp2 *priv);
-+void mvpp2_dbgfs_exit(void);
- 
- #ifdef CONFIG_MVPP2_PTP
- int mvpp22_tai_probe(struct device *dev, struct mvpp2 *priv);
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-index 4a3baa7e0142..75e83ea2a926 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-@@ -691,6 +691,13 @@ static int mvpp2_dbgfs_port_init(struct dentry *parent,
- 	return 0;
- }
- 
-+static struct dentry *mvpp2_root;
-+
-+void mvpp2_dbgfs_exit(void)
-+{
-+	debugfs_remove(mvpp2_root);
-+}
-+
- void mvpp2_dbgfs_cleanup(struct mvpp2 *priv)
- {
- 	debugfs_remove_recursive(priv->dbgfs_dir);
-@@ -700,10 +707,9 @@ void mvpp2_dbgfs_cleanup(struct mvpp2 *priv)
- 
- void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name)
- {
--	struct dentry *mvpp2_dir, *mvpp2_root;
-+	struct dentry *mvpp2_dir;
- 	int ret, i;
- 
--	mvpp2_root = debugfs_lookup(MVPP2_DRIVER_NAME, NULL);
- 	if (!mvpp2_root)
- 		mvpp2_root = debugfs_create_dir(MVPP2_DRIVER_NAME, NULL);
- 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index 542cd6f2c9bd..68c5ed8716c8 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -7155,7 +7155,18 @@ static struct platform_driver mvpp2_driver = {
- 	},
- };
- 
--module_platform_driver(mvpp2_driver);
-+static int __init mvpp2_driver_init(void)
-+{
-+	return platform_driver_register(&mvpp2_driver);
-+}
-+module_init(mvpp2_driver_init);
-+
-+static void __exit mvpp2_driver_exit(void)
-+{
-+	platform_driver_unregister(&mvpp2_driver);
-+	mvpp2_dbgfs_exit();
-+}
-+module_exit(mvpp2_driver_exit);
- 
- MODULE_DESCRIPTION("Marvell PPv2 Ethernet Driver - www.marvell.com");
- MODULE_AUTHOR("Marcin Wojtas <mw@semihalf.com>");
--- 
-2.35.1
-
 
 
