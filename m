@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EB0960A3AB
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:58:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3459660A275
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:44:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232413AbiJXL6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:58:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57306 "EHLO
+        id S231329AbiJXLnv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:43:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232183AbiJXL5t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:57:49 -0400
+        with ESMTP id S231428AbiJXLnY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:43:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4637A7B58E;
-        Mon, 24 Oct 2022 04:47:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6900F10FCD;
+        Mon, 24 Oct 2022 04:40:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5297A6125A;
-        Mon, 24 Oct 2022 11:47:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65D50C433D6;
-        Mon, 24 Oct 2022 11:47:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E30036126B;
+        Mon, 24 Oct 2022 11:38:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFD6BC433D7;
+        Mon, 24 Oct 2022 11:38:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612035;
-        bh=JZ/6C+T35YGb6+Ln7URFq8PZ9sBiH9mzyYJMG3EFmKY=;
+        s=korg; t=1666611518;
+        bh=CcO3P73nWihKfZZsy5MC4W4ujZ0qIP4yl3E6Fxe4K1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZqvbvSezVFx7yjTyvPTckSVxcBOQFl8CZJwIZEBW93oJbGwT2wdAKAZdIjudl7hXs
-         S2T8Rv0mULqBL+3Gfp03kp6KzQzQqdXf+ycVRinp+SNWPLYdfuogk3fx/tcrMGnIba
-         tmUzTKCL6kf0JzcHmSaD9FbPMymAKJ3XQGn/0yBg=
+        b=vJSuuj0ng8DZkj0cVJhwwKzJeRHf0JidSo6fTa0QCBXtFgjJqllWoMAqib7qP6U5w
+         zrOi9pK2PAwEMHbgDY2D8/tagyyuB2MwphFzipmrZ75vc9NwUhIHZn5bYCUu2WZl/t
+         tMrtL7GFxWFm0NkXGTvencs7An/dnNIOufKSnUsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 046/210] wifi: mac80211_hwsim: avoid mac80211 warning on bad rate
-Date:   Mon, 24 Oct 2022 13:29:23 +0200
-Message-Id: <20221024112958.486347073@linuxfoundation.org>
+        stable@vger.kernel.org, Peilin Ye <peilin.ye@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+dcd3e13cf4472f2e0ba1@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 010/159] usbnet: Fix memory leak in usbnet_disconnect()
+Date:   Mon, 24 Oct 2022 13:29:24 +0200
+Message-Id: <20221024112949.732978269@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-commit 1833b6f46d7e2830251a063935ab464256defe22 upstream.
+[ Upstream commit a43206156263fbaf1f2b7f96257441f331e91bb7 ]
 
-If the tool on the other side (e.g. wmediumd) gets confused
-about the rate, we hit a warning in mac80211. Silence that
-by effectively duplicating the check here and dropping the
-frame silently (in mac80211 it's dropped with the warning).
+Currently usbnet_disconnect() unanchors and frees all deferred URBs
+using usb_scuttle_anchored_urbs(), which does not free urb->context,
+causing a memory leak as reported by syzbot.
 
-Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Use a usb_get_from_anchor() while loop instead, similar to what we did
+in commit 19cfe912c37b ("Bluetooth: btusb: Fix memory leak in
+play_deferred").  Also free urb->sg.
+
+Reported-and-tested-by: syzbot+dcd3e13cf4472f2e0ba1@syzkaller.appspotmail.com
+Fixes: 69ee472f2706 ("usbnet & cdc-ether: Autosuspend for online devices")
+Fixes: 638c5115a794 ("USBNET: support DMA SG")
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Link: https://lore.kernel.org/r/20220923042551.2745-1-yepeilin.cs@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/usb/usbnet.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -3075,6 +3075,8 @@ static int hwsim_cloned_frame_received_n
+diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
+index f1cb512c55ac..810e4e65e2a3 100644
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -1559,6 +1559,7 @@ void usbnet_disconnect (struct usb_interface *intf)
+ 	struct usbnet		*dev;
+ 	struct usb_device	*xdev;
+ 	struct net_device	*net;
++	struct urb		*urb;
  
- 	rx_status.band = data2->channel->band;
- 	rx_status.rate_idx = nla_get_u32(info->attrs[HWSIM_ATTR_RX_RATE]);
-+	if (rx_status.rate_idx >= data2->hw->wiphy->bands[rx_status.band]->n_bitrates)
-+		goto out;
- 	rx_status.signal = nla_get_u32(info->attrs[HWSIM_ATTR_SIGNAL]);
+ 	dev = usb_get_intfdata(intf);
+ 	usb_set_intfdata(intf, NULL);
+@@ -1575,7 +1576,11 @@ void usbnet_disconnect (struct usb_interface *intf)
+ 	net = dev->net;
+ 	unregister_netdev (net);
  
- 	memcpy(IEEE80211_SKB_RXCB(skb), &rx_status, sizeof(rx_status));
+-	usb_scuttle_anchored_urbs(&dev->deferred);
++	while ((urb = usb_get_from_anchor(&dev->deferred))) {
++		dev_kfree_skb(urb->context);
++		kfree(urb->sg);
++		usb_free_urb(urb);
++	}
+ 
+ 	if (dev->driver_info->unbind)
+ 		dev->driver_info->unbind (dev, intf);
+-- 
+2.35.1
+
 
 
