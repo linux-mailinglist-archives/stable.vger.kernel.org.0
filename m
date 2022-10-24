@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E29AF60A41E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 955CB60A5F3
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229909AbiJXMFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:05:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38680 "EHLO
+        id S234509AbiJXMac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:30:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232902AbiJXMEh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:04:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85BCA7B596;
-        Mon, 24 Oct 2022 04:50:46 -0700 (PDT)
+        with ESMTP id S233846AbiJXM2Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 157617656B;
+        Mon, 24 Oct 2022 05:02:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B2076612A1;
-        Mon, 24 Oct 2022 11:48:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C33C5C433C1;
-        Mon, 24 Oct 2022 11:48:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECD45B810DB;
+        Mon, 24 Oct 2022 11:57:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C8EDC433C1;
+        Mon, 24 Oct 2022 11:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612120;
-        bh=sZ/yz13J10ldzxTjOIIhRXD7fl+g9Se2enYqUrLTuGw=;
+        s=korg; t=1666612674;
+        bh=yXMCTS8eONU++mGlDljHj3JlkYoORL7wIFX0W3Arlcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=diz7BDPJx8A1FscNKssBGqtZYJFT92mUTzTvWnBoL50VCJ5cJizqNvr+koWixml6p
-         SmTknUzEjBUbaxrwE2YM5oHmsMqcWsGJrZrlvjITudRZtXvBTGEVdA/0iUV9EXFAXy
-         qWcIHApxmT+/jdHjC7zU2q5iYEPRgqHgztlIDqxo=
+        b=tdlsy5qfHfI8Wgiw77L9rac5tL7dCUaOGgpbdL8naoYhfdqeUJcZG0NpCAndzeE+p
+         wXgD6Xks30kCfW2LRe5P7uqDL8n8fYSJxWLv2V9RJERJZ5X2V2GCuyzpUHsV5YRwVV
+         xuG4I/N83L1rxIv8uQ7dTlSgfcUz0Jn9nu4nYN0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 078/210] KVM: nVMX: Unconditionally purge queued/injected events on nested "exit"
+        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 076/229] spi: qup: add missing clk_disable_unprepare on error in spi_qup_resume()
 Date:   Mon, 24 Oct 2022 13:29:55 +0200
-Message-Id: <20221024112959.596807202@linuxfoundation.org>
+Message-Id: <20221024113001.532215271@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Xu Qiang <xuqiang36@huawei.com>
 
-commit d953540430c5af57f5de97ea9e36253908204027 upstream.
+[ Upstream commit 70034320fdc597b8f58b4a43bb547f17c4c5557a ]
 
-Drop pending exceptions and events queued for re-injection when leaving
-nested guest mode, even if the "exit" is due to VM-Fail, SMI, or forced
-by host userspace.  Failure to purge events could result in an event
-belonging to L2 being injected into L1.
+Add the missing clk_disable_unprepare() before return
+from spi_qup_resume() in the error handling case.
 
-This _should_ never happen for VM-Fail as all events should be blocked by
-nested_run_pending, but it's possible if KVM, not the L1 hypervisor, is
-the source of VM-Fail when running vmcs02.
-
-SMI is a nop (barring unknown bugs) as recognition of SMI and thus entry
-to SMM is blocked by pending exceptions and re-injected events.
-
-Forced exit is definitely buggy, but has likely gone unnoticed because
-userspace probably follows the forced exit with KVM_SET_VCPU_EVENTS (or
-some other ioctl() that purges the queue).
-
-Fixes: 4f350c6dbcb9 ("kvm: nVMX: Handle deferred early VMLAUNCH/VMRESUME failure properly")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220830231614.3580124-2-seanjc@google.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 64ff247a978f (“spi: Add Qualcomm QUP SPI controller support”)
+Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
+Link: https://lore.kernel.org/r/20220825065324.68446-1-xuqiang36@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx.c |   19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/spi/spi-qup.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -11917,14 +11917,6 @@ static void prepare_vmcs12(struct kvm_vc
- 		 */
- 		vmcs12_save_pending_event(vcpu, vmcs12);
- 	}
--
--	/*
--	 * Drop what we picked up for L2 via vmx_complete_interrupts. It is
--	 * preserved above and would only end up incorrectly in L1.
--	 */
--	vcpu->arch.nmi_injected = false;
--	kvm_clear_exception_queue(vcpu);
--	kvm_clear_interrupt_queue(vcpu);
- }
+diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
+index cb74fd1af205..c5c727274814 100644
+--- a/drivers/spi/spi-qup.c
++++ b/drivers/spi/spi-qup.c
+@@ -1219,14 +1219,25 @@ static int spi_qup_resume(struct device *device)
+ 		return ret;
  
- /*
-@@ -12236,6 +12228,17 @@ static void nested_vmx_vmexit(struct kvm
- 			nested_vmx_abort(vcpu, VMX_ABORT_SAVE_GUEST_MSR_FAIL);
- 	}
+ 	ret = clk_prepare_enable(controller->cclk);
+-	if (ret)
++	if (ret) {
++		clk_disable_unprepare(controller->iclk);
+ 		return ret;
++	}
  
-+	/*
-+	 * Drop events/exceptions that were queued for re-injection to L2
-+	 * (picked up via vmx_complete_interrupts()), as well as exceptions
-+	 * that were pending for L2.  Note, this must NOT be hoisted above
-+	 * prepare_vmcs12(), events/exceptions queued for re-injection need to
-+	 * be captured in vmcs12 (see vmcs12_save_pending_event()).
-+	 */
-+	vcpu->arch.nmi_injected = false;
-+	kvm_clear_exception_queue(vcpu);
-+	kvm_clear_interrupt_queue(vcpu);
+ 	ret = spi_qup_set_state(controller, QUP_STATE_RESET);
+ 	if (ret)
+-		return ret;
++		goto disable_clk;
 +
- 	vmx_switch_vmcs(vcpu, &vmx->vmcs01);
- 	vm_entry_controls_reset_shadow(vmx);
- 	vm_exit_controls_reset_shadow(vmx);
++	ret = spi_master_resume(master);
++	if (ret)
++		goto disable_clk;
+ 
+-	return spi_master_resume(master);
++	return 0;
++
++disable_clk:
++	clk_disable_unprepare(controller->cclk);
++	clk_disable_unprepare(controller->iclk);
++	return ret;
+ }
+ #endif /* CONFIG_PM_SLEEP */
+ 
+-- 
+2.35.1
+
 
 
