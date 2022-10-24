@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F4360A577
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:25:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C629B60A47A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:11:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233489AbiJXMYz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:24:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40918 "EHLO
+        id S232879AbiJXMLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:11:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233442AbiJXMX0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:23:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E91201B9C7;
-        Mon, 24 Oct 2022 04:59:43 -0700 (PDT)
+        with ESMTP id S229947AbiJXMKB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:10:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BCC380496;
+        Mon, 24 Oct 2022 04:53:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D51F6129D;
-        Mon, 24 Oct 2022 11:59:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC3E9C433D6;
-        Mon, 24 Oct 2022 11:59:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F12656122D;
+        Mon, 24 Oct 2022 11:50:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF66C433C1;
+        Mon, 24 Oct 2022 11:50:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612775;
-        bh=RLkQdPDMRCOU/IECOAC2hHaLhoeqjEyfi9vzRWGTaUE=;
+        s=korg; t=1666612218;
+        bh=DC0BF9IcilZ6vNyknUu5VstpmDbJb6Kcs0pf3U3tFKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsmr1yYGpl6Op8WcFhTiG6k9bCteAw+l0wy3R0EA1EoqEpFOFrI8sIeklZYtO+l8g
-         zP2SVYMfuxnDtelQJMaEviF5i6KbCoQr6wxfGs0cES85ZFfvvayq5YGabBF4U/bpfM
-         SFTuIsQUQXPJv6JuBsGewieV/rJ3H7uhndJ+PMVQ=
+        b=jQyQUsQPQ2qBKheLWxj8W3Jd+OPN1OLuj9HYJ2Vvi9itN2M48bhnzeFMje+18KWOk
+         NDbdNbT1cZ75ule69pmj402F7ZxpBytXxUtiPz1fFLiMRoEui9t/4MD9j2UIkKWLf8
+         oQlJqKCD3d4fcnEAFVtePKm4+LlXfvM5U/xM1zLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 113/229] ARM: dts: kirkwood: lsxl: remove first ethernet port
+Subject: [PATCH 4.14 115/210] iio: inkern: only release the device node when done with it
 Date:   Mon, 24 Oct 2022 13:30:32 +0200
-Message-Id: <20221024113002.657892483@linuxfoundation.org>
+Message-Id: <20221024113000.724877639@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Nuno Sá <nuno.sa@analog.com>
 
-[ Upstream commit 2d528eda7c96ce5c70f895854ecd5684bd5d80b9 ]
+[ Upstream commit 79c3e84874c7d14f04ad58313b64955a0d2e9437 ]
 
-Both the Linkstation LS-CHLv2 and the LS-XHL have only one ethernet
-port. This has always been wrong, i.e. the board code used to set up
-both ports, but the driver will play nice and return -ENODEV if the
-assiciated PHY is not found. Nevertheless, it is wrong. Remove it.
+'of_node_put()' can potentially release the memory pointed to by
+'iiospec.np' which would leave us with an invalid pointer (and we would
+still pass it in 'of_xlate()'). Note that it is not guaranteed for the
+of_node lifespan to be attached to the device (to which is attached)
+lifespan so that there is (even though very unlikely) the possibility
+for the node to be freed while the device is still around. Thus, as there
+are indeed some of_xlate users which do access the node, a race is indeed
+possible.
 
-Fixes: 876e23333511 ("ARM: kirkwood: add gigabit ethernet and mvmdio device tree nodes")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+As such, we can only release the node after we are done with it.
+
+Fixes: 17d82b47a215d ("iio: Add OF support")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20220715122903.332535-2-nuno.sa@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/kirkwood-lsxl.dtsi | 11 -----------
- 1 file changed, 11 deletions(-)
+ drivers/iio/inkern.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/kirkwood-lsxl.dtsi b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-index 321a40a98ed2..88b70ba1c8fe 100644
---- a/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-+++ b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-@@ -218,22 +218,11 @@
- &mdio {
- 	status = "okay";
+diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
+index f12bad60a581..599069b4fe5d 100644
+--- a/drivers/iio/inkern.c
++++ b/drivers/iio/inkern.c
+@@ -139,9 +139,10 @@ static int __of_iio_channel_get(struct iio_channel *channel,
  
--	ethphy0: ethernet-phy@0 {
--		reg = <0>;
--	};
--
- 	ethphy1: ethernet-phy@8 {
- 		reg = <8>;
- 	};
- };
+ 	idev = bus_find_device(&iio_bus_type, NULL, iiospec.np,
+ 			       iio_dev_node_match);
+-	of_node_put(iiospec.np);
+-	if (idev == NULL)
++	if (idev == NULL) {
++		of_node_put(iiospec.np);
+ 		return -EPROBE_DEFER;
++	}
  
--&eth0 {
--	status = "okay";
--	ethernet0-port@0 {
--		phy-handle = <&ethphy0>;
--	};
--};
--
- &eth1 {
- 	status = "okay";
- 	ethernet1-port@0 {
+ 	indio_dev = dev_to_iio_dev(idev);
+ 	channel->indio_dev = indio_dev;
+@@ -149,6 +150,7 @@ static int __of_iio_channel_get(struct iio_channel *channel,
+ 		index = indio_dev->info->of_xlate(indio_dev, &iiospec);
+ 	else
+ 		index = __of_iio_simple_xlate(indio_dev, &iiospec);
++	of_node_put(iiospec.np);
+ 	if (index < 0)
+ 		goto err_put;
+ 	channel->channel = &indio_dev->channels[index];
 -- 
 2.35.1
 
