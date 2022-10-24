@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FA3E60A2F7
+	by mail.lfdr.de (Postfix) with ESMTP id 7A67E60A2F8
 	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231737AbiJXLty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:49:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34720 "EHLO
+        id S231748AbiJXLtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:49:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231831AbiJXLtD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:49:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA2AE7657F;
-        Mon, 24 Oct 2022 04:43:38 -0700 (PDT)
+        with ESMTP id S231640AbiJXLr4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:47:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 041EB39113;
+        Mon, 24 Oct 2022 04:43:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6982AB8117E;
-        Mon, 24 Oct 2022 11:43:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C589FC433C1;
-        Mon, 24 Oct 2022 11:43:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55BA9612A1;
+        Mon, 24 Oct 2022 11:43:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 645E7C433C1;
+        Mon, 24 Oct 2022 11:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611802;
-        bh=FbCIVOBS4yjMt+pYH7E1lvJhPlO9LFcQzGKTMLuRKGc=;
+        s=korg; t=1666611804;
+        bh=XANlg89LU61ZOChVCr9nFWhOtkDHXvdO19qftwk0xXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aq8JY/ebouHtoJ4PihmiFbUNep5PWftdugGohrYhaF9TU+BWuGZQrTHZ/vd7Hcq1h
-         kocf3nDTysqWqolyPPBhWFmu+/BH0IB2p3rtIQSP2mqc1YKWVo3b8siOZ2UF3qTLco
-         GJsNrC9eFHVg6wF5aJlNd3758JxHaZbJZoZUuQf4=
+        b=cbukvFCzRaVz/ZBu6fvsXWBYXNH9LQsGxfXI298eNfU/AY6mn1By2vqaa1f26hDj4
+         nohhJQDSLGUt4ex4qKtdHypR9qqiIJwYQDXi9+9lCNMYc3Va6GdNyZm/7SEWUkc0LO
+         1N2AAda+1AaqG5gCIZz42BMPQ4z1Gj/75HaiXXRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 086/159] ARM: dts: kirkwood: lsxl: remove first ethernet port
-Date:   Mon, 24 Oct 2022 13:30:40 +0200
-Message-Id: <20221024112952.555535060@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 087/159] ARM: Drop CMDLINE_* dependency on ATAGS
+Date:   Mon, 24 Oct 2022 13:30:41 +0200
+Message-Id: <20221024112952.585102228@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -54,51 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 2d528eda7c96ce5c70f895854ecd5684bd5d80b9 ]
+[ Upstream commit 136f4b1ec7c962ee37a787e095fd37b058d72bd3 ]
 
-Both the Linkstation LS-CHLv2 and the LS-XHL have only one ethernet
-port. This has always been wrong, i.e. the board code used to set up
-both ports, but the driver will play nice and return -ENODEV if the
-assiciated PHY is not found. Nevertheless, it is wrong. Remove it.
+On arm32, the configuration options to specify the kernel command line
+type depend on ATAGS.  However, the actual CMDLINE cofiguration option
+does not depend on ATAGS, and the code that handles this is not specific
+to ATAGS (see drivers/of/fdt.c:early_init_dt_scan_chosen()).
 
-Fixes: 876e23333511 ("ARM: kirkwood: add gigabit ethernet and mvmdio device tree nodes")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Hence users who desire to override the kernel command line on arm32 must
+enable support for ATAGS, even on a pure-DT system.  Other architectures
+(arm64, loongarch, microblaze, nios2, powerpc, and riscv) do not impose
+such a restriction.
+
+Hence drop the dependency on ATAGS.
+
+Fixes: bd51e2f595580fb6 ("ARM: 7506/1: allow for ATAGS to be configured out when DT support is selected")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/kirkwood-lsxl.dtsi | 11 -----------
- 1 file changed, 11 deletions(-)
+ arch/arm/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/kirkwood-lsxl.dtsi b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-index c330d96cc023..450b4de544e1 100644
---- a/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-+++ b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-@@ -217,22 +217,11 @@
- &mdio {
- 	status = "okay";
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 0429d1d20393..25eaf3775904 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1961,7 +1961,6 @@ config CMDLINE
+ choice
+ 	prompt "Kernel command line type" if CMDLINE != ""
+ 	default CMDLINE_FROM_BOOTLOADER
+-	depends on ATAGS
  
--	ethphy0: ethernet-phy@0 {
--		reg = <0>;
--	};
--
- 	ethphy1: ethernet-phy@8 {
- 		reg = <8>;
- 	};
- };
- 
--&eth0 {
--	status = "okay";
--	ethernet0-port@0 {
--		phy-handle = <&ethphy0>;
--	};
--};
--
- &eth1 {
- 	status = "okay";
- 	ethernet1-port@0 {
+ config CMDLINE_FROM_BOOTLOADER
+ 	bool "Use bootloader kernel arguments if available"
 -- 
 2.35.1
 
