@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C06F160B134
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACCDB60B14B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:18:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234198AbiJXQRG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:17:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33598 "EHLO
+        id S230037AbiJXQS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:18:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235082AbiJXQPp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:15:45 -0400
+        with ESMTP id S234166AbiJXQQt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:16:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DB4D10B70;
-        Mon, 24 Oct 2022 08:03:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61827A87B7;
+        Mon, 24 Oct 2022 08:04:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6C08B81544;
-        Mon, 24 Oct 2022 12:16:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45E2FC433C1;
-        Mon, 24 Oct 2022 12:16:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68A17B8161C;
+        Mon, 24 Oct 2022 12:18:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C522BC433C1;
+        Mon, 24 Oct 2022 12:18:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613807;
-        bh=0LcxMqzKBXHZAcPKt0pyDjPeM3azFWJ3SFXQ6kVQIP8=;
+        s=korg; t=1666613895;
+        bh=lHA+zVgSOdyqCjkiWL6eqbyOGZwAZZm29Yp/49MU+HM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ZVnhIMfkVKTql0nbnY5j7N6fxgMEe9ZnOaTigLdCnzHqFmsXca4xnJWGVxZjWRgQ
-         WmttXo61T7Ja6zQK9jJyV6vMvBgIvAAfilfSh7t/hRpb6SZ9C4Sd6rPCoR+npVgKvO
-         36pCRu9fpO6gKoCQl2kJm2gRkicBz+zvaOpfz2Zg=
+        b=wsHALhw2iBMMR+dox5CEXX2cqXdwUzcrTgk3F5Zeicd5jZFUmdGgwVL1XoD0OeCsB
+         cwFouSpmaN6hy8PvZQLSt+YMc3MyoMo10nBUIErdaA6nrQBBG12CgLQBNoCz4QOPLB
+         L16qCjzj/cZcE3e1Z0oh9OLJWTQxxt+mDcYRpLuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Alexander Dahl <ada@thorsis.com>,
-        Peter Rosin <peda@axentia.se>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.10 009/390] mtd: rawnand: atmel: Unmap streaming DMA mappings
-Date:   Mon, 24 Oct 2022 13:26:46 +0200
-Message-Id: <20221024113022.943634207@linuxfoundation.org>
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 015/390] iio: pressure: dps310: Refactor startup procedure
+Date:   Mon, 24 Oct 2022 13:26:52 +0200
+Message-Id: <20221024113023.202992075@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -56,39 +54,239 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-commit 1161703c9bd664da5e3b2eb1a3bb40c210e026ea upstream.
+commit c2329717bdd3fa62f8a2f3d8d85ad0bee4556bd7 upstream.
 
-Every dma_map_single() call should have its dma_unmap_single() counterpart,
-because the DMA address space is a shared resource and one could render the
-machine unusable by consuming all DMA addresses.
+Move the startup procedure into a function, and correct a missing
+check on the return code for writing the PRS_CFG register.
 
-Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
-Cc: stable@vger.kernel.org
-Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Acked-by: Alexander Dahl <ada@thorsis.com>
-Reported-by: Peter Rosin <peda@axentia.se>
-Tested-by: Alexander Dahl <ada@thorsis.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Tested-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220728074014.145406-1-tudor.ambarus@microchip.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220915195719.136812-2-eajames@linux.ibm.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/atmel/nand-controller.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/pressure/dps310.c |  188 ++++++++++++++++++++++--------------------
+ 1 file changed, 99 insertions(+), 89 deletions(-)
 
---- a/drivers/mtd/nand/raw/atmel/nand-controller.c
-+++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
-@@ -405,6 +405,7 @@ static int atmel_nand_dma_transfer(struc
- 
- 	dma_async_issue_pending(nc->dmac);
- 	wait_for_completion(&finished);
-+	dma_unmap_single(nc->dev, buf_dma, len, dir);
- 
+--- a/drivers/iio/pressure/dps310.c
++++ b/drivers/iio/pressure/dps310.c
+@@ -159,6 +159,102 @@ static int dps310_get_coefs(struct dps31
  	return 0;
+ }
  
++/*
++ * Some versions of the chip will read temperatures in the ~60C range when
++ * it's actually ~20C. This is the manufacturer recommended workaround
++ * to correct the issue. The registers used below are undocumented.
++ */
++static int dps310_temp_workaround(struct dps310_data *data)
++{
++	int rc;
++	int reg;
++
++	rc = regmap_read(data->regmap, 0x32, &reg);
++	if (rc)
++		return rc;
++
++	/*
++	 * If bit 1 is set then the device is okay, and the workaround does not
++	 * need to be applied
++	 */
++	if (reg & BIT(1))
++		return 0;
++
++	rc = regmap_write(data->regmap, 0x0e, 0xA5);
++	if (rc)
++		return rc;
++
++	rc = regmap_write(data->regmap, 0x0f, 0x96);
++	if (rc)
++		return rc;
++
++	rc = regmap_write(data->regmap, 0x62, 0x02);
++	if (rc)
++		return rc;
++
++	rc = regmap_write(data->regmap, 0x0e, 0x00);
++	if (rc)
++		return rc;
++
++	return regmap_write(data->regmap, 0x0f, 0x00);
++}
++
++static int dps310_startup(struct dps310_data *data)
++{
++	int rc;
++	int ready;
++
++	/*
++	 * Set up pressure sensor in single sample, one measurement per second
++	 * mode
++	 */
++	rc = regmap_write(data->regmap, DPS310_PRS_CFG, 0);
++	if (rc)
++		return rc;
++
++	/*
++	 * Set up external (MEMS) temperature sensor in single sample, one
++	 * measurement per second mode
++	 */
++	rc = regmap_write(data->regmap, DPS310_TMP_CFG, DPS310_TMP_EXT);
++	if (rc)
++		return rc;
++
++	/* Temp and pressure shifts are disabled when PRC <= 8 */
++	rc = regmap_write_bits(data->regmap, DPS310_CFG_REG,
++			       DPS310_PRS_SHIFT_EN | DPS310_TMP_SHIFT_EN, 0);
++	if (rc)
++		return rc;
++
++	/* MEAS_CFG doesn't update correctly unless first written with 0 */
++	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
++			       DPS310_MEAS_CTRL_BITS, 0);
++	if (rc)
++		return rc;
++
++	/* Turn on temperature and pressure measurement in the background */
++	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
++			       DPS310_MEAS_CTRL_BITS, DPS310_PRS_EN |
++			       DPS310_TEMP_EN | DPS310_BACKGROUND);
++	if (rc)
++		return rc;
++
++	/*
++	 * Calibration coefficients required for reporting temperature.
++	 * They are available 40ms after the device has started
++	 */
++	rc = regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready,
++				      ready & DPS310_COEF_RDY, 10000, 40000);
++	if (rc)
++		return rc;
++
++	rc = dps310_get_coefs(data);
++	if (rc)
++		return rc;
++
++	return dps310_temp_workaround(data);
++}
++
+ static int dps310_get_pres_precision(struct dps310_data *data)
+ {
+ 	int rc;
+@@ -677,52 +773,12 @@ static const struct iio_info dps310_info
+ 	.write_raw = dps310_write_raw,
+ };
+ 
+-/*
+- * Some verions of chip will read temperatures in the ~60C range when
+- * its actually ~20C. This is the manufacturer recommended workaround
+- * to correct the issue. The registers used below are undocumented.
+- */
+-static int dps310_temp_workaround(struct dps310_data *data)
+-{
+-	int rc;
+-	int reg;
+-
+-	rc = regmap_read(data->regmap, 0x32, &reg);
+-	if (rc < 0)
+-		return rc;
+-
+-	/*
+-	 * If bit 1 is set then the device is okay, and the workaround does not
+-	 * need to be applied
+-	 */
+-	if (reg & BIT(1))
+-		return 0;
+-
+-	rc = regmap_write(data->regmap, 0x0e, 0xA5);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = regmap_write(data->regmap, 0x0f, 0x96);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = regmap_write(data->regmap, 0x62, 0x02);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = regmap_write(data->regmap, 0x0e, 0x00);
+-	if (rc < 0)
+-		return rc;
+-
+-	return regmap_write(data->regmap, 0x0f, 0x00);
+-}
+-
+ static int dps310_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
+ {
+ 	struct dps310_data *data;
+ 	struct iio_dev *iio;
+-	int rc, ready;
++	int rc;
+ 
+ 	iio = devm_iio_device_alloc(&client->dev,  sizeof(*data));
+ 	if (!iio)
+@@ -747,54 +803,8 @@ static int dps310_probe(struct i2c_clien
+ 	if (rc)
+ 		return rc;
+ 
+-	/*
+-	 * Set up pressure sensor in single sample, one measurement per second
+-	 * mode
+-	 */
+-	rc = regmap_write(data->regmap, DPS310_PRS_CFG, 0);
+-
+-	/*
+-	 * Set up external (MEMS) temperature sensor in single sample, one
+-	 * measurement per second mode
+-	 */
+-	rc = regmap_write(data->regmap, DPS310_TMP_CFG, DPS310_TMP_EXT);
+-	if (rc < 0)
+-		return rc;
+-
+-	/* Temp and pressure shifts are disabled when PRC <= 8 */
+-	rc = regmap_write_bits(data->regmap, DPS310_CFG_REG,
+-			       DPS310_PRS_SHIFT_EN | DPS310_TMP_SHIFT_EN, 0);
+-	if (rc < 0)
+-		return rc;
+-
+-	/* MEAS_CFG doesn't update correctly unless first written with 0 */
+-	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
+-			       DPS310_MEAS_CTRL_BITS, 0);
+-	if (rc < 0)
+-		return rc;
+-
+-	/* Turn on temperature and pressure measurement in the background */
+-	rc = regmap_write_bits(data->regmap, DPS310_MEAS_CFG,
+-			       DPS310_MEAS_CTRL_BITS, DPS310_PRS_EN |
+-			       DPS310_TEMP_EN | DPS310_BACKGROUND);
+-	if (rc < 0)
+-		return rc;
+-
+-	/*
+-	 * Calibration coefficients required for reporting temperature.
+-	 * They are available 40ms after the device has started
+-	 */
+-	rc = regmap_read_poll_timeout(data->regmap, DPS310_MEAS_CFG, ready,
+-				      ready & DPS310_COEF_RDY, 10000, 40000);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = dps310_get_coefs(data);
+-	if (rc < 0)
+-		return rc;
+-
+-	rc = dps310_temp_workaround(data);
+-	if (rc < 0)
++	rc = dps310_startup(data);
++	if (rc)
+ 		return rc;
+ 
+ 	rc = devm_iio_device_register(&client->dev, iio);
 
 
