@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8159660AC65
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDDAD60AC5A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231528AbiJXOGT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:06:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46794 "EHLO
+        id S234214AbiJXOGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:06:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235523AbiJXOCu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:50 -0400
+        with ESMTP id S236864AbiJXOD0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:03:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A7A28050A;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7C1EC148A;
         Mon, 24 Oct 2022 05:48:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3540B612A4;
-        Mon, 24 Oct 2022 12:48:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46675C433D7;
-        Mon, 24 Oct 2022 12:48:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1C43612BB;
+        Mon, 24 Oct 2022 12:48:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4516C433D6;
+        Mon, 24 Oct 2022 12:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615697;
-        bh=s5bOhSlb/E/gFE2fhF4bPWtz8wcohG6L7kPb3tR1HAI=;
+        s=korg; t=1666615700;
+        bh=xYGfpluMhE2yfUa76Sd/ZU7uGJoQMeIwNU8LXhnTMoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y01ZxZO4kSPeCyamxYSf9dUjrJDUjR3DwqrhA553Y+dTxu5lytcEqO5tYbRpQwhRo
-         5eZZBIJ35KxeXPwrVvp7nKRW9e10UpQfz5jl+oc4QUlXN8aX2jesW4fhSgXX7uZ/Y4
-         FH+Fv5O0RBI6SmH54CnREnnshGer7sD9g2M4rHL8=
+        b=XTQrtecHGtLkDDmyn5cJWkZWF3p/xKJFvrN9S3VRZHtqxGmbDzaxWbKA52EQ8M4td
+         mP0bsbPGhlWVzwms5hGwO6eWtYRBKRGCxxW5vXp/JQ+wqV+Co8RhkejOUtYrqMpVke
+         nfpgexmIweijlRWlYtpgom7hqz97cBTEdcgXhdNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Tianping Fang <tianping.fang@mediatek.com>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        stable@vger.kernel.org, David Collins <collinsd@codeaurora.org>,
+        Fenglin Wu <quic_fenglinw@quicinc.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 349/530] usb: mtu3: fix failed runtime suspend in host only mode
-Date:   Mon, 24 Oct 2022 13:31:33 +0200
-Message-Id: <20221024113100.799440692@linuxfoundation.org>
+Subject: [PATCH 5.15 350/530] spmi: pmic-arb: correct duplicate APID to PPID mapping logic
+Date:   Mon, 24 Oct 2022 13:31:34 +0200
+Message-Id: <20221024113100.850825794@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -56,53 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: David Collins <collinsd@codeaurora.org>
 
-[ Upstream commit 1c703e29da5efac6180e4c189029fa34b7e48e97 ]
+[ Upstream commit 1f1693118c2476cb1666ad357edcf3cf48bf9b16 ]
 
-When the dr_mode is "host", after the host enter runtime suspend,
-the mtu3 can't do it, because the mtu3's device wakeup function is
-not enabled, instead it's enabled in gadget init function, to fix
-the issue, init wakeup early in mtu3's probe()
+Correct the way that duplicate PPID mappings are handled for PMIC
+arbiter v5.  The final APID mapped to a given PPID should be the
+one which has write owner = APPS EE, if it exists, or if not
+that, then the first APID mapped to the PPID, if it exists.
 
-Fixes: 6b587394c65c ("usb: mtu3: support suspend/resume for dual-role mode")
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reported-by: Tianping Fang <tianping.fang@mediatek.com>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/20220929064459.32522-1-chunfeng.yun@mediatek.com
+Fixes: 40f318f0ed67 ("spmi: pmic-arb: add support for HW version 5")
+Signed-off-by: David Collins <collinsd@codeaurora.org>
+Signed-off-by: Fenglin Wu <quic_fenglinw@quicinc.com>
+Link: https://lore.kernel.org/r/1655004286-11493-7-git-send-email-quic_fenglinw@quicinc.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lore.kernel.org/r/20220930005019.2663064-8-sboyd@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/mtu3/mtu3_core.c | 2 --
- drivers/usb/mtu3/mtu3_plat.c | 2 ++
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/spmi/spmi-pmic-arb.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/usb/mtu3/mtu3_core.c b/drivers/usb/mtu3/mtu3_core.c
-index c4a2c37abf62..3ea5145a842b 100644
---- a/drivers/usb/mtu3/mtu3_core.c
-+++ b/drivers/usb/mtu3/mtu3_core.c
-@@ -971,8 +971,6 @@ int ssusb_gadget_init(struct ssusb_mtk *ssusb)
- 		goto irq_err;
- 	}
+diff --git a/drivers/spmi/spmi-pmic-arb.c b/drivers/spmi/spmi-pmic-arb.c
+index bbbd311eda03..e6de2aeece8d 100644
+--- a/drivers/spmi/spmi-pmic-arb.c
++++ b/drivers/spmi/spmi-pmic-arb.c
+@@ -887,7 +887,8 @@ static int pmic_arb_read_apid_map_v5(struct spmi_pmic_arb *pmic_arb)
+ 	 * version 5, there is more than one APID mapped to each PPID.
+ 	 * The owner field for each of these mappings specifies the EE which is
+ 	 * allowed to write to the APID.  The owner of the last (highest) APID
+-	 * for a given PPID will receive interrupts from the PPID.
++	 * which has the IRQ owner bit set for a given PPID will receive
++	 * interrupts from the PPID.
+ 	 */
+ 	for (i = 0; ; i++, apidd++) {
+ 		offset = pmic_arb->ver_ops->apid_map_offset(i);
+@@ -910,16 +911,16 @@ static int pmic_arb_read_apid_map_v5(struct spmi_pmic_arb *pmic_arb)
+ 		apid = pmic_arb->ppid_to_apid[ppid] & ~PMIC_ARB_APID_VALID;
+ 		prev_apidd = &pmic_arb->apid_data[apid];
  
--	device_init_wakeup(dev, true);
--
- 	/* power down device IP for power saving by default */
- 	mtu3_stop(mtu);
+-		if (valid && is_irq_ee &&
+-				prev_apidd->write_ee == pmic_arb->ee) {
++		if (!valid || apidd->write_ee == pmic_arb->ee) {
++			/* First PPID mapping or one for this EE */
++			pmic_arb->ppid_to_apid[ppid] = i | PMIC_ARB_APID_VALID;
++		} else if (valid && is_irq_ee &&
++			   prev_apidd->write_ee == pmic_arb->ee) {
+ 			/*
+ 			 * Duplicate PPID mapping after the one for this EE;
+ 			 * override the irq owner
+ 			 */
+ 			prev_apidd->irq_ee = apidd->irq_ee;
+-		} else if (!valid || is_irq_ee) {
+-			/* First PPID mapping or duplicate for another EE */
+-			pmic_arb->ppid_to_apid[ppid] = i | PMIC_ARB_APID_VALID;
+ 		}
  
-diff --git a/drivers/usb/mtu3/mtu3_plat.c b/drivers/usb/mtu3/mtu3_plat.c
-index f13531022f4a..4c4dcbf17518 100644
---- a/drivers/usb/mtu3/mtu3_plat.c
-+++ b/drivers/usb/mtu3/mtu3_plat.c
-@@ -332,6 +332,8 @@ static int mtu3_probe(struct platform_device *pdev)
- 	pm_runtime_enable(dev);
- 	pm_runtime_get_sync(dev);
- 
-+	device_init_wakeup(dev, true);
-+
- 	ret = ssusb_rscs_init(ssusb);
- 	if (ret)
- 		goto comm_init_err;
+ 		apidd->ppid = ppid;
 -- 
 2.35.1
 
