@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBFA760AED3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:16:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96A3760AD41
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:20:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231181AbiJXPQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 11:16:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56374 "EHLO
+        id S234886AbiJXOUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:20:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232134AbiJXPQ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:16:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27321BC440;
-        Mon, 24 Oct 2022 06:55:26 -0700 (PDT)
+        with ESMTP id S236847AbiJXOT2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:19:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16FAB22B14;
+        Mon, 24 Oct 2022 05:56:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FBDF61274;
-        Mon, 24 Oct 2022 11:45:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E90CC433C1;
-        Mon, 24 Oct 2022 11:45:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C19AB8196E;
+        Mon, 24 Oct 2022 12:40:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D98CAC433C1;
+        Mon, 24 Oct 2022 12:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611938;
-        bh=seFHqFqmEKe+2WHH8qWbEC8yoHQChYekB21rkTHJEvg=;
+        s=korg; t=1666615235;
+        bh=+rDO5cY7vNMKCSwNy+M5iefI71iEu1L68p75lPoL+pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtlkLIhNssGHOUrlo6dBigDYlTRRxXucgxFYERVu4R/QKcQOvLWxyTcabnGQrA7eu
-         wmBbIpOTS+s5mHRUPiz10ompIfx3D5kW0PyYFwpnB7ejZwD5MlSm8utVElvOEBPmto
-         edGWOvs9slkKS2VogBhZ0dlHeJnXd4w8awYzITo8=
+        b=CbYTBJdroFPt+1ATYZqlGmJHYI4nYkBSKLKlsQ7xnygPh0HhVPu9MBai3TAHWmFAa
+         YcaIno08fxYArgGBShnQX9n+NlXZL6CMT5XzmzusmA5KlsVlYgJIuBsIoDHOrNBY6a
+         WVXNK44/rPQ0zWUlK20cO9utNwy4zPWXWXL1DV5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        stable <stable@kernel.org>,
-        Hongling Zeng <zenghongling@kylinos.cn>
-Subject: [PATCH 4.14 001/210] uas: add no-uas quirk for Hiksemi usb_disk
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        YN Chen <yn.chen@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 174/530] wifi: mt76: sdio: fix transmitting packet hangs
 Date:   Mon, 24 Oct 2022 13:28:38 +0200
-Message-Id: <20221024112956.876544846@linuxfoundation.org>
+Message-Id: <20221024113052.899210374@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,50 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongling Zeng <zenghongling@kylinos.cn>
+From: YN Chen <yn.chen@mediatek.com>
 
-commit a625a4b8806cc1e928b7dd2cca1fee709c9de56e upstream.
+[ Upstream commit 250b1827205846ff346a76044955cb79d4963f70 ]
 
-The UAS mode of Hiksemi is reported to fail to work on several platforms
-with the following error message, then after re-connecting the device will
-be offlined and not working at all.
+Fix transmitting packets hangs with continuing to pull the pending packet
+from mac80211 queues when receiving Tx status notification from the device.
 
-[  592.518442][ 2] sd 8:0:0:0: [sda] tag#17 uas_eh_abort_handler 0 uas-tag 18
-                   inflight: CMD
-[  592.527575][ 2] sd 8:0:0:0: [sda] tag#17 CDB: Write(10) 2a 00 03 6f 88 00 00
-                   04 00 00
-[  592.536330][ 2] sd 8:0:0:0: [sda] tag#0 uas_eh_abort_handler 0 uas-tag 1
-                   inflight: CMD
-[  592.545266][ 2] sd 8:0:0:0: [sda] tag#0 CDB: Write(10) 2a 00 07 44 1a 88 00
-                   00 08 00
-
-These disks have a broken uas implementation, the tag field of the status
-iu-s is not set properly,so we need to fall-back to usb-storage.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Hongling Zeng <zenghongling@kylinos.cn>
-Link: https://lore.kernel.org/r/1663901173-21020-1-git-send-email-zenghongling@kylinos.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: aac5104bf631 ("mt76: sdio: do not run mt76_txq_schedule directly")
+Acked-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: YN Chen <yn.chen@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_uas.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/wireless/mediatek/mt76/sdio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -65,6 +65,13 @@ UNUSUAL_DEV(0x059f, 0x1061, 0x0000, 0x99
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_NO_REPORT_OPCODES | US_FL_NO_SAME),
+diff --git a/drivers/net/wireless/mediatek/mt76/sdio.c b/drivers/net/wireless/mediatek/mt76/sdio.c
+index 783a15635ec5..9e639d0b9c63 100644
+--- a/drivers/net/wireless/mediatek/mt76/sdio.c
++++ b/drivers/net/wireless/mediatek/mt76/sdio.c
+@@ -213,7 +213,7 @@ static void mt76s_status_worker(struct mt76_worker *w)
+ 	} while (nframes > 0);
  
-+/* Reported-by: Hongling Zeng <zenghongling@kylinos.cn> */
-+UNUSUAL_DEV(0x090c, 0x2000, 0x0000, 0x9999,
-+		"Hiksemi",
-+		"External HDD",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
-+
- /*
-  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
-  * commands in UAS mode.  Observed with the 1.28 firmware; are there others?
+ 	if (resched)
+-		mt76_worker_schedule(&dev->sdio.txrx_worker);
++		mt76_worker_schedule(&dev->tx_worker);
+ }
+ 
+ static void mt76s_tx_status_data(struct work_struct *work)
+-- 
+2.35.1
+
 
 
