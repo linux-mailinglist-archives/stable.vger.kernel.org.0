@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD9D760B201
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8709F60B220
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:43:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229908AbiJXQls (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:41:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35428 "EHLO
+        id S234561AbiJXQnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:43:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234375AbiJXQlE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:41:04 -0400
+        with ESMTP id S234635AbiJXQmP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:42:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ABE4CA884;
-        Mon, 24 Oct 2022 08:28:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4E11814D2;
+        Mon, 24 Oct 2022 08:29:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6577B81255;
-        Mon, 24 Oct 2022 12:08:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27CDFC433C1;
-        Mon, 24 Oct 2022 12:07:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DCB7B811B2;
+        Mon, 24 Oct 2022 12:08:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDE3FC433D6;
+        Mon, 24 Oct 2022 12:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613279;
-        bh=n6hSCr/yUwW8mNV3+JAkqCanWy4S3tIwyEl58OYzcR0=;
+        s=korg; t=1666613282;
+        bh=L3nu73DTIBY+iOWWvmkHwnjOgqxSoPaiZ7zV+CQG90w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dw1cR1hMQ9CrXFHkZCkGB5Gj8PqZTEKLkwzwexzVY/sJA13QcVr5CDfzirmFzeMYM
-         +LkTWCIC2KwzhggmtNS9HsuD03fh/7Yy12kJT53CZMcKzaKEdYXZpIAQ2PHuL0XEwo
-         vz9vcMIeERaYVcpm/0YEAld9KnAJ/FoLcO2zOldM=
+        b=QBgRQyzUjefCjRL85fqAXrbKxLI9lzjwQ7PJ61d2l+zgVFKsvKTx8Kt7T3ze4W6Rt
+         OmuLMQ2q+GwYP1/OrsCjJes8e/ZNJxP4FyoP1blslKlYHcR5it/yShhiKeN5dPblWP
+         wn2VEl6dTc3rcij6sYrwMYa1uXushT4dYfN0Manw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
+        Florian Westphal <fw@strlen.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/255] spi/omap100k:Fix PM disable depth imbalance in omap1_spi100k_probe
-Date:   Mon, 24 Oct 2022 13:29:46 +0200
-Message-Id: <20221024113005.039415667@linuxfoundation.org>
+Subject: [PATCH 5.4 077/255] netfilter: nft_fib: Fix for rpath check with VRF devices
+Date:   Mon, 24 Oct 2022 13:29:47 +0200
+Message-Id: <20221024113005.068677117@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
 References: <20221024113002.471093005@linuxfoundation.org>
@@ -53,36 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Phil Sutter <phil@nwl.cc>
 
-[ Upstream commit 29f65f2171c85a9633daa380df14009a365f42f2 ]
+[ Upstream commit 2a8a7c0eaa8747c16aa4a48d573aa920d5c00a5c ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context.
+Analogous to commit b575b24b8eee3 ("netfilter: Fix rpfilter
+dropping vrf packets by mistake") but for nftables fib expression:
+Add special treatment of VRF devices so that typical reverse path
+filtering via 'fib saddr . iif oif' expression works as expected.
 
-Fixes:db91841b58f9a ("spi/omap100k: Convert to runtime PM")
-
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220924121310.78331-4-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: f6d0cbcf09c50 ("netfilter: nf_tables: add fib expression")
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-omap-100k.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/netfilter/nft_fib_ipv4.c | 3 +++
+ net/ipv6/netfilter/nft_fib_ipv6.c | 6 +++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-omap-100k.c b/drivers/spi/spi-omap-100k.c
-index f64d030c760a..89d89ad1064d 100644
---- a/drivers/spi/spi-omap-100k.c
-+++ b/drivers/spi/spi-omap-100k.c
-@@ -416,6 +416,7 @@ static int omap1_spi100k_probe(struct platform_device *pdev)
- 	return status;
+diff --git a/net/ipv4/netfilter/nft_fib_ipv4.c b/net/ipv4/netfilter/nft_fib_ipv4.c
+index ce294113dbcd..85eac5aa5204 100644
+--- a/net/ipv4/netfilter/nft_fib_ipv4.c
++++ b/net/ipv4/netfilter/nft_fib_ipv4.c
+@@ -83,6 +83,9 @@ void nft_fib4_eval(const struct nft_expr *expr, struct nft_regs *regs,
+ 	else
+ 		oif = NULL;
  
- err_fck:
-+	pm_runtime_disable(&pdev->dev);
- 	clk_disable_unprepare(spi100k->fck);
- err_ick:
- 	clk_disable_unprepare(spi100k->ick);
++	if (priv->flags & NFTA_FIB_F_IIF)
++		fl4.flowi4_oif = l3mdev_master_ifindex_rcu(oif);
++
+ 	if (nft_hook(pkt) == NF_INET_PRE_ROUTING &&
+ 	    nft_fib_is_loopback(pkt->skb, nft_in(pkt))) {
+ 		nft_fib_store_result(dest, priv, nft_in(pkt));
+diff --git a/net/ipv6/netfilter/nft_fib_ipv6.c b/net/ipv6/netfilter/nft_fib_ipv6.c
+index 7ece86afd079..03dbd16f9ad5 100644
+--- a/net/ipv6/netfilter/nft_fib_ipv6.c
++++ b/net/ipv6/netfilter/nft_fib_ipv6.c
+@@ -37,6 +37,9 @@ static int nft_fib6_flowi_init(struct flowi6 *fl6, const struct nft_fib *priv,
+ 	if (ipv6_addr_type(&fl6->daddr) & IPV6_ADDR_LINKLOCAL) {
+ 		lookup_flags |= RT6_LOOKUP_F_IFACE;
+ 		fl6->flowi6_oif = get_ifindex(dev ? dev : pkt->skb->dev);
++	} else if ((priv->flags & NFTA_FIB_F_IIF) &&
++		   (netif_is_l3_master(dev) || netif_is_l3_slave(dev))) {
++		fl6->flowi6_oif = dev->ifindex;
+ 	}
+ 
+ 	if (ipv6_addr_type(&fl6->saddr) & IPV6_ADDR_UNICAST)
+@@ -179,7 +182,8 @@ void nft_fib6_eval(const struct nft_expr *expr, struct nft_regs *regs,
+ 	if (rt->rt6i_flags & (RTF_REJECT | RTF_ANYCAST | RTF_LOCAL))
+ 		goto put_rt_err;
+ 
+-	if (oif && oif != rt->rt6i_idev->dev)
++	if (oif && oif != rt->rt6i_idev->dev &&
++	    l3mdev_master_ifindex_rcu(rt->rt6i_idev->dev) != oif->ifindex)
+ 		goto put_rt_err;
+ 
+ 	nft_fib_store_result(dest, priv, rt->rt6i_idev->dev);
 -- 
 2.35.1
 
