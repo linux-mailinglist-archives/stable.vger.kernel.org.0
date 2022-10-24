@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A01660A9A5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:23:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA4A560A7F9
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234729AbiJXNXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:23:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53022 "EHLO
+        id S234937AbiJXNAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:00:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233006AbiJXNWx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:22:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E5D53B460;
-        Mon, 24 Oct 2022 05:30:04 -0700 (PDT)
+        with ESMTP id S235157AbiJXM72 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5228A9AFA8;
+        Mon, 24 Oct 2022 05:19:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F392612CF;
-        Mon, 24 Oct 2022 12:26:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 320F2C433D6;
-        Mon, 24 Oct 2022 12:26:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DD55612D1;
+        Mon, 24 Oct 2022 12:01:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80299C433D6;
+        Mon, 24 Oct 2022 12:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614376;
-        bh=9SE63E0V05/nB5l+e4Iv+eiMc19/AbJJynH7bXQ/Obs=;
+        s=korg; t=1666612885;
+        bh=7IObXmTSTozYNo0nq8weVn+Qu4CRgbsAkxKHYjFBcOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TDvvODlYgMjwrhgl9Gk9YNDnpCsHEH63DfuG9VcuSvqbKgbvSVZa5WNQ0AL/wM+77
-         Alp9Wz42BtTIDUd7VSODh9BmaxBEs8ard/meXglY6Rk5BDX8nH3B2+HTKO+v3vzPwU
-         5fi5pTZAkv3AsxNIQ/xv2xUsE8J0myLOzxqSkhp8=
+        b=LhjYbH4krzg+PefQ0d1mu9HQFAKrfi53oM0+n3Ka/2i1R1mOz3sd//8wee8F209Zn
+         IWDGRsVkLWfT48/f4IhNAXYBE86ghblVJobmUQHFeUdBl9Hi2rWtOm6cQsgaEIKdrX
+         IwM4fi68Z+u4rEuLSXsUJvEGfaUpFNYShUoZii2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lennert Buytenhek <buytenh@arista.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 237/390] serial: 8250: Toggle IER bits on only after irq has been set up
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 115/229] ARM: Drop CMDLINE_* dependency on ATAGS
 Date:   Mon, 24 Oct 2022 13:30:34 +0200
-Message-Id: <20221024113032.886503141@linuxfoundation.org>
+Message-Id: <20221024113002.719052094@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,138 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 039d4926379b1d1c17b51cf21c500a5eed86899e ]
+[ Upstream commit 136f4b1ec7c962ee37a787e095fd37b058d72bd3 ]
 
-Invoking TIOCVHANGUP on 8250_mid port on Ice Lake-D and then reopening
-the port triggers these faults during serial8250_do_startup():
+On arm32, the configuration options to specify the kernel command line
+type depend on ATAGS.  However, the actual CMDLINE cofiguration option
+does not depend on ATAGS, and the code that handles this is not specific
+to ATAGS (see drivers/of/fdt.c:early_init_dt_scan_chosen()).
 
-  DMAR: DRHD: handling fault status reg 3
-  DMAR: [DMA Write NO_PASID] Request device [00:1a.0] fault addr 0x0 [fault reason 0x05] PTE Write access is not set
+Hence users who desire to override the kernel command line on arm32 must
+enable support for ATAGS, even on a pure-DT system.  Other architectures
+(arm64, loongarch, microblaze, nios2, powerpc, and riscv) do not impose
+such a restriction.
 
-If the IRQ hasn't been set up yet, the UART will have zeroes in its MSI
-address/data registers. Disabling the IRQ at the interrupt controller
-won't stop the UART from performing a DMA write to the address programmed
-in its MSI address register (zero) when it wants to signal an interrupt.
+Hence drop the dependency on ATAGS.
 
-The UARTs (in Ice Lake-D) implement PCI 2.1 style MSI without masking
-capability, so there is no way to mask the interrupt at the source PCI
-function level, except disabling the MSI capability entirely, but that
-would cause it to fall back to INTx# assertion, and the PCI specification
-prohibits disabling the MSI capability as a way to mask a function's
-interrupt service request.
-
-The MSI address register is zeroed by the hangup as the irq is freed.
-The interrupt is signalled during serial8250_do_startup() performing a
-THRE test that temporarily toggles THRI in IER. The THRE test currently
-occurs before UART's irq (and MSI address) is properly set up.
-
-Refactor serial8250_do_startup() such that irq is set up before the
-THRE test. The current irq setup code is intermixed with the timer
-setup code. As THRE test must be performed prior to the timer setup,
-extract it into own function and call it only after the THRE test.
-
-The ->setup_timer() needs to be part of the struct uart_8250_ops in
-order to not create circular dependency between 8250 and 8250_base
-modules.
-
-Fixes: 40b36daad0ac ("[PATCH] 8250 UART backup timer")
-Reported-by: Lennert Buytenhek <buytenh@arista.com>
-Tested-by: Lennert Buytenhek <buytenh@arista.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220922070005.2965-1-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bd51e2f595580fb6 ("ARM: 7506/1: allow for ATAGS to be configured out when DT support is selected")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_core.c | 16 +++++++++++-----
- drivers/tty/serial/8250/8250_port.c |  8 +++++---
- include/linux/serial_8250.h         |  1 +
- 3 files changed, 17 insertions(+), 8 deletions(-)
+ arch/arm/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_core.c b/drivers/tty/serial/8250/8250_core.c
-index aae9d26ce4f4..0a7e9491b4d1 100644
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -310,10 +310,9 @@ static void serial8250_backup_timeout(struct timer_list *t)
- 		jiffies + uart_poll_timeout(&up->port) + HZ / 5);
- }
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index fce7e85f3ef5..41bde0e62e90 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1943,7 +1943,6 @@ config CMDLINE
+ choice
+ 	prompt "Kernel command line type" if CMDLINE != ""
+ 	default CMDLINE_FROM_BOOTLOADER
+-	depends on ATAGS
  
--static int univ8250_setup_irq(struct uart_8250_port *up)
-+static void univ8250_setup_timer(struct uart_8250_port *up)
- {
- 	struct uart_port *port = &up->port;
--	int retval = 0;
- 
- 	/*
- 	 * The above check will only give an accurate result the first time
-@@ -334,10 +333,16 @@ static int univ8250_setup_irq(struct uart_8250_port *up)
- 	 */
- 	if (!port->irq)
- 		mod_timer(&up->timer, jiffies + uart_poll_timeout(port));
--	else
--		retval = serial_link_irq_chain(up);
-+}
- 
--	return retval;
-+static int univ8250_setup_irq(struct uart_8250_port *up)
-+{
-+	struct uart_port *port = &up->port;
-+
-+	if (port->irq)
-+		return serial_link_irq_chain(up);
-+
-+	return 0;
- }
- 
- static void univ8250_release_irq(struct uart_8250_port *up)
-@@ -393,6 +398,7 @@ static struct uart_ops univ8250_port_ops;
- static const struct uart_8250_ops univ8250_driver_ops = {
- 	.setup_irq	= univ8250_setup_irq,
- 	.release_irq	= univ8250_release_irq,
-+	.setup_timer	= univ8250_setup_timer,
- };
- 
- static struct uart_8250_port serial8250_ports[UART_NR];
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 6de188b121d7..4a0793e1ba61 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -2277,6 +2277,10 @@ int serial8250_do_startup(struct uart_port *port)
- 	if (port->irq && (up->port.flags & UPF_SHARE_IRQ))
- 		up->port.irqflags |= IRQF_SHARED;
- 
-+	retval = up->ops->setup_irq(up);
-+	if (retval)
-+		goto out;
-+
- 	if (port->irq && !(up->port.flags & UPF_NO_THRE_TEST)) {
- 		unsigned char iir1;
- 
-@@ -2319,9 +2323,7 @@ int serial8250_do_startup(struct uart_port *port)
- 		}
- 	}
- 
--	retval = up->ops->setup_irq(up);
--	if (retval)
--		goto out;
-+	up->ops->setup_timer(up);
- 
- 	/*
- 	 * Now, initialize the UART
-diff --git a/include/linux/serial_8250.h b/include/linux/serial_8250.h
-index 2b70f736b091..92f3b778d8c2 100644
---- a/include/linux/serial_8250.h
-+++ b/include/linux/serial_8250.h
-@@ -74,6 +74,7 @@ struct uart_8250_port;
- struct uart_8250_ops {
- 	int		(*setup_irq)(struct uart_8250_port *);
- 	void		(*release_irq)(struct uart_8250_port *);
-+	void		(*setup_timer)(struct uart_8250_port *);
- };
- 
- struct uart_8250_em485 {
+ config CMDLINE_FROM_BOOTLOADER
+ 	bool "Use bootloader kernel arguments if available"
 -- 
 2.35.1
 
