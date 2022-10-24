@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A558E60A7F0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97AE660AA2B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234859AbiJXNA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54120 "EHLO
+        id S232306AbiJXNb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:31:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234930AbiJXM65 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:58:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B2C9A28C;
-        Mon, 24 Oct 2022 05:18:02 -0700 (PDT)
+        with ESMTP id S235987AbiJXN3T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6339AABD78;
+        Mon, 24 Oct 2022 05:32:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22BF761331;
-        Mon, 24 Oct 2022 12:16:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38ED3C433C1;
-        Mon, 24 Oct 2022 12:16:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EF5B6132F;
+        Mon, 24 Oct 2022 12:32:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E413C433C1;
+        Mon, 24 Oct 2022 12:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613768;
-        bh=iCYA+WieLEMO+7AeFrJuB0qA6FIj092/MecmdHKQVTE=;
+        s=korg; t=1666614722;
+        bh=7sB32oWCb0KoLBpJX2Qr1UEhrUV8KsBVv2ewNAThFVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YdhWwyETYg5Cy53QM7Bp/YWZFi8YkRym/pLlqiPhhMTC8XekVXi31GWMgSqZ03vg/
-         /6SpQWZ/dmNOAikTzKO75xa08kHGPf5Bymw00mCx/lxOztFz5YyrCy8YUnC2iiQC0P
-         uSEYW7L7htVWG5g0PhN45r8BQRNmOVNCbLAaUjfc=
+        b=RaI9TUdN2fEHRi5BLXXzIRw3uIAP8Bw3HdJboKXAlFUFZbOf2Hn/deSz21W91o08O
+         qYUL66enrNgZquVnzztcb3HeUzCUPF0QLVkT1ku8iCE5GSqKIkY3RHOLKOboTtdzm1
+         MkFAqLq92b+RALvSJuFZprfvc4Iy/7geCdnJ69Z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Chen Yu <yu.c.chen@intel.com>
-Subject: [PATCH 5.4 255/255] thermal: intel_powerclamp: Use first online CPU as control_cpu
-Date:   Mon, 24 Oct 2022 13:32:45 +0200
-Message-Id: <20221024113011.807775089@linuxfoundation.org>
+        stable@vger.kernel.org, Robin Guo <guoweibin@inspur.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 369/390] usb: musb: Fix musb_gadget.c rxstate overflow bug
+Date:   Mon, 24 Oct 2022 13:32:46 +0200
+Message-Id: <20221024113038.721314356@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Robin Guo <guoweibin@inspur.com>
 
-commit 4bb7f6c2781e46fc5bd00475a66df2ea30ef330d upstream.
+[ Upstream commit eea4c860c3b366369eff0489d94ee4f0571d467d ]
 
-Commit 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead
-of smp_processor_id() to avoid crash") fixed an issue related to using
-smp_processor_id() in preemptible context by replacing it with a pair
-of get_cpu()/put_cpu(), but what is needed there really is any online
-CPU and not necessarily the one currently running the code.  Arguably,
-getting the one that's running the code in there is confusing.
+The usb function device call musb_gadget_queue() adds the passed
+request to musb_ep::req_list,If the (request->length > musb_ep->packet_sz)
+and (is_buffer_mapped(req) return false),the rxstate() will copy all data
+in fifo to request->buf which may cause request->buf out of bounds.
 
-For this reason, simply give the control CPU role to the first online
-one which automatically will be CPU0 if it is online, so one check
-can be dropped from the code for an added benefit.
+Fix it by add the length check :
+fifocnt = min_t(unsigned, request->length - request->actual, fifocnt);
 
-Link: https://lore.kernel.org/linux-pm/20221011113646.GA12080@duo.ucw.cz/
-Fixes: 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Robin Guo <guoweibin@inspur.com>
+Link: https://lore.kernel.org/r/20220906102119.1b071d07a8391ff115e6d1ef@inspur.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel/intel_powerclamp.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/usb/musb/musb_gadget.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/thermal/intel/intel_powerclamp.c
-+++ b/drivers/thermal/intel/intel_powerclamp.c
-@@ -534,11 +534,7 @@ static int start_power_clamp(void)
- 	get_online_cpus();
+diff --git a/drivers/usb/musb/musb_gadget.c b/drivers/usb/musb/musb_gadget.c
+index fb806b33178a..c273eee35aaa 100644
+--- a/drivers/usb/musb/musb_gadget.c
++++ b/drivers/usb/musb/musb_gadget.c
+@@ -760,6 +760,9 @@ static void rxstate(struct musb *musb, struct musb_request *req)
+ 			musb_writew(epio, MUSB_RXCSR, csr);
  
- 	/* prefer BSP */
--	control_cpu = 0;
--	if (!cpu_online(control_cpu)) {
--		control_cpu = get_cpu();
--		put_cpu();
--	}
-+	control_cpu = cpumask_first(cpu_online_mask);
- 
- 	clamping = true;
- 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
+ buffer_aint_mapped:
++			fifo_count = min_t(unsigned int,
++					request->length - request->actual,
++					(unsigned int)fifo_count);
+ 			musb_read_fifo(musb_ep->hw_ep, fifo_count, (u8 *)
+ 					(request->buf + request->actual));
+ 			request->actual += fifo_count;
+-- 
+2.35.1
+
 
 
