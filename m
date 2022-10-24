@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7BFC60A72F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1397760A422
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234321AbiJXMsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:48:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58560 "EHLO
+        id S232547AbiJXMFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:05:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234821AbiJXMpt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:49 -0400
+        with ESMTP id S232913AbiJXMEh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:04:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0478E72B69;
-        Mon, 24 Oct 2022 05:10:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FB65647DE;
+        Mon, 24 Oct 2022 04:50:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A791612B9;
-        Mon, 24 Oct 2022 12:10:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B29FEC433D6;
-        Mon, 24 Oct 2022 12:10:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1FAC612A8;
+        Mon, 24 Oct 2022 11:50:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C24B8C4314A;
+        Mon, 24 Oct 2022 11:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613419;
-        bh=K4roTK2fnCmQiAynGRZx39W2zSKfyzroDBihQQeCMlI=;
+        s=korg; t=1666612242;
+        bh=YqqfBLDCHIre+JSjFqMR5fczi5ijx+iG1FyyUcTV2kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZzPnFNb92nf3wnacW9NdCuaCcSK3gl0K0lZJ/Wyz2ttwT2YGBGhB+ReAPpzdCXs5
-         2GGhVQZNs/X9btCnIfAg3ZYNXPvLQUH+humpZ3O0gOrrh5of88RX4xqRLgg939lc6a
-         S2Rze9fAbmuD1s8sTnKveSxnVY1nBwHR+3Yh7nVc=
+        b=SBN33LXIAJ6n8AU4aXYv2w0d+GceCdB2pTM/N8mctUF3nG5aJoqIcErxeDF5zisf3
+         HfC4VmPlHOHFM+S1azanSv1WtdY1VuDcGZl55SkuXPtQOUwNi8TH4G2KFtTlFFIJ2/
+         2wXbx8Gf4+5ptrUjw1P5kBNd/IofHE478dYtJeek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Reichel <sre@kernel.org>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 130/255] HSI: omap_ssi_port: Fix dma_map_sg error check
+Subject: [PATCH 4.14 123/210] media: exynos4-is: fimc-is: Add of_node_put() when breaking out of loop
 Date:   Mon, 24 Oct 2022 13:30:40 +0200
-Message-Id: <20221024113006.898391348@linuxfoundation.org>
+Message-Id: <20221024113000.967557138@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@ionos.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 551e325bbd3fb8b5a686ac1e6cf76e5641461cf2 ]
+[ Upstream commit 211f8304fa21aaedc2c247f0c9d6c7f1aaa61ad7 ]
 
-dma_map_sg return 0 on error, in case of error return -EIO
-to caller.
+In fimc_is_register_subdevs(), we need to call of_node_put() for
+the reference 'i2c_bus' when breaking out of the
+for_each_compatible_node() which has increased the refcount.
 
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: linux-kernel@vger.kernel.org (open list)
-Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 9a761e436843 ("[media] exynos4-is: Add Exynos4x12 FIMC-IS driver")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hsi/controllers/omap_ssi_port.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/platform/exynos4-is/fimc-is.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hsi/controllers/omap_ssi_port.c b/drivers/hsi/controllers/omap_ssi_port.c
-index a0cb5be246e1..b9495b720f1b 100644
---- a/drivers/hsi/controllers/omap_ssi_port.c
-+++ b/drivers/hsi/controllers/omap_ssi_port.c
-@@ -230,10 +230,10 @@ static int ssi_start_dma(struct hsi_msg *msg, int lch)
- 	if (msg->ttype == HSI_MSG_READ) {
- 		err = dma_map_sg(&ssi->device, msg->sgt.sgl, msg->sgt.nents,
- 							DMA_FROM_DEVICE);
--		if (err < 0) {
-+		if (!err) {
- 			dev_dbg(&ssi->device, "DMA map SG failed !\n");
- 			pm_runtime_put_autosuspend(omap_port->pdev);
--			return err;
-+			return -EIO;
- 		}
- 		csdp = SSI_DST_BURST_4x32_BIT | SSI_DST_MEMORY_PORT |
- 			SSI_SRC_SINGLE_ACCESS0 | SSI_SRC_PERIPHERAL_PORT |
-@@ -247,10 +247,10 @@ static int ssi_start_dma(struct hsi_msg *msg, int lch)
- 	} else {
- 		err = dma_map_sg(&ssi->device, msg->sgt.sgl, msg->sgt.nents,
- 							DMA_TO_DEVICE);
--		if (err < 0) {
-+		if (!err) {
- 			dev_dbg(&ssi->device, "DMA map SG failed !\n");
- 			pm_runtime_put_autosuspend(omap_port->pdev);
--			return err;
-+			return -EIO;
- 		}
- 		csdp = SSI_SRC_BURST_4x32_BIT | SSI_SRC_MEMORY_PORT |
- 			SSI_DST_SINGLE_ACCESS0 | SSI_DST_PERIPHERAL_PORT |
+diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
+index 0f3f82bd4d20..6f59fe02c727 100644
+--- a/drivers/media/platform/exynos4-is/fimc-is.c
++++ b/drivers/media/platform/exynos4-is/fimc-is.c
+@@ -217,6 +217,7 @@ static int fimc_is_register_subdevs(struct fimc_is *is)
+ 
+ 			if (ret < 0 || index >= FIMC_IS_SENSORS_NUM) {
+ 				of_node_put(child);
++				of_node_put(i2c_bus);
+ 				return ret;
+ 			}
+ 			index++;
 -- 
 2.35.1
 
