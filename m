@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD3B560B086
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F66860B096
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232935AbiJXQGP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:06:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40348 "EHLO
+        id S233153AbiJXQGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:06:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233614AbiJXQEu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:50 -0400
+        with ESMTP id S233807AbiJXQFB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:05:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C2A311878C;
-        Mon, 24 Oct 2022 07:57:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C110D40E15;
+        Mon, 24 Oct 2022 07:58:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B16EB81668;
-        Mon, 24 Oct 2022 12:22:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1618C433C1;
-        Mon, 24 Oct 2022 12:22:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33811B815CF;
+        Mon, 24 Oct 2022 12:21:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88F39C433D7;
+        Mon, 24 Oct 2022 12:21:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614153;
-        bh=1hCw6cxNbX3YN2yD9VtMsbWe/TAy/Ij432ySJrqy94M=;
+        s=korg; t=1666614076;
+        bh=GIvAGbIaLoY3RKv9O2KL5Wh80NNvK9JX717gmMHsZ3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ia73eklo2J+eqZNCED9xxoEEWC6kvd6jIRYZpWLp8miraenbr2vie7+Xnc0T0UwwA
-         meV8gzrI0i40Vvw/XBsZcnx4hV3UWih//I4PygnazYacFwi2khOnBUDxcxs5cmkwsl
-         eOM9wI3ZUY479gAIV7yUhXXcpfLOsEh2ZgpVE3N0=
+        b=XSKSwWm1Z0LmsdNJz7K6qcIB8gFbm9aW+QUtq9wAPzaC4o3mvmYcwGeKfsB5zGk2S
+         HcbOuASmfEKIDCjmrK1D+YoD6Yml1Jc8m5N/HJfOAs0oe6SewugnlCBOqz8qpAUyWN
+         kagvM8CkYSuV+pT7jOKeh2eOqAnLLaidR8ehZa+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Micay <danielmicay@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 122/390] x86/microcode/AMD: Track patch allocation size explicitly
-Date:   Mon, 24 Oct 2022 13:28:39 +0200
-Message-Id: <20221024113027.862630256@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 124/390] spi: dw: Fix PM disable depth imbalance in dw_spi_bt1_probe
+Date:   Mon, 24 Oct 2022 13:28:41 +0200
+Message-Id: <20221024113027.940789467@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -53,62 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 712f210a457d9c32414df246a72781550bc23ef6 ]
+[ Upstream commit 618d815fc93477b1675878f3c04ff32657cc18b4 ]
 
-In preparation for reducing the use of ksize(), record the actual
-allocation size for later memcpy(). This avoids copying extra
-(uninitialized!) bytes into the patch buffer when the requested
-allocation size isn't exactly the size of a kmalloc bucket.
-Additionally, fix potential future issues where runtime bounds checking
-will notice that the buffer was allocated to a smaller value than
-returned by ksize().
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context.
 
-Fixes: 757885e94a22 ("x86, microcode, amd: Early microcode patch loading support for AMD")
-Suggested-by: Daniel Micay <danielmicay@gmail.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/lkml/CA+DvKQ+bp7Y7gmaVhacjv9uF6Ar-o4tet872h4Q8RPYPJjcJQA@mail.gmail.com/
+Fixes:abf00907538e2 ("spi: dw: Add Baikal-T1 SPI Controller glue driver")
+
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20220924121310.78331-3-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/microcode.h    | 1 +
- arch/x86/kernel/cpu/microcode/amd.c | 3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/spi/spi-dw-bt1.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/microcode.h b/arch/x86/include/asm/microcode.h
-index 91a06cef50c1..f73327397b89 100644
---- a/arch/x86/include/asm/microcode.h
-+++ b/arch/x86/include/asm/microcode.h
-@@ -9,6 +9,7 @@
- struct ucode_patch {
- 	struct list_head plist;
- 	void *data;		/* Intel uses only this one */
-+	unsigned int size;
- 	u32 patch_id;
- 	u16 equiv_cpu;
- };
-diff --git a/arch/x86/kernel/cpu/microcode/amd.c b/arch/x86/kernel/cpu/microcode/amd.c
-index 3f6b137ef4e6..c87936441339 100644
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -783,6 +783,7 @@ static int verify_and_add_patch(u8 family, u8 *fw, unsigned int leftover,
- 		kfree(patch);
- 		return -EINVAL;
- 	}
-+	patch->size = *patch_size;
+diff --git a/drivers/spi/spi-dw-bt1.c b/drivers/spi/spi-dw-bt1.c
+index bc9d5eab3c58..8f6a1af14456 100644
+--- a/drivers/spi/spi-dw-bt1.c
++++ b/drivers/spi/spi-dw-bt1.c
+@@ -293,8 +293,10 @@ static int dw_spi_bt1_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
  
- 	mc_hdr      = (struct microcode_header_amd *)(fw + SECTION_HDR_SIZE);
- 	proc_id     = mc_hdr->processor_rev_id;
-@@ -864,7 +865,7 @@ load_microcode_amd(bool save, u8 family, const u8 *data, size_t size)
- 		return ret;
+ 	ret = dw_spi_add_host(&pdev->dev, dws);
+-	if (ret)
++	if (ret) {
++		pm_runtime_disable(&pdev->dev);
+ 		goto err_disable_clk;
++	}
  
- 	memset(amd_ucode_patch, 0, PATCH_MAX_SIZE);
--	memcpy(amd_ucode_patch, p->data, min_t(u32, ksize(p->data), PATCH_MAX_SIZE));
-+	memcpy(amd_ucode_patch, p->data, min_t(u32, p->size, PATCH_MAX_SIZE));
+ 	platform_set_drvdata(pdev, dwsbt1);
  
- 	return ret;
- }
 -- 
 2.35.1
 
