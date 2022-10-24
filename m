@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E339F60A2FF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:50:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4091760A1B7
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231808AbiJXLt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:49:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32880 "EHLO
+        id S229679AbiJXLcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:32:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231743AbiJXLsL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:48:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB33351414;
-        Mon, 24 Oct 2022 04:43:25 -0700 (PDT)
+        with ESMTP id S230318AbiJXLcX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:32:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11C26550B9;
+        Mon, 24 Oct 2022 04:32:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 386E3612B8;
-        Mon, 24 Oct 2022 11:43:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D66EC433C1;
-        Mon, 24 Oct 2022 11:43:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9347B81133;
+        Mon, 24 Oct 2022 11:32:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37FBFC433D6;
+        Mon, 24 Oct 2022 11:32:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611791;
-        bh=qyPKBhptZLK8DelWc0viy1Dy4e9UgeA6goOXR9m28iE=;
+        s=korg; t=1666611134;
+        bh=UjehT5YJLDsyySDHKVN1z6J5noOu+leeNjyGkzg8UE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+t/zJBhYbULSxjC3KA3tBWzKlxeHDrPfxkWmoqu3nV3uME3W/jXDfUt0UOQBlcBI
-         m24NMl8ezZCZR7sUtK4Sp2JsAcq0GDhQ/zZy4lJ0evI03ZxKyTIPxlLlCCvFCkC28S
-         QkmhbiSzQ/YPYYGtn/yxuveL0Y0aMSzRKlP/2gMo=
+        b=JlUlJ7UPfvgfLqVVexmtPUuaIA0/S2Psnd0rSzsOPPxM6A8uQaVOEWUiaRf9ApOZR
+         t1Q8HDzIUJFKNSysJdZFfovYFG+27C04NkbDBiG3OknEKJqVFg2uDNFBorOzgnawGD
+         rxiz3LoGeeU+gl/62705xAMrFReLuK2+PYyPifdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 111/159] mfd: intel_soc_pmic: Fix an error handling path in intel_soc_pmic_i2c_probe()
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mario Limonciello <mario.limonciello@amd.com>
+Subject: [PATCH 6.0 03/20] pinctrl: amd: change dev_warn to dev_dbg for additional feature support
 Date:   Mon, 24 Oct 2022 13:31:05 +0200
-Message-Id: <20221024112953.508551717@linuxfoundation.org>
+Message-Id: <20221024112934.560703191@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024112934.415391158@linuxfoundation.org>
+References: <20221024112934.415391158@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-[ Upstream commit 48749cabba109397b4e7dd556e85718ec0ec114d ]
+commit 3160b37e5cb695e866e06c3fdbc385846b569294 upstream.
 
-The commit in Fixes: has added a pwm_add_table() call in the probe() and
-a pwm_remove_table() call in the remove(), but forget to update the error
-handling path of the probe.
+Use dev_dbg instead of dev_warn for additional support of pinmux
+feature.
 
-Add the missing pwm_remove_table() call.
-
-Fixes: a3aa9a93df9f ("mfd: intel_soc_pmic_core: ADD PWM lookup table for CRC PMIC based PWM")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/20220801114211.36267-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Link: https://lore.kernel.org/r/20220830110525.1933198-1-Basavaraj.Natikar@amd.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mfd/intel_soc_pmic_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/pinctrl-amd.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/intel_soc_pmic_core.c b/drivers/mfd/intel_soc_pmic_core.c
-index 12d6ebb4ae5d..e233585645b9 100644
---- a/drivers/mfd/intel_soc_pmic_core.c
-+++ b/drivers/mfd/intel_soc_pmic_core.c
-@@ -118,6 +118,7 @@ static int intel_soc_pmic_i2c_probe(struct i2c_client *i2c,
- 	return 0;
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -1051,13 +1051,13 @@ static void amd_get_iomux_res(struct amd
  
- err_del_irq_chip:
-+	pwm_remove_table(crc_pwm_lookup, ARRAY_SIZE(crc_pwm_lookup));
- 	regmap_del_irq_chip(pmic->irq, pmic->irq_chip_data);
- 	return ret;
- }
--- 
-2.35.1
-
+ 	index = device_property_match_string(dev, "pinctrl-resource-names",  "iomux");
+ 	if (index < 0) {
+-		dev_warn(dev, "failed to get iomux index\n");
++		dev_dbg(dev, "iomux not supported\n");
+ 		goto out_no_pinmux;
+ 	}
+ 
+ 	gpio_dev->iomux_base = devm_platform_ioremap_resource(gpio_dev->pdev, index);
+ 	if (IS_ERR(gpio_dev->iomux_base)) {
+-		dev_warn(dev, "Failed to get iomux %d io resource\n", index);
++		dev_dbg(dev, "iomux not supported %d io resource\n", index);
+ 		goto out_no_pinmux;
+ 	}
+ 
 
 
