@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAAE760A5DF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E51BA60ABD6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:58:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233805AbiJXMau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:30:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60536 "EHLO
+        id S236854AbiJXN6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:58:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233715AbiJXM2w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C819585ABF;
-        Mon, 24 Oct 2022 05:02:28 -0700 (PDT)
+        with ESMTP id S236869AbiJXN5o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:57:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57D18696ED;
+        Mon, 24 Oct 2022 05:45:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 060B3B811C9;
-        Mon, 24 Oct 2022 11:59:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64BE6C433C1;
-        Mon, 24 Oct 2022 11:59:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94C2A612A1;
+        Mon, 24 Oct 2022 12:45:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A89CEC433C1;
+        Mon, 24 Oct 2022 12:45:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612740;
-        bh=lRwAxn9o2pouRDfUnd3VBJnNd7BIGUUk0OlswBK4tO8=;
+        s=korg; t=1666615502;
+        bh=OIJs8jEJDlE4X49d2dwxy8tysOIHP5M9KVrpH9pEbiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kn6PlV6Sk1jgTukx/3CyPY3sZitX7wPAc7PUwfIuY0AGFwZjHPVdkkfUm1yohmqaN
-         jWIzcmt2eA6I/G/IKi1S4hBHEM/mj+mqD271onSILKEpGFp18AEILKT8PsJ08ahZaL
-         S2ilF68SelJOjO+g2YNcehg9//9s9RxcMkbdtPx8=
+        b=l43SvPKAZKYicyHLly6rQxb4HRlNMvhbKEz2Vv5lkMxVg1Y1Y+fRu7swqP1S0typO
+         Gb6ufAY54UZQQQyR9uzmRLCf9oom8tL9utLWhNE1jKDRx0c0dTchSCSlO/yR3Pb3Ax
+         a1K1EVC+CCmPzOGPDwkoCXIZy0bcGvmt9KjOMSbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Kelin Wang <wangkelin2023@163.com>
-Subject: [PATCH 4.19 101/229] ASoC: eureka-tlv320: Hold reference returned from of_find_xxx API
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 276/530] clk: qoriq: Hold reference returned by of_get_parent()
 Date:   Mon, 24 Oct 2022 13:30:20 +0200
-Message-Id: <20221024113002.294662750@linuxfoundation.org>
+Message-Id: <20221024113057.576048453@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +55,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liang He <windhl@126.com>
 
-[ Upstream commit bfb735a3ceff0bab6473bac275da96f9b2a06dec ]
+[ Upstream commit a8ea4273bc26256ce3cce83164f0f51c5bf6e127 ]
 
-In eukrea_tlv320_probe(), we need to hold the reference returned
-from of_find_compatible_node() which has increased the refcount
-and then call of_node_put() with it when done.
+In legacy_init_clockgen(), we need to hold the reference returned
+by of_get_parent() and use it to call of_node_put() for refcount
+balance.
 
-Fixes: 66f232908de2 ("ASoC: eukrea-tlv320: Add DT support.")
-Co-authored-by: Kelin Wang <wangkelin2023@163.com>
+Beside, in create_sysclk(), we need to call of_node_put() on 'sysclk'
+also for refcount balance.
+
+Fixes: 0dfc86b3173f ("clk: qoriq: Move chip-specific knowledge into driver")
 Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220914134354.3995587-1-windhl@126.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220628143851.171299-1-windhl@126.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/eukrea-tlv320.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/clk/clk-qoriq.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/fsl/eukrea-tlv320.c b/sound/soc/fsl/eukrea-tlv320.c
-index 30a3d68b5c03..3705b003f528 100644
---- a/sound/soc/fsl/eukrea-tlv320.c
-+++ b/sound/soc/fsl/eukrea-tlv320.c
-@@ -87,7 +87,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 	int ret;
- 	int int_port = 0, ext_port;
- 	struct device_node *np = pdev->dev.of_node;
--	struct device_node *ssi_np = NULL, *codec_np = NULL;
-+	struct device_node *ssi_np = NULL, *codec_np = NULL, *tmp_np = NULL;
+diff --git a/drivers/clk/clk-qoriq.c b/drivers/clk/clk-qoriq.c
+index 88898b97a443..5eddb9f0d6bd 100644
+--- a/drivers/clk/clk-qoriq.c
++++ b/drivers/clk/clk-qoriq.c
+@@ -1063,8 +1063,13 @@ static void __init _clockgen_init(struct device_node *np, bool legacy);
+  */
+ static void __init legacy_init_clockgen(struct device_node *np)
+ {
+-	if (!clockgen.node)
+-		_clockgen_init(of_get_parent(np), true);
++	if (!clockgen.node) {
++		struct device_node *parent_np;
++
++		parent_np = of_get_parent(np);
++		_clockgen_init(parent_np, true);
++		of_node_put(parent_np);
++	}
+ }
  
- 	eukrea_tlv320.dev = &pdev->dev;
- 	if (np) {
-@@ -144,7 +144,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ /* Legacy node */
+@@ -1159,6 +1164,7 @@ static struct clk * __init create_sysclk(const char *name)
+ 	sysclk = of_get_child_by_name(clockgen.node, "sysclk");
+ 	if (sysclk) {
+ 		clk = sysclk_from_fixed(sysclk, name);
++		of_node_put(sysclk);
+ 		if (!IS_ERR(clk))
+ 			return clk;
  	}
- 
- 	if (machine_is_eukrea_cpuimx27() ||
--	    of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux")) {
-+	    (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux"))) {
- 		imx_audmux_v1_configure_port(MX27_AUDMUX_HPCR1_SSI0,
- 			IMX_AUDMUX_V1_PCR_SYN |
- 			IMX_AUDMUX_V1_PCR_TFSDIR |
-@@ -159,10 +159,11 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 			IMX_AUDMUX_V1_PCR_SYN |
- 			IMX_AUDMUX_V1_PCR_RXDSEL(MX27_AUDMUX_HPCR1_SSI0)
- 		);
-+		of_node_put(tmp_np);
- 	} else if (machine_is_eukrea_cpuimx25sd() ||
- 		   machine_is_eukrea_cpuimx35sd() ||
- 		   machine_is_eukrea_cpuimx51sd() ||
--		   of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux")) {
-+		   (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux"))) {
- 		if (!np)
- 			ext_port = machine_is_eukrea_cpuimx25sd() ?
- 				4 : 3;
-@@ -179,6 +180,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 			IMX_AUDMUX_V2_PTCR_SYN,
- 			IMX_AUDMUX_V2_PDCR_RXDSEL(int_port)
- 		);
-+		of_node_put(tmp_np);
- 	} else {
- 		if (np) {
- 			/* The eukrea,asoc-tlv320 driver was explicitly
 -- 
 2.35.1
 
