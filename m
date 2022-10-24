@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A16F460B8C2
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:53:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F0B60B8C0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:53:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233822AbiJXTxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:53:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55960 "EHLO
+        id S233808AbiJXTxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:53:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233594AbiJXTwj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:52:39 -0400
+        with ESMTP id S233719AbiJXTwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:52:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70DF173C35;
-        Mon, 24 Oct 2022 11:17:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A09D386A2;
+        Mon, 24 Oct 2022 11:17:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E169EB817C1;
-        Mon, 24 Oct 2022 12:36:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0B0C433D6;
-        Mon, 24 Oct 2022 12:36:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8156B817C2;
+        Mon, 24 Oct 2022 12:36:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E1F6C433D6;
+        Mon, 24 Oct 2022 12:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614986;
-        bh=Vos19/Db4czhMT1CsuPRfjC462d6PLCeRGLl/whOJxQ=;
+        s=korg; t=1666614994;
+        bh=fCrdWHM8LnRaqMfC4KAxu5QD6ur8u7uDL8AqdQGAJ9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKFmumV4r5ISFTK8Yd4MM0PQUuznghGYT3YJ4GkGuFIPJHYI26+nktKqHpkWj6o7o
-         PPtnszxk4/rIVXkNQYfTGhYf3xcmQjflQOHjeyEQbnXK1zVumzCGmvPJ0m/RkuHp1x
-         r3ovGSqf0gE/ui+dtUIIpsyS7kTrykjPquFy8cig=
+        b=PgVTv8hBRmKi6TKQsj701VcV3I7z73elPZCB4ZIUe7UiZiZ2Py8YFdj3bplaTvoqY
+         VBEOJbhyDuNZsWP5Qh2C9pzYHzkyEUIfFjmO7U9SxJ5vhXs+qiaYPgLgdqoSxQalSO
+         76FRYT/H3ZFpVIm5ANwHvDBbbWKEsp6K1f8CZu6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 079/530] btrfs: fix race between quota enable and quota rescan ioctl
-Date:   Mon, 24 Oct 2022 13:27:03 +0200
-Message-Id: <20221024113048.585821482@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.15 082/530] f2fs: flush pending checkpoints when freezing super
+Date:   Mon, 24 Oct 2022 13:27:06 +0200
+Message-Id: <20221024113048.729715245@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,60 +52,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit 331cd9461412e103d07595a10289de90004ac890 upstream.
+commit c7b58576370147833999fd4cc874d0f918bdf9ca upstream.
 
-When enabling quotas, at btrfs_quota_enable(), after committing the
-transaction, we change fs_info->quota_root to point to the quota root we
-created and set BTRFS_FS_QUOTA_ENABLED at fs_info->flags. Then we try
-to start the qgroup rescan worker, first by initializing it with a call
-to qgroup_rescan_init() - however if that fails we end up freeing the
-quota root but we leave fs_info->quota_root still pointing to it, this
-can later result in a use-after-free somewhere else.
+This avoids -EINVAL when trying to freeze f2fs.
 
-We have previously set the flags BTRFS_FS_QUOTA_ENABLED and
-BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with -EINPROGRESS at
-btrfs_quota_enable(), which is possible if someone already called the
-quota rescan ioctl, and therefore started the rescan worker.
-
-So fix this by ignoring an -EINPROGRESS and asserting we can't get any
-other error.
-
-Reported-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/linux-btrfs/20220823015931.421355-1-yebin10@huawei.com/
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/qgroup.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ fs/f2fs/checkpoint.c |   24 ++++++++++++++++++------
+ fs/f2fs/f2fs.h       |    1 +
+ fs/f2fs/super.c      |    5 ++---
+ 3 files changed, 21 insertions(+), 9 deletions(-)
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -1157,6 +1157,21 @@ out_add_root:
- 		fs_info->qgroup_rescan_running = true;
- 	        btrfs_queue_work(fs_info->qgroup_rescan_workers,
- 	                         &fs_info->qgroup_rescan_work);
-+	} else {
-+		/*
-+		 * We have set both BTRFS_FS_QUOTA_ENABLED and
-+		 * BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with
-+		 * -EINPROGRESS. That can happen because someone started the
-+		 * rescan worker by calling quota rescan ioctl before we
-+		 * attempted to initialize the rescan worker. Failure due to
-+		 * quotas disabled in the meanwhile is not possible, because
-+		 * we are holding a write lock on fs_info->subvol_sem, which
-+		 * is also acquired when disabling quotas.
-+		 * Ignore such error, and any other error would need to undo
-+		 * everything we did in the transaction we just committed.
-+		 */
-+		ASSERT(ret == -EINPROGRESS);
-+		ret = 0;
- 	}
+--- a/fs/f2fs/checkpoint.c
++++ b/fs/f2fs/checkpoint.c
+@@ -1892,15 +1892,27 @@ int f2fs_start_ckpt_thread(struct f2fs_s
+ void f2fs_stop_ckpt_thread(struct f2fs_sb_info *sbi)
+ {
+ 	struct ckpt_req_control *cprc = &sbi->cprc_info;
++	struct task_struct *ckpt_task;
  
- out_free_path:
+-	if (cprc->f2fs_issue_ckpt) {
+-		struct task_struct *ckpt_task = cprc->f2fs_issue_ckpt;
++	if (!cprc->f2fs_issue_ckpt)
++		return;
+ 
+-		cprc->f2fs_issue_ckpt = NULL;
+-		kthread_stop(ckpt_task);
++	ckpt_task = cprc->f2fs_issue_ckpt;
++	cprc->f2fs_issue_ckpt = NULL;
++	kthread_stop(ckpt_task);
+ 
+-		flush_remained_ckpt_reqs(sbi, NULL);
+-	}
++	f2fs_flush_ckpt_thread(sbi);
++}
++
++void f2fs_flush_ckpt_thread(struct f2fs_sb_info *sbi)
++{
++	struct ckpt_req_control *cprc = &sbi->cprc_info;
++
++	flush_remained_ckpt_reqs(sbi, NULL);
++
++	/* Let's wait for the previous dispatched checkpoint. */
++	while (atomic_read(&cprc->queued_ckpt))
++		io_schedule_timeout(DEFAULT_IO_TIMEOUT);
+ }
+ 
+ void f2fs_init_ckpt_req_control(struct f2fs_sb_info *sbi)
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3540,6 +3540,7 @@ unsigned int f2fs_usable_blks_in_seg(str
+  * checkpoint.c
+  */
+ void f2fs_stop_checkpoint(struct f2fs_sb_info *sbi, bool end_io);
++void f2fs_flush_ckpt_thread(struct f2fs_sb_info *sbi);
+ struct page *f2fs_grab_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
+ struct page *f2fs_get_meta_page(struct f2fs_sb_info *sbi, pgoff_t index);
+ struct page *f2fs_get_meta_page_retry(struct f2fs_sb_info *sbi, pgoff_t index);
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1661,9 +1661,8 @@ static int f2fs_freeze(struct super_bloc
+ 	if (is_sbi_flag_set(F2FS_SB(sb), SBI_IS_DIRTY))
+ 		return -EINVAL;
+ 
+-	/* ensure no checkpoint required */
+-	if (!llist_empty(&F2FS_SB(sb)->cprc_info.issue_list))
+-		return -EINVAL;
++	/* Let's flush checkpoints and stop the thread. */
++	f2fs_flush_ckpt_thread(F2FS_SB(sb));
+ 
+ 	/* to avoid deadlock on f2fs_evict_inode->SB_FREEZE_FS */
+ 	set_sbi_flag(F2FS_SB(sb), SBI_IS_FREEZING);
 
 
