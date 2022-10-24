@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A402D60BA62
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:36:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64DC460BA8C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:38:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234402AbiJXUgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:36:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38554 "EHLO
+        id S234643AbiJXUis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:38:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233230AbiJXUgR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:36:17 -0400
+        with ESMTP id S234609AbiJXUiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:38:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 055BA1B1572;
-        Mon, 24 Oct 2022 11:48:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 627DF3FA20;
+        Mon, 24 Oct 2022 11:49:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE0A9B819AB;
-        Mon, 24 Oct 2022 12:43:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B25CC433D6;
-        Mon, 24 Oct 2022 12:43:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 459C7B81256;
+        Mon, 24 Oct 2022 12:08:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D5B4C433C1;
+        Mon, 24 Oct 2022 12:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615418;
-        bh=ZrkEGWId4ZhNj0J5PD/RwxU0pxiFWSFrDgAXTQr1kA4=;
+        s=korg; t=1666613290;
+        bh=J07xhHpiz53nfpmBnVPX+Nux9GuiPCo4H7qkooMzdPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g+pCMv9I9OGokHTpOCpAirNiBYNwS8UhuUfkXUT7RCM/g9gv6OFOEODHCurKaTyGe
-         6sdjHWG2P8CUqR/qQMV00q4uG72mm+hRz3nn0CGpYEF0NQESTAyWW9DpkKHgD5T4FO
-         dF2JZWkuvS6IeGahd/anDBm/WFVRzrQlOBXAG5g8=
+        b=lq9UPjIiFzE/GppoS4G8T04RWcw7z2uGTbNjRl6OYm7HvqSF3xP70mE+6/AkZMmpV
+         T7zsEvsUdAyvmSj355NPoWvN1u6Z8+8gdWOMYO1p47Cj0l+G3NOkXaH7J9V2iBid2O
+         8fHCno3B9NL3ozRjWoGyaquvV+4jOT6eV71Qa/ZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 244/530] ASoC: mt6660: Fix PM disable depth imbalance in mt6660_i2c_probe
-Date:   Mon, 24 Oct 2022 13:29:48 +0200
-Message-Id: <20221024113056.156167635@linuxfoundation.org>
+Subject: [PATCH 5.4 080/255] mISDN: fix use-after-free bugs in l1oip timer handlers
+Date:   Mon, 24 Oct 2022 13:29:50 +0200
+Message-Id: <20221024113005.169495890@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit b73f11e895e140537e7f8c7251211ccd3ce0782b ]
+[ Upstream commit 2568a7e0832ee30b0a351016d03062ab4e0e0a3f ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context. We fix it by moving
-pm_runtime_enable to the endding of mt6660_i2c_probe.
+The l1oip_cleanup() traverses the l1oip_ilist and calls
+release_card() to cleanup module and stack. However,
+release_card() calls del_timer() to delete the timers
+such as keep_tl and timeout_tl. If the timer handler is
+running, the del_timer() will not stop it and result in
+UAF bugs. One of the processes is shown below:
 
-Fixes:f289e55c6eeb4 ("ASoC: Add MediaTek MT6660 Speaker Amp Driver")
+    (cleanup routine)          |        (timer handler)
+release_card()                 | l1oip_timeout()
+ ...                           |
+ del_timer()                   | ...
+ ...                           |
+ kfree(hc) //FREE              |
+                               | hc->timeout_on = 0 //USE
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220928160116.125020-5-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix by calling del_timer_sync() in release_card(), which
+makes sure the timer handlers have finished before the
+resources, such as l1oip and so on, have been deallocated.
+
+What's more, the hc->workq and hc->socket_thread can kick
+those timers right back in. We add a bool flag to show
+if card is released. Then, check this flag in hc->workq
+and hc->socket_thread.
+
+Fixes: 3712b42d4b1b ("Add layer1 over IP support")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/mt6660.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/isdn/mISDN/l1oip.h      |  1 +
+ drivers/isdn/mISDN/l1oip_core.c | 13 +++++++------
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/codecs/mt6660.c b/sound/soc/codecs/mt6660.c
-index 358c500377df..a0a3fd60e93a 100644
---- a/sound/soc/codecs/mt6660.c
-+++ b/sound/soc/codecs/mt6660.c
-@@ -504,13 +504,17 @@ static int mt6660_i2c_probe(struct i2c_client *client,
- 		dev_err(chip->dev, "read chip revision fail\n");
- 		goto probe_fail;
- 	}
--	pm_runtime_set_active(chip->dev);
--	pm_runtime_enable(chip->dev);
+diff --git a/drivers/isdn/mISDN/l1oip.h b/drivers/isdn/mISDN/l1oip.h
+index 7ea10db20e3a..48133d022812 100644
+--- a/drivers/isdn/mISDN/l1oip.h
++++ b/drivers/isdn/mISDN/l1oip.h
+@@ -59,6 +59,7 @@ struct l1oip {
+ 	int			bundle;		/* bundle channels in one frm */
+ 	int			codec;		/* codec to use for transmis. */
+ 	int			limit;		/* limit number of bchannels */
++	bool			shutdown;	/* if card is released */
  
- 	ret = devm_snd_soc_register_component(chip->dev,
- 					       &mt6660_component_driver,
- 					       &mt6660_codec_dai, 1);
-+	if (!ret) {
-+		pm_runtime_set_active(chip->dev);
-+		pm_runtime_enable(chip->dev);
-+	}
-+
- 	return ret;
-+
- probe_fail:
- 	_mt6660_chip_power_on(chip, 0);
- 	mutex_destroy(&chip->io_lock);
+ 	/* timer */
+ 	struct timer_list	keep_tl;
+diff --git a/drivers/isdn/mISDN/l1oip_core.c b/drivers/isdn/mISDN/l1oip_core.c
+index b57dcb834594..aec4f2a69c3b 100644
+--- a/drivers/isdn/mISDN/l1oip_core.c
++++ b/drivers/isdn/mISDN/l1oip_core.c
+@@ -275,7 +275,7 @@ l1oip_socket_send(struct l1oip *hc, u8 localcodec, u8 channel, u32 chanmask,
+ 	p = frame;
+ 
+ 	/* restart timer */
+-	if (time_before(hc->keep_tl.expires, jiffies + 5 * HZ))
++	if (time_before(hc->keep_tl.expires, jiffies + 5 * HZ) && !hc->shutdown)
+ 		mod_timer(&hc->keep_tl, jiffies + L1OIP_KEEPALIVE * HZ);
+ 	else
+ 		hc->keep_tl.expires = jiffies + L1OIP_KEEPALIVE * HZ;
+@@ -601,7 +601,9 @@ l1oip_socket_parse(struct l1oip *hc, struct sockaddr_in *sin, u8 *buf, int len)
+ 		goto multiframe;
+ 
+ 	/* restart timer */
+-	if (time_before(hc->timeout_tl.expires, jiffies + 5 * HZ) || !hc->timeout_on) {
++	if ((time_before(hc->timeout_tl.expires, jiffies + 5 * HZ) ||
++	     !hc->timeout_on) &&
++	    !hc->shutdown) {
+ 		hc->timeout_on = 1;
+ 		mod_timer(&hc->timeout_tl, jiffies + L1OIP_TIMEOUT * HZ);
+ 	} else /* only adjust timer */
+@@ -1232,11 +1234,10 @@ release_card(struct l1oip *hc)
+ {
+ 	int	ch;
+ 
+-	if (timer_pending(&hc->keep_tl))
+-		del_timer(&hc->keep_tl);
++	hc->shutdown = true;
+ 
+-	if (timer_pending(&hc->timeout_tl))
+-		del_timer(&hc->timeout_tl);
++	del_timer_sync(&hc->keep_tl);
++	del_timer_sync(&hc->timeout_tl);
+ 
+ 	cancel_work_sync(&hc->workq);
+ 
 -- 
 2.35.1
 
