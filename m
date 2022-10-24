@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A0B160A4DE
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:17:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 001F560A6F3
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:42:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233066AbiJXMR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:17:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47540 "EHLO
+        id S229781AbiJXMmY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:42:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231734AbiJXMQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:16:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94A2280F41;
-        Mon, 24 Oct 2022 04:56:24 -0700 (PDT)
+        with ESMTP id S234681AbiJXMk2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:40:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 717CC8C478;
+        Mon, 24 Oct 2022 05:08:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 798EAB811B8;
-        Mon, 24 Oct 2022 11:52:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0C36C433C1;
-        Mon, 24 Oct 2022 11:52:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63C2761280;
+        Mon, 24 Oct 2022 12:01:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7886DC433C1;
+        Mon, 24 Oct 2022 12:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612342;
-        bh=ZkKl/EsOt+55to666XhPgsn1/N1tcDCZ1GlCuJY/pbg=;
+        s=korg; t=1666612893;
+        bh=/1DW5WW1xl+F1DQUELEVGXcIOZpqadrzRHptiXSg1bE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxwvBaSIk+y+cZqDdYSFCYPav31ixjZaJDUgC9jGFwtbn3tiwrZdniwrEz5+wk5be
-         aXsZqu3MbRREXUw4VsWB6gAXrRsFKBNC2hWXO/0FNaU6r/eUDLej2E5mq6qDMYwB+1
-         SFrYTc4mtBAXzo9OQOvJb3xh/BfoASbZ8v8i9e0g=
+        b=pISd+WqmQlRPKoEAcQkrSMnipOd0pbNnM3QeBE5VBsLMMHl2C8w4hCkE0rLouvh0L
+         9dwm4vztcMHCNzDk7oCccjPT9oRZCacrkItHvpFsmAfHx3urxVDXMONj6c9b25v2Ln
+         jV+dmjKQb86nJBKCUrFdpKt56leycrSy8KXGigKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Arvid Norlander <lkml@vorpal.se>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 161/210] ACPI: video: Add Toshiba Satellite/Portege Z830 quirk
-Date:   Mon, 24 Oct 2022 13:31:18 +0200
-Message-Id: <20221024113002.199716272@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>,
+        Miaoqian Lin <linmq006@gmail.com>
+Subject: [PATCH 4.19 160/229] powerpc/sysdev/fsl_msi: Add missing of_node_put()
+Date:   Mon, 24 Oct 2022 13:31:19 +0200
+Message-Id: <20221024113004.174029483@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvid Norlander <lkml@vorpal.se>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 574160b8548deff8b80b174f03201e94ab8431e2 ]
+[ Upstream commit def435c04ee984a5f9ed2711b2bfe946936c6a21 ]
 
-Toshiba Satellite Z830 needs the quirk video_disable_backlight_sysfs_if
-for proper backlight control after suspend/resume cycles.
+In fsl_setup_msi_irqs(), use of_node_put() to drop the reference
+returned by of_parse_phandle().
 
-Toshiba Portege Z830 is simply the same laptop rebranded for certain
-markets (I looked through the manual to other language sections to confirm
-this) and thus also needs this quirk.
-
-Thanks to Hans de Goede for suggesting this fix.
-
-Link: https://www.spinics.net/lists/platform-driver-x86/msg34394.html
-Suggested-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Arvid Norlander <lkml@vorpal.se>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Arvid Norlander <lkml@vorpal.se>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 895d603f945ba ("powerpc/fsl_msi: add support for the fsl, msi property in PCI nodes")
+Co-authored-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220704145233.278539-1-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_video.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ arch/powerpc/sysdev/fsl_msi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
-index 5a69260edf80..cc228e5ad2b3 100644
---- a/drivers/acpi/acpi_video.c
-+++ b/drivers/acpi/acpi_video.c
-@@ -511,6 +511,22 @@ static const struct dmi_system_id video_dmi_table[] = {
- 		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE R830"),
- 		},
- 	},
-+	{
-+	 .callback = video_disable_backlight_sysfs_if,
-+	 .ident = "Toshiba Satellite Z830",
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE Z830"),
-+		},
-+	},
-+	{
-+	 .callback = video_disable_backlight_sysfs_if,
-+	 .ident = "Toshiba Portege Z830",
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE Z830"),
-+		},
-+	},
- 	/*
- 	 * Some machine's _DOD IDs don't have bit 31(Device ID Scheme) set
- 	 * but the IDs actually follow the Device ID Scheme.
+diff --git a/arch/powerpc/sysdev/fsl_msi.c b/arch/powerpc/sysdev/fsl_msi.c
+index df95102e732c..44aedb6b9f55 100644
+--- a/arch/powerpc/sysdev/fsl_msi.c
++++ b/arch/powerpc/sysdev/fsl_msi.c
+@@ -216,8 +216,10 @@ static int fsl_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
+ 			dev_err(&pdev->dev,
+ 				"node %pOF has an invalid fsl,msi phandle %u\n",
+ 				hose->dn, np->phandle);
++			of_node_put(np);
+ 			return -EINVAL;
+ 		}
++		of_node_put(np);
+ 	}
+ 
+ 	for_each_pci_msi_entry(entry, pdev) {
 -- 
 2.35.1
 
