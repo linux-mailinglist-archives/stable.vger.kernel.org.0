@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 739EB60A804
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47E1960AB3F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:46:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234977AbiJXNAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33084 "EHLO
+        id S236451AbiJXNqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:46:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235213AbiJXM7j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:39 -0400
+        with ESMTP id S236664AbiJXNpC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:45:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C150D9AC3E;
-        Mon, 24 Oct 2022 05:18:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EBA848CA3;
+        Mon, 24 Oct 2022 05:40:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4525A61320;
-        Mon, 24 Oct 2022 12:17:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55FEAC433D6;
-        Mon, 24 Oct 2022 12:17:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30103612B2;
+        Mon, 24 Oct 2022 12:38:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4395BC433C1;
+        Mon, 24 Oct 2022 12:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613863;
-        bh=tmj7cEVGDBCQselsv8wG2LDghm14ih3ZoJfiAIEa8Ow=;
+        s=korg; t=1666615135;
+        bh=mGqmo0S/cZ1DZJ0WQ/Bt9WjSLdXTjqMxohIkX6GdePo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=So6idco7cPMbBY5wMI0SIf2nBGHv3ThHqIYjVRD5hRwhgXBRwQV/HTEOXad3Sf9iM
-         Z9VRqu0g4+n3gJtm/snyCtxUwojKJpdAf8PVTpAnx2zpF9oM3wiCp6u+D1Pp9anwVZ
-         HW7EjnqVAf+/zGtwC67mz06CVcgmhOPWbBzrh/Ro=
+        b=zN0XRl7FQrxqthb0iSMZVMCZInoqyms8WvmXJ8HrBDhg4009W3fDehI66+a8lCtjN
+         HG3T6thrO1DpM9v7jyA7/mXHCzYdWQ8wbdXSjJqP/N7LIsgrVB3ffuqR7sAvnlnR0U
+         jBeikqUAFhyNNTEweYayi4cjy/7gsxqCQHa2dFfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carlos Llamas <cmllamas@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Liam Howlett <liam.howlett@oracle.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 042/390] mm/mmap: undo ->mmap() when arch_validate_flags() fails
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Lukas Czerner <lczerner@redhat.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 095/530] ext4: fix check for block being out of directory size
 Date:   Mon, 24 Oct 2022 13:27:19 +0200
-Message-Id: <20221024113024.402510437@linuxfoundation.org>
+Message-Id: <20221024113049.320400755@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,112 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Llamas <cmllamas@google.com>
+From: Jan Kara <jack@suse.cz>
 
-commit deb0f6562884b5b4beb883d73e66a7d3a1b96d99 upstream.
+commit 61a1d87a324ad5e3ed27c6699dfc93218fcf3201 upstream.
 
-Commit c462ac288f2c ("mm: Introduce arch_validate_flags()") added a late
-check in mmap_region() to let architectures validate vm_flags.  The check
-needs to happen after calling ->mmap() as the flags can potentially be
-modified during this callback.
+The check in __ext4_read_dirblock() for block being outside of directory
+size was wrong because it compared block number against directory size
+in bytes. Fix it.
 
-If arch_validate_flags() check fails we unmap and free the vma.  However,
-the error path fails to undo the ->mmap() call that previously succeeded
-and depending on the specific ->mmap() implementation this translates to
-reference increments, memory allocations and other operations what will
-not be cleaned up.
-
-There are several places (mainly device drivers) where this is an issue.
-However, one specific example is bpf_map_mmap() which keeps count of the
-mappings in map->writecnt.  The count is incremented on ->mmap() and then
-decremented on vm_ops->close().  When arch_validate_flags() fails this
-count is off since bpf_map_mmap_close() is never called.
-
-One can reproduce this issue in arm64 devices with MTE support.  Here the
-vm_flags are checked to only allow VM_MTE if VM_MTE_ALLOWED has been set
-previously.  From userspace then is enough to pass the PROT_MTE flag to
-mmap() syscall to trigger the arch_validate_flags() failure.
-
-The following program reproduces this issue:
-
-  #include <stdio.h>
-  #include <unistd.h>
-  #include <linux/unistd.h>
-  #include <linux/bpf.h>
-  #include <sys/mman.h>
-
-  int main(void)
-  {
-	union bpf_attr attr = {
-		.map_type = BPF_MAP_TYPE_ARRAY,
-		.key_size = sizeof(int),
-		.value_size = sizeof(long long),
-		.max_entries = 256,
-		.map_flags = BPF_F_MMAPABLE,
-	};
-	int fd;
-
-	fd = syscall(__NR_bpf, BPF_MAP_CREATE, &attr, sizeof(attr));
-	mmap(NULL, 4096, PROT_WRITE | PROT_MTE, MAP_SHARED, fd, 0);
-
-	return 0;
-  }
-
-By manually adding some log statements to the vm_ops callbacks we can
-confirm that when passing PROT_MTE to mmap() the map->writecnt is off upon
-->release():
-
-With PROT_MTE flag:
-  root@debian:~# ./bpf-test
-  [  111.263874] bpf_map_write_active_inc: map=9 writecnt=1
-  [  111.288763] bpf_map_release: map=9 writecnt=1
-
-Without PROT_MTE flag:
-  root@debian:~# ./bpf-test
-  [  157.816912] bpf_map_write_active_inc: map=10 writecnt=1
-  [  157.830442] bpf_map_write_active_dec: map=10 writecnt=0
-  [  157.832396] bpf_map_release: map=10 writecnt=0
-
-This patch fixes the above issue by calling vm_ops->close() when the
-arch_validate_flags() check fails, after this we can proceed to unmap and
-free the vma on the error path.
-
-Link: https://lkml.kernel.org/r/20220930003844.1210987-1-cmllamas@google.com
-Fixes: c462ac288f2c ("mm: Introduce arch_validate_flags()")
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Reviewed-by: Liam Howlett <liam.howlett@oracle.com>
-Cc: Christian Brauner (Microsoft) <brauner@kernel.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: <stable@vger.kernel.org>	[5.10+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 65f8ea4cd57d ("ext4: check if directory block is within i_size")
+CVE: CVE-2022-1184
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Link: https://lore.kernel.org/r/20220822114832.1482-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mmap.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/ext4/namei.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1856,7 +1856,7 @@ unsigned long mmap_region(struct file *f
- 	if (!arch_validate_flags(vma->vm_flags)) {
- 		error = -EINVAL;
- 		if (file)
--			goto unmap_and_free_vma;
-+			goto close_and_free_vma;
- 		else
- 			goto free_vma;
- 	}
-@@ -1900,6 +1900,9 @@ out:
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -126,7 +126,7 @@ static struct buffer_head *__ext4_read_d
+ 	struct ext4_dir_entry *dirent;
+ 	int is_dx_block = 0;
  
- 	return addr;
- 
-+close_and_free_vma:
-+	if (vma->vm_ops && vma->vm_ops->close)
-+		vma->vm_ops->close(vma);
- unmap_and_free_vma:
- 	vma->vm_file = NULL;
- 	fput(file);
+-	if (block >= inode->i_size) {
++	if (block >= inode->i_size >> inode->i_blkbits) {
+ 		ext4_error_inode(inode, func, line, block,
+ 		       "Attempting to read directory block (%u) that is past i_size (%llu)",
+ 		       block, inode->i_size);
 
 
