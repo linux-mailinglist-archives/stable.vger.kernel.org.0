@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFC0960AAFF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:42:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2D9060AA9A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:36:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236170AbiJXNm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:42:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35046 "EHLO
+        id S229674AbiJXNf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:35:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236254AbiJXNjl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:39:41 -0400
+        with ESMTP id S235990AbiJXNeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:34:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 915832BB29;
-        Mon, 24 Oct 2022 05:36:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E498A2C106;
+        Mon, 24 Oct 2022 05:34:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BE53612A8;
-        Mon, 24 Oct 2022 12:34:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CF76C433D7;
-        Mon, 24 Oct 2022 12:34:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A587612CC;
+        Mon, 24 Oct 2022 12:34:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BCB9C433C1;
+        Mon, 24 Oct 2022 12:34:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614885;
-        bh=Ys3ka49cccFJzfsTCTuZ+erQPYHY5yRX3BygybRzjkA=;
+        s=korg; t=1666614888;
+        bh=u8jCsQTg+AUQ8MfWiYmhRVCIrhrvAtAfKvtbHgYSGJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r8mIUjiSewG4SjbDEGxibSFMN9O+yZA3HrAc/z0zk08eBa+uLvf1Ex40l7myfVgjF
-         1MHaGZbkkvyzcQZv7dkW7vETKuE6zku4uxiU53S5I0ywemnvI6952u+yoaa9fMMa8j
-         5ci9Phz+1plo5UtbDdAnRH6KnpyKcixIrtC9Zyxc=
+        b=C+r32Q5u91mCUEeXTKl5vZ60R0egCTJs6M92fUfy99oEe1e+Nt/mzaDW4OKNFeLxb
+         Yp87aoyW7CCQqLmt1rPJ71OZd9Zngojpqzy946Vaq9r9LDAVFvyZIebATWJV/1lbk3
+         rpMVZdZezVCtmwA4sgjnUQ6KOQ21xKj1Oj0wmERM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 041/530] parisc: fbdev/stifb: Align graphics memory size to 4MB
-Date:   Mon, 24 Oct 2022 13:26:25 +0200
-Message-Id: <20221024113046.882427772@linuxfoundation.org>
+        stable@vger.kernel.org, Atish Patra <atishp@rivosinc.com>,
+        Andrew Bresticker <abrestic@rivosinc.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.15 042/530] riscv: Allow PROT_WRITE-only mmap()
+Date:   Mon, 24 Oct 2022 13:26:26 +0200
+Message-Id: <20221024113046.929121689@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -51,31 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Andrew Bresticker <abrestic@rivosinc.com>
 
-commit aca7c13d3bee81a968337a5515411409ae9d095d upstream.
+commit 9e2e6042a7ec6504fe8e366717afa2f40cf16488 upstream.
 
-Independend of the current graphics resolution, adjust the reported
-graphics card memory size to the next 4MB boundary.
-This fixes the fbtest program which expects a naturally aligned size.
+Commit 2139619bcad7 ("riscv: mmap with PROT_WRITE but no PROT_READ is
+invalid") made mmap() return EINVAL if PROT_WRITE was set wihtout
+PROT_READ with the justification that a write-only PTE is considered a
+reserved PTE permission bit pattern in the privileged spec. This check
+is unnecessary since we let VM_WRITE imply VM_READ on RISC-V, and it is
+inconsistent with other architectures that don't support write-only PTEs,
+creating a potential software portability issue. Just remove the check
+altogether and let PROT_WRITE imply PROT_READ as is the case on other
+architectures.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>
+Note that this also allows PROT_WRITE|PROT_EXEC mappings which were
+disallowed prior to the aforementioned commit; PROT_READ is implied in
+such mappings as well.
+
+Fixes: 2139619bcad7 ("riscv: mmap with PROT_WRITE but no PROT_READ is invalid")
+Reviewed-by: Atish Patra <atishp@rivosinc.com>
+Signed-off-by: Andrew Bresticker <abrestic@rivosinc.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220915193702.2201018-3-abrestic@rivosinc.com/
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/stifb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/kernel/sys_riscv.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/video/fbdev/stifb.c
-+++ b/drivers/video/fbdev/stifb.c
-@@ -1257,7 +1257,7 @@ static int __init stifb_init_fb(struct s
- 	
- 	/* limit fbsize to max visible screen size */
- 	if (fix->smem_len > yres*fix->line_length)
--		fix->smem_len = yres*fix->line_length;
-+		fix->smem_len = ALIGN(yres*fix->line_length, 4*1024*1024);
- 	
- 	fix->accel = FB_ACCEL_NONE;
+--- a/arch/riscv/kernel/sys_riscv.c
++++ b/arch/riscv/kernel/sys_riscv.c
+@@ -18,9 +18,6 @@ static long riscv_sys_mmap(unsigned long
+ 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
+ 		return -EINVAL;
  
+-	if (unlikely((prot & PROT_WRITE) && !(prot & PROT_READ)))
+-		return -EINVAL;
+-
+ 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
+ 			       offset >> (PAGE_SHIFT - page_shift_offset));
+ }
 
 
