@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BBB160A570
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C6CB60A6D5
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:41:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233396AbiJXMYy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:24:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40674 "EHLO
+        id S230289AbiJXMkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:40:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233371AbiJXMXM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:23:12 -0400
+        with ESMTP id S231883AbiJXMiK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:38:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6522DEF0;
-        Mon, 24 Oct 2022 04:59:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A06EE89810;
+        Mon, 24 Oct 2022 05:06:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E47A761257;
-        Mon, 24 Oct 2022 11:57:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02073C433D6;
-        Mon, 24 Oct 2022 11:57:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A555612DB;
+        Mon, 24 Oct 2022 12:06:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C8E7C433C1;
+        Mon, 24 Oct 2022 12:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612622;
-        bh=doyM6GFH95BLQzDNCiBz6c5XV379cRQ4AYunJVs8eqA=;
+        s=korg; t=1666613190;
+        bh=qpkhbREp+upQTVqTctmEWCOKn9PVcpaTOkNdIdq7NqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3TAHe5m2sRQvzogrSIPmCq72dxsyc3tApwigjxHaQZlY98m445+CSQfB1nLF0ZZG
-         kdAtYDZMRlvF5pE90/MZMN5aY2Od6fzjvhHIoCZxz3Xmo7SEZvjO42GT9zCdRr47iA
-         BwuAD8uJDawMiYBV2uWLZ794bovFl2Rbgw3uE9N0=
+        b=Xefj0o5FHtjf7h7IoJBMJpb8XCAh9qCw/khE5PiVK/J+asjIxeCs6NU7+kHRLF5vC
+         gVQxUsPScVO7QaclCUoFmviJp+iyoNGSC4n9L67ek9rpaCdajHBSn/YOdIDL3VAulR
+         AakE6cqtRaKIVQVHKZsSdHd2DtSMR2zkbsxRt6kI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 016/229] mmc: core: Terminate infinite loop in SD-UHS voltage switch
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 025/255] ASoC: wcd9335: fix order of Slimbus unprepare/disable
 Date:   Mon, 24 Oct 2022 13:28:55 +0200
-Message-Id: <20221024112959.668731263@linuxfoundation.org>
+Message-Id: <20221024113003.283413088@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit e9233917a7e53980664efbc565888163c0a33c3f upstream.
+commit ea8ef003aa53ad23e7705c5cab1c4e664faa6c79 upstream.
 
-This loop intends to retry a max of 10 times, with some implicit
-termination based on the SD_{R,}OCR_S18A bit. Unfortunately, the
-termination condition depends on the value reported by the SD card
-(*rocr), which may or may not correctly reflect what we asked it to do.
+Slimbus streams are first prepared and then enabled, so the cleanup path
+should reverse it.  The unprepare sets stream->num_ports to 0 and frees
+the stream->ports.  Calling disable after unprepare was not really
+effective (channels was not deactivated) and could lead to further
+issues due to making transfers on unprepared stream.
 
-Needless to say, it's not wise to rely on the card doing what we expect;
-we should at least terminate the loop regardless. So, check both the
-input and output values, so we ensure we will terminate regardless of
-the SD card behavior.
-
-Note that SDIO learned a similar retry loop in commit 0797e5f1453b
-("mmc: core: Fixup signal voltage switch"), but that used the 'ocr'
-result, and so the current pre-terminating condition looks like:
-
-    rocr & ocr & R4_18V_PRESENT
-
-(i.e., it doesn't have the same bug.)
-
-This addresses a number of crash reports seen on ChromeOS that look
-like the following:
-
-    ... // lots of repeated: ...
-    <4>[13142.846061] mmc1: Skipping voltage switch
-    <4>[13143.406087] mmc1: Skipping voltage switch
-    <4>[13143.964724] mmc1: Skipping voltage switch
-    <4>[13144.526089] mmc1: Skipping voltage switch
-    <4>[13145.086088] mmc1: Skipping voltage switch
-    <4>[13145.645941] mmc1: Skipping voltage switch
-    <3>[13146.153969] INFO: task halt:30352 blocked for more than 122 seconds.
-    ...
-
-Fixes: f2119df6b764 ("mmc: sd: add support for signal voltage switch procedure")
+Fixes: 20aedafdf492 ("ASoC: wcd9335: add support to wcd9335 codec")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220914014010.2076169-1-briannorris@chromium.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220921145354.1683791-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/sd.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/codecs/wcd9335.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -787,7 +787,8 @@ try_again:
- 	 * the CCS bit is set as well. We deliberately deviate from the spec in
- 	 * regards to this, which allows UHS-I to be supported for SDSC cards.
- 	 */
--	if (!mmc_host_is_spi(host) && rocr && (*rocr & SD_ROCR_S18A)) {
-+	if (!mmc_host_is_spi(host) && (ocr & SD_OCR_S18R) &&
-+	    rocr && (*rocr & SD_ROCR_S18A)) {
- 		err = mmc_set_uhs_voltage(host, pocr);
- 		if (err == -EAGAIN) {
- 			retries--;
+--- a/sound/soc/codecs/wcd9335.c
++++ b/sound/soc/codecs/wcd9335.c
+@@ -1971,8 +1971,8 @@ static int wcd9335_trigger(struct snd_pc
+ 	case SNDRV_PCM_TRIGGER_STOP:
+ 	case SNDRV_PCM_TRIGGER_SUSPEND:
+ 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
+-		slim_stream_unprepare(dai_data->sruntime);
+ 		slim_stream_disable(dai_data->sruntime);
++		slim_stream_unprepare(dai_data->sruntime);
+ 		break;
+ 	default:
+ 		break;
 
 
