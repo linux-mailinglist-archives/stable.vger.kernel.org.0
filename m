@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A510860AFE8
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:00:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8595660B019
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231589AbiJXP6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 11:58:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35566 "EHLO
+        id S229455AbiJXQB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:01:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232106AbiJXP57 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:57:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC1BD9A9FF;
-        Mon, 24 Oct 2022 07:53:21 -0700 (PDT)
+        with ESMTP id S232799AbiJXP7W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:59:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1076A40BD0;
+        Mon, 24 Oct 2022 07:54:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FB31B819FE;
-        Mon, 24 Oct 2022 12:51:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD608C433D6;
-        Mon, 24 Oct 2022 12:50:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29EF2B8136F;
+        Mon, 24 Oct 2022 12:31:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 855CEC433C1;
+        Mon, 24 Oct 2022 12:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615859;
-        bh=EvJC7ybRO4I0b2bkGMWAtdvSSua1BQZEEPWytH/fjio=;
+        s=korg; t=1666614693;
+        bh=PyVuP224LTfOgKeY7PGhWDcswJIc+RIZ/ujbhn1tRm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBuKYyqFqS6FSeYLonhtulUOLs2hcvnoJFD4C7BBOjxV2lX7K8LiRUKUEW67bIbcv
-         XPeJXpCXAgDPPPsQ6zu4H+k8IgYLLcDElcbke9x4wUJZRjUKU+19Ly6NVqVV0DBblM
-         sc9a0Gi30KJ1uZ2v134omCazAGv1V12j3iPAzBIU=
+        b=sN5VldWlkDacHmzuuKaQzuJGcOX1ydcNZy5fBzODSZVNfHD8/kFMC8/W05MRoAZJJ
+         yyQljQBfay8OeZAotdi5Tgr8RUzlAEj9t/Lvd8qPTMIobwXoZLkrqI+X4efCl3+cjZ
+         MmoZVa9xhKBFsOTX3jvef5WugWVTPDK+6d1oZWuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Luya Tshimbalanga <luya@fedoraproject.org>
-Subject: [PATCH 5.15 411/530] ACPI: x86: Add a quirk for Dell Inspiron 14 2-in-1 for StorageD3Enable
-Date:   Mon, 24 Oct 2022 13:32:35 +0200
-Message-Id: <20221024113103.692523351@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 359/390] power: supply: adp5061: fix out-of-bounds read in adp5061_get_chg_type()
+Date:   Mon, 24 Oct 2022 13:32:36 +0200
+Message-Id: <20221024113038.282171909@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 018d6711c26e4bd26e20a819fcc7f8ab902608f3 ]
+[ Upstream commit 9d47e01b9d807808224347935562f7043a358054 ]
 
-Dell Inspiron 14 2-in-1 has two ACPI nodes under GPP1 both with _ADR of
-0, both without _HID.  It's ambiguous which the kernel should take, but
-it seems to take "DEV0".  Unfortunately "DEV0" is missing the device
-property `StorageD3Enable` which is present on "NVME".
+ADP5061_CHG_STATUS_1_CHG_STATUS is masked with 0x07, which means a length
+of 8, but adp5061_chg_type array size is 4, may end up reading 4 elements
+beyond the end of the adp5061_chg_type[] array.
 
-To avoid this causing problems for suspend, add a quirk for this system
-to behave like `StorageD3Enable` property was found.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216440
-Reported-and-tested-by: Luya Tshimbalanga <luya@fedoraproject.org>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/x86/utils.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/power/supply/adp5061.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
-index b3fb428461c6..3a3f09b6cbfc 100644
---- a/drivers/acpi/x86/utils.c
-+++ b/drivers/acpi/x86/utils.c
-@@ -198,7 +198,24 @@ static const struct x86_cpu_id storage_d3_cpu_ids[] = {
- 	{}
- };
+diff --git a/drivers/power/supply/adp5061.c b/drivers/power/supply/adp5061.c
+index 003557043ab3..daee1161c305 100644
+--- a/drivers/power/supply/adp5061.c
++++ b/drivers/power/supply/adp5061.c
+@@ -427,11 +427,11 @@ static int adp5061_get_chg_type(struct adp5061_state *st,
+ 	if (ret < 0)
+ 		return ret;
  
-+static const struct dmi_system_id force_storage_d3_dmi[] = {
-+	{
-+		/*
-+		 * _ADR is ambiguous between GPP1.DEV0 and GPP1.NVME
-+		 * but .NVME is needed to get StorageD3Enable node
-+		 * https://bugzilla.kernel.org/show_bug.cgi?id=216440
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 14 7425 2-in-1"),
-+		}
-+	},
-+	{}
-+};
-+
- bool force_storage_d3(void)
- {
--	return x86_match_cpu(storage_d3_cpu_ids);
-+	const struct dmi_system_id *dmi_id = dmi_first_match(force_storage_d3_dmi);
-+
-+	return dmi_id || x86_match_cpu(storage_d3_cpu_ids);
+-	chg_type = adp5061_chg_type[ADP5061_CHG_STATUS_1_CHG_STATUS(status1)];
+-	if (chg_type > ADP5061_CHG_FAST_CV)
++	chg_type = ADP5061_CHG_STATUS_1_CHG_STATUS(status1);
++	if (chg_type >= ARRAY_SIZE(adp5061_chg_type))
+ 		val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
+ 	else
+-		val->intval = chg_type;
++		val->intval = adp5061_chg_type[chg_type];
+ 
+ 	return ret;
  }
 -- 
 2.35.1
