@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A11660AC69
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3444160ACDD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:16:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232774AbiJXOGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:06:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41232 "EHLO
+        id S233815AbiJXOQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:16:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237205AbiJXOFB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:05:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA5D722BCD;
-        Mon, 24 Oct 2022 05:49:47 -0700 (PDT)
+        with ESMTP id S235047AbiJXOO1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:14:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF6353054C;
+        Mon, 24 Oct 2022 05:54:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B855B81889;
-        Mon, 24 Oct 2022 12:36:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDF79C4314E;
-        Mon, 24 Oct 2022 12:36:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 831DC612CE;
+        Mon, 24 Oct 2022 12:36:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91860C433B5;
+        Mon, 24 Oct 2022 12:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615010;
-        bh=hPttMeNMtPjB3kXYpF6XGTSl4eSIr1TUfrKRMoITllI=;
+        s=korg; t=1666615012;
+        bh=bEmBgl0GT+2D0DUgIZWHRCQpwTRsSlgOSVEiO/oYD9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mk+3F1y4BQ7Dr+7KElw7CQcznKxuKoWUIte0S+X3492R6MLxQ0WLjbcdErdwMBYvn
-         ZNTV20KF58477I/QK34mRPJ8nlySe3mIYZ803srRvqroBUqcMggd4xaljXkyS0ViFm
-         k2SPKsYc3QQfN5P6K94n06lt8FxBIzPpMOFXcuhI=
+        b=OcsS2iVdwDzoyp4tbYs7qJLjlIxy+OHh08sA7cohR3OEpjHQpNRmhntofg9A2ecVF
+         HnW/vj0OL23vLU9ejTMSwZnZu7bw1kNJFBxQDUW81TcEDkHhgQzgo6pQpMu6yU70AU
+         b6YVDb1ecuF0GynMxLZNnX2ktL9RuhkFblHwgd1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kbuild@vger.kernel.org, llvm@lists.linux.dev,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.15 087/530] hardening: Remove Clangs enable flag for -ftrivial-auto-var-init=zero
-Date:   Mon, 24 Oct 2022 13:27:11 +0200
-Message-Id: <20221024113048.944971980@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Alexey Lyashkov <alexey.lyashkov@gmail.com>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 088/530] jbd2: wake up journal waiters in FIFO order, not LIFO
+Date:   Mon, 24 Oct 2022 13:27:12 +0200
+Message-Id: <20221024113048.989359615@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -55,67 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Andrew Perepechko <anserper@ya.ru>
 
-commit 607e57c6c62c00965ae276902c166834ce73014a upstream.
+commit 34fc8768ec6089565d6d73bad26724083cecf7bd upstream.
 
-Now that Clang's -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang
-option is no longer required, remove it from the command line. Clang 16
-and later will warn when it is used, which will cause Kconfig to think
-it can't use -ftrivial-auto-var-init=zero at all. Check for whether it
-is required and only use it when so.
+LIFO wakeup order is unfair and sometimes leads to a journal
+user not being able to get a journal handle for hundreds of
+transactions in a row.
 
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: linux-kbuild@vger.kernel.org
-Cc: llvm@lists.linux.dev
-Cc: stable@vger.kernel.org
-Fixes: f02003c860d9 ("hardening: Avoid harmless Clang option under CONFIG_INIT_STACK_ALL_ZERO")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+FIFO wakeup can make things more fair.
+
+Cc: stable@kernel.org
+Signed-off-by: Alexey Lyashkov <alexey.lyashkov@gmail.com>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220907165959.1137482-1-alexey.lyashkov@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile                   |    4 ++--
- security/Kconfig.hardening |   14 ++++++++++----
- 2 files changed, 12 insertions(+), 6 deletions(-)
+ fs/jbd2/commit.c      |    2 +-
+ fs/jbd2/transaction.c |    6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -845,8 +845,8 @@ endif
- # Initialize all stack variables with a zero value.
- ifdef CONFIG_INIT_STACK_ALL_ZERO
- KBUILD_CFLAGS	+= -ftrivial-auto-var-init=zero
--ifdef CONFIG_CC_IS_CLANG
--# https://bugs.llvm.org/show_bug.cgi?id=45497
-+ifdef CONFIG_CC_HAS_AUTO_VAR_INIT_ZERO_ENABLER
-+# https://github.com/llvm/llvm-project/issues/44842
- KBUILD_CFLAGS	+= -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang
- endif
- endif
---- a/security/Kconfig.hardening
-+++ b/security/Kconfig.hardening
-@@ -22,11 +22,17 @@ menu "Memory initialization"
- config CC_HAS_AUTO_VAR_INIT_PATTERN
- 	def_bool $(cc-option,-ftrivial-auto-var-init=pattern)
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -581,7 +581,7 @@ void jbd2_journal_commit_transaction(jou
+ 	journal->j_running_transaction = NULL;
+ 	start_time = ktime_get();
+ 	commit_transaction->t_log_start = journal->j_head;
+-	wake_up(&journal->j_wait_transaction_locked);
++	wake_up_all(&journal->j_wait_transaction_locked);
+ 	write_unlock(&journal->j_state_lock);
  
--config CC_HAS_AUTO_VAR_INIT_ZERO
--	# GCC ignores the -enable flag, so we can test for the feature with
--	# a single invocation using the flag, but drop it as appropriate in
--	# the Makefile, depending on the presence of Clang.
-+config CC_HAS_AUTO_VAR_INIT_ZERO_BARE
-+	def_bool $(cc-option,-ftrivial-auto-var-init=zero)
-+
-+config CC_HAS_AUTO_VAR_INIT_ZERO_ENABLER
-+	# Clang 16 and later warn about using the -enable flag, but it
-+	# is required before then.
- 	def_bool $(cc-option,-ftrivial-auto-var-init=zero -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang)
-+	depends on !CC_HAS_AUTO_VAR_INIT_ZERO_BARE
-+
-+config CC_HAS_AUTO_VAR_INIT_ZERO
-+	def_bool CC_HAS_AUTO_VAR_INIT_ZERO_BARE || CC_HAS_AUTO_VAR_INIT_ZERO_ENABLER
+ 	jbd_debug(3, "JBD2: commit phase 2a\n");
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -173,7 +173,7 @@ static void wait_transaction_locked(jour
+ 	int need_to_start;
+ 	tid_t tid = journal->j_running_transaction->t_tid;
  
- choice
- 	prompt "Initialize kernel stack variables at function entry"
+-	prepare_to_wait(&journal->j_wait_transaction_locked, &wait,
++	prepare_to_wait_exclusive(&journal->j_wait_transaction_locked, &wait,
+ 			TASK_UNINTERRUPTIBLE);
+ 	need_to_start = !tid_geq(journal->j_commit_request, tid);
+ 	read_unlock(&journal->j_state_lock);
+@@ -199,7 +199,7 @@ static void wait_transaction_switching(j
+ 		read_unlock(&journal->j_state_lock);
+ 		return;
+ 	}
+-	prepare_to_wait(&journal->j_wait_transaction_locked, &wait,
++	prepare_to_wait_exclusive(&journal->j_wait_transaction_locked, &wait,
+ 			TASK_UNINTERRUPTIBLE);
+ 	read_unlock(&journal->j_state_lock);
+ 	/*
+@@ -911,7 +911,7 @@ void jbd2_journal_unlock_updates (journa
+ 	write_lock(&journal->j_state_lock);
+ 	--journal->j_barrier_count;
+ 	write_unlock(&journal->j_state_lock);
+-	wake_up(&journal->j_wait_transaction_locked);
++	wake_up_all(&journal->j_wait_transaction_locked);
+ }
+ 
+ static void warn_dirty_buffer(struct buffer_head *bh)
 
 
