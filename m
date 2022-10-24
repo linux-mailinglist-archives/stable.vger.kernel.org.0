@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8F6760A623
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:32:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF71B60A8D2
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233958AbiJXMcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:32:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57260 "EHLO
+        id S235587AbiJXNLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:11:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234465AbiJXMaY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:30:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB299B1C9;
-        Mon, 24 Oct 2022 05:04:36 -0700 (PDT)
+        with ESMTP id S235990AbiJXNKV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:10:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665602717A;
+        Mon, 24 Oct 2022 05:24:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78287B8119E;
-        Mon, 24 Oct 2022 12:01:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0AC8C433C1;
-        Mon, 24 Oct 2022 12:01:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35545612E9;
+        Mon, 24 Oct 2022 12:11:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43826C433C1;
+        Mon, 24 Oct 2022 12:11:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612891;
-        bh=erAD5uHFs99vtk9Q9Iu4F3CHrxzngC84yqaARqMsmBg=;
+        s=korg; t=1666613518;
+        bh=+qZs5s2FdzLZ3zTM9H0xVRLIwdP/OwjXS0V/QMyZzRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1rhizwgGDKREOOwUNJ8V37zlc6NtyxnWg9Tw0ORfJdvONBnUjcNtLIADVGk9WHYK
-         1BJ9QwzGJtEXkzb6FfE25GQl2YwGlxYj6oYF8ejV93fr1Eq6+nrqRaJ1G0Q2EQF5di
-         z7j4LzNJwhrBx9cSZlEEgO/Uq17YzT2R8Ge9bBvI=
+        b=2iYhcub7UsPho6WrSBiobpc7tRWwV79Dh0BNH33SFmHG4Xy79QRQsGnp6Le6EJ2lc
+         ImzZmnAGCE1Kj+Hjt9xPT+bZOAL233E7EcZHtk2UyGemOou3BhgFzJ53vuSSeRaKAJ
+         ckzKLcYr2JGUqfAwV/ahJnyfEfz8toewS9NJnJvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 159/229] powerpc/math_emu/efp: Include module.h
+Subject: [PATCH 5.4 168/255] clk: ast2600: BCLK comes from EPLL
 Date:   Mon, 24 Oct 2022 13:31:18 +0200
-Message-Id: <20221024113004.144455405@linuxfoundation.org>
+Message-Id: <20221024113008.334497123@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit cfe0d370e0788625ce0df3239aad07a2506c1796 ]
+[ Upstream commit b8c1dc9c00b252b3be853720a71b05ed451ddd9f ]
 
-When building with a recent version of clang, there are a couple of
-errors around the call to module_init():
+This correction was made in the u-boot SDK recently. There are no
+in-tree users of this clock so the impact is minimal.
 
-  arch/powerpc/math-emu/math_efp.c:927:1: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
-  module_init(spe_mathemu_init);
-  ^
-  int
-  arch/powerpc/math-emu/math_efp.c:927:13: error: a parameter list without types is only allowed in a function definition
-  module_init(spe_mathemu_init);
-              ^
-  2 errors generated.
-
-module_init() is a macro, which is not getting expanded because module.h
-is not included in this file. Add the include so that the macro can
-expand properly, clearing up the build failure.
-
-Fixes: ac6f120369ff ("powerpc/85xx: Workaroudn e500 CPU erratum A005")
-[chleroy: added fixes tag]
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Link: https://lore.kernel.org/r/8403854a4c187459b2f4da3537f51227b70b9223.1662134272.git.christophe.leroy@csgroup.eu
+Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
+Link: https://github.com/AspeedTech-BMC/u-boot/commit/8ad54a5ae15f27fea5e894cc2539a20d90019717
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20220421040426.171256-1-joel@jms.id.au
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/math-emu/math_efp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/clk-ast2600.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/math-emu/math_efp.c b/arch/powerpc/math-emu/math_efp.c
-index 581f404caa1d..b9848179dbaa 100644
---- a/arch/powerpc/math-emu/math_efp.c
-+++ b/arch/powerpc/math-emu/math_efp.c
-@@ -21,6 +21,7 @@
+diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
+index 48122f574cb6..8a6c6b9c9a6a 100644
+--- a/drivers/clk/clk-ast2600.c
++++ b/drivers/clk/clk-ast2600.c
+@@ -579,7 +579,7 @@ static int aspeed_g6_clk_probe(struct platform_device *pdev)
+ 	regmap_write(map, 0x308, 0x12000); /* 3x3 = 9 */
  
- #include <linux/types.h>
- #include <linux/prctl.h>
-+#include <linux/module.h>
- 
- #include <linux/uaccess.h>
- #include <asm/reg.h>
+ 	/* P-Bus (BCLK) clock divider */
+-	hw = clk_hw_register_divider_table(dev, "bclk", "hpll", 0,
++	hw = clk_hw_register_divider_table(dev, "bclk", "epll", 0,
+ 			scu_g6_base + ASPEED_G6_CLK_SELECTION1, 20, 3, 0,
+ 			ast2600_div_table,
+ 			&aspeed_g6_clk_lock);
 -- 
 2.35.1
 
