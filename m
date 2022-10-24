@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A7A260AD0E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC2760AD04
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234724AbiJXORd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:17:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37080 "EHLO
+        id S234560AbiJXORY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:17:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234563AbiJXOOD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:14:03 -0400
+        with ESMTP id S234320AbiJXON4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:13:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B62AFC97CB;
-        Mon, 24 Oct 2022 05:54:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC14724965;
+        Mon, 24 Oct 2022 05:53:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A1E861015;
-        Mon, 24 Oct 2022 12:44:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 904EDC433C1;
-        Mon, 24 Oct 2022 12:44:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2453261281;
+        Mon, 24 Oct 2022 12:26:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37355C433B5;
+        Mon, 24 Oct 2022 12:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615488;
-        bh=iBB9h9YvKlo2kBA38TF8vV6C0UBNbRscfhurjMCwveY=;
+        s=korg; t=1666614418;
+        bh=obz5FPNMsHHx1sO6B0yQTmd5pxFcPPFY4b0ZdeXu71Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gwlc2SE2pADryG/xWWRtrasJHLP0NJpDwGx+gdK74l1nI15j7XCI2v2oGu2sbFH0y
-         J0tKuD3RDym9Q8WWkdRurXLkg5NUQTp1chEodrqAVYfXvKd7rpnzA5C0IwrcxXVe8/
-         IwE8bPl1T8Mj7PG3AC9QZtBz9UEqIlq0o0kAmayE=
+        b=iJfWKO/6Jg+5mnCLx8hRCOl8GzDp27snQ9cO0p14bH106Tsihb+hK/M88tBslPItJ
+         rNfIUlWLOdxJEr8c44/1VREl7N+Gfz+c0G485HlQt7Jg4lQK7i5zwQ+zz82LfPIbTA
+         DqF64nLeEwpBAowEfrKX0ql9OCZkCu0igElMWdq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakob Hauser <jahau@rocketmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 271/530] iio: magnetometer: yas530: Change data type of hard_offsets to signed
-Date:   Mon, 24 Oct 2022 13:30:15 +0200
-Message-Id: <20221024113057.337080809@linuxfoundation.org>
+Subject: [PATCH 5.10 223/390] RDMA/siw: Always consume all skbuf data in sk_data_ready() upcall.
+Date:   Mon, 24 Oct 2022 13:30:20 +0200
+Message-Id: <20221024113032.269524990@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Hauser <jahau@rocketmail.com>
+From: Bernard Metzler <bmt@zurich.ibm.com>
 
-[ Upstream commit e137fafc8985cf152a4bb6f18ae83ebb06816df1 ]
+[ Upstream commit 754209850df8367c954ac1de7671c7430b1f342c ]
 
-The "hard_offsets" are currently unsigned u8 but they should be signed as they
-can get negative. They are signed in function yas5xx_meaure_offsets() and in the
-Yamaha drivers [1][2].
+For header and trailer/padding processing, siw did not consume new
+skb data until minimum amount present to fill current header or trailer
+structure, including potential payload padding. Not consuming any
+data during upcall may cause a receive stall, since tcp_read_sock()
+is not upcalling again if no new data arrive.
+A NFSoRDMA client got stuck at RDMA Write reception of unaligned
+payload, if the current skb did contain only the expected 3 padding
+bytes, but not the 4 bytes CRC trailer. Expecting 4 more bytes already
+arrived in another skb, and not consuming those 3 bytes in the current
+upcall left the Write incomplete, waiting for the CRC forever.
 
-[1] https://github.com/NovaFusion/android_kernel_samsung_golden/blob/cm-12.1/drivers/sensor/compass/yas.h#L156
-[2] https://github.com/msm8916-mainline/android_kernel_qcom_msm8916/blob/GT-I9195I/drivers/iio/magnetometer/yas_mag_drv-yas532.c#L91
-
-Fixes: de8860b1ed47 ("iio: magnetometer: Add driver for Yamaha YAS530")
-Signed-off-by: Jakob Hauser <jahau@rocketmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/40f052bf6491457d0c5c0ed4c3534dc6fa251c3c.1660337264.git.jahau@rocketmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 8b6a361b8c48 ("rdma/siw: receive path")
+Reported-by: Olga Kornievskaia <kolga@netapp.com>
+Tested-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
+Link: https://lore.kernel.org/r/20220920081202.223629-1-bmt@zurich.ibm.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/magnetometer/yamaha-yas530.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/sw/siw/siw_qp_rx.c | 27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/iio/magnetometer/yamaha-yas530.c b/drivers/iio/magnetometer/yamaha-yas530.c
-index b2bc637150bf..40192aa46b04 100644
---- a/drivers/iio/magnetometer/yamaha-yas530.c
-+++ b/drivers/iio/magnetometer/yamaha-yas530.c
-@@ -132,7 +132,7 @@ struct yas5xx {
- 	unsigned int version;
- 	char name[16];
- 	struct yas5xx_calibration calibration;
--	u8 hard_offsets[3];
-+	s8 hard_offsets[3];
- 	struct iio_mount_matrix orientation;
- 	struct regmap *map;
- 	struct regulator_bulk_data regs[2];
+diff --git a/drivers/infiniband/sw/siw/siw_qp_rx.c b/drivers/infiniband/sw/siw/siw_qp_rx.c
+index 875ea6f1b04a..fd721cc19682 100644
+--- a/drivers/infiniband/sw/siw/siw_qp_rx.c
++++ b/drivers/infiniband/sw/siw/siw_qp_rx.c
+@@ -961,27 +961,28 @@ int siw_proc_terminate(struct siw_qp *qp)
+ static int siw_get_trailer(struct siw_qp *qp, struct siw_rx_stream *srx)
+ {
+ 	struct sk_buff *skb = srx->skb;
++	int avail = min(srx->skb_new, srx->fpdu_part_rem);
+ 	u8 *tbuf = (u8 *)&srx->trailer.crc - srx->pad;
+ 	__wsum crc_in, crc_own = 0;
+ 
+ 	siw_dbg_qp(qp, "expected %d, available %d, pad %u\n",
+ 		   srx->fpdu_part_rem, srx->skb_new, srx->pad);
+ 
+-	if (srx->skb_new < srx->fpdu_part_rem)
+-		return -EAGAIN;
+-
+-	skb_copy_bits(skb, srx->skb_offset, tbuf, srx->fpdu_part_rem);
++	skb_copy_bits(skb, srx->skb_offset, tbuf, avail);
+ 
+-	if (srx->mpa_crc_hd && srx->pad)
+-		crypto_shash_update(srx->mpa_crc_hd, tbuf, srx->pad);
++	srx->skb_new -= avail;
++	srx->skb_offset += avail;
++	srx->skb_copied += avail;
++	srx->fpdu_part_rem -= avail;
+ 
+-	srx->skb_new -= srx->fpdu_part_rem;
+-	srx->skb_offset += srx->fpdu_part_rem;
+-	srx->skb_copied += srx->fpdu_part_rem;
++	if (srx->fpdu_part_rem)
++		return -EAGAIN;
+ 
+ 	if (!srx->mpa_crc_hd)
+ 		return 0;
+ 
++	if (srx->pad)
++		crypto_shash_update(srx->mpa_crc_hd, tbuf, srx->pad);
+ 	/*
+ 	 * CRC32 is computed, transmitted and received directly in NBO,
+ 	 * so there's never a reason to convert byte order.
+@@ -1083,10 +1084,9 @@ static int siw_get_hdr(struct siw_rx_stream *srx)
+ 	 * completely received.
+ 	 */
+ 	if (iwarp_pktinfo[opcode].hdr_len > sizeof(struct iwarp_ctrl_tagged)) {
+-		bytes = iwarp_pktinfo[opcode].hdr_len - MIN_DDP_HDR;
++		int hdrlen = iwarp_pktinfo[opcode].hdr_len;
+ 
+-		if (srx->skb_new < bytes)
+-			return -EAGAIN;
++		bytes = min_t(int, hdrlen - MIN_DDP_HDR, srx->skb_new);
+ 
+ 		skb_copy_bits(skb, srx->skb_offset,
+ 			      (char *)c_hdr + srx->fpdu_part_rcvd, bytes);
+@@ -1096,6 +1096,9 @@ static int siw_get_hdr(struct siw_rx_stream *srx)
+ 		srx->skb_new -= bytes;
+ 		srx->skb_offset += bytes;
+ 		srx->skb_copied += bytes;
++
++		if (srx->fpdu_part_rcvd < hdrlen)
++			return -EAGAIN;
+ 	}
+ 
+ 	/*
 -- 
 2.35.1
 
