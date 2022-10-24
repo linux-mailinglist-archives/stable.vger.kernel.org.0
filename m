@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DE1460A7FC
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4F4560AB75
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:52:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234900AbiJXNAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41022 "EHLO
+        id S236528AbiJXNwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:52:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235101AbiJXM7U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:20 -0400
+        with ESMTP id S236610AbiJXNv5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:51:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C409AC12;
-        Mon, 24 Oct 2022 05:18:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46367BBE28;
+        Mon, 24 Oct 2022 05:42:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B6A6D61252;
-        Mon, 24 Oct 2022 12:17:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7DA1C433C1;
-        Mon, 24 Oct 2022 12:17:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 640E3612FF;
+        Mon, 24 Oct 2022 12:36:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 768B5C433C1;
+        Mon, 24 Oct 2022 12:36:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613821;
-        bh=Om7/WGg2QmwJwy/GGvtmo+GRr3hThQYF+KNt7roy7cg=;
+        s=korg; t=1666614991;
+        bh=ENNrL+hm6L5BWOc/eyw7R9uXNysxe5nfNyIUxw6zsnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gz6cl9D1Qrb8NJGcgTIiRLRdRKhBHilgNfIIPpq0h+BHpjLoUGsvuH0UZxia/UylI
-         wKCaqWe376n0sAc67z2L9xAJAayE/ffpfusyv76HzeMSts2ViJg2PAZ6v/0iJOHnl0
-         L99654ULRHYgfBPxqr6G5CqbZf14qGCRcKH0e9mk=
+        b=HVuUVUQm5Y5rxeh5euDpiO2VDbhP5JPgnWTxD8eBnuOE1F495nHaHHSdH/b2CXipF
+         zrS21MyTuu+SzC2RUR7LiswSYPvTopgWztQHrCy3zx3AVq5td2TvCRO3LjX3gDjD6j
+         W8sfzXNh2CwMzw412r8I19TgHq4M0y5pLZtnsh1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <groeck@chromium.org>,
-        Patryk Duda <pdk@semihalf.com>,
-        Tzung-Bi Shih <tzungbi@kernel.org>
-Subject: [PATCH 5.10 027/390] platform/chrome: cros_ec_proto: Update version on GET_NEXT_EVENT failure
-Date:   Mon, 24 Oct 2022 13:27:04 +0200
-Message-Id: <20221024113023.716713539@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.15 081/530] f2fs: complete checkpoints during remount
+Date:   Mon, 24 Oct 2022 13:27:05 +0200
+Message-Id: <20221024113048.676219749@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,82 +52,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patryk Duda <pdk@semihalf.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit f74c7557ed0d321947e8bb4e9d47c1013f8b2227 upstream.
+commit 4f99484d27961cb194cebcd917176fa038a5025f upstream.
 
-Some EC based devices (e.g. Fingerpint MCU) can jump to RO part of the
-firmware (intentionally or due to device reboot). The RO part doesn't
-change during the device lifecycle, so it won't support newer version
-of EC_CMD_GET_NEXT_EVENT command.
+Otherwise, pending checkpoints can contribute a race condition to give a
+quota warning.
 
-Function cros_ec_query_all() is responsible for finding maximum
-supported MKBP event version. It's usually called when the device is
-running RW part of the firmware, so the command version can be
-potentially higher than version supported by the RO.
+- Thread                      - checkpoint thread
+                              add checkpoints to the list
+do_remount()
+ down_write(&sb->s_umount);
+ f2fs_remount()
+                              block_operations()
+                               down_read_trylock(&sb->s_umount) = 0
+ up_write(&sb->s_umount);
+                               f2fs_quota_sync()
+                                dquot_writeback_dquots()
+                                 WARN_ON_ONCE(!rwsem_is_locked(&sb->s_umount));
 
-The problem was fixed by updating maximum supported version when the
-device returns EC_RES_INVALID_VERSION (mapped to -ENOPROTOOPT). That way
-the kernel will use highest common version supported by RO and RW.
+Or,
 
-Fixes: 3300fdd630d4 ("platform/chrome: cros_ec: handle MKBP more events flag")
-Cc: <stable@vger.kernel.org> # 5.10+
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Signed-off-by: Patryk Duda <pdk@semihalf.com>
-Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
-Link: https://lore.kernel.org/r/20220802154128.21175-1-pdk@semihalf.com
+do_remount()
+ down_write(&sb->s_umount);
+ f2fs_remount()
+                              create a ckpt thread
+                              f2fs_enable_checkpoint() adds checkpoints
+			      wait for f2fs_sync_fs()
+                              trigger another pending checkpoint
+                               block_operations()
+                                down_read_trylock(&sb->s_umount) = 0
+ up_write(&sb->s_umount);
+                                f2fs_quota_sync()
+                                 dquot_writeback_dquots()
+                                  WARN_ON_ONCE(!rwsem_is_locked(&sb->s_umount));
+
+Cc: stable@vger.kernel.org
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/chrome/cros_ec_proto.c |   32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ fs/f2fs/super.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/platform/chrome/cros_ec_proto.c
-+++ b/drivers/platform/chrome/cros_ec_proto.c
-@@ -748,6 +748,7 @@ int cros_ec_get_next_event(struct cros_e
- 	u8 event_type;
- 	u32 host_event;
- 	int ret;
-+	u32 ver_mask;
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -2152,6 +2152,9 @@ static void f2fs_enable_checkpoint(struc
+ 	up_write(&sbi->gc_lock);
  
- 	/*
- 	 * Default value for wake_event.
-@@ -769,6 +770,37 @@ int cros_ec_get_next_event(struct cros_e
- 		return get_keyboard_state_event(ec_dev);
+ 	f2fs_sync_fs(sbi->sb, 1);
++
++	/* Let's ensure there's no pending checkpoint anymore */
++	f2fs_flush_ckpt_thread(sbi);
+ }
  
- 	ret = get_next_event(ec_dev);
-+	/*
-+	 * -ENOPROTOOPT is returned when EC returns EC_RES_INVALID_VERSION.
-+	 * This can occur when EC based device (e.g. Fingerprint MCU) jumps to
-+	 * the RO image which doesn't support newer version of the command. In
-+	 * this case we will attempt to update maximum supported version of the
-+	 * EC_CMD_GET_NEXT_EVENT.
-+	 */
-+	if (ret == -ENOPROTOOPT) {
-+		dev_dbg(ec_dev->dev,
-+			"GET_NEXT_EVENT returned invalid version error.\n");
-+		ret = cros_ec_get_host_command_version_mask(ec_dev,
-+							EC_CMD_GET_NEXT_EVENT,
-+							&ver_mask);
-+		if (ret < 0 || ver_mask == 0)
-+			/*
-+			 * Do not change the MKBP supported version if we can't
-+			 * obtain supported version correctly. Please note that
-+			 * calling EC_CMD_GET_NEXT_EVENT returned
-+			 * EC_RES_INVALID_VERSION which means that the command
-+			 * is present.
-+			 */
-+			return -ENOPROTOOPT;
+ static int f2fs_remount(struct super_block *sb, int *flags, char *data)
+@@ -2318,6 +2321,9 @@ static int f2fs_remount(struct super_blo
+ 		f2fs_stop_ckpt_thread(sbi);
+ 		need_restart_ckpt = true;
+ 	} else {
++		/* Flush if the prevous checkpoint, if exists. */
++		f2fs_flush_ckpt_thread(sbi);
 +
-+		ec_dev->mkbp_event_supported = fls(ver_mask);
-+		dev_dbg(ec_dev->dev, "MKBP support version changed to %u\n",
-+			ec_dev->mkbp_event_supported - 1);
-+
-+		/* Try to get next event with new MKBP support version set. */
-+		ret = get_next_event(ec_dev);
-+	}
-+
- 	if (ret <= 0)
- 		return ret;
- 
+ 		err = f2fs_start_ckpt_thread(sbi);
+ 		if (err) {
+ 			f2fs_err(sbi,
 
 
