@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A436B60B419
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D164A60B3AB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:14:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229777AbiJXR3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:29:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60014 "EHLO
+        id S234649AbiJXRNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 13:13:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233364AbiJXR2t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:28:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B1723472F;
-        Mon, 24 Oct 2022 09:04:39 -0700 (PDT)
+        with ESMTP id S235169AbiJXRN1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:13:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45511E0F9;
+        Mon, 24 Oct 2022 08:48:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92D6BB81711;
-        Mon, 24 Oct 2022 12:31:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3D1DC4314C;
-        Mon, 24 Oct 2022 12:31:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD35A612FC;
+        Mon, 24 Oct 2022 12:51:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6FA0C433D7;
+        Mon, 24 Oct 2022 12:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614691;
-        bh=UR63eXK32mdq79RpdY/D8aufxHgBPZJACfCRDlovMcc=;
+        s=korg; t=1666615864;
+        bh=Ni3aGGiJlZu9KJ4N6LRidb1HrO9afGdBuz4Hc+sk+7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mREXkcK7qX+01GyJZ0MyRUZnhv3eNxmMpyg1L6doLbUm6hkTaFeXdFjQSibiy4DJE
-         HSZXx/R1XqEeVSWsIv6FxSGVJom5VrfHQsB/oP1GSkZqs5LsfkoezAMUmynBdXwwmi
-         H1liHgFcsrm3n9r8/JAHCFbIPDfghQiqRTV/wCog=
+        b=XkDDpBvk3m6XzfDi6bZn8+6Pz04RhH12WWAc6LwqhLRNinUdBjaqdg8tiFhrJ9a3f
+         E5XZbUC9lphaAO2nd0x8RD2hG/026m5/rkI1PYmkbuTnebRPDA1cqFoo0KGmv3+ols
+         0N1vBndWfaGcH8yunl4dh0iJ6Eujs/JiSQUR4o8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com,
-        Shigeru Yoshida <syoshida@redhat.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 358/390] nbd: Fix hung when signal interrupts nbd_start_device_ioctl()
-Date:   Mon, 24 Oct 2022 13:32:35 +0200
-Message-Id: <20221024113038.239469781@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 412/530] x86/entry: Work around Clang __bdos() bug
+Date:   Mon, 24 Oct 2022 13:32:36 +0200
+Message-Id: <20221024113103.742966550@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +58,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shigeru Yoshida <syoshida@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 1de7c3cf48fc41cd95adb12bd1ea9033a917798a ]
+[ Upstream commit 3e1730842f142add55dc658929221521a9ea62b6 ]
 
-syzbot reported hung task [1].  The following program is a simplified
-version of the reproducer:
+Clang produces a false positive when building with CONFIG_FORTIFY_SOURCE=y
+and CONFIG_UBSAN_BOUNDS=y when operating on an array with a dynamic
+offset. Work around this by using a direct assignment of an empty
+instance. Avoids this warning:
 
-int main(void)
-{
-	int sv[2], fd;
+../include/linux/fortify-string.h:309:4: warning: call to __write_overflow_field declared with 'warn
+ing' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wat
+tribute-warning]
+                        __write_overflow_field(p_size_field, size);
+                        ^
 
-	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0)
-		return 1;
-	if ((fd = open("/dev/nbd0", 0)) < 0)
-		return 1;
-	if (ioctl(fd, NBD_SET_SIZE_BLOCKS, 0x81) < 0)
-		return 1;
-	if (ioctl(fd, NBD_SET_SOCK, sv[0]) < 0)
-		return 1;
-	if (ioctl(fd, NBD_DO_IT) < 0)
-		return 1;
-	return 0;
-}
+which was isolated to the memset() call in xen_load_idt().
 
-When signal interrupt nbd_start_device_ioctl() waiting the condition
-atomic_read(&config->recv_threads) == 0, the task can hung because it
-waits the completion of the inflight IOs.
+Note that this looks very much like another bug that was worked around:
+https://github.com/ClangBuiltLinux/linux/issues/1592
 
-This patch fixes the issue by clearing queue, not just shutdown, when
-signal interrupt nbd_start_device_ioctl().
-
-Link: https://syzkaller.appspot.com/bug?id=7d89a3ffacd2b83fdd39549bc4d8e0a89ef21239 [1]
-Reported-by: syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com
-Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220907163502.577561-1-syoshida@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: x86@kernel.org
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: xen-devel@lists.xenproject.org
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/lkml/41527d69-e8ab-3f86-ff37-6b298c01d5bc@oracle.com
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/xen/enlighten_pv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 4a6b82d434ee..b0d3dadeb964 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1342,10 +1342,12 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
- 	mutex_unlock(&nbd->config_lock);
- 	ret = wait_event_interruptible(config->recv_wq,
- 					 atomic_read(&config->recv_threads) == 0);
--	if (ret)
-+	if (ret) {
- 		sock_shutdown(nbd);
--	flush_workqueue(nbd->recv_workq);
-+		nbd_clear_que(nbd);
-+	}
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 133ef31639df..561aad13412f 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -759,6 +759,7 @@ static void xen_load_idt(const struct desc_ptr *desc)
+ {
+ 	static DEFINE_SPINLOCK(lock);
+ 	static struct trap_info traps[257];
++	static const struct trap_info zero = { };
+ 	unsigned out;
  
-+	flush_workqueue(nbd->recv_workq);
- 	mutex_lock(&nbd->config_lock);
- 	nbd_bdev_reset(bdev);
- 	/* user requested, ignore socket errors */
+ 	trace_xen_cpu_load_idt(desc);
+@@ -768,7 +769,7 @@ static void xen_load_idt(const struct desc_ptr *desc)
+ 	memcpy(this_cpu_ptr(&idt_desc), desc, sizeof(idt_desc));
+ 
+ 	out = xen_convert_trap_info(desc, traps, false);
+-	memset(&traps[out], 0, sizeof(traps[0]));
++	traps[out] = zero;
+ 
+ 	xen_mc_flush();
+ 	if (HYPERVISOR_set_trap_table(traps))
 -- 
 2.35.1
 
