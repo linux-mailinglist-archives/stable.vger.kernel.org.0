@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43EE160AC52
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A163A60ACA5
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:11:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231894AbiJXOGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:06:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42886 "EHLO
+        id S232587AbiJXOLH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:11:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237288AbiJXOFQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:05:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E90373C8D6;
-        Mon, 24 Oct 2022 05:50:03 -0700 (PDT)
+        with ESMTP id S236963AbiJXOJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:09:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9F5AC5894;
+        Mon, 24 Oct 2022 05:51:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85358B816A1;
-        Mon, 24 Oct 2022 12:30:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E38C3C433D6;
-        Mon, 24 Oct 2022 12:30:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA34B612E7;
+        Mon, 24 Oct 2022 12:49:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B850CC433C1;
+        Mon, 24 Oct 2022 12:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614618;
-        bh=qjR24BSMmkAFS/BFtuOkdK3KlnwctJ3VBLjJxkzooCQ=;
+        s=korg; t=1666615788;
+        bh=HDYsHqlawLyMenwDf+zZ2I9OXsat/1lMky2g1FD+N7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v6/hcnNzggMIrG3PZUIG76qoqjNyQOkakZvJd+0t2zjgSxRlNLnua+FVwlbMCXYBO
-         0+fdsVE0+wG7tNRWAuHElGUCF1uLL2MUpPqbquyHgfuxcZZ/PqD8z3ELAoa0HQ6TIv
-         9q1FT5nSUirlQghuFDfkHYs6TMzhBN4nofmyYpsE=
+        b=W1s5muSd4N5mhxgRMY10FO2cdJmzucshjC9F/T1VoiNCKGbX3dZilqKo/I10mpC2E
+         +nk4Puab8ffIDrkHwVFWC9m/CnFKU81d97+0e6zhNSVwyitns7GACPEfNcRQxM0O4g
+         Wx3xT1bVgPYLHGbE/TsDb7JU1UcNw205KCltveOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c80e9ef5d8bb45894db0@syzkaller.appspotmail.com,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Vivek Kasireddy <vivek.kasireddy@intel.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Koba Ko <koba.ko@canonical.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 330/390] udmabuf: Set ubuf->sg = NULL if the creation of sg table fails
+Subject: [PATCH 5.15 383/530] crypto: ccp - Release dma channels before dmaengine unrgister
 Date:   Mon, 24 Oct 2022 13:32:07 +0200
-Message-Id: <20221024113037.057296244@linuxfoundation.org>
+Message-Id: <20221024113102.401233469@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,113 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vivek Kasireddy <vivek.kasireddy@intel.com>
+From: Koba Ko <koba.ko@canonical.com>
 
-[ Upstream commit d9c04a1b7a15b5e74b2977461d9511e497f05d8f ]
+[ Upstream commit 68dbe80f5b510c66c800b9e8055235c5b07e37d1 ]
 
-When userspace tries to map the dmabuf and if for some reason
-(e.g. OOM) the creation of the sg table fails, ubuf->sg needs to be
-set to NULL. Otherwise, when the userspace subsequently closes the
-dmabuf fd, we'd try to erroneously free the invalid sg table from
-release_udmabuf resulting in the following crash reported by syzbot:
+A warning is shown during shutdown,
 
-general protection fault, probably for non-canonical address
-0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-CPU: 0 PID: 3609 Comm: syz-executor487 Not tainted
-5.19.0-syzkaller-13930-g7ebfc85e2cd7 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 07/22/2022
-RIP: 0010:dma_unmap_sgtable include/linux/dma-mapping.h:378 [inline]
-RIP: 0010:put_sg_table drivers/dma-buf/udmabuf.c:89 [inline]
-RIP: 0010:release_udmabuf+0xcb/0x4f0 drivers/dma-buf/udmabuf.c:114
-Code: 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 2b 04 00 00 48 8d 7d 0c 4c
-8b 63 30 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 14
-02 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 e2
-RSP: 0018:ffffc900037efd30 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: ffffffff8cb67800 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffffffff84ad27e0 RDI: 0000000000000000
-RBP: fffffffffffffff4 R08: 0000000000000005 R09: 0000000000000000
-R10: 0000000000000000 R11: 000000000008c07c R12: ffff88801fa05000
-R13: ffff888073db07e8 R14: ffff888025c25440 R15: 0000000000000000
-FS:  0000555555fc4300(0000) GS:ffff8880b9a00000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fc1c0ce06e4 CR3: 00000000715e6000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- dma_buf_release+0x157/0x2d0 drivers/dma-buf/dma-buf.c:78
- __dentry_kill+0x42b/0x640 fs/dcache.c:612
- dentry_kill fs/dcache.c:733 [inline]
- dput+0x806/0xdb0 fs/dcache.c:913
- __fput+0x39c/0x9d0 fs/file_table.c:333
- task_work_run+0xdd/0x1a0 kernel/task_work.c:177
- ptrace_notify+0x114/0x140 kernel/signal.c:2353
- ptrace_report_syscall include/linux/ptrace.h:420 [inline]
- ptrace_report_syscall_exit include/linux/ptrace.h:482 [inline]
- syscall_exit_work kernel/entry/common.c:249 [inline]
- syscall_exit_to_user_mode_prepare+0x129/0x280 kernel/entry/common.c:276
- __syscall_exit_to_user_mode_work kernel/entry/common.c:281 [inline]
- syscall_exit_to_user_mode+0x9/0x50 kernel/entry/common.c:294
- do_syscall_64+0x42/0xb0 arch/x86/entry/common.c:86
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7fc1c0c35b6b
-Code: 0f 05 48 3d 00 f0 ff ff 77 45 c3 0f 1f 40 00 48 83 ec 18 89 7c 24
-0c e8 63 fc ff ff 8b 7c 24 0c 41 89 c0 b8 03 00 00 00 0f 05 <48> 3d 00
-f0 ff ff 77 35 44 89 c7 89 44 24 0c e8 a1 fc ff ff 8b 44
-RSP: 002b:00007ffd78a06090 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
-RAX: 0000000000000000 RBX: 0000000000000007 RCX: 00007fc1c0c35b6b
-RDX: 0000000020000280 RSI: 0000000040086200 RDI: 0000000000000006
-RBP: 0000000000000007 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000293 R12: 000000000000000c
-R13: 0000000000000003 R14: 00007fc1c0cfe4a0 R15: 00007ffd78a06140
- </TASK>
-Modules linked in:
----[ end trace 0000000000000000 ]---
-RIP: 0010:dma_unmap_sgtable include/linux/dma-mapping.h:378 [inline]
-RIP: 0010:put_sg_table drivers/dma-buf/udmabuf.c:89 [inline]
-RIP: 0010:release_udmabuf+0xcb/0x4f0 drivers/dma-buf/udmabuf.c:114
+__dma_async_device_channel_unregister called while 2 clients hold a reference
+WARNING: CPU: 15 PID: 1 at drivers/dma/dmaengine.c:1110 __dma_async_device_channel_unregister+0xb7/0xc0
 
-Reported-by: syzbot+c80e9ef5d8bb45894db0@syzkaller.appspotmail.com
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Vivek Kasireddy <vivek.kasireddy@intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220825063522.801264-1-vivek.kasireddy@intel.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Call dma_release_channel for occupied channles before dma_async_device_unregister.
+
+Fixes: 54cce8ecb925 ("crypto: ccp - ccp_dmaengine_unregister release dma channels")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Koba Ko <koba.ko@canonical.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/udmabuf.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/crypto/ccp/ccp-dmaengine.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma-buf/udmabuf.c b/drivers/dma-buf/udmabuf.c
-index b624f3d8f0e6..e359c5c6c4df 100644
---- a/drivers/dma-buf/udmabuf.c
-+++ b/drivers/dma-buf/udmabuf.c
-@@ -118,17 +118,20 @@ static int begin_cpu_udmabuf(struct dma_buf *buf,
- {
- 	struct udmabuf *ubuf = buf->priv;
- 	struct device *dev = ubuf->device->this_device;
-+	int ret = 0;
- 
- 	if (!ubuf->sg) {
- 		ubuf->sg = get_sg_table(dev, buf, direction);
--		if (IS_ERR(ubuf->sg))
--			return PTR_ERR(ubuf->sg);
-+		if (IS_ERR(ubuf->sg)) {
-+			ret = PTR_ERR(ubuf->sg);
-+			ubuf->sg = NULL;
-+		}
- 	} else {
- 		dma_sync_sg_for_cpu(dev, ubuf->sg->sgl, ubuf->sg->nents,
- 				    direction);
+diff --git a/drivers/crypto/ccp/ccp-dmaengine.c b/drivers/crypto/ccp/ccp-dmaengine.c
+index 7d4b4ad1db1f..9f753cb4f5f1 100644
+--- a/drivers/crypto/ccp/ccp-dmaengine.c
++++ b/drivers/crypto/ccp/ccp-dmaengine.c
+@@ -641,6 +641,10 @@ static void ccp_dma_release(struct ccp_device *ccp)
+ 	for (i = 0; i < ccp->cmd_q_count; i++) {
+ 		chan = ccp->ccp_dma_chan + i;
+ 		dma_chan = &chan->dma_chan;
++
++		if (dma_chan->client_count)
++			dma_release_channel(dma_chan);
++
+ 		tasklet_kill(&chan->cleanup_tasklet);
+ 		list_del_rcu(&dma_chan->device_node);
  	}
+@@ -766,8 +770,8 @@ void ccp_dmaengine_unregister(struct ccp_device *ccp)
+ 	if (!dmaengine)
+ 		return;
  
--	return 0;
-+	return ret;
- }
+-	dma_async_device_unregister(dma_dev);
+ 	ccp_dma_release(ccp);
++	dma_async_device_unregister(dma_dev);
  
- static int end_cpu_udmabuf(struct dma_buf *buf,
+ 	kmem_cache_destroy(ccp->dma_desc_cache);
+ 	kmem_cache_destroy(ccp->dma_cmd_cache);
 -- 
 2.35.1
 
