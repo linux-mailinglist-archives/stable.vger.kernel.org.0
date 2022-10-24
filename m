@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB92360A5C8
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7AB660A8FE
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:14:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233711AbiJXM2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:28:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57948 "EHLO
+        id S235831AbiJXNNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:13:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233840AbiJXM2X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC69A86896;
-        Mon, 24 Oct 2022 05:02:14 -0700 (PDT)
+        with ESMTP id S235720AbiJXNM3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:12:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E94C11C26;
+        Mon, 24 Oct 2022 05:24:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8E3BB811C5;
-        Mon, 24 Oct 2022 11:58:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D74C433D6;
-        Mon, 24 Oct 2022 11:58:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94942612A1;
+        Mon, 24 Oct 2022 12:23:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A07AAC433C1;
+        Mon, 24 Oct 2022 12:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612706;
-        bh=86Bdj7WnZgq0vHTIPVC4gQ4G8vTZJzy4bM/p2YB3db0=;
+        s=korg; t=1666614203;
+        bh=/trz6K8V8Y183basi795y1i/HvhwO6Kujiip5x0dDp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWuJ3vJATPhOA6jpqFVOOXwNcxB3/JokuZY06Josn6pCiHCOCbnLumtVseY++zja0
-         DciItruDjKNoR5Dr3kvd5f393Fopi5/CSXPeE+dmQ7tGHGNzWQnxbuCZThhPLqAqBI
-         KfdUYxYOPmVdv6JBDsxmyN3vEPXR+rIoSvIJE2d8=
+        b=XXu7WwR63TmnFiuBmoiq+aMGU3TdHio9w4mBP7Cu67BHpakZfTjPDodhNtGtS1NLS
+         a7nlG16JAqz4Bl1MjrunbmD8XOBi/0LIwoHrLyLLaKb+ujRvs4HFUzgTixiUvhCv4u
+         RS9XPpXoABwgvb9hqXSS4AMIXhkuxHwH5V3dCCSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 049/229] Revert "fs: check FMODE_LSEEK to control internal pipe splicing"
+Subject: [PATCH 5.10 171/390] memory: pl353-smc: Fix refcount leak bug in pl353_smc_probe()
 Date:   Mon, 24 Oct 2022 13:29:28 +0200
-Message-Id: <20221024113000.669471664@linuxfoundation.org>
+Message-Id: <20221024113029.994815067@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit fd0a6e99b61e6c08fa5cf585d54fd956f70c73a6.
+From: Liang He <windhl@126.com>
 
-Which was upstream commit 97ef77c52b789ec1411d360ed99dca1efe4b2c81.
+[ Upstream commit 61b3c876c1cbdb1efd1f52a1f348580e6e14efb6 ]
 
-The commit is missing dependencies and breaks NFS tests, remove it for
-now.
+The break of for_each_available_child_of_node() needs a
+corresponding of_node_put() when the reference 'child' is not
+used anymore. Here we do not need to call of_node_put() in
+fail path as '!match' means no break.
 
-Reported-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+While the of_platform_device_create() will created a new
+reference by 'child' but it has considered the refcounting.
+
+Fixes: fee10bd22678 ("memory: pl353: Add driver for arm pl353 static memory controller")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220716031324.447680-1-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/splice.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/memory/pl353-smc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -899,15 +899,17 @@ ssize_t splice_direct_to_actor(struct fi
- {
- 	struct pipe_inode_info *pipe;
- 	long ret, bytes;
-+	umode_t i_mode;
- 	size_t len;
- 	int i, flags, more;
+diff --git a/drivers/memory/pl353-smc.c b/drivers/memory/pl353-smc.c
+index b0b251bb207f..1a6964f1ba6a 100644
+--- a/drivers/memory/pl353-smc.c
++++ b/drivers/memory/pl353-smc.c
+@@ -416,6 +416,7 @@ static int pl353_smc_probe(struct amba_device *adev, const struct amba_id *id)
+ 	if (init)
+ 		init(adev, child);
+ 	of_platform_device_create(child, NULL, &adev->dev);
++	of_node_put(child);
  
- 	/*
--	 * We require the input to be seekable, as we don't want to randomly
--	 * drop data for eg socket -> socket splicing. Use the piped splicing
--	 * for that!
-+	 * We require the input being a regular file, as we don't want to
-+	 * randomly drop data for eg socket -> socket splicing. Use the
-+	 * piped splicing for that!
- 	 */
--	if (unlikely(!(in->f_mode & FMODE_LSEEK)))
-+	i_mode = file_inode(in)->i_mode;
-+	if (unlikely(!S_ISREG(i_mode) && !S_ISBLK(i_mode)))
- 		return -EINVAL;
+ 	return 0;
  
- 	/*
+-- 
+2.35.1
+
 
 
