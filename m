@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E05360B062
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAC4860B1C0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:36:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232976AbiJXQFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:05:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59842 "EHLO
+        id S229755AbiJXQgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:36:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233170AbiJXQES (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF96711D983;
-        Mon, 24 Oct 2022 07:56:48 -0700 (PDT)
+        with ESMTP id S233801AbiJXQgB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:36:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6BDA18952E;
+        Mon, 24 Oct 2022 08:23:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 291C3B8114D;
-        Mon, 24 Oct 2022 11:39:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8474AC433D6;
-        Mon, 24 Oct 2022 11:39:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A9A3B81991;
+        Mon, 24 Oct 2022 12:42:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E141CC433D6;
+        Mon, 24 Oct 2022 12:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611550;
-        bh=Knoyj2ev+3EeXZB1JZ1QQ9InFBfJAJbjg7VhFi59HoM=;
+        s=korg; t=1666615361;
+        bh=Z3VWlFgyQfDBNJ2ypB9u0SJoysJAozXhDOSrwIfEYKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p68hk6mjYgufP0VS+B+7ek1HZ6yXFPLBD3hb4dyszigSbu6huv1ItI7CJVAASNbTM
-         nkFw6b6jzJsYK5rWaAx2xUX+o17RHdioKk+heOlalVRBWDmbRuHdd7aBUiT+q62Rz4
-         mbcmXhbAhgxD3lQ7jWQZk74ULVxnUIZMj9RzEiQc=
+        b=i2oO6FVPn/h6dFeF8UaAYoOaIuwNAFN/21ppjWJCKpoPpvyruAWrsb/46iu/3tE55
+         s3dR32DzFPjO2ysjdnFphnudOMypg5p2oLhwHsDRhVbCcPWadZec2lohduJ403ymTz
+         EX5jLWAyfT97M9z6TGeeQidAxyWRT/uXTb4mzWcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 009/159] Input: melfas_mip4 - fix return value check in mip4_probe()
-Date:   Mon, 24 Oct 2022 13:29:23 +0200
-Message-Id: <20221024112949.703648319@linuxfoundation.org>
+Subject: [PATCH 5.15 221/530] ASoC: tas2764: Fix mute/unmute
+Date:   Mon, 24 Oct 2022 13:29:25 +0200
+Message-Id: <20221024113055.103311611@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit a54dc27bd25f20ee3ea2009584b3166d25178243 ]
+[ Upstream commit f5ad67f13623548e5aff847f89700c178aaf2a98 ]
 
-devm_gpiod_get_optional() may return ERR_PTR(-EPROBE_DEFER),
-add a minus sign to fix it.
+Because the PWR_CTRL field is modeled as the power state of the DAC
+widget, and at the same time it is used to implement mute/unmute, we
+need some additional book-keeping to have the right end result no matter
+the sequence of calls. Without this fix, one permanently mutes an
+ongoing stream by toggling the associated speaker pin control.
 
-Fixes: 6ccb1d8f78bd ("Input: add MELFAS MIP4 Touchscreen driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220924030715.1653538-1-yangyingliang@huawei.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+(This mirrors commit 1e5907bcb3a3 ("ASoC: tas2770: Fix handling of
+mute/unmute") which was a fix to the tas2770 driver.)
+
+Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20220825140241.53963-4-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/melfas_mip4.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/tas2764.c | 57 +++++++++++++++++++++-----------------
+ 1 file changed, 32 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
-index 552a3773f79d..cec2df449f89 100644
---- a/drivers/input/touchscreen/melfas_mip4.c
-+++ b/drivers/input/touchscreen/melfas_mip4.c
-@@ -1416,7 +1416,7 @@ static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 					      "ce", GPIOD_OUT_LOW);
- 	if (IS_ERR(ts->gpio_ce)) {
- 		error = PTR_ERR(ts->gpio_ce);
--		if (error != EPROBE_DEFER)
-+		if (error != -EPROBE_DEFER)
- 			dev_err(&client->dev,
- 				"Failed to get gpio: %d\n", error);
- 		return error;
+diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
+index e76ce90c787f..afb4c0d7e714 100644
+--- a/sound/soc/codecs/tas2764.c
++++ b/sound/soc/codecs/tas2764.c
+@@ -34,6 +34,9 @@ struct tas2764_priv {
+ 	
+ 	int v_sense_slot;
+ 	int i_sense_slot;
++
++	bool dac_powered;
++	bool unmuted;
+ };
+ 
+ static void tas2764_reset(struct tas2764_priv *tas2764)
+@@ -50,6 +53,26 @@ static void tas2764_reset(struct tas2764_priv *tas2764)
+ 	usleep_range(1000, 2000);
+ }
+ 
++static int tas2764_update_pwr_ctrl(struct tas2764_priv *tas2764)
++{
++	struct snd_soc_component *component = tas2764->component;
++	unsigned int val;
++	int ret;
++
++	if (tas2764->dac_powered)
++		val = tas2764->unmuted ?
++			TAS2764_PWR_CTRL_ACTIVE : TAS2764_PWR_CTRL_MUTE;
++	else
++		val = TAS2764_PWR_CTRL_SHUTDOWN;
++
++	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
++					    TAS2764_PWR_CTRL_MASK, val);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
+ #ifdef CONFIG_PM
+ static int tas2764_codec_suspend(struct snd_soc_component *component)
+ {
+@@ -82,9 +105,7 @@ static int tas2764_codec_resume(struct snd_soc_component *component)
+ 		usleep_range(1000, 2000);
+ 	}
+ 
+-	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+-					    TAS2764_PWR_CTRL_MASK,
+-					    TAS2764_PWR_CTRL_ACTIVE);
++	ret = tas2764_update_pwr_ctrl(tas2764);
+ 
+ 	if (ret < 0)
+ 		return ret;
+@@ -118,14 +139,12 @@ static int tas2764_dac_event(struct snd_soc_dapm_widget *w,
+ 
+ 	switch (event) {
+ 	case SND_SOC_DAPM_POST_PMU:
+-		ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+-						    TAS2764_PWR_CTRL_MASK,
+-						    TAS2764_PWR_CTRL_MUTE);
++		tas2764->dac_powered = true;
++		ret = tas2764_update_pwr_ctrl(tas2764);
+ 		break;
+ 	case SND_SOC_DAPM_PRE_PMD:
+-		ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+-						    TAS2764_PWR_CTRL_MASK,
+-						    TAS2764_PWR_CTRL_SHUTDOWN);
++		tas2764->dac_powered = false;
++		ret = tas2764_update_pwr_ctrl(tas2764);
+ 		break;
+ 	default:
+ 		dev_err(tas2764->dev, "Unsupported event\n");
+@@ -170,17 +189,11 @@ static const struct snd_soc_dapm_route tas2764_audio_map[] = {
+ 
+ static int tas2764_mute(struct snd_soc_dai *dai, int mute, int direction)
+ {
+-	struct snd_soc_component *component = dai->component;
+-	int ret;
+-
+-	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+-					    TAS2764_PWR_CTRL_MASK,
+-					    mute ? TAS2764_PWR_CTRL_MUTE : 0);
++	struct tas2764_priv *tas2764 =
++			snd_soc_component_get_drvdata(dai->component);
+ 
+-	if (ret < 0)
+-		return ret;
+-
+-	return 0;
++	tas2764->unmuted = !mute;
++	return tas2764_update_pwr_ctrl(tas2764);
+ }
+ 
+ static int tas2764_set_bitwidth(struct tas2764_priv *tas2764, int bitwidth)
+@@ -494,12 +507,6 @@ static int tas2764_codec_probe(struct snd_soc_component *component)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+-					    TAS2764_PWR_CTRL_MASK,
+-					    TAS2764_PWR_CTRL_MUTE);
+-	if (ret < 0)
+-		return ret;
+-
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
