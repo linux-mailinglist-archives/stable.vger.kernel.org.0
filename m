@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF1160B34E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:03:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE14160B03A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:03:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233110AbiJXRCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:02:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47046 "EHLO
+        id S232518AbiJXQD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:03:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233538AbiJXRCX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:02:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4E38160852;
-        Mon, 24 Oct 2022 08:38:57 -0700 (PDT)
+        with ESMTP id S232710AbiJXQCg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:02:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93138176BA9;
+        Mon, 24 Oct 2022 07:55:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B905B81204;
-        Mon, 24 Oct 2022 12:00:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78D25C433C1;
-        Mon, 24 Oct 2022 12:00:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41E36B81188;
+        Mon, 24 Oct 2022 12:26:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B513C433D6;
+        Mon, 24 Oct 2022 12:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612803;
-        bh=p9732RSsGgZuE0sVRNVEJIAFnxTmYtgxzpoRqKThgks=;
+        s=korg; t=1666614408;
+        bh=72IdrIRDfHiRyzadDUK1d/TKQj32QPvspPY4OjhOf2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4ZFXv4l6qP/CqSXW0KWC1Lp4Dtk7/1A24vWMCay2ybyQg4bS6k8rItTt7vzeVMGQ
-         w6HXwr218B1O20XRN3fB0/DVwRIB9SZHSq0+2w+BlVsX9jAuCK23T4QZIWyhFC/01H
-         3La/j/WzdcNir0mCIFMduPUW0RPb4qk3wk/clAiQ=
+        b=Y26FXCt6FMfQjgA9Sg+ZhIphX+7li+fn9ty1Kg3OaGl2+p0ZUIOqK/03aMBuhYuKn
+         fgbL33MVFsYRwCPyOmtui+hzwkfJ/hWdOS104/w9nFpyjh6WH/0VhmJfw2rRD3A7hY
+         kDEIVFE865zCDwjQn4G1IMWourlXKAuCKbIP6AUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 126/229] HSI: omap_ssi: Fix refcount leak in ssi_probe
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 248/390] mfd: fsl-imx25: Fix an error handling path in mx25_tsadc_setup_irq()
 Date:   Mon, 24 Oct 2022 13:30:45 +0200
-Message-Id: <20221024113003.079294681@linuxfoundation.org>
+Message-Id: <20221024113033.415359656@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 9a2ea132df860177b33c9fd421b26c4e9a0a9396 ]
+[ Upstream commit 3fa9e4cfb55da512ebfd57336fde468830719298 ]
 
-When returning or breaking early from a
-for_each_available_child_of_node() loop, we need to explicitly call
-of_node_put() on the child node to possibly release the node.
+If devm_of_platform_populate() fails, some resources need to be
+released.
 
-Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Introduce a mx25_tsadc_unset_irq() function that undoes
+mx25_tsadc_setup_irq() and call it both from the new error handling path
+of the probe and in the remove function.
+
+Fixes: a55196eff6d6 ("mfd: fsl-imx25: Use devm_of_platform_populate()")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/d404e04828fc06bcfddf81f9f3e9b4babbe35415.1659269156.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hsi/controllers/omap_ssi_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mfd/fsl-imx25-tsadc.c | 32 ++++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
-index 129c5e6bc654..15ecc4bc8de6 100644
---- a/drivers/hsi/controllers/omap_ssi_core.c
-+++ b/drivers/hsi/controllers/omap_ssi_core.c
-@@ -560,6 +560,7 @@ static int ssi_probe(struct platform_device *pd)
- 		if (!childpdev) {
- 			err = -ENODEV;
- 			dev_err(&pd->dev, "failed to create ssi controller port\n");
-+			of_node_put(child);
- 			goto out3;
- 		}
- 	}
+diff --git a/drivers/mfd/fsl-imx25-tsadc.c b/drivers/mfd/fsl-imx25-tsadc.c
+index a016b39fe9b0..95103b2cc471 100644
+--- a/drivers/mfd/fsl-imx25-tsadc.c
++++ b/drivers/mfd/fsl-imx25-tsadc.c
+@@ -84,6 +84,19 @@ static int mx25_tsadc_setup_irq(struct platform_device *pdev,
+ 	return 0;
+ }
+ 
++static int mx25_tsadc_unset_irq(struct platform_device *pdev)
++{
++	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
++	int irq = platform_get_irq(pdev, 0);
++
++	if (irq) {
++		irq_set_chained_handler_and_data(irq, NULL, NULL);
++		irq_domain_remove(tsadc->domain);
++	}
++
++	return 0;
++}
++
+ static void mx25_tsadc_setup_clk(struct platform_device *pdev,
+ 				 struct mx25_tsadc *tsadc)
+ {
+@@ -171,18 +184,21 @@ static int mx25_tsadc_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, tsadc);
+ 
+-	return devm_of_platform_populate(dev);
++	ret = devm_of_platform_populate(dev);
++	if (ret)
++		goto err_irq;
++
++	return 0;
++
++err_irq:
++	mx25_tsadc_unset_irq(pdev);
++
++	return ret;
+ }
+ 
+ static int mx25_tsadc_remove(struct platform_device *pdev)
+ {
+-	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
+-	int irq = platform_get_irq(pdev, 0);
+-
+-	if (irq) {
+-		irq_set_chained_handler_and_data(irq, NULL, NULL);
+-		irq_domain_remove(tsadc->domain);
+-	}
++	mx25_tsadc_unset_irq(pdev);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
