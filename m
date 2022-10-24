@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53ABD60A4F9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C42F60A8C9
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232836AbiJXMUA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:20:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36980 "EHLO
+        id S235512AbiJXNLF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:11:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233273AbiJXMTF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A02982842;
-        Mon, 24 Oct 2022 04:57:33 -0700 (PDT)
+        with ESMTP id S235609AbiJXNJH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:09:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 661269E6A4;
+        Mon, 24 Oct 2022 05:22:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5016612DB;
-        Mon, 24 Oct 2022 11:55:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5B79C433C1;
-        Mon, 24 Oct 2022 11:55:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78DEB612A8;
+        Mon, 24 Oct 2022 12:21:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86202C433C1;
+        Mon, 24 Oct 2022 12:21:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612526;
-        bh=fSVz+OkgMcoaGQ/swcxjK7pSryFkqY9VNBJa73jPodY=;
+        s=korg; t=1666614092;
+        bh=mmJf2WmHjYvNc14I4worNIpdJc0e+5xAMFPez2Swz+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=INOL/VcpuRPIlhpUFoO9DlAcdvD3sTWUWtWzDMqJUlP1znwD2/CMbC2ps9C9/J9iE
-         x7GF7rVemaCxYTgcn/KMMQXNVMHkrd5Fc80/BaCLkrQKxLd1kPU5iO3njBa1p7oEsw
-         4RFyEkeJ31+2LqvbYtRWQaRCUmOyckVfTABiSOng=
+        b=YoebTVL3mwfN/JVgxnzwG2dNVKyb7WL0gfxjxVWcHNvehJMzWyqrMHdxekbterUYT
+         EvEa7dExeS3LDM3LkRqJ+7kJsqmxR6xHrBqzppI0R8kfwqc2UVuxvFglrl4hs7yWAV
+         GxQI0qP3EME1X+Ql8aw6SZh2scNo1StVtx+CupAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Swati Agarwal <swati.agarwal@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 007/229] dmaengine: xilinx_dma: Report error in case of dma_set_mask_and_coherent API failure
-Date:   Mon, 24 Oct 2022 13:28:46 +0200
-Message-Id: <20221024112959.355783611@linuxfoundation.org>
+        stable@vger.kernel.org, Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Jes Sorensen <jes@trained-monkey.org>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 130/390] wifi: rtl8xxxu: Fix AIFS written to REG_EDCA_*_PARAM
+Date:   Mon, 24 Oct 2022 13:28:47 +0200
+Message-Id: <20221024113028.213257065@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Swati Agarwal <swati.agarwal@xilinx.com>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-[ Upstream commit 8f2b6bc79c32f0fa60df000ae387a790ec80eae9 ]
+[ Upstream commit 5574d3290449916397f3092dcd2bac92415498e1 ]
 
-The driver does not handle the failure case while calling
-dma_set_mask_and_coherent API.
+ieee80211_tx_queue_params.aifs is not supposed to be written directly
+to the REG_EDCA_*_PARAM registers. Instead process it like the vendor
+drivers do. It's kinda hacky but it works.
 
-In case of failure, capture the return value of API and then report an
-error.
+This change boosts the download speed and makes it more stable.
 
-Addresses-coverity: Unchecked return value (CHECKED_RETURN)
+Tested with RTL8188FU but all the other supported chips should also
+benefit.
 
-Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
-Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/20220817061125.4720-4-swati.agarwal@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Acked-by: Jes Sorensen <jes@trained-monkey.org>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/038cc03f-3567-77ba-a7bd-c4930e3b2fad@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/xilinx_dma.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ .../wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 49 +++++++++++++++++++
+ 1 file changed, 49 insertions(+)
 
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index f72803587b8f..0ba70be4ea85 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -2674,7 +2674,11 @@ static int xilinx_dma_probe(struct platform_device *pdev)
- 		xdev->ext_addr = false;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index 7818a7ea0498..e34cd6fed7e8 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -4507,6 +4507,53 @@ rtl8xxxu_wireless_mode(struct ieee80211_hw *hw, struct ieee80211_sta *sta)
+ 	return network_type;
+ }
  
- 	/* Set the dma mask bits */
--	dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
-+	err = dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
-+	if (err < 0) {
-+		dev_err(xdev->dev, "DMA mask error %d\n", err);
-+		goto disable_clks;
++static void rtl8xxxu_set_aifs(struct rtl8xxxu_priv *priv, u8 slot_time)
++{
++	u32 reg_edca_param[IEEE80211_NUM_ACS] = {
++		[IEEE80211_AC_VO] = REG_EDCA_VO_PARAM,
++		[IEEE80211_AC_VI] = REG_EDCA_VI_PARAM,
++		[IEEE80211_AC_BE] = REG_EDCA_BE_PARAM,
++		[IEEE80211_AC_BK] = REG_EDCA_BK_PARAM,
++	};
++	u32 val32;
++	u16 wireless_mode = 0;
++	u8 aifs, aifsn, sifs;
++	int i;
++
++	if (priv->vif) {
++		struct ieee80211_sta *sta;
++
++		rcu_read_lock();
++		sta = ieee80211_find_sta(priv->vif, priv->vif->bss_conf.bssid);
++		if (sta)
++			wireless_mode = rtl8xxxu_wireless_mode(priv->hw, sta);
++		rcu_read_unlock();
 +	}
++
++	if (priv->hw->conf.chandef.chan->band == NL80211_BAND_5GHZ ||
++	    (wireless_mode & WIRELESS_MODE_N_24G))
++		sifs = 16;
++	else
++		sifs = 10;
++
++	for (i = 0; i < IEEE80211_NUM_ACS; i++) {
++		val32 = rtl8xxxu_read32(priv, reg_edca_param[i]);
++
++		/* It was set in conf_tx. */
++		aifsn = val32 & 0xff;
++
++		/* aifsn not set yet or already fixed */
++		if (aifsn < 2 || aifsn > 15)
++			continue;
++
++		aifs = aifsn * slot_time + sifs;
++
++		val32 &= ~0xff;
++		val32 |= aifs;
++		rtl8xxxu_write32(priv, reg_edca_param[i], val32);
++	}
++}
++
+ static void
+ rtl8xxxu_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 			  struct ieee80211_bss_conf *bss_conf, u32 changed)
+@@ -4592,6 +4639,8 @@ rtl8xxxu_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 		else
+ 			val8 = 20;
+ 		rtl8xxxu_write8(priv, REG_SLOT, val8);
++
++		rtl8xxxu_set_aifs(priv, val8);
+ 	}
  
- 	/* Initialize the DMA engine */
- 	xdev->common.dev = &pdev->dev;
+ 	if (changed & BSS_CHANGED_BSSID) {
 -- 
 2.35.1
 
