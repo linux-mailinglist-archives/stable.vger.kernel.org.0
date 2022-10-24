@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2248060AA4B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35FBB60A73A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232557AbiJXNcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:32:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43582 "EHLO
+        id S234402AbiJXMsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:48:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236278AbiJXNaV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:30:21 -0400
+        with ESMTP id S234741AbiJXMpg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 661BBAC2B3;
-        Mon, 24 Oct 2022 05:32:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E89318B31;
+        Mon, 24 Oct 2022 05:10:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE88A612CC;
-        Mon, 24 Oct 2022 12:24:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A95F5C433D6;
-        Mon, 24 Oct 2022 12:24:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 455496129E;
+        Mon, 24 Oct 2022 12:09:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 515B7C433C1;
+        Mon, 24 Oct 2022 12:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614287;
-        bh=PIqKj/TL1AZgCYVzWnfq/gi2T+cDG3qbmjoKC5z60WE=;
+        s=korg; t=1666613387;
+        bh=/46bcVhFzcjZWnoY6JgoprBlN42KkvWIVoF7PtLK2+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DmjPDoLortLSUO4Yg6gR59MjLVN+F8SaBQr9uZXK/i2w9bp2caExAT8VIZUhjIPXP
-         ccYl4O7Bwg39G15szD7/jkxEV1sb4qB24OxNbZG5218H23Qh0F2/FEPyOFV1G532Tz
-         ryDeaEzLhdMLjKpzjQAkvOY9fDYfxLrxX/1RaOKQ=
+        b=k6Wreb9Ix+w620h6b9/mN7qw6XsblKYvE4bYRy4JYpo1uHJ/SmjAXilvy+zehpPfb
+         crQFY43NYIIl1m6elasbMjsiYb76hoVFYu5B6SZeLqZiEtkMmF4D8m375+GpEN5jAB
+         KqC4KxqOrgbKAPNSEuo8FiUdHuIuV3Kv4QzgBMn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Rustam Subkhankulov <subkhankulov@ispras.ru>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 203/390] clk: tegra20: Fix refcount leak in tegra20_clock_init
+Subject: [PATCH 5.4 090/255] platform/chrome: fix double-free in chromeos_laptop_prepare()
 Date:   Mon, 24 Oct 2022 13:30:00 +0200
-Message-Id: <20221024113031.399780773@linuxfoundation.org>
+Message-Id: <20221024113005.498169773@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Rustam Subkhankulov <subkhankulov@ispras.ru>
 
-[ Upstream commit 4e343bafe03ff68a62f48f8235cf98f2c685468b ]
+[ Upstream commit 6ad4194d6a1e1d11b285989cd648ef695b4a93c0 ]
 
-of_find_matching_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+If chromeos_laptop_prepare_i2c_peripherals() fails after allocating memory
+for 'cros_laptop->i2c_peripherals', this memory is freed at 'err_out' label
+and nonzero value is returned. Then chromeos_laptop_destroy() is called,
+resulting in double-free error.
 
-Fixes: 37c26a906527 ("clk: tegra: add clock support for Tegra20")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220523152811.19692-1-linmq006@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Signed-off-by: Rustam Subkhankulov <subkhankulov@ispras.ru>
+Fixes: 5020cd29d8bf ("platform/chrome: chromeos_laptop - supply properties for ACPI devices")
+Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
+Link: https://lore.kernel.org/r/20220813220843.2373004-1-subkhankulov@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-tegra20.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/chrome/chromeos_laptop.c | 24 ++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/clk/tegra/clk-tegra20.c b/drivers/clk/tegra/clk-tegra20.c
-index 3efc651b42e3..d60ee6e318a5 100644
---- a/drivers/clk/tegra/clk-tegra20.c
-+++ b/drivers/clk/tegra/clk-tegra20.c
-@@ -1128,6 +1128,7 @@ static void __init tegra20_clock_init(struct device_node *np)
+diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
+index 8723bcf10c93..954953133d56 100644
+--- a/drivers/platform/chrome/chromeos_laptop.c
++++ b/drivers/platform/chrome/chromeos_laptop.c
+@@ -716,6 +716,7 @@ static int __init
+ chromeos_laptop_prepare_i2c_peripherals(struct chromeos_laptop *cros_laptop,
+ 					const struct chromeos_laptop *src)
+ {
++	struct i2c_peripheral *i2c_peripherals;
+ 	struct i2c_peripheral *i2c_dev;
+ 	struct i2c_board_info *info;
+ 	int i;
+@@ -724,17 +725,15 @@ chromeos_laptop_prepare_i2c_peripherals(struct chromeos_laptop *cros_laptop,
+ 	if (!src->num_i2c_peripherals)
+ 		return 0;
+ 
+-	cros_laptop->i2c_peripherals = kmemdup(src->i2c_peripherals,
+-					       src->num_i2c_peripherals *
+-						sizeof(*src->i2c_peripherals),
+-					       GFP_KERNEL);
+-	if (!cros_laptop->i2c_peripherals)
++	i2c_peripherals = kmemdup(src->i2c_peripherals,
++					      src->num_i2c_peripherals *
++					  sizeof(*src->i2c_peripherals),
++					  GFP_KERNEL);
++	if (!i2c_peripherals)
+ 		return -ENOMEM;
+ 
+-	cros_laptop->num_i2c_peripherals = src->num_i2c_peripherals;
+-
+-	for (i = 0; i < cros_laptop->num_i2c_peripherals; i++) {
+-		i2c_dev = &cros_laptop->i2c_peripherals[i];
++	for (i = 0; i < src->num_i2c_peripherals; i++) {
++		i2c_dev = &i2c_peripherals[i];
+ 		info = &i2c_dev->board_info;
+ 
+ 		error = chromeos_laptop_setup_irq(i2c_dev);
+@@ -752,16 +751,19 @@ chromeos_laptop_prepare_i2c_peripherals(struct chromeos_laptop *cros_laptop,
+ 		}
  	}
  
- 	pmc_base = of_iomap(node, 0);
-+	of_node_put(node);
- 	if (!pmc_base) {
- 		pr_err("Can't map pmc registers\n");
- 		BUG();
++	cros_laptop->i2c_peripherals = i2c_peripherals;
++	cros_laptop->num_i2c_peripherals = src->num_i2c_peripherals;
++
+ 	return 0;
+ 
+ err_out:
+ 	while (--i >= 0) {
+-		i2c_dev = &cros_laptop->i2c_peripherals[i];
++		i2c_dev = &i2c_peripherals[i];
+ 		info = &i2c_dev->board_info;
+ 		if (info->properties)
+ 			property_entries_free(info->properties);
+ 	}
+-	kfree(cros_laptop->i2c_peripherals);
++	kfree(i2c_peripherals);
+ 	return error;
+ }
+ 
 -- 
 2.35.1
 
