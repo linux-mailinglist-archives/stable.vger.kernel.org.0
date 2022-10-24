@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7CAE60A6D3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:41:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8562560ABA0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:55:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230116AbiJXMke (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:40:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45674 "EHLO
+        id S236461AbiJXNzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:55:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231256AbiJXMiF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:38:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5F028A1C1;
-        Mon, 24 Oct 2022 05:06:44 -0700 (PDT)
+        with ESMTP id S236437AbiJXNxl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:53:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37967BC466;
+        Mon, 24 Oct 2022 05:43:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C03FF612E6;
-        Mon, 24 Oct 2022 12:06:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D80FEC433D6;
-        Mon, 24 Oct 2022 12:06:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C575612B3;
+        Mon, 24 Oct 2022 12:43:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B204CC433D6;
+        Mon, 24 Oct 2022 12:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613169;
-        bh=alETWVNsuyM1X64cVYCBiCkJ9fiVjtFgAaSa0450EIs=;
+        s=korg; t=1666615390;
+        bh=HZaN/LuBXVRxq6KpjERBiJycbpJDZKdsXB0MQGoEFeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1mrZGVK3m6jVoRntgJoSFIKMo1eOj31ZyM3giS4/EAz8VtC5r/tl3cXwiP4WSe6Pe
-         2muMjNznUTHVbSOxe7DallKpt4oMTdy8nGQn7Sn50tKBtKBQVn/gmX0iFHc6yuAUJQ
-         0yFWrAy8GQeRikc0ZqCjhD9q+ZHSgg3uJdHuI8eQ=
+        b=08TjDNxjNkBCXxfKmMJTCLZF5FrVnozWNReXorZPYJ7M6pXnqSearYuLAGshFNbJo
+         9mFbyIWKnxe1wlRJMlWA7IUdH8+TR+Zl/WdZ0NV7PqJfTZlq7pnSZ+Na6rJjvVXSYK
+         OMg99vGkYieq7D6YtazYC14aDZDRKtQLGC6vUs5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 035/255] btrfs: fix race between quota enable and quota rescan ioctl
+        stable@vger.kernel.org, Oleksandr Shamray <oleksandrs@nvidia.com>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 201/530] hwmon: (pmbus/mp2888) Fix sensors readouts for MPS Multi-phase mp2888 controller
 Date:   Mon, 24 Oct 2022 13:29:05 +0200
-Message-Id: <20221024113003.608998685@linuxfoundation.org>
+Message-Id: <20221024113054.151557603@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Oleksandr Shamray <oleksandrs@nvidia.com>
 
-commit 331cd9461412e103d07595a10289de90004ac890 upstream.
+[ Upstream commit 525dd5aed67a2f4f7278116fb92a24e6a53e2622 ]
 
-When enabling quotas, at btrfs_quota_enable(), after committing the
-transaction, we change fs_info->quota_root to point to the quota root we
-created and set BTRFS_FS_QUOTA_ENABLED at fs_info->flags. Then we try
-to start the qgroup rescan worker, first by initializing it with a call
-to qgroup_rescan_init() - however if that fails we end up freeing the
-quota root but we leave fs_info->quota_root still pointing to it, this
-can later result in a use-after-free somewhere else.
+Fix scale factors for reading MPS Multi-phase mp2888 controller.
+Fixed sensors:
+    - PIN/POUT: based on vendor documentation, set bscale factor 0.5W/LSB
+    - IOUT: based on vendor documentation, set scale factor 0.25 A/LSB
 
-We have previously set the flags BTRFS_FS_QUOTA_ENABLED and
-BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with -EINPROGRESS at
-btrfs_quota_enable(), which is possible if someone already called the
-quota rescan ioctl, and therefore started the rescan worker.
-
-So fix this by ignoring an -EINPROGRESS and asserting we can't get any
-other error.
-
-Reported-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/linux-btrfs/20220823015931.421355-1-yebin10@huawei.com/
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e4db7719d037 ("hwmon: (pmbus) Add support for MPS Multi-phase mp2888 controller")
+Signed-off-by: Oleksandr Shamray <oleksandrs@nvidia.com>
+Reviewed-by: Vadim Pasternak <vadimp@nvidia.com>
+Link: https://lore.kernel.org/r/20220929121642.63051-1-oleksandrs@nvidia.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/qgroup.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/hwmon/pmbus/mp2888.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -1075,6 +1075,21 @@ out_add_root:
- 		fs_info->qgroup_rescan_running = true;
- 	        btrfs_queue_work(fs_info->qgroup_rescan_workers,
- 	                         &fs_info->qgroup_rescan_work);
-+	} else {
-+		/*
-+		 * We have set both BTRFS_FS_QUOTA_ENABLED and
-+		 * BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with
-+		 * -EINPROGRESS. That can happen because someone started the
-+		 * rescan worker by calling quota rescan ioctl before we
-+		 * attempted to initialize the rescan worker. Failure due to
-+		 * quotas disabled in the meanwhile is not possible, because
-+		 * we are holding a write lock on fs_info->subvol_sem, which
-+		 * is also acquired when disabling quotas.
-+		 * Ignore such error, and any other error would need to undo
-+		 * everything we did in the transaction we just committed.
-+		 */
-+		ASSERT(ret == -EINPROGRESS);
-+		ret = 0;
- 	}
+diff --git a/drivers/hwmon/pmbus/mp2888.c b/drivers/hwmon/pmbus/mp2888.c
+index 8ecd4adfef40..24e5194706cf 100644
+--- a/drivers/hwmon/pmbus/mp2888.c
++++ b/drivers/hwmon/pmbus/mp2888.c
+@@ -34,7 +34,7 @@ struct mp2888_data {
+ 	int curr_sense_gain;
+ };
  
- out_free_path:
+-#define to_mp2888_data(x)  container_of(x, struct mp2888_data, info)
++#define to_mp2888_data(x)	container_of(x, struct mp2888_data, info)
+ 
+ static int mp2888_read_byte_data(struct i2c_client *client, int page, int reg)
+ {
+@@ -109,7 +109,7 @@ mp2888_read_phase(struct i2c_client *client, struct mp2888_data *data, int page,
+ 	 * - Kcs is the DrMOS current sense gain of power stage, which is obtained from the
+ 	 *   register MP2888_MFR_VR_CONFIG1, bits 13-12 with the following selection of DrMOS
+ 	 *   (data->curr_sense_gain):
+-	 *   00b - 5µA/A, 01b - 8.5µA/A, 10b - 9.7µA/A, 11b - 10µA/A.
++	 *   00b - 8.5µA/A, 01b - 9.7µA/A, 1b - 10µA/A, 11b - 5µA/A.
+ 	 * - Rcs is the internal phase current sense resistor. This parameter depends on hardware
+ 	 *   assembly. By default it is set to 1kΩ. In case of different assembly, user should
+ 	 *   scale this parameter by dividing it by Rcs.
+@@ -118,10 +118,9 @@ mp2888_read_phase(struct i2c_client *client, struct mp2888_data *data, int page,
+ 	 * because sampling of current occurrence of bit weight has a big deviation, especially for
+ 	 * light load.
+ 	 */
+-	ret = DIV_ROUND_CLOSEST(ret * 100 - 9800, data->curr_sense_gain);
+-	ret = (data->phase_curr_resolution) ? ret * 2 : ret;
++	ret = DIV_ROUND_CLOSEST(ret * 200 - 19600, data->curr_sense_gain);
+ 	/* Scale according to total current resolution. */
+-	ret = (data->total_curr_resolution) ? ret * 8 : ret * 4;
++	ret = (data->total_curr_resolution) ? ret * 2 : ret;
+ 	return ret;
+ }
+ 
+@@ -212,7 +211,7 @@ static int mp2888_read_word_data(struct i2c_client *client, int page, int phase,
+ 		ret = pmbus_read_word_data(client, page, phase, reg);
+ 		if (ret < 0)
+ 			return ret;
+-		ret = data->total_curr_resolution ? ret * 2 : ret;
++		ret = data->total_curr_resolution ? ret : DIV_ROUND_CLOSEST(ret, 2);
+ 		break;
+ 	case PMBUS_POUT_OP_WARN_LIMIT:
+ 		ret = pmbus_read_word_data(client, page, phase, reg);
+@@ -223,7 +222,7 @@ static int mp2888_read_word_data(struct i2c_client *client, int page, int phase,
+ 		 * set 1. Actual power is reported with 0.5W or 1W respectively resolution. Scaling
+ 		 * is needed to match both.
+ 		 */
+-		ret = data->total_curr_resolution ? ret * 4 : ret * 2;
++		ret = data->total_curr_resolution ? ret * 2 : ret;
+ 		break;
+ 	/*
+ 	 * The below registers are not implemented by device or implemented not according to the
+-- 
+2.35.1
+
 
 
