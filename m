@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34A3760A463
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:10:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE38B60A5D9
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232661AbiJXMKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:10:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53162 "EHLO
+        id S231448AbiJXMbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:31:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232771AbiJXMH5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:07:57 -0400
+        with ESMTP id S234003AbiJXM3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81BC97E321;
-        Mon, 24 Oct 2022 04:51:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BDA5876A0;
+        Mon, 24 Oct 2022 05:03:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB166B81199;
-        Mon, 24 Oct 2022 11:51:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E652C433C1;
-        Mon, 24 Oct 2022 11:51:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1F2DB811F8;
+        Mon, 24 Oct 2022 12:00:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 203EFC433C1;
+        Mon, 24 Oct 2022 12:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612260;
-        bh=R2o+Cu2UAOttf3+FN46CvIfUeo5oZyZa9B5Y8e4wXF0=;
+        s=korg; t=1666612806;
+        bh=GehjbJHBXOzgVNA6DOTPtzJcRKMuOSCjvnVq1+rQcqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTDZXVRN7Ia0idxc5hTBbOaGJde+B+B5WYo1CUiMDt2GMSe/vX/VJFBhlSSXcC8kv
-         BPXxDaQlIUZGZCXPFrEU/g3+9INjJGMfhtM9vK2QhZ0xsavjGLkrmfEKtI9ooK/PF3
-         H3VnrkniBeBzH205vUYJogtp867OU0wa4SYPLjY0=
+        b=DiSsIok9fjKn1EeXgu9sn5L/Nv3dZlfIIk/nEwr2CGB1d10s/Zv24qm5Cnqd25JAq
+         YbD/jy6RzTySqFlWroEmzIK8lgjFRXZCGeYrxsHw/6UZD1z1hDjhlmAxg0+gIWIa25
+         vDkxawgExfxUndKFz1Ix1lVudxWrsVthd6XTl6ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Baron <jbaron@akamai.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jim Cromie <jim.cromie@gmail.com>,
+        stable@vger.kernel.org, Sebastian Reichel <sre@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 129/210] dyndbg: let query-modname override actual module name
+Subject: [PATCH 4.19 127/229] HSI: omap_ssi_port: Fix dma_map_sg error check
 Date:   Mon, 24 Oct 2022 13:30:46 +0200
-Message-Id: <20221024113001.172915017@linuxfoundation.org>
+Message-Id: <20221024113003.109588084@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Cromie <jim.cromie@gmail.com>
+From: Jack Wang <jinpu.wang@ionos.com>
 
-[ Upstream commit e75ef56f74965f426dd819a41336b640ffdd8fbc ]
+[ Upstream commit 551e325bbd3fb8b5a686ac1e6cf76e5641461cf2 ]
 
-dyndbg's control-parser: ddebug_parse_query(), requires that search
-terms: module, func, file, lineno, are used only once in a query; a
-thing cannot be named both foo and bar.
+dma_map_sg return 0 on error, in case of error return -EIO
+to caller.
 
-The cited commit added an overriding module modname, taken from the
-module loader, which is authoritative.  So it set query.module 1st,
-which disallowed its use in the query-string.
-
-But now, its useful to allow a module-load to enable classes across a
-whole (or part of) a subsystem at once.
-
-  # enable (dynamic-debug in) drm only
-  modprobe drm dyndbg="class DRM_UT_CORE +p"
-
-  # get drm_helper too
-  modprobe drm dyndbg="class DRM_UT_CORE module drm* +p"
-
-  # get everything that knows DRM_UT_CORE
-  modprobe drm dyndbg="class DRM_UT_CORE module * +p"
-
-  # also for boot-args:
-  drm.dyndbg="class DRM_UT_CORE module * +p"
-
-So convert the override into a default, by filling it only when/after
-the query-string omitted the module.
-
-NB: the query class FOO handling is forthcoming.
-
-Fixes: 8e59b5cfb9a6 dynamic_debug: add modname arg to exec_query callchain
-Acked-by: Jason Baron <jbaron@akamai.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
-Link: https://lore.kernel.org/r/20220904214134.408619-8-jim.cromie@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Sebastian Reichel <sre@kernel.org>
+Cc: linux-kernel@vger.kernel.org (open list)
+Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/dynamic_debug.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/hsi/controllers/omap_ssi_port.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
-index 91c451e0f474..01591a7b151f 100644
---- a/lib/dynamic_debug.c
-+++ b/lib/dynamic_debug.c
-@@ -327,10 +327,6 @@ static int ddebug_parse_query(char *words[], int nwords,
- 	}
- 	memset(query, 0, sizeof(*query));
- 
--	if (modname)
--		/* support $modname.dyndbg=<multiple queries> */
--		query->module = modname;
--
- 	for (i = 0; i < nwords; i += 2) {
- 		if (!strcmp(words[i], "func")) {
- 			rc = check_set(&query->function, words[i+1], "func");
-@@ -379,6 +375,13 @@ static int ddebug_parse_query(char *words[], int nwords,
- 		if (rc)
- 			return rc;
- 	}
-+	if (!query->module && modname)
-+		/*
-+		 * support $modname.dyndbg=<multiple queries>, when
-+		 * not given in the query itself
-+		 */
-+		query->module = modname;
-+
- 	vpr_info_dq(query, "parsed");
- 	return 0;
- }
+diff --git a/drivers/hsi/controllers/omap_ssi_port.c b/drivers/hsi/controllers/omap_ssi_port.c
+index 2ada82d2ec8c..e6149fd43b62 100644
+--- a/drivers/hsi/controllers/omap_ssi_port.c
++++ b/drivers/hsi/controllers/omap_ssi_port.c
+@@ -253,10 +253,10 @@ static int ssi_start_dma(struct hsi_msg *msg, int lch)
+ 	if (msg->ttype == HSI_MSG_READ) {
+ 		err = dma_map_sg(&ssi->device, msg->sgt.sgl, msg->sgt.nents,
+ 							DMA_FROM_DEVICE);
+-		if (err < 0) {
++		if (!err) {
+ 			dev_dbg(&ssi->device, "DMA map SG failed !\n");
+ 			pm_runtime_put_autosuspend(omap_port->pdev);
+-			return err;
++			return -EIO;
+ 		}
+ 		csdp = SSI_DST_BURST_4x32_BIT | SSI_DST_MEMORY_PORT |
+ 			SSI_SRC_SINGLE_ACCESS0 | SSI_SRC_PERIPHERAL_PORT |
+@@ -270,10 +270,10 @@ static int ssi_start_dma(struct hsi_msg *msg, int lch)
+ 	} else {
+ 		err = dma_map_sg(&ssi->device, msg->sgt.sgl, msg->sgt.nents,
+ 							DMA_TO_DEVICE);
+-		if (err < 0) {
++		if (!err) {
+ 			dev_dbg(&ssi->device, "DMA map SG failed !\n");
+ 			pm_runtime_put_autosuspend(omap_port->pdev);
+-			return err;
++			return -EIO;
+ 		}
+ 		csdp = SSI_SRC_BURST_4x32_BIT | SSI_SRC_MEMORY_PORT |
+ 			SSI_DST_SINGLE_ACCESS0 | SSI_DST_PERIPHERAL_PORT |
 -- 
 2.35.1
 
