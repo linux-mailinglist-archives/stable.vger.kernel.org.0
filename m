@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF71B60A8D2
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A0B160A4DE
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235587AbiJXNLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:11:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45704 "EHLO
+        id S233066AbiJXMR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:17:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235990AbiJXNKV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:10:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665602717A;
-        Mon, 24 Oct 2022 05:24:11 -0700 (PDT)
+        with ESMTP id S231734AbiJXMQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:16:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94A2280F41;
+        Mon, 24 Oct 2022 04:56:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 35545612E9;
-        Mon, 24 Oct 2022 12:11:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43826C433C1;
-        Mon, 24 Oct 2022 12:11:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 798EAB811B8;
+        Mon, 24 Oct 2022 11:52:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0C36C433C1;
+        Mon, 24 Oct 2022 11:52:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613518;
-        bh=+qZs5s2FdzLZ3zTM9H0xVRLIwdP/OwjXS0V/QMyZzRk=;
+        s=korg; t=1666612342;
+        bh=ZkKl/EsOt+55to666XhPgsn1/N1tcDCZ1GlCuJY/pbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2iYhcub7UsPho6WrSBiobpc7tRWwV79Dh0BNH33SFmHG4Xy79QRQsGnp6Le6EJ2lc
-         ImzZmnAGCE1Kj+Hjt9xPT+bZOAL233E7EcZHtk2UyGemOou3BhgFzJ53vuSSeRaKAJ
-         ckzKLcYr2JGUqfAwV/ahJnyfEfz8toewS9NJnJvo=
+        b=FxwvBaSIk+y+cZqDdYSFCYPav31ixjZaJDUgC9jGFwtbn3tiwrZdniwrEz5+wk5be
+         aXsZqu3MbRREXUw4VsWB6gAXrRsFKBNC2hWXO/0FNaU6r/eUDLej2E5mq6qDMYwB+1
+         SFrYTc4mtBAXzo9OQOvJb3xh/BfoASbZ8v8i9e0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Arvid Norlander <lkml@vorpal.se>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 168/255] clk: ast2600: BCLK comes from EPLL
+Subject: [PATCH 4.14 161/210] ACPI: video: Add Toshiba Satellite/Portege Z830 quirk
 Date:   Mon, 24 Oct 2022 13:31:18 +0200
-Message-Id: <20221024113008.334497123@linuxfoundation.org>
+Message-Id: <20221024113002.199716272@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Arvid Norlander <lkml@vorpal.se>
 
-[ Upstream commit b8c1dc9c00b252b3be853720a71b05ed451ddd9f ]
+[ Upstream commit 574160b8548deff8b80b174f03201e94ab8431e2 ]
 
-This correction was made in the u-boot SDK recently. There are no
-in-tree users of this clock so the impact is minimal.
+Toshiba Satellite Z830 needs the quirk video_disable_backlight_sysfs_if
+for proper backlight control after suspend/resume cycles.
 
-Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
-Link: https://github.com/AspeedTech-BMC/u-boot/commit/8ad54a5ae15f27fea5e894cc2539a20d90019717
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Link: https://lore.kernel.org/r/20220421040426.171256-1-joel@jms.id.au
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Toshiba Portege Z830 is simply the same laptop rebranded for certain
+markets (I looked through the manual to other language sections to confirm
+this) and thus also needs this quirk.
+
+Thanks to Hans de Goede for suggesting this fix.
+
+Link: https://www.spinics.net/lists/platform-driver-x86/msg34394.html
+Suggested-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Arvid Norlander <lkml@vorpal.se>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Arvid Norlander <lkml@vorpal.se>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-ast2600.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/acpi_video.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
-index 48122f574cb6..8a6c6b9c9a6a 100644
---- a/drivers/clk/clk-ast2600.c
-+++ b/drivers/clk/clk-ast2600.c
-@@ -579,7 +579,7 @@ static int aspeed_g6_clk_probe(struct platform_device *pdev)
- 	regmap_write(map, 0x308, 0x12000); /* 3x3 = 9 */
- 
- 	/* P-Bus (BCLK) clock divider */
--	hw = clk_hw_register_divider_table(dev, "bclk", "hpll", 0,
-+	hw = clk_hw_register_divider_table(dev, "bclk", "epll", 0,
- 			scu_g6_base + ASPEED_G6_CLK_SELECTION1, 20, 3, 0,
- 			ast2600_div_table,
- 			&aspeed_g6_clk_lock);
+diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
+index 5a69260edf80..cc228e5ad2b3 100644
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -511,6 +511,22 @@ static const struct dmi_system_id video_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE R830"),
+ 		},
+ 	},
++	{
++	 .callback = video_disable_backlight_sysfs_if,
++	 .ident = "Toshiba Satellite Z830",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE Z830"),
++		},
++	},
++	{
++	 .callback = video_disable_backlight_sysfs_if,
++	 .ident = "Toshiba Portege Z830",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE Z830"),
++		},
++	},
+ 	/*
+ 	 * Some machine's _DOD IDs don't have bit 31(Device ID Scheme) set
+ 	 * but the IDs actually follow the Device ID Scheme.
 -- 
 2.35.1
 
