@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C553260A3DF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 624B060A292
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:45:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232448AbiJXMAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:00:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33282 "EHLO
+        id S231432AbiJXLpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:45:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232797AbiJXL7y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:59:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEA6D7C32C;
-        Mon, 24 Oct 2022 04:48:56 -0700 (PDT)
+        with ESMTP id S231809AbiJXLod (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:44:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73CAE6CD16;
+        Mon, 24 Oct 2022 04:42:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90D4A61218;
-        Mon, 24 Oct 2022 11:48:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4EFDC433C1;
-        Mon, 24 Oct 2022 11:48:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D579DB81185;
+        Mon, 24 Oct 2022 11:40:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 095B8C433D6;
+        Mon, 24 Oct 2022 11:40:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612136;
-        bh=imA00XoB1QibGoVcRmf2HbsfpTiVfj/6N8ZW4ewYQOc=;
+        s=korg; t=1666611644;
+        bh=6F0okbPNaJVmpOAkAP8nAQh12Kr7LsC4w3octjhvero=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RIoaaeJvQm8+wEVC0A64vux79lGAFWdYbk19XdVRNqZWSTjedhP+BzH3rRO2F+MKr
-         ODeNn95JzJLzRmEfRXhw4WoJebRoJmQor7FVSsHAE9MvAndyoM2N25VoF+zVKztlqV
-         cNFy1dKE2Vf+4AeQDLBK/gOxZoBWXK9EA9TES44E=
+        b=fM56iolrFUGOwCWYwBF90jDbeZ+gisICIsHNRjnTG8w8iEwjPDHN808tKMF7nK5ac
+         61K+1MVTq/GWn7dpkSjwYnT0sBnp/gqbeXIQelqo8Nw2aYkw3O3oporFIKCjiA3iLe
+         TwrURRICLwGCSe/G3xYtzKFqtvfYyGRU1qid0TR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jes Sorensen <Jes.Sorensen@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 084/210] wifi: rtl8xxxu: tighten bounds checking in rtl8xxxu_read_efuse()
-Date:   Mon, 24 Oct 2022 13:30:01 +0200
-Message-Id: <20221024112959.780851591@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        linux-arm-msm@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 049/159] regulator: qcom_rpm: Fix circular deferral regression
+Date:   Mon, 24 Oct 2022 13:30:03 +0200
+Message-Id: <20221024112951.200371345@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +56,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 620d5eaeb9059636864bda83ca1c68c20ede34a5 ]
+commit 8478ed5844588703a1a4c96a004b1525fbdbdd5e upstream.
 
-There some bounds checking to ensure that "map_addr" is not out of
-bounds before the start of the loop.  But the checking needs to be
-done as we iterate through the loop because "map_addr" gets larger as
-we iterate.
+On recent kernels, the PM8058 L16 (or any other PM8058 LDO-regulator)
+does not come up if they are supplied by an SMPS-regulator. This
+is not very strange since the regulators are registered in a long
+array and the L-regulators are registered before the S-regulators,
+and if an L-regulator defers, it will never get around to registering
+the S-regulator that it needs.
 
-Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Jes Sorensen <Jes.Sorensen@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/Yv8eGLdBslLAk3Ct@kili
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+See arch/arm/boot/dts/qcom-apq8060-dragonboard.dts:
+
+pm8058-regulators {
+    (...)
+    vdd_l13_l16-supply = <&pm8058_s4>;
+    (...)
+
+Ooops.
+
+Fix this by moving the PM8058 S-regulators first in the array.
+
+Do the same for the PM8901 S-regulators (though this is currently
+not causing any problems with out device trees) so that the pattern
+of registration order is the same on all PMnnnn chips.
+
+Fixes: 087a1b5cdd55 ("regulator: qcom: Rework to single platform device")
+Cc: stable@vger.kernel.org
+Cc: Andy Gross <agross@kernel.org>
+Cc: Bjorn Andersson <andersson@kernel.org>
+Cc: Konrad Dybcio <konrad.dybcio@somainline.org>
+Cc: linux-arm-msm@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220909112529.239143-1-linus.walleij@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c  | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/regulator/qcom_rpm-regulator.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index 5cf61710ae2f..5588518daa96 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -1879,13 +1879,6 @@ static int rtl8xxxu_read_efuse(struct rtl8xxxu_priv *priv)
+--- a/drivers/regulator/qcom_rpm-regulator.c
++++ b/drivers/regulator/qcom_rpm-regulator.c
+@@ -820,6 +820,12 @@ static const struct rpm_regulator_data r
+ };
  
- 		/* We have 8 bits to indicate validity */
- 		map_addr = offset * 8;
--		if (map_addr >= EFUSE_MAP_LEN) {
--			dev_warn(dev, "%s: Illegal map_addr (%04x), "
--				 "efuse corrupt!\n",
--				 __func__, map_addr);
--			ret = -EINVAL;
--			goto exit;
--		}
- 		for (i = 0; i < EFUSE_MAX_WORD_UNIT; i++) {
- 			/* Check word enable condition in the section */
- 			if (word_mask & BIT(i)) {
-@@ -1896,6 +1889,13 @@ static int rtl8xxxu_read_efuse(struct rtl8xxxu_priv *priv)
- 			ret = rtl8xxxu_read_efuse8(priv, efuse_addr++, &val8);
- 			if (ret)
- 				goto exit;
-+			if (map_addr >= EFUSE_MAP_LEN - 1) {
-+				dev_warn(dev, "%s: Illegal map_addr (%04x), "
-+					 "efuse corrupt!\n",
-+					 __func__, map_addr);
-+				ret = -EINVAL;
-+				goto exit;
-+			}
- 			priv->efuse_wifi.raw[map_addr++] = val8;
+ static const struct rpm_regulator_data rpm_pm8058_regulators[] = {
++	{ "s0",   QCOM_RPM_PM8058_SMPS0,  &pm8058_smps, "vdd_s0" },
++	{ "s1",   QCOM_RPM_PM8058_SMPS1,  &pm8058_smps, "vdd_s1" },
++	{ "s2",   QCOM_RPM_PM8058_SMPS2,  &pm8058_smps, "vdd_s2" },
++	{ "s3",   QCOM_RPM_PM8058_SMPS3,  &pm8058_smps, "vdd_s3" },
++	{ "s4",   QCOM_RPM_PM8058_SMPS4,  &pm8058_smps, "vdd_s4" },
++
+ 	{ "l0",   QCOM_RPM_PM8058_LDO0,   &pm8058_nldo, "vdd_l0_l1_lvs"	},
+ 	{ "l1",   QCOM_RPM_PM8058_LDO1,   &pm8058_nldo, "vdd_l0_l1_lvs" },
+ 	{ "l2",   QCOM_RPM_PM8058_LDO2,   &pm8058_pldo, "vdd_l2_l11_l12" },
+@@ -847,12 +853,6 @@ static const struct rpm_regulator_data r
+ 	{ "l24",  QCOM_RPM_PM8058_LDO24,  &pm8058_nldo, "vdd_l23_l24_l25" },
+ 	{ "l25",  QCOM_RPM_PM8058_LDO25,  &pm8058_nldo, "vdd_l23_l24_l25" },
  
- 			ret = rtl8xxxu_read_efuse8(priv, efuse_addr++, &val8);
--- 
-2.35.1
-
+-	{ "s0",   QCOM_RPM_PM8058_SMPS0,  &pm8058_smps, "vdd_s0" },
+-	{ "s1",   QCOM_RPM_PM8058_SMPS1,  &pm8058_smps, "vdd_s1" },
+-	{ "s2",   QCOM_RPM_PM8058_SMPS2,  &pm8058_smps, "vdd_s2" },
+-	{ "s3",   QCOM_RPM_PM8058_SMPS3,  &pm8058_smps, "vdd_s3" },
+-	{ "s4",   QCOM_RPM_PM8058_SMPS4,  &pm8058_smps, "vdd_s4" },
+-
+ 	{ "lvs0", QCOM_RPM_PM8058_LVS0, &pm8058_switch, "vdd_l0_l1_lvs" },
+ 	{ "lvs1", QCOM_RPM_PM8058_LVS1, &pm8058_switch, "vdd_l0_l1_lvs" },
+ 
+@@ -861,6 +861,12 @@ static const struct rpm_regulator_data r
+ };
+ 
+ static const struct rpm_regulator_data rpm_pm8901_regulators[] = {
++	{ "s0",   QCOM_RPM_PM8901_SMPS0, &pm8901_ftsmps, "vdd_s0" },
++	{ "s1",   QCOM_RPM_PM8901_SMPS1, &pm8901_ftsmps, "vdd_s1" },
++	{ "s2",   QCOM_RPM_PM8901_SMPS2, &pm8901_ftsmps, "vdd_s2" },
++	{ "s3",   QCOM_RPM_PM8901_SMPS3, &pm8901_ftsmps, "vdd_s3" },
++	{ "s4",   QCOM_RPM_PM8901_SMPS4, &pm8901_ftsmps, "vdd_s4" },
++
+ 	{ "l0",   QCOM_RPM_PM8901_LDO0, &pm8901_nldo, "vdd_l0" },
+ 	{ "l1",   QCOM_RPM_PM8901_LDO1, &pm8901_pldo, "vdd_l1" },
+ 	{ "l2",   QCOM_RPM_PM8901_LDO2, &pm8901_pldo, "vdd_l2" },
+@@ -869,12 +875,6 @@ static const struct rpm_regulator_data r
+ 	{ "l5",   QCOM_RPM_PM8901_LDO5, &pm8901_pldo, "vdd_l5" },
+ 	{ "l6",   QCOM_RPM_PM8901_LDO6, &pm8901_pldo, "vdd_l6" },
+ 
+-	{ "s0",   QCOM_RPM_PM8901_SMPS0, &pm8901_ftsmps, "vdd_s0" },
+-	{ "s1",   QCOM_RPM_PM8901_SMPS1, &pm8901_ftsmps, "vdd_s1" },
+-	{ "s2",   QCOM_RPM_PM8901_SMPS2, &pm8901_ftsmps, "vdd_s2" },
+-	{ "s3",   QCOM_RPM_PM8901_SMPS3, &pm8901_ftsmps, "vdd_s3" },
+-	{ "s4",   QCOM_RPM_PM8901_SMPS4, &pm8901_ftsmps, "vdd_s4" },
+-
+ 	{ "lvs0", QCOM_RPM_PM8901_LVS0, &pm8901_switch, "lvs0_in" },
+ 	{ "lvs1", QCOM_RPM_PM8901_LVS1, &pm8901_switch, "lvs1_in" },
+ 	{ "lvs2", QCOM_RPM_PM8901_LVS2, &pm8901_switch, "lvs2_in" },
 
 
