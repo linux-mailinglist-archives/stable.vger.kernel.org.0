@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF9C60AADB
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:42:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3636260A82E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:02:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235958AbiJXNmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:42:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57124 "EHLO
+        id S234965AbiJXNCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:02:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236611AbiJXNks (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:40:48 -0400
+        with ESMTP id S234966AbiJXNAr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:00:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54C09B3B36;
-        Mon, 24 Oct 2022 05:37:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B201A811;
+        Mon, 24 Oct 2022 05:19:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04A9B612B2;
-        Mon, 24 Oct 2022 12:37:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 166D4C433C1;
-        Mon, 24 Oct 2022 12:37:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 121B461328;
+        Mon, 24 Oct 2022 12:17:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23500C433D6;
+        Mon, 24 Oct 2022 12:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615041;
-        bh=A/DITSwSck9wLSemw47M+9/Xsriiy3TWOA9cLMpfPPM=;
+        s=korg; t=1666613871;
+        bh=BFat5BEfy41jcfjN1LQSScF9bLmYMpIuSmHtawi1W2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yqajkpt2ipxgjQaPmfqPAFODL+alypJ2pHm2OqtRKjyp6GzOkKVqJ2tmny6nmq9BP
-         Ohy6mv+gv5/OrSfkOZye6aPLKvv1vCdxvXZ69VSciCjYz3RwJwtpeggCCx8t8cd7dX
-         Ch7rcw6zfxAxjfq225079CcN9oI5l6V/18Zl7lMI=
+        b=ziItpBwNfvpYgPx5FVsDo8xcc0RMNkFRbfs7hI9H3s76W0QpBLTPIi9IKPcGNTyPC
+         j7U3g+CpuEfY9fS+ourMylc6f/yPu4Eng61g0Kzgudp6xTCk04wGd0Gid7KkDOKODK
+         emPyA9inrSmQU7cotJuDNQ/UUvdZa1aDJVqRTPoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.15 070/530] slimbus: qcom-ngd: cleanup in probe error path
-Date:   Mon, 24 Oct 2022 13:26:54 +0200
-Message-Id: <20221024113048.179949595@linuxfoundation.org>
+        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
+        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 018/390] can: kvaser_usb: Fix use of uninitialized completion
+Date:   Mon, 24 Oct 2022 13:26:55 +0200
+Message-Id: <20221024113023.328176062@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,78 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-commit 16f14551d0df9e7cd283545d7d748829594d912f upstream.
+commit cd7f30e174d09a02ca2afa5ef093fb0f0352e0d8 upstream.
 
-Add proper error path in probe() to cleanup resources previously
-acquired/allocated to fix warnings visible during probe deferral:
+flush_comp is initialized when CMD_FLUSH_QUEUE is sent to the device and
+completed when the device sends CMD_FLUSH_QUEUE_RESP.
 
-  notifier callback qcom_slim_ngd_ssr_notify already registered
-  WARNING: CPU: 6 PID: 70 at kernel/notifier.c:28 notifier_chain_register+0x5c/0x90
-  Modules linked in:
-  CPU: 6 PID: 70 Comm: kworker/u16:1 Not tainted 6.0.0-rc3-next-20220830 #380
-  Call trace:
-   notifier_chain_register+0x5c/0x90
-   srcu_notifier_chain_register+0x44/0x90
-   qcom_register_ssr_notifier+0x38/0x4c
-   qcom_slim_ngd_ctrl_probe+0xd8/0x400
-   platform_probe+0x6c/0xe0
-   really_probe+0xbc/0x2d4
-   __driver_probe_device+0x78/0xe0
-   driver_probe_device+0x3c/0x12c
-   __device_attach_driver+0xb8/0x120
-   bus_for_each_drv+0x78/0xd0
-   __device_attach+0xa8/0x1c0
-   device_initial_probe+0x18/0x24
-   bus_probe_device+0xa0/0xac
-   deferred_probe_work_func+0x88/0xc0
-   process_one_work+0x1d4/0x320
-   worker_thread+0x2cc/0x44c
-   kthread+0x110/0x114
-   ret_from_fork+0x10/0x20
+This causes completion of uninitialized completion if the device sends
+CMD_FLUSH_QUEUE_RESP before CMD_FLUSH_QUEUE is ever sent (e.g. as a
+response to a flush by a previously bound driver, or a misbehaving
+device).
 
-Fixes: e1ae85e1830e ("slimbus: qcom-ngd-ctrl: add Protection Domain Restart Support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220916122910.170730-3-srinivas.kandagatla@linaro.org
+Fix that by initializing flush_comp in kvaser_usb_init_one() like the
+other completions.
+
+This issue is only triggerable after RX URBs have been set up, i.e. the
+interface has been opened at least once.
+
+Cc: stable@vger.kernel.org
+Fixes: aec5fb2268b7 ("can: kvaser_usb: Add support for Kvaser USB hydra family")
+Tested-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010150829.199676-3-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/slimbus/qcom-ngd-ctrl.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c  |    1 +
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/slimbus/qcom-ngd-ctrl.c
-+++ b/drivers/slimbus/qcom-ngd-ctrl.c
-@@ -1567,18 +1567,27 @@ static int qcom_slim_ngd_ctrl_probe(stru
- 	ctrl->pdr = pdr_handle_alloc(slim_pd_status, ctrl);
- 	if (IS_ERR(ctrl->pdr)) {
- 		dev_err(dev, "Failed to init PDR handle\n");
--		return PTR_ERR(ctrl->pdr);
-+		ret = PTR_ERR(ctrl->pdr);
-+		goto err_pdr_alloc;
- 	}
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
+@@ -690,6 +690,7 @@ static int kvaser_usb_init_one(struct kv
+ 	init_usb_anchor(&priv->tx_submitted);
+ 	init_completion(&priv->start_comp);
+ 	init_completion(&priv->stop_comp);
++	init_completion(&priv->flush_comp);
+ 	priv->can.ctrlmode_supported = 0;
  
- 	pds = pdr_add_lookup(ctrl->pdr, "avs/audio", "msm/adsp/audio_pd");
- 	if (IS_ERR(pds) && PTR_ERR(pds) != -EALREADY) {
- 		ret = PTR_ERR(pds);
- 		dev_err(dev, "pdr add lookup failed: %d\n", ret);
--		return ret;
-+		goto err_pdr_lookup;
- 	}
+ 	priv->dev = dev;
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+@@ -1886,7 +1886,7 @@ static int kvaser_usb_hydra_flush_queue(
+ {
+ 	int err;
  
- 	platform_driver_register(&qcom_slim_ngd_driver);
- 	return of_qcom_slim_ngd_register(dev, ctrl);
-+
-+err_pdr_alloc:
-+	qcom_unregister_ssr_notifier(ctrl->notifier, &ctrl->nb);
-+
-+err_pdr_lookup:
-+	pdr_handle_release(ctrl->pdr);
-+
-+	return ret;
- }
+-	init_completion(&priv->flush_comp);
++	reinit_completion(&priv->flush_comp);
  
- static int qcom_slim_ngd_ctrl_remove(struct platform_device *pdev)
+ 	err = kvaser_usb_hydra_send_simple_cmd(priv->dev, CMD_FLUSH_QUEUE,
+ 					       priv->channel);
 
 
