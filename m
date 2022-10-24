@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C5460AB78
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C222860AAD6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:42:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236651AbiJXNwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:52:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34504 "EHLO
+        id S233842AbiJXNmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:42:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236426AbiJXNwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:52:10 -0400
+        with ESMTP id S236450AbiJXNkL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:40:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 977EDBBE36;
-        Mon, 24 Oct 2022 05:42:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27413B2D8B;
+        Mon, 24 Oct 2022 05:37:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DF6B6121A;
-        Mon, 24 Oct 2022 12:35:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E7EBC433D7;
-        Mon, 24 Oct 2022 12:35:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62164612F4;
+        Mon, 24 Oct 2022 12:35:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7282EC433D6;
+        Mon, 24 Oct 2022 12:35:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614909;
-        bh=Om7/WGg2QmwJwy/GGvtmo+GRr3hThQYF+KNt7roy7cg=;
+        s=korg; t=1666614938;
+        bh=qpkhbREp+upQTVqTctmEWCOKn9PVcpaTOkNdIdq7NqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlMEUYUH5shWd6acfK0aP+o2XzsLrGZxUiKUlguuvnJRjVnj9jqVSQwuKZr8dMQip
-         6n2YkDltFS4HN04prCtilj3GmMf0VBCyww8x4OY7c8ZlWnS89l5pPK8ubOAlarUdms
-         sZjqlzpSygHejwnBJBe/5wfFNPooEhRb6fRC47gc=
+        b=qEe/7FobSx7v6sC9ZKoBwYFE4fFO1d2OR1jBnkd2diarqGcXIFYxjb25B4Esp91hE
+         kRtWD95UJuemv4BQGW9Pwzumhuj6ffhVBj6roRWsjfM2zDltn3trEkka/LSwpeBpwG
+         BFWTQP00y/ToUB9JM9xhPTC8BGOu4MlQI9qlVul8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <groeck@chromium.org>,
-        Patryk Duda <pdk@semihalf.com>,
-        Tzung-Bi Shih <tzungbi@kernel.org>
-Subject: [PATCH 5.15 032/530] platform/chrome: cros_ec_proto: Update version on GET_NEXT_EVENT failure
-Date:   Mon, 24 Oct 2022 13:26:16 +0200
-Message-Id: <20221024113046.444411917@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 033/530] ASoC: wcd9335: fix order of Slimbus unprepare/disable
+Date:   Mon, 24 Oct 2022 13:26:17 +0200
+Message-Id: <20221024113046.491452343@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,82 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patryk Duda <pdk@semihalf.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit f74c7557ed0d321947e8bb4e9d47c1013f8b2227 upstream.
+commit ea8ef003aa53ad23e7705c5cab1c4e664faa6c79 upstream.
 
-Some EC based devices (e.g. Fingerpint MCU) can jump to RO part of the
-firmware (intentionally or due to device reboot). The RO part doesn't
-change during the device lifecycle, so it won't support newer version
-of EC_CMD_GET_NEXT_EVENT command.
+Slimbus streams are first prepared and then enabled, so the cleanup path
+should reverse it.  The unprepare sets stream->num_ports to 0 and frees
+the stream->ports.  Calling disable after unprepare was not really
+effective (channels was not deactivated) and could lead to further
+issues due to making transfers on unprepared stream.
 
-Function cros_ec_query_all() is responsible for finding maximum
-supported MKBP event version. It's usually called when the device is
-running RW part of the firmware, so the command version can be
-potentially higher than version supported by the RO.
-
-The problem was fixed by updating maximum supported version when the
-device returns EC_RES_INVALID_VERSION (mapped to -ENOPROTOOPT). That way
-the kernel will use highest common version supported by RO and RW.
-
-Fixes: 3300fdd630d4 ("platform/chrome: cros_ec: handle MKBP more events flag")
-Cc: <stable@vger.kernel.org> # 5.10+
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Signed-off-by: Patryk Duda <pdk@semihalf.com>
-Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
-Link: https://lore.kernel.org/r/20220802154128.21175-1-pdk@semihalf.com
+Fixes: 20aedafdf492 ("ASoC: wcd9335: add support to wcd9335 codec")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220921145354.1683791-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/chrome/cros_ec_proto.c |   32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ sound/soc/codecs/wcd9335.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/chrome/cros_ec_proto.c
-+++ b/drivers/platform/chrome/cros_ec_proto.c
-@@ -748,6 +748,7 @@ int cros_ec_get_next_event(struct cros_e
- 	u8 event_type;
- 	u32 host_event;
- 	int ret;
-+	u32 ver_mask;
- 
- 	/*
- 	 * Default value for wake_event.
-@@ -769,6 +770,37 @@ int cros_ec_get_next_event(struct cros_e
- 		return get_keyboard_state_event(ec_dev);
- 
- 	ret = get_next_event(ec_dev);
-+	/*
-+	 * -ENOPROTOOPT is returned when EC returns EC_RES_INVALID_VERSION.
-+	 * This can occur when EC based device (e.g. Fingerprint MCU) jumps to
-+	 * the RO image which doesn't support newer version of the command. In
-+	 * this case we will attempt to update maximum supported version of the
-+	 * EC_CMD_GET_NEXT_EVENT.
-+	 */
-+	if (ret == -ENOPROTOOPT) {
-+		dev_dbg(ec_dev->dev,
-+			"GET_NEXT_EVENT returned invalid version error.\n");
-+		ret = cros_ec_get_host_command_version_mask(ec_dev,
-+							EC_CMD_GET_NEXT_EVENT,
-+							&ver_mask);
-+		if (ret < 0 || ver_mask == 0)
-+			/*
-+			 * Do not change the MKBP supported version if we can't
-+			 * obtain supported version correctly. Please note that
-+			 * calling EC_CMD_GET_NEXT_EVENT returned
-+			 * EC_RES_INVALID_VERSION which means that the command
-+			 * is present.
-+			 */
-+			return -ENOPROTOOPT;
-+
-+		ec_dev->mkbp_event_supported = fls(ver_mask);
-+		dev_dbg(ec_dev->dev, "MKBP support version changed to %u\n",
-+			ec_dev->mkbp_event_supported - 1);
-+
-+		/* Try to get next event with new MKBP support version set. */
-+		ret = get_next_event(ec_dev);
-+	}
-+
- 	if (ret <= 0)
- 		return ret;
- 
+--- a/sound/soc/codecs/wcd9335.c
++++ b/sound/soc/codecs/wcd9335.c
+@@ -1971,8 +1971,8 @@ static int wcd9335_trigger(struct snd_pc
+ 	case SNDRV_PCM_TRIGGER_STOP:
+ 	case SNDRV_PCM_TRIGGER_SUSPEND:
+ 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
+-		slim_stream_unprepare(dai_data->sruntime);
+ 		slim_stream_disable(dai_data->sruntime);
++		slim_stream_unprepare(dai_data->sruntime);
+ 		break;
+ 	default:
+ 		break;
 
 
