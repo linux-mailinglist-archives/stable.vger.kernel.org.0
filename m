@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4369C60A41F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD5960A5B5
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:30:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232541AbiJXMFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:05:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38694 "EHLO
+        id S233640AbiJXM2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:28:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232909AbiJXMEh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:04:37 -0400
+        with ESMTP id S233814AbiJXM2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC66263D0A;
-        Mon, 24 Oct 2022 04:50:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DD513EBA;
+        Mon, 24 Oct 2022 05:01:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17638B811BD;
-        Mon, 24 Oct 2022 11:49:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67101C433D6;
-        Mon, 24 Oct 2022 11:49:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6243B811A5;
+        Mon, 24 Oct 2022 11:57:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03728C433D6;
+        Mon, 24 Oct 2022 11:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612186;
-        bh=wPT73C7wz0wOnYYzNDbw2GNECMcxZOHB770mS52PGjY=;
+        s=korg; t=1666612656;
+        bh=TaOMZ641qK5g+ToI/uLs8Ny1TZ131P0sMACZ7/5HZuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SD64py0FAiV7HGu71D0Ebc1MqD9gvn7p1+xn4UN+LGOLzRcowRb/snb9EU3vE5bdK
-         Fw5A4Ja0NWU8qtEYLQmA9iFcwjyGwPePYuceSY0lvX0uL34Ur+7dmym5ZdY6X6zA6t
-         4pYSrADCtEaVUobGI7Oo0gFOFnuNnquCmj75afNw=
+        b=sVyYn3gabMWebxyhSToh6n4xjm3vcq00/nmsI+gw2jghGDs/tcu7n/klRXis+jc7Y
+         W3oNVMO3qhBqPlD+AfGoNnOitALfas3sS/PZSfoYz4/IZaGS4xOPj7xlM2yFSioR6x
+         HmkWsgeNTGuMh90G/A/7tOWVnr0we55KvXxVNUEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Jinke Han <hanjinke.666@bytedance.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 071/210] ext4: place buffer head allocation before handle start
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+Subject: [PATCH 4.19 069/229] selinux: use "grep -E" instead of "egrep"
 Date:   Mon, 24 Oct 2022 13:29:48 +0200
-Message-Id: <20221024112959.364329797@linuxfoundation.org>
+Message-Id: <20221024113001.309912679@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinke Han <hanjinke.666@bytedance.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit d1052d236eddf6aa851434db1897b942e8db9921 upstream.
+commit c969bb8dbaf2f3628927eae73e7c579a74cf1b6e upstream.
 
-In our product environment, we encounter some jbd hung waiting handles to
-stop while several writters were doing memory reclaim for buffer head
-allocation in delay alloc write path. Ext4 do buffer head allocation with
-holding transaction handle which may be blocked too long if the reclaim
-works not so smooth. According to our bcc trace, the reclaim time in
-buffer head allocation can reach 258s and the jbd transaction commit also
-take almost the same time meanwhile. Except for these extreme cases,
-we often see several seconds delays for cgroup memory reclaim on our
-servers. This is more likely to happen considering docker environment.
+The latest version of grep claims that egrep is now obsolete so the build
+now contains warnings that look like:
+	egrep: warning: egrep is obsolescent; using grep -E
+fix this by using "grep -E" instead.
 
-One thing to note, the allocation of buffer heads is as often as page
-allocation or more often when blocksize less than page size. Just like
-page cache allocation, we should also place the buffer head allocation
-before startting the handle.
-
-Cc: stable@kernel.org
-Signed-off-by: Jinke Han <hanjinke.666@bytedance.com>
-Link: https://lore.kernel.org/r/20220903012429.22555-1-hanjinke.666@bytedance.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Eric Paris <eparis@parisplace.org>
+Cc: selinux@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[PM: tweak to remove vdso reference, cleanup subj line]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ scripts/selinux/install_policy.sh |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -1309,6 +1309,13 @@ retry_grab:
- 	page = grab_cache_page_write_begin(mapping, index, flags);
- 	if (!page)
- 		return -ENOMEM;
-+	/*
-+	 * The same as page allocation, we prealloc buffer heads before
-+	 * starting the handle.
-+	 */
-+	if (!page_has_buffers(page))
-+		create_empty_buffers(page, inode->i_sb->s_blocksize, 0);
-+
- 	unlock_page(page);
+--- a/scripts/selinux/install_policy.sh
++++ b/scripts/selinux/install_policy.sh
+@@ -57,7 +57,7 @@ fi
+ cd /etc/selinux/dummy/contexts/files
+ $SF file_contexts /
  
- retry_journal:
+-mounts=`cat /proc/$$/mounts | egrep "ext2|ext3|xfs|jfs|ext4|ext4dev|gfs2" | awk '{ print $2 '}`
++mounts=`cat /proc/$$/mounts | grep -E "ext2|ext3|xfs|jfs|ext4|ext4dev|gfs2" | awk '{ print $2 '}`
+ $SF file_contexts $mounts
+ 
+ 
 
 
