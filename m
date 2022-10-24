@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F34B760BA09
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:25:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 333B860B98E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231712AbiJXUY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:24:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43342 "EHLO
+        id S233103AbiJXUO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:14:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233302AbiJXUX3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:23:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E04701CDCDE;
-        Mon, 24 Oct 2022 11:38:53 -0700 (PDT)
+        with ESMTP id S234021AbiJXUNx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:13:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CFBE550AB;
+        Mon, 24 Oct 2022 11:32:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD12161298;
-        Mon, 24 Oct 2022 12:53:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D102EC433C1;
-        Mon, 24 Oct 2022 12:53:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A1DC0CE16D8;
+        Mon, 24 Oct 2022 12:54:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDECCC433B5;
+        Mon, 24 Oct 2022 12:54:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616030;
-        bh=emIx/+3Q8BsgCf+v6rmowQa5eTKpefi3ZwOFOIBfSkg=;
+        s=korg; t=1666616078;
+        bh=wLeGD5lVu1lsgq/jvNvxiLz5HP1zA+sY5Dwb1dXSLoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qM+bLZKEIX0JyXH4/8PHo5oLDX3b5TbTQwHOSaYs6N7QQaU2MrrP3dQWuTWDf2JoA
-         h/lcfPEGO8NXQU3OkCssnmu+7FFJ6zHoT458IBWdHsXDKyYzcRakvOBbd5A2TS57cU
-         xi7exCvECg91tFj0evR9WLRvvdgDCezSiKc7+ACY=
+        b=MgfN6R8pOuxWWDoLePqYXWVS0UM8FZfChbcsad7/d+q+83KnRFVTi55e+FYTgTbvg
+         Wt4wf44hikqrcq9e1dq0+NHqTKiRgK1rObLry1kvNcyydPBCAE9Tj9VQM6FUeF3p1B
+         Tb42H9y2HuRdl/mMiFXRpnU4WuxybTEeEY4Av4lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 475/530] ARM: 9242/1: kasan: Only map modules if CONFIG_KASAN_VMALLOC=n
-Date:   Mon, 24 Oct 2022 13:33:39 +0200
-Message-Id: <20221024113106.539687901@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 491/530] soundwire: cadence: Dont overwrite msg->buf during write commands
+Date:   Mon, 24 Oct 2022 13:33:55 +0200
+Message-Id: <20221024113107.280535494@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,75 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Sverdlin <alexander.sverdlin@nokia.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 823f606ab6b4759a1faf0388abcf4fb0776710d2 ]
+[ Upstream commit ba05b39d265bdd16913f7684600d9d41e2796745 ]
 
-In case CONFIG_KASAN_VMALLOC=y kasan_populate_vmalloc() allocates the
-shadow pages dynamically. But even worse is that kasan_release_vmalloc()
-releases them, which is not compatible with create_mapping() of
-MODULES_VADDR..MODULES_END range:
+The buf passed in struct sdw_msg must only be written for a READ,
+in that case the RDATA part of the response is the data value of the
+register.
 
-BUG: Bad page state in process kworker/9:1  pfn:2068b
-page:e5e06160 refcount:0 mapcount:0 mapping:00000000 index:0x0
-flags: 0x1000(reserved)
-raw: 00001000 e5e06164 e5e06164 00000000 00000000 00000000 ffffffff 00000000
-page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
-bad because of flags: 0x1000(reserved)
-Modules linked in: ip_tables
-CPU: 9 PID: 154 Comm: kworker/9:1 Not tainted 5.4.188-... #1
-Hardware name: LSI Axxia AXM55XX
-Workqueue: events do_free_init
-unwind_backtrace
-show_stack
-dump_stack
-bad_page
-free_pcp_prepare
-free_unref_page
-kasan_depopulate_vmalloc_pte
-__apply_to_page_range
-apply_to_existing_page_range
-kasan_release_vmalloc
-__purge_vmap_area_lazy
-_vm_unmap_aliases.part.0
-__vunmap
-do_free_init
-process_one_work
-worker_thread
-kthread
+For a write command there is no RDATA, and buf should be assumed to
+be const and unmodifable. The original caller should not expect its data
+buffer to be corrupted by an sdw_nwrite().
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220916103505.1562210-1-rf@opensource.cirrus.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/kasan_init.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/soundwire/cadence_master.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/mm/kasan_init.c b/arch/arm/mm/kasan_init.c
-index 4b1619584b23..948ada4a2938 100644
---- a/arch/arm/mm/kasan_init.c
-+++ b/arch/arm/mm/kasan_init.c
-@@ -264,12 +264,17 @@ void __init kasan_init(void)
+diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
+index 4fcc3ba93004..18d2f9b3e201 100644
+--- a/drivers/soundwire/cadence_master.c
++++ b/drivers/soundwire/cadence_master.c
+@@ -545,9 +545,12 @@ cdns_fill_msg_resp(struct sdw_cdns *cdns,
+ 		return SDW_CMD_IGNORED;
+ 	}
  
- 	/*
- 	 * 1. The module global variables are in MODULES_VADDR ~ MODULES_END,
--	 *    so we need to map this area.
-+	 *    so we need to map this area if CONFIG_KASAN_VMALLOC=n. With
-+	 *    VMALLOC support KASAN will manage this region dynamically,
-+	 *    refer to kasan_populate_vmalloc() and ARM's implementation of
-+	 *    module_alloc().
- 	 * 2. PKMAP_BASE ~ PKMAP_BASE+PMD_SIZE's shadow and MODULES_VADDR
- 	 *    ~ MODULES_END's shadow is in the same PMD_SIZE, so we can't
- 	 *    use kasan_populate_zero_shadow.
- 	 */
--	create_mapping((void *)MODULES_VADDR, (void *)(PKMAP_BASE + PMD_SIZE));
-+	if (!IS_ENABLED(CONFIG_KASAN_VMALLOC) && IS_ENABLED(CONFIG_MODULES))
-+		create_mapping((void *)MODULES_VADDR, (void *)(MODULES_END));
-+	create_mapping((void *)PKMAP_BASE, (void *)(PKMAP_BASE + PMD_SIZE));
+-	/* fill response */
+-	for (i = 0; i < count; i++)
+-		msg->buf[i + offset] = FIELD_GET(CDNS_MCP_RESP_RDATA, cdns->response_buf[i]);
++	if (msg->flags == SDW_MSG_FLAG_READ) {
++		/* fill response */
++		for (i = 0; i < count; i++)
++			msg->buf[i + offset] = FIELD_GET(CDNS_MCP_RESP_RDATA,
++							 cdns->response_buf[i]);
++	}
  
- 	/*
- 	 * KAsan may reuse the contents of kasan_early_shadow_pte directly, so
+ 	return SDW_CMD_OK;
+ }
 -- 
 2.35.1
 
