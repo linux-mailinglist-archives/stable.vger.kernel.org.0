@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 540C560ABF1
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9287960AA2E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234829AbiJXN7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:59:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56382 "EHLO
+        id S232526AbiJXNbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:31:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237071AbiJXN7Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:59:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF2CBEAC3;
-        Mon, 24 Oct 2022 05:46:32 -0700 (PDT)
+        with ESMTP id S236027AbiJXN3Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 082F4A46E;
+        Mon, 24 Oct 2022 05:32:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 832C5612DD;
-        Mon, 24 Oct 2022 12:46:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B9F3C433D6;
-        Mon, 24 Oct 2022 12:46:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9403B61311;
+        Mon, 24 Oct 2022 12:28:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3FE4C433D6;
+        Mon, 24 Oct 2022 12:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615591;
-        bh=obz5FPNMsHHx1sO6B0yQTmd5pxFcPPFY4b0ZdeXu71Q=;
+        s=korg; t=1666614505;
+        bh=hDIWTXnFPYaCL2NW+LTf3CWQC5jgrfHnhKhZtQhXzUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DqMOrsMUizOCF5CoEfGZ9V+4bGYnBByog9q5eOCGYbK4dKCGla/VsmG6DLH8dc/0j
-         S7pqd56pIt2gAGzv/sWl1aPFQDd2iVXYGekoNckA3ycb5mlTMzw0LCI9p74j/hJFKy
-         hWIS5C4/qOxoK0XciRFP3VW6akzj25XiIyG62A78=
+        b=PglcMG0eDalz41gy9UovxkjYMW2kqdzwDxQf0pI8fjfsfWQjQPXfrR2RYjukZWNJf
+         Dv0VRSfVVDJJuSIago3V+xHUmKROjembmL3UD3QJrJs2SjgbIGwN/TZgN0RgW+qh9g
+         AqbEs1YIUtIFT5Ml9Q9zipAjviNwYGtw5JDQzA/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 310/530] RDMA/siw: Always consume all skbuf data in sk_data_ready() upcall.
+Subject: [PATCH 5.10 257/390] clk: baikal-t1: Fix invalid xGMAC PTP clock divider
 Date:   Mon, 24 Oct 2022 13:30:54 +0200
-Message-Id: <20221024113059.083190389@linuxfoundation.org>
+Message-Id: <20221024113033.829094938@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernard Metzler <bmt@zurich.ibm.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 754209850df8367c954ac1de7671c7430b1f342c ]
+[ Upstream commit 3c742088686ce922704aec5b11d09bcc5a396589 ]
 
-For header and trailer/padding processing, siw did not consume new
-skb data until minimum amount present to fill current header or trailer
-structure, including potential payload padding. Not consuming any
-data during upcall may cause a receive stall, since tcp_read_sock()
-is not upcalling again if no new data arrive.
-A NFSoRDMA client got stuck at RDMA Write reception of unaligned
-payload, if the current skb did contain only the expected 3 padding
-bytes, but not the 4 bytes CRC trailer. Expecting 4 more bytes already
-arrived in another skb, and not consuming those 3 bytes in the current
-upcall left the Write incomplete, waiting for the CRC forever.
+Most likely due to copy-paste mistake the divider has been set to 10 while
+according to the SoC reference manual it's supposed to be 8 thus having
+PTP clock frequency of 156.25 MHz.
 
-Fixes: 8b6a361b8c48 ("rdma/siw: receive path")
-Reported-by: Olga Kornievskaia <kolga@netapp.com>
-Tested-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
-Link: https://lore.kernel.org/r/20220920081202.223629-1-bmt@zurich.ibm.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: 353afa3a8d2e ("clk: Add Baikal-T1 CCU Dividers driver")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Link: https://lore.kernel.org/r/20220929225402.9696-3-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_qp_rx.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ drivers/clk/baikal-t1/clk-ccu-div.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_qp_rx.c b/drivers/infiniband/sw/siw/siw_qp_rx.c
-index 875ea6f1b04a..fd721cc19682 100644
---- a/drivers/infiniband/sw/siw/siw_qp_rx.c
-+++ b/drivers/infiniband/sw/siw/siw_qp_rx.c
-@@ -961,27 +961,28 @@ int siw_proc_terminate(struct siw_qp *qp)
- static int siw_get_trailer(struct siw_qp *qp, struct siw_rx_stream *srx)
- {
- 	struct sk_buff *skb = srx->skb;
-+	int avail = min(srx->skb_new, srx->fpdu_part_rem);
- 	u8 *tbuf = (u8 *)&srx->trailer.crc - srx->pad;
- 	__wsum crc_in, crc_own = 0;
- 
- 	siw_dbg_qp(qp, "expected %d, available %d, pad %u\n",
- 		   srx->fpdu_part_rem, srx->skb_new, srx->pad);
- 
--	if (srx->skb_new < srx->fpdu_part_rem)
--		return -EAGAIN;
--
--	skb_copy_bits(skb, srx->skb_offset, tbuf, srx->fpdu_part_rem);
-+	skb_copy_bits(skb, srx->skb_offset, tbuf, avail);
- 
--	if (srx->mpa_crc_hd && srx->pad)
--		crypto_shash_update(srx->mpa_crc_hd, tbuf, srx->pad);
-+	srx->skb_new -= avail;
-+	srx->skb_offset += avail;
-+	srx->skb_copied += avail;
-+	srx->fpdu_part_rem -= avail;
- 
--	srx->skb_new -= srx->fpdu_part_rem;
--	srx->skb_offset += srx->fpdu_part_rem;
--	srx->skb_copied += srx->fpdu_part_rem;
-+	if (srx->fpdu_part_rem)
-+		return -EAGAIN;
- 
- 	if (!srx->mpa_crc_hd)
- 		return 0;
- 
-+	if (srx->pad)
-+		crypto_shash_update(srx->mpa_crc_hd, tbuf, srx->pad);
- 	/*
- 	 * CRC32 is computed, transmitted and received directly in NBO,
- 	 * so there's never a reason to convert byte order.
-@@ -1083,10 +1084,9 @@ static int siw_get_hdr(struct siw_rx_stream *srx)
- 	 * completely received.
- 	 */
- 	if (iwarp_pktinfo[opcode].hdr_len > sizeof(struct iwarp_ctrl_tagged)) {
--		bytes = iwarp_pktinfo[opcode].hdr_len - MIN_DDP_HDR;
-+		int hdrlen = iwarp_pktinfo[opcode].hdr_len;
- 
--		if (srx->skb_new < bytes)
--			return -EAGAIN;
-+		bytes = min_t(int, hdrlen - MIN_DDP_HDR, srx->skb_new);
- 
- 		skb_copy_bits(skb, srx->skb_offset,
- 			      (char *)c_hdr + srx->fpdu_part_rcvd, bytes);
-@@ -1096,6 +1096,9 @@ static int siw_get_hdr(struct siw_rx_stream *srx)
- 		srx->skb_new -= bytes;
- 		srx->skb_offset += bytes;
- 		srx->skb_copied += bytes;
-+
-+		if (srx->fpdu_part_rcvd < hdrlen)
-+			return -EAGAIN;
- 	}
- 
- 	/*
+diff --git a/drivers/clk/baikal-t1/clk-ccu-div.c b/drivers/clk/baikal-t1/clk-ccu-div.c
+index f141fda12b09..ea77eec40ddd 100644
+--- a/drivers/clk/baikal-t1/clk-ccu-div.c
++++ b/drivers/clk/baikal-t1/clk-ccu-div.c
+@@ -207,7 +207,7 @@ static const struct ccu_div_info sys_info[] = {
+ 	CCU_DIV_GATE_INFO(CCU_SYS_XGMAC_REF_CLK, "sys_xgmac_ref_clk",
+ 			  "eth_clk", CCU_SYS_XGMAC_BASE, 8),
+ 	CCU_DIV_FIXED_INFO(CCU_SYS_XGMAC_PTP_CLK, "sys_xgmac_ptp_clk",
+-			   "eth_clk", 10),
++			   "eth_clk", 8),
+ 	CCU_DIV_GATE_INFO(CCU_SYS_USB_CLK, "sys_usb_clk",
+ 			  "eth_clk", CCU_SYS_USB_BASE, 10),
+ 	CCU_DIV_VAR_INFO(CCU_SYS_PVT_CLK, "sys_pvt_clk",
 -- 
 2.35.1
 
