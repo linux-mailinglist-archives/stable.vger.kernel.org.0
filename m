@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA16960A541
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:22:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E992560A5EC
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233513AbiJXMWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:22:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41256 "EHLO
+        id S233848AbiJXMa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:30:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233305AbiJXMUi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:20:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC18B7C19F;
-        Mon, 24 Oct 2022 04:59:03 -0700 (PDT)
+        with ESMTP id S233948AbiJXM3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 843962677;
+        Mon, 24 Oct 2022 05:02:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4325C612CC;
-        Mon, 24 Oct 2022 11:58:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57FA3C433D6;
-        Mon, 24 Oct 2022 11:58:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 516BBB81201;
+        Mon, 24 Oct 2022 11:59:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9975C433D6;
+        Mon, 24 Oct 2022 11:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612687;
-        bh=Enjz/4GrQEe05c4RvFIjHeawUyag1ck9dA7+R5QI1io=;
+        s=korg; t=1666612796;
+        bh=deb/+f+bTm4Ytyvf8OL7N3yZQGGpLOBi7QxH7ZECr8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tZVmwz6v4Y05JqjJrUTkFIgqe4lYwMsvyhVoFmfTOimEqZRsQMnB3xdGWwl86lkA
-         nLRYv4iIuqWYG5qIGIG8fRXASF438l/jDcvNhp3/mNvtFuNRfR85S8x+dUxrngnDH6
-         vb2AxxODEfU0u+YrWv4wqDE7IcXWcZ8xzeMVBLzk=
+        b=TgigPlLQVbYgO5449soBZfXp8F3lTBQy6MRK8yMjJaUegaMsWoTSJW3JNBP4RZT5S
+         z9UuM/TqaozYETVO4KqY+Sxih1BOLTu2ISUYJvrxEinJkg2luEilETnAdcyrSAcgFQ
+         b5V5ewqcXf00X1f0tSNZqL6ps5hkCuOvQnvpVSKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 080/229] wifi: rtl8xxxu: gen2: Fix mistake in path B IQ calibration
-Date:   Mon, 24 Oct 2022 13:29:59 +0200
-Message-Id: <20221024113001.658750801@linuxfoundation.org>
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 081/229] net: fs_enet: Fix wrong check in do_pd_setup
+Date:   Mon, 24 Oct 2022 13:30:00 +0200
+Message-Id: <20221024113001.693575220@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
 References: <20221024112959.085534368@linuxfoundation.org>
@@ -52,44 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit e963a19c64ac0d2f8785d36a27391abd91ac77aa ]
+[ Upstream commit ec3f06b542a960806a81345042e4eee3f8c5dec4 ]
 
-Found by comparing with the vendor driver. Currently this affects
-only the RTL8192EU, which is the only gen2 chip with 2 TX paths
-supported by this driver. It's unclear what kind of effect the
-mistake had in practice, since I don't have any RTL8192EU devices
-to test it.
+Should check of_iomap return value 'fep->fec.fecp' instead of 'fep->fcc.fccp'
 
-Fixes: e1547c535ede ("rtl8xxxu: First stab at adding IQK calibration for 8723bu parts")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/30a59f3a-cfa9-8379-7af0-78a8f4c77cfd@gmail.com
+Fixes: 976de6a8c304 ("fs_enet: Be an of_platform device when CONFIG_PPC_CPM_NEW_BINDING is set.")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/fs_enet/mac-fec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index ccd76c1da40c..38f06ee98b35 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -2930,12 +2930,12 @@ bool rtl8xxxu_gen2_simularity_compare(struct rtl8xxxu_priv *priv,
- 		}
+diff --git a/drivers/net/ethernet/freescale/fs_enet/mac-fec.c b/drivers/net/ethernet/freescale/fs_enet/mac-fec.c
+index 99fe2c210d0f..61f4b6e50d29 100644
+--- a/drivers/net/ethernet/freescale/fs_enet/mac-fec.c
++++ b/drivers/net/ethernet/freescale/fs_enet/mac-fec.c
+@@ -98,7 +98,7 @@ static int do_pd_setup(struct fs_enet_private *fep)
+ 		return -EINVAL;
  
- 		if (!(simubitmap & 0x30) && priv->tx_paths > 1) {
--			/* path B RX OK */
-+			/* path B TX OK */
- 			for (i = 4; i < 6; i++)
- 				result[3][i] = result[c1][i];
- 		}
+ 	fep->fec.fecp = of_iomap(ofdev->dev.of_node, 0);
+-	if (!fep->fcc.fccp)
++	if (!fep->fec.fecp)
+ 		return -EINVAL;
  
--		if (!(simubitmap & 0x30) && priv->tx_paths > 1) {
-+		if (!(simubitmap & 0xc0) && priv->tx_paths > 1) {
- 			/* path B RX OK */
- 			for (i = 6; i < 8; i++)
- 				result[3][i] = result[c1][i];
+ 	return 0;
 -- 
 2.35.1
 
