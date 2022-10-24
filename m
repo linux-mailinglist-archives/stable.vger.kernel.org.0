@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D3F60A7EF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9999360A976
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234921AbiJXNAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41042 "EHLO
+        id S231761AbiJXNVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:21:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235110AbiJXM7V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:21 -0400
+        with ESMTP id S236403AbiJXNUW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:20:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E6E80F67;
-        Mon, 24 Oct 2022 05:18:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB30A1A20D;
+        Mon, 24 Oct 2022 05:29:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEC82612D6;
-        Mon, 24 Oct 2022 12:17:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB8A6C433C1;
-        Mon, 24 Oct 2022 12:17:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA4C061314;
+        Mon, 24 Oct 2022 12:17:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE36C433C1;
+        Mon, 24 Oct 2022 12:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613847;
-        bh=YgOEx818IrQxGo5DVu69YsFYIA0M4LK5XBmFFGCtB00=;
+        s=korg; t=1666613850;
+        bh=uBbLc8QAgT9cQGnph4PMHqBIqShqWIcTjog/nTwhBok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j8/hWM6+emjNv2uIo4uBx8G64o6RUr3EJsYqO6pk1ipUwhNvp1y9pP2CI5mzqD2ah
-         ZBZbdqqIv8m8i7UQM+oaVd8qxGhT4DNgazoG4YCBH37eeLXyiSop1JZ0EZ4w3Q3zgv
-         XZBWLlbZfD5wAxoR2zTNohI50QduC0wuXB3TVHYE=
+        b=xAzQ9259mo7XcfnjvBhTCwnQQE8lO8k6Wr1tA+xKsXNA6KBTyfCrO45mtaoO3YvoW
+         TCPjbme9MqNpSlmDwfHM31cmYBtfD1IQVP69z1CkHl/I4wAB9gEwqIblUMN3r1ph2U
+         UcJQRCksfTlz3o6Op25FUxp83KX2MLeAudt2Rtro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fangrui Song <maskray@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.10 036/390] riscv: Pass -mno-relax only on lld < 15.0.0
-Date:   Mon, 24 Oct 2022 13:27:13 +0200
-Message-Id: <20221024113024.151598905@linuxfoundation.org>
+        stable@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.10 037/390] UM: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
+Date:   Mon, 24 Oct 2022 13:27:14 +0200
+Message-Id: <20221024113024.190058996@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -55,51 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-commit 3cebf80e9a0d3adcb174053be32c88a640b3344b upstream.
+commit 16c546e148fa6d14a019431436a6f7b4087dbccd upstream.
 
-lld since llvm:6611d58f5bbc ("[ELF] Relax R_RISCV_ALIGN"), which will be
-included in the 15.0.0 release, has implemented some RISC-V linker
-relaxation.  -mno-relax is no longer needed in
-KBUILD_CFLAGS/KBUILD_AFLAGS to suppress R_RISCV_ALIGN which older lld
-can not handle:
+When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
+cpu_max_bits_warn() generates a runtime warning similar as below while
+we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
+instead of NR_CPUS to iterate CPUs.
 
-    ld.lld: error: capability.c:(.fixup+0x0): relocation R_RISCV_ALIGN
-    requires unimplemented linker relaxation; recompile with -mno-relax
-    but the .o is already compiled with -mno-relax
+[    3.052463] ------------[ cut here ]------------
+[    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
+[    3.070072] Modules linked in: efivarfs autofs4
+[    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
+[    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
+[    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
+[    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
+[    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
+[    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
+[    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
+[    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
+[    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
+[    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
+[    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
+[    3.195868]         ...
+[    3.199917] Call Trace:
+[    3.203941] [<90000000002086d8>] show_stack+0x38/0x14c
+[    3.210666] [<9000000000cf846c>] dump_stack_lvl+0x60/0x88
+[    3.217625] [<900000000023d268>] __warn+0xd0/0x100
+[    3.223958] [<9000000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
+[    3.231150] [<9000000000210220>] show_cpuinfo+0x5e8/0x5f0
+[    3.238080] [<90000000004f578c>] seq_read_iter+0x354/0x4b4
+[    3.245098] [<90000000004c2e90>] new_sync_read+0x17c/0x1c4
+[    3.252114] [<90000000004c5174>] vfs_read+0x138/0x1d0
+[    3.258694] [<90000000004c55f8>] ksys_read+0x70/0x100
+[    3.265265] [<9000000000cfde9c>] do_syscall+0x7c/0x94
+[    3.271820] [<9000000000202fe4>] handle_syscall+0xc4/0x160
+[    3.281824] ---[ end trace 8b484262b4b8c24c ]---
 
-Signed-off-by: Fangrui Song <maskray@google.com>
-Link: https://lore.kernel.org/r/20220710071117.446112-1-maskray@google.com/
-Link: https://lore.kernel.org/r/20220918092933.19943-1-palmer@rivosinc.com
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Tested-by: Conor Dooley <conor.dooley@microchip.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/Makefile |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/um/kernel/um_arch.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -37,6 +37,7 @@ else
- endif
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -77,7 +77,7 @@ static int show_cpuinfo(struct seq_file
  
- ifeq ($(CONFIG_LD_IS_LLD),y)
-+ifeq ($(shell test $(CONFIG_LLD_VERSION) -lt 150000; echo $$?),0)
- 	KBUILD_CFLAGS += -mno-relax
- 	KBUILD_AFLAGS += -mno-relax
- ifneq ($(LLVM_IAS),1)
-@@ -44,6 +45,7 @@ ifneq ($(LLVM_IAS),1)
- 	KBUILD_AFLAGS += -Wa,-mno-relax
- endif
- endif
-+endif
+ static void *c_start(struct seq_file *m, loff_t *pos)
+ {
+-	return *pos < NR_CPUS ? cpu_data + *pos : NULL;
++	return *pos < nr_cpu_ids ? cpu_data + *pos : NULL;
+ }
  
- # ISA string setting
- riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32ima
+ static void *c_next(struct seq_file *m, void *v, loff_t *pos)
 
 
