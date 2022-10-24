@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E8EF60AB83
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:53:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33A4C60AA57
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236688AbiJXNxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:53:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33700 "EHLO
+        id S233103AbiJXNcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:32:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236587AbiJXNwb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:52:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA9BBBE0A;
-        Mon, 24 Oct 2022 05:42:59 -0700 (PDT)
+        with ESMTP id S236382AbiJXNa4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:30:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4553F30E;
+        Mon, 24 Oct 2022 05:33:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A34D1612DB;
-        Mon, 24 Oct 2022 12:33:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B152FC433C1;
-        Mon, 24 Oct 2022 12:33:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94FF26128E;
+        Mon, 24 Oct 2022 12:33:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8670C433D6;
+        Mon, 24 Oct 2022 12:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614812;
-        bh=T4Ozote5ofGZsCoOMfGv7YLbiSsfVErFbOMzse5Qypk=;
+        s=korg; t=1666614820;
+        bh=fS92YeGgAE7/jfevSZZ9qKCTlZHn8Zq5p+Rkx1Cwmg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KE/GkbJUNa9Rr5xXySrngOU2A2MkMEHszr+yrM3fgoPh2GBKvYTD0uerHXPT6Gkd9
-         pZwefpYgWsEdo0joOdQokTYrnjCexlraJtIrNR1ZqSKgwD1BWLc8bWO8YuXBVj25Ej
-         rmt10oflc3x8mh95dpIcak43rDKemcU2ZDRyLvwY=
+        b=0JWnIHHd3cDG6Bwk0DiZ/nbNvs5Ig+HUwu1VyE04J/7ZubpeI37b613PuqWG8mV6O
+         TFr3vViv8xDkGBKwSJ1aqmwEjczGbruSxyb2N4J8gErprVd0E/pKkMKgSLPXEhNuqH
+         +ScNq+r7z1us6CmtBPqxh4SalE+OIm8WbLPq9GpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Enzo Matsumiya <ematsumiya@suse.de>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 013/530] cifs: destage dirty pages before re-reading them for cache=none
-Date:   Mon, 24 Oct 2022 13:25:57 +0200
-Message-Id: <20221024113045.610915309@linuxfoundation.org>
+        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Denys Zagorui <dzagorui@cisco.com>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.15 016/530] iio: ltc2497: Fix reading conversion results
+Date:   Mon, 24 Oct 2022 13:26:00 +0200
+Message-Id: <20221024113045.756200162@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,44 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-commit bb44c31cdcac107344dd2fcc3bd0504a53575c51 upstream.
+commit 7f4f1096d5921f5d90547596f9ce80e0b924f887 upstream.
 
-This is the opposite case of kernel bugzilla 216301.
-If we mmap a file using cache=none and then proceed to update the mmapped
-area these updates are not reflected in a later pread() of that part of the
-file.
-To fix this we must first destage any dirty pages in the range before
-we allow the pread() to proceed.
+After the result of the previous conversion is read the chip
+automatically starts a new conversion and doesn't accept new i2c
+transfers until this conversion is completed which makes the function
+return failure.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Enzo Matsumiya <ematsumiya@suse.de>
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+So add an early return iff the programming of the new address isn't
+needed. Note this will not fix the problem in general, but all cases
+that are currently used. Once this changes we get the failure back, but
+this can be addressed when the need arises.
+
+Fixes: 69548b7c2c4f ("iio: adc: ltc2497: split protocol independent part in a separate module ")
+Reported-by: Meng Li <Meng.Li@windriver.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Tested-by: Denys Zagorui <dzagorui@cisco.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220815091647.1523532-1-dzagorui@cisco.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/file.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/iio/adc/ltc2497.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -4015,6 +4015,15 @@ static ssize_t __cifs_readv(
- 		len = ctx->len;
+--- a/drivers/iio/adc/ltc2497.c
++++ b/drivers/iio/adc/ltc2497.c
+@@ -41,6 +41,19 @@ static int ltc2497_result_and_measure(st
+ 		}
+ 
+ 		*val = (be32_to_cpu(st->buf) >> 14) - (1 << 17);
++
++		/*
++		 * The part started a new conversion at the end of the above i2c
++		 * transfer, so if the address didn't change since the last call
++		 * everything is fine and we can return early.
++		 * If not (which should only happen when some sort of bulk
++		 * conversion is implemented) we have to program the new
++		 * address. Note that this probably fails as the conversion that
++		 * was triggered above is like not complete yet and the two
++		 * operations have to be done in a single transfer.
++		 */
++		if (ddata->addr_prev == address)
++			return 0;
  	}
  
-+	if (direct) {
-+		rc = filemap_write_and_wait_range(file->f_inode->i_mapping,
-+						  offset, offset + len - 1);
-+		if (rc) {
-+			kref_put(&ctx->refcount, cifs_aio_ctx_release);
-+			return -EAGAIN;
-+		}
-+	}
-+
- 	/* grab a lock here due to read response handlers can access ctx */
- 	mutex_lock(&ctx->aio_mutex);
- 
+ 	ret = i2c_smbus_write_byte(st->client,
 
 
