@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D38BE60B1F2
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:41:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D6AF60B1F0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:41:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231937AbiJXQlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:41:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33532 "EHLO
+        id S234443AbiJXQlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:41:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234409AbiJXQkn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:40:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC4B417D2B9;
-        Mon, 24 Oct 2022 08:28:00 -0700 (PDT)
+        with ESMTP id S234469AbiJXQk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:40:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81744C897E;
+        Mon, 24 Oct 2022 08:27:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B29D1B819A1;
-        Mon, 24 Oct 2022 12:42:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1404FC433D7;
-        Mon, 24 Oct 2022 12:42:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CB64B8199D;
+        Mon, 24 Oct 2022 12:42:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0794AC433D6;
+        Mon, 24 Oct 2022 12:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615366;
-        bh=LMiQSmINL+WpJ+Efxa9vMNxwvWoH4bT4QVIx9zBBdls=;
+        s=korg; t=1666615374;
+        bh=JPKDlQyX1Or2SBLLYAGOShYpJEat7kKOamVfIL6mTxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r0wdbdZGjjYDIyOK5jFyxg16xUbD63kxXyb+pCEsQMkd8qYsOY1EEt5HLpNmhFXKF
-         1wJeCZVgdshJboGBptVGV57gxYFEqMeLIodrUkboPYpn+j4PnN0jorXyh3s+ZjoNUX
-         OqjGnnVAoHjGkz/IFVOWD5c1ZCYrUyeV6U6H2YL4=
+        b=k2A3GJDAweXGWSsB6gLsHUkEhC3H1abonswXTI+zI6iqnrTEql7r9/Xe0M1X853Pi
+         Qc/9jS84l1iUxMeP0CSKX8SiQeqIWBnGxqI3JgFryaCrmAFwEq49HQu7F7mOsfiem2
+         FhOcz8WqSP4x0HJXaIHjUA/6NPifkOvbky+7gHgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 223/530] platform/x86: msi-laptop: Fix resource cleanup
-Date:   Mon, 24 Oct 2022 13:29:27 +0200
-Message-Id: <20221024113055.188300528@linuxfoundation.org>
+Subject: [PATCH 5.15 225/530] drm/amdgpu: add missing pci_disable_device() in amdgpu_pmops_runtime_resume()
+Date:   Mon, 24 Oct 2022 13:29:29 +0200
+Message-Id: <20221024113055.272733791@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -52,43 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 5523632aa10f906dfe2eb714ee748590dc7fc6b1 ]
+[ Upstream commit 6b11af6d1c8f5d4135332bb932baaa06e511173d ]
 
-Fix the input-device not getting free-ed on probe-errors and
-fix the msi_touchpad_dwork not getting cancelled on neither
-probe-errors nor on remove.
+Add missing pci_disable_device() if amdgpu_device_resume() fails.
 
-Fixes: 143a4c0284dc ("msi-laptop: send out touchpad on/off key")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220825141336.208597-3-hdegoede@redhat.com
+Fixes: 8e4d5d43cc6c ("drm/amdgpu: Handling of amdgpu_device_resume return value for graceful teardown")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/msi-laptop.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
-index 0960205ee49f..3e935303b143 100644
---- a/drivers/platform/x86/msi-laptop.c
-+++ b/drivers/platform/x86/msi-laptop.c
-@@ -1116,6 +1116,8 @@ static int __init msi_init(void)
- fail_create_group:
- 	if (quirks->load_scm_model) {
- 		i8042_remove_filter(msi_laptop_i8042_filter);
-+		cancel_delayed_work_sync(&msi_touchpad_dwork);
-+		input_unregister_device(msi_laptop_input_dev);
- 		cancel_delayed_work_sync(&msi_rfkill_dwork);
- 		cancel_work_sync(&msi_rfkill_work);
- 		rfkill_cleanup();
-@@ -1136,6 +1138,7 @@ static void __exit msi_cleanup(void)
- {
- 	if (quirks->load_scm_model) {
- 		i8042_remove_filter(msi_laptop_i8042_filter);
-+		cancel_delayed_work_sync(&msi_touchpad_dwork);
- 		input_unregister_device(msi_laptop_input_dev);
- 		cancel_delayed_work_sync(&msi_rfkill_dwork);
- 		cancel_work_sync(&msi_rfkill_work);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index f65b4b233ffb..28dea2eb61c7 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -2415,8 +2415,11 @@ static int amdgpu_pmops_runtime_resume(struct device *dev)
+ 		amdgpu_device_baco_exit(drm_dev);
+ 	}
+ 	ret = amdgpu_device_resume(drm_dev, false);
+-	if (ret)
++	if (ret) {
++		if (amdgpu_device_supports_px(drm_dev))
++			pci_disable_device(pdev);
+ 		return ret;
++	}
+ 
+ 	if (amdgpu_device_supports_px(drm_dev))
+ 		drm_dev->switch_power_state = DRM_SWITCH_POWER_ON;
 -- 
 2.35.1
 
