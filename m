@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C069160A9D9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC2B560A602
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232273AbiJXNZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:25:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47304 "EHLO
+        id S233876AbiJXMbS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:31:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236136AbiJXNY3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:24:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECDCD9AFC2;
-        Mon, 24 Oct 2022 05:30:41 -0700 (PDT)
+        with ESMTP id S234152AbiJXM32 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EB1788DCA;
+        Mon, 24 Oct 2022 05:03:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EAE5612DD;
-        Mon, 24 Oct 2022 12:27:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3390DC433D6;
-        Mon, 24 Oct 2022 12:27:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EDB91B811E0;
+        Mon, 24 Oct 2022 12:00:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51F3CC433D7;
+        Mon, 24 Oct 2022 12:00:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614439;
-        bh=64gELA0nUsV9N2NViMDvTXlYD/PS9XrRDXeAPBJL2d8=;
+        s=korg; t=1666612843;
+        bh=chCnK0CTUE8MKF84sALHRdUDz6uWT3Lh249NPivG9qI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rpdbnwu7YXgTy+FbHOJZLPpCAPgypD9REhfjLHeW9t9x881IVcZPkg04Mzlmw/pP6
-         gSExtAygP7zr5+LU39G/QgGJVK+a7oEFmKKZlo+e7IuRNneLeEHsFOWGEOe8KONy55
-         OV6MPGZ+LUaJKDxMl5s//yvPbWCiUOWhkM9m4zWM=
+        b=DHTm01rKIgI+yuO48s4aeQxaqpMO+hCwxRos3uJDAxrxsiuh3RHFdThKzgZlmQmxW
+         As6p3ten/adgPboEhRM0IMjhvOLuW/nrl+kWcC1+55MleUxnaqycsbOm/kjAMV+bO6
+         QllOi8Xu9XOjeJupbv48lx63dHABgqiSk2eirRzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Song Liu <song@kernel.org>,
+        Logan Gunthorpe <logang@deltatee.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 262/390] clk: ast2600: BCLK comes from EPLL
+Subject: [PATCH 4.19 140/229] md/raid5: Ensure stripe_fill happens on non-read IO with journal
 Date:   Mon, 24 Oct 2022 13:30:59 +0200
-Message-Id: <20221024113034.040784273@linuxfoundation.org>
+Message-Id: <20221024113003.540404190@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit b8c1dc9c00b252b3be853720a71b05ed451ddd9f ]
+[ Upstream commit e2eed85bc75138a9eeb63863d20f8904ac42a577 ]
 
-This correction was made in the u-boot SDK recently. There are no
-in-tree users of this clock so the impact is minimal.
+When doing degrade/recover tests using the journal a kernel BUG
+is hit at drivers/md/raid5.c:4381 in handle_parity_checks5():
 
-Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
-Link: https://github.com/AspeedTech-BMC/u-boot/commit/8ad54a5ae15f27fea5e894cc2539a20d90019717
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Link: https://lore.kernel.org/r/20220421040426.171256-1-joel@jms.id.au
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+  BUG_ON(!test_bit(R5_UPTODATE, &dev->flags));
+
+This was found to occur because handle_stripe_fill() was skipped
+for stripes in the journal due to a condition in that function.
+Thus blocks were not fetched and R5_UPTODATE was not set when
+the code reached handle_parity_checks5().
+
+To fix this, don't skip handle_stripe_fill() unless the stripe is
+for read.
+
+Fixes: 07e83364845e ("md/r5cache: shift complex rmw from read path to write path")
+Link: https://lore.kernel.org/linux-raid/e05c4239-41a9-d2f7-3cfa-4aa9d2cea8c1@deltatee.com/
+Suggested-by: Song Liu <song@kernel.org>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-ast2600.c | 2 +-
+ drivers/md/raid5.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
-index 24dab2312bc6..9c3305bcb27a 100644
---- a/drivers/clk/clk-ast2600.c
-+++ b/drivers/clk/clk-ast2600.c
-@@ -622,7 +622,7 @@ static int aspeed_g6_clk_probe(struct platform_device *pdev)
- 	regmap_write(map, 0x308, 0x12000); /* 3x3 = 9 */
- 
- 	/* P-Bus (BCLK) clock divider */
--	hw = clk_hw_register_divider_table(dev, "bclk", "hpll", 0,
-+	hw = clk_hw_register_divider_table(dev, "bclk", "epll", 0,
- 			scu_g6_base + ASPEED_G6_CLK_SELECTION1, 20, 3, 0,
- 			ast2600_div_table,
- 			&aspeed_g6_clk_lock);
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 6f04473f0838..3310f670a4ab 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -3723,7 +3723,7 @@ static void handle_stripe_fill(struct stripe_head *sh,
+ 		 * back cache (prexor with orig_page, and then xor with
+ 		 * page) in the read path
+ 		 */
+-		if (s->injournal && s->failed) {
++		if (s->to_read && s->injournal && s->failed) {
+ 			if (test_bit(STRIPE_R5C_CACHING, &sh->state))
+ 				r5c_make_stripe_write_out(sh);
+ 			goto out;
 -- 
 2.35.1
 
