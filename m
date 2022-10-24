@@ -2,44 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D56960AC64
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 842ED60AC56
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234670AbiJXOGT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:06:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60076 "EHLO
+        id S233444AbiJXOF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:05:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235626AbiJXODL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:03:11 -0400
+        with ESMTP id S235392AbiJXOCu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93CA6C1485;
-        Mon, 24 Oct 2022 05:48:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A709083D;
+        Mon, 24 Oct 2022 05:48:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6363D6129B;
-        Mon, 24 Oct 2022 12:48:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73169C433C1;
-        Mon, 24 Oct 2022 12:48:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8544C612E6;
+        Mon, 24 Oct 2022 12:28:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69A34C433C1;
+        Mon, 24 Oct 2022 12:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615686;
-        bh=qWqlig6IlzpHHxfd14zNaM8RXMalHFwmu12oJV+HDCI=;
+        s=korg; t=1666614525;
+        bh=la6Focf99ixLU4gXyDPCNI6jI7AOOZrRr8SSC+3kks4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gZtN+Cl7CkwRgJtkFaOAx31/P/mdVcq6+gN2s6fdSMtDU8SrNFmCN6/wR1x8XGiU3
-         kfmMpeEIP6uOYbcFGxLihIrWE2DnzGd+H3cwYwcDIISfTeAE0TGFRjNSKMKIsQt8LY
-         5p05sNIIhceIeLEmLN3HN3Mx84YB/cMCcBbrX0Vo=
+        b=KiYibeJ+4YFAQx1zcFpOkZgBQGYXmQbXn5+7NM8+ZKwFCvZNt+AYEMryAmdI1uO4b
+         u4FfC6q5IgHr6XQUUIouc99mGgXIN1fTn6S4Io1DcVg/eCCQS5UZSaEu6CRIq23e9B
+         tSH1gH/gWCJ3cCiddYS0STlGfIdNRVwvuB1ZRco8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Martin Kaiser <martin@kaiser.cx>, Lee Jones <lee@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 345/530] mfd: fsl-imx25: Fix check for platform_get_irq() errors
-Date:   Mon, 24 Oct 2022 13:31:29 +0200
-Message-Id: <20221024113100.625794445@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Michal Hocko <mhocko@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 295/390] rcu: Back off upon fill_page_cache_func() allocation failure
+Date:   Mon, 24 Oct 2022 13:31:32 +0200
+Message-Id: <20221024113035.566284035@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +61,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Michal Hocko <mhocko@suse.com>
 
-[ Upstream commit 75db7907355ca5e2ff606e9dd3e86b6c3a455fe2 ]
+[ Upstream commit 093590c16b447f53e66771c8579ae66c96f6ef61 ]
 
-The mx25_tsadc_remove() function assumes all non-zero returns are success
-but the platform_get_irq() function returns negative on error and
-positive non-zero values on success.  It never returns zero, but if it
-did then treat that as a success.
+The fill_page_cache_func() function allocates couple of pages to store
+kvfree_rcu_bulk_data structures. This is a lightweight (GFP_NORETRY)
+allocation which can fail under memory pressure. The function will,
+however keep retrying even when the previous attempt has failed.
 
-Fixes: 18f773937968 ("mfd: fsl-imx25: Clean up irq settings during removal")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Martin Kaiser <martin@kaiser.cx>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/YvTfkbVQWYKMKS/t@kili
+This retrying is in theory correct, but in practice the allocation is
+invoked from workqueue context, which means that if the memory reclaim
+gets stuck, these retries can hog the worker for quite some time.
+Although the workqueues subsystem automatically adjusts concurrency, such
+adjustment is not guaranteed to happen until the worker context sleeps.
+And the fill_page_cache_func() function's retry loop is not guaranteed
+to sleep (see the should_reclaim_retry() function).
+
+And we have seen this function cause workqueue lockups:
+
+kernel: BUG: workqueue lockup - pool cpus=93 node=1 flags=0x1 nice=0 stuck for 32s!
+[...]
+kernel: pool 74: cpus=37 node=0 flags=0x1 nice=0 hung=32s workers=2 manager: 2146
+kernel:   pwq 498: cpus=249 node=1 flags=0x1 nice=0 active=4/256 refcnt=5
+kernel:     in-flight: 1917:fill_page_cache_func
+kernel:     pending: dbs_work_handler, free_work, kfree_rcu_monitor
+
+Originally, we thought that the root cause of this lockup was several
+retries with direct reclaim, but this is not yet confirmed.  Furthermore,
+we have seen similar lockups without any heavy memory pressure.  This
+suggests that there are other factors contributing to these lockups.
+However, it is not really clear that endless retries are desireable.
+
+So let's make the fill_page_cache_func() function back off after
+allocation failure.
+
+Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Frederic Weisbecker <frederic@kernel.org>
+Cc: Neeraj Upadhyay <quic_neeraju@quicinc.com>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/fsl-imx25-tsadc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/rcu/tree.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/mfd/fsl-imx25-tsadc.c b/drivers/mfd/fsl-imx25-tsadc.c
-index 85f7982d26d2..823595bcc9b7 100644
---- a/drivers/mfd/fsl-imx25-tsadc.c
-+++ b/drivers/mfd/fsl-imx25-tsadc.c
-@@ -69,7 +69,7 @@ static int mx25_tsadc_setup_irq(struct platform_device *pdev,
- 	int irq;
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index b41009a283ca..b10d6bcea77d 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -3393,15 +3393,16 @@ static void fill_page_cache_func(struct work_struct *work)
+ 		bnode = (struct kvfree_rcu_bulk_data *)
+ 			__get_free_page(GFP_KERNEL | __GFP_NORETRY | __GFP_NOMEMALLOC | __GFP_NOWARN);
  
- 	irq = platform_get_irq(pdev, 0);
--	if (irq <= 0)
-+	if (irq < 0)
- 		return irq;
+-		if (bnode) {
+-			raw_spin_lock_irqsave(&krcp->lock, flags);
+-			pushed = put_cached_bnode(krcp, bnode);
+-			raw_spin_unlock_irqrestore(&krcp->lock, flags);
++		if (!bnode)
++			break;
  
- 	tsadc->domain = irq_domain_add_simple(np, 2, 0, &mx25_tsadc_domain_ops,
-@@ -89,7 +89,7 @@ static int mx25_tsadc_unset_irq(struct platform_device *pdev)
- 	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
- 	int irq = platform_get_irq(pdev, 0);
- 
--	if (irq) {
-+	if (irq >= 0) {
- 		irq_set_chained_handler_and_data(irq, NULL, NULL);
- 		irq_domain_remove(tsadc->domain);
+-			if (!pushed) {
+-				free_page((unsigned long) bnode);
+-				break;
+-			}
++		raw_spin_lock_irqsave(&krcp->lock, flags);
++		pushed = put_cached_bnode(krcp, bnode);
++		raw_spin_unlock_irqrestore(&krcp->lock, flags);
++
++		if (!pushed) {
++			free_page((unsigned long) bnode);
++			break;
+ 		}
  	}
+ 
 -- 
 2.35.1
 
