@@ -2,157 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 305AD60BF1A
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 01:55:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5346C60BD0C
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 00:04:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230273AbiJXXzy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 19:55:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54858 "EHLO
+        id S231964AbiJXWEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 18:04:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230289AbiJXXza (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 19:55:30 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32EBD33D67C
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 15:12:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666649538;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=jqegOKwKp0b5k01538L+8elHQKTxwvJermmvNJSeQ8I=;
-        b=LWkNnUJDr7VmwoMGUA/aJs0CjN12Ro0pD/81EAbZCMxYHjLn54hKKZ5PW1SRxt1CZJiFFt
-        Oo7oJiqErgK0leAHOR+EVi4z1bqA5gqvd1T4ZKBbXRvrhq6pOQhyjOvmuemuvBifICEvOY
-        SFzill305smREWD/ayEZ//Rik2Lz9eI=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-135-O_QEXEtDO8y_40DJ98iRpw-1; Mon, 24 Oct 2022 13:44:51 -0400
-X-MC-Unique: O_QEXEtDO8y_40DJ98iRpw-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S232101AbiJXWEI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 18:04:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BC9231F99;
+        Mon, 24 Oct 2022 13:18:04 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8B99B8027FD;
-        Mon, 24 Oct 2022 17:44:50 +0000 (UTC)
-Received: from llong.com (dhcp-17-153.bos.redhat.com [10.18.17.153])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 40FAA492B0F;
-        Mon, 24 Oct 2022 17:44:50 +0000 (UTC)
-From:   Waiman Long <longman@redhat.com>
-To:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, john.p.donnelly@oracle.com,
-        Hillf Danton <hdanton@sina.com>,
-        Mukesh Ojha <quic_mojha@quicinc.com>,
-        =?UTF-8?q?Ting11=20Wang=20=E7=8E=8B=E5=A9=B7?= 
-        <wangting11@xiaomi.com>, Waiman Long <longman@redhat.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v4 1/5] locking/rwsem: Prevent non-first waiter from spinning in down_write() slowpath
-Date:   Mon, 24 Oct 2022 13:44:14 -0400
-Message-Id: <20221024174418.796468-2-longman@redhat.com>
-In-Reply-To: <20221024174418.796468-1-longman@redhat.com>
-References: <20221024174418.796468-1-longman@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4975FB8120F;
+        Mon, 24 Oct 2022 20:07:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D71D6C433C1;
+        Mon, 24 Oct 2022 20:06:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1666642019;
+        bh=vWbPVZTXG42ttaagmZ8ZUhLXVfrABJDS3zn58Z/nGgw=;
+        h=Date:To:From:Subject:From;
+        b=o1e+byaEVltsUaCg3V7wRwvp95Z2TgmDqRWfyIa8zK9efQbWyQF8fKFWWnS/CfWmj
+         7atPzwtFSegifSL2e8g1EnSLZ60xLoxI2zcUBWWXtZ5I/Yh4CVUunD0dhnJ0pRrlbi
+         qrUBxB9YH1jiP7BaBNB4wDfIupdFDL+ryLDGW0xM=
+Date:   Mon, 24 Oct 2022 13:06:59 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        nadav.amit@gmail.com, axelrasmussen@google.com,
+        aarcange@redhat.com, peterx@redhat.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-uffd-fix-vma-check-on-userfault-for-wp.patch added to mm-hotfixes-unstable branch
+Message-Id: <20221024200659.D71D6C433C1@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A non-first waiter can potentially spin in the for loop of
-rwsem_down_write_slowpath() without sleeping but fail to acquire the
-lock even if the rwsem is free if the following sequence happens:
 
-  Non-first RT waiter    First waiter      Lock holder
-  -------------------    ------------      -----------
-  Acquire wait_lock
-  rwsem_try_write_lock():
-    Set handoff bit if RT or
-      wait too long
-    Set waiter->handoff_set
-  Release wait_lock
-                         Acquire wait_lock
-                         Inherit waiter->handoff_set
-                         Release wait_lock
-					   Clear owner
-                                           Release lock
-  if (waiter.handoff_set) {
-    rwsem_spin_on_owner(();
-    if (OWNER_NULL)
-      goto trylock_again;
-  }
-  trylock_again:
-  Acquire wait_lock
-  rwsem_try_write_lock():
-     if (first->handoff_set && (waiter != first))
-     	return false;
-  Release wait_lock
+The patch titled
+     Subject: mm/uffd: fix vma check on userfault for wp
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mm-uffd-fix-vma-check-on-userfault-for-wp.patch
 
-A non-first waiter cannot really acquire the rwsem even if it mistakenly
-believes that it can spin on OWNER_NULL value. If that waiter happens
-to be an RT task running on the same CPU as the first waiter, it can
-block the first waiter from acquiring the rwsem leading to live lock.
-Fix this problem by making sure that a non-first waiter cannot spin in
-the slowpath loop without sleeping.
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-uffd-fix-vma-check-on-userfault-for-wp.patch
 
-Fixes: d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more consistent")
-Reviewed-and-tested-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Cc: stable@vger.kernel.org
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Peter Xu <peterx@redhat.com>
+Subject: mm/uffd: fix vma check on userfault for wp
+Date: Mon, 24 Oct 2022 15:33:35 -0400
+
+We used to have a report that pte-marker code can be reached even when
+uffd-wp is not compiled in for file memories, here:
+
+https://lore.kernel.org/all/YzeR+R6b4bwBlBHh@x1n/T/#u
+
+I just got time to revisit this and found that the root cause is we simply
+messed up with the vma check, so that for !PTE_MARKER_UFFD_WP system, we
+will allow UFFDIO_REGISTER of MINOR & WP upon shmem as the check was
+wrong:
+
+    if (vm_flags & VM_UFFD_MINOR)
+        return is_vm_hugetlb_page(vma) || vma_is_shmem(vma);
+
+Where we'll allow anything to pass on shmem as long as minor mode is
+requested.
+
+Axel did it right when introducing minor mode but I messed it up in
+b1f9e876862d when moving code around.  Fix it.
+
+Link: https://lkml.kernel.org/r/20221024193336.1233616-1-peterx@redhat.com
+Link: https://lkml.kernel.org/r/20221024193336.1233616-2-peterx@redhat.com
+Fixes: b1f9e876862d ("mm/uffd: enable write protection for shmem & hugetlbfs")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- kernel/locking/rwsem.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
-index 44873594de03..be2df9ea7c30 100644
---- a/kernel/locking/rwsem.c
-+++ b/kernel/locking/rwsem.c
-@@ -624,18 +624,16 @@ static inline bool rwsem_try_write_lock(struct rw_semaphore *sem,
- 			 */
- 			if (first->handoff_set && (waiter != first))
- 				return false;
+ include/linux/userfaultfd_k.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/include/linux/userfaultfd_k.h~mm-uffd-fix-vma-check-on-userfault-for-wp
++++ a/include/linux/userfaultfd_k.h
+@@ -146,9 +146,9 @@ static inline bool userfaultfd_armed(str
+ static inline bool vma_can_userfault(struct vm_area_struct *vma,
+ 				     unsigned long vm_flags)
+ {
+-	if (vm_flags & VM_UFFD_MINOR)
+-		return is_vm_hugetlb_page(vma) || vma_is_shmem(vma);
 -
--			/*
--			 * First waiter can inherit a previously set handoff
--			 * bit and spin on rwsem if lock acquisition fails.
--			 */
--			if (waiter == first)
--				waiter->handoff_set = true;
- 		}
- 
- 		new = count;
- 
- 		if (count & RWSEM_LOCK_MASK) {
-+			/*
-+			 * A waiter (first or not) can set the handoff bit
-+			 * if it is an RT task or wait in the wait queue
-+			 * for too long.
-+			 */
- 			if (has_handoff || (!rt_task(waiter->task) &&
- 					    !time_after(jiffies, waiter->timeout)))
- 				return false;
-@@ -651,11 +649,12 @@ static inline bool rwsem_try_write_lock(struct rw_semaphore *sem,
- 	} while (!atomic_long_try_cmpxchg_acquire(&sem->count, &count, new));
- 
++	if ((vm_flags & VM_UFFD_MINOR) &&
++	    (!is_vm_hugetlb_page(vma) && !vma_is_shmem(vma)))
++		return false;
+ #ifndef CONFIG_PTE_MARKER_UFFD_WP
  	/*
--	 * We have either acquired the lock with handoff bit cleared or
--	 * set the handoff bit.
-+	 * We have either acquired the lock with handoff bit cleared or set
-+	 * the handoff bit. Only the first waiter can have its handoff_set
-+	 * set here to enable optimistic spinning in slowpath loop.
- 	 */
- 	if (new & RWSEM_FLAG_HANDOFF) {
--		waiter->handoff_set = true;
-+		first->handoff_set = true;
- 		lockevent_inc(rwsem_wlock_handoff);
- 		return false;
- 	}
--- 
-2.31.1
+ 	 * If user requested uffd-wp but not enabled pte markers for
+_
+
+Patches currently in -mm which might be from peterx@redhat.com are
+
+mm-uffd-fix-vma-check-on-userfault-for-wp.patch
+revert-mm-uffd-fix-warning-without-pte_marker_uffd_wp-compiled-in.patch
+selftests-vm-use-memfd-for-uffd-hugetlb-tests.patch
+selftests-vm-use-memfd-for-hugetlb-madvise-test.patch
+selftests-vm-use-memfd-for-hugepage-mremap-test.patch
+selftests-vm-drop-mnt-point-for-hugetlb-in-run_vmtestssh.patch
+mm-hugetlb-unify-clearing-of-restorereserve-for-private-pages.patch
 
