@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E30A360A477
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 235D760A744
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232858AbiJXMLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:11:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59850 "EHLO
+        id S234426AbiJXMsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:48:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233219AbiJXMJ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:09:58 -0400
+        with ESMTP id S234837AbiJXMpv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ED4C7FF8C;
-        Mon, 24 Oct 2022 04:53:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B5726AA24;
+        Mon, 24 Oct 2022 05:10:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2C11612B1;
-        Mon, 24 Oct 2022 11:50:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3C22C433C1;
-        Mon, 24 Oct 2022 11:50:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04B5461254;
+        Mon, 24 Oct 2022 12:10:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BBAEC43470;
+        Mon, 24 Oct 2022 12:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612213;
-        bh=Ufm8g+UIaVbZEBzvH5MpNH2n3O0Oyv4matEIlORTrgY=;
+        s=korg; t=1666613416;
+        bh=jGjZlBQPhcH9jQ0Rm5yLEnHk8aUsn/4zCK9ghfgiHIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0sB135Z+1rP9wnKnxp0gFSAcnk3OnRh9B/2vJJBbuzpMVB8w4lc2euvkwyq/47pJ
-         s/S52vClTmHiZPzlmygHW5QwHEt9lMQYtwyKiM8/oC8Lgnyv5rV90czN96IQ4q0+1m
-         ueglBjDHnXMf4C0hSzcLxJoAIjqvbU/JdBfoIpZs=
+        b=DthsHNDkaDd9hAt9vkG/uy37tavNj9wzEkQ+y87nSWidEfz4sgX19oXJ7PbF/iEEN
+         zWFLnjKMqsBwWDp9/yArBoLf6qCdH9WAFJaqNrds52g+F7Ox/M2DOO3jW2huurzjl8
+         6kZyJQphWwpm9J77PqJHwJI1YjULWAV3y7n+6TaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 113/210] ARM: dts: exynos: fix polarity of VBUS GPIO of Origen
-Date:   Mon, 24 Oct 2022 13:30:30 +0200
-Message-Id: <20221024113000.664598261@linuxfoundation.org>
+Subject: [PATCH 5.4 121/255] iio: inkern: only release the device node when done with it
+Date:   Mon, 24 Oct 2022 13:30:31 +0200
+Message-Id: <20221024113006.568093359@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Nuno Sá <nuno.sa@analog.com>
 
-[ Upstream commit a08137bd1e0a7ce951dce9ce4a83e39d379b6e1b ]
+[ Upstream commit 79c3e84874c7d14f04ad58313b64955a0d2e9437 ]
 
-EHCI Oxynos (drivers/usb/host/ehci-exynos.c) drives VBUS GPIO high when
-trying to power up the bus, therefore the GPIO in DTS must be marked as
-"active high". This will be important when EHCI driver is converted to
-gpiod API that respects declared polarities.
+'of_node_put()' can potentially release the memory pointed to by
+'iiospec.np' which would leave us with an invalid pointer (and we would
+still pass it in 'of_xlate()'). Note that it is not guaranteed for the
+of_node lifespan to be attached to the device (to which is attached)
+lifespan so that there is (even though very unlikely) the possibility
+for the node to be freed while the device is still around. Thus, as there
+are indeed some of_xlate users which do access the node, a race is indeed
+possible.
 
-Fixes: 4e8991def565 ("ARM: dts: exynos: Enable AX88760 USB hub on Origen board")
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Link: https://lore.kernel.org/r/20220927220504.3744878-1-dmitry.torokhov@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+As such, we can only release the node after we are done with it.
+
+Fixes: 17d82b47a215d ("iio: Add OF support")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20220715122903.332535-2-nuno.sa@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos4412-origen.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/inkern.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos4412-origen.dts b/arch/arm/boot/dts/exynos4412-origen.dts
-index 8a89eb893d64..0224e1da66c5 100644
---- a/arch/arm/boot/dts/exynos4412-origen.dts
-+++ b/arch/arm/boot/dts/exynos4412-origen.dts
-@@ -90,7 +90,7 @@
- };
+diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
+index ca0fe902a7db..d00f3045557c 100644
+--- a/drivers/iio/inkern.c
++++ b/drivers/iio/inkern.c
+@@ -136,9 +136,10 @@ static int __of_iio_channel_get(struct iio_channel *channel,
  
- &ehci {
--	samsung,vbus-gpio = <&gpx3 5 1>;
-+	samsung,vbus-gpio = <&gpx3 5 GPIO_ACTIVE_HIGH>;
- 	status = "okay";
+ 	idev = bus_find_device(&iio_bus_type, NULL, iiospec.np,
+ 			       iio_dev_node_match);
+-	of_node_put(iiospec.np);
+-	if (idev == NULL)
++	if (idev == NULL) {
++		of_node_put(iiospec.np);
+ 		return -EPROBE_DEFER;
++	}
  
- 	port@1{
+ 	indio_dev = dev_to_iio_dev(idev);
+ 	channel->indio_dev = indio_dev;
+@@ -146,6 +147,7 @@ static int __of_iio_channel_get(struct iio_channel *channel,
+ 		index = indio_dev->info->of_xlate(indio_dev, &iiospec);
+ 	else
+ 		index = __of_iio_simple_xlate(indio_dev, &iiospec);
++	of_node_put(iiospec.np);
+ 	if (index < 0)
+ 		goto err_put;
+ 	channel->channel = &indio_dev->channels[index];
 -- 
 2.35.1
 
