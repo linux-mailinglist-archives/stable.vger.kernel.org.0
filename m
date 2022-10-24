@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2A9160B2AC
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:50:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 382F160B073
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235096AbiJXQul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:50:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55372 "EHLO
+        id S233002AbiJXQFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:05:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235193AbiJXQtM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFF454D812;
-        Mon, 24 Oct 2022 08:32:15 -0700 (PDT)
+        with ESMTP id S233187AbiJXQEU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85EF811DA8B;
+        Mon, 24 Oct 2022 07:56:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA4FEB811A1;
-        Mon, 24 Oct 2022 12:04:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F410C433C1;
-        Mon, 24 Oct 2022 12:04:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84BABB819FD;
+        Mon, 24 Oct 2022 12:50:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEFFDC43148;
+        Mon, 24 Oct 2022 12:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613069;
-        bh=uVTuhiu8uSPPYi6R959VK4yn2WuwpL50i1NibvnVatk=;
+        s=korg; t=1666615843;
+        bh=VV1OpKp2yHPswDsQUvrr44yQuL620U4g+koU7ZS60sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=18osOPz8A9/ExmdDrvjBL895E2XyuaCDRWmRzwAHM6wRpxiRy/xsI7SH5x8PI/9ys
-         FfRBXJFB5a/rrNlaiEU7GYSa4YGY3NGIgHXtMpqWMGghRvlKwFRZt8Dk3cTnPaQQ+4
-         BFHsF9SDmSX+EqF7T89yIFR+2+UrL9ymBPbI56l4=
+        b=MSpSP7PvT0uCqOsUwPMq8okw2PUJ5NPuLhSRastt+oGQ2NldHGGvTgQkqxw9fRFGW
+         r6CMOG1uF30+A1mBRirpFGJ+gvDeXRmiceWzP5U3DDyQWjBMtqCQzimiFq5Cygi3Rr
+         0wooVDoiObcfBusFIBjgRwJCxzPJW9buYW+XgfC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Carlos Llamas <cmllamas@google.com>
-Subject: [PATCH 4.19 227/229] inet: fully convert sk->sk_rx_dst to RCU rules
-Date:   Mon, 24 Oct 2022 13:32:26 +0200
-Message-Id: <20221024113006.625388538@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 405/530] ACPI: tables: FPDT: Dont call acpi_os_map_memory() on invalid phys address
+Date:   Mon, 24 Oct 2022 13:32:29 +0200
+Message-Id: <20221024113103.402977402@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,422 +53,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 8f905c0e7354ef261360fb7535ea079b1082c105 upstream.
+[ Upstream commit 211391bf04b3c74e250c566eeff9cf808156c693 ]
 
-syzbot reported various issues around early demux,
-one being included in this changelog [1]
+On a Packard Bell Dot SC (Intel Atom N2600 model) there is a FPDT table
+which contains invalid physical addresses, with high bits set which fall
+outside the range of the CPU-s supported physical address range.
 
-sk->sk_rx_dst is using RCU protection without clearly
-documenting it.
+Calling acpi_os_map_memory() on such an invalid phys address leads to
+the below WARN_ON in ioremap triggering resulting in an oops/stacktrace.
 
-And following sequences in tcp_v4_do_rcv()/tcp_v6_do_rcv()
-are not following standard RCU rules.
+Add code to verify the physical address before calling acpi_os_map_memory()
+to fix / avoid the oops.
 
-[a]    dst_release(dst);
-[b]    sk->sk_rx_dst = NULL;
+[    1.226900] ioremap: invalid physical address 3001000000000000
+[    1.226949] ------------[ cut here ]------------
+[    1.226962] WARNING: CPU: 1 PID: 1 at arch/x86/mm/ioremap.c:200 __ioremap_caller.cold+0x43/0x5f
+[    1.226996] Modules linked in:
+[    1.227016] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.0.0-rc3+ #490
+[    1.227029] Hardware name: Packard Bell dot s/SJE01_CT, BIOS V1.10 07/23/2013
+[    1.227038] RIP: 0010:__ioremap_caller.cold+0x43/0x5f
+[    1.227054] Code: 96 00 00 e9 f8 af 24 ff 89 c6 48 c7 c7 d8 0c 84 99 e8 6a 96 00 00 e9 76 af 24 ff 48 89 fe 48 c7 c7 a8 0c 84 99 e8 56 96 00 00 <0f> 0b e9 60 af 24 ff 48 8b 34 24 48 c7 c7 40 0d 84 99 e8 3f 96 00
+[    1.227067] RSP: 0000:ffffb18c40033d60 EFLAGS: 00010286
+[    1.227084] RAX: 0000000000000032 RBX: 3001000000000000 RCX: 0000000000000000
+[    1.227095] RDX: 0000000000000001 RSI: 00000000ffffdfff RDI: 00000000ffffffff
+[    1.227105] RBP: 3001000000000000 R08: 0000000000000000 R09: ffffb18c40033c18
+[    1.227115] R10: 0000000000000003 R11: ffffffff99d62fe8 R12: 0000000000000008
+[    1.227124] R13: 0003001000000000 R14: 0000000000001000 R15: 3001000000000000
+[    1.227135] FS:  0000000000000000(0000) GS:ffff913a3c080000(0000) knlGS:0000000000000000
+[    1.227146] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.227156] CR2: 0000000000000000 CR3: 0000000018c26000 CR4: 00000000000006e0
+[    1.227167] Call Trace:
+[    1.227176]  <TASK>
+[    1.227185]  ? acpi_os_map_iomem+0x1c9/0x1e0
+[    1.227215]  ? kmem_cache_alloc_trace+0x187/0x370
+[    1.227254]  acpi_os_map_iomem+0x1c9/0x1e0
+[    1.227288]  acpi_init_fpdt+0xa8/0x253
+[    1.227308]  ? acpi_debugfs_init+0x1f/0x1f
+[    1.227339]  do_one_initcall+0x5a/0x300
+[    1.227406]  ? rcu_read_lock_sched_held+0x3f/0x80
+[    1.227442]  kernel_init_freeable+0x28b/0x2cc
+[    1.227512]  ? rest_init+0x170/0x170
+[    1.227538]  kernel_init+0x16/0x140
+[    1.227552]  ret_from_fork+0x1f/0x30
+[    1.227639]  </TASK>
+[    1.227647] irq event stamp: 186819
+[    1.227656] hardirqs last  enabled at (186825): [<ffffffff98184a6e>] __up_console_sem+0x5e/0x70
+[    1.227672] hardirqs last disabled at (186830): [<ffffffff98184a53>] __up_console_sem+0x43/0x70
+[    1.227686] softirqs last  enabled at (186576): [<ffffffff980fbc9d>] __irq_exit_rcu+0xed/0x160
+[    1.227701] softirqs last disabled at (186569): [<ffffffff980fbc9d>] __irq_exit_rcu+0xed/0x160
+[    1.227715] ---[ end trace 0000000000000000 ]---
 
-They look wrong because a delete operation of RCU protected
-pointer is supposed to clear the pointer before
-the call_rcu()/synchronize_rcu() guarding actual memory freeing.
-
-In some cases indeed, dst could be freed before [b] is done.
-
-We could cheat by clearing sk_rx_dst before calling
-dst_release(), but this seems the right time to stick
-to standard RCU annotations and debugging facilities.
-
-[1]
-BUG: KASAN: use-after-free in dst_check include/net/dst.h:470 [inline]
-BUG: KASAN: use-after-free in tcp_v4_early_demux+0x95b/0x960 net/ipv4/tcp_ipv4.c:1792
-Read of size 2 at addr ffff88807f1cb73a by task syz-executor.5/9204
-
-CPU: 0 PID: 9204 Comm: syz-executor.5 Not tainted 5.16.0-rc5-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0x8d/0x320 mm/kasan/report.c:247
- __kasan_report mm/kasan/report.c:433 [inline]
- kasan_report.cold+0x83/0xdf mm/kasan/report.c:450
- dst_check include/net/dst.h:470 [inline]
- tcp_v4_early_demux+0x95b/0x960 net/ipv4/tcp_ipv4.c:1792
- ip_rcv_finish_core.constprop.0+0x15de/0x1e80 net/ipv4/ip_input.c:340
- ip_list_rcv_finish.constprop.0+0x1b2/0x6e0 net/ipv4/ip_input.c:583
- ip_sublist_rcv net/ipv4/ip_input.c:609 [inline]
- ip_list_rcv+0x34e/0x490 net/ipv4/ip_input.c:644
- __netif_receive_skb_list_ptype net/core/dev.c:5508 [inline]
- __netif_receive_skb_list_core+0x549/0x8e0 net/core/dev.c:5556
- __netif_receive_skb_list net/core/dev.c:5608 [inline]
- netif_receive_skb_list_internal+0x75e/0xd80 net/core/dev.c:5699
- gro_normal_list net/core/dev.c:5853 [inline]
- gro_normal_list net/core/dev.c:5849 [inline]
- napi_complete_done+0x1f1/0x880 net/core/dev.c:6590
- virtqueue_napi_complete drivers/net/virtio_net.c:339 [inline]
- virtnet_poll+0xca2/0x11b0 drivers/net/virtio_net.c:1557
- __napi_poll+0xaf/0x440 net/core/dev.c:7023
- napi_poll net/core/dev.c:7090 [inline]
- net_rx_action+0x801/0xb40 net/core/dev.c:7177
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
- invoke_softirq kernel/softirq.c:432 [inline]
- __irq_exit_rcu+0x123/0x180 kernel/softirq.c:637
- irq_exit_rcu+0x5/0x20 kernel/softirq.c:649
- common_interrupt+0x52/0xc0 arch/x86/kernel/irq.c:240
- asm_common_interrupt+0x1e/0x40 arch/x86/include/asm/idtentry.h:629
-RIP: 0033:0x7f5e972bfd57
-Code: 39 d1 73 14 0f 1f 80 00 00 00 00 48 8b 50 f8 48 83 e8 08 48 39 ca 77 f3 48 39 c3 73 3e 48 89 13 48 8b 50 f8 48 89 38 49 8b 0e <48> 8b 3e 48 83 c3 08 48 83 c6 08 eb bc 48 39 d1 72 9e 48 39 d0 73
-RSP: 002b:00007fff8a413210 EFLAGS: 00000283
-RAX: 00007f5e97108990 RBX: 00007f5e97108338 RCX: ffffffff81d3aa45
-RDX: ffffffff81d3aa45 RSI: 00007f5e97108340 RDI: ffffffff81d3aa45
-RBP: 00007f5e97107eb8 R08: 00007f5e97108d88 R09: 0000000093c2e8d9
-R10: 0000000000000000 R11: 0000000000000000 R12: 00007f5e97107eb0
-R13: 00007f5e97108338 R14: 00007f5e97107ea8 R15: 0000000000000019
- </TASK>
-
-Allocated by task 13:
- kasan_save_stack+0x1e/0x50 mm/kasan/common.c:38
- kasan_set_track mm/kasan/common.c:46 [inline]
- set_alloc_info mm/kasan/common.c:434 [inline]
- __kasan_slab_alloc+0x90/0xc0 mm/kasan/common.c:467
- kasan_slab_alloc include/linux/kasan.h:259 [inline]
- slab_post_alloc_hook mm/slab.h:519 [inline]
- slab_alloc_node mm/slub.c:3234 [inline]
- slab_alloc mm/slub.c:3242 [inline]
- kmem_cache_alloc+0x202/0x3a0 mm/slub.c:3247
- dst_alloc+0x146/0x1f0 net/core/dst.c:92
- rt_dst_alloc+0x73/0x430 net/ipv4/route.c:1613
- ip_route_input_slow+0x1817/0x3a20 net/ipv4/route.c:2340
- ip_route_input_rcu net/ipv4/route.c:2470 [inline]
- ip_route_input_noref+0x116/0x2a0 net/ipv4/route.c:2415
- ip_rcv_finish_core.constprop.0+0x288/0x1e80 net/ipv4/ip_input.c:354
- ip_list_rcv_finish.constprop.0+0x1b2/0x6e0 net/ipv4/ip_input.c:583
- ip_sublist_rcv net/ipv4/ip_input.c:609 [inline]
- ip_list_rcv+0x34e/0x490 net/ipv4/ip_input.c:644
- __netif_receive_skb_list_ptype net/core/dev.c:5508 [inline]
- __netif_receive_skb_list_core+0x549/0x8e0 net/core/dev.c:5556
- __netif_receive_skb_list net/core/dev.c:5608 [inline]
- netif_receive_skb_list_internal+0x75e/0xd80 net/core/dev.c:5699
- gro_normal_list net/core/dev.c:5853 [inline]
- gro_normal_list net/core/dev.c:5849 [inline]
- napi_complete_done+0x1f1/0x880 net/core/dev.c:6590
- virtqueue_napi_complete drivers/net/virtio_net.c:339 [inline]
- virtnet_poll+0xca2/0x11b0 drivers/net/virtio_net.c:1557
- __napi_poll+0xaf/0x440 net/core/dev.c:7023
- napi_poll net/core/dev.c:7090 [inline]
- net_rx_action+0x801/0xb40 net/core/dev.c:7177
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
-
-Freed by task 13:
- kasan_save_stack+0x1e/0x50 mm/kasan/common.c:38
- kasan_set_track+0x21/0x30 mm/kasan/common.c:46
- kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
- ____kasan_slab_free mm/kasan/common.c:366 [inline]
- ____kasan_slab_free mm/kasan/common.c:328 [inline]
- __kasan_slab_free+0xff/0x130 mm/kasan/common.c:374
- kasan_slab_free include/linux/kasan.h:235 [inline]
- slab_free_hook mm/slub.c:1723 [inline]
- slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1749
- slab_free mm/slub.c:3513 [inline]
- kmem_cache_free+0xbd/0x5d0 mm/slub.c:3530
- dst_destroy+0x2d6/0x3f0 net/core/dst.c:127
- rcu_do_batch kernel/rcu/tree.c:2506 [inline]
- rcu_core+0x7ab/0x1470 kernel/rcu/tree.c:2741
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
-
-Last potentially related work creation:
- kasan_save_stack+0x1e/0x50 mm/kasan/common.c:38
- __kasan_record_aux_stack+0xf5/0x120 mm/kasan/generic.c:348
- __call_rcu kernel/rcu/tree.c:2985 [inline]
- call_rcu+0xb1/0x740 kernel/rcu/tree.c:3065
- dst_release net/core/dst.c:177 [inline]
- dst_release+0x79/0xe0 net/core/dst.c:167
- tcp_v4_do_rcv+0x612/0x8d0 net/ipv4/tcp_ipv4.c:1712
- sk_backlog_rcv include/net/sock.h:1030 [inline]
- __release_sock+0x134/0x3b0 net/core/sock.c:2768
- release_sock+0x54/0x1b0 net/core/sock.c:3300
- tcp_sendmsg+0x36/0x40 net/ipv4/tcp.c:1441
- inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:819
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:724
- sock_write_iter+0x289/0x3c0 net/socket.c:1057
- call_write_iter include/linux/fs.h:2162 [inline]
- new_sync_write+0x429/0x660 fs/read_write.c:503
- vfs_write+0x7cd/0xae0 fs/read_write.c:590
- ksys_write+0x1ee/0x250 fs/read_write.c:643
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The buggy address belongs to the object at ffff88807f1cb700
- which belongs to the cache ip_dst_cache of size 176
-The buggy address is located 58 bytes inside of
- 176-byte region [ffff88807f1cb700, ffff88807f1cb7b0)
-The buggy address belongs to the page:
-page:ffffea0001fc72c0 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x7f1cb
-flags: 0xfff00000000200(slab|node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000000200 dead000000000100 dead000000000122 ffff8881413bb780
-raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-page_owner tracks the page as allocated
-page last allocated via order 0, migratetype Unmovable, gfp_mask 0x112a20(GFP_ATOMIC|__GFP_NOWARN|__GFP_NORETRY|__GFP_HARDWALL), pid 5, ts 108466983062, free_ts 108048976062
- prep_new_page mm/page_alloc.c:2418 [inline]
- get_page_from_freelist+0xa72/0x2f50 mm/page_alloc.c:4149
- __alloc_pages+0x1b2/0x500 mm/page_alloc.c:5369
- alloc_pages+0x1a7/0x300 mm/mempolicy.c:2191
- alloc_slab_page mm/slub.c:1793 [inline]
- allocate_slab mm/slub.c:1930 [inline]
- new_slab+0x32d/0x4a0 mm/slub.c:1993
- ___slab_alloc+0x918/0xfe0 mm/slub.c:3022
- __slab_alloc.constprop.0+0x4d/0xa0 mm/slub.c:3109
- slab_alloc_node mm/slub.c:3200 [inline]
- slab_alloc mm/slub.c:3242 [inline]
- kmem_cache_alloc+0x35c/0x3a0 mm/slub.c:3247
- dst_alloc+0x146/0x1f0 net/core/dst.c:92
- rt_dst_alloc+0x73/0x430 net/ipv4/route.c:1613
- __mkroute_output net/ipv4/route.c:2564 [inline]
- ip_route_output_key_hash_rcu+0x921/0x2d00 net/ipv4/route.c:2791
- ip_route_output_key_hash+0x18b/0x300 net/ipv4/route.c:2619
- __ip_route_output_key include/net/route.h:126 [inline]
- ip_route_output_flow+0x23/0x150 net/ipv4/route.c:2850
- ip_route_output_key include/net/route.h:142 [inline]
- geneve_get_v4_rt+0x3a6/0x830 drivers/net/geneve.c:809
- geneve_xmit_skb drivers/net/geneve.c:899 [inline]
- geneve_xmit+0xc4a/0x3540 drivers/net/geneve.c:1082
- __netdev_start_xmit include/linux/netdevice.h:4994 [inline]
- netdev_start_xmit include/linux/netdevice.h:5008 [inline]
- xmit_one net/core/dev.c:3590 [inline]
- dev_hard_start_xmit+0x1eb/0x920 net/core/dev.c:3606
- __dev_queue_xmit+0x299a/0x3650 net/core/dev.c:4229
-page last free stack trace:
- reset_page_owner include/linux/page_owner.h:24 [inline]
- free_pages_prepare mm/page_alloc.c:1338 [inline]
- free_pcp_prepare+0x374/0x870 mm/page_alloc.c:1389
- free_unref_page_prepare mm/page_alloc.c:3309 [inline]
- free_unref_page+0x19/0x690 mm/page_alloc.c:3388
- qlink_free mm/kasan/quarantine.c:146 [inline]
- qlist_free_all+0x5a/0xc0 mm/kasan/quarantine.c:165
- kasan_quarantine_reduce+0x180/0x200 mm/kasan/quarantine.c:272
- __kasan_slab_alloc+0xa2/0xc0 mm/kasan/common.c:444
- kasan_slab_alloc include/linux/kasan.h:259 [inline]
- slab_post_alloc_hook mm/slab.h:519 [inline]
- slab_alloc_node mm/slub.c:3234 [inline]
- kmem_cache_alloc_node+0x255/0x3f0 mm/slub.c:3270
- __alloc_skb+0x215/0x340 net/core/skbuff.c:414
- alloc_skb include/linux/skbuff.h:1126 [inline]
- alloc_skb_with_frags+0x93/0x620 net/core/skbuff.c:6078
- sock_alloc_send_pskb+0x783/0x910 net/core/sock.c:2575
- mld_newpack+0x1df/0x770 net/ipv6/mcast.c:1754
- add_grhead+0x265/0x330 net/ipv6/mcast.c:1857
- add_grec+0x1053/0x14e0 net/ipv6/mcast.c:1995
- mld_send_initial_cr.part.0+0xf6/0x230 net/ipv6/mcast.c:2242
- mld_send_initial_cr net/ipv6/mcast.c:1232 [inline]
- mld_dad_work+0x1d3/0x690 net/ipv6/mcast.c:2268
- process_one_work+0x9b2/0x1690 kernel/workqueue.c:2298
- worker_thread+0x658/0x11f0 kernel/workqueue.c:2445
-
-Memory state around the buggy address:
- ffff88807f1cb600: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88807f1cb680: fb fb fb fb fb fb fc fc fc fc fc fc fc fc fc fc
->ffff88807f1cb700: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                                        ^
- ffff88807f1cb780: fb fb fb fb fb fb fc fc fc fc fc fc fc fc fc fc
- ffff88807f1cb800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-
-Fixes: 41063e9dd119 ("ipv4: Early TCP socket demux.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20211220143330.680945-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[cmllamas: fixed trivial merge conflict]
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sock.h   |    2 +-
- net/ipv4/af_inet.c   |    2 +-
- net/ipv4/tcp.c       |    3 +--
- net/ipv4/tcp_input.c |    2 +-
- net/ipv4/tcp_ipv4.c  |   11 +++++++----
- net/ipv4/udp.c       |    6 +++---
- net/ipv6/tcp_ipv6.c  |   11 +++++++----
- net/ipv6/udp.c       |    4 ++--
- 8 files changed, 23 insertions(+), 18 deletions(-)
+ drivers/acpi/acpi_fpdt.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -401,7 +401,7 @@ struct sock {
- #ifdef CONFIG_XFRM
- 	struct xfrm_policy __rcu *sk_policy[2];
- #endif
--	struct dst_entry	*sk_rx_dst;
-+	struct dst_entry __rcu	*sk_rx_dst;
- 	struct dst_entry __rcu	*sk_dst_cache;
- 	atomic_t		sk_omem_alloc;
- 	int			sk_sndbuf;
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -157,7 +157,7 @@ void inet_sock_destruct(struct sock *sk)
+diff --git a/drivers/acpi/acpi_fpdt.c b/drivers/acpi/acpi_fpdt.c
+index 6922a44b3ce7..a2056c4c8cb7 100644
+--- a/drivers/acpi/acpi_fpdt.c
++++ b/drivers/acpi/acpi_fpdt.c
+@@ -143,6 +143,23 @@ static const struct attribute_group boot_attr_group = {
  
- 	kfree(rcu_dereference_protected(inet->inet_opt, 1));
- 	dst_release(rcu_dereference_check(sk->sk_dst_cache, 1));
--	dst_release(sk->sk_rx_dst);
-+	dst_release(rcu_dereference_protected(sk->sk_rx_dst, 1));
- 	sk_refcnt_debug_dec(sk);
- }
- EXPORT_SYMBOL(inet_sock_destruct);
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -2626,8 +2626,7 @@ int tcp_disconnect(struct sock *sk, int
- 	icsk->icsk_ack.rcv_mss = TCP_MIN_MSS;
- 	memset(&tp->rx_opt, 0, sizeof(tp->rx_opt));
- 	__sk_dst_reset(sk);
--	dst_release(sk->sk_rx_dst);
--	sk->sk_rx_dst = NULL;
-+	dst_release(xchg((__force struct dst_entry **)&sk->sk_rx_dst, NULL));
- 	tcp_saved_syn_free(tp);
- 	tp->compressed_ack = 0;
- 	tp->segs_in = 0;
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5552,7 +5552,7 @@ void tcp_rcv_established(struct sock *sk
- 	trace_tcp_probe(sk, skb);
+ static struct kobject *fpdt_kobj;
  
- 	tcp_mstamp_refresh(tp);
--	if (unlikely(!sk->sk_rx_dst))
-+	if (unlikely(!rcu_access_pointer(sk->sk_rx_dst)))
- 		inet_csk(sk)->icsk_af_ops->sk_rx_dst_set(sk, skb);
- 	/*
- 	 *	Header prediction.
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -1544,15 +1544,18 @@ int tcp_v4_do_rcv(struct sock *sk, struc
- 	struct sock *rsk;
- 
- 	if (sk->sk_state == TCP_ESTABLISHED) { /* Fast path */
--		struct dst_entry *dst = sk->sk_rx_dst;
-+		struct dst_entry *dst;
++#if defined CONFIG_X86 && defined CONFIG_PHYS_ADDR_T_64BIT
++#include <linux/processor.h>
++static bool fpdt_address_valid(u64 address)
++{
++	/*
++	 * On some systems the table contains invalid addresses
++	 * with unsuppored high address bits set, check for this.
++	 */
++	return !(address >> boot_cpu_data.x86_phys_bits);
++}
++#else
++static bool fpdt_address_valid(u64 address)
++{
++	return true;
++}
++#endif
 +
-+		dst = rcu_dereference_protected(sk->sk_rx_dst,
-+						lockdep_sock_is_held(sk));
+ static int fpdt_process_subtable(u64 address, u32 subtable_type)
+ {
+ 	struct fpdt_subtable_header *subtable_header;
+@@ -151,6 +168,11 @@ static int fpdt_process_subtable(u64 address, u32 subtable_type)
+ 	u32 length, offset;
+ 	int result;
  
- 		sock_rps_save_rxhash(sk, skb);
- 		sk_mark_napi_id(sk, skb);
- 		if (dst) {
- 			if (inet_sk(sk)->rx_dst_ifindex != skb->skb_iif ||
- 			    !dst->ops->check(dst, 0)) {
-+				RCU_INIT_POINTER(sk->sk_rx_dst, NULL);
- 				dst_release(dst);
--				sk->sk_rx_dst = NULL;
- 			}
- 		}
- 		tcp_rcv_established(sk, skb);
-@@ -1627,7 +1630,7 @@ int tcp_v4_early_demux(struct sk_buff *s
- 		skb->sk = sk;
- 		skb->destructor = sock_edemux;
- 		if (sk_fullsock(sk)) {
--			struct dst_entry *dst = READ_ONCE(sk->sk_rx_dst);
-+			struct dst_entry *dst = rcu_dereference(sk->sk_rx_dst);
- 
- 			if (dst)
- 				dst = dst_check(dst, 0);
-@@ -1932,7 +1935,7 @@ void inet_sk_rx_dst_set(struct sock *sk,
- 	struct dst_entry *dst = skb_dst(skb);
- 
- 	if (dst && dst_hold_safe(dst)) {
--		sk->sk_rx_dst = dst;
-+		rcu_assign_pointer(sk->sk_rx_dst, dst);
- 		inet_sk(sk)->rx_dst_ifindex = skb->skb_iif;
- 	}
- }
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -2050,7 +2050,7 @@ bool udp_sk_rx_dst_set(struct sock *sk,
- 	struct dst_entry *old;
- 
- 	if (dst_hold_safe(dst)) {
--		old = xchg(&sk->sk_rx_dst, dst);
-+		old = xchg((__force struct dst_entry **)&sk->sk_rx_dst, dst);
- 		dst_release(old);
- 		return old != dst;
- 	}
-@@ -2240,7 +2240,7 @@ int __udp4_lib_rcv(struct sk_buff *skb,
- 		struct dst_entry *dst = skb_dst(skb);
- 		int ret;
- 
--		if (unlikely(sk->sk_rx_dst != dst))
-+		if (unlikely(rcu_dereference(sk->sk_rx_dst) != dst))
- 			udp_sk_rx_dst_set(sk, dst);
- 
- 		ret = udp_unicast_rcv_skb(sk, skb, uh);
-@@ -2398,7 +2398,7 @@ int udp_v4_early_demux(struct sk_buff *s
- 
- 	skb->sk = sk;
- 	skb->destructor = sock_efree;
--	dst = READ_ONCE(sk->sk_rx_dst);
-+	dst = rcu_dereference(sk->sk_rx_dst);
- 
- 	if (dst)
- 		dst = dst_check(dst, 0);
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -97,7 +97,7 @@ static void inet6_sk_rx_dst_set(struct s
- 	if (dst && dst_hold_safe(dst)) {
- 		const struct rt6_info *rt = (const struct rt6_info *)dst;
- 
--		sk->sk_rx_dst = dst;
-+		rcu_assign_pointer(sk->sk_rx_dst, dst);
- 		inet_sk(sk)->rx_dst_ifindex = skb->skb_iif;
- 		inet6_sk(sk)->rx_dst_cookie = rt6_get_cookie(rt);
- 	}
-@@ -1344,15 +1344,18 @@ static int tcp_v6_do_rcv(struct sock *sk
- 		opt_skb = skb_clone(skb, sk_gfp_mask(sk, GFP_ATOMIC));
- 
- 	if (sk->sk_state == TCP_ESTABLISHED) { /* Fast path */
--		struct dst_entry *dst = sk->sk_rx_dst;
-+		struct dst_entry *dst;
++	if (!fpdt_address_valid(address)) {
++		pr_info(FW_BUG "invalid physical address: 0x%llx!\n", address);
++		return -EINVAL;
++	}
 +
-+		dst = rcu_dereference_protected(sk->sk_rx_dst,
-+						lockdep_sock_is_held(sk));
- 
- 		sock_rps_save_rxhash(sk, skb);
- 		sk_mark_napi_id(sk, skb);
- 		if (dst) {
- 			if (inet_sk(sk)->rx_dst_ifindex != skb->skb_iif ||
- 			    dst->ops->check(dst, np->rx_dst_cookie) == NULL) {
-+				RCU_INIT_POINTER(sk->sk_rx_dst, NULL);
- 				dst_release(dst);
--				sk->sk_rx_dst = NULL;
- 			}
- 		}
- 
-@@ -1697,7 +1700,7 @@ static void tcp_v6_early_demux(struct sk
- 		skb->sk = sk;
- 		skb->destructor = sock_edemux;
- 		if (sk_fullsock(sk)) {
--			struct dst_entry *dst = READ_ONCE(sk->sk_rx_dst);
-+			struct dst_entry *dst = rcu_dereference(sk->sk_rx_dst);
- 
- 			if (dst)
- 				dst = dst_check(dst, inet6_sk(sk)->rx_dst_cookie);
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -828,7 +828,7 @@ int __udp6_lib_rcv(struct sk_buff *skb,
- 		struct dst_entry *dst = skb_dst(skb);
- 		int ret;
- 
--		if (unlikely(sk->sk_rx_dst != dst))
-+		if (unlikely(rcu_dereference(sk->sk_rx_dst) != dst))
- 			udp6_sk_rx_dst_set(sk, dst);
- 
- 		if (!uh->check && !udp_sk(sk)->no_check6_rx) {
-@@ -940,7 +940,7 @@ static void udp_v6_early_demux(struct sk
- 
- 	skb->sk = sk;
- 	skb->destructor = sock_efree;
--	dst = READ_ONCE(sk->sk_rx_dst);
-+	dst = rcu_dereference(sk->sk_rx_dst);
- 
- 	if (dst)
- 		dst = dst_check(dst, inet6_sk(sk)->rx_dst_cookie);
+ 	subtable_header = acpi_os_map_memory(address, sizeof(*subtable_header));
+ 	if (!subtable_header)
+ 		return -ENOMEM;
+-- 
+2.35.1
+
 
 
