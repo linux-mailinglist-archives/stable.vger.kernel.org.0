@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44B2260AA5B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 201AC60AB25
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:45:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230340AbiJXNcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:32:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46082 "EHLO
+        id S229665AbiJXNpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:45:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236466AbiJXNbM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:31:12 -0400
+        with ESMTP id S237023AbiJXNmH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:42:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CCE0AD9BF;
-        Mon, 24 Oct 2022 05:34:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B2DD64DC;
+        Mon, 24 Oct 2022 05:39:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A6980612A8;
-        Mon, 24 Oct 2022 12:34:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD414C433C1;
-        Mon, 24 Oct 2022 12:34:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21E9A61316;
+        Mon, 24 Oct 2022 12:36:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 359C2C433D6;
+        Mon, 24 Oct 2022 12:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614854;
-        bh=Awcd/0SSmDN83dUDpNoaIq8lTcT014AjU8Qvxm5qHes=;
+        s=korg; t=1666614965;
+        bh=w0pvs4vQHio+0ni4mOFbluVF80DhksymKI915LMYw2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y9XuDLXiBDIYM+vaNskK5y1YWMy/2E1pvvJ3wraB7/xahP016QQZNLJUeP3aq2Hf4
-         qhHO4Drqe0Fd/m6663gyWPqH4aIw/83qEwIp05SwoQ4q+nNcy8dmA3kHximAHO8h0p
-         2FkOaq2AhAG1MaHat/avFY2PXp3cUJF1AQta99KQ=
+        b=1JHcQn87B1avkBHEQTv52ZV0Q9TrgyIztmej14zkrCVQcK0DoSCCwHB7Zy3dF09WH
+         bEaBk73Wnzxa8ut77GWyyxDfladjJrHtBIKmu0dIGdQH2WC09PHS4Teh21gsZPy1P3
+         stTjD/ZIFnj/NOeCIS7VNajncuZMyUKk6yI3BteU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>
-Subject: [PATCH 5.15 028/530] fs: dlm: fix race between test_bit() and queue_work()
-Date:   Mon, 24 Oct 2022 13:26:12 +0200
-Message-Id: <20221024113046.282861587@linuxfoundation.org>
+        stable@vger.kernel.org, Andri Yngvason <andri@yngvason.is>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.15 030/530] HID: multitouch: Add memory barriers
+Date:   Mon, 24 Oct 2022 13:26:14 +0200
+Message-Id: <20221024113046.363428590@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -52,53 +52,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Andri Yngvason <andri@yngvason.is>
 
-commit eef6ec9bf390e836a6c4029f3620fe49528aa1fe upstream.
+commit be6e2b5734a425941fcdcdbd2a9337be498ce2cf upstream.
 
-This patch fixes a race by using ls_cb_mutex around the bit
-operations and conditional code blocks for LSFL_CB_DELAY.
+This fixes broken atomic checks which cause a race between the
+release-timer and processing of hid input.
 
-The function dlm_callback_stop() expects to stop all callbacks and
-flush all currently queued onces. The set_bit() is not enough because
-there can still be queue_work() after the workqueue was flushed.
-To avoid queue_work() after set_bit(), surround both by ls_cb_mutex.
+I noticed that contacts were sometimes sticking, even with the "sticky
+fingers" quirk enabled. This fixes that problem.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Fixes: 9609827458c3 ("HID: multitouch: optimize the sticky fingers timer")
+Signed-off-by: Andri Yngvason <andri@yngvason.is>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20220907150159.2285460-1-andri@yngvason.is
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dlm/ast.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/hid/hid-multitouch.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/dlm/ast.c
-+++ b/fs/dlm/ast.c
-@@ -198,13 +198,13 @@ void dlm_add_cb(struct dlm_lkb *lkb, uin
- 	if (!prev_seq) {
- 		kref_get(&lkb->lkb_ref);
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1186,7 +1186,7 @@ static void mt_touch_report(struct hid_d
+ 	int contact_count = -1;
  
-+		mutex_lock(&ls->ls_cb_mutex);
- 		if (test_bit(LSFL_CB_DELAY, &ls->ls_flags)) {
--			mutex_lock(&ls->ls_cb_mutex);
- 			list_add(&lkb->lkb_cb_list, &ls->ls_cb_delay);
--			mutex_unlock(&ls->ls_cb_mutex);
- 		} else {
- 			queue_work(ls->ls_callback_wq, &lkb->lkb_cb_work);
- 		}
-+		mutex_unlock(&ls->ls_cb_mutex);
+ 	/* sticky fingers release in progress, abort */
+-	if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
++	if (test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+ 		return;
+ 
+ 	scantime = *app->scantime;
+@@ -1267,7 +1267,7 @@ static void mt_touch_report(struct hid_d
+ 			del_timer(&td->release_timer);
  	}
-  out:
- 	mutex_unlock(&lkb->lkb_cb_mutex);
-@@ -284,7 +284,9 @@ void dlm_callback_stop(struct dlm_ls *ls
  
- void dlm_callback_suspend(struct dlm_ls *ls)
- {
-+	mutex_lock(&ls->ls_cb_mutex);
- 	set_bit(LSFL_CB_DELAY, &ls->ls_flags);
-+	mutex_unlock(&ls->ls_cb_mutex);
+-	clear_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
++	clear_bit_unlock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
+ }
  
- 	if (ls->ls_callback_wq)
- 		flush_workqueue(ls->ls_callback_wq);
+ static int mt_touch_input_configured(struct hid_device *hdev,
+@@ -1702,11 +1702,11 @@ static void mt_expired_timeout(struct ti
+ 	 * An input report came in just before we release the sticky fingers,
+ 	 * it will take care of the sticky fingers.
+ 	 */
+-	if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
++	if (test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+ 		return;
+ 	if (test_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags))
+ 		mt_release_contacts(hdev);
+-	clear_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
++	clear_bit_unlock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
+ }
+ 
+ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
 
 
