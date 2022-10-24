@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C50B060A2F9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:49:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 768A960A32C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:52:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231640AbiJXLt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55696 "EHLO
+        id S232017AbiJXLwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:52:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231696AbiJXLsL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:48:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAF1F50FB7;
-        Mon, 24 Oct 2022 04:43:25 -0700 (PDT)
+        with ESMTP id S231883AbiJXLus (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:50:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A9192623;
+        Mon, 24 Oct 2022 04:44:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3061B612B1;
-        Mon, 24 Oct 2022 11:42:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46CA2C433D6;
-        Mon, 24 Oct 2022 11:42:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 833DEB81154;
+        Mon, 24 Oct 2022 11:43:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBB7FC433D6;
+        Mon, 24 Oct 2022 11:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611778;
-        bh=DwUTKTBu3Vkn1GKEsjPmURRnRrw+tMBZsDje3CH5GyU=;
+        s=korg; t=1666611781;
+        bh=+GjL2Rjrt+fxHkBg7wAqfLsMT5uaAxlKW2kUnp4VXCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MDFlIGO0hjjHDwmAHbb4G8GMHE1FzuYnXXPoqThutOSl7IZWlUIgeQ2K3W9DD270f
-         j5oFppUgW0MiPzZWaW1L2eR64y6bSqVD2wVv/VZ+XoDRvnjo5Ve66P0S7Dk4iYiwyJ
-         OYzTRKYj1DE7001GY5ztNWbmyyWtr9kFRSjD4VjI=
+        b=t/bOnbj9g9HE/GHzPMsMyeU04pFeCBTqREYbbAuQkusHLKoTd5JH4PMeLaSn66ajp
+         EbRSXwljjK9AkB5qIBIy9NjNKTOEKwBKtxHdwj4iJwACBjRJNkV7wMg4Hi4b+kADDd
+         YgiStnDKBShY/eurGCAtowuZfbkRoqZRrDT5hJOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 107/159] ata: fix ata_id_has_dipm()
-Date:   Mon, 24 Oct 2022 13:31:01 +0200
-Message-Id: <20221024112953.353582488@linuxfoundation.org>
+Subject: [PATCH 4.9 108/159] drivers: serial: jsm: fix some leaks in probe
+Date:   Mon, 24 Oct 2022 13:31:02 +0200
+Message-Id: <20221024112953.395636233@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -53,74 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 630624cb1b5826d753ac8e01a0e42de43d66dedf ]
+[ Upstream commit 1d5859ef229e381f4db38dce8ed58e4bf862006b ]
 
-ACS-5 section
-7.13.6.36 Word 78: Serial ATA features supported
-states that:
+This error path needs to unwind instead of just returning directly.
 
-If word 76 is not 0000h or FFFFh, word 78 reports the features supported
-by the device. If this word is not supported, the word shall be cleared
-to zero.
-
-(This text also exists in really old ACS standards, e.g. ACS-3.)
-
-The problem with ata_id_has_dipm() is that the while it performs a
-check against 0 and 0xffff, it performs the check against
-ATA_ID_FEATURE_SUPP (word 78), the same word where the feature bit
-is stored.
-
-Fix this by performing the check against ATA_ID_SATA_CAPABILITY
-(word 76), like required by the spec. The feature bit check itself
-is of course still performed against ATA_ID_FEATURE_SUPP (word 78).
-
-Additionally, move the macro to the other ATA_ID_FEATURE_SUPP macros
-(which already have this check), thus making it more likely that the
-next ATA_ID_FEATURE_SUPP macro that is added will include this check.
-
-Fixes: ca77329fb713 ("[libata] Link power management infrastructure")
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: 03a8482c17dd ("drivers: serial: jsm: Enable support for Digi Classic adapters")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YyxFh1+lOeZ9WfKO@kili
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ata.h | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ drivers/tty/serial/jsm/jsm_driver.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/ata.h b/include/linux/ata.h
-index 33e0786c3c51..33bee000ddab 100644
---- a/include/linux/ata.h
-+++ b/include/linux/ata.h
-@@ -580,6 +580,10 @@ struct ata_bmdma_prd {
- 	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
- 	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
- 	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 7)))
-+#define ata_id_has_dipm(id)	\
-+	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
-+	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
-+	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 3)))
- #define ata_id_iordy_disable(id) ((id)[ATA_ID_CAPABILITY] & (1 << 10))
- #define ata_id_has_iordy(id) ((id)[ATA_ID_CAPABILITY] & (1 << 11))
- #define ata_id_u32(id,n)	\
-@@ -603,17 +607,6 @@ static inline bool ata_id_has_hipm(const u16 *id)
- 	return val & (1 << 9);
- }
+diff --git a/drivers/tty/serial/jsm/jsm_driver.c b/drivers/tty/serial/jsm/jsm_driver.c
+index a119f11bf2f4..3971abb0963c 100644
+--- a/drivers/tty/serial/jsm/jsm_driver.c
++++ b/drivers/tty/serial/jsm/jsm_driver.c
+@@ -221,7 +221,8 @@ static int jsm_probe_one(struct pci_dev *pdev, const struct pci_device_id *ent)
  
--static inline bool ata_id_has_dipm(const u16 *id)
--{
--	u16 val = id[ATA_ID_FEATURE_SUPP];
--
--	if (val == 0 || val == 0xffff)
--		return false;
--
--	return val & (1 << 3);
--}
--
--
- static inline bool ata_id_has_fua(const u16 *id)
- {
- 	if ((id[ATA_ID_CFSSE] & 0xC000) != 0x4000)
+ 		break;
+ 	default:
+-		return -ENXIO;
++		rc = -ENXIO;
++		goto out_kfree_brd;
+ 	}
+ 
+ 	rc = request_irq(brd->irq, brd->bd_ops->intr, IRQF_SHARED, "JSM", brd);
 -- 
 2.35.1
 
