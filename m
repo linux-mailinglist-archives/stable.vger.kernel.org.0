@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86DB160AFCF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:58:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBF5E60ACA6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:11:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231296AbiJXP6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 11:58:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38302 "EHLO
+        id S232968AbiJXOLI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:11:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231610AbiJXP5h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:57:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C1575491;
-        Mon, 24 Oct 2022 07:52:56 -0700 (PDT)
+        with ESMTP id S236985AbiJXOJq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:09:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 956717FF8D;
+        Mon, 24 Oct 2022 05:51:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4748FB816A3;
-        Mon, 24 Oct 2022 12:30:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A516EC433C1;
-        Mon, 24 Oct 2022 12:30:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1905A612E6;
+        Mon, 24 Oct 2022 12:49:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 279B1C433C1;
+        Mon, 24 Oct 2022 12:49:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614613;
-        bh=/NdS3g71STJA3Pftdp1Yvvm9X41utaI30ce2S5p5+E4=;
+        s=korg; t=1666615782;
+        bh=AlKGxA5oHb1mhMs88++LuDXBhLryEnVpofotGpHubyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pCjIGIDUoMFnuZXSwQokhuRzWF76MvBlU2NdzTZ5E2i1BBipVnWBRY2CdI6YU0s9L
-         ZwHijxtU6mw45ki86vTJwRi4UU6JXIi/I3TdwtoX7c1SpiCW0mHMDbbSi3yKgQUkHm
-         +TQWrWh7yM/RRZqaORVqNG/zMh/Y8xW0XlyRRugE=
+        b=dBERYhHvUSTFu2cVgHI4radf/u1rfL67pQcIRD3rtX4uB6IClLhhyLZ/rLilGiUe4
+         33yxzWixW3wYaTUueWb4xFxGHjVBeCvORuM9pnt/WldU3gcxy96BXsUniqZp5fHTsT
+         sZLazToEZzD2Tn1pfFurwYm2DcI1GJILxl3unUxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeng Jingxiang <linuszeng@tencent.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 328/390] gpu: lontium-lt9611: Fix NULL pointer dereference in lt9611_connector_init()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 381/530] iommu/omap: Fix buffer overflow in debugfs
 Date:   Mon, 24 Oct 2022 13:32:05 +0200
-Message-Id: <20221024113036.976751511@linuxfoundation.org>
+Message-Id: <20221024113102.302480706@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Jingxiang <linuszeng@tencent.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ef8886f321c5dab8124b9153d25afa2a71d05323 ]
+[ Upstream commit 184233a5202786b20220acd2d04ddf909ef18f29 ]
 
-A NULL check for bridge->encoder shows that it may be NULL, but it
-already been dereferenced on all paths leading to the check.
-812	if (!bridge->encoder) {
+There are two issues here:
 
-Dereference the pointer bridge->encoder.
-810	drm_connector_attach_encoder(&lt9611->connector, bridge->encoder);
+1) The "len" variable needs to be checked before the very first write.
+   Otherwise if omap2_iommu_dump_ctx() with "bytes" less than 32 it is a
+   buffer overflow.
+2) The snprintf() function returns the number of bytes that *would* have
+   been copied if there were enough space.  But we want to know the
+   number of bytes which were *actually* copied so use scnprintf()
+   instead.
 
-Signed-off-by: Zeng Jingxiang <linuszeng@tencent.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220727073119.1578972-1-zengjx95@gmail.com
+Fixes: bd4396f09a4a ("iommu/omap: Consolidate OMAP IOMMU modules")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/YuvYh1JbE3v+abd5@kili
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/lontium-lt9611.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iommu/omap-iommu-debug.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
-index 29b1ce2140ab..1dcc28a4d853 100644
---- a/drivers/gpu/drm/bridge/lontium-lt9611.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
-@@ -816,13 +816,14 @@ static int lt9611_connector_init(struct drm_bridge *bridge, struct lt9611 *lt961
+diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
+index a99afb5d9011..259f65291d90 100644
+--- a/drivers/iommu/omap-iommu-debug.c
++++ b/drivers/iommu/omap-iommu-debug.c
+@@ -32,12 +32,12 @@ static inline bool is_omap_iommu_detached(struct omap_iommu *obj)
+ 		ssize_t bytes;						\
+ 		const char *str = "%20s: %08x\n";			\
+ 		const int maxcol = 32;					\
+-		bytes = snprintf(p, maxcol, str, __stringify(name),	\
++		if (len < maxcol)					\
++			goto out;					\
++		bytes = scnprintf(p, maxcol, str, __stringify(name),	\
+ 				 iommu_read_reg(obj, MMU_##name));	\
+ 		p += bytes;						\
+ 		len -= bytes;						\
+-		if (len < maxcol)					\
+-			goto out;					\
+ 	} while (0)
  
- 	drm_connector_helper_add(&lt9611->connector,
- 				 &lt9611_bridge_connector_helper_funcs);
--	drm_connector_attach_encoder(&lt9611->connector, bridge->encoder);
- 
- 	if (!bridge->encoder) {
- 		DRM_ERROR("Parent encoder object not found");
- 		return -ENODEV;
- 	}
- 
-+	drm_connector_attach_encoder(&lt9611->connector, bridge->encoder);
-+
- 	return 0;
- }
- 
+ static ssize_t
 -- 
 2.35.1
 
