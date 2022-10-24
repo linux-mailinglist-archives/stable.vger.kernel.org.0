@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 231D460ABE0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:59:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C77D660A536
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:22:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236712AbiJXN6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:58:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55228 "EHLO
+        id S233469AbiJXMWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:22:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233393AbiJXN61 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:58:27 -0400
+        with ESMTP id S233136AbiJXMUE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:20:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A1663B71E;
-        Mon, 24 Oct 2022 05:45:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44FBE8321F;
+        Mon, 24 Oct 2022 04:58:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E200612FC;
-        Mon, 24 Oct 2022 12:44:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C0C4C433C1;
-        Mon, 24 Oct 2022 12:44:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 020C36125A;
+        Mon, 24 Oct 2022 11:48:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14123C433D7;
+        Mon, 24 Oct 2022 11:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615452;
-        bh=3i1Ed3bk0XkELjKa8ysuyW1Wad/0dMDZaLkwWHH547Y=;
+        s=korg; t=1666612133;
+        bh=eLN93t/jveBM8FxvP6yV878dqRgau5Ybg1+Lv+R+Zrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q4AOtosjaHRD//CqEcA4BsM+d5Bh3/oa6qRsTcuoK6Anb8czq0R3a/KbibXennkaP
-         YCn5nFBqyK23m8a4LjyuU2e3fKrSm7MKCgpPfXTneGeVn9WYLNgG525m+t25t7YOKW
-         PEMjYLBqJWNyOqTJQyJ34qJ780zgS2E/9AQEVnpE=
+        b=eJdFmILxeNuzmYXZZ+Ch4+giV+slpHXjMjzukX2taiWEIEyEIGfIwpI+YfoV1+aLp
+         SNEXc+1fKYEfCGrHC64V0kgXlrThyfZymUGbgPDbinWgUR1lFTO5rz6qpP+QmXWljx
+         zLSwSlJAEzm5o954qdgdByG4t2qBV4OmupfPm1kI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Ben Widawsky <bwidawsk@kernel.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        linux-ia64@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Keith Mannthey <kmannth@us.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Hari Chandrakanthan <quic_haric@quicinc.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 256/530] ia64: export memory_add_physaddr_to_nid to fix cxl build error
+Subject: [PATCH 4.14 083/210] wifi: mac80211: allow bw change during channel switch in mesh
 Date:   Mon, 24 Oct 2022 13:30:00 +0200
-Message-Id: <20221024113056.660776851@linuxfoundation.org>
+Message-Id: <20221024112959.750786437@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,44 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Hari Chandrakanthan <quic_haric@quicinc.com>
 
-[ Upstream commit 97c318bfbe84efded246e80428054f300042f110 ]
+[ Upstream commit 6b75f133fe05c36c52d691ff21545d5757fff721 ]
 
-cxl_pmem.ko uses memory_add_physaddr_to_nid() but ia64 does not export it,
-so this causes a build error:
+>From 'IEEE Std 802.11-2020 section 11.8.8.4.1':
+  The mesh channel switch may be triggered by the need to avoid
+  interference to a detected radar signal, or to reassign mesh STA
+  channels to ensure the MBSS connectivity.
 
-ERROR: modpost: "memory_add_physaddr_to_nid" [drivers/cxl/cxl_pmem.ko] undefined!
+  A 20/40 MHz MBSS may be changed to a 20 MHz MBSS and a 20 MHz
+  MBSS may be changed to a 20/40 MHz MBSS.
 
-Fix this by exporting that function.
+Since the standard allows the change of bandwidth during
+the channel switch in mesh, remove the bandwidth check present in
+ieee80211_set_csa_beacon.
 
-Fixes: 8c2676a5870a ("hot-add-mem x86_64: memory_add_physaddr_to_nid node fixup")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Ben Widawsky <bwidawsk@kernel.org>
-Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: linux-ia64@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Keith Mannthey <kmannth@us.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: c6da674aff94 ("{nl,cfg,mac}80211: enable the triggering of CSA frame in mesh")
+Signed-off-by: Hari Chandrakanthan <quic_haric@quicinc.com>
+Link: https://lore.kernel.org/r/1658903549-21218-1-git-send-email-quic_haric@quicinc.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/mm/numa.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/mac80211/cfg.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/ia64/mm/numa.c b/arch/ia64/mm/numa.c
-index d6579ec3ea32..4c7b1f50e3b7 100644
---- a/arch/ia64/mm/numa.c
-+++ b/arch/ia64/mm/numa.c
-@@ -75,5 +75,6 @@ int memory_add_physaddr_to_nid(u64 addr)
- 		return 0;
- 	return nid;
- }
-+EXPORT_SYMBOL(memory_add_physaddr_to_nid);
- #endif
- #endif
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index f769b08e6f2a..94293b57f1b2 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -3111,9 +3111,6 @@ static int ieee80211_set_csa_beacon(struct ieee80211_sub_if_data *sdata,
+ 	case NL80211_IFTYPE_MESH_POINT: {
+ 		struct ieee80211_if_mesh *ifmsh = &sdata->u.mesh;
+ 
+-		if (params->chandef.width != sdata->vif.bss_conf.chandef.width)
+-			return -EINVAL;
+-
+ 		/* changes into another band are not supported */
+ 		if (sdata->vif.bss_conf.chandef.chan->band !=
+ 		    params->chandef.chan->band)
 -- 
 2.35.1
 
