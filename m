@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EC5960A4BD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:15:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A986E60AB02
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:43:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233014AbiJXMPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:15:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50692 "EHLO
+        id S236194AbiJXNm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:42:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233400AbiJXMPB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:15:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08EDC7962F;
-        Mon, 24 Oct 2022 04:55:46 -0700 (PDT)
+        with ESMTP id S236946AbiJXNlo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:41:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD12589CD9;
+        Mon, 24 Oct 2022 05:39:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A60061252;
-        Mon, 24 Oct 2022 11:55:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A062EC433D6;
-        Mon, 24 Oct 2022 11:55:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8793612B9;
+        Mon, 24 Oct 2022 12:21:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC426C433C1;
+        Mon, 24 Oct 2022 12:21:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612537;
-        bh=Nrjzs/H2egeDQFrckuWu56rSL09kwzfFao0QMA0ZHHY=;
+        s=korg; t=1666614119;
+        bh=5oeE4Nip2MNHWH6639bIy7GZaUUjFD33jk19AaLahBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQ6YD/5/Z7h2HP9Z81MG/4R7lL7UzjXPJOk4NnjV+7WVffOG3JXfs2eMHR11NvP3E
-         Bi6NfNsLNV8NbXkw5N6ikHE/XF8WV93Nmd2WUweQWaiIe6YkZ3xJPb2mjv8V8PmbWu
-         MY5udkiLQTBaqQK6kh6xdqRYba/L2ZzRDYqZkoiQ=
+        b=l7qKr0/q2nn5g7DICBBi1iW+p3vJ60XUy/XRlteQlErv1SCSPgGGTAPduCBxaH1+9
+         b+Xtu5zW9wqYFLTghpMvSnMNHt5Ytg/EpR8VgoU7810nvQTGdCHuRut0xa+R46nlPj
+         ywI3h9IejvZdd8D+PWIv1k2IohjMgYQ5QWqZQ5go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Andrew Chernyakov <acherniakov@astralinux.ru>
-Subject: [PATCH 4.19 017/229] rpmsg: qcom: glink: replace strncpy() with strscpy_pad()
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 139/390] once: add DO_ONCE_SLOW() for sleepable contexts
 Date:   Mon, 24 Oct 2022 13:28:56 +0200
-Message-Id: <20221024112959.697830355@linuxfoundation.org>
+Message-Id: <20221024113028.591867745@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +55,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 766279a8f85df32345dbda03b102ca1ee3d5ddea upstream.
+[ Upstream commit 62c07983bef9d3e78e71189441e1a470f0d1e653 ]
 
-The use of strncpy() is considered deprecated for NUL-terminated
-strings[1]. Replace strncpy() with strscpy_pad(), to keep existing
-pad-behavior of strncpy, similarly to commit 08de420a8014 ("rpmsg:
-glink: Replace strncpy() with strscpy_pad()").  This fixes W=1 warning:
+Christophe Leroy reported a ~80ms latency spike
+happening at first TCP connect() time.
 
-  In function ‘qcom_glink_rx_close’,
-    inlined from ‘qcom_glink_work’ at ../drivers/rpmsg/qcom_glink_native.c:1638:4:
-  drivers/rpmsg/qcom_glink_native.c:1549:17: warning: ‘strncpy’ specified bound 32 equals destination size [-Wstringop-truncation]
-   1549 |                 strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
+This is because __inet_hash_connect() uses get_random_once()
+to populate a perturbation table which became quite big
+after commit 4c2c8f03a5ab ("tcp: increase source port perturb table to 2^16")
 
-[1] https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings
+get_random_once() uses DO_ONCE(), which block hard irqs for the duration
+of the operation.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220519073330.7187-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Andrew Chernyakov <acherniakov@astralinux.ru>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch adds DO_ONCE_SLOW() which uses a mutex instead of a spinlock
+for operations where we prefer to stay in process context.
+
+Then __inet_hash_connect() can use get_random_slow_once()
+to populate its perturbation table.
+
+Fixes: 4c2c8f03a5ab ("tcp: increase source port perturb table to 2^16")
+Fixes: 190cc82489f4 ("tcp: change source port randomizarion at connect() time")
+Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Link: https://lore.kernel.org/netdev/CANn89iLAEYBaoYajy0Y9UmGFff5GPxDUoG-ErVB2jDdRNQ5Tug@mail.gmail.com/T/#t
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Willy Tarreau <w@1wt.eu>
+Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rpmsg/qcom_glink_native.c |    2 +-
- drivers/rpmsg/qcom_smd.c          |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ include/linux/once.h       | 28 ++++++++++++++++++++++++++++
+ lib/once.c                 | 30 ++++++++++++++++++++++++++++++
+ net/ipv4/inet_hashtables.c |  4 ++--
+ 3 files changed, 60 insertions(+), 2 deletions(-)
 
---- a/drivers/rpmsg/qcom_glink_native.c
-+++ b/drivers/rpmsg/qcom_glink_native.c
-@@ -1472,7 +1472,7 @@ static void qcom_glink_rx_close(struct q
- 	cancel_work_sync(&channel->intent_work);
+diff --git a/include/linux/once.h b/include/linux/once.h
+index ae6f4eb41cbe..bb58e1c3aa03 100644
+--- a/include/linux/once.h
++++ b/include/linux/once.h
+@@ -5,10 +5,18 @@
+ #include <linux/types.h>
+ #include <linux/jump_label.h>
  
- 	if (channel->rpdev) {
--		strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
-+		strscpy_pad(chinfo.name, channel->name, sizeof(chinfo.name));
- 		chinfo.src = RPMSG_ADDR_ANY;
- 		chinfo.dst = RPMSG_ADDR_ANY;
++/* Helpers used from arbitrary contexts.
++ * Hard irqs are blocked, be cautious.
++ */
+ bool __do_once_start(bool *done, unsigned long *flags);
+ void __do_once_done(bool *done, struct static_key_true *once_key,
+ 		    unsigned long *flags, struct module *mod);
  
---- a/drivers/rpmsg/qcom_smd.c
-+++ b/drivers/rpmsg/qcom_smd.c
-@@ -1073,7 +1073,7 @@ static int qcom_smd_create_device(struct
++/* Variant for process contexts only. */
++bool __do_once_slow_start(bool *done);
++void __do_once_slow_done(bool *done, struct static_key_true *once_key,
++			 struct module *mod);
++
+ /* Call a function exactly once. The idea of DO_ONCE() is to perform
+  * a function call such as initialization of random seeds, etc, only
+  * once, where DO_ONCE() can live in the fast-path. After @func has
+@@ -52,9 +60,29 @@ void __do_once_done(bool *done, struct static_key_true *once_key,
+ 		___ret;							     \
+ 	})
  
- 	/* Assign public information to the rpmsg_device */
- 	rpdev = &qsdev->rpdev;
--	strncpy(rpdev->id.name, channel->name, RPMSG_NAME_SIZE);
-+	strscpy_pad(rpdev->id.name, channel->name, RPMSG_NAME_SIZE);
- 	rpdev->src = RPMSG_ADDR_ANY;
- 	rpdev->dst = RPMSG_ADDR_ANY;
++/* Variant of DO_ONCE() for process/sleepable contexts. */
++#define DO_ONCE_SLOW(func, ...)						     \
++	({								     \
++		bool ___ret = false;					     \
++		static bool __section(".data.once") ___done = false;	     \
++		static DEFINE_STATIC_KEY_TRUE(___once_key);		     \
++		if (static_branch_unlikely(&___once_key)) {		     \
++			___ret = __do_once_slow_start(&___done);	     \
++			if (unlikely(___ret)) {				     \
++				func(__VA_ARGS__);			     \
++				__do_once_slow_done(&___done, &___once_key,  \
++						    THIS_MODULE);	     \
++			}						     \
++		}							     \
++		___ret;							     \
++	})
++
+ #define get_random_once(buf, nbytes)					     \
+ 	DO_ONCE(get_random_bytes, (buf), (nbytes))
+ #define get_random_once_wait(buf, nbytes)                                    \
+ 	DO_ONCE(get_random_bytes_wait, (buf), (nbytes))                      \
  
-@@ -1304,7 +1304,7 @@ static void qcom_channel_state_worker(st
++#define get_random_slow_once(buf, nbytes)				     \
++	DO_ONCE_SLOW(get_random_bytes, (buf), (nbytes))
++
+ #endif /* _LINUX_ONCE_H */
+diff --git a/lib/once.c b/lib/once.c
+index 59149bf3bfb4..351f66aad310 100644
+--- a/lib/once.c
++++ b/lib/once.c
+@@ -66,3 +66,33 @@ void __do_once_done(bool *done, struct static_key_true *once_key,
+ 	once_disable_jump(once_key, mod);
+ }
+ EXPORT_SYMBOL(__do_once_done);
++
++static DEFINE_MUTEX(once_mutex);
++
++bool __do_once_slow_start(bool *done)
++	__acquires(once_mutex)
++{
++	mutex_lock(&once_mutex);
++	if (*done) {
++		mutex_unlock(&once_mutex);
++		/* Keep sparse happy by restoring an even lock count on
++		 * this mutex. In case we return here, we don't call into
++		 * __do_once_done but return early in the DO_ONCE_SLOW() macro.
++		 */
++		__acquire(once_mutex);
++		return false;
++	}
++
++	return true;
++}
++EXPORT_SYMBOL(__do_once_slow_start);
++
++void __do_once_slow_done(bool *done, struct static_key_true *once_key,
++			 struct module *mod)
++	__releases(once_mutex)
++{
++	*done = true;
++	mutex_unlock(&once_mutex);
++	once_disable_jump(once_key, mod);
++}
++EXPORT_SYMBOL(__do_once_slow_done);
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index feb7f072f2b2..c0de655fffd7 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -771,8 +771,8 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 	if (likely(remaining > 1))
+ 		remaining &= ~1U;
  
- 		spin_unlock_irqrestore(&edge->channels_lock, flags);
+-	net_get_random_once(table_perturb,
+-			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
++	get_random_slow_once(table_perturb,
++			     INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
+ 	index = port_offset & (INET_TABLE_PERTURB_SIZE - 1);
  
--		strncpy(chinfo.name, channel->name, sizeof(chinfo.name));
-+		strscpy_pad(chinfo.name, channel->name, sizeof(chinfo.name));
- 		chinfo.src = RPMSG_ADDR_ANY;
- 		chinfo.dst = RPMSG_ADDR_ANY;
- 		rpmsg_unregister_device(&edge->dev, &chinfo);
+ 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
+-- 
+2.35.1
+
 
 
