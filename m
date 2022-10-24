@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 388B960B11E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:16:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D78F60B081
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234056AbiJXQQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:16:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57474 "EHLO
+        id S232342AbiJXQGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:06:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234003AbiJXQMc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:12:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 796594D808;
-        Mon, 24 Oct 2022 08:01:53 -0700 (PDT)
+        with ESMTP id S233505AbiJXQEp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F262013F6C;
+        Mon, 24 Oct 2022 07:57:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D40DB8159E;
-        Mon, 24 Oct 2022 12:17:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0C01C433C1;
-        Mon, 24 Oct 2022 12:17:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D99FBB81630;
+        Mon, 24 Oct 2022 12:18:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D139C433D6;
+        Mon, 24 Oct 2022 12:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613874;
-        bh=TnC0nw3vGFM0fLbfbRouKq97FKMT/UbbDwEy8JkEgmg=;
+        s=korg; t=1666613926;
+        bh=Q39EAbnq4NOHgHPvPqteBhV/UhoTJX8hhLH9VJiuayQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kNDsNQgpNDEE8mh4DIr0iQEjkVfmpGjrDaFztez22LKU1pXuDlAi7A35Fzn9ErcYk
-         2zyP6n3bYs/a/fcTQXnqQSps9mnKH8V9H1rmaBkciNDuRBxVD8eMn0lalRZ+3WmItY
-         Tx+XK9liyzGpf8pXvG/JF6ZFXv465opMUoZ6Etug=
+        b=TMLYSoU5j5rc/9ZJmCPKR53VLoi9qWCHlamM24FEXi3QR45Vgk1ARKuvye2OxxUUB
+         Ppt6MEa7zTwijqxfUE8p5zd7TML8xJ5YTnyAeFM56FFOXxwlJ4svJhVsaGCJp65Pjr
+         WyObJzo0z7y8+y8Hu88VWXDw7Gj3kt1dtqYzawRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
-        Wang Wendy <wendy.wang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 045/390] powercap: intel_rapl: Use standard Energy Unit for SPR Dram RAPL domain
-Date:   Mon, 24 Oct 2022 13:27:22 +0200
-Message-Id: <20221024113024.537040134@linuxfoundation.org>
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 049/390] btrfs: fix race between quota enable and quota rescan ioctl
+Date:   Mon, 24 Oct 2022 13:27:26 +0200
+Message-Id: <20221024113024.720487503@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -53,35 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Rui <rui.zhang@intel.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 4c081324df5608b73428662ca54d5221ea03a6bd upstream.
+commit 331cd9461412e103d07595a10289de90004ac890 upstream.
 
-Intel Xeon servers used to use a fixed energy resolution (15.3uj) for
-Dram RAPL domain. But on SPR, Dram RAPL domain follows the standard
-energy resolution as described in MSR_RAPL_POWER_UNIT.
+When enabling quotas, at btrfs_quota_enable(), after committing the
+transaction, we change fs_info->quota_root to point to the quota root we
+created and set BTRFS_FS_QUOTA_ENABLED at fs_info->flags. Then we try
+to start the qgroup rescan worker, first by initializing it with a call
+to qgroup_rescan_init() - however if that fails we end up freeing the
+quota root but we leave fs_info->quota_root still pointing to it, this
+can later result in a use-after-free somewhere else.
 
-Remove the SPR dram_domain_energy_unit quirk.
+We have previously set the flags BTRFS_FS_QUOTA_ENABLED and
+BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with -EINPROGRESS at
+btrfs_quota_enable(), which is possible if someone already called the
+quota rescan ioctl, and therefore started the rescan worker.
 
-Fixes: 2d798d9f5967 ("powercap: intel_rapl: add support for Sapphire Rapids")
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Tested-by: Wang Wendy <wendy.wang@intel.com>
-Cc: 5.9+ <stable@vger.kernel.org> # 5.9+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+So fix this by ignoring an -EINPROGRESS and asserting we can't get any
+other error.
+
+Reported-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/linux-btrfs/20220823015931.421355-1-yebin10@huawei.com/
+CC: stable@vger.kernel.org # 4.19+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/powercap/intel_rapl_common.c |    1 -
- 1 file changed, 1 deletion(-)
+ fs/btrfs/qgroup.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/drivers/powercap/intel_rapl_common.c
-+++ b/drivers/powercap/intel_rapl_common.c
-@@ -979,7 +979,6 @@ static const struct rapl_defaults rapl_d
- 	.check_unit = rapl_check_unit_core,
- 	.set_floor_freq = set_floor_freq_default,
- 	.compute_time_window = rapl_compute_time_window_core,
--	.dram_domain_energy_unit = 15300,
- 	.psys_domain_energy_unit = 1000000000,
- };
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -1158,6 +1158,21 @@ out_add_root:
+ 		fs_info->qgroup_rescan_running = true;
+ 	        btrfs_queue_work(fs_info->qgroup_rescan_workers,
+ 	                         &fs_info->qgroup_rescan_work);
++	} else {
++		/*
++		 * We have set both BTRFS_FS_QUOTA_ENABLED and
++		 * BTRFS_QGROUP_STATUS_FLAG_ON, so we can only fail with
++		 * -EINPROGRESS. That can happen because someone started the
++		 * rescan worker by calling quota rescan ioctl before we
++		 * attempted to initialize the rescan worker. Failure due to
++		 * quotas disabled in the meanwhile is not possible, because
++		 * we are holding a write lock on fs_info->subvol_sem, which
++		 * is also acquired when disabling quotas.
++		 * Ignore such error, and any other error would need to undo
++		 * everything we did in the transaction we just committed.
++		 */
++		ASSERT(ret == -EINPROGRESS);
++		ret = 0;
+ 	}
  
+ out_free_path:
 
 
