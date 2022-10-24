@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2FE260A6CB
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:41:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1843960A723
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232094AbiJXMk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:40:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43768 "EHLO
+        id S234221AbiJXMsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:48:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232303AbiJXMhC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:37:02 -0400
+        with ESMTP id S234462AbiJXMox (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:44:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E1D8994A;
-        Mon, 24 Oct 2022 05:06:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA848D0F8;
+        Mon, 24 Oct 2022 05:09:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D382E612F0;
-        Mon, 24 Oct 2022 12:05:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E350CC433C1;
-        Mon, 24 Oct 2022 12:05:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3489D612B7;
+        Mon, 24 Oct 2022 11:45:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4994AC433C1;
+        Mon, 24 Oct 2022 11:45:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613132;
-        bh=urrhEJtct4bcw8a1xS0BclzyA+n+yNouVsNJBzE1OLE=;
+        s=korg; t=1666611951;
+        bh=Pn7N0lDbqubT2jqOC+Riwc4YjEZ/kjT5mCm8lUm7QKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zY9mTwZYwgq1EomY6r3eQMa+2znDocgz+/K1hq5N3Sd9EtewKYPUtegt0V6w+GvZ7
-         v0h7mhkCIw5MULJUUSDLmeKUPw4HI4atuDY/kWEy8Muk6fF4bJ0acSDYZo9dIndr/3
-         dW8G7MIN0BdWWJqm9F76fiv7j9y6Lw4zOufkEDmA=
+        b=Fo5yRuJZHWAGbrfDmRTtu7chlxQx86upJ4bfEt0YIvvZNnSZ6Ft07R5U5Yv9fcU15
+         CllOm85aTVxSskXPyCfYCsy5BIb5Qsz4AMuAfqp+rXbd5m4KcXmPXAa2Q4vHsW8l2A
+         OKqCRog0ukusQFUoCrtaUeTT1WpLOexx1pJCjk1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenchao Chen <wenchao.chen@unisoc.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 020/255] mmc: sdhci-sprd: Fix minimum clock limit
-Date:   Mon, 24 Oct 2022 13:28:50 +0200
-Message-Id: <20221024113003.109807512@linuxfoundation.org>
+        stable@vger.kernel.org, Peilin Ye <peilin.ye@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+dcd3e13cf4472f2e0ba1@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 014/210] usbnet: Fix memory leak in usbnet_disconnect()
+Date:   Mon, 24 Oct 2022 13:28:51 +0200
+Message-Id: <20221024112957.386708469@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenchao Chen <wenchao.chen@unisoc.com>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-commit 6e141772e6465f937458b35ddcfd0a981b6f5280 upstream.
+[ Upstream commit a43206156263fbaf1f2b7f96257441f331e91bb7 ]
 
-The Spreadtrum controller supports 100KHz minimal clock rate, which means
-that the current value 400KHz is wrong.
+Currently usbnet_disconnect() unanchors and frees all deferred URBs
+using usb_scuttle_anchored_urbs(), which does not free urb->context,
+causing a memory leak as reported by syzbot.
 
-Unfortunately this has also lead to fail to initialize some cards, which
-are allowed to require 100KHz to work. So, let's fix the problem by
-changing the minimal supported clock rate to 100KHz.
+Use a usb_get_from_anchor() while loop instead, similar to what we did
+in commit 19cfe912c37b ("Bluetooth: btusb: Fix memory leak in
+play_deferred").  Also free urb->sg.
 
-Signed-off-by: Wenchao Chen <wenchao.chen@unisoc.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: fb8bd90f83c4 ("mmc: sdhci-sprd: Add Spreadtrum's initial host controller")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221011104935.10980-1-wenchao.chen666@gmail.com
-[Ulf: Clarified to commit-message]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-and-tested-by: syzbot+dcd3e13cf4472f2e0ba1@syzkaller.appspotmail.com
+Fixes: 69ee472f2706 ("usbnet & cdc-ether: Autosuspend for online devices")
+Fixes: 638c5115a794 ("USBNET: support DMA SG")
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Link: https://lore.kernel.org/r/20220923042551.2745-1-yepeilin.cs@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-sprd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/usbnet.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci-sprd.c
-+++ b/drivers/mmc/host/sdhci-sprd.c
-@@ -295,7 +295,7 @@ static unsigned int sdhci_sprd_get_max_c
+diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
+index 69be3593bc0e..71b026277b30 100644
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -1598,6 +1598,7 @@ void usbnet_disconnect (struct usb_interface *intf)
+ 	struct usbnet		*dev;
+ 	struct usb_device	*xdev;
+ 	struct net_device	*net;
++	struct urb		*urb;
  
- static unsigned int sdhci_sprd_get_min_clock(struct sdhci_host *host)
- {
--	return 400000;
-+	return 100000;
- }
+ 	dev = usb_get_intfdata(intf);
+ 	usb_set_intfdata(intf, NULL);
+@@ -1614,7 +1615,11 @@ void usbnet_disconnect (struct usb_interface *intf)
+ 	net = dev->net;
+ 	unregister_netdev (net);
  
- static void sdhci_sprd_set_uhs_signaling(struct sdhci_host *host,
+-	usb_scuttle_anchored_urbs(&dev->deferred);
++	while ((urb = usb_get_from_anchor(&dev->deferred))) {
++		dev_kfree_skb(urb->context);
++		kfree(urb->sg);
++		usb_free_urb(urb);
++	}
+ 
+ 	if (dev->driver_info->unbind)
+ 		dev->driver_info->unbind (dev, intf);
+-- 
+2.35.1
+
 
 
