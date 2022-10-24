@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB73F60AD1D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:18:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E1E260ACE2
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233293AbiJXOSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:18:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54572 "EHLO
+        id S233993AbiJXOQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:16:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233583AbiJXOQf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:16:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D2BCC836;
-        Mon, 24 Oct 2022 05:56:02 -0700 (PDT)
+        with ESMTP id S236212AbiJXOPN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:15:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 857082DA86;
+        Mon, 24 Oct 2022 05:55:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B380B8171A;
-        Mon, 24 Oct 2022 12:33:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D056BC433C1;
-        Mon, 24 Oct 2022 12:33:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 572C16133D;
+        Mon, 24 Oct 2022 12:52:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6866FC433D7;
+        Mon, 24 Oct 2022 12:52:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614796;
-        bh=QHolA/OG9b0aq0+4xFDwS22hchZVMgKudTulwkkkeH8=;
+        s=korg; t=1666615952;
+        bh=a+sMAFLjX68L2kxSVMElN69vaO37Vkarqiw6jNLmAIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nq5gbjgP6pv0emZCv5n7lcXV0/W/4JB+iliVPSs6G0IcNDaeWFC9aWeutAd4pCYyO
-         RQg3ZVADg+XiByk3oZ/qejCBBZLp3/b7sNuOuuuwqPT0l+4B/HOd5FVVKl8aZ+GLvV
-         SRgirzZuWjWkKzmVhA7Beuc+HMVM5kv2yvTmsKnY=
+        b=OtPWU0VvQpr4zL8WSmy4iVWLDoCeUpKmbLU1wccDuQ1S+HJZ7aIsXx90mFrRoGRDG
+         cQ0ja6IOiHzKHjFteCFY9nzCpGCK35/SBQMamKqfNM1r4pcQG/vFIcqFUWWa4z1au5
+         T0STPwsHjb4stgxph/I1E2fPNr4v8FsGlx1NUWyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Liska <mliska@suse.cz>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 390/390] gcov: support GCC 12.1 and newer compilers
-Date:   Mon, 24 Oct 2022 13:33:07 +0200
-Message-Id: <20221024113039.579086999@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Carsten Haitzler <carsten.haitzler@arm.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 446/530] drm/komeda: Fix handling of atomic commits in the atomic_commit_tail hook
+Date:   Mon, 24 Oct 2022 13:33:10 +0200
+Message-Id: <20221024113105.221206327@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +54,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Liska <mliska@suse.cz>
+From: Liviu Dudau <liviu.dudau@arm.com>
 
-commit 977ef30a7d888eeb52fb6908f99080f33e5309a8 upstream.
+[ Upstream commit eaa225b6b52233d45457fd33730e1528c604d92d ]
 
-Starting with GCC 12.1, the created .gcda format can't be read by gcov
-tool.  There are 2 significant changes to the .gcda file format that
-need to be supported:
+Komeda driver relies on the generic DRM atomic helper functions to handle
+commits. It only implements an atomic_commit_tail hook for the
+mode_config_helper_funcs and even that one is pretty close to the generic
+implementation with the exception of additional dma_fence signalling.
 
-a) [gcov: Use system IO buffering]
-   (23eb66d1d46a34cb28c4acbdf8a1deb80a7c5a05) changed that all sizes in
-   the format are in bytes and not in words (4B)
+What the generic helper framework doesn't do is waiting for the actual
+hardware to signal that the commit parameters have been written into the
+appropriate registers. As we signal CRTC events only on the irq handlers,
+we need to flush the configuration and wait for the hardware to respond.
 
-b) [gcov: make profile merging smarter]
-   (72e0c742bd01f8e7e6dcca64042b9ad7e75979de) add a new checksum to the
-   file header.
+Add the Komeda specific implementation for atomic_commit_hw_done() that
+flushes and waits for flip done before calling drm_atomic_helper_commit_hw_done().
 
-Tested with GCC 7.5, 10.4, 12.2 and the current master.
+The fix was prompted by a patch from Carsten Haitzler where he was trying to
+solve the same issue but in a different way that I think can lead to wrong
+event signaling to userspace.
 
-Link: https://lkml.kernel.org/r/624bda92-f307-30e9-9aaa-8cc678b2dfb2@suse.cz
-Signed-off-by: Martin Liska <mliska@suse.cz>
-Tested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Carsten Haitzler <carsten.haitzler@arm.com>
+Tested-by: Carsten Haitzler <carsten.haitzler@arm.com>
+Reviewed-by: Carsten Haitzler <carsten.haitzler@arm.com>
+Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220722122139.288486-1-liviu.dudau@arm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/gcov/gcc_4_7.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ .../gpu/drm/arm/display/komeda/komeda_crtc.c  |  4 ++--
+ .../gpu/drm/arm/display/komeda/komeda_kms.c   | 21 ++++++++++++++++++-
+ .../gpu/drm/arm/display/komeda/komeda_kms.h   |  2 ++
+ 3 files changed, 24 insertions(+), 3 deletions(-)
 
---- a/kernel/gcov/gcc_4_7.c
-+++ b/kernel/gcov/gcc_4_7.c
-@@ -33,6 +33,13 @@
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c b/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c
+index 59172acb9738..292f533d8cf0 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c
+@@ -235,7 +235,7 @@ void komeda_crtc_handle_event(struct komeda_crtc   *kcrtc,
+ 			crtc->state->event = NULL;
+ 			drm_crtc_send_vblank_event(crtc, event);
+ 		} else {
+-			DRM_WARN("CRTC[%d]: FLIP happen but no pending commit.\n",
++			DRM_WARN("CRTC[%d]: FLIP happened but no pending commit.\n",
+ 				 drm_crtc_index(&kcrtc->base));
+ 		}
+ 		spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
+@@ -286,7 +286,7 @@ komeda_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	komeda_crtc_do_flush(crtc, old);
+ }
  
- #define GCOV_TAG_FUNCTION_LENGTH	3
+-static void
++void
+ komeda_crtc_flush_and_wait_for_flip_done(struct komeda_crtc *kcrtc,
+ 					 struct completion *input_flip_done)
+ {
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_kms.c b/drivers/gpu/drm/arm/display/komeda/komeda_kms.c
+index 93b7f09b96ca..327051bba5b6 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_kms.c
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_kms.c
+@@ -69,6 +69,25 @@ static const struct drm_driver komeda_kms_driver = {
+ 	.minor = 1,
+ };
  
-+/* Since GCC 12.1 sizes are in BYTES and not in WORDS (4B). */
-+#if (__GNUC__ >= 12)
-+#define GCOV_UNIT_SIZE				4
-+#else
-+#define GCOV_UNIT_SIZE				1
-+#endif
++static void komeda_kms_atomic_commit_hw_done(struct drm_atomic_state *state)
++{
++	struct drm_device *dev = state->dev;
++	struct komeda_kms_dev *kms = to_kdev(dev);
++	int i;
 +
- static struct gcov_info *gcov_info_head;
- 
- /**
-@@ -451,12 +458,18 @@ static size_t convert_to_gcda(char *buff
- 	pos += store_gcov_u32(buffer, pos, info->version);
- 	pos += store_gcov_u32(buffer, pos, info->stamp);
- 
-+#if (__GNUC__ >= 12)
-+	/* Use zero as checksum of the compilation unit. */
-+	pos += store_gcov_u32(buffer, pos, 0);
-+#endif
++	for (i = 0; i < kms->n_crtcs; i++) {
++		struct komeda_crtc *kcrtc = &kms->crtcs[i];
 +
- 	for (fi_idx = 0; fi_idx < info->n_functions; fi_idx++) {
- 		fi_ptr = info->functions[fi_idx];
++		if (kcrtc->base.state->active) {
++			struct completion *flip_done = NULL;
++			if (kcrtc->base.state->event)
++				flip_done = kcrtc->base.state->event->base.completion;
++			komeda_crtc_flush_and_wait_for_flip_done(kcrtc, flip_done);
++		}
++	}
++	drm_atomic_helper_commit_hw_done(state);
++}
++
+ static void komeda_kms_commit_tail(struct drm_atomic_state *old_state)
+ {
+ 	struct drm_device *dev = old_state->dev;
+@@ -81,7 +100,7 @@ static void komeda_kms_commit_tail(struct drm_atomic_state *old_state)
  
- 		/* Function record. */
- 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION);
--		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION_LENGTH);
-+		pos += store_gcov_u32(buffer, pos,
-+			GCOV_TAG_FUNCTION_LENGTH * GCOV_UNIT_SIZE);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->ident);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->lineno_checksum);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
-@@ -470,7 +483,8 @@ static size_t convert_to_gcda(char *buff
- 			/* Counter record. */
- 			pos += store_gcov_u32(buffer, pos,
- 					      GCOV_TAG_FOR_COUNTER(ct_idx));
--			pos += store_gcov_u32(buffer, pos, ci_ptr->num * 2);
-+			pos += store_gcov_u32(buffer, pos,
-+				ci_ptr->num * 2 * GCOV_UNIT_SIZE);
+ 	drm_atomic_helper_commit_modeset_enables(dev, old_state);
  
- 			for (cv_idx = 0; cv_idx < ci_ptr->num; cv_idx++) {
- 				pos += store_gcov_u64(buffer, pos,
+-	drm_atomic_helper_commit_hw_done(old_state);
++	komeda_kms_atomic_commit_hw_done(old_state);
+ 
+ 	drm_atomic_helper_wait_for_flip_done(dev, old_state);
+ 
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_kms.h b/drivers/gpu/drm/arm/display/komeda/komeda_kms.h
+index 456f3c435719..bf6e8fba5061 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_kms.h
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_kms.h
+@@ -182,6 +182,8 @@ void komeda_kms_cleanup_private_objs(struct komeda_kms_dev *kms);
+ 
+ void komeda_crtc_handle_event(struct komeda_crtc   *kcrtc,
+ 			      struct komeda_events *evts);
++void komeda_crtc_flush_and_wait_for_flip_done(struct komeda_crtc *kcrtc,
++					      struct completion *input_flip_done);
+ 
+ struct komeda_kms_dev *komeda_kms_attach(struct komeda_dev *mdev);
+ void komeda_kms_detach(struct komeda_kms_dev *kms);
+-- 
+2.35.1
+
 
 
