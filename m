@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB69A60A3D5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9771A60A3C2
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229667AbiJXMAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:00:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47480 "EHLO
+        id S232239AbiJXMAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:00:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232706AbiJXL7m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:59:42 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556057C32A;
-        Mon, 24 Oct 2022 04:48:31 -0700 (PDT)
+        with ESMTP id S232460AbiJXL7A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:59:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6045E76477;
+        Mon, 24 Oct 2022 04:47:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9B649CE1345;
-        Mon, 24 Oct 2022 11:46:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6CFBC43470;
-        Mon, 24 Oct 2022 11:46:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B7C36125D;
+        Mon, 24 Oct 2022 11:46:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F193C433D6;
+        Mon, 24 Oct 2022 11:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611962;
-        bh=sZfDOB834hhSVuiDo3MCa/tqco0ZuFkXP+70BfAQrcg=;
+        s=korg; t=1666611964;
+        bh=d/xpHVEVIyaWlHQDxxHGdkYh53L4gC3suwuiCWj92YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R5CN6sUDsFGZWr+H3V6AfKJuY/GF4/0NNPXsZmkGXI7bKOhVAY6qkWxyLU+A4AS8I
-         iKYXg66MkMqTyuyXX/+gKvkaMcOxN1rTcClqnON2exZqPtQxdweEXAzaDVkYL1q5A0
-         FN1du+Z8TETzVG8ZGdoG0ZYu6z9E+5bzfBflKS2E=
+        b=WLFP1AGUIeqYbA8FqVUSNEcQJ7VXAAcyznCbFo+t/NAK43zCieaduUM0zHECn+iQa
+         zqCbQNURiOc4Pw1GFogXgGesH+GZC/elhv/+EG5vP00MqgaD3Dhl/+1jsSNqZqxJ/7
+         8ZGgqu3t5KI1jCv1yyLEwxfBC5TSKA6tiy5oO5Aw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lori Hikichi <lori.hikichi@broadcom.com>,
-        Stephen Boyd <sboyd@codeaurora.org>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 018/210] clk: iproc: Minor tidy up of iproc pll data structures
-Date:   Mon, 24 Oct 2022 13:28:55 +0200
-Message-Id: <20221024112957.542806389@linuxfoundation.org>
+Subject: [PATCH 4.14 019/210] clk: iproc: Do not rely on node name for correct PLL setup
+Date:   Mon, 24 Oct 2022 13:28:56 +0200
+Message-Id: <20221024112957.581294171@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -53,267 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lori Hikichi <lhikichi@broadcom.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit b33db49783763e1b2a63b12fbe0e91fb7147a987 ]
+[ Upstream commit 1b24a132eba7a1c19475ba2510ec1c00af3ff914 ]
 
-There were a few fields in the iproc pll data structures that were
-holding information that was not true state information.
-Using stack variables is sufficient and simplifies the structure.
-There are not any functional changes in this commit.
+After commit 31fd9b79dc58 ("ARM: dts: BCM5301X: update CRU block
+description") a warning from clk-iproc-pll.c was generated due to a
+duplicate PLL name as well as the console stopped working. Upon closer
+inspection it became clear that iproc_pll_clk_setup() used the Device
+Tree node unit name as an unique identifier as well as a parent name to
+parent all clocks under the PLL.
 
-Signed-off-by: Lori Hikichi <lori.hikichi@broadcom.com>
-Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
-Stable-dep-of: 1b24a132eba7 ("clk: iproc: Do not rely on node name for correct PLL setup")
+BCM5301X was the first platform on which that got noticed because of the
+DT node unit name renaming but the same assumptions hold true for any
+user of the iproc_pll_clk_setup() function.
+
+The first 'clock-output-names' property is always guaranteed to be
+unique as well as providing the actual desired PLL clock name, so we
+utilize that to register the PLL and as a parent name of all children
+clock.
+
+Fixes: 5fe225c105fd ("clk: iproc: add initial common clock support")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Rafał Miłecki <rafal@milecki.pl>
+Link: https://lore.kernel.org/r/20220905161504.1526-1-f.fainelli@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-iproc-pll.c | 83 ++++++++++++++-------------------
- 1 file changed, 36 insertions(+), 47 deletions(-)
+ drivers/clk/bcm/clk-iproc-pll.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/clk/bcm/clk-iproc-pll.c b/drivers/clk/bcm/clk-iproc-pll.c
-index 375d8dd80d45..0e858dbf2505 100644
+index 0e858dbf2505..2e59314522dd 100644
 --- a/drivers/clk/bcm/clk-iproc-pll.c
 +++ b/drivers/clk/bcm/clk-iproc-pll.c
-@@ -69,16 +69,6 @@ enum vco_freq_range {
- 	VCO_MAX       = 4000000000U,
- };
- 
--struct iproc_pll;
--
--struct iproc_clk {
--	struct clk_hw hw;
--	const char *name;
--	struct iproc_pll *pll;
--	unsigned long rate;
--	const struct iproc_clk_ctrl *ctrl;
--};
--
- struct iproc_pll {
- 	void __iomem *status_base;
- 	void __iomem *control_base;
-@@ -88,9 +78,12 @@ struct iproc_pll {
- 	const struct iproc_pll_ctrl *ctrl;
- 	const struct iproc_pll_vco_param *vco_param;
- 	unsigned int num_vco_entries;
-+};
- 
--	struct clk_hw_onecell_data *clk_data;
--	struct iproc_clk *clks;
-+struct iproc_clk {
-+	struct clk_hw hw;
-+	struct iproc_pll *pll;
-+	const struct iproc_clk_ctrl *ctrl;
- };
- 
- #define to_iproc_clk(hw) container_of(hw, struct iproc_clk, hw)
-@@ -263,6 +256,7 @@ static int pll_set_rate(struct iproc_clk *clk, unsigned int rate_index,
- 	u32 val;
- 	enum kp_band kp_index;
- 	unsigned long ref_freq;
-+	const char *clk_name = clk_hw_get_name(&clk->hw);
- 
- 	/*
- 	 * reference frequency = parent frequency / PDIV
-@@ -285,19 +279,19 @@ static int pll_set_rate(struct iproc_clk *clk, unsigned int rate_index,
- 		kp_index = KP_BAND_HIGH_HIGH;
- 	} else {
- 		pr_err("%s: pll: %s has invalid rate: %lu\n", __func__,
--				clk->name, rate);
-+				clk_name, rate);
- 		return -EINVAL;
- 	}
- 
- 	kp = get_kp(ref_freq, kp_index);
- 	if (kp < 0) {
--		pr_err("%s: pll: %s has invalid kp\n", __func__, clk->name);
-+		pr_err("%s: pll: %s has invalid kp\n", __func__, clk_name);
- 		return kp;
- 	}
- 
- 	ret = __pll_enable(pll);
- 	if (ret) {
--		pr_err("%s: pll: %s fails to enable\n", __func__, clk->name);
-+		pr_err("%s: pll: %s fails to enable\n", __func__, clk_name);
- 		return ret;
- 	}
- 
-@@ -354,7 +348,7 @@ static int pll_set_rate(struct iproc_clk *clk, unsigned int rate_index,
- 
- 	ret = pll_wait_for_lock(pll);
- 	if (ret < 0) {
--		pr_err("%s: pll: %s failed to lock\n", __func__, clk->name);
-+		pr_err("%s: pll: %s failed to lock\n", __func__, clk_name);
- 		return ret;
- 	}
- 
-@@ -390,16 +384,15 @@ static unsigned long iproc_pll_recalc_rate(struct clk_hw *hw,
- 	u32 val;
- 	u64 ndiv, ndiv_int, ndiv_frac;
- 	unsigned int pdiv;
-+	unsigned long rate;
- 
- 	if (parent_rate == 0)
- 		return 0;
- 
- 	/* PLL needs to be locked */
- 	val = readl(pll->status_base + ctrl->status.offset);
--	if ((val & (1 << ctrl->status.shift)) == 0) {
--		clk->rate = 0;
-+	if ((val & (1 << ctrl->status.shift)) == 0)
- 		return 0;
--	}
- 
- 	/*
- 	 * PLL output frequency =
-@@ -421,14 +414,14 @@ static unsigned long iproc_pll_recalc_rate(struct clk_hw *hw,
- 	val = readl(pll->control_base + ctrl->pdiv.offset);
- 	pdiv = (val >> ctrl->pdiv.shift) & bit_mask(ctrl->pdiv.width);
- 
--	clk->rate = (ndiv * parent_rate) >> 20;
-+	rate = (ndiv * parent_rate) >> 20;
- 
- 	if (pdiv == 0)
--		clk->rate *= 2;
-+		rate *= 2;
- 	else
--		clk->rate /= pdiv;
-+		rate /= pdiv;
- 
--	return clk->rate;
-+	return rate;
- }
- 
- static long iproc_pll_round_rate(struct clk_hw *hw, unsigned long rate,
-@@ -518,6 +511,7 @@ static unsigned long iproc_clk_recalc_rate(struct clk_hw *hw,
- 	struct iproc_pll *pll = clk->pll;
- 	u32 val;
- 	unsigned int mdiv;
-+	unsigned long rate;
- 
- 	if (parent_rate == 0)
- 		return 0;
-@@ -528,11 +522,11 @@ static unsigned long iproc_clk_recalc_rate(struct clk_hw *hw,
- 		mdiv = 256;
- 
- 	if (ctrl->flags & IPROC_CLK_MCLK_DIV_BY_2)
--		clk->rate = parent_rate / (mdiv * 2);
-+		rate = parent_rate / (mdiv * 2);
- 	else
--		clk->rate = parent_rate / mdiv;
-+		rate = parent_rate / mdiv;
- 
--	return clk->rate;
-+	return rate;
- }
- 
- static long iproc_clk_round_rate(struct clk_hw *hw, unsigned long rate,
-@@ -583,10 +577,6 @@ static int iproc_clk_set_rate(struct clk_hw *hw, unsigned long rate,
- 		val |= div << ctrl->mdiv.shift;
- 	}
- 	iproc_pll_write(pll, pll->control_base, ctrl->mdiv.offset, val);
--	if (ctrl->flags & IPROC_CLK_MCLK_DIV_BY_2)
--		clk->rate = parent_rate / (div * 2);
--	else
--		clk->rate = parent_rate / div;
- 
- 	return 0;
- }
-@@ -629,6 +619,8 @@ void iproc_pll_clk_setup(struct device_node *node,
- 	struct iproc_clk *iclk;
- 	struct clk_init_data init;
+@@ -621,6 +621,7 @@ void iproc_pll_clk_setup(struct device_node *node,
  	const char *parent_name;
-+	struct iproc_clk *iclk_array;
-+	struct clk_hw_onecell_data *clk_data;
+ 	struct iproc_clk *iclk_array;
+ 	struct clk_hw_onecell_data *clk_data;
++	const char *clk_name;
  
  	if (WARN_ON(!pll_ctrl) || WARN_ON(!clk_ctrl))
  		return;
-@@ -637,14 +629,14 @@ void iproc_pll_clk_setup(struct device_node *node,
- 	if (WARN_ON(!pll))
- 		return;
- 
--	pll->clk_data = kzalloc(sizeof(*pll->clk_data->hws) * num_clks +
--				sizeof(*pll->clk_data), GFP_KERNEL);
--	if (WARN_ON(!pll->clk_data))
-+	clk_data = kzalloc(sizeof(*clk_data->hws) * num_clks +
-+				sizeof(*clk_data), GFP_KERNEL);
-+	if (WARN_ON(!clk_data))
- 		goto err_clk_data;
--	pll->clk_data->num = num_clks;
-+	clk_data->num = num_clks;
- 
--	pll->clks = kcalloc(num_clks, sizeof(*pll->clks), GFP_KERNEL);
--	if (WARN_ON(!pll->clks))
-+	iclk_array = kcalloc(num_clks, sizeof(struct iproc_clk), GFP_KERNEL);
-+	if (WARN_ON(!iclk_array))
- 		goto err_clks;
- 
- 	pll->control_base = of_iomap(node, 0);
-@@ -674,9 +666,8 @@ void iproc_pll_clk_setup(struct device_node *node,
- 	/* initialize and register the PLL itself */
- 	pll->ctrl = pll_ctrl;
- 
--	iclk = &pll->clks[0];
-+	iclk = &iclk_array[0];
+@@ -669,7 +670,12 @@ void iproc_pll_clk_setup(struct device_node *node,
+ 	iclk = &iclk_array[0];
  	iclk->pll = pll;
--	iclk->name = node->name;
  
- 	init.name = node->name;
+-	init.name = node->name;
++	ret = of_property_read_string_index(node, "clock-output-names",
++					    0, &clk_name);
++	if (WARN_ON(ret))
++		goto err_pll_register;
++
++	init.name = clk_name;
  	init.ops = &iproc_pll_ops;
-@@ -697,7 +688,7 @@ void iproc_pll_clk_setup(struct device_node *node,
- 	if (WARN_ON(ret))
+ 	init.flags = 0;
+ 	parent_name = of_clk_get_parent_name(node, 0);
+@@ -689,13 +695,11 @@ void iproc_pll_clk_setup(struct device_node *node,
  		goto err_pll_register;
  
--	pll->clk_data->hws[0] = &iclk->hw;
-+	clk_data->hws[0] = &iclk->hw;
+ 	clk_data->hws[0] = &iclk->hw;
++	parent_name = clk_name;
  
  	/* now initialize and register all leaf clocks */
  	for (i = 1; i < num_clks; i++) {
-@@ -711,8 +702,7 @@ void iproc_pll_clk_setup(struct device_node *node,
- 		if (WARN_ON(ret))
- 			goto err_clk_register;
+-		const char *clk_name;
+-
+ 		memset(&init, 0, sizeof(init));
+-		parent_name = node->name;
  
--		iclk = &pll->clks[i];
--		iclk->name = clk_name;
-+		iclk = &iclk_array[i];
- 		iclk->pll = pll;
- 		iclk->ctrl = &clk_ctrl[i];
- 
-@@ -727,11 +717,10 @@ void iproc_pll_clk_setup(struct device_node *node,
- 		if (WARN_ON(ret))
- 			goto err_clk_register;
- 
--		pll->clk_data->hws[i] = &iclk->hw;
-+		clk_data->hws[i] = &iclk->hw;
- 	}
- 
--	ret = of_clk_add_hw_provider(node, of_clk_hw_onecell_get,
--				     pll->clk_data);
-+	ret = of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
- 	if (WARN_ON(ret))
- 		goto err_clk_register;
- 
-@@ -739,7 +728,7 @@ void iproc_pll_clk_setup(struct device_node *node,
- 
- err_clk_register:
- 	while (--i >= 0)
--		clk_hw_unregister(pll->clk_data->hws[i]);
-+		clk_hw_unregister(clk_data->hws[i]);
- 
- err_pll_register:
- 	if (pll->status_base != pll->control_base)
-@@ -756,10 +745,10 @@ void iproc_pll_clk_setup(struct device_node *node,
- 	iounmap(pll->control_base);
- 
- err_pll_iomap:
--	kfree(pll->clks);
-+	kfree(iclk_array);
- 
- err_clks:
--	kfree(pll->clk_data);
-+	kfree(clk_data);
- 
- err_clk_data:
- 	kfree(pll);
+ 		ret = of_property_read_string_index(node, "clock-output-names",
+ 						    i, &clk_name);
 -- 
 2.35.1
 
