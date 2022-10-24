@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46D6960B6C6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:10:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52F3F60B739
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:22:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232395AbiJXTKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:10:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37414 "EHLO
+        id S231614AbiJXTV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:21:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232364AbiJXTKF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:10:05 -0400
+        with ESMTP id S232371AbiJXTVO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:21:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 698364685E;
-        Mon, 24 Oct 2022 10:49:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70886109D44;
+        Mon, 24 Oct 2022 10:56:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4AD5B8197C;
-        Mon, 24 Oct 2022 12:42:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B2BCC433C1;
-        Mon, 24 Oct 2022 12:41:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FBCCB81993;
+        Mon, 24 Oct 2022 12:42:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF761C433D6;
+        Mon, 24 Oct 2022 12:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615319;
-        bh=wRvDf88Vd8lClG7OFGwQVtj0WQgpoKy44Rp3UnjATww=;
+        s=korg; t=1666615332;
+        bh=w37r33LIb9FKUf6H97lfeWvSi5XF2Tniw+6hjdytPr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmvxrwO1++hPfV5+U9fr2ZQCgsHsU2v9ngWPzwzi2D8nkNauJx22Vxp7s5p0af7S+
-         srtNpGwo2wiB5izAGYgulOOl0fHdQbKAYxU8GKJDEDCkv1qz6DpIlqtDCm3YwKteRx
-         MKqhr8eN25VLN2CY4LVzoMazXNvcRTUtvvmHAXe0=
+        b=gwKio5oyw82X+j/h566UDPVwe2IuaAdfk0OGp6kkO7qyHQVchgaMUwQeATFlnp91S
+         nP18GCF0vjOsPcq0ie4KzZTYpK9Wn1m616OU57e0CzrMSWWjIowqVuQpg3sjXP8PBL
+         zurCMYhL8NBbRZZYxa4Vlfg1aiA8uZDJSK+TVUWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 206/530] once: add DO_ONCE_SLOW() for sleepable contexts
-Date:   Mon, 24 Oct 2022 13:29:10 +0200
-Message-Id: <20221024113054.391630009@linuxfoundation.org>
+Subject: [PATCH 5.15 211/530] drm/mipi-dsi: Detach devices when removing the host
+Date:   Mon, 24 Oct 2022 13:29:15 +0200
+Message-Id: <20221024113054.622531204@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -55,147 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 62c07983bef9d3e78e71189441e1a470f0d1e653 ]
+[ Upstream commit 668a8f17b5290d04ef7343636a5588a0692731a1 ]
 
-Christophe Leroy reported a ~80ms latency spike
-happening at first TCP connect() time.
+Whenever the MIPI-DSI host is unregistered, the code of
+mipi_dsi_host_unregister() loops over every device currently found on that
+bus and will unregister it.
 
-This is because __inet_hash_connect() uses get_random_once()
-to populate a perturbation table which became quite big
-after commit 4c2c8f03a5ab ("tcp: increase source port perturb table to 2^16")
+However, it doesn't detach it from the bus first, which leads to all kind
+of resource leaks if the host wants to perform some clean up whenever a
+device is detached.
 
-get_random_once() uses DO_ONCE(), which block hard irqs for the duration
-of the operation.
-
-This patch adds DO_ONCE_SLOW() which uses a mutex instead of a spinlock
-for operations where we prefer to stay in process context.
-
-Then __inet_hash_connect() can use get_random_slow_once()
-to populate its perturbation table.
-
-Fixes: 4c2c8f03a5ab ("tcp: increase source port perturb table to 2^16")
-Fixes: 190cc82489f4 ("tcp: change source port randomizarion at connect() time")
-Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Link: https://lore.kernel.org/netdev/CANn89iLAEYBaoYajy0Y9UmGFff5GPxDUoG-ErVB2jDdRNQ5Tug@mail.gmail.com/T/#t
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 068a00233969 ("drm: Add MIPI DSI bus support")
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20220711173939.1132294-2-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/once.h       | 28 ++++++++++++++++++++++++++++
- lib/once.c                 | 30 ++++++++++++++++++++++++++++++
- net/ipv4/inet_hashtables.c |  4 ++--
- 3 files changed, 60 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_mipi_dsi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/once.h b/include/linux/once.h
-index d361fb14ac3a..1528625087b6 100644
---- a/include/linux/once.h
-+++ b/include/linux/once.h
-@@ -5,10 +5,18 @@
- #include <linux/types.h>
- #include <linux/jump_label.h>
+diff --git a/drivers/gpu/drm/drm_mipi_dsi.c b/drivers/gpu/drm/drm_mipi_dsi.c
+index 5dd475e82995..2c43d54766f3 100644
+--- a/drivers/gpu/drm/drm_mipi_dsi.c
++++ b/drivers/gpu/drm/drm_mipi_dsi.c
+@@ -300,6 +300,7 @@ static int mipi_dsi_remove_device_fn(struct device *dev, void *priv)
+ {
+ 	struct mipi_dsi_device *dsi = to_mipi_dsi_device(dev);
  
-+/* Helpers used from arbitrary contexts.
-+ * Hard irqs are blocked, be cautious.
-+ */
- bool __do_once_start(bool *done, unsigned long *flags);
- void __do_once_done(bool *done, struct static_key_true *once_key,
- 		    unsigned long *flags, struct module *mod);
++	mipi_dsi_detach(dsi);
+ 	mipi_dsi_device_unregister(dsi);
  
-+/* Variant for process contexts only. */
-+bool __do_once_slow_start(bool *done);
-+void __do_once_slow_done(bool *done, struct static_key_true *once_key,
-+			 struct module *mod);
-+
- /* Call a function exactly once. The idea of DO_ONCE() is to perform
-  * a function call such as initialization of random seeds, etc, only
-  * once, where DO_ONCE() can live in the fast-path. After @func has
-@@ -52,9 +60,29 @@ void __do_once_done(bool *done, struct static_key_true *once_key,
- 		___ret;							     \
- 	})
- 
-+/* Variant of DO_ONCE() for process/sleepable contexts. */
-+#define DO_ONCE_SLOW(func, ...)						     \
-+	({								     \
-+		bool ___ret = false;					     \
-+		static bool __section(".data.once") ___done = false;	     \
-+		static DEFINE_STATIC_KEY_TRUE(___once_key);		     \
-+		if (static_branch_unlikely(&___once_key)) {		     \
-+			___ret = __do_once_slow_start(&___done);	     \
-+			if (unlikely(___ret)) {				     \
-+				func(__VA_ARGS__);			     \
-+				__do_once_slow_done(&___done, &___once_key,  \
-+						    THIS_MODULE);	     \
-+			}						     \
-+		}							     \
-+		___ret;							     \
-+	})
-+
- #define get_random_once(buf, nbytes)					     \
- 	DO_ONCE(get_random_bytes, (buf), (nbytes))
- #define get_random_once_wait(buf, nbytes)                                    \
- 	DO_ONCE(get_random_bytes_wait, (buf), (nbytes))                      \
- 
-+#define get_random_slow_once(buf, nbytes)				     \
-+	DO_ONCE_SLOW(get_random_bytes, (buf), (nbytes))
-+
- #endif /* _LINUX_ONCE_H */
-diff --git a/lib/once.c b/lib/once.c
-index 59149bf3bfb4..351f66aad310 100644
---- a/lib/once.c
-+++ b/lib/once.c
-@@ -66,3 +66,33 @@ void __do_once_done(bool *done, struct static_key_true *once_key,
- 	once_disable_jump(once_key, mod);
- }
- EXPORT_SYMBOL(__do_once_done);
-+
-+static DEFINE_MUTEX(once_mutex);
-+
-+bool __do_once_slow_start(bool *done)
-+	__acquires(once_mutex)
-+{
-+	mutex_lock(&once_mutex);
-+	if (*done) {
-+		mutex_unlock(&once_mutex);
-+		/* Keep sparse happy by restoring an even lock count on
-+		 * this mutex. In case we return here, we don't call into
-+		 * __do_once_done but return early in the DO_ONCE_SLOW() macro.
-+		 */
-+		__acquire(once_mutex);
-+		return false;
-+	}
-+
-+	return true;
-+}
-+EXPORT_SYMBOL(__do_once_slow_start);
-+
-+void __do_once_slow_done(bool *done, struct static_key_true *once_key,
-+			 struct module *mod)
-+	__releases(once_mutex)
-+{
-+	*done = true;
-+	mutex_unlock(&once_mutex);
-+	once_disable_jump(once_key, mod);
-+}
-+EXPORT_SYMBOL(__do_once_slow_done);
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 26c4dd4ec459..ce6a3873f89e 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -771,8 +771,8 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- 	if (likely(remaining > 1))
- 		remaining &= ~1U;
- 
--	net_get_random_once(table_perturb,
--			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
-+	get_random_slow_once(table_perturb,
-+			     INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
- 	index = port_offset & (INET_TABLE_PERTURB_SIZE - 1);
- 
- 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
+ 	return 0;
 -- 
 2.35.1
 
