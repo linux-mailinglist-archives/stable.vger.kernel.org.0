@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D653360AC2F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:03:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 190AC60AD88
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236901AbiJXODb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:03:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33220 "EHLO
+        id S237008AbiJXO0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:26:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236954AbiJXOCY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:24 -0400
+        with ESMTP id S237299AbiJXOZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:25:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3EB08680B;
-        Mon, 24 Oct 2022 05:48:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF18C4F1BE;
+        Mon, 24 Oct 2022 06:00:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E31FA6128D;
-        Mon, 24 Oct 2022 12:34:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03E2CC433D6;
-        Mon, 24 Oct 2022 12:34:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 211236128E;
+        Mon, 24 Oct 2022 12:34:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 336BBC433C1;
+        Mon, 24 Oct 2022 12:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614859;
-        bh=8fi4KRnTeAjrn2RZpFpUaMqKpGr4C7VXsqZt/H77q6U=;
+        s=korg; t=1666614864;
+        bh=98st+zJYV1mt2StBL3pi+a2UWeh+NUxSEpmbxmiw7+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1LQUuJQiWNLXkWgWjMd6rGagBa5VkuIJeC47/CJbE1E7MGdGLch7DtagOFMlrdzV
-         DXqQju4Dqx5fiXNxPZJXJ9saOIKNEqhRj43ouHQy5aED5/dkluB/18t7KMwFAD8Ch6
-         zmBTd3tIYTDSUSBz1Fkj04/XLXCVNr8qdHAEWsSQ=
+        b=vtSVRB3YJ8VrzGXy9aqtIvBMOK9D4FkU6Wn4bGfDLfeWN1laSZHktAiRv5z0kMQ+p
+         uMndo88/vqMM+M5z88gh55VXUgF1/08DOa5JwBvI+Brofcbh4/NROJkfllwHzS9X/c
+         Hbc6a/fwP2cL8VbUd26H7EFt4WCLdXXJvaxm0dAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 003/530] ALSA: rawmidi: Drop register_mutex in snd_rawmidi_free()
-Date:   Mon, 24 Oct 2022 13:25:47 +0200
-Message-Id: <20221024113045.140040293@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Sabri N. Ferreiro" <snferreiro1@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 005/530] ALSA: usb-audio: Fix NULL dererence at error path
+Date:   Mon, 24 Oct 2022 13:25:49 +0200
+Message-Id: <20221024113045.229074101@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,36 +55,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit a70aef7982b012e86dfd39fbb235e76a21ae778a upstream.
+commit 568be8aaf8a535f79c4db76cabe17b035aa2584d upstream.
 
-The register_mutex taken around the dev_unregister callback call in
-snd_rawmidi_free() may potentially lead to a mutex deadlock, when OSS
-emulation and a hot unplug are involved.
+At an error path to release URB buffers and contexts, the driver might
+hit a NULL dererence for u->urb pointer, when u->buffer_size has been
+already set but the actual URB allocation failed.
 
-Since the mutex doesn't protect the actual race (as the registration
-itself is already protected by another means), let's drop it.
+Fix it by adding the NULL check of urb.  Also, make sure that
+buffer_size is cleared after the error path or the close.
 
-Link: https://lore.kernel.org/r/CAB7eexJP7w1B0mVgDF0dQ+gWor7UdkiwPczmL7pn91xx8xpzOA@mail.gmail.com
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221011070147.7611-1-tiwai@suse.de
+Reported-by: Sabri N. Ferreiro <snferreiro1@gmail.com>
+Link: https://lore.kernel.org/r/CAKG+3NRjTey+fFfUEGwuxL-pi_=T4cUskYG9OzpzHytF+tzYng@mail.gmail.com
+Link: https://lore.kernel.org/r/20220930100129.19445-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/rawmidi.c |    2 --
- 1 file changed, 2 deletions(-)
+ sound/usb/endpoint.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/core/rawmidi.c
-+++ b/sound/core/rawmidi.c
-@@ -1835,10 +1835,8 @@ static int snd_rawmidi_free(struct snd_r
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -85,12 +85,13 @@ static inline unsigned get_usb_high_spee
+  */
+ static void release_urb_ctx(struct snd_urb_ctx *u)
+ {
+-	if (u->buffer_size)
++	if (u->urb && u->buffer_size)
+ 		usb_free_coherent(u->ep->chip->dev, u->buffer_size,
+ 				  u->urb->transfer_buffer,
+ 				  u->urb->transfer_dma);
+ 	usb_free_urb(u->urb);
+ 	u->urb = NULL;
++	u->buffer_size = 0;
+ }
  
- 	snd_info_free_entry(rmidi->proc_entry);
- 	rmidi->proc_entry = NULL;
--	mutex_lock(&register_mutex);
- 	if (rmidi->ops && rmidi->ops->dev_unregister)
- 		rmidi->ops->dev_unregister(rmidi);
--	mutex_unlock(&register_mutex);
- 
- 	snd_rawmidi_free_substreams(&rmidi->streams[SNDRV_RAWMIDI_STREAM_INPUT]);
- 	snd_rawmidi_free_substreams(&rmidi->streams[SNDRV_RAWMIDI_STREAM_OUTPUT]);
+ static const char *usb_error_string(int err)
 
 
