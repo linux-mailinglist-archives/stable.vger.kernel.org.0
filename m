@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CC5C60B7EF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:37:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 923A460B704
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:15:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232163AbiJXThh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:37:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36896 "EHLO
+        id S231972AbiJXTPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:15:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233360AbiJXThS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:37:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE94D165CA7;
-        Mon, 24 Oct 2022 11:07:48 -0700 (PDT)
+        with ESMTP id S232287AbiJXTOa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:14:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 743FF8A1F6;
+        Mon, 24 Oct 2022 10:52:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85B21B81259;
-        Mon, 24 Oct 2022 12:07:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB003C433C1;
-        Mon, 24 Oct 2022 12:07:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED12FB8125A;
+        Mon, 24 Oct 2022 12:07:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54FC7C433D7;
+        Mon, 24 Oct 2022 12:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613227;
-        bh=f8G+ZqxzK7owbbLn3ZRePAVxBAeNxR/+4kqK8EJlIRU=;
+        s=korg; t=1666613237;
+        bh=uBbLc8QAgT9cQGnph4PMHqBIqShqWIcTjog/nTwhBok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Irajqu3uS83PMU9X7hj7h+dDtJkfMTN7HB4jOiJ5srsFi36CR5WrtRDJUELtwNKZN
-         X6gLiO9aHmnnrqgyGLbiQix6TrG6mp79ReNY1uj2/GctBLwVmK5c+7j8/0y45UmF7c
-         LGfH3v9DPymHFcTxV/u1FJJVKvZLnxF4/9h7GGSY=
+        b=dqRpSmfv3See8KKJYrMrHErdHez1wstb112X9SgzUoPSkKZToKgj7EYRUEt/HKT5O
+         xDWP5O8uBrtVWG7GlQmQbPyQV7J7Ubooy9jeqzrhKHLG6L//JlAFqaQm/KnxXhu+3R
+         RiDncoNPG+gS4g3bkRbBAlny010SR0ueqwFWfdzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.4 027/255] RISC-V: Make port I/O string accessors actually work
-Date:   Mon, 24 Oct 2022 13:28:57 +0200
-Message-Id: <20221024113003.351633006@linuxfoundation.org>
+        stable@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.4 031/255] UM: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
+Date:   Mon, 24 Oct 2022 13:29:01 +0200
+Message-Id: <20221024113003.480501799@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
 References: <20221024113002.471093005@linuxfoundation.org>
@@ -53,110 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-commit 9cc205e3c17d5716da7ebb7fa0c985555e95d009 upstream.
+commit 16c546e148fa6d14a019431436a6f7b4087dbccd upstream.
 
-Fix port I/O string accessors such as `insb', `outsb', etc. which use
-the physical PCI port I/O address rather than the corresponding memory
-mapping to get at the requested location, which in turn breaks at least
-accesses made by our parport driver to a PCIe parallel port such as:
+When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
+cpu_max_bits_warn() generates a runtime warning similar as below while
+we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
+instead of NR_CPUS to iterate CPUs.
 
-PCI parallel port detected: 1415:c118, I/O at 0x1000(0x1008), IRQ 20
-parport0: PC-style at 0x1000 (0x1008), irq 20, using FIFO [PCSPP,TRISTATE,COMPAT,EPP,ECP]
+[    3.052463] ------------[ cut here ]------------
+[    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
+[    3.070072] Modules linked in: efivarfs autofs4
+[    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
+[    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
+[    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
+[    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
+[    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
+[    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
+[    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
+[    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
+[    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
+[    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
+[    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
+[    3.195868]         ...
+[    3.199917] Call Trace:
+[    3.203941] [<90000000002086d8>] show_stack+0x38/0x14c
+[    3.210666] [<9000000000cf846c>] dump_stack_lvl+0x60/0x88
+[    3.217625] [<900000000023d268>] __warn+0xd0/0x100
+[    3.223958] [<9000000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
+[    3.231150] [<9000000000210220>] show_cpuinfo+0x5e8/0x5f0
+[    3.238080] [<90000000004f578c>] seq_read_iter+0x354/0x4b4
+[    3.245098] [<90000000004c2e90>] new_sync_read+0x17c/0x1c4
+[    3.252114] [<90000000004c5174>] vfs_read+0x138/0x1d0
+[    3.258694] [<90000000004c55f8>] ksys_read+0x70/0x100
+[    3.265265] [<9000000000cfde9c>] do_syscall+0x7c/0x94
+[    3.271820] [<9000000000202fe4>] handle_syscall+0xc4/0x160
+[    3.281824] ---[ end trace 8b484262b4b8c24c ]---
 
-causing a memory access fault:
-
-Unable to handle kernel access to user memory without uaccess routines at virtual address 0000000000001008
-Oops [#1]
-Modules linked in:
-CPU: 1 PID: 350 Comm: cat Not tainted 6.0.0-rc2-00283-g10d4879f9ef0-dirty #23
-Hardware name: SiFive HiFive Unmatched A00 (DT)
-epc : parport_pc_fifo_write_block_pio+0x266/0x416
- ra : parport_pc_fifo_write_block_pio+0xb4/0x416
-epc : ffffffff80542c3e ra : ffffffff80542a8c sp : ffffffd88899fc60
- gp : ffffffff80fa2700 tp : ffffffd882b1e900 t0 : ffffffd883d0b000
- t1 : ffffffffff000002 t2 : 4646393043330a38 s0 : ffffffd88899fcf0
- s1 : 0000000000001000 a0 : 0000000000000010 a1 : 0000000000000000
- a2 : ffffffd883d0a010 a3 : 0000000000000023 a4 : 00000000ffff8fbb
- a5 : ffffffd883d0a001 a6 : 0000000100000000 a7 : ffffffc800000000
- s2 : ffffffffff000002 s3 : ffffffff80d28880 s4 : ffffffff80fa1f50
- s5 : 0000000000001008 s6 : 0000000000000008 s7 : ffffffd883d0a000
- s8 : 0004000000000000 s9 : ffffffff80dc1d80 s10: ffffffd8807e4000
- s11: 0000000000000000 t3 : 00000000000000ff t4 : 393044410a303930
- t5 : 0000000000001000 t6 : 0000000000040000
-status: 0000000200000120 badaddr: 0000000000001008 cause: 000000000000000f
-[<ffffffff80543212>] parport_pc_compat_write_block_pio+0xfe/0x200
-[<ffffffff8053bbc0>] parport_write+0x46/0xf8
-[<ffffffff8050530e>] lp_write+0x158/0x2d2
-[<ffffffff80185716>] vfs_write+0x8e/0x2c2
-[<ffffffff80185a74>] ksys_write+0x52/0xc2
-[<ffffffff80185af2>] sys_write+0xe/0x16
-[<ffffffff80003770>] ret_from_syscall+0x0/0x2
----[ end trace 0000000000000000 ]---
-
-For simplicity address the problem by adding PCI_IOBASE to the physical
-address requested in the respective wrapper macros only, observing that
-the raw accessors such as `__insb', `__outsb', etc. are not supposed to
-be used other than by said macros.  Remove the cast to `long' that is no
-longer needed on `addr' now that it is used as an offset from PCI_IOBASE
-and add parentheses around `addr' needed for predictable evaluation in
-macro expansion.  No need to make said adjustments in separate changes
-given that current code is gravely broken and does not ever work.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: fab957c11efe2 ("RISC-V: Atomic and Locking Code")
-Cc: stable@vger.kernel.org # v4.15+
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209220223080.29493@angie.orcam.me.uk
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/io.h |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/um/kernel/um_arch.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/include/asm/io.h
-+++ b/arch/riscv/include/asm/io.h
-@@ -252,9 +252,9 @@ __io_reads_ins(reads, u32, l, __io_br(),
- __io_reads_ins(ins,  u8, b, __io_pbr(), __io_par(addr))
- __io_reads_ins(ins, u16, w, __io_pbr(), __io_par(addr))
- __io_reads_ins(ins, u32, l, __io_pbr(), __io_par(addr))
--#define insb(addr, buffer, count) __insb((void __iomem *)(long)addr, buffer, count)
--#define insw(addr, buffer, count) __insw((void __iomem *)(long)addr, buffer, count)
--#define insl(addr, buffer, count) __insl((void __iomem *)(long)addr, buffer, count)
-+#define insb(addr, buffer, count) __insb(PCI_IOBASE + (addr), buffer, count)
-+#define insw(addr, buffer, count) __insw(PCI_IOBASE + (addr), buffer, count)
-+#define insl(addr, buffer, count) __insl(PCI_IOBASE + (addr), buffer, count)
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -77,7 +77,7 @@ static int show_cpuinfo(struct seq_file
  
- __io_writes_outs(writes,  u8, b, __io_bw(), __io_aw())
- __io_writes_outs(writes, u16, w, __io_bw(), __io_aw())
-@@ -266,22 +266,22 @@ __io_writes_outs(writes, u32, l, __io_bw
- __io_writes_outs(outs,  u8, b, __io_pbw(), __io_paw())
- __io_writes_outs(outs, u16, w, __io_pbw(), __io_paw())
- __io_writes_outs(outs, u32, l, __io_pbw(), __io_paw())
--#define outsb(addr, buffer, count) __outsb((void __iomem *)(long)addr, buffer, count)
--#define outsw(addr, buffer, count) __outsw((void __iomem *)(long)addr, buffer, count)
--#define outsl(addr, buffer, count) __outsl((void __iomem *)(long)addr, buffer, count)
-+#define outsb(addr, buffer, count) __outsb(PCI_IOBASE + (addr), buffer, count)
-+#define outsw(addr, buffer, count) __outsw(PCI_IOBASE + (addr), buffer, count)
-+#define outsl(addr, buffer, count) __outsl(PCI_IOBASE + (addr), buffer, count)
+ static void *c_start(struct seq_file *m, loff_t *pos)
+ {
+-	return *pos < NR_CPUS ? cpu_data + *pos : NULL;
++	return *pos < nr_cpu_ids ? cpu_data + *pos : NULL;
+ }
  
- #ifdef CONFIG_64BIT
- __io_reads_ins(reads, u64, q, __io_br(), __io_ar(addr))
- #define readsq(addr, buffer, count) __readsq(addr, buffer, count)
- 
- __io_reads_ins(ins, u64, q, __io_pbr(), __io_par(addr))
--#define insq(addr, buffer, count) __insq((void __iomem *)addr, buffer, count)
-+#define insq(addr, buffer, count) __insq(PCI_IOBASE + (addr), buffer, count)
- 
- __io_writes_outs(writes, u64, q, __io_bw(), __io_aw())
- #define writesq(addr, buffer, count) __writesq(addr, buffer, count)
- 
- __io_writes_outs(outs, u64, q, __io_pbr(), __io_paw())
--#define outsq(addr, buffer, count) __outsq((void __iomem *)addr, buffer, count)
-+#define outsq(addr, buffer, count) __outsq(PCI_IOBASE + (addr), buffer, count)
- #endif
- 
- #include <asm-generic/io.h>
+ static void *c_next(struct seq_file *m, void *v, loff_t *pos)
 
 
