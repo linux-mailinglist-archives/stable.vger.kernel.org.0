@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A27F60AA59
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D16460A9DE
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230331AbiJXNcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:32:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43792 "EHLO
+        id S232102AbiJXNZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:25:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236401AbiJXNa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:30:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46895ACA15;
-        Mon, 24 Oct 2022 05:33:26 -0700 (PDT)
+        with ESMTP id S236126AbiJXNY3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:24:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E6078E449;
+        Mon, 24 Oct 2022 05:30:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4DDB5B811A3;
-        Mon, 24 Oct 2022 12:04:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FEE7C433D6;
-        Mon, 24 Oct 2022 12:04:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE609612C4;
+        Mon, 24 Oct 2022 12:29:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFFEBC433D6;
+        Mon, 24 Oct 2022 12:29:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613046;
-        bh=aEG1Q87LEw/VLXcyOS6H+7+xQgq198aUjuI9fqs0HMo=;
+        s=korg; t=1666614565;
+        bh=WHQd8DRSzLmK/d2fpQEoWkzVxb3qPP9gECYJoEJorIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FKUqHlPDaKGiwFOIGk+cGwiGhpV+v6QHLRpSHs/zOUBKxuM8ISublCfNd1f+9MT8+
-         wnDR7/OX8YGLi8Aty0uE7aaJlE4KrxIYFCIme2D1iof+/Iekoh37PUHmyxPyfFO/7m
-         L4huEijVGIAORF6P92TWxZ/eMAkmX+NcSVlD4saA=
+        b=unhsNdqCb6sB26lql9XK5rTxXpm4G/qrgrJHzYDmquKYrkSfAGD4gc82pY66ro1Oz
+         VYaxcKfJq5YQ6t82OhYq3iZgsT2iy3taxYwrl+v3dk/4joi8JgqvGT63CHK6R6qstA
+         fOpcEX57wxUAX3IY+kPrE/IUOeqFKAdqcqkd2kFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
-        Daniel Golle <daniel@makrotopia.org>,
-        Stanislaw Gruszka <stf_xl@wp.pl>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 187/229] wifi: rt2x00: set correct TX_SW_CFG1 MAC register for MT7620
+        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 309/390] tcp: annotate data-race around tcp_md5sig_pool_populated
 Date:   Mon, 24 Oct 2022 13:31:46 +0200
-Message-Id: <20221024113005.161656239@linuxfoundation.org>
+Message-Id: <20221024113036.150412531@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit eeb50acf15762b61921f9df18663f839f387c054 ]
+[ Upstream commit aacd467c0a576e5e44d2de4205855dc0fe43f6fb ]
 
-Set correct TX_SW_CFG1 MAC register as it is done also in v3 of the
-vendor driver[1].
+tcp_md5sig_pool_populated can be read while another thread
+changes its value.
 
-[1]: https://gitlab.com/dm38/padavan-ng/-/blob/master/trunk/proprietary/rt_wifi/rtpci/3.0.X.X/mt76x2/chips/rt6352.c#L531
-Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/4be38975ce600a34249e12d09a3cb758c6e71071.1663445157.git.daniel@makrotopia.org
+The race has no consequence because allocations
+are protected with tcp_md5sig_mutex.
+
+This patch adds READ_ONCE() and WRITE_ONCE() to document
+the race and silence KCSAN.
+
+Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-index 2a119f314c38..b8224b215532 100644
---- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-+++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-@@ -5318,7 +5318,7 @@ static int rt2800_init_registers(struct rt2x00_dev *rt2x00dev)
- 		rt2800_register_write(rt2x00dev, TX_SW_CFG0, 0x00000404);
- 	} else if (rt2x00_rt(rt2x00dev, RT6352)) {
- 		rt2800_register_write(rt2x00dev, TX_SW_CFG0, 0x00000401);
--		rt2800_register_write(rt2x00dev, TX_SW_CFG1, 0x000C0000);
-+		rt2800_register_write(rt2x00dev, TX_SW_CFG1, 0x000C0001);
- 		rt2800_register_write(rt2x00dev, TX_SW_CFG2, 0x00000000);
- 		rt2800_register_write(rt2x00dev, MIMO_PS_CFG, 0x00000002);
- 		rt2800_register_write(rt2x00dev, TX_PIN_CFG, 0x00150F0F);
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 24328ad00278..b0aa7cc69d51 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -4043,12 +4043,16 @@ static void __tcp_alloc_md5sig_pool(void)
+ 	 * to memory. See smp_rmb() in tcp_get_md5sig_pool()
+ 	 */
+ 	smp_wmb();
+-	tcp_md5sig_pool_populated = true;
++	/* Paired with READ_ONCE() from tcp_alloc_md5sig_pool()
++	 * and tcp_get_md5sig_pool().
++	*/
++	WRITE_ONCE(tcp_md5sig_pool_populated, true);
+ }
+ 
+ bool tcp_alloc_md5sig_pool(void)
+ {
+-	if (unlikely(!tcp_md5sig_pool_populated)) {
++	/* Paired with WRITE_ONCE() from __tcp_alloc_md5sig_pool() */
++	if (unlikely(!READ_ONCE(tcp_md5sig_pool_populated))) {
+ 		mutex_lock(&tcp_md5sig_mutex);
+ 
+ 		if (!tcp_md5sig_pool_populated) {
+@@ -4059,7 +4063,8 @@ bool tcp_alloc_md5sig_pool(void)
+ 
+ 		mutex_unlock(&tcp_md5sig_mutex);
+ 	}
+-	return tcp_md5sig_pool_populated;
++	/* Paired with WRITE_ONCE() from __tcp_alloc_md5sig_pool() */
++	return READ_ONCE(tcp_md5sig_pool_populated);
+ }
+ EXPORT_SYMBOL(tcp_alloc_md5sig_pool);
+ 
+@@ -4075,7 +4080,8 @@ struct tcp_md5sig_pool *tcp_get_md5sig_pool(void)
+ {
+ 	local_bh_disable();
+ 
+-	if (tcp_md5sig_pool_populated) {
++	/* Paired with WRITE_ONCE() from __tcp_alloc_md5sig_pool() */
++	if (READ_ONCE(tcp_md5sig_pool_populated)) {
+ 		/* coupled with smp_wmb() in __tcp_alloc_md5sig_pool() */
+ 		smp_rmb();
+ 		return this_cpu_ptr(&tcp_md5sig_pool);
 -- 
 2.35.1
 
