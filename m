@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31F4060A809
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C10D60A9AD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234945AbiJXNA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42434 "EHLO
+        id S232624AbiJXNXn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:23:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235259AbiJXM7q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:46 -0400
+        with ESMTP id S234184AbiJXNXC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:23:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B87519AF87;
-        Mon, 24 Oct 2022 05:19:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E865A45F6F;
+        Mon, 24 Oct 2022 05:30:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22A97612A8;
-        Mon, 24 Oct 2022 11:52:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39D23C433C1;
-        Mon, 24 Oct 2022 11:52:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D606061286;
+        Mon, 24 Oct 2022 12:28:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC5D5C433C1;
+        Mon, 24 Oct 2022 12:28:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612373;
-        bh=RFao88qSCGW1ebX6z+ZZ3tOEc8Bf9Cja4HoXA8uecJw=;
+        s=korg; t=1666614489;
+        bh=V2dOPSF3+RqJgCZ0dAjorrygamRapc5bi17muQbPhos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D1dQqW7U+afV4AWAynKAwNZZzJu9ZUlVkbJoqurmqtbdG+AmJoDlUJcVS/cE3bmce
-         4dU0kDzWn5XQMW3CRwHV9pjSBzNI+0zvki7ArhiBE+Ut7Ew6sU16WJFshOUyGuT4AV
-         i33FFFxHjcUvEYqdotI9MMEXmfrPWahLcQpuddhQ=
+        b=Zqs/o7ZOrFDao8x/ky4Phy2DbK9LNbQ2K0m7P246xSyOSQCuZh6Dy+bDOHV7ZDX8W
+         jjDLBxLYujXKxEEyG/9jf1FiiXjIXTtpCYUTFirpWsCUsvLkWWTujE3G50skC3NaOH
+         zdUJfzgdZwI7f6emURC3YtilRapZMwe2QspJDqwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 133/210] ata: fix ata_id_has_dipm()
+Subject: [PATCH 5.10 253/390] clk: mediatek: mt8183: mfgcfg: Propagate rate changes to parent
 Date:   Mon, 24 Oct 2022 13:30:50 +0200
-Message-Id: <20221024113001.309825240@linuxfoundation.org>
+Message-Id: <20221024113033.645906409@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,74 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 630624cb1b5826d753ac8e01a0e42de43d66dedf ]
+[ Upstream commit 9f94f545f258b15bfa6357eb62e1e307b712851e ]
 
-ACS-5 section
-7.13.6.36 Word 78: Serial ATA features supported
-states that:
+The only clock in the MT8183 MFGCFG block feeds the GPU. Propagate its
+rate change requests to its parent, so that DVFS for the GPU can work
+properly.
 
-If word 76 is not 0000h or FFFFh, word 78 reports the features supported
-by the device. If this word is not supported, the word shall be cleared
-to zero.
-
-(This text also exists in really old ACS standards, e.g. ACS-3.)
-
-The problem with ata_id_has_dipm() is that the while it performs a
-check against 0 and 0xffff, it performs the check against
-ATA_ID_FEATURE_SUPP (word 78), the same word where the feature bit
-is stored.
-
-Fix this by performing the check against ATA_ID_SATA_CAPABILITY
-(word 76), like required by the spec. The feature bit check itself
-is of course still performed against ATA_ID_FEATURE_SUPP (word 78).
-
-Additionally, move the macro to the other ATA_ID_FEATURE_SUPP macros
-(which already have this check), thus making it more likely that the
-next ATA_ID_FEATURE_SUPP macro that is added will include this check.
-
-Fixes: ca77329fb713 ("[libata] Link power management infrastructure")
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: acddfc2c261b ("clk: mediatek: Add MT8183 clock support")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220927101128.44758-3-angelogioacchino.delregno@collabora.com
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ata.h | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ drivers/clk/mediatek/clk-mt8183-mfgcfg.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/ata.h b/include/linux/ata.h
-index 641545929efb..af884beac08d 100644
---- a/include/linux/ata.h
-+++ b/include/linux/ata.h
-@@ -587,6 +587,10 @@ struct ata_bmdma_prd {
- 	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
- 	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
- 	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 7)))
-+#define ata_id_has_dipm(id)	\
-+	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
-+	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
-+	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 3)))
- #define ata_id_iordy_disable(id) ((id)[ATA_ID_CAPABILITY] & (1 << 10))
- #define ata_id_has_iordy(id) ((id)[ATA_ID_CAPABILITY] & (1 << 11))
- #define ata_id_u32(id,n)	\
-@@ -610,17 +614,6 @@ static inline bool ata_id_has_hipm(const u16 *id)
- 	return val & (1 << 9);
- }
+diff --git a/drivers/clk/mediatek/clk-mt8183-mfgcfg.c b/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
+index 37b4162c5882..3a33014eee7f 100644
+--- a/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
++++ b/drivers/clk/mediatek/clk-mt8183-mfgcfg.c
+@@ -18,9 +18,9 @@ static const struct mtk_gate_regs mfg_cg_regs = {
+ 	.sta_ofs = 0x0,
+ };
  
--static inline bool ata_id_has_dipm(const u16 *id)
--{
--	u16 val = id[ATA_ID_FEATURE_SUPP];
--
--	if (val == 0 || val == 0xffff)
--		return false;
--
--	return val & (1 << 3);
--}
--
--
- static inline bool ata_id_has_fua(const u16 *id)
- {
- 	if ((id[ATA_ID_CFSSE] & 0xC000) != 0x4000)
+-#define GATE_MFG(_id, _name, _parent, _shift)			\
+-	GATE_MTK(_id, _name, _parent, &mfg_cg_regs, _shift,	\
+-		&mtk_clk_gate_ops_setclr)
++#define GATE_MFG(_id, _name, _parent, _shift)				\
++	GATE_MTK_FLAGS(_id, _name, _parent, &mfg_cg_regs, _shift,	\
++		       &mtk_clk_gate_ops_setclr, CLK_SET_RATE_PARENT)
+ 
+ static const struct mtk_gate mfg_clks[] = {
+ 	GATE_MFG(CLK_MFG_BG3D, "mfg_bg3d", "mfg_sel", 0)
 -- 
 2.35.1
 
