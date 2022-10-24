@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6175C60A727
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3402960A90C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:15:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234260AbiJXMsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:48:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54606 "EHLO
+        id S235673AbiJXNPD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:15:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234502AbiJXMo6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:44:58 -0400
+        with ESMTP id S235956AbiJXNOO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:14:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C68C5140E7;
-        Mon, 24 Oct 2022 05:09:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28ED44D25C;
+        Mon, 24 Oct 2022 05:25:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F48A61278;
-        Mon, 24 Oct 2022 12:08:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CF9CC433C1;
-        Mon, 24 Oct 2022 12:08:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52ED161014;
+        Mon, 24 Oct 2022 12:24:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63928C433D6;
+        Mon, 24 Oct 2022 12:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613292;
-        bh=kwbVD9Us+cXE954oSglAIQMXgHk6yPoSGcch9kkRkps=;
+        s=korg; t=1666614260;
+        bh=G7yQmlG15qLGRBXl5CbjEbT4FRrYyB5hzuKiF+8nL4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ek5GJSBKXp7x9GCKUFLPDn3N4u4MrXRqK2H3Bbfe+0r3FF97JCzlrZT6Bw0GeWGLH
-         l8kSBJp8R34Cf81ExDhgqMb1Fgi3rY1/vXQXn8el75Jurs0WwQQoTsNVhgl9mlWRJO
-         34ymamJH+FsZ6vgBI7EzTecLjDmZ6I3oiqwQcZqs=
+        b=C6iPPK0x5pYjn6MoYJhrXmQGRxYPHeZmQNtRJ5yB4c66Gy/lAcpE9fZ4YXQCA2+V5
+         Zy+6ZI6rHkzrGOzW3g3xHnchdk4WxHUzcNv8Ep/UKIi+tass9IXn+RNBclvKJQZoZH
+         7UoPt8KbD1Q3L0lsBlEN/je9Rt6YS0BuEBKyji1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 081/255] sctp: handle the error returned from sctp_auth_asoc_init_active_key
+Subject: [PATCH 5.10 194/390] usb: common: move functions kerneldoc next to its definition
 Date:   Mon, 24 Oct 2022 13:29:51 +0200
-Message-Id: <20221024113005.198074246@linuxfoundation.org>
+Message-Id: <20221024113031.042222617@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +53,215 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit 022152aaebe116a25c39818a07e175a8cd3c1e11 ]
+[ Upstream commit 365038f24b3e9d2b7c9e499f03f432040e28a35c ]
 
-When it returns an error from sctp_auth_asoc_init_active_key(), the
-active_key is actually not updated. The old sh_key will be freeed
-while it's still used as active key in asoc. Then an use-after-free
-will be triggered when sending patckets, as found by syzbot:
+Following a general rule, add the kerneldoc for a function next
+to it's definition, but not next to its declaration in a header
+file.
 
-  sctp_auth_shkey_hold+0x22/0xa0 net/sctp/auth.c:112
-  sctp_set_owner_w net/sctp/socket.c:132 [inline]
-  sctp_sendmsg_to_asoc+0xbd5/0x1a20 net/sctp/socket.c:1863
-  sctp_sendmsg+0x1053/0x1d50 net/sctp/socket.c:2025
-  inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:819
-  sock_sendmsg_nosec net/socket.c:714 [inline]
-  sock_sendmsg+0xcf/0x120 net/socket.c:734
-
-This patch is to fix it by not replacing the sh_key when it returns
-errors from sctp_auth_asoc_init_active_key() in sctp_auth_set_key().
-For sctp_auth_set_active_key(), old active_key_id will be set back
-to asoc->active_key_id when the same thing happens.
-
-Fixes: 58acd1009226 ("sctp: update active_key for asoc when old key is being replaced")
-Reported-by: syzbot+a236dd8e9622ed8954a3@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/c4d2e010ae2bf67cdfa0b55e6d1deb9339d9d3dc.1615170625.git.chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: b6155eaf6b05 ("usb: common: debug: Check non-standard control requests")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/auth.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/usb/common/common.c | 35 +++++++++++++++++++++
+ drivers/usb/common/debug.c  | 22 +++++++++++--
+ include/linux/usb/ch9.h     | 61 -------------------------------------
+ 3 files changed, 55 insertions(+), 63 deletions(-)
 
-diff --git a/net/sctp/auth.c b/net/sctp/auth.c
-index 3b2d0bd616dd..6b97b734a16f 100644
---- a/net/sctp/auth.c
-+++ b/net/sctp/auth.c
-@@ -869,12 +869,17 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
- 	}
+diff --git a/drivers/usb/common/common.c b/drivers/usb/common/common.c
+index 675e8a4e683a..347fb3d3894a 100644
+--- a/drivers/usb/common/common.c
++++ b/drivers/usb/common/common.c
+@@ -25,6 +25,12 @@ static const char *const ep_type_names[] = {
+ 	[USB_ENDPOINT_XFER_INT] = "intr",
+ };
  
- 	list_del_init(&shkey->key_list);
--	sctp_auth_shkey_release(shkey);
- 	list_add(&cur_key->key_list, sh_keys);
++/**
++ * usb_ep_type_string() - Returns human readable-name of the endpoint type.
++ * @ep_type: The endpoint type to return human-readable name for.  If it's not
++ *   any of the types: USB_ENDPOINT_XFER_{CONTROL, ISOC, BULK, INT},
++ *   usually got by usb_endpoint_type(), the string 'unknown' will be returned.
++ */
+ const char *usb_ep_type_string(int ep_type)
+ {
+ 	if (ep_type < 0 || ep_type >= ARRAY_SIZE(ep_type_names))
+@@ -76,6 +82,12 @@ static const char *const ssp_rate[] = {
+ 	[USB_SSP_GEN_2x2] = "super-speed-plus-gen2x2",
+ };
  
--	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
--		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+	if (asoc && asoc->active_key_id == auth_key->sca_keynumber &&
-+	    sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
-+		list_del_init(&cur_key->key_list);
-+		sctp_auth_shkey_release(cur_key);
-+		list_add(&shkey->key_list, sh_keys);
-+		return -ENOMEM;
-+	}
++/**
++ * usb_speed_string() - Returns human readable-name of the speed.
++ * @speed: The speed to return human-readable name for.  If it's not
++ *   any of the speeds defined in usb_device_speed enum, string for
++ *   USB_SPEED_UNKNOWN will be returned.
++ */
+ const char *usb_speed_string(enum usb_device_speed speed)
+ {
+ 	if (speed < 0 || speed >= ARRAY_SIZE(speed_names))
+@@ -84,6 +96,14 @@ const char *usb_speed_string(enum usb_device_speed speed)
+ }
+ EXPORT_SYMBOL_GPL(usb_speed_string);
  
-+	sctp_auth_shkey_release(shkey);
- 	return 0;
++/**
++ * usb_get_maximum_speed - Get maximum requested speed for a given USB
++ * controller.
++ * @dev: Pointer to the given USB controller device
++ *
++ * The function gets the maximum speed string from property "maximum-speed",
++ * and returns the corresponding enum usb_device_speed.
++ */
+ enum usb_device_speed usb_get_maximum_speed(struct device *dev)
+ {
+ 	const char *maximum_speed;
+@@ -102,6 +122,15 @@ enum usb_device_speed usb_get_maximum_speed(struct device *dev)
+ }
+ EXPORT_SYMBOL_GPL(usb_get_maximum_speed);
+ 
++/**
++ * usb_get_maximum_ssp_rate - Get the signaling rate generation and lane count
++ *	of a SuperSpeed Plus capable device.
++ * @dev: Pointer to the given USB controller device
++ *
++ * If the string from "maximum-speed" property is super-speed-plus-genXxY where
++ * 'X' is the generation number and 'Y' is the number of lanes, then this
++ * function returns the corresponding enum usb_ssp_rate.
++ */
+ enum usb_ssp_rate usb_get_maximum_ssp_rate(struct device *dev)
+ {
+ 	const char *maximum_speed;
+@@ -116,6 +145,12 @@ enum usb_ssp_rate usb_get_maximum_ssp_rate(struct device *dev)
+ }
+ EXPORT_SYMBOL_GPL(usb_get_maximum_ssp_rate);
+ 
++/**
++ * usb_state_string - Returns human readable name for the state.
++ * @state: The state to return a human-readable name for. If it's not
++ *	any of the states devices in usb_device_state_string enum,
++ *	the string UNKNOWN will be returned.
++ */
+ const char *usb_state_string(enum usb_device_state state)
+ {
+ 	static const char *const names[] = {
+diff --git a/drivers/usb/common/debug.c b/drivers/usb/common/debug.c
+index ba849c7bc5c7..a76a086b9c54 100644
+--- a/drivers/usb/common/debug.c
++++ b/drivers/usb/common/debug.c
+@@ -207,8 +207,26 @@ static void usb_decode_set_isoch_delay(__u8 wValue, char *str, size_t size)
+ 	snprintf(str, size, "Set Isochronous Delay(Delay = %d ns)", wValue);
  }
  
-@@ -908,8 +913,13 @@ int sctp_auth_set_active_key(struct sctp_endpoint *ep,
- 		return -EINVAL;
+-/*
+- * usb_decode_ctrl - returns a string representation of ctrl request
++/**
++ * usb_decode_ctrl - Returns human readable representation of control request.
++ * @str: buffer to return a human-readable representation of control request.
++ *       This buffer should have about 200 bytes.
++ * @size: size of str buffer.
++ * @bRequestType: matches the USB bmRequestType field
++ * @bRequest: matches the USB bRequest field
++ * @wValue: matches the USB wValue field (CPU byte order)
++ * @wIndex: matches the USB wIndex field (CPU byte order)
++ * @wLength: matches the USB wLength field (CPU byte order)
++ *
++ * Function returns decoded, formatted and human-readable description of
++ * control request packet.
++ *
++ * The usage scenario for this is for tracepoints, so function as a return
++ * use the same value as in parameters. This approach allows to use this
++ * function in TP_printk
++ *
++ * Important: wValue, wIndex, wLength parameters before invoking this function
++ * should be processed by le16_to_cpu macro.
+  */
+ const char *usb_decode_ctrl(char *str, size_t size, __u8 bRequestType,
+ 			    __u8 bRequest, __u16 wValue, __u16 wIndex,
+diff --git a/include/linux/usb/ch9.h b/include/linux/usb/ch9.h
+index 74debc824645..1cffa34740b0 100644
+--- a/include/linux/usb/ch9.h
++++ b/include/linux/usb/ch9.h
+@@ -45,76 +45,15 @@ enum usb_ssp_rate {
+ 	USB_SSP_GEN_2x2,
+ };
  
- 	if (asoc) {
-+		__u16  active_key_id = asoc->active_key_id;
-+
- 		asoc->active_key_id = key_id;
--		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
-+		if (sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL)) {
-+			asoc->active_key_id = active_key_id;
-+			return -ENOMEM;
-+		}
- 	} else
- 		ep->active_key_id = key_id;
+-/**
+- * usb_ep_type_string() - Returns human readable-name of the endpoint type.
+- * @ep_type: The endpoint type to return human-readable name for.  If it's not
+- *   any of the types: USB_ENDPOINT_XFER_{CONTROL, ISOC, BULK, INT},
+- *   usually got by usb_endpoint_type(), the string 'unknown' will be returned.
+- */
+ extern const char *usb_ep_type_string(int ep_type);
+-
+-/**
+- * usb_speed_string() - Returns human readable-name of the speed.
+- * @speed: The speed to return human-readable name for.  If it's not
+- *   any of the speeds defined in usb_device_speed enum, string for
+- *   USB_SPEED_UNKNOWN will be returned.
+- */
+ extern const char *usb_speed_string(enum usb_device_speed speed);
+-
+-/**
+- * usb_get_maximum_speed - Get maximum requested speed for a given USB
+- * controller.
+- * @dev: Pointer to the given USB controller device
+- *
+- * The function gets the maximum speed string from property "maximum-speed",
+- * and returns the corresponding enum usb_device_speed.
+- */
+ extern enum usb_device_speed usb_get_maximum_speed(struct device *dev);
+-
+-/**
+- * usb_get_maximum_ssp_rate - Get the signaling rate generation and lane count
+- *	of a SuperSpeed Plus capable device.
+- * @dev: Pointer to the given USB controller device
+- *
+- * If the string from "maximum-speed" property is super-speed-plus-genXxY where
+- * 'X' is the generation number and 'Y' is the number of lanes, then this
+- * function returns the corresponding enum usb_ssp_rate.
+- */
+ extern enum usb_ssp_rate usb_get_maximum_ssp_rate(struct device *dev);
+-
+-/**
+- * usb_state_string - Returns human readable name for the state.
+- * @state: The state to return a human-readable name for. If it's not
+- *	any of the states devices in usb_device_state_string enum,
+- *	the string UNKNOWN will be returned.
+- */
+ extern const char *usb_state_string(enum usb_device_state state);
+-
+ unsigned int usb_decode_interval(const struct usb_endpoint_descriptor *epd,
+ 				 enum usb_device_speed speed);
  
+ #ifdef CONFIG_TRACING
+-/**
+- * usb_decode_ctrl - Returns human readable representation of control request.
+- * @str: buffer to return a human-readable representation of control request.
+- *       This buffer should have about 200 bytes.
+- * @size: size of str buffer.
+- * @bRequestType: matches the USB bmRequestType field
+- * @bRequest: matches the USB bRequest field
+- * @wValue: matches the USB wValue field (CPU byte order)
+- * @wIndex: matches the USB wIndex field (CPU byte order)
+- * @wLength: matches the USB wLength field (CPU byte order)
+- *
+- * Function returns decoded, formatted and human-readable description of
+- * control request packet.
+- *
+- * The usage scenario for this is for tracepoints, so function as a return
+- * use the same value as in parameters. This approach allows to use this
+- * function in TP_printk
+- *
+- * Important: wValue, wIndex, wLength parameters before invoking this function
+- * should be processed by le16_to_cpu macro.
+- */
+ extern const char *usb_decode_ctrl(char *str, size_t size, __u8 bRequestType,
+ 				   __u8 bRequest, __u16 wValue, __u16 wIndex,
+ 				   __u16 wLength);
 -- 
 2.35.1
 
