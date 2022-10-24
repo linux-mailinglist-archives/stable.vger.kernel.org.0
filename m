@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96A3760AD41
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:20:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E641760ACAA
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234886AbiJXOUH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:20:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45342 "EHLO
+        id S233326AbiJXOLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:11:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236847AbiJXOT2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:19:28 -0400
+        with ESMTP id S237093AbiJXOKG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:10:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16FAB22B14;
-        Mon, 24 Oct 2022 05:56:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1466C786B;
+        Mon, 24 Oct 2022 05:52:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C19AB8196E;
-        Mon, 24 Oct 2022 12:40:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D98CAC433C1;
-        Mon, 24 Oct 2022 12:40:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58E36B81913;
+        Mon, 24 Oct 2022 12:40:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB952C433C1;
+        Mon, 24 Oct 2022 12:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615235;
-        bh=+rDO5cY7vNMKCSwNy+M5iefI71iEu1L68p75lPoL+pg=;
+        s=korg; t=1666615243;
+        bh=C6CwbD+x4Djmkf1hfONC+CIP9Mm3gn2aJ3WQUw0pJs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CbYTBJdroFPt+1ATYZqlGmJHYI4nYkBSKLKlsQ7xnygPh0HhVPu9MBai3TAHWmFAa
-         YcaIno08fxYArgGBShnQX9n+NlXZL6CMT5XzmzusmA5KlsVlYgJIuBsIoDHOrNBY6a
-         WVXNK44/rPQ0zWUlK20cO9utNwy4zPWXWXL1DV5w=
+        b=aC7SgkvuYPVfNu4SQspHc22WqluYcx4jwCmoXejrqkzfJFuki7eGcBtjdQyeGg4G2
+         p8Pi4BlcMVpo+5VtEu0/KNn2TEEDvrMveUKxQyKNliepzY1jlYl8jOVBx552a5I+ZC
+         gQ6c4dIKP7NEAglJXV3u6MK+odi5/pTsBc93WOT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        YN Chen <yn.chen@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 174/530] wifi: mt76: sdio: fix transmitting packet hangs
-Date:   Mon, 24 Oct 2022 13:28:38 +0200
-Message-Id: <20221024113052.899210374@linuxfoundation.org>
+Subject: [PATCH 5.15 177/530] Bluetooth: RFCOMM: Fix possible deadlock on socket shutdown/release
+Date:   Mon, 24 Oct 2022 13:28:41 +0200
+Message-Id: <20221024113053.033911746@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,35 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YN Chen <yn.chen@mediatek.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 250b1827205846ff346a76044955cb79d4963f70 ]
+[ Upstream commit 812e92b824c1db16c9519f8624d48a9901a0d38f ]
 
-Fix transmitting packets hangs with continuing to pull the pending packet
-from mac80211 queues when receiving Tx status notification from the device.
+Due to change to switch to use lock_sock inside rfcomm_sk_state_change
+the socket shutdown/release procedure can cause a deadlock:
 
-Fixes: aac5104bf631 ("mt76: sdio: do not run mt76_txq_schedule directly")
-Acked-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: YN Chen <yn.chen@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+    rfcomm_sock_shutdown():
+      lock_sock();
+      __rfcomm_sock_close():
+        rfcomm_dlc_close():
+          __rfcomm_dlc_close():
+            rfcomm_dlc_lock();
+            rfcomm_sk_state_change():
+              lock_sock();
+
+To fix this when the call __rfcomm_sock_close is now done without
+holding the lock_sock since rfcomm_dlc_lock exists to protect
+the dlc data there is no need to use lock_sock in that code path.
+
+Link: https://lore.kernel.org/all/CAD+dNTsbuU4w+Y_P7o+VEN7BYCAbZuwZx2+tH+OTzCdcZF82YA@mail.gmail.com/
+Fixes: b7ce436a5d79 ("Bluetooth: switch to lock_sock in RFCOMM")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/sdio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/rfcomm/sock.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/sdio.c b/drivers/net/wireless/mediatek/mt76/sdio.c
-index 783a15635ec5..9e639d0b9c63 100644
---- a/drivers/net/wireless/mediatek/mt76/sdio.c
-+++ b/drivers/net/wireless/mediatek/mt76/sdio.c
-@@ -213,7 +213,7 @@ static void mt76s_status_worker(struct mt76_worker *w)
- 	} while (nframes > 0);
+diff --git a/net/bluetooth/rfcomm/sock.c b/net/bluetooth/rfcomm/sock.c
+index 4bf4ea6cbb5e..21e24da4847f 100644
+--- a/net/bluetooth/rfcomm/sock.c
++++ b/net/bluetooth/rfcomm/sock.c
+@@ -902,7 +902,10 @@ static int rfcomm_sock_shutdown(struct socket *sock, int how)
+ 	lock_sock(sk);
+ 	if (!sk->sk_shutdown) {
+ 		sk->sk_shutdown = SHUTDOWN_MASK;
++
++		release_sock(sk);
+ 		__rfcomm_sock_close(sk);
++		lock_sock(sk);
  
- 	if (resched)
--		mt76_worker_schedule(&dev->sdio.txrx_worker);
-+		mt76_worker_schedule(&dev->tx_worker);
- }
- 
- static void mt76s_tx_status_data(struct work_struct *work)
+ 		if (sock_flag(sk, SOCK_LINGER) && sk->sk_lingertime &&
+ 		    !(current->flags & PF_EXITING))
 -- 
 2.35.1
 
