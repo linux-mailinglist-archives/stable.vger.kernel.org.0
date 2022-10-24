@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9614160B946
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:07:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FD3F60BA9F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:40:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232529AbiJXUHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:07:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52210 "EHLO
+        id S231231AbiJXUjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:39:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233209AbiJXUGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:06:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A7F3FC6;
-        Mon, 24 Oct 2022 11:26:52 -0700 (PDT)
+        with ESMTP id S234411AbiJXUil (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:38:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 088451658D;
+        Mon, 24 Oct 2022 11:49:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D6DEB8125E;
-        Mon, 24 Oct 2022 12:26:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02957C433D6;
-        Mon, 24 Oct 2022 12:26:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EB9CB8191D;
+        Mon, 24 Oct 2022 12:47:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4C2FC433D6;
+        Mon, 24 Oct 2022 12:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614405;
-        bh=vSgsDIvzzF3Mr1Kj1xaAWGv9LZXJ1IaBnh/leVDRPlw=;
+        s=korg; t=1666615647;
+        bh=RW2RwW0JdXaxm1KEivRvaSPCOsUTi6Nc0htOetkrg8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c8FsqwoZnOp0SmlhUFeYVaJ7qyKvMUTQ/wRRTEyNSOj9dLeGEuBffXZ6x3DmZDw+A
-         VpCjMDeLMWTYUTDGU7jPO+1mS+P5lSuDKo7L58cdilbhWEfWMCDlC0S6ivVO/pWk/p
-         ebTGRfgy3/9tPKFgEmoNVgkgTNQjvsWr9Q42JpKA=
+        b=Wg68PNHIwx+TJkmstDiE1fQZz87dXK8/7S8eS6P0oJUFXkEMUzeoJ+W4EIuMc5Fhm
+         YU5mzYIPHgjBytw+fS2vwKO1zqnlPUNYdIELuAAhzL0xeozc9nm9owEZjBS7xBlpZT
+         kgJ/XqRln/Dw+gMZDpfa8aT9wPnLigtF9hDng1js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 247/390] mfd: intel_soc_pmic: Fix an error handling path in intel_soc_pmic_i2c_probe()
+        stable@vger.kernel.org, Jason Baron <jbaron@akamai.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jim Cromie <jim.cromie@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 300/530] dyndbg: drop EXPORTed dynamic_debug_exec_queries
 Date:   Mon, 24 Oct 2022 13:30:44 +0200
-Message-Id: <20221024113033.365656870@linuxfoundation.org>
+Message-Id: <20221024113058.647921000@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jim Cromie <jim.cromie@gmail.com>
 
-[ Upstream commit 48749cabba109397b4e7dd556e85718ec0ec114d ]
+[ Upstream commit e26ef3af964acfea311403126acee8c56c89e26b ]
 
-The commit in Fixes: has added a pwm_add_table() call in the probe() and
-a pwm_remove_table() call in the remove(), but forget to update the error
-handling path of the probe.
+This exported fn is unused, and will not be needed. Lets dump it.
 
-Add the missing pwm_remove_table() call.
+The export was added to let drm control pr_debugs, as part of using
+them to avoid drm_debug_enabled overheads.  But its better to just
+implement the drm.debug bitmap interface, then its available for
+everyone.
 
-Fixes: a3aa9a93df9f ("mfd: intel_soc_pmic_core: ADD PWM lookup table for CRC PMIC based PWM")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/20220801114211.36267-1-andriy.shevchenko@linux.intel.com
+Fixes: a2d375eda771 ("dyndbg: refine export, rename to dynamic_debug_exec_queries()")
+Fixes: 4c0d77828d4f ("dyndbg: export ddebug_exec_queries")
+Acked-by: Jason Baron <jbaron@akamai.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
+Link: https://lore.kernel.org/r/20220904214134.408619-10-jim.cromie@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel_soc_pmic_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/dynamic_debug.h |  9 ---------
+ lib/dynamic_debug.c           | 29 -----------------------------
+ 2 files changed, 38 deletions(-)
 
-diff --git a/drivers/mfd/intel_soc_pmic_core.c b/drivers/mfd/intel_soc_pmic_core.c
-index ddd64f9e3341..926653e1f603 100644
---- a/drivers/mfd/intel_soc_pmic_core.c
-+++ b/drivers/mfd/intel_soc_pmic_core.c
-@@ -95,6 +95,7 @@ static int intel_soc_pmic_i2c_probe(struct i2c_client *i2c,
- 	return 0;
+diff --git a/include/linux/dynamic_debug.h b/include/linux/dynamic_debug.h
+index f30b01aa9fa4..8d9eec5f6d8b 100644
+--- a/include/linux/dynamic_debug.h
++++ b/include/linux/dynamic_debug.h
+@@ -55,9 +55,6 @@ struct _ddebug {
  
- err_del_irq_chip:
-+	pwm_remove_table(crc_pwm_lookup, ARRAY_SIZE(crc_pwm_lookup));
- 	regmap_del_irq_chip(pmic->irq, pmic->irq_chip_data);
- 	return ret;
+ #if defined(CONFIG_DYNAMIC_DEBUG_CORE)
+ 
+-/* exported for module authors to exercise >control */
+-int dynamic_debug_exec_queries(const char *query, const char *modname);
+-
+ int ddebug_add_module(struct _ddebug *tab, unsigned int n,
+ 				const char *modname);
+ extern int ddebug_remove_module(const char *mod_name);
+@@ -221,12 +218,6 @@ static inline int ddebug_dyndbg_module_param_cb(char *param, char *val,
+ 				rowsize, groupsize, buf, len, ascii);	\
+ 	} while (0)
+ 
+-static inline int dynamic_debug_exec_queries(const char *query, const char *modname)
+-{
+-	pr_warn("kernel not built with CONFIG_DYNAMIC_DEBUG_CORE\n");
+-	return 0;
+-}
+-
+ #endif /* !CONFIG_DYNAMIC_DEBUG_CORE */
+ 
+ #endif
+diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
+index 60d453974155..2ca56c22a169 100644
+--- a/lib/dynamic_debug.c
++++ b/lib/dynamic_debug.c
+@@ -552,35 +552,6 @@ static int ddebug_exec_queries(char *query, const char *modname)
+ 	return nfound;
  }
+ 
+-/**
+- * dynamic_debug_exec_queries - select and change dynamic-debug prints
+- * @query: query-string described in admin-guide/dynamic-debug-howto
+- * @modname: string containing module name, usually &module.mod_name
+- *
+- * This uses the >/proc/dynamic_debug/control reader, allowing module
+- * authors to modify their dynamic-debug callsites. The modname is
+- * canonically struct module.mod_name, but can also be null or a
+- * module-wildcard, for example: "drm*".
+- */
+-int dynamic_debug_exec_queries(const char *query, const char *modname)
+-{
+-	int rc;
+-	char *qry; /* writable copy of query */
+-
+-	if (!query) {
+-		pr_err("non-null query/command string expected\n");
+-		return -EINVAL;
+-	}
+-	qry = kstrndup(query, PAGE_SIZE, GFP_KERNEL);
+-	if (!qry)
+-		return -ENOMEM;
+-
+-	rc = ddebug_exec_queries(qry, modname);
+-	kfree(qry);
+-	return rc;
+-}
+-EXPORT_SYMBOL_GPL(dynamic_debug_exec_queries);
+-
+ #define PREFIX_SIZE 64
+ 
+ static int remaining(int wrote)
 -- 
 2.35.1
 
