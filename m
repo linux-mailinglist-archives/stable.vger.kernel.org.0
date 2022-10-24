@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B28460B49E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:57:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B7E160B42A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:31:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229983AbiJXR5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:57:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45174 "EHLO
+        id S233170AbiJXRbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 13:31:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231953AbiJXR52 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:57:28 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 408576F553;
-        Mon, 24 Oct 2022 09:37:25 -0700 (PDT)
+        with ESMTP id S231271AbiJXRbV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:31:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D09102248F7;
+        Mon, 24 Oct 2022 09:06:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A9F8DCE16D5;
-        Mon, 24 Oct 2022 12:47:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 959D5C433C1;
-        Mon, 24 Oct 2022 12:47:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46449B8169C;
+        Mon, 24 Oct 2022 12:28:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 703E5C433C1;
+        Mon, 24 Oct 2022 12:28:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615670;
-        bh=1QUJDNqcFFRSgqgvnf6wISDMsBWhPp8lS7GZcNtc4uo=;
+        s=korg; t=1666614534;
+        bh=/OXXMxHwFAPpWYWH3Twq50RGB1+01cfTvXGSwWG1oCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uonYJPtE0iWAqTbVgJ0ZFuoa4mSCRgXiXVh9eogmShSz8EXbR40su9pehwpGPO4au
-         snhchSONXKnN/sHjWtNrX22rCEJVM4FB4eqhO4ryppGyPosGjTZ4GDa23u3pbUWXQH
-         oHKBVR29PgibWLAf/IHxw4x8uQS0jLXb6kI5i2Pw=
+        b=My30US/Xa8JGI5vpKuIJo2oGAKC2WENgYAKVcrcl0yTgxxCZ3jk2xqoRyWJaDhxo3
+         7PBSup/1lXGy3qimMUOd/1IlN777hGzBLD/iZJ96BnoheHERolwRil21oErWuCu80a
+         P6V46tUcSCUwzVBXyUhhFoNEx04CRdI7khhgzMpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Eddie James <eajames@linux.ibm.com>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 340/530] fsi: core: Check error number after calling ida_simple_get
-Date:   Mon, 24 Oct 2022 13:31:24 +0200
-Message-Id: <20221024113100.391210510@linuxfoundation.org>
+        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-mips@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        llvm@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 298/390] MIPS: BCM47XX: Cast memcmp() of function to (void *)
+Date:   Mon, 24 Oct 2022 13:31:35 +0200
+Message-Id: <20221024113035.709028609@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +58,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 35af9fb49bc5c6d61ef70b501c3a56fe161cce3e ]
+[ Upstream commit 0dedcf6e3301836eb70cfa649052e7ce4fcd13ba ]
 
-If allocation fails, the ida_simple_get() will return error number.
-So master->idx could be error number and be used in dev_set_name().
-Therefore, it should be better to check it and return error if fails,
-like the ida_simple_get() in __fsi_get_new_minor().
+Clang is especially sensitive about argument type matching when using
+__overloaded functions (like memcmp(), etc). Help it see that function
+pointers are just "void *". Avoids this error:
 
-Fixes: 09aecfab93b8 ("drivers/fsi: Add fsi master definition")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Eddie James <eajames@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220111073411.614138-1-jiasheng@iscas.ac.cn
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+arch/mips/bcm47xx/prom.c:89:8: error: no matching function for call to 'memcmp'
+                   if (!memcmp(prom_init, prom_init + mem, 32))
+                        ^~~~~~
+include/linux/string.h:156:12: note: candidate function not viable: no known conversion from 'void (void)' to 'const void *' for 1st argument extern int memcmp(const void *,const void *,__kernel_size_t);
+
+Cc: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: "Rafał Miłecki" <zajec5@gmail.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: llvm@lists.linux.dev
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202209080652.sz2d68e5-lkp@intel.com
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/mips/bcm47xx/prom.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/fsi/fsi-core.c b/drivers/fsi/fsi-core.c
-index 59ddc9fd5bca..92e6eebd1851 100644
---- a/drivers/fsi/fsi-core.c
-+++ b/drivers/fsi/fsi-core.c
-@@ -1309,6 +1309,9 @@ int fsi_master_register(struct fsi_master *master)
+diff --git a/arch/mips/bcm47xx/prom.c b/arch/mips/bcm47xx/prom.c
+index 3e2a8166377f..22509b5fab74 100644
+--- a/arch/mips/bcm47xx/prom.c
++++ b/arch/mips/bcm47xx/prom.c
+@@ -86,7 +86,7 @@ static __init void prom_init_mem(void)
+ 			pr_debug("Assume 128MB RAM\n");
+ 			break;
+ 		}
+-		if (!memcmp(prom_init, prom_init + mem, 32))
++		if (!memcmp((void *)prom_init, (void *)prom_init + mem, 32))
+ 			break;
+ 	}
+ 	lowmem = mem;
+@@ -163,7 +163,7 @@ void __init bcm47xx_prom_highmem_init(void)
  
- 	mutex_init(&master->scan_lock);
- 	master->idx = ida_simple_get(&master_ida, 0, INT_MAX, GFP_KERNEL);
-+	if (master->idx < 0)
-+		return master->idx;
-+
- 	dev_set_name(&master->dev, "fsi%d", master->idx);
- 	master->dev.class = &fsi_master_class;
- 
+ 	off = EXTVBASE + __pa(off);
+ 	for (extmem = 128 << 20; extmem < 512 << 20; extmem <<= 1) {
+-		if (!memcmp(prom_init, (void *)(off + extmem), 16))
++		if (!memcmp((void *)prom_init, (void *)(off + extmem), 16))
+ 			break;
+ 	}
+ 	extmem -= lowmem;
 -- 
 2.35.1
 
