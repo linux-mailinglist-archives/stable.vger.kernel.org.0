@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62974609FD0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDA8B609FD1
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:09:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230087AbiJXLJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:09:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50538 "EHLO
+        id S230025AbiJXLJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:09:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230080AbiJXLJc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:09:32 -0400
+        with ESMTP id S230153AbiJXLJj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:09:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7E9E12A97
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 04:09:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 021815F7F
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 04:09:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB98D6121A
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 11:09:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3991C433C1;
-        Mon, 24 Oct 2022 11:09:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D93C61217
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 11:09:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE1B2C433C1;
+        Mon, 24 Oct 2022 11:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666609757;
-        bh=mJk/7lCvD0v/wZqyy24hE9mXl4Knq2V24HtU+hYNJq4=;
+        s=korg; t=1666609766;
+        bh=7eOLCls4k18+fACy16KoO3zoduCoXLHKpTjIyajBmM8=;
         h=Subject:To:Cc:From:Date:From;
-        b=AaGqf1W8/OZVvBx+/ydQpXF0E13T9ctWhA/MNXiU9/YlZdO8X84D3AV6H3tHI4Y0b
-         InyBulcBtwOBYoay3zEFnLuGrD6nUB3Mno9957tmvlcCBzuhReAJyCLx/pwRIP4ktw
-         izhvB+IqGbFKjwH/0qAbVgjuBnLuUWgQEEy0+YZ8=
-Subject: FAILED: patch "[PATCH] cgroup: Reorganize css_set_lock and kernfs path processing" failed to apply to 6.0-stable tree
+        b=IJJOf+XbK52NOnf1pM/p8uDe7PVmGutDUreoBGSd3CAff/WhB3chf0ou1nZw8bEqC
+         2TsTbWcfWKePPJT54awxRhiCUQk7lTvRWjtMG9be5RGujxb0o7PvIuzSMZQ0WOSp4d
+         rPACfdERsSRyEu+iu1knGNex7nDOSBgkhM1SKOzw=
+Subject: FAILED: patch "[PATCH] cgroup: Reorganize css_set_lock and kernfs path processing" failed to apply to 5.15-stable tree
 To:     mkoutny@suse.com, dan.carpenter@oracle.com, tj@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Oct 2022 13:09:14 +0200
-Message-ID: <166660975421479@kroah.com>
+Date:   Mon, 24 Oct 2022 13:09:15 +0200
+Message-ID: <166660975519549@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,8 @@ Possible dependencies:
 46307fd6e27a ("cgroup: Reorganize css_set_lock and kernfs path processing")
 4534dee94105 ("cgroup: cgroup: Honor caller's cgroup NS when resolving cgroup id")
 74e4b956eb1c ("cgroup: Honor caller's cgroup NS when resolving path")
+e210a89f5b07 ("cgroup.c: add helper __cset_cgroup_from_root to cleanup duplicated codes")
+be288169712f ("cgroup: reduce dependency on cgroup_mutex")
 
 thanks,
 
