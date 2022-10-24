@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B89C60BF0E
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 01:54:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 711D160BDE3
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 00:53:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230094AbiJXXyN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 19:54:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41660 "EHLO
+        id S232134AbiJXWxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 18:53:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230234AbiJXXxt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 19:53:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5073D2CB8E7;
-        Mon, 24 Oct 2022 15:11:18 -0700 (PDT)
+        with ESMTP id S231641AbiJXWwl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 18:52:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556D57C779;
+        Mon, 24 Oct 2022 14:14:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A04F3B81606;
-        Mon, 24 Oct 2022 12:13:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7671C43148;
-        Mon, 24 Oct 2022 12:13:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 662E560E7F;
+        Mon, 24 Oct 2022 12:49:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53B02C433D6;
+        Mon, 24 Oct 2022 12:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613600;
-        bh=QKNgzoxYek1Ubv+lLGCk5GbVzg63S5k1MsO7eIVpwu4=;
+        s=korg; t=1666615758;
+        bh=oi1CZUVpo8tc5lnU4a5h7UpgZgb2bjuEFwx20nMrjHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gThlMcj/Y0KhmqC6bkTyEGeXyHPMeQKP52az+qp5NUpcBfFwMftUiPxv/FsJJyMDv
-         E+ODPchtM7dHDsblVwvIS3fZywgdK5fGP6vkaNyc1O8gE49diCcEEnKOLusVM2PVNO
-         1Fjx1Qm/xPyFDA0y4XR5DP7lbkf03n5+8Vb4SPqg=
+        b=1X264bYKZl13qxeEOyVb/43PnGY42lLOlkHX3sQaOa7KwlqoxSLDUql6zIOBMQmfv
+         ZlqhzQsf9ugZGQibmszxLLZds4whyc7D0r1yRePfrX2Vgk239LQy5vGj1wA6u5KBZD
+         WEp5EgsHbxK+MkanbLS+7RvIb4gPn9+m1zywHKyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+83672956c7aa6af698b3@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 199/255] Bluetooth: L2CAP: initialize delayed works at l2cap_chan_create()
-Date:   Mon, 24 Oct 2022 13:31:49 +0200
-Message-Id: <20221024113009.626382689@linuxfoundation.org>
+Subject: [PATCH 5.15 373/530] crypto: sahara - dont sleep when in softirq
+Date:   Mon, 24 Oct 2022 13:31:57 +0200
+Message-Id: <20221024113101.919603892@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 2d2cb3066f2c90cd8ca540b36ba7a55e7f2406e0 ]
+[ Upstream commit 108586eba094b318e6a831f977f4ddcc403a15da ]
 
-syzbot is reporting cancel_delayed_work() without INIT_DELAYED_WORK() at
-l2cap_chan_del() [1], for CONF_NOT_COMPLETE flag (which meant to prevent
-l2cap_chan_del() from calling cancel_delayed_work()) is cleared by timer
-which fires before l2cap_chan_del() is called by closing file descriptor
-created by socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_L2CAP).
+Function of sahara_aes_crypt maybe could be called by function
+of crypto_skcipher_encrypt during the rx softirq, so it is not
+allowed to use mutex lock.
 
-l2cap_bredr_sig_cmd(L2CAP_CONF_REQ) and l2cap_bredr_sig_cmd(L2CAP_CONF_RSP)
-are calling l2cap_ertm_init(chan), and they call l2cap_chan_ready() (which
-clears CONF_NOT_COMPLETE flag) only when l2cap_ertm_init(chan) succeeded.
-
-l2cap_sock_init() does not call l2cap_ertm_init(chan), and it instead sets
-CONF_NOT_COMPLETE flag by calling l2cap_chan_set_defaults(). However, when
-connect() is requested, "command 0x0409 tx timeout" happens after 2 seconds
- from connect() request, and CONF_NOT_COMPLETE flag is cleared after 4
-seconds from connect() request, for l2cap_conn_start() from
-l2cap_info_timeout() callback scheduled by
-
-  schedule_delayed_work(&conn->info_timer, L2CAP_INFO_TIMEOUT);
-
-in l2cap_connect() is calling l2cap_chan_ready().
-
-Fix this problem by initializing delayed works used by L2CAP_MODE_ERTM
-mode as soon as l2cap_chan_create() allocates a channel, like I did in
-commit be8597239379f0f5 ("Bluetooth: initialize skb_queue_head at
-l2cap_chan_create()").
-
-Link: https://syzkaller.appspot.com/bug?extid=83672956c7aa6af698b3 [1]
-Reported-by: syzbot <syzbot+83672956c7aa6af698b3@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: c0c3c89ae347 ("crypto: sahara - replace tasklets with...")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/crypto/sahara.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 3682d2e1cd7d..442432f89be1 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -60,6 +60,9 @@ static void l2cap_send_disconn_req(struct l2cap_chan *chan, int err);
+diff --git a/drivers/crypto/sahara.c b/drivers/crypto/sahara.c
+index 457084b344c1..b07ae4ba165e 100644
+--- a/drivers/crypto/sahara.c
++++ b/drivers/crypto/sahara.c
+@@ -26,10 +26,10 @@
+ #include <linux/kernel.h>
+ #include <linux/kthread.h>
+ #include <linux/module.h>
+-#include <linux/mutex.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
++#include <linux/spinlock.h>
  
- static void l2cap_tx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
- 		     struct sk_buff_head *skbs, u8 event);
-+static void l2cap_retrans_timeout(struct work_struct *work);
-+static void l2cap_monitor_timeout(struct work_struct *work);
-+static void l2cap_ack_timeout(struct work_struct *work);
+ #define SHA_BUFFER_LEN		PAGE_SIZE
+ #define SAHARA_MAX_SHA_BLOCK_SIZE	SHA256_BLOCK_SIZE
+@@ -196,7 +196,7 @@ struct sahara_dev {
+ 	void __iomem		*regs_base;
+ 	struct clk		*clk_ipg;
+ 	struct clk		*clk_ahb;
+-	struct mutex		queue_mutex;
++	spinlock_t		queue_spinlock;
+ 	struct task_struct	*kthread;
+ 	struct completion	dma_completion;
  
- static inline u8 bdaddr_type(u8 link_type, u8 bdaddr_type)
- {
-@@ -475,6 +478,9 @@ struct l2cap_chan *l2cap_chan_create(void)
- 	write_unlock(&chan_list_lock);
+@@ -642,9 +642,9 @@ static int sahara_aes_crypt(struct skcipher_request *req, unsigned long mode)
  
- 	INIT_DELAYED_WORK(&chan->chan_timer, l2cap_chan_timeout);
-+	INIT_DELAYED_WORK(&chan->retrans_timer, l2cap_retrans_timeout);
-+	INIT_DELAYED_WORK(&chan->monitor_timer, l2cap_monitor_timeout);
-+	INIT_DELAYED_WORK(&chan->ack_timer, l2cap_ack_timeout);
+ 	rctx->mode = mode;
  
- 	chan->state = BT_OPEN;
+-	mutex_lock(&dev->queue_mutex);
++	spin_lock_bh(&dev->queue_spinlock);
+ 	err = crypto_enqueue_request(&dev->queue, &req->base);
+-	mutex_unlock(&dev->queue_mutex);
++	spin_unlock_bh(&dev->queue_spinlock);
  
-@@ -3163,10 +3169,6 @@ int l2cap_ertm_init(struct l2cap_chan *chan)
- 	chan->rx_state = L2CAP_RX_STATE_RECV;
- 	chan->tx_state = L2CAP_TX_STATE_XMIT;
+ 	wake_up_process(dev->kthread);
  
--	INIT_DELAYED_WORK(&chan->retrans_timer, l2cap_retrans_timeout);
--	INIT_DELAYED_WORK(&chan->monitor_timer, l2cap_monitor_timeout);
--	INIT_DELAYED_WORK(&chan->ack_timer, l2cap_ack_timeout);
--
- 	skb_queue_head_init(&chan->srej_q);
+@@ -1043,10 +1043,10 @@ static int sahara_queue_manage(void *data)
+ 	do {
+ 		__set_current_state(TASK_INTERRUPTIBLE);
  
- 	err = l2cap_seq_list_init(&chan->srej_list, chan->tx_win);
+-		mutex_lock(&dev->queue_mutex);
++		spin_lock_bh(&dev->queue_spinlock);
+ 		backlog = crypto_get_backlog(&dev->queue);
+ 		async_req = crypto_dequeue_request(&dev->queue);
+-		mutex_unlock(&dev->queue_mutex);
++		spin_unlock_bh(&dev->queue_spinlock);
+ 
+ 		if (backlog)
+ 			backlog->complete(backlog, -EINPROGRESS);
+@@ -1092,9 +1092,9 @@ static int sahara_sha_enqueue(struct ahash_request *req, int last)
+ 		rctx->first = 1;
+ 	}
+ 
+-	mutex_lock(&dev->queue_mutex);
++	spin_lock_bh(&dev->queue_spinlock);
+ 	ret = crypto_enqueue_request(&dev->queue, &req->base);
+-	mutex_unlock(&dev->queue_mutex);
++	spin_unlock_bh(&dev->queue_spinlock);
+ 
+ 	wake_up_process(dev->kthread);
+ 
+@@ -1449,7 +1449,7 @@ static int sahara_probe(struct platform_device *pdev)
+ 
+ 	crypto_init_queue(&dev->queue, SAHARA_QUEUE_LENGTH);
+ 
+-	mutex_init(&dev->queue_mutex);
++	spin_lock_init(&dev->queue_spinlock);
+ 
+ 	dev_ptr = dev;
+ 
 -- 
 2.35.1
 
