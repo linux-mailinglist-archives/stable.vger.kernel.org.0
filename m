@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6767660A4A7
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:15:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FD1D60A9DD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233524AbiJXMPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:15:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60006 "EHLO
+        id S230347AbiJXNZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:25:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232994AbiJXMNf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:13:35 -0400
+        with ESMTP id S233747AbiJXNXh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:23:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68DEF1BEB6;
-        Mon, 24 Oct 2022 04:54:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46A3A5072F;
+        Mon, 24 Oct 2022 05:30:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 940216129E;
-        Mon, 24 Oct 2022 11:54:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7A37C433D6;
-        Mon, 24 Oct 2022 11:54:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD4EB61328;
+        Mon, 24 Oct 2022 12:28:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC79EC433C1;
+        Mon, 24 Oct 2022 12:28:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612452;
-        bh=y6mb1eubaJp0f29iWdCtN2LvaUKIi3ax1uLB3dwiWUQ=;
+        s=korg; t=1666614523;
+        bh=SQBhvpbr67nNnwBS9iLoISYpMqP1aXfZOUUFaVU+bMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P6anJ3CmJCng9f0hljJcu5JK5R3zqXTZAQPEoYktAydQD4VzOhN4DdmLtbEAYjQGt
-         wYIPvtzlDYmQ5W8ESR7mxCZQ4BozkOl/FsPhl2NEl4hpwopkHnpvwDxJCQmN6sRtGE
-         WN0Qwt9n497vkzVqz83CEPxJh2vaigdp4U4ldmQI=
+        b=jOJwNlQk/bc7Y1f4MO3jGG0G262z/aomhlQ8tcnOdXvb2qkRDQpvERoNZxWn3MZ3M
+         i8yb/Vs/Ma4coqK8bEWnVjc2o8QmHuuOwI7K8KQZ0f7vd98YwgGtVzWKIxy8slXcFv
+         5TSAZkTou9cu+CbNhcwOz0qDLJ9WFGd69zzjVwCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+83672956c7aa6af698b3@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+        linux-kselftest@vger.kernel.org,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Stefan Berger <stefanb@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 174/210] Bluetooth: L2CAP: initialize delayed works at l2cap_chan_create()
+Subject: [PATCH 5.10 294/390] selftest: tpm2: Add Client.__del__() to close /dev/tpm* handle
 Date:   Mon, 24 Oct 2022 13:31:31 +0200
-Message-Id: <20221024113002.605026670@linuxfoundation.org>
+Message-Id: <20221024113035.525923548@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Stefan Berger <stefanb@linux.ibm.com>
 
-[ Upstream commit 2d2cb3066f2c90cd8ca540b36ba7a55e7f2406e0 ]
+[ Upstream commit 2d869f0b458547386fbcd8cf3004b271b7347b7f ]
 
-syzbot is reporting cancel_delayed_work() without INIT_DELAYED_WORK() at
-l2cap_chan_del() [1], for CONF_NOT_COMPLETE flag (which meant to prevent
-l2cap_chan_del() from calling cancel_delayed_work()) is cleared by timer
-which fires before l2cap_chan_del() is called by closing file descriptor
-created by socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_L2CAP).
+The following output can bee seen when the test is executed:
 
-l2cap_bredr_sig_cmd(L2CAP_CONF_REQ) and l2cap_bredr_sig_cmd(L2CAP_CONF_RSP)
-are calling l2cap_ertm_init(chan), and they call l2cap_chan_ready() (which
-clears CONF_NOT_COMPLETE flag) only when l2cap_ertm_init(chan) succeeded.
+  test_flush_context (tpm2_tests.SpaceTest) ... \
+    /usr/lib64/python3.6/unittest/case.py:605: ResourceWarning: \
+    unclosed file <_io.FileIO name='/dev/tpmrm0' mode='rb+' closefd=True>
 
-l2cap_sock_init() does not call l2cap_ertm_init(chan), and it instead sets
-CONF_NOT_COMPLETE flag by calling l2cap_chan_set_defaults(). However, when
-connect() is requested, "command 0x0409 tx timeout" happens after 2 seconds
- from connect() request, and CONF_NOT_COMPLETE flag is cleared after 4
-seconds from connect() request, for l2cap_conn_start() from
-l2cap_info_timeout() callback scheduled by
+An instance of Client does not implicitly close /dev/tpm* handle, once it
+gets destroyed. Close the file handle in the class destructor
+Client.__del__().
 
-  schedule_delayed_work(&conn->info_timer, L2CAP_INFO_TIMEOUT);
-
-in l2cap_connect() is calling l2cap_chan_ready().
-
-Fix this problem by initializing delayed works used by L2CAP_MODE_ERTM
-mode as soon as l2cap_chan_create() allocates a channel, like I did in
-commit be8597239379f0f5 ("Bluetooth: initialize skb_queue_head at
-l2cap_chan_create()").
-
-Link: https://syzkaller.appspot.com/bug?extid=83672956c7aa6af698b3 [1]
-Reported-by: syzbot <syzbot+83672956c7aa6af698b3@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 6ea3dfe1e0732 ("selftests: add TPM 2.0 tests")
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: linux-kselftest@vger.kernel.org
+Cc: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ tools/testing/selftests/tpm2/tpm2.py | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index e45a12378bd1..75a76353525c 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -63,6 +63,9 @@ static void l2cap_send_disconn_req(struct l2cap_chan *chan, int err);
+diff --git a/tools/testing/selftests/tpm2/tpm2.py b/tools/testing/selftests/tpm2/tpm2.py
+index f34486cd7342..3e67fdb518ec 100644
+--- a/tools/testing/selftests/tpm2/tpm2.py
++++ b/tools/testing/selftests/tpm2/tpm2.py
+@@ -370,6 +370,10 @@ class Client:
+             fcntl.fcntl(self.tpm, fcntl.F_SETFL, flags)
+             self.tpm_poll = select.poll()
  
- static void l2cap_tx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
- 		     struct sk_buff_head *skbs, u8 event);
-+static void l2cap_retrans_timeout(struct work_struct *work);
-+static void l2cap_monitor_timeout(struct work_struct *work);
-+static void l2cap_ack_timeout(struct work_struct *work);
++    def __del__(self):
++        if self.tpm:
++            self.tpm.close()
++
+     def close(self):
+         self.tpm.close()
  
- static inline u8 bdaddr_type(u8 link_type, u8 bdaddr_type)
- {
-@@ -470,6 +473,9 @@ struct l2cap_chan *l2cap_chan_create(void)
- 	write_unlock(&chan_list_lock);
- 
- 	INIT_DELAYED_WORK(&chan->chan_timer, l2cap_chan_timeout);
-+	INIT_DELAYED_WORK(&chan->retrans_timer, l2cap_retrans_timeout);
-+	INIT_DELAYED_WORK(&chan->monitor_timer, l2cap_monitor_timeout);
-+	INIT_DELAYED_WORK(&chan->ack_timer, l2cap_ack_timeout);
- 
- 	chan->state = BT_OPEN;
- 
-@@ -3154,10 +3160,6 @@ int l2cap_ertm_init(struct l2cap_chan *chan)
- 	chan->rx_state = L2CAP_RX_STATE_RECV;
- 	chan->tx_state = L2CAP_TX_STATE_XMIT;
- 
--	INIT_DELAYED_WORK(&chan->retrans_timer, l2cap_retrans_timeout);
--	INIT_DELAYED_WORK(&chan->monitor_timer, l2cap_monitor_timeout);
--	INIT_DELAYED_WORK(&chan->ack_timer, l2cap_ack_timeout);
--
- 	skb_queue_head_init(&chan->srej_q);
- 
- 	err = l2cap_seq_list_init(&chan->srej_list, chan->tx_win);
 -- 
 2.35.1
 
