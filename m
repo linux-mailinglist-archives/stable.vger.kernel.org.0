@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D070660B282
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:47:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E036260B091
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235080AbiJXQrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:47:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37052 "EHLO
+        id S233106AbiJXQGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:06:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231974AbiJXQqq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:46:46 -0400
+        with ESMTP id S233646AbiJXQEv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D68D88C02F;
-        Mon, 24 Oct 2022 08:31:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A8EA2CE04;
+        Mon, 24 Oct 2022 07:57:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08D12B811F9;
-        Mon, 24 Oct 2022 12:39:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6416BC433D6;
-        Mon, 24 Oct 2022 12:39:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B160AB8162A;
+        Mon, 24 Oct 2022 12:21:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CE4AC433D7;
+        Mon, 24 Oct 2022 12:21:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615148;
-        bh=+uBp4s5k9w8OaQPz9fOORY0Wxie4lKxtfkqZIUFQYQw=;
+        s=korg; t=1666614066;
+        bh=r5FDIp291EgvdDjpw1Sd2GAdYsqzp0QZFybu9zO3DO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l6bn6K7jM87nYIReu5Qlg6TSPQh01eL7y22mMvqtupqPbSBU0mLstKEZV393jFvxN
-         xqd9+oNbB4UAv58wOb296k6LdOunDtvG0I5bExC33TEx04R2UZXono4AbKKH9ug76h
-         YZ2gYQtF8rp956mJGuJj2JQgnAQXQ1QcuijZvFrg=
+        b=gJFjr5/GRbIxFIY5+NJZtgCAk7fxvNOPYrf0QsMoXEJSy3RT3NgWOncHEZUs2zu8V
+         Q0oluqB/JjX1BH+0fKYYz3tD59RqMAoaK/y9BIb1pa0/BcOTGblsL8ztotu/wkCFQj
+         EuRCCKH0ov1Dox+kUHRUASKItA7hI2NUoWE0//Co=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 141/530] MIPS: SGI-IP27: Free some unused memory
-Date:   Mon, 24 Oct 2022 13:28:05 +0200
-Message-Id: <20221024113051.452439983@linuxfoundation.org>
+        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.10 089/390] drm/i915: Fix watermark calculations for gen12+ MC CCS modifier
+Date:   Mon, 24 Oct 2022 13:28:06 +0200
+Message-Id: <20221024113026.417641197@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 33d7085682b4aa212ebfadbc21da81dfefaaac16 ]
+commit 484b2b9281000274ef7c5cb0a9ebc5da6f5c281c upstream.
 
-platform_device_add_data() duplicates the memory it is passed. So we can
-free some memory to save a few bytes that would remain unused otherwise.
+Take the gen12+ MC CCS modifier into account when calculating the
+watermarks. Othwerwise we'll calculate the watermarks thinking this
+Y-tiled modifier is linear.
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Stable-dep-of: 11bec9cba4de ("MIPS: SGI-IP27: Fix platform-device leak in bridge_platform_create()")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The rc_surface part is actually a nop since that is not used
+for any glk+ platform.
+
+v2: Split RC CCS vs. MC CCS to separate patches
+
+Cc: stable@vger.kernel.org
+Fixes: 2dfbf9d2873a ("drm/i915/tgl: Gen-12 display can decompress surfaces compressed by the media engine")
+Reviewed-by: Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221003111544.8007-3-ville.syrjala@linux.intel.com
+(cherry picked from commit 91c9651425fe955b1387f3637607dda005f3f710)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/sgi-ip27/ip27-xtalk.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/i915/intel_pm.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/sgi-ip27/ip27-xtalk.c b/arch/mips/sgi-ip27/ip27-xtalk.c
-index 000ede156bdc..e762886d1dda 100644
---- a/arch/mips/sgi-ip27/ip27-xtalk.c
-+++ b/arch/mips/sgi-ip27/ip27-xtalk.c
-@@ -53,6 +53,8 @@ static void bridge_platform_create(nasid_t nasid, int widget, int masterwid)
- 	}
- 	platform_device_add_resources(pdev, &w1_res, 1);
- 	platform_device_add_data(pdev, wd, sizeof(*wd));
-+	/* platform_device_add_data() duplicates the data */
-+	kfree(wd);
- 	platform_device_add(pdev);
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -5146,11 +5146,13 @@ skl_compute_wm_params(const struct intel
+ 		      modifier == I915_FORMAT_MOD_Yf_TILED ||
+ 		      modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
+ 		      modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
+-		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS;
++		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS ||
++		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS;
+ 	wp->x_tiled = modifier == I915_FORMAT_MOD_X_TILED;
+ 	wp->rc_surface = modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
+ 			 modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
+-			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS;
++			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS ||
++			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS;
+ 	wp->is_planar = intel_format_info_is_yuv_semiplanar(format, modifier);
  
- 	bd = kzalloc(sizeof(*bd), GFP_KERNEL);
-@@ -83,6 +85,8 @@ static void bridge_platform_create(nasid_t nasid, int widget, int masterwid)
- 	bd->io_offset	= offset;
- 
- 	platform_device_add_data(pdev, bd, sizeof(*bd));
-+	/* platform_device_add_data() duplicates the data */
-+	kfree(bd);
- 	platform_device_add(pdev);
- 	pr_info("xtalk:n%d/%x bridge widget\n", nasid, widget);
- 	return;
--- 
-2.35.1
-
+ 	wp->width = width;
 
 
