@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 430BF60BB45
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:54:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AC6A60B988
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:14:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230520AbiJXUyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:54:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53226 "EHLO
+        id S232235AbiJXUOY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:14:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234761AbiJXUxe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:53:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A45F5A4BB8;
-        Mon, 24 Oct 2022 12:00:11 -0700 (PDT)
+        with ESMTP id S230111AbiJXUNv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:13:51 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A56717E837;
+        Mon, 24 Oct 2022 11:32:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A4B86134F;
-        Mon, 24 Oct 2022 12:52:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C23DC433C1;
-        Mon, 24 Oct 2022 12:52:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3178BCE16F2;
+        Mon, 24 Oct 2022 12:52:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 450CAC433D6;
+        Mon, 24 Oct 2022 12:52:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615958;
-        bh=/NdS3g71STJA3Pftdp1Yvvm9X41utaI30ce2S5p5+E4=;
+        s=korg; t=1666615960;
+        bh=IqXIc2zb1gPqjZAiZAuDXqBufstMjobSxTTlD79UXjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hua/qtRjdvwkzSqG4FAn/nOd4zq0Kng152aokRXafu+QLqg6BTLSdrT6YoledjzG2
-         PGSRxUs24TARzv6VUs590LHJOvdwoCHc+nhrm79cQC9nxdfD1bt9jp9nIfXMLr924+
-         pn/WMA7oRBVGRGw5tG5vi6EDFVJARPqLXgI3ulmQ=
+        b=NpU+n8hjn35o3HcueK+tgedoU5AolUBBS2802GKIyIncPE+l7P+kkBLfcVYXgC0Oe
+         x/d9sgNugL0AL/2php1JhK0UcyOLZzG9t7TaHi/BImLVl56Q7i34gCDM0vgfzrNsfb
+         rFSoZz84zqdrvxIkzYwWUvN0FxH1M59F6+gIZ+4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeng Jingxiang <linuszeng@tencent.com>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, David Gow <davidgow@google.com>,
+        Tales Aparecida <tales.aparecida@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 447/530] gpu: lontium-lt9611: Fix NULL pointer dereference in lt9611_connector_init()
-Date:   Mon, 24 Oct 2022 13:33:11 +0200
-Message-Id: <20221024113105.273274733@linuxfoundation.org>
+Subject: [PATCH 5.15 448/530] drm/amd/display: fix overflow on MIN_I64 definition
+Date:   Mon, 24 Oct 2022 13:33:12 +0200
+Message-Id: <20221024113105.320201108@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,44 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Jingxiang <linuszeng@tencent.com>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit ef8886f321c5dab8124b9153d25afa2a71d05323 ]
+[ Upstream commit 6ae0632d17759852c07e2d1e0a31c728eb6ba246 ]
 
-A NULL check for bridge->encoder shows that it may be NULL, but it
-already been dereferenced on all paths leading to the check.
-812	if (!bridge->encoder) {
+The definition of MIN_I64 in bw_fixed.c can cause gcc to whinge about
+integer overflow, because it is treated as a positive value, which is
+then negated. The temporary positive value is not necessarily
+representable.
 
-Dereference the pointer bridge->encoder.
-810	drm_connector_attach_encoder(&lt9611->connector, bridge->encoder);
+This causes the following warning:
+../drivers/gpu/drm/amd/amdgpu/../display/dc/dml/calcs/bw_fixed.c:30:19:
+warning: integer overflow in expression ‘-9223372036854775808’ of type
+‘long long int’ results in ‘-9223372036854775808’ [-Woverflow]
+  30 |         (int64_t)(-(1LL << 63))
+     |                   ^
 
-Signed-off-by: Zeng Jingxiang <linuszeng@tencent.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220727073119.1578972-1-zengjx95@gmail.com
+Writing out (-MAX_I64 - 1) works instead.
+
+Signed-off-by: David Gow <davidgow@google.com>
+Signed-off-by: Tales Aparecida <tales.aparecida@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/lontium-lt9611.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
-index 29b1ce2140ab..1dcc28a4d853 100644
---- a/drivers/gpu/drm/bridge/lontium-lt9611.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
-@@ -816,13 +816,14 @@ static int lt9611_connector_init(struct drm_bridge *bridge, struct lt9611 *lt961
+diff --git a/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c b/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c
+index 6ca288fb5fb9..2d46bc527b21 100644
+--- a/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c
++++ b/drivers/gpu/drm/amd/display/dc/calcs/bw_fixed.c
+@@ -26,12 +26,12 @@
+ #include "bw_fixed.h"
  
- 	drm_connector_helper_add(&lt9611->connector,
- 				 &lt9611_bridge_connector_helper_funcs);
--	drm_connector_attach_encoder(&lt9611->connector, bridge->encoder);
  
- 	if (!bridge->encoder) {
- 		DRM_ERROR("Parent encoder object not found");
- 		return -ENODEV;
- 	}
+-#define MIN_I64 \
+-	(int64_t)(-(1LL << 63))
+-
+ #define MAX_I64 \
+ 	(int64_t)((1ULL << 63) - 1)
  
-+	drm_connector_attach_encoder(&lt9611->connector, bridge->encoder);
++#define MIN_I64 \
++	(-MAX_I64 - 1)
 +
- 	return 0;
- }
+ #define FRACTIONAL_PART_MASK \
+ 	((1ULL << BW_FIXED_BITS_PER_FRACTIONAL_PART) - 1)
  
 -- 
 2.35.1
