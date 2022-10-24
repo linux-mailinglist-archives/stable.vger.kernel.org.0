@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B813E60A7B5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:56:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F34D860A4BF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:15:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231911AbiJXMzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:55:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41028 "EHLO
+        id S232948AbiJXMPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:15:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234554AbiJXMzX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:55:23 -0400
+        with ESMTP id S233428AbiJXMPG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:15:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB764E634;
-        Mon, 24 Oct 2022 05:15:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C042880531;
+        Mon, 24 Oct 2022 04:56:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C056612CA;
-        Mon, 24 Oct 2022 12:06:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A856C433D7;
-        Mon, 24 Oct 2022 12:06:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03AEA612E6;
+        Mon, 24 Oct 2022 11:55:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14FA6C433D6;
+        Mon, 24 Oct 2022 11:55:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613182;
-        bh=047Q3mGb+D9Rqs3g/v7llmzjHPdZKzlZ4a+uHakLGiI=;
+        s=korg; t=1666612555;
+        bh=3WzImQnkbjG9/1b+5+7IqgwI/RK4Rp5ceJx3SH2/qCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBqbMcH1TtzHTcKCwv78dFGYi3g7eT8spQf/Xia0d6l81dhWVmnytbbgXag6pWoti
-         n896QBm9PiuTuc3m61kyTa+hpPHT8RUQxK485XdME9ta6fXmJVzHS+4wWAITa6pFpB
-         UgL4Hx08XhnkhD6wuHRgzRMNMwqGLwbrYzmhTa/U=
+        b=JhYGwyK2KzLbYK2vh6bfBV5xZ/bSWBfLRA3EpqZv1YNn0nyzu9SKEpuTUv8+mWTT/
+         Ghv/U5cOCZs9oQkr6f7nWo2SvtMynXl2cYdtChBpVqC6C1ym5BB9WGbVRoe84Ykp3l
+         emueMsbYgtm6SCy1qUj1fJpTmzaLVCoI+BRMSayI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Alexey Lyashkov <alexey.lyashkov@gmail.com>,
-        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 040/255] jbd2: wake up journal waiters in FIFO order, not LIFO
-Date:   Mon, 24 Oct 2022 13:29:10 +0200
-Message-Id: <20221024113003.764929384@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 032/229] ALSA: oss: Fix potential deadlock at unregistration
+Date:   Mon, 24 Oct 2022 13:29:11 +0200
+Message-Id: <20221024113000.158366599@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +51,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Perepechko <anserper@ya.ru>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 34fc8768ec6089565d6d73bad26724083cecf7bd upstream.
+commit 97d917879d7f92df09c3f21fd54609a8bcd654b2 upstream.
 
-LIFO wakeup order is unfair and sometimes leads to a journal
-user not being able to get a journal handle for hundreds of
-transactions in a row.
+We took sound_oss_mutex around the calls of unregister_sound_special()
+at unregistering OSS devices.  This may, however, lead to a deadlock,
+because we manage the card release via the card's device object, and
+the release may happen at unregister_sound_special() call -- which
+will take sound_oss_mutex again in turn.
 
-FIFO wakeup can make things more fair.
+Although the deadlock might be fixed by relaxing the rawmidi mutex in
+the previous commit, it's safer to move unregister_sound_special()
+calls themselves out of the sound_oss_mutex, too.  The call is
+race-safe as the function has a spinlock protection by itself.
 
-Cc: stable@kernel.org
-Signed-off-by: Alexey Lyashkov <alexey.lyashkov@gmail.com>
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220907165959.1137482-1-alexey.lyashkov@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/CAB7eexJP7w1B0mVgDF0dQ+gWor7UdkiwPczmL7pn91xx8xpzOA@mail.gmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221011070147.7611-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jbd2/commit.c      |    2 +-
- fs/jbd2/transaction.c |    6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ sound/core/sound_oss.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/fs/jbd2/commit.c
-+++ b/fs/jbd2/commit.c
-@@ -531,7 +531,7 @@ void jbd2_journal_commit_transaction(jou
- 	journal->j_running_transaction = NULL;
- 	start_time = ktime_get();
- 	commit_transaction->t_log_start = journal->j_head;
--	wake_up(&journal->j_wait_transaction_locked);
-+	wake_up_all(&journal->j_wait_transaction_locked);
- 	write_unlock(&journal->j_state_lock);
- 
- 	jbd_debug(3, "JBD2: commit phase 2a\n");
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -149,7 +149,7 @@ static void wait_transaction_locked(jour
- 	int need_to_start;
- 	tid_t tid = journal->j_running_transaction->t_tid;
- 
--	prepare_to_wait(&journal->j_wait_transaction_locked, &wait,
-+	prepare_to_wait_exclusive(&journal->j_wait_transaction_locked, &wait,
- 			TASK_UNINTERRUPTIBLE);
- 	need_to_start = !tid_geq(journal->j_commit_request, tid);
- 	read_unlock(&journal->j_state_lock);
-@@ -175,7 +175,7 @@ static void wait_transaction_switching(j
- 		read_unlock(&journal->j_state_lock);
- 		return;
+--- a/sound/core/sound_oss.c
++++ b/sound/core/sound_oss.c
+@@ -177,7 +177,6 @@ int snd_unregister_oss_device(int type,
+ 		mutex_unlock(&sound_oss_mutex);
+ 		return -ENOENT;
  	}
--	prepare_to_wait(&journal->j_wait_transaction_locked, &wait,
-+	prepare_to_wait_exclusive(&journal->j_wait_transaction_locked, &wait,
- 			TASK_UNINTERRUPTIBLE);
- 	read_unlock(&journal->j_state_lock);
- 	/*
-@@ -810,7 +810,7 @@ void jbd2_journal_unlock_updates (journa
- 	write_lock(&journal->j_state_lock);
- 	--journal->j_barrier_count;
- 	write_unlock(&journal->j_state_lock);
--	wake_up(&journal->j_wait_transaction_locked);
-+	wake_up_all(&journal->j_wait_transaction_locked);
+-	unregister_sound_special(minor);
+ 	switch (SNDRV_MINOR_OSS_DEVICE(minor)) {
+ 	case SNDRV_MINOR_OSS_PCM:
+ 		track2 = SNDRV_MINOR_OSS(cidx, SNDRV_MINOR_OSS_AUDIO);
+@@ -189,12 +188,18 @@ int snd_unregister_oss_device(int type,
+ 		track2 = SNDRV_MINOR_OSS(cidx, SNDRV_MINOR_OSS_DMMIDI1);
+ 		break;
+ 	}
+-	if (track2 >= 0) {
+-		unregister_sound_special(track2);
++	if (track2 >= 0)
+ 		snd_oss_minors[track2] = NULL;
+-	}
+ 	snd_oss_minors[minor] = NULL;
+ 	mutex_unlock(&sound_oss_mutex);
++
++	/* call unregister_sound_special() outside sound_oss_mutex;
++	 * otherwise may deadlock, as it can trigger the release of a card
++	 */
++	unregister_sound_special(minor);
++	if (track2 >= 0)
++		unregister_sound_special(track2);
++
+ 	kfree(mptr);
+ 	return 0;
  }
- 
- static void warn_dirty_buffer(struct buffer_head *bh)
 
 
