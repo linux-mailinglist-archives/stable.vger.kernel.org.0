@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB59E60BB54
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:56:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEC6560BA4B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235253AbiJXU4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:56:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50810 "EHLO
+        id S234188AbiJXUcs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:32:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232571AbiJXU4C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:56:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E600F2413CA;
-        Mon, 24 Oct 2022 12:02:22 -0700 (PDT)
+        with ESMTP id S234244AbiJXUbx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:31:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF5E4237C9;
+        Mon, 24 Oct 2022 11:43:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 759A5B81330;
-        Mon, 24 Oct 2022 12:08:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4BB6C433D7;
-        Mon, 24 Oct 2022 12:08:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 36385CE13C5;
+        Mon, 24 Oct 2022 12:23:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21C67C433C1;
+        Mon, 24 Oct 2022 12:23:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613311;
-        bh=QOy3cjI1C0pLjk5Kou9W52sE41We3XgJT9GQSvfzZZ4=;
+        s=korg; t=1666614213;
+        bh=kQWJbAtvZifP1shAjObse3DkaoIE1hj0tuT6mBsGAMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFs6R6hFdr54lQ59ZL1Q+Pex0r8aByLmHA1QoHbklt4VdzvTjEhL/cJlkEHV51qgA
-         EJAIlCtmCGpJ+D3MsWr+vt5TJhKdVETKIiZlMdnOqX1Rm8K5tiVXSlLCMGCjWUyh6n
-         +RP1YsfK6al72p4i56IDZQ3JJZaiIXWYx0fPISkU=
+        b=Fqm8KOBtx2LXS4+xuT+gXkSFLPPanEkLw1HZjEVhjMa+452fmxSJtmcwXImpqHbkY
+         7jRY0lD/3A1vR3vocCpdsX7ThVYvbWABivFbQxY3YVRpJQb4Wmyfuc+AexqlBr3y8w
+         GDccWbn8J+JV2xkwjjYx64sksiOLiZjlN66Kp+ZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert OCallahan <roc@ocallahan.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 059/255] userfaultfd: open userfaultfds with O_RDONLY
-Date:   Mon, 24 Oct 2022 13:29:29 +0200
-Message-Id: <20221024113004.455015344@linuxfoundation.org>
+Subject: [PATCH 5.10 175/390] soc: qcom: smem_state: Add refcounting for the state->of_node
+Date:   Mon, 24 Oct 2022 13:29:32 +0200
+Message-Id: <20221024113030.171421867@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,55 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit abec3d015fdfb7c63105c7e1c956188bf381aa55 ]
+[ Upstream commit 90681f53b9381c23ff7762a3b13826d620c272de ]
 
-Since userfaultfd doesn't implement a write operation, it is more
-appropriate to open it read-only.
+In qcom_smem_state_register() and qcom_smem_state_release(), we
+should better use of_node_get() and of_node_put() for the reference
+creation and destruction of 'device_node'.
 
-When userfaultfds are opened read-write like it is now, and such fd is
-passed from one process to another, SELinux will check both read and
-write permissions for the target process, even though it can't actually
-do any write operation on the fd later.
-
-Inspired by the following bug report, which has hit the SELinux scenario
-described above:
-https://bugzilla.redhat.com/show_bug.cgi?id=1974559
-
-Reported-by: Robert O'Callahan <roc@ocallahan.org>
-Fixes: 86039bd3b4e6 ("userfaultfd: add new syscall to provide memory externalization")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fixes: 9460ae2ff308 ("soc: qcom: Introduce common SMEM state machine code")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220721135217.1301039-2-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/userfaultfd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/soc/qcom/smem_state.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index ec57bbb6bb05..740853465356 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -1018,7 +1018,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
- 	int fd;
+diff --git a/drivers/soc/qcom/smem_state.c b/drivers/soc/qcom/smem_state.c
+index d2b558438deb..41e929407196 100644
+--- a/drivers/soc/qcom/smem_state.c
++++ b/drivers/soc/qcom/smem_state.c
+@@ -136,6 +136,7 @@ static void qcom_smem_state_release(struct kref *ref)
+ 	struct qcom_smem_state *state = container_of(ref, struct qcom_smem_state, refcount);
  
- 	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, new,
--			      O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS));
-+			      O_RDONLY | (new->flags & UFFD_SHARED_FCNTL_FLAGS));
- 	if (fd < 0)
- 		return fd;
+ 	list_del(&state->list);
++	of_node_put(state->of_node);
+ 	kfree(state);
+ }
  
-@@ -1969,7 +1969,7 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
- 	mmgrab(ctx->mm);
+@@ -169,7 +170,7 @@ struct qcom_smem_state *qcom_smem_state_register(struct device_node *of_node,
  
- 	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, ctx,
--			      O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS));
-+			      O_RDONLY | (flags & UFFD_SHARED_FCNTL_FLAGS));
- 	if (fd < 0) {
- 		mmdrop(ctx->mm);
- 		kmem_cache_free(userfaultfd_ctx_cachep, ctx);
+ 	kref_init(&state->refcount);
+ 
+-	state->of_node = of_node;
++	state->of_node = of_node_get(of_node);
+ 	state->ops = *ops;
+ 	state->priv = priv;
+ 
 -- 
 2.35.1
 
