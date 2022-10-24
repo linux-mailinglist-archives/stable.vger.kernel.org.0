@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF66460BB3A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:52:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7162260BAB3
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:40:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235227AbiJXUwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:52:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44554 "EHLO
+        id S234703AbiJXUkM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:40:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235158AbiJXUv7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:51:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30E806D84C;
-        Mon, 24 Oct 2022 11:58:45 -0700 (PDT)
+        with ESMTP id S234776AbiJXUjK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:39:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 641E354CB4;
+        Mon, 24 Oct 2022 11:50:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8F7D6125A;
-        Mon, 24 Oct 2022 12:01:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0537C433D6;
-        Mon, 24 Oct 2022 12:01:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5A5DB818CA;
+        Mon, 24 Oct 2022 12:47:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A468C433D6;
+        Mon, 24 Oct 2022 12:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612875;
-        bh=JQ1YhggFy28azsY8urVLO5ERLFM3p0+gWjXW8vwNE0I=;
+        s=korg; t=1666615636;
+        bh=t/ybkTw5o5DQeKuhsC3Y22PxU+b6JRca7y1WVn2fkBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FW2icNrybvPuk32RgZfs9DiGAGy4skpoIxkyGC94whg/EGAImrtFycTUH9KrU7BZE
-         r9Gggxubsjiq2gNBOGUb6ik38qa2sPjeqmNhSoK+623TMFe2+epkYuipET2ppApaw4
-         EREr3onGw71vGhFirub+oWtIkWBa+rqXhi1gTESA=
+        b=kOPnyxYk6njV6MTx27RrzH0nl03L51e0wHVGRMSFwNp7ATvgNghboeZNOYhYt2jUG
+         09pjF8iWfkRvHxYeI6GYKmTVIvbIt2dLNxWLJocYW6KMRgUbNTXfA9xsqfbPfMAPJe
+         SOKmTXx3jbt+seuYxBf9KJgnTtBs9QkFdGwu99xE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 121/229] clk: oxnas: Hold reference returned by of_get_parent()
+        stable@vger.kernel.org, Jie Hai <haijie1@huawei.com>,
+        Zhou Wang <wangzhou1@hisilicon.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 296/530] dmaengine: hisilicon: Add multi-thread support for a DMA channel
 Date:   Mon, 24 Oct 2022 13:30:40 +0200
-Message-Id: <20221024113002.910201690@linuxfoundation.org>
+Message-Id: <20221024113058.463935931@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +53,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Jie Hai <haijie1@huawei.com>
 
-[ Upstream commit 1d6aa08c54cd0e005210ab8e3b1e92ede70f8a4f ]
+[ Upstream commit 2cbb95883c990d0002a77e13d3278913ab26ad79 ]
 
-In oxnas_stdclk_probe(), we need to hold the reference returned by
-of_get_parent() and use it to call of_node_put() for refcount
-balance.
+When we get a DMA channel and try to use it in multiple threads it
+will cause oops and hanging the system.
 
-Fixes: 0bbd72b4c64f ("clk: Add Oxford Semiconductor OXNAS Standard Clocks")
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220628143155.170550-1-windhl@126.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+% echo 100 > /sys/module/dmatest/parameters/threads_per_chan
+% echo 100 > /sys/module/dmatest/parameters/iterations
+% echo 1 > /sys/module/dmatest/parameters/run
+[383493.327077] Unable to handle kernel paging request at virtual
+		address dead000000000108
+[383493.335103] Mem abort info:
+[383493.335103]   ESR = 0x96000044
+[383493.335105]   EC = 0x25: DABT (current EL), IL = 32 bits
+[383493.335107]   SET = 0, FnV = 0
+[383493.335108]   EA = 0, S1PTW = 0
+[383493.335109]   FSC = 0x04: level 0 translation fault
+[383493.335110] Data abort info:
+[383493.335111]   ISV = 0, ISS = 0x00000044
+[383493.364739]   CM = 0, WnR = 1
+[383493.367793] [dead000000000108] address between user and kernel
+		address ranges
+[383493.375021] Internal error: Oops: 96000044 [#1] PREEMPT SMP
+[383493.437574] CPU: 63 PID: 27895 Comm: dma0chan0-copy2 Kdump:
+		loaded Tainted: GO 5.17.0-rc4+ #2
+[383493.457851] pstate: 204000c9 (nzCv daIF +PAN -UAO -TCO -DIT
+		-SSBS BTYPE=--)
+[383493.465331] pc : vchan_tx_submit+0x64/0xa0
+[383493.469957] lr : vchan_tx_submit+0x34/0xa0
+
+This occurs because the transmission timed out, and that's due
+to data race. Each thread rewrite channels's descriptor as soon as
+device_issue_pending is called. It leads to the situation that
+the driver thinks that it uses the right descriptor in interrupt
+handler while channels's descriptor has been changed by other
+thread. The descriptor which in fact reported interrupt will not
+be handled any more, as well as its tx->callback.
+That's why timeout reports.
+
+With current fixes channels' descriptor changes it's value only
+when it has been used. A new descriptor is acquired from
+vc->desc_issued queue that is already filled with descriptors
+that are ready to be sent. Threads have no direct access to DMA
+channel descriptor. In case of channel's descriptor is busy, try
+to submit to HW again when a descriptor is completed. In this case,
+vc->desc_issued may be empty when hisi_dma_start_transfer is called,
+so delete error reporting on this. Now it is just possible to queue
+a descriptor for further processing.
+
+Fixes: e9f08b65250d ("dmaengine: hisilicon: Add Kunpeng DMA engine support")
+Signed-off-by: Jie Hai <haijie1@huawei.com>
+Acked-by: Zhou Wang <wangzhou1@hisilicon.com>
+Link: https://lore.kernel.org/r/20220830062251.52993-4-haijie1@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-oxnas.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/dma/hisi_dma.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/clk-oxnas.c b/drivers/clk/clk-oxnas.c
-index e51e0023fc6e..a92bf71f03ac 100644
---- a/drivers/clk/clk-oxnas.c
-+++ b/drivers/clk/clk-oxnas.c
-@@ -218,7 +218,7 @@ static const struct of_device_id oxnas_stdclk_dt_ids[] = {
+diff --git a/drivers/dma/hisi_dma.c b/drivers/dma/hisi_dma.c
+index 9e6ce3731ca5..df6be7ca340c 100644
+--- a/drivers/dma/hisi_dma.c
++++ b/drivers/dma/hisi_dma.c
+@@ -271,7 +271,6 @@ static void hisi_dma_start_transfer(struct hisi_dma_chan *chan)
  
- static int oxnas_stdclk_probe(struct platform_device *pdev)
- {
--	struct device_node *np = pdev->dev.of_node;
-+	struct device_node *np = pdev->dev.of_node, *parent_np;
- 	const struct oxnas_stdclk_data *data;
- 	const struct of_device_id *id;
- 	struct regmap *regmap;
-@@ -230,7 +230,9 @@ static int oxnas_stdclk_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	data = id->data;
+ 	vd = vchan_next_desc(&chan->vc);
+ 	if (!vd) {
+-		dev_err(&hdma_dev->pdev->dev, "no issued task!\n");
+ 		chan->desc = NULL;
+ 		return;
+ 	}
+@@ -303,7 +302,7 @@ static void hisi_dma_issue_pending(struct dma_chan *c)
  
--	regmap = syscon_node_to_regmap(of_get_parent(np));
-+	parent_np = of_get_parent(np);
-+	regmap = syscon_node_to_regmap(parent_np);
-+	of_node_put(parent_np);
- 	if (IS_ERR(regmap)) {
- 		dev_err(&pdev->dev, "failed to have parent regmap\n");
- 		return PTR_ERR(regmap);
+ 	spin_lock_irqsave(&chan->vc.lock, flags);
+ 
+-	if (vchan_issue_pending(&chan->vc))
++	if (vchan_issue_pending(&chan->vc) && !chan->desc)
+ 		hisi_dma_start_transfer(chan);
+ 
+ 	spin_unlock_irqrestore(&chan->vc.lock, flags);
+@@ -441,11 +440,10 @@ static irqreturn_t hisi_dma_irq(int irq, void *data)
+ 				    chan->qp_num, chan->cq_head);
+ 		if (FIELD_GET(STATUS_MASK, cqe->w0) == STATUS_SUCC) {
+ 			vchan_cookie_complete(&desc->vd);
++			hisi_dma_start_transfer(chan);
+ 		} else {
+ 			dev_err(&hdma_dev->pdev->dev, "task error!\n");
+ 		}
+-
+-		chan->desc = NULL;
+ 	}
+ 
+ 	spin_unlock(&chan->vc.lock);
 -- 
 2.35.1
 
