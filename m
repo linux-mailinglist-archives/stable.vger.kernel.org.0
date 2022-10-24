@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B40260A9D6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:25:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3619760A5FD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232680AbiJXNZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:25:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60154 "EHLO
+        id S233865AbiJXMbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:31:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232315AbiJXNXI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:23:08 -0400
+        with ESMTP id S234101AbiJXM3T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17974237E3;
-        Mon, 24 Oct 2022 05:30:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EE9E87FA3;
+        Mon, 24 Oct 2022 05:03:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2F4D6131B;
-        Mon, 24 Oct 2022 12:28:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D55D3C433D7;
-        Mon, 24 Oct 2022 12:28:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A1F261218;
+        Mon, 24 Oct 2022 12:00:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14DF8C433D6;
+        Mon, 24 Oct 2022 12:00:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614510;
-        bh=whpjSLgFOwluMyDP5s1KRTKjvJu5FSA0Wxy6pCWsZP8=;
+        s=korg; t=1666612838;
+        bh=CeT01rwLGLjkl4e/fWPUskf9NHJHNfiQIznTZ/SXcKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LqIdPRBrSl5GDC9lRNLxFOGzXMPRtiqNfp0EFb0Jhp0I9dsBHBqk1dwG6ZS+Cm8zT
-         Fv2FzRqrsaun9vC8CS/yOke+F96tLCrWvZMUUcL19ZhLQ7gJRm8LMMEs0DieNCiyiE
-         kQ68wfIqVU05QAr8JEja6xFgClCsqN3Dru5gXmGs=
+        b=qyYDQn2wqkdg5eoMmEn5tukil0Ubr2J5/livMDNVGYCf1CdKLnmYwRY6KPNrzisL/
+         mNM1PjItz0G234+7Sf7tFoeh1dSEOhp9IeTCk4b6V8GXabpimbbk1AePe3ttyNit2X
+         MnXASXffj/vfatmnkGHYsOwWigINubkT8fvRIQvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 259/390] clk: baikal-t1: Add SATA internal ref clock buffer
-Date:   Mon, 24 Oct 2022 13:30:56 +0200
-Message-Id: <20221024113033.914324916@linuxfoundation.org>
+Subject: [PATCH 4.19 138/229] ata: fix ata_id_has_ncq_autosense()
+Date:   Mon, 24 Oct 2022 13:30:57 +0200
+Message-Id: <20221024113003.482595323@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,232 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit 081a9b7c74eae4e12b2cb1b86720f836a8f29247 ]
+[ Upstream commit a5fb6bf853148974dbde092ec1bde553bea5e49f ]
 
-It turns out the internal SATA reference clock signal will stay
-unavailable for the SATA interface consumer until the buffer on it's way
-is ungated. So aside with having the actual clock divider enabled we need
-to ungate a buffer placed on the signal way to the SATA controller (most
-likely some rudiment from the initial SoC release). Seeing the switch flag
-is placed in the same register as the SATA-ref clock divider at a
-non-standard ffset, let's implement it as a separate clock controller with
-the set-rate propagation to the parental clock divider wrapper. As such
-we'll be able to disable/enable and still change the original clock source
-rate.
+ACS-5 section
+7.13.6.36 Word 78: Serial ATA features supported
+states that:
 
-Fixes: 353afa3a8d2e ("clk: Add Baikal-T1 CCU Dividers driver")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Link: https://lore.kernel.org/r/20220929225402.9696-5-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+If word 76 is not 0000h or FFFFh, word 78 reports the features supported
+by the device. If this word is not supported, the word shall be cleared
+to zero.
+
+(This text also exists in really old ACS standards, e.g. ACS-3.)
+
+Additionally, move the macro to the other ATA_ID_FEATURE_SUPP macros
+(which already have this check), thus making it more likely that the
+next ATA_ID_FEATURE_SUPP macro that is added will include this check.
+
+Fixes: 5b01e4b9efa0 ("libata: Implement NCQ autosense")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/baikal-t1/ccu-div.c     | 64 +++++++++++++++++++++++++++++
- drivers/clk/baikal-t1/ccu-div.h     |  4 ++
- drivers/clk/baikal-t1/clk-ccu-div.c | 18 +++++++-
- 3 files changed, 85 insertions(+), 1 deletion(-)
+ include/linux/ata.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/baikal-t1/ccu-div.c b/drivers/clk/baikal-t1/ccu-div.c
-index bbfa3526ee10..a6642f3d33d4 100644
---- a/drivers/clk/baikal-t1/ccu-div.c
-+++ b/drivers/clk/baikal-t1/ccu-div.c
-@@ -34,6 +34,7 @@
- #define CCU_DIV_CTL_CLKDIV_MASK(_width) \
- 	GENMASK((_width) + CCU_DIV_CTL_CLKDIV_FLD - 1, CCU_DIV_CTL_CLKDIV_FLD)
- #define CCU_DIV_CTL_LOCK_SHIFTED	BIT(27)
-+#define CCU_DIV_CTL_GATE_REF_BUF	BIT(28)
- #define CCU_DIV_CTL_LOCK_NORMAL		BIT(31)
+diff --git a/include/linux/ata.h b/include/linux/ata.h
+index e9d24a23c0aa..cfdaa08c45c9 100644
+--- a/include/linux/ata.h
++++ b/include/linux/ata.h
+@@ -585,6 +585,10 @@ struct ata_bmdma_prd {
+ 	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
+ 	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
+ 	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 8)))
++#define ata_id_has_ncq_autosense(id) \
++	((((id)[ATA_ID_SATA_CAPABILITY] != 0x0000) && \
++	  ((id)[ATA_ID_SATA_CAPABILITY] != 0xffff)) && \
++	 ((id)[ATA_ID_FEATURE_SUPP] & (1 << 7)))
+ #define ata_id_iordy_disable(id) ((id)[ATA_ID_CAPABILITY] & (1 << 10))
+ #define ata_id_has_iordy(id) ((id)[ATA_ID_CAPABILITY] & (1 << 11))
+ #define ata_id_u32(id,n)	\
+@@ -597,8 +601,6 @@ struct ata_bmdma_prd {
  
- #define CCU_DIV_RST_DELAY_US		1
-@@ -170,6 +171,40 @@ static int ccu_div_gate_is_enabled(struct clk_hw *hw)
- 	return !!(val & CCU_DIV_CTL_EN);
- }
+ #define ata_id_cdb_intr(id)	(((id)[ATA_ID_CONFIG] & 0x60) == 0x20)
+ #define ata_id_has_da(id)	((id)[ATA_ID_SATA_CAPABILITY_2] & (1 << 4))
+-#define ata_id_has_ncq_autosense(id) \
+-				((id)[ATA_ID_FEATURE_SUPP] & (1 << 7))
  
-+static int ccu_div_buf_enable(struct clk_hw *hw)
-+{
-+	struct ccu_div *div = to_ccu_div(hw);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&div->lock, flags);
-+	regmap_update_bits(div->sys_regs, div->reg_ctl,
-+			   CCU_DIV_CTL_GATE_REF_BUF, 0);
-+	spin_unlock_irqrestore(&div->lock, flags);
-+
-+	return 0;
-+}
-+
-+static void ccu_div_buf_disable(struct clk_hw *hw)
-+{
-+	struct ccu_div *div = to_ccu_div(hw);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&div->lock, flags);
-+	regmap_update_bits(div->sys_regs, div->reg_ctl,
-+			   CCU_DIV_CTL_GATE_REF_BUF, CCU_DIV_CTL_GATE_REF_BUF);
-+	spin_unlock_irqrestore(&div->lock, flags);
-+}
-+
-+static int ccu_div_buf_is_enabled(struct clk_hw *hw)
-+{
-+	struct ccu_div *div = to_ccu_div(hw);
-+	u32 val = 0;
-+
-+	regmap_read(div->sys_regs, div->reg_ctl, &val);
-+
-+	return !(val & CCU_DIV_CTL_GATE_REF_BUF);
-+}
-+
- static unsigned long ccu_div_var_recalc_rate(struct clk_hw *hw,
- 					     unsigned long parent_rate)
+ static inline bool ata_id_has_hipm(const u16 *id)
  {
-@@ -323,6 +358,7 @@ static const struct ccu_div_dbgfs_bit ccu_div_bits[] = {
- 	CCU_DIV_DBGFS_BIT_ATTR("div_en", CCU_DIV_CTL_EN),
- 	CCU_DIV_DBGFS_BIT_ATTR("div_rst", CCU_DIV_CTL_RST),
- 	CCU_DIV_DBGFS_BIT_ATTR("div_bypass", CCU_DIV_CTL_SET_CLKDIV),
-+	CCU_DIV_DBGFS_BIT_ATTR("div_buf", CCU_DIV_CTL_GATE_REF_BUF),
- 	CCU_DIV_DBGFS_BIT_ATTR("div_lock", CCU_DIV_CTL_LOCK_NORMAL)
- };
- 
-@@ -441,6 +477,9 @@ static void ccu_div_var_debug_init(struct clk_hw *hw, struct dentry *dentry)
- 			continue;
- 		}
- 
-+		if (!strcmp("div_buf", name))
-+			continue;
-+
- 		bits[didx] = ccu_div_bits[bidx];
- 		bits[didx].div = div;
- 
-@@ -477,6 +516,21 @@ static void ccu_div_gate_debug_init(struct clk_hw *hw, struct dentry *dentry)
- 				   &ccu_div_dbgfs_fixed_clkdiv_fops);
- }
- 
-+static void ccu_div_buf_debug_init(struct clk_hw *hw, struct dentry *dentry)
-+{
-+	struct ccu_div *div = to_ccu_div(hw);
-+	struct ccu_div_dbgfs_bit *bit;
-+
-+	bit = kmalloc(sizeof(*bit), GFP_KERNEL);
-+	if (!bit)
-+		return;
-+
-+	*bit = ccu_div_bits[3];
-+	bit->div = div;
-+	debugfs_create_file_unsafe(bit->name, ccu_div_dbgfs_mode, dentry, bit,
-+				   &ccu_div_dbgfs_bit_fops);
-+}
-+
- static void ccu_div_fixed_debug_init(struct clk_hw *hw, struct dentry *dentry)
- {
- 	struct ccu_div *div = to_ccu_div(hw);
-@@ -489,6 +543,7 @@ static void ccu_div_fixed_debug_init(struct clk_hw *hw, struct dentry *dentry)
- 
- #define ccu_div_var_debug_init NULL
- #define ccu_div_gate_debug_init NULL
-+#define ccu_div_buf_debug_init NULL
- #define ccu_div_fixed_debug_init NULL
- 
- #endif /* !CONFIG_DEBUG_FS */
-@@ -520,6 +575,13 @@ static const struct clk_ops ccu_div_gate_ops = {
- 	.debug_init = ccu_div_gate_debug_init
- };
- 
-+static const struct clk_ops ccu_div_buf_ops = {
-+	.enable = ccu_div_buf_enable,
-+	.disable = ccu_div_buf_disable,
-+	.is_enabled = ccu_div_buf_is_enabled,
-+	.debug_init = ccu_div_buf_debug_init
-+};
-+
- static const struct clk_ops ccu_div_fixed_ops = {
- 	.recalc_rate = ccu_div_fixed_recalc_rate,
- 	.round_rate = ccu_div_fixed_round_rate,
-@@ -566,6 +628,8 @@ struct ccu_div *ccu_div_hw_register(const struct ccu_div_init_data *div_init)
- 	} else if (div_init->type == CCU_DIV_GATE) {
- 		hw_init.ops = &ccu_div_gate_ops;
- 		div->divider = div_init->divider;
-+	} else if (div_init->type == CCU_DIV_BUF) {
-+		hw_init.ops = &ccu_div_buf_ops;
- 	} else if (div_init->type == CCU_DIV_FIXED) {
- 		hw_init.ops = &ccu_div_fixed_ops;
- 		div->divider = div_init->divider;
-diff --git a/drivers/clk/baikal-t1/ccu-div.h b/drivers/clk/baikal-t1/ccu-div.h
-index b6a9c8e45318..4eb49ff4803c 100644
---- a/drivers/clk/baikal-t1/ccu-div.h
-+++ b/drivers/clk/baikal-t1/ccu-div.h
-@@ -15,8 +15,10 @@
- 
- /*
-  * CCU Divider private clock IDs
-+ * @CCU_SYS_SATA_CLK: CCU SATA internal clock
-  * @CCU_SYS_XGMAC_CLK: CCU XGMAC internal clock
-  */
-+#define CCU_SYS_SATA_CLK		-1
- #define CCU_SYS_XGMAC_CLK		-2
- 
- /*
-@@ -37,11 +39,13 @@
-  * enum ccu_div_type - CCU Divider types
-  * @CCU_DIV_VAR: Clocks gate with variable divider.
-  * @CCU_DIV_GATE: Clocks gate with fixed divider.
-+ * @CCU_DIV_BUF: Clock gate with no divider.
-  * @CCU_DIV_FIXED: Ungateable clock with fixed divider.
-  */
- enum ccu_div_type {
- 	CCU_DIV_VAR,
- 	CCU_DIV_GATE,
-+	CCU_DIV_BUF,
- 	CCU_DIV_FIXED
- };
- 
-diff --git a/drivers/clk/baikal-t1/clk-ccu-div.c b/drivers/clk/baikal-t1/clk-ccu-div.c
-index 3953ae5664be..90f4fda406ee 100644
---- a/drivers/clk/baikal-t1/clk-ccu-div.c
-+++ b/drivers/clk/baikal-t1/clk-ccu-div.c
-@@ -76,6 +76,16 @@
- 		.divider = _divider				\
- 	}
- 
-+#define CCU_DIV_BUF_INFO(_id, _name, _pname, _base, _flags)	\
-+	{							\
-+		.id = _id,					\
-+		.name = _name,					\
-+		.parent_name = _pname,				\
-+		.base = _base,					\
-+		.type = CCU_DIV_BUF,				\
-+		.flags = _flags					\
-+	}
-+
- #define CCU_DIV_FIXED_INFO(_id, _name, _pname, _divider)	\
- 	{							\
- 		.id = _id,					\
-@@ -188,11 +198,14 @@ static const struct ccu_div_rst_map axi_rst_map[] = {
-  * for the SoC devices registers IO-operations.
-  */
- static const struct ccu_div_info sys_info[] = {
--	CCU_DIV_VAR_INFO(CCU_SYS_SATA_REF_CLK, "sys_sata_ref_clk",
-+	CCU_DIV_VAR_INFO(CCU_SYS_SATA_CLK, "sys_sata_clk",
- 			 "sata_clk", CCU_SYS_SATA_REF_BASE, 4,
- 			 CLK_SET_RATE_GATE,
- 			 CCU_DIV_SKIP_ONE | CCU_DIV_LOCK_SHIFTED |
- 			 CCU_DIV_RESET_DOMAIN),
-+	CCU_DIV_BUF_INFO(CCU_SYS_SATA_REF_CLK, "sys_sata_ref_clk",
-+			 "sys_sata_clk", CCU_SYS_SATA_REF_BASE,
-+			 CLK_SET_RATE_PARENT),
- 	CCU_DIV_VAR_INFO(CCU_SYS_APB_CLK, "sys_apb_clk",
- 			 "pcie_clk", CCU_SYS_APB_BASE, 5,
- 			 CLK_IS_CRITICAL, CCU_DIV_RESET_DOMAIN),
-@@ -398,6 +411,9 @@ static int ccu_div_clk_register(struct ccu_div_data *data)
- 			init.base = info->base;
- 			init.sys_regs = data->sys_regs;
- 			init.divider = info->divider;
-+		} else if (init.type == CCU_DIV_BUF) {
-+			init.base = info->base;
-+			init.sys_regs = data->sys_regs;
- 		} else {
- 			init.divider = info->divider;
- 		}
 -- 
 2.35.1
 
