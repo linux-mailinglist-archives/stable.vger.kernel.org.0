@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4F3360B083
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D329C60B27C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233052AbiJXQGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:06:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48798 "EHLO
+        id S232749AbiJXQrT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:47:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233514AbiJXQEp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EAD338D;
-        Mon, 24 Oct 2022 07:57:30 -0700 (PDT)
+        with ESMTP id S234998AbiJXQqb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:46:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EE5A1A991C;
+        Mon, 24 Oct 2022 08:31:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A81CB81636;
-        Mon, 24 Oct 2022 12:19:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2CF5C433C1;
-        Mon, 24 Oct 2022 12:19:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 088E8B818E7;
+        Mon, 24 Oct 2022 12:38:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CE88C433B5;
+        Mon, 24 Oct 2022 12:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613942;
-        bh=UT5fI7Gb2UDT1kmiKJtaR8esT5aLLjyI7sXIdG9xXfI=;
+        s=korg; t=1666615114;
+        bh=XH7eVddOd2TaoGdpln6E2fmn2Bqam6nMYnW2HyEEwso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ObsFjA/DkvhqdP+dl4UytrP6bxtCvffExgLJ0aAoimi0ZAkZHzAusQKsA1nSKC5X4
-         sxKVnnutY9YNI5kVTP5u6cc6NgAuXmSZY/97x+rvBfpyqpn6RjU47Ehiiz+gPNOclB
-         QRV5oMt/2nrZDJ9oenh+IqX4LsLm6MxQGqWI2tPw=
+        b=ht59Pz9UY3xYsrryrhflqB8PIZi4wXpvSsLKIe1sPJOx1dMQ1+EasKUWMlbhmkDTz
+         IRAcFgjbm1ElO4EBHH043ZwJLCeoRWGdkzYiAkb1NF1bHAu3+HZKQY3Ajk86lVPndH
+         gX/UoE3Yz/GVAPZm6q/XozSarenw0LDnjhwVCYQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, mingo@redhat.com,
-        Zheng Yejian <zhengyejian1@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 072/390] ftrace: Properly unset FTRACE_HASH_FL_MOD
-Date:   Mon, 24 Oct 2022 13:27:49 +0200
-Message-Id: <20221024113025.663127307@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 126/530] KVM: VMX: Drop bits 31:16 when shoving exception error code into VMCS
+Date:   Mon, 24 Oct 2022 13:27:50 +0200
+Message-Id: <20221024113050.768069992@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 0ce0638edf5ec83343302b884fa208179580700a upstream.
+commit eba9799b5a6efe2993cf92529608e4aa8163d73b upstream.
 
-When executing following commands like what document said, but the log
-"#### all functions enabled ####" was not shown as expect:
-  1. Set a 'mod' filter:
-    $ echo 'write*:mod:ext3' > /sys/kernel/tracing/set_ftrace_filter
-  2. Invert above filter:
-    $ echo '!write*:mod:ext3' >> /sys/kernel/tracing/set_ftrace_filter
-  3. Read the file:
-    $ cat /sys/kernel/tracing/set_ftrace_filter
+Deliberately truncate the exception error code when shoving it into the
+VMCS (VM-Entry field for vmcs01 and vmcs02, VM-Exit field for vmcs12).
+Intel CPUs are incapable of handling 32-bit error codes and will never
+generate an error code with bits 31:16, but userspace can provide an
+arbitrary error code via KVM_SET_VCPU_EVENTS.  Failure to drop the bits
+on exception injection results in failed VM-Entry, as VMX disallows
+setting bits 31:16.  Setting the bits on VM-Exit would at best confuse
+L1, and at worse induce a nested VM-Entry failure, e.g. if L1 decided to
+reinject the exception back into L2.
 
-By some debugging, I found that flag FTRACE_HASH_FL_MOD was not unset
-after inversion like above step 2 and then result of ftrace_hash_empty()
-is incorrect.
-
-Link: https://lkml.kernel.org/r/20220926152008.2239274-1-zhengyejian1@huawei.com
-
-Cc: <mingo@redhat.com>
 Cc: stable@vger.kernel.org
-Fixes: 8c08f0d5c6fb ("ftrace: Have cached module filters be an active filter")
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Link: https://lore.kernel.org/r/20220830231614.3580124-3-seanjc@google.com
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/nested.c |   11 ++++++++++-
+ arch/x86/kvm/vmx/vmx.c    |   12 +++++++++++-
+ 2 files changed, 21 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -5662,8 +5662,12 @@ int ftrace_regex_release(struct inode *i
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -3826,7 +3826,16 @@ static void nested_vmx_inject_exception_
+ 	u32 intr_info = nr | INTR_INFO_VALID_MASK;
  
- 		if (filter_hash) {
- 			orig_hash = &iter->ops->func_hash->filter_hash;
--			if (iter->tr && !list_empty(&iter->tr->mod_trace))
--				iter->hash->flags |= FTRACE_HASH_FL_MOD;
-+			if (iter->tr) {
-+				if (list_empty(&iter->tr->mod_trace))
-+					iter->hash->flags &= ~FTRACE_HASH_FL_MOD;
-+				else
-+					iter->hash->flags |= FTRACE_HASH_FL_MOD;
-+			}
- 		} else
- 			orig_hash = &iter->ops->func_hash->notrace_hash;
+ 	if (vcpu->arch.exception.has_error_code) {
+-		vmcs12->vm_exit_intr_error_code = vcpu->arch.exception.error_code;
++		/*
++		 * Intel CPUs do not generate error codes with bits 31:16 set,
++		 * and more importantly VMX disallows setting bits 31:16 in the
++		 * injected error code for VM-Entry.  Drop the bits to mimic
++		 * hardware and avoid inducing failure on nested VM-Entry if L1
++		 * chooses to inject the exception back to L2.  AMD CPUs _do_
++		 * generate "full" 32-bit error codes, so KVM allows userspace
++		 * to inject exception error codes with bits 31:16 set.
++		 */
++		vmcs12->vm_exit_intr_error_code = (u16)vcpu->arch.exception.error_code;
+ 		intr_info |= INTR_INFO_DELIVER_CODE_MASK;
+ 	}
+ 
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -1676,7 +1676,17 @@ static void vmx_queue_exception(struct k
+ 	kvm_deliver_exception_payload(vcpu);
+ 
+ 	if (has_error_code) {
+-		vmcs_write32(VM_ENTRY_EXCEPTION_ERROR_CODE, error_code);
++		/*
++		 * Despite the error code being architecturally defined as 32
++		 * bits, and the VMCS field being 32 bits, Intel CPUs and thus
++		 * VMX don't actually supporting setting bits 31:16.  Hardware
++		 * will (should) never provide a bogus error code, but AMD CPUs
++		 * do generate error codes with bits 31:16 set, and so KVM's
++		 * ABI lets userspace shove in arbitrary 32-bit values.  Drop
++		 * the upper bits to avoid VM-Fail, losing information that
++		 * does't really exist is preferable to killing the VM.
++		 */
++		vmcs_write32(VM_ENTRY_EXCEPTION_ERROR_CODE, (u16)error_code);
+ 		intr_info |= INTR_INFO_DELIVER_CODE_MASK;
+ 	}
  
 
 
