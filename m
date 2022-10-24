@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDD5960A41B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2EC060A5C9
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232514AbiJXMF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:05:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49208 "EHLO
+        id S233684AbiJXM2s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:28:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232859AbiJXME3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:04:29 -0400
+        with ESMTP id S233825AbiJXM2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EF6B1F60F;
-        Mon, 24 Oct 2022 04:50:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C4758683B;
+        Mon, 24 Oct 2022 05:01:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF199B81199;
-        Mon, 24 Oct 2022 11:49:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22B0FC433D6;
-        Mon, 24 Oct 2022 11:49:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 333A7B8113A;
+        Mon, 24 Oct 2022 11:57:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91BF2C433C1;
+        Mon, 24 Oct 2022 11:57:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612168;
-        bh=1lz+gyBvGW+uPkiXCZxREp6jG4QKXOV8PFWgjLYk+QI=;
+        s=korg; t=1666612645;
+        bh=ERuRrojDwen+iWX+plN8aFO3wikfxW2NXBJaoV+waAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ogUbeIKXuZJMVVVyPRE2N8uqN72EfH2/rJP0YlfXSb9XqB+WVBd3ZEz6yBt6rfx6M
-         9tJn6ftc47LfQB+OwQkrf6ArDnL+2LnjAejuboEZ//VROKNFkBlydSLj3VBNKJR8eI
-         3DWUmWyF6P0hnCKjFTKc0OmVU1pn9nF/uLwh10F4=
+        b=sagbom/JOGhx++yjEBMmWot/x/nK1xDxblHuosNKdnY6vhuCpLiUhAaMgytuUcgsb
+         iYVtloJRa+7+Svn0XSxhXvNoOlXjGArNOy8zf2IKi/tX+hfoVZuVnsR7Cb6LKli7Xe
+         BovlCBd3UewQA/XUEp18ucbxevEryLitjdnpsFJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        syzbot+bd13648a53ed6933ca49@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Lukas Czerner <lczerner@redhat.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 068/210] ext4: avoid crash when inline data creation follows DIO write
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Jiazi.Li" <jiazi.li@transsion.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 066/229] ring-buffer: Fix race between reset page and reading page
 Date:   Mon, 24 Oct 2022 13:29:45 +0200
-Message-Id: <20221024112959.261264220@linuxfoundation.org>
+Message-Id: <20221024113001.223130740@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +54,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 4bb26f2885ac6930984ee451b952c5a6042f2c0e upstream.
+commit a0fcaaed0c46cf9399d3a2d6e0c87ddb3df0e044 upstream.
 
-When inode is created and written to using direct IO, there is nothing
-to clear the EXT4_STATE_MAY_INLINE_DATA flag. Thus when inode gets
-truncated later to say 1 byte and written using normal write, we will
-try to store the data as inline data. This confuses the code later
-because the inode now has both normal block and inline data allocated
-and the confusion manifests for example as:
+The ring buffer is broken up into sub buffers (currently of page size).
+Each sub buffer has a pointer to its "tail" (the last event written to the
+sub buffer). When a new event is requested, the tail is locally
+incremented to cover the size of the new event. This is done in a way that
+there is no need for locking.
 
-kernel BUG at fs/ext4/inode.c:2721!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 0 PID: 359 Comm: repro Not tainted 5.19.0-rc8-00001-g31ba1e3b8305-dirty #15
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-1.fc36 04/01/2014
-RIP: 0010:ext4_writepages+0x363d/0x3660
-RSP: 0018:ffffc90000ccf260 EFLAGS: 00010293
-RAX: ffffffff81e1abcd RBX: 0000008000000000 RCX: ffff88810842a180
-RDX: 0000000000000000 RSI: 0000008000000000 RDI: 0000000000000000
-RBP: ffffc90000ccf650 R08: ffffffff81e17d58 R09: ffffed10222c680b
-R10: dfffe910222c680c R11: 1ffff110222c680a R12: ffff888111634128
-R13: ffffc90000ccf880 R14: 0000008410000000 R15: 0000000000000001
-FS:  00007f72635d2640(0000) GS:ffff88811b000000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000565243379180 CR3: 000000010aa74000 CR4: 0000000000150eb0
-Call Trace:
- <TASK>
- do_writepages+0x397/0x640
- filemap_fdatawrite_wbc+0x151/0x1b0
- file_write_and_wait_range+0x1c9/0x2b0
- ext4_sync_file+0x19e/0xa00
- vfs_fsync_range+0x17b/0x190
- ext4_buffered_write_iter+0x488/0x530
- ext4_file_write_iter+0x449/0x1b90
- vfs_write+0xbcd/0xf40
- ksys_write+0x198/0x2c0
- __x64_sys_write+0x7b/0x90
- do_syscall_64+0x3d/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- </TASK>
+If the tail goes past the end of the sub buffer, the process of moving to
+the next sub buffer takes place. After setting the current sub buffer to
+the next one, the previous one that had the tail go passed the end of the
+sub buffer needs to be reset back to the original tail location (before
+the new event was requested) and the rest of the sub buffer needs to be
+"padded".
 
-Fix the problem by clearing EXT4_STATE_MAY_INLINE_DATA when we are doing
-direct IO write to a file.
+The race happens when a reader takes control of the sub buffer. As readers
+do a "swap" of sub buffers from the ring buffer to get exclusive access to
+the sub buffer, it replaces the "head" sub buffer with an empty sub buffer
+that goes back into the writable portion of the ring buffer. This swap can
+happen as soon as the writer moves to the next sub buffer and before it
+updates the last sub buffer with padding.
 
-Cc: stable@kernel.org
-Reported-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Reported-by: syzbot+bd13648a53ed6933ca49@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=a1e89d09bbbcbd5c4cb45db230ee28c822953984
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Tested-by: Tadeusz Struk<tadeusz.struk@linaro.org>
-Link: https://lore.kernel.org/r/20220727155753.13969-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Because the sub buffer can be released to the reader while the writer is
+still updating the padding, it is possible for the reader to see the event
+that goes past the end of the sub buffer. This can cause obvious issues.
+
+To fix this, add a few memory barriers so that the reader definitely sees
+the updates to the sub buffer, and also waits until the writer has put
+back the "tail" of the sub buffer back to the last event that was written
+on it.
+
+To be paranoid, it will only spin for 1 second, otherwise it will
+warn and shutdown the ring buffer code. 1 second should be enough as
+the writer does have preemption disabled. If the writer doesn't move
+within 1 second (with preemption disabled) something is horribly
+wrong. No interrupt should last 1 second!
+
+Link: https://lore.kernel.org/all/20220830120854.7545-1-jiazi.li@transsion.com/
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216369
+Link: https://lkml.kernel.org/r/20220929104909.0650a36c@gandalf.local.home
+
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: c7b0930857e22 ("ring-buffer: prevent adding write in discarded area")
+Reported-by: Jiazi.Li <jiazi.li@transsion.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/file.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/trace/ring_buffer.c |   33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
---- a/fs/ext4/file.c
-+++ b/fs/ext4/file.c
-@@ -588,6 +588,12 @@ static loff_t ext4_seek_data(struct file
- 		inode_unlock(inode);
- 		return -ENXIO;
- 	}
-+	/*
-+	 * Make sure inline data cannot be created anymore since we are going
-+	 * to allocate blocks for DIO. We know the inode does not have any
-+	 * inline data now because ext4_dio_supported() checked for that.
-+	 */
-+	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -2157,6 +2157,9 @@ rb_reset_tail(struct ring_buffer_per_cpu
+ 		/* Mark the rest of the page with padding */
+ 		rb_event_set_padding(event);
  
- 	blkbits = inode->i_sb->s_blocksize_bits;
- 	start = offset >> blkbits;
++		/* Make sure the padding is visible before the write update */
++		smp_wmb();
++
+ 		/* Set the write back to the previous setting */
+ 		local_sub(length, &tail_page->write);
+ 		return;
+@@ -2168,6 +2171,9 @@ rb_reset_tail(struct ring_buffer_per_cpu
+ 	/* time delta must be non zero */
+ 	event->time_delta = 1;
+ 
++	/* Make sure the padding is visible before the tail_page->write update */
++	smp_wmb();
++
+ 	/* Set write to end of buffer */
+ 	length = (tail + length) - BUF_PAGE_SIZE;
+ 	local_sub(length, &tail_page->write);
+@@ -3813,6 +3819,33 @@ rb_get_reader_page(struct ring_buffer_pe
+ 	arch_spin_unlock(&cpu_buffer->lock);
+ 	local_irq_restore(flags);
+ 
++	/*
++	 * The writer has preempt disable, wait for it. But not forever
++	 * Although, 1 second is pretty much "forever"
++	 */
++#define USECS_WAIT	1000000
++        for (nr_loops = 0; nr_loops < USECS_WAIT; nr_loops++) {
++		/* If the write is past the end of page, a writer is still updating it */
++		if (likely(!reader || rb_page_write(reader) <= BUF_PAGE_SIZE))
++			break;
++
++		udelay(1);
++
++		/* Get the latest version of the reader write value */
++		smp_rmb();
++	}
++
++	/* The writer is not moving forward? Something is wrong */
++	if (RB_WARN_ON(cpu_buffer, nr_loops == USECS_WAIT))
++		reader = NULL;
++
++	/*
++	 * Make sure we see any padding after the write update
++	 * (see rb_reset_tail())
++	 */
++	smp_rmb();
++
++
+ 	return reader;
+ }
+ 
 
 
