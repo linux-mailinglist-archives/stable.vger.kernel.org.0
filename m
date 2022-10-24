@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA7AF60AD8F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:27:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 817CC60AC16
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:03:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237020AbiJXO1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:27:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43096 "EHLO
+        id S232636AbiJXOCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:02:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237038AbiJXO0Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:26:25 -0400
+        with ESMTP id S232674AbiJXOB6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:01:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E5217CAB8;
-        Mon, 24 Oct 2022 06:00:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 562A8BEF9A;
+        Mon, 24 Oct 2022 05:48:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA1E4612E3;
-        Mon, 24 Oct 2022 12:42:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3A3AC433D6;
-        Mon, 24 Oct 2022 12:42:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 47236612B4;
+        Mon, 24 Oct 2022 12:22:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5966EC433D6;
+        Mon, 24 Oct 2022 12:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615327;
-        bh=dkoTc/zMPa5N/E5aoAr0YI9KEZG1XSiD+8f85JZC6+M=;
+        s=korg; t=1666614163;
+        bh=5yFsfPZJZplO917Wk+HzULR3XGJoz9A34qqJ6E5hEzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QpE6+O4swaCzz6G14fW2nzgmx/OqFWGaSjSG5y/0hsB/7XomVMtul8pIclCVYiUQg
-         ZWAhKsG5V2/8iR41zA7x4Dqwo9tMOBh95rE+Rpv1lyBI96KeHnFd99zdRjliS4m4/H
-         24DXxUYADFI8tmvUaTgfIkA6ialwIvwGtfQvuET8=
+        b=AbsyGM0NSLrIFRkFcsQbL4LgEhcYKlYd6nP479T/PyGH7bmNyTcTQ6OVZDCi1pwhx
+         hpeOCkKsae4DlGDDb3Hzfgp/7AQUZlRbtkQhDrEAq8Y0AP7X0ORO2/Q+KJIQ8ZquqK
+         CxpZJYV2f3X+GNq03YBASb0weZtkjGF7QGHhBU3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 209/530] drm: bridge: adv7511: unregister cec i2c device after cec adapter
-Date:   Mon, 24 Oct 2022 13:29:13 +0200
-Message-Id: <20221024113054.536714973@linuxfoundation.org>
+Subject: [PATCH 5.10 157/390] ALSA: hda: beep: Simplify keep-power-at-enable behavior
+Date:   Mon, 24 Oct 2022 13:29:14 +0200
+Message-Id: <20221024113029.379520832@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +52,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvin Šipraga <alsi@bang-olufsen.dk>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 40cdb02cb9f965732eb543d47f15bef8d10f0f5f ]
+[ Upstream commit 4c8d695cb9bc5f6fd298a586602947b2fc099a64 ]
 
-cec_unregister_adapter() assumes that the underlying adapter ops are
-callable. For example, if the CEC adapter currently has a valid physical
-address, then the unregistration procedure will invalidate the physical
-address by setting it to f.f.f.f. Whence the following kernel oops
-observed after removing the adv7511 module:
+The recent fix for IDT codecs to keep the power up while the beep is
+enabled can be better integrated into the beep helper code.
+This patch cleans up the code with refactoring.
 
-    Unable to handle kernel execution of user memory at virtual address 0000000000000000
-    Internal error: Oops: 86000004 [#1] PREEMPT_RT SMP
-    Call trace:
-     0x0
-     adv7511_cec_adap_log_addr+0x1ac/0x1c8 [adv7511]
-     cec_adap_unconfigure+0x44/0x90 [cec]
-     __cec_s_phys_addr.part.0+0x68/0x230 [cec]
-     __cec_s_phys_addr+0x40/0x50 [cec]
-     cec_unregister_adapter+0xb4/0x118 [cec]
-     adv7511_remove+0x60/0x90 [adv7511]
-     i2c_device_remove+0x34/0xe0
-     device_release_driver_internal+0x114/0x1f0
-     driver_detach+0x54/0xe0
-     bus_remove_driver+0x60/0xd8
-     driver_unregister+0x34/0x60
-     i2c_del_driver+0x2c/0x68
-     adv7511_exit+0x1c/0x67c [adv7511]
-     __arm64_sys_delete_module+0x154/0x288
-     invoke_syscall+0x48/0x100
-     el0_svc_common.constprop.0+0x48/0xe8
-     do_el0_svc+0x28/0x88
-     el0_svc+0x1c/0x50
-     el0t_64_sync_handler+0xa8/0xb0
-     el0t_64_sync+0x15c/0x160
-    Code: bad PC value
-    ---[ end trace 0000000000000000 ]---
-
-Protect against this scenario by unregistering i2c_cec after
-unregistering the CEC adapter. Duly disable the CEC clock afterwards
-too.
-
-Fixes: 3b1b975003e4 ("drm: adv7511/33: add HDMI CEC support")
-Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220612144854.2223873-3-alvin@pqrs.dk
+Fixes: 414d38ba8710 ("ALSA: hda/sigmatel: Keep power up while beep is enabled")
+Link: https://lore.kernel.org/r/20220906092306.26183-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/hda_beep.c       | 15 +++++++++++++--
+ sound/pci/hda/hda_beep.h       |  1 +
+ sound/pci/hda/patch_sigmatel.c | 25 ++-----------------------
+ 3 files changed, 16 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index 7e3f6633f255..3dc551d223d6 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -1326,8 +1326,6 @@ static int adv7511_remove(struct i2c_client *i2c)
+diff --git a/sound/pci/hda/hda_beep.c b/sound/pci/hda/hda_beep.c
+index 53a2b89f8983..e63621bcb214 100644
+--- a/sound/pci/hda/hda_beep.c
++++ b/sound/pci/hda/hda_beep.c
+@@ -118,6 +118,12 @@ static int snd_hda_beep_event(struct input_dev *dev, unsigned int type,
+ 	return 0;
+ }
  
- 	if (adv7511->type == ADV7533 || adv7511->type == ADV7535)
- 		adv7533_detach_dsi(adv7511);
--	i2c_unregister_device(adv7511->i2c_cec);
--	clk_disable_unprepare(adv7511->cec_clk);
++static void turn_on_beep(struct hda_beep *beep)
++{
++	if (beep->keep_power_at_enable)
++		snd_hda_power_up_pm(beep->codec);
++}
++
+ static void turn_off_beep(struct hda_beep *beep)
+ {
+ 	cancel_work_sync(&beep->beep_work);
+@@ -125,6 +131,8 @@ static void turn_off_beep(struct hda_beep *beep)
+ 		/* turn off beep */
+ 		generate_tone(beep, 0);
+ 	}
++	if (beep->keep_power_at_enable)
++		snd_hda_power_down_pm(beep->codec);
+ }
  
- 	adv7511_uninit_regulators(adv7511);
+ /**
+@@ -140,7 +148,9 @@ int snd_hda_enable_beep_device(struct hda_codec *codec, int enable)
+ 	enable = !!enable;
+ 	if (beep->enabled != enable) {
+ 		beep->enabled = enable;
+-		if (!enable)
++		if (enable)
++			turn_on_beep(beep);
++		else
+ 			turn_off_beep(beep);
+ 		return 1;
+ 	}
+@@ -167,7 +177,8 @@ static int beep_dev_disconnect(struct snd_device *device)
+ 		input_unregister_device(beep->dev);
+ 	else
+ 		input_free_device(beep->dev);
+-	turn_off_beep(beep);
++	if (beep->enabled)
++		turn_off_beep(beep);
+ 	return 0;
+ }
  
-@@ -1336,6 +1334,8 @@ static int adv7511_remove(struct i2c_client *i2c)
- 	adv7511_audio_exit(adv7511);
- 
- 	cec_unregister_adapter(adv7511->cec_adap);
-+	i2c_unregister_device(adv7511->i2c_cec);
-+	clk_disable_unprepare(adv7511->cec_clk);
- 
- 	i2c_unregister_device(adv7511->i2c_packet);
- 	i2c_unregister_device(adv7511->i2c_edid);
+diff --git a/sound/pci/hda/hda_beep.h b/sound/pci/hda/hda_beep.h
+index a25358a4807a..db76e3ddba65 100644
+--- a/sound/pci/hda/hda_beep.h
++++ b/sound/pci/hda/hda_beep.h
+@@ -25,6 +25,7 @@ struct hda_beep {
+ 	unsigned int enabled:1;
+ 	unsigned int linear_tone:1;	/* linear tone for IDT/STAC codec */
+ 	unsigned int playing:1;
++	unsigned int keep_power_at_enable:1;	/* set by driver */
+ 	struct work_struct beep_work; /* scheduled task for beep event */
+ 	struct mutex mutex;
+ 	void (*power_hook)(struct hda_beep *beep, bool on);
+diff --git a/sound/pci/hda/patch_sigmatel.c b/sound/pci/hda/patch_sigmatel.c
+index b848e435b93f..6fc0c4e77cd1 100644
+--- a/sound/pci/hda/patch_sigmatel.c
++++ b/sound/pci/hda/patch_sigmatel.c
+@@ -4308,6 +4308,8 @@ static int stac_parse_auto_config(struct hda_codec *codec)
+ 		if (codec->beep) {
+ 			/* IDT/STAC codecs have linear beep tone parameter */
+ 			codec->beep->linear_tone = spec->linear_tone_beep;
++			/* keep power up while beep is enabled */
++			codec->beep->keep_power_at_enable = 1;
+ 			/* if no beep switch is available, make its own one */
+ 			caps = query_amp_caps(codec, nid, HDA_OUTPUT);
+ 			if (!(caps & AC_AMPCAP_MUTE)) {
+@@ -4448,28 +4450,6 @@ static int stac_suspend(struct hda_codec *codec)
+ 	stac_shutup(codec);
+ 	return 0;
+ }
+-
+-static int stac_check_power_status(struct hda_codec *codec, hda_nid_t nid)
+-{
+-#ifdef CONFIG_SND_HDA_INPUT_BEEP
+-	struct sigmatel_spec *spec = codec->spec;
+-#endif
+-	int ret = snd_hda_gen_check_power_status(codec, nid);
+-
+-#ifdef CONFIG_SND_HDA_INPUT_BEEP
+-	if (nid == spec->gen.beep_nid && codec->beep) {
+-		if (codec->beep->enabled != spec->beep_power_on) {
+-			spec->beep_power_on = codec->beep->enabled;
+-			if (spec->beep_power_on)
+-				snd_hda_power_up_pm(codec);
+-			else
+-				snd_hda_power_down_pm(codec);
+-		}
+-		ret |= spec->beep_power_on;
+-	}
+-#endif
+-	return ret;
+-}
+ #else
+ #define stac_suspend		NULL
+ #endif /* CONFIG_PM */
+@@ -4482,7 +4462,6 @@ static const struct hda_codec_ops stac_patch_ops = {
+ 	.unsol_event = snd_hda_jack_unsol_event,
+ #ifdef CONFIG_PM
+ 	.suspend = stac_suspend,
+-	.check_power_status = stac_check_power_status,
+ #endif
+ 	.reboot_notify = stac_shutup,
+ };
 -- 
 2.35.1
 
