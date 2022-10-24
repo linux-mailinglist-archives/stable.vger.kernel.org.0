@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AAAE60A68F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:36:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9987F60A48B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230163AbiJXMf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:35:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55018 "EHLO
+        id S232853AbiJXMMS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:12:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234089AbiJXMdk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:33:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7158634DCA;
-        Mon, 24 Oct 2022 05:04:49 -0700 (PDT)
+        with ESMTP id S232851AbiJXMLV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:11:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9A6A804A4;
+        Mon, 24 Oct 2022 04:53:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EC72B811BE;
-        Mon, 24 Oct 2022 12:02:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93F8AC433C1;
-        Mon, 24 Oct 2022 12:02:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27602B81199;
+        Mon, 24 Oct 2022 11:52:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8713DC433C1;
+        Mon, 24 Oct 2022 11:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612945;
-        bh=+IJfdwQZHLdBxmVW+3yGX0T13fs3Qxpi0bql/8osMgE=;
+        s=korg; t=1666612323;
+        bh=cVhhmhyue59m5yNPy7N779FKJdt+vjkUP23f1DN/X/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ljYGIgWJmhnTuHsXGWwtwc3Zh198H1oFulil5+Ev9NqfvTrNcOqbcNZGWI5bw20+4
-         Ovltbmu3C1wn09me6a7xCSWRi9XyCZhHbzORmFmXaCdIRjrEs5VxBKIQ3NNO3ZgXP1
-         rX1NaFot6lELeHDd0iZPd1uS6LTnODcvUliFkL/s=
+        b=KqA7zQO/XDhvid3CIEb8HqpV4zh++aoOhRXJhkQlZS6BtJpexIjOSDMTPrBNxxUIq
+         RS+aoLfn+10+Dl+vNeXY6f54C/ABuZeqQOIa7vewEs/IyGv00CAQpWPfz/ruVnVW4O
+         W0DsYlrNHUSIx45lkUu/OBQZRZOKVLvJnsIXbumM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 152/229] mfd: lp8788: Fix an error handling path in lp8788_irq_init() and lp8788_irq_init()
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Miaoqian Lin <linmq006@gmail.com>
+Subject: [PATCH 4.14 154/210] powerpc/pci_dn: Add missing of_node_put()
 Date:   Mon, 24 Oct 2022 13:31:11 +0200
-Message-Id: <20221024113003.931698972@linuxfoundation.org>
+Message-Id: <20221024113001.980834175@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 557244f6284f30613f2d61f14b579303165876c3 ]
+[ Upstream commit 110a1fcb6c4d55144d8179983a475f17a1d6f832 ]
 
-In lp8788_irq_init(), if an error occurs after a successful
-irq_domain_add_linear() call, it must be undone by a corresponding
-irq_domain_remove() call.
+In pci_add_device_node_info(), use of_node_put() to drop the reference
+to 'parent' returned by of_get_parent() to keep refcount balance.
 
-irq_domain_remove() should also be called in lp8788_irq_exit() for the same
-reason.
-
-Fixes: eea6b7cc53aa ("mfd: Add lp8788 mfd driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/bcd5a72c9c1c383dd6324680116426e32737655a.1659261275.git.christophe.jaillet@wanadoo.fr
+Fixes: cca87d303c85 ("powerpc/pci: Refactor pci_dn")
+Co-authored-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220701131750.240170-1-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/lp8788-irq.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/kernel/pci_dn.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/lp8788-irq.c b/drivers/mfd/lp8788-irq.c
-index 792d51bae20f..ae65928f35f0 100644
---- a/drivers/mfd/lp8788-irq.c
-+++ b/drivers/mfd/lp8788-irq.c
-@@ -179,6 +179,7 @@ int lp8788_irq_init(struct lp8788 *lp, int irq)
- 				IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
- 				"lp8788-irq", irqd);
- 	if (ret) {
-+		irq_domain_remove(lp->irqdm);
- 		dev_err(lp->dev, "failed to create a thread for IRQ_N\n");
- 		return ret;
- 	}
-@@ -192,4 +193,6 @@ void lp8788_irq_exit(struct lp8788 *lp)
- {
- 	if (lp->irq)
- 		free_irq(lp->irq, lp->irqdm);
-+	if (lp->irqdm)
-+		irq_domain_remove(lp->irqdm);
- }
+diff --git a/arch/powerpc/kernel/pci_dn.c b/arch/powerpc/kernel/pci_dn.c
+index 0e45a446a8c7..45aa39d55f91 100644
+--- a/arch/powerpc/kernel/pci_dn.c
++++ b/arch/powerpc/kernel/pci_dn.c
+@@ -344,6 +344,7 @@ struct pci_dn *pci_add_device_node_info(struct pci_controller *hose,
+ 	INIT_LIST_HEAD(&pdn->list);
+ 	parent = of_get_parent(dn);
+ 	pdn->parent = parent ? PCI_DN(parent) : NULL;
++	of_node_put(parent);
+ 	if (pdn->parent)
+ 		list_add_tail(&pdn->list, &pdn->parent->child_list);
+ 
 -- 
 2.35.1
 
