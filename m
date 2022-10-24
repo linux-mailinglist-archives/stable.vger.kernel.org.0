@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE3160AC06
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:01:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E624160A418
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234120AbiJXOBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:01:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47480 "EHLO
+        id S229877AbiJXMFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:05:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236845AbiJXOAG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:00:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9AF08E9BB;
-        Mon, 24 Oct 2022 05:47:20 -0700 (PDT)
+        with ESMTP id S232770AbiJXMEP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:04:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F40B638EF;
+        Mon, 24 Oct 2022 04:50:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BDF2DB819D0;
-        Mon, 24 Oct 2022 12:45:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20E27C433C1;
-        Mon, 24 Oct 2022 12:45:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F82561257;
+        Mon, 24 Oct 2022 11:50:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A50F1C433C1;
+        Mon, 24 Oct 2022 11:50:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615536;
-        bh=qk1x7FS+7/9XlMI7Pely4OH1lsNVEiXwS1ASEs8Kino=;
+        s=korg; t=1666612221;
+        bh=gpxEK+/vB6oxf9o8QTiRM6M4RrtZn3Orj865Dz+D9bI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I96AqUshqSpINYAxpWk+zgOVJP97T0gE2GlIoZNxPSJ73yv8AUWiQnV5AoxZivLkg
-         tAesYV645rIA3KNhe+u5fWsZalG9OtfckHW+V71Yi9TAUvtGL9DiBf4t9Uj3p7EenQ
-         m99FX9kZNyRsDEIvYMxodzjNZuZdvqpJz6AFNHlc=
+        b=RoF4x5x8EwTLSAWggp8PbjUnNCa3Fr02fZWnucgfmyeEwzImMB/Z274kJtq4txfDQ
+         rc48QO1WE8m7zdxrw2H3X8E1K6CnhwovYAwz2A/It1uujXuxhWKDcX39fY4+znYB90
+         U3xy9IjVmfwtxyMuBWE/Q54fYQknxmDiqaj1qX7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunke Cao <yunkec@google.com>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 288/530] media: uvcvideo: Use entity get_cur in uvc_ctrl_set
-Date:   Mon, 24 Oct 2022 13:30:32 +0200
-Message-Id: <20221024113058.096628238@linuxfoundation.org>
+Subject: [PATCH 4.14 116/210] iio: ABI: Fix wrong format of differential capacitance channel ABI.
+Date:   Mon, 24 Oct 2022 13:30:33 +0200
+Message-Id: <20221024113000.755261631@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,132 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunke Cao <yunkec@google.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 5f36851c36b30f713f588ed2b60aa7b4512e2c76 ]
+[ Upstream commit 1efc41035f1841acf0af2bab153158e27ce94f10 ]
 
-Entity controls should get_cur using an entity-defined function
-instead of via a query. Fix this in uvc_ctrl_set.
+in_ only occurs once in these attributes.
 
-Fixes: 65900c581d01 ("media: uvcvideo: Allow entity-defined get_info and get_cur")
-Signed-off-by: Yunke Cao <yunkec@google.com>
-Reviewed-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 0baf29d658c7 ("staging:iio:documentation Add abi docs for capacitance adcs.")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220626122938.582107-3-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_ctrl.c | 83 ++++++++++++++++++--------------
- 1 file changed, 46 insertions(+), 37 deletions(-)
+ Documentation/ABI/testing/sysfs-bus-iio | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
-index b3dde98499f4..5bb29fc49538 100644
---- a/drivers/media/usb/uvc/uvc_ctrl.c
-+++ b/drivers/media/usb/uvc/uvc_ctrl.c
-@@ -988,36 +988,56 @@ static s32 __uvc_ctrl_get_value(struct uvc_control_mapping *mapping,
- 	return value;
- }
+diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
+index e21e2ca3e4f9..c6573a733a68 100644
+--- a/Documentation/ABI/testing/sysfs-bus-iio
++++ b/Documentation/ABI/testing/sysfs-bus-iio
+@@ -135,7 +135,7 @@ Description:
+ 		Raw capacitance measurement from channel Y. Units after
+ 		application of scale and offset are nanofarads.
  
--static int __uvc_ctrl_get(struct uvc_video_chain *chain,
--	struct uvc_control *ctrl, struct uvc_control_mapping *mapping,
--	s32 *value)
-+static int __uvc_ctrl_load_cur(struct uvc_video_chain *chain,
-+			       struct uvc_control *ctrl)
- {
-+	u8 *data;
- 	int ret;
- 
--	if ((ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR) == 0)
--		return -EACCES;
-+	if (ctrl->loaded)
-+		return 0;
- 
--	if (!ctrl->loaded) {
--		if (ctrl->entity->get_cur) {
--			ret = ctrl->entity->get_cur(chain->dev,
--				ctrl->entity,
--				ctrl->info.selector,
--				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
--				ctrl->info.size);
--		} else {
--			ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR,
--				ctrl->entity->id,
--				chain->dev->intfnum,
--				ctrl->info.selector,
--				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
--				ctrl->info.size);
--		}
--		if (ret < 0)
--			return ret;
-+	data = uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT);
- 
-+	if ((ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR) == 0) {
-+		memset(data, 0, ctrl->info.size);
- 		ctrl->loaded = 1;
-+
-+		return 0;
- 	}
- 
-+	if (ctrl->entity->get_cur)
-+		ret = ctrl->entity->get_cur(chain->dev, ctrl->entity,
-+					    ctrl->info.selector, data,
-+					    ctrl->info.size);
-+	else
-+		ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR,
-+				     ctrl->entity->id, chain->dev->intfnum,
-+				     ctrl->info.selector, data,
-+				     ctrl->info.size);
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	ctrl->loaded = 1;
-+
-+	return ret;
-+}
-+
-+static int __uvc_ctrl_get(struct uvc_video_chain *chain,
-+			  struct uvc_control *ctrl,
-+			  struct uvc_control_mapping *mapping,
-+			  s32 *value)
-+{
-+	int ret;
-+
-+	if ((ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR) == 0)
-+		return -EACCES;
-+
-+	ret = __uvc_ctrl_load_cur(chain, ctrl);
-+	if (ret < 0)
-+		return ret;
-+
- 	*value = __uvc_ctrl_get_value(mapping,
- 				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT));
- 
-@@ -1667,21 +1687,10 @@ int uvc_ctrl_set(struct uvc_fh *handle,
- 	 * needs to be loaded from the device to perform the read-modify-write
- 	 * operation.
- 	 */
--	if (!ctrl->loaded && (ctrl->info.size * 8) != mapping->size) {
--		if ((ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR) == 0) {
--			memset(uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
--				0, ctrl->info.size);
--		} else {
--			ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR,
--				ctrl->entity->id, chain->dev->intfnum,
--				ctrl->info.selector,
--				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
--				ctrl->info.size);
--			if (ret < 0)
--				return ret;
--		}
--
--		ctrl->loaded = 1;
-+	if ((ctrl->info.size * 8) != mapping->size) {
-+		ret = __uvc_ctrl_load_cur(chain, ctrl);
-+		if (ret < 0)
-+			return ret;
- 	}
- 
- 	/* Backup the current value in case we need to rollback later. */
+-What:		/sys/.../iio:deviceX/in_capacitanceY-in_capacitanceZ_raw
++What:		/sys/.../iio:deviceX/in_capacitanceY-capacitanceZ_raw
+ KernelVersion:	3.2
+ Contact:	linux-iio@vger.kernel.org
+ Description:
 -- 
 2.35.1
 
