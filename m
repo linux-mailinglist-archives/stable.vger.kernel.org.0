@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4D7560BA57
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D0360B9C9
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:21:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232002AbiJXUf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:35:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42600 "EHLO
+        id S234192AbiJXUVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:21:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232013AbiJXUe6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:34:58 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B3781D440A;
-        Mon, 24 Oct 2022 11:46:32 -0700 (PDT)
+        with ESMTP id S234193AbiJXUUx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:20:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 890C5127BC9;
+        Mon, 24 Oct 2022 11:37:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1ADBDCE16ED;
-        Mon, 24 Oct 2022 12:52:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0477AC433C1;
-        Mon, 24 Oct 2022 12:52:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51ABDB81714;
+        Mon, 24 Oct 2022 12:33:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8BCFC433D6;
+        Mon, 24 Oct 2022 12:33:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615931;
-        bh=FkZN7VM0y4peBWKjGswgOJ3KaV/NSrZfrcSmPvX06TQ=;
+        s=korg; t=1666614791;
+        bh=AW2HmN9TqaQ00WLNTP/efmBXWbdmYViKnrGlcIbwwjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ub8pv/JcAZOEXgZ165znfkWWrKFEnGknSbNW+Z1qAj+qgi3y1v1A0HQt0A+e0rBRJ
-         p3uCTUrRIR/7h6G+zqdOpTn0zsXbYrZj1EYHDeIoOBG4enQI7R6J7eLIFLg4Wi50S2
-         WH0wpJhO/KCtK2sqyIrhViv/YWkww79iGPRSt+FY=
+        b=esIBHyrfZld3/bmDjWGOPPjJel04SBoJ1mA5ByF31/LTD1AyYe/6AMrC2MQkCpBUT
+         MPErjeOjNr8qxF2wBLFTBGirFcHqqD3dXsNcbc9J9BnASou68aB9arPrsQfxQHD0vm
+         7ZFW7HhL/6wN3gDne55bSGecWp+AzAEzTp35W2Ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
-        Daniel Golle <daniel@makrotopia.org>,
-        Stanislaw Gruszka <stf_xl@wp.pl>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 438/530] wifi: rt2x00: correctly set BBP register 86 for MT7620
-Date:   Mon, 24 Oct 2022 13:33:02 +0200
-Message-Id: <20221024113104.898482939@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Chen Yu <yu.c.chen@intel.com>
+Subject: [PATCH 5.10 388/390] thermal: intel_powerclamp: Use first online CPU as control_cpu
+Date:   Mon, 24 Oct 2022 13:33:05 +0200
+Message-Id: <20221024113039.490974083@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit c9aada64fe6493461127f1522d7e2f01792d2424 ]
+commit 4bb7f6c2781e46fc5bd00475a66df2ea30ef330d upstream.
 
-Instead of 0 set the correct value for BBP register 86 for MT7620.
+Commit 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead
+of smp_processor_id() to avoid crash") fixed an issue related to using
+smp_processor_id() in preemptible context by replacing it with a pair
+of get_cpu()/put_cpu(), but what is needed there really is any online
+CPU and not necessarily the one currently running the code.  Arguably,
+getting the one that's running the code in there is confusing.
 
-Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/257267247ee4fa7ebc6a5d0c4948b3f8119c0d77.1663445157.git.daniel@makrotopia.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For this reason, simply give the control CPU role to the first online
+one which automatically will be CPU0 if it is online, so one check
+can be dropped from the code for an added benefit.
+
+Link: https://lore.kernel.org/linux-pm/20221011113646.GA12080@duo.ucw.cz/
+Fixes: 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/thermal/intel/intel_powerclamp.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-index d7b862b7bf67..34788bfb34b7 100644
---- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-+++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-@@ -4164,7 +4164,10 @@ static void rt2800_config_channel(struct rt2x00_dev *rt2x00dev,
- 		rt2800_bbp_write(rt2x00dev, 62, 0x37 - rt2x00dev->lna_gain);
- 		rt2800_bbp_write(rt2x00dev, 63, 0x37 - rt2x00dev->lna_gain);
- 		rt2800_bbp_write(rt2x00dev, 64, 0x37 - rt2x00dev->lna_gain);
--		rt2800_bbp_write(rt2x00dev, 86, 0);
-+		if (rt2x00_rt(rt2x00dev, RT6352))
-+			rt2800_bbp_write(rt2x00dev, 86, 0x38);
-+		else
-+			rt2800_bbp_write(rt2x00dev, 86, 0);
- 	}
+--- a/drivers/thermal/intel/intel_powerclamp.c
++++ b/drivers/thermal/intel/intel_powerclamp.c
+@@ -531,11 +531,7 @@ static int start_power_clamp(void)
+ 	get_online_cpus();
  
- 	if (rf->channel <= 14) {
--- 
-2.35.1
-
+ 	/* prefer BSP */
+-	control_cpu = 0;
+-	if (!cpu_online(control_cpu)) {
+-		control_cpu = get_cpu();
+-		put_cpu();
+-	}
++	control_cpu = cpumask_first(cpu_online_mask);
+ 
+ 	clamping = true;
+ 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
 
 
