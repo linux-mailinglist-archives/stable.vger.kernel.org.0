@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEBE060B2A7
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D1D660B0FC
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:13:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234992AbiJXQuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:50:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58068 "EHLO
+        id S233624AbiJXQNq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:13:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235156AbiJXQtI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA5838F972;
-        Mon, 24 Oct 2022 08:32:07 -0700 (PDT)
+        with ESMTP id S232556AbiJXQMG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:12:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 272F113E3F;
+        Mon, 24 Oct 2022 08:01:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B892FB810DB;
-        Mon, 24 Oct 2022 12:02:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1837FC433D6;
-        Mon, 24 Oct 2022 12:02:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52273B81612;
+        Mon, 24 Oct 2022 12:14:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E777C433C1;
+        Mon, 24 Oct 2022 12:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612956;
-        bh=Ic8RLd6b6zmXHlnLO6l/ZxdPrIULVAHglm6eOY1Z9CE=;
+        s=korg; t=1666613664;
+        bh=ZrB31+NJNwQic7KGl2gvkCCBKpq/6mExqiYHUP8iVO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICr32e2bpYL9Us7yTkd/8V/HCiHitaRBF820dnwtfailQu+ANl3HPL5l5fRV9kE1I
-         yPIPNie9fsD5DkaIksTwxzwdDHQMo/EX9SAkxcjgqc8K+DFoebXTimEiF/ofRyXwnE
-         W+pd7QrXtbsMJ7TpbF2ZAUPaLl+FIOL9YlXfgzg0=
+        b=MmLkCL+C2WKcEXWeBYOlvRhySTyQheX+LkX94v/6sxPuQhNNuNtTKQgOt++b6L6nx
+         nDquEiZhLKO+1dNbOksWsjCsy3EjDgjTmBrbmuklEqQH9jnqbT8Eg7uz2QXVEgBmnQ
+         FG+3WDFj2I6b3ZTssbp7z520wk9OeKN2QKt3S2Nk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Coffin <alex.coffin@matician.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 182/229] wifi: brcmfmac: fix use-after-free bug in brcmf_netdev_start_xmit()
-Date:   Mon, 24 Oct 2022 13:31:41 +0200
-Message-Id: <20221024113004.984082782@linuxfoundation.org>
+        stable@vger.kernel.org, Quentin Monnet <quentin@isovalent.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 192/255] bpftool: Clear errno after libcaps checks
+Date:   Mon, 24 Oct 2022 13:31:42 +0200
+Message-Id: <20221024113009.358175984@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,138 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Coffin <alex.coffin@matician.com>
+From: Quentin Monnet <quentin@isovalent.com>
 
-[ Upstream commit 3f42faf6db431e04bf942d2ebe3ae88975723478 ]
+[ Upstream commit cea558855c39b7f1f02ff50dcf701ca6596bc964 ]
 
-> ret = brcmf_proto_tx_queue_data(drvr, ifp->ifidx, skb);
+When bpftool is linked against libcap, the library runs a "constructor"
+function to compute the number of capabilities of the running kernel
+[0], at the beginning of the execution of the program. As part of this,
+it performs multiple calls to prctl(). Some of these may fail, and set
+errno to a non-zero value:
 
-may be schedule, and then complete before the line
+    # strace -e prctl ./bpftool version
+    prctl(PR_CAPBSET_READ, CAP_MAC_OVERRIDE) = 1
+    prctl(PR_CAPBSET_READ, 0x30 /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    prctl(PR_CAPBSET_READ, CAP_CHECKPOINT_RESTORE) = 1
+    prctl(PR_CAPBSET_READ, 0x2c /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    prctl(PR_CAPBSET_READ, 0x2a /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    prctl(PR_CAPBSET_READ, 0x29 /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    ** fprintf added at the top of main(): we have errno == 1
+    ./bpftool v7.0.0
+    using libbpf v1.0
+    features: libbfd, libbpf_strict, skeletons
+    +++ exited with 0 +++
 
-> ndev->stats.tx_bytes += skb->len;
+This has been addressed in libcap 2.63 [1], but until this version is
+available everywhere, we can fix it on bpftool side.
 
-[   46.912801] ==================================================================
-[   46.920552] BUG: KASAN: use-after-free in brcmf_netdev_start_xmit+0x718/0x8c8 [brcmfmac]
-[   46.928673] Read of size 4 at addr ffffff803f5882e8 by task systemd-resolve/328
-[   46.935991]
-[   46.937514] CPU: 1 PID: 328 Comm: systemd-resolve Tainted: G           O      5.4.199-[REDACTED] #1
-[   46.947255] Hardware name: [REDACTED]
-[   46.954568] Call trace:
-[   46.957037]  dump_backtrace+0x0/0x2b8
-[   46.960719]  show_stack+0x24/0x30
-[   46.964052]  dump_stack+0x128/0x194
-[   46.967557]  print_address_description.isra.0+0x64/0x380
-[   46.972877]  __kasan_report+0x1d4/0x240
-[   46.976723]  kasan_report+0xc/0x18
-[   46.980138]  __asan_report_load4_noabort+0x18/0x20
-[   46.985027]  brcmf_netdev_start_xmit+0x718/0x8c8 [brcmfmac]
-[   46.990613]  dev_hard_start_xmit+0x1bc/0xda0
-[   46.994894]  sch_direct_xmit+0x198/0xd08
-[   46.998827]  __qdisc_run+0x37c/0x1dc0
-[   47.002500]  __dev_queue_xmit+0x1528/0x21f8
-[   47.006692]  dev_queue_xmit+0x24/0x30
-[   47.010366]  neigh_resolve_output+0x37c/0x678
-[   47.014734]  ip_finish_output2+0x598/0x2458
-[   47.018927]  __ip_finish_output+0x300/0x730
-[   47.023118]  ip_output+0x2e0/0x430
-[   47.026530]  ip_local_out+0x90/0x140
-[   47.030117]  igmpv3_sendpack+0x14c/0x228
-[   47.034049]  igmpv3_send_cr+0x384/0x6b8
-[   47.037895]  igmp_ifc_timer_expire+0x4c/0x118
-[   47.042262]  call_timer_fn+0x1cc/0xbe8
-[   47.046021]  __run_timers+0x4d8/0xb28
-[   47.049693]  run_timer_softirq+0x24/0x40
-[   47.053626]  __do_softirq+0x2c0/0x117c
-[   47.057387]  irq_exit+0x2dc/0x388
-[   47.060715]  __handle_domain_irq+0xb4/0x158
-[   47.064908]  gic_handle_irq+0x58/0xb0
-[   47.068581]  el0_irq_naked+0x50/0x5c
-[   47.072162]
-[   47.073665] Allocated by task 328:
-[   47.077083]  save_stack+0x24/0xb0
-[   47.080410]  __kasan_kmalloc.isra.0+0xc0/0xe0
-[   47.084776]  kasan_slab_alloc+0x14/0x20
-[   47.088622]  kmem_cache_alloc+0x15c/0x468
-[   47.092643]  __alloc_skb+0xa4/0x498
-[   47.096142]  igmpv3_newpack+0x158/0xd78
-[   47.099987]  add_grhead+0x210/0x288
-[   47.103485]  add_grec+0x6b0/0xb70
-[   47.106811]  igmpv3_send_cr+0x2e0/0x6b8
-[   47.110657]  igmp_ifc_timer_expire+0x4c/0x118
-[   47.115027]  call_timer_fn+0x1cc/0xbe8
-[   47.118785]  __run_timers+0x4d8/0xb28
-[   47.122457]  run_timer_softirq+0x24/0x40
-[   47.126389]  __do_softirq+0x2c0/0x117c
-[   47.130142]
-[   47.131643] Freed by task 180:
-[   47.134712]  save_stack+0x24/0xb0
-[   47.138041]  __kasan_slab_free+0x108/0x180
-[   47.142146]  kasan_slab_free+0x10/0x18
-[   47.145904]  slab_free_freelist_hook+0xa4/0x1b0
-[   47.150444]  kmem_cache_free+0x8c/0x528
-[   47.154292]  kfree_skbmem+0x94/0x108
-[   47.157880]  consume_skb+0x10c/0x5a8
-[   47.161466]  __dev_kfree_skb_any+0x88/0xa0
-[   47.165598]  brcmu_pkt_buf_free_skb+0x44/0x68 [brcmutil]
-[   47.171023]  brcmf_txfinalize+0xec/0x190 [brcmfmac]
-[   47.176016]  brcmf_proto_bcdc_txcomplete+0x1c0/0x210 [brcmfmac]
-[   47.182056]  brcmf_sdio_sendfromq+0x8dc/0x1e80 [brcmfmac]
-[   47.187568]  brcmf_sdio_dpc+0xb48/0x2108 [brcmfmac]
-[   47.192529]  brcmf_sdio_dataworker+0xc8/0x238 [brcmfmac]
-[   47.197859]  process_one_work+0x7fc/0x1a80
-[   47.201965]  worker_thread+0x31c/0xc40
-[   47.205726]  kthread+0x2d8/0x370
-[   47.208967]  ret_from_fork+0x10/0x18
-[   47.212546]
-[   47.214051] The buggy address belongs to the object at ffffff803f588280
-[   47.214051]  which belongs to the cache skbuff_head_cache of size 208
-[   47.227086] The buggy address is located 104 bytes inside of
-[   47.227086]  208-byte region [ffffff803f588280, ffffff803f588350)
-[   47.238814] The buggy address belongs to the page:
-[   47.243618] page:ffffffff00dd6200 refcount:1 mapcount:0 mapping:ffffff804b6bf800 index:0xffffff803f589900 compound_mapcount: 0
-[   47.255007] flags: 0x10200(slab|head)
-[   47.258689] raw: 0000000000010200 ffffffff00dfa980 0000000200000002 ffffff804b6bf800
-[   47.266439] raw: ffffff803f589900 0000000080190018 00000001ffffffff 0000000000000000
-[   47.274180] page dumped because: kasan: bad access detected
-[   47.279752]
-[   47.281251] Memory state around the buggy address:
-[   47.286051]  ffffff803f588180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[   47.293277]  ffffff803f588200: fb fb fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   47.300502] >ffffff803f588280: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[   47.307723]                                                           ^
-[   47.314343]  ffffff803f588300: fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc fc
-[   47.321569]  ffffff803f588380: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
-[   47.328789] ==================================================================
+Let's clean errno at the beginning of the main() function, to make sure
+that these checks do not interfere with the batch mode, where we error
+out if errno is set after a bpftool command.
 
-Signed-off-by: Alexander Coffin <alex.coffin@matician.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220808174925.3922558-1-alex.coffin@matician.com
+  [0] https://git.kernel.org/pub/scm/libs/libcap/libcap.git/tree/libcap/cap_alloc.c?h=libcap-2.65#n20
+  [1] https://git.kernel.org/pub/scm/libs/libcap/libcap.git/commit/?id=f25a1b7e69f7b33e6afb58b3e38f3450b7d2d9a0
+
+Signed-off-by: Quentin Monnet <quentin@isovalent.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220815162205.45043-1-quentin@isovalent.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/bpf/bpftool/main.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-index db4c541f58ae..31bf2eb47b49 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-@@ -270,6 +270,7 @@ static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
- 	struct brcmf_pub *drvr = ifp->drvr;
- 	struct ethhdr *eh;
- 	int head_delta;
-+	unsigned int tx_bytes = skb->len;
+diff --git a/tools/bpf/bpftool/main.c b/tools/bpf/bpftool/main.c
+index 4b03983acbef..35984bd354cb 100644
+--- a/tools/bpf/bpftool/main.c
++++ b/tools/bpf/bpftool/main.c
+@@ -364,6 +364,16 @@ int main(int argc, char **argv)
  
- 	brcmf_dbg(DATA, "Enter, bsscfgidx=%d\n", ifp->bsscfgidx);
+ 	setlinebuf(stdout);
  
-@@ -341,7 +342,7 @@ static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
- 		ndev->stats.tx_dropped++;
- 	} else {
- 		ndev->stats.tx_packets++;
--		ndev->stats.tx_bytes += skb->len;
-+		ndev->stats.tx_bytes += tx_bytes;
- 	}
- 
- 	/* Return ok: we always eat the packet */
++#ifdef USE_LIBCAP
++	/* Libcap < 2.63 hooks before main() to compute the number of
++	 * capabilities of the running kernel, and doing so it calls prctl()
++	 * which may fail and set errno to non-zero.
++	 * Let's reset errno to make sure this does not interfere with the
++	 * batch mode.
++	 */
++	errno = 0;
++#endif
++
+ 	last_do_help = do_help;
+ 	pretty_output = false;
+ 	json_output = false;
 -- 
 2.35.1
 
