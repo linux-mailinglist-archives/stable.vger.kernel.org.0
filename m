@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE7E60A505
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77EA160A719
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233170AbiJXMUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:20:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37422 "EHLO
+        id S232647AbiJXMry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:47:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233452AbiJXMTe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E1AB82606;
-        Mon, 24 Oct 2022 04:57:50 -0700 (PDT)
+        with ESMTP id S234292AbiJXMoJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:44:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC1627F08A;
+        Mon, 24 Oct 2022 05:09:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 648D86129D;
-        Mon, 24 Oct 2022 11:40:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 768AAC433D6;
-        Mon, 24 Oct 2022 11:40:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF4A161218;
+        Mon, 24 Oct 2022 12:07:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BBF4C433D7;
+        Mon, 24 Oct 2022 12:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611633;
-        bh=ibTZulFZ4AcQAS0/p8EqYUPsDL5gNwPl9ujOOSjjNec=;
+        s=korg; t=1666613253;
+        bh=uIdIsyZkWCtELS/sAPgIrAEP1Cyh+NKa0k0yNsrSR3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYigSt5BYvlWzES48yRSQk2azWap4iaXtzXxoK6eAP4Z54JcP7v0xJPJCBIVhWQ+b
-         wmwQvZZEkDAXN6eSKdKnaIdxqOgICj8h3DRirvo5idjZCSAyXjK8xNTNEJkrsuVwvr
-         FbPI10fT4imREeSu6apa9C6JI90YfZ1ESpGZS3+Y=
+        b=V7Qd57YjhQ3v1K0CK+SaX8TYibZ2vZ1LMzJvEpa/Wl47mkap8s3Fnj87j+tUUs24+
+         plBSGaguouIT87B3bSsHnfPlwuxAmR42sliHmNleUF09McbF/4OQRbOe55i7cTR5WN
+         M4KD4BDnIA5W5bYqlDuCwPWcFN64mimTgIlWt4Vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haimin Zhang <tcs_kernel@tencent.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 022/159] net/ieee802154: fix uninit value bug in dgram_sendmsg
-Date:   Mon, 24 Oct 2022 13:29:36 +0200
-Message-Id: <20221024112950.210682961@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jes Sorensen <Jes.Sorensen@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 067/255] wifi: rtl8xxxu: tighten bounds checking in rtl8xxxu_read_efuse()
+Date:   Mon, 24 Oct 2022 13:29:37 +0200
+Message-Id: <20221024113004.757211325@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,171 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs.kernel@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 94160108a70c8af17fa1484a37e05181c0e094af ]
+[ Upstream commit 620d5eaeb9059636864bda83ca1c68c20ede34a5 ]
 
-There is uninit value bug in dgram_sendmsg function in
-net/ieee802154/socket.c when the length of valid data pointed by the
-msg->msg_name isn't verified.
+There some bounds checking to ensure that "map_addr" is not out of
+bounds before the start of the loop.  But the checking needs to be
+done as we iterate through the loop because "map_addr" gets larger as
+we iterate.
 
-We introducing a helper function ieee802154_sockaddr_check_size to
-check namelen. First we check there is addr_type in ieee802154_addr_sa.
-Then, we check namelen according to addr_type.
-
-Also fixed in raw_bind, dgram_bind, dgram_connect.
-
-Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Jes Sorensen <Jes.Sorensen@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/Yv8eGLdBslLAk3Ct@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ieee802154_netdev.h | 37 +++++++++++++++++++++++++++++
- net/ieee802154/socket.c         | 42 ++++++++++++++++++---------------
- 2 files changed, 60 insertions(+), 19 deletions(-)
+ .../net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c  | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/include/net/ieee802154_netdev.h b/include/net/ieee802154_netdev.h
-index c4b31601cd53..fd1665baa179 100644
---- a/include/net/ieee802154_netdev.h
-+++ b/include/net/ieee802154_netdev.h
-@@ -23,6 +23,22 @@
- #ifndef IEEE802154_NETDEVICE_H
- #define IEEE802154_NETDEVICE_H
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index 048984ca81fd..3062103e216a 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -1875,13 +1875,6 @@ static int rtl8xxxu_read_efuse(struct rtl8xxxu_priv *priv)
  
-+#define IEEE802154_REQUIRED_SIZE(struct_type, member) \
-+	(offsetof(typeof(struct_type), member) + \
-+	sizeof(((typeof(struct_type) *)(NULL))->member))
-+
-+#define IEEE802154_ADDR_OFFSET \
-+	offsetof(typeof(struct sockaddr_ieee802154), addr)
-+
-+#define IEEE802154_MIN_NAMELEN (IEEE802154_ADDR_OFFSET + \
-+	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, addr_type))
-+
-+#define IEEE802154_NAMELEN_SHORT (IEEE802154_ADDR_OFFSET + \
-+	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, short_addr))
-+
-+#define IEEE802154_NAMELEN_LONG (IEEE802154_ADDR_OFFSET + \
-+	IEEE802154_REQUIRED_SIZE(struct ieee802154_addr_sa, hwaddr))
-+
- #include <net/af_ieee802154.h>
- #include <linux/netdevice.h>
- #include <linux/skbuff.h>
-@@ -173,6 +189,27 @@ static inline void ieee802154_devaddr_to_raw(void *raw, __le64 addr)
- 	memcpy(raw, &temp, IEEE802154_ADDR_LEN);
- }
+ 		/* We have 8 bits to indicate validity */
+ 		map_addr = offset * 8;
+-		if (map_addr >= EFUSE_MAP_LEN) {
+-			dev_warn(dev, "%s: Illegal map_addr (%04x), "
+-				 "efuse corrupt!\n",
+-				 __func__, map_addr);
+-			ret = -EINVAL;
+-			goto exit;
+-		}
+ 		for (i = 0; i < EFUSE_MAX_WORD_UNIT; i++) {
+ 			/* Check word enable condition in the section */
+ 			if (word_mask & BIT(i)) {
+@@ -1892,6 +1885,13 @@ static int rtl8xxxu_read_efuse(struct rtl8xxxu_priv *priv)
+ 			ret = rtl8xxxu_read_efuse8(priv, efuse_addr++, &val8);
+ 			if (ret)
+ 				goto exit;
++			if (map_addr >= EFUSE_MAP_LEN - 1) {
++				dev_warn(dev, "%s: Illegal map_addr (%04x), "
++					 "efuse corrupt!\n",
++					 __func__, map_addr);
++				ret = -EINVAL;
++				goto exit;
++			}
+ 			priv->efuse_wifi.raw[map_addr++] = val8;
  
-+static inline int
-+ieee802154_sockaddr_check_size(struct sockaddr_ieee802154 *daddr, int len)
-+{
-+	struct ieee802154_addr_sa *sa;
-+
-+	sa = &daddr->addr;
-+	if (len < IEEE802154_MIN_NAMELEN)
-+		return -EINVAL;
-+	switch (sa->addr_type) {
-+	case IEEE802154_ADDR_SHORT:
-+		if (len < IEEE802154_NAMELEN_SHORT)
-+			return -EINVAL;
-+		break;
-+	case IEEE802154_ADDR_LONG:
-+		if (len < IEEE802154_NAMELEN_LONG)
-+			return -EINVAL;
-+		break;
-+	}
-+	return 0;
-+}
-+
- static inline void ieee802154_addr_from_sa(struct ieee802154_addr *a,
- 					   const struct ieee802154_addr_sa *sa)
- {
-diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
-index 6383627b783e..c624a54502f3 100644
---- a/net/ieee802154/socket.c
-+++ b/net/ieee802154/socket.c
-@@ -212,8 +212,9 @@ static int raw_bind(struct sock *sk, struct sockaddr *_uaddr, int len)
- 	int err = 0;
- 	struct net_device *dev = NULL;
- 
--	if (len < sizeof(*uaddr))
--		return -EINVAL;
-+	err = ieee802154_sockaddr_check_size(uaddr, len);
-+	if (err < 0)
-+		return err;
- 
- 	uaddr = (struct sockaddr_ieee802154 *)_uaddr;
- 	if (uaddr->family != AF_IEEE802154)
-@@ -507,7 +508,8 @@ static int dgram_bind(struct sock *sk, struct sockaddr *uaddr, int len)
- 
- 	ro->bound = 0;
- 
--	if (len < sizeof(*addr))
-+	err = ieee802154_sockaddr_check_size(addr, len);
-+	if (err < 0)
- 		goto out;
- 
- 	if (addr->family != AF_IEEE802154)
-@@ -578,8 +580,9 @@ static int dgram_connect(struct sock *sk, struct sockaddr *uaddr,
- 	struct dgram_sock *ro = dgram_sk(sk);
- 	int err = 0;
- 
--	if (len < sizeof(*addr))
--		return -EINVAL;
-+	err = ieee802154_sockaddr_check_size(addr, len);
-+	if (err < 0)
-+		return err;
- 
- 	if (addr->family != AF_IEEE802154)
- 		return -EINVAL;
-@@ -618,6 +621,7 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
- 	struct ieee802154_mac_cb *cb;
- 	struct dgram_sock *ro = dgram_sk(sk);
- 	struct ieee802154_addr dst_addr;
-+	DECLARE_SOCKADDR(struct sockaddr_ieee802154*, daddr, msg->msg_name);
- 	int hlen, tlen;
- 	int err;
- 
-@@ -626,10 +630,20 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
- 		return -EOPNOTSUPP;
- 	}
- 
--	if (!ro->connected && !msg->msg_name)
--		return -EDESTADDRREQ;
--	else if (ro->connected && msg->msg_name)
--		return -EISCONN;
-+	if (msg->msg_name) {
-+		if (ro->connected)
-+			return -EISCONN;
-+		if (msg->msg_namelen < IEEE802154_MIN_NAMELEN)
-+			return -EINVAL;
-+		err = ieee802154_sockaddr_check_size(daddr, msg->msg_namelen);
-+		if (err < 0)
-+			return err;
-+		ieee802154_addr_from_sa(&dst_addr, &daddr->addr);
-+	} else {
-+		if (!ro->connected)
-+			return -EDESTADDRREQ;
-+		dst_addr = ro->dst_addr;
-+	}
- 
- 	if (!ro->bound)
- 		dev = dev_getfirstbyhwtype(sock_net(sk), ARPHRD_IEEE802154);
-@@ -665,16 +679,6 @@ static int dgram_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
- 	cb = mac_cb_init(skb);
- 	cb->type = IEEE802154_FC_TYPE_DATA;
- 	cb->ackreq = ro->want_ack;
--
--	if (msg->msg_name) {
--		DECLARE_SOCKADDR(struct sockaddr_ieee802154*,
--				 daddr, msg->msg_name);
--
--		ieee802154_addr_from_sa(&dst_addr, &daddr->addr);
--	} else {
--		dst_addr = ro->dst_addr;
--	}
--
- 	cb->secen = ro->secen;
- 	cb->secen_override = ro->secen_override;
- 	cb->seclevel = ro->seclevel;
+ 			ret = rtl8xxxu_read_efuse8(priv, efuse_addr++, &val8);
 -- 
 2.35.1
 
