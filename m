@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDEE660A2EE
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:49:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB95960A3CA
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231392AbiJXLtn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:49:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59482 "EHLO
+        id S232369AbiJXMAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:00:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231876AbiJXLtI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:49:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 067FA6D860;
-        Mon, 24 Oct 2022 04:43:43 -0700 (PDT)
+        with ESMTP id S232518AbiJXL7J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:59:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C88A7C1EC;
+        Mon, 24 Oct 2022 04:48:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF9C9B81181;
-        Mon, 24 Oct 2022 11:40:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46393C433D7;
-        Mon, 24 Oct 2022 11:40:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A38E361259;
+        Mon, 24 Oct 2022 11:47:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B191DC433C1;
+        Mon, 24 Oct 2022 11:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611628;
-        bh=zBzveb6Rt/VegdNsHPwco7gQy8Syv60pycr/MYw/PxQ=;
+        s=korg; t=1666612070;
+        bh=iy6+dzbMrtUn8z3Bzy2JPrniPwMyWDR81wptzzfv+ZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLyBQEf87xzTD7Gi2SfhnfMh42/DsHIq7ebuqZlEMYt8myeiYVXFqQoSGl+FPQtz0
-         cGdU2R8E9gTqxZRn9XK+s0LnerXYVlbUAsawx6Q0GbaxWjrpL17yvx6L0qgQPvu/Z+
-         vdWrk2lTjuH00KUx/cOwjmM0Vw3yOXqXDNJWCuEk=
+        b=jS2mpEGEJ/mqXToHFh/lQFTPlyBsaWU+UsUBU9o3Ls/NZtCUIJ/txvr8sBJoHxPsT
+         OCpkyThO6qP1emmdzeW8TcJ0ebqyudjtASy9nAxzE8RhCHAjA0J8OzC608vtSCMJqa
+         2aVw4Ri1SKsqaPtV5cf4OhuRU7vPW3mi2hAkLdOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Swati Agarwal <swati.agarwal@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 020/159] dmaengine: xilinx_dma: Report error in case of dma_set_mask_and_coherent API failure
-Date:   Mon, 24 Oct 2022 13:29:34 +0200
-Message-Id: <20221024112950.122771999@linuxfoundation.org>
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.14 058/210] quota: Check next/prev free block number after reading from quota file
+Date:   Mon, 24 Oct 2022 13:29:35 +0200
+Message-Id: <20221024112958.918041273@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +52,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Swati Agarwal <swati.agarwal@xilinx.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 8f2b6bc79c32f0fa60df000ae387a790ec80eae9 ]
+commit 6c8ea8b8cd4722efd419f91ca46a2dc81b7d89a3 upstream.
 
-The driver does not handle the failure case while calling
-dma_set_mask_and_coherent API.
+Following process:
+ Init: v2_read_file_info: <3> dqi_free_blk 0 dqi_free_entry 5 dqi_blks 6
 
-In case of failure, capture the return value of API and then report an
-error.
+ Step 1. chown bin f_a -> dquot_acquire -> v2_write_dquot:
+  qtree_write_dquot
+   do_insert_tree
+    find_free_dqentry
+     get_free_dqblk
+      write_blk(info->dqi_blocks) // info->dqi_blocks = 6, failure. The
+	   content in physical block (corresponding to blk 6) is random.
 
-Addresses-coverity: Unchecked return value (CHECKED_RETURN)
+ Step 2. chown root f_a -> dquot_transfer -> dqput_all -> dqput ->
+         ext4_release_dquot -> v2_release_dquot -> qtree_delete_dquot:
+  dquot_release
+   remove_tree
+    free_dqentry
+     put_free_dqblk(6)
+      info->dqi_free_blk = blk    // info->dqi_free_blk = 6
 
-Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
-Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/20220817061125.4720-4-swati.agarwal@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ Step 3. drop cache (buffer head for block 6 is released)
+
+ Step 4. chown bin f_b -> dquot_acquire -> commit_dqblk -> v2_write_dquot:
+  qtree_write_dquot
+   do_insert_tree
+    find_free_dqentry
+     get_free_dqblk
+      dh = (struct qt_disk_dqdbheader *)buf
+      blk = info->dqi_free_blk     // 6
+      ret = read_blk(info, blk, buf)  // The content of buf is random
+      info->dqi_free_blk = le32_to_cpu(dh->dqdh_next_free)  // random blk
+
+ Step 5. chown bin f_c -> notify_change -> ext4_setattr -> dquot_transfer:
+  dquot = dqget -> acquire_dquot -> ext4_acquire_dquot -> dquot_acquire ->
+          commit_dqblk -> v2_write_dquot -> dq_insert_tree:
+   do_insert_tree
+    find_free_dqentry
+     get_free_dqblk
+      blk = info->dqi_free_blk    // If blk < 0 and blk is not an error
+				     code, it will be returned as dquot
+
+  transfer_to[USRQUOTA] = dquot  // A random negative value
+  __dquot_transfer(transfer_to)
+   dquot_add_inodes(transfer_to[cnt])
+    spin_lock(&dquot->dq_dqb_lock)  // page fault
+
+, which will lead to kernel page fault:
+ Quota error (device sda): qtree_write_dquot: Error -8000 occurred
+ while creating quota
+ BUG: unable to handle page fault for address: ffffffffffffe120
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ Oops: 0002 [#1] PREEMPT SMP
+ CPU: 0 PID: 5974 Comm: chown Not tainted 6.0.0-rc1-00004
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+ RIP: 0010:_raw_spin_lock+0x3a/0x90
+ Call Trace:
+  dquot_add_inodes+0x28/0x270
+  __dquot_transfer+0x377/0x840
+  dquot_transfer+0xde/0x540
+  ext4_setattr+0x405/0x14d0
+  notify_change+0x68e/0x9f0
+  chown_common+0x300/0x430
+  __x64_sys_fchownat+0x29/0x40
+
+In order to avoid accessing invalid quota memory address, this patch adds
+block number checking of next/prev free block read from quota file.
+
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216372
+Fixes: 1da177e4c3f4152 ("Linux-2.6.12-rc2")
+CC: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220923134555.2623931-2-chengzhihao1@huawei.com
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/xilinx/xilinx_dma.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/quota/quota_tree.c |   38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index c0ee6859cdfc..12e26dd8d442 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -2578,7 +2578,11 @@ static int xilinx_dma_probe(struct platform_device *pdev)
- 		xdev->ext_addr = false;
+--- a/fs/quota/quota_tree.c
++++ b/fs/quota/quota_tree.c
+@@ -79,6 +79,35 @@ static ssize_t write_blk(struct qtree_me
+ 	return ret;
+ }
  
- 	/* Set the dma mask bits */
--	dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
-+	err = dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
-+	if (err < 0) {
-+		dev_err(xdev->dev, "DMA mask error %d\n", err);
-+		goto disable_clks;
++static inline int do_check_range(struct super_block *sb, const char *val_name,
++				 uint val, uint min_val, uint max_val)
++{
++	if (val < min_val || val > max_val) {
++		quota_error(sb, "Getting %s %u out of range %u-%u",
++			    val_name, val, min_val, max_val);
++		return -EUCLEAN;
 +	}
- 
- 	/* Initialize the DMA engine */
- 	xdev->common.dev = &pdev->dev;
--- 
-2.35.1
-
++
++	return 0;
++}
++
++static int check_dquot_block_header(struct qtree_mem_dqinfo *info,
++				    struct qt_disk_dqdbheader *dh)
++{
++	int err = 0;
++
++	err = do_check_range(info->dqi_sb, "dqdh_next_free",
++			     le32_to_cpu(dh->dqdh_next_free), 0,
++			     info->dqi_blocks - 1);
++	if (err)
++		return err;
++	err = do_check_range(info->dqi_sb, "dqdh_prev_free",
++			     le32_to_cpu(dh->dqdh_prev_free), 0,
++			     info->dqi_blocks - 1);
++
++	return err;
++}
++
+ /* Remove empty block from list and return it */
+ static int get_free_dqblk(struct qtree_mem_dqinfo *info)
+ {
+@@ -93,6 +122,9 @@ static int get_free_dqblk(struct qtree_m
+ 		ret = read_blk(info, blk, buf);
+ 		if (ret < 0)
+ 			goto out_buf;
++		ret = check_dquot_block_header(info, dh);
++		if (ret)
++			goto out_buf;
+ 		info->dqi_free_blk = le32_to_cpu(dh->dqdh_next_free);
+ 	}
+ 	else {
+@@ -240,6 +272,9 @@ static uint find_free_dqentry(struct qtr
+ 		*err = read_blk(info, blk, buf);
+ 		if (*err < 0)
+ 			goto out_buf;
++		*err = check_dquot_block_header(info, dh);
++		if (*err)
++			goto out_buf;
+ 	} else {
+ 		blk = get_free_dqblk(info);
+ 		if ((int)blk < 0) {
+@@ -432,6 +467,9 @@ static int free_dqentry(struct qtree_mem
+ 		goto out_buf;
+ 	}
+ 	dh = (struct qt_disk_dqdbheader *)buf;
++	ret = check_dquot_block_header(info, dh);
++	if (ret)
++		goto out_buf;
+ 	le16_add_cpu(&dh->dqdh_entries, -1);
+ 	if (!le16_to_cpu(dh->dqdh_entries)) {	/* Block got free? */
+ 		ret = remove_free_dqentry(info, buf, blk);
 
 
