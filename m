@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7852560B8EB
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F5460B764
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:23:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231266AbiJXT7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:59:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37980 "EHLO
+        id S230270AbiJXTX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:23:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233928AbiJXT6n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:58:43 -0400
+        with ESMTP id S231225AbiJXTWf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:22:35 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F021D27FA85;
-        Mon, 24 Oct 2022 11:21:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105563DBE5;
+        Mon, 24 Oct 2022 10:57:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 46E54CE1356;
-        Mon, 24 Oct 2022 11:53:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 376F6C433C1;
-        Mon, 24 Oct 2022 11:53:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0C04BCE1369;
+        Mon, 24 Oct 2022 11:53:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3710C433C1;
+        Mon, 24 Oct 2022 11:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612428;
-        bh=ADoOtZnSU9oV8MbDNTbTO5d6Bon2s5hfP1Wx3LGYy6Q=;
+        s=korg; t=1666612436;
+        bh=iQieQ4Y/Cp6gHS2C7Lg2w/a+l9Ieo+k4kqJju/g1xY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vp02FKmf3nnf19f1VBQ79+3TefETtfAE6tZgkStPv/+Z9Xlk7MGPgUUe7SEZEiEsz
-         0H4LLzcjVowhxroEs4ciI7VejvvqBgtTSQ63WlWgGWvJYy+jwPgM15iWYCkIsvJ3Q7
-         +nLqSLXaVsf7eZFROxvbzyTAgGlRpIT+ZsmkGIz0=
+        b=D7OibFfoBNzu8/fN5abML/2hzCLHjivTdsFSvcXSjFdzqftgqmUTh/jPvFZxdVun/
+         YJdj71Bm6T7jsYrVZD+moin9frmYE6WfENwA8Q1qm/3Jurtxmnok+oxJfcN2zFcpjr
+         dpixHWEtJWhcYrC7hoZ82Pw0Jy43Mlk1kWpI98bU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 194/210] media: cx88: Fix a null-ptr-deref bug in buffer_prepare()
-Date:   Mon, 24 Oct 2022 13:31:51 +0200
-Message-Id: <20221024113003.260505181@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 196/210] nbd: Fix hung when signal interrupts nbd_start_device_ioctl()
+Date:   Mon, 24 Oct 2022 13:31:53 +0200
+Message-Id: <20221024113003.321506243@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -54,139 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit 2b064d91440b33fba5b452f2d1b31f13ae911d71 ]
+[ Upstream commit 1de7c3cf48fc41cd95adb12bd1ea9033a917798a ]
 
-When the driver calls cx88_risc_buffer() to prepare the buffer, the
-function call may fail, resulting in a empty buffer and null-ptr-deref
-later in buffer_queue().
+syzbot reported hung task [1].  The following program is a simplified
+version of the reproducer:
 
-The following log can reveal it:
+int main(void)
+{
+	int sv[2], fd;
 
-[   41.822762] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN PTI
-[   41.824488] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-[   41.828027] RIP: 0010:buffer_queue+0xc2/0x500
-[   41.836311] Call Trace:
-[   41.836945]  __enqueue_in_driver+0x141/0x360
-[   41.837262]  vb2_start_streaming+0x62/0x4a0
-[   41.838216]  vb2_core_streamon+0x1da/0x2c0
-[   41.838516]  __vb2_init_fileio+0x981/0xbc0
-[   41.839141]  __vb2_perform_fileio+0xbf9/0x1120
-[   41.840072]  vb2_fop_read+0x20e/0x400
-[   41.840346]  v4l2_read+0x215/0x290
-[   41.840603]  vfs_read+0x162/0x4c0
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0)
+		return 1;
+	if ((fd = open("/dev/nbd0", 0)) < 0)
+		return 1;
+	if (ioctl(fd, NBD_SET_SIZE_BLOCKS, 0x81) < 0)
+		return 1;
+	if (ioctl(fd, NBD_SET_SOCK, sv[0]) < 0)
+		return 1;
+	if (ioctl(fd, NBD_DO_IT) < 0)
+		return 1;
+	return 0;
+}
 
-Fix this by checking the return value of cx88_risc_buffer()
+When signal interrupt nbd_start_device_ioctl() waiting the condition
+atomic_read(&config->recv_threads) == 0, the task can hung because it
+waits the completion of the inflight IOs.
 
-[hverkuil: fix coding style issues]
+This patch fixes the issue by clearing queue, not just shutdown, when
+signal interrupt nbd_start_device_ioctl().
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://syzkaller.appspot.com/bug?id=7d89a3ffacd2b83fdd39549bc4d8e0a89ef21239 [1]
+Reported-by: syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220907163502.577561-1-syoshida@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx88/cx88-vbi.c   |  9 +++---
- drivers/media/pci/cx88/cx88-video.c | 43 +++++++++++++++--------------
- 2 files changed, 26 insertions(+), 26 deletions(-)
+ drivers/block/nbd.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/pci/cx88/cx88-vbi.c b/drivers/media/pci/cx88/cx88-vbi.c
-index c637679b01b2..2649f87c070f 100644
---- a/drivers/media/pci/cx88/cx88-vbi.c
-+++ b/drivers/media/pci/cx88/cx88-vbi.c
-@@ -144,11 +144,10 @@ static int buffer_prepare(struct vb2_buffer *vb)
- 		return -EINVAL;
- 	vb2_set_plane_payload(vb, 0, size);
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 338d02a67afb..f01b8860ba14 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1258,10 +1258,12 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
+ 	mutex_unlock(&nbd->config_lock);
+ 	ret = wait_event_interruptible(config->recv_wq,
+ 					 atomic_read(&config->recv_threads) == 0);
+-	if (ret)
++	if (ret) {
+ 		sock_shutdown(nbd);
+-	flush_workqueue(nbd->recv_workq);
++		nbd_clear_que(nbd);
++	}
  
--	cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
--			 0, VBI_LINE_LENGTH * lines,
--			 VBI_LINE_LENGTH, 0,
--			 lines);
--	return 0;
-+	return cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
-+				0, VBI_LINE_LENGTH * lines,
-+				VBI_LINE_LENGTH, 0,
-+				lines);
- }
- 
- static void buffer_finish(struct vb2_buffer *vb)
-diff --git a/drivers/media/pci/cx88/cx88-video.c b/drivers/media/pci/cx88/cx88-video.c
-index 1748812bd7e5..79c293c86f14 100644
---- a/drivers/media/pci/cx88/cx88-video.c
-+++ b/drivers/media/pci/cx88/cx88-video.c
-@@ -452,6 +452,7 @@ static int queue_setup(struct vb2_queue *q,
- 
- static int buffer_prepare(struct vb2_buffer *vb)
- {
-+	int ret;
- 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
- 	struct cx8800_dev *dev = vb->vb2_queue->drv_priv;
- 	struct cx88_core *core = dev->core;
-@@ -466,35 +467,35 @@ static int buffer_prepare(struct vb2_buffer *vb)
- 
- 	switch (core->field) {
- 	case V4L2_FIELD_TOP:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl, 0, UNSET,
--				 buf->bpl, 0, core->height);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl, 0, UNSET,
-+				       buf->bpl, 0, core->height);
- 		break;
- 	case V4L2_FIELD_BOTTOM:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl, UNSET, 0,
--				 buf->bpl, 0, core->height);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl, UNSET, 0,
-+				       buf->bpl, 0, core->height);
- 		break;
- 	case V4L2_FIELD_SEQ_TB:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl,
--				 0, buf->bpl * (core->height >> 1),
--				 buf->bpl, 0,
--				 core->height >> 1);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl,
-+				       0, buf->bpl * (core->height >> 1),
-+				       buf->bpl, 0,
-+				       core->height >> 1);
- 		break;
- 	case V4L2_FIELD_SEQ_BT:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl,
--				 buf->bpl * (core->height >> 1), 0,
--				 buf->bpl, 0,
--				 core->height >> 1);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl,
-+				       buf->bpl * (core->height >> 1), 0,
-+				       buf->bpl, 0,
-+				       core->height >> 1);
- 		break;
- 	case V4L2_FIELD_INTERLACED:
- 	default:
--		cx88_risc_buffer(dev->pci, &buf->risc,
--				 sgt->sgl, 0, buf->bpl,
--				 buf->bpl, buf->bpl,
--				 core->height >> 1);
-+		ret = cx88_risc_buffer(dev->pci, &buf->risc,
-+				       sgt->sgl, 0, buf->bpl,
-+				       buf->bpl, buf->bpl,
-+				       core->height >> 1);
- 		break;
- 	}
- 	dprintk(2,
-@@ -502,7 +503,7 @@ static int buffer_prepare(struct vb2_buffer *vb)
- 		buf, buf->vb.vb2_buf.index,
- 		core->width, core->height, dev->fmt->depth, dev->fmt->name,
- 		(unsigned long)buf->risc.dma);
--	return 0;
-+	return ret;
- }
- 
- static void buffer_finish(struct vb2_buffer *vb)
++	flush_workqueue(nbd->recv_workq);
+ 	mutex_lock(&nbd->config_lock);
+ 	bd_set_size(bdev, 0);
+ 	/* user requested, ignore socket errors */
 -- 
 2.35.1
 
