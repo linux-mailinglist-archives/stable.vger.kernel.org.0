@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E245F60A3B9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2FB860A284
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230214AbiJXMAI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:00:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56982 "EHLO
+        id S231293AbiJXLo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:44:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232333AbiJXL6e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:58:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A669E7C1BD;
-        Mon, 24 Oct 2022 04:47:40 -0700 (PDT)
+        with ESMTP id S231681AbiJXLoP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:44:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E09D3889;
+        Mon, 24 Oct 2022 04:41:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D3416125A;
-        Mon, 24 Oct 2022 11:47:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42977C433C1;
-        Mon, 24 Oct 2022 11:47:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0281461291;
+        Mon, 24 Oct 2022 11:40:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEE86C433C1;
+        Mon, 24 Oct 2022 11:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612059;
-        bh=oPcGZNPOVZFp9ic2M+WBGGfeOaLqyr96TvPpJbQRVoo=;
+        s=korg; t=1666611615;
+        bh=w8GcFL1jn5maqtpEMoRTTc6qRI1tWbmQU92truPDLkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xT3U0zOqniv3KGDs+UEYiAoRUBeo2gq/C6MuWPrPjykuClg+IZe23NE1a9QMnF+SL
-         EFNvqho+1WPtqTMnvVrn3fx4nY/3t2whkefyxQCuQWr9urDJk8GsG0MSph9KKMubJd
-         JfFHt0v3QpJdgpNXXJA/4Jm/Z5EIlsrHOa1OrWcU=
+        b=MN0orPqWWle+GY5iTbnr6w86mXPb+ZdYzUFL82jryVGCPHIMOk6tt7kL4RS7AIxWB
+         eE3i8uC9W1l9Y+YfGFulUcIJyEqoPXufayKz1jBZPTWItR8KpRSUluSmOSi88+0IMZ
+         L6LdyOQw/A8pBgrssgzVfvYnb4wDLwTogCVGoFA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 054/210] iio: dac: ad5593r: Fix i2c read protocol requirements
-Date:   Mon, 24 Oct 2022 13:29:31 +0200
-Message-Id: <20221024112958.755773852@linuxfoundation.org>
+        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Hao Sun <sunhao.th@gmail.com>, Jiacheng Xu <stitch@zju.edu.cn>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 4.9 018/159] fs: fix UAF/GPF bug in nilfs_mdt_destroy
+Date:   Mon, 24 Oct 2022 13:29:32 +0200
+Message-Id: <20221024112950.023006337@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,110 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 558a25f903b4af6361b7fbeea08a6446a0745653 upstream.
+commit 2e488f13755ffbb60f307e991b27024716a33b29 upstream.
 
-For reliable operation across the full range of supported
-interface rates, the AD5593R needs a STOP condition between
-address write, and data read (like show in the datasheet Figure 40)
-so in turn i2c_smbus_read_word_swapped cannot be used.
+In alloc_inode, inode_init_always() could return -ENOMEM if
+security_inode_alloc() fails, which causes inode->i_private
+uninitialized. Then nilfs_is_metadata_file_inode() returns
+true and nilfs_free_inode() wrongly calls nilfs_mdt_destroy(),
+which frees the uninitialized inode->i_private
+and leads to crashes(e.g., UAF/GPF).
 
-While at it, a simple helper was added to make the code simpler.
+Fix this by moving security_inode_alloc just prior to
+this_cpu_inc(nr_inodes)
 
-Fixes: 56ca9db862bf ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220913073413.140475-2-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Link: https://lkml.kernel.org/r/CAFcO6XOcf1Jj2SeGt=jJV59wmhESeSKpfR0omdFRq+J9nD1vfQ@mail.gmail.com
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Reported-by: Hao Sun <sunhao.th@gmail.com>
+Reported-by: Jiacheng Xu <stitch@zju.edu.cn>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/dac/ad5593r.c |   46 +++++++++++++++++++++++++++-------------------
- 1 file changed, 27 insertions(+), 19 deletions(-)
+ fs/inode.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/iio/dac/ad5593r.c
-+++ b/drivers/iio/dac/ad5593r.c
-@@ -15,6 +15,8 @@
- #include <linux/of.h>
- #include <linux/acpi.h>
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -164,8 +164,6 @@ int inode_init_always(struct super_block
+ 	inode->i_wb_frn_history = 0;
+ #endif
  
-+#include <asm/unaligned.h>
-+
- #define AD5593R_MODE_CONF		(0 << 4)
- #define AD5593R_MODE_DAC_WRITE		(1 << 4)
- #define AD5593R_MODE_ADC_READBACK	(4 << 4)
-@@ -22,6 +24,24 @@
- #define AD5593R_MODE_GPIO_READBACK	(6 << 4)
- #define AD5593R_MODE_REG_READBACK	(7 << 4)
+-	if (security_inode_alloc(inode))
+-		goto out;
+ 	spin_lock_init(&inode->i_lock);
+ 	lockdep_set_class(&inode->i_lock, &sb->s_type->i_lock_key);
  
-+static int ad5593r_read_word(struct i2c_client *i2c, u8 reg, u16 *value)
-+{
-+	int ret;
-+	u8 buf[2];
+@@ -192,11 +190,12 @@ int inode_init_always(struct super_block
+ 	inode->i_fsnotify_mask = 0;
+ #endif
+ 	inode->i_flctx = NULL;
 +
-+	ret = i2c_smbus_write_byte(i2c, reg);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = i2c_master_recv(i2c, buf, sizeof(buf));
-+	if (ret < 0)
-+		return ret;
-+
-+	*value = get_unaligned_be16(buf);
-+
-+	return 0;
-+}
-+
- static int ad5593r_write_dac(struct ad5592r_state *st, unsigned chan, u16 value)
- {
- 	struct i2c_client *i2c = to_i2c_client(st->dev);
-@@ -40,13 +60,7 @@ static int ad5593r_read_adc(struct ad559
- 	if (val < 0)
- 		return (int) val;
++	if (unlikely(security_inode_alloc(inode)))
++		return -ENOMEM;
+ 	this_cpu_inc(nr_inodes);
  
--	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_ADC_READBACK);
--	if (val < 0)
--		return (int) val;
--
--	*value = (u16) val;
--
--	return 0;
-+	return ad5593r_read_word(i2c, AD5593R_MODE_ADC_READBACK, value);
+ 	return 0;
+-out:
+-	return -ENOMEM;
  }
- 
- static int ad5593r_reg_write(struct ad5592r_state *st, u8 reg, u16 value)
-@@ -60,25 +74,19 @@ static int ad5593r_reg_write(struct ad55
- static int ad5593r_reg_read(struct ad5592r_state *st, u8 reg, u16 *value)
- {
- 	struct i2c_client *i2c = to_i2c_client(st->dev);
--	s32 val;
--
--	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_REG_READBACK | reg);
--	if (val < 0)
--		return (int) val;
- 
--	*value = (u16) val;
--
--	return 0;
-+	return ad5593r_read_word(i2c, AD5593R_MODE_REG_READBACK | reg, value);
- }
- 
- static int ad5593r_gpio_read(struct ad5592r_state *st, u8 *value)
- {
- 	struct i2c_client *i2c = to_i2c_client(st->dev);
--	s32 val;
-+	u16 val;
-+	int ret;
- 
--	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_GPIO_READBACK);
--	if (val < 0)
--		return (int) val;
-+	ret = ad5593r_read_word(i2c, AD5593R_MODE_GPIO_READBACK, &val);
-+	if (ret)
-+		return ret;
- 
- 	*value = (u8) val;
+ EXPORT_SYMBOL(inode_init_always);
  
 
 
