@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF8860AC58
+	by mail.lfdr.de (Postfix) with ESMTP id 7985160AC59
 	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232974AbiJXOFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:05:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60074 "EHLO
+        id S232689AbiJXOGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:06:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235131AbiJXODL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:03:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C3C3C0995;
-        Mon, 24 Oct 2022 05:48:50 -0700 (PDT)
+        with ESMTP id S234393AbiJXOD4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:03:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA3CC14BD;
+        Mon, 24 Oct 2022 05:48:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D3CA612A4;
-        Mon, 24 Oct 2022 12:48:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C01CC433D6;
-        Mon, 24 Oct 2022 12:48:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA7CF61257;
+        Mon, 24 Oct 2022 12:48:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6959C433D6;
+        Mon, 24 Oct 2022 12:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615727;
-        bh=C+1GBcd4vi3x1Lbhy7+9mb4yrjJTjU/i8BhkPvezHH8=;
+        s=korg; t=1666615732;
+        bh=uoL8KYvLmqiYOgLbt1BZk+v5+ngS5M6ut9BacMM7LMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTgNgyk6YY96LBRP3gqVGAcCrrJLuyreYfwdUDJqXkxAekuMCMGyjgkdJ5fqllcP4
-         rJW0xv3bpfMh3Y6winpK10SAtVXAVu0Yxto6FmZCSVg40aGhgDaTGJJ2RY26j0Qveg
-         cfq0QyNOiNF4Y7hp51l+Lm3RoPUiKgupk9bfAhAw=
+        b=fvYxW8v3sexJkaUR7SvqdoYwq3/lDwvPu9PWVgvG53lU/naM4mnnYqQgfJMQ5Gn2w
+         8v2xUHAImGoUtGVCgJLPWLtC4J58UFU2FyrXmfPN7GoDlmILJgYkmg/nq9s6Awq1Yf
+         x1K4ocDaYAg+ZLlhCtnesdDYdpmTIHH0aXypFBn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        David Gow <davidgow@google.com>,
-        Julius Werner <jwerner@chromium.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Evan Green <evgreen@chromium.org>,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        stable@vger.kernel.org, Jason Yan <yanaijie@huawei.com>,
+        Duoming Zhou <duoming@zju.edu.cn>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 330/530] firmware: google: Test spinlock on panic path to avoid lockups
-Date:   Mon, 24 Oct 2022 13:31:14 +0200
-Message-Id: <20221024113059.948172389@linuxfoundation.org>
+Subject: [PATCH 5.15 332/530] scsi: libsas: Fix use-after-free bug in smp_execute_task_sg()
+Date:   Mon, 24 Oct 2022 13:31:16 +0200
+Message-Id: <20221024113100.042146539@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -58,57 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guilherme G. Piccoli <gpiccoli@igalia.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 3e081438b8e639cc76ef1a5ce0c1bd8a154082c7 ]
+[ Upstream commit 46ba53c30666717cb06c2b3c5d896301cd00d0c0 ]
 
-Currently the gsmi driver registers a panic notifier as well as
-reboot and die notifiers. The callbacks registered are called in
-atomic and very limited context - for instance, panic disables
-preemption and local IRQs, also all secondary CPUs (not executing
-the panic path) are shutdown.
+When executing SMP task failed, the smp_execute_task_sg() calls del_timer()
+to delete "slow_task->timer". However, if the timer handler
+sas_task_internal_timedout() is running, the del_timer() in
+smp_execute_task_sg() will not stop it and a UAF will happen. The process
+is shown below:
 
-With that said, taking a spinlock in this scenario is a dangerous
-invitation for lockup scenarios. So, fix that by checking if the
-spinlock is free to acquire in the panic notifier callback - if not,
-bail-out and avoid a potential hang.
+      (thread 1)               |        (thread 2)
+smp_execute_task_sg()          | sas_task_internal_timedout()
+ ...                           |
+ del_timer()                   |
+ ...                           |  ...
+ sas_free_task(task)           |
+  kfree(task->slow_task) //FREE|
+                               |  task->slow_task->... //USE
 
-Fixes: 74c5b31c6618 ("driver: Google EFI SMI")
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: David Gow <davidgow@google.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Julius Werner <jwerner@chromium.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Reviewed-by: Evan Green <evgreen@chromium.org>
-Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-Link: https://lore.kernel.org/r/20220909200755.189679-1-gpiccoli@igalia.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix by calling del_timer_sync() in smp_execute_task_sg(), which makes sure
+the timer handler have finished before the "task->slow_task" is
+deallocated.
+
+Link: https://lore.kernel.org/r/20220920144213.10536-1-duoming@zju.edu.cn
+Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/google/gsmi.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/scsi/libsas/sas_expander.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/google/gsmi.c b/drivers/firmware/google/gsmi.c
-index adaa492c3d2d..4e2575dfeb90 100644
---- a/drivers/firmware/google/gsmi.c
-+++ b/drivers/firmware/google/gsmi.c
-@@ -681,6 +681,15 @@ static struct notifier_block gsmi_die_notifier = {
- static int gsmi_panic_callback(struct notifier_block *nb,
- 			       unsigned long reason, void *arg)
- {
-+
-+	/*
-+	 * Panic callbacks are executed with all other CPUs stopped,
-+	 * so we must not attempt to spin waiting for gsmi_dev.lock
-+	 * to be released.
-+	 */
-+	if (spin_is_locked(&gsmi_dev.lock))
-+		return NOTIFY_DONE;
-+
- 	gsmi_shutdown_reason(GSMI_SHUTDOWN_PANIC);
- 	return NOTIFY_DONE;
- }
+diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
+index c2150a818423..9ae35631135d 100644
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -85,7 +85,7 @@ static int smp_execute_task_sg(struct domain_device *dev,
+ 		res = i->dft->lldd_execute_task(task, GFP_KERNEL);
+ 
+ 		if (res) {
+-			del_timer(&task->slow_task->timer);
++			del_timer_sync(&task->slow_task->timer);
+ 			pr_notice("executing SMP task failed:%d\n", res);
+ 			break;
+ 		}
 -- 
 2.35.1
 
