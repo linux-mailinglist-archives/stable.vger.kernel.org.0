@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F9D260AFE7
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:00:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6851960AC4E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230502AbiJXP71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 11:59:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39844 "EHLO
+        id S233139AbiJXOFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:05:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232452AbiJXP7E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:59:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB9F0AA372;
-        Mon, 24 Oct 2022 07:54:11 -0700 (PDT)
+        with ESMTP id S236083AbiJXOC6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB218BEFBC;
+        Mon, 24 Oct 2022 05:48:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE072B8118D;
-        Mon, 24 Oct 2022 11:44:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 235C1C433D6;
-        Mon, 24 Oct 2022 11:44:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FADC61290;
+        Mon, 24 Oct 2022 12:48:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2FCAC433C1;
+        Mon, 24 Oct 2022 12:48:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611883;
-        bh=xnZ+hfZhsqsSL1RT5Zrzd/2FlzdEfr8WWwLO7c/CQn4=;
+        s=korg; t=1666615724;
+        bh=aZ6ttHHGOGHia7odYA/3lZSLUuPnotEhC2sJFerxf8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIKO6FwotRjLlj69GGN/WJilr2Hcuijz7q8n2F7fCEBuqPv6WwhBPSIGXDFeaAiJ5
-         K3ZpPHYVio2xjMBdYiJd3WgrHsKA2W4gMJtHu1xHNjHtBkg2aiUAgaL3u6PmKk9WDE
-         cwp115k31j6VJW5sYlVfrxfCPuKMCXTjvkrdaqjo=
+        b=ywnka5hwYp15AlE6pb13+hI+ZEhxtCkp4jcSssQqgUzT7TANgqE9UC1sRMAB1SPmn
+         +3uI4aLlK87RMCE8YVaau2WBAReryBuzeopj+0wPtEV7ckd+ZZzDejirtXG/wARnfx
+         Iqu8Nj8DZtQD9+akltBOcL4eSaBDm2/u2oPkD5I0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 117/159] clk: ti: dra7-atl: Fix reference leak in of_dra7_atl_clk_probe
-Date:   Mon, 24 Oct 2022 13:31:11 +0200
-Message-Id: <20221024112953.765014334@linuxfoundation.org>
+Subject: [PATCH 5.15 329/530] slimbus: qcom-ngd-ctrl: allow compile testing without QCOM_RPROC_COMMON
+Date:   Mon, 24 Oct 2022 13:31:13 +0200
+Message-Id: <20221024113059.899441448@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 9c59a01caba26ec06fefd6ca1f22d5fd1de57d63 ]
+[ Upstream commit e291691c69776ad278cd39dec2306dd39d681a9f ]
 
-pm_runtime_get_sync() will increment pm usage counter.
-Forgetting to putting operation will result in reference leak.
-Add missing pm_runtime_put_sync in some error paths.
+The Qualcomm common remote-proc code (CONFIG_QCOM_RPROC_COMMON) has
+necessary stubs, so it is not needed for compile testing.
 
-Fixes: 9ac33b0ce81f ("CLK: TI: Driver for DRA7 ATL (Audio Tracking Logic)")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220602030838.52057-1-linmq006@gmail.com
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220916122910.170730-5-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 42992cf187e4 ("slimbus: qcom-ngd: Add error handling in of_qcom_slim_ngd_register")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/ti/clk-dra7-atl.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/slimbus/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/ti/clk-dra7-atl.c b/drivers/clk/ti/clk-dra7-atl.c
-index 7d060ffe8975..9b1f9af35a23 100644
---- a/drivers/clk/ti/clk-dra7-atl.c
-+++ b/drivers/clk/ti/clk-dra7-atl.c
-@@ -249,14 +249,16 @@ static int of_dra7_atl_clk_probe(struct platform_device *pdev)
- 		if (rc) {
- 			pr_err("%s: failed to lookup atl clock %d\n", __func__,
- 			       i);
--			return -EINVAL;
-+			ret = -EINVAL;
-+			goto pm_put;
- 		}
+diff --git a/drivers/slimbus/Kconfig b/drivers/slimbus/Kconfig
+index 1235b7dc8496..2ed821f75816 100644
+--- a/drivers/slimbus/Kconfig
++++ b/drivers/slimbus/Kconfig
+@@ -22,7 +22,8 @@ config SLIM_QCOM_CTRL
  
- 		clk = of_clk_get_from_provider(&clkspec);
- 		if (IS_ERR(clk)) {
- 			pr_err("%s: failed to get atl clock %d from provider\n",
- 			       __func__, i);
--			return PTR_ERR(clk);
-+			ret = PTR_ERR(clk);
-+			goto pm_put;
- 		}
- 
- 		cdesc = to_atl_desc(__clk_get_hw(clk));
-@@ -289,8 +291,9 @@ static int of_dra7_atl_clk_probe(struct platform_device *pdev)
- 		if (cdesc->enabled)
- 			atl_clk_enable(__clk_get_hw(clk));
- 	}
--	pm_runtime_put_sync(cinfo->dev);
- 
-+pm_put:
-+	pm_runtime_put_sync(cinfo->dev);
- 	return ret;
- }
- 
+ config SLIM_QCOM_NGD_CTRL
+ 	tristate "Qualcomm SLIMbus Satellite Non-Generic Device Component"
+-	depends on HAS_IOMEM && DMA_ENGINE && NET && QCOM_RPROC_COMMON
++	depends on HAS_IOMEM && DMA_ENGINE && NET
++	depends on QCOM_RPROC_COMMON || COMPILE_TEST
+ 	depends on ARCH_QCOM || COMPILE_TEST
+ 	select QCOM_QMI_HELPERS
+ 	select QCOM_PDR_HELPERS
 -- 
 2.35.1
 
