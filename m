@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F38D60A730
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EDEC60A420
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234274AbiJXMsP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:48:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58770 "EHLO
+        id S232544AbiJXMFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:05:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234715AbiJXMpd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772F7317FA;
-        Mon, 24 Oct 2022 05:09:56 -0700 (PDT)
+        with ESMTP id S232911AbiJXMEh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:04:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D51C73BC68;
+        Mon, 24 Oct 2022 04:50:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B400612F5;
-        Mon, 24 Oct 2022 12:09:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B4F8C433C1;
-        Mon, 24 Oct 2022 12:09:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41C5BB811B9;
+        Mon, 24 Oct 2022 11:49:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9692AC433C1;
+        Mon, 24 Oct 2022 11:49:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613350;
-        bh=wF6UUJRkHf9QYtND6AvtkHRvV5GkEmtaCAcf59ra3aQ=;
+        s=korg; t=1666612178;
+        bh=SrzuHoasVKSFypBy+GmTnPzmZkciHvpxXHdO6la55H4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y7UyAuIVF1/nFgIIjYbYO4nh379hMu3puDVaWlqsoLxB0yXMqn4YonpfHGU5oyoEQ
-         rBkozKaZ932gUiDY1DMCIqbtnqhPmxifAFcxzizKBZMhol85hZTiixRIlyq5wz+ZIM
-         Brnq66k3WQS4XqlF9+PXvvd7rGFuHa/T9AobhvW0=
+        b=NAAkafaPdgkfmGTjnB+bujeeB73vyZEyG08GQf4fg8GemyabFtwm3U+2W/74Rv/QX
+         dZ+iW6aARZbYj8f4sSFMlfKEcjCYoVP0prAG1v3mmP1tG7e0E7/joQv8pP0IabWEXo
+         e6+YhRdoxkAA70dVyqQOXyVavfszJavSPtFFezXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 104/255] ASoC: wm8997: Fix PM disable depth imbalance in wm8997_probe
-Date:   Mon, 24 Oct 2022 13:30:14 +0200
-Message-Id: <20221024113005.922301368@linuxfoundation.org>
+Subject: [PATCH 4.14 098/210] drm/mipi-dsi: Detach devices when removing the host
+Date:   Mon, 24 Oct 2022 13:30:15 +0200
+Message-Id: <20221024113000.206122481@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 41a736ac20602f64773e80f0f5b32cde1830a44a ]
+[ Upstream commit 668a8f17b5290d04ef7343636a5588a0692731a1 ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context. We fix it by moving
-pm_runtime_enable to the endding of wm8997_probe
+Whenever the MIPI-DSI host is unregistered, the code of
+mipi_dsi_host_unregister() loops over every device currently found on that
+bus and will unregister it.
 
-Fixes:40843aea5a9bd ("ASoC: wm8997: Initial CODEC driver")
+However, it doesn't detach it from the bus first, which leads to all kind
+of resource leaks if the host wants to perform some clean up whenever a
+device is detached.
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220928160116.125020-2-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 068a00233969 ("drm: Add MIPI DSI bus support")
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20220711173939.1132294-2-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8997.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/drm_mipi_dsi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/wm8997.c b/sound/soc/codecs/wm8997.c
-index 229f2986cd96..07378714b013 100644
---- a/sound/soc/codecs/wm8997.c
-+++ b/sound/soc/codecs/wm8997.c
-@@ -1156,9 +1156,6 @@ static int wm8997_probe(struct platform_device *pdev)
- 		regmap_update_bits(arizona->regmap, wm8997_digital_vu[i],
- 				   WM8997_DIG_VU, WM8997_DIG_VU);
+diff --git a/drivers/gpu/drm/drm_mipi_dsi.c b/drivers/gpu/drm/drm_mipi_dsi.c
+index 6f0de951b75d..bd5e8661f826 100644
+--- a/drivers/gpu/drm/drm_mipi_dsi.c
++++ b/drivers/gpu/drm/drm_mipi_dsi.c
+@@ -305,6 +305,7 @@ static int mipi_dsi_remove_device_fn(struct device *dev, void *priv)
+ {
+ 	struct mipi_dsi_device *dsi = to_mipi_dsi_device(dev);
  
--	pm_runtime_enable(&pdev->dev);
--	pm_runtime_idle(&pdev->dev);
--
- 	arizona_init_common(arizona);
++	mipi_dsi_detach(dsi);
+ 	mipi_dsi_device_unregister(dsi);
  
- 	ret = arizona_init_vol_limit(arizona);
-@@ -1177,6 +1174,9 @@ static int wm8997_probe(struct platform_device *pdev)
- 		goto err_spk_irqs;
- 	}
- 
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_idle(&pdev->dev);
-+
- 	return ret;
- 
- err_spk_irqs:
+ 	return 0;
 -- 
 2.35.1
 
