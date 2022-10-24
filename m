@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3479660A80D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:01:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D55760A691
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:36:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235000AbiJXNBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:01:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42962 "EHLO
+        id S230168AbiJXMf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:35:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235300AbiJXM7x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7CEC82740;
-        Mon, 24 Oct 2022 05:19:14 -0700 (PDT)
+        with ESMTP id S233979AbiJXM3I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB0387FAD;
+        Mon, 24 Oct 2022 05:03:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4069161254;
-        Mon, 24 Oct 2022 12:10:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57FC3C433D6;
-        Mon, 24 Oct 2022 12:10:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2033BB81205;
+        Mon, 24 Oct 2022 12:00:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52CC8C433D6;
+        Mon, 24 Oct 2022 12:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613437;
-        bh=aMwCiuho+5sGPWzHfvZm4UqIdHJc/Ci1aTkPE5AYjf0=;
+        s=korg; t=1666612811;
+        bh=Ws77N57CxyF8R2lCt0Q+LCWWOIs7ZrRkFT0j9x5vLi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sNcue61QhnFAmLGaXVuBPV7YlF9qrhFdFkGKKBrPjs8qZLr08ypBkrw3S/WDjg/rk
-         kh8UQGaOLXKcChPvjRWWVViV17MfFafDRC6+7H2Fbbtyk5wEdkT1JT0NZmU17Jfgg0
-         cbW9DflVZo9lmpje+o2kzpHXIBPCXYkk69+7loxM=
+        b=UFes2JN2qSRIY2dvj/LoqHhybzj9GYtl5cZYIxYLX3o6F84d+sDmHiAR4RPHe708L
+         HjrATpUJvU1CYOWQIExEqXqrJSXOqTa6DE2ss2Sur7UDdXm1i92KK/+2VDE7msin+P
+         79c7VWqDaDIxdm9WztWO6ofULO0FoPFFnsfflfSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Jason Baron <jbaron@akamai.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jim Cromie <jim.cromie@gmail.com>,
+        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 137/255] dyndbg: fix module.dyndbg handling
-Date:   Mon, 24 Oct 2022 13:30:47 +0200
-Message-Id: <20221024113007.133286024@linuxfoundation.org>
+Subject: [PATCH 4.19 129/229] tty: xilinx_uartps: Fix the ignore_status
+Date:   Mon, 24 Oct 2022 13:30:48 +0200
+Message-Id: <20221024113003.181254735@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Cromie <jim.cromie@gmail.com>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 
-[ Upstream commit 85d6b66d31c35158364058ee98fb69ab5bb6a6b1 ]
+[ Upstream commit b8a6c3b3d4654fba19881cc77da61eac29f57cae ]
 
-For CONFIG_DYNAMIC_DEBUG=N, the ddebug_dyndbg_module_param_cb()
-stub-fn is too permissive:
+Currently the ignore_status is not considered in the isr.
+Add a check to add the ignore_status.
 
-bash-5.1# modprobe drm JUNKdyndbg
-bash-5.1# modprobe drm dyndbgJUNK
-[   42.933220] dyndbg param is supported only in CONFIG_DYNAMIC_DEBUG builds
-[   42.937484] ACPI: bus type drm_connector registered
-
-This caused no ill effects, because unknown parameters are either
-ignored by default with an "unknown parameter" warning, or ignored
-because dyndbg allows its no-effect use on non-dyndbg builds.
-
-But since the code has an explicit feedback message, it should be
-issued accurately.  Fix with strcmp for exact param-name match.
-
-Fixes: b48420c1d301 dynamic_debug: make dynamic-debug work for module initialization
-Reported-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Acked-by: Jason Baron <jbaron@akamai.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
-Link: https://lore.kernel.org/r/20220904214134.408619-3-jim.cromie@gmail.com
+Fixes: 61ec9016988f ("tty/serial: add support for Xilinx PS UART")
+Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Link: https://lore.kernel.org/r/20220729114748.18332-5-shubhrajyoti.datta@xilinx.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/dynamic_debug.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/xilinx_uartps.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/linux/dynamic_debug.h b/include/linux/dynamic_debug.h
-index 4cf02ecd67de..65575143c89f 100644
---- a/include/linux/dynamic_debug.h
-+++ b/include/linux/dynamic_debug.h
-@@ -191,7 +191,7 @@ static inline int ddebug_remove_module(const char *mod)
- static inline int ddebug_dyndbg_module_param_cb(char *param, char *val,
- 						const char *modname)
- {
--	if (strstr(param, "dyndbg")) {
-+	if (!strcmp(param, "dyndbg")) {
- 		/* avoid pr_warn(), which wants pr_fmt() fully defined */
- 		printk(KERN_WARNING "dyndbg param is supported only in "
- 			"CONFIG_DYNAMIC_DEBUG builds\n");
+diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
+index c22bd40fc6f0..ded9f16d08eb 100644
+--- a/drivers/tty/serial/xilinx_uartps.c
++++ b/drivers/tty/serial/xilinx_uartps.c
+@@ -365,6 +365,8 @@ static irqreturn_t cdns_uart_isr(int irq, void *dev_id)
+ 		isrstatus &= ~CDNS_UART_IXR_TXEMPTY;
+ 	}
+ 
++	isrstatus &= port->read_status_mask;
++	isrstatus &= ~port->ignore_status_mask;
+ 	/*
+ 	 * Skip RX processing if RX is disabled as RXEMPTY will never be set
+ 	 * as read bytes will not be removed from the FIFO.
 -- 
 2.35.1
 
