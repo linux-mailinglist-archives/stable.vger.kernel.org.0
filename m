@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9987F60A48B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30CE560A5D3
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232853AbiJXMMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:12:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59852 "EHLO
+        id S233850AbiJXMa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:30:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232851AbiJXMLV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:11:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9A6A804A4;
-        Mon, 24 Oct 2022 04:53:44 -0700 (PDT)
+        with ESMTP id S233977AbiJXM3I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FE88876A9;
+        Mon, 24 Oct 2022 05:02:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27602B81199;
-        Mon, 24 Oct 2022 11:52:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8713DC433C1;
-        Mon, 24 Oct 2022 11:52:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F5A3612F0;
+        Mon, 24 Oct 2022 12:02:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0E5AC433C1;
+        Mon, 24 Oct 2022 12:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612323;
-        bh=cVhhmhyue59m5yNPy7N779FKJdt+vjkUP23f1DN/X/E=;
+        s=korg; t=1666612959;
+        bh=HBy6+WmctVCFgQnZHbWI3wpfmscQhg4m+1LqT9t11gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KqA7zQO/XDhvid3CIEb8HqpV4zh++aoOhRXJhkQlZS6BtJpexIjOSDMTPrBNxxUIq
-         RS+aoLfn+10+Dl+vNeXY6f54C/ABuZeqQOIa7vewEs/IyGv00CAQpWPfz/ruVnVW4O
-         W0DsYlrNHUSIx45lkUu/OBQZRZOKVLvJnsIXbumM=
+        b=fdi34MexhO9PSH7fYTllHDpXtCgO5tMYpiwkOcI2s0JpVRqJWhh20VbOVQ5otHyub
+         aD8dlcPCTF9ZFabrzWDhiYj0HVrmfbsxsF02aVgZdjp9j0CBjwiySy7MffoocOIHyW
+         xSeaI9uMBRk5hcMJ/7CTBDm6PhtIUgCswabzFDm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Miaoqian Lin <linmq006@gmail.com>
-Subject: [PATCH 4.14 154/210] powerpc/pci_dn: Add missing of_node_put()
-Date:   Mon, 24 Oct 2022 13:31:11 +0200
-Message-Id: <20221024113001.980834175@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 153/229] mfd: sm501: Add check for platform_driver_register()
+Date:   Mon, 24 Oct 2022 13:31:12 +0200
+Message-Id: <20221024113003.961820486@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 110a1fcb6c4d55144d8179983a475f17a1d6f832 ]
+[ Upstream commit 8325a6c24ad78b8c1acc3c42b098ee24105d68e5 ]
 
-In pci_add_device_node_info(), use of_node_put() to drop the reference
-to 'parent' returned by of_get_parent() to keep refcount balance.
+As platform_driver_register() can return error numbers,
+it should be better to check platform_driver_register()
+and deal with the exception.
 
-Fixes: cca87d303c85 ("powerpc/pci: Refactor pci_dn")
-Co-authored-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220701131750.240170-1-windhl@126.com
+Fixes: b6d6454fdb66 ("[PATCH] mfd: SM501 core driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/20220913091112.1739138-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/pci_dn.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mfd/sm501.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/pci_dn.c b/arch/powerpc/kernel/pci_dn.c
-index 0e45a446a8c7..45aa39d55f91 100644
---- a/arch/powerpc/kernel/pci_dn.c
-+++ b/arch/powerpc/kernel/pci_dn.c
-@@ -344,6 +344,7 @@ struct pci_dn *pci_add_device_node_info(struct pci_controller *hose,
- 	INIT_LIST_HEAD(&pdn->list);
- 	parent = of_get_parent(dn);
- 	pdn->parent = parent ? PCI_DN(parent) : NULL;
-+	of_node_put(parent);
- 	if (pdn->parent)
- 		list_add_tail(&pdn->list, &pdn->parent->child_list);
+diff --git a/drivers/mfd/sm501.c b/drivers/mfd/sm501.c
+index ec1ac61a21ed..6254b4025b5e 100644
+--- a/drivers/mfd/sm501.c
++++ b/drivers/mfd/sm501.c
+@@ -1738,7 +1738,12 @@ static struct platform_driver sm501_plat_driver = {
+ 
+ static int __init sm501_base_init(void)
+ {
+-	platform_driver_register(&sm501_plat_driver);
++	int ret;
++
++	ret = platform_driver_register(&sm501_plat_driver);
++	if (ret < 0)
++		return ret;
++
+ 	return pci_register_driver(&sm501_pci_driver);
+ }
  
 -- 
 2.35.1
