@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6005E60A8E1
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA74A60A819
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:01:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235687AbiJXNMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:12:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35482 "EHLO
+        id S235119AbiJXNBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:01:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236011AbiJXNK0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:10:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C94A22BE2D;
-        Mon, 24 Oct 2022 05:24:10 -0700 (PDT)
+        with ESMTP id S235371AbiJXNAF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:00:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C32612635;
+        Mon, 24 Oct 2022 05:19:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F10BB81205;
-        Mon, 24 Oct 2022 12:06:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB809C433D6;
-        Mon, 24 Oct 2022 12:06:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5F07612DD;
+        Mon, 24 Oct 2022 11:55:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBD3FC433C1;
+        Mon, 24 Oct 2022 11:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613177;
-        bh=n+CMlShebmcQLDR5asrTsndohyMMu9dY5i7dyKNhIsI=;
+        s=korg; t=1666612550;
+        bh=F3Ps/24EELtdaxeGL9mejddTcm6hhRtKHdm9tH9l8nY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s9IyUwV5adMnI32yQafYfOpSoilATCOFAwKN/E5VMOMpmDr+Ubf4F6yuuAlIOpmxA
-         AIe5dloC/LyV76zOQyMAusM03bcJ0QWhUe1pVltY+kwx8eDNEi0pVwMaJfHX/cDOTC
-         9RlkXTzVNTKLY+nOjFBwS5fgLHEcR6e12Xf3Lr4o=
+        b=kl7DdIr9ZYh0JnYJId0KdK3+Ne8lnxTXowNybuFv96yWk1exDaq6wHx1g6QyUVsb5
+         6qbjAqgcOR+tUdYErlTYp667J+SFe12K4kjR8XiWgyZ9/xpnImoj39s+oVXxeZta2e
+         nVX1Avt800zPy4hziH32oXm9TZFruGhvmQ16A1rA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4 038/255] f2fs: fix to do sanity check on summary info
-Date:   Mon, 24 Oct 2022 13:29:08 +0200
-Message-Id: <20221024113003.699400716@linuxfoundation.org>
+        stable@vger.kernel.org, Jasper Poppe <jgpoppe@gmail.com>,
+        Jeremy Palmer <jpalmer@linz.govt.nz>,
+        Ruineka <ruinairas1992@gmail.com>,
+        Cleber de Mattos Casali <clebercasali@gmail.com>,
+        Kyle Gospodnetich <me@kylegospodneti.ch>,
+        Pavel Rojtberg <rojtberg@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 030/229] Input: xpad - add supported devices as contributed on github
+Date:   Mon, 24 Oct 2022 13:29:09 +0200
+Message-Id: <20221024113000.099381072@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,123 +57,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Pavel Rojtberg <rojtberg@gmail.com>
 
-commit c6ad7fd16657ebd34a87a97d9588195aae87597d upstream.
+commit b382c5e37344883dc97525d05f1f6b788f549985 upstream.
 
-As Wenqing Liu reported in bugzilla:
-
-https://bugzilla.kernel.org/show_bug.cgi?id=216456
-
-BUG: KASAN: use-after-free in recover_data+0x63ae/0x6ae0 [f2fs]
-Read of size 4 at addr ffff8881464dcd80 by task mount/1013
-
-CPU: 3 PID: 1013 Comm: mount Tainted: G        W          6.0.0-rc4 #1
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
-Call Trace:
- dump_stack_lvl+0x45/0x5e
- print_report.cold+0xf3/0x68d
- kasan_report+0xa8/0x130
- recover_data+0x63ae/0x6ae0 [f2fs]
- f2fs_recover_fsync_data+0x120d/0x1fc0 [f2fs]
- f2fs_fill_super+0x4665/0x61e0 [f2fs]
- mount_bdev+0x2cf/0x3b0
- legacy_get_tree+0xed/0x1d0
- vfs_get_tree+0x81/0x2b0
- path_mount+0x47e/0x19d0
- do_mount+0xce/0xf0
- __x64_sys_mount+0x12c/0x1a0
- do_syscall_64+0x38/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-The root cause is: in fuzzed image, SSA table is corrupted: ofs_in_node
-is larger than ADDRS_PER_PAGE(), result in out-of-range access on 4k-size
-page.
-
-- recover_data
- - do_recover_data
-  - check_index_in_prev_nodes
-   - f2fs_data_blkaddr
-
-This patch adds sanity check on summary info in recovery and GC flow
-in where the flows rely on them.
-
-After patch:
-[   29.310883] F2FS-fs (loop0): Inconsistent ofs_in_node:65286 in summary, ino:0, nid:6, max:1018
+This is based on multiple commits at https://github.com/paroj/xpad
 
 Cc: stable@vger.kernel.org
-Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Jasper Poppe <jgpoppe@gmail.com>
+Signed-off-by: Jeremy Palmer <jpalmer@linz.govt.nz>
+Signed-off-by: Ruineka <ruinairas1992@gmail.com>
+Signed-off-by: Cleber de Mattos Casali <clebercasali@gmail.com>
+Signed-off-by: Kyle Gospodnetich <me@kylegospodneti.ch>
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+Link: https://lore.kernel.org/r/20220818154411.510308-2-rojtberg@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/gc.c       |   10 +++++++++-
- fs/f2fs/recovery.c |   15 ++++++++++++---
- 2 files changed, 21 insertions(+), 4 deletions(-)
+ drivers/input/joystick/xpad.c |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -612,7 +612,7 @@ static bool is_alive(struct f2fs_sb_info
- {
- 	struct page *node_page;
- 	nid_t nid;
--	unsigned int ofs_in_node;
-+	unsigned int ofs_in_node, max_addrs;
- 	block_t source_blkaddr;
- 
- 	nid = le32_to_cpu(sum->nid);
-@@ -638,6 +638,14 @@ static bool is_alive(struct f2fs_sb_info
- 		return false;
- 	}
- 
-+	max_addrs = IS_INODE(node_page) ? DEF_ADDRS_PER_INODE :
-+						DEF_ADDRS_PER_BLOCK;
-+	if (ofs_in_node >= max_addrs) {
-+		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%u, nid:%u, max:%u",
-+			ofs_in_node, dni->ino, dni->nid, max_addrs);
-+		return false;
-+	}
-+
- 	*nofs = ofs_of_node(node_page);
- 	source_blkaddr = datablock_addr(NULL, node_page, ofs_in_node);
- 	f2fs_put_page(node_page, 1);
---- a/fs/f2fs/recovery.c
-+++ b/fs/f2fs/recovery.c
-@@ -406,7 +406,7 @@ static int check_index_in_prev_nodes(str
- 	struct dnode_of_data tdn = *dn;
- 	nid_t ino, nid;
- 	struct inode *inode;
--	unsigned int offset;
-+	unsigned int offset, ofs_in_node, max_addrs;
- 	block_t bidx;
- 	int i;
- 
-@@ -432,15 +432,24 @@ static int check_index_in_prev_nodes(str
- got_it:
- 	/* Use the locked dnode page and inode */
- 	nid = le32_to_cpu(sum.nid);
-+	ofs_in_node = le16_to_cpu(sum.ofs_in_node);
-+
-+	max_addrs = ADDRS_PER_PAGE(dn->node_page, dn->inode);
-+	if (ofs_in_node >= max_addrs) {
-+		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%lu, nid:%u, max:%u",
-+			ofs_in_node, dn->inode->i_ino, nid, max_addrs);
-+		return -EFSCORRUPTED;
-+	}
-+
- 	if (dn->inode->i_ino == nid) {
- 		tdn.nid = nid;
- 		if (!dn->inode_page_locked)
- 			lock_page(dn->inode_page);
- 		tdn.node_page = dn->inode_page;
--		tdn.ofs_in_node = le16_to_cpu(sum.ofs_in_node);
-+		tdn.ofs_in_node = ofs_in_node;
- 		goto truncate_out;
- 	} else if (dn->nid == nid) {
--		tdn.ofs_in_node = le16_to_cpu(sum.ofs_in_node);
-+		tdn.ofs_in_node = ofs_in_node;
- 		goto truncate_out;
- 	}
- 
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -126,6 +126,8 @@ static const struct xpad_device {
+ 	u8 xtype;
+ } xpad_device[] = {
+ 	{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, XTYPE_XBOX360 },
++	{ 0x03eb, 0xff01, "Wooting One (Legacy)", 0, XTYPE_XBOX360 },
++	{ 0x03eb, 0xff02, "Wooting Two (Legacy)", 0, XTYPE_XBOX360 },
+ 	{ 0x044f, 0x0f00, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f03, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
+@@ -256,6 +258,7 @@ static const struct xpad_device {
+ 	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
++	{ 0x0f0d, 0x00c5, "Hori Fighting Commander ONE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x0f30, 0x010b, "Philips Recoil", 0, XTYPE_XBOX },
+ 	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
+ 	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
+@@ -272,6 +275,7 @@ static const struct xpad_device {
+ 	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x1430, 0xf801, "RedOctane Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", 0, XTYPE_XBOX360 },
++	{ 0x146b, 0x0604, "Bigben Interactive DAIJA Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x1532, 0x0037, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x1532, 0x0a00, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x1532, 0x0a03, "Razer Wildcat", 0, XTYPE_XBOXONE },
+@@ -336,6 +340,7 @@ static const struct xpad_device {
+ 	{ 0x24c6, 0x5502, "Hori Fighting Stick VX Alt", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5503, "Hori Fighting Edge", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5506, "Hori SOULCALIBUR V Stick", 0, XTYPE_XBOX360 },
++	{ 0x24c6, 0x5510, "Hori Fighting Commander ONE (Xbox 360/PC Mode)", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x550d, "Hori GEM Xbox controller", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x550e, "Hori Real Arcade Pro V Kai 360", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x551a, "PowerA FUSION Pro Controller", 0, XTYPE_XBOXONE },
+@@ -345,6 +350,14 @@ static const struct xpad_device {
+ 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x2563, 0x058d, "OneXPlayer Gamepad", 0, XTYPE_XBOX360 },
++	{ 0x2dc8, 0x2000, "8BitDo Pro 2 Wired Controller fox Xbox", 0, XTYPE_XBOXONE },
++	{ 0x31e3, 0x1100, "Wooting One", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1200, "Wooting Two", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1210, "Wooting Lekker", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1220, "Wooting Two HE", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1300, "Wooting 60HE (AVR)", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1310, "Wooting 60HE (ARM)", 0, XTYPE_XBOX360 },
+ 	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
+ 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
+ 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
+@@ -430,6 +443,7 @@ static const signed short xpad_abs_trigg
+ static const struct usb_device_id xpad_table[] = {
+ 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
+ 	XPAD_XBOX360_VENDOR(0x0079),		/* GPD Win 2 Controller */
++	XPAD_XBOX360_VENDOR(0x03eb),		/* Wooting Keyboards (Legacy) */
+ 	XPAD_XBOX360_VENDOR(0x044f),		/* Thrustmaster X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
+ 	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
+@@ -440,6 +454,7 @@ static const struct usb_device_id xpad_t
+ 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
+ 	XPAD_XBOXONE_VENDOR(0x0738),		/* Mad Catz FightStick TE 2 */
+ 	XPAD_XBOX360_VENDOR(0x07ff),		/* Mad Catz GamePad */
++	XPAD_XBOX360_VENDOR(0x0c12),		/* Zeroplus X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
+ 	XPAD_XBOXONE_VENDOR(0x0e6f),		/* 0x0e6f X-Box One controllers */
+ 	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori Controllers */
+@@ -460,8 +475,12 @@ static const struct usb_device_id xpad_t
+ 	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA Controllers */
+ 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
+ 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
++	XPAD_XBOX360_VENDOR(0x2563),		/* OneXPlayer Gamepad */
++	XPAD_XBOX360_VENDOR(0x260d),		/* Dareu H101 */
++	XPAD_XBOXONE_VENDOR(0x2dc8),		/* 8BitDo Pro 2 Wired Controller for Xbox */
+ 	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
+ 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
++	XPAD_XBOX360_VENDOR(0x31e3),		/* Wooting Keyboards */
+ 	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
+ 	{ }
+ };
 
 
