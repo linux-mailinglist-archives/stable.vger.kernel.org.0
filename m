@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D9660A5CC
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2863960A483
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:11:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231658AbiJXM2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:28:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57948 "EHLO
+        id S230045AbiJXMLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:11:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233719AbiJXM1t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:27:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2C3886803;
-        Mon, 24 Oct 2022 05:01:40 -0700 (PDT)
+        with ESMTP id S232828AbiJXMLH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:11:07 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B88915719;
+        Mon, 24 Oct 2022 04:53:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B81E1B811EF;
-        Mon, 24 Oct 2022 11:57:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12EA7C433C1;
-        Mon, 24 Oct 2022 11:57:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D1DABCE131D;
+        Mon, 24 Oct 2022 11:39:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFB08C433D6;
+        Mon, 24 Oct 2022 11:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612635;
-        bh=Krt+Xlxa8gyzGMZVPSaqFF395LKyxhWwJdymKAbkvjA=;
+        s=korg; t=1666611564;
+        bh=5bSnUp5dX34XQ99c1SQZmiSSKHcGvqw4nlmJQKpbDSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Evv2zQ/knYl47KuNTrqnJ44UiLUQjTGUtEhjJfDcEV/5D2mHFDMOw+xcLKxfjKSkS
-         qYF/3Bdk88cWpiTmNeCjJrdBNMzWWEZOFvBlNyD+rLVdRBJvpax+6jNTVAMnMbDX1w
-         hfM36JsuzCXUKxTgvcAsPqjq82bSOn1oLJKSZ6s4=
+        b=U9KyiCYvhD6GAybrMCFQy8ylSj92w9vnEYUCu8UF4u3ArmuAy54zyYMKNI167izD4
+         DV7inK/hjI7vPD60U+IyQY4zGAwxQVyZbHSmC8LIkdrSGIdZWuKxtER1+8LmY+rMHh
+         RT+QTxy2Mru7MfKJqnFweXM3MGt2MhPD3gPqKGqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
-        Breno Leitao <leitao@debian.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>, stable@kernel.org
-Subject: [PATCH 4.19 062/229] livepatch: fix race between fork and KLP transition
+        stable@vger.kernel.org,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+2b32eb36c1a825b7a74c@syzkaller.appspotmail.com,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.9 027/159] nilfs2: fix NULL pointer dereference at nilfs_bmap_lookup_at_level()
 Date:   Mon, 24 Oct 2022 13:29:41 +0200
-Message-Id: <20221024113001.087187890@linuxfoundation.org>
+Message-Id: <20221024112950.397696339@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rik van Riel <riel@surriel.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 747f7a2901174c9afa805dddfb7b24db6f65e985 upstream.
+commit 21a87d88c2253350e115029f14fe2a10a7e6c856 upstream.
 
-The KLP transition code depends on the TIF_PATCH_PENDING and
-the task->patch_state to stay in sync. On a normal (forward)
-transition, TIF_PATCH_PENDING will be set on every task in
-the system, while on a reverse transition (after a failed
-forward one) first TIF_PATCH_PENDING will be cleared from
-every task, followed by it being set on tasks that need to
-be transitioned back to the original code.
+If the i_mode field in inode of metadata files is corrupted on disk, it
+can cause the initialization of bmap structure, which should have been
+called from nilfs_read_inode_common(), not to be called.  This causes a
+lockdep warning followed by a NULL pointer dereference at
+nilfs_bmap_lookup_at_level().
 
-However, the fork code copies over the TIF_PATCH_PENDING flag
-from the parent to the child early on, in dup_task_struct and
-setup_thread_stack. Much later, klp_copy_process will set
-child->patch_state to match that of the parent.
+This patch fixes these issues by adding a missing sanitiy check for the
+i_mode field of metadata file's inode.
 
-However, the parent's patch_state may have been changed by KLP loading
-or unloading since it was initially copied over into the child.
-
-This results in the KLP code occasionally hitting this warning in
-klp_complete_transition:
-
-        for_each_process_thread(g, task) {
-                WARN_ON_ONCE(test_tsk_thread_flag(task, TIF_PATCH_PENDING));
-                task->patch_state = KLP_UNDEFINED;
-        }
-
-Set, or clear, the TIF_PATCH_PENDING flag in the child task
-depending on whether or not it is needed at the time
-klp_copy_process is called, at a point in copy_process where the
-tasklist_lock is held exclusively, preventing races with the KLP
-code.
-
-The KLP code does have a few places where the state is changed
-without the tasklist_lock held, but those should not cause
-problems because klp_update_patch_state(current) cannot be
-called while the current task is in the middle of fork,
-klp_check_and_switch_task() which is called under the pi_lock,
-which prevents rescheduling, and manipulation of the patch
-state of idle tasks, which do not fork.
-
-This should prevent this warning from triggering again in the
-future, and close the race for both normal and reverse transitions.
-
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Reported-by: Breno Leitao <leitao@debian.org>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Fixes: d83a7cb375ee ("livepatch: change to a per-task consistency model")
-Cc: stable@kernel.org
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20220808150019.03d6a67b@imladris.surriel.com
+Link: https://lkml.kernel.org/r/20221002030804.29978-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+2b32eb36c1a825b7a74c@syzkaller.appspotmail.com
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/livepatch/transition.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ fs/nilfs2/inode.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/livepatch/transition.c
-+++ b/kernel/livepatch/transition.c
-@@ -563,9 +563,23 @@ void klp_reverse_transition(void)
- /* Called from copy_process() during fork */
- void klp_copy_process(struct task_struct *child)
- {
--	child->patch_state = current->patch_state;
+--- a/fs/nilfs2/inode.c
++++ b/fs/nilfs2/inode.c
+@@ -455,6 +455,8 @@ int nilfs_read_inode_common(struct inode
+ 	inode->i_atime.tv_nsec = le32_to_cpu(raw_inode->i_mtime_nsec);
+ 	inode->i_ctime.tv_nsec = le32_to_cpu(raw_inode->i_ctime_nsec);
+ 	inode->i_mtime.tv_nsec = le32_to_cpu(raw_inode->i_mtime_nsec);
++	if (nilfs_is_metadata_file_inode(inode) && !S_ISREG(inode->i_mode))
++		return -EIO; /* this inode is for metadata and corrupted */
+ 	if (inode->i_nlink == 0)
+ 		return -ESTALE; /* this inode is deleted */
  
--	/* TIF_PATCH_PENDING gets copied in setup_thread_stack() */
-+	/*
-+	 * The parent process may have gone through a KLP transition since
-+	 * the thread flag was copied in setup_thread_stack earlier. Bring
-+	 * the task flag up to date with the parent here.
-+	 *
-+	 * The operation is serialized against all klp_*_transition()
-+	 * operations by the tasklist_lock. The only exception is
-+	 * klp_update_patch_state(current), but we cannot race with
-+	 * that because we are current.
-+	 */
-+	if (test_tsk_thread_flag(current, TIF_PATCH_PENDING))
-+		set_tsk_thread_flag(child, TIF_PATCH_PENDING);
-+	else
-+		clear_tsk_thread_flag(child, TIF_PATCH_PENDING);
-+
-+	child->patch_state = current->patch_state;
- }
- 
- /*
 
 
