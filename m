@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3472B60B3B5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:14:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C9160B21E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:43:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232016AbiJXRO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:14:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51760 "EHLO
+        id S234512AbiJXQnF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:43:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231697AbiJXRNa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:13:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E88405A8C8;
-        Mon, 24 Oct 2022 08:49:05 -0700 (PDT)
+        with ESMTP id S234533AbiJXQmH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:42:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E142D1ED;
+        Mon, 24 Oct 2022 08:29:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9578D6129A;
-        Mon, 24 Oct 2022 11:59:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A479BC433C1;
-        Mon, 24 Oct 2022 11:59:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6CDB7B8133A;
+        Mon, 24 Oct 2022 12:09:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2FC5C433C1;
+        Mon, 24 Oct 2022 12:09:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612746;
-        bh=bZwGPZDTogpLUxzxQ5yHMwfGBVlcNdR2myoMTG7FLZA=;
+        s=korg; t=1666613377;
+        bh=BBEZSL/kEaLKT0nn3CDJDaoaCe8MaFX+1kU7JZ+z9Ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TH8i8gCU3hrYEcz6rEEgo865pgk7d1YaUVyJ5TvXUFMcwzOjWLkvTNVJauDLlGC79
-         cGUGjcb2mcs83nPB8fVmOXouRnWUB2RYRjzNOCdBUplqqbHUlSunwkmm0CBg8z+w5P
-         KyxFiXcOSlZhoR1EvKA+nlALyImmBJhkIkBLNgXQ=
+        b=aAwRrwiukzch5kKrN8kbXcQjEEE8d+/hej6mX5TllsIoibDhpVlhW3CNYpq2i0W47
+         DxTfPJXVyDorvdo/NtucvxfjpjWdk4wqQxcwFJn/iDnifS56HlUwVky2GUJaETq6oS
+         5+8TyMzY6xlceeLsnBROq16s2fX8Oc74NSBT4ARs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Pape <apape@de.adit-jv.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 103/229] ALSA: dmaengine: increment buffer pointer atomically
-Date:   Mon, 24 Oct 2022 13:30:22 +0200
-Message-Id: <20221024113002.353044201@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 113/255] ARM: dts: kirkwood: lsxl: fix serial line
+Date:   Mon, 24 Oct 2022 13:30:23 +0200
+Message-Id: <20221024113006.244007192@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Pape <apape@de.adit-jv.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit d1c442019594692c64a70a86ad88eb5b6db92216 ]
+[ Upstream commit 04eabc6ac10fda9424606d9a7ab6ab9a5d95350a ]
 
-Setting pointer and afterwards checking for wraparound leads
-to the possibility of returning the inconsistent pointer position.
+Commit 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl
+settings") unknowingly broke the serial output on this board. Before
+this commit, the pinmux was still configured by the bootloader and the
+kernel didn't reconfigured it again. This was an oversight by the
+initial board support where the pinmux for the serial line was never
+configured by the kernel. But with this commit, the serial line will be
+reconfigured to the wrong pins. This is especially confusing, because
+the output still works, but the input doesn't. Presumingly, the input is
+reconfigured to MPP10, but the output is connected to both MPP11 and
+MPP5.
 
-This patch increments buffer pointer atomically to avoid this issue.
+Override the pinmux in the board device tree.
 
-Fixes: e7f73a1613567a ("ASoC: Add dmaengine PCM helper functions")
-Signed-off-by: Andreas Pape <apape@de.adit-jv.com>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Link: https://lore.kernel.org/r/1664211493-11789-1-git-send-email-erosca@de.adit-jv.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl settings")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_dmaengine.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/kirkwood-lsxl.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/core/pcm_dmaengine.c b/sound/core/pcm_dmaengine.c
-index 8eb58c709b14..6f6da1128edc 100644
---- a/sound/core/pcm_dmaengine.c
-+++ b/sound/core/pcm_dmaengine.c
-@@ -139,12 +139,14 @@ EXPORT_SYMBOL_GPL(snd_dmaengine_pcm_set_config_from_dai_data);
+diff --git a/arch/arm/boot/dts/kirkwood-lsxl.dtsi b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
+index 7b151acb9984..321a40a98ed2 100644
+--- a/arch/arm/boot/dts/kirkwood-lsxl.dtsi
++++ b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
+@@ -10,6 +10,11 @@
  
- static void dmaengine_pcm_dma_complete(void *arg)
- {
-+	unsigned int new_pos;
- 	struct snd_pcm_substream *substream = arg;
- 	struct dmaengine_pcm_runtime_data *prtd = substream_to_prtd(substream);
- 
--	prtd->pos += snd_pcm_lib_period_bytes(substream);
--	if (prtd->pos >= snd_pcm_lib_buffer_bytes(substream))
--		prtd->pos = 0;
-+	new_pos = prtd->pos + snd_pcm_lib_period_bytes(substream);
-+	if (new_pos >= snd_pcm_lib_buffer_bytes(substream))
-+		new_pos = 0;
-+	prtd->pos = new_pos;
- 
- 	snd_pcm_period_elapsed(substream);
- }
+ 	ocp@f1000000 {
+ 		pinctrl: pin-controller@10000 {
++			/* Non-default UART pins */
++			pmx_uart0: pmx-uart0 {
++				marvell,pins = "mpp4", "mpp5";
++			};
++
+ 			pmx_power_hdd: pmx-power-hdd {
+ 				marvell,pins = "mpp10";
+ 				marvell,function = "gpo";
 -- 
 2.35.1
 
