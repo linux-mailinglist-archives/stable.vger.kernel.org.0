@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AC6B60B093
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97AD760B238
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233136AbiJXQGa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:06:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38708 "EHLO
+        id S233356AbiJXQnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:43:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233869AbiJXQFI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:05:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A2811571D;
-        Mon, 24 Oct 2022 07:57:57 -0700 (PDT)
+        with ESMTP id S234635AbiJXQnR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:43:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3D4C356F6;
+        Mon, 24 Oct 2022 08:29:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E8D2B815DF;
-        Mon, 24 Oct 2022 12:21:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 997C2C433C1;
-        Mon, 24 Oct 2022 12:21:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C643B81982;
+        Mon, 24 Oct 2022 12:41:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD0C4C433D6;
+        Mon, 24 Oct 2022 12:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614106;
-        bh=ykeIKIPtHFaP/0AQT6hharRi14M80E4/16PfUS9wv24=;
+        s=korg; t=1666615277;
+        bh=W+SzmJ4+Ai0GJAXfRt/BGB8Dxa/vhps1D+4o/1qiegw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1c1xW0DqW3E0u8WmMQT0qlNiKg6+Ez+x5absYFr3279WwCs7WQI4QALuq4/ReP4PQ
-         HGjHs7SYTAqprGGpfBfA85FR9q4GwmcliVKmJbAbrEx6zJFWm0sHmxuapA0f0Id9Be
-         gzH48YZPudzJxE6sz0oaeVzvUMefVA6rxZwebQKw=
+        b=xTFRLivE4yDrDdDrkj3iLdAu2Zk4AgVJZm62PD+Oy18VBofoJYr+1+MwfBYJkO0qt
+         MKEJK70WkZ3PopralhWQ4PmS8BORMnQ1hDDIosKgzFW8DBuoUbXkSQEAvjlBpemPFI
+         LiuFtb/+h7g57dIGV7gzQY83PrH6FFNg4MiUOOLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
-        "Kevin(Yudong) Yang" <yyd@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Khalil Blaiech <kblaiech@nvidia.com>,
+        Asmaa Mnebhi <asmaa@nvidia.com>, Wolfram Sang <wsa@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 134/390] tcp: fix tcp_cwnd_validate() to not forget is_cwnd_limited
-Date:   Mon, 24 Oct 2022 13:28:51 +0200
-Message-Id: <20221024113028.383305715@linuxfoundation.org>
+Subject: [PATCH 5.15 189/530] i2c: mlxbf: support lock mechanism
+Date:   Mon, 24 Oct 2022 13:28:53 +0200
+Message-Id: <20221024113053.603732562@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,148 +53,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Asmaa Mnebhi <asmaa@nvidia.com>
 
-[ Upstream commit f4ce91ce12a7c6ead19b128ffa8cff6e3ded2a14 ]
+[ Upstream commit 86067ccfa1424a26491542d6f6d7546d40b61a10 ]
 
-This commit fixes a bug in the tracking of max_packets_out and
-is_cwnd_limited. This bug can cause the connection to fail to remember
-that is_cwnd_limited is true, causing the connection to fail to grow
-cwnd when it should, causing throughput to be lower than it should be.
+Linux is not the only entity using the BlueField I2C busses so
+support a lock mechanism provided by hardware to avoid issues
+when multiple entities are trying to access the same bus.
 
-The following event sequence is an example that triggers the bug:
+The lock is acquired whenever written explicitely or the lock
+register is read. So make sure it is always released at the end
+of a successful or failed transaction.
 
- (a) The connection is cwnd_limited, but packets_out is not at its
-     peak due to TSO deferral deciding not to send another skb yet.
-     In such cases the connection can advance max_packets_seq and set
-     tp->is_cwnd_limited to true and max_packets_out to a small
-     number.
-
-(b) Then later in the round trip the connection is pacing-limited (not
-     cwnd-limited), and packets_out is larger. In such cases the
-     connection would raise max_packets_out to a bigger number but
-     (unexpectedly) flip tp->is_cwnd_limited from true to false.
-
-This commit fixes that bug.
-
-One straightforward fix would be to separately track (a) the next
-window after max_packets_out reaches a maximum, and (b) the next
-window after tp->is_cwnd_limited is set to true. But this would
-require consuming an extra u32 sequence number.
-
-Instead, to save space we track only the most important
-information. Specifically, we track the strongest available signal of
-the degree to which the cwnd is fully utilized:
-
-(1) If the connection is cwnd-limited then we remember that fact for
-the current window.
-
-(2) If the connection not cwnd-limited then we track the maximum
-number of outstanding packets in the current window.
-
-In particular, note that the new logic cannot trigger the buggy
-(a)/(b) sequence above because with the new logic a condition where
-tp->packets_out > tp->max_packets_out can only trigger an update of
-tp->is_cwnd_limited if tp->is_cwnd_limited is false.
-
-This first showed up in a testing of a BBRv2 dev branch, but this
-buggy behavior highlighted a general issue with the
-tcp_cwnd_validate() logic that can cause cwnd to fail to increase at
-the proper rate for any TCP congestion control, including Reno or
-CUBIC.
-
-Fixes: ca8a22634381 ("tcp: make cwnd-limited checks measurement-based, and gentler")
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Kevin(Yudong) Yang <yyd@google.com>
-Signed-off-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: b5b5b32081cd206b (i2c: mlxbf: I2C SMBus driver for Mellanox BlueField SoC)
+Reviewed-by: Khalil Blaiech <kblaiech@nvidia.com>
+Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/tcp.h   |  2 +-
- include/net/tcp.h     |  5 ++++-
- net/ipv4/tcp.c        |  2 ++
- net/ipv4/tcp_output.c | 19 ++++++++++++-------
- 4 files changed, 19 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-mlxbf.c | 44 ++++++++++++++++++++++++++++++----
+ 1 file changed, 39 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/tcp.h b/include/linux/tcp.h
-index 2f87377e9af7..6e3340379d85 100644
---- a/include/linux/tcp.h
-+++ b/include/linux/tcp.h
-@@ -265,7 +265,7 @@ struct tcp_sock {
- 	u32	packets_out;	/* Packets which are "in flight"	*/
- 	u32	retrans_out;	/* Retransmitted packets out		*/
- 	u32	max_packets_out;  /* max packets_out in last window */
--	u32	max_packets_seq;  /* right edge of max_packets_out flight */
-+	u32	cwnd_usage_seq;  /* right edge of cwnd usage tracking flight */
+diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
+index ad5efd7497d1..0e840eba4fd6 100644
+--- a/drivers/i2c/busses/i2c-mlxbf.c
++++ b/drivers/i2c/busses/i2c-mlxbf.c
+@@ -306,6 +306,7 @@ static u64 mlxbf_i2c_corepll_frequency;
+  * exact.
+  */
+ #define MLXBF_I2C_SMBUS_TIMEOUT   (300 * 1000) /* 300ms */
++#define MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT (300 * 1000) /* 300ms */
  
- 	u16	urg_data;	/* Saved octet of OOB data and control flags */
- 	u8	ecn_flags;	/* ECN status bits.			*/
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 8129ce9a0771..bf4af27f5620 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -1271,11 +1271,14 @@ static inline bool tcp_is_cwnd_limited(const struct sock *sk)
- {
- 	const struct tcp_sock *tp = tcp_sk(sk);
- 
-+	if (tp->is_cwnd_limited)
-+		return true;
-+
- 	/* If in slow start, ensure cwnd grows to twice what was ACKed. */
- 	if (tcp_in_slow_start(tp))
- 		return tp->snd_cwnd < 2 * tp->max_packets_out;
- 
--	return tp->is_cwnd_limited;
-+	return false;
+ /* Encapsulates timing parameters. */
+ struct mlxbf_i2c_timings {
+@@ -514,6 +515,25 @@ static bool mlxbf_smbus_master_wait_for_idle(struct mlxbf_i2c_priv *priv)
+ 	return false;
  }
  
- /* BBR congestion control needs pacing.
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index bfeb05f62b94..24328ad00278 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -2796,6 +2796,8 @@ int tcp_disconnect(struct sock *sk, int flags)
- 	tp->snd_ssthresh = TCP_INFINITE_SSTHRESH;
- 	tp->snd_cwnd = TCP_INIT_CWND;
- 	tp->snd_cwnd_cnt = 0;
-+	tp->is_cwnd_limited = 0;
-+	tp->max_packets_out = 0;
- 	tp->window_clamp = 0;
- 	tp->delivered = 0;
- 	tp->delivered_ce = 0;
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 48fce999dc61..eefd032bc6db 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1876,15 +1876,20 @@ static void tcp_cwnd_validate(struct sock *sk, bool is_cwnd_limited)
- 	const struct tcp_congestion_ops *ca_ops = inet_csk(sk)->icsk_ca_ops;
- 	struct tcp_sock *tp = tcp_sk(sk);
++/*
++ * wait for the lock to be released before acquiring it.
++ */
++static bool mlxbf_i2c_smbus_master_lock(struct mlxbf_i2c_priv *priv)
++{
++	if (mlxbf_smbus_poll(priv->smbus->io, MLXBF_I2C_SMBUS_MASTER_GW,
++			   MLXBF_I2C_MASTER_LOCK_BIT, true,
++			   MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT))
++		return true;
++
++	return false;
++}
++
++static void mlxbf_i2c_smbus_master_unlock(struct mlxbf_i2c_priv *priv)
++{
++	/* Clear the gw to clear the lock */
++	writel(0, priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_GW);
++}
++
+ static bool mlxbf_i2c_smbus_transaction_success(u32 master_status,
+ 						u32 cause_status)
+ {
+@@ -705,10 +725,19 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 	slave = request->slave & GENMASK(6, 0);
+ 	addr = slave << 1;
  
--	/* Track the maximum number of outstanding packets in each
--	 * window, and remember whether we were cwnd-limited then.
-+	/* Track the strongest available signal of the degree to which the cwnd
-+	 * is fully utilized. If cwnd-limited then remember that fact for the
-+	 * current window. If not cwnd-limited then track the maximum number of
-+	 * outstanding packets in the current window. (If cwnd-limited then we
-+	 * chose to not update tp->max_packets_out to avoid an extra else
-+	 * clause with no functional impact.)
- 	 */
--	if (!before(tp->snd_una, tp->max_packets_seq) ||
--	    tp->packets_out > tp->max_packets_out ||
--	    is_cwnd_limited) {
--		tp->max_packets_out = tp->packets_out;
--		tp->max_packets_seq = tp->snd_nxt;
-+	if (!before(tp->snd_una, tp->cwnd_usage_seq) ||
-+	    is_cwnd_limited ||
-+	    (!tp->is_cwnd_limited &&
-+	     tp->packets_out > tp->max_packets_out)) {
- 		tp->is_cwnd_limited = is_cwnd_limited;
-+		tp->max_packets_out = tp->packets_out;
-+		tp->cwnd_usage_seq = tp->snd_nxt;
+-	/* First of all, check whether the HW is idle. */
+-	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv)))
++	/*
++	 * Try to acquire the smbus gw lock before any reads of the GW register since
++	 * a read sets the lock.
++	 */
++	if (WARN_ON(!mlxbf_i2c_smbus_master_lock(priv)))
+ 		return -EBUSY;
+ 
++	/* Check whether the HW is idle */
++	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv))) {
++		ret = -EBUSY;
++		goto out_unlock;
++	}
++
+ 	/* Set first byte. */
+ 	data_desc[data_idx++] = addr;
+ 
+@@ -732,8 +761,10 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 			write_en = 1;
+ 			write_len += operation->length;
+ 			if (data_idx + operation->length >
+-					MLXBF_I2C_MASTER_DATA_DESC_SIZE)
+-				return -ENOBUFS;
++					MLXBF_I2C_MASTER_DATA_DESC_SIZE) {
++				ret = -ENOBUFS;
++				goto out_unlock;
++			}
+ 			memcpy(data_desc + data_idx,
+ 			       operation->buffer, operation->length);
+ 			data_idx += operation->length;
+@@ -765,7 +796,7 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 		ret = mlxbf_i2c_smbus_enable(priv, slave, write_len, block_en,
+ 					 pec_en, 0);
+ 		if (ret)
+-			return ret;
++			goto out_unlock;
  	}
  
- 	if (tcp_is_cwnd_limited(sk)) {
+ 	if (read_en) {
+@@ -792,6 +823,9 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 			priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_FSM);
+ 	}
+ 
++out_unlock:
++	mlxbf_i2c_smbus_master_unlock(priv);
++
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
