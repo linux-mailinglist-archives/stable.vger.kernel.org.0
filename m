@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4004E60A4AA
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:15:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C191660A616
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:32:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231487AbiJXMPW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:15:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39952 "EHLO
+        id S233915AbiJXMbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:31:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233053AbiJXMOE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:14:04 -0400
+        with ESMTP id S234272AbiJXM3y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAD982E68E;
-        Mon, 24 Oct 2022 04:55:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C2CE2C10A;
+        Mon, 24 Oct 2022 05:04:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1BDF612DC;
-        Mon, 24 Oct 2022 11:54:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3C11C433D7;
-        Mon, 24 Oct 2022 11:54:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3456A6121A;
+        Mon, 24 Oct 2022 12:03:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 436B7C433C1;
+        Mon, 24 Oct 2022 12:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612465;
-        bh=/T92HRDJimtnI7ZZxP5yAQ0lGXfNIfdId21GKaQTHg8=;
+        s=korg; t=1666613019;
+        bh=T5i1R27xp5nyi5Tgeqhglx5gFkApiPnJX27oHS5I4c0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x2+IoDCKMW0ONRauzOysV2rTbcjfTAL3yCbNwutyM7WySR5M+4bF0jwGhY1afv3Fd
-         Nde2xBj6nR2Yldo7qF8yCuk++0ITOvTYQUw5uR6yFUTa/gfm9nkynX3QGDhgffPn5i
-         RNE1iWKKm5EWLA8Z6hN1N/q6wA4gZt8qPpLmtK5M=
+        b=ffGTDCxR/Ex2VJlspyYHGdCk/Fj6c+SRR4dTAKUxJX0qNIttqZ+Ck1reO6sbsuaT1
+         G3OfsYnhu3RKZPpeu+WdHjZAso8qEtMLsKAR4KDLVL5BLMsIm5d2dDdkgqgf8QRON6
+         eOrKjDlrNhwzQ9sECo6X7l2iTKnGZ5Z0kRfNTc8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Carlos Llamas <cmllamas@google.com>
-Subject: [PATCH 4.14 209/210] inet: fully convert sk->sk_rx_dst to RCU rules
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 207/229] media: cx88: Fix a null-ptr-deref bug in buffer_prepare()
 Date:   Mon, 24 Oct 2022 13:32:06 +0200
-Message-Id: <20221024113003.796802395@linuxfoundation.org>
+Message-Id: <20221024113005.892568251@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,422 +54,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 8f905c0e7354ef261360fb7535ea079b1082c105 upstream.
+[ Upstream commit 2b064d91440b33fba5b452f2d1b31f13ae911d71 ]
 
-syzbot reported various issues around early demux,
-one being included in this changelog [1]
+When the driver calls cx88_risc_buffer() to prepare the buffer, the
+function call may fail, resulting in a empty buffer and null-ptr-deref
+later in buffer_queue().
 
-sk->sk_rx_dst is using RCU protection without clearly
-documenting it.
+The following log can reveal it:
 
-And following sequences in tcp_v4_do_rcv()/tcp_v6_do_rcv()
-are not following standard RCU rules.
+[   41.822762] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN PTI
+[   41.824488] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+[   41.828027] RIP: 0010:buffer_queue+0xc2/0x500
+[   41.836311] Call Trace:
+[   41.836945]  __enqueue_in_driver+0x141/0x360
+[   41.837262]  vb2_start_streaming+0x62/0x4a0
+[   41.838216]  vb2_core_streamon+0x1da/0x2c0
+[   41.838516]  __vb2_init_fileio+0x981/0xbc0
+[   41.839141]  __vb2_perform_fileio+0xbf9/0x1120
+[   41.840072]  vb2_fop_read+0x20e/0x400
+[   41.840346]  v4l2_read+0x215/0x290
+[   41.840603]  vfs_read+0x162/0x4c0
 
-[a]    dst_release(dst);
-[b]    sk->sk_rx_dst = NULL;
+Fix this by checking the return value of cx88_risc_buffer()
 
-They look wrong because a delete operation of RCU protected
-pointer is supposed to clear the pointer before
-the call_rcu()/synchronize_rcu() guarding actual memory freeing.
+[hverkuil: fix coding style issues]
 
-In some cases indeed, dst could be freed before [b] is done.
-
-We could cheat by clearing sk_rx_dst before calling
-dst_release(), but this seems the right time to stick
-to standard RCU annotations and debugging facilities.
-
-[1]
-BUG: KASAN: use-after-free in dst_check include/net/dst.h:470 [inline]
-BUG: KASAN: use-after-free in tcp_v4_early_demux+0x95b/0x960 net/ipv4/tcp_ipv4.c:1792
-Read of size 2 at addr ffff88807f1cb73a by task syz-executor.5/9204
-
-CPU: 0 PID: 9204 Comm: syz-executor.5 Not tainted 5.16.0-rc5-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0x8d/0x320 mm/kasan/report.c:247
- __kasan_report mm/kasan/report.c:433 [inline]
- kasan_report.cold+0x83/0xdf mm/kasan/report.c:450
- dst_check include/net/dst.h:470 [inline]
- tcp_v4_early_demux+0x95b/0x960 net/ipv4/tcp_ipv4.c:1792
- ip_rcv_finish_core.constprop.0+0x15de/0x1e80 net/ipv4/ip_input.c:340
- ip_list_rcv_finish.constprop.0+0x1b2/0x6e0 net/ipv4/ip_input.c:583
- ip_sublist_rcv net/ipv4/ip_input.c:609 [inline]
- ip_list_rcv+0x34e/0x490 net/ipv4/ip_input.c:644
- __netif_receive_skb_list_ptype net/core/dev.c:5508 [inline]
- __netif_receive_skb_list_core+0x549/0x8e0 net/core/dev.c:5556
- __netif_receive_skb_list net/core/dev.c:5608 [inline]
- netif_receive_skb_list_internal+0x75e/0xd80 net/core/dev.c:5699
- gro_normal_list net/core/dev.c:5853 [inline]
- gro_normal_list net/core/dev.c:5849 [inline]
- napi_complete_done+0x1f1/0x880 net/core/dev.c:6590
- virtqueue_napi_complete drivers/net/virtio_net.c:339 [inline]
- virtnet_poll+0xca2/0x11b0 drivers/net/virtio_net.c:1557
- __napi_poll+0xaf/0x440 net/core/dev.c:7023
- napi_poll net/core/dev.c:7090 [inline]
- net_rx_action+0x801/0xb40 net/core/dev.c:7177
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
- invoke_softirq kernel/softirq.c:432 [inline]
- __irq_exit_rcu+0x123/0x180 kernel/softirq.c:637
- irq_exit_rcu+0x5/0x20 kernel/softirq.c:649
- common_interrupt+0x52/0xc0 arch/x86/kernel/irq.c:240
- asm_common_interrupt+0x1e/0x40 arch/x86/include/asm/idtentry.h:629
-RIP: 0033:0x7f5e972bfd57
-Code: 39 d1 73 14 0f 1f 80 00 00 00 00 48 8b 50 f8 48 83 e8 08 48 39 ca 77 f3 48 39 c3 73 3e 48 89 13 48 8b 50 f8 48 89 38 49 8b 0e <48> 8b 3e 48 83 c3 08 48 83 c6 08 eb bc 48 39 d1 72 9e 48 39 d0 73
-RSP: 002b:00007fff8a413210 EFLAGS: 00000283
-RAX: 00007f5e97108990 RBX: 00007f5e97108338 RCX: ffffffff81d3aa45
-RDX: ffffffff81d3aa45 RSI: 00007f5e97108340 RDI: ffffffff81d3aa45
-RBP: 00007f5e97107eb8 R08: 00007f5e97108d88 R09: 0000000093c2e8d9
-R10: 0000000000000000 R11: 0000000000000000 R12: 00007f5e97107eb0
-R13: 00007f5e97108338 R14: 00007f5e97107ea8 R15: 0000000000000019
- </TASK>
-
-Allocated by task 13:
- kasan_save_stack+0x1e/0x50 mm/kasan/common.c:38
- kasan_set_track mm/kasan/common.c:46 [inline]
- set_alloc_info mm/kasan/common.c:434 [inline]
- __kasan_slab_alloc+0x90/0xc0 mm/kasan/common.c:467
- kasan_slab_alloc include/linux/kasan.h:259 [inline]
- slab_post_alloc_hook mm/slab.h:519 [inline]
- slab_alloc_node mm/slub.c:3234 [inline]
- slab_alloc mm/slub.c:3242 [inline]
- kmem_cache_alloc+0x202/0x3a0 mm/slub.c:3247
- dst_alloc+0x146/0x1f0 net/core/dst.c:92
- rt_dst_alloc+0x73/0x430 net/ipv4/route.c:1613
- ip_route_input_slow+0x1817/0x3a20 net/ipv4/route.c:2340
- ip_route_input_rcu net/ipv4/route.c:2470 [inline]
- ip_route_input_noref+0x116/0x2a0 net/ipv4/route.c:2415
- ip_rcv_finish_core.constprop.0+0x288/0x1e80 net/ipv4/ip_input.c:354
- ip_list_rcv_finish.constprop.0+0x1b2/0x6e0 net/ipv4/ip_input.c:583
- ip_sublist_rcv net/ipv4/ip_input.c:609 [inline]
- ip_list_rcv+0x34e/0x490 net/ipv4/ip_input.c:644
- __netif_receive_skb_list_ptype net/core/dev.c:5508 [inline]
- __netif_receive_skb_list_core+0x549/0x8e0 net/core/dev.c:5556
- __netif_receive_skb_list net/core/dev.c:5608 [inline]
- netif_receive_skb_list_internal+0x75e/0xd80 net/core/dev.c:5699
- gro_normal_list net/core/dev.c:5853 [inline]
- gro_normal_list net/core/dev.c:5849 [inline]
- napi_complete_done+0x1f1/0x880 net/core/dev.c:6590
- virtqueue_napi_complete drivers/net/virtio_net.c:339 [inline]
- virtnet_poll+0xca2/0x11b0 drivers/net/virtio_net.c:1557
- __napi_poll+0xaf/0x440 net/core/dev.c:7023
- napi_poll net/core/dev.c:7090 [inline]
- net_rx_action+0x801/0xb40 net/core/dev.c:7177
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
-
-Freed by task 13:
- kasan_save_stack+0x1e/0x50 mm/kasan/common.c:38
- kasan_set_track+0x21/0x30 mm/kasan/common.c:46
- kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
- ____kasan_slab_free mm/kasan/common.c:366 [inline]
- ____kasan_slab_free mm/kasan/common.c:328 [inline]
- __kasan_slab_free+0xff/0x130 mm/kasan/common.c:374
- kasan_slab_free include/linux/kasan.h:235 [inline]
- slab_free_hook mm/slub.c:1723 [inline]
- slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1749
- slab_free mm/slub.c:3513 [inline]
- kmem_cache_free+0xbd/0x5d0 mm/slub.c:3530
- dst_destroy+0x2d6/0x3f0 net/core/dst.c:127
- rcu_do_batch kernel/rcu/tree.c:2506 [inline]
- rcu_core+0x7ab/0x1470 kernel/rcu/tree.c:2741
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
-
-Last potentially related work creation:
- kasan_save_stack+0x1e/0x50 mm/kasan/common.c:38
- __kasan_record_aux_stack+0xf5/0x120 mm/kasan/generic.c:348
- __call_rcu kernel/rcu/tree.c:2985 [inline]
- call_rcu+0xb1/0x740 kernel/rcu/tree.c:3065
- dst_release net/core/dst.c:177 [inline]
- dst_release+0x79/0xe0 net/core/dst.c:167
- tcp_v4_do_rcv+0x612/0x8d0 net/ipv4/tcp_ipv4.c:1712
- sk_backlog_rcv include/net/sock.h:1030 [inline]
- __release_sock+0x134/0x3b0 net/core/sock.c:2768
- release_sock+0x54/0x1b0 net/core/sock.c:3300
- tcp_sendmsg+0x36/0x40 net/ipv4/tcp.c:1441
- inet_sendmsg+0x99/0xe0 net/ipv4/af_inet.c:819
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:724
- sock_write_iter+0x289/0x3c0 net/socket.c:1057
- call_write_iter include/linux/fs.h:2162 [inline]
- new_sync_write+0x429/0x660 fs/read_write.c:503
- vfs_write+0x7cd/0xae0 fs/read_write.c:590
- ksys_write+0x1ee/0x250 fs/read_write.c:643
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The buggy address belongs to the object at ffff88807f1cb700
- which belongs to the cache ip_dst_cache of size 176
-The buggy address is located 58 bytes inside of
- 176-byte region [ffff88807f1cb700, ffff88807f1cb7b0)
-The buggy address belongs to the page:
-page:ffffea0001fc72c0 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x7f1cb
-flags: 0xfff00000000200(slab|node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000000200 dead000000000100 dead000000000122 ffff8881413bb780
-raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-page_owner tracks the page as allocated
-page last allocated via order 0, migratetype Unmovable, gfp_mask 0x112a20(GFP_ATOMIC|__GFP_NOWARN|__GFP_NORETRY|__GFP_HARDWALL), pid 5, ts 108466983062, free_ts 108048976062
- prep_new_page mm/page_alloc.c:2418 [inline]
- get_page_from_freelist+0xa72/0x2f50 mm/page_alloc.c:4149
- __alloc_pages+0x1b2/0x500 mm/page_alloc.c:5369
- alloc_pages+0x1a7/0x300 mm/mempolicy.c:2191
- alloc_slab_page mm/slub.c:1793 [inline]
- allocate_slab mm/slub.c:1930 [inline]
- new_slab+0x32d/0x4a0 mm/slub.c:1993
- ___slab_alloc+0x918/0xfe0 mm/slub.c:3022
- __slab_alloc.constprop.0+0x4d/0xa0 mm/slub.c:3109
- slab_alloc_node mm/slub.c:3200 [inline]
- slab_alloc mm/slub.c:3242 [inline]
- kmem_cache_alloc+0x35c/0x3a0 mm/slub.c:3247
- dst_alloc+0x146/0x1f0 net/core/dst.c:92
- rt_dst_alloc+0x73/0x430 net/ipv4/route.c:1613
- __mkroute_output net/ipv4/route.c:2564 [inline]
- ip_route_output_key_hash_rcu+0x921/0x2d00 net/ipv4/route.c:2791
- ip_route_output_key_hash+0x18b/0x300 net/ipv4/route.c:2619
- __ip_route_output_key include/net/route.h:126 [inline]
- ip_route_output_flow+0x23/0x150 net/ipv4/route.c:2850
- ip_route_output_key include/net/route.h:142 [inline]
- geneve_get_v4_rt+0x3a6/0x830 drivers/net/geneve.c:809
- geneve_xmit_skb drivers/net/geneve.c:899 [inline]
- geneve_xmit+0xc4a/0x3540 drivers/net/geneve.c:1082
- __netdev_start_xmit include/linux/netdevice.h:4994 [inline]
- netdev_start_xmit include/linux/netdevice.h:5008 [inline]
- xmit_one net/core/dev.c:3590 [inline]
- dev_hard_start_xmit+0x1eb/0x920 net/core/dev.c:3606
- __dev_queue_xmit+0x299a/0x3650 net/core/dev.c:4229
-page last free stack trace:
- reset_page_owner include/linux/page_owner.h:24 [inline]
- free_pages_prepare mm/page_alloc.c:1338 [inline]
- free_pcp_prepare+0x374/0x870 mm/page_alloc.c:1389
- free_unref_page_prepare mm/page_alloc.c:3309 [inline]
- free_unref_page+0x19/0x690 mm/page_alloc.c:3388
- qlink_free mm/kasan/quarantine.c:146 [inline]
- qlist_free_all+0x5a/0xc0 mm/kasan/quarantine.c:165
- kasan_quarantine_reduce+0x180/0x200 mm/kasan/quarantine.c:272
- __kasan_slab_alloc+0xa2/0xc0 mm/kasan/common.c:444
- kasan_slab_alloc include/linux/kasan.h:259 [inline]
- slab_post_alloc_hook mm/slab.h:519 [inline]
- slab_alloc_node mm/slub.c:3234 [inline]
- kmem_cache_alloc_node+0x255/0x3f0 mm/slub.c:3270
- __alloc_skb+0x215/0x340 net/core/skbuff.c:414
- alloc_skb include/linux/skbuff.h:1126 [inline]
- alloc_skb_with_frags+0x93/0x620 net/core/skbuff.c:6078
- sock_alloc_send_pskb+0x783/0x910 net/core/sock.c:2575
- mld_newpack+0x1df/0x770 net/ipv6/mcast.c:1754
- add_grhead+0x265/0x330 net/ipv6/mcast.c:1857
- add_grec+0x1053/0x14e0 net/ipv6/mcast.c:1995
- mld_send_initial_cr.part.0+0xf6/0x230 net/ipv6/mcast.c:2242
- mld_send_initial_cr net/ipv6/mcast.c:1232 [inline]
- mld_dad_work+0x1d3/0x690 net/ipv6/mcast.c:2268
- process_one_work+0x9b2/0x1690 kernel/workqueue.c:2298
- worker_thread+0x658/0x11f0 kernel/workqueue.c:2445
-
-Memory state around the buggy address:
- ffff88807f1cb600: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88807f1cb680: fb fb fb fb fb fb fc fc fc fc fc fc fc fc fc fc
->ffff88807f1cb700: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                                        ^
- ffff88807f1cb780: fb fb fb fb fb fb fc fc fc fc fc fc fc fc fc fc
- ffff88807f1cb800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-
-Fixes: 41063e9dd119 ("ipv4: Early TCP socket demux.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20211220143330.680945-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[cmllamas: fixed trivial merge conflict]
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sock.h   |    2 +-
- net/ipv4/af_inet.c   |    2 +-
- net/ipv4/tcp.c       |    3 +--
- net/ipv4/tcp_input.c |    2 +-
- net/ipv4/tcp_ipv4.c  |   11 +++++++----
- net/ipv4/udp.c       |    6 +++---
- net/ipv6/tcp_ipv6.c  |   11 +++++++----
- net/ipv6/udp.c       |    4 ++--
- 8 files changed, 23 insertions(+), 18 deletions(-)
+ drivers/media/pci/cx88/cx88-vbi.c   |  9 +++---
+ drivers/media/pci/cx88/cx88-video.c | 43 +++++++++++++++--------------
+ 2 files changed, 26 insertions(+), 26 deletions(-)
 
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -389,7 +389,7 @@ struct sock {
- #ifdef CONFIG_XFRM
- 	struct xfrm_policy __rcu *sk_policy[2];
- #endif
--	struct dst_entry	*sk_rx_dst;
-+	struct dst_entry __rcu	*sk_rx_dst;
- 	struct dst_entry __rcu	*sk_dst_cache;
- 	atomic_t		sk_omem_alloc;
- 	int			sk_sndbuf;
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -156,7 +156,7 @@ void inet_sock_destruct(struct sock *sk)
+diff --git a/drivers/media/pci/cx88/cx88-vbi.c b/drivers/media/pci/cx88/cx88-vbi.c
+index 58489ea0c1da..7cf2271866d0 100644
+--- a/drivers/media/pci/cx88/cx88-vbi.c
++++ b/drivers/media/pci/cx88/cx88-vbi.c
+@@ -144,11 +144,10 @@ static int buffer_prepare(struct vb2_buffer *vb)
+ 		return -EINVAL;
+ 	vb2_set_plane_payload(vb, 0, size);
  
- 	kfree(rcu_dereference_protected(inet->inet_opt, 1));
- 	dst_release(rcu_dereference_check(sk->sk_dst_cache, 1));
--	dst_release(sk->sk_rx_dst);
-+	dst_release(rcu_dereference_protected(sk->sk_rx_dst, 1));
- 	sk_refcnt_debug_dec(sk);
+-	cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
+-			 0, VBI_LINE_LENGTH * lines,
+-			 VBI_LINE_LENGTH, 0,
+-			 lines);
+-	return 0;
++	return cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
++				0, VBI_LINE_LENGTH * lines,
++				VBI_LINE_LENGTH, 0,
++				lines);
  }
- EXPORT_SYMBOL(inet_sock_destruct);
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -2385,8 +2385,7 @@ int tcp_disconnect(struct sock *sk, int
- 	tcp_init_send_head(sk);
- 	memset(&tp->rx_opt, 0, sizeof(tp->rx_opt));
- 	__sk_dst_reset(sk);
--	dst_release(sk->sk_rx_dst);
--	sk->sk_rx_dst = NULL;
-+	dst_release(xchg((__force struct dst_entry **)&sk->sk_rx_dst, NULL));
- 	tcp_saved_syn_free(tp);
- 	tp->segs_in = 0;
- 	tp->segs_out = 0;
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5452,7 +5452,7 @@ void tcp_rcv_established(struct sock *sk
- 	struct tcp_sock *tp = tcp_sk(sk);
  
- 	tcp_mstamp_refresh(tp);
--	if (unlikely(!sk->sk_rx_dst))
-+	if (unlikely(!rcu_access_pointer(sk->sk_rx_dst)))
- 		inet_csk(sk)->icsk_af_ops->sk_rx_dst_set(sk, skb);
- 	/*
- 	 *	Header prediction.
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -1473,15 +1473,18 @@ int tcp_v4_do_rcv(struct sock *sk, struc
- 	struct sock *rsk;
+ static void buffer_finish(struct vb2_buffer *vb)
+diff --git a/drivers/media/pci/cx88/cx88-video.c b/drivers/media/pci/cx88/cx88-video.c
+index 248fb3b6833c..2bc5080198bb 100644
+--- a/drivers/media/pci/cx88/cx88-video.c
++++ b/drivers/media/pci/cx88/cx88-video.c
+@@ -452,6 +452,7 @@ static int queue_setup(struct vb2_queue *q,
  
- 	if (sk->sk_state == TCP_ESTABLISHED) { /* Fast path */
--		struct dst_entry *dst = sk->sk_rx_dst;
-+		struct dst_entry *dst;
-+
-+		dst = rcu_dereference_protected(sk->sk_rx_dst,
-+						lockdep_sock_is_held(sk));
+ static int buffer_prepare(struct vb2_buffer *vb)
+ {
++	int ret;
+ 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+ 	struct cx8800_dev *dev = vb->vb2_queue->drv_priv;
+ 	struct cx88_core *core = dev->core;
+@@ -466,35 +467,35 @@ static int buffer_prepare(struct vb2_buffer *vb)
  
- 		sock_rps_save_rxhash(sk, skb);
- 		sk_mark_napi_id(sk, skb);
- 		if (dst) {
- 			if (inet_sk(sk)->rx_dst_ifindex != skb->skb_iif ||
- 			    !dst->ops->check(dst, 0)) {
-+				RCU_INIT_POINTER(sk->sk_rx_dst, NULL);
- 				dst_release(dst);
--				sk->sk_rx_dst = NULL;
- 			}
- 		}
- 		tcp_rcv_established(sk, skb, tcp_hdr(skb));
-@@ -1556,7 +1559,7 @@ int tcp_v4_early_demux(struct sk_buff *s
- 		skb->sk = sk;
- 		skb->destructor = sock_edemux;
- 		if (sk_fullsock(sk)) {
--			struct dst_entry *dst = READ_ONCE(sk->sk_rx_dst);
-+			struct dst_entry *dst = rcu_dereference(sk->sk_rx_dst);
- 
- 			if (dst)
- 				dst = dst_check(dst, 0);
-@@ -1849,7 +1852,7 @@ void inet_sk_rx_dst_set(struct sock *sk,
- 	struct dst_entry *dst = skb_dst(skb);
- 
- 	if (dst && dst_hold_safe(dst)) {
--		sk->sk_rx_dst = dst;
-+		rcu_assign_pointer(sk->sk_rx_dst, dst);
- 		inet_sk(sk)->rx_dst_ifindex = skb->skb_iif;
+ 	switch (core->field) {
+ 	case V4L2_FIELD_TOP:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl, 0, UNSET,
+-				 buf->bpl, 0, core->height);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl, 0, UNSET,
++				       buf->bpl, 0, core->height);
+ 		break;
+ 	case V4L2_FIELD_BOTTOM:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl, UNSET, 0,
+-				 buf->bpl, 0, core->height);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl, UNSET, 0,
++				       buf->bpl, 0, core->height);
+ 		break;
+ 	case V4L2_FIELD_SEQ_TB:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl,
+-				 0, buf->bpl * (core->height >> 1),
+-				 buf->bpl, 0,
+-				 core->height >> 1);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl,
++				       0, buf->bpl * (core->height >> 1),
++				       buf->bpl, 0,
++				       core->height >> 1);
+ 		break;
+ 	case V4L2_FIELD_SEQ_BT:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl,
+-				 buf->bpl * (core->height >> 1), 0,
+-				 buf->bpl, 0,
+-				 core->height >> 1);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl,
++				       buf->bpl * (core->height >> 1), 0,
++				       buf->bpl, 0,
++				       core->height >> 1);
+ 		break;
+ 	case V4L2_FIELD_INTERLACED:
+ 	default:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl, 0, buf->bpl,
+-				 buf->bpl, buf->bpl,
+-				 core->height >> 1);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl, 0, buf->bpl,
++				       buf->bpl, buf->bpl,
++				       core->height >> 1);
+ 		break;
  	}
+ 	dprintk(2,
+@@ -502,7 +503,7 @@ static int buffer_prepare(struct vb2_buffer *vb)
+ 		buf, buf->vb.vb2_buf.index,
+ 		core->width, core->height, dev->fmt->depth, dev->fmt->name,
+ 		(unsigned long)buf->risc.dma);
+-	return 0;
++	return ret;
  }
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -1955,7 +1955,7 @@ bool udp_sk_rx_dst_set(struct sock *sk,
- 	struct dst_entry *old;
  
- 	if (dst_hold_safe(dst)) {
--		old = xchg(&sk->sk_rx_dst, dst);
-+		old = xchg((__force struct dst_entry **)&sk->sk_rx_dst, dst);
- 		dst_release(old);
- 		return old != dst;
- 	}
-@@ -2145,7 +2145,7 @@ int __udp4_lib_rcv(struct sk_buff *skb,
- 		struct dst_entry *dst = skb_dst(skb);
- 		int ret;
- 
--		if (unlikely(sk->sk_rx_dst != dst))
-+		if (unlikely(rcu_dereference(sk->sk_rx_dst) != dst))
- 			udp_sk_rx_dst_set(sk, dst);
- 
- 		ret = udp_unicast_rcv_skb(sk, skb, uh);
-@@ -2303,7 +2303,7 @@ int udp_v4_early_demux(struct sk_buff *s
- 
- 	skb->sk = sk;
- 	skb->destructor = sock_efree;
--	dst = READ_ONCE(sk->sk_rx_dst);
-+	dst = rcu_dereference(sk->sk_rx_dst);
- 
- 	if (dst)
- 		dst = dst_check(dst, 0);
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -95,7 +95,7 @@ static void inet6_sk_rx_dst_set(struct s
- 	if (dst && dst_hold_safe(dst)) {
- 		const struct rt6_info *rt = (const struct rt6_info *)dst;
- 
--		sk->sk_rx_dst = dst;
-+		rcu_assign_pointer(sk->sk_rx_dst, dst);
- 		inet_sk(sk)->rx_dst_ifindex = skb->skb_iif;
- 		inet6_sk(sk)->rx_dst_cookie = rt6_get_cookie(rt);
- 	}
-@@ -1318,15 +1318,18 @@ static int tcp_v6_do_rcv(struct sock *sk
- 		opt_skb = skb_clone(skb, sk_gfp_mask(sk, GFP_ATOMIC));
- 
- 	if (sk->sk_state == TCP_ESTABLISHED) { /* Fast path */
--		struct dst_entry *dst = sk->sk_rx_dst;
-+		struct dst_entry *dst;
-+
-+		dst = rcu_dereference_protected(sk->sk_rx_dst,
-+						lockdep_sock_is_held(sk));
- 
- 		sock_rps_save_rxhash(sk, skb);
- 		sk_mark_napi_id(sk, skb);
- 		if (dst) {
- 			if (inet_sk(sk)->rx_dst_ifindex != skb->skb_iif ||
- 			    dst->ops->check(dst, np->rx_dst_cookie) == NULL) {
-+				RCU_INIT_POINTER(sk->sk_rx_dst, NULL);
- 				dst_release(dst);
--				sk->sk_rx_dst = NULL;
- 			}
- 		}
- 
-@@ -1659,7 +1662,7 @@ static void tcp_v6_early_demux(struct sk
- 		skb->sk = sk;
- 		skb->destructor = sock_edemux;
- 		if (sk_fullsock(sk)) {
--			struct dst_entry *dst = READ_ONCE(sk->sk_rx_dst);
-+			struct dst_entry *dst = rcu_dereference(sk->sk_rx_dst);
- 
- 			if (dst)
- 				dst = dst_check(dst, inet6_sk(sk)->rx_dst_cookie);
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -848,7 +848,7 @@ int __udp6_lib_rcv(struct sk_buff *skb,
- 		struct dst_entry *dst = skb_dst(skb);
- 		int ret;
- 
--		if (unlikely(sk->sk_rx_dst != dst))
-+		if (unlikely(rcu_dereference(sk->sk_rx_dst) != dst))
- 			udp6_sk_rx_dst_set(sk, dst);
- 
- 		if (!uh->check && !udp_sk(sk)->no_check6_rx) {
-@@ -960,7 +960,7 @@ static void udp_v6_early_demux(struct sk
- 
- 	skb->sk = sk;
- 	skb->destructor = sock_efree;
--	dst = READ_ONCE(sk->sk_rx_dst);
-+	dst = rcu_dereference(sk->sk_rx_dst);
- 
- 	if (dst)
- 		dst = dst_check(dst, inet6_sk(sk)->rx_dst_cookie);
+ static void buffer_finish(struct vb2_buffer *vb)
+-- 
+2.35.1
+
 
 
