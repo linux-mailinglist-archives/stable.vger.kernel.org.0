@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A497D60A3C9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9066D60A2D8
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232298AbiJXMAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:00:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56978 "EHLO
+        id S231758AbiJXLsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:48:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232515AbiJXL7J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:59:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D889B67CAF;
-        Mon, 24 Oct 2022 04:48:08 -0700 (PDT)
+        with ESMTP id S229838AbiJXLrp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:47:45 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E7A76566;
+        Mon, 24 Oct 2022 04:43:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1156861291;
-        Mon, 24 Oct 2022 11:47:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2749DC433D6;
-        Mon, 24 Oct 2022 11:47:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id ACF7CCE1323;
+        Mon, 24 Oct 2022 11:40:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3807C433C1;
+        Mon, 24 Oct 2022 11:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612075;
-        bh=qm6vKhVcLtaeb42ubq9uaM2a4mSl/VgbKZoVaXZyZXc=;
+        s=korg; t=1666611639;
+        bh=FX9PiNDyjGyaqH8fteImXXQwO/zrtRRI/sMYSTvfFk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wZYn4lK+eaOTDbFB1gaCVZNR2N2zCBAiybBNICb2rk7pM+eAIKnxDHF/CEPMfYkLc
-         7Bw62jmMBe3S2lkqPjEG8QisBZ3GW8YAfKhzcAFCnHq0pF+xrDBJYQcn413kPOSRGW
-         aK6/+8kRA4n4GosAg4BNsk9mPU7R1rBQfng6T8XQ=
+        b=fh+sYvncJSC96kgi6VKoNdKig8ieGbyPfdOAsoxIVyCxdmJ7f/xckQe9Vr//eN3lg
+         RI+bZxPIjopY4qoASP4g/ehJQFckIHcrxM4ElGTM0ZwU7wJMRLyokTCPw47EHyzCpy
+         /c+/Nrw4mWD+iyT/lI2o78dyp1wyKw0BaStkuOtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 060/210] Revert "fs: check FMODE_LSEEK to control internal pipe splicing"
-Date:   Mon, 24 Oct 2022 13:29:37 +0200
-Message-Id: <20221024112958.979609043@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Straub <lukasstraub2@web.de>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 4.9 024/159] um: Cleanup compiler warning in arch/x86/um/tls_32.c
+Date:   Mon, 24 Oct 2022 13:29:38 +0200
+Message-Id: <20221024112950.283971691@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit fd0a6e99b61e6c08fa5cf585d54fd956f70c73a6.
+From: Lukas Straub <lukasstraub2@web.de>
 
-Which was upstream commit 97ef77c52b789ec1411d360ed99dca1efe4b2c81.
+[ Upstream commit d27fff3499671dc23a08efd01cdb8b3764a391c4 ]
 
-The commit is missing dependencies and breaks NFS tests, remove it for
-now.
+arch.tls_array is statically allocated so checking for NULL doesn't
+make sense. This causes the compiler warning below.
 
-Reported-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+Remove the checks to silence these warnings.
+
+../arch/x86/um/tls_32.c: In function 'get_free_idx':
+../arch/x86/um/tls_32.c:68:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
+   68 |         if (!t->arch.tls_array)
+      |             ^
+In file included from ../arch/x86/um/asm/processor.h:10,
+                 from ../include/linux/rcupdate.h:30,
+                 from ../include/linux/rculist.h:11,
+                 from ../include/linux/pid.h:5,
+                 from ../include/linux/sched.h:14,
+                 from ../arch/x86/um/tls_32.c:7:
+../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
+   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
+      |                               ^~~~~~~~~
+../arch/x86/um/tls_32.c: In function 'get_tls_entry':
+../arch/x86/um/tls_32.c:243:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
+  243 |         if (!t->arch.tls_array)
+      |             ^
+../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
+   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
+      |                               ^~~~~~~~~
+
+Signed-off-by: Lukas Straub <lukasstraub2@web.de>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/splice.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/x86/um/tls_32.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -898,15 +898,17 @@ ssize_t splice_direct_to_actor(struct fi
- {
- 	struct pipe_inode_info *pipe;
- 	long ret, bytes;
-+	umode_t i_mode;
- 	size_t len;
- 	int i, flags, more;
+diff --git a/arch/x86/um/tls_32.c b/arch/x86/um/tls_32.c
+index 48e38584d5c1..0a4dba5f0542 100644
+--- a/arch/x86/um/tls_32.c
++++ b/arch/x86/um/tls_32.c
+@@ -65,9 +65,6 @@ static int get_free_idx(struct task_struct* task)
+ 	struct thread_struct *t = &task->thread;
+ 	int idx;
  
- 	/*
--	 * We require the input to be seekable, as we don't want to randomly
--	 * drop data for eg socket -> socket splicing. Use the piped splicing
--	 * for that!
-+	 * We require the input being a regular file, as we don't want to
-+	 * randomly drop data for eg socket -> socket splicing. Use the
-+	 * piped splicing for that!
- 	 */
--	if (unlikely(!(in->f_mode & FMODE_LSEEK)))
-+	i_mode = file_inode(in)->i_mode;
-+	if (unlikely(!S_ISREG(i_mode) && !S_ISBLK(i_mode)))
+-	if (!t->arch.tls_array)
+-		return GDT_ENTRY_TLS_MIN;
+-
+ 	for (idx = 0; idx < GDT_ENTRY_TLS_ENTRIES; idx++)
+ 		if (!t->arch.tls_array[idx].present)
+ 			return idx + GDT_ENTRY_TLS_MIN;
+@@ -242,9 +239,6 @@ static int get_tls_entry(struct task_struct *task, struct user_desc *info,
+ {
+ 	struct thread_struct *t = &task->thread;
+ 
+-	if (!t->arch.tls_array)
+-		goto clear;
+-
+ 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
  		return -EINVAL;
  
- 	/*
+-- 
+2.35.1
+
 
 
