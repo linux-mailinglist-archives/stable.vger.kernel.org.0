@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64F4060AC8A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:08:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8FEE60AFF7
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:00:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233564AbiJXOIg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:08:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36556 "EHLO
+        id S229952AbiJXP7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:59:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233996AbiJXOHL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:07:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36D553DBD2;
-        Mon, 24 Oct 2022 05:50:04 -0700 (PDT)
+        with ESMTP id S231895AbiJXP6r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:58:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 594DBF6C13;
+        Mon, 24 Oct 2022 07:53:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B5B9612C9;
-        Mon, 24 Oct 2022 12:50:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8655DC433D6;
-        Mon, 24 Oct 2022 12:50:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9348B819F6;
+        Mon, 24 Oct 2022 12:50:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2996CC433D6;
+        Mon, 24 Oct 2022 12:50:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615804;
-        bh=G2L0nwBjn5VtTyRobVNartiz1/0xuFjNYrEZ5NJlSKU=;
+        s=korg; t=1666615806;
+        bh=Xz/JYnNX+bv4d5sNBNrD5dHf4bfzzM5L7MEjHHLxJTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AfqR38GZVrSvARtWr/dChJ4pHrNH6hDEhO8aGa2hBuFIIpVw+xJ0xsQgsPVSJnx3F
-         DcPYtFUaiYOv/AqCJbsbaCMhGuO8WccZ0rDfmuDCvV5z9Frjt1A4NeMlyO5tJl3018
-         uii5+/H8e0RlyjNAwT8PqX++sLnEv84hX2/R+0EY=
+        b=XVxSAADh9ebZMGb5AxSPWANXeMHJLo2EIPUWCISvJLos2BY8BSBsa8z3rBgA+kC3K
+         Eah1J5XXf2K6jKT3MZ5yFgGxiKw6fdpyNjVKtJaQNaKXkGokyJzISjcQyZ3Q4cDyo7
+         LDg6DJzMqYlvYQiybyxS45GGLnkij8Bde6vVcm+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -38,9 +38,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 388/530] tracing: kprobe: Fix kprobe event gen test module on exit
-Date:   Mon, 24 Oct 2022 13:32:12 +0200
-Message-Id: <20221024113102.627762726@linuxfoundation.org>
+Subject: [PATCH 5.15 389/530] tracing: kprobe: Make gen test module work in arm and riscv
+Date:   Mon, 24 Oct 2022 13:32:13 +0200
+Message-Id: <20221024113102.670525672@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -59,12 +59,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yipeng Zou <zouyipeng@huawei.com>
 
-[ Upstream commit ac48e189527fae87253ef2bf58892e782fb36874 ]
+[ Upstream commit d8ef45d66c01425ff748e13ef7dd1da7a91cc93c ]
 
-Correct gen_kretprobe_test clr event para on module exit.
-This will make it can't to delete.
+For now, this selftest module can only work in x86 because of the
+kprobe cmd was fixed use of x86 registers.
+This patch adapted to register names under arm and riscv, So that
+this module can be worked on those platform.
 
-Link: https://lkml.kernel.org/r/20220919125629.238242-2-zouyipeng@huawei.com
+Link: https://lkml.kernel.org/r/20220919125629.238242-3-zouyipeng@huawei.com
 
 Cc: <linux-riscv@lists.infradead.org>
 Cc: <mingo@redhat.com>
@@ -80,22 +82,86 @@ Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/kprobe_event_gen_test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/kprobe_event_gen_test.c | 47 +++++++++++++++++++++++++---
+ 1 file changed, 43 insertions(+), 4 deletions(-)
 
 diff --git a/kernel/trace/kprobe_event_gen_test.c b/kernel/trace/kprobe_event_gen_test.c
-index 18b0f1cbb947..e023154be0f8 100644
+index e023154be0f8..80e04a1e1977 100644
 --- a/kernel/trace/kprobe_event_gen_test.c
 +++ b/kernel/trace/kprobe_event_gen_test.c
-@@ -206,7 +206,7 @@ static void __exit kprobe_event_gen_test_exit(void)
- 	WARN_ON(kprobe_event_delete("gen_kprobe_test"));
+@@ -35,6 +35,45 @@
+ static struct trace_event_file *gen_kprobe_test;
+ static struct trace_event_file *gen_kretprobe_test;
  
- 	/* Disable the event or you can't remove it */
--	WARN_ON(trace_array_set_clr_event(gen_kprobe_test->tr,
-+	WARN_ON(trace_array_set_clr_event(gen_kretprobe_test->tr,
- 					  "kprobes",
- 					  "gen_kretprobe_test", false));
++#define KPROBE_GEN_TEST_FUNC	"do_sys_open"
++
++/* X86 */
++#if defined(CONFIG_X86_64) || defined(CONFIG_X86_32)
++#define KPROBE_GEN_TEST_ARG0	"dfd=%ax"
++#define KPROBE_GEN_TEST_ARG1	"filename=%dx"
++#define KPROBE_GEN_TEST_ARG2	"flags=%cx"
++#define KPROBE_GEN_TEST_ARG3	"mode=+4($stack)"
++
++/* ARM64 */
++#elif defined(CONFIG_ARM64)
++#define KPROBE_GEN_TEST_ARG0	"dfd=%x0"
++#define KPROBE_GEN_TEST_ARG1	"filename=%x1"
++#define KPROBE_GEN_TEST_ARG2	"flags=%x2"
++#define KPROBE_GEN_TEST_ARG3	"mode=%x3"
++
++/* ARM */
++#elif defined(CONFIG_ARM)
++#define KPROBE_GEN_TEST_ARG0	"dfd=%r0"
++#define KPROBE_GEN_TEST_ARG1	"filename=%r1"
++#define KPROBE_GEN_TEST_ARG2	"flags=%r2"
++#define KPROBE_GEN_TEST_ARG3	"mode=%r3"
++
++/* RISCV */
++#elif defined(CONFIG_RISCV)
++#define KPROBE_GEN_TEST_ARG0	"dfd=%a0"
++#define KPROBE_GEN_TEST_ARG1	"filename=%a1"
++#define KPROBE_GEN_TEST_ARG2	"flags=%a2"
++#define KPROBE_GEN_TEST_ARG3	"mode=%a3"
++
++/* others */
++#else
++#define KPROBE_GEN_TEST_ARG0	NULL
++#define KPROBE_GEN_TEST_ARG1	NULL
++#define KPROBE_GEN_TEST_ARG2	NULL
++#define KPROBE_GEN_TEST_ARG3	NULL
++#endif
++
++
+ /*
+  * Test to make sure we can create a kprobe event, then add more
+  * fields.
+@@ -58,14 +97,14 @@ static int __init test_gen_kprobe_cmd(void)
+ 	 * fields.
+ 	 */
+ 	ret = kprobe_event_gen_cmd_start(&cmd, "gen_kprobe_test",
+-					 "do_sys_open",
+-					 "dfd=%ax", "filename=%dx");
++					 KPROBE_GEN_TEST_FUNC,
++					 KPROBE_GEN_TEST_ARG0, KPROBE_GEN_TEST_ARG1);
+ 	if (ret)
+ 		goto free;
  
+ 	/* Use kprobe_event_add_fields to add the rest of the fields */
+ 
+-	ret = kprobe_event_add_fields(&cmd, "flags=%cx", "mode=+4($stack)");
++	ret = kprobe_event_add_fields(&cmd, KPROBE_GEN_TEST_ARG2, KPROBE_GEN_TEST_ARG3);
+ 	if (ret)
+ 		goto free;
+ 
+@@ -128,7 +167,7 @@ static int __init test_gen_kretprobe_cmd(void)
+ 	 * Define the kretprobe event.
+ 	 */
+ 	ret = kretprobe_event_gen_cmd_start(&cmd, "gen_kretprobe_test",
+-					    "do_sys_open",
++					    KPROBE_GEN_TEST_FUNC,
+ 					    "$retval");
+ 	if (ret)
+ 		goto free;
 -- 
 2.35.1
 
