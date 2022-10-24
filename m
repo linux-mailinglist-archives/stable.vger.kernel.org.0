@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E37E60B12C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:17:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE0A160B089
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233201AbiJXQQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:16:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37354 "EHLO
+        id S233117AbiJXQGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:06:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235067AbiJXQPo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:15:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CA7F52E4B;
-        Mon, 24 Oct 2022 08:03:33 -0700 (PDT)
+        with ESMTP id S233308AbiJXQE1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C8A11DAAD;
+        Mon, 24 Oct 2022 07:56:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCC89B815C2;
-        Mon, 24 Oct 2022 12:18:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D5B6C433C1;
-        Mon, 24 Oct 2022 12:18:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 884F7B81628;
+        Mon, 24 Oct 2022 12:18:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D57A2C433D6;
+        Mon, 24 Oct 2022 12:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613913;
-        bh=cDE7mdxA2GnHKcv/HGZn7QWb8vlWewY71vte2eP/0v4=;
+        s=korg; t=1666613929;
+        bh=m3P8wj85nmlYhKsgy0AO2VM9B2JZ7cdOZOIryw76RFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JSFNgbNEeH9lVQTLjudiEZBbYoWQm/LSgcUs268UKfS0GM2vS60VbIfuPDjHrFohm
-         dto+FQSAIT0QGkQADW2gMXnNRxpVkKXgAFQ1uQZKQY90Q7zM6nJoCWxDgRG0VlQoWh
-         JFBcZHZG3NJYzC4sWSEzUEnROYfkfbT2cV8Sxs50=
+        b=PylAocf4SMHS9doyQtmq/mYotgGuq9o1P8LshmgPvh9B3xzVMHlM5iz4fyZkohzRV
+         0FVsjxnTNLElW65cCEdZEUN6yW9AkXa3jf6Wz/vk2m6OwRhjVXnqbLQyuxAOOzGfOV
+         COOIGcUYXKdp2e2i4sP/L00PVwxsq+Uu6XhHhIyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Lalith Rajendran <lalithkraj@google.com>,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 062/390] ext4: make ext4_lazyinit_thread freezable
-Date:   Mon, 24 Oct 2022 13:27:39 +0200
-Message-Id: <20221024113025.269897167@linuxfoundation.org>
+Subject: [PATCH 5.10 067/390] ext4: fix miss release buffer head in ext4_fc_write_inode
+Date:   Mon, 24 Oct 2022 13:27:44 +0200
+Message-Id: <20221024113025.457319106@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -53,32 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lalith Rajendran <lalithkraj@google.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 3b575495ab8dbb4dbe85b4ac7f991693c3668ff5 upstream.
+commit ccbf8eeb39f2ff00b54726a2b20b35d788c4ecb5 upstream.
 
-ext4_lazyinit_thread is not set freezable. Hence when the thread calls
-try_to_freeze it doesn't freeze during suspend and continues to send
-requests to the storage during suspend, resulting in suspend failures.
+In 'ext4_fc_write_inode' function first call 'ext4_get_inode_loc' get 'iloc',
+after use it miss release 'iloc.bh'.
+So just release 'iloc.bh' before 'ext4_fc_write_inode' return.
 
 Cc: stable@kernel.org
-Signed-off-by: Lalith Rajendran <lalithkraj@google.com>
-Link: https://lore.kernel.org/r/20220818214049.1519544-1-lalithkraj@google.com
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220914100859.1415196-1-yebin10@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/fast_commit.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3550,6 +3550,7 @@ static int ext4_lazyinit_thread(void *ar
- 	unsigned long next_wakeup, cur;
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -766,22 +766,25 @@ static int ext4_fc_write_inode(struct in
+ 	tl.fc_tag = cpu_to_le16(EXT4_FC_TAG_INODE);
+ 	tl.fc_len = cpu_to_le16(inode_len + sizeof(fc_inode.fc_ino));
  
- 	BUG_ON(NULL == eli);
-+	set_freezable();
++	ret = -ECANCELED;
+ 	dst = ext4_fc_reserve_space(inode->i_sb,
+ 			sizeof(tl) + inode_len + sizeof(fc_inode.fc_ino), crc);
+ 	if (!dst)
+-		return -ECANCELED;
++		goto err;
  
- cont_thread:
- 	while (true) {
+ 	if (!ext4_fc_memcpy(inode->i_sb, dst, &tl, sizeof(tl), crc))
+-		return -ECANCELED;
++		goto err;
+ 	dst += sizeof(tl);
+ 	if (!ext4_fc_memcpy(inode->i_sb, dst, &fc_inode, sizeof(fc_inode), crc))
+-		return -ECANCELED;
++		goto err;
+ 	dst += sizeof(fc_inode);
+ 	if (!ext4_fc_memcpy(inode->i_sb, dst, (u8 *)ext4_raw_inode(&iloc),
+ 					inode_len, crc))
+-		return -ECANCELED;
+-
+-	return 0;
++		goto err;
++	ret = 0;
++err:
++	brelse(iloc.bh);
++	return ret;
+ }
+ 
+ /*
 
 
