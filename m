@@ -2,113 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37306609AA4
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 08:37:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52CA6609ACF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 08:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230115AbiJXGh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 02:37:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43456 "EHLO
+        id S229824AbiJXGzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 02:55:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230173AbiJXGh1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 02:37:27 -0400
-Received: from zombie.net4u.de (zombie.net4u.de [5.9.79.68])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3CEFC52DED
-        for <stable@vger.kernel.org>; Sun, 23 Oct 2022 23:37:20 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by zombie.net4u.de (Postfix) with ESMTP id 482CA2A40402;
-        Mon, 24 Oct 2022 06:37:19 +0000 (UTC)
-Received: from zombie.net4u.de ([127.0.0.1])
-        by localhost (zombie.net4u.de [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id iyd8ZLevT0NB; Mon, 24 Oct 2022 06:37:18 +0000 (UTC)
-Received: from [IPV6:2001:470:999b:fb01:7285:c2ff:fe2b:43c3] (unknown [IPv6:2001:470:999b:fb01:7285:c2ff:fe2b:43c3])
-        by zombie.net4u.de (Postfix) with ESMTPSA id 87F012A40365;
-        Mon, 24 Oct 2022 06:37:18 +0000 (UTC)
-Message-ID: <68509772-71ee-88b0-6c82-be97c669cd98@net4u.de>
-Date:   Mon, 24 Oct 2022 08:37:18 +0200
+        with ESMTP id S229608AbiJXGzH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 02:55:07 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7FA8DFC6;
+        Sun, 23 Oct 2022 23:54:59 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 972F11F85D;
+        Mon, 24 Oct 2022 06:54:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1666594498; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=EeVMspqcUvVpkozag6OV7bIDRUjBjNWV0jqoU11EAWs=;
+        b=QcBzReTPFSOifjMH92U8GB7uWOuOUm1kG1qrS/gO6P2+cGTY7kN97tHotUbeHcOBnTO+YO
+        Wk3zwPfXlPqYR8cQWi/At/tE/T5LxQacc5c6Me24PEiKAFcFr3vm9KW4rX29D2XTDNUtsc
+        zOZu0yHai6Y9ZcjXUu/qsQyARTIdVM0=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 49EF413357;
+        Mon, 24 Oct 2022 06:54:57 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id KQLSBME2VmNJHwAAMHmgww
+        (envelope-from <wqu@suse.com>); Mon, 24 Oct 2022 06:54:57 +0000
+From:   Qu Wenruo <wqu@suse.com>
+To:     stable@vger.kernel.org
+Cc:     linux-btrfs@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH STABLE 5.15] btrfs: enhance unsupported compat RO flags handling
+Date:   Mon, 24 Oct 2022 14:54:54 +0800
+Message-Id: <12f048b72ae2e2a465a519cf6402f0e6cf19321d.1666594445.git.wqu@suse.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-Subject: Re: [Regression] v6.0.3 rcu_preempt detected expedited stalls
- btrfs-cache btrfs_work_helper
-Content-Language: en-US
-To:     Bagas Sanjaya <bagasdotme@gmail.com>, stable@vger.kernel.org,
-        josef@toxicpanda.com
-References: <10522366-5c17-c18f-523c-b97c1496927b@net4u.de>
- <5eaf893b-15f6-92c3-6cf1-9f78683eb49e@gmail.com>
-From:   Ernst Herzberg <earny@net4u.de>
-In-Reply-To: <5eaf893b-15f6-92c3-6cf1-9f78683eb49e@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am 24.10.22 um 03:55 schrieb Bagas Sanjaya:
-> On 10/23/22 13:21, Ernst Herzberg wrote:
->>
->> Kernel v5.19.16 works without issues.
->> Booting v6.0.3:
->>
-> 
-> Can you try bisecting v5.19..v6.0 instead?
-> 
+commit 81d5d61454c365718655cfc87d8200c84e25d596 upstream.
 
-See the other mail:
-With v5.19.17-rc1 i can reproduce it, reverting
+Currently there are two corner cases not handling compat RO flags
+correctly:
 
-commit 1789c776ec788d544d9e1f4e5f6cd937b3527407
-Author: Josef Bacik <josef@toxicpanda.com>
-Date:   Mon Aug 8 16:10:26 2022 -0400
+- Remount
+  We can still mount the fs RO with compat RO flags, then remount it RW.
+  We should not allow any write into a fs with unsupported RO flags.
 
-     btrfs: call __btrfs_remove_free_space_cache_locked on cache load failure
-         [ Upstream commit 8a1ae2781dee9fc21ca82db682d37bea4bd074ad ]
+- Still try to search block group items
+  In fact, behavior/on-disk format change to extent tree should not
+  need a full incompat flag.
 
-solved it.
+  And since we can ensure fs with unsupported RO flags never got any
+  writes (with above case fixed), then we can even skip block group
+  items search at mount time.
 
-Wild guesses:
+This patch will enhance the unsupported RO compat flags by:
 
-On one of my partitions i have a 'free space cache' problem. Digging into older
-logfiles shows it exists for longer time undetected (some month...).
+- Reject read-write remount if there are unsupported RO compat flags
 
-# btrfs check --force /dev/sdb3
-Opening filesystem to check...
-WARNING: filesystem mounted, continuing because of --force
-Checking filesystem on /dev/sdb3
-UUID: 4c4e7222-5fa0-4a18-bdc0-3ba1c8577ab8
-[1/7] checking root items
-[2/7] checking extents
-[3/7] checking free space cache
-block group 35530997760 has wrong amount of free space, free space cache has 1019756544 block group has 1019813888
-failed to load free space cache for block group 35530997760
-[4/7] checking fs roots
-[5/7] checking only csums items (without verifying data)
-[6/7] checking root refs
-[7/7] checking quota groups skipped (not enabled on this FS)
-found 11095502848 bytes used, no error found
-total csum bytes: 10721436
-total tree bytes: 113082368
-total fs tree bytes: 94044160
-total extent tree bytes: 6356992
-btree space waste bytes: 27086059
-file data blocks allocated: 10982420480
-  referenced 10982379520
+- Go dummy block group items directly for unsupported RO compat flags
+  In fact, only changes to chunk/subvolume/root/csum trees should go
+  incompat flags.
 
-# grep "failed to load free space" messages.2022-*
-messages.2022-05:May 10 06:48:30.374 dunno kernel: BTRFS warning (device sdb3): failed to load free space cache for block group 35530997760, rebuilding it now
-messages.2022-05:May 11 07:08:11.120 dunno kernel: BTRFS warning (device sdb3): failed to load free space cache for block group 35530997760, rebuilding it now
-messages.2022-05:May 12 06:16:57.244 dunno kernel: BTRFS warning (device sdb3): failed to load free space cache for block group 35530997760, rebuilding it now
-[...]
-messages.2022-10:Oct 23 18:11:47.518 dunno kernel: BTRFS warning (device sdb3): failed to load free space cache for block group 35530997760, rebuilding it now
-messages.2022-10:Oct 23 18:16:36.474 dunno kernel: BTRFS warning (device sdb3): failed to load free space cache for block group 35530997760, rebuilding it now
+The latter part should allow future change to extent tree to be compat
+RO flags.
 
-Booting into v6.0.3 or 5.19.17-rc lead to a full hang of the machine, all kernel before
-shown only the message above.
+Thus this patch also needs to be backported to all stable trees.
 
-Reverting the patch above cures the hang. But for whatever reason the free space cache rebuild seems to fail
-without any message.
+CC: stable@vger.kernel.org # 5.15
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/block-group.c | 11 ++++++++++-
+ fs/btrfs/super.c       |  9 +++++++++
+ 2 files changed, 19 insertions(+), 1 deletion(-)
 
-    -- Earny
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 474dcc0540a8..5eea56789ccc 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -2139,7 +2139,16 @@ int btrfs_read_block_groups(struct btrfs_fs_info *info)
+ 	int need_clear = 0;
+ 	u64 cache_gen;
+ 
+-	if (!info->extent_root)
++	/*
++	 * Either no extent root (with ibadroots rescue option) or we have
++	 * unsupported RO options. The fs can never be mounted read-write, so no
++	 * need to waste time searching block group items.
++	 *
++	 * This also allows new extent tree related changes to be RO compat,
++	 * no need for a full incompat flag.
++	 */
++	if (!info->extent_root || (btrfs_super_compat_ro_flags(info->super_copy) &
++		      ~BTRFS_FEATURE_COMPAT_RO_SUPP))
+ 		return fill_dummy_bgs(info);
+ 
+ 	key.objectid = 0;
+diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+index 969bf0724fdf..1bf2ded0be93 100644
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -2045,6 +2045,15 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
+ 			ret = -EINVAL;
+ 			goto restore;
+ 		}
++		if (btrfs_super_compat_ro_flags(fs_info->super_copy) &
++		    ~BTRFS_FEATURE_COMPAT_RO_SUPP) {
++			btrfs_err(fs_info,
++		"can not remount read-write due to unsupported optional flags 0x%llx",
++				btrfs_super_compat_ro_flags(fs_info->super_copy) &
++				~BTRFS_FEATURE_COMPAT_RO_SUPP);
++			ret = -EINVAL;
++			goto restore;
++		}
+ 		if (fs_info->fs_devices->rw_devices == 0) {
+ 			ret = -EACCES;
+ 			goto restore;
+-- 
+2.38.1
+
