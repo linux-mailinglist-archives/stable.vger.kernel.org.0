@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95BCC60B11C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:16:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4379760B196
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:28:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234072AbiJXQQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:16:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42638 "EHLO
+        id S232634AbiJXQ21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:28:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230092AbiJXQNn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:13:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88192E099B;
-        Mon, 24 Oct 2022 08:02:07 -0700 (PDT)
+        with ESMTP id S233249AbiJXQ1f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:27:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43CE25FD3;
+        Mon, 24 Oct 2022 08:14:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A1CDB81629;
-        Mon, 24 Oct 2022 12:16:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0EA9C433D7;
-        Mon, 24 Oct 2022 12:16:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E71B3612BB;
+        Mon, 24 Oct 2022 12:52:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 059F5C433C1;
+        Mon, 24 Oct 2022 12:52:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613771;
-        bh=BMKP81An3DVtiRKCWskDLbP4VdOzHunvWVzA0laQJNk=;
+        s=korg; t=1666615955;
+        bh=zTri6CPQ9P0Lzgr20EKzelmjLoo2TzdJMIC0eulf4NU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iRj5poffXj2JZStYU6W9y7RvxMPhJRkwHcNL923JAbQM84Gn6dWwFcSLLk/RYqm8s
-         vGBAQZ3OR4EoygFJUeWj/MxTPcwfNfoEECc6xK809vkuCNmJtQdOu1zWp6ZF0Q78Wy
-         dLAlExomiVwkKJYOdHvHWZ8EHfTZ483nCw2vgYPw=
+        b=ORsA4OK28Mf6SdydZ201u600qH6eRwDupXpp/xJpKjYs/zcTh6kXrbRrPyx5C1G3F
+         kWME4OCNEXIKSmnggXYAKW+yPN6cczz6Ks8xMQC99gNXeOopFupUIgMcjVEpuUZNXl
+         Vv4ylLaZ18XAv8vcxSwK+9BtYVTGyusP75jIl2po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Lee <jerrylee@qnap.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 251/255] ext4: continue to expand file system when the target size doesnt reach
-Date:   Mon, 24 Oct 2022 13:32:41 +0200
-Message-Id: <20221024113011.659338565@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Patrick Rudolph <patrick.rudolph@9elements.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 429/530] regulator: core: Prevent integer underflow
+Date:   Mon, 24 Oct 2022 13:32:53 +0200
+Message-Id: <20221024113104.508396489@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry Lee 李修賢 <jerrylee@qnap.com>
+From: Patrick Rudolph <patrick.rudolph@9elements.com>
 
-commit df3cb754d13d2cd5490db9b8d536311f8413a92e upstream.
+[ Upstream commit 8d8e16592022c9650df8aedfe6552ed478d7135b ]
 
-When expanding a file system from (16TiB-2MiB) to 18TiB, the operation
-exits early which leads to result inconsistency between resize2fs and
-Ext4 kernel driver.
+By using a ratio of delay to poll_enabled_time that is not integer
+time_remaining underflows and does not exit the loop as expected.
+As delay could be derived from DT and poll_enabled_time is defined
+in the driver this can easily happen.
 
-=== before ===
-○ → resize2fs /dev/mapper/thin
-resize2fs 1.45.5 (07-Jan-2020)
-Filesystem at /dev/mapper/thin is mounted on /mnt/test; on-line resizing required
-old_desc_blocks = 2048, new_desc_blocks = 2304
-The filesystem on /dev/mapper/thin is now 4831837696 (4k) blocks long.
+Use a signed iterator to make sure that the loop exits once
+the remaining time is negative.
 
-[  865.186308] EXT4-fs (dm-5): mounted filesystem with ordered data mode. Opts: (null). Quota mode: none.
-[  912.091502] dm-4: detected capacity change from 34359738368 to 38654705664
-[  970.030550] dm-5: detected capacity change from 34359734272 to 38654701568
-[ 1000.012751] EXT4-fs (dm-5): resizing filesystem from 4294966784 to 4831837696 blocks
-[ 1000.012878] EXT4-fs (dm-5): resized filesystem to 4294967296
-
-=== after ===
-[  129.104898] EXT4-fs (dm-5): mounted filesystem with ordered data mode. Opts: (null). Quota mode: none.
-[  143.773630] dm-4: detected capacity change from 34359738368 to 38654705664
-[  198.203246] dm-5: detected capacity change from 34359734272 to 38654701568
-[  207.918603] EXT4-fs (dm-5): resizing filesystem from 4294966784 to 4831837696 blocks
-[  207.918754] EXT4-fs (dm-5): resizing filesystem from 4294967296 to 4831837696 blocks
-[  207.918758] EXT4-fs (dm-5): Converting file system to meta_bg
-[  207.918790] EXT4-fs (dm-5): resizing filesystem from 4294967296 to 4831837696 blocks
-[  221.454050] EXT4-fs (dm-5): resized to 4658298880 blocks
-[  227.634613] EXT4-fs (dm-5): resized filesystem to 4831837696
-
-Signed-off-by: Jerry Lee <jerrylee@qnap.com>
-Link: https://lore.kernel.org/r/PU1PR04MB22635E739BD21150DC182AC6A18C9@PU1PR04MB2263.apcprd04.prod.outlook.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
+Link: https://lore.kernel.org/r/20220909125954.577669-1-patrick.rudolph@9elements.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/resize.c |    2 +-
+ drivers/regulator/core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -2090,7 +2090,7 @@ retry:
- 			goto out;
- 	}
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 43613db7af75..aa4d78b02483 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -2636,7 +2636,7 @@ static int _regulator_do_enable(struct regulator_dev *rdev)
+ 	 * expired, return -ETIMEDOUT.
+ 	 */
+ 	if (rdev->desc->poll_enabled_time) {
+-		unsigned int time_remaining = delay;
++		int time_remaining = delay;
  
--	if (ext4_blocks_count(es) == n_blocks_count)
-+	if (ext4_blocks_count(es) == n_blocks_count && n_blocks_count_retry == 0)
- 		goto out;
- 
- 	err = ext4_alloc_flex_bg_array(sb, n_group + 1);
+ 		while (time_remaining > 0) {
+ 			_regulator_enable_delay(rdev->desc->poll_enabled_time);
+-- 
+2.35.1
+
 
 
