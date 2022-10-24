@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D57760A5CB
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77CEC60A604
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233653AbiJXM2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:28:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60622 "EHLO
+        id S233882AbiJXMbV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:31:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233803AbiJXM2S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E62A285A81;
-        Mon, 24 Oct 2022 05:01:53 -0700 (PDT)
+        with ESMTP id S234165AbiJXM3b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2737588DD2;
+        Mon, 24 Oct 2022 05:03:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18DBEB811EA;
-        Mon, 24 Oct 2022 11:57:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66FA2C433C1;
-        Mon, 24 Oct 2022 11:57:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59D42612B4;
+        Mon, 24 Oct 2022 11:47:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B60AC43143;
+        Mon, 24 Oct 2022 11:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612653;
-        bh=aM3Ys8VR9L5UWxe/PM64/AlbhVXkGSXjpofOLl/w2Ak=;
+        s=korg; t=1666612056;
+        bh=FSdbiPueVjPIiHHnV4K5YK5PYMbHBcrAoHkWO81VVtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BpECCjjVDEkt3TbJ6aOhLUSqvys/UJsnK0NojcezSShh+iDPGwDwpUSCJP+V3tvWT
-         4Z3N2x2xGYcPnOFVQ7mWUcBX/MXAcHeD15QQGkkybwG9dGkYR6hn85EI+mi7vnyIjf
-         tr95N1ytGa1yPD3VFYoJQ2CdyS64U1fwmEJ26lZU=
+        b=YBudlojfPoBf11VHpn0Nknvsr7rKigpT16OpFOoZF9Ig4UrKmGKQcorCDQO3RIqF5
+         uKlH6g/aczNVlekbHJ60ZfKJjZrPTj5q9dVsQZ8bBiiPH7cVpwYSMRe9+nxiVVbV08
+         abcBNTnlQRped95J+SsvMvLGVbcZ4NhRHP0a7qC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atish Patra <atishp@rivosinc.com>,
-        Andrew Bresticker <abrestic@rivosinc.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 4.19 051/229] riscv: Allow PROT_WRITE-only mmap()
+        stable@vger.kernel.org,
+        "Sabri N. Ferreiro" <snferreiro1@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 053/210] ALSA: usb-audio: Fix NULL dererence at error path
 Date:   Mon, 24 Oct 2022 13:29:30 +0200
-Message-Id: <20221024113000.729572803@linuxfoundation.org>
+Message-Id: <20221024112958.720040159@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Bresticker <abrestic@rivosinc.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 9e2e6042a7ec6504fe8e366717afa2f40cf16488 upstream.
+commit 568be8aaf8a535f79c4db76cabe17b035aa2584d upstream.
 
-Commit 2139619bcad7 ("riscv: mmap with PROT_WRITE but no PROT_READ is
-invalid") made mmap() return EINVAL if PROT_WRITE was set wihtout
-PROT_READ with the justification that a write-only PTE is considered a
-reserved PTE permission bit pattern in the privileged spec. This check
-is unnecessary since we let VM_WRITE imply VM_READ on RISC-V, and it is
-inconsistent with other architectures that don't support write-only PTEs,
-creating a potential software portability issue. Just remove the check
-altogether and let PROT_WRITE imply PROT_READ as is the case on other
-architectures.
+At an error path to release URB buffers and contexts, the driver might
+hit a NULL dererence for u->urb pointer, when u->buffer_size has been
+already set but the actual URB allocation failed.
 
-Note that this also allows PROT_WRITE|PROT_EXEC mappings which were
-disallowed prior to the aforementioned commit; PROT_READ is implied in
-such mappings as well.
+Fix it by adding the NULL check of urb.  Also, make sure that
+buffer_size is cleared after the error path or the close.
 
-Fixes: 2139619bcad7 ("riscv: mmap with PROT_WRITE but no PROT_READ is invalid")
-Reviewed-by: Atish Patra <atishp@rivosinc.com>
-Signed-off-by: Andrew Bresticker <abrestic@rivosinc.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220915193702.2201018-3-abrestic@rivosinc.com/
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Cc: <stable@vger.kernel.org>
+Reported-by: Sabri N. Ferreiro <snferreiro1@gmail.com>
+Link: https://lore.kernel.org/r/CAKG+3NRjTey+fFfUEGwuxL-pi_=T4cUskYG9OzpzHytF+tzYng@mail.gmail.com
+Link: https://lore.kernel.org/r/20220930100129.19445-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/sys_riscv.c |    3 ---
- 1 file changed, 3 deletions(-)
+ sound/usb/endpoint.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/riscv/kernel/sys_riscv.c
-+++ b/arch/riscv/kernel/sys_riscv.c
-@@ -26,9 +26,6 @@ static long riscv_sys_mmap(unsigned long
- 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
- 		return -EINVAL;
- 
--	if (unlikely((prot & PROT_WRITE) && !(prot & PROT_READ)))
--		return -EINVAL;
--
- 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
- 			       offset >> (PAGE_SHIFT - page_shift_offset));
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -86,12 +86,13 @@ static inline unsigned get_usb_high_spee
+  */
+ static void release_urb_ctx(struct snd_urb_ctx *u)
+ {
+-	if (u->buffer_size)
++	if (u->urb && u->buffer_size)
+ 		usb_free_coherent(u->ep->chip->dev, u->buffer_size,
+ 				  u->urb->transfer_buffer,
+ 				  u->urb->transfer_dma);
+ 	usb_free_urb(u->urb);
+ 	u->urb = NULL;
++	u->buffer_size = 0;
  }
+ 
+ static const char *usb_error_string(int err)
 
 
