@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 927C160A45C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:10:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9C6260A756
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:49:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230225AbiJXMKE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:10:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38716 "EHLO
+        id S234528AbiJXMtD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:49:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232831AbiJXMI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:08:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A27777E036;
-        Mon, 24 Oct 2022 04:52:19 -0700 (PDT)
+        with ESMTP id S234660AbiJXMp1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0113A193DF;
+        Mon, 24 Oct 2022 05:09:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3158CB811A1;
-        Mon, 24 Oct 2022 11:51:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FABEC433B5;
-        Mon, 24 Oct 2022 11:51:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 855E76125D;
+        Mon, 24 Oct 2022 12:09:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B653C433C1;
+        Mon, 24 Oct 2022 12:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612273;
-        bh=bZwGPZDTogpLUxzxQ5yHMwfGBVlcNdR2myoMTG7FLZA=;
+        s=korg; t=1666613372;
+        bh=kQWJbAtvZifP1shAjObse3DkaoIE1hj0tuT6mBsGAMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1S+8W9DTxoUU0Q+1mQATXu0c0KULHHXi5G2Qah1lXHWsTyqYCb0Zq1vtevwZgXDW
-         uGAzvxbHDbX6RSdOTGGgVzV/luUw8JPOXiyPBrL2yu8JjHoYniEYQYJEkzZs2Rd47x
-         N7ISjJC1w+maDC5ylLQ9HvPnOKIVsiaBgMJBN6G0=
+        b=reDOfpneOrbcXU9Jlex5H13XUl9Sp/sjF3877AoXTUh5gNo7Rcq/gNhxdIzBeHgdh
+         eVg/Y3iTjsDp/vlgSBqCaK7gV5ugHcY35aIeMH6kI+cHzhmFRZF+8hMhxAkW7eOM1M
+         1QSuvAoE/2PP/watZM6sUo38vVqybmrMFZBdjE4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Pape <apape@de.adit-jv.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 104/210] ALSA: dmaengine: increment buffer pointer atomically
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 111/255] soc: qcom: smem_state: Add refcounting for the state->of_node
 Date:   Mon, 24 Oct 2022 13:30:21 +0200
-Message-Id: <20221024113000.387398401@linuxfoundation.org>
+Message-Id: <20221024113006.185176924@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Pape <apape@de.adit-jv.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit d1c442019594692c64a70a86ad88eb5b6db92216 ]
+[ Upstream commit 90681f53b9381c23ff7762a3b13826d620c272de ]
 
-Setting pointer and afterwards checking for wraparound leads
-to the possibility of returning the inconsistent pointer position.
+In qcom_smem_state_register() and qcom_smem_state_release(), we
+should better use of_node_get() and of_node_put() for the reference
+creation and destruction of 'device_node'.
 
-This patch increments buffer pointer atomically to avoid this issue.
-
-Fixes: e7f73a1613567a ("ASoC: Add dmaengine PCM helper functions")
-Signed-off-by: Andreas Pape <apape@de.adit-jv.com>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Link: https://lore.kernel.org/r/1664211493-11789-1-git-send-email-erosca@de.adit-jv.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 9460ae2ff308 ("soc: qcom: Introduce common SMEM state machine code")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220721135217.1301039-2-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_dmaengine.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/soc/qcom/smem_state.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/core/pcm_dmaengine.c b/sound/core/pcm_dmaengine.c
-index 8eb58c709b14..6f6da1128edc 100644
---- a/sound/core/pcm_dmaengine.c
-+++ b/sound/core/pcm_dmaengine.c
-@@ -139,12 +139,14 @@ EXPORT_SYMBOL_GPL(snd_dmaengine_pcm_set_config_from_dai_data);
+diff --git a/drivers/soc/qcom/smem_state.c b/drivers/soc/qcom/smem_state.c
+index d2b558438deb..41e929407196 100644
+--- a/drivers/soc/qcom/smem_state.c
++++ b/drivers/soc/qcom/smem_state.c
+@@ -136,6 +136,7 @@ static void qcom_smem_state_release(struct kref *ref)
+ 	struct qcom_smem_state *state = container_of(ref, struct qcom_smem_state, refcount);
  
- static void dmaengine_pcm_dma_complete(void *arg)
- {
-+	unsigned int new_pos;
- 	struct snd_pcm_substream *substream = arg;
- 	struct dmaengine_pcm_runtime_data *prtd = substream_to_prtd(substream);
- 
--	prtd->pos += snd_pcm_lib_period_bytes(substream);
--	if (prtd->pos >= snd_pcm_lib_buffer_bytes(substream))
--		prtd->pos = 0;
-+	new_pos = prtd->pos + snd_pcm_lib_period_bytes(substream);
-+	if (new_pos >= snd_pcm_lib_buffer_bytes(substream))
-+		new_pos = 0;
-+	prtd->pos = new_pos;
- 
- 	snd_pcm_period_elapsed(substream);
+ 	list_del(&state->list);
++	of_node_put(state->of_node);
+ 	kfree(state);
  }
+ 
+@@ -169,7 +170,7 @@ struct qcom_smem_state *qcom_smem_state_register(struct device_node *of_node,
+ 
+ 	kref_init(&state->refcount);
+ 
+-	state->of_node = of_node;
++	state->of_node = of_node_get(of_node);
+ 	state->ops = *ops;
+ 	state->priv = priv;
+ 
 -- 
 2.35.1
 
