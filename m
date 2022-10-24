@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDCCF60A72D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB92360A5C8
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234316AbiJXMsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:48:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38270 "EHLO
+        id S233711AbiJXM2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:28:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234453AbiJXMox (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:44:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 588F426E9;
-        Mon, 24 Oct 2022 05:09:26 -0700 (PDT)
+        with ESMTP id S233840AbiJXM2X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC69A86896;
+        Mon, 24 Oct 2022 05:02:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CED84612BC;
-        Mon, 24 Oct 2022 12:07:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDCB3C433C1;
-        Mon, 24 Oct 2022 12:07:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8E3BB811C5;
+        Mon, 24 Oct 2022 11:58:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D74C433D6;
+        Mon, 24 Oct 2022 11:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613274;
-        bh=QOgwnGXtJ5WnEebGLcaB/JmKLZooNWI4me6Yyig3MGY=;
+        s=korg; t=1666612706;
+        bh=86Bdj7WnZgq0vHTIPVC4gQ4G8vTZJzy4bM/p2YB3db0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+fkqKfqeBTuIiYaO419A0VL/7ptoBjCeEN3b/zaZAMaPZmkk1yca6C7ixzqLsUXX
-         L0Dtd8BqKCkjBqkjMoF0MQMniyv+8infDquMkezVaCSMInY+vXgg1y86lFqSOsIYSm
-         bq3llWmkc13DukUpBwAEPDk3HHtxZZPDXGmWlIRc=
+        b=mWuJ3vJATPhOA6jpqFVOOXwNcxB3/JokuZY06Josn6pCiHCOCbnLumtVseY++zja0
+         DciItruDjKNoR5Dr3kvd5f393Fopi5/CSXPeE+dmQ7tGHGNzWQnxbuCZThhPLqAqBI
+         KfdUYxYOPmVdv6JBDsxmyN3vEPXR+rIoSvIJE2d8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
-Subject: [PATCH 5.4 057/255] selinux: use "grep -E" instead of "egrep"
-Date:   Mon, 24 Oct 2022 13:29:27 +0200
-Message-Id: <20221024113004.394129391@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 049/229] Revert "fs: check FMODE_LSEEK to control internal pipe splicing"
+Date:   Mon, 24 Oct 2022 13:29:28 +0200
+Message-Id: <20221024113000.669471664@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This reverts commit fd0a6e99b61e6c08fa5cf585d54fd956f70c73a6.
 
-commit c969bb8dbaf2f3628927eae73e7c579a74cf1b6e upstream.
+Which was upstream commit 97ef77c52b789ec1411d360ed99dca1efe4b2c81.
 
-The latest version of grep claims that egrep is now obsolete so the build
-now contains warnings that look like:
-	egrep: warning: egrep is obsolescent; using grep -E
-fix this by using "grep -E" instead.
+The commit is missing dependencies and breaks NFS tests, remove it for
+now.
 
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Eric Paris <eparis@parisplace.org>
-Cc: selinux@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[PM: tweak to remove vdso reference, cleanup subj line]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/selinux/install_policy.sh |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/splice.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/scripts/selinux/install_policy.sh
-+++ b/scripts/selinux/install_policy.sh
-@@ -78,7 +78,7 @@ cd /etc/selinux/dummy/contexts/files
- $SF -F file_contexts /
+--- a/fs/splice.c
++++ b/fs/splice.c
+@@ -899,15 +899,17 @@ ssize_t splice_direct_to_actor(struct fi
+ {
+ 	struct pipe_inode_info *pipe;
+ 	long ret, bytes;
++	umode_t i_mode;
+ 	size_t len;
+ 	int i, flags, more;
  
- mounts=`cat /proc/$$/mounts | \
--	egrep "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
-+	grep -E "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
- 	awk '{ print $2 '}`
- $SF -F file_contexts $mounts
+ 	/*
+-	 * We require the input to be seekable, as we don't want to randomly
+-	 * drop data for eg socket -> socket splicing. Use the piped splicing
+-	 * for that!
++	 * We require the input being a regular file, as we don't want to
++	 * randomly drop data for eg socket -> socket splicing. Use the
++	 * piped splicing for that!
+ 	 */
+-	if (unlikely(!(in->f_mode & FMODE_LSEEK)))
++	i_mode = file_inode(in)->i_mode;
++	if (unlikely(!S_ISREG(i_mode) && !S_ISBLK(i_mode)))
+ 		return -EINVAL;
  
+ 	/*
 
 
