@@ -2,40 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6139060AB84
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:53:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 358C860AB8B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:53:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236595AbiJXNx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:53:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49434 "EHLO
+        id S236563AbiJXNxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:53:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236591AbiJXNwc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:52:32 -0400
+        with ESMTP id S236553AbiJXNw7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:52:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A913BA902;
-        Mon, 24 Oct 2022 05:42:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F42BC44D;
+        Mon, 24 Oct 2022 05:43:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FF1461280;
-        Mon, 24 Oct 2022 12:32:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73716C43470;
-        Mon, 24 Oct 2022 12:32:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C45E76133D;
+        Mon, 24 Oct 2022 12:32:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B085CC433C1;
+        Mon, 24 Oct 2022 12:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614743;
-        bh=HHUg5KckEKVunibn2u7StkIkV/6yefiT8qKsdvKKleE=;
+        s=korg; t=1666614754;
+        bh=bNzgAFP22hNtf2DtuINAlIo+vZoacqJSXYftjrlrzFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YRqs9Lt4Nu4FqtNHQNP0vloQvemerN1pShKjvqJetLq6GdjoezL5mUQrHiHJvw19a
-         rEZumvUTh1YO019o2Ek/IPpAukXnmiPloNDe6Bpdz03HecQzNMBrd2gNf5WIvowBy9
-         D/ibdM+/s1AFIo6TeIHIEF35PL3jqUQlj4nyCtr4=
+        b=K+mDlLyy5qRs1OMuDQwYw/+Qr5LzHWFRHYQ9q8WVMdYFLfSRu8Y2QygYsP4lIYitu
+         5n46cNNWm01yksq2dEAQsvi/LzcYgYFIu6YEf8RI4B4hOVMkfeHQWdLsCF4OUZ12Xe
+         SrJrgJumyiAogfy/LyBkvF2TyITzh+HX8IQXCsdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.10 377/390] arm64: topology: fix possible overflow in amu_fie_setup()
-Date:   Mon, 24 Oct 2022 13:32:54 +0200
-Message-Id: <20221024113039.036524410@linuxfoundation.org>
+        stable@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        syzbot+193f9cee8638750b23cf@syzkaller.appspotmail.com,
+        Liu Zixian <liuzixian4@huawei.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        David Hildenbrand <david@redhat.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Sidhartha Kumar <sidhartha.kumar@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 380/390] mm: hugetlb: fix UAF in hugetlb_handle_userfault
+Date:   Mon, 24 Oct 2022 13:32:57 +0200
+Message-Id: <20221024113039.156393036@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -52,37 +60,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Liu Shixin <liushixin2@huawei.com>
 
-commit d4955c0ad77dbc684fc716387070ac24801b8bca upstream.
+commit 958f32ce832ba781ac20e11bb2d12a9352ea28fc upstream.
 
-cpufreq_get_hw_max_freq() returns max frequency in kHz as *unsigned int*,
-while freq_inv_set_max_ratio() gets passed this frequency in Hz as 'u64'.
-Multiplying max frequency by 1000 can potentially result in overflow --
-multiplying by 1000ULL instead should avoid that...
+The vma_lock and hugetlb_fault_mutex are dropped before handling userfault
+and reacquire them again after handle_userfault(), but reacquire the
+vma_lock could lead to UAF[1,2] due to the following race,
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE static
-analysis tool.
+hugetlb_fault
+  hugetlb_no_page
+    /*unlock vma_lock */
+    hugetlb_handle_userfault
+      handle_userfault
+        /* unlock mm->mmap_lock*/
+                                           vm_mmap_pgoff
+                                             do_mmap
+                                               mmap_region
+                                                 munmap_vma_range
+                                                   /* clean old vma */
+        /* lock vma_lock again  <--- UAF */
+    /* unlock vma_lock */
 
-Fixes: cd0ed03a8903 ("arm64: use activity monitors for frequency invariance")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/01493d64-2bce-d968-86dc-11a122a9c07d@omp.ru
-Signed-off-by: Will Deacon <will@kernel.org>
+Since the vma_lock will unlock immediately after
+hugetlb_handle_userfault(), let's drop the unneeded lock and unlock in
+hugetlb_handle_userfault() to fix the issue.
+
+[1] https://lore.kernel.org/linux-mm/000000000000d5e00a05e834962e@google.com/
+[2] https://lore.kernel.org/linux-mm/20220921014457.1668-1-liuzixian4@huawei.com/
+Link: https://lkml.kernel.org/r/20220923042113.137273-1-liushixin2@huawei.com
+Fixes: 1a1aad8a9b7b ("userfaultfd: hugetlbfs: add userfaultfd hugetlb hook")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: syzbot+193f9cee8638750b23cf@syzkaller.appspotmail.com
+Reported-by: Liu Zixian <liuzixian4@huawei.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Sidhartha Kumar <sidhartha.kumar@oracle.com>
+Cc: <stable@vger.kernel.org>	[4.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/hugetlb.c |   29 +++++++++++++++--------------
+ 1 file changed, 15 insertions(+), 14 deletions(-)
 
---- a/arch/arm64/kernel/topology.c
-+++ b/arch/arm64/kernel/topology.c
-@@ -158,7 +158,7 @@ static int validate_cpu_freq_invariance_
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4337,6 +4337,7 @@ static vm_fault_t hugetlb_no_page(struct
+ 	spinlock_t *ptl;
+ 	unsigned long haddr = address & huge_page_mask(h);
+ 	bool new_page = false;
++	u32 hash = hugetlb_fault_mutex_hash(mapping, idx);
+ 
+ 	/*
+ 	 * Currently, we are forced to kill the process in the event the
+@@ -4346,7 +4347,7 @@ static vm_fault_t hugetlb_no_page(struct
+ 	if (is_vma_resv_set(vma, HPAGE_RESV_UNMAPPED)) {
+ 		pr_warn_ratelimited("PID %d killed due to inadequate hugepage pool\n",
+ 			   current->pid);
+-		return ret;
++		goto out;
  	}
  
- 	/* Convert maximum frequency from KHz to Hz and validate */
--	max_freq_hz = cpufreq_get_hw_max_freq(cpu) * 1000;
-+	max_freq_hz = cpufreq_get_hw_max_freq(cpu) * 1000ULL;
- 	if (unlikely(!max_freq_hz)) {
- 		pr_debug("CPU%d: invalid maximum frequency.\n", cpu);
- 		return -EINVAL;
+ 	/*
+@@ -4365,7 +4366,6 @@ retry:
+ 		 * Check for page in userfault range
+ 		 */
+ 		if (userfaultfd_missing(vma)) {
+-			u32 hash;
+ 			struct vm_fault vmf = {
+ 				.vma = vma,
+ 				.address = haddr,
+@@ -4380,17 +4380,14 @@ retry:
+ 			};
+ 
+ 			/*
+-			 * hugetlb_fault_mutex and i_mmap_rwsem must be
+-			 * dropped before handling userfault.  Reacquire
+-			 * after handling fault to make calling code simpler.
++			 * vma_lock and hugetlb_fault_mutex must be dropped
++			 * before handling userfault. Also mmap_lock will
++			 * be dropped during handling userfault, any vma
++			 * operation should be careful from here.
+ 			 */
+-			hash = hugetlb_fault_mutex_hash(mapping, idx);
+ 			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 			i_mmap_unlock_read(mapping);
+-			ret = handle_userfault(&vmf, VM_UFFD_MISSING);
+-			i_mmap_lock_read(mapping);
+-			mutex_lock(&hugetlb_fault_mutex_table[hash]);
+-			goto out;
++			return handle_userfault(&vmf, VM_UFFD_MISSING);
+ 		}
+ 
+ 		page = alloc_huge_page(vma, haddr, 0);
+@@ -4497,6 +4494,8 @@ retry:
+ 
+ 	unlock_page(page);
+ out:
++	mutex_unlock(&hugetlb_fault_mutex_table[hash]);
++	i_mmap_unlock_read(mapping);
+ 	return ret;
+ 
+ backout:
+@@ -4592,10 +4591,12 @@ vm_fault_t hugetlb_fault(struct mm_struc
+ 	mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 
+ 	entry = huge_ptep_get(ptep);
+-	if (huge_pte_none(entry)) {
+-		ret = hugetlb_no_page(mm, vma, mapping, idx, address, ptep, flags);
+-		goto out_mutex;
+-	}
++	if (huge_pte_none(entry))
++		/*
++		 * hugetlb_no_page will drop vma lock and hugetlb fault
++		 * mutex internally, which make us return immediately.
++		 */
++		return hugetlb_no_page(mm, vma, mapping, idx, address, ptep, flags);
+ 
+ 	ret = 0;
+ 
 
 
