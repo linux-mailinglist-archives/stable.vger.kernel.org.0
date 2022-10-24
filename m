@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B25260ACA1
+	by mail.lfdr.de (Postfix) with ESMTP id CFC8F60ACA2
 	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:11:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232619AbiJXOLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:11:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46324 "EHLO
+        id S232700AbiJXOLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:11:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235862AbiJXOJU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:09:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26D80C5101;
-        Mon, 24 Oct 2022 05:51:23 -0700 (PDT)
+        with ESMTP id S236202AbiJXOJd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:09:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C68FCC5124;
+        Mon, 24 Oct 2022 05:51:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1424C612F3;
-        Mon, 24 Oct 2022 12:51:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3AA4C433D6;
-        Mon, 24 Oct 2022 12:51:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF33B61331;
+        Mon, 24 Oct 2022 12:51:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEC8EC433D7;
+        Mon, 24 Oct 2022 12:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615877;
-        bh=KpUOntgOBSl9iQrjVWZMtJsc9co7McfrbWqSjTYI6Fs=;
+        s=korg; t=1666615885;
+        bh=uk/uq2MRrmO+B59iIrc1Ry7He0L4UKElnCduIvl+tGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3tcI6xRDGCJuJ+GNVyXwguoam1gAUlStpDOXEBjcG28E7JEEN8dEky0xNoYm2aEB
-         njngdeSA/afC8r3CkT7Pyx5Wm9U8gb0Dqd31x2p+L4x7NNYE1mPgtKvUHl6F1eQxTw
-         w3hu+f755JinswXvg3sjz1zxPZ1q5emK/Lr7Mu+o=
+        b=TdgzNRSPSND1XEoaCV+39Ux/Gn4CDV8M9r3VOztgh6AVddivSr9qNYkszpRb0dsVS
+         g6dWBLRy1cDVTv/3+VTnR1CyVj0VwWfj0odWuX7qFoUYewMXpcD2X5oC0sovzH+0FM
+         FFI+I6xhvwkq6Z5RLu+0w7UYSjYKVZdFK+pBJl+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.15 417/530] ice: set tx_tstamps when creating new Tx rings via ethtool
-Date:   Mon, 24 Oct 2022 13:32:41 +0200
-Message-Id: <20221024113103.964838222@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Pattrick <mkp@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 420/530] openvswitch: Fix overreporting of drops in dropwatch
+Date:   Mon, 24 Oct 2022 13:32:44 +0200
+Message-Id: <20221024113104.101613497@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,36 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Mike Pattrick <mkp@redhat.com>
 
-[ Upstream commit b3b173745c8cab1e24d6821488b60abed3acb24d ]
+[ Upstream commit c21ab2afa2c64896a7f0e3cbc6845ec63dcfad2e ]
 
-When the user changes the number of queues via ethtool, the driver
-allocates new rings. This allocation did not initialize tx_tstamps. This
-results in the tx_tstamps field being zero (due to kcalloc allocation), and
-would result in a NULL pointer dereference when attempting a transmit
-timestamp on the new ring.
+Currently queue_userspace_packet will call kfree_skb for all frames,
+whether or not an error occurred. This can result in a single dropped
+frame being reported as multiple drops in dropwatch. This functions
+caller may also call kfree_skb in case of an error. This patch will
+consume the skbs instead and allow caller's to use kfree_skb.
 
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Mike Pattrick <mkp@redhat.com>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2109957
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ethtool.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/openvswitch/datapath.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-index 9b9c2b885486..f10d9c377c74 100644
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -2788,6 +2788,7 @@ ice_set_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring)
- 		tx_rings[i].count = new_tx_cnt;
- 		tx_rings[i].desc = NULL;
- 		tx_rings[i].tx_buf = NULL;
-+		tx_rings[i].tx_tstamps = &pf->ptp.port.tx;
- 		err = ice_setup_tx_ring(&tx_rings[i]);
- 		if (err) {
- 			while (i--)
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index f4b088d418fb..46ef1525b2e5 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -557,8 +557,9 @@ static int queue_userspace_packet(struct datapath *dp, struct sk_buff *skb,
+ out:
+ 	if (err)
+ 		skb_tx_error(skb);
+-	kfree_skb(user_skb);
+-	kfree_skb(nskb);
++	consume_skb(user_skb);
++	consume_skb(nskb);
++
+ 	return err;
+ }
+ 
 -- 
 2.35.1
 
