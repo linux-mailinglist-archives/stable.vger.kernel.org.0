@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0E9D60A6A6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:37:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53ABD60A4F9
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232732AbiJXMhD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:37:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38764 "EHLO
+        id S232836AbiJXMUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:20:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234687AbiJXMfn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:35:43 -0400
+        with ESMTP id S233273AbiJXMTF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B7A2356E4;
-        Mon, 24 Oct 2022 05:05:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A02982842;
+        Mon, 24 Oct 2022 04:57:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8A8F612D4;
-        Mon, 24 Oct 2022 12:05:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8CE8C433C1;
-        Mon, 24 Oct 2022 12:05:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5016612DB;
+        Mon, 24 Oct 2022 11:55:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5B79C433C1;
+        Mon, 24 Oct 2022 11:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613119;
-        bh=BFat5BEfy41jcfjN1LQSScF9bLmYMpIuSmHtawi1W2c=;
+        s=korg; t=1666612526;
+        bh=fSVz+OkgMcoaGQ/swcxjK7pSryFkqY9VNBJa73jPodY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dn6lxCakEg6uASYIXyVpP/I6uq7CIElvHrQD6ODfRLKCnEklWrmQygSkIHo+VcKJZ
-         Cfnu0xrSY0IVFZS3p2uo3xzeRIlFF9R7snHY0zKI1kIbIwiyAHbnmYjKFtOKmEvXP0
-         E6ykY9wTmCaKn7Zsf4Znaazn82So4FmwCzLE8k30=
+        b=INOL/VcpuRPIlhpUFoO9DlAcdvD3sTWUWtWzDMqJUlP1znwD2/CMbC2ps9C9/J9iE
+         x7GF7rVemaCxYTgcn/KMMQXNVMHkrd5Fc80/BaCLkrQKxLd1kPU5iO3njBa1p7oEsw
+         4RFyEkeJ31+2LqvbYtRWQaRCUmOyckVfTABiSOng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 016/255] can: kvaser_usb: Fix use of uninitialized completion
+        stable@vger.kernel.org, Swati Agarwal <swati.agarwal@xilinx.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 007/229] dmaengine: xilinx_dma: Report error in case of dma_set_mask_and_coherent API failure
 Date:   Mon, 24 Oct 2022 13:28:46 +0200
-Message-Id: <20221024113002.973471295@linuxfoundation.org>
+Message-Id: <20221024112959.355783611@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Swati Agarwal <swati.agarwal@xilinx.com>
 
-commit cd7f30e174d09a02ca2afa5ef093fb0f0352e0d8 upstream.
+[ Upstream commit 8f2b6bc79c32f0fa60df000ae387a790ec80eae9 ]
 
-flush_comp is initialized when CMD_FLUSH_QUEUE is sent to the device and
-completed when the device sends CMD_FLUSH_QUEUE_RESP.
+The driver does not handle the failure case while calling
+dma_set_mask_and_coherent API.
 
-This causes completion of uninitialized completion if the device sends
-CMD_FLUSH_QUEUE_RESP before CMD_FLUSH_QUEUE is ever sent (e.g. as a
-response to a flush by a previously bound driver, or a misbehaving
-device).
+In case of failure, capture the return value of API and then report an
+error.
 
-Fix that by initializing flush_comp in kvaser_usb_init_one() like the
-other completions.
+Addresses-coverity: Unchecked return value (CHECKED_RETURN)
 
-This issue is only triggerable after RX URBs have been set up, i.e. the
-interface has been opened at least once.
-
-Cc: stable@vger.kernel.org
-Fixes: aec5fb2268b7 ("can: kvaser_usb: Add support for Kvaser USB hydra family")
-Tested-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010150829.199676-3-extja@kvaser.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Swati Agarwal <swati.agarwal@xilinx.com>
+Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/20220817061125.4720-4-swati.agarwal@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c  |    1 +
- drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c |    2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/dma/xilinx/xilinx_dma.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
-@@ -690,6 +690,7 @@ static int kvaser_usb_init_one(struct kv
- 	init_usb_anchor(&priv->tx_submitted);
- 	init_completion(&priv->start_comp);
- 	init_completion(&priv->stop_comp);
-+	init_completion(&priv->flush_comp);
- 	priv->can.ctrlmode_supported = 0;
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index f72803587b8f..0ba70be4ea85 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -2674,7 +2674,11 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+ 		xdev->ext_addr = false;
  
- 	priv->dev = dev;
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-@@ -1886,7 +1886,7 @@ static int kvaser_usb_hydra_flush_queue(
- {
- 	int err;
+ 	/* Set the dma mask bits */
+-	dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
++	err = dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
++	if (err < 0) {
++		dev_err(xdev->dev, "DMA mask error %d\n", err);
++		goto disable_clks;
++	}
  
--	init_completion(&priv->flush_comp);
-+	reinit_completion(&priv->flush_comp);
- 
- 	err = kvaser_usb_hydra_send_simple_cmd(priv->dev, CMD_FLUSH_QUEUE,
- 					       priv->channel);
+ 	/* Initialize the DMA engine */
+ 	xdev->common.dev = &pdev->dev;
+-- 
+2.35.1
+
 
 
