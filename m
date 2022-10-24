@@ -2,45 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A6AA60AFE0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:59:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C72960AFEF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:00:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231522AbiJXP7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 11:59:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35552 "EHLO
+        id S231432AbiJXP73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:59:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232125AbiJXP6f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:58:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 682EE143A58;
-        Mon, 24 Oct 2022 07:53:36 -0700 (PDT)
+        with ESMTP id S229952AbiJXP6N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:58:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8C66AA3E9;
+        Mon, 24 Oct 2022 07:53:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F5EEB81339;
-        Mon, 24 Oct 2022 12:31:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FC65C433C1;
-        Mon, 24 Oct 2022 12:31:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B108BB819FC;
+        Mon, 24 Oct 2022 12:50:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7674C433C1;
+        Mon, 24 Oct 2022 12:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614667;
-        bh=4FjH9BRTsH6KAHs5Hei+T4T984SR+zlhF2Yp4tsD4EE=;
+        s=korg; t=1666615835;
+        bh=HfJh30DdhUe2kdQVdZhS5+2PUjyfa70Ky08wy1J+XWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UlltY2HrJR95mEe4CZ7X66KhCtrC35+IO98A9l1ra08yEz7mGg50EFapNHvS+eSti
-         toRkR58cUCQfF1af+kjNIe7LnBzq+eADyxl3ENUprEyvz9ymMVhij7qM2eWgPe3WPl
-         Gvn6ET+wHGGPKMLXXD5ROI3YsaFJM8UUNWIg4ApE=
+        b=Vot93DP5DnvUmvlA8/hmjbGx9yYO0vexhREst9sIazbCYQo5F2dLTCCBMkB83p8po
+         VVbCprfar7EhxTYMH8YfLsQMQWNsGDdX26EL30KNRXMtZ4KrqI4D4UeRE17jkVFfhD
+         vqVnef62MXYB1TaxRh1FkZv1z8qgiIp8j2Q98rPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 347/390] ARM: dts: imx6sll: add missing properties for sram
-Date:   Mon, 24 Oct 2022 13:32:24 +0200
-Message-Id: <20221024113037.768874549@linuxfoundation.org>
+        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Michal Hocko <mhocko@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 402/530] rcu: Back off upon fill_page_cache_func() allocation failure
+Date:   Mon, 24 Oct 2022 13:32:26 +0200
+Message-Id: <20221024113103.267372098@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +61,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Michal Hocko <mhocko@suse.com>
 
-[ Upstream commit 7492a83ed9b7a151e2dd11d64b06da7a7f0fa7f9 ]
+[ Upstream commit 093590c16b447f53e66771c8579ae66c96f6ef61 ]
 
-All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
-sram@900000: '#address-cells' is a required property
-sram@900000: '#size-cells' is a required property
-sram@900000: 'ranges' is a required property
+The fill_page_cache_func() function allocates couple of pages to store
+kvfree_rcu_bulk_data structures. This is a lightweight (GFP_NORETRY)
+allocation which can fail under memory pressure. The function will,
+however keep retrying even when the previous attempt has failed.
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+This retrying is in theory correct, but in practice the allocation is
+invoked from workqueue context, which means that if the memory reclaim
+gets stuck, these retries can hog the worker for quite some time.
+Although the workqueues subsystem automatically adjusts concurrency, such
+adjustment is not guaranteed to happen until the worker context sleeps.
+And the fill_page_cache_func() function's retry loop is not guaranteed
+to sleep (see the should_reclaim_retry() function).
+
+And we have seen this function cause workqueue lockups:
+
+kernel: BUG: workqueue lockup - pool cpus=93 node=1 flags=0x1 nice=0 stuck for 32s!
+[...]
+kernel: pool 74: cpus=37 node=0 flags=0x1 nice=0 hung=32s workers=2 manager: 2146
+kernel:   pwq 498: cpus=249 node=1 flags=0x1 nice=0 active=4/256 refcnt=5
+kernel:     in-flight: 1917:fill_page_cache_func
+kernel:     pending: dbs_work_handler, free_work, kfree_rcu_monitor
+
+Originally, we thought that the root cause of this lockup was several
+retries with direct reclaim, but this is not yet confirmed.  Furthermore,
+we have seen similar lockups without any heavy memory pressure.  This
+suggests that there are other factors contributing to these lockups.
+However, it is not really clear that endless retries are desireable.
+
+So let's make the fill_page_cache_func() function back off after
+allocation failure.
+
+Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Frederic Weisbecker <frederic@kernel.org>
+Cc: Neeraj Upadhyay <quic_neeraju@quicinc.com>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6sll.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/rcu/tree.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6sll.dtsi b/arch/arm/boot/dts/imx6sll.dtsi
-index 0b622201a1f3..bf5b262b91f9 100644
---- a/arch/arm/boot/dts/imx6sll.dtsi
-+++ b/arch/arm/boot/dts/imx6sll.dtsi
-@@ -115,6 +115,9 @@
- 		ocram: sram@900000 {
- 			compatible = "mmio-sram";
- 			reg = <0x00900000 0x20000>;
-+			ranges = <0 0x00900000 0x20000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 		};
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index a4a9d68b1fdc..63f7ce228cc3 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -3419,15 +3419,16 @@ static void fill_page_cache_func(struct work_struct *work)
+ 		bnode = (struct kvfree_rcu_bulk_data *)
+ 			__get_free_page(GFP_KERNEL | __GFP_NORETRY | __GFP_NOMEMALLOC | __GFP_NOWARN);
  
- 		intc: interrupt-controller@a01000 {
+-		if (bnode) {
+-			raw_spin_lock_irqsave(&krcp->lock, flags);
+-			pushed = put_cached_bnode(krcp, bnode);
+-			raw_spin_unlock_irqrestore(&krcp->lock, flags);
++		if (!bnode)
++			break;
+ 
+-			if (!pushed) {
+-				free_page((unsigned long) bnode);
+-				break;
+-			}
++		raw_spin_lock_irqsave(&krcp->lock, flags);
++		pushed = put_cached_bnode(krcp, bnode);
++		raw_spin_unlock_irqrestore(&krcp->lock, flags);
++
++		if (!pushed) {
++			free_page((unsigned long) bnode);
++			break;
+ 		}
+ 	}
+ 
 -- 
 2.35.1
 
