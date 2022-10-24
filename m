@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F9A060A904
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 302BA60A550
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:23:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233270AbiJXNOw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:14:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52620 "EHLO
+        id S233378AbiJXMXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:23:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235776AbiJXNM5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:12:57 -0400
+        with ESMTP id S233379AbiJXMVX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:21:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80AA82E9CF;
-        Mon, 24 Oct 2022 05:24:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 752DD7C1C2;
+        Mon, 24 Oct 2022 04:59:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD1B0612FD;
-        Mon, 24 Oct 2022 12:23:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF5F3C433D6;
-        Mon, 24 Oct 2022 12:23:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4805C6129D;
+        Mon, 24 Oct 2022 11:58:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56FDBC433C1;
+        Mon, 24 Oct 2022 11:58:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614229;
-        bh=HQosdGr41cp0NFgCCjWe9LaRMBUwVhJBGCi8A5OeLws=;
+        s=korg; t=1666612703;
+        bh=SHrIBPADbDxNOqMn8ECyzs/m+km99o1nTQ+oA5ePm1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xHCTHEeYCYSdQWKdsp/ZyRs00pGwC69xOxe237sOvVyMAXhKyuohLLRGcvk+uJo1d
-         r8VHcTIOd24vrlQ9kOe77oBBtEUCL3f+i3xSU9awekAz1zRPMyZbllUtb6rPXD4Ozi
-         7gRv0oubuSvk5Dp6oz5QgGTdmLK9UhLXeukMSbjs=
+        b=GgslSI61mt35a2ma8ieACoSuMQjaYBrlriFw4Fj6/IBQ9JiGrua7MLgqeBwALo+vV
+         j40Okkeugx5HFZp6kBHapsIUE8uflb/VEf1CDqQKVB2KliFxmfowuLOMkk5Ihr+ZWD
+         LeTHJqtIBmCRWqit7NGURiEdMtqDliuC7aBNmYx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 180/390] soc/tegra: fuse: Drop Kconfig dependency on TEGRA20_APB_DMA
+        stable@vger.kernel.org, stable@kernel.org,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        syzbot+bd13648a53ed6933ca49@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Lukas Czerner <lczerner@redhat.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 058/229] ext4: avoid crash when inline data creation follows DIO write
 Date:   Mon, 24 Oct 2022 13:29:37 +0200
-Message-Id: <20221024113030.413695152@linuxfoundation.org>
+Message-Id: <20221024113000.959206511@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 2254182807fc09ba9dec9a42ef239e373796f1b2 ]
+commit 4bb26f2885ac6930984ee451b952c5a6042f2c0e upstream.
 
-The DMA subsystem could be entirely disabled in Kconfig and then the
-TEGRA20_APB_DMA option isn't available too. Hence kernel configuration
-fails if DMADEVICES Kconfig option is disabled due to the unsatisfiable
-dependency.
+When inode is created and written to using direct IO, there is nothing
+to clear the EXT4_STATE_MAY_INLINE_DATA flag. Thus when inode gets
+truncated later to say 1 byte and written using normal write, we will
+try to store the data as inline data. This confuses the code later
+because the inode now has both normal block and inline data allocated
+and the confusion manifests for example as:
 
-The FUSE driver isn't a critical driver and currently it only provides
-NVMEM interface to userspace which isn't known to be widely used, and
-thus, it's fine if FUSE driver fails to load.
+kernel BUG at fs/ext4/inode.c:2721!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 359 Comm: repro Not tainted 5.19.0-rc8-00001-g31ba1e3b8305-dirty #15
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-1.fc36 04/01/2014
+RIP: 0010:ext4_writepages+0x363d/0x3660
+RSP: 0018:ffffc90000ccf260 EFLAGS: 00010293
+RAX: ffffffff81e1abcd RBX: 0000008000000000 RCX: ffff88810842a180
+RDX: 0000000000000000 RSI: 0000008000000000 RDI: 0000000000000000
+RBP: ffffc90000ccf650 R08: ffffffff81e17d58 R09: ffffed10222c680b
+R10: dfffe910222c680c R11: 1ffff110222c680a R12: ffff888111634128
+R13: ffffc90000ccf880 R14: 0000008410000000 R15: 0000000000000001
+FS:  00007f72635d2640(0000) GS:ffff88811b000000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000565243379180 CR3: 000000010aa74000 CR4: 0000000000150eb0
+Call Trace:
+ <TASK>
+ do_writepages+0x397/0x640
+ filemap_fdatawrite_wbc+0x151/0x1b0
+ file_write_and_wait_range+0x1c9/0x2b0
+ ext4_sync_file+0x19e/0xa00
+ vfs_fsync_range+0x17b/0x190
+ ext4_buffered_write_iter+0x488/0x530
+ ext4_file_write_iter+0x449/0x1b90
+ vfs_write+0xbcd/0xf40
+ ksys_write+0x198/0x2c0
+ __x64_sys_write+0x7b/0x90
+ do_syscall_64+0x3d/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ </TASK>
 
-Let's remove the erroneous Kconfig dependency and let the FUSE driver to
-fail the probing if DMA is unavailable.
+Fix the problem by clearing EXT4_STATE_MAY_INLINE_DATA when we are doing
+direct IO write to a file.
 
-Fixes: 19d41e5e9c68 ("soc/tegra: fuse: Add APB DMA dependency for Tegra20")
-Reported-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209301
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@kernel.org
+Reported-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Reported-by: syzbot+bd13648a53ed6933ca49@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=a1e89d09bbbcbd5c4cb45db230ee28c822953984
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Tested-by: Tadeusz Struk<tadeusz.struk@linaro.org>
+Link: https://lore.kernel.org/r/20220727155753.13969-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/tegra/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ fs/ext4/file.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/soc/tegra/Kconfig b/drivers/soc/tegra/Kconfig
-index 976dee036470..676807c5a215 100644
---- a/drivers/soc/tegra/Kconfig
-+++ b/drivers/soc/tegra/Kconfig
-@@ -136,7 +136,6 @@ config SOC_TEGRA_FUSE
- 	def_bool y
- 	depends on ARCH_TEGRA
- 	select SOC_BUS
--	select TEGRA20_APB_DMA if ARCH_TEGRA_2x_SOC
+--- a/fs/ext4/file.c
++++ b/fs/ext4/file.c
+@@ -501,6 +501,12 @@ loff_t ext4_llseek(struct file *file, lo
+ 		inode_unlock_shared(inode);
+ 		break;
+ 	}
++	/*
++	 * Make sure inline data cannot be created anymore since we are going
++	 * to allocate blocks for DIO. We know the inode does not have any
++	 * inline data now because ext4_dio_supported() checked for that.
++	 */
++	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
  
- config SOC_TEGRA_FLOWCTRL
- 	bool
--- 
-2.35.1
-
+ 	if (offset < 0)
+ 		return offset;
 
 
