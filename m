@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A95C60AE5A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:58:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5E0260AFCA
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:58:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232733AbiJXO6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:58:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58292 "EHLO
+        id S231678AbiJXP55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:57:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233920AbiJXO5y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:57:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850455143A;
-        Mon, 24 Oct 2022 06:35:11 -0700 (PDT)
+        with ESMTP id S231642AbiJXP5Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:57:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC3C1E26;
+        Mon, 24 Oct 2022 07:52:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D80E7612A0;
-        Mon, 24 Oct 2022 12:27:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EADE9C433C1;
-        Mon, 24 Oct 2022 12:27:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 980EAB811A0;
+        Mon, 24 Oct 2022 11:45:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E15F0C433C1;
+        Mon, 24 Oct 2022 11:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614455;
-        bh=6S8wkVtGZt0abelM+HE995JPE3aIj7ImAwxa7yJSGBE=;
+        s=korg; t=1666611899;
+        bh=+IJfdwQZHLdBxmVW+3yGX0T13fs3Qxpi0bql/8osMgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gFl6nXr/Mk7NW7ND0cOyVqqN2sGDZjHK4Uv83Z+Ig6WQQau0wGD8GIIxO4JT55kPs
-         yOblhYfGS1ZR2nq+3qJj0zfuQbg+WeP3Vahja4IB3LoECeXZbRxHwi0MiIJ03ICz91
-         UKi6UJwnIKd6goxaOqLK+AtoDKBOo+7LtT5KXG30=
+        b=jHIstq0cNdlnyTgeP6U2vXmE7B1vitDwKZwqa5S9HgGRG5ZHimQOgqrYnUQO9JLBM
+         quQFz80skLh30mzSEvakGPZ4bvby6h28NHdz28hx81rTjGhaggIZJbgTfaTjJNLx24
+         UkUZmEOMSUPxacOsZLRX+/tOL0IF0/QpsG24qxyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 268/390] x86/hyperv: Fix struct hv_enlightened_vmcs definition
-Date:   Mon, 24 Oct 2022 13:31:05 +0200
-Message-Id: <20221024113034.330762947@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 113/159] mfd: lp8788: Fix an error handling path in lp8788_irq_init() and lp8788_irq_init()
+Date:   Mon, 24 Oct 2022 13:31:07 +0200
+Message-Id: <20221024112953.596139680@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit ea9da788a61e47e7ab9cbad397453e51cd82ac0d ]
+[ Upstream commit 557244f6284f30613f2d61f14b579303165876c3 ]
 
-Section 1.9 of TLFS v6.0b says:
+In lp8788_irq_init(), if an error occurs after a successful
+irq_domain_add_linear() call, it must be undone by a corresponding
+irq_domain_remove() call.
 
-"All structures are padded in such a way that fields are aligned
-naturally (that is, an 8-byte field is aligned to an offset of 8 bytes
-and so on)".
+irq_domain_remove() should also be called in lp8788_irq_exit() for the same
+reason.
 
-'struct enlightened_vmcs' has a glitch:
-
-...
-        struct {
-                u32                nested_flush_hypercall:1; /*   836: 0  4 */
-                u32                msr_bitmap:1;         /*   836: 1  4 */
-                u32                reserved:30;          /*   836: 2  4 */
-        } hv_enlightenments_control;                     /*   836     4 */
-        u32                        hv_vp_id;             /*   840     4 */
-        u64                        hv_vm_id;             /*   844     8 */
-        u64                        partition_assist_page; /*   852     8 */
-...
-
-And the observed values in 'partition_assist_page' make no sense at
-all. Fix the layout by padding the structure properly.
-
-Fixes: 68d1eb72ee99 ("x86/hyper-v: define struct hv_enlightened_vmcs and clean field bits")
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Link: https://lore.kernel.org/r/20220830133737.1539624-2-vkuznets@redhat.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: eea6b7cc53aa ("mfd: Add lp8788 mfd driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/bcd5a72c9c1c383dd6324680116426e32737655a.1659261275.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/hyperv-tlfs.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mfd/lp8788-irq.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
-index 0ed20e8bba9e..ae7192b75136 100644
---- a/arch/x86/include/asm/hyperv-tlfs.h
-+++ b/arch/x86/include/asm/hyperv-tlfs.h
-@@ -474,7 +474,7 @@ struct hv_enlightened_vmcs {
- 	u64 guest_rip;
- 
- 	u32 hv_clean_fields;
--	u32 hv_padding_32;
-+	u32 padding32_1;
- 	u32 hv_synthetic_controls;
- 	struct {
- 		u32 nested_flush_hypercall:1;
-@@ -482,7 +482,7 @@ struct hv_enlightened_vmcs {
- 		u32 reserved:30;
- 	}  __packed hv_enlightenments_control;
- 	u32 hv_vp_id;
--
-+	u32 padding32_2;
- 	u64 hv_vm_id;
- 	u64 partition_assist_page;
- 	u64 padding64_4[4];
+diff --git a/drivers/mfd/lp8788-irq.c b/drivers/mfd/lp8788-irq.c
+index 792d51bae20f..ae65928f35f0 100644
+--- a/drivers/mfd/lp8788-irq.c
++++ b/drivers/mfd/lp8788-irq.c
+@@ -179,6 +179,7 @@ int lp8788_irq_init(struct lp8788 *lp, int irq)
+ 				IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+ 				"lp8788-irq", irqd);
+ 	if (ret) {
++		irq_domain_remove(lp->irqdm);
+ 		dev_err(lp->dev, "failed to create a thread for IRQ_N\n");
+ 		return ret;
+ 	}
+@@ -192,4 +193,6 @@ void lp8788_irq_exit(struct lp8788 *lp)
+ {
+ 	if (lp->irq)
+ 		free_irq(lp->irq, lp->irqdm);
++	if (lp->irqdm)
++		irq_domain_remove(lp->irqdm);
+ }
 -- 
 2.35.1
 
