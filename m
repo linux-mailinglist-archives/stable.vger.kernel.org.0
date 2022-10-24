@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7685160A625
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:32:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 984DF60A559
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231664AbiJXMcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:32:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53818 "EHLO
+        id S233590AbiJXMXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:23:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234373AbiJXMaK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:30:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 058DC11A27;
-        Mon, 24 Oct 2022 05:04:23 -0700 (PDT)
+        with ESMTP id S233526AbiJXMWm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:22:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCB2CBE21;
+        Mon, 24 Oct 2022 04:59:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62901B811BC;
-        Mon, 24 Oct 2022 11:50:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B43DBC433D7;
-        Mon, 24 Oct 2022 11:50:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 733D961254;
+        Mon, 24 Oct 2022 11:58:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 600FDC433C1;
+        Mon, 24 Oct 2022 11:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612229;
-        bh=p+RDls3UMSxOV4pI0uV5hNiacPwGMJMODJXouPv8m70=;
+        s=korg; t=1666612732;
+        bh=4ml/Nor2Q9RjHra/6MNu/PCwtzXeRuoO3McV+6kBME8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pdWIoa9SISjE/4IoA9Q/E8rt6A7k1zor4VlPl8oLzbH91aKJtX6Dj/znYhXPc6cPd
-         QxJtyVcQr850A3131P+t6AKX0lee/io5Rr9MH7+Mhdat7LLS/uAa4KLTA1rxq6mQFC
-         xFtLNk7ZgqxJXFnoKWqlqRF7jYj16ikYXpmM3pio=
+        b=cp+iRDidWQPL/ORTqy8U4gr2Y9nKl1Lt+sr0I0nxPNDlm7d10Qep6l5ieErK+H5xX
+         lL9DYhjXzc9hWh1XRyIUulT2wwSEaH8VOT3nngZ3jt5pbYPfbjJAAUlpAcf1HRQLUO
+         eXHnm2v5Ps3rhHLeN93+Y5fMkYyeCMiwY29f58A8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
         Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 101/210] drm/bridge: megachips: Fix a null pointer dereference bug
+Subject: [PATCH 4.19 099/229] drm/bridge: megachips: Fix a null pointer dereference bug
 Date:   Mon, 24 Oct 2022 13:30:18 +0200
-Message-Id: <20221024113000.296878970@linuxfoundation.org>
+Message-Id: <20221024113002.235458834@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -84,7 +83,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-index 4ab7b034bfec..313c80f29972 100644
+index a8d776edccc1..07e3a8aaa0e4 100644
 --- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
 +++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
 @@ -290,7 +290,9 @@ static void ge_b850v3_lvds_remove(void)
