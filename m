@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8047E60B206
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:42:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38E7660B04D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:05:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234474AbiJXQmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:42:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59986 "EHLO
+        id S230367AbiJXQFS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:05:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234491AbiJXQlW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:41:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E753FA18F;
-        Mon, 24 Oct 2022 08:28:42 -0700 (PDT)
+        with ESMTP id S232473AbiJXQCs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:02:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9375E18BE1A;
+        Mon, 24 Oct 2022 07:55:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9A62B8133B;
-        Mon, 24 Oct 2022 12:09:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C8EFC433C1;
-        Mon, 24 Oct 2022 12:09:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41BBCB8167E;
+        Mon, 24 Oct 2022 12:26:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FA35C433D7;
+        Mon, 24 Oct 2022 12:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613366;
-        bh=yid7h1IcFvUUz+yr0Ju4t5/VBxBQceYRkM+JldNnPCY=;
+        s=korg; t=1666614415;
+        bh=NKs2j46xrycp+rC2BkWY1EBoIVk7nyn2lYjtSNXnOnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e3bBgxAUP+M+Jd8blBglFIF8JBg6NMnMWQjDrNwdFZpKb9qfJ2tkP/oe/TXyxChU8
-         VQIvlp4sUk0lH2L1ws/XoqhXUMYlXrjXCk0TWxew6jxdtsDH58V2RKmYCwc+VAEYCO
-         z1pnzF+sdirgGCpmszyuSLMSFdILTkRj20PbvnbM=
+        b=T0pAjQzO++oqmjacpOqrZsXD/p1I3RxPN/OVAkMMdFCugOXoIQYMS68NNiWiTpTHY
+         w56M8UU20zzJ9ChUUBUsm///NlXL71KrZ5rWpQmqKYZckgwpKCpNe6Q7+mnpoKR17R
+         3ewcFGhTw/lmtB2VuspkGTrSKWddBg559WXcCgwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 109/255] memory: of: Fix refcount leak bug in of_get_ddr_timings()
+Subject: [PATCH 5.10 222/390] mtd: rawnand: fsl_elbc: Fix none ECC mode
 Date:   Mon, 24 Oct 2022 13:30:19 +0200
-Message-Id: <20221024113006.100020154@linuxfoundation.org>
+Message-Id: <20221024113032.224298131@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 05215fb32010d4afb68fbdbb4d237df6e2d4567b ]
+[ Upstream commit 049e43b9fd8fd2966940485da163d67e96ee3fea ]
 
-We should add the of_node_put() when breaking out of
-for_each_child_of_node() as it will automatically increase
-and decrease the refcount.
+Commit f6424c22aa36 ("mtd: rawnand: fsl_elbc: Make SW ECC work") added
+support for specifying ECC mode via DTS and skipping autodetection.
 
-Fixes: e6b42eb6a66c ("memory: emif: add device tree support to emif driver")
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220719085640.1210583-1-windhl@126.com
+But it broke explicit specification of HW ECC mode in DTS as correct
+settings for HW ECC mode are applied only when NONE mode or nothing was
+specified in DTS file.
+
+Also it started aliasing NONE mode to be same as when ECC mode was not
+specified and disallowed usage of ON_DIE mode.
+
+Fix all these issues. Use autodetection of ECC mode only in case when mode
+was really not specified in DTS file by checking that ecc value is invalid.
+Set HW ECC settings either when HW ECC was specified in DTS or it was
+autodetected. And do not fail when ON_DIE mode is set.
+
+Fixes: f6424c22aa36 ("mtd: rawnand: fsl_elbc: Make SW ECC work")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220707184328.3845-1-pali@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/of_memory.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/nand/raw/fsl_elbc_nand.c | 28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/memory/of_memory.c b/drivers/memory/of_memory.c
-index 46539b27a3fb..835754304a7f 100644
---- a/drivers/memory/of_memory.c
-+++ b/drivers/memory/of_memory.c
-@@ -132,6 +132,7 @@ const struct lpddr2_timings *of_get_ddr_timings(struct device_node *np_ddr,
- 	for_each_child_of_node(np_ddr, np_tim) {
- 		if (of_device_is_compatible(np_tim, tim_compat)) {
- 			if (of_do_get_timings(np_tim, &timings[i])) {
-+				of_node_put(np_tim);
- 				devm_kfree(dev, timings);
- 				goto default_timings;
- 			}
+diff --git a/drivers/mtd/nand/raw/fsl_elbc_nand.c b/drivers/mtd/nand/raw/fsl_elbc_nand.c
+index b2af7f81fdf8..c174b6dc3c6b 100644
+--- a/drivers/mtd/nand/raw/fsl_elbc_nand.c
++++ b/drivers/mtd/nand/raw/fsl_elbc_nand.c
+@@ -727,36 +727,40 @@ static int fsl_elbc_attach_chip(struct nand_chip *chip)
+ 	struct fsl_lbc_regs __iomem *lbc = ctrl->regs;
+ 	unsigned int al;
+ 
+-	switch (chip->ecc.engine_type) {
+ 	/*
+ 	 * if ECC was not chosen in DT, decide whether to use HW or SW ECC from
+ 	 * CS Base Register
+ 	 */
+-	case NAND_ECC_ENGINE_TYPE_NONE:
++	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_INVALID) {
+ 		/* If CS Base Register selects full hardware ECC then use it */
+ 		if ((in_be32(&lbc->bank[priv->bank].br) & BR_DECC) ==
+ 		    BR_DECC_CHK_GEN) {
+-			chip->ecc.read_page = fsl_elbc_read_page;
+-			chip->ecc.write_page = fsl_elbc_write_page;
+-			chip->ecc.write_subpage = fsl_elbc_write_subpage;
+-
+ 			chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
+-			mtd_set_ooblayout(mtd, &fsl_elbc_ooblayout_ops);
+-			chip->ecc.size = 512;
+-			chip->ecc.bytes = 3;
+-			chip->ecc.strength = 1;
+ 		} else {
+ 			/* otherwise fall back to default software ECC */
+ 			chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+ 			chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+ 		}
++	}
++
++	switch (chip->ecc.engine_type) {
++	/* if HW ECC was chosen, setup ecc and oob layout */
++	case NAND_ECC_ENGINE_TYPE_ON_HOST:
++		chip->ecc.read_page = fsl_elbc_read_page;
++		chip->ecc.write_page = fsl_elbc_write_page;
++		chip->ecc.write_subpage = fsl_elbc_write_subpage;
++		mtd_set_ooblayout(mtd, &fsl_elbc_ooblayout_ops);
++		chip->ecc.size = 512;
++		chip->ecc.bytes = 3;
++		chip->ecc.strength = 1;
+ 		break;
+ 
+-	/* if SW ECC was chosen in DT, we do not need to set anything here */
++	/* if none or SW ECC was chosen, we do not need to set anything here */
++	case NAND_ECC_ENGINE_TYPE_NONE:
+ 	case NAND_ECC_ENGINE_TYPE_SOFT:
++	case NAND_ECC_ENGINE_TYPE_ON_DIE:
+ 		break;
+ 
+-	/* should we also implement *_ECC_ENGINE_CONTROLLER to do as above? */
+ 	default:
+ 		return -EINVAL;
+ 	}
 -- 
 2.35.1
 
