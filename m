@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1CB160B2A0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:50:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1637E60B294
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234304AbiJXQu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:50:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55552 "EHLO
+        id S231158AbiJXQuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:50:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232898AbiJXQsp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:48:45 -0400
+        with ESMTP id S234870AbiJXQrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:47:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53BFE1BE9C;
-        Mon, 24 Oct 2022 08:31:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB8BA1ACAB0;
+        Mon, 24 Oct 2022 08:31:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53094B8164E;
-        Mon, 24 Oct 2022 12:56:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1D93C433D6;
-        Mon, 24 Oct 2022 12:56:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E79BB81898;
+        Mon, 24 Oct 2022 12:56:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E227AC433D6;
+        Mon, 24 Oct 2022 12:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616170;
-        bh=nTvLyMk8o6gBGLsVFKxjp5Tas2PM0jRXs3Hr1HrQzYg=;
+        s=korg; t=1666616199;
+        bh=JM2rGUtTpU5kLx24zioLzTCKFhFHOlzuZxQ0fBFyYgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GUVN0tHkcxPE0XprLsHkBhlawFh4aSQg2LHzxqakJk5zrBsikWP2dbJzHp1nJEhoO
-         mEqIZdONzYe2ndtUBis9X994rOsUSvYEyNeUrAnlPuAqYFhLFYLXprkPbGMOFX0L53
-         l+j+chOJANbBfkhU23VG88LtFF2znmy6R2/jCTaY=
+        b=UgTbHhxXn9u6p5723Efme+pAfnYox5t+pM/mg8EMFpFQrtPX3wqevXCEV96R75A4j
+         OD0DM7+9DFVATuZbyhvL8XyP/G90njIlieQhb35LI5H30Ib0d6UPtQ7sD5uGd6zQlO
+         1F0LN2Btz/sweRwepiGkqVht/h3ncC7BGJR6jYkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.15 526/530] lib/Kconfig.debug: Add check for non-constant .{s,u}leb128 support to DWARF5
-Date:   Mon, 24 Oct 2022 13:34:30 +0200
-Message-Id: <20221024113108.815110599@linuxfoundation.org>
+        stable@vger.kernel.org, Jerry Lee <jerrylee@qnap.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 527/530] ext4: continue to expand file system when the target size doesnt reach
+Date:   Mon, 24 Oct 2022 13:34:31 +0200
+Message-Id: <20221024113108.862868328@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,88 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Jerry Lee 李修賢 <jerrylee@qnap.com>
 
-commit 0a6de78cff600cb991f2a1b7ed376935871796a0 upstream.
+commit df3cb754d13d2cd5490db9b8d536311f8413a92e upstream.
 
-When building with a RISC-V kernel with DWARF5 debug info using clang
-and the GNU assembler, several instances of the following error appear:
+When expanding a file system from (16TiB-2MiB) to 18TiB, the operation
+exits early which leads to result inconsistency between resize2fs and
+Ext4 kernel driver.
 
-  /tmp/vgettimeofday-48aa35.s:2963: Error: non-constant .uleb128 is not supported
+=== before ===
+○ → resize2fs /dev/mapper/thin
+resize2fs 1.45.5 (07-Jan-2020)
+Filesystem at /dev/mapper/thin is mounted on /mnt/test; on-line resizing required
+old_desc_blocks = 2048, new_desc_blocks = 2304
+The filesystem on /dev/mapper/thin is now 4831837696 (4k) blocks long.
 
-Dumping the .s file reveals these .uleb128 directives come from
-.debug_loc and .debug_ranges:
+[  865.186308] EXT4-fs (dm-5): mounted filesystem with ordered data mode. Opts: (null). Quota mode: none.
+[  912.091502] dm-4: detected capacity change from 34359738368 to 38654705664
+[  970.030550] dm-5: detected capacity change from 34359734272 to 38654701568
+[ 1000.012751] EXT4-fs (dm-5): resizing filesystem from 4294966784 to 4831837696 blocks
+[ 1000.012878] EXT4-fs (dm-5): resized filesystem to 4294967296
 
-  .Ldebug_loc0:
-          .byte   4                               # DW_LLE_offset_pair
-          .uleb128 .Lfunc_begin0-.Lfunc_begin0    #   starting offset
-          .uleb128 .Ltmp1-.Lfunc_begin0           #   ending offset
-          .byte   1                               # Loc expr size
-          .byte   90                              # DW_OP_reg10
-          .byte   0                               # DW_LLE_end_of_list
+=== after ===
+[  129.104898] EXT4-fs (dm-5): mounted filesystem with ordered data mode. Opts: (null). Quota mode: none.
+[  143.773630] dm-4: detected capacity change from 34359738368 to 38654705664
+[  198.203246] dm-5: detected capacity change from 34359734272 to 38654701568
+[  207.918603] EXT4-fs (dm-5): resizing filesystem from 4294966784 to 4831837696 blocks
+[  207.918754] EXT4-fs (dm-5): resizing filesystem from 4294967296 to 4831837696 blocks
+[  207.918758] EXT4-fs (dm-5): Converting file system to meta_bg
+[  207.918790] EXT4-fs (dm-5): resizing filesystem from 4294967296 to 4831837696 blocks
+[  221.454050] EXT4-fs (dm-5): resized to 4658298880 blocks
+[  227.634613] EXT4-fs (dm-5): resized filesystem to 4831837696
 
-  .Ldebug_ranges0:
-          .byte   4                               # DW_RLE_offset_pair
-          .uleb128 .Ltmp6-.Lfunc_begin0           #   starting offset
-          .uleb128 .Ltmp27-.Lfunc_begin0          #   ending offset
-          .byte   4                               # DW_RLE_offset_pair
-          .uleb128 .Ltmp28-.Lfunc_begin0          #   starting offset
-          .uleb128 .Ltmp30-.Lfunc_begin0          #   ending offset
-          .byte   0                               # DW_RLE_end_of_list
-
-There is an outstanding binutils issue to support a non-constant operand
-to .sleb128 and .uleb128 in GAS for RISC-V but there does not appear to
-be any movement on it, due to concerns over how it would work with
-linker relaxation.
-
-To avoid these build errors, prevent DWARF5 from being selected when
-using clang and an assembler that does not have support for these symbol
-deltas, which can be easily checked in Kconfig with as-instr plus the
-small test program from the dwz test suite from the binutils issue.
-
-Link: https://sourceware.org/bugzilla/show_bug.cgi?id=27215
-Link: https://github.com/ClangBuiltLinux/linux/issues/1719
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-[nathan: Fix conflicts due to lack of f9b3cd24578401e]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Jerry Lee <jerrylee@qnap.com>
+Link: https://lore.kernel.org/r/PU1PR04MB22635E739BD21150DC182AC6A18C9@PU1PR04MB2263.apcprd04.prod.outlook.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/Kconfig.debug |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ fs/ext4/resize.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -208,6 +208,11 @@ config DEBUG_BUGVERBOSE
+--- a/fs/ext4/resize.c
++++ b/fs/ext4/resize.c
+@@ -2088,7 +2088,7 @@ retry:
+ 			goto out;
+ 	}
  
- endmenu # "printk and dmesg options"
+-	if (ext4_blocks_count(es) == n_blocks_count)
++	if (ext4_blocks_count(es) == n_blocks_count && n_blocks_count_retry == 0)
+ 		goto out;
  
-+# Clang is known to generate .{s,u}leb128 with symbol deltas with DWARF5, which
-+# some targets may not support: https://sourceware.org/bugzilla/show_bug.cgi?id=27215
-+config AS_HAS_NON_CONST_LEB128
-+	def_bool $(as-instr,.uleb128 .Lexpr_end4 - .Lexpr_start3\n.Lexpr_start3:\n.Lexpr_end4:)
-+
- menu "Compile-time checks and compiler options"
- 
- config DEBUG_INFO
-@@ -274,7 +279,7 @@ choice
- 
- config DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT
- 	bool "Rely on the toolchain's implicit default DWARF version"
--	depends on !CC_IS_CLANG || AS_IS_LLVM || CLANG_VERSION < 140000 || (AS_IS_GNU && AS_VERSION >= 23502)
-+	depends on !CC_IS_CLANG || AS_IS_LLVM || CLANG_VERSION < 140000 || (AS_IS_GNU && AS_VERSION >= 23502 && AS_HAS_NON_CONST_LEB128)
- 	help
- 	  The implicit default version of DWARF debug info produced by a
- 	  toolchain changes over time.
-@@ -296,7 +301,7 @@ config DEBUG_INFO_DWARF4
- 
- config DEBUG_INFO_DWARF5
- 	bool "Generate DWARF Version 5 debuginfo"
--	depends on !CC_IS_CLANG || AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502)
-+	depends on !CC_IS_CLANG || AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502 && AS_HAS_NON_CONST_LEB128)
- 	depends on !DEBUG_INFO_BTF
- 	help
- 	  Generate DWARF v5 debug info. Requires binutils 2.35.2, gcc 5.0+ (gcc
+ 	err = ext4_alloc_flex_bg_array(sb, n_group + 1);
 
 
