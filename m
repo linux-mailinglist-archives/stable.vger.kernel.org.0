@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9287960AA2E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C31B560A605
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232526AbiJXNbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:31:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37808 "EHLO
+        id S230312AbiJXMbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:31:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236027AbiJXN3Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 082F4A46E;
-        Mon, 24 Oct 2022 05:32:30 -0700 (PDT)
+        with ESMTP id S234180AbiJXM3d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25E3688A2B;
+        Mon, 24 Oct 2022 05:03:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9403B61311;
-        Mon, 24 Oct 2022 12:28:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3FE4C433D6;
-        Mon, 24 Oct 2022 12:28:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83B0BB81212;
+        Mon, 24 Oct 2022 12:00:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA5CBC4314D;
+        Mon, 24 Oct 2022 12:00:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614505;
-        bh=hDIWTXnFPYaCL2NW+LTf3CWQC5jgrfHnhKhZtQhXzUs=;
+        s=korg; t=1666612833;
+        bh=mT8ZRVYxjrruZWUmwxV+YGPFhC0ZsyPOFU+ocTtLHQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PglcMG0eDalz41gy9UovxkjYMW2kqdzwDxQf0pI8fjfsfWQjQPXfrR2RYjukZWNJf
-         Dv0VRSfVVDJJuSIago3V+xHUmKROjembmL3UD3QJrJs2SjgbIGwN/TZgN0RgW+qh9g
-         AqbEs1YIUtIFT5Ml9Q9zipAjviNwYGtw5JDQzA/o=
+        b=pGQemGjmp5UmjuitKDqemdIjo6rtLMB5pSVmThu/fvwuzj5te6wzbacCmZ9AD/Egv
+         3NsZTyB4XSiRDOyKuAJAbleyw2uAvJqbgoZ6I9jtlSL75K77NiqMCun4GN38qQcvov
+         06wGoWnn6HU325eW2BY+tXygjrxzGprgS1yz+TG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 257/390] clk: baikal-t1: Fix invalid xGMAC PTP clock divider
-Date:   Mon, 24 Oct 2022 13:30:54 +0200
-Message-Id: <20221024113033.829094938@linuxfoundation.org>
+Subject: [PATCH 4.19 136/229] ata: fix ata_id_sense_reporting_enabled() and ata_id_has_sense_reporting()
+Date:   Mon, 24 Oct 2022 13:30:55 +0200
+Message-Id: <20221024113003.410828422@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit 3c742088686ce922704aec5b11d09bcc5a396589 ]
+[ Upstream commit 690aa8c3ae308bc696ec8b1b357b995193927083 ]
 
-Most likely due to copy-paste mistake the divider has been set to 10 while
-according to the SoC reference manual it's supposed to be 8 thus having
-PTP clock frequency of 156.25 MHz.
+ACS-5 section
+7.13.6.41 Words 85..87, 120: Commands and feature sets supported or enabled
+states that:
 
-Fixes: 353afa3a8d2e ("clk: Add Baikal-T1 CCU Dividers driver")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Link: https://lore.kernel.org/r/20220929225402.9696-3-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+If bit 15 of word 86 is set to one, bit 14 of word 119 is set to one,
+and bit 15 of word 119 is cleared to zero, then word 119 is valid.
+
+If bit 15 of word 86 is set to one, bit 14 of word 120 is set to one,
+and bit 15 of word 120 is cleared to zero, then word 120 is valid.
+
+(This text also exists in really old ACS standards, e.g. ACS-3.)
+
+Currently, ata_id_sense_reporting_enabled() and
+ata_id_has_sense_reporting() both check bit 15 of word 86,
+but neither of them check that bit 14 of word 119 is set to one,
+or that bit 15 of word 119 is cleared to zero.
+
+Additionally, make ata_id_sense_reporting_enabled() return false
+if !ata_id_has_sense_reporting(), similar to how e.g.
+ata_id_flush_ext_enabled() returns false if !ata_id_has_flush_ext().
+
+Fixes: e87fd28cf9a2 ("libata: Implement support for sense data reporting")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/baikal-t1/clk-ccu-div.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/ata.h | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/baikal-t1/clk-ccu-div.c b/drivers/clk/baikal-t1/clk-ccu-div.c
-index f141fda12b09..ea77eec40ddd 100644
---- a/drivers/clk/baikal-t1/clk-ccu-div.c
-+++ b/drivers/clk/baikal-t1/clk-ccu-div.c
-@@ -207,7 +207,7 @@ static const struct ccu_div_info sys_info[] = {
- 	CCU_DIV_GATE_INFO(CCU_SYS_XGMAC_REF_CLK, "sys_xgmac_ref_clk",
- 			  "eth_clk", CCU_SYS_XGMAC_BASE, 8),
- 	CCU_DIV_FIXED_INFO(CCU_SYS_XGMAC_PTP_CLK, "sys_xgmac_ptp_clk",
--			   "eth_clk", 10),
-+			   "eth_clk", 8),
- 	CCU_DIV_GATE_INFO(CCU_SYS_USB_CLK, "sys_usb_clk",
- 			  "eth_clk", CCU_SYS_USB_BASE, 10),
- 	CCU_DIV_VAR_INFO(CCU_SYS_PVT_CLK, "sys_pvt_clk",
+diff --git a/include/linux/ata.h b/include/linux/ata.h
+index 40d150ad7e07..351e58312e7d 100644
+--- a/include/linux/ata.h
++++ b/include/linux/ata.h
+@@ -786,16 +786,21 @@ static inline bool ata_id_has_read_log_dma_ext(const u16 *id)
+ 
+ static inline bool ata_id_has_sense_reporting(const u16 *id)
+ {
+-	if (!(id[ATA_ID_CFS_ENABLE_2] & (1 << 15)))
++	if (!(id[ATA_ID_CFS_ENABLE_2] & BIT(15)))
++		return false;
++	if ((id[ATA_ID_COMMAND_SET_3] & (BIT(15) | BIT(14))) != BIT(14))
+ 		return false;
+-	return id[ATA_ID_COMMAND_SET_3] & (1 << 6);
++	return id[ATA_ID_COMMAND_SET_3] & BIT(6);
+ }
+ 
+ static inline bool ata_id_sense_reporting_enabled(const u16 *id)
+ {
+-	if (!(id[ATA_ID_CFS_ENABLE_2] & (1 << 15)))
++	if (!ata_id_has_sense_reporting(id))
++		return false;
++	/* ata_id_has_sense_reporting() == true, word 86 must have bit 15 set */
++	if ((id[ATA_ID_COMMAND_SET_4] & (BIT(15) | BIT(14))) != BIT(14))
+ 		return false;
+-	return id[ATA_ID_COMMAND_SET_4] & (1 << 6);
++	return id[ATA_ID_COMMAND_SET_4] & BIT(6);
+ }
+ 
+ /**
 -- 
 2.35.1
 
