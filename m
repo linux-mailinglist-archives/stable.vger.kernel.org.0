@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2CB360A36B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:55:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2417460A36C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:55:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232139AbiJXLzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:55:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34754 "EHLO
+        id S232141AbiJXLzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:55:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231977AbiJXLxI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:53:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A84984F664;
-        Mon, 24 Oct 2022 04:45:09 -0700 (PDT)
+        with ESMTP id S232559AbiJXLzA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:55:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7319379624;
+        Mon, 24 Oct 2022 04:45:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C84F612A1;
-        Mon, 24 Oct 2022 11:44:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D12DC433D6;
-        Mon, 24 Oct 2022 11:44:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 64876CE1333;
+        Mon, 24 Oct 2022 11:44:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5604BC433D7;
+        Mon, 24 Oct 2022 11:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611849;
-        bh=f3Kl8PSdbHZnVxN8KcE0aLttwySrFMb8eFbb3/cb1cc=;
+        s=korg; t=1666611854;
+        bh=/DR/Pm6olMKD07sZdtTxvKVfY++LskMxUDTIWs68pxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bp37qtT7eqIdnHqh2iYMWuO/rNRDXcvPyH+x46vSs5VkZGiS/tVH8cMIGkrGLemiy
-         AKAgChGNQSpckIRZUloHtq9XSeb62WdSolZ1gl2qgQ0fvchApBf7XoLQkcaptES/jL
-         U64zuGlkjDW8xs5cUw/DNDuSWjB0uQ6xkpZtVR9U=
+        b=fnLcPRFUSrmCFitQQFknzjDRzEIhl+aJkUdMpOyu3uMkroY2q2/Z+EaoIzmaVM3Wf
+         J3PWIPCBXUQ5/tanqTwiQNQodgucnB2qype7kdODHAFWCYACRbGUGaFCWlbNTJgMh4
+         vYrb73fq8F3AF1xhjRe8SrRp607/U+7FWELLep6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
-        Daniel Golle <daniel@makrotopia.org>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 134/159] wifi: rt2x00: dont run Rt5592 IQ calibration on MT7620
-Date:   Mon, 24 Oct 2022 13:31:28 +0200
-Message-Id: <20221024112954.365662772@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Gaul <gaul@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 136/159] r8152: Rate limit overflow messages
+Date:   Mon, 24 Oct 2022 13:31:30 +0200
+Message-Id: <20221024112954.430967872@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -53,36 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Andrew Gaul <gaul@gaul.org>
 
-[ Upstream commit d3aad83d05aec0cfd7670cf0028f2ad4b81de92e ]
+[ Upstream commit 93e2be344a7db169b7119de21ac1bf253b8c6907 ]
 
-The function rt2800_iq_calibrate is intended for Rt5592 only.
-Don't call it for MT7620 which has it's own calibration functions.
+My system shows almost 10 million of these messages over a 24-hour
+period which pollutes my logs.
 
-Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/31a1c34ddbd296b82f38c18c9ae7339059215fdc.1663445157.git.daniel@makrotopia.org
+Signed-off-by: Andrew Gaul <gaul@google.com>
+Link: https://lore.kernel.org/r/20221002034128.2026653-1-gaul@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/r8152.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-index 9fc6f1615343..079611ff8def 100644
---- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-+++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-@@ -3386,7 +3386,8 @@ static void rt2800_config_channel(struct rt2x00_dev *rt2x00dev,
- 		reg = (rf->channel <= 14 ? 0x1c : 0x24) + 2 * rt2x00dev->lna_gain;
- 		rt2800_bbp_write_with_rx_chain(rt2x00dev, 66, reg);
- 
--		rt2800_iq_calibrate(rt2x00dev, rf->channel);
-+		if (rt2x00_rt(rt2x00dev, RT5592))
-+			rt2800_iq_calibrate(rt2x00dev, rf->channel);
- 	}
- 
- 	rt2800_bbp_read(rt2x00dev, 4, &bbp);
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 96f6edcb0062..a354695a22a9 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -1282,7 +1282,9 @@ static void intr_callback(struct urb *urb)
+ 			   "Stop submitting intr, status %d\n", status);
+ 		return;
+ 	case -EOVERFLOW:
+-		netif_info(tp, intr, tp->netdev, "intr status -EOVERFLOW\n");
++		if (net_ratelimit())
++			netif_info(tp, intr, tp->netdev,
++				   "intr status -EOVERFLOW\n");
+ 		goto resubmit;
+ 	/* -EPIPE:  should clear the halt */
+ 	default:
 -- 
 2.35.1
 
