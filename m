@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93C7C60A746
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4369C60A41F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234378AbiJXMsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:48:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37518 "EHLO
+        id S232541AbiJXMFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:05:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234419AbiJXMos (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:44:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 671A712611;
-        Mon, 24 Oct 2022 05:09:32 -0700 (PDT)
+        with ESMTP id S232909AbiJXMEh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:04:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC66263D0A;
+        Mon, 24 Oct 2022 04:50:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 46FB261252;
-        Mon, 24 Oct 2022 12:08:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A2B6C433D6;
-        Mon, 24 Oct 2022 12:08:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17638B811BD;
+        Mon, 24 Oct 2022 11:49:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67101C433D6;
+        Mon, 24 Oct 2022 11:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613284;
-        bh=OdCrpPWWG4nWQffHV/hJadngSemBaAi8ZG/iIGDQHl4=;
+        s=korg; t=1666612186;
+        bh=wPT73C7wz0wOnYYzNDbw2GNECMcxZOHB770mS52PGjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GujPXOXYgF/Dc8eWSCCG95k2N4Ps3NKmaR+xwa/zPv2rJt221OzPYWlYSOkOdcjn0
-         zY7YgvO4Dz3oZPI27ZOlGHbBHXg6ntMqwVbL4DIJveCLIk7/zS8Z6HAcHue8PGPu9O
-         0WfVf6ootn3/+U0iG0+PZs/oOLa+/RMgc1UiQ91g=
+        b=SD64py0FAiV7HGu71D0Ebc1MqD9gvn7p1+xn4UN+LGOLzRcowRb/snb9EU3vE5bdK
+         Fw5A4Ja0NWU8qtEYLQmA9iFcwjyGwPePYuceSY0lvX0uL34Ur+7dmym5ZdY6X6zA6t
+         4pYSrADCtEaVUobGI7Oo0gFOFnuNnquCmj75afNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 078/255] spi: s3c64xx: Fix large transfers with DMA
+        stable@vger.kernel.org, stable@kernel.org,
+        Jinke Han <hanjinke.666@bytedance.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 071/210] ext4: place buffer head allocation before handle start
 Date:   Mon, 24 Oct 2022 13:29:48 +0200
-Message-Id: <20221024113005.102682231@linuxfoundation.org>
+Message-Id: <20221024112959.364329797@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Jinke Han <hanjinke.666@bytedance.com>
 
-[ Upstream commit 1224e29572f655facfcd850cf0f0a4784f36a903 ]
+commit d1052d236eddf6aa851434db1897b942e8db9921 upstream.
 
-The COUNT_VALUE in the PACKET_CNT register is 16-bit so the maximum
-value is 65535.  Asking the driver to transfer a larger size currently
-leads to the DMA transfer timing out.  Implement ->max_transfer_size()
-and have the core split the transfer as needed.
+In our product environment, we encounter some jbd hung waiting handles to
+stop while several writters were doing memory reclaim for buffer head
+allocation in delay alloc write path. Ext4 do buffer head allocation with
+holding transaction handle which may be blocked too long if the reclaim
+works not so smooth. According to our bcc trace, the reclaim time in
+buffer head allocation can reach 258s and the jbd transaction commit also
+take almost the same time meanwhile. Except for these extreme cases,
+we often see several seconds delays for cgroup memory reclaim on our
+servers. This is more likely to happen considering docker environment.
 
-Fixes: 230d42d422e7 ("spi: Add s3c64xx SPI Controller driver")
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/20220927112117.77599-5-vincent.whitchurch@axis.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+One thing to note, the allocation of buffer heads is as often as page
+allocation or more often when blocksize less than page size. Just like
+page cache allocation, we should also place the buffer head allocation
+before startting the handle.
+
+Cc: stable@kernel.org
+Signed-off-by: Jinke Han <hanjinke.666@bytedance.com>
+Link: https://lore.kernel.org/r/20220903012429.22555-1-hanjinke.666@bytedance.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-s3c64xx.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/ext4/inode.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/spi/spi-s3c64xx.c b/drivers/spi/spi-s3c64xx.c
-index 1d948fee1a03..d9420561236c 100644
---- a/drivers/spi/spi-s3c64xx.c
-+++ b/drivers/spi/spi-s3c64xx.c
-@@ -84,6 +84,7 @@
- #define S3C64XX_SPI_ST_TX_FIFORDY		(1<<0)
- 
- #define S3C64XX_SPI_PACKET_CNT_EN		(1<<16)
-+#define S3C64XX_SPI_PACKET_CNT_MASK		GENMASK(15, 0)
- 
- #define S3C64XX_SPI_PND_TX_UNDERRUN_CLR		(1<<4)
- #define S3C64XX_SPI_PND_TX_OVERRUN_CLR		(1<<3)
-@@ -654,6 +655,13 @@ static int s3c64xx_spi_prepare_message(struct spi_master *master,
- 	return 0;
- }
- 
-+static size_t s3c64xx_spi_max_transfer_size(struct spi_device *spi)
-+{
-+	struct spi_controller *ctlr = spi->controller;
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1309,6 +1309,13 @@ retry_grab:
+ 	page = grab_cache_page_write_begin(mapping, index, flags);
+ 	if (!page)
+ 		return -ENOMEM;
++	/*
++	 * The same as page allocation, we prealloc buffer heads before
++	 * starting the handle.
++	 */
++	if (!page_has_buffers(page))
++		create_empty_buffers(page, inode->i_sb->s_blocksize, 0);
 +
-+	return ctlr->can_dma ? S3C64XX_SPI_PACKET_CNT_MASK : SIZE_MAX;
-+}
-+
- static int s3c64xx_spi_transfer_one(struct spi_master *master,
- 				    struct spi_device *spi,
- 				    struct spi_transfer *xfer)
-@@ -1118,6 +1126,7 @@ static int s3c64xx_spi_probe(struct platform_device *pdev)
- 	master->prepare_transfer_hardware = s3c64xx_spi_prepare_transfer;
- 	master->prepare_message = s3c64xx_spi_prepare_message;
- 	master->transfer_one = s3c64xx_spi_transfer_one;
-+	master->max_transfer_size = s3c64xx_spi_max_transfer_size;
- 	master->num_chipselect = sci->num_cs;
- 	master->dma_alignment = 8;
- 	master->bits_per_word_mask = SPI_BPW_MASK(32) | SPI_BPW_MASK(16) |
--- 
-2.35.1
-
+ 	unlock_page(page);
+ 
+ retry_journal:
 
 
