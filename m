@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F6260A6B4
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:38:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9274060A48E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:12:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231925AbiJXMh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:37:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45244 "EHLO
+        id S232756AbiJXMM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:12:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230235AbiJXMf7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:35:59 -0400
+        with ESMTP id S232896AbiJXMLc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:11:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B87EA7E005;
-        Mon, 24 Oct 2022 05:05:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 688977FFB9;
+        Mon, 24 Oct 2022 04:53:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA5A0612BB;
-        Mon, 24 Oct 2022 12:02:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB436C433D6;
-        Mon, 24 Oct 2022 12:02:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0BFA61291;
+        Mon, 24 Oct 2022 11:53:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3448C433C1;
+        Mon, 24 Oct 2022 11:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612938;
-        bh=UXuYkRg57IpIdhL+0EpbJonj4qIC8kvPF/3E5EhuwQc=;
+        s=korg; t=1666612384;
+        bh=vjYXcM4d6U4y24O7mT2Q36DVyLJAZZU64TsfuVOvQ4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=haL+Ep5U82igLq05LkygCoKcVHZAPniDK0vjAjkdY5AeV/JbokKQUElS1McP9orNG
-         Vy7n4BF8T1c70xQ/rCZQCUS3IXw1sctmXfNApKTs+DmJaJG+ckdKCAsWAisELqdgmR
-         ZBBpy6SbXmkt4mwF7DRv8ZmabBmEQfPPfyuusqlQ=
+        b=yj63hf8MHq9DE+6r+4IpPgrgXJ6bYbeAtI97DfFmwxZ8MxBaDFTwsfQeFpSF2HKUl
+         vDydXNvMnACWMj5BKKiiJQoWfTGgFUZKNClnNsLmSsTlpIQwPLkdkuRATeYliXiZ49
+         bEyIsbo249k+FzPFJh25Q4Hwn4sKDsGKvlW9bcLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wright Feng <wright.feng@cypress.com>,
-        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
         Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 176/229] wifi: brcmfmac: fix invalid address access when enabling SCAN log level
+Subject: [PATCH 4.14 178/210] wifi: rt2x00: set correct TX_SW_CFG1 MAC register for MT7620
 Date:   Mon, 24 Oct 2022 13:31:35 +0200
-Message-Id: <20221024113004.782832823@linuxfoundation.org>
+Message-Id: <20221024113002.738576707@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,104 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wright Feng <wright.feng@cypress.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit aa666b68e73fc06d83c070d96180b9010cf5a960 ]
+[ Upstream commit eeb50acf15762b61921f9df18663f839f387c054 ]
 
-The variable i is changed when setting random MAC address and causes
-invalid address access when printing the value of pi->reqs[i]->reqid.
+Set correct TX_SW_CFG1 MAC register as it is done also in v3 of the
+vendor driver[1].
 
-We replace reqs index with ri to fix the issue.
-
-[  136.726473] Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
-[  136.737365] Mem abort info:
-[  136.740172]   ESR = 0x96000004
-[  136.743359]   Exception class = DABT (current EL), IL = 32 bits
-[  136.749294]   SET = 0, FnV = 0
-[  136.752481]   EA = 0, S1PTW = 0
-[  136.755635] Data abort info:
-[  136.758514]   ISV = 0, ISS = 0x00000004
-[  136.762487]   CM = 0, WnR = 0
-[  136.765522] user pgtable: 4k pages, 48-bit VAs, pgdp = 000000005c4e2577
-[  136.772265] [0000000000000000] pgd=0000000000000000
-[  136.777160] Internal error: Oops: 96000004 [#1] PREEMPT SMP
-[  136.782732] Modules linked in: brcmfmac(O) brcmutil(O) cfg80211(O) compat(O)
-[  136.789788] Process wificond (pid: 3175, stack limit = 0x00000000053048fb)
-[  136.796664] CPU: 3 PID: 3175 Comm: wificond Tainted: G           O      4.19.42-00001-g531a5f5 #1
-[  136.805532] Hardware name: Freescale i.MX8MQ EVK (DT)
-[  136.810584] pstate: 60400005 (nZCv daif +PAN -UAO)
-[  136.815429] pc : brcmf_pno_config_sched_scans+0x6cc/0xa80 [brcmfmac]
-[  136.821811] lr : brcmf_pno_config_sched_scans+0x67c/0xa80 [brcmfmac]
-[  136.828162] sp : ffff00000e9a3880
-[  136.831475] x29: ffff00000e9a3890 x28: ffff800020543400
-[  136.836786] x27: ffff8000b1008880 x26: ffff0000012bf6a0
-[  136.842098] x25: ffff80002054345c x24: ffff800088d22400
-[  136.847409] x23: ffff0000012bf638 x22: ffff0000012bf6d8
-[  136.852721] x21: ffff8000aced8fc0 x20: ffff8000ac164400
-[  136.858032] x19: ffff00000e9a3946 x18: 0000000000000000
-[  136.863343] x17: 0000000000000000 x16: 0000000000000000
-[  136.868655] x15: ffff0000093f3b37 x14: 0000000000000050
-[  136.873966] x13: 0000000000003135 x12: 0000000000000000
-[  136.879277] x11: 0000000000000000 x10: ffff000009a61888
-[  136.884589] x9 : 000000000000000f x8 : 0000000000000008
-[  136.889900] x7 : 303a32303d726464 x6 : ffff00000a1f957d
-[  136.895211] x5 : 0000000000000000 x4 : ffff00000e9a3942
-[  136.900523] x3 : 0000000000000000 x2 : ffff0000012cead8
-[  136.905834] x1 : ffff0000012bf6d8 x0 : 0000000000000000
-[  136.911146] Call trace:
-[  136.913623]  brcmf_pno_config_sched_scans+0x6cc/0xa80 [brcmfmac]
-[  136.919658]  brcmf_pno_start_sched_scan+0xa4/0x118 [brcmfmac]
-[  136.925430]  brcmf_cfg80211_sched_scan_start+0x80/0xe0 [brcmfmac]
-[  136.931636]  nl80211_start_sched_scan+0x140/0x308 [cfg80211]
-[  136.937298]  genl_rcv_msg+0x358/0x3f4
-[  136.940960]  netlink_rcv_skb+0xb4/0x118
-[  136.944795]  genl_rcv+0x34/0x48
-[  136.947935]  netlink_unicast+0x264/0x300
-[  136.951856]  netlink_sendmsg+0x2e4/0x33c
-[  136.955781]  __sys_sendto+0x120/0x19c
-
-Signed-off-by: Wright Feng <wright.feng@cypress.com>
-Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+[1]: https://gitlab.com/dm38/padavan-ng/-/blob/master/trunk/proprietary/rt_wifi/rtpci/3.0.X.X/mt76x2/chips/rt6352.c#L531
+Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
 Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220722115632.620681-4-alvin@pqrs.dk
+Link: https://lore.kernel.org/r/4be38975ce600a34249e12d09a3cb758c6e71071.1663445157.git.daniel@makrotopia.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/broadcom/brcm80211/brcmfmac/pno.c   | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c
-index ffa243e2e2d0..581a23549ee5 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pno.c
-@@ -163,12 +163,12 @@ static int brcmf_pno_set_random(struct brcmf_if *ifp, struct brcmf_pno_info *pi)
- 	struct brcmf_pno_macaddr_le pfn_mac;
- 	u8 *mac_addr = NULL;
- 	u8 *mac_mask = NULL;
--	int err, i;
-+	int err, i, ri;
- 
--	for (i = 0; i < pi->n_reqs; i++)
--		if (pi->reqs[i]->flags & NL80211_SCAN_FLAG_RANDOM_ADDR) {
--			mac_addr = pi->reqs[i]->mac_addr;
--			mac_mask = pi->reqs[i]->mac_addr_mask;
-+	for (ri = 0; ri < pi->n_reqs; ri++)
-+		if (pi->reqs[ri]->flags & NL80211_SCAN_FLAG_RANDOM_ADDR) {
-+			mac_addr = pi->reqs[ri]->mac_addr;
-+			mac_mask = pi->reqs[ri]->mac_addr_mask;
- 			break;
- 		}
- 
-@@ -190,7 +190,7 @@ static int brcmf_pno_set_random(struct brcmf_if *ifp, struct brcmf_pno_info *pi)
- 	pfn_mac.mac[0] |= 0x02;
- 
- 	brcmf_dbg(SCAN, "enabling random mac: reqid=%llu mac=%pM\n",
--		  pi->reqs[i]->reqid, pfn_mac.mac);
-+		  pi->reqs[ri]->reqid, pfn_mac.mac);
- 	err = brcmf_fil_iovar_data_set(ifp, "pfn_macaddr", &pfn_mac,
- 				       sizeof(pfn_mac));
- 	if (err)
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+index 1309c136f7f3..0c90bf0540b9 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+@@ -5315,7 +5315,7 @@ static int rt2800_init_registers(struct rt2x00_dev *rt2x00dev)
+ 		rt2800_register_write(rt2x00dev, TX_SW_CFG0, 0x00000404);
+ 	} else if (rt2x00_rt(rt2x00dev, RT6352)) {
+ 		rt2800_register_write(rt2x00dev, TX_SW_CFG0, 0x00000401);
+-		rt2800_register_write(rt2x00dev, TX_SW_CFG1, 0x000C0000);
++		rt2800_register_write(rt2x00dev, TX_SW_CFG1, 0x000C0001);
+ 		rt2800_register_write(rt2x00dev, TX_SW_CFG2, 0x00000000);
+ 		rt2800_register_write(rt2x00dev, MIMO_PS_CFG, 0x00000002);
+ 		rt2800_register_write(rt2x00dev, TX_PIN_CFG, 0x00150F0F);
 -- 
 2.35.1
 
