@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C42F60A8C9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A621160A6B5
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235512AbiJXNLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:11:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53800 "EHLO
+        id S229686AbiJXMhr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:37:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235609AbiJXNJH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:09:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 661269E6A4;
-        Mon, 24 Oct 2022 05:22:00 -0700 (PDT)
+        with ESMTP id S234736AbiJXMft (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:35:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5E157CB48;
+        Mon, 24 Oct 2022 05:05:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78DEB612A8;
-        Mon, 24 Oct 2022 12:21:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86202C433C1;
-        Mon, 24 Oct 2022 12:21:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61F5B612D8;
+        Mon, 24 Oct 2022 12:05:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 737C3C433D6;
+        Mon, 24 Oct 2022 12:05:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614092;
-        bh=mmJf2WmHjYvNc14I4worNIpdJc0e+5xAMFPez2Swz+o=;
+        s=korg; t=1666613121;
+        bh=FfZJQ7cgeQy24SFeoZdkQ03d0JuMApp87TbnvR3NJuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YoebTVL3mwfN/JVgxnzwG2dNVKyb7WL0gfxjxVWcHNvehJMzWyqrMHdxekbterUYT
-         EvEa7dExeS3LDM3LkRqJ+7kJsqmxR6xHrBqzppI0R8kfwqc2UVuxvFglrl4hs7yWAV
-         GxQI0qP3EME1X+Ql8aw6SZh2scNo1StVtx+CupAs=
+        b=k6zjV0Ex0cSEZo/HKxQa5x6e6ZTy7y61DEi1ooW4UkrmyeapF387JqnPNiMRMG8iQ
+         587zN0+BCZp+iVBlD2H8PnU8xhr2zYYmw8DYY9SScfzsNMX8Wg6Eonm7jDlgNpd/0c
+         oaskDGDG+h68gtw5sIU/z/czZQET2gSp6WndYfjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Jes Sorensen <jes@trained-monkey.org>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 130/390] wifi: rtl8xxxu: Fix AIFS written to REG_EDCA_*_PARAM
+        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
+        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 017/255] can: kvaser_usb_leaf: Fix overread with an invalid command
 Date:   Mon, 24 Oct 2022 13:28:47 +0200
-Message-Id: <20221024113028.213257065@linuxfoundation.org>
+Message-Id: <20221024113003.001904612@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,98 +53,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-[ Upstream commit 5574d3290449916397f3092dcd2bac92415498e1 ]
+commit 1499ecaea9d2ba68d5e18d80573b4561a8dc4ee7 upstream.
 
-ieee80211_tx_queue_params.aifs is not supposed to be written directly
-to the REG_EDCA_*_PARAM registers. Instead process it like the vendor
-drivers do. It's kinda hacky but it works.
+For command events read from the device,
+kvaser_usb_leaf_read_bulk_callback() verifies that cmd->len does not
+exceed the size of the received data, but the actual kvaser_cmd handlers
+will happily read any kvaser_cmd fields without checking for cmd->len.
 
-This change boosts the download speed and makes it more stable.
+This can cause an overread if the last cmd in the buffer is shorter than
+expected for the command type (with cmd->len showing the actual short
+size).
 
-Tested with RTL8188FU but all the other supported chips should also
-benefit.
+Maximum overread seems to be 22 bytes (CMD_LEAF_LOG_MESSAGE), some of
+which are delivered to userspace as-is.
 
-Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Acked-by: Jes Sorensen <jes@trained-monkey.org>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/038cc03f-3567-77ba-a7bd-c4930e3b2fad@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix that by verifying the length of command before handling it.
+
+This issue can only occur after RX URBs have been set up, i.e. the
+interface has been opened at least once.
+
+Cc: stable@vger.kernel.org
+Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
+Tested-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010150829.199676-2-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 49 +++++++++++++++++++
- 1 file changed, 49 insertions(+)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c |   75 +++++++++++++++++++++++
+ 1 file changed, 75 insertions(+)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index 7818a7ea0498..e34cd6fed7e8 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -4507,6 +4507,53 @@ rtl8xxxu_wireless_mode(struct ieee80211_hw *hw, struct ieee80211_sta *sta)
- 	return network_type;
- }
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -309,6 +309,38 @@ struct kvaser_cmd {
+ 	} u;
+ } __packed;
  
-+static void rtl8xxxu_set_aifs(struct rtl8xxxu_priv *priv, u8 slot_time)
++#define CMD_SIZE_ANY 0xff
++#define kvaser_fsize(field) sizeof_field(struct kvaser_cmd, field)
++
++static const u8 kvaser_usb_leaf_cmd_sizes_leaf[] = {
++	[CMD_START_CHIP_REPLY]		= kvaser_fsize(u.simple),
++	[CMD_STOP_CHIP_REPLY]		= kvaser_fsize(u.simple),
++	[CMD_GET_CARD_INFO_REPLY]	= kvaser_fsize(u.cardinfo),
++	[CMD_TX_ACKNOWLEDGE]		= kvaser_fsize(u.tx_acknowledge_header),
++	[CMD_GET_SOFTWARE_INFO_REPLY]	= kvaser_fsize(u.leaf.softinfo),
++	[CMD_RX_STD_MESSAGE]		= kvaser_fsize(u.leaf.rx_can),
++	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.leaf.rx_can),
++	[CMD_LEAF_LOG_MESSAGE]		= kvaser_fsize(u.leaf.log_message),
++	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.leaf.chip_state_event),
++	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.error_event),
++	/* ignored events: */
++	[CMD_FLUSH_QUEUE_REPLY]		= CMD_SIZE_ANY,
++};
++
++static const u8 kvaser_usb_leaf_cmd_sizes_usbcan[] = {
++	[CMD_START_CHIP_REPLY]		= kvaser_fsize(u.simple),
++	[CMD_STOP_CHIP_REPLY]		= kvaser_fsize(u.simple),
++	[CMD_GET_CARD_INFO_REPLY]	= kvaser_fsize(u.cardinfo),
++	[CMD_TX_ACKNOWLEDGE]		= kvaser_fsize(u.tx_acknowledge_header),
++	[CMD_GET_SOFTWARE_INFO_REPLY]	= kvaser_fsize(u.usbcan.softinfo),
++	[CMD_RX_STD_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
++	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
++	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.usbcan.chip_state_event),
++	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.usbcan.error_event),
++	/* ignored events: */
++	[CMD_USBCAN_CLOCK_OVERFLOW_EVENT] = CMD_SIZE_ANY,
++};
++
+ /* Summary of a kvaser error event, for a unified Leaf/Usbcan error
+  * handling. Some discrepancies between the two families exist:
+  *
+@@ -396,6 +428,43 @@ static const struct kvaser_usb_dev_cfg k
+ 	.bittiming_const = &kvaser_usb_flexc_bittiming_const,
+ };
+ 
++static int kvaser_usb_leaf_verify_size(const struct kvaser_usb *dev,
++				       const struct kvaser_cmd *cmd)
 +{
-+	u32 reg_edca_param[IEEE80211_NUM_ACS] = {
-+		[IEEE80211_AC_VO] = REG_EDCA_VO_PARAM,
-+		[IEEE80211_AC_VI] = REG_EDCA_VI_PARAM,
-+		[IEEE80211_AC_BE] = REG_EDCA_BE_PARAM,
-+		[IEEE80211_AC_BK] = REG_EDCA_BK_PARAM,
-+	};
-+	u32 val32;
-+	u16 wireless_mode = 0;
-+	u8 aifs, aifsn, sifs;
-+	int i;
++	/* buffer size >= cmd->len ensured by caller */
++	u8 min_size = 0;
 +
-+	if (priv->vif) {
-+		struct ieee80211_sta *sta;
-+
-+		rcu_read_lock();
-+		sta = ieee80211_find_sta(priv->vif, priv->vif->bss_conf.bssid);
-+		if (sta)
-+			wireless_mode = rtl8xxxu_wireless_mode(priv->hw, sta);
-+		rcu_read_unlock();
++	switch (dev->driver_info->family) {
++	case KVASER_LEAF:
++		if (cmd->id < ARRAY_SIZE(kvaser_usb_leaf_cmd_sizes_leaf))
++			min_size = kvaser_usb_leaf_cmd_sizes_leaf[cmd->id];
++		break;
++	case KVASER_USBCAN:
++		if (cmd->id < ARRAY_SIZE(kvaser_usb_leaf_cmd_sizes_usbcan))
++			min_size = kvaser_usb_leaf_cmd_sizes_usbcan[cmd->id];
++		break;
 +	}
 +
-+	if (priv->hw->conf.chandef.chan->band == NL80211_BAND_5GHZ ||
-+	    (wireless_mode & WIRELESS_MODE_N_24G))
-+		sifs = 16;
-+	else
-+		sifs = 10;
++	if (min_size == CMD_SIZE_ANY)
++		return 0;
 +
-+	for (i = 0; i < IEEE80211_NUM_ACS; i++) {
-+		val32 = rtl8xxxu_read32(priv, reg_edca_param[i]);
++	if (min_size) {
++		min_size += CMD_HEADER_LEN;
++		if (cmd->len >= min_size)
++			return 0;
 +
-+		/* It was set in conf_tx. */
-+		aifsn = val32 & 0xff;
-+
-+		/* aifsn not set yet or already fixed */
-+		if (aifsn < 2 || aifsn > 15)
-+			continue;
-+
-+		aifs = aifsn * slot_time + sifs;
-+
-+		val32 &= ~0xff;
-+		val32 |= aifs;
-+		rtl8xxxu_write32(priv, reg_edca_param[i], val32);
++		dev_err_ratelimited(&dev->intf->dev,
++				    "Received command %u too short (size %u, needed %u)",
++				    cmd->id, cmd->len, min_size);
++		return -EIO;
 +	}
++
++	dev_warn_ratelimited(&dev->intf->dev,
++			     "Unhandled command (%d, size %d)\n",
++			     cmd->id, cmd->len);
++	return -EINVAL;
 +}
 +
- static void
- rtl8xxxu_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 			  struct ieee80211_bss_conf *bss_conf, u32 changed)
-@@ -4592,6 +4639,8 @@ rtl8xxxu_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 		else
- 			val8 = 20;
- 		rtl8xxxu_write8(priv, REG_SLOT, val8);
-+
-+		rtl8xxxu_set_aifs(priv, val8);
- 	}
+ static void *
+ kvaser_usb_leaf_frame_to_cmd(const struct kvaser_usb_net_priv *priv,
+ 			     const struct sk_buff *skb, int *frame_len,
+@@ -503,6 +572,9 @@ static int kvaser_usb_leaf_wait_cmd(cons
+ end:
+ 	kfree(buf);
  
- 	if (changed & BSS_CHANGED_BSSID) {
--- 
-2.35.1
-
++	if (err == 0)
++		err = kvaser_usb_leaf_verify_size(dev, cmd);
++
+ 	return err;
+ }
+ 
+@@ -1137,6 +1209,9 @@ static void kvaser_usb_leaf_stop_chip_re
+ static void kvaser_usb_leaf_handle_command(const struct kvaser_usb *dev,
+ 					   const struct kvaser_cmd *cmd)
+ {
++	if (kvaser_usb_leaf_verify_size(dev, cmd) < 0)
++		return;
++
+ 	switch (cmd->id) {
+ 	case CMD_START_CHIP_REPLY:
+ 		kvaser_usb_leaf_start_chip_reply(dev, cmd);
 
 
