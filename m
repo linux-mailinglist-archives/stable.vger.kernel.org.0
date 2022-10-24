@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9732660B09B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 027E360B106
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:15:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232340AbiJXQGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:06:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40882 "EHLO
+        id S230188AbiJXQPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:15:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233671AbiJXQEx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:53 -0400
+        with ESMTP id S234271AbiJXQOb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:14:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C260B14D29;
-        Mon, 24 Oct 2022 07:57:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE29F127BEC;
+        Mon, 24 Oct 2022 08:02:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BFBC7B81647;
-        Mon, 24 Oct 2022 12:19:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D14C433D6;
-        Mon, 24 Oct 2022 12:19:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76C36B81627;
+        Mon, 24 Oct 2022 12:18:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAFF8C433D6;
+        Mon, 24 Oct 2022 12:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613979;
-        bh=/tfY/D6Dr1Tjzeph7TEUSjiYk1e6n24XThlyzr692f8=;
+        s=korg; t=1666613903;
+        bh=RHgpOY34xrHo3qmUkhEOiFA/j5Y4V8+PQcbcKFKYUqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1JbzQIqs9X31ZZym3fxxSidBX5imMGybIjJcmsJF+QeRHU8o+OqvwsuP3J2r8536
-         3egcb6p/bmVd67WP6ISpC3rasRL2zOJG/QN6Bh5NpYlQukTT88XSmOWjdVgvk6ptwX
-         SczUgQRWa+SfKepht8lYxjxOemjbFJWgKm2ICH4Y=
+        b=MnQfBGzA7jOq6+8f0iRoObSl/CnLHTAB8XDa+uERDZojAthdO8rG5IgFSdDIolylT
+         8ScLnzqA/Z2x6LOjE+hIF+tV2zp+lfVgrjRkk3980mOXm7N+Q2EPCR/JtPAF4YLxR4
+         rCjUUgNiBXIq9vs2DalK029JaEFMmJNWwC787bGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Alexey Lyashkov <alexey.lyashkov@gmail.com>,
-        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 056/390] jbd2: wake up journal waiters in FIFO order, not LIFO
-Date:   Mon, 24 Oct 2022 13:27:33 +0200
-Message-Id: <20221024113025.016206957@linuxfoundation.org>
+Subject: [PATCH 5.10 058/390] jbd2: fix potential use-after-free in jbd2_fc_wait_bufs
+Date:   Mon, 24 Oct 2022 13:27:35 +0200
+Message-Id: <20221024113025.110853995@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -54,66 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Perepechko <anserper@ya.ru>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 34fc8768ec6089565d6d73bad26724083cecf7bd upstream.
+commit 243d1a5d505d0b0460c9af0ad56ed4a56ef0bebd upstream.
 
-LIFO wakeup order is unfair and sometimes leads to a journal
-user not being able to get a journal handle for hundreds of
-transactions in a row.
-
-FIFO wakeup can make things more fair.
+In 'jbd2_fc_wait_bufs' use 'bh' after put buffer head reference count
+which may lead to use-after-free.
+So judge buffer if uptodate before put buffer head reference count.
 
 Cc: stable@kernel.org
-Signed-off-by: Alexey Lyashkov <alexey.lyashkov@gmail.com>
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220907165959.1137482-1-alexey.lyashkov@gmail.com
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220914100812.1414768-3-yebin10@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jbd2/commit.c      |    2 +-
- fs/jbd2/transaction.c |    6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ fs/jbd2/journal.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/jbd2/commit.c
-+++ b/fs/jbd2/commit.c
-@@ -581,7 +581,7 @@ void jbd2_journal_commit_transaction(jou
- 	journal->j_running_transaction = NULL;
- 	start_time = ktime_get();
- 	commit_transaction->t_log_start = journal->j_head;
--	wake_up(&journal->j_wait_transaction_locked);
-+	wake_up_all(&journal->j_wait_transaction_locked);
- 	write_unlock(&journal->j_state_lock);
- 
- 	jbd_debug(3, "JBD2: commit phase 2a\n");
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -173,7 +173,7 @@ static void wait_transaction_locked(jour
- 	int need_to_start;
- 	tid_t tid = journal->j_running_transaction->t_tid;
- 
--	prepare_to_wait(&journal->j_wait_transaction_locked, &wait,
-+	prepare_to_wait_exclusive(&journal->j_wait_transaction_locked, &wait,
- 			TASK_UNINTERRUPTIBLE);
- 	need_to_start = !tid_geq(journal->j_commit_request, tid);
- 	read_unlock(&journal->j_state_lock);
-@@ -199,7 +199,7 @@ static void wait_transaction_switching(j
- 		read_unlock(&journal->j_state_lock);
- 		return;
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -924,16 +924,16 @@ int jbd2_fc_wait_bufs(journal_t *journal
+ 	for (i = j_fc_off - 1; i >= j_fc_off - num_blks; i--) {
+ 		bh = journal->j_fc_wbuf[i];
+ 		wait_on_buffer(bh);
+-		put_bh(bh);
+-		journal->j_fc_wbuf[i] = NULL;
+ 		/*
+ 		 * Update j_fc_off so jbd2_fc_release_bufs can release remain
+ 		 * buffer head.
+ 		 */
+ 		if (unlikely(!buffer_uptodate(bh))) {
+-			journal->j_fc_off = i;
++			journal->j_fc_off = i + 1;
+ 			return -EIO;
+ 		}
++		put_bh(bh);
++		journal->j_fc_wbuf[i] = NULL;
  	}
--	prepare_to_wait(&journal->j_wait_transaction_locked, &wait,
-+	prepare_to_wait_exclusive(&journal->j_wait_transaction_locked, &wait,
- 			TASK_UNINTERRUPTIBLE);
- 	read_unlock(&journal->j_state_lock);
- 	/*
-@@ -894,7 +894,7 @@ void jbd2_journal_unlock_updates (journa
- 	write_lock(&journal->j_state_lock);
- 	--journal->j_barrier_count;
- 	write_unlock(&journal->j_state_lock);
--	wake_up(&journal->j_wait_transaction_locked);
-+	wake_up_all(&journal->j_wait_transaction_locked);
- }
  
- static void warn_dirty_buffer(struct buffer_head *bh)
+ 	return 0;
 
 
