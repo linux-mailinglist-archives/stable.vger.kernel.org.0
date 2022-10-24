@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9771A60A3C2
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66B6460A376
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:56:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232239AbiJXMAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:00:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59470 "EHLO
+        id S231752AbiJXL4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:56:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232460AbiJXL7A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:59:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6045E76477;
-        Mon, 24 Oct 2022 04:47:55 -0700 (PDT)
+        with ESMTP id S231975AbiJXLzT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:55:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 228AA79EF9;
+        Mon, 24 Oct 2022 04:46:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B7C36125D;
-        Mon, 24 Oct 2022 11:46:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F193C433D6;
-        Mon, 24 Oct 2022 11:46:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F01AB8117D;
+        Mon, 24 Oct 2022 11:46:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2046C43470;
+        Mon, 24 Oct 2022 11:46:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611964;
-        bh=d/xpHVEVIyaWlHQDxxHGdkYh53L4gC3suwuiCWj92YY=;
+        s=korg; t=1666611975;
+        bh=+900UaONJT/K41STI5zOtc2KJLQApWN4BewdicxVIWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WLFP1AGUIeqYbA8FqVUSNEcQJ7VXAAcyznCbFo+t/NAK43zCieaduUM0zHECn+iQa
-         zqCbQNURiOc4Pw1GFogXgGesH+GZC/elhv/+EG5vP00MqgaD3Dhl/+1jsSNqZqxJ/7
-         8ZGgqu3t5KI1jCv1yyLEwxfBC5TSKA6tiy5oO5Aw=
+        b=S/0eHq+sc1C25YI39pQL88TUpI9M+eeaTC1M929JcCVw3oJBpzBGIKDOYmO1HXmSp
+         yRH6E9zgUlJTpoZsOXYcDk3gxp8dq1kcZwUehRkeh9khRcXNlGPx4rD80K8qW6xLqf
+         2iFpbHLFhOn8If8By2kStQy1/hOa+OH2a2y97IYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 019/210] clk: iproc: Do not rely on node name for correct PLL setup
-Date:   Mon, 24 Oct 2022 13:28:56 +0200
-Message-Id: <20221024112957.581294171@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Danilo Cezar Zanella <danilo.zanella@iag.usp.br>
+Subject: [PATCH 4.14 022/210] ARM: fix function graph tracer and unwinder dependencies
+Date:   Mon, 24 Oct 2022 13:28:59 +0200
+Message-Id: <20221024112957.688929913@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -54,79 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 1b24a132eba7a1c19475ba2510ec1c00af3ff914 ]
+commit 503621628b32782a07b2318e4112bd4372aa3401 upstream.
 
-After commit 31fd9b79dc58 ("ARM: dts: BCM5301X: update CRU block
-description") a warning from clk-iproc-pll.c was generated due to a
-duplicate PLL name as well as the console stopped working. Upon closer
-inspection it became clear that iproc_pll_clk_setup() used the Device
-Tree node unit name as an unique identifier as well as a parent name to
-parent all clocks under the PLL.
+Naresh Kamboju recently reported that the function-graph tracer crashes
+on ARM. The function-graph tracer assumes that the kernel is built with
+frame pointers.
 
-BCM5301X was the first platform on which that got noticed because of the
-DT node unit name renaming but the same assumptions hold true for any
-user of the iproc_pll_clk_setup() function.
+We explicitly disabled the function-graph tracer when building Thumb2,
+since the Thumb2 ABI doesn't have frame pointers.
 
-The first 'clock-output-names' property is always guaranteed to be
-unique as well as providing the actual desired PLL clock name, so we
-utilize that to register the PLL and as a parent name of all children
-clock.
+We recently changed the way the unwinder method was selected, which
+seems to have made it more likely that we can end up with the function-
+graph tracer enabled but without the kernel built with frame pointers.
 
-Fixes: 5fe225c105fd ("clk: iproc: add initial common clock support")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Rafał Miłecki <rafal@milecki.pl>
-Link: https://lore.kernel.org/r/20220905161504.1526-1-f.fainelli@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix up the function graph tracer dependencies so the option is not
+available when we have no possibility of having frame pointers, and
+adjust the dependencies on the unwinder option to hide the non-frame
+pointer unwinder options if the function-graph tracer is enabled.
+
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reported-by: Danilo Cezar Zanella <danilo.zanella@iag.usp.br>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/bcm/clk-iproc-pll.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/arm/Kconfig       |    2 +-
+ arch/arm/Kconfig.debug |    6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/bcm/clk-iproc-pll.c b/drivers/clk/bcm/clk-iproc-pll.c
-index 0e858dbf2505..2e59314522dd 100644
---- a/drivers/clk/bcm/clk-iproc-pll.c
-+++ b/drivers/clk/bcm/clk-iproc-pll.c
-@@ -621,6 +621,7 @@ void iproc_pll_clk_setup(struct device_node *node,
- 	const char *parent_name;
- 	struct iproc_clk *iclk_array;
- 	struct clk_hw_onecell_data *clk_data;
-+	const char *clk_name;
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -63,7 +63,7 @@ config ARM
+ 	select HAVE_EFFICIENT_UNALIGNED_ACCESS if (CPU_V6 || CPU_V6K || CPU_V7) && MMU
+ 	select HAVE_EXIT_THREAD
+ 	select HAVE_FTRACE_MCOUNT_RECORD if (!XIP_KERNEL)
+-	select HAVE_FUNCTION_GRAPH_TRACER if (!THUMB2_KERNEL)
++	select HAVE_FUNCTION_GRAPH_TRACER if (!THUMB2_KERNEL && !CC_IS_CLANG)
+ 	select HAVE_FUNCTION_TRACER if (!XIP_KERNEL)
+ 	select HAVE_FUTEX_CMPXCHG if FUTEX
+ 	select HAVE_GCC_PLUGINS
+--- a/arch/arm/Kconfig.debug
++++ b/arch/arm/Kconfig.debug
+@@ -18,8 +18,8 @@ config ARM_PTDUMP
  
- 	if (WARN_ON(!pll_ctrl) || WARN_ON(!clk_ctrl))
- 		return;
-@@ -669,7 +670,12 @@ void iproc_pll_clk_setup(struct device_node *node,
- 	iclk = &iclk_array[0];
- 	iclk->pll = pll;
+ choice
+ 	prompt "Choose kernel unwinder"
+-	default UNWINDER_ARM if AEABI && !FUNCTION_GRAPH_TRACER
+-	default UNWINDER_FRAME_POINTER if !AEABI || FUNCTION_GRAPH_TRACER
++	default UNWINDER_ARM if AEABI
++	default UNWINDER_FRAME_POINTER if !AEABI
+ 	help
+ 	  This determines which method will be used for unwinding kernel stack
+ 	  traces for panics, oopses, bugs, warnings, perf, /proc/<pid>/stack,
+@@ -36,7 +36,7 @@ config UNWINDER_FRAME_POINTER
  
--	init.name = node->name;
-+	ret = of_property_read_string_index(node, "clock-output-names",
-+					    0, &clk_name);
-+	if (WARN_ON(ret))
-+		goto err_pll_register;
-+
-+	init.name = clk_name;
- 	init.ops = &iproc_pll_ops;
- 	init.flags = 0;
- 	parent_name = of_clk_get_parent_name(node, 0);
-@@ -689,13 +695,11 @@ void iproc_pll_clk_setup(struct device_node *node,
- 		goto err_pll_register;
- 
- 	clk_data->hws[0] = &iclk->hw;
-+	parent_name = clk_name;
- 
- 	/* now initialize and register all leaf clocks */
- 	for (i = 1; i < num_clks; i++) {
--		const char *clk_name;
--
- 		memset(&init, 0, sizeof(init));
--		parent_name = node->name;
- 
- 		ret = of_property_read_string_index(node, "clock-output-names",
- 						    i, &clk_name);
--- 
-2.35.1
-
+ config UNWINDER_ARM
+ 	bool "ARM EABI stack unwinder"
+-	depends on AEABI
++	depends on AEABI && !FUNCTION_GRAPH_TRACER
+ 	select ARM_UNWIND
+ 	help
+ 	  This option enables stack unwinding support in the kernel
 
 
