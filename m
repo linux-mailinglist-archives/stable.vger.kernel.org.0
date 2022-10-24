@@ -2,49 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C72960AFEF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:00:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C84F60AC94
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:11:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231432AbiJXP73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 11:59:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36118 "EHLO
+        id S229889AbiJXOKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:10:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229952AbiJXP6N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:58:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8C66AA3E9;
-        Mon, 24 Oct 2022 07:53:32 -0700 (PDT)
+        with ESMTP id S233081AbiJXOIS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:08:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0181FAEA2E;
+        Mon, 24 Oct 2022 05:50:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B108BB819FC;
-        Mon, 24 Oct 2022 12:50:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7674C433C1;
-        Mon, 24 Oct 2022 12:50:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A7786130D;
+        Mon, 24 Oct 2022 12:50:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F0F0C433D6;
+        Mon, 24 Oct 2022 12:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615835;
-        bh=HfJh30DdhUe2kdQVdZhS5+2PUjyfa70Ky08wy1J+XWY=;
+        s=korg; t=1666615838;
+        bh=NnNOle+6GdU/dCal8eZzhfxhUebGvSc2Ta5UO/0MGsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vot93DP5DnvUmvlA8/hmjbGx9yYO0vexhREst9sIazbCYQo5F2dLTCCBMkB83p8po
-         VVbCprfar7EhxTYMH8YfLsQMQWNsGDdX26EL30KNRXMtZ4KrqI4D4UeRE17jkVFfhD
-         vqVnef62MXYB1TaxRh1FkZv1z8qgiIp8j2Q98rPs=
+        b=YxLvpC4Y8815m1KbeABB2xJEfxRaYJ6T6dk8Rq2/Q/8jynkF7z4BD04MJoDuZ0EiF
+         gnogpaYtCySSgGh1cKSOrcsSrHDJFKFQ9jBnBKA5zdNbI4Dchs+yBRJtS78V3YlEv4
+         7rsCEsyBxSqu0cN/++EOtd+6v+gJuoqjboRf1Udo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
+        stable@vger.kernel.org, Zqiang <qiang1.zhang@intel.com>,
         "Paul E. McKenney" <paulmck@kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Michal Hocko <mhocko@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 402/530] rcu: Back off upon fill_page_cache_func() allocation failure
-Date:   Mon, 24 Oct 2022 13:32:26 +0200
-Message-Id: <20221024113103.267372098@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 403/530] rcu-tasks: Convert RCU_LOCKDEP_WARN() to WARN_ONCE()
+Date:   Mon, 24 Oct 2022 13:32:27 +0200
+Message-Id: <20221024113103.308415317@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -61,87 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Hocko <mhocko@suse.com>
+From: Zqiang <qiang1.zhang@intel.com>
 
-[ Upstream commit 093590c16b447f53e66771c8579ae66c96f6ef61 ]
+[ Upstream commit fcd53c8a4dfa38bafb89efdd0b0f718f3a03f884 ]
 
-The fill_page_cache_func() function allocates couple of pages to store
-kvfree_rcu_bulk_data structures. This is a lightweight (GFP_NORETRY)
-allocation which can fail under memory pressure. The function will,
-however keep retrying even when the previous attempt has failed.
+Kernels built with CONFIG_PROVE_RCU=y and CONFIG_DEBUG_LOCK_ALLOC=y
+attempt to emit a warning when the synchronize_rcu_tasks_generic()
+function is called during early boot while the rcu_scheduler_active
+variable is RCU_SCHEDULER_INACTIVE.  However the warnings is not
+actually be printed because the debug_lockdep_rcu_enabled() returns
+false, exactly because the rcu_scheduler_active variable is still equal
+to RCU_SCHEDULER_INACTIVE.
 
-This retrying is in theory correct, but in practice the allocation is
-invoked from workqueue context, which means that if the memory reclaim
-gets stuck, these retries can hog the worker for quite some time.
-Although the workqueues subsystem automatically adjusts concurrency, such
-adjustment is not guaranteed to happen until the worker context sleeps.
-And the fill_page_cache_func() function's retry loop is not guaranteed
-to sleep (see the should_reclaim_retry() function).
+This commit therefore replaces RCU_LOCKDEP_WARN() with WARN_ONCE()
+to force these warnings to actually be printed.
 
-And we have seen this function cause workqueue lockups:
-
-kernel: BUG: workqueue lockup - pool cpus=93 node=1 flags=0x1 nice=0 stuck for 32s!
-[...]
-kernel: pool 74: cpus=37 node=0 flags=0x1 nice=0 hung=32s workers=2 manager: 2146
-kernel:   pwq 498: cpus=249 node=1 flags=0x1 nice=0 active=4/256 refcnt=5
-kernel:     in-flight: 1917:fill_page_cache_func
-kernel:     pending: dbs_work_handler, free_work, kfree_rcu_monitor
-
-Originally, we thought that the root cause of this lockup was several
-retries with direct reclaim, but this is not yet confirmed.  Furthermore,
-we have seen similar lockups without any heavy memory pressure.  This
-suggests that there are other factors contributing to these lockups.
-However, it is not really clear that endless retries are desireable.
-
-So let's make the fill_page_cache_func() function back off after
-allocation failure.
-
-Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Frederic Weisbecker <frederic@kernel.org>
-Cc: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Signed-off-by: Zqiang <qiang1.zhang@intel.com>
 Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ kernel/rcu/tasks.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index a4a9d68b1fdc..63f7ce228cc3 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -3419,15 +3419,16 @@ static void fill_page_cache_func(struct work_struct *work)
- 		bnode = (struct kvfree_rcu_bulk_data *)
- 			__get_free_page(GFP_KERNEL | __GFP_NORETRY | __GFP_NOMEMALLOC | __GFP_NOWARN);
+diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
+index 60c9eacac25b..ae8396032b5d 100644
+--- a/kernel/rcu/tasks.h
++++ b/kernel/rcu/tasks.h
+@@ -171,7 +171,7 @@ static void call_rcu_tasks_generic(struct rcu_head *rhp, rcu_callback_t func,
+ static void synchronize_rcu_tasks_generic(struct rcu_tasks *rtp)
+ {
+ 	/* Complain if the scheduler has not started.  */
+-	RCU_LOCKDEP_WARN(rcu_scheduler_active == RCU_SCHEDULER_INACTIVE,
++	WARN_ONCE(rcu_scheduler_active == RCU_SCHEDULER_INACTIVE,
+ 			 "synchronize_rcu_tasks called too soon");
  
--		if (bnode) {
--			raw_spin_lock_irqsave(&krcp->lock, flags);
--			pushed = put_cached_bnode(krcp, bnode);
--			raw_spin_unlock_irqrestore(&krcp->lock, flags);
-+		if (!bnode)
-+			break;
- 
--			if (!pushed) {
--				free_page((unsigned long) bnode);
--				break;
--			}
-+		raw_spin_lock_irqsave(&krcp->lock, flags);
-+		pushed = put_cached_bnode(krcp, bnode);
-+		raw_spin_unlock_irqrestore(&krcp->lock, flags);
-+
-+		if (!pushed) {
-+			free_page((unsigned long) bnode);
-+			break;
- 		}
- 	}
- 
+ 	/* Wait for the grace period. */
 -- 
 2.35.1
 
