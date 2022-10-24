@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F43060ABAD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDA6660A81D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236615AbiJXNzI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:55:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33698 "EHLO
+        id S235028AbiJXNBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:01:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236759AbiJXNyC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:54:02 -0400
+        with ESMTP id S235398AbiJXNAP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:00:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E56E8D0FF;
-        Mon, 24 Oct 2022 05:43:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26EFF13DE7;
+        Mon, 24 Oct 2022 05:19:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64A7C612DB;
-        Mon, 24 Oct 2022 12:43:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 774D0C433D6;
-        Mon, 24 Oct 2022 12:43:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15C29612F0;
+        Mon, 24 Oct 2022 12:07:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D0E1C433D6;
+        Mon, 24 Oct 2022 12:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615397;
-        bh=fdoR0xvzYT9V9vLf+cdHsA/B+SRWhC/HM+ZFo35VXrE=;
+        s=korg; t=1666613232;
+        bh=u8jCsQTg+AUQ8MfWiYmhRVCIrhrvAtAfKvtbHgYSGJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ChU5BYqR7Pk+95lesD1TzvfWbF0AUdTskL6Ww5xLnW7Rlxe4/7Xjc8T61ll2eNaI3
-         9tAMYOl7xsrVMQ7SQ6xjqMGCwNyNxEBaFBOwxfCt+/0ES52foGyitHWojJsqOXql3F
-         EzuOaOY7rPWZCQKSWNRWpQw++PxlAPZ6mjLI8Awo=
+        b=OXZ5/6NwDMPjcaEKA1bYzXWZb9W8vYpe4u1+k88/ahSKIe10v1VU84iy7dBaB3giE
+         Ix5Y4h13BsXiLLsqKDcoTdcMMBzAqJhhuOd4jPrbAs83XB17xQlvmA+mVLYukUDf9m
+         US8zG0Atez6zc4rRRI9EISdzO+zH/Sz+H7cIc3QU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Jes Sorensen <jes@trained-monkey.org>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 194/530] wifi: rtl8xxxu: Fix AIFS written to REG_EDCA_*_PARAM
-Date:   Mon, 24 Oct 2022 13:28:58 +0200
-Message-Id: <20221024113053.824788491@linuxfoundation.org>
+        stable@vger.kernel.org, Atish Patra <atishp@rivosinc.com>,
+        Andrew Bresticker <abrestic@rivosinc.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.4 029/255] riscv: Allow PROT_WRITE-only mmap()
+Date:   Mon, 24 Oct 2022 13:28:59 +0200
+Message-Id: <20221024113003.412136922@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,98 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Andrew Bresticker <abrestic@rivosinc.com>
 
-[ Upstream commit 5574d3290449916397f3092dcd2bac92415498e1 ]
+commit 9e2e6042a7ec6504fe8e366717afa2f40cf16488 upstream.
 
-ieee80211_tx_queue_params.aifs is not supposed to be written directly
-to the REG_EDCA_*_PARAM registers. Instead process it like the vendor
-drivers do. It's kinda hacky but it works.
+Commit 2139619bcad7 ("riscv: mmap with PROT_WRITE but no PROT_READ is
+invalid") made mmap() return EINVAL if PROT_WRITE was set wihtout
+PROT_READ with the justification that a write-only PTE is considered a
+reserved PTE permission bit pattern in the privileged spec. This check
+is unnecessary since we let VM_WRITE imply VM_READ on RISC-V, and it is
+inconsistent with other architectures that don't support write-only PTEs,
+creating a potential software portability issue. Just remove the check
+altogether and let PROT_WRITE imply PROT_READ as is the case on other
+architectures.
 
-This change boosts the download speed and makes it more stable.
+Note that this also allows PROT_WRITE|PROT_EXEC mappings which were
+disallowed prior to the aforementioned commit; PROT_READ is implied in
+such mappings as well.
 
-Tested with RTL8188FU but all the other supported chips should also
-benefit.
-
-Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Acked-by: Jes Sorensen <jes@trained-monkey.org>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/038cc03f-3567-77ba-a7bd-c4930e3b2fad@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2139619bcad7 ("riscv: mmap with PROT_WRITE but no PROT_READ is invalid")
+Reviewed-by: Atish Patra <atishp@rivosinc.com>
+Signed-off-by: Andrew Bresticker <abrestic@rivosinc.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220915193702.2201018-3-abrestic@rivosinc.com/
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 49 +++++++++++++++++++
- 1 file changed, 49 insertions(+)
+ arch/riscv/kernel/sys_riscv.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index fb2a5fc1a4e6..e74c885a04e5 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -4507,6 +4507,53 @@ rtl8xxxu_wireless_mode(struct ieee80211_hw *hw, struct ieee80211_sta *sta)
- 	return network_type;
+--- a/arch/riscv/kernel/sys_riscv.c
++++ b/arch/riscv/kernel/sys_riscv.c
+@@ -18,9 +18,6 @@ static long riscv_sys_mmap(unsigned long
+ 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
+ 		return -EINVAL;
+ 
+-	if (unlikely((prot & PROT_WRITE) && !(prot & PROT_READ)))
+-		return -EINVAL;
+-
+ 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
+ 			       offset >> (PAGE_SHIFT - page_shift_offset));
  }
- 
-+static void rtl8xxxu_set_aifs(struct rtl8xxxu_priv *priv, u8 slot_time)
-+{
-+	u32 reg_edca_param[IEEE80211_NUM_ACS] = {
-+		[IEEE80211_AC_VO] = REG_EDCA_VO_PARAM,
-+		[IEEE80211_AC_VI] = REG_EDCA_VI_PARAM,
-+		[IEEE80211_AC_BE] = REG_EDCA_BE_PARAM,
-+		[IEEE80211_AC_BK] = REG_EDCA_BK_PARAM,
-+	};
-+	u32 val32;
-+	u16 wireless_mode = 0;
-+	u8 aifs, aifsn, sifs;
-+	int i;
-+
-+	if (priv->vif) {
-+		struct ieee80211_sta *sta;
-+
-+		rcu_read_lock();
-+		sta = ieee80211_find_sta(priv->vif, priv->vif->bss_conf.bssid);
-+		if (sta)
-+			wireless_mode = rtl8xxxu_wireless_mode(priv->hw, sta);
-+		rcu_read_unlock();
-+	}
-+
-+	if (priv->hw->conf.chandef.chan->band == NL80211_BAND_5GHZ ||
-+	    (wireless_mode & WIRELESS_MODE_N_24G))
-+		sifs = 16;
-+	else
-+		sifs = 10;
-+
-+	for (i = 0; i < IEEE80211_NUM_ACS; i++) {
-+		val32 = rtl8xxxu_read32(priv, reg_edca_param[i]);
-+
-+		/* It was set in conf_tx. */
-+		aifsn = val32 & 0xff;
-+
-+		/* aifsn not set yet or already fixed */
-+		if (aifsn < 2 || aifsn > 15)
-+			continue;
-+
-+		aifs = aifsn * slot_time + sifs;
-+
-+		val32 &= ~0xff;
-+		val32 |= aifs;
-+		rtl8xxxu_write32(priv, reg_edca_param[i], val32);
-+	}
-+}
-+
- static void
- rtl8xxxu_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 			  struct ieee80211_bss_conf *bss_conf, u32 changed)
-@@ -4592,6 +4639,8 @@ rtl8xxxu_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 		else
- 			val8 = 20;
- 		rtl8xxxu_write8(priv, REG_SLOT, val8);
-+
-+		rtl8xxxu_set_aifs(priv, val8);
- 	}
- 
- 	if (changed & BSS_CHANGED_BSSID) {
--- 
-2.35.1
-
 
 
