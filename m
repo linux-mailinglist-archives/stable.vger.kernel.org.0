@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5E0260AFCA
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:58:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11DAB60AC4A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231678AbiJXP55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 11:57:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
+        id S229872AbiJXOFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:05:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231642AbiJXP5Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:57:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC3C1E26;
-        Mon, 24 Oct 2022 07:52:31 -0700 (PDT)
+        with ESMTP id S236957AbiJXOEM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:04:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20FE90811;
+        Mon, 24 Oct 2022 05:49:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 980EAB811A0;
-        Mon, 24 Oct 2022 11:45:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E15F0C433C1;
-        Mon, 24 Oct 2022 11:44:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1CB06134C;
+        Mon, 24 Oct 2022 12:47:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0459C433D6;
+        Mon, 24 Oct 2022 12:47:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611899;
-        bh=+IJfdwQZHLdBxmVW+3yGX0T13fs3Qxpi0bql/8osMgE=;
+        s=korg; t=1666615631;
+        bh=0yp0MeoCQn55dZ0Ly+Cfe8r8xQVfv9yqt30m368kJ1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jHIstq0cNdlnyTgeP6U2vXmE7B1vitDwKZwqa5S9HgGRG5ZHimQOgqrYnUQO9JLBM
-         quQFz80skLh30mzSEvakGPZ4bvby6h28NHdz28hx81rTjGhaggIZJbgTfaTjJNLx24
-         UkUZmEOMSUPxacOsZLRX+/tOL0IF0/QpsG24qxyU=
+        b=bdr/nQp8157SAdL6QS1S4VICElTgzPOm6zNAo7hHdIIS/cglF2xmeQxeppug63MHR
+         Hc3q5BO0nacCfwTEzDOKY6mOt+RhKC+nRLyB08TCtZWdELq2tb33HulneIv5IL5cyr
+         g9JrN5vxaiO9S1ctIjLf5hmIRernKMBRTzbmgQNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 113/159] mfd: lp8788: Fix an error handling path in lp8788_irq_init() and lp8788_irq_init()
+        stable@vger.kernel.org, Albert Briscoe <albertsbriscoe@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 323/530] usb: gadget: function: fix dangling pnp_string in f_printer.c
 Date:   Mon, 24 Oct 2022 13:31:07 +0200
-Message-Id: <20221024112953.596139680@linuxfoundation.org>
+Message-Id: <20221024113059.654682359@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +52,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Albert Briscoe <albertsbriscoe@gmail.com>
 
-[ Upstream commit 557244f6284f30613f2d61f14b579303165876c3 ]
+[ Upstream commit 24b7ba2f88e04800b54d462f376512e8c41b8a3c ]
 
-In lp8788_irq_init(), if an error occurs after a successful
-irq_domain_add_linear() call, it must be undone by a corresponding
-irq_domain_remove() call.
+When opts->pnp_string is changed with configfs, new memory is allocated for
+the string. It does not, however, update dev->pnp_string, even though the
+memory is freed. When rquesting the string, the host then gets old or
+corrupted data rather than the new string. The ieee 1284 id string should
+be allowed to change while the device is connected.
 
-irq_domain_remove() should also be called in lp8788_irq_exit() for the same
-reason.
+The bug was introduced in commit fdc01cc286be ("usb: gadget: printer:
+Remove pnp_string static buffer"), which changed opts->pnp_string from a
+char[] to a char*.
+This patch changes dev->pnp_string from a char* to a char** pointing to
+opts->pnp_string.
 
-Fixes: eea6b7cc53aa ("mfd: Add lp8788 mfd driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/bcd5a72c9c1c383dd6324680116426e32737655a.1659261275.git.christophe.jaillet@wanadoo.fr
+Fixes: fdc01cc286be ("usb: gadget: printer: Remove pnp_string static buffer")
+Signed-off-by: Albert Briscoe <albertsbriscoe@gmail.com>
+Link: https://lore.kernel.org/r/20220911223753.20417-1-albertsbriscoe@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/lp8788-irq.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/gadget/function/f_printer.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mfd/lp8788-irq.c b/drivers/mfd/lp8788-irq.c
-index 792d51bae20f..ae65928f35f0 100644
---- a/drivers/mfd/lp8788-irq.c
-+++ b/drivers/mfd/lp8788-irq.c
-@@ -179,6 +179,7 @@ int lp8788_irq_init(struct lp8788 *lp, int irq)
- 				IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
- 				"lp8788-irq", irqd);
- 	if (ret) {
-+		irq_domain_remove(lp->irqdm);
- 		dev_err(lp->dev, "failed to create a thread for IRQ_N\n");
- 		return ret;
- 	}
-@@ -192,4 +193,6 @@ void lp8788_irq_exit(struct lp8788 *lp)
- {
- 	if (lp->irq)
- 		free_irq(lp->irq, lp->irqdm);
-+	if (lp->irqdm)
-+		irq_domain_remove(lp->irqdm);
- }
+diff --git a/drivers/usb/gadget/function/f_printer.c b/drivers/usb/gadget/function/f_printer.c
+index abec5c58f525..a881c69b1f2b 100644
+--- a/drivers/usb/gadget/function/f_printer.c
++++ b/drivers/usb/gadget/function/f_printer.c
+@@ -89,7 +89,7 @@ struct printer_dev {
+ 	u8			printer_cdev_open;
+ 	wait_queue_head_t	wait;
+ 	unsigned		q_len;
+-	char			*pnp_string;	/* We don't own memory! */
++	char			**pnp_string;	/* We don't own memory! */
+ 	struct usb_function	function;
+ };
+ 
+@@ -1000,16 +1000,16 @@ static int printer_func_setup(struct usb_function *f,
+ 			if ((wIndex>>8) != dev->interface)
+ 				break;
+ 
+-			if (!dev->pnp_string) {
++			if (!*dev->pnp_string) {
+ 				value = 0;
+ 				break;
+ 			}
+-			value = strlen(dev->pnp_string);
++			value = strlen(*dev->pnp_string);
+ 			buf[0] = (value >> 8) & 0xFF;
+ 			buf[1] = value & 0xFF;
+-			memcpy(buf + 2, dev->pnp_string, value);
++			memcpy(buf + 2, *dev->pnp_string, value);
+ 			DBG(dev, "1284 PNP String: %x %s\n", value,
+-			    dev->pnp_string);
++			    *dev->pnp_string);
+ 			break;
+ 
+ 		case GET_PORT_STATUS: /* Get Port Status */
+@@ -1475,7 +1475,7 @@ static struct usb_function *gprinter_alloc(struct usb_function_instance *fi)
+ 	kref_init(&dev->kref);
+ 	++opts->refcnt;
+ 	dev->minor = opts->minor;
+-	dev->pnp_string = opts->pnp_string;
++	dev->pnp_string = &opts->pnp_string;
+ 	dev->q_len = opts->q_len;
+ 	mutex_unlock(&opts->lock);
+ 
 -- 
 2.35.1
 
