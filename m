@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DEE860B005
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:01:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57C0A60AFD6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:58:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230351AbiJXQAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:00:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43064 "EHLO
+        id S232148AbiJXP6g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:58:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232377AbiJXP7C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:59:02 -0400
+        with ESMTP id S232168AbiJXP5x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:57:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0531C9D52A;
-        Mon, 24 Oct 2022 07:54:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ED4D12B373;
+        Mon, 24 Oct 2022 07:52:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2D91B8169A;
-        Mon, 24 Oct 2022 12:28:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 218F9C433D6;
-        Mon, 24 Oct 2022 12:28:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 482BEB81196;
+        Mon, 24 Oct 2022 11:43:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 955EFC433C1;
+        Mon, 24 Oct 2022 11:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614515;
-        bh=G2L0nwBjn5VtTyRobVNartiz1/0xuFjNYrEZ5NJlSKU=;
+        s=korg; t=1666611825;
+        bh=9S9Jzqh/QQ0jJHUzmYwU6n8cgbVBAGr8mD+X8spS9Kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xIL7Kig0irVv/2KyxsITbg/4FxxHGkofIkh9tkgm2nfpYBeM9FAnPrTX8Fb9axMVn
-         chPP0AyBphu3DO8MmKXWNp3GIZbPZGalipX9CvYb8tdHco6IKjXZ73GCPZ3uJVrK/+
-         PCxXGJFbEM80/UkSmwhqnJ7YlCezo+HC07VkxJJc=
+        b=i+iSbkU3HGTiE2kHg6lrAITkURIqG0fXrV9+VOi9m1Y9xoui+Q/TXEIeCzntmBw28
+         gTi1rTm0YuZozbfpniSScW8qjikn8GxpQWlNKQbKfst4nIDmipfxUQUqKr596yo3y/
+         qLlSYCdYq1AutglIhUoFR0pbSYzLLvRrbwi/+Gzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-riscv@lists.infradead.org,
-        mingo@redhat.com, paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, zanussi@kernel.org, liaochang1@huawei.com,
-        chris.zjh@huawei.com, Yipeng Zou <zouyipeng@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 283/390] tracing: kprobe: Fix kprobe event gen test module on exit
+Subject: [PATCH 4.9 126/159] thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash
 Date:   Mon, 24 Oct 2022 13:31:20 +0200
-Message-Id: <20221024113034.994789643@linuxfoundation.org>
+Message-Id: <20221024112954.112545109@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,45 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yipeng Zou <zouyipeng@huawei.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit ac48e189527fae87253ef2bf58892e782fb36874 ]
+[ Upstream commit 68b99e94a4a2db6ba9b31fe0485e057b9354a640 ]
 
-Correct gen_kretprobe_test clr event para on module exit.
-This will make it can't to delete.
+When CPU 0 is offline and intel_powerclamp is used to inject
+idle, it generates kernel BUG:
 
-Link: https://lkml.kernel.org/r/20220919125629.238242-2-zouyipeng@huawei.com
+BUG: using smp_processor_id() in preemptible [00000000] code: bash/15687
+caller is debug_smp_processor_id+0x17/0x20
+CPU: 4 PID: 15687 Comm: bash Not tainted 5.19.0-rc7+ #57
+Call Trace:
+<TASK>
+dump_stack_lvl+0x49/0x63
+dump_stack+0x10/0x16
+check_preemption_disabled+0xdd/0xe0
+debug_smp_processor_id+0x17/0x20
+powerclamp_set_cur_state+0x7f/0xf9 [intel_powerclamp]
+...
+...
 
-Cc: <linux-riscv@lists.infradead.org>
-Cc: <mingo@redhat.com>
-Cc: <paul.walmsley@sifive.com>
-Cc: <palmer@dabbelt.com>
-Cc: <aou@eecs.berkeley.edu>
-Cc: <zanussi@kernel.org>
-Cc: <liaochang1@huawei.com>
-Cc: <chris.zjh@huawei.com>
-Fixes: 64836248dda2 ("tracing: Add kprobe event command generation test module")
-Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Here CPU 0 is the control CPU by default and changed to the current CPU,
+if CPU 0 offlined. This check has to be performed under cpus_read_lock(),
+hence the above warning.
+
+Use get_cpu() instead of smp_processor_id() to avoid this BUG.
+
+Suggested-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+[ rjw: Subject edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/kprobe_event_gen_test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thermal/intel_powerclamp.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/kprobe_event_gen_test.c b/kernel/trace/kprobe_event_gen_test.c
-index 18b0f1cbb947..e023154be0f8 100644
---- a/kernel/trace/kprobe_event_gen_test.c
-+++ b/kernel/trace/kprobe_event_gen_test.c
-@@ -206,7 +206,7 @@ static void __exit kprobe_event_gen_test_exit(void)
- 	WARN_ON(kprobe_event_delete("gen_kprobe_test"));
+diff --git a/drivers/thermal/intel_powerclamp.c b/drivers/thermal/intel_powerclamp.c
+index afada655f861..492bb3ec6546 100644
+--- a/drivers/thermal/intel_powerclamp.c
++++ b/drivers/thermal/intel_powerclamp.c
+@@ -519,8 +519,10 @@ static int start_power_clamp(void)
  
- 	/* Disable the event or you can't remove it */
--	WARN_ON(trace_array_set_clr_event(gen_kprobe_test->tr,
-+	WARN_ON(trace_array_set_clr_event(gen_kretprobe_test->tr,
- 					  "kprobes",
- 					  "gen_kretprobe_test", false));
+ 	/* prefer BSP */
+ 	control_cpu = 0;
+-	if (!cpu_online(control_cpu))
+-		control_cpu = smp_processor_id();
++	if (!cpu_online(control_cpu)) {
++		control_cpu = get_cpu();
++		put_cpu();
++	}
  
+ 	clamping = true;
+ 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
 -- 
 2.35.1
 
