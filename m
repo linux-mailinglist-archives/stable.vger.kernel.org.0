@@ -2,74 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DC5260AF54
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:44:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3722560AF12
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:30:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229972AbiJXPoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 11:44:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53168 "EHLO
+        id S231842AbiJXPae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:30:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231822AbiJXPnp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:43:45 -0400
-Received: from mail-qt1-x82d.google.com (mail-qt1-x82d.google.com [IPv6:2607:f8b0:4864:20::82d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C827B92F75
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 07:35:22 -0700 (PDT)
-Received: by mail-qt1-x82d.google.com with SMTP id r19so5705069qtx.6
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 07:35:22 -0700 (PDT)
+        with ESMTP id S229576AbiJXP34 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:29:56 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BFFB1A1B2A
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 07:16:41 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id j12so8554732plj.5
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 07:16:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=x28cr+ZIuK//DRpy8TFD/X6rWHWIZZuhI7rLmSEd6vI=;
-        b=qOoYRS0TENphIlHwLEnnrCbtyhS9bYMMg5Z0KQy/RT5Hqkmw2pvlGdlOwzb3o6eLzq
-         fEbttQr/3GXo+aCvf55AH0PscQFNOKXGl95On4vk2+5bV1bwre3QH99xVLPXCNvhPC46
-         oUCRDSEEgxaZfajOeVF8pf4dQClrZsvdfMkvftKfVPF3sIntUFMfiivNW7A72TmApDRQ
-         EKig02IaryQY39j8ZG5cf05skuHy3lkAXIW9XIkCobImOs5hPaL/wcUAHEMpa0WzUNUW
-         r37TNmrAdvVLjuqk20DrSF05SsM8Ca46XcA2nnP6Toc6zYuy/WLVFdxQqPvxgQnTeAdk
-         wq0g==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=1y8VlLgrSV01w654TV3cWy46AkwKCKX4C8VLLFGNIko=;
+        b=xjOhdMNjQsnTusHSHoSZUl/O639PT2skqf9ryBnxnhVjgywObnJw3In6bCYZUdTuF4
+         qcS4Yww9G2vAlBs3YXPzrOtOW9Y2/LW+5yNSFhi9t4wKMMg3//K1bYvrJJUgpI+1n907
+         if2xLESsdpdaAnMVt5MlXz5uZmJ0AJmKBD49QdUWDh1kGdjmN7RpqOalbwFfCYqZDmK5
+         bcUHM583Oy0UyEjcjKXVoMOT+iSmNs32S8hmJU50Ib2xSjBsGjTYkoQGViISCApbDe2g
+         tj2W4bIrZh8YmHZsysJCCgptM4O7hKZqmcHK2YyMdbLB3CAZtsp1iJ1ceC5yddVFkZ+Z
+         Xkng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=x28cr+ZIuK//DRpy8TFD/X6rWHWIZZuhI7rLmSEd6vI=;
-        b=GtBUHIeeFRoa7w4mrPd7iy9cEgOVdLISPIOyMdLV047wOW7156mLgYHyG2F7FzKPuR
-         yXDeSZOxV9hByefEaZhk1luN6YYroj/ZTS16/khr9TbGPem/Q6mIhmuDRcvqeY6FKuRz
-         GZJuccHvitysvi+mPKmS4VvSnRAT9RCCfNpRn4+YqEtcez+4t6npU+zkFUdnN4W1rwhU
-         OQyyKoWaaof0//IDQeYQ9z50pY/z37E7U/zIfOeiEWN9y48gHxj4328dQymy2hd+NP76
-         MbpKT+W2deBtDipFfV6WUg1iS8NPGDfiZmf3vi40bN5iBoz0vpWOF3b/FtryS2ANz5eq
-         botg==
-X-Gm-Message-State: ACrzQf2QgHZ9miNq9C0x3CbO7YTzideXqWKybnSODpQniKjoCkWHAKsG
-        +XXYdSDF/DOZL5wMN7Vhao4Anok7VW8=
-X-Google-Smtp-Source: AMsMyM62WudXLaZDVywAXVX0D84qewoTRUjp/vpuWiDYGSPf6TA9othD94U0j4AvuTokKAblbe2Kww==
-X-Received: by 2002:ac8:594a:0:b0:39c:f5c7:8e53 with SMTP id 10-20020ac8594a000000b0039cf5c78e53mr27832346qtz.237.1666620108504;
-        Mon, 24 Oct 2022 07:01:48 -0700 (PDT)
-Received: from [192.168.50.208] (ip98-164-255-77.oc.oc.cox.net. [98.164.255.77])
-        by smtp.gmail.com with ESMTPSA id s7-20020a05620a254700b006af0ce13499sm15125378qko.115.2022.10.24.07.01.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Oct 2022 07:01:47 -0700 (PDT)
-Message-ID: <70dbb73f-cb28-8e7a-5b2b-63ef964b28b8@gmail.com>
-Date:   Mon, 24 Oct 2022 07:01:46 -0700
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1y8VlLgrSV01w654TV3cWy46AkwKCKX4C8VLLFGNIko=;
+        b=eP1FOA16HpUwQI8p1UVhLSf1x7EAE5aeIGsqRjgac98I3lBPsnVcL43obGfKdaephD
+         +7TCIgd+8BUB77IzEQzsm3zf1063TM6t8IDD/n97jyAq88WECnIIVjmpzXYnbgDCiNee
+         tN32gbaRq/f94bZxN3Nw6r20G2up5qnSvURcD7nM0FqzERkM7nFklyZRq8mEmz9g9Gf2
+         PirjrQSNpqvf/OXFKbMn7dlYXaCZTxCLRa0sdZ2wA+2eW/Hnrh+vPcqR0H9dO2rlDNUd
+         TF3fVgfYBCYdgxr5ZT4BSIY3uj70vKdqUKUQH/eN2cYQ2sCtNGQWsCfzPc7+nRP331pu
+         J/1w==
+X-Gm-Message-State: ACrzQf2Pu3IitQ6okNxFcxRQBHjdZKbyW/VmXFN9wtOzNGs2OSLKAjtm
+        E06I7enwVs0XiUY0aeI+ZwojJO4NSa8yfUm9
+X-Google-Smtp-Source: AMsMyM6HGHHTleexGM5Z0m4/Pkb4tOshFef4FH/ejOJo0Af8UryoypGzyzhH0tbU8nxE+Z3BBZXahw==
+X-Received: by 2002:a17:902:e54a:b0:186:a3ba:232a with SMTP id n10-20020a170902e54a00b00186a3ba232amr6304345plf.77.1666620248800;
+        Mon, 24 Oct 2022 07:04:08 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t10-20020a63444a000000b0041c0c9c0072sm17027577pgk.64.2022.10.24.07.04.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Oct 2022 07:04:08 -0700 (PDT)
+Message-ID: <63569b58.630a0220.dc36e.f4e4@mx.google.com>
+Date:   Mon, 24 Oct 2022 07:04:08 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.2
-Subject: Re: LTS 5.15 and state of lpfc
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <alexander.levin@microsoft.com>,
-        stable <stable@vger.kernel.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Justin Tee <justintee8345@gmail.com>
-References: <cdc7d1cf-3ad2-c2d2-8006-22bf51f8df4a@gmail.com>
- <Y1YPrvniFIaO/jzJ@kroah.com>
-From:   James Smart <jsmart2021@gmail.com>
-In-Reply-To: <Y1YPrvniFIaO/jzJ@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.19.17
+X-Kernelci-Branch: linux-5.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.19.y baseline: 159 runs, 1 regressions (v5.19.17)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,TVD_SPACE_RATIO
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,17 +70,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/23/2022 9:08 PM, Greg Kroah-Hartman wrote:
-> 
-> Can you just send a patch series that does all of this so that we know
-> it is correct and works properly?  I'll be glad to take that into
-> 5.15.y.
-> 
-> thanks,
-> 
-> greg k-h
+stable-rc/linux-5.19.y baseline: 159 runs, 1 regressions (v5.19.17)
 
-Yep. I wasn't sure how you wanted to approach it.
+Regressions Summary
+-------------------
 
--- james
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+sc7180-trogdo...zor-limozeen | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.19.y/ker=
+nel/v5.19.17/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.19.y
+  Describe: v5.19.17
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2b525314c7b57eac29fe8b77a6589428e4a4f6dd =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+sc7180-trogdo...zor-limozeen | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/635666b489edc1ecb55e5b48
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
+7/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-sc7180-tro=
+gdor-lazor-limozeen.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.1=
+7/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-sc7180-tro=
+gdor-lazor-limozeen.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221007.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/635666b489edc1ecb55e5=
+b49
+        failing since 6 days (last pass: v5.19.15, first fail: v5.19.16-2-g=
+6f2c61ac925e) =
+
+ =20
