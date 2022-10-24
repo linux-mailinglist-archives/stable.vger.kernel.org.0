@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D9760B397
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:11:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88A4160B23E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231174AbiJXRLE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:11:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56292 "EHLO
+        id S234406AbiJXQoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:44:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235281AbiJXRJC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:09:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A554A97D68;
-        Mon, 24 Oct 2022 08:44:15 -0700 (PDT)
+        with ESMTP id S234819AbiJXQn4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:43:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39ADF72857;
+        Mon, 24 Oct 2022 08:30:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 438F1612DB;
-        Mon, 24 Oct 2022 12:44:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F08C433C1;
-        Mon, 24 Oct 2022 12:44:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04555B81135;
+        Mon, 24 Oct 2022 12:08:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5016CC433C1;
+        Mon, 24 Oct 2022 12:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615444;
-        bh=NEI5KP5YcxtrQTmePFUegKCJdj5BMnYHz3l82WEuCnI=;
+        s=korg; t=1666613329;
+        bh=34rtLmGZAXqTGiRi43XeZcJKLD8da60agJA5dgZICh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o966hiEmHPMn5a4vplfAbpVIpxuDh4Ufc2qo0pF2GYfz6gsOKyRk2a3aYLjFpCF3u
-         81kM7D20lGRaAQuzQe+/SYhUJxnNp2uqMbS4Leg8nw6b/5OBegK4r3M/LJNpIDuv+o
-         n0a0tCkyt4VR7IWXoKGSBwUtnBOlEv47lVq22+d0=
+        b=qiSpsSRi30TFG0i29SmA1l8bPYMGWP9G791VZBqQOanoLmjPpwx7Nx1XT5bVMY2Vk
+         eLpFISmBDQouXeTbjrqloNrvn4SmCNJ2upokAlRRMWuyCh71J4tig/SNWbWgoKzTzF
+         WAtP4QnoFlycitzKaf0cMW+ihTyd7QPGvTCxTZFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 253/530] ARM: dts: turris-omnia: Fix mpp26 pin name and comment
-Date:   Mon, 24 Oct 2022 13:29:57 +0200
-Message-Id: <20221024113056.550202016@linuxfoundation.org>
+Subject: [PATCH 5.4 088/255] drm: bridge: adv7511: fix CEC power down control register offset
+Date:   Mon, 24 Oct 2022 13:29:58 +0200
+Message-Id: <20221024113005.440362867@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Alvin Šipraga <alsi@bang-olufsen.dk>
 
-[ Upstream commit 49e93898f0dc177e645c22d0664813567fd9ec00 ]
+[ Upstream commit 1d22b6033ea113a4c3850dfa2c0770885c81aec8 ]
 
-There is a bug in Turris Omnia's schematics, whereupon the MPP[26] pin,
-which is routed to CN11 pin header, is documented as SPI CS1, but
-MPP[26] pin does not support this function. Instead it controls chip
-select 2 if in "spi0" mode.
+The ADV7511_REG_CEC_CTRL = 0xE2 register is part of the main register
+map - not the CEC register map. As such, we shouldn't apply an offset to
+the register address. Doing so will cause us to address a bogus register
+for chips with a CEC register map offset (e.g. ADV7533).
 
-Fix the name of the pin node in pinctrl node and fix the comment in SPI
-node.
-
-Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: 3b1b975003e4 ("drm: adv7511/33: add HDMI CEC support")
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220612144854.2223873-2-alvin@pqrs.dk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-385-turris-omnia.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511.h     | 5 +----
+ drivers/gpu/drm/bridge/adv7511/adv7511_cec.c | 4 ++--
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/armada-385-turris-omnia.dts b/arch/arm/boot/dts/armada-385-turris-omnia.dts
-index 5bd6a66d2c2b..01b0dfd55d70 100644
---- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
-+++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
-@@ -471,7 +471,7 @@
- 		marvell,function = "spi0";
- 	};
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511.h b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+index 52b2adfdc877..90a721226231 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511.h
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+@@ -384,10 +384,7 @@ void adv7511_cec_irq_process(struct adv7511 *adv7511, unsigned int irq1);
+ #else
+ static inline int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ {
+-	unsigned int offset = adv7511->type == ADV7533 ?
+-						ADV7533_REG_CEC_OFFSET : 0;
+-
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset,
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL,
+ 		     ADV7511_CEC_CTRL_POWER_DOWN);
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c b/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
+index a20a45c0b353..ddd1305b82b2 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
+@@ -316,7 +316,7 @@ int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ 		goto err_cec_alloc;
+ 	}
  
--	spi0cs1_pins: spi0cs1-pins {
-+	spi0cs2_pins: spi0cs2-pins {
- 		marvell,pins = "mpp26";
- 		marvell,function = "spi0";
- 	};
-@@ -506,7 +506,7 @@
- 		};
- 	};
- 
--	/* MISO, MOSI, SCLK and CS1 are routed to pin header CN11 */
-+	/* MISO, MOSI, SCLK and CS2 are routed to pin header CN11 */
- };
- 
- &uart0 {
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset, 0);
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL, 0);
+ 	/* cec soft reset */
+ 	regmap_write(adv7511->regmap_cec,
+ 		     ADV7511_REG_CEC_SOFT_RESET + offset, 0x01);
+@@ -343,7 +343,7 @@ int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ 	dev_info(dev, "Initializing CEC failed with error %d, disabling CEC\n",
+ 		 ret);
+ err_cec_parse_dt:
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset,
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL,
+ 		     ADV7511_CEC_CTRL_POWER_DOWN);
+ 	return ret == -EPROBE_DEFER ? ret : 0;
+ }
 -- 
 2.35.1
 
