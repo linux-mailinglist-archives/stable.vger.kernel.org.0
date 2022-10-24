@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E452E60ABA4
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:55:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F84960A8A6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:10:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236545AbiJXNzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:55:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35148 "EHLO
+        id S235384AbiJXNKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:10:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236711AbiJXNxn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:53:43 -0400
+        with ESMTP id S235640AbiJXNJM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:09:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BA66BC617;
-        Mon, 24 Oct 2022 05:43:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 746539F749;
+        Mon, 24 Oct 2022 05:22:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AD9E61328;
-        Mon, 24 Oct 2022 12:42:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6710C433D6;
-        Mon, 24 Oct 2022 12:42:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 07850612E7;
+        Mon, 24 Oct 2022 12:22:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AD4EC433D6;
+        Mon, 24 Oct 2022 12:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615369;
-        bh=1vk9cCfPuQn9h6X3LRfdcgmD8iNffBsmLEgziE8/sDQ=;
+        s=korg; t=1666614137;
+        bh=NDhl75XBw/Cv2H9f1biVIkMHuvFLt/dll9cekvRZ4cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s26we/TZ68fLeNi74lWh4grXRu6eyHY1jSIbCXBfddPk0cbFbloddizDfMF9YsUic
-         JmcBoAG/xkBBt9trnTHh0WXr7JXUAmEirjsdExOMHEY7SUXByIhyLskaf7EltykeEX
-         jGvUnFvrzbYtHw8vOK4tUFoZB9Pi23SUrKAd5m9o=
+        b=rNNbYes0EXswXmS5zp6xT7jKI8/VrBc73LHtlQh0xbSd+Xqng3L1Hlhfr/L2l0ma4
+         npkSbUsNyTZTaSk4z2vVEk36Chgr+D8g0S9ewkVdq/6rmW5VWdZRFqQ3MrruOursci
+         i1URHsWo3P1X0ADZmDItOVxE4RVtgdqmgQde2zpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Simon Ser <contact@emersion.fr>,
+        Lyude Paul <lyude@redhat.com>,
+        Benjamin Gaignard <benjamin.gaignard@st.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 197/530] mISDN: fix use-after-free bugs in l1oip timer handlers
-Date:   Mon, 24 Oct 2022 13:29:01 +0200
-Message-Id: <20221024113053.966947418@linuxfoundation.org>
+Subject: [PATCH 5.10 145/390] drm/dp_mst: fix drm_dp_dpcd_read return value checks
+Date:   Mon, 24 Oct 2022 13:29:02 +0200
+Message-Id: <20221024113028.858350468@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,95 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Simon Ser <contact@emersion.fr>
 
-[ Upstream commit 2568a7e0832ee30b0a351016d03062ab4e0e0a3f ]
+[ Upstream commit 2ac6cdd581f48c8f68747156fde5868486a44985 ]
 
-The l1oip_cleanup() traverses the l1oip_ilist and calls
-release_card() to cleanup module and stack. However,
-release_card() calls del_timer() to delete the timers
-such as keep_tl and timeout_tl. If the timer handler is
-running, the del_timer() will not stop it and result in
-UAF bugs. One of the processes is shown below:
+drm_dp_dpcd_read returns the number of bytes read. The previous code
+would print garbage on DPCD error, and would exit with on error on
+success.
 
-    (cleanup routine)          |        (timer handler)
-release_card()                 | l1oip_timeout()
- ...                           |
- del_timer()                   | ...
- ...                           |
- kfree(hc) //FREE              |
-                               | hc->timeout_on = 0 //USE
-
-Fix by calling del_timer_sync() in release_card(), which
-makes sure the timer handlers have finished before the
-resources, such as l1oip and so on, have been deallocated.
-
-What's more, the hc->workq and hc->socket_thread can kick
-those timers right back in. We add a bool flag to show
-if card is released. Then, check this flag in hc->workq
-and hc->socket_thread.
-
-Fixes: 3712b42d4b1b ("Add layer1 over IP support")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Simon Ser <contact@emersion.fr>
+Fixes: cb897542c6d2 ("drm/dp_mst: Fix W=1 warnings")
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Benjamin Gaignard <benjamin.gaignard@st.com>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/473500/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/mISDN/l1oip.h      |  1 +
- drivers/isdn/mISDN/l1oip_core.c | 13 +++++++------
- 2 files changed, 8 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/isdn/mISDN/l1oip.h b/drivers/isdn/mISDN/l1oip.h
-index 7ea10db20e3a..48133d022812 100644
---- a/drivers/isdn/mISDN/l1oip.h
-+++ b/drivers/isdn/mISDN/l1oip.h
-@@ -59,6 +59,7 @@ struct l1oip {
- 	int			bundle;		/* bundle channels in one frm */
- 	int			codec;		/* codec to use for transmis. */
- 	int			limit;		/* limit number of bchannels */
-+	bool			shutdown;	/* if card is released */
+diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+index ab423b0413ee..4272cd3622f8 100644
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -4856,14 +4856,14 @@ void drm_dp_mst_dump_topology(struct seq_file *m,
+ 		seq_printf(m, "dpcd: %*ph\n", DP_RECEIVER_CAP_SIZE, buf);
  
- 	/* timer */
- 	struct timer_list	keep_tl;
-diff --git a/drivers/isdn/mISDN/l1oip_core.c b/drivers/isdn/mISDN/l1oip_core.c
-index 2c40412466e6..a77195e378b7 100644
---- a/drivers/isdn/mISDN/l1oip_core.c
-+++ b/drivers/isdn/mISDN/l1oip_core.c
-@@ -275,7 +275,7 @@ l1oip_socket_send(struct l1oip *hc, u8 localcodec, u8 channel, u32 chanmask,
- 	p = frame;
+ 		ret = drm_dp_dpcd_read(mgr->aux, DP_FAUX_CAP, buf, 2);
+-		if (ret) {
++		if (ret != 2) {
+ 			seq_printf(m, "faux/mst read failed\n");
+ 			goto out;
+ 		}
+ 		seq_printf(m, "faux/mst: %*ph\n", 2, buf);
  
- 	/* restart timer */
--	if (time_before(hc->keep_tl.expires, jiffies + 5 * HZ))
-+	if (time_before(hc->keep_tl.expires, jiffies + 5 * HZ) && !hc->shutdown)
- 		mod_timer(&hc->keep_tl, jiffies + L1OIP_KEEPALIVE * HZ);
- 	else
- 		hc->keep_tl.expires = jiffies + L1OIP_KEEPALIVE * HZ;
-@@ -601,7 +601,9 @@ l1oip_socket_parse(struct l1oip *hc, struct sockaddr_in *sin, u8 *buf, int len)
- 		goto multiframe;
+ 		ret = drm_dp_dpcd_read(mgr->aux, DP_MSTM_CTRL, buf, 1);
+-		if (ret) {
++		if (ret != 1) {
+ 			seq_printf(m, "mst ctrl read failed\n");
+ 			goto out;
+ 		}
+@@ -4871,7 +4871,7 @@ void drm_dp_mst_dump_topology(struct seq_file *m,
  
- 	/* restart timer */
--	if (time_before(hc->timeout_tl.expires, jiffies + 5 * HZ) || !hc->timeout_on) {
-+	if ((time_before(hc->timeout_tl.expires, jiffies + 5 * HZ) ||
-+	     !hc->timeout_on) &&
-+	    !hc->shutdown) {
- 		hc->timeout_on = 1;
- 		mod_timer(&hc->timeout_tl, jiffies + L1OIP_TIMEOUT * HZ);
- 	} else /* only adjust timer */
-@@ -1232,11 +1234,10 @@ release_card(struct l1oip *hc)
- {
- 	int	ch;
- 
--	if (timer_pending(&hc->keep_tl))
--		del_timer(&hc->keep_tl);
-+	hc->shutdown = true;
- 
--	if (timer_pending(&hc->timeout_tl))
--		del_timer(&hc->timeout_tl);
-+	del_timer_sync(&hc->keep_tl);
-+	del_timer_sync(&hc->timeout_tl);
- 
- 	cancel_work_sync(&hc->workq);
- 
+ 		/* dump the standard OUI branch header */
+ 		ret = drm_dp_dpcd_read(mgr->aux, DP_BRANCH_OUI, buf, DP_BRANCH_OUI_HEADER_SIZE);
+-		if (ret) {
++		if (ret != DP_BRANCH_OUI_HEADER_SIZE) {
+ 			seq_printf(m, "branch oui read failed\n");
+ 			goto out;
+ 		}
 -- 
 2.35.1
 
