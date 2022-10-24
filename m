@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97DCE60A2CC
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:48:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1653060A3EB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:02:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231675AbiJXLsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:48:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43672 "EHLO
+        id S232111AbiJXMCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:02:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231673AbiJXLrO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:47:14 -0400
+        with ESMTP id S232181AbiJXMAF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:00:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2486D11152;
-        Mon, 24 Oct 2022 04:42:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 659AD2C13B;
+        Mon, 24 Oct 2022 04:49:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E732761291;
-        Mon, 24 Oct 2022 11:41:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09C21C433C1;
-        Mon, 24 Oct 2022 11:41:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 075066122D;
+        Mon, 24 Oct 2022 11:49:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDDFAC433C1;
+        Mon, 24 Oct 2022 11:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611718;
-        bh=D6HpnG73y3wmp2/vJzJHQp6mWr5jNAm6p8Bk2cTBc9Q=;
+        s=korg; t=1666612160;
+        bh=9cEPUI0SO0/uP4WT5g3TlaqxPNGzZlpCwpnE79x7qNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PbJiL+AKLabDwM6FnPNZX/VNsyw7u8F+pcdqdxSIw9CyemNm6BXWV2K928fbRqabW
-         A1wGygrYTYfgGtH/fruMwR96uSsht+b49BEKHEih7lt+LXeI37I8ubBCkKl/nP4ozA
-         cMHKp3mvSwJxJBjE43O4wsJ26Kt9y5ob6IjpLu5g=
+        b=wyhJ5D19w5GSfxqxzD2eAY5eqPucN1gPkaP0tvdo9zKSu+AeIVt4V+/CYGuIWXGv2
+         cw4wukLVBmqbGeSi6E2DGb2N/EuQaJkqNFAYvIC28ZuwaMhEKGE6w18bABKY/uKHTq
+         D9gj8aHE4PiYJ7v1zszAavk50DTstlwWa9kVDyUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        syzbot+bd13648a53ed6933ca49@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Lukas Czerner <lczerner@redhat.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 055/159] ext4: avoid crash when inline data creation follows DIO write
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 092/210] spi: s3c64xx: Fix large transfers with DMA
 Date:   Mon, 24 Oct 2022 13:30:09 +0200
-Message-Id: <20221024112951.439734601@linuxfoundation.org>
+Message-Id: <20221024113000.021214538@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
-References: <20221024112949.358278806@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-commit 4bb26f2885ac6930984ee451b952c5a6042f2c0e upstream.
+[ Upstream commit 1224e29572f655facfcd850cf0f0a4784f36a903 ]
 
-When inode is created and written to using direct IO, there is nothing
-to clear the EXT4_STATE_MAY_INLINE_DATA flag. Thus when inode gets
-truncated later to say 1 byte and written using normal write, we will
-try to store the data as inline data. This confuses the code later
-because the inode now has both normal block and inline data allocated
-and the confusion manifests for example as:
+The COUNT_VALUE in the PACKET_CNT register is 16-bit so the maximum
+value is 65535.  Asking the driver to transfer a larger size currently
+leads to the DMA transfer timing out.  Implement ->max_transfer_size()
+and have the core split the transfer as needed.
 
-kernel BUG at fs/ext4/inode.c:2721!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 0 PID: 359 Comm: repro Not tainted 5.19.0-rc8-00001-g31ba1e3b8305-dirty #15
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-1.fc36 04/01/2014
-RIP: 0010:ext4_writepages+0x363d/0x3660
-RSP: 0018:ffffc90000ccf260 EFLAGS: 00010293
-RAX: ffffffff81e1abcd RBX: 0000008000000000 RCX: ffff88810842a180
-RDX: 0000000000000000 RSI: 0000008000000000 RDI: 0000000000000000
-RBP: ffffc90000ccf650 R08: ffffffff81e17d58 R09: ffffed10222c680b
-R10: dfffe910222c680c R11: 1ffff110222c680a R12: ffff888111634128
-R13: ffffc90000ccf880 R14: 0000008410000000 R15: 0000000000000001
-FS:  00007f72635d2640(0000) GS:ffff88811b000000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000565243379180 CR3: 000000010aa74000 CR4: 0000000000150eb0
-Call Trace:
- <TASK>
- do_writepages+0x397/0x640
- filemap_fdatawrite_wbc+0x151/0x1b0
- file_write_and_wait_range+0x1c9/0x2b0
- ext4_sync_file+0x19e/0xa00
- vfs_fsync_range+0x17b/0x190
- ext4_buffered_write_iter+0x488/0x530
- ext4_file_write_iter+0x449/0x1b90
- vfs_write+0xbcd/0xf40
- ksys_write+0x198/0x2c0
- __x64_sys_write+0x7b/0x90
- do_syscall_64+0x3d/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- </TASK>
-
-Fix the problem by clearing EXT4_STATE_MAY_INLINE_DATA when we are doing
-direct IO write to a file.
-
-Cc: stable@kernel.org
-Reported-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Reported-by: syzbot+bd13648a53ed6933ca49@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=a1e89d09bbbcbd5c4cb45db230ee28c822953984
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Tested-by: Tadeusz Struk<tadeusz.struk@linaro.org>
-Link: https://lore.kernel.org/r/20220727155753.13969-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 230d42d422e7 ("spi: Add s3c64xx SPI Controller driver")
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Link: https://lore.kernel.org/r/20220927112117.77599-5-vincent.whitchurch@axis.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/file.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/spi/spi-s3c64xx.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/fs/ext4/file.c
-+++ b/fs/ext4/file.c
-@@ -538,6 +538,12 @@ static loff_t ext4_seek_data(struct file
- 		inode_unlock(inode);
- 		return -ENXIO;
- 	}
-+	/*
-+	 * Make sure inline data cannot be created anymore since we are going
-+	 * to allocate blocks for DIO. We know the inode does not have any
-+	 * inline data now because ext4_dio_supported() checked for that.
-+	 */
-+	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+diff --git a/drivers/spi/spi-s3c64xx.c b/drivers/spi/spi-s3c64xx.c
+index 1a6ec226d6e4..0594e214a636 100644
+--- a/drivers/spi/spi-s3c64xx.c
++++ b/drivers/spi/spi-s3c64xx.c
+@@ -94,6 +94,7 @@
+ #define S3C64XX_SPI_ST_TX_FIFORDY		(1<<0)
  
- 	blkbits = inode->i_sb->s_blocksize_bits;
- 	start = offset >> blkbits;
+ #define S3C64XX_SPI_PACKET_CNT_EN		(1<<16)
++#define S3C64XX_SPI_PACKET_CNT_MASK		GENMASK(15, 0)
+ 
+ #define S3C64XX_SPI_PND_TX_UNDERRUN_CLR		(1<<4)
+ #define S3C64XX_SPI_PND_TX_OVERRUN_CLR		(1<<3)
+@@ -640,6 +641,13 @@ static int s3c64xx_spi_prepare_message(struct spi_master *master,
+ 	return 0;
+ }
+ 
++static size_t s3c64xx_spi_max_transfer_size(struct spi_device *spi)
++{
++	struct spi_controller *ctlr = spi->controller;
++
++	return ctlr->can_dma ? S3C64XX_SPI_PACKET_CNT_MASK : SIZE_MAX;
++}
++
+ static int s3c64xx_spi_transfer_one(struct spi_master *master,
+ 				    struct spi_device *spi,
+ 				    struct spi_transfer *xfer)
+@@ -1067,6 +1075,7 @@ static int s3c64xx_spi_probe(struct platform_device *pdev)
+ 	master->prepare_transfer_hardware = s3c64xx_spi_prepare_transfer;
+ 	master->prepare_message = s3c64xx_spi_prepare_message;
+ 	master->transfer_one = s3c64xx_spi_transfer_one;
++	master->max_transfer_size = s3c64xx_spi_max_transfer_size;
+ 	master->num_chipselect = sci->num_cs;
+ 	master->dma_alignment = 8;
+ 	master->bits_per_word_mask = SPI_BPW_MASK(32) | SPI_BPW_MASK(16) |
+-- 
+2.35.1
+
 
 
