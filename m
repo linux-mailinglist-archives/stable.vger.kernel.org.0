@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CD1C60ACFB
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73D7260ACF3
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234455AbiJXORG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:17:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58384 "EHLO
+        id S234418AbiJXORA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:17:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236912AbiJXOPT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:15:19 -0400
+        with ESMTP id S236991AbiJXOP3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:15:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 631B3356F2;
-        Mon, 24 Oct 2022 05:55:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D3F352826;
+        Mon, 24 Oct 2022 05:55:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74C8361290;
-        Mon, 24 Oct 2022 12:54:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8551DC433D7;
-        Mon, 24 Oct 2022 12:54:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14D46612D5;
+        Mon, 24 Oct 2022 12:54:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A3AEC433C1;
+        Mon, 24 Oct 2022 12:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616056;
-        bh=Qq5cqGeTeMGpEVXtKhhwlv6hcwVtjhamt4f+1/vSqbU=;
+        s=korg; t=1666616075;
+        bh=TWhaQ473v7czgusdWlqqUndbnHAzvtf0Y5h/S757e4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YjIsjq2PYHXameee2r2rvJ44iowcp57lXcHdhJVfHmxXbABcG9avcNan0FoMlhGsE
-         eaEyOfcGy8IzRHARnye6wWEkYVCwN8mNHmf7nOfrsLhK5s4tvpcfv4pSh/bvSZu192
-         FWjUk0+f25jbHifrd2fWiHVX7BjHAQdYv2z4Y+X4=
+        b=vcnME7Zc1NN03hnOESblXJ0gZEsSDSlxspmn0/GPxNirRy3Q84DsVtVFjNat9t8Fn
+         /0p24mHnsIT59f/I1IGvEgBjEVIWnDqofzoYWvcAabrX6hWVhze1VmWUHZdA/cYWbV
+         kVfwcOSAy/pjiVdrjwxUKY35ZDff/ZYYQSI00fLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com,
-        Shigeru Yoshida <syoshida@redhat.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 484/530] nbd: Fix hung when signal interrupts nbd_start_device_ioctl()
-Date:   Mon, 24 Oct 2022 13:33:48 +0200
-Message-Id: <20221024113106.965785057@linuxfoundation.org>
+        stable@vger.kernel.org, Mingzhe Zou <mingzhe.zou@easystack.cn>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 490/530] bcache: fix set_at_max_writeback_rate() for multiple attached devices
+Date:   Mon, 24 Oct 2022 13:33:54 +0200
+Message-Id: <20221024113107.233897247@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -55,67 +53,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shigeru Yoshida <syoshida@redhat.com>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit 1de7c3cf48fc41cd95adb12bd1ea9033a917798a ]
+[ Upstream commit d2d05b88035d2d51a5bb6c5afec88a0880c73df4 ]
 
-syzbot reported hung task [1].  The following program is a simplified
-version of the reproducer:
+Inside set_at_max_writeback_rate() the calculation in following if()
+check is wrong,
+	if (atomic_inc_return(&c->idle_counter) <
+	    atomic_read(&c->attached_dev_nr) * 6)
 
-int main(void)
-{
-	int sv[2], fd;
+Because each attached backing device has its own writeback thread
+running and increasing c->idle_counter, the counter increates much
+faster than expected. The correct calculation should be,
+	(counter / dev_nr) < dev_nr * 6
+which equals to,
+	counter < dev_nr * dev_nr * 6
 
-	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0)
-		return 1;
-	if ((fd = open("/dev/nbd0", 0)) < 0)
-		return 1;
-	if (ioctl(fd, NBD_SET_SIZE_BLOCKS, 0x81) < 0)
-		return 1;
-	if (ioctl(fd, NBD_SET_SOCK, sv[0]) < 0)
-		return 1;
-	if (ioctl(fd, NBD_DO_IT) < 0)
-		return 1;
-	return 0;
-}
+This patch fixes the above mistake with correct calculation, and helper
+routine idle_counter_exceeded() is added to make code be more clear.
 
-When signal interrupt nbd_start_device_ioctl() waiting the condition
-atomic_read(&config->recv_threads) == 0, the task can hung because it
-waits the completion of the inflight IOs.
-
-This patch fixes the issue by clearing queue, not just shutdown, when
-signal interrupt nbd_start_device_ioctl().
-
-Link: https://syzkaller.appspot.com/bug?id=7d89a3ffacd2b83fdd39549bc4d8e0a89ef21239 [1]
-Reported-by: syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com
-Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220907163502.577561-1-syoshida@redhat.com
+Reported-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
+Signed-off-by: Coly Li <colyli@suse.de>
+Acked-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
+Link: https://lore.kernel.org/r/20220919161647.81238-6-colyli@suse.de
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/md/bcache/writeback.c | 73 +++++++++++++++++++++++++----------
+ 1 file changed, 52 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index b391ca062add..ec2b5dd2ce4a 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1351,10 +1351,12 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
- 	mutex_unlock(&nbd->config_lock);
- 	ret = wait_event_interruptible(config->recv_wq,
- 					 atomic_read(&config->recv_threads) == 0);
--	if (ret)
-+	if (ret) {
- 		sock_shutdown(nbd);
--	flush_workqueue(nbd->recv_workq);
-+		nbd_clear_que(nbd);
-+	}
+diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
+index 96a07839864b..ee7ad999e924 100644
+--- a/drivers/md/bcache/writeback.c
++++ b/drivers/md/bcache/writeback.c
+@@ -157,6 +157,53 @@ static void __update_writeback_rate(struct cached_dev *dc)
+ 	dc->writeback_rate_target = target;
+ }
  
-+	flush_workqueue(nbd->recv_workq);
- 	mutex_lock(&nbd->config_lock);
- 	nbd_bdev_reset(bdev);
- 	/* user requested, ignore socket errors */
++static bool idle_counter_exceeded(struct cache_set *c)
++{
++	int counter, dev_nr;
++
++	/*
++	 * If c->idle_counter is overflow (idel for really long time),
++	 * reset as 0 and not set maximum rate this time for code
++	 * simplicity.
++	 */
++	counter = atomic_inc_return(&c->idle_counter);
++	if (counter <= 0) {
++		atomic_set(&c->idle_counter, 0);
++		return false;
++	}
++
++	dev_nr = atomic_read(&c->attached_dev_nr);
++	if (dev_nr == 0)
++		return false;
++
++	/*
++	 * c->idle_counter is increased by writeback thread of all
++	 * attached backing devices, in order to represent a rough
++	 * time period, counter should be divided by dev_nr.
++	 * Otherwise the idle time cannot be larger with more backing
++	 * device attached.
++	 * The following calculation equals to checking
++	 *	(counter / dev_nr) < (dev_nr * 6)
++	 */
++	if (counter < (dev_nr * dev_nr * 6))
++		return false;
++
++	return true;
++}
++
++/*
++ * Idle_counter is increased every time when update_writeback_rate() is
++ * called. If all backing devices attached to the same cache set have
++ * identical dc->writeback_rate_update_seconds values, it is about 6
++ * rounds of update_writeback_rate() on each backing device before
++ * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
++ * to each dc->writeback_rate.rate.
++ * In order to avoid extra locking cost for counting exact dirty cached
++ * devices number, c->attached_dev_nr is used to calculate the idle
++ * throushold. It might be bigger if not all cached device are in write-
++ * back mode, but it still works well with limited extra rounds of
++ * update_writeback_rate().
++ */
+ static bool set_at_max_writeback_rate(struct cache_set *c,
+ 				       struct cached_dev *dc)
+ {
+@@ -167,21 +214,8 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
+ 	/* Don't set max writeback rate if gc is running */
+ 	if (!c->gc_mark_valid)
+ 		return false;
+-	/*
+-	 * Idle_counter is increased everytime when update_writeback_rate() is
+-	 * called. If all backing devices attached to the same cache set have
+-	 * identical dc->writeback_rate_update_seconds values, it is about 6
+-	 * rounds of update_writeback_rate() on each backing device before
+-	 * c->at_max_writeback_rate is set to 1, and then max wrteback rate set
+-	 * to each dc->writeback_rate.rate.
+-	 * In order to avoid extra locking cost for counting exact dirty cached
+-	 * devices number, c->attached_dev_nr is used to calculate the idle
+-	 * throushold. It might be bigger if not all cached device are in write-
+-	 * back mode, but it still works well with limited extra rounds of
+-	 * update_writeback_rate().
+-	 */
+-	if (atomic_inc_return(&c->idle_counter) <
+-	    atomic_read(&c->attached_dev_nr) * 6)
++
++	if (!idle_counter_exceeded(c))
+ 		return false;
+ 
+ 	if (atomic_read(&c->at_max_writeback_rate) != 1)
+@@ -195,13 +229,10 @@ static bool set_at_max_writeback_rate(struct cache_set *c,
+ 	dc->writeback_rate_change = 0;
+ 
+ 	/*
+-	 * Check c->idle_counter and c->at_max_writeback_rate agagain in case
+-	 * new I/O arrives during before set_at_max_writeback_rate() returns.
+-	 * Then the writeback rate is set to 1, and its new value should be
+-	 * decided via __update_writeback_rate().
++	 * In case new I/O arrives during before
++	 * set_at_max_writeback_rate() returns.
+ 	 */
+-	if ((atomic_read(&c->idle_counter) <
+-	     atomic_read(&c->attached_dev_nr) * 6) ||
++	if (!idle_counter_exceeded(c) ||
+ 	    !atomic_read(&c->at_max_writeback_rate))
+ 		return false;
+ 
 -- 
 2.35.1
 
