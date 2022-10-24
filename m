@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E26A60A7DC
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5E360A73E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232332AbiJXNAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54140 "EHLO
+        id S232090AbiJXMsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:48:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232122AbiJXM63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:58:29 -0400
+        with ESMTP id S234757AbiJXMpi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4296981CF;
-        Mon, 24 Oct 2022 05:17:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC9843AC0;
+        Mon, 24 Oct 2022 05:10:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DDDB761286;
-        Mon, 24 Oct 2022 11:50:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFB4BC433D6;
-        Mon, 24 Oct 2022 11:50:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC74E61278;
+        Mon, 24 Oct 2022 12:09:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0985BC433D6;
+        Mon, 24 Oct 2022 12:09:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612205;
-        bh=BBEZSL/kEaLKT0nn3CDJDaoaCe8MaFX+1kU7JZ+z9Ck=;
+        s=korg; t=1666613390;
+        bh=/WVprh8LeBA0UjKyNAbI/MRXBmvmQYtP0wwgE/nsLvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QotdaSOMakNZsKCppLdr+ert4ConasfJd2QUp599h1aygca2noXAgy9bgvhvYkTyB
-         vn6NxbQL5t7m3AMrF5IXufw7TVs9k2BgIkzITXIUS1WJg+vf/r7TtuvhcwqNKZmUPv
-         k7Bqc2PneutNz67IhDTlqp3ATM/a4rE2P2CHzmgQ=
+        b=BYrHfZTtBq0UXCHysDVhTBdoa4HpVi6BWStnFwzEx3PWqoDQLa5tHPzxkHArmuMPQ
+         cHxIzRLXsIOX9H8+a2F1QNzoRoJZDRaGVsh9gYtIzY34lkpZX5aPsil6wsX6QZRITA
+         T3UQ/8rYiglFRVTB+w2ZwY6ildOrATAUrAEeaTdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 110/210] ARM: dts: kirkwood: lsxl: fix serial line
+Subject: [PATCH 5.4 117/255] ARM: dts: exynos: fix polarity of VBUS GPIO of Origen
 Date:   Mon, 24 Oct 2022 13:30:27 +0200
-Message-Id: <20221024113000.576191265@linuxfoundation.org>
+Message-Id: <20221024113006.416588347@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 04eabc6ac10fda9424606d9a7ab6ab9a5d95350a ]
+[ Upstream commit a08137bd1e0a7ce951dce9ce4a83e39d379b6e1b ]
 
-Commit 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl
-settings") unknowingly broke the serial output on this board. Before
-this commit, the pinmux was still configured by the bootloader and the
-kernel didn't reconfigured it again. This was an oversight by the
-initial board support where the pinmux for the serial line was never
-configured by the kernel. But with this commit, the serial line will be
-reconfigured to the wrong pins. This is especially confusing, because
-the output still works, but the input doesn't. Presumingly, the input is
-reconfigured to MPP10, but the output is connected to both MPP11 and
-MPP5.
+EHCI Oxynos (drivers/usb/host/ehci-exynos.c) drives VBUS GPIO high when
+trying to power up the bus, therefore the GPIO in DTS must be marked as
+"active high". This will be important when EHCI driver is converted to
+gpiod API that respects declared polarities.
 
-Override the pinmux in the board device tree.
-
-Fixes: 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl settings")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: 4e8991def565 ("ARM: dts: exynos: Enable AX88760 USB hub on Origen board")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20220927220504.3744878-1-dmitry.torokhov@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/kirkwood-lsxl.dtsi | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm/boot/dts/exynos4412-origen.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/kirkwood-lsxl.dtsi b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-index 7b151acb9984..321a40a98ed2 100644
---- a/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-+++ b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-@@ -10,6 +10,11 @@
+diff --git a/arch/arm/boot/dts/exynos4412-origen.dts b/arch/arm/boot/dts/exynos4412-origen.dts
+index ecd14b283a6b..c6678c120cbd 100644
+--- a/arch/arm/boot/dts/exynos4412-origen.dts
++++ b/arch/arm/boot/dts/exynos4412-origen.dts
+@@ -86,7 +86,7 @@
+ };
  
- 	ocp@f1000000 {
- 		pinctrl: pin-controller@10000 {
-+			/* Non-default UART pins */
-+			pmx_uart0: pmx-uart0 {
-+				marvell,pins = "mpp4", "mpp5";
-+			};
-+
- 			pmx_power_hdd: pmx-power-hdd {
- 				marvell,pins = "mpp10";
- 				marvell,function = "gpo";
+ &ehci {
+-	samsung,vbus-gpio = <&gpx3 5 1>;
++	samsung,vbus-gpio = <&gpx3 5 GPIO_ACTIVE_HIGH>;
+ 	status = "okay";
+ 	phys = <&exynos_usbphy 2>, <&exynos_usbphy 3>;
+ 	phy-names = "hsic0", "hsic1";
 -- 
 2.35.1
 
