@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC2760AD04
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1595D60AD10
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234560AbiJXORY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:17:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36306 "EHLO
+        id S234748AbiJXORe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:17:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234320AbiJXON4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:13:56 -0400
+        with ESMTP id S234687AbiJXOOH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:14:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC14724965;
-        Mon, 24 Oct 2022 05:53:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA6B8C26;
+        Mon, 24 Oct 2022 05:54:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2453261281;
-        Mon, 24 Oct 2022 12:26:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37355C433B5;
-        Mon, 24 Oct 2022 12:26:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C23A0612B9;
+        Mon, 24 Oct 2022 12:45:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D64D2C433D6;
+        Mon, 24 Oct 2022 12:45:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614418;
-        bh=obz5FPNMsHHx1sO6B0yQTmd5pxFcPPFY4b0ZdeXu71Q=;
+        s=korg; t=1666615507;
+        bh=I0US6l38rqGsDxa7m8QNmS8D7lDmiOG+/urZP2mhyxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJfWKO/6Jg+5mnCLx8hRCOl8GzDp27snQ9cO0p14bH106Tsihb+hK/M88tBslPItJ
-         rNfIUlWLOdxJEr8c44/1VREl7N+Gfz+c0G485HlQt7Jg4lQK7i5zwQ+zz82LfPIbTA
-         DqF64nLeEwpBAowEfrKX0ql9OCZkCu0igElMWdq8=
+        b=kR0AqP8hrwJ8xKwzGfCgQcSC63/P3NRSNNFJrcsqtqfuivH1WD8HqfwktkJ5m/p2l
+         UEf1B/iacr1sHJR1faRNnz5Ugw5/h2857oxK+ttEpC1di8QGUK1f72AKHnqFJGsTaZ
+         gm9haqB0qHoPxq/JtDR7BP708yELkjlXHBFRqCtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 223/390] RDMA/siw: Always consume all skbuf data in sk_data_ready() upcall.
-Date:   Mon, 24 Oct 2022 13:30:20 +0200
-Message-Id: <20221024113032.269524990@linuxfoundation.org>
+Subject: [PATCH 5.15 278/530] clk: sprd: Hold reference returned by of_get_parent()
+Date:   Mon, 24 Oct 2022 13:30:22 +0200
+Message-Id: <20221024113057.661699425@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernard Metzler <bmt@zurich.ibm.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 754209850df8367c954ac1de7671c7430b1f342c ]
+[ Upstream commit 91e6455bf715fb1558a0bf8f645ec1c131254a3c ]
 
-For header and trailer/padding processing, siw did not consume new
-skb data until minimum amount present to fill current header or trailer
-structure, including potential payload padding. Not consuming any
-data during upcall may cause a receive stall, since tcp_read_sock()
-is not upcalling again if no new data arrive.
-A NFSoRDMA client got stuck at RDMA Write reception of unaligned
-payload, if the current skb did contain only the expected 3 padding
-bytes, but not the 4 bytes CRC trailer. Expecting 4 more bytes already
-arrived in another skb, and not consuming those 3 bytes in the current
-upcall left the Write incomplete, waiting for the CRC forever.
+We should hold the reference returned by of_get_parent() and use it
+to call of_node_put() for refcount balance.
 
-Fixes: 8b6a361b8c48 ("rdma/siw: receive path")
-Reported-by: Olga Kornievskaia <kolga@netapp.com>
-Tested-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
-Link: https://lore.kernel.org/r/20220920081202.223629-1-bmt@zurich.ibm.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: f95e8c7923d1 ("clk: sprd: support to get regmap from parent node")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220704004729.272481-1-windhl@126.com
+Reviewed-by: Orson Zhai <orsonzhai@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_qp_rx.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ drivers/clk/sprd/common.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_qp_rx.c b/drivers/infiniband/sw/siw/siw_qp_rx.c
-index 875ea6f1b04a..fd721cc19682 100644
---- a/drivers/infiniband/sw/siw/siw_qp_rx.c
-+++ b/drivers/infiniband/sw/siw/siw_qp_rx.c
-@@ -961,27 +961,28 @@ int siw_proc_terminate(struct siw_qp *qp)
- static int siw_get_trailer(struct siw_qp *qp, struct siw_rx_stream *srx)
+diff --git a/drivers/clk/sprd/common.c b/drivers/clk/sprd/common.c
+index d620bbbcdfc8..ce81e4087a8f 100644
+--- a/drivers/clk/sprd/common.c
++++ b/drivers/clk/sprd/common.c
+@@ -41,7 +41,7 @@ int sprd_clk_regmap_init(struct platform_device *pdev,
  {
- 	struct sk_buff *skb = srx->skb;
-+	int avail = min(srx->skb_new, srx->fpdu_part_rem);
- 	u8 *tbuf = (u8 *)&srx->trailer.crc - srx->pad;
- 	__wsum crc_in, crc_own = 0;
+ 	void __iomem *base;
+ 	struct device *dev = &pdev->dev;
+-	struct device_node *node = dev->of_node;
++	struct device_node *node = dev->of_node, *np;
+ 	struct regmap *regmap;
  
- 	siw_dbg_qp(qp, "expected %d, available %d, pad %u\n",
- 		   srx->fpdu_part_rem, srx->skb_new, srx->pad);
- 
--	if (srx->skb_new < srx->fpdu_part_rem)
--		return -EAGAIN;
--
--	skb_copy_bits(skb, srx->skb_offset, tbuf, srx->fpdu_part_rem);
-+	skb_copy_bits(skb, srx->skb_offset, tbuf, avail);
- 
--	if (srx->mpa_crc_hd && srx->pad)
--		crypto_shash_update(srx->mpa_crc_hd, tbuf, srx->pad);
-+	srx->skb_new -= avail;
-+	srx->skb_offset += avail;
-+	srx->skb_copied += avail;
-+	srx->fpdu_part_rem -= avail;
- 
--	srx->skb_new -= srx->fpdu_part_rem;
--	srx->skb_offset += srx->fpdu_part_rem;
--	srx->skb_copied += srx->fpdu_part_rem;
-+	if (srx->fpdu_part_rem)
-+		return -EAGAIN;
- 
- 	if (!srx->mpa_crc_hd)
- 		return 0;
- 
-+	if (srx->pad)
-+		crypto_shash_update(srx->mpa_crc_hd, tbuf, srx->pad);
- 	/*
- 	 * CRC32 is computed, transmitted and received directly in NBO,
- 	 * so there's never a reason to convert byte order.
-@@ -1083,10 +1084,9 @@ static int siw_get_hdr(struct siw_rx_stream *srx)
- 	 * completely received.
- 	 */
- 	if (iwarp_pktinfo[opcode].hdr_len > sizeof(struct iwarp_ctrl_tagged)) {
--		bytes = iwarp_pktinfo[opcode].hdr_len - MIN_DDP_HDR;
-+		int hdrlen = iwarp_pktinfo[opcode].hdr_len;
- 
--		if (srx->skb_new < bytes)
--			return -EAGAIN;
-+		bytes = min_t(int, hdrlen - MIN_DDP_HDR, srx->skb_new);
- 
- 		skb_copy_bits(skb, srx->skb_offset,
- 			      (char *)c_hdr + srx->fpdu_part_rcvd, bytes);
-@@ -1096,6 +1096,9 @@ static int siw_get_hdr(struct siw_rx_stream *srx)
- 		srx->skb_new -= bytes;
- 		srx->skb_offset += bytes;
- 		srx->skb_copied += bytes;
-+
-+		if (srx->fpdu_part_rcvd < hdrlen)
-+			return -EAGAIN;
- 	}
- 
- 	/*
+ 	if (of_find_property(node, "sprd,syscon", NULL)) {
+@@ -50,9 +50,10 @@ int sprd_clk_regmap_init(struct platform_device *pdev,
+ 			pr_err("%s: failed to get syscon regmap\n", __func__);
+ 			return PTR_ERR(regmap);
+ 		}
+-	} else if (of_device_is_compatible(of_get_parent(dev->of_node),
+-			   "syscon")) {
+-		regmap = device_node_to_regmap(of_get_parent(dev->of_node));
++	} else if (of_device_is_compatible(np =	of_get_parent(node), "syscon") ||
++		   (of_node_put(np), 0)) {
++		regmap = device_node_to_regmap(np);
++		of_node_put(np);
+ 		if (IS_ERR(regmap)) {
+ 			dev_err(dev, "failed to get regmap from its parent.\n");
+ 			return PTR_ERR(regmap);
 -- 
 2.35.1
 
