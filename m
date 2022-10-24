@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBBC060ACDC
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:16:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 061D360AC24
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:03:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233617AbiJXOQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:16:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54540 "EHLO
+        id S231616AbiJXODC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:03:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237053AbiJXOPn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:15:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47AF977EBC;
-        Mon, 24 Oct 2022 05:55:34 -0700 (PDT)
+        with ESMTP id S236894AbiJXOCE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E92F1BECFD;
+        Mon, 24 Oct 2022 05:47:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEE04B8168C;
-        Mon, 24 Oct 2022 12:27:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC54C433D7;
-        Mon, 24 Oct 2022 12:27:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BA8461335;
+        Mon, 24 Oct 2022 12:46:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DBD9C433C1;
+        Mon, 24 Oct 2022 12:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614460;
-        bh=LlDjGU1z6C8Y/HGgUIA6xrtbjnFjPgP22JBVHE1fZJc=;
+        s=korg; t=1666615578;
+        bh=9BePWnK8/VkHjNuHRA8V9IPoLddrvuN0dJOkG015dOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CeASMxgYBVxU1JGBOoCyRCDxDnPfGSFKO/JOJmw/aVy7NCwCWHAg1iWhAB8SddyV4
-         84nJHs1X/6aM3eG5L8N4vQjqF5f9zYsS7Ts+h/ERc55aYfyetYzZXks3BJdZ2iy3iG
-         Xzzw5PMPkoTeiwNssJKqraW6m9mklAxVc7bhwiIw=
+        b=zZKWwxJkaWFEIlwbGEwWoSjcAkIwfa8+qaV/Esp3kxmWckOhdJ3gjMZ71G4ewmYqD
+         6bfUQ+hWr4n2JPD0B8LKJl7g8skiMhLQ/7kg9ZL5GdOcV4VRCqSAhkq2nNy/2weSr5
+         EaA48ab+Q+bzunc59AEFrmAIpWPAszmSCssXuGW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 252/390] mfd: sm501: Add check for platform_driver_register()
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 305/530] mtd: rawnand: intel: Read the chip-select line from the correct OF node
 Date:   Mon, 24 Oct 2022 13:30:49 +0200
-Message-Id: <20221024113033.596128064@linuxfoundation.org>
+Message-Id: <20221024113058.876066655@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 8325a6c24ad78b8c1acc3c42b098ee24105d68e5 ]
+[ Upstream commit bfc618fcc3f167ad082053e81e9d664e724c6288 ]
 
-As platform_driver_register() can return error numbers,
-it should be better to check platform_driver_register()
-and deal with the exception.
+The chip select has to be read from the flash node which is a child node
+of the NAND controller.
 
-Fixes: b6d6454fdb66 ("[PATCH] mfd: SM501 core driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/20220913091112.1739138-1-jiasheng@iscas.ac.cn
+Fixes: 0b1039f016e8a3 ("mtd: rawnand: Add NAND controller support on Intel LGM SoC")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220702231227.1579176-4-martin.blumenstingl@googlemail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/sm501.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/intel-nand-controller.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/sm501.c b/drivers/mfd/sm501.c
-index 6d2f4a0a901d..37ad72d8cde2 100644
---- a/drivers/mfd/sm501.c
-+++ b/drivers/mfd/sm501.c
-@@ -1720,7 +1720,12 @@ static struct platform_driver sm501_plat_driver = {
+diff --git a/drivers/mtd/nand/raw/intel-nand-controller.c b/drivers/mtd/nand/raw/intel-nand-controller.c
+index e91b879b32bd..3df3f32423f9 100644
+--- a/drivers/mtd/nand/raw/intel-nand-controller.c
++++ b/drivers/mtd/nand/raw/intel-nand-controller.c
+@@ -16,6 +16,7 @@
+ #include <linux/mtd/rawnand.h>
+ #include <linux/mtd/nand.h>
  
- static int __init sm501_base_init(void)
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+@@ -580,6 +581,7 @@ static int ebu_nand_probe(struct platform_device *pdev)
  {
--	platform_driver_register(&sm501_plat_driver);
-+	int ret;
-+
-+	ret = platform_driver_register(&sm501_plat_driver);
-+	if (ret < 0)
-+		return ret;
-+
- 	return pci_register_driver(&sm501_pci_driver);
- }
+ 	struct device *dev = &pdev->dev;
+ 	struct ebu_nand_controller *ebu_host;
++	struct device_node *chip_np;
+ 	struct nand_chip *nand;
+ 	struct mtd_info *mtd;
+ 	struct resource *res;
+@@ -604,7 +606,12 @@ static int ebu_nand_probe(struct platform_device *pdev)
+ 	if (IS_ERR(ebu_host->hsnand))
+ 		return PTR_ERR(ebu_host->hsnand);
  
+-	ret = device_property_read_u32(dev, "reg", &cs);
++	chip_np = of_get_next_child(dev->of_node, NULL);
++	if (!chip_np)
++		return dev_err_probe(dev, -EINVAL,
++				     "Could not find child node for the NAND chip\n");
++
++	ret = of_property_read_u32(chip_np, "reg", &cs);
+ 	if (ret) {
+ 		dev_err(dev, "failed to get chip select: %d\n", ret);
+ 		return ret;
+@@ -660,7 +667,7 @@ static int ebu_nand_probe(struct platform_device *pdev)
+ 	writel(ebu_host->cs[cs].addr_sel | EBU_ADDR_MASK(5) | EBU_ADDR_SEL_REGEN,
+ 	       ebu_host->ebu + EBU_ADDR_SEL(cs));
+ 
+-	nand_set_flash_node(&ebu_host->chip, dev->of_node);
++	nand_set_flash_node(&ebu_host->chip, chip_np);
+ 
+ 	mtd = nand_to_mtd(&ebu_host->chip);
+ 	if (!mtd->name) {
 -- 
 2.35.1
 
