@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D98F160A714
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E55C60A532
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232032AbiJXMrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:47:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56308 "EHLO
+        id S233074AbiJXMVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:21:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234392AbiJXMon (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:44:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25EDDB5E;
-        Mon, 24 Oct 2022 05:09:22 -0700 (PDT)
+        with ESMTP id S233608AbiJXMT4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2B583234;
+        Mon, 24 Oct 2022 04:58:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 098DB612D6;
-        Mon, 24 Oct 2022 12:07:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17C6CC43470;
-        Mon, 24 Oct 2022 12:07:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE1746128E;
+        Mon, 24 Oct 2022 11:49:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2775C433C1;
+        Mon, 24 Oct 2022 11:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613266;
-        bh=PBbgQzVY69vYoEKwRWh1226dyBvyaJBWcFSUeNNxKVE=;
+        s=korg; t=1666612197;
+        bh=62cxHPxacIeJObyCUvpGDXSutCGffzA9SR9xi6Ab0Pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iui385KTGhPmi7NsE4QtaIvVOZoh2l71d8G8tyRFhu0b7IsEiYwd1xEAboEOnjyoh
-         79U4FQiHb1wuLRJMxg/P99N+WI5sw2p7qtvuOldHBrhHxRcZhUtmUL08h/UlPiwpVs
-         4afDzYEL1RYS/dllQ8LFzFzsENbF0ky0lYOhyxL0=
+        b=AvNa7M+45r94/B8gJ/AJk2db0EjEySjTY59BaWfkC4mp2RQRguRq62IMwPNK4vp9y
+         jJogRK6fM4+myxMEPMv+ilR7+AmFAz5tPbgwJ6OhLKeNAtNgzRm3NpfCD7smdef85D
+         wBawKM+P6fCocKAACk24ieBXWG2u7b8o9SGs54lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 072/255] wifi: rtl8xxxu: gen2: Fix mistake in path B IQ calibration
+        stable@vger.kernel.org,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+b8c672b0e22615c80fe0@syzkaller.appspotmail.com,
+        Khalid Masum <khalid.masum.92@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.14 065/210] nilfs2: fix use-after-free bug of struct nilfs_root
 Date:   Mon, 24 Oct 2022 13:29:42 +0200
-Message-Id: <20221024113004.904664709@linuxfoundation.org>
+Message-Id: <20221024112959.153644357@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,46 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-[ Upstream commit e963a19c64ac0d2f8785d36a27391abd91ac77aa ]
+commit d325dc6eb763c10f591c239550b8c7e5466a5d09 upstream.
 
-Found by comparing with the vendor driver. Currently this affects
-only the RTL8192EU, which is the only gen2 chip with 2 TX paths
-supported by this driver. It's unclear what kind of effect the
-mistake had in practice, since I don't have any RTL8192EU devices
-to test it.
+If the beginning of the inode bitmap area is corrupted on disk, an inode
+with the same inode number as the root inode can be allocated and fail
+soon after.  In this case, the subsequent call to nilfs_clear_inode() on
+that bogus root inode will wrongly decrement the reference counter of
+struct nilfs_root, and this will erroneously free struct nilfs_root,
+causing kernel oopses.
 
-Fixes: e1547c535ede ("rtl8xxxu: First stab at adding IQK calibration for 8723bu parts")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/30a59f3a-cfa9-8379-7af0-78a8f4c77cfd@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fixes the problem by changing nilfs_new_inode() to skip reserved
+inode numbers while repairing the inode bitmap.
+
+Link: https://lkml.kernel.org/r/20221003150519.39789-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+b8c672b0e22615c80fe0@syzkaller.appspotmail.com
+Reported-by: Khalid Masum <khalid.masum.92@gmail.com>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/nilfs2/inode.c |   18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index 977ebb647c0e..b472dc4c551e 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -2926,12 +2926,12 @@ bool rtl8xxxu_gen2_simularity_compare(struct rtl8xxxu_priv *priv,
- 		}
+--- a/fs/nilfs2/inode.c
++++ b/fs/nilfs2/inode.c
+@@ -344,6 +344,7 @@ struct inode *nilfs_new_inode(struct ino
+ 	struct inode *inode;
+ 	struct nilfs_inode_info *ii;
+ 	struct nilfs_root *root;
++	struct buffer_head *bh;
+ 	int err = -ENOMEM;
+ 	ino_t ino;
  
- 		if (!(simubitmap & 0x30) && priv->tx_paths > 1) {
--			/* path B RX OK */
-+			/* path B TX OK */
- 			for (i = 4; i < 6; i++)
- 				result[3][i] = result[c1][i];
- 		}
+@@ -359,11 +360,26 @@ struct inode *nilfs_new_inode(struct ino
+ 	ii->i_state = BIT(NILFS_I_NEW);
+ 	ii->i_root = root;
  
--		if (!(simubitmap & 0x30) && priv->tx_paths > 1) {
-+		if (!(simubitmap & 0xc0) && priv->tx_paths > 1) {
- 			/* path B RX OK */
- 			for (i = 6; i < 8; i++)
- 				result[3][i] = result[c1][i];
--- 
-2.35.1
-
+-	err = nilfs_ifile_create_inode(root->ifile, &ino, &ii->i_bh);
++	err = nilfs_ifile_create_inode(root->ifile, &ino, &bh);
+ 	if (unlikely(err))
+ 		goto failed_ifile_create_inode;
+ 	/* reference count of i_bh inherits from nilfs_mdt_read_block() */
+ 
++	if (unlikely(ino < NILFS_USER_INO)) {
++		nilfs_msg(sb, KERN_WARNING,
++			  "inode bitmap is inconsistent for reserved inodes");
++		do {
++			brelse(bh);
++			err = nilfs_ifile_create_inode(root->ifile, &ino, &bh);
++			if (unlikely(err))
++				goto failed_ifile_create_inode;
++		} while (ino < NILFS_USER_INO);
++
++		nilfs_msg(sb, KERN_INFO,
++			  "repaired inode bitmap for reserved inodes");
++	}
++	ii->i_bh = bh;
++
+ 	atomic64_inc(&root->inodes_count);
+ 	inode_init_owner(inode, dir, mode);
+ 	inode->i_ino = ino;
 
 
