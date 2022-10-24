@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F5F360AAA0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:36:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A558E60A7F0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232170AbiJXNfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:35:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43312 "EHLO
+        id S234859AbiJXNA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:00:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232397AbiJXNcX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:32:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB7DA6302;
-        Mon, 24 Oct 2022 05:34:39 -0700 (PDT)
+        with ESMTP id S234930AbiJXM65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:58:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B2C9A28C;
+        Mon, 24 Oct 2022 05:18:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7C2B6132D;
-        Mon, 24 Oct 2022 12:32:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC23C433D7;
-        Mon, 24 Oct 2022 12:31:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22BF761331;
+        Mon, 24 Oct 2022 12:16:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38ED3C433C1;
+        Mon, 24 Oct 2022 12:16:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614720;
-        bh=Wnt1e56a265JEkQ4o4iV0N8uiQJ92I/u9tYnSpq0WhQ=;
+        s=korg; t=1666613768;
+        bh=iCYA+WieLEMO+7AeFrJuB0qA6FIj092/MecmdHKQVTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wGZqH7xdYHGJcqSbv199Ar80ARgfJtBcBYU8TxhMZ46PA/dkqloKg1PLQD7e2IMaf
-         ZZgv5okNXuDhQNDhuu8/NRZwUgYRimkTmgFKi6FoMGrfrku9q8M9yPJDB4OOvZCsJ9
-         bmvpWbLpcl9n+9pLAJGhJYTpYTbvG+S09Lx6/WbE=
+        b=YdhWwyETYg5Cy53QM7Bp/YWZFi8YkRym/pLlqiPhhMTC8XekVXi31GWMgSqZ03vg/
+         /6SpQWZ/dmNOAikTzKO75xa08kHGPf5Bymw00mCx/lxOztFz5YyrCy8YUnC2iiQC0P
+         uSEYW7L7htVWG5g0PhN45r8BQRNmOVNCbLAaUjfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 368/390] usb: host: xhci: Fix potential memory leak in xhci_alloc_stream_info()
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Chen Yu <yu.c.chen@intel.com>
+Subject: [PATCH 5.4 255/255] thermal: intel_powerclamp: Use first online CPU as control_cpu
 Date:   Mon, 24 Oct 2022 13:32:45 +0200
-Message-Id: <20221024113038.675947689@linuxfoundation.org>
+Message-Id: <20221024113011.807775089@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 7e271f42a5cc3768cd2622b929ba66859ae21f97 ]
+commit 4bb7f6c2781e46fc5bd00475a66df2ea30ef330d upstream.
 
-xhci_alloc_stream_info() allocates stream context array for stream_info
-->stream_ctx_array with xhci_alloc_stream_ctx(). When some error occurs,
-stream_info->stream_ctx_array is not released, which will lead to a
-memory leak.
+Commit 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead
+of smp_processor_id() to avoid crash") fixed an issue related to using
+smp_processor_id() in preemptible context by replacing it with a pair
+of get_cpu()/put_cpu(), but what is needed there really is any online
+CPU and not necessarily the one currently running the code.  Arguably,
+getting the one that's running the code in there is confusing.
 
-We can fix it by releasing the stream_info->stream_ctx_array with
-xhci_free_stream_ctx() on the error path to avoid the potential memory
-leak.
+For this reason, simply give the control CPU role to the first online
+one which automatically will be CPU0 if it is online, so one check
+can be dropped from the code for an added benefit.
 
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220921123450.671459-2-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/linux-pm/20221011113646.GA12080@duo.ucw.cz/
+Fixes: 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Chen Yu <yu.c.chen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-mem.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/thermal/intel/intel_powerclamp.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
-index 024e8911df34..1fba5605a88e 100644
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -659,7 +659,7 @@ struct xhci_stream_info *xhci_alloc_stream_info(struct xhci_hcd *xhci,
- 			num_stream_ctxs, &stream_info->ctx_array_dma,
- 			mem_flags);
- 	if (!stream_info->stream_ctx_array)
--		goto cleanup_ctx;
-+		goto cleanup_ring_array;
- 	memset(stream_info->stream_ctx_array, 0,
- 			sizeof(struct xhci_stream_ctx)*num_stream_ctxs);
+--- a/drivers/thermal/intel/intel_powerclamp.c
++++ b/drivers/thermal/intel/intel_powerclamp.c
+@@ -534,11 +534,7 @@ static int start_power_clamp(void)
+ 	get_online_cpus();
  
-@@ -720,6 +720,11 @@ struct xhci_stream_info *xhci_alloc_stream_info(struct xhci_hcd *xhci,
- 	}
- 	xhci_free_command(xhci, stream_info->free_streams_command);
- cleanup_ctx:
-+	xhci_free_stream_ctx(xhci,
-+		stream_info->num_stream_ctxs,
-+		stream_info->stream_ctx_array,
-+		stream_info->ctx_array_dma);
-+cleanup_ring_array:
- 	kfree(stream_info->stream_rings);
- cleanup_info:
- 	kfree(stream_info);
--- 
-2.35.1
-
+ 	/* prefer BSP */
+-	control_cpu = 0;
+-	if (!cpu_online(control_cpu)) {
+-		control_cpu = get_cpu();
+-		put_cpu();
+-	}
++	control_cpu = cpumask_first(cpu_online_mask);
+ 
+ 	clamping = true;
+ 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
 
 
