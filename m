@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 436DD60A97B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:21:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CA6D60A7B8
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:56:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231959AbiJXNVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:21:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42688 "EHLO
+        id S234383AbiJXM4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:56:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236439AbiJXNU2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:20:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B1B29CB0;
-        Mon, 24 Oct 2022 05:29:01 -0700 (PDT)
+        with ESMTP id S234803AbiJXMzt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:55:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50684580A0;
+        Mon, 24 Oct 2022 05:15:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B73EFB8119E;
-        Mon, 24 Oct 2022 12:04:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16FC9C433D6;
-        Mon, 24 Oct 2022 12:04:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 399E1612CF;
+        Mon, 24 Oct 2022 12:04:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B265C433C1;
+        Mon, 24 Oct 2022 12:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613090;
-        bh=/K/z/rK+8z3Z74OMUw1WBkuyfmRSNZoUhy4sU47g0Yk=;
+        s=korg; t=1666613095;
+        bh=E0YbGMFmtEwZiigkCgf2+nGcnuIodXf/bVhO/X1D1PI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+aJkKuPnV3DOjrJbOY+ndxIzR5G5RTqAuyUaTASLNm27IrtXPlpruNzqiBEq03Qx
-         XEk7WWM2MYuza49VqnrbM8Cf5MdUDcHoyKvKw7yz8Rqya/Taoz+QI8iRTBbGXZ/HVV
-         UDI6SeOyj5AYlvYxF4W37f1+0qTZSi371gGZ0npw=
+        b=SEat03x4XvHr5G4UcQPlAbfMV2OD0oRZJ8KB0ZY7OMt16emoizAvVdo8pdBypLuz5
+         QLuK0LmhIn+mLYWK3D7vBNh326jCen+YUwYLkhnS7uyN/m+H19ui3q+66Y9XrJNbW9
+         6luMSs40EETVz3c54BGiQU4nDLSu/QXUTRoxvaKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 223/229] net/ieee802154: dont warn zero-sized raw_sendmsg()
-Date:   Mon, 24 Oct 2022 13:32:22 +0200
-Message-Id: <20221024113006.476744345@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Guoqing Jiang <guoqing.jiang@linux.dev>,
+        Saurabh Sengar <ssengar@linux.microsoft.com>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 4.19 225/229] md: Replace snprintf with scnprintf
+Date:   Mon, 24 Oct 2022 13:32:24 +0200
+Message-Id: <20221024113006.555447474@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
 References: <20221024112959.085534368@linuxfoundation.org>
@@ -56,59 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Saurabh Sengar <ssengar@linux.microsoft.com>
 
-[ Upstream commit b12e924a2f5b960373459c8f8a514f887adf5cac ]
+commit 1727fd5015d8f93474148f94e34cda5aa6ad4a43 upstream.
 
-syzbot is hitting skb_assert_len() warning at __dev_queue_xmit() [1],
-for PF_IEEE802154 socket's zero-sized raw_sendmsg() request is hitting
-__dev_queue_xmit() with skb->len == 0.
+Current code produces a warning as shown below when total characters
+in the constituent block device names plus the slashes exceeds 200.
+snprintf() returns the number of characters generated from the given
+input, which could cause the expression “200 – len” to wrap around
+to a large positive number. Fix this by using scnprintf() instead,
+which returns the actual number of characters written into the buffer.
 
-Since PF_IEEE802154 socket's zero-sized raw_sendmsg() request was
-able to return 0, don't call __dev_queue_xmit() if packet length is 0.
+[ 1513.267938] ------------[ cut here ]------------
+[ 1513.267943] WARNING: CPU: 15 PID: 37247 at <snip>/lib/vsprintf.c:2509 vsnprintf+0x2c8/0x510
+[ 1513.267944] Modules linked in:  <snip>
+[ 1513.267969] CPU: 15 PID: 37247 Comm: mdadm Not tainted 5.4.0-1085-azure #90~18.04.1-Ubuntu
+[ 1513.267969] Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS Hyper-V UEFI Release v4.1 05/09/2022
+[ 1513.267971] RIP: 0010:vsnprintf+0x2c8/0x510
+<-snip->
+[ 1513.267982] Call Trace:
+[ 1513.267986]  snprintf+0x45/0x70
+[ 1513.267990]  ? disk_name+0x71/0xa0
+[ 1513.267993]  dump_zones+0x114/0x240 [raid0]
+[ 1513.267996]  ? _cond_resched+0x19/0x40
+[ 1513.267998]  raid0_run+0x19e/0x270 [raid0]
+[ 1513.268000]  md_run+0x5e0/0xc50
+[ 1513.268003]  ? security_capable+0x3f/0x60
+[ 1513.268005]  do_md_run+0x19/0x110
+[ 1513.268006]  md_ioctl+0x195e/0x1f90
+[ 1513.268007]  blkdev_ioctl+0x91f/0x9f0
+[ 1513.268010]  block_ioctl+0x3d/0x50
+[ 1513.268012]  do_vfs_ioctl+0xa9/0x640
+[ 1513.268014]  ? __fput+0x162/0x260
+[ 1513.268016]  ksys_ioctl+0x75/0x80
+[ 1513.268017]  __x64_sys_ioctl+0x1a/0x20
+[ 1513.268019]  do_syscall_64+0x5e/0x200
+[ 1513.268021]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-  ----------
-  #include <sys/socket.h>
-  #include <netinet/in.h>
-
-  int main(int argc, char *argv[])
-  {
-    struct sockaddr_in addr = { .sin_family = AF_INET, .sin_addr.s_addr = htonl(INADDR_LOOPBACK) };
-    struct iovec iov = { };
-    struct msghdr hdr = { .msg_name = &addr, .msg_namelen = sizeof(addr), .msg_iov = &iov, .msg_iovlen = 1 };
-    sendmsg(socket(PF_IEEE802154, SOCK_RAW, 0), &hdr, 0);
-    return 0;
-  }
-  ----------
-
-Note that this might be a sign that commit fd1894224407c484 ("bpf: Don't
-redirect packets with invalid pkt_len") should be reverted, for
-skb->len == 0 was acceptable for at least PF_IEEE802154 socket.
-
-Link: https://syzkaller.appspot.com/bug?extid=5ea725c25d06fb9114c4 [1]
-Reported-by: syzbot <syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com>
-Fixes: fd1894224407c484 ("bpf: Don't redirect packets with invalid pkt_len")
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20221005014750.3685555-2-aahringo@redhat.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 766038846e875 ("md/raid0: replace printk() with pr_*()")
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Acked-by: Guoqing Jiang <guoqing.jiang@linux.dev>
+Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ieee802154/socket.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/md/raid0.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/ieee802154/socket.c
-+++ b/net/ieee802154/socket.c
-@@ -285,6 +285,10 @@ static int raw_sendmsg(struct sock *sk,
- 		err = -EMSGSIZE;
- 		goto out_dev;
- 	}
-+	if (!size) {
-+		err = 0;
-+		goto out_dev;
-+	}
+--- a/drivers/md/raid0.c
++++ b/drivers/md/raid0.c
+@@ -70,8 +70,8 @@ static void dump_zones(struct mddev *mdd
+ 		int len = 0;
  
- 	hlen = LL_RESERVED_SPACE(dev);
- 	tlen = dev->needed_tailroom;
+ 		for (k = 0; k < conf->strip_zone[j].nb_dev; k++)
+-			len += snprintf(line+len, 200-len, "%s%s", k?"/":"",
+-					bdevname(conf->devlist[j*raid_disks
++			len += scnprintf(line+len, 200-len, "%s%s", k?"/":"",
++					 bdevname(conf->devlist[j*raid_disks
+ 							       + k]->bdev, b));
+ 		pr_debug("md: zone%d=[%s]\n", j, line);
+ 
 
 
