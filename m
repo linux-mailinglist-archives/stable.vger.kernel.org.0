@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C9F160B85F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:44:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB6B560B743
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:22:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231642AbiJXToh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:44:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38368 "EHLO
+        id S231202AbiJXTWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:22:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233483AbiJXToC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:44:02 -0400
+        with ESMTP id S231790AbiJXTVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:21:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDEB01DDDCA;
-        Mon, 24 Oct 2022 11:12:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E03280BEF;
+        Mon, 24 Oct 2022 10:57:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE1FCB81913;
-        Mon, 24 Oct 2022 12:53:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 331C7C43141;
-        Mon, 24 Oct 2022 12:53:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99810B819FF;
+        Mon, 24 Oct 2022 12:54:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C26EDC433C1;
+        Mon, 24 Oct 2022 12:54:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616013;
-        bh=eMMz/bzyjKDaTSFfsHVIqdswAnQO2E3Q+3QAdTBksh4=;
+        s=korg; t=1666616070;
+        bh=eYYfN7zhVXu7HoSsesfCM1CBNUKWw1PFo052PAgMnNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6TkXxDzKMWOg+vE3W0JSExd0idXrL7VZnHkxAOGNN637+LL4ZShJFq5qRlWH6uYN
-         OLIhA+64UexJfgU4vACESJ1K8bf33wKMHu5otf7JqqTOU/sMFaYXJdCjztjxkypAwb
-         U+rXfcQ0TEOhW+VdoMpZ3caVo136kmBpGJB4WryI=
+        b=PI9CeQHP5oOFyQPVf1yGG8XCpnQLoBEbbjL85vFYmZPMc5Bwu7Z/i4NVE6pJfoaIa
+         Nc2L8zAbKFdTS+BQ2+q0A/utgEuowuInT6WFIQXgBEtSwrs4oaV7jCzeBoJlBO/NU+
+         /L0ZYqNEogX6aZI5PFefDg+mTDpdEYB6DCZ2//MI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Or Cochvi <or.cochvi@intel.com>,
-        Khaled Almahallawy <khaled.almahallawy@intel.com>,
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Hannes Reinecke <hare@suse.de>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 461/530] drm/dp: Dont rewrite link config when setting phy test pattern
-Date:   Mon, 24 Oct 2022 13:33:25 +0200
-Message-Id: <20221024113105.926291542@linuxfoundation.org>
+Subject: [PATCH 5.15 489/530] ata: libahci_platform: Sanity check the DT child nodes number
+Date:   Mon, 24 Oct 2022 13:33:53 +0200
+Message-Id: <20221024113107.180562670@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -55,98 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khaled Almahallawy <khaled.almahallawy@intel.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 7b4d8db657192066bc6f1f6635d348413dac1e18 ]
+[ Upstream commit 3c132ea6508b34956e5ed88d04936983ec230601 ]
 
-The sequence for Source DP PHY CTS automation is [2][1]:
-1- Emulate successful Link Training(LT)
-2- Short HPD and change link rates and number of lanes by LT.
-(This is same flow for Link Layer CTS)
-3- Short HPD and change PHY test pattern and swing/pre-emphasis
-levels (This step should not trigger LT)
+Having greater than AHCI_MAX_PORTS (32) ports detected isn't that critical
+from the further AHCI-platform initialization point of view since
+exceeding the ports upper limit will cause allocating more resources than
+will be used afterwards. But detecting too many child DT-nodes doesn't
+seem right since it's very unlikely to have it on an ordinary platform. In
+accordance with the AHCI specification there can't be more than 32 ports
+implemented at least due to having the CAP.NP field of 5 bits wide and the
+PI register of dword size. Thus if such situation is found the DTB must
+have been corrupted and the data read from it shouldn't be reliable. Let's
+consider that as an erroneous situation and halt further resources
+allocation.
 
-The problem is with DP PHY compliance setup as follow:
+Note it's logically more correct to have the nports set only after the
+initialization value is checked for being sane. So while at it let's make
+sure nports is assigned with a correct value.
 
-     [DPTX + on board LTTPR]------Main Link--->[Scope]
-     	     	        ^                         |
-			|                         |
-			|                         |
-			----------Aux Ch------>[Aux Emulator]
-
-At step 3, before writing TRAINING_LANEx_SET/LINK_QUAL_PATTERN_SET
-to declare the pattern/swing requested by scope, we write link
-config in LINK_BW_SET/LANE_COUNT_SET on a port that has LTTPR.
-As LTTPR snoops aux transaction, LINK_BW_SET/LANE_COUNT_SET writes
-indicate a LT will start [Check DP 2.0 E11 -Sec 3.6.8.2 & 3.6.8.6.3],
-and LTTPR will reset the link and stop sending DP signals to
-DPTX/Scope causing the measurements to fail. Note that step 3 will
-not trigger LT and DP link will never recovered by the
-Aux Emulator/Scope.
-
-The reset of link can be tested with a monitor connected to LTTPR
-port simply by writing to LINK_BW_SET or LANE_COUNT_SET as follow
-
-  igt/tools/dpcd_reg write --offset=0x100 --value 0x14 --device=2
-
-OR
-
-  printf '\x14' | sudo dd of=/dev/drm_dp_aux2 bs=1 count=1 conv=notrunc
-  seek=$((0x100))
-
-This single aux write causes the screen to blank, sending short HPD to
-DPTX, setting LINK_STATUS_UPDATE = 1 in DPCD 0x204, and triggering LT.
-
-As stated in [1]:
-"Before any TX electrical testing can be performed, the link between a
-DPTX and DPRX (in this case, a piece of test equipment), including all
-LTTPRs within the path, shall be trained as defined in this Standard."
-
-In addition, changing Phy pattern/Swing/Pre-emphasis (Step 3) uses the
-same link rate and lane count applied on step 2, so no need to redo LT.
-
-The fix is to not rewrite link config in step 3, and just writes
-TRAINING_LANEx_SET and LINK_QUAL_PATTERN_SET
-
-[1]: DP 2.0 E11 - 3.6.11.1 LTTPR DPTX_PHY Electrical Compliance
-
-[2]: Configuring UnigrafDPTC Controller - Automation Test Sequence
-https://www.keysight.com/us/en/assets/9922-01244/help-files/
-D9040DPPC-DisplayPort-Test-Software-Online-Help-latest.chm
-
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Or Cochvi <or.cochvi@intel.com>
-Signed-off-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220916054900.415804-1-khaled.almahallawy@intel.com
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_helper.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/ata/libahci_platform.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_helper.c b/drivers/gpu/drm/drm_dp_helper.c
-index 7bb24523a749..b8815e7f5832 100644
---- a/drivers/gpu/drm/drm_dp_helper.c
-+++ b/drivers/gpu/drm/drm_dp_helper.c
-@@ -2376,17 +2376,8 @@ int drm_dp_set_phy_test_pattern(struct drm_dp_aux *aux,
- 				struct drm_dp_phy_test_params *data, u8 dp_rev)
- {
- 	int err, i;
--	u8 link_config[2];
- 	u8 test_pattern;
+diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
+index 0910441321f7..64d6da0a5303 100644
+--- a/drivers/ata/libahci_platform.c
++++ b/drivers/ata/libahci_platform.c
+@@ -451,14 +451,24 @@ struct ahci_host_priv *ahci_platform_get_resources(struct platform_device *pdev,
+ 		}
+ 	}
  
--	link_config[0] = drm_dp_link_rate_to_bw_code(data->link_rate);
--	link_config[1] = data->num_lanes;
--	if (data->enhanced_frame_cap)
--		link_config[1] |= DP_LANE_COUNT_ENHANCED_FRAME_EN;
--	err = drm_dp_dpcd_write(aux, DP_LINK_BW_SET, link_config, 2);
--	if (err < 0)
--		return err;
--
- 	test_pattern = data->phy_pattern;
- 	if (dp_rev < 0x12) {
- 		test_pattern = (test_pattern << 2) &
+-	hpriv->nports = child_nodes = of_get_child_count(dev->of_node);
++	/*
++	 * Too many sub-nodes most likely means having something wrong with
++	 * the firmware.
++	 */
++	child_nodes = of_get_child_count(dev->of_node);
++	if (child_nodes > AHCI_MAX_PORTS) {
++		rc = -EINVAL;
++		goto err_out;
++	}
+ 
+ 	/*
+ 	 * If no sub-node was found, we still need to set nports to
+ 	 * one in order to be able to use the
+ 	 * ahci_platform_[en|dis]able_[phys|regulators] functions.
+ 	 */
+-	if (!child_nodes)
++	if (child_nodes)
++		hpriv->nports = child_nodes;
++	else
+ 		hpriv->nports = 1;
+ 
+ 	hpriv->phys = devm_kcalloc(dev, hpriv->nports, sizeof(*hpriv->phys), GFP_KERNEL);
 -- 
 2.35.1
 
