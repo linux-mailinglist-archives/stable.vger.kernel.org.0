@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9425D60A6CD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:41:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 339A460A4BB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229874AbiJXMkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:40:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44416 "EHLO
+        id S232981AbiJXMPd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:15:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232678AbiJXMhC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:37:02 -0400
+        with ESMTP id S233314AbiJXMOs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:14:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7985C8997B;
-        Mon, 24 Oct 2022 05:06:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC2DBF44;
+        Mon, 24 Oct 2022 04:55:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7207B61295;
-        Mon, 24 Oct 2022 12:05:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84E42C433C1;
-        Mon, 24 Oct 2022 12:05:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CD686129E;
+        Mon, 24 Oct 2022 11:55:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5219C433C1;
+        Mon, 24 Oct 2022 11:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613134;
-        bh=Awcd/0SSmDN83dUDpNoaIq8lTcT014AjU8Qvxm5qHes=;
+        s=korg; t=1666612502;
+        bh=H6SVqnoMJtqjUi9uRgeMH0tCUlsjckGSZG/7dl6Ssrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJjZLCZQtoJ5d+73L8y4qm/LOK8ooBMy5HaL/QrNmgfP4sgQRN0itQ2nnVz2noYZM
-         MVjBzLv24tQ8dWkAVnKvWICwnKLVKYB/B/ll29N8xOqq/t84CZZK1c7fsT/6E7+Ogz
-         JM6kq0p2oTTk2IRyPH8ysJUoy6S7wCKRuuIoyO04=
+        b=ayFnQDQmhBpqWgNGpgoUyhzD+ywSIQTd8SLlGcQ8MguSV5C5gObw6+NwJRu4TD500
+         NJEflaYTTWyxwpxM2i1ROWh2UDVa3GLRi3pGMbbtmgiK1pV9lIBHmMwdJRTPAjchdu
+         hN4K62B4JXr0dbZcU0sjGH30JmVaOns5HN+DvJxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>
-Subject: [PATCH 5.4 021/255] fs: dlm: fix race between test_bit() and queue_work()
+        stable@vger.kernel.org, Lukas Straub <lukasstraub2@web.de>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 4.19 012/229] um: Cleanup compiler warning in arch/x86/um/tls_32.c
 Date:   Mon, 24 Oct 2022 13:28:51 +0200
-Message-Id: <20221024113003.142544466@linuxfoundation.org>
+Message-Id: <20221024112959.535925369@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Lukas Straub <lukasstraub2@web.de>
 
-commit eef6ec9bf390e836a6c4029f3620fe49528aa1fe upstream.
+[ Upstream commit d27fff3499671dc23a08efd01cdb8b3764a391c4 ]
 
-This patch fixes a race by using ls_cb_mutex around the bit
-operations and conditional code blocks for LSFL_CB_DELAY.
+arch.tls_array is statically allocated so checking for NULL doesn't
+make sense. This causes the compiler warning below.
 
-The function dlm_callback_stop() expects to stop all callbacks and
-flush all currently queued onces. The set_bit() is not enough because
-there can still be queue_work() after the workqueue was flushed.
-To avoid queue_work() after set_bit(), surround both by ls_cb_mutex.
+Remove the checks to silence these warnings.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+../arch/x86/um/tls_32.c: In function 'get_free_idx':
+../arch/x86/um/tls_32.c:68:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
+   68 |         if (!t->arch.tls_array)
+      |             ^
+In file included from ../arch/x86/um/asm/processor.h:10,
+                 from ../include/linux/rcupdate.h:30,
+                 from ../include/linux/rculist.h:11,
+                 from ../include/linux/pid.h:5,
+                 from ../include/linux/sched.h:14,
+                 from ../arch/x86/um/tls_32.c:7:
+../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
+   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
+      |                               ^~~~~~~~~
+../arch/x86/um/tls_32.c: In function 'get_tls_entry':
+../arch/x86/um/tls_32.c:243:13: warning: the comparison will always evaluate as 'true' for the address of 'tls_array' will never be NULL [-Waddress]
+  243 |         if (!t->arch.tls_array)
+      |             ^
+../arch/x86/um/asm/processor_32.h:22:31: note: 'tls_array' declared here
+   22 |         struct uml_tls_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
+      |                               ^~~~~~~~~
+
+Signed-off-by: Lukas Straub <lukasstraub2@web.de>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/ast.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/um/tls_32.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/fs/dlm/ast.c
-+++ b/fs/dlm/ast.c
-@@ -198,13 +198,13 @@ void dlm_add_cb(struct dlm_lkb *lkb, uin
- 	if (!prev_seq) {
- 		kref_get(&lkb->lkb_ref);
+diff --git a/arch/x86/um/tls_32.c b/arch/x86/um/tls_32.c
+index 5bd949da7a4a..b69ab2409430 100644
+--- a/arch/x86/um/tls_32.c
++++ b/arch/x86/um/tls_32.c
+@@ -65,9 +65,6 @@ static int get_free_idx(struct task_struct* task)
+ 	struct thread_struct *t = &task->thread;
+ 	int idx;
  
-+		mutex_lock(&ls->ls_cb_mutex);
- 		if (test_bit(LSFL_CB_DELAY, &ls->ls_flags)) {
--			mutex_lock(&ls->ls_cb_mutex);
- 			list_add(&lkb->lkb_cb_list, &ls->ls_cb_delay);
--			mutex_unlock(&ls->ls_cb_mutex);
- 		} else {
- 			queue_work(ls->ls_callback_wq, &lkb->lkb_cb_work);
- 		}
-+		mutex_unlock(&ls->ls_cb_mutex);
- 	}
-  out:
- 	mutex_unlock(&lkb->lkb_cb_mutex);
-@@ -284,7 +284,9 @@ void dlm_callback_stop(struct dlm_ls *ls
- 
- void dlm_callback_suspend(struct dlm_ls *ls)
+-	if (!t->arch.tls_array)
+-		return GDT_ENTRY_TLS_MIN;
+-
+ 	for (idx = 0; idx < GDT_ENTRY_TLS_ENTRIES; idx++)
+ 		if (!t->arch.tls_array[idx].present)
+ 			return idx + GDT_ENTRY_TLS_MIN;
+@@ -242,9 +239,6 @@ static int get_tls_entry(struct task_struct *task, struct user_desc *info,
  {
-+	mutex_lock(&ls->ls_cb_mutex);
- 	set_bit(LSFL_CB_DELAY, &ls->ls_flags);
-+	mutex_unlock(&ls->ls_cb_mutex);
+ 	struct thread_struct *t = &task->thread;
  
- 	if (ls->ls_callback_wq)
- 		flush_workqueue(ls->ls_callback_wq);
+-	if (!t->arch.tls_array)
+-		goto clear;
+-
+ 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
+ 		return -EINVAL;
+ 
+-- 
+2.35.1
+
 
 
