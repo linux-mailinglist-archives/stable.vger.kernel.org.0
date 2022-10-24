@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E2B360B2B7
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A43A860B183
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:27:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232027AbiJXQuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:50:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36102 "EHLO
+        id S233939AbiJXQ1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:27:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235310AbiJXQtX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7397A169122;
-        Mon, 24 Oct 2022 08:32:36 -0700 (PDT)
+        with ESMTP id S233295AbiJXQ0b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:26:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5740C2C126;
+        Mon, 24 Oct 2022 08:13:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E7E5B811F8;
-        Mon, 24 Oct 2022 12:03:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 728E8C433C1;
-        Mon, 24 Oct 2022 12:03:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 744EB612B7;
+        Mon, 24 Oct 2022 12:49:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82573C433C1;
+        Mon, 24 Oct 2022 12:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613011;
-        bh=XstuXJ9XP7b/uB89HOndhXrfHzTGzsgT8se1TPjq8OE=;
+        s=korg; t=1666615779;
+        bh=7ejy0d+KKwbbxyY1c34JDvM+tldrF2f56p9tbQ3YmFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VGSM/XzZFoK2Rsvr1OYrNPBYAji5xbsER944kMYN1xT1Jqip3YfVb+NEe/xuKj77F
-         dNJALZ8ygL0u3Onon/EUCp23TB0WnzsPNovNH4p4MgH7jiNWlvi2VJl2ELiuq5jkh8
-         Fhvom/Tzvi0lNscXo4CPSg+vr4Ih6ZS1v3SBpWOg=
+        b=XmUhT+/ySQPeu+d+vOCQRb6f65yy7x+RjxTeEa93+Jvo6DSnGaiM8k3QXylBMvIxa
+         jjkYg6sDVPdKXglP4br1yIRHZRY23NT94uKtEO7vTzjNADDt4SJ9SHGIeTD5BUMZ1T
+         HJnD6EpcO9mLGJxLcJdUmfIeFYchrFMRNehJRUWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 204/229] ARM: dts: imx6sl: add missing properties for sram
-Date:   Mon, 24 Oct 2022 13:32:03 +0200
-Message-Id: <20221024113005.777979171@linuxfoundation.org>
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 380/530] cgroup/cpuset: Enable update_tasks_cpumask() on top_cpuset
+Date:   Mon, 24 Oct 2022 13:32:04 +0200
+Message-Id: <20221024113102.248576394@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +52,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit 60c9213a1d9941a8b33db570796c3f9be8984974 ]
+[ Upstream commit ec5fbdfb99d18482619ac42605cb80fbb56068ee ]
 
-All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
-sram@900000: '#address-cells' is a required property
-sram@900000: '#size-cells' is a required property
-sram@900000: 'ranges' is a required property
+Previously, update_tasks_cpumask() is not supposed to be called with
+top cpuset. With cpuset partition that takes CPUs away from the top
+cpuset, adjusting the cpus_mask of the tasks in the top cpuset is
+necessary. Percpu kthreads, however, are ignored.
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: ee8dde0cd2ce ("cpuset: Add new v2 cpuset.sched.partition flag")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6sl.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/cgroup/cpuset.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
-index 9d19183f40e1..afde0ed6d71a 100644
---- a/arch/arm/boot/dts/imx6sl.dtsi
-+++ b/arch/arm/boot/dts/imx6sl.dtsi
-@@ -118,6 +118,9 @@
- 		ocram: sram@900000 {
- 			compatible = "mmio-sram";
- 			reg = <0x00900000 0x20000>;
-+			ranges = <0 0x00900000 0x20000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 			clocks = <&clks IMX6SL_CLK_OCRAM>;
- 		};
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 3213d3c8ea0a..428820bf141d 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -33,6 +33,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+ #include <linux/kmod.h>
++#include <linux/kthread.h>
+ #include <linux/list.h>
+ #include <linux/mempolicy.h>
+ #include <linux/mm.h>
+@@ -1087,10 +1088,18 @@ static void update_tasks_cpumask(struct cpuset *cs)
+ {
+ 	struct css_task_iter it;
+ 	struct task_struct *task;
++	bool top_cs = cs == &top_cpuset;
  
+ 	css_task_iter_start(&cs->css, 0, &it);
+-	while ((task = css_task_iter_next(&it)))
++	while ((task = css_task_iter_next(&it))) {
++		/*
++		 * Percpu kthreads in top_cpuset are ignored
++		 */
++		if (top_cs && (task->flags & PF_KTHREAD) &&
++		    kthread_is_per_cpu(task))
++			continue;
+ 		set_cpus_allowed_ptr(task, cs->effective_cpus);
++	}
+ 	css_task_iter_end(&it);
+ }
+ 
+@@ -2052,12 +2061,7 @@ static int update_prstate(struct cpuset *cs, int new_prs)
+ 		update_flag(CS_CPU_EXCLUSIVE, cs, 0);
+ 	}
+ 
+-	/*
+-	 * Update cpumask of parent's tasks except when it is the top
+-	 * cpuset as some system daemons cannot be mapped to other CPUs.
+-	 */
+-	if (parent != &top_cpuset)
+-		update_tasks_cpumask(parent);
++	update_tasks_cpumask(parent);
+ 
+ 	if (parent->child_ecpus_count)
+ 		update_sibling_cpumasks(parent, cs, &tmpmask);
 -- 
 2.35.1
 
