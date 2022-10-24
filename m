@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 782B960AB6C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:52:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCF4F60A99B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:23:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236551AbiJXNwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:52:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35150 "EHLO
+        id S235858AbiJXNXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:23:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236586AbiJXNvd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:51:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADC69BA915;
-        Mon, 24 Oct 2022 05:42:17 -0700 (PDT)
+        with ESMTP id S232290AbiJXNW3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:22:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1328A27B20;
+        Mon, 24 Oct 2022 05:29:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8849611B0;
-        Mon, 24 Oct 2022 12:41:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0747C433D6;
-        Mon, 24 Oct 2022 12:41:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DE086121A;
+        Mon, 24 Oct 2022 12:20:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 348B5C433C1;
+        Mon, 24 Oct 2022 12:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615293;
-        bh=G+64bLDaqhTJFDrsaQTm7MH6DNPZniUfnto6LrBgJmg=;
+        s=korg; t=1666614050;
+        bh=gbWOcWJVIeCSTWsZe9h9k7u01aFXM886CSuh3qHNISM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IrtZFyEvUf3TphpiIZse0BShkXFqkrW70GLwk84kcrvSFPyNIisgB6tjqlL3FdT1F
-         xS+7xuiJN4em+1qGi1tYaUhr2SVU+Xd6tvw+xyCfX7LvVrqUkwCMS8kmgvSSpEVMP7
-         ia1zoC2SCkQtAIbTWU1sWNYK50VXHfKX42h0QYqw=
+        b=glmoucV+4/XZq3d1LfhwLRzpbWjgUN0drDcXO2Q/BDg3Y7ZUI7YFh+c5Oy7qFFpC8
+         u23qHwZclpj++pW2CW9lVa3xwtpPEfEjncQWqVgFaplJXsJuDKO7V/iGwqWWTGfhN0
+         Nfd+k/7XWZ67j9m5wLrafiStTSy73cH5YgiqZN2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 165/530] wifi: rtw88: add missing destroy_workqueue() on error path in rtw_core_init()
+        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 112/390] spi: qup: add missing clk_disable_unprepare on error in spi_qup_pm_resume_runtime()
 Date:   Mon, 24 Oct 2022 13:28:29 +0200
-Message-Id: <20221024113052.528593734@linuxfoundation.org>
+Message-Id: <20221024113027.475723989@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Xu Qiang <xuqiang36@huawei.com>
 
-[ Upstream commit b0ea758b30bbdf7c4323c78b7c50c05d2e1224d5 ]
+[ Upstream commit 494a22765ce479c9f8ad181c5d24cffda9f534bb ]
 
-Add the missing destroy_workqueue() before return from rtw_core_init()
-in error path.
+Add the missing clk_disable_unprepare() before return
+from spi_qup_pm_resume_runtime() in the error handling case.
 
-Fixes: fe101716c7c9 ("rtw88: replace tx tasklet with work queue")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220826023817.3908255-1-yangyingliang@huawei.com
+Fixes: dae1a7700b34 (“spi: qup: Handle clocks in pm_runtime suspend and resume”)
+Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
+Link: https://lore.kernel.org/r/20220825065324.68446-2-xuqiang36@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/main.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/spi/spi-qup.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/main.c b/drivers/net/wireless/realtek/rtw88/main.c
-index 5786995d90d4..d7b7b2cce974 100644
---- a/drivers/net/wireless/realtek/rtw88/main.c
-+++ b/drivers/net/wireless/realtek/rtw88/main.c
-@@ -1869,7 +1869,7 @@ int rtw_core_init(struct rtw_dev *rtwdev)
- 	ret = rtw_load_firmware(rtwdev, RTW_NORMAL_FW);
- 	if (ret) {
- 		rtw_warn(rtwdev, "no firmware loaded\n");
--		return ret;
-+		goto out;
- 	}
+diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
+index 668d79922fac..f3877eeb3da6 100644
+--- a/drivers/spi/spi-qup.c
++++ b/drivers/spi/spi-qup.c
+@@ -1199,8 +1199,10 @@ static int spi_qup_pm_resume_runtime(struct device *device)
+ 		return ret;
  
- 	if (chip->wow_fw_name) {
-@@ -1879,11 +1879,15 @@ int rtw_core_init(struct rtw_dev *rtwdev)
- 			wait_for_completion(&rtwdev->fw.completion);
- 			if (rtwdev->fw.firmware)
- 				release_firmware(rtwdev->fw.firmware);
--			return ret;
-+			goto out;
- 		}
- 	}
+ 	ret = clk_prepare_enable(controller->cclk);
+-	if (ret)
++	if (ret) {
++		clk_disable_unprepare(controller->iclk);
+ 		return ret;
++	}
  
- 	return 0;
-+
-+out:
-+	destroy_workqueue(rtwdev->tx_wq);
-+	return ret;
- }
- EXPORT_SYMBOL(rtw_core_init);
- 
+ 	/* Disable clocks auto gaiting */
+ 	config = readl_relaxed(controller->base + QUP_CONFIG);
 -- 
 2.35.1
 
