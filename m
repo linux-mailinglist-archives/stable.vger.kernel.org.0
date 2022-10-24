@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E82C360A359
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEA5660A32A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:52:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231846AbiJXLzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:55:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53780 "EHLO
+        id S232004AbiJXLwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:52:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232226AbiJXLyJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:54:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 987C9399FE;
-        Mon, 24 Oct 2022 04:45:23 -0700 (PDT)
+        with ESMTP id S231846AbiJXLuK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:50:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DD6164FC;
+        Mon, 24 Oct 2022 04:44:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6839AB8117D;
-        Mon, 24 Oct 2022 11:44:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C240AC433D7;
-        Mon, 24 Oct 2022 11:44:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4CF4612B8;
+        Mon, 24 Oct 2022 11:44:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01ABDC433D6;
+        Mon, 24 Oct 2022 11:44:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611865;
-        bh=91Cs5LiCxsUxrtJkM/+UxL67qhxRWjuYTje3L63IUJ0=;
+        s=korg; t=1666611870;
+        bh=d4BqT0foyNTkikvIXAvWhBjvL5do5M3do2PBAoW3L0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZL6l034V3x1b5N75G7/cLMlV3DrkQ/7aAStgNmxvnqAyYrxlophMxTB86X8CGPV01
-         QieW48uLgIImLlIcJ7y+Uu1Bgrla3JSpf2B4tJe+iO+LOwDIEjH4BWXvv3S5JGN99W
-         xpTY1Ht3HU2F92WNdONjPNuRr9hDzlvfQXXF18EI=
+        b=Xom1rmQEzqnrGoQRo+hNC2e1ZQlggrmEcvnegtglwy1MhGzVNH6FDG8E4POr95SaU
+         3AU9gwCB6zugMoPRr02SKGlNu+Ag6uwXv/uodCUVjG1q3SRGp568e+hu5SpKjBtlyC
+         weO4G6v3rKxGR8lW+sAreLN/gkUAIlzMgMgLlkS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, hongao <hongao@uniontech.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 140/159] drm/amdgpu: fix initial connector audio value
-Date:   Mon, 24 Oct 2022 13:31:34 +0200
-Message-Id: <20221024112954.576372053@linuxfoundation.org>
+Subject: [PATCH 4.9 142/159] ARM: dts: imx6q: add missing properties for sram
+Date:   Mon, 24 Oct 2022 13:31:36 +0200
+Message-Id: <20221024112954.650513546@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -53,62 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hongao <hongao@uniontech.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 4bb71fce58f30df3f251118291d6b0187ce531e6 ]
+[ Upstream commit b11d083c5dcec7c42fe982c854706d404ddd3a5f ]
 
-This got lost somewhere along the way, This fixes
-audio not working until set_property was called.
+All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
+sram@900000: '#address-cells' is a required property
+sram@900000: '#size-cells' is a required property
+sram@900000: 'ranges' is a required property
 
-Signed-off-by: hongao <hongao@uniontech.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6q.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-index 7264169d5f2a..7c266dbb88a1 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-@@ -1760,10 +1760,12 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 						   adev->mode_info.dither_property,
- 						   AMDGPU_FMT_DITHER_DISABLE);
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index 908b269a016b..692afd2f5dd4 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -82,6 +82,9 @@
+ 		ocram: sram@00900000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x00900000 0x40000>;
++			ranges = <0 0x00900000 0x40000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
+ 		};
  
--			if (amdgpu_audio != 0)
-+			if (amdgpu_audio != 0) {
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
-+			}
- 
- 			subpixel_order = SubPixelHorizontalRGB;
- 			connector->interlace_allowed = true;
-@@ -1868,6 +1870,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
- 			}
- 			drm_object_attach_property(&amdgpu_connector->base.base,
- 						   adev->mode_info.dither_property,
-@@ -1916,6 +1919,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
- 			}
- 			drm_object_attach_property(&amdgpu_connector->base.base,
- 						   adev->mode_info.dither_property,
-@@ -1961,6 +1965,7 @@ amdgpu_connector_add(struct amdgpu_device *adev,
- 				drm_object_attach_property(&amdgpu_connector->base.base,
- 							   adev->mode_info.audio_property,
- 							   AMDGPU_AUDIO_AUTO);
-+				amdgpu_connector->audio = AMDGPU_AUDIO_AUTO;
- 			}
- 			drm_object_attach_property(&amdgpu_connector->base.base,
- 						   adev->mode_info.dither_property,
 -- 
 2.35.1
 
