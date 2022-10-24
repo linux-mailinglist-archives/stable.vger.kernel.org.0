@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 768EA60AB57
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:50:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8146E60A8AF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:10:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236386AbiJXNuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:50:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33164 "EHLO
+        id S235478AbiJXNKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:10:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236644AbiJXNtf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:49:35 -0400
+        with ESMTP id S235388AbiJXNIh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:08:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0F9FB7EF5;
-        Mon, 24 Oct 2022 05:41:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC249E2DA;
+        Mon, 24 Oct 2022 05:21:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B6B3C612B9;
-        Mon, 24 Oct 2022 12:40:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19C4C433C1;
-        Mon, 24 Oct 2022 12:40:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 091F961218;
+        Mon, 24 Oct 2022 12:21:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F2BEC433C1;
+        Mon, 24 Oct 2022 12:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615251;
-        bh=U2S+lBkDEJP0n2Y1e91v0Q4zrFh2grhkUExIe7gZqng=;
+        s=korg; t=1666614087;
+        bh=786S+Dn2aWcaP69zrtbMp2Xt408gllhiKlEpepX6aYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFZRODLAsJ5XHgMxieuwKaFMsVj/+tXnBdQOPGcHWM3XzW2yw9IpMhWF/Owy4nrvb
-         uY9Xec2N2kmUIC+iB2SpAnL0JW2nciRdo9mp1OFse3hY8ICOXP0UZqZ88jbTgDwxlt
-         iW7qdBLulf3jqoCs0G5qVoLxwy0rs2z9J/S8U+Pk=
+        b=VEousFjgmwBjYYKiF6l4uWZVylvZUrpBbIvZwLxK4ZlFkXVRbiRPUWRtjv4CUE/K+
+         snqqLtlV9WjPnEzIqr4Zz6qSGG4HuqtXAbEGv4U4eHkGSMrhAJIB8neyy/hfwBsdHo
+         Z59FOkMUBpq3DHydjtAAbiIeBYhrKK/l+Ulf4W9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+576dfca25381fb6fbc5f@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
+        Florian Westphal <fw@strlen.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 180/530] Bluetooth: hci_{ldisc,serdev}: check percpu_init_rwsem() failure
-Date:   Mon, 24 Oct 2022 13:28:44 +0200
-Message-Id: <20221024113053.177686231@linuxfoundation.org>
+Subject: [PATCH 5.10 128/390] netfilter: nft_fib: Fix for rpath check with VRF devices
+Date:   Mon, 24 Oct 2022 13:28:45 +0200
+Message-Id: <20221024113028.115912249@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,91 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Phil Sutter <phil@nwl.cc>
 
-[ Upstream commit 3124d320c22f3f4388d9ac5c8f37eaad0cefd6b1 ]
+[ Upstream commit 2a8a7c0eaa8747c16aa4a48d573aa920d5c00a5c ]
 
-syzbot is reporting NULL pointer dereference at hci_uart_tty_close() [1],
-for rcu_sync_enter() is called without rcu_sync_init() due to
-hci_uart_tty_open() ignoring percpu_init_rwsem() failure.
+Analogous to commit b575b24b8eee3 ("netfilter: Fix rpfilter
+dropping vrf packets by mistake") but for nftables fib expression:
+Add special treatment of VRF devices so that typical reverse path
+filtering via 'fib saddr . iif oif' expression works as expected.
 
-While we are at it, fix that hci_uart_register_device() ignores
-percpu_init_rwsem() failure and hci_uart_unregister_device() does not
-call percpu_free_rwsem().
-
-Link: https://syzkaller.appspot.com/bug?extid=576dfca25381fb6fbc5f [1]
-Reported-by: syzbot <syzbot+576dfca25381fb6fbc5f@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 67d2f8781b9f00d1 ("Bluetooth: hci_ldisc: Allow sleeping while proto locks are held.")
-Fixes: d73e172816652772 ("Bluetooth: hci_serdev: Init hci_uart proto_lock to avoid oops")
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: f6d0cbcf09c50 ("netfilter: nf_tables: add fib expression")
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_ldisc.c  |  7 +++++--
- drivers/bluetooth/hci_serdev.c | 10 +++++++---
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ net/ipv4/netfilter/nft_fib_ipv4.c | 3 +++
+ net/ipv6/netfilter/nft_fib_ipv6.c | 6 +++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/hci_ldisc.c b/drivers/bluetooth/hci_ldisc.c
-index 5ed2cfa7da1d..2d960a5e3679 100644
---- a/drivers/bluetooth/hci_ldisc.c
-+++ b/drivers/bluetooth/hci_ldisc.c
-@@ -490,6 +490,11 @@ static int hci_uart_tty_open(struct tty_struct *tty)
- 		BT_ERR("Can't allocate control structure");
- 		return -ENFILE;
- 	}
-+	if (percpu_init_rwsem(&hu->proto_lock)) {
-+		BT_ERR("Can't allocate semaphore structure");
-+		kfree(hu);
-+		return -ENOMEM;
-+	}
+diff --git a/net/ipv4/netfilter/nft_fib_ipv4.c b/net/ipv4/netfilter/nft_fib_ipv4.c
+index 03df986217b7..9e6f0f1275e2 100644
+--- a/net/ipv4/netfilter/nft_fib_ipv4.c
++++ b/net/ipv4/netfilter/nft_fib_ipv4.c
+@@ -83,6 +83,9 @@ void nft_fib4_eval(const struct nft_expr *expr, struct nft_regs *regs,
+ 	else
+ 		oif = NULL;
  
- 	tty->disc_data = hu;
- 	hu->tty = tty;
-@@ -502,8 +507,6 @@ static int hci_uart_tty_open(struct tty_struct *tty)
- 	INIT_WORK(&hu->init_ready, hci_uart_init_work);
- 	INIT_WORK(&hu->write_work, hci_uart_write_work);
- 
--	percpu_init_rwsem(&hu->proto_lock);
--
- 	/* Flush any pending characters in the driver */
- 	tty_driver_flush_buffer(tty);
- 
-diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
-index 4cda890ce647..649d112eea78 100644
---- a/drivers/bluetooth/hci_serdev.c
-+++ b/drivers/bluetooth/hci_serdev.c
-@@ -301,11 +301,12 @@ int hci_uart_register_device(struct hci_uart *hu,
- 
- 	serdev_device_set_client_ops(hu->serdev, &hci_serdev_client_ops);
- 
-+	if (percpu_init_rwsem(&hu->proto_lock))
-+		return -ENOMEM;
++	if (priv->flags & NFTA_FIB_F_IIF)
++		fl4.flowi4_oif = l3mdev_master_ifindex_rcu(oif);
 +
- 	err = serdev_device_open(hu->serdev);
- 	if (err)
--		return err;
--
--	percpu_init_rwsem(&hu->proto_lock);
-+		goto err_rwsem;
- 
- 	err = p->open(hu);
- 	if (err)
-@@ -378,6 +379,8 @@ int hci_uart_register_device(struct hci_uart *hu,
- 	p->close(hu);
- err_open:
- 	serdev_device_close(hu->serdev);
-+err_rwsem:
-+	percpu_free_rwsem(&hu->proto_lock);
- 	return err;
- }
- EXPORT_SYMBOL_GPL(hci_uart_register_device);
-@@ -399,5 +402,6 @@ void hci_uart_unregister_device(struct hci_uart *hu)
- 		clear_bit(HCI_UART_PROTO_READY, &hu->flags);
- 		serdev_device_close(hu->serdev);
+ 	if (nft_hook(pkt) == NF_INET_PRE_ROUTING &&
+ 	    nft_fib_is_loopback(pkt->skb, nft_in(pkt))) {
+ 		nft_fib_store_result(dest, priv, nft_in(pkt));
+diff --git a/net/ipv6/netfilter/nft_fib_ipv6.c b/net/ipv6/netfilter/nft_fib_ipv6.c
+index 92f3235fa287..602743f6dcee 100644
+--- a/net/ipv6/netfilter/nft_fib_ipv6.c
++++ b/net/ipv6/netfilter/nft_fib_ipv6.c
+@@ -37,6 +37,9 @@ static int nft_fib6_flowi_init(struct flowi6 *fl6, const struct nft_fib *priv,
+ 	if (ipv6_addr_type(&fl6->daddr) & IPV6_ADDR_LINKLOCAL) {
+ 		lookup_flags |= RT6_LOOKUP_F_IFACE;
+ 		fl6->flowi6_oif = get_ifindex(dev ? dev : pkt->skb->dev);
++	} else if ((priv->flags & NFTA_FIB_F_IIF) &&
++		   (netif_is_l3_master(dev) || netif_is_l3_slave(dev))) {
++		fl6->flowi6_oif = dev->ifindex;
  	}
-+	percpu_free_rwsem(&hu->proto_lock);
- }
- EXPORT_SYMBOL_GPL(hci_uart_unregister_device);
+ 
+ 	if (ipv6_addr_type(&fl6->saddr) & IPV6_ADDR_UNICAST)
+@@ -193,7 +196,8 @@ void nft_fib6_eval(const struct nft_expr *expr, struct nft_regs *regs,
+ 	if (rt->rt6i_flags & (RTF_REJECT | RTF_ANYCAST | RTF_LOCAL))
+ 		goto put_rt_err;
+ 
+-	if (oif && oif != rt->rt6i_idev->dev)
++	if (oif && oif != rt->rt6i_idev->dev &&
++	    l3mdev_master_ifindex_rcu(rt->rt6i_idev->dev) != oif->ifindex)
+ 		goto put_rt_err;
+ 
+ 	nft_fib_store_result(dest, priv, rt->rt6i_idev->dev);
 -- 
 2.35.1
 
