@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F337260B851
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:44:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D645A60B776
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231350AbiJXTo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:44:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41454 "EHLO
+        id S231950AbiJXTYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:24:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231470AbiJXTmy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:42:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DFE180F77;
-        Mon, 24 Oct 2022 11:11:41 -0700 (PDT)
+        with ESMTP id S232082AbiJXTXK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:23:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEB1317FD4C;
+        Mon, 24 Oct 2022 10:57:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E903B818E3;
-        Mon, 24 Oct 2022 12:38:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C39ACC433C1;
-        Mon, 24 Oct 2022 12:38:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 80BC5CE1366;
+        Mon, 24 Oct 2022 12:19:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7192AC433C1;
+        Mon, 24 Oct 2022 12:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615112;
-        bh=V0NzY5TYGk7oTMHRlHDPYr843DQtFpcoSee/FPoXG2M=;
+        s=korg; t=1666613952;
+        bh=Y3eT2xE4uYU2PLlz1rAVKbLGZkqNAWjS8soALy34X1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o08cNVQKRI0jQ5v9FSiNAfIzgr15IbbrtuEXBq94WiBX6sQh8EYe+4ljf6a1hLz3J
-         c7FL45cZBfjrl9FVX41JTmEUkdP7V4KSPvnAeeEyUPc3sP8ge1PPY7z9J3VsacR/Wt
-         sEyVnhVFaHr+lB5uSh9xwvc8cNDOoCvXzd77yRg4=
+        b=XVMPVI8obe3lCWzdsiR/nvFUR/+LREElt2+6QoRGpGlznSg0a00a4cRR+kJQR33Qr
+         uB71FzPyQvaFinPN+2+WQHjx8KQyRe9sjLNsviuJ9xtDmfQmXDT8WCeE19FPIH0c++
+         QACBTCXdz0ApkT50R3sC1T6bQICbZYUv96DcT/7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 125/530] KVM: nVMX: Dont propagate vmcs12s PERF_GLOBAL_CTRL settings to vmcs02
-Date:   Mon, 24 Oct 2022 13:27:49 +0200
-Message-Id: <20221024113050.716544161@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 076/390] ring-buffer: Add ring_buffer_wake_waiters()
+Date:   Mon, 24 Oct 2022 13:27:53 +0200
+Message-Id: <20221024113025.849362575@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +53,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit def9d705c05eab3fdedeb10ad67907513b12038e upstream.
+commit 7e9fbbb1b776d8d7969551565bc246f74ec53b27 upstream.
 
-Don't propagate vmcs12's VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL to vmcs02.
-KVM doesn't disallow L1 from using VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL
-even when KVM itself doesn't use the control, e.g. due to the various
-CPU errata that where the MSR can be corrupted on VM-Exit.
+On closing of a file that represents a ring buffer or flushing the file,
+there may be waiters on the ring buffer that needs to be woken up and exit
+the ring_buffer_wait() function.
 
-Preserve KVM's (vmcs01) setting to hopefully avoid having to toggle the
-bit in vmcs02 at a later point.  E.g. if KVM is loading PERF_GLOBAL_CTRL
-when running L1, then odds are good KVM will also load the MSR when
-running L2.
+Add ring_buffer_wake_waiters() to wake up the waiters on the ring buffer
+and allow them to exit the wait loop.
 
-Fixes: 8bf00a529967 ("KVM: VMX: add support for switching of PERF_GLOBAL_CTRL")
+Link: https://lkml.kernel.org/r/20220928133938.28dc2c27@gandalf.local.home
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Link: https://lore.kernel.org/r/20220830133737.1539624-18-vkuznets@redhat.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 15693458c4bc0 ("tracing/ring-buffer: Move poll wake ups into ring buffer code")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ include/linux/ring_buffer.h |    2 +-
+ kernel/trace/ring_buffer.c  |   39 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 40 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2313,9 +2313,14 @@ static void prepare_vmcs02_early(struct
- 	 * are emulated by vmx_set_efer() in prepare_vmcs02(), but speculate
- 	 * on the related bits (if supported by the CPU) in the hope that
- 	 * we can avoid VMWrites during vmx_set_efer().
-+	 *
-+	 * Similarly, take vmcs01's PERF_GLOBAL_CTRL in the hope that if KVM is
-+	 * loading PERF_GLOBAL_CTRL via the VMCS for L1, then KVM will want to
-+	 * do the same for L2.
- 	 */
- 	exec_control = __vm_entry_controls_get(vmcs01);
--	exec_control |= vmcs12->vm_entry_controls;
-+	exec_control |= (vmcs12->vm_entry_controls &
-+			 ~VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL);
- 	exec_control &= ~(VM_ENTRY_IA32E_MODE | VM_ENTRY_LOAD_IA32_EFER);
- 	if (cpu_has_load_ia32_efer()) {
- 		if (guest_efer & EFER_LMA)
+--- a/include/linux/ring_buffer.h
++++ b/include/linux/ring_buffer.h
+@@ -100,7 +100,7 @@ __ring_buffer_alloc(unsigned long size,
+ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full);
+ __poll_t ring_buffer_poll_wait(struct trace_buffer *buffer, int cpu,
+ 			  struct file *filp, poll_table *poll_table);
+-
++void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu);
+ 
+ #define RING_BUFFER_ALL_CPUS -1
+ 
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -414,6 +414,7 @@ struct rb_irq_work {
+ 	struct irq_work			work;
+ 	wait_queue_head_t		waiters;
+ 	wait_queue_head_t		full_waiters;
++	long				wait_index;
+ 	bool				waiters_pending;
+ 	bool				full_waiters_pending;
+ 	bool				wakeup_full;
+@@ -802,6 +803,37 @@ static void rb_wake_up_waiters(struct ir
+ }
+ 
+ /**
++ * ring_buffer_wake_waiters - wake up any waiters on this ring buffer
++ * @buffer: The ring buffer to wake waiters on
++ *
++ * In the case of a file that represents a ring buffer is closing,
++ * it is prudent to wake up any waiters that are on this.
++ */
++void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu)
++{
++	struct ring_buffer_per_cpu *cpu_buffer;
++	struct rb_irq_work *rbwork;
++
++	if (cpu == RING_BUFFER_ALL_CPUS) {
++
++		/* Wake up individual ones too. One level recursion */
++		for_each_buffer_cpu(buffer, cpu)
++			ring_buffer_wake_waiters(buffer, cpu);
++
++		rbwork = &buffer->irq_work;
++	} else {
++		cpu_buffer = buffer->buffers[cpu];
++		rbwork = &cpu_buffer->irq_work;
++	}
++
++	rbwork->wait_index++;
++	/* make sure the waiters see the new index */
++	smp_wmb();
++
++	rb_wake_up_waiters(&rbwork->work);
++}
++
++/**
+  * ring_buffer_wait - wait for input to the ring buffer
+  * @buffer: buffer to wait on
+  * @cpu: the cpu buffer to wait on
+@@ -816,6 +848,7 @@ int ring_buffer_wait(struct trace_buffer
+ 	struct ring_buffer_per_cpu *cpu_buffer;
+ 	DEFINE_WAIT(wait);
+ 	struct rb_irq_work *work;
++	long wait_index;
+ 	int ret = 0;
+ 
+ 	/*
+@@ -834,6 +867,7 @@ int ring_buffer_wait(struct trace_buffer
+ 		work = &cpu_buffer->irq_work;
+ 	}
+ 
++	wait_index = READ_ONCE(work->wait_index);
+ 
+ 	while (true) {
+ 		if (full)
+@@ -898,6 +932,11 @@ int ring_buffer_wait(struct trace_buffer
+ 		}
+ 
+ 		schedule();
++
++		/* Make sure to see the new wait index */
++		smp_rmb();
++		if (wait_index != work->wait_index)
++			break;
+ 	}
+ 
+ 	if (full)
 
 
