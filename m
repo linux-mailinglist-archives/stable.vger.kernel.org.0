@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1D7660A442
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:07:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F4ED60A562
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:23:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230166AbiJXMHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:07:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41954 "EHLO
+        id S233610AbiJXMXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:23:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233108AbiJXMFI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:05:08 -0400
+        with ESMTP id S233339AbiJXMXD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:23:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EFF37D7AF;
-        Mon, 24 Oct 2022 04:51:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CBA1186D3;
+        Mon, 24 Oct 2022 04:59:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8611612CE;
-        Mon, 24 Oct 2022 11:51:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCD2AC433D6;
-        Mon, 24 Oct 2022 11:51:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBA266127D;
+        Mon, 24 Oct 2022 11:59:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E4A0C433C1;
+        Mon, 24 Oct 2022 11:59:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612271;
-        bh=a8l/I2TuFnDZ2LIT3P89OUO8cHanDUNMh7fG1SpkHa8=;
+        s=korg; t=1666612743;
+        bh=I3iB7eG7p6Aumshgpeip5/KbFYNtV6JUN8XdboMeUQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eh+3wf2yBzhC1Tn7nq2JcTWgZ6y6XJqqqDjK2Pt4YDq3xmeBSATSf+/eBbeiwKqcH
-         WJRhV9bgsnhWDDd7tD/O24sExFLFAwMP9ECBtk78arVThNK3qTYDTN4XV2pAtaBsWv
-         Cvk4N+aDIuA0EgaqzUAIJ15rqam+gYfTq09P5LHI=
+        b=qD48x7WXUk5Xxuq9Eo5aHueDprtv/4G6O8+pcnKU7wDL3tQuMCE+pMm8AS1FK9w7x
+         2tUtRHkyp1FpARdIOYDeYIauoDlva+oVZ03mfEJk8Ba8/kn6h+auWeRKHHaqUbN76P
+         8SNigZoAWSbUS/mR3XqB8PyLMJcl68lV51ejdJys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Kelin Wang <wangkelin2023@163.com>
-Subject: [PATCH 4.14 103/210] ASoC: eureka-tlv320: Hold reference returned from of_find_xxx API
-Date:   Mon, 24 Oct 2022 13:30:20 +0200
-Message-Id: <20221024113000.357615385@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 102/229] drm/msm/dpu: index dpu_kms->hw_vbif using vbif_idx
+Date:   Mon, 24 Oct 2022 13:30:21 +0200
+Message-Id: <20221024113002.324389317@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +55,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit bfb735a3ceff0bab6473bac275da96f9b2a06dec ]
+[ Upstream commit 7538f80ae0d98bf51eb89eee5344aec219902d42 ]
 
-In eukrea_tlv320_probe(), we need to hold the reference returned
-from of_find_compatible_node() which has increased the refcount
-and then call of_node_put() with it when done.
+Remove loops over hw_vbif. Instead always VBIF's idx as an index in the
+array. This fixes an error in dpu_kms_hw_init(), where we fill
+dpu_kms->hw_vbif[i], but check for an error pointer at
+dpu_kms->hw_vbif[vbif_idx].
 
-Fixes: 66f232908de2 ("ASoC: eukrea-tlv320: Add DT support.")
-Co-authored-by: Kelin Wang <wangkelin2023@163.com>
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220914134354.3995587-1-windhl@126.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/489569/
+Link: https://lore.kernel.org/r/20220615125703.24647-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/eukrea-tlv320.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c  | 12 ++++------
+ drivers/gpu/drm/msm/disp/dpu1/dpu_vbif.c | 29 +++++++++++-------------
+ 2 files changed, 18 insertions(+), 23 deletions(-)
 
-diff --git a/sound/soc/fsl/eukrea-tlv320.c b/sound/soc/fsl/eukrea-tlv320.c
-index 4c6f19ef98b2..04ef886f71b2 100644
---- a/sound/soc/fsl/eukrea-tlv320.c
-+++ b/sound/soc/fsl/eukrea-tlv320.c
-@@ -88,7 +88,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 	int ret;
- 	int int_port = 0, ext_port;
- 	struct device_node *np = pdev->dev.of_node;
--	struct device_node *ssi_np = NULL, *codec_np = NULL;
-+	struct device_node *ssi_np = NULL, *codec_np = NULL, *tmp_np = NULL;
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+index c88bb92282df..57b40cf0f199 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+@@ -654,12 +654,10 @@ static void _dpu_kms_hw_destroy(struct dpu_kms *dpu_kms)
+ 	_dpu_kms_mmu_destroy(dpu_kms);
  
- 	eukrea_tlv320.dev = &pdev->dev;
- 	if (np) {
-@@ -145,7 +145,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 	if (dpu_kms->catalog) {
+-		for (i = 0; i < dpu_kms->catalog->vbif_count; i++) {
+-			u32 vbif_idx = dpu_kms->catalog->vbif[i].id;
+-
+-			if ((vbif_idx < VBIF_MAX) && dpu_kms->hw_vbif[vbif_idx]) {
+-				dpu_hw_vbif_destroy(dpu_kms->hw_vbif[vbif_idx]);
+-				dpu_kms->hw_vbif[vbif_idx] = NULL;
++		for (i = 0; i < ARRAY_SIZE(dpu_kms->hw_vbif); i++) {
++			if (dpu_kms->hw_vbif[i]) {
++				dpu_hw_vbif_destroy(dpu_kms->hw_vbif[i]);
++				dpu_kms->hw_vbif[i] = NULL;
+ 			}
+ 		}
  	}
+@@ -1094,7 +1092,7 @@ static int dpu_kms_hw_init(struct msm_kms *kms)
+ 	for (i = 0; i < dpu_kms->catalog->vbif_count; i++) {
+ 		u32 vbif_idx = dpu_kms->catalog->vbif[i].id;
  
- 	if (machine_is_eukrea_cpuimx27() ||
--	    of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux")) {
-+	    (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux"))) {
- 		imx_audmux_v1_configure_port(MX27_AUDMUX_HPCR1_SSI0,
- 			IMX_AUDMUX_V1_PCR_SYN |
- 			IMX_AUDMUX_V1_PCR_TFSDIR |
-@@ -160,10 +160,11 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 			IMX_AUDMUX_V1_PCR_SYN |
- 			IMX_AUDMUX_V1_PCR_RXDSEL(MX27_AUDMUX_HPCR1_SSI0)
- 		);
-+		of_node_put(tmp_np);
- 	} else if (machine_is_eukrea_cpuimx25sd() ||
- 		   machine_is_eukrea_cpuimx35sd() ||
- 		   machine_is_eukrea_cpuimx51sd() ||
--		   of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux")) {
-+		   (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux"))) {
- 		if (!np)
- 			ext_port = machine_is_eukrea_cpuimx25sd() ?
- 				4 : 3;
-@@ -180,6 +181,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 			IMX_AUDMUX_V2_PTCR_SYN,
- 			IMX_AUDMUX_V2_PDCR_RXDSEL(int_port)
- 		);
-+		of_node_put(tmp_np);
- 	} else {
- 		if (np) {
- 			/* The eukrea,asoc-tlv320 driver was explicitly
+-		dpu_kms->hw_vbif[i] = dpu_hw_vbif_init(vbif_idx,
++		dpu_kms->hw_vbif[vbif_idx] = dpu_hw_vbif_init(vbif_idx,
+ 				dpu_kms->vbif[vbif_idx], dpu_kms->catalog);
+ 		if (IS_ERR_OR_NULL(dpu_kms->hw_vbif[vbif_idx])) {
+ 			rc = PTR_ERR(dpu_kms->hw_vbif[vbif_idx]);
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_vbif.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_vbif.c
+index 295528292296..24d009e066ab 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_vbif.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_vbif.c
+@@ -18,6 +18,14 @@
+ #include "dpu_hw_vbif.h"
+ #include "dpu_trace.h"
+ 
++static struct dpu_hw_vbif *dpu_get_vbif(struct dpu_kms *dpu_kms, enum dpu_vbif vbif_idx)
++{
++	if (vbif_idx < ARRAY_SIZE(dpu_kms->hw_vbif))
++		return dpu_kms->hw_vbif[vbif_idx];
++
++	return NULL;
++}
++
+ /**
+  * _dpu_vbif_wait_for_xin_halt - wait for the xin to halt
+  * @vbif:	Pointer to hardware vbif driver
+@@ -155,11 +163,11 @@ static u32 _dpu_vbif_get_ot_limit(struct dpu_hw_vbif *vbif,
+ void dpu_vbif_set_ot_limit(struct dpu_kms *dpu_kms,
+ 		struct dpu_vbif_set_ot_params *params)
+ {
+-	struct dpu_hw_vbif *vbif = NULL;
++	struct dpu_hw_vbif *vbif;
+ 	struct dpu_hw_mdp *mdp;
+ 	bool forced_on = false;
+ 	u32 ot_lim;
+-	int ret, i;
++	int ret;
+ 
+ 	if (!dpu_kms) {
+ 		DPU_ERROR("invalid arguments\n");
+@@ -167,12 +175,7 @@ void dpu_vbif_set_ot_limit(struct dpu_kms *dpu_kms,
+ 	}
+ 	mdp = dpu_kms->hw_mdp;
+ 
+-	for (i = 0; i < ARRAY_SIZE(dpu_kms->hw_vbif); i++) {
+-		if (dpu_kms->hw_vbif[i] &&
+-				dpu_kms->hw_vbif[i]->idx == params->vbif_idx)
+-			vbif = dpu_kms->hw_vbif[i];
+-	}
+-
++	vbif = dpu_get_vbif(dpu_kms, params->vbif_idx);
+ 	if (!vbif || !mdp) {
+ 		DPU_DEBUG("invalid arguments vbif %d mdp %d\n",
+ 				vbif != 0, mdp != 0);
+@@ -217,7 +220,7 @@ void dpu_vbif_set_ot_limit(struct dpu_kms *dpu_kms,
+ void dpu_vbif_set_qos_remap(struct dpu_kms *dpu_kms,
+ 		struct dpu_vbif_set_qos_params *params)
+ {
+-	struct dpu_hw_vbif *vbif = NULL;
++	struct dpu_hw_vbif *vbif;
+ 	struct dpu_hw_mdp *mdp;
+ 	bool forced_on = false;
+ 	const struct dpu_vbif_qos_tbl *qos_tbl;
+@@ -229,13 +232,7 @@ void dpu_vbif_set_qos_remap(struct dpu_kms *dpu_kms,
+ 	}
+ 	mdp = dpu_kms->hw_mdp;
+ 
+-	for (i = 0; i < ARRAY_SIZE(dpu_kms->hw_vbif); i++) {
+-		if (dpu_kms->hw_vbif[i] &&
+-				dpu_kms->hw_vbif[i]->idx == params->vbif_idx) {
+-			vbif = dpu_kms->hw_vbif[i];
+-			break;
+-		}
+-	}
++	vbif = dpu_get_vbif(dpu_kms, params->vbif_idx);
+ 
+ 	if (!vbif || !vbif->cap) {
+ 		DPU_ERROR("invalid vbif %d\n", params->vbif_idx);
 -- 
 2.35.1
 
