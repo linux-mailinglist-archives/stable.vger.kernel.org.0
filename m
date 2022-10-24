@@ -2,131 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE9960A6DD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:41:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E03960AA31
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231339AbiJXMkq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:40:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34818 "EHLO
+        id S232646AbiJXNbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:31:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234301AbiJXMjd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:39:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 656998A7FE;
-        Mon, 24 Oct 2022 05:07:08 -0700 (PDT)
+        with ESMTP id S236046AbiJXN33 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A4F1EEED;
+        Mon, 24 Oct 2022 05:32:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45B8D61254;
-        Mon, 24 Oct 2022 12:04:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58C2FC433C1;
-        Mon, 24 Oct 2022 12:04:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 694F36132F;
+        Mon, 24 Oct 2022 12:32:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C03FC433C1;
+        Mon, 24 Oct 2022 12:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613074;
-        bh=0+56YQKLRS3I50WR/rVpZJDlwNIJzh94dKECmtCa8lc=;
+        s=korg; t=1666614756;
+        bh=+uNZkwr6oPBtDUd6jzY7rCjmM98v3IRGZerJnhG2IWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1tTvQKOvkN8DBtVPbJCe9WCB3kZ3Gh2G/+xi//3IVXgFro+JAXcO/fMXqEmr32xZ
-         Hy1h7dKQHHfYM3CCG4Hu8H+1LcXV7IsKteIOTyHaheh0t1p5yX1w+rrzLMdJ9DFXYn
-         umXQHXD/ou/q8pi1GaafZlhN7kBz8kVEKkKzjwUk=
+        b=S/c7Fvz8l8VJniiAezVrypLe+aeJS2TwjQlMtXb+zrj0PKzlV1AfPwx92JWzGK78A
+         MSsa5BLD9CRK1x6evLHZJqzWIynJwkystPap8w9b/gyS9gQK1p5bImeVlB50Mwop+v
+         nb3d0//CGWjZyiPeEGPGG4RejCqDsGQ4zUS/KjfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Liska <mliska@suse.cz>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 229/229] gcov: support GCC 12.1 and newer compilers
-Date:   Mon, 24 Oct 2022 13:32:28 +0200
-Message-Id: <20221024113006.684314336@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Nam <young.kwan.nam@xilinx.com>,
+        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
+        Michal Simek <michal.simek@amd.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 352/390] clk: zynqmp: Fix stack-out-of-bounds in strncpy`
+Date:   Mon, 24 Oct 2022 13:32:29 +0200
+Message-Id: <20221024113037.971885118@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Liska <mliska@suse.cz>
+From: Ian Nam <young.kwan.nam@xilinx.com>
 
-commit 977ef30a7d888eeb52fb6908f99080f33e5309a8 upstream.
+[ Upstream commit dd80fb2dbf1cd8751efbe4e53e54056f56a9b115 ]
 
-Starting with GCC 12.1, the created .gcda format can't be read by gcov
-tool.  There are 2 significant changes to the .gcda file format that
-need to be supported:
+"BUG: KASAN: stack-out-of-bounds in strncpy+0x30/0x68"
 
-a) [gcov: Use system IO buffering]
-   (23eb66d1d46a34cb28c4acbdf8a1deb80a7c5a05) changed that all sizes in
-   the format are in bytes and not in words (4B)
+Linux-ATF interface is using 16 bytes of SMC payload. In case clock name is
+longer than 15 bytes, string terminated NULL character will not be received
+by Linux. Add explicit NULL character at last byte to fix issues when clock
+name is longer.
 
-b) [gcov: make profile merging smarter]
-   (72e0c742bd01f8e7e6dcca64042b9ad7e75979de) add a new checksum to the
-   file header.
+This fixes below bug reported by KASAN:
 
-Tested with GCC 7.5, 10.4, 12.2 and the current master.
+ ==================================================================
+ BUG: KASAN: stack-out-of-bounds in strncpy+0x30/0x68
+ Read of size 1 at addr ffff0008c89a7410 by task swapper/0/1
 
-Link: https://lkml.kernel.org/r/624bda92-f307-30e9-9aaa-8cc678b2dfb2@suse.cz
-Signed-off-by: Martin Liska <mliska@suse.cz>
-Tested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.4.0-00396-g81ef9e7-dirty #3
+ Hardware name: Xilinx Versal vck190 Eval board revA (QSPI) (DT)
+ Call trace:
+  dump_backtrace+0x0/0x1e8
+  show_stack+0x14/0x20
+  dump_stack+0xd4/0x108
+  print_address_description.isra.0+0xbc/0x37c
+  __kasan_report+0x144/0x198
+  kasan_report+0xc/0x18
+  __asan_load1+0x5c/0x68
+  strncpy+0x30/0x68
+  zynqmp_clock_probe+0x238/0x7b8
+  platform_drv_probe+0x6c/0xc8
+  really_probe+0x14c/0x418
+  driver_probe_device+0x74/0x130
+  __device_attach_driver+0xc4/0xe8
+  bus_for_each_drv+0xec/0x150
+  __device_attach+0x160/0x1d8
+  device_initial_probe+0x10/0x18
+  bus_probe_device+0xe0/0xf0
+  device_add+0x528/0x950
+  of_device_add+0x5c/0x80
+  of_platform_device_create_pdata+0x120/0x168
+  of_platform_bus_create+0x244/0x4e0
+  of_platform_populate+0x50/0xe8
+  zynqmp_firmware_probe+0x370/0x3a8
+  platform_drv_probe+0x6c/0xc8
+  really_probe+0x14c/0x418
+  driver_probe_device+0x74/0x130
+  device_driver_attach+0x94/0xa0
+  __driver_attach+0x70/0x108
+  bus_for_each_dev+0xe4/0x158
+  driver_attach+0x30/0x40
+  bus_add_driver+0x21c/0x2b8
+  driver_register+0xbc/0x1d0
+  __platform_driver_register+0x7c/0x88
+  zynqmp_firmware_driver_init+0x1c/0x24
+  do_one_initcall+0xa4/0x234
+  kernel_init_freeable+0x1b0/0x24c
+  kernel_init+0x10/0x110
+  ret_from_fork+0x10/0x18
+
+ The buggy address belongs to the page:
+ page:ffff0008f9be1c88 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0
+ raw: 0008d00000000000 ffff0008f9be1c90 ffff0008f9be1c90 0000000000000000
+ raw: 0000000000000000 0000000000000000 00000000ffffffff
+ page dumped because: kasan: bad access detected
+
+ addr ffff0008c89a7410 is located in stack of task swapper/0/1 at offset 112 in frame:
+  zynqmp_clock_probe+0x0/0x7b8
+
+ this frame has 3 objects:
+  [32, 44) 'response'
+  [64, 80) 'ret_payload'
+  [96, 112) 'name'
+
+ Memory state around the buggy address:
+  ffff0008c89a7300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff0008c89a7380: 00 00 00 00 f1 f1 f1 f1 00 04 f2 f2 00 00 f2 f2
+ >ffff0008c89a7400: 00 00 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
+                          ^
+  ffff0008c89a7480: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff0008c89a7500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ==================================================================
+
+Signed-off-by: Ian Nam <young.kwan.nam@xilinx.com>
+Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Link: https://lore.kernel.org/r/20220510070154.29528-3-shubhrajyoti.datta@xilinx.com
+Acked-by: Michal Simek <michal.simek@amd.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/gcov/gcc_4_7.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ drivers/clk/zynqmp/clkc.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/kernel/gcov/gcc_4_7.c
-+++ b/kernel/gcov/gcc_4_7.c
-@@ -33,6 +33,13 @@
+diff --git a/drivers/clk/zynqmp/clkc.c b/drivers/clk/zynqmp/clkc.c
+index db8d0d7161ce..9c82ae240c40 100644
+--- a/drivers/clk/zynqmp/clkc.c
++++ b/drivers/clk/zynqmp/clkc.c
+@@ -687,6 +687,13 @@ static void zynqmp_get_clock_info(void)
+ 				  FIELD_PREP(CLK_ATTR_NODE_INDEX, i);
  
- #define GCOV_TAG_FUNCTION_LENGTH	3
- 
-+/* Since GCC 12.1 sizes are in BYTES and not in WORDS (4B). */
-+#if (__GNUC__ >= 12)
-+#define GCOV_UNIT_SIZE				4
-+#else
-+#define GCOV_UNIT_SIZE				1
-+#endif
+ 		zynqmp_pm_clock_get_name(clock[i].clk_id, &name);
 +
- static struct gcov_info *gcov_info_head;
- 
- /**
-@@ -439,12 +446,18 @@ static size_t convert_to_gcda(char *buff
- 	pos += store_gcov_u32(buffer, pos, info->version);
- 	pos += store_gcov_u32(buffer, pos, info->stamp);
- 
-+#if (__GNUC__ >= 12)
-+	/* Use zero as checksum of the compilation unit. */
-+	pos += store_gcov_u32(buffer, pos, 0);
-+#endif
++		/*
++		 * Terminate with NULL character in case name provided by firmware
++		 * is longer and truncated due to size limit.
++		 */
++		name.name[sizeof(name.name) - 1] = '\0';
 +
- 	for (fi_idx = 0; fi_idx < info->n_functions; fi_idx++) {
- 		fi_ptr = info->functions[fi_idx];
- 
- 		/* Function record. */
- 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION);
--		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION_LENGTH);
-+		pos += store_gcov_u32(buffer, pos,
-+			GCOV_TAG_FUNCTION_LENGTH * GCOV_UNIT_SIZE);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->ident);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->lineno_checksum);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
-@@ -458,7 +471,8 @@ static size_t convert_to_gcda(char *buff
- 			/* Counter record. */
- 			pos += store_gcov_u32(buffer, pos,
- 					      GCOV_TAG_FOR_COUNTER(ct_idx));
--			pos += store_gcov_u32(buffer, pos, ci_ptr->num * 2);
-+			pos += store_gcov_u32(buffer, pos,
-+				ci_ptr->num * 2 * GCOV_UNIT_SIZE);
- 
- 			for (cv_idx = 0; cv_idx < ci_ptr->num; cv_idx++) {
- 				pos += store_gcov_u64(buffer, pos,
+ 		if (!strcmp(name.name, RESERVED_CLK_NAME))
+ 			continue;
+ 		strncpy(clock[i].clk_name, name.name, MAX_NAME_LEN);
+-- 
+2.35.1
+
 
 
