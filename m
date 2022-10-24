@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E24060AD78
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 897B260AC62
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235807AbiJXOZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:25:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33004 "EHLO
+        id S234539AbiJXOGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:06:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235788AbiJXOWG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:22:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD5E1D0CEA;
-        Mon, 24 Oct 2022 05:58:47 -0700 (PDT)
+        with ESMTP id S237070AbiJXOEg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:04:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27A6F915DA;
+        Mon, 24 Oct 2022 05:49:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99DB5612A4;
-        Mon, 24 Oct 2022 12:49:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A85EAC433C1;
-        Mon, 24 Oct 2022 12:49:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FF08B816A6;
+        Mon, 24 Oct 2022 12:30:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6B31C433D6;
+        Mon, 24 Oct 2022 12:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615748;
-        bh=cv+4Gs/g+oUmnoYqUaw/bn/zTsVJxlKTv60on9ZtcOQ=;
+        s=korg; t=1666614657;
+        bh=jyyJhhngZWyi1HqqiBN7m3fK6xGknx14ephTtA11qjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iC0QKmrM8f9YG8lr1TFQ4e0N4u1QegxIYDFUFHLETS+rp+0ior1B6ab/kGBvVVEBw
-         0/Vzq94ws7pKMnC4ecPmtiA13gXzPMN3nNk1YLkWOIycCWk05dZZa7EybjqY6KghY7
-         D93spC5kkLR7v48ATNsw/7XxVZCWwtK4plvkHWB4=
+        b=aXfd0iqSI6UgHSHhSVDR322UMZGC/JpE1TiqRUmYSrEL3Qw8ulWzqRjSEF7o4M8Dv
+         KlXzBS+4UwYWG9mdzXwBL8ttVILEmlmnrVNBAw2TfIqT/6Aj34Qh+rGPmPxCyYZ/i2
+         RQtUreA00ADuWjZblmsSNDTOEQ/lfKalIai5iU8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 369/530] powerpc/64s: Fix GENERIC_CPU build flags for PPC970 / G5
-Date:   Mon, 24 Oct 2022 13:31:53 +0200
-Message-Id: <20221024113101.738535620@linuxfoundation.org>
+        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 317/390] wifi: rt2x00: dont run Rt5592 IQ calibration on MT7620
+Date:   Mon, 24 Oct 2022 13:31:54 +0200
+Message-Id: <20221024113036.491462091@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit 58ec7f06b74e0d6e76c4110afce367c8b5f0837d ]
+[ Upstream commit d3aad83d05aec0cfd7670cf0028f2ad4b81de92e ]
 
-Big-endian GENERIC_CPU supports 970, but builds with -mcpu=power5.
-POWER5 is ISA v2.02 whereas 970 is v2.01 plus Altivec. 2.02 added
-the popcntb instruction which a compiler might use.
+The function rt2800_iq_calibrate is intended for Rt5592 only.
+Don't call it for MT7620 which has it's own calibration functions.
 
-Use -mcpu=power4.
-
-Fixes: 471d7ff8b51b ("powerpc/64s: Remove POWER4 support")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220921014103.587954-1-npiggin@gmail.com
+Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/31a1c34ddbd296b82f38c18c9ae7339059215fdc.1663445157.git.daniel@makrotopia.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index 2bb0fe9b2058..7859ae56fcdc 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -154,7 +154,7 @@ CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=power8
- CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mtune=power9,-mtune=power8)
- else
- CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mtune=power7,$(call cc-option,-mtune=power5))
--CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mcpu=power5,-mcpu=power4)
-+CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=power4
- endif
- else ifdef CONFIG_PPC_BOOK3E_64
- CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=powerpc64
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+index fed6d21cd6ce..3f2c10c2aaf8 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+@@ -4352,7 +4352,8 @@ static void rt2800_config_channel(struct rt2x00_dev *rt2x00dev,
+ 		reg = (rf->channel <= 14 ? 0x1c : 0x24) + 2*rt2x00dev->lna_gain;
+ 		rt2800_bbp_write_with_rx_chain(rt2x00dev, 66, reg);
+ 
+-		rt2800_iq_calibrate(rt2x00dev, rf->channel);
++		if (rt2x00_rt(rt2x00dev, RT5592))
++			rt2800_iq_calibrate(rt2x00dev, rf->channel);
+ 	}
+ 
+ 	bbp = rt2800_bbp_read(rt2x00dev, 4);
 -- 
 2.35.1
 
