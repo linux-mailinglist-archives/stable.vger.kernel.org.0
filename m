@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F22F660B8C5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:54:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3BFF60B8B8
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:53:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231742AbiJXTyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:54:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41578 "EHLO
+        id S233782AbiJXTxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:53:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233427AbiJXTxP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:53:15 -0400
+        with ESMTP id S233664AbiJXTwB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:52:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D39E12DE1;
-        Mon, 24 Oct 2022 11:17:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C4FB1C438;
+        Mon, 24 Oct 2022 11:17:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B2DDB8171F;
-        Mon, 24 Oct 2022 12:32:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3999C433D7;
-        Mon, 24 Oct 2022 12:32:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5CBDB811BF;
+        Mon, 24 Oct 2022 12:32:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40F9DC433C1;
+        Mon, 24 Oct 2022 12:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614749;
-        bh=lRex0KZaajbNq/rIhcn4HcwjpNYtfESEz/jQaZV8qrc=;
+        s=korg; t=1666614751;
+        bh=V9I1S9ZPJGwn5TpHKyAKfFQ4a5L+krK6cws/EQNVcSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ixUI3Vuo07ySv1W6cY1htQuTA8EYybuFF7HBDmPUAml68lxW/0BGIWcWs4gvhJQ8W
-         2iqh7Bizgsnqg3w5i659nFAFbBF5RH14iPOnkDTmK3f+Y9OoDfF5ewQ+XZIS0alZOk
-         zcTnK2YfPqGyx4DbhWwpBfUBE44QR93oUYWWYdu4=
+        b=OobV/Hlbgv3M7yZYcMeP2o3CtQXNSgEg/GdUR8LHt33tF+bqxcDVALOIAA0+gpTTp
+         Tlm7PCxxOWtuk46PA+yBOOxgsVv/cXJHpP6CdbGdV4olalJ+Eegv5lEGQUPIBCwpLK
+         xjl5eVZdBeyZpJI3I6FqhKuZ+VkGCUuvhASKZhYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 378/390] io_uring: correct pinned_vm accounting
-Date:   Mon, 24 Oct 2022 13:32:55 +0200
-Message-Id: <20221024113039.072215330@linuxfoundation.org>
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        David Bouman <dbouman03@gmail.com>
+Subject: [PATCH 5.10 379/390] io_uring/af_unix: defer registered files gc to io_uring release
+Date:   Mon, 24 Oct 2022 13:32:56 +0200
+Message-Id: <20221024113039.118238854@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -54,43 +56,97 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ upstream commit 42b6419d0aba47c5d8644cdc0b68502254671de5 ]
+[ upstream commit 0091bfc81741b8d3aeb3b7ab8636f911b2de6e80 ]
 
-->mm_account should be released only after we free all registered
-buffers, otherwise __io_sqe_buffers_unregister() will see a NULL
-->mm_account and skip locked_vm accounting.
+Instead of putting io_uring's registered files in unix_gc() we want it
+to be done by io_uring itself. The trick here is to consider io_uring
+registered files for cycle detection but not actually putting them down.
+Because io_uring can't register other ring instances, this will remove
+all refs to the ring file triggering the ->release path and clean up
+with io_ring_ctx_free().
 
-Cc: <Stable@vger.kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 6b06314c47e1 ("io_uring: add file set registration")
+Reported-and-tested-by: David Bouman <dbouman03@gmail.com>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/6d798f65ed4ab8db3664c4d3397d4af16ca98846.1664849932.git.asml.silence@gmail.com
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+[axboe: add kerneldoc comment to skb, fold in skb leak fix]
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/io_uring.c          |    1 +
+ include/linux/skbuff.h |    2 ++
+ net/unix/garbage.c     |   20 ++++++++++++++++++++
+ 3 files changed, 23 insertions(+)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -8436,8 +8436,6 @@ static void io_ring_ctx_free(struct io_r
- 	if (ctx->sqo_task) {
- 		put_task_struct(ctx->sqo_task);
- 		ctx->sqo_task = NULL;
--		mmdrop(ctx->mm_account);
--		ctx->mm_account = NULL;
+@@ -7301,6 +7301,7 @@ static int __io_sqe_files_scm(struct io_
  	}
  
- #ifdef CONFIG_BLK_CGROUP
-@@ -8456,6 +8454,11 @@ static void io_ring_ctx_free(struct io_r
- 	}
+ 	skb->sk = sk;
++	skb->scm_io_uring = 1;
+ 
+ 	nr_files = 0;
+ 	fpl->user = get_uid(ctx->user);
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -681,6 +681,7 @@ typedef unsigned char *sk_buff_data_t;
+  *	@csum_level: indicates the number of consecutive checksums found in
+  *		the packet minus one that have been verified as
+  *		CHECKSUM_UNNECESSARY (max 3)
++ *	@scm_io_uring: SKB holds io_uring registered files
+  *	@dst_pending_confirm: need to confirm neighbour
+  *	@decrypted: Decrypted SKB
+  *	@napi_id: id of the NAPI struct this skb came from
+@@ -858,6 +859,7 @@ struct sk_buff {
+ #ifdef CONFIG_TLS_DEVICE
+ 	__u8			decrypted:1;
  #endif
++	__u8			scm_io_uring:1;
  
-+	if (ctx->mm_account) {
-+		mmdrop(ctx->mm_account);
-+		ctx->mm_account = NULL;
+ #ifdef CONFIG_NET_SCHED
+ 	__u16			tc_index;	/* traffic control index */
+--- a/net/unix/garbage.c
++++ b/net/unix/garbage.c
+@@ -204,6 +204,7 @@ void wait_for_unix_gc(void)
+ /* The external entry point: unix_gc() */
+ void unix_gc(void)
+ {
++	struct sk_buff *next_skb, *skb;
+ 	struct unix_sock *u;
+ 	struct unix_sock *next;
+ 	struct sk_buff_head hitlist;
+@@ -297,11 +298,30 @@ void unix_gc(void)
+ 
+ 	spin_unlock(&unix_gc_lock);
+ 
++	/* We need io_uring to clean its registered files, ignore all io_uring
++	 * originated skbs. It's fine as io_uring doesn't keep references to
++	 * other io_uring instances and so killing all other files in the cycle
++	 * will put all io_uring references forcing it to go through normal
++	 * release.path eventually putting registered files.
++	 */
++	skb_queue_walk_safe(&hitlist, skb, next_skb) {
++		if (skb->scm_io_uring) {
++			__skb_unlink(skb, &hitlist);
++			skb_queue_tail(&skb->sk->sk_receive_queue, skb);
++		}
 +	}
 +
- 	io_mem_free(ctx->rings);
- 	io_mem_free(ctx->sq_sqes);
+ 	/* Here we are. Hitlist is filled. Die. */
+ 	__skb_queue_purge(&hitlist);
+ 
+ 	spin_lock(&unix_gc_lock);
+ 
++	/* There could be io_uring registered files, just push them back to
++	 * the inflight list
++	 */
++	list_for_each_entry_safe(u, next, &gc_candidates, link)
++		list_move_tail(&u->link, &gc_inflight_list);
++
+ 	/* All candidates should have been detached by now. */
+ 	BUG_ON(!list_empty(&gc_candidates));
  
 
 
