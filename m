@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8729F60ACAC
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B25260ACA1
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:11:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229959AbiJXOLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:11:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36324 "EHLO
+        id S232619AbiJXOLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:11:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237168AbiJXOKT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:10:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4AF3C8234;
-        Mon, 24 Oct 2022 05:52:17 -0700 (PDT)
+        with ESMTP id S235862AbiJXOJU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:09:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26D80C5101;
+        Mon, 24 Oct 2022 05:51:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D34EB8125C;
-        Mon, 24 Oct 2022 12:31:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B305EC433D6;
-        Mon, 24 Oct 2022 12:31:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1424C612F3;
+        Mon, 24 Oct 2022 12:51:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3AA4C433D6;
+        Mon, 24 Oct 2022 12:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614707;
-        bh=Af8giS2+ZfpdZxS5MHM8Plt2o38OtS7fPeNrZbHoCb4=;
+        s=korg; t=1666615877;
+        bh=KpUOntgOBSl9iQrjVWZMtJsc9co7McfrbWqSjTYI6Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z+spuVQCWbSyFqKhLvWyHTvaQHzSG+Vp+lGcdRfYujMIuig+IfEWCDlcvlN6qF5LK
-         MiPilTmgtZycf7R/4DhIcQPcNNhWgEIfxli0i5JlgU8K/tHxVeZHsWyvB0VsLsHmjE
-         s0/SC48i+itijmqAD+I/3CQwfAZgXbBZiSGUwUU8=
+        b=o3tcI6xRDGCJuJ+GNVyXwguoam1gAUlStpDOXEBjcG28E7JEEN8dEky0xNoYm2aEB
+         njngdeSA/afC8r3CkT7Pyx5Wm9U8gb0Dqd31x2p+L4x7NNYE1mPgtKvUHl6F1eQxTw
+         w3hu+f755JinswXvg3sjz1zxPZ1q5emK/Lr7Mu+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 364/390] soundwire: cadence: Dont overwrite msg->buf during write commands
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.15 417/530] ice: set tx_tstamps when creating new Tx rings via ethtool
 Date:   Mon, 24 Oct 2022 13:32:41 +0200
-Message-Id: <20221024113038.497535574@linuxfoundation.org>
+Message-Id: <20221024113103.964838222@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit ba05b39d265bdd16913f7684600d9d41e2796745 ]
+[ Upstream commit b3b173745c8cab1e24d6821488b60abed3acb24d ]
 
-The buf passed in struct sdw_msg must only be written for a READ,
-in that case the RDATA part of the response is the data value of the
-register.
+When the user changes the number of queues via ethtool, the driver
+allocates new rings. This allocation did not initialize tx_tstamps. This
+results in the tx_tstamps field being zero (due to kcalloc allocation), and
+would result in a NULL pointer dereference when attempting a transmit
+timestamp on the new ring.
 
-For a write command there is no RDATA, and buf should be assumed to
-be const and unmodifable. The original caller should not expect its data
-buffer to be corrupted by an sdw_nwrite().
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220916103505.1562210-1-rf@opensource.cirrus.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/cadence_master.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
-index c6d421a4b91b..a3247692ddc0 100644
---- a/drivers/soundwire/cadence_master.c
-+++ b/drivers/soundwire/cadence_master.c
-@@ -501,9 +501,12 @@ cdns_fill_msg_resp(struct sdw_cdns *cdns,
- 		return SDW_CMD_IGNORED;
- 	}
- 
--	/* fill response */
--	for (i = 0; i < count; i++)
--		msg->buf[i + offset] = FIELD_GET(CDNS_MCP_RESP_RDATA, cdns->response_buf[i]);
-+	if (msg->flags == SDW_MSG_FLAG_READ) {
-+		/* fill response */
-+		for (i = 0; i < count; i++)
-+			msg->buf[i + offset] = FIELD_GET(CDNS_MCP_RESP_RDATA,
-+							 cdns->response_buf[i]);
-+	}
- 
- 	return SDW_CMD_OK;
- }
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index 9b9c2b885486..f10d9c377c74 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -2788,6 +2788,7 @@ ice_set_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring)
+ 		tx_rings[i].count = new_tx_cnt;
+ 		tx_rings[i].desc = NULL;
+ 		tx_rings[i].tx_buf = NULL;
++		tx_rings[i].tx_tstamps = &pf->ptp.port.tx;
+ 		err = ice_setup_tx_ring(&tx_rings[i]);
+ 		if (err) {
+ 			while (i--)
 -- 
 2.35.1
 
