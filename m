@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2607560BA31
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:29:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E063960BA35
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:29:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230400AbiJXU3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:29:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49440 "EHLO
+        id S230126AbiJXU3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:29:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234377AbiJXU3C (ORCPT
+        with ESMTP id S234379AbiJXU3C (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:29:02 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A29D2A267;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99D0710F8AF;
         Mon, 24 Oct 2022 11:41:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 14B91CE1357;
-        Mon, 24 Oct 2022 12:50:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0292C433C1;
-        Mon, 24 Oct 2022 12:50:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1A528CE16DE;
+        Mon, 24 Oct 2022 12:50:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A430C433D6;
+        Mon, 24 Oct 2022 12:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615848;
-        bh=sm/LDBBuPWty4rPPEEqovbTw/jWuPeNCGNYMtE2bPkU=;
+        s=korg; t=1666615856;
+        bh=KJQPpJ32UIqN4u7A8mzjqm34rg4kJPRAbyTUOPAsbIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SICE5gKSh18IRD7waSWDtMFrM8yps1JRTZXzBtKb3wkVN9yNDL+6c7nUVsPBpkDrl
-         q9ylk1JW6Y64CFANhirzOIQW1QQooqcJLUDsFHLH2TsIAVHJG/tGIdqb+hNlyL7RVb
-         SOb780poleLpZCa/j2V9ra1rRwUng+n63eHLe82c=
+        b=hvUisClKraLRx0/yysAjMTJ52+ZjjdkS9QaL1/q7pZz0GSR/89LL28asOdgnsl6B3
+         KMCepmu4dAQafTZbXqNPKjuy2TjQz0fPA33BR99l129+LOFt7vru0n/v2wN6TlTco8
+         Mi5GPPIMBsCTht3xfqkpt+jo5SePQRloc4mOuYFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        llvm@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-arm-kernel@lists.infradead.org,
         Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 407/530] MIPS: BCM47XX: Cast memcmp() of function to (void *)
-Date:   Mon, 24 Oct 2022 13:32:31 +0200
-Message-Id: <20221024113103.492757352@linuxfoundation.org>
+Subject: [PATCH 5.15 410/530] ARM: decompressor: Include .data.rel.ro.local
+Date:   Mon, 24 Oct 2022 13:32:34 +0200
+Message-Id: <20221024113103.643088356@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -60,55 +57,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 0dedcf6e3301836eb70cfa649052e7ce4fcd13ba ]
+[ Upstream commit 1b64daf413acd86c2c13f5443f6b4ef3690c8061 ]
 
-Clang is especially sensitive about argument type matching when using
-__overloaded functions (like memcmp(), etc). Help it see that function
-pointers are just "void *". Avoids this error:
+The .data.rel.ro.local section has the same semantics as .data.rel.ro
+here, so include it in the .rodata section of the decompressor.
+Additionally since the .printk_index section isn't usable outside of
+the core kernel, discard it in the decompressor. Avoids these warnings:
 
-arch/mips/bcm47xx/prom.c:89:8: error: no matching function for call to 'memcmp'
-                   if (!memcmp(prom_init, prom_init + mem, 32))
-                        ^~~~~~
-include/linux/string.h:156:12: note: candidate function not viable: no known conversion from 'void (void)' to 'const void *' for 1st argument extern int memcmp(const void *,const void *,__kernel_size_t);
+arm-linux-gnueabi-ld: warning: orphan section `.data.rel.ro.local' from `arch/arm/boot/compressed/fdt_rw.o' being placed in section `.data.rel.ro.local'
+arm-linux-gnueabi-ld: warning: orphan section `.printk_index' from `arch/arm/boot/compressed/fdt_rw.o' being placed in section `.printk_index'
 
-Cc: Hauke Mehrtens <hauke@hauke-m.de>
-Cc: "Rafał Miłecki" <zajec5@gmail.com>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: llvm@lists.linux.dev
 Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202209080652.sz2d68e5-lkp@intel.com
+Link: https://lore.kernel.org/linux-mm/202209080545.qMIVj7YM-lkp@intel.com
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/bcm47xx/prom.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/compressed/vmlinux.lds.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/bcm47xx/prom.c b/arch/mips/bcm47xx/prom.c
-index 0a63721d0fbf..5a33d6b48d77 100644
---- a/arch/mips/bcm47xx/prom.c
-+++ b/arch/mips/bcm47xx/prom.c
-@@ -86,7 +86,7 @@ static __init void prom_init_mem(void)
- 			pr_debug("Assume 128MB RAM\n");
- 			break;
- 		}
--		if (!memcmp(prom_init, prom_init + mem, 32))
-+		if (!memcmp((void *)prom_init, (void *)prom_init + mem, 32))
- 			break;
- 	}
- 	lowmem = mem;
-@@ -159,7 +159,7 @@ void __init bcm47xx_prom_highmem_init(void)
- 
- 	off = EXTVBASE + __pa(off);
- 	for (extmem = 128 << 20; extmem < 512 << 20; extmem <<= 1) {
--		if (!memcmp(prom_init, (void *)(off + extmem), 16))
-+		if (!memcmp((void *)prom_init, (void *)(off + extmem), 16))
- 			break;
- 	}
- 	extmem -= lowmem;
+diff --git a/arch/arm/boot/compressed/vmlinux.lds.S b/arch/arm/boot/compressed/vmlinux.lds.S
+index 1bcb68ac4b01..3fcb3e62dc56 100644
+--- a/arch/arm/boot/compressed/vmlinux.lds.S
++++ b/arch/arm/boot/compressed/vmlinux.lds.S
+@@ -23,6 +23,7 @@ SECTIONS
+     *(.ARM.extab*)
+     *(.note.*)
+     *(.rel.*)
++    *(.printk_index)
+     /*
+      * Discard any r/w data - this produces a link error if we have any,
+      * which is required for PIC decompression.  Local data generates
+@@ -57,6 +58,7 @@ SECTIONS
+     *(.rodata)
+     *(.rodata.*)
+     *(.data.rel.ro)
++    *(.data.rel.ro.*)
+   }
+   .piggydata : {
+     *(.piggydata)
 -- 
 2.35.1
 
