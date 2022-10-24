@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4224D60B2C6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:51:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 905F660B2D3
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:51:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235192AbiJXQvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:51:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34922 "EHLO
+        id S235222AbiJXQvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:51:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235485AbiJXQtp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:45 -0400
+        with ESMTP id S235671AbiJXQuF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:50:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63C742035D;
-        Mon, 24 Oct 2022 08:33:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48BF64449A;
+        Mon, 24 Oct 2022 08:33:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2DA4DB8124B;
-        Mon, 24 Oct 2022 12:06:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ECB0C433C1;
-        Mon, 24 Oct 2022 12:06:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01797B811BC;
+        Mon, 24 Oct 2022 12:06:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59F0CC433D6;
+        Mon, 24 Oct 2022 12:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613187;
-        bh=VInNq3pcofEXsFY2ZYXBIzpHnG2nDAIZc7FLbTxJPsQ=;
+        s=korg; t=1666613195;
+        bh=V4IA2J+RiUYh6Wz5OBXXBXbyZirdIwQ3guXguybdpdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qKRGxeWjPxS6dvCMNBI83+t9l3C2dMSB3Io1nkzVSZZ2jAUthr8IkFwWf1kGfiQkR
-         pcnX+Va+YayA6PHOqCVNwGdmYRn+5HqG5SeML488JaMW6+2BjOGt7y6gBoBE1er3Ja
-         yp0GoBIIQydGEzMJCQOt13KLfDaYzk9B6jGFdw5w=
+        b=lqb+dGyy1wuQ1OY3qZrJ+nN0gfNGffFgeh979bpNWJ3q3jZxVJlTpvDzYVNIEO4c1
+         y0O7xBkoaSNErdqQlrRzS+UTS0mmc/eQrLSGUrb6AAt5vJJhu8iKpOFYW/rY4vhSSD
+         LS4+xNOxMRL962QHaqYHyCL7AB/HU9GxP695uYUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Baokun Li <libaokun1@huawei.com>, Jan Kara <jack@suse.cz>,
+        Jinke Han <hanjinke.666@bytedance.com>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 042/255] ext4: fix null-ptr-deref in ext4_write_info
-Date:   Mon, 24 Oct 2022 13:29:12 +0200
-Message-Id: <20221024113003.831687683@linuxfoundation.org>
+Subject: [PATCH 5.4 044/255] ext4: place buffer head allocation before handle start
+Date:   Mon, 24 Oct 2022 13:29:14 +0200
+Message-Id: <20221024113003.892320358@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
 References: <20221024113002.471093005@linuxfoundation.org>
@@ -53,79 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Jinke Han <hanjinke.666@bytedance.com>
 
-commit f9c1f248607d5546075d3f731e7607d5571f2b60 upstream.
+commit d1052d236eddf6aa851434db1897b942e8db9921 upstream.
 
-I caught a null-ptr-deref bug as follows:
-==================================================================
-KASAN: null-ptr-deref in range [0x0000000000000068-0x000000000000006f]
-CPU: 1 PID: 1589 Comm: umount Not tainted 5.10.0-02219-dirty #339
-RIP: 0010:ext4_write_info+0x53/0x1b0
-[...]
-Call Trace:
- dquot_writeback_dquots+0x341/0x9a0
- ext4_sync_fs+0x19e/0x800
- __sync_filesystem+0x83/0x100
- sync_filesystem+0x89/0xf0
- generic_shutdown_super+0x79/0x3e0
- kill_block_super+0xa1/0x110
- deactivate_locked_super+0xac/0x130
- deactivate_super+0xb6/0xd0
- cleanup_mnt+0x289/0x400
- __cleanup_mnt+0x16/0x20
- task_work_run+0x11c/0x1c0
- exit_to_user_mode_prepare+0x203/0x210
- syscall_exit_to_user_mode+0x5b/0x3a0
- do_syscall_64+0x59/0x70
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
- ==================================================================
+In our product environment, we encounter some jbd hung waiting handles to
+stop while several writters were doing memory reclaim for buffer head
+allocation in delay alloc write path. Ext4 do buffer head allocation with
+holding transaction handle which may be blocked too long if the reclaim
+works not so smooth. According to our bcc trace, the reclaim time in
+buffer head allocation can reach 258s and the jbd transaction commit also
+take almost the same time meanwhile. Except for these extreme cases,
+we often see several seconds delays for cgroup memory reclaim on our
+servers. This is more likely to happen considering docker environment.
 
-Above issue may happen as follows:
--------------------------------------
-exit_to_user_mode_prepare
- task_work_run
-  __cleanup_mnt
-   cleanup_mnt
-    deactivate_super
-     deactivate_locked_super
-      kill_block_super
-       generic_shutdown_super
-        shrink_dcache_for_umount
-         dentry = sb->s_root
-         sb->s_root = NULL              <--- Here set NULL
-        sync_filesystem
-         __sync_filesystem
-          sb->s_op->sync_fs > ext4_sync_fs
-           dquot_writeback_dquots
-            sb->dq_op->write_info > ext4_write_info
-             ext4_journal_start(d_inode(sb->s_root), EXT4_HT_QUOTA, 2)
-              d_inode(sb->s_root)
-               s_root->d_inode          <--- Null pointer dereference
-
-To solve this problem, we use ext4_journal_start_sb directly
-to avoid s_root being used.
+One thing to note, the allocation of buffer heads is as often as page
+allocation or more often when blocksize less than page size. Just like
+page cache allocation, we should also place the buffer head allocation
+before startting the handle.
 
 Cc: stable@kernel.org
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220805123947.565152-1-libaokun1@huawei.com
+Signed-off-by: Jinke Han <hanjinke.666@bytedance.com>
+Link: https://lore.kernel.org/r/20220903012429.22555-1-hanjinke.666@bytedance.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/inode.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5836,7 +5836,7 @@ static int ext4_write_info(struct super_
- 	handle_t *handle;
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1317,6 +1317,13 @@ retry_grab:
+ 	page = grab_cache_page_write_begin(mapping, index, flags);
+ 	if (!page)
+ 		return -ENOMEM;
++	/*
++	 * The same as page allocation, we prealloc buffer heads before
++	 * starting the handle.
++	 */
++	if (!page_has_buffers(page))
++		create_empty_buffers(page, inode->i_sb->s_blocksize, 0);
++
+ 	unlock_page(page);
  
- 	/* Data block + inode block */
--	handle = ext4_journal_start(d_inode(sb->s_root), EXT4_HT_QUOTA, 2);
-+	handle = ext4_journal_start_sb(sb, EXT4_HT_QUOTA, 2);
- 	if (IS_ERR(handle))
- 		return PTR_ERR(handle);
- 	ret = dquot_commit_info(sb, type);
+ retry_journal:
 
 
