@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71A6660B9A6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:16:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 965AE60BA0F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:25:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231636AbiJXUQX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:16:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38464 "EHLO
+        id S230006AbiJXUY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:24:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231740AbiJXUPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:15:47 -0400
+        with ESMTP id S232985AbiJXUXP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:23:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5609DDFC33;
-        Mon, 24 Oct 2022 11:32:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32CD014D0B;
+        Mon, 24 Oct 2022 11:38:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16304B81154;
-        Mon, 24 Oct 2022 12:30:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 735E5C433C1;
-        Mon, 24 Oct 2022 12:29:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 070A6B81603;
+        Mon, 24 Oct 2022 12:13:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60F84C433D6;
+        Mon, 24 Oct 2022 12:13:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614599;
-        bh=/BleCwNH4q+MxKT7DR0P99zio7f8ZwEn9aOrqdQJuJE=;
+        s=korg; t=1666613608;
+        bh=29BCPCbZfYMbwNEpy/5MBOlEcHtdxVBIrRAdPeoNTg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=txliZiNSios80Dd6eD8VI0jAkRmx0KD8y/vHUuB3hUmA4FLZ0aLqZE/YvpKuc/nsr
-         +XKgIzCxt6pbSsE2949d5xstovj1vWz3Hc+SVmPnXV7+5stbnZ6rF7Bu8mNN3eBg14
-         EhirtJkGEF39bDmTAoEaYyf+6H3bZUM7+zuZjS18=
+        b=YazZ8VU/sqAh21HtZm0wna48dPwSEazeBumqFDgi6szXUgSgILg55xul41d2Bi+m5
+         DgdnNEFgGtH2cTqL/Luds4seT2CCAMIkAuHy/xSWC46kKxegzfyTLtCk/lmhItMmKD
+         HVemTswSqmS2EyssL9b0UtX3BKRUuPleO/i/Srhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Hawkins Jiawei <yin31149@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 315/390] Bluetooth: hci_sysfs: Fix attempting to call device_add multiple times
+        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 202/255] wifi: rt2x00: dont run Rt5592 IQ calibration on MT7620
 Date:   Mon, 24 Oct 2022 13:31:52 +0200
-Message-Id: <20221024113036.395960480@linuxfoundation.org>
+Message-Id: <20221024113009.735881817@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit 448a496f760664d3e2e79466aa1787e6abc922b5 ]
+[ Upstream commit d3aad83d05aec0cfd7670cf0028f2ad4b81de92e ]
 
-device_add shall not be called multiple times as stated in its
-documentation:
+The function rt2800_iq_calibrate is intended for Rt5592 only.
+Don't call it for MT7620 which has it's own calibration functions.
 
- 'Do not call this routine or device_register() more than once for
- any device structure'
-
-Syzkaller reports a bug as follows [1]:
-------------[ cut here ]------------
-kernel BUG at lib/list_debug.c:33!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-[...]
-Call Trace:
- <TASK>
- __list_add include/linux/list.h:69 [inline]
- list_add_tail include/linux/list.h:102 [inline]
- kobj_kset_join lib/kobject.c:164 [inline]
- kobject_add_internal+0x18f/0x8f0 lib/kobject.c:214
- kobject_add_varg lib/kobject.c:358 [inline]
- kobject_add+0x150/0x1c0 lib/kobject.c:410
- device_add+0x368/0x1e90 drivers/base/core.c:3452
- hci_conn_add_sysfs+0x9b/0x1b0 net/bluetooth/hci_sysfs.c:53
- hci_le_cis_estabilished_evt+0x57c/0xae0 net/bluetooth/hci_event.c:6799
- hci_le_meta_evt+0x2b8/0x510 net/bluetooth/hci_event.c:7110
- hci_event_func net/bluetooth/hci_event.c:7440 [inline]
- hci_event_packet+0x63d/0xfd0 net/bluetooth/hci_event.c:7495
- hci_rx_work+0xae7/0x1230 net/bluetooth/hci_core.c:4007
- process_one_work+0x991/0x1610 kernel/workqueue.c:2289
- worker_thread+0x665/0x1080 kernel/workqueue.c:2436
- kthread+0x2e4/0x3a0 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
- </TASK>
-
-Link: https://syzkaller.appspot.com/bug?id=da3246e2d33afdb92d66bc166a0934c5b146404a
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Tested-by: Hawkins Jiawei <yin31149@gmail.com>
+Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/31a1c34ddbd296b82f38c18c9ae7339059215fdc.1663445157.git.daniel@makrotopia.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sysfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/hci_sysfs.c b/net/bluetooth/hci_sysfs.c
-index b69d88b88d2e..ccd2c377bf83 100644
---- a/net/bluetooth/hci_sysfs.c
-+++ b/net/bluetooth/hci_sysfs.c
-@@ -48,6 +48,9 @@ void hci_conn_add_sysfs(struct hci_conn *conn)
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+index c99f1912e266..9b56a4df2e94 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
+@@ -4355,7 +4355,8 @@ static void rt2800_config_channel(struct rt2x00_dev *rt2x00dev,
+ 		reg = (rf->channel <= 14 ? 0x1c : 0x24) + 2*rt2x00dev->lna_gain;
+ 		rt2800_bbp_write_with_rx_chain(rt2x00dev, 66, reg);
  
- 	BT_DBG("conn %p", conn);
+-		rt2800_iq_calibrate(rt2x00dev, rf->channel);
++		if (rt2x00_rt(rt2x00dev, RT5592))
++			rt2800_iq_calibrate(rt2x00dev, rf->channel);
+ 	}
  
-+	if (device_is_registered(&conn->dev))
-+		return;
-+
- 	dev_set_name(&conn->dev, "%s:%d", hdev->name, conn->handle);
- 
- 	if (device_add(&conn->dev) < 0) {
+ 	bbp = rt2800_bbp_read(rt2x00dev, 4);
 -- 
 2.35.1
 
