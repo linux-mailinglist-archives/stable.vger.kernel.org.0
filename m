@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BDC60A2A3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:46:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF49F60A2F0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:49:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231254AbiJXLqE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:46:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43166 "EHLO
+        id S231646AbiJXLtt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:49:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231266AbiJXLoz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:44:55 -0400
+        with ESMTP id S231913AbiJXLtN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:49:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17C9E3B1;
-        Mon, 24 Oct 2022 04:42:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 140D36D877;
+        Mon, 24 Oct 2022 04:43:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89DCDB81134;
-        Mon, 24 Oct 2022 11:41:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E407BC433D6;
-        Mon, 24 Oct 2022 11:41:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF9DDB81185;
+        Mon, 24 Oct 2022 11:43:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3980FC433D6;
+        Mon, 24 Oct 2022 11:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611705;
-        bh=qazdIVwjniIPBxsCL1PrgzDj+HxpC6llmoILXcDM3WY=;
+        s=korg; t=1666611812;
+        bh=5dRIdOu21Z2t660M+e7TugsnjlgCx4ggxlqHzOl1Bis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yO7jJeJlxdhIfVkS4hfXm3wKkSn1KnV4gT4aYhyloAd3kvFcoawNcHBC1kZT8Kx9j
-         7GNK4OkREIvBPDebsgtxrHvBxOr/AwvJA2B+PRVmQbB9Batf0Vu5dcZ8dkgTC6Nlcw
-         HVoOYDaTdfRr2nBUSy66rFREQSATFgSvpADvFyGg=
+        b=F0KkNXYFpoKiCUe8H1At6qUzcJB61OdbJ0l9THcv/8dOtRnYkuQn/C4G9R11LoqqK
+         5zrhxbrjdmo0ZtFTGLXPNiIaiuv91+gyDDvuaCivTxbeNvhkybRrTTeRpAnCwpPDiO
+         L8v+oJ6LhgHtYtlaK2wEECwBDVDQkN/8r2K6Y0aM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 078/159] platform/x86: msi-laptop: Fix old-ec check for backlight registering
-Date:   Mon, 24 Oct 2022 13:30:32 +0200
-Message-Id: <20221024112952.291810297@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Kelin Wang <wangkelin2023@163.com>
+Subject: [PATCH 4.9 080/159] ASoC: eureka-tlv320: Hold reference returned from of_find_xxx API
+Date:   Mon, 24 Oct 2022 13:30:34 +0200
+Message-Id: <20221024112952.351647448@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -52,56 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 83ac7a1c2ed5f17caa07cbbc84bad3c05dc3bf22 ]
+[ Upstream commit bfb735a3ceff0bab6473bac275da96f9b2a06dec ]
 
-Commit 2cc6c717799f ("msi-laptop: Port to new backlight interface
-selection API") replaced this check:
+In eukrea_tlv320_probe(), we need to hold the reference returned
+from of_find_compatible_node() which has increased the refcount
+and then call of_node_put() with it when done.
 
-	if (!quirks->old_ec_model || acpi_video_backlight_support())
-		pr_info("Brightness ignored, ...");
-	else
-		do_register();
-
-With:
-
-	if (quirks->old_ec_model ||
-	    acpi_video_get_backlight_type() == acpi_backlight_vendor)
-		do_register();
-
-But since the do_register() part was part of the else branch, the entire
-condition should be inverted.  So not only the 2 statements on either
-side of the || should be inverted, but the || itself should be replaced
-with a &&.
-
-In practice this has likely not been an issue because the new-ec models
-(old_ec_model==false) likely all support ACPI video backlight control,
-making acpi_video_get_backlight_type() return acpi_backlight_video
-turning the second part of the || also false when old_ec_model == false.
-
-Fixes: 2cc6c717799f ("msi-laptop: Port to new backlight interface selection API")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220825141336.208597-1-hdegoede@redhat.com
+Fixes: 66f232908de2 ("ASoC: eukrea-tlv320: Add DT support.")
+Co-authored-by: Kelin Wang <wangkelin2023@163.com>
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220914134354.3995587-1-windhl@126.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/msi-laptop.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/soc/fsl/eukrea-tlv320.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
-index 42317704629d..c2a1bc8e9fef 100644
---- a/drivers/platform/x86/msi-laptop.c
-+++ b/drivers/platform/x86/msi-laptop.c
-@@ -1069,8 +1069,7 @@ static int __init msi_init(void)
- 		return -EINVAL;
+diff --git a/sound/soc/fsl/eukrea-tlv320.c b/sound/soc/fsl/eukrea-tlv320.c
+index 38132143b7d5..10da7fd2d054 100644
+--- a/sound/soc/fsl/eukrea-tlv320.c
++++ b/sound/soc/fsl/eukrea-tlv320.c
+@@ -88,7 +88,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 	int ret;
+ 	int int_port = 0, ext_port;
+ 	struct device_node *np = pdev->dev.of_node;
+-	struct device_node *ssi_np = NULL, *codec_np = NULL;
++	struct device_node *ssi_np = NULL, *codec_np = NULL, *tmp_np = NULL;
  
- 	/* Register backlight stuff */
--
--	if (quirks->old_ec_model ||
-+	if (quirks->old_ec_model &&
- 	    acpi_video_get_backlight_type() == acpi_backlight_vendor) {
- 		struct backlight_properties props;
- 		memset(&props, 0, sizeof(struct backlight_properties));
+ 	eukrea_tlv320.dev = &pdev->dev;
+ 	if (np) {
+@@ -145,7 +145,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	if (machine_is_eukrea_cpuimx27() ||
+-	    of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux")) {
++	    (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux"))) {
+ 		imx_audmux_v1_configure_port(MX27_AUDMUX_HPCR1_SSI0,
+ 			IMX_AUDMUX_V1_PCR_SYN |
+ 			IMX_AUDMUX_V1_PCR_TFSDIR |
+@@ -160,10 +160,11 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 			IMX_AUDMUX_V1_PCR_SYN |
+ 			IMX_AUDMUX_V1_PCR_RXDSEL(MX27_AUDMUX_HPCR1_SSI0)
+ 		);
++		of_node_put(tmp_np);
+ 	} else if (machine_is_eukrea_cpuimx25sd() ||
+ 		   machine_is_eukrea_cpuimx35sd() ||
+ 		   machine_is_eukrea_cpuimx51sd() ||
+-		   of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux")) {
++		   (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux"))) {
+ 		if (!np)
+ 			ext_port = machine_is_eukrea_cpuimx25sd() ?
+ 				4 : 3;
+@@ -180,6 +181,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 			IMX_AUDMUX_V2_PTCR_SYN,
+ 			IMX_AUDMUX_V2_PDCR_RXDSEL(int_port)
+ 		);
++		of_node_put(tmp_np);
+ 	} else {
+ 		if (np) {
+ 			/* The eukrea,asoc-tlv320 driver was explicitly
 -- 
 2.35.1
 
