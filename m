@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFE4D60A96E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:21:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D66D260ABB5
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:55:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231660AbiJXNUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:20:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58116 "EHLO
+        id S236710AbiJXNzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:55:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236306AbiJXNTw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:19:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 081C22BE04;
-        Mon, 24 Oct 2022 05:28:18 -0700 (PDT)
+        with ESMTP id S236902AbiJXNy3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:54:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 127C3BD068;
+        Mon, 24 Oct 2022 05:43:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE7D76126B;
-        Mon, 24 Oct 2022 12:24:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2747C433D6;
-        Mon, 24 Oct 2022 12:24:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52A26612A1;
+        Mon, 24 Oct 2022 12:43:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64852C433C1;
+        Mon, 24 Oct 2022 12:43:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614263;
-        bh=7AuFi6EBGKuPcwP8T4Kg4oFE8Bg46RXanDC8ZkVyVKw=;
+        s=korg; t=1666615431;
+        bh=ImaiAK7jHhbV8YcUYAVGJfAjkWTkK3o5h2uJ0SiwaWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yYqNnsrcwKyMKrvDOKOhTuJn8ky485f6OBV4Ys71Nz3m2mIIyYUqKZYNVESh/bR5S
-         tV5pYwKV5fZ15+XSvRjRGiGGQbHYC3N64ZOgtdGeGtjQPYFWgN3F5ODtD/QGFv7vBq
-         nPeDeEGzAQuGS/oEwBxewwMQ9EZfKwwPQKzLrRxY=
+        b=cV4wlzEXgtm3ySn7sF5mMx11GydR3LDllgSRKuwf7Z4Iapc/muF7cXIi1RHnB/+Ok
+         63o5fOtRT+BitZd1xUwFaVb9zhmVpUbHKB2MtLAghEUS2MliToWkAaL1s0xwLSckJ0
+         GCspZKGfUQ58Zar05711qzk4DxQ0VZw7PWLCLqBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 195/390] usb: common: debug: Check non-standard control requests
+Subject: [PATCH 5.15 248/530] memory: of: Fix refcount leak bug in of_lpddr3_get_ddr_timings()
 Date:   Mon, 24 Oct 2022 13:29:52 +0200
-Message-Id: <20221024113031.092416629@linuxfoundation.org>
+Message-Id: <20221024113056.340926529@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,137 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit b6155eaf6b05e558218b44b88a6cad03f15a586c ]
+[ Upstream commit 48af14fb0eaa63d9aa68f59fb0b205ec55a95636 ]
 
-Previously usb_decode_ctrl() only decodes standard control requests, but
-it was used for non-standard requests also. If it's non-standard or
-unknown standard bRequest, print the Setup data values.
+We should add the of_node_put() when breaking out of
+for_each_child_of_node() as it will automatically increase
+and decrease the refcount.
 
-Fixes: af32423a2d86 ("usb: dwc3: trace: decode ctrl request")
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/8d6a30f2f2f953eff833a5bc5aac640a4cc2fc9f.1658971571.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 976897dd96db ("memory: Extend of_memory with LPDDR3 support")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220719085640.1210583-2-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/common/debug.c | 96 +++++++++++++++++++++++++-------------
- 1 file changed, 64 insertions(+), 32 deletions(-)
+ drivers/memory/of_memory.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/common/debug.c b/drivers/usb/common/debug.c
-index a76a086b9c54..f0c0e8db7038 100644
---- a/drivers/usb/common/debug.c
-+++ b/drivers/usb/common/debug.c
-@@ -207,30 +207,28 @@ static void usb_decode_set_isoch_delay(__u8 wValue, char *str, size_t size)
- 	snprintf(str, size, "Set Isochronous Delay(Delay = %d ns)", wValue);
- }
- 
--/**
-- * usb_decode_ctrl - Returns human readable representation of control request.
-- * @str: buffer to return a human-readable representation of control request.
-- *       This buffer should have about 200 bytes.
-- * @size: size of str buffer.
-- * @bRequestType: matches the USB bmRequestType field
-- * @bRequest: matches the USB bRequest field
-- * @wValue: matches the USB wValue field (CPU byte order)
-- * @wIndex: matches the USB wIndex field (CPU byte order)
-- * @wLength: matches the USB wLength field (CPU byte order)
-- *
-- * Function returns decoded, formatted and human-readable description of
-- * control request packet.
-- *
-- * The usage scenario for this is for tracepoints, so function as a return
-- * use the same value as in parameters. This approach allows to use this
-- * function in TP_printk
-- *
-- * Important: wValue, wIndex, wLength parameters before invoking this function
-- * should be processed by le16_to_cpu macro.
-- */
--const char *usb_decode_ctrl(char *str, size_t size, __u8 bRequestType,
--			    __u8 bRequest, __u16 wValue, __u16 wIndex,
--			    __u16 wLength)
-+static void usb_decode_ctrl_generic(char *str, size_t size, __u8 bRequestType,
-+				    __u8 bRequest, __u16 wValue, __u16 wIndex,
-+				    __u16 wLength)
-+{
-+	u8 recip = bRequestType & USB_RECIP_MASK;
-+	u8 type = bRequestType & USB_TYPE_MASK;
-+
-+	snprintf(str, size,
-+		 "Type=%s Recipient=%s Dir=%s bRequest=%u wValue=%u wIndex=%u wLength=%u",
-+		 (type == USB_TYPE_STANDARD)    ? "Standard" :
-+		 (type == USB_TYPE_VENDOR)      ? "Vendor" :
-+		 (type == USB_TYPE_CLASS)       ? "Class" : "Unknown",
-+		 (recip == USB_RECIP_DEVICE)    ? "Device" :
-+		 (recip == USB_RECIP_INTERFACE) ? "Interface" :
-+		 (recip == USB_RECIP_ENDPOINT)  ? "Endpoint" : "Unknown",
-+		 (bRequestType & USB_DIR_IN)    ? "IN" : "OUT",
-+		 bRequest, wValue, wIndex, wLength);
-+}
-+
-+static void usb_decode_ctrl_standard(char *str, size_t size, __u8 bRequestType,
-+				     __u8 bRequest, __u16 wValue, __u16 wIndex,
-+				     __u16 wLength)
- {
- 	switch (bRequest) {
- 	case USB_REQ_GET_STATUS:
-@@ -271,14 +269,48 @@ const char *usb_decode_ctrl(char *str, size_t size, __u8 bRequestType,
- 		usb_decode_set_isoch_delay(wValue, str, size);
- 		break;
- 	default:
--		snprintf(str, size, "%02x %02x %02x %02x %02x %02x %02x %02x",
--			 bRequestType, bRequest,
--			 (u8)(cpu_to_le16(wValue) & 0xff),
--			 (u8)(cpu_to_le16(wValue) >> 8),
--			 (u8)(cpu_to_le16(wIndex) & 0xff),
--			 (u8)(cpu_to_le16(wIndex) >> 8),
--			 (u8)(cpu_to_le16(wLength) & 0xff),
--			 (u8)(cpu_to_le16(wLength) >> 8));
-+		usb_decode_ctrl_generic(str, size, bRequestType, bRequest,
-+					wValue, wIndex, wLength);
-+		break;
-+	}
-+}
-+
-+/**
-+ * usb_decode_ctrl - Returns human readable representation of control request.
-+ * @str: buffer to return a human-readable representation of control request.
-+ *       This buffer should have about 200 bytes.
-+ * @size: size of str buffer.
-+ * @bRequestType: matches the USB bmRequestType field
-+ * @bRequest: matches the USB bRequest field
-+ * @wValue: matches the USB wValue field (CPU byte order)
-+ * @wIndex: matches the USB wIndex field (CPU byte order)
-+ * @wLength: matches the USB wLength field (CPU byte order)
-+ *
-+ * Function returns decoded, formatted and human-readable description of
-+ * control request packet.
-+ *
-+ * The usage scenario for this is for tracepoints, so function as a return
-+ * use the same value as in parameters. This approach allows to use this
-+ * function in TP_printk
-+ *
-+ * Important: wValue, wIndex, wLength parameters before invoking this function
-+ * should be processed by le16_to_cpu macro.
-+ */
-+const char *usb_decode_ctrl(char *str, size_t size, __u8 bRequestType,
-+			    __u8 bRequest, __u16 wValue, __u16 wIndex,
-+			    __u16 wLength)
-+{
-+	switch (bRequestType & USB_TYPE_MASK) {
-+	case USB_TYPE_STANDARD:
-+		usb_decode_ctrl_standard(str, size, bRequestType, bRequest,
-+					 wValue, wIndex, wLength);
-+		break;
-+	case USB_TYPE_VENDOR:
-+	case USB_TYPE_CLASS:
-+	default:
-+		usb_decode_ctrl_generic(str, size, bRequestType, bRequest,
-+					wValue, wIndex, wLength);
-+		break;
- 	}
- 
- 	return str;
+diff --git a/drivers/memory/of_memory.c b/drivers/memory/of_memory.c
+index d0a80aefdea8..1791614f324b 100644
+--- a/drivers/memory/of_memory.c
++++ b/drivers/memory/of_memory.c
+@@ -283,6 +283,7 @@ const struct lpddr3_timings
+ 		if (of_device_is_compatible(np_tim, tim_compat)) {
+ 			if (of_lpddr3_do_get_timings(np_tim, &timings[i])) {
+ 				devm_kfree(dev, timings);
++				of_node_put(np_tim);
+ 				goto default_timings;
+ 			}
+ 			i++;
 -- 
 2.35.1
 
