@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C502A60B6E4
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:13:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7852560B8EB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:59:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233194AbiJXTNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:13:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60378 "EHLO
+        id S231266AbiJXT7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:59:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233230AbiJXTNM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:13:12 -0400
+        with ESMTP id S233928AbiJXT6n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:58:43 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADACF19899A;
-        Mon, 24 Oct 2022 10:51:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F021D27FA85;
+        Mon, 24 Oct 2022 11:21:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 28506CE136C;
-        Mon, 24 Oct 2022 12:50:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C3A7C433C1;
-        Mon, 24 Oct 2022 12:50:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 46E54CE1356;
+        Mon, 24 Oct 2022 11:53:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 376F6C433C1;
+        Mon, 24 Oct 2022 11:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615827;
-        bh=OdDlMAN61B7j3oqOsYoJ6xIr+rzx3DGoeZGYiKv9/OU=;
+        s=korg; t=1666612428;
+        bh=ADoOtZnSU9oV8MbDNTbTO5d6Bon2s5hfP1Wx3LGYy6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pqjrmkNHtFnjTTlgL0lAh61BSFaYosPbxH+suG3mndYuLL1qqV0ZMsBRhDhUY/rgv
-         Vt7dNCxnBJdORx2RvUgKQ3spMXCf53vAGGLKa+7afN7jBEw7cVyZqpKzypCgVhkwX3
-         kfG6dvPU3r6nARkaEyil5t8hXKuMXDCdvia0DmJE=
+        b=Vp02FKmf3nnf19f1VBQ79+3TefETtfAE6tZgkStPv/+Z9Xlk7MGPgUUe7SEZEiEsz
+         0H4LLzcjVowhxroEs4ciI7VejvvqBgtTSQ63WlWgGWvJYy+jwPgM15iWYCkIsvJ3Q7
+         +nLqSLXaVsf7eZFROxvbzyTAgGlRpIT+ZsmkGIz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Rohan McLure <rmclure@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 367/530] powerpc: Fix fallocate and fadvise64_64 compat parameter combination
+Subject: [PATCH 4.14 194/210] media: cx88: Fix a null-ptr-deref bug in buffer_prepare()
 Date:   Mon, 24 Oct 2022 13:31:51 +0200
-Message-Id: <20221024113101.652523831@linuxfoundation.org>
+Message-Id: <20221024113003.260505181@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,108 +54,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohan McLure <rmclure@linux.ibm.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 016ff72bd2090903715c0f9422a44afbb966f4ee ]
+[ Upstream commit 2b064d91440b33fba5b452f2d1b31f13ae911d71 ]
 
-As reported[1] by Arnd, the arch-specific fadvise64_64 and fallocate
-compatibility handlers assume parameters are passed with 32-bit
-big-endian ABI. This affects the assignment of odd-even parameter pairs
-to the high or low words of a 64-bit syscall parameter.
+When the driver calls cx88_risc_buffer() to prepare the buffer, the
+function call may fail, resulting in a empty buffer and null-ptr-deref
+later in buffer_queue().
 
-Fix fadvise64_64 fallocate compat handlers to correctly swap upper/lower
-32 bits conditioned on endianness.
+The following log can reveal it:
 
-A future patch will replace the arch-specific compat fallocate with an
-asm-generic implementation. This patch is intended for ease of
-back-port.
+[   41.822762] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN PTI
+[   41.824488] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+[   41.828027] RIP: 0010:buffer_queue+0xc2/0x500
+[   41.836311] Call Trace:
+[   41.836945]  __enqueue_in_driver+0x141/0x360
+[   41.837262]  vb2_start_streaming+0x62/0x4a0
+[   41.838216]  vb2_core_streamon+0x1da/0x2c0
+[   41.838516]  __vb2_init_fileio+0x981/0xbc0
+[   41.839141]  __vb2_perform_fileio+0xbf9/0x1120
+[   41.840072]  vb2_fop_read+0x20e/0x400
+[   41.840346]  v4l2_read+0x215/0x290
+[   41.840603]  vfs_read+0x162/0x4c0
 
-[1]: https://lore.kernel.org/all/be29926f-226e-48dc-871a-e29a54e80583@www.fastmail.com/
+Fix this by checking the return value of cx88_risc_buffer()
 
-Fixes: 57f48b4b74e7 ("powerpc/compat_sys: swap hi/lo parts of 64-bit syscall args in LE mode")
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Rohan McLure <rmclure@linux.ibm.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220921065605.1051927-9-rmclure@linux.ibm.com
+[hverkuil: fix coding style issues]
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/syscalls.h | 12 ++++++++++++
- arch/powerpc/kernel/sys_ppc32.c     | 14 +-------------
- arch/powerpc/kernel/syscalls.c      |  4 ++--
- 3 files changed, 15 insertions(+), 15 deletions(-)
+ drivers/media/pci/cx88/cx88-vbi.c   |  9 +++---
+ drivers/media/pci/cx88/cx88-video.c | 43 +++++++++++++++--------------
+ 2 files changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/syscalls.h b/arch/powerpc/include/asm/syscalls.h
-index 7ee66ae5444d..0e85d7aa395d 100644
---- a/arch/powerpc/include/asm/syscalls.h
-+++ b/arch/powerpc/include/asm/syscalls.h
-@@ -8,6 +8,18 @@
- #include <linux/types.h>
- #include <linux/compat.h>
+diff --git a/drivers/media/pci/cx88/cx88-vbi.c b/drivers/media/pci/cx88/cx88-vbi.c
+index c637679b01b2..2649f87c070f 100644
+--- a/drivers/media/pci/cx88/cx88-vbi.c
++++ b/drivers/media/pci/cx88/cx88-vbi.c
+@@ -144,11 +144,10 @@ static int buffer_prepare(struct vb2_buffer *vb)
+ 		return -EINVAL;
+ 	vb2_set_plane_payload(vb, 0, size);
  
-+/*
-+ * long long munging:
-+ * The 32 bit ABI passes long longs in an odd even register pair.
-+ * High and low parts are swapped depending on endian mode,
-+ * so define a macro (similar to mips linux32) to handle that.
-+ */
-+#ifdef __LITTLE_ENDIAN__
-+#define merge_64(low, high) (((u64)high << 32) | low)
-+#else
-+#define merge_64(high, low) (((u64)high << 32) | low)
-+#endif
-+
- struct rtas_args;
- 
- asmlinkage long sys_mmap(unsigned long addr, size_t len,
-diff --git a/arch/powerpc/kernel/sys_ppc32.c b/arch/powerpc/kernel/sys_ppc32.c
-index 16ff0399a257..719bfc6d1e3f 100644
---- a/arch/powerpc/kernel/sys_ppc32.c
-+++ b/arch/powerpc/kernel/sys_ppc32.c
-@@ -56,18 +56,6 @@ unsigned long compat_sys_mmap2(unsigned long addr, size_t len,
- 	return sys_mmap(addr, len, prot, flags, fd, pgoff << 12);
+-	cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
+-			 0, VBI_LINE_LENGTH * lines,
+-			 VBI_LINE_LENGTH, 0,
+-			 lines);
+-	return 0;
++	return cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
++				0, VBI_LINE_LENGTH * lines,
++				VBI_LINE_LENGTH, 0,
++				lines);
  }
  
--/* 
-- * long long munging:
-- * The 32 bit ABI passes long longs in an odd even register pair.
-- * High and low parts are swapped depending on endian mode,
-- * so define a macro (similar to mips linux32) to handle that.
-- */
--#ifdef __LITTLE_ENDIAN__
--#define merge_64(low, high) ((u64)high << 32) | low
--#else
--#define merge_64(high, low) ((u64)high << 32) | low
--#endif
--
- compat_ssize_t compat_sys_pread64(unsigned int fd, char __user *ubuf, compat_size_t count,
- 			     u32 reg6, u32 pos1, u32 pos2)
+ static void buffer_finish(struct vb2_buffer *vb)
+diff --git a/drivers/media/pci/cx88/cx88-video.c b/drivers/media/pci/cx88/cx88-video.c
+index 1748812bd7e5..79c293c86f14 100644
+--- a/drivers/media/pci/cx88/cx88-video.c
++++ b/drivers/media/pci/cx88/cx88-video.c
+@@ -452,6 +452,7 @@ static int queue_setup(struct vb2_queue *q,
+ 
+ static int buffer_prepare(struct vb2_buffer *vb)
  {
-@@ -94,7 +82,7 @@ asmlinkage int compat_sys_truncate64(const char __user * path, u32 reg4,
- asmlinkage long compat_sys_fallocate(int fd, int mode, u32 offset1, u32 offset2,
- 				     u32 len1, u32 len2)
- {
--	return ksys_fallocate(fd, mode, ((loff_t)offset1 << 32) | offset2,
-+	return ksys_fallocate(fd, mode, merge_64(offset1, offset2),
- 			     merge_64(len1, len2));
++	int ret;
+ 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+ 	struct cx8800_dev *dev = vb->vb2_queue->drv_priv;
+ 	struct cx88_core *core = dev->core;
+@@ -466,35 +467,35 @@ static int buffer_prepare(struct vb2_buffer *vb)
+ 
+ 	switch (core->field) {
+ 	case V4L2_FIELD_TOP:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl, 0, UNSET,
+-				 buf->bpl, 0, core->height);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl, 0, UNSET,
++				       buf->bpl, 0, core->height);
+ 		break;
+ 	case V4L2_FIELD_BOTTOM:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl, UNSET, 0,
+-				 buf->bpl, 0, core->height);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl, UNSET, 0,
++				       buf->bpl, 0, core->height);
+ 		break;
+ 	case V4L2_FIELD_SEQ_TB:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl,
+-				 0, buf->bpl * (core->height >> 1),
+-				 buf->bpl, 0,
+-				 core->height >> 1);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl,
++				       0, buf->bpl * (core->height >> 1),
++				       buf->bpl, 0,
++				       core->height >> 1);
+ 		break;
+ 	case V4L2_FIELD_SEQ_BT:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl,
+-				 buf->bpl * (core->height >> 1), 0,
+-				 buf->bpl, 0,
+-				 core->height >> 1);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl,
++				       buf->bpl * (core->height >> 1), 0,
++				       buf->bpl, 0,
++				       core->height >> 1);
+ 		break;
+ 	case V4L2_FIELD_INTERLACED:
+ 	default:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl, 0, buf->bpl,
+-				 buf->bpl, buf->bpl,
+-				 core->height >> 1);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl, 0, buf->bpl,
++				       buf->bpl, buf->bpl,
++				       core->height >> 1);
+ 		break;
+ 	}
+ 	dprintk(2,
+@@ -502,7 +503,7 @@ static int buffer_prepare(struct vb2_buffer *vb)
+ 		buf, buf->vb.vb2_buf.index,
+ 		core->width, core->height, dev->fmt->depth, dev->fmt->name,
+ 		(unsigned long)buf->risc.dma);
+-	return 0;
++	return ret;
  }
  
-diff --git a/arch/powerpc/kernel/syscalls.c b/arch/powerpc/kernel/syscalls.c
-index 825931e400df..e3edcf8f7cae 100644
---- a/arch/powerpc/kernel/syscalls.c
-+++ b/arch/powerpc/kernel/syscalls.c
-@@ -99,8 +99,8 @@ long ppc64_personality(unsigned long personality)
- long ppc_fadvise64_64(int fd, int advice, u32 offset_high, u32 offset_low,
- 		      u32 len_high, u32 len_low)
- {
--	return ksys_fadvise64_64(fd, (u64)offset_high << 32 | offset_low,
--				 (u64)len_high << 32 | len_low, advice);
-+	return ksys_fadvise64_64(fd, merge_64(offset_high, offset_low),
-+				 merge_64(len_high, len_low), advice);
- }
- 
- SYSCALL_DEFINE0(switch_endian)
+ static void buffer_finish(struct vb2_buffer *vb)
 -- 
 2.35.1
 
