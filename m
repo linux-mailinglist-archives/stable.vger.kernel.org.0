@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 711D160BDE3
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 00:53:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C375F60BDB0
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 00:44:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232134AbiJXWxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 18:53:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33560 "EHLO
+        id S231868AbiJXWos (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 18:44:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231641AbiJXWwl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 18:52:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556D57C779;
-        Mon, 24 Oct 2022 14:14:22 -0700 (PDT)
+        with ESMTP id S231878AbiJXWod (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 18:44:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 328632D335B;
+        Mon, 24 Oct 2022 14:07:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 662E560E7F;
-        Mon, 24 Oct 2022 12:49:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53B02C433D6;
-        Mon, 24 Oct 2022 12:49:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8520FB81614;
+        Mon, 24 Oct 2022 12:14:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D53FEC433D6;
+        Mon, 24 Oct 2022 12:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615758;
-        bh=oi1CZUVpo8tc5lnU4a5h7UpgZgb2bjuEFwx20nMrjHg=;
+        s=korg; t=1666613690;
+        bh=uMn96ZJPzqLtHZX/cUqm+tqU3zBy+TvPlLqdqK0lCXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1X264bYKZl13qxeEOyVb/43PnGY42lLOlkHX3sQaOa7KwlqoxSLDUql6zIOBMQmfv
-         ZlqhzQsf9ugZGQibmszxLLZds4whyc7D0r1yRePfrX2Vgk239LQy5vGj1wA6u5KBZD
-         WEp5EgsHbxK+MkanbLS+7RvIb4gPn9+m1zywHKyE=
+        b=cG030Kg7jw7/AfUa9qmT0miAGxZS4+GFEx2AbLq4ZHwLjUmhFFG5dcP2QvDlxawOO
+         4SjCMHvDEH//rWBlvsF7cPRt1s+eFxPIgoHH4R1QuIDBpIu1bEnKTRPQ/Gv7BUoAIP
+         DN0A6Abdh5QHRtRH8PhgSiAakiAw7e8O91OJZm5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 373/530] crypto: sahara - dont sleep when in softirq
-Date:   Mon, 24 Oct 2022 13:31:57 +0200
-Message-Id: <20221024113101.919603892@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Philipp Hortmann <philipp.g.hortmann@gmail.com>,
+        Nam Cao <namcaov@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 233/255] staging: vt6655: fix potential memory leak
+Date:   Mon, 24 Oct 2022 13:32:23 +0200
+Message-Id: <20221024113010.934162613@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,93 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Nam Cao <namcaov@gmail.com>
 
-[ Upstream commit 108586eba094b318e6a831f977f4ddcc403a15da ]
+[ Upstream commit c8ff91535880d41b49699b3829fb6151942de29e ]
 
-Function of sahara_aes_crypt maybe could be called by function
-of crypto_skcipher_encrypt during the rx softirq, so it is not
-allowed to use mutex lock.
+In function device_init_td0_ring, memory is allocated for member
+td_info of priv->apTD0Rings[i], with i increasing from 0. In case of
+allocation failure, the memory is freed in reversed order, with i
+decreasing to 0. However, the case i=0 is left out and thus memory is
+leaked.
 
-Fixes: c0c3c89ae347 ("crypto: sahara - replace tasklets with...")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Modify the memory freeing loop to include the case i=0.
+
+Tested-by: Philipp Hortmann <philipp.g.hortmann@gmail.com>
+Signed-off-by: Nam Cao <namcaov@gmail.com>
+Link: https://lore.kernel.org/r/20220909141338.19343-1-namcaov@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/sahara.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/staging/vt6655/device_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/sahara.c b/drivers/crypto/sahara.c
-index 457084b344c1..b07ae4ba165e 100644
---- a/drivers/crypto/sahara.c
-+++ b/drivers/crypto/sahara.c
-@@ -26,10 +26,10 @@
- #include <linux/kernel.h>
- #include <linux/kthread.h>
- #include <linux/module.h>
--#include <linux/mutex.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
-+#include <linux/spinlock.h>
+diff --git a/drivers/staging/vt6655/device_main.c b/drivers/staging/vt6655/device_main.c
+index c1f9b263129e..18284c427b7e 100644
+--- a/drivers/staging/vt6655/device_main.c
++++ b/drivers/staging/vt6655/device_main.c
+@@ -670,7 +670,7 @@ static int device_init_td0_ring(struct vnt_private *priv)
+ 	return 0;
  
- #define SHA_BUFFER_LEN		PAGE_SIZE
- #define SAHARA_MAX_SHA_BLOCK_SIZE	SHA256_BLOCK_SIZE
-@@ -196,7 +196,7 @@ struct sahara_dev {
- 	void __iomem		*regs_base;
- 	struct clk		*clk_ipg;
- 	struct clk		*clk_ahb;
--	struct mutex		queue_mutex;
-+	spinlock_t		queue_spinlock;
- 	struct task_struct	*kthread;
- 	struct completion	dma_completion;
- 
-@@ -642,9 +642,9 @@ static int sahara_aes_crypt(struct skcipher_request *req, unsigned long mode)
- 
- 	rctx->mode = mode;
- 
--	mutex_lock(&dev->queue_mutex);
-+	spin_lock_bh(&dev->queue_spinlock);
- 	err = crypto_enqueue_request(&dev->queue, &req->base);
--	mutex_unlock(&dev->queue_mutex);
-+	spin_unlock_bh(&dev->queue_spinlock);
- 
- 	wake_up_process(dev->kthread);
- 
-@@ -1043,10 +1043,10 @@ static int sahara_queue_manage(void *data)
- 	do {
- 		__set_current_state(TASK_INTERRUPTIBLE);
- 
--		mutex_lock(&dev->queue_mutex);
-+		spin_lock_bh(&dev->queue_spinlock);
- 		backlog = crypto_get_backlog(&dev->queue);
- 		async_req = crypto_dequeue_request(&dev->queue);
--		mutex_unlock(&dev->queue_mutex);
-+		spin_unlock_bh(&dev->queue_spinlock);
- 
- 		if (backlog)
- 			backlog->complete(backlog, -EINPROGRESS);
-@@ -1092,9 +1092,9 @@ static int sahara_sha_enqueue(struct ahash_request *req, int last)
- 		rctx->first = 1;
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->apTD0Rings[i];
+ 		kfree(desc->td_info);
  	}
- 
--	mutex_lock(&dev->queue_mutex);
-+	spin_lock_bh(&dev->queue_spinlock);
- 	ret = crypto_enqueue_request(&dev->queue, &req->base);
--	mutex_unlock(&dev->queue_mutex);
-+	spin_unlock_bh(&dev->queue_spinlock);
- 
- 	wake_up_process(dev->kthread);
- 
-@@ -1449,7 +1449,7 @@ static int sahara_probe(struct platform_device *pdev)
- 
- 	crypto_init_queue(&dev->queue, SAHARA_QUEUE_LENGTH);
- 
--	mutex_init(&dev->queue_mutex);
-+	spin_lock_init(&dev->queue_spinlock);
- 
- 	dev_ptr = dev;
- 
 -- 
 2.35.1
 
