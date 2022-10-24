@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0B2D60A2D5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:48:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F22060A29E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231744AbiJXLsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:48:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
+        id S231535AbiJXLp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:45:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231709AbiJXLrg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:47:36 -0400
+        with ESMTP id S231844AbiJXLog (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:44:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 545482ED5D;
-        Mon, 24 Oct 2022 04:42:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65DF110BE;
+        Mon, 24 Oct 2022 04:42:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EB78612A1;
-        Mon, 24 Oct 2022 11:42:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43DADC433C1;
-        Mon, 24 Oct 2022 11:42:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B93406129E;
+        Mon, 24 Oct 2022 11:40:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9F80C433C1;
+        Mon, 24 Oct 2022 11:40:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611723;
-        bh=jNle1HeYOW3IMKmWWkg33TJ1Gw0ec7HuD4SxLGQeq5A=;
+        s=korg; t=1666611647;
+        bh=+I0xfy1z0X+lsymIB2vC9bMATzX/t2nZ5Oe46nZnOzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2K+c6iR+uXHT+1e4K6YmbCfVGcBkhqvJ70Yazyum6a81Nm7N5MRXoa0PSMYOT7Byu
-         mp5C99JRumckiTjc60JYLioctjaZDlJ/2z+2zI3Yogj1EZBbNmB+0wlSL/MKjTh1DG
-         Tb1JLD9VFsapiPos3ymw6UrtXxyezXf6R8DZRLXg=
+        b=Jidp2Y8nsnEnavBQn+EioPMg2cQv9p/mpOPe0XUCePdPln2UZ2Cp1Ldss6cN1Vy5r
+         qc1jba3UIl7MqR1hCTcN23ZkwL9ZO3UEXHn9kXpk+gQ065EovmO4iGXBYLsvLnsIQ3
+         PhRKMA2FOjW7rtdAQ+lOYIDe4OAyabggSyS9Zvso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Lalith Rajendran <lalithkraj@google.com>,
+        Jinke Han <hanjinke.666@bytedance.com>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 057/159] ext4: make ext4_lazyinit_thread freezable
-Date:   Mon, 24 Oct 2022 13:30:11 +0200
-Message-Id: <20221024112951.515497074@linuxfoundation.org>
+Subject: [PATCH 4.9 058/159] ext4: place buffer head allocation before handle start
+Date:   Mon, 24 Oct 2022 13:30:12 +0200
+Message-Id: <20221024112951.560021650@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -53,32 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lalith Rajendran <lalithkraj@google.com>
+From: Jinke Han <hanjinke.666@bytedance.com>
 
-commit 3b575495ab8dbb4dbe85b4ac7f991693c3668ff5 upstream.
+commit d1052d236eddf6aa851434db1897b942e8db9921 upstream.
 
-ext4_lazyinit_thread is not set freezable. Hence when the thread calls
-try_to_freeze it doesn't freeze during suspend and continues to send
-requests to the storage during suspend, resulting in suspend failures.
+In our product environment, we encounter some jbd hung waiting handles to
+stop while several writters were doing memory reclaim for buffer head
+allocation in delay alloc write path. Ext4 do buffer head allocation with
+holding transaction handle which may be blocked too long if the reclaim
+works not so smooth. According to our bcc trace, the reclaim time in
+buffer head allocation can reach 258s and the jbd transaction commit also
+take almost the same time meanwhile. Except for these extreme cases,
+we often see several seconds delays for cgroup memory reclaim on our
+servers. This is more likely to happen considering docker environment.
+
+One thing to note, the allocation of buffer heads is as often as page
+allocation or more often when blocksize less than page size. Just like
+page cache allocation, we should also place the buffer head allocation
+before startting the handle.
 
 Cc: stable@kernel.org
-Signed-off-by: Lalith Rajendran <lalithkraj@google.com>
-Link: https://lore.kernel.org/r/20220818214049.1519544-1-lalithkraj@google.com
+Signed-off-by: Jinke Han <hanjinke.666@bytedance.com>
+Link: https://lore.kernel.org/r/20220903012429.22555-1-hanjinke.666@bytedance.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/inode.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -2911,6 +2911,7 @@ static int ext4_lazyinit_thread(void *ar
- 	unsigned long next_wakeup, cur;
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1215,6 +1215,13 @@ retry_grab:
+ 	page = grab_cache_page_write_begin(mapping, index, flags);
+ 	if (!page)
+ 		return -ENOMEM;
++	/*
++	 * The same as page allocation, we prealloc buffer heads before
++	 * starting the handle.
++	 */
++	if (!page_has_buffers(page))
++		create_empty_buffers(page, inode->i_sb->s_blocksize, 0);
++
+ 	unlock_page(page);
  
- 	BUG_ON(NULL == eli);
-+	set_freezable();
- 
- cont_thread:
- 	while (true) {
+ retry_journal:
 
 
