@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 507F460A845
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86F3B60AB1D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235104AbiJXNDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:03:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34378 "EHLO
+        id S233440AbiJXNpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:45:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234955AbiJXNCT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:02:19 -0400
+        with ESMTP id S236417AbiJXNoL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:44:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 703092C10F;
-        Mon, 24 Oct 2022 05:19:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAE332BE2F;
+        Mon, 24 Oct 2022 05:40:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D831A61218;
-        Mon, 24 Oct 2022 12:18:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC0EC433D6;
-        Mon, 24 Oct 2022 12:18:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E52061345;
+        Mon, 24 Oct 2022 12:38:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88AA7C433C1;
+        Mon, 24 Oct 2022 12:38:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613921;
-        bh=vwwx69rsb2FIxihCa6bfk7flG0j7C7NEHsW48/SnURQ=;
+        s=korg; t=1666615098;
+        bh=BMhRM4nqWbjmRpKYBjSHNb+WOA6zO/H96SN3tqK7YGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQ5seF0om/VALfHykfCZe1ITSWGWJZ3coHEGjFq3lw31hpbeIBn4kTRv17mGVV01F
-         RprSpuvutmizxpSoYmOfdwBo8aCnySFBx/XJC5v6ImhvkOpClgFamtjN31KWS6Da91
-         J2EsPrT7b6xk7JZDMEpHVGxDGyiIetW7JDNeOZRs=
+        b=YwhioM/21g5sm/yzcDulbZpsIrks8bUuNhERB1BiZxqnzgWTtK/teiNXtjM1G73X2
+         NTF26zgx7Zb47EHJDCJQ0vHzl5yCXl2/uSXwW4CY6U2SY8t3bRBy8q787XMbsOkB7n
+         vRVCmBnThXAZ+NvDzlEmwh7Wz4XGrK5FhQaHDRKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Zhang Yi <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 065/390] ext4: ext4_read_bh_lock() should submit IO if the buffer isnt uptodate
-Date:   Mon, 24 Oct 2022 13:27:42 +0200
-Message-Id: <20221024113025.388075487@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.15 121/530] media: cedrus: Fix endless loop in cedrus_h265_skip_bits()
+Date:   Mon, 24 Oct 2022 13:27:45 +0200
+Message-Id: <20221024113050.527524218@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-commit 0b73284c564d3ae4feef4bc920292f004acf4980 upstream.
+commit 91db7a3fc7fe670cf1770a398a43bb4a1f776bf1 upstream.
 
-Recently we notice that ext4 filesystem would occasionally fail to read
-metadata from disk and report error message, but the disk and block
-layer looks fine. After analyse, we lockon commit 88dbcbb3a484
-("blkdev: avoid migration stalls for blkdev pages"). It provide a
-migration method for the bdev, we could move page that has buffers
-without extra users now, but it lock the buffers on the page, which
-breaks the fragile metadata read operation on ext4 filesystem,
-ext4_read_bh_lock() was copied from ll_rw_block(), it depends on the
-assumption of that locked buffer means it is under IO. So it just
-trylock the buffer and skip submit IO if it lock failed, after
-wait_on_buffer() we conclude IO error because the buffer is not
-uptodate.
+The busy status bit may never de-assert if number of programmed skip
+bits is incorrect, resulting in a kernel hang because the bit is polled
+endlessly in the code. Fix it by adding timeout for the bit-polling.
+This problem is reproducible by setting the data_bit_offset field of
+the HEVC slice params to a wrong value by userspace.
 
-This issue could be easily reproduced by add some delay just after
-buffer_migrate_lock_buffers() in __buffer_migrate_folio() and do
-fsstress on ext4 filesystem.
-
-  EXT4-fs error (device pmem1): __ext4_find_entry:1658: inode #73193:
-  comm fsstress: reading directory lblock 0
-  EXT4-fs error (device pmem1): __ext4_find_entry:1658: inode #75334:
-  comm fsstress: reading directory lblock 0
-
-Fix it by removing the trylock logic in ext4_read_bh_lock(), just lock
-the buffer and submit IO if it's not uptodate, and also leave over
-readahead helper.
-
-Cc: stable@kernel.org
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220831074629.3755110-1-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@vger.kernel.org
+Fixes: 7678c5462680 (media: cedrus: Fix decoding for some HEVC videos)
+Reported-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |   16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ drivers/staging/media/sunxi/cedrus/cedrus_h265.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -188,19 +188,12 @@ int ext4_read_bh(struct buffer_head *bh,
+--- a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
++++ b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
+@@ -234,8 +234,9 @@ static void cedrus_h265_skip_bits(struct
+ 		cedrus_write(dev, VE_DEC_H265_TRIGGER,
+ 			     VE_DEC_H265_TRIGGER_FLUSH_BITS |
+ 			     VE_DEC_H265_TRIGGER_TYPE_N_BITS(tmp));
+-		while (cedrus_read(dev, VE_DEC_H265_STATUS) & VE_DEC_H265_STATUS_VLD_BUSY)
+-			udelay(1);
++
++		if (cedrus_wait_for(dev, VE_DEC_H265_STATUS, VE_DEC_H265_STATUS_VLD_BUSY))
++			dev_err_ratelimited(dev->dev, "timed out waiting to skip bits\n");
  
- int ext4_read_bh_lock(struct buffer_head *bh, int op_flags, bool wait)
- {
--	if (trylock_buffer(bh)) {
--		if (wait)
--			return ext4_read_bh(bh, op_flags, NULL);
-+	lock_buffer(bh);
-+	if (!wait) {
- 		ext4_read_bh_nowait(bh, op_flags, NULL);
- 		return 0;
+ 		count += tmp;
  	}
--	if (wait) {
--		wait_on_buffer(bh);
--		if (buffer_uptodate(bh))
--			return 0;
--		return -EIO;
--	}
--	return 0;
-+	return ext4_read_bh(bh, op_flags, NULL);
- }
- 
- /*
-@@ -247,7 +240,8 @@ void ext4_sb_breadahead_unmovable(struct
- 	struct buffer_head *bh = sb_getblk_gfp(sb, block, 0);
- 
- 	if (likely(bh)) {
--		ext4_read_bh_lock(bh, REQ_RAHEAD, false);
-+		if (trylock_buffer(bh))
-+			ext4_read_bh_nowait(bh, REQ_RAHEAD, NULL);
- 		brelse(bh);
- 	}
- }
 
 
