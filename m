@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7BC460AD38
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55CD860AD51
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:21:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234004AbiJXOUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:20:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60856 "EHLO
+        id S231626AbiJXOVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:21:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235349AbiJXOTA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:19:00 -0400
+        with ESMTP id S235458AbiJXOTC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:19:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B710E50F90;
-        Mon, 24 Oct 2022 05:56:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34C2623EB4;
+        Mon, 24 Oct 2022 05:56:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C4E161278;
-        Mon, 24 Oct 2022 12:56:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1103C433D6;
-        Mon, 24 Oct 2022 12:56:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D8FB6121A;
+        Mon, 24 Oct 2022 12:56:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5395FC433C1;
+        Mon, 24 Oct 2022 12:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616194;
-        bh=GaP2zY4gDt9q7SPS4N2nf0KNAmezYbQqo06Tm3bRLT0=;
+        s=korg; t=1666616196;
+        bh=LaWtLEvCT2VdGcjH4+ExzTkc5aQ8UDmqchGx5p6nb+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ta5MzjZqCcvcXNcs/Nd1nT+S/Q5T/qvBrUG6ahzC1eqPRBQirkE9RajkTROqa7xFN
-         c1xHmgLgkFjBRKDqwghz8A8oYuRLA+SIsRkZ68cr5UHvtqYR3ktBiY6KLEv8hzx2bB
-         pHSOrR99DaTGJCePLcBOHWtBtXuuuH00hXlnVz7c=
+        b=aYfuoLWEDzSnJ75NTX8gmUgbegDd3aruKMm1y3PwgfKEIiYb3bWXbjrvyf++9Un3q
+         7EQ96YGBfqtLZgyC2558J/Lmd4plyOBgB1Ftx3TI4AII4SiyPtoNl6oRcSqgajijQP
+         FvfJWVW6vlLbkY6+eGjl6HIjuBz3FEu0wN5Vjfi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Liska <mliska@suse.cz>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 529/530] gcov: support GCC 12.1 and newer compilers
-Date:   Mon, 24 Oct 2022 13:34:33 +0200
-Message-Id: <20221024113108.955431718@linuxfoundation.org>
+        stable@vger.kernel.org, Rafael Mendonca <rafaelmendsr@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 530/530] io-wq: Fix memory leak in worker creation
+Date:   Mon, 24 Oct 2022 13:34:34 +0200
+Message-Id: <20221024113109.004217718@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,80 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Liska <mliska@suse.cz>
+From: Rafael Mendonca <rafaelmendsr@gmail.com>
 
-commit 977ef30a7d888eeb52fb6908f99080f33e5309a8 upstream.
+commit 996d3efeb091c503afd3ee6b5e20eabf446fd955 upstream.
 
-Starting with GCC 12.1, the created .gcda format can't be read by gcov
-tool.  There are 2 significant changes to the .gcda file format that
-need to be supported:
+If the CPU mask allocation for a node fails, then the memory allocated for
+the 'io_wqe' struct of the current node doesn't get freed on the error
+handling path, since it has not yet been added to the 'wqes' array.
 
-a) [gcov: Use system IO buffering]
-   (23eb66d1d46a34cb28c4acbdf8a1deb80a7c5a05) changed that all sizes in
-   the format are in bytes and not in words (4B)
+This was spotted when fuzzing v6.1-rc1 with Syzkaller:
+BUG: memory leak
+unreferenced object 0xffff8880093d5000 (size 1024):
+  comm "syz-executor.2", pid 7701, jiffies 4295048595 (age 13.900s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000cb463369>] __kmem_cache_alloc_node+0x18e/0x720
+    [<00000000147a3f9c>] kmalloc_node_trace+0x2a/0x130
+    [<000000004e107011>] io_wq_create+0x7b9/0xdc0
+    [<00000000c38b2018>] io_uring_alloc_task_context+0x31e/0x59d
+    [<00000000867399da>] __io_uring_add_tctx_node.cold+0x19/0x1ba
+    [<000000007e0e7a79>] io_uring_setup.cold+0x1b80/0x1dce
+    [<00000000b545e9f6>] __x64_sys_io_uring_setup+0x5d/0x80
+    [<000000008a8a7508>] do_syscall_64+0x5d/0x90
+    [<000000004ac08bec>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-b) [gcov: make profile merging smarter]
-   (72e0c742bd01f8e7e6dcca64042b9ad7e75979de) add a new checksum to the
-   file header.
-
-Tested with GCC 7.5, 10.4, 12.2 and the current master.
-
-Link: https://lkml.kernel.org/r/624bda92-f307-30e9-9aaa-8cc678b2dfb2@suse.cz
-Signed-off-by: Martin Liska <mliska@suse.cz>
-Tested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 0e03496d1967 ("io-wq: use private CPU mask")
+Cc: stable@vger.kernel.org
+Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
+Link: https://lore.kernel.org/r/20221020014710.902201-1-rafaelmendsr@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/gcov/gcc_4_7.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ fs/io-wq.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/gcov/gcc_4_7.c
-+++ b/kernel/gcov/gcc_4_7.c
-@@ -30,6 +30,13 @@
- 
- #define GCOV_TAG_FUNCTION_LENGTH	3
- 
-+/* Since GCC 12.1 sizes are in BYTES and not in WORDS (4B). */
-+#if (__GNUC__ >= 12)
-+#define GCOV_UNIT_SIZE				4
-+#else
-+#define GCOV_UNIT_SIZE				1
-+#endif
-+
- static struct gcov_info *gcov_info_head;
- 
- /**
-@@ -383,12 +390,18 @@ size_t convert_to_gcda(char *buffer, str
- 	pos += store_gcov_u32(buffer, pos, info->version);
- 	pos += store_gcov_u32(buffer, pos, info->stamp);
- 
-+#if (__GNUC__ >= 12)
-+	/* Use zero as checksum of the compilation unit. */
-+	pos += store_gcov_u32(buffer, pos, 0);
-+#endif
-+
- 	for (fi_idx = 0; fi_idx < info->n_functions; fi_idx++) {
- 		fi_ptr = info->functions[fi_idx];
- 
- 		/* Function record. */
- 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION);
--		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION_LENGTH);
-+		pos += store_gcov_u32(buffer, pos,
-+			GCOV_TAG_FUNCTION_LENGTH * GCOV_UNIT_SIZE);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->ident);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->lineno_checksum);
- 		pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
-@@ -402,7 +415,8 @@ size_t convert_to_gcda(char *buffer, str
- 			/* Counter record. */
- 			pos += store_gcov_u32(buffer, pos,
- 					      GCOV_TAG_FOR_COUNTER(ct_idx));
--			pos += store_gcov_u32(buffer, pos, ci_ptr->num * 2);
-+			pos += store_gcov_u32(buffer, pos,
-+				ci_ptr->num * 2 * GCOV_UNIT_SIZE);
- 
- 			for (cv_idx = 0; cv_idx < ci_ptr->num; cv_idx++) {
- 				pos += store_gcov_u64(buffer, pos,
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -1152,10 +1152,10 @@ struct io_wq *io_wq_create(unsigned boun
+ 		wqe = kzalloc_node(sizeof(struct io_wqe), GFP_KERNEL, alloc_node);
+ 		if (!wqe)
+ 			goto err;
++		wq->wqes[node] = wqe;
+ 		if (!alloc_cpumask_var(&wqe->cpu_mask, GFP_KERNEL))
+ 			goto err;
+ 		cpumask_copy(wqe->cpu_mask, cpumask_of_node(node));
+-		wq->wqes[node] = wqe;
+ 		wqe->node = alloc_node;
+ 		wqe->acct[IO_WQ_ACCT_BOUND].max_workers = bounded;
+ 		wqe->acct[IO_WQ_ACCT_UNBOUND].max_workers =
 
 
