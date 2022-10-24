@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8639060BA16
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:25:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC4D560BA9B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:39:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231726AbiJXUZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:25:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54122 "EHLO
+        id S234524AbiJXUjb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:39:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234444AbiJXUYk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:24:40 -0400
+        with ESMTP id S234731AbiJXUjE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:39:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55DCF25E9;
-        Mon, 24 Oct 2022 11:39:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 510A7AA3F9;
+        Mon, 24 Oct 2022 11:49:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94B9CB812AC;
-        Mon, 24 Oct 2022 12:09:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F271EC433D6;
-        Mon, 24 Oct 2022 12:09:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAB8DB819C7;
+        Mon, 24 Oct 2022 12:44:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B62AC433C1;
+        Mon, 24 Oct 2022 12:44:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613353;
-        bh=zVw8f6eVRwzJ9ev+ioz6DzxGJvAN9wL6YL/KwtGDU+4=;
+        s=korg; t=1666615491;
+        bh=NE6qWbZMRBP1atF7+3F7wOLqV0coY/zY42IzVeA9UKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CyD/vG/IntdEKMr1foHhAEOMl1q499e1HtPeoYBAfNONErXpwZhoVO9KQJHZoTNG1
-         WysHooo2BmJhV4jae3DgY+ouNCAkwN4pzTvbO7TmGHAsPJmKEXuLeaBQ8HfoohYLMv
-         QC5KrMZwoAXAcHcrZYO9M5Z8fvICqS7QVenySmGA=
+        b=Mr6E26To14YhGyaHMeqD5RW1g71Me8R8gtzIHhuxuSDalQ5WcNXnSTlNZuv6iCsFv
+         OskjKvqfJMO/7mDmsmjVK8+ItJZrEDrwF2Qyq5/or+kZnQUt/0g6TJr2W5yvULu5Le
+         U4ViZHA9UsBo+SmnEDfO/nJbXsW5z1SsxB914u3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Aharon Landau <aharonl@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 105/255] ASoC: wm5110: Fix PM disable depth imbalance in wm5110_probe
-Date:   Mon, 24 Oct 2022 13:30:15 +0200
-Message-Id: <20221024113005.951281610@linuxfoundation.org>
+Subject: [PATCH 5.15 272/530] RDMA/mlx5: Dont compare mkey tags in DEVX indirect mkey
+Date:   Mon, 24 Oct 2022 13:30:16 +0200
+Message-Id: <20221024113057.389667312@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Aharon Landau <aharonl@nvidia.com>
 
-[ Upstream commit 86b46bf1feb83898d89a2b4a8d08d21e9ea277a7 ]
+[ Upstream commit 13ad1125b941a5f257d9d3ae70485773abd34792 ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context. We fix it by moving
-pm_runtime_enable to the endding of wm5110_probe.
+According to the ib spec:
+If the CI supports the Base Memory Management Extensions defined in this
+specification, the L_Key format must consist of:
+24 bit index in the most significant bits of the R_Key, and
+8 bit key in the least significant bits of the R_Key
+Through a successful Allocate L_Key verb invocation, the CI must let the
+consumer own the key portion of the returned R_Key
 
-Fixes:5c6af635fd772 ("ASoC: wm5110: Add audio CODEC driver")
+Therefore, when creating a mkey using DEVX, the consumer is allowed to
+change the key part. The kernel should compare only the index part of a
+R_Key to determine equality with another R_Key.
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220928160116.125020-3-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Adding capability in order not to break backward compatibility.
+
+Fixes: 534fd7aac56a ("IB/mlx5: Manage indirection mkey upon DEVX flow for ODP")
+Link: https://lore.kernel.org/r/3d669aacea85a3a15c3b3b953b3eaba3f80ef9be.1659255945.git.leonro@nvidia.com
+Signed-off-by: Aharon Landau <aharonl@nvidia.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm5110.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/mlx5/main.c | 3 +++
+ drivers/infiniband/hw/mlx5/odp.c  | 3 ++-
+ include/uapi/rdma/mlx5-abi.h      | 1 +
+ 3 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
-index 06ec3f48c808..bbe9fdfb423c 100644
---- a/sound/soc/codecs/wm5110.c
-+++ b/sound/soc/codecs/wm5110.c
-@@ -2452,9 +2452,6 @@ static int wm5110_probe(struct platform_device *pdev)
- 		regmap_update_bits(arizona->regmap, wm5110_digital_vu[i],
- 				   WM5110_DIG_VU, WM5110_DIG_VU);
+diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
+index 8664bcf6d3f5..827ee3040bea 100644
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -1847,6 +1847,9 @@ static int set_ucontext_resp(struct ib_ucontext *uctx,
+ 	if (MLX5_CAP_GEN(dev->mdev, drain_sigerr))
+ 		resp->comp_mask |= MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_SQD2RTS;
  
--	pm_runtime_enable(&pdev->dev);
--	pm_runtime_idle(&pdev->dev);
--
- 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
- 				  "ADSP2 Compressed IRQ", wm5110_adsp2_irq,
- 				  wm5110);
-@@ -2487,6 +2484,9 @@ static int wm5110_probe(struct platform_device *pdev)
- 		goto err_spk_irqs;
- 	}
- 
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_idle(&pdev->dev);
++	resp->comp_mask |=
++		MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_MKEY_UPDATE_TAG;
 +
- 	return ret;
+ 	return 0;
+ }
  
- err_spk_irqs:
+diff --git a/drivers/infiniband/hw/mlx5/odp.c b/drivers/infiniband/hw/mlx5/odp.c
+index d0d98e584ebc..fcf6447b4a4e 100644
+--- a/drivers/infiniband/hw/mlx5/odp.c
++++ b/drivers/infiniband/hw/mlx5/odp.c
+@@ -792,7 +792,8 @@ static bool mkey_is_eq(struct mlx5_core_mkey *mmkey, u32 key)
+ {
+ 	if (!mmkey)
+ 		return false;
+-	if (mmkey->type == MLX5_MKEY_MW)
++	if (mmkey->type == MLX5_MKEY_MW ||
++	    mmkey->type == MLX5_MKEY_INDIRECT_DEVX)
+ 		return mlx5_base_mkey(mmkey->key) == mlx5_base_mkey(key);
+ 	return mmkey->key == key;
+ }
+diff --git a/include/uapi/rdma/mlx5-abi.h b/include/uapi/rdma/mlx5-abi.h
+index 86be4a92b67b..a96b7d2770e1 100644
+--- a/include/uapi/rdma/mlx5-abi.h
++++ b/include/uapi/rdma/mlx5-abi.h
+@@ -104,6 +104,7 @@ enum mlx5_ib_alloc_ucontext_resp_mask {
+ 	MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_ECE               = 1UL << 2,
+ 	MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_SQD2RTS           = 1UL << 3,
+ 	MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_REAL_TIME_TS	   = 1UL << 4,
++	MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_MKEY_UPDATE_TAG   = 1UL << 5,
+ };
+ 
+ enum mlx5_user_cmds_supp_uhw {
 -- 
 2.35.1
 
