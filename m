@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4708060A5EF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D05A60A7A1
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:54:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233777AbiJXMar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:30:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45304 "EHLO
+        id S231175AbiJXMy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:54:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233909AbiJXM2j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B763287093;
-        Mon, 24 Oct 2022 05:02:24 -0700 (PDT)
+        with ESMTP id S234523AbiJXMxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:53:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48294326D0;
+        Mon, 24 Oct 2022 05:14:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81137612D5;
-        Mon, 24 Oct 2022 12:02:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94678C433D7;
-        Mon, 24 Oct 2022 12:01:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24727612FF;
+        Mon, 24 Oct 2022 12:12:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38E0DC433D6;
+        Mon, 24 Oct 2022 12:12:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612919;
-        bh=jPrX3JYqFBkAlWxjVzRpOOxHlvy7AnOKaq25fXbAEdc=;
+        s=korg; t=1666613547;
+        bh=AlKGxA5oHb1mhMs88++LuDXBhLryEnVpofotGpHubyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bz0xO5au1ibPFJWZW7KocO1bijNui7cWuWLute0dlg4e5lRV1JSMdOSqyaYzthnzA
-         66Tu8xCoFNmDmEfPbf0aRoIRiJkwD5OVwBdDNV1n3lBVZkRstSXU++VWKHOKSljRPu
-         fjYK2FHmKNtBOu4VsjAQLojt9k464kIEC4uz9deg=
+        b=pbfIA83KIIxpBwWK3zzg0448uAACtnfj2RRDQqt6WR92AL/++gjC+JhYRV6rH7pxa
+         /uHc9sSmnELJ+F1tZ04qyKql+OZxcutofNtWjlxkXZnMViYISlxJmGyLKomoy0TTQT
+         ++okFCTuoBpcU+k3NjK8dmaiUfxz5aw+u6c88TDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 169/229] f2fs: fix race condition on setting FI_NO_EXTENT flag
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 178/255] iommu/omap: Fix buffer overflow in debugfs
 Date:   Mon, 24 Oct 2022 13:31:28 +0200
-Message-Id: <20221024113004.554242119@linuxfoundation.org>
+Message-Id: <20221024113008.763948658@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 07725adc55c0a414c10acb5c8c86cea34b95ddef ]
+[ Upstream commit 184233a5202786b20220acd2d04ddf909ef18f29 ]
 
-The following scenarios exist.
-process A:               process B:
-->f2fs_drop_extent_tree  ->f2fs_update_extent_cache_range
-                          ->f2fs_update_extent_tree_range
-                           ->write_lock
- ->set_inode_flag
-                           ->is_inode_flag_set
-                           ->__free_extent_tree // Shouldn't
-                                                // have been
-                                                // cleaned up
-                                                // here
-  ->write_lock
+There are two issues here:
 
-In this case, the "FI_NO_EXTENT" flag is set between
-f2fs_update_extent_tree_range and is_inode_flag_set
-by other process. it leads to clearing the whole exten
-tree which should not have happened. And we fix it by
-move the setting it to the range of write_lock.
+1) The "len" variable needs to be checked before the very first write.
+   Otherwise if omap2_iommu_dump_ctx() with "bytes" less than 32 it is a
+   buffer overflow.
+2) The snprintf() function returns the number of bytes that *would* have
+   been copied if there were enough space.  But we want to know the
+   number of bytes which were *actually* copied so use scnprintf()
+   instead.
 
-Fixes:5f281fab9b9a3 ("f2fs: disable extent_cache for fcollapse/finsert inodes")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: bd4396f09a4a ("iommu/omap: Consolidate OMAP IOMMU modules")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/YuvYh1JbE3v+abd5@kili
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/extent_cache.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/iommu/omap-iommu-debug.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/f2fs/extent_cache.c b/fs/f2fs/extent_cache.c
-index a70cd2580eae..36d6b561b524 100644
---- a/fs/f2fs/extent_cache.c
-+++ b/fs/f2fs/extent_cache.c
-@@ -717,9 +717,8 @@ void f2fs_drop_extent_tree(struct inode *inode)
- 	if (!f2fs_may_extent_tree(inode))
- 		return;
+diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
+index a99afb5d9011..259f65291d90 100644
+--- a/drivers/iommu/omap-iommu-debug.c
++++ b/drivers/iommu/omap-iommu-debug.c
+@@ -32,12 +32,12 @@ static inline bool is_omap_iommu_detached(struct omap_iommu *obj)
+ 		ssize_t bytes;						\
+ 		const char *str = "%20s: %08x\n";			\
+ 		const int maxcol = 32;					\
+-		bytes = snprintf(p, maxcol, str, __stringify(name),	\
++		if (len < maxcol)					\
++			goto out;					\
++		bytes = scnprintf(p, maxcol, str, __stringify(name),	\
+ 				 iommu_read_reg(obj, MMU_##name));	\
+ 		p += bytes;						\
+ 		len -= bytes;						\
+-		if (len < maxcol)					\
+-			goto out;					\
+ 	} while (0)
  
--	set_inode_flag(inode, FI_NO_EXTENT);
--
- 	write_lock(&et->lock);
-+	set_inode_flag(inode, FI_NO_EXTENT);
- 	__free_extent_tree(sbi, et);
- 	if (et->largest.len) {
- 		et->largest.len = 0;
+ static ssize_t
 -- 
 2.35.1
 
