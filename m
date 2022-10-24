@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45D8260AC9A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A510860AFE8
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231882AbiJXOKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:10:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47016 "EHLO
+        id S231589AbiJXP6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:58:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234501AbiJXOIy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:08:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EACFD3B98E;
-        Mon, 24 Oct 2022 05:50:56 -0700 (PDT)
+        with ESMTP id S232106AbiJXP57 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:57:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC1BD9A9FF;
+        Mon, 24 Oct 2022 07:53:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6326E612F3;
-        Mon, 24 Oct 2022 12:50:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A929C43470;
-        Mon, 24 Oct 2022 12:50:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FB31B819FE;
+        Mon, 24 Oct 2022 12:51:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD608C433D6;
+        Mon, 24 Oct 2022 12:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615853;
-        bh=do1I8NQWeaTX8+T+0jwrZEdD9Gg7WWzIym3aPHt6SJk=;
+        s=korg; t=1666615859;
+        bh=EvJC7ybRO4I0b2bkGMWAtdvSSua1BQZEEPWytH/fjio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B3KeCQhSRN6LPq2k5qtg9r5bsdSInkBvhcvAQQOdFlVDPDNls1T5zdyVMSHrzn76K
-         70Vc7/E0yIuY/yHBfs03zOybyB174mPseWPVfjK9niMxd99cRaOlaYoPmjvcn6OSwN
-         hSDdX6r/kTjYqJf8XrDSgkRHBPtQ1Mx1LVP3txS4=
+        b=JBuKYyqFqS6FSeYLonhtulUOLs2hcvnoJFD4C7BBOjxV2lX7K8LiRUKUEW67bIbcv
+         XPeJXpCXAgDPPPsQ6zu4H+k8IgYLLcDElcbke9x4wUJZRjUKU+19Ly6NVqVV0DBblM
+         sc9a0Gi30KJ1uZ2v134omCazAGv1V12j3iPAzBIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 409/530] thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash
-Date:   Mon, 24 Oct 2022 13:32:33 +0200
-Message-Id: <20221024113103.591956572@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        Luya Tshimbalanga <luya@fedoraproject.org>
+Subject: [PATCH 5.15 411/530] ACPI: x86: Add a quirk for Dell Inspiron 14 2-in-1 for StorageD3Enable
+Date:   Mon, 24 Oct 2022 13:32:35 +0200
+Message-Id: <20221024113103.692523351@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,58 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 68b99e94a4a2db6ba9b31fe0485e057b9354a640 ]
+[ Upstream commit 018d6711c26e4bd26e20a819fcc7f8ab902608f3 ]
 
-When CPU 0 is offline and intel_powerclamp is used to inject
-idle, it generates kernel BUG:
+Dell Inspiron 14 2-in-1 has two ACPI nodes under GPP1 both with _ADR of
+0, both without _HID.  It's ambiguous which the kernel should take, but
+it seems to take "DEV0".  Unfortunately "DEV0" is missing the device
+property `StorageD3Enable` which is present on "NVME".
 
-BUG: using smp_processor_id() in preemptible [00000000] code: bash/15687
-caller is debug_smp_processor_id+0x17/0x20
-CPU: 4 PID: 15687 Comm: bash Not tainted 5.19.0-rc7+ #57
-Call Trace:
-<TASK>
-dump_stack_lvl+0x49/0x63
-dump_stack+0x10/0x16
-check_preemption_disabled+0xdd/0xe0
-debug_smp_processor_id+0x17/0x20
-powerclamp_set_cur_state+0x7f/0xf9 [intel_powerclamp]
-...
-...
+To avoid this causing problems for suspend, add a quirk for this system
+to behave like `StorageD3Enable` property was found.
 
-Here CPU 0 is the control CPU by default and changed to the current CPU,
-if CPU 0 offlined. This check has to be performed under cpus_read_lock(),
-hence the above warning.
-
-Use get_cpu() instead of smp_processor_id() to avoid this BUG.
-
-Suggested-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-[ rjw: Subject edits ]
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216440
+Reported-and-tested-by: Luya Tshimbalanga <luya@fedoraproject.org>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel/intel_powerclamp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/acpi/x86/utils.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/intel/intel_powerclamp.c b/drivers/thermal/intel/intel_powerclamp.c
-index a5b58ea89cc6..9121ae4f5068 100644
---- a/drivers/thermal/intel/intel_powerclamp.c
-+++ b/drivers/thermal/intel/intel_powerclamp.c
-@@ -532,8 +532,10 @@ static int start_power_clamp(void)
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index b3fb428461c6..3a3f09b6cbfc 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -198,7 +198,24 @@ static const struct x86_cpu_id storage_d3_cpu_ids[] = {
+ 	{}
+ };
  
- 	/* prefer BSP */
- 	control_cpu = 0;
--	if (!cpu_online(control_cpu))
--		control_cpu = smp_processor_id();
-+	if (!cpu_online(control_cpu)) {
-+		control_cpu = get_cpu();
-+		put_cpu();
-+	}
- 
- 	clamping = true;
- 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
++static const struct dmi_system_id force_storage_d3_dmi[] = {
++	{
++		/*
++		 * _ADR is ambiguous between GPP1.DEV0 and GPP1.NVME
++		 * but .NVME is needed to get StorageD3Enable node
++		 * https://bugzilla.kernel.org/show_bug.cgi?id=216440
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 14 7425 2-in-1"),
++		}
++	},
++	{}
++};
++
+ bool force_storage_d3(void)
+ {
+-	return x86_match_cpu(storage_d3_cpu_ids);
++	const struct dmi_system_id *dmi_id = dmi_first_match(force_storage_d3_dmi);
++
++	return dmi_id || x86_match_cpu(storage_d3_cpu_ids);
+ }
 -- 
 2.35.1
 
