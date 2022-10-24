@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97BF560B3E1
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:19:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B9E560B1FD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:42:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232732AbiJXRTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:19:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44108 "EHLO
+        id S231883AbiJXQlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:41:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235551AbiJXRTO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:19:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B63F0558F4;
-        Mon, 24 Oct 2022 08:54:11 -0700 (PDT)
+        with ESMTP id S233191AbiJXQlM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:41:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 659F51781E5;
+        Mon, 24 Oct 2022 08:28:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDAEF61315;
-        Mon, 24 Oct 2022 12:14:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB67CC433C1;
-        Mon, 24 Oct 2022 12:14:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37291B81626;
+        Mon, 24 Oct 2022 12:15:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D972C433C1;
+        Mon, 24 Oct 2022 12:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613656;
-        bh=lMngYpEaHn+GSZ8B6h5KSHU2ZLlH+zvHYVzQIpHhrHI=;
+        s=korg; t=1666613757;
+        bh=+GcJMCJ5CtoL86fSWH/B6kOxUopDaB3OPk5ElHGv0uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tvLk25mr24WEVsR+QuIAaqj43TIuJrCx/IG0Yy1bU5rJFZ3AilO7ysiYfH0QyY+b+
-         voO6kgWUkgNRW+lV8ZMDp98k0bR8y+6w1fXIu7zazfCzcSG3QGSKv6J20xdAjH21oH
-         7miTMiktpmP9ztqmJl/TiZBASxfQBrH6GLpNbhYk=
+        b=HddzcOfy6lfpAHE82ts1PWNYYj35d/euEYK+uMjq/VKaMsvWWAgNYsmyr2hxwUAFM
+         vnjB1jtI9OS5PsipCc5FVxPrSoYEBPnLXOYRh2yu5JxvaGeuCdY+dHnsgRITqbpYRg
+         VmUMcFaJO2owSAUPyPy616pmda0F47qtXYK8FSGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Acayan <mailingradian@gmail.com>,
-        Bhupesh Sharma <bhupesh.sharma@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 218/255] mmc: sdhci-msm: add compatible string check for sdm670
-Date:   Mon, 24 Oct 2022 13:32:08 +0200
-Message-Id: <20221024113010.317114540@linuxfoundation.org>
+Subject: [PATCH 5.4 219/255] ARM: dts: imx7d-sdb: config the max pressure for tsc2046
+Date:   Mon, 24 Oct 2022 13:32:09 +0200
+Message-Id: <20221024113010.358831527@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
 References: <20221024113002.471093005@linuxfoundation.org>
@@ -55,35 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Acayan <mailingradian@gmail.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit 4de95950d970c71a9e82a24573bb7a44fd95baa1 ]
+[ Upstream commit e7c4ebe2f9cd68588eb24ba4ed122e696e2d5272 ]
 
-The Snapdragon 670 has the same quirk as Snapdragon 845 (needing to
-restore the dll config). Add a compatible string check to detect the need
-for this.
+Use the general touchscreen method to config the max pressure for
+touch tsc2046(data sheet suggest 8 bit pressure), otherwise, for
+ABS_PRESSURE, when config the same max and min value, weston will
+meet the following issue,
 
-Signed-off-by: Richard Acayan <mailingradian@gmail.com>
-Reviewed-by: Bhupesh Sharma <bhupesh.sharma@linaro.org>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220923014322.33620-3-mailingradian@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+[17:19:39.183] event1  - ADS7846 Touchscreen: is tagged by udev as: Touchscreen
+[17:19:39.183] event1  - ADS7846 Touchscreen: kernel bug: device has min == max on ABS_PRESSURE
+[17:19:39.183] event1  - ADS7846 Touchscreen: was rejected
+[17:19:39.183] event1  - not using input device '/dev/input/event1'
+
+This will then cause the APP weston-touch-calibrator can't list touch devices.
+
+root@imx6ul7d:~# weston-touch-calibrator
+could not load cursor 'dnd-move'
+could not load cursor 'dnd-copy'
+could not load cursor 'dnd-none'
+No devices listed.
+
+And accroding to binding Doc, "ti,x-max", "ti,y-max", "ti,pressure-max"
+belong to the deprecated properties, so remove them. Also for "ti,x-min",
+"ti,y-min", "ti,x-plate-ohms", the value set in dts equal to the default
+value in driver, so are redundant, also remove here.
+
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-msm.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/imx7d-sdb.dts | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-msm.c b/drivers/mmc/host/sdhci-msm.c
-index 8ab963055238..5e6f6c951fd4 100644
---- a/drivers/mmc/host/sdhci-msm.c
-+++ b/drivers/mmc/host/sdhci-msm.c
-@@ -1755,6 +1755,7 @@ static const struct sdhci_msm_variant_info sdm845_sdhci_var = {
- static const struct of_device_id sdhci_msm_dt_match[] = {
- 	{.compatible = "qcom,sdhci-msm-v4", .data = &sdhci_msm_mci_var},
- 	{.compatible = "qcom,sdhci-msm-v5", .data = &sdhci_msm_v5_var},
-+	{.compatible = "qcom,sdm670-sdhci", .data = &sdm845_sdhci_var},
- 	{.compatible = "qcom,sdm845-sdhci", .data = &sdm845_sdhci_var},
- 	{},
+diff --git a/arch/arm/boot/dts/imx7d-sdb.dts b/arch/arm/boot/dts/imx7d-sdb.dts
+index a97cda17e484..363d1f57a608 100644
+--- a/arch/arm/boot/dts/imx7d-sdb.dts
++++ b/arch/arm/boot/dts/imx7d-sdb.dts
+@@ -177,12 +177,7 @@
+ 		interrupt-parent = <&gpio2>;
+ 		interrupts = <29 0>;
+ 		pendown-gpio = <&gpio2 29 GPIO_ACTIVE_HIGH>;
+-		ti,x-min = /bits/ 16 <0>;
+-		ti,x-max = /bits/ 16 <0>;
+-		ti,y-min = /bits/ 16 <0>;
+-		ti,y-max = /bits/ 16 <0>;
+-		ti,pressure-max = /bits/ 16 <0>;
+-		ti,x-plate-ohms = /bits/ 16 <400>;
++		touchscreen-max-pressure = <255>;
+ 		wakeup-source;
+ 	};
  };
 -- 
 2.35.1
