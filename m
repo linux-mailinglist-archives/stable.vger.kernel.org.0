@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FFF060A864
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A59B60AA32
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229671AbiJXNEy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:04:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34800 "EHLO
+        id S233451AbiJXNbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:31:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235039AbiJXNCo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:02:44 -0400
+        with ESMTP id S236079AbiJXN3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F34402D0;
-        Mon, 24 Oct 2022 05:20:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBACCABF25;
+        Mon, 24 Oct 2022 05:32:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16F456121A;
-        Mon, 24 Oct 2022 12:15:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E8BC433D6;
-        Mon, 24 Oct 2022 12:15:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A196E612DB;
+        Mon, 24 Oct 2022 12:32:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4812C433D6;
+        Mon, 24 Oct 2022 12:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613713;
-        bh=J5oKMssIsjmrgJfuo2UOL4CSllU/7RRHIsy23aCN6dg=;
+        s=korg; t=1666614762;
+        bh=4yEgmnwTZHctMTUP9k2Sgbjd3eyxLywPyXolyPXXje0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xdil3OZEiK12nJUFWcFmiKF5Z0PR0Iqnqx+cbkwmxKdWE0+J1LIRCATSHq393HtGB
-         hJJZi8AHKjuLFle0qujFGaNi2OcOHPV2wkghT9SxQnsLtKdzdloC8ZWJXew5n0dCBv
-         X4rJ9jVnL6kIa3f48X1/1mqWC+n7SqvBBRzZ4og4=
+        b=09OYMQTpnOEcjF+WXQBYzzeh4Ip1xTDVK4q3fODg4uYDsl/Sr3P+gOR/1RyDPfkbm
+         NDjCwrmR+PGFplfkrHE1epakbLI0P5rfcI0mSWoslZnKMpBiV12wBN2EX7TgMy714o
+         EV6yLLU9eGKiZWHaix51gyWIPK8lBWBq56CWLaac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        stable@vger.kernel.org,
+        Quanyang Wang <quanyang.wang@windriver.com>,
+        Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 241/255] staging: rtl8723bs: fix a potential memory leak in rtw_init_cmd_priv()
+Subject: [PATCH 5.10 354/390] clk: zynqmp: pll: rectify rate rounding in zynqmp_pll_round_rate
 Date:   Mon, 24 Oct 2022 13:32:31 +0200
-Message-Id: <20221024113011.243886897@linuxfoundation.org>
+Message-Id: <20221024113038.073824230@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,76 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: Quanyang Wang <quanyang.wang@windriver.com>
 
-[ Upstream commit 708056fba733a73d926772ea4ce9a42d240345da ]
+[ Upstream commit 30eaf02149ecc3c5815e45d27187bf09e925071d ]
 
-In rtw_init_cmd_priv(), if `pcmdpriv->rsp_allocated_buf` is allocated
-in failure, then `pcmdpriv->cmd_allocated_buf` will be not properly
-released. Besides, considering there are only two error paths and the
-first one can directly return, so we do not need implicitly jump to the
-`exit` tag to execute the error handler.
+The function zynqmp_pll_round_rate is used to find a most appropriate
+PLL frequency which the hardware can generate according to the desired
+frequency. For example, if the desired frequency is 297MHz, considering
+the limited range from PS_PLL_VCO_MIN (1.5GHz) to PS_PLL_VCO_MAX (3.0GHz)
+of PLL, zynqmp_pll_round_rate should return 1.872GHz (297MHz * 5).
 
-So this patch added `kfree(pcmdpriv->cmd_allocated_buf);` on the error
-path to release the resource and simplified the return logic of
-rtw_init_cmd_priv(). As there is no proper device to test with, no runtime
-testing was performed.
+There are two problems with the current code of zynqmp_pll_round_rate:
 
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Link: https://lore.kernel.org/r/tencent_2B7931B79BA38E22205C5A09EFDF11E48805@qq.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+1) When the rate is below PS_PLL_VCO_MIN, it can't find a correct rate
+when the parameter "rate" is an integer multiple of *prate, in other words,
+if "f" is zero, zynqmp_pll_round_rate won't return a valid frequency which
+is from PS_PLL_VCO_MIN to PS_PLL_VCO_MAX. For example, *prate is 33MHz
+and the rate is 660MHz, zynqmp_pll_round_rate will not boost up rate and
+just return 660MHz, and this will cause clk_calc_new_rates failure since
+zynqmp_pll_round_rate returns an invalid rate out of its boundaries.
+
+2) Even if the rate is higher than PS_PLL_VCO_MIN, there is still a risk
+that zynqmp_pll_round_rate returns an invalid rate because the function
+DIV_ROUND_CLOSEST makes some loss in the fractional part. If the parent
+clock *prate is 33333333Hz and we want to set the PLL rate to 1.5GHz,
+this function will return 1499999985Hz by using the formula below:
+    value = *prate * DIV_ROUND_CLOSEST(rate, *prate)).
+This value is also invalid since it's slightly smaller than PS_PLL_VCO_MIN.
+because DIV_ROUND_CLOSEST makes some loss in the fractional part.
+
+Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
+Link: https://lore.kernel.org/r/20220826142030.213805-1-quanyang.wang@windriver.com
+Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/core/rtw_cmd.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/clk/zynqmp/pll.c | 31 +++++++++++++++----------------
+ 1 file changed, 15 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/staging/rtl8723bs/core/rtw_cmd.c b/drivers/staging/rtl8723bs/core/rtw_cmd.c
-index 8d93c2f26890..a82114de21a7 100644
---- a/drivers/staging/rtl8723bs/core/rtw_cmd.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_cmd.c
-@@ -165,8 +165,6 @@ No irqsave is necessary.
- 
- int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
+diff --git a/drivers/clk/zynqmp/pll.c b/drivers/clk/zynqmp/pll.c
+index abe6afbf3407..2ae7f9129b07 100644
+--- a/drivers/clk/zynqmp/pll.c
++++ b/drivers/clk/zynqmp/pll.c
+@@ -99,26 +99,25 @@ static long zynqmp_pll_round_rate(struct clk_hw *hw, unsigned long rate,
+ 				  unsigned long *prate)
  {
--	int res = 0;
--
- 	init_completion(&pcmdpriv->cmd_queue_comp);
- 	init_completion(&pcmdpriv->terminate_cmdthread_comp);
+ 	u32 fbdiv;
+-	long rate_div, f;
++	u32 mult, div;
  
-@@ -178,18 +176,16 @@ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
- 
- 	pcmdpriv->cmd_allocated_buf = rtw_zmalloc(MAX_CMDSZ + CMDBUFF_ALIGN_SZ);
- 
--	if (!pcmdpriv->cmd_allocated_buf) {
--		res = -ENOMEM;
--		goto exit;
--	}
-+	if (!pcmdpriv->cmd_allocated_buf)
-+		return -ENOMEM;
- 
- 	pcmdpriv->cmd_buf = pcmdpriv->cmd_allocated_buf  +  CMDBUFF_ALIGN_SZ - ((SIZE_PTR)(pcmdpriv->cmd_allocated_buf) & (CMDBUFF_ALIGN_SZ-1));
- 
- 	pcmdpriv->rsp_allocated_buf = rtw_zmalloc(MAX_RSPSZ + 4);
- 
- 	if (!pcmdpriv->rsp_allocated_buf) {
--		res = -ENOMEM;
--		goto exit;
-+		kfree(pcmdpriv->cmd_allocated_buf);
-+		return -ENOMEM;
+-	/* Enable the fractional mode if needed */
+-	rate_div = (rate * FRAC_DIV) / *prate;
+-	f = rate_div % FRAC_DIV;
+-	if (f) {
+-		if (rate > PS_PLL_VCO_MAX) {
+-			fbdiv = rate / PS_PLL_VCO_MAX;
+-			rate = rate / (fbdiv + 1);
+-		}
+-		if (rate < PS_PLL_VCO_MIN) {
+-			fbdiv = DIV_ROUND_UP(PS_PLL_VCO_MIN, rate);
+-			rate = rate * fbdiv;
+-		}
+-		return rate;
++	/* Let rate fall inside the range PS_PLL_VCO_MIN ~ PS_PLL_VCO_MAX */
++	if (rate > PS_PLL_VCO_MAX) {
++		div = DIV_ROUND_UP(rate, PS_PLL_VCO_MAX);
++		rate = rate / div;
++	}
++	if (rate < PS_PLL_VCO_MIN) {
++		mult = DIV_ROUND_UP(PS_PLL_VCO_MIN, rate);
++		rate = rate * mult;
  	}
  
- 	pcmdpriv->rsp_buf = pcmdpriv->rsp_allocated_buf  +  4 - ((SIZE_PTR)(pcmdpriv->rsp_allocated_buf) & 3);
-@@ -197,8 +193,8 @@ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
- 	pcmdpriv->cmd_issued_cnt = pcmdpriv->cmd_done_cnt = pcmdpriv->rsp_cnt = 0;
- 
- 	mutex_init(&pcmdpriv->sctx_mutex);
--exit:
--	return res;
+ 	fbdiv = DIV_ROUND_CLOSEST(rate, *prate);
+-	fbdiv = clamp_t(u32, fbdiv, PLL_FBDIV_MIN, PLL_FBDIV_MAX);
+-	return *prate * fbdiv;
++	if (fbdiv < PLL_FBDIV_MIN || fbdiv > PLL_FBDIV_MAX) {
++		fbdiv = clamp_t(u32, fbdiv, PLL_FBDIV_MIN, PLL_FBDIV_MAX);
++		rate = *prate * fbdiv;
++	}
 +
-+	return 0;
++	return rate;
  }
  
- static void c2h_wk_callback(_workitem *work);
+ /**
 -- 
 2.35.1
 
