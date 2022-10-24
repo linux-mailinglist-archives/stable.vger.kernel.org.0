@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5122F60A5A8
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:28:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9B1160AAE6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233727AbiJXM2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:28:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60586 "EHLO
+        id S236014AbiJXNmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:42:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230499AbiJXM1I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:27:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 102C37B1E0;
-        Mon, 24 Oct 2022 05:01:32 -0700 (PDT)
+        with ESMTP id S236896AbiJXNld (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:41:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 071EDB48BC;
+        Mon, 24 Oct 2022 05:39:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B82BBB811D7;
-        Mon, 24 Oct 2022 11:56:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 180B8C433C1;
-        Mon, 24 Oct 2022 11:56:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB2FF61252;
+        Mon, 24 Oct 2022 12:22:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A674C433C1;
+        Mon, 24 Oct 2022 12:22:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612595;
-        bh=4/0gbWRoGgXhcpCItadg29FCqoOIDIWdJPHkOeinRzA=;
+        s=korg; t=1666614124;
+        bh=2KuOyOV61eUspe7lepKwhElGOBYuoUrGDz3e1x9QyYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NCzedvpQOFX7vgVeWYxiERiZXxGvG2QJWpJV9E8NtnmZqgYjOiXbmjRF85mjxxIE0
-         G8bB5Ntca/w00xPVJ9g9UHNzoNe2X0qDo1rXLJW5WjvSTrd38Ln4tFHpf7ImPOrCfO
-         9ts6bXV52/UfBgy1S/Xs0Pgpciu2OgzgPGOE5pwA=
+        b=QKCDr4DXXs9ssfYxwbCRgPMqwtfUYXJA57lLOuEJj8GE3NFKBErjuoM37XnWsxKPY
+         27lyGR5EBMFQRx19aBe8hE64Ijs51zrpX2M9INyibFkFnO4rf9uhVsKM9NuaA86ghG
+         oBDGpt/BHmvVtLv7NzypgRZjRO5xKPGmKVkuOuFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+7381dc4ad60658ca4c05@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 019/229] nilfs2: fix leak of nilfs_root in case of writer thread creation failure
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 141/390] drm: bridge: adv7511: fix CEC power down control register offset
 Date:   Mon, 24 Oct 2022 13:28:58 +0200
-Message-Id: <20221024112959.757408197@linuxfoundation.org>
+Message-Id: <20221024113028.672236319@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Alvin Šipraga <alsi@bang-olufsen.dk>
 
-commit d0d51a97063db4704a5ef6bc978dddab1636a306 upstream.
+[ Upstream commit 1d22b6033ea113a4c3850dfa2c0770885c81aec8 ]
 
-If nilfs_attach_log_writer() failed to create a log writer thread, it
-frees a data structure of the log writer without any cleanup.  After
-commit e912a5b66837 ("nilfs2: use root object to get ifile"), this causes
-a leak of struct nilfs_root, which started to leak an ifile metadata inode
-and a kobject on that struct.
+The ADV7511_REG_CEC_CTRL = 0xE2 register is part of the main register
+map - not the CEC register map. As such, we shouldn't apply an offset to
+the register address. Doing so will cause us to address a bogus register
+for chips with a CEC register map offset (e.g. ADV7533).
 
-In addition, if the kernel is booted with panic_on_warn, the above
-ifile metadata inode leak will cause the following panic when the
-nilfs2 kernel module is removed:
-
-  kmem_cache_destroy nilfs2_inode_cache: Slab cache still has objects when
-  called from nilfs_destroy_cachep+0x16/0x3a [nilfs2]
-  WARNING: CPU: 8 PID: 1464 at mm/slab_common.c:494 kmem_cache_destroy+0x138/0x140
-  ...
-  RIP: 0010:kmem_cache_destroy+0x138/0x140
-  Code: 00 20 00 00 e8 a9 55 d8 ff e9 76 ff ff ff 48 8b 53 60 48 c7 c6 20 70 65 86 48 c7 c7 d8 69 9c 86 48 8b 4c 24 28 e8 ef 71 c7 00 <0f> 0b e9 53 ff ff ff c3 48 81 ff ff 0f 00 00 77 03 31 c0 c3 53 48
-  ...
-  Call Trace:
-   <TASK>
-   ? nilfs_palloc_freev.cold.24+0x58/0x58 [nilfs2]
-   nilfs_destroy_cachep+0x16/0x3a [nilfs2]
-   exit_nilfs_fs+0xa/0x1b [nilfs2]
-    __x64_sys_delete_module+0x1d9/0x3a0
-   ? __sanitizer_cov_trace_pc+0x1a/0x50
-   ? syscall_trace_enter.isra.19+0x119/0x190
-   do_syscall_64+0x34/0x80
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd
-   ...
-   </TASK>
-  Kernel panic - not syncing: panic_on_warn set ...
-
-This patch fixes these issues by calling nilfs_detach_log_writer() cleanup
-function if spawning the log writer thread fails.
-
-Link: https://lkml.kernel.org/r/20221007085226.57667-1-konishi.ryusuke@gmail.com
-Fixes: e912a5b66837 ("nilfs2: use root object to get ifile")
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+7381dc4ad60658ca4c05@syzkaller.appspotmail.com
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3b1b975003e4 ("drm: adv7511/33: add HDMI CEC support")
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220612144854.2223873-2-alvin@pqrs.dk
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/segment.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511.h     | 5 +----
+ drivers/gpu/drm/bridge/adv7511/adv7511_cec.c | 4 ++--
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -2786,10 +2786,9 @@ int nilfs_attach_log_writer(struct super
- 	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
- 
- 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
--	if (err) {
--		kfree(nilfs->ns_writer);
--		nilfs->ns_writer = NULL;
--	}
-+	if (unlikely(err))
-+		nilfs_detach_log_writer(sb);
-+
- 	return err;
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511.h b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+index a0f6ee15c248..711061bf3eb7 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511.h
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+@@ -386,10 +386,7 @@ void adv7511_cec_irq_process(struct adv7511 *adv7511, unsigned int irq1);
+ #else
+ static inline int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ {
+-	unsigned int offset = adv7511->type == ADV7533 ?
+-						ADV7533_REG_CEC_OFFSET : 0;
+-
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset,
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL,
+ 		     ADV7511_CEC_CTRL_POWER_DOWN);
+ 	return 0;
  }
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c b/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
+index a20a45c0b353..ddd1305b82b2 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
+@@ -316,7 +316,7 @@ int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ 		goto err_cec_alloc;
+ 	}
  
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset, 0);
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL, 0);
+ 	/* cec soft reset */
+ 	regmap_write(adv7511->regmap_cec,
+ 		     ADV7511_REG_CEC_SOFT_RESET + offset, 0x01);
+@@ -343,7 +343,7 @@ int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ 	dev_info(dev, "Initializing CEC failed with error %d, disabling CEC\n",
+ 		 ret);
+ err_cec_parse_dt:
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset,
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL,
+ 		     ADV7511_CEC_CTRL_POWER_DOWN);
+ 	return ret == -EPROBE_DEFER ? ret : 0;
+ }
+-- 
+2.35.1
+
 
 
