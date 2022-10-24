@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8146E60A8AF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:10:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 956EB60A6A8
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:37:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235478AbiJXNKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:10:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55142 "EHLO
+        id S231967AbiJXMgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:36:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235388AbiJXNIh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:08:37 -0400
+        with ESMTP id S234652AbiJXMfj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:35:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC249E2DA;
-        Mon, 24 Oct 2022 05:21:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 255F327918;
+        Mon, 24 Oct 2022 05:05:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 091F961218;
-        Mon, 24 Oct 2022 12:21:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F2BEC433C1;
-        Mon, 24 Oct 2022 12:21:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3294C612E7;
+        Mon, 24 Oct 2022 12:05:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44522C433D7;
+        Mon, 24 Oct 2022 12:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614087;
-        bh=786S+Dn2aWcaP69zrtbMp2Xt408gllhiKlEpepX6aYo=;
+        s=korg; t=1666613116;
+        bh=yQyto2Ce9b73hWIW5ToDONrZ7wExoMDHWAq3LWLzMCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VEousFjgmwBjYYKiF6l4uWZVylvZUrpBbIvZwLxK4ZlFkXVRbiRPUWRtjv4CUE/K+
-         snqqLtlV9WjPnEzIqr4Zz6qSGG4HuqtXAbEGv4U4eHkGSMrhAJIB8neyy/hfwBsdHo
-         Z59FOkMUBpq3DHydjtAAbiIeBYhrKK/l+Ulf4W9w=
+        b=XuEYbK/fwx5sAkvMYVkOqKSuv30lQsH/dT8LbEtHIpFQILhhQIoLSJsB+yxJuBojv
+         heKpgMCkfvWEW330E1pw98KYVCrVlgxlB/khntt/vlOyBl9Kiumg0nnC7sD2L7X572
+         j8GA0ElONNN6bAugYoCMugrebtWb8alqguaqLJRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
-        Florian Westphal <fw@strlen.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 128/390] netfilter: nft_fib: Fix for rpath check with VRF devices
+        stable@vger.kernel.org,
+        Jean-Francois Le Fillatre <jflf_kernel@gmx.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.4 015/255] usb: add quirks for Lenovo OneLink+ Dock
 Date:   Mon, 24 Oct 2022 13:28:45 +0200
-Message-Id: <20221024113028.115912249@linuxfoundation.org>
+Message-Id: <20221024113002.944703230@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +53,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
 
-[ Upstream commit 2a8a7c0eaa8747c16aa4a48d573aa920d5c00a5c ]
+commit 37d49519b41405b08748392c6a7f193d9f77ecd2 upstream.
 
-Analogous to commit b575b24b8eee3 ("netfilter: Fix rpfilter
-dropping vrf packets by mistake") but for nftables fib expression:
-Add special treatment of VRF devices so that typical reverse path
-filtering via 'fib saddr . iif oif' expression works as expected.
+The Lenovo OneLink+ Dock contains two VL812 USB3.0 controllers:
+17ef:1018 upstream
+17ef:1019 downstream
 
-Fixes: f6d0cbcf09c50 ("netfilter: nf_tables: add fib expression")
-Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+These hubs suffer from two separate problems:
+
+1) After the host system was suspended and woken up, the hubs appear to
+   be in a random state. Some downstream ports (both internal to the
+   built-in audio and network controllers, and external to USB sockets)
+   may no longer be functional. The exact list of disabled ports (if
+   any) changes from wakeup to wakeup. Ports remain in that state until
+   the dock is power-cycled, or until the laptop is rebooted.
+
+   Wakeup sources connected to the hubs (keyboard, WoL on the integrated
+   gigabit controller) will wake the system up from suspend, but they
+   may no longer work after wakeup (and in that case will no longer work
+   as wakeup source in a subsequent suspend-wakeup cycle).
+
+   This issue appears in the logs with messages such as:
+
+     usb 1-6.1-port4: cannot disable (err = -71)
+     usb 1-6-port2: cannot disable (err = -71)
+     usb 1-6.1: clear tt 1 (80c0) error -71
+     usb 1-6-port4: cannot disable (err = -71)
+     usb 1-6.4: PM: dpm_run_callback(): usb_dev_resume+0x0/0x10 [usbcore] returns -71
+     usb 1-6.4: PM: failed to resume async: error -71
+     usb 1-7: reset full-speed USB device number 5 using xhci_hcd
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: Cannot enable. Maybe the USB cable is bad?
+     usb 1-6.1-port1: cannot disable (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: cannot reset (err = -71)
+     usb 1-6.1-port1: Cannot enable. Maybe the USB cable is bad?
+     usb 1-6.1-port1: cannot disable (err = -71)
+
+2) Some USB devices cannot be enumerated properly. So far I have only
+   seen the issue with USB 3.0 devices. The same devices work without
+   problem directly connected to the host system, to other systems or to
+   other hubs (even when those hubs are connected to the OneLink+ dock).
+
+   One very reliable reproducer is this USB 3.0 HDD enclosure:
+   152d:9561 JMicron Technology Corp. / JMicron USA Technology Corp. Mobius
+
+   I have seen it happen sporadically with other USB 3.0 enclosures,
+   with controllers from different manufacturers, all self-powered.
+
+   Typical messages in the logs:
+
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     usb 2-1.4: device not accepting address 6, error -62
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     usb 2-1.4: device not accepting address 7, error -62
+     usb 2-1-port4: attempt power cycle
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     usb 2-1.4: device not accepting address 8, error -62
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     xhci_hcd 0000:00:14.0: Timeout while waiting for setup device command
+     usb 2-1.4: device not accepting address 9, error -62
+     usb 2-1-port4: unable to enumerate USB device
+
+Through trial and error, I found that the USB_QUIRK_RESET_RESUME solved
+the second issue. Further testing then uncovered the first issue. Test
+results are summarized in this table:
+
+=======================================================================================
+Settings                        USB2 hotplug    USB3 hotplug    State after waking up
+---------------------------------------------------------------------------------------
+
+power/control=auto              works           fails           broken
+
+usbcore.autosuspend=-1          works           works           broken
+OR power/control=on
+
+power/control=auto              works (1)       works (1)       works
+and USB_QUIRK_RESET_RESUME
+
+power/control=on                works           works           works
+and USB_QUIRK_RESET_RESUME
+
+HUB_QUIRK_DISABLE_AUTOSUSPEND   works           works           works
+and USB_QUIRK_RESET_RESUME
+
+=======================================================================================
+
+In those results, the power/control settings are applied to both hubs,
+both on the USB2 and USB3 side, before each test.
+
+>From those results, USB_QUIRK_RESET_RESUME is required to reset the hubs
+properly after a suspend-wakeup cycle, and the hubs must not autosuspend
+to work around the USB3 issue.
+
+A secondary effect of USB_QUIRK_RESET_RESUME is to prevent the hubs'
+upstream links from suspending (the downstream ports can still suspend).
+This secondary effect is used in results (1). It is enough to solve the
+USB3 problem.
+
+Setting USB_QUIRK_RESET_RESUME on those hubs is the smallest patch that
+solves both issues.
+
+Prior to creating this patch, I have used the USB_QUIRK_RESET_RESUME via
+the kernel command line for over a year without noticing any side
+effect.
+
+Thanks to Oliver Neukum @Suse for explanations of the operations of
+USB_QUIRK_RESET_RESUME, and requesting more testing.
+
+Signed-off-by: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220927073407.5672-1-jflf_kernel@gmx.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/netfilter/nft_fib_ipv4.c | 3 +++
- net/ipv6/netfilter/nft_fib_ipv6.c | 6 +++++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ drivers/usb/core/quirks.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/ipv4/netfilter/nft_fib_ipv4.c b/net/ipv4/netfilter/nft_fib_ipv4.c
-index 03df986217b7..9e6f0f1275e2 100644
---- a/net/ipv4/netfilter/nft_fib_ipv4.c
-+++ b/net/ipv4/netfilter/nft_fib_ipv4.c
-@@ -83,6 +83,9 @@ void nft_fib4_eval(const struct nft_expr *expr, struct nft_regs *regs,
- 	else
- 		oif = NULL;
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -438,6 +438,10 @@ static const struct usb_device_id usb_qu
+ 	{ USB_DEVICE(0x1532, 0x0116), .driver_info =
+ 			USB_QUIRK_LINEAR_UFRAME_INTR_BINTERVAL },
  
-+	if (priv->flags & NFTA_FIB_F_IIF)
-+		fl4.flowi4_oif = l3mdev_master_ifindex_rcu(oif);
++	/* Lenovo ThinkPad OneLink+ Dock twin hub controllers (VIA Labs VL812) */
++	{ USB_DEVICE(0x17ef, 0x1018), .driver_info = USB_QUIRK_RESET_RESUME },
++	{ USB_DEVICE(0x17ef, 0x1019), .driver_info = USB_QUIRK_RESET_RESUME },
 +
- 	if (nft_hook(pkt) == NF_INET_PRE_ROUTING &&
- 	    nft_fib_is_loopback(pkt->skb, nft_in(pkt))) {
- 		nft_fib_store_result(dest, priv, nft_in(pkt));
-diff --git a/net/ipv6/netfilter/nft_fib_ipv6.c b/net/ipv6/netfilter/nft_fib_ipv6.c
-index 92f3235fa287..602743f6dcee 100644
---- a/net/ipv6/netfilter/nft_fib_ipv6.c
-+++ b/net/ipv6/netfilter/nft_fib_ipv6.c
-@@ -37,6 +37,9 @@ static int nft_fib6_flowi_init(struct flowi6 *fl6, const struct nft_fib *priv,
- 	if (ipv6_addr_type(&fl6->daddr) & IPV6_ADDR_LINKLOCAL) {
- 		lookup_flags |= RT6_LOOKUP_F_IFACE;
- 		fl6->flowi6_oif = get_ifindex(dev ? dev : pkt->skb->dev);
-+	} else if ((priv->flags & NFTA_FIB_F_IIF) &&
-+		   (netif_is_l3_master(dev) || netif_is_l3_slave(dev))) {
-+		fl6->flowi6_oif = dev->ifindex;
- 	}
+ 	/* Lenovo USB-C to Ethernet Adapter RTL8153-04 */
+ 	{ USB_DEVICE(0x17ef, 0x720c), .driver_info = USB_QUIRK_NO_LPM },
  
- 	if (ipv6_addr_type(&fl6->saddr) & IPV6_ADDR_UNICAST)
-@@ -193,7 +196,8 @@ void nft_fib6_eval(const struct nft_expr *expr, struct nft_regs *regs,
- 	if (rt->rt6i_flags & (RTF_REJECT | RTF_ANYCAST | RTF_LOCAL))
- 		goto put_rt_err;
- 
--	if (oif && oif != rt->rt6i_idev->dev)
-+	if (oif && oif != rt->rt6i_idev->dev &&
-+	    l3mdev_master_ifindex_rcu(rt->rt6i_idev->dev) != oif->ifindex)
- 		goto put_rt_err;
- 
- 	nft_fib_store_result(dest, priv, rt->rt6i_idev->dev);
--- 
-2.35.1
-
 
 
