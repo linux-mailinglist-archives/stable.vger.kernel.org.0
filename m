@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 268FB60AC33
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:03:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCEBF60AC75
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:07:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232037AbiJXODh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:03:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60076 "EHLO
+        id S234264AbiJXOHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:07:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236961AbiJXOC0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AB03BEF94;
-        Mon, 24 Oct 2022 05:48:10 -0700 (PDT)
+        with ESMTP id S237354AbiJXOFa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:05:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 249EC4C613;
+        Mon, 24 Oct 2022 05:50:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE24D61343;
-        Mon, 24 Oct 2022 12:36:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF9D6C433C1;
-        Mon, 24 Oct 2022 12:36:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88B86B817AE;
+        Mon, 24 Oct 2022 12:36:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7EAEC433C1;
+        Mon, 24 Oct 2022 12:36:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614976;
-        bh=wQtvt0pQYSjjl8y2IQ9Sln7QvAgF+4ZI5oQv0B0dNBc=;
+        s=korg; t=1666614989;
+        bh=7nqqaqGTUrIsPz62h/ncaUsMRToIZJpG97d1QSfoPfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HdW02+ngbCBGaOo5zDreeRNWuE0iOGk7z1cu3LfKo1/RXin4oWcgF3Grxa+pGgOx4
-         eKaqk+kEoe7wvGKjkRI/iAYsrjQNnpAYtBcTD2vxqWesfb+8UbBVx3ioiYFsGEpNKn
-         99lN8EPv6Pp9XhLFT2elNezmruJZJaRkBRjlHiSA=
+        b=2iCpit5egUFX5pqJmGCSLhfNz/E22ZWAPlnMZqGw75M+KsJ0K5rjQXVUGLJySEeUj
+         kzi1AeGRvOlzAI4krTmJcTVlyOWHapJJUDAZlL6iudW/yw/1UeJo5HZPr34d3pjq9u
+         ItE+jiOumfwSCRIRR12QWzTfTMcuNjbSlRphNnsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 075/530] ksmbd: fix endless loop when encryption for response fails
-Date:   Mon, 24 Oct 2022 13:26:59 +0200
-Message-Id: <20221024113048.419365208@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+fba8e2116a12609b6c59@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 080/530] btrfs: set generation before calling btrfs_clean_tree_block in btrfs_init_new_buffer
+Date:   Mon, 24 Oct 2022 13:27:04 +0200
+Message-Id: <20221024113048.630379815@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -52,35 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 360c8ee6fefdb496fffd2c18bb9a96a376a1a804 upstream.
+commit cbddcc4fa3443fe8cfb2ff8e210deb1f6a0eea38 upstream.
 
-If ->encrypt_resp return error, goto statement cause endless loop.
-It send an error response immediately after removing it.
+syzbot is reporting uninit-value in btrfs_clean_tree_block() [1], for
+commit bc877d285ca3dba2 ("btrfs: Deduplicate extent_buffer init code")
+missed that btrfs_set_header_generation() in btrfs_init_new_buffer() must
+not be moved to after clean_tree_block() because clean_tree_block() is
+calling btrfs_header_generation() since commit 55c69072d6bd5be1 ("Btrfs:
+Fix extent_buffer usage when nodesize != leafsize").
 
-Fixes: 0626e6641f6b ("cifsd: add server handler for central processing and tranport layers")
-Cc: stable@vger.kernel.org
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Since memzero_extent_buffer() will reset "struct btrfs_header" part, we
+can't move btrfs_set_header_generation() to before memzero_extent_buffer().
+Just re-add btrfs_set_header_generation() before btrfs_clean_tree_block().
+
+Link: https://syzkaller.appspot.com/bug?extid=fba8e2116a12609b6c59 [1]
+Reported-by: syzbot <syzbot+fba8e2116a12609b6c59@syzkaller.appspotmail.com>
+Fixes: bc877d285ca3dba2 ("btrfs: Deduplicate extent_buffer init code")
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/server.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/btrfs/extent-tree.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/ksmbd/server.c
-+++ b/fs/ksmbd/server.c
-@@ -235,10 +235,8 @@ send:
- 	if (work->sess && work->sess->enc && work->encrypted &&
- 	    conn->ops->encrypt_resp) {
- 		rc = conn->ops->encrypt_resp(work);
--		if (rc < 0) {
-+		if (rc < 0)
- 			conn->ops->set_rsp_status(work, STATUS_DATA_ERROR);
--			goto send;
--		}
- 	}
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -4802,6 +4802,9 @@ btrfs_init_new_buffer(struct btrfs_trans
+ 	    !test_bit(BTRFS_ROOT_RESET_LOCKDEP_CLASS, &root->state))
+ 		lockdep_owner = BTRFS_FS_TREE_OBJECTID;
  
- 	ksmbd_conn_write(work);
++	/* btrfs_clean_tree_block() accesses generation field. */
++	btrfs_set_header_generation(buf, trans->transid);
++
+ 	/*
+ 	 * This needs to stay, because we could allocate a freed block from an
+ 	 * old tree into a new tree, so we need to make sure this new block is
 
 
