@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB24B60ACFD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9662B60AC86
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:08:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234514AbiJXORL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:17:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36904 "EHLO
+        id S234028AbiJXOIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:08:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236184AbiJXOPN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:15:13 -0400
+        with ESMTP id S233096AbiJXOG4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:06:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82B9937427;
-        Mon, 24 Oct 2022 05:55:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C25A7229D;
+        Mon, 24 Oct 2022 05:50:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D987FB8164E;
-        Mon, 24 Oct 2022 12:35:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DEE6C433D7;
-        Mon, 24 Oct 2022 12:35:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8DFC7B817F6;
+        Mon, 24 Oct 2022 12:36:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0F1EC433C1;
+        Mon, 24 Oct 2022 12:36:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614925;
-        bh=Jm/wjfemqwD3BHdAZhQrcXEYvzl1G60yWCQYHFr+tcI=;
+        s=korg; t=1666614997;
+        bh=SemBgwVN8OON6vFrEY8Oc1HWbiubQeH0TdHVV1OIaQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vdmf+NKMIl5Qk+qymSK+XcE/0NLeWyX9qWb15hpkbjcxLM8NlwdWDgHGD/0CSW77Y
-         2YfvhnPE2ORuVwU0yOaGqpzj/IgTaz/pVBM/6oAyMEvAD+NvcHt79B2uh2au75715Q
-         +MkjKHqVDn/jlpnKahD/b8bSynqH0SttHAtbMUTc=
+        b=ibyWn9MPt692BiYH/UiySlfYo18sAq2lSZT9/Dhu/uMssLJkbTKKYB5Xsk9wJDysi
+         AiLpwlY7lx15fg16zeEdzh/lFnzmuXfoO4mtKJaTk/qAJ6ewimN3S/0SAZCGudD1AK
+         K/6f80ZY4xAGzr8cEHjqcodxXYMoqfxjwwEgLG/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Takashi Iwai <tiwai@suse.de>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 5.15 055/530] drm/udl: Restore display mode on resume
-Date:   Mon, 24 Oct 2022 13:26:39 +0200
-Message-Id: <20221024113047.527423292@linuxfoundation.org>
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Jeff Layton <jlayton@kernel.org>
+Subject: [PATCH 5.15 065/530] NFSD: Protect against send buffer overflow in NFSv2 READ
+Date:   Mon, 24 Oct 2022 13:26:49 +0200
+Message-Id: <20221024113047.980213344@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,50 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 6d6e732835db92e66c28dbcf258a7e3d3c71420d upstream.
+commit 401bc1f90874280a80b93f23be33a0e7e2d1f912 upstream.
 
-Restore the display mode whne resuming from suspend. Currently, the
-display remains dark.
+Since before the git era, NFSD has conserved the number of pages
+held by each nfsd thread by combining the RPC receive and send
+buffers into a single array of pages. This works because there are
+no cases where an operation needs a large RPC Call message and a
+large RPC Reply at the same time.
 
-On resume, the CRTC's mode does not change, but the 'active' flag
-changes to 'true'. Taking this into account when considering a mode
-switch restores the display mode.
+Once an RPC Call has been received, svc_process() updates
+svc_rqst::rq_res to describe the part of rq_pages that can be
+used for constructing the Reply. This means that the send buffer
+(rq_res) shrinks when the received RPC record containing the RPC
+Call is large.
 
-The bug is reproducable by using Gnome with udl and observing the
-adapter's suspend/resume behavior.
+A client can force this shrinkage on TCP by sending a correctly-
+formed RPC Call header contained in an RPC record that is
+excessively large. The full maximum payload size cannot be
+constructed in that case.
 
-Actually, the whole check added in udl_simple_display_pipe_enable()
-about the crtc_state->mode_changed was bogus.  We should drop the
-whole check and always apply the mode change in this function.
-
-[ tiwai -- Drop the mode_changed check entirely instead, per Daniel's
-  suggestion ]
-
-Fixes: 997d33c35618 ("drm/udl: Inline DPMS code into CRTC enable and disable functions")
 Cc: <stable@vger.kernel.org>
-Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220908095115.23396-2-tiwai@suse.de
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/udl/udl_modeset.c |    3 ---
- 1 file changed, 3 deletions(-)
+ fs/nfsd/nfsproc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/udl/udl_modeset.c
-+++ b/drivers/gpu/drm/udl/udl_modeset.c
-@@ -381,9 +381,6 @@ udl_simple_display_pipe_enable(struct dr
+--- a/fs/nfsd/nfsproc.c
++++ b/fs/nfsd/nfsproc.c
+@@ -182,6 +182,7 @@ nfsd_proc_read(struct svc_rqst *rqstp)
+ 		argp->count, argp->offset);
  
- 	udl_handle_damage(fb, &shadow_plane_state->data[0], 0, 0, fb->width, fb->height);
+ 	argp->count = min_t(u32, argp->count, NFSSVC_MAXBLKSIZE_V2);
++	argp->count = min_t(u32, argp->count, rqstp->rq_res.buflen);
  
--	if (!crtc_state->mode_changed)
--		return;
--
- 	/* enable display */
- 	udl_crtc_write_mode_to_hw(crtc);
- }
+ 	v = 0;
+ 	len = argp->count;
 
 
