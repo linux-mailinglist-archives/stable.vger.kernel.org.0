@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D74F960A5E2
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 179FD60A9DA
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233854AbiJXMbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:31:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60530 "EHLO
+        id S232459AbiJXN0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:26:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233983AbiJXM3I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:08 -0400
+        with ESMTP id S236258AbiJXNYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:24:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77CF387FB0;
-        Mon, 24 Oct 2022 05:03:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6270C1B79F;
+        Mon, 24 Oct 2022 05:31:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E680612DA;
-        Mon, 24 Oct 2022 11:54:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83682C433D6;
-        Mon, 24 Oct 2022 11:54:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BB09612CF;
+        Mon, 24 Oct 2022 12:30:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AAA6C433D6;
+        Mon, 24 Oct 2022 12:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612467;
-        bh=jUlYH+CCO+C1GozJgPk99oAfl+QuIg9M6++iiseMq9I=;
+        s=korg; t=1666614620;
+        bh=t5hmdcnuv44cMjaNtCCxpqakrK7D417F3SSIMY/c0Z4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IuO43QW+vapaFCju19mj4ZC+60gSwnyTJz7u9Ep5bG0FGwcecTTUwt+Sbm3KurU8c
-         FRdC6Kz/AYc/IBLplKIdWwiqkUH1EWG57NnWedCOywFWeR3RIdT7rBN7F6iBqpmDiB
-         YD+XDzQK0wR0NJj7WYJHoaNj8Vv0+zC41wDd1C9U=
+        b=Cmo8sF30d3KocjFR4UGSo52Pa4BiQ3R0DiZi59++aH4/u3piEwQr3N2dK+HlQVCB4
+         EeEgy/UcfDeinsiT2sObcplNes8npHKI1jZTJD3/uM3/+ZKGxw7NYxNwuTHz19Q5QM
+         +ydgS3B9LdfyiACyyi9dmvLTx43RuyfrcPRbkBJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Chen Yu <yu.c.chen@intel.com>
-Subject: [PATCH 4.14 210/210] thermal: intel_powerclamp: Use first online CPU as control_cpu
-Date:   Mon, 24 Oct 2022 13:32:07 +0200
-Message-Id: <20221024113003.827869862@linuxfoundation.org>
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Neil Armstrong <narmstrong@baylibre.com>
+Subject: [PATCH 5.10 331/390] drm: bridge: dw_hdmi: only trigger hotplug event on link change
+Date:   Mon, 24 Oct 2022 13:32:08 +0200
+Message-Id: <20221024113037.096221850@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-commit 4bb7f6c2781e46fc5bd00475a66df2ea30ef330d upstream.
+[ Upstream commit da09daf881082266e4075657fac53c7966de8e4d ]
 
-Commit 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead
-of smp_processor_id() to avoid crash") fixed an issue related to using
-smp_processor_id() in preemptible context by replacing it with a pair
-of get_cpu()/put_cpu(), but what is needed there really is any online
-CPU and not necessarily the one currently running the code.  Arguably,
-getting the one that's running the code in there is confusing.
+There are two events that signal a real change of the link state: HPD going
+high means the sink is newly connected or wants the source to re-read the
+EDID, RX sense going low is a indication that the link has been disconnected.
 
-For this reason, simply give the control CPU role to the first online
-one which automatically will be CPU0 if it is online, so one check
-can be dropped from the code for an added benefit.
+Ignore the other two events that also trigger interrupts, but don't need
+immediate attention: HPD going low does not necessarily mean the link has
+been lost and should not trigger a immediate read of the status. RX sense
+going high also does not require a detect cycle, as HPD going high is the
+right point in time to read the EDID.
 
-Link: https://lore.kernel.org/linux-pm/20221011113646.GA12080@duo.ucw.cz/
-Fixes: 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com> (v1)
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220826185733.3213248-1-l.stach@pengutronix.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel_powerclamp.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/gpu/drm/bridge/synopsys/dw-hdmi.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/thermal/intel_powerclamp.c
-+++ b/drivers/thermal/intel_powerclamp.c
-@@ -549,11 +549,7 @@ static int start_power_clamp(void)
- 	get_online_cpus();
+diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
+index b10228b9e3a9..356c7d0bd035 100644
+--- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
++++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
+@@ -2984,6 +2984,7 @@ static irqreturn_t dw_hdmi_irq(int irq, void *dev_id)
+ {
+ 	struct dw_hdmi *hdmi = dev_id;
+ 	u8 intr_stat, phy_int_pol, phy_pol_mask, phy_stat;
++	enum drm_connector_status status = connector_status_unknown;
  
- 	/* prefer BSP */
--	control_cpu = 0;
--	if (!cpu_online(control_cpu)) {
--		control_cpu = get_cpu();
--		put_cpu();
+ 	intr_stat = hdmi_readb(hdmi, HDMI_IH_PHY_STAT0);
+ 	phy_int_pol = hdmi_readb(hdmi, HDMI_PHY_POL0);
+@@ -3022,13 +3023,15 @@ static irqreturn_t dw_hdmi_irq(int irq, void *dev_id)
+ 			cec_notifier_phys_addr_invalidate(hdmi->cec_notifier);
+ 			mutex_unlock(&hdmi->cec_notifier_mutex);
+ 		}
 -	}
-+	control_cpu = cpumask_first(cpu_online_mask);
  
- 	clamping = true;
- 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
+-	if (intr_stat & HDMI_IH_PHY_STAT0_HPD) {
+-		enum drm_connector_status status = phy_int_pol & HDMI_PHY_HPD
+-						 ? connector_status_connected
+-						 : connector_status_disconnected;
++		if (phy_stat & HDMI_PHY_HPD)
++			status = connector_status_connected;
++
++		if (!(phy_stat & (HDMI_PHY_HPD | HDMI_PHY_RX_SENSE)))
++			status = connector_status_disconnected;
++	}
+ 
++	if (status != connector_status_unknown) {
+ 		dev_dbg(hdmi->dev, "EVENT=%s\n",
+ 			status == connector_status_connected ?
+ 			"plugin" : "plugout");
+-- 
+2.35.1
+
 
 
