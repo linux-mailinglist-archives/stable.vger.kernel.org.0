@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2B7860A827
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:02:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C31060AA0B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:28:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235054AbiJXNCN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:02:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39390 "EHLO
+        id S229913AbiJXN2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:28:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234954AbiJXNAq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:00:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A7D31C41D;
-        Mon, 24 Oct 2022 05:19:42 -0700 (PDT)
+        with ESMTP id S231731AbiJXNZz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:25:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C31CA8CFE;
+        Mon, 24 Oct 2022 05:31:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 841B66128E;
-        Mon, 24 Oct 2022 12:14:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93B46C433D6;
-        Mon, 24 Oct 2022 12:14:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77A7D61313;
+        Mon, 24 Oct 2022 12:31:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D81AC433C1;
+        Mon, 24 Oct 2022 12:30:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613684;
-        bh=azAkJqJbnTmmew6QdoYoIdY01RIbkpxXD1N808qO7go=;
+        s=korg; t=1666614659;
+        bh=iKZ/2Bz6UW9cY4lla+MqAFAxTOi1scQ+KSJMNOOVpDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQjuipbjFV7GZAhF0XTvuMjgPwvu61qfM76DPBNt/AFVHXNdRrMTnL2QXl41xGRt0
-         H9QRjUUoSFugl7RV0MmTSJ/BhmsfHZOBgW3Aplq8GfF69t3VI8eKmP/UZua/puDL1v
-         wDkwFzPxbd+gPNziLomUjn20XohORU1AADSEECBk=
+        b=OhyR1A6DBhDzArwvR4fVPfqKZsEk03BHVzDs1/JRQI8ozP5zFYFfTZp5MA5PgFm3J
+         G2ueVNIQON0h2RDsHTQ+3Xhp272A+urQLfyXHVjaj2lqUY7Aaf5QYRF41st6oWO0Yh
+         N+bdvlzuvxlM6XbkYjdO/+x7s7OcMCDpdvWZRWWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com,
-        Shigeru Yoshida <syoshida@redhat.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 231/255] nbd: Fix hung when signal interrupts nbd_start_device_ioctl()
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 344/390] ARM: dts: imx6dl: add missing properties for sram
 Date:   Mon, 24 Oct 2022 13:32:21 +0200
-Message-Id: <20221024113010.835858082@linuxfoundation.org>
+Message-Id: <20221024113037.643529034@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shigeru Yoshida <syoshida@redhat.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 1de7c3cf48fc41cd95adb12bd1ea9033a917798a ]
+[ Upstream commit f5848b95633d598bacf0500e0108dc5961af88c0 ]
 
-syzbot reported hung task [1].  The following program is a simplified
-version of the reproducer:
+All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
+sram@900000: '#address-cells' is a required property
+sram@900000: '#size-cells' is a required property
+sram@900000: 'ranges' is a required property
 
-int main(void)
-{
-	int sv[2], fd;
-
-	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0)
-		return 1;
-	if ((fd = open("/dev/nbd0", 0)) < 0)
-		return 1;
-	if (ioctl(fd, NBD_SET_SIZE_BLOCKS, 0x81) < 0)
-		return 1;
-	if (ioctl(fd, NBD_SET_SOCK, sv[0]) < 0)
-		return 1;
-	if (ioctl(fd, NBD_DO_IT) < 0)
-		return 1;
-	return 0;
-}
-
-When signal interrupt nbd_start_device_ioctl() waiting the condition
-atomic_read(&config->recv_threads) == 0, the task can hung because it
-waits the completion of the inflight IOs.
-
-This patch fixes the issue by clearing queue, not just shutdown, when
-signal interrupt nbd_start_device_ioctl().
-
-Link: https://syzkaller.appspot.com/bug?id=7d89a3ffacd2b83fdd39549bc4d8e0a89ef21239 [1]
-Reported-by: syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com
-Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220907163502.577561-1-syoshida@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6dl.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 09323b0510f0..610dc6a36a9d 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1327,10 +1327,12 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
- 	mutex_unlock(&nbd->config_lock);
- 	ret = wait_event_interruptible(config->recv_wq,
- 					 atomic_read(&config->recv_threads) == 0);
--	if (ret)
-+	if (ret) {
- 		sock_shutdown(nbd);
--	flush_workqueue(nbd->recv_workq);
-+		nbd_clear_que(nbd);
-+	}
+diff --git a/arch/arm/boot/dts/imx6dl.dtsi b/arch/arm/boot/dts/imx6dl.dtsi
+index fdd81fdc3f35..cd3183c36488 100644
+--- a/arch/arm/boot/dts/imx6dl.dtsi
++++ b/arch/arm/boot/dts/imx6dl.dtsi
+@@ -84,6 +84,9 @@
+ 		ocram: sram@900000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x00900000 0x20000>;
++			ranges = <0 0x00900000 0x20000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
+ 		};
  
-+	flush_workqueue(nbd->recv_workq);
- 	mutex_lock(&nbd->config_lock);
- 	nbd_bdev_reset(bdev);
- 	/* user requested, ignore socket errors */
 -- 
 2.35.1
 
