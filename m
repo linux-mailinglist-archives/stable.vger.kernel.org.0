@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8684160A407
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46BA660A5C1
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230058AbiJXMFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:05:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47482 "EHLO
+        id S232250AbiJXM2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:28:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232559AbiJXMDD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:03:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E14423EB6;
-        Mon, 24 Oct 2022 04:49:47 -0700 (PDT)
+        with ESMTP id S231841AbiJXM2F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 225A78688F;
+        Mon, 24 Oct 2022 05:01:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4A8061290;
-        Mon, 24 Oct 2022 11:49:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C878BC433D7;
-        Mon, 24 Oct 2022 11:49:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68AE1B811F6;
+        Mon, 24 Oct 2022 11:57:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF180C433C1;
+        Mon, 24 Oct 2022 11:57:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612184;
-        bh=6r7DvksVj6Eagna1spU2oiIU7PrPMrYurWR9NshWROo=;
+        s=korg; t=1666612651;
+        bh=BCCn0LzKAA0L8tPJ4QGrCcI4njaPWJAQpa8ni/MkR1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TyhXCPTahdQh4sVAiPDWXGzYoC7/8xYBLWAUVp+e/5zy1bZtvDI65kDxOn0kwt2KD
-         ok6vhaC72UMQiWFvmnghf/SP9qcJTcmn4JknYmtt5E8fB+6J1Taww1a/i5zaf+RusX
-         IBS1XZUgyeJ/FR7d4pNyWPxjRL8wevOPg05aqMp0=
+        b=KIJdgzgr6FSx1KlKIWSnGP4cFiYolRq3b1MOA83crz1SVI4VYIq8WCXcopzAAVM7f
+         sPXh8CQ5aHJ8uTjvOgo56JzUTimixn6p8ODk0daDRcbWaWXKacfulbeLdmYCkY72CC
+         zq9SVcKjWaqKxl7UOJZRjgZ6vlZZaXpsUEHbGnus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Lalith Rajendran <lalithkraj@google.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 070/210] ext4: make ext4_lazyinit_thread freezable
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 068/229] KVM: nVMX: Unconditionally purge queued/injected events on nested "exit"
 Date:   Mon, 24 Oct 2022 13:29:47 +0200
-Message-Id: <20221024112959.332977521@linuxfoundation.org>
+Message-Id: <20221024113001.281767160@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lalith Rajendran <lalithkraj@google.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 3b575495ab8dbb4dbe85b4ac7f991693c3668ff5 upstream.
+commit d953540430c5af57f5de97ea9e36253908204027 upstream.
 
-ext4_lazyinit_thread is not set freezable. Hence when the thread calls
-try_to_freeze it doesn't freeze during suspend and continues to send
-requests to the storage during suspend, resulting in suspend failures.
+Drop pending exceptions and events queued for re-injection when leaving
+nested guest mode, even if the "exit" is due to VM-Fail, SMI, or forced
+by host userspace.  Failure to purge events could result in an event
+belonging to L2 being injected into L1.
 
-Cc: stable@kernel.org
-Signed-off-by: Lalith Rajendran <lalithkraj@google.com>
-Link: https://lore.kernel.org/r/20220818214049.1519544-1-lalithkraj@google.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+This _should_ never happen for VM-Fail as all events should be blocked by
+nested_run_pending, but it's possible if KVM, not the L1 hypervisor, is
+the source of VM-Fail when running vmcs02.
+
+SMI is a nop (barring unknown bugs) as recognition of SMI and thus entry
+to SMM is blocked by pending exceptions and re-injected events.
+
+Forced exit is definitely buggy, but has likely gone unnoticed because
+userspace probably follows the forced exit with KVM_SET_VCPU_EVENTS (or
+some other ioctl() that purges the queue).
+
+Fixes: 4f350c6dbcb9 ("kvm: nVMX: Handle deferred early VMLAUNCH/VMRESUME failure properly")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Link: https://lore.kernel.org/r/20220830231614.3580124-2-seanjc@google.com
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/vmx.c |   19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3037,6 +3037,7 @@ static int ext4_lazyinit_thread(void *ar
- 	unsigned long next_wakeup, cur;
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -13276,14 +13276,6 @@ static void prepare_vmcs12(struct kvm_vc
+ 		 */
+ 		vmcs12_save_pending_event(vcpu, vmcs12);
+ 	}
+-
+-	/*
+-	 * Drop what we picked up for L2 via vmx_complete_interrupts. It is
+-	 * preserved above and would only end up incorrectly in L1.
+-	 */
+-	vcpu->arch.nmi_injected = false;
+-	kvm_clear_exception_queue(vcpu);
+-	kvm_clear_interrupt_queue(vcpu);
+ }
  
- 	BUG_ON(NULL == eli);
-+	set_freezable();
+ /*
+@@ -13617,6 +13609,17 @@ static void nested_vmx_vmexit(struct kvm
+ 			nested_vmx_abort(vcpu, VMX_ABORT_SAVE_GUEST_MSR_FAIL);
+ 	}
  
- cont_thread:
- 	while (true) {
++	/*
++	 * Drop events/exceptions that were queued for re-injection to L2
++	 * (picked up via vmx_complete_interrupts()), as well as exceptions
++	 * that were pending for L2.  Note, this must NOT be hoisted above
++	 * prepare_vmcs12(), events/exceptions queued for re-injection need to
++	 * be captured in vmcs12 (see vmcs12_save_pending_event()).
++	 */
++	vcpu->arch.nmi_injected = false;
++	kvm_clear_exception_queue(vcpu);
++	kvm_clear_interrupt_queue(vcpu);
++
+ 	vmx_switch_vmcs(vcpu, &vmx->vmcs01);
+ 	vm_entry_controls_reset_shadow(vmx);
+ 	vm_exit_controls_reset_shadow(vmx);
 
 
