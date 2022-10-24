@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FAEC60B9A9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD17160BA8B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:38:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233399AbiJXUQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:16:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40964 "EHLO
+        id S234339AbiJXUit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:38:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234122AbiJXUQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:16:06 -0400
+        with ESMTP id S234552AbiJXUiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:38:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C0BCB65;
-        Mon, 24 Oct 2022 11:33:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8650CE13;
+        Mon, 24 Oct 2022 11:49:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA3E4B815AC;
-        Mon, 24 Oct 2022 12:29:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E5F6C433D7;
-        Mon, 24 Oct 2022 12:29:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 462FAB8191F;
+        Mon, 24 Oct 2022 12:48:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E62EC433C1;
+        Mon, 24 Oct 2022 12:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614591;
-        bh=qdJdH1Ww3YeKPIgjETV1ThfvN509TAE5iFLPR3eu1+Y=;
+        s=korg; t=1666615679;
+        bh=WXxZPIWiyubGD4UyoxgS6nPk1TseZmuCXaYHcZUh6f4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RB7qKZAAruMHFPFNb/aU7VcrtqaPOZh4ZdWDiEl2mlg9VHqyjyQIWSZ2c/ot7Jf5m
-         PVZTH5TGfiPqRn8GjsBw9UnyNfzbczYqdsdeP1rdZ14McSHi/WxFzIZNbybzoCthY1
-         9Q8QKoyEC7fZb+cuXsXnFTnpJT42C1UFxCFDGzMg=
+        b=LkOCbWOZO3t9JcGb9Qcy+AdDCKpTJc5W89IlW1y5o03rjcxwywnEDvRhIrIOwSgxF
+         pmz2MheTyQNUfJ37f/ceoE/sOf8g1Vox3NBZAj3IA3uuVmn3cE0v01oyIuHUvGGLAh
+         d1qq+iPCGz9xS/M979Mxqt7JncUUyBJpy2yCGRtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuai Xue <xueshuai@linux.alibaba.com>,
-        Tony Luck <tony.luck@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 290/390] ACPI: APEI: do not add task_work to kernel thread to avoid memory leak
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 343/530] mfd: lp8788: Fix an error handling path in lp8788_probe()
 Date:   Mon, 24 Oct 2022 13:31:27 +0200
-Message-Id: <20221024113035.325362340@linuxfoundation.org>
+Message-Id: <20221024113100.532925198@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuai Xue <xueshuai@linux.alibaba.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 415fed694fe11395df56e05022d6e7cee1d39dd3 ]
+[ Upstream commit becfdcd75126b20b8ec10066c5e85b34f8994ad5 ]
 
-If an error is detected as a result of user-space process accessing a
-corrupt memory location, the CPU may take an abort. Then the platform
-firmware reports kernel via NMI like notifications, e.g. NOTIFY_SEA,
-NOTIFY_SOFTWARE_DELEGATED, etc.
+Should an error occurs in mfd_add_devices(), some resources need to be
+released, as already done in the .remove() function.
 
-For NMI like notifications, commit 7f17b4a121d0 ("ACPI: APEI: Kick the
-memory_failure() queue for synchronous errors") keep track of whether
-memory_failure() work was queued, and make task_work pending to flush out
-the queue so that the work is processed before return to user-space.
+Add an error handling path and a lp8788_irq_exit() call to undo a previous
+lp8788_irq_init().
 
-The code use init_mm to check whether the error occurs in user space:
-
-    if (current->mm != &init_mm)
-
-The condition is always true, becase _nobody_ ever has "init_mm" as a real
-VM any more.
-
-In addition to abort, errors can also be signaled as asynchronous
-exceptions, such as interrupt and SError. In such case, the interrupted
-current process could be any kind of thread. When a kernel thread is
-interrupted, the work ghes_kick_task_work deferred to task_work will never
-be processed because entry_handler returns to call ret_to_kernel() instead
-of ret_to_user(). Consequently, the estatus_node alloced from
-ghes_estatus_pool in ghes_in_nmi_queue_one_entry() will not be freed.
-After around 200 allocations in our platform, the ghes_estatus_pool will
-run of memory and ghes_in_nmi_queue_one_entry() returns ENOMEM. As a
-result, the event failed to be processed.
-
-    sdei: event 805 on CPU 113 failed with error: -2
-
-Finally, a lot of unhandled events may cause platform firmware to exceed
-some threshold and reboot.
-
-The condition should generally just do
-
-    if (current->mm)
-
-as described in active_mm.rst documentation.
-
-Then if an asynchronous error is detected when a kernel thread is running,
-(e.g. when detected by a background scrubber), do not add task_work to it
-as the original patch intends to do.
-
-Fixes: 7f17b4a121d0 ("ACPI: APEI: Kick the memory_failure() queue for synchronous errors")
-Signed-off-by: Shuai Xue <xueshuai@linux.alibaba.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: eea6b7cc53aa ("mfd: Add lp8788 mfd driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/18398722da9df9490722d853e4797350189ae79b.1659261275.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/apei/ghes.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mfd/lp8788.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
-index 0c8330ed1ffd..5206fd3b7867 100644
---- a/drivers/acpi/apei/ghes.c
-+++ b/drivers/acpi/apei/ghes.c
-@@ -985,7 +985,7 @@ static void ghes_proc_in_irq(struct irq_work *irq_work)
- 				ghes_estatus_cache_add(generic, estatus);
- 		}
+diff --git a/drivers/mfd/lp8788.c b/drivers/mfd/lp8788.c
+index c223d2c6a363..998e8cc408a0 100644
+--- a/drivers/mfd/lp8788.c
++++ b/drivers/mfd/lp8788.c
+@@ -195,8 +195,16 @@ static int lp8788_probe(struct i2c_client *cl, const struct i2c_device_id *id)
+ 	if (ret)
+ 		return ret;
  
--		if (task_work_pending && current->mm != &init_mm) {
-+		if (task_work_pending && current->mm) {
- 			estatus_node->task_work.func = ghes_kick_task_work;
- 			estatus_node->task_work_cpu = smp_processor_id();
- 			ret = task_work_add(current, &estatus_node->task_work,
+-	return mfd_add_devices(lp->dev, -1, lp8788_devs,
+-			       ARRAY_SIZE(lp8788_devs), NULL, 0, NULL);
++	ret = mfd_add_devices(lp->dev, -1, lp8788_devs,
++			      ARRAY_SIZE(lp8788_devs), NULL, 0, NULL);
++	if (ret)
++		goto err_exit_irq;
++
++	return 0;
++
++err_exit_irq:
++	lp8788_irq_exit(lp);
++	return ret;
+ }
+ 
+ static int lp8788_remove(struct i2c_client *cl)
 -- 
 2.35.1
 
