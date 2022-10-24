@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94BA060BBC2
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 23:12:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4548960BB05
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:45:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232939AbiJXVMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 17:12:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59936 "EHLO
+        id S234823AbiJXUpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:45:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233342AbiJXVLd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 17:11:33 -0400
+        with ESMTP id S234885AbiJXUnk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:43:40 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C2B7186D4D;
-        Mon, 24 Oct 2022 12:17:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF102A1FF8;
+        Mon, 24 Oct 2022 11:51:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C23FBCE1355;
-        Mon, 24 Oct 2022 11:52:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 735B4C433C1;
-        Mon, 24 Oct 2022 11:52:24 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9CC14CE16D0;
+        Mon, 24 Oct 2022 12:47:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78417C433D6;
+        Mon, 24 Oct 2022 12:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612345;
-        bh=7Biv/RB4g1yWRQ3Ir7P+DO9H5qF3EuPehLJSXWw6ecI=;
+        s=korg; t=1666615657;
+        bh=Jc7h3JUL9c+lPpAPLvQB/oauRcrXP168vAOoGYlcZDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zphT8N3lEmzRyWQCh+kWbXIaAtR5Djp+HSSF4tsRNJiC8pZLsO+ZZXx4ZD5Pz+lxr
-         Ujx4VnnJluMgLMXENuyiy3Xz/PVPXjiAUsQpLTEEe8o+mliAXDjyZGOosHOwgrgVwX
-         jfV+1QIrGEePQTnbF0CtSCyI0B1Mt4MdbUZm1Ghs=
+        b=yRTnHBOHOZQ1/25RsRjBFAbSIinl5JfZWq0HfFiXiuhMzmSQvbXmI8R4ZwV4MNLK+
+         8Nd0ijMNNSecEGMpOQ7z3jagfLtIyoWo9eTAERvH7hNB/CWCTpngXgBfP+c/StclQy
+         kHz+KQdY8n5XlkRunqQW9enimRyVwqBtPsaVb8Fk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        llvm@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 162/210] MIPS: BCM47XX: Cast memcmp() of function to (void *)
+Subject: [PATCH 5.15 335/530] scsi: iscsi: Run recv path from workqueue
 Date:   Mon, 24 Oct 2022 13:31:19 +0200
-Message-Id: <20221024113002.229290480@linuxfoundation.org>
+Message-Id: <20221024113100.168459404@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,57 +54,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 0dedcf6e3301836eb70cfa649052e7ce4fcd13ba ]
+[ Upstream commit f1d269765ee29da56b32818b7a08054484ed89f2 ]
 
-Clang is especially sensitive about argument type matching when using
-__overloaded functions (like memcmp(), etc). Help it see that function
-pointers are just "void *". Avoids this error:
+We don't always want to run the recv path from the network softirq because
+when we have to have multiple sessions sharing the same CPUs, some sessions
+can eat up the NAPI softirq budget and affect other sessions or users.
 
-arch/mips/bcm47xx/prom.c:89:8: error: no matching function for call to 'memcmp'
-                   if (!memcmp(prom_init, prom_init + mem, 32))
-                        ^~~~~~
-include/linux/string.h:156:12: note: candidate function not viable: no known conversion from 'void (void)' to 'const void *' for 1st argument extern int memcmp(const void *,const void *,__kernel_size_t);
+Allow us to queue the recv handling to the iscsi workqueue so we can have
+the scheduler/wq code try to balance the work and CPU use across all
+sessions' worker threads.
 
-Cc: Hauke Mehrtens <hauke@hauke-m.de>
-Cc: "Rafał Miłecki" <zajec5@gmail.com>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: llvm@lists.linux.dev
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202209080652.sz2d68e5-lkp@intel.com
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Note: It wasn't the original intent of the change but a nice side effect is
+that for some workloads/configs we get a nice performance boost. For a
+simple read heavy test:
+
+  fio --direct=1 --filename=/dev/dm-0  --rw=randread --bs=256K
+    --ioengine=libaio --iodepth=128 --numjobs=4
+
+where the iscsi threads, fio jobs, and rps_cpus share CPUs we see a 32%
+throughput boost. We also see increases for small I/O IOPs tests but it's
+not as high.
+
+Link: https://lore.kernel.org/r/20220616224557.115234-4-michael.christie@oracle.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Stable-dep-of: 57569c37f0ad ("scsi: iscsi: iscsi_tcp: Fix null-ptr-deref while calling getpeername()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/bcm47xx/prom.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/iscsi_tcp.c | 65 ++++++++++++++++++++++++++++++++--------
+ drivers/scsi/iscsi_tcp.h |  2 ++
+ 2 files changed, 54 insertions(+), 13 deletions(-)
 
-diff --git a/arch/mips/bcm47xx/prom.c b/arch/mips/bcm47xx/prom.c
-index 135a5407f015..d26d9a6f6ee7 100644
---- a/arch/mips/bcm47xx/prom.c
-+++ b/arch/mips/bcm47xx/prom.c
-@@ -85,7 +85,7 @@ static __init void prom_init_mem(void)
- 			pr_debug("Assume 128MB RAM\n");
- 			break;
- 		}
--		if (!memcmp(prom_init, prom_init + mem, 32))
-+		if (!memcmp((void *)prom_init, (void *)prom_init + mem, 32))
- 			break;
- 	}
- 	lowmem = mem;
-@@ -162,7 +162,7 @@ void __init bcm47xx_prom_highmem_init(void)
+diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
+index e7976785dae6..20b4394d560b 100644
+--- a/drivers/scsi/iscsi_tcp.c
++++ b/drivers/scsi/iscsi_tcp.c
+@@ -52,6 +52,10 @@ static struct iscsi_transport iscsi_sw_tcp_transport;
+ static unsigned int iscsi_max_lun = ~0;
+ module_param_named(max_lun, iscsi_max_lun, uint, S_IRUGO);
  
- 	off = EXTVBASE + __pa(off);
- 	for (extmem = 128 << 20; extmem < 512 << 20; extmem <<= 1) {
--		if (!memcmp(prom_init, (void *)(off + extmem), 16))
-+		if (!memcmp((void *)prom_init, (void *)(off + extmem), 16))
- 			break;
- 	}
- 	extmem -= lowmem;
++static bool iscsi_recv_from_iscsi_q;
++module_param_named(recv_from_iscsi_q, iscsi_recv_from_iscsi_q, bool, 0644);
++MODULE_PARM_DESC(recv_from_iscsi_q, "Set to true to read iSCSI data/headers from the iscsi_q workqueue. The default is false which will perform reads from the network softirq context.");
++
+ static int iscsi_sw_tcp_dbg;
+ module_param_named(debug_iscsi_tcp, iscsi_sw_tcp_dbg, int,
+ 		   S_IRUGO | S_IWUSR);
+@@ -122,20 +126,13 @@ static inline int iscsi_sw_sk_state_check(struct sock *sk)
+ 	return 0;
+ }
+ 
+-static void iscsi_sw_tcp_data_ready(struct sock *sk)
++static void iscsi_sw_tcp_recv_data(struct iscsi_conn *conn)
+ {
+-	struct iscsi_conn *conn;
+-	struct iscsi_tcp_conn *tcp_conn;
++	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
++	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
++	struct sock *sk = tcp_sw_conn->sock->sk;
+ 	read_descriptor_t rd_desc;
+ 
+-	read_lock_bh(&sk->sk_callback_lock);
+-	conn = sk->sk_user_data;
+-	if (!conn) {
+-		read_unlock_bh(&sk->sk_callback_lock);
+-		return;
+-	}
+-	tcp_conn = conn->dd_data;
+-
+ 	/*
+ 	 * Use rd_desc to pass 'conn' to iscsi_tcp_recv.
+ 	 * We set count to 1 because we want the network layer to
+@@ -144,13 +141,48 @@ static void iscsi_sw_tcp_data_ready(struct sock *sk)
+ 	 */
+ 	rd_desc.arg.data = conn;
+ 	rd_desc.count = 1;
+-	tcp_read_sock(sk, &rd_desc, iscsi_sw_tcp_recv);
+ 
+-	iscsi_sw_sk_state_check(sk);
++	tcp_read_sock(sk, &rd_desc, iscsi_sw_tcp_recv);
+ 
+ 	/* If we had to (atomically) map a highmem page,
+ 	 * unmap it now. */
+ 	iscsi_tcp_segment_unmap(&tcp_conn->in.segment);
++
++	iscsi_sw_sk_state_check(sk);
++}
++
++static void iscsi_sw_tcp_recv_data_work(struct work_struct *work)
++{
++	struct iscsi_conn *conn = container_of(work, struct iscsi_conn,
++					       recvwork);
++	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
++	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
++	struct sock *sk = tcp_sw_conn->sock->sk;
++
++	lock_sock(sk);
++	iscsi_sw_tcp_recv_data(conn);
++	release_sock(sk);
++}
++
++static void iscsi_sw_tcp_data_ready(struct sock *sk)
++{
++	struct iscsi_sw_tcp_conn *tcp_sw_conn;
++	struct iscsi_tcp_conn *tcp_conn;
++	struct iscsi_conn *conn;
++
++	read_lock_bh(&sk->sk_callback_lock);
++	conn = sk->sk_user_data;
++	if (!conn) {
++		read_unlock_bh(&sk->sk_callback_lock);
++		return;
++	}
++	tcp_conn = conn->dd_data;
++	tcp_sw_conn = tcp_conn->dd_data;
++
++	if (tcp_sw_conn->queue_recv)
++		iscsi_conn_queue_recv(conn);
++	else
++		iscsi_sw_tcp_recv_data(conn);
+ 	read_unlock_bh(&sk->sk_callback_lock);
+ }
+ 
+@@ -276,6 +308,9 @@ static int iscsi_sw_tcp_xmit_segment(struct iscsi_tcp_conn *tcp_conn,
+ 		if (segment->total_copied + segment->size < segment->total_size)
+ 			flags |= MSG_MORE;
+ 
++		if (tcp_sw_conn->queue_recv)
++			flags |= MSG_DONTWAIT;
++
+ 		/* Use sendpage if we can; else fall back to sendmsg */
+ 		if (!segment->data) {
+ 			sg = segment->sg;
+@@ -557,6 +592,8 @@ iscsi_sw_tcp_conn_create(struct iscsi_cls_session *cls_session,
+ 	conn = cls_conn->dd_data;
+ 	tcp_conn = conn->dd_data;
+ 	tcp_sw_conn = tcp_conn->dd_data;
++	INIT_WORK(&conn->recvwork, iscsi_sw_tcp_recv_data_work);
++	tcp_sw_conn->queue_recv = iscsi_recv_from_iscsi_q;
+ 
+ 	tfm = crypto_alloc_ahash("crc32c", 0, CRYPTO_ALG_ASYNC);
+ 	if (IS_ERR(tfm))
+@@ -610,6 +647,8 @@ static void iscsi_sw_tcp_release_conn(struct iscsi_conn *conn)
+ 	iscsi_sw_tcp_conn_restore_callbacks(conn);
+ 	sock_put(sock->sk);
+ 
++	iscsi_suspend_rx(conn);
++
+ 	spin_lock_bh(&session->frwd_lock);
+ 	tcp_sw_conn->sock = NULL;
+ 	spin_unlock_bh(&session->frwd_lock);
+diff --git a/drivers/scsi/iscsi_tcp.h b/drivers/scsi/iscsi_tcp.h
+index 791453195099..850a018aefb9 100644
+--- a/drivers/scsi/iscsi_tcp.h
++++ b/drivers/scsi/iscsi_tcp.h
+@@ -28,6 +28,8 @@ struct iscsi_sw_tcp_send {
+ 
+ struct iscsi_sw_tcp_conn {
+ 	struct socket		*sock;
++	struct work_struct	recvwork;
++	bool			queue_recv;
+ 
+ 	struct iscsi_sw_tcp_send out;
+ 	/* old values for socket callbacks */
 -- 
 2.35.1
 
