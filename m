@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C7D060A476
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B8CC60A5FE
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232845AbiJXMLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:11:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59540 "EHLO
+        id S233871AbiJXMbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:31:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233207AbiJXMJ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:09:57 -0400
+        with ESMTP id S234128AbiJXM3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E3597FE45;
-        Mon, 24 Oct 2022 04:53:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 229E388A00;
+        Mon, 24 Oct 2022 05:03:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00F5FB811BE;
-        Mon, 24 Oct 2022 11:52:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 522B4C433C1;
-        Mon, 24 Oct 2022 11:51:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01E7EB81203;
+        Mon, 24 Oct 2022 12:00:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B782C433B5;
+        Mon, 24 Oct 2022 12:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612318;
-        bh=wK+jnoO9VRmlYg/cydAggE/JknkiKXKsyEkHJKl9iJ8=;
+        s=korg; t=1666612822;
+        bh=7S74saqVx1Z5JOwQfwfMYXqdxLHiFdAxBPFGunevnug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BETrhagQvKOmBCokw12nWP2tV4Yj6/MD5nqS2EPbMKkKx22vvRmg1pbbvX4IMvuY0
-         8FOperXki7Swz9ydPlVt4Ax74M18mKy+7kgkMOqIlkIRr0o9okPgU6OGVdtwl+2I4q
-         JKWaw7jCvXoKbVPZLqjoRAlL2lkpxe6fM0wRv0wg=
+        b=sDeFgPvZ6jJiu+dLYLb0vaGxGpAXtlmcShaCxfTc9HJYsE6CIVjXQ+tCZN8pRAce/
+         ZBIy+R2GbykN54oFA3L1/fD3HsU54yyvuWE8UD42fLCo3l6FJUhSijfpWZlnyY2hcP
+         8pbGu/IJcapl9RDpavO7oVNq9euuAmeajwd0CD+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Artem S. Tashkinov" <aros@gmx.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Jason Baron <jbaron@akamai.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jim Cromie <jim.cromie@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 135/210] xhci: Dont show warning for reinit on known broken suspend
+Subject: [PATCH 4.19 133/229] dyndbg: fix module.dyndbg handling
 Date:   Mon, 24 Oct 2022 13:30:52 +0200
-Message-Id: <20221024113001.377705871@linuxfoundation.org>
+Message-Id: <20221024113003.300400201@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Jim Cromie <jim.cromie@gmail.com>
 
-[ Upstream commit 484d6f7aa3283d082c87654b7fe7a7f725423dfb ]
+[ Upstream commit 85d6b66d31c35158364058ee98fb69ab5bb6a6b1 ]
 
-commit 8b328f8002bc ("xhci: re-initialize the HC during resume if HCE was
-set") introduced a new warning message when the host controller error
-was set and re-initializing.
+For CONFIG_DYNAMIC_DEBUG=N, the ddebug_dyndbg_module_param_cb()
+stub-fn is too permissive:
 
-This is expected behavior on some designs which already set
-`xhci->broken_suspend` so the new warning is alarming to some users.
+bash-5.1# modprobe drm JUNKdyndbg
+bash-5.1# modprobe drm dyndbgJUNK
+[   42.933220] dyndbg param is supported only in CONFIG_DYNAMIC_DEBUG builds
+[   42.937484] ACPI: bus type drm_connector registered
 
-Modify the code to only show the warning if this was a surprising behavior
-to the XHCI driver.
+This caused no ill effects, because unknown parameters are either
+ignored by default with an "unknown parameter" warning, or ignored
+because dyndbg allows its no-effect use on non-dyndbg builds.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216470
-Fixes: 8b328f8002bc ("xhci: re-initialize the HC during resume if HCE was set")
-Reported-by: Artem S. Tashkinov <aros@gmx.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220921123450.671459-4-mathias.nyman@linux.intel.com
+But since the code has an explicit feedback message, it should be
+issued accurately.  Fix with strcmp for exact param-name match.
+
+Fixes: b48420c1d301 dynamic_debug: make dynamic-debug work for module initialization
+Reported-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Acked-by: Jason Baron <jbaron@akamai.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
+Link: https://lore.kernel.org/r/20220904214134.408619-3-jim.cromie@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/dynamic_debug.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index c41548f08c54..0f2b67f38d2e 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1094,7 +1094,8 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
- 	/* re-initialize the HC on Restore Error, or Host Controller Error */
- 	if (temp & (STS_SRE | STS_HCE)) {
- 		reinit_xhc = true;
--		xhci_warn(xhci, "xHC error in resume, USBSTS 0x%x, Reinit\n", temp);
-+		if (!xhci->broken_suspend)
-+			xhci_warn(xhci, "xHC error in resume, USBSTS 0x%x, Reinit\n", temp);
- 	}
- 
- 	if (reinit_xhc) {
+diff --git a/include/linux/dynamic_debug.h b/include/linux/dynamic_debug.h
+index b3419da1a776..77a16b2eb42f 100644
+--- a/include/linux/dynamic_debug.h
++++ b/include/linux/dynamic_debug.h
+@@ -168,7 +168,7 @@ static inline int ddebug_remove_module(const char *mod)
+ static inline int ddebug_dyndbg_module_param_cb(char *param, char *val,
+ 						const char *modname)
+ {
+-	if (strstr(param, "dyndbg")) {
++	if (!strcmp(param, "dyndbg")) {
+ 		/* avoid pr_warn(), which wants pr_fmt() fully defined */
+ 		printk(KERN_WARNING "dyndbg param is supported only in "
+ 			"CONFIG_DYNAMIC_DEBUG builds\n");
 -- 
 2.35.1
 
