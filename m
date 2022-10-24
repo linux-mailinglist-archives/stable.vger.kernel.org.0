@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E51BA60ABD6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDFB560A739
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236854AbiJXN6S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:58:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57356 "EHLO
+        id S234372AbiJXMsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:48:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236869AbiJXN5o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:57:44 -0400
+        with ESMTP id S234712AbiJXMpd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57D18696ED;
-        Mon, 24 Oct 2022 05:45:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A01A31EFA;
+        Mon, 24 Oct 2022 05:09:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94C2A612A1;
-        Mon, 24 Oct 2022 12:45:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A89CEC433C1;
-        Mon, 24 Oct 2022 12:45:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB9256127C;
+        Mon, 24 Oct 2022 12:09:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0A11C433C1;
+        Mon, 24 Oct 2022 12:09:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615502;
-        bh=OIJs8jEJDlE4X49d2dwxy8tysOIHP5M9KVrpH9pEbiM=;
+        s=korg; t=1666613369;
+        bh=Uhl66iM0KuPXimYo3oJQbWlMZPTK9qOjxrbDCHLHOMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l43SvPKAZKYicyHLly6rQxb4HRlNMvhbKEz2Vv5lkMxVg1Y1Y+fRu7swqP1S0typO
-         Gb6ufAY54UZQQQyR9uzmRLCf9oom8tL9utLWhNE1jKDRx0c0dTchSCSlO/yR3Pb3Ax
-         a1K1EVC+CCmPzOGPDwkoCXIZy0bcGvmt9KjOMSbQ=
+        b=wxuh472XpSxQa10UbbXejG5ln65nRlpLA3p4XKsfQQM2h9vRuYn2Rnc4AnVE/am0K
+         8QWCd8SQbhnygq7eI0ygvVtjdHCLIMlhcXhEp0mCXbKaakQEpOgJ06QCipOGwY2Z40
+         v7HNtbVRi5VdVeNoZFuK3AuFMkWv+xO6Don6fpME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 276/530] clk: qoriq: Hold reference returned by of_get_parent()
+Subject: [PATCH 5.4 110/255] soc: qcom: smsm: Fix refcount leak bugs in qcom_smsm_probe()
 Date:   Mon, 24 Oct 2022 13:30:20 +0200
-Message-Id: <20221024113057.576048453@linuxfoundation.org>
+Message-Id: <20221024113006.146074628@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +55,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liang He <windhl@126.com>
 
-[ Upstream commit a8ea4273bc26256ce3cce83164f0f51c5bf6e127 ]
+[ Upstream commit af8f6f39b8afd772fda4f8e61823ef8c021bf382 ]
 
-In legacy_init_clockgen(), we need to hold the reference returned
-by of_get_parent() and use it to call of_node_put() for refcount
-balance.
+There are two refcount leak bugs in qcom_smsm_probe():
 
-Beside, in create_sysclk(), we need to call of_node_put() on 'sysclk'
-also for refcount balance.
+(1) The 'local_node' is escaped out from for_each_child_of_node() as
+the break of iteration, we should call of_node_put() for it in error
+path or when it is not used anymore.
+(2) The 'node' is escaped out from for_each_available_child_of_node()
+as the 'goto', we should call of_node_put() for it in goto target.
 
-Fixes: 0dfc86b3173f ("clk: qoriq: Move chip-specific knowledge into driver")
+Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
 Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220628143851.171299-1-windhl@126.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220721135217.1301039-1-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-qoriq.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/soc/qcom/smsm.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/clk/clk-qoriq.c b/drivers/clk/clk-qoriq.c
-index 88898b97a443..5eddb9f0d6bd 100644
---- a/drivers/clk/clk-qoriq.c
-+++ b/drivers/clk/clk-qoriq.c
-@@ -1063,8 +1063,13 @@ static void __init _clockgen_init(struct device_node *np, bool legacy);
-  */
- static void __init legacy_init_clockgen(struct device_node *np)
- {
--	if (!clockgen.node)
--		_clockgen_init(of_get_parent(np), true);
-+	if (!clockgen.node) {
-+		struct device_node *parent_np;
-+
-+		parent_np = of_get_parent(np);
-+		_clockgen_init(parent_np, true);
-+		of_node_put(parent_np);
-+	}
+diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
+index 6564f15c5319..acba67dfbc85 100644
+--- a/drivers/soc/qcom/smsm.c
++++ b/drivers/soc/qcom/smsm.c
+@@ -511,7 +511,7 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 	for (id = 0; id < smsm->num_hosts; id++) {
+ 		ret = smsm_parse_ipc(smsm, id);
+ 		if (ret < 0)
+-			return ret;
++			goto out_put;
+ 	}
+ 
+ 	/* Acquire the main SMSM state vector */
+@@ -519,13 +519,14 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 			      smsm->num_entries * sizeof(u32));
+ 	if (ret < 0 && ret != -EEXIST) {
+ 		dev_err(&pdev->dev, "unable to allocate shared state entry\n");
+-		return ret;
++		goto out_put;
+ 	}
+ 
+ 	states = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_SMSM_SHARED_STATE, NULL);
+ 	if (IS_ERR(states)) {
+ 		dev_err(&pdev->dev, "Unable to acquire shared state entry\n");
+-		return PTR_ERR(states);
++		ret = PTR_ERR(states);
++		goto out_put;
+ 	}
+ 
+ 	/* Acquire the list of interrupt mask vectors */
+@@ -533,13 +534,14 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 	ret = qcom_smem_alloc(QCOM_SMEM_HOST_ANY, SMEM_SMSM_CPU_INTR_MASK, size);
+ 	if (ret < 0 && ret != -EEXIST) {
+ 		dev_err(&pdev->dev, "unable to allocate smsm interrupt mask\n");
+-		return ret;
++		goto out_put;
+ 	}
+ 
+ 	intr_mask = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_SMSM_CPU_INTR_MASK, NULL);
+ 	if (IS_ERR(intr_mask)) {
+ 		dev_err(&pdev->dev, "unable to acquire shared memory interrupt mask\n");
+-		return PTR_ERR(intr_mask);
++		ret = PTR_ERR(intr_mask);
++		goto out_put;
+ 	}
+ 
+ 	/* Setup the reference to the local state bits */
+@@ -550,7 +552,8 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 	smsm->state = qcom_smem_state_register(local_node, &smsm_state_ops, smsm);
+ 	if (IS_ERR(smsm->state)) {
+ 		dev_err(smsm->dev, "failed to register qcom_smem_state\n");
+-		return PTR_ERR(smsm->state);
++		ret = PTR_ERR(smsm->state);
++		goto out_put;
+ 	}
+ 
+ 	/* Register handlers for remote processor entries of interest. */
+@@ -580,16 +583,19 @@ static int qcom_smsm_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	platform_set_drvdata(pdev, smsm);
++	of_node_put(local_node);
+ 
+ 	return 0;
+ 
+ unwind_interfaces:
++	of_node_put(node);
+ 	for (id = 0; id < smsm->num_entries; id++)
+ 		if (smsm->entries[id].domain)
+ 			irq_domain_remove(smsm->entries[id].domain);
+ 
+ 	qcom_smem_state_unregister(smsm->state);
+-
++out_put:
++	of_node_put(local_node);
+ 	return ret;
  }
  
- /* Legacy node */
-@@ -1159,6 +1164,7 @@ static struct clk * __init create_sysclk(const char *name)
- 	sysclk = of_get_child_by_name(clockgen.node, "sysclk");
- 	if (sysclk) {
- 		clk = sysclk_from_fixed(sysclk, name);
-+		of_node_put(sysclk);
- 		if (!IS_ERR(clk))
- 			return clk;
- 	}
 -- 
 2.35.1
 
