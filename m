@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB6CA60A1AE
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CDE460A34F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:53:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229652AbiJXLcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:32:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57160 "EHLO
+        id S231388AbiJXLxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:53:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230318AbiJXLcK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:32:10 -0400
+        with ESMTP id S232060AbiJXLwy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:52:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8859B55C42;
-        Mon, 24 Oct 2022 04:32:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 174A014089;
+        Mon, 24 Oct 2022 04:44:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CD3661257;
-        Mon, 24 Oct 2022 11:31:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DDFEC433D7;
-        Mon, 24 Oct 2022 11:31:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48B9361257;
+        Mon, 24 Oct 2022 11:43:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 301D3C433D7;
+        Mon, 24 Oct 2022 11:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611118;
-        bh=SsxXhBXuJAX9mARv/xwRDQb187Z+68sqr4yjhTCIe70=;
+        s=korg; t=1666611820;
+        bh=7Biv/RB4g1yWRQ3Ir7P+DO9H5qF3EuPehLJSXWw6ecI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o5n8MywCFViw8R0/7bkRg7NkfWJAUBVH8qcI0X9lsOtnCBNoPS2zFloxXhCEd51K7
-         fKvP0Hplrn9dUYxZiEUZ6Bwl9Vjroa5AFjYdDVMoVE6XukEkcLRkY/T9ke0+50+mWX
-         ujgx0lRHDZQyi6FYvsD8O1QCG21MFXtZGBPxq2gs=
+        b=bX28EBxgBImVJu8b/SIlKVAxg2F6Jy56EWEaH03Wv8cV/mc+yFwrHQ25Z4gZtKNns
+         gJ08HLBEWxwN6YDthQjzzh6OO2MzJCy5PBf+Xb4/De199ZwNd3Ebaak12B79KTTHwg
+         hMLpDDNtGKsxDpZ87ZEis9ev15qHqU3Blc+mafMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 6.0 16/20] efi: ssdt: Dont free memory if ACPI table was loaded successfully
+        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-mips@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        llvm@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 124/159] MIPS: BCM47XX: Cast memcmp() of function to (void *)
 Date:   Mon, 24 Oct 2022 13:31:18 +0200
-Message-Id: <20221024112935.061892355@linuxfoundation.org>
+Message-Id: <20221024112954.037994688@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112934.415391158@linuxfoundation.org>
-References: <20221024112934.415391158@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +58,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit 4b017e59f01097f19b938f6dc4dc2c4720701610 upstream.
+[ Upstream commit 0dedcf6e3301836eb70cfa649052e7ce4fcd13ba ]
 
-Amadeusz reports KASAN use-after-free errors introduced by commit
-3881ee0b1edc ("efi: avoid efivars layer when loading SSDTs from
-variables"). The problem appears to be that the memory that holds the
-new ACPI table is now freed unconditionally, instead of only when the
-ACPI core reported a failure to load the table.
+Clang is especially sensitive about argument type matching when using
+__overloaded functions (like memcmp(), etc). Help it see that function
+pointers are just "void *". Avoids this error:
 
-So let's fix this, by omitting the kfree() on success.
+arch/mips/bcm47xx/prom.c:89:8: error: no matching function for call to 'memcmp'
+                   if (!memcmp(prom_init, prom_init + mem, 32))
+                        ^~~~~~
+include/linux/string.h:156:12: note: candidate function not viable: no known conversion from 'void (void)' to 'const void *' for 1st argument extern int memcmp(const void *,const void *,__kernel_size_t);
 
-Cc: <stable@vger.kernel.org> # v6.0
-Link: https://lore.kernel.org/all/a101a10a-4fbb-5fae-2e3c-76cf96ed8fbd@linux.intel.com/
-Fixes: 3881ee0b1edc ("efi: avoid efivars layer when loading SSDTs from variables")
-Reported-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: "Rafał Miłecki" <zajec5@gmail.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: llvm@lists.linux.dev
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202209080652.sz2d68e5-lkp@intel.com
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/efi.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/mips/bcm47xx/prom.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -269,6 +269,8 @@ static __init int efivar_ssdt_load(void)
- 			acpi_status ret = acpi_load_table(data, NULL);
- 			if (ret)
- 				pr_err("failed to load table: %u\n", ret);
-+			else
-+				continue;
- 		} else {
- 			pr_err("failed to get var data: 0x%lx\n", status);
+diff --git a/arch/mips/bcm47xx/prom.c b/arch/mips/bcm47xx/prom.c
+index 135a5407f015..d26d9a6f6ee7 100644
+--- a/arch/mips/bcm47xx/prom.c
++++ b/arch/mips/bcm47xx/prom.c
+@@ -85,7 +85,7 @@ static __init void prom_init_mem(void)
+ 			pr_debug("Assume 128MB RAM\n");
+ 			break;
  		}
+-		if (!memcmp(prom_init, prom_init + mem, 32))
++		if (!memcmp((void *)prom_init, (void *)prom_init + mem, 32))
+ 			break;
+ 	}
+ 	lowmem = mem;
+@@ -162,7 +162,7 @@ void __init bcm47xx_prom_highmem_init(void)
+ 
+ 	off = EXTVBASE + __pa(off);
+ 	for (extmem = 128 << 20; extmem < 512 << 20; extmem <<= 1) {
+-		if (!memcmp(prom_init, (void *)(off + extmem), 16))
++		if (!memcmp((void *)prom_init, (void *)(off + extmem), 16))
+ 			break;
+ 	}
+ 	extmem -= lowmem;
+-- 
+2.35.1
+
 
 
