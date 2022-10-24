@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B188D60B77D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:25:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EE0F60B72C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:21:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231648AbiJXTYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:24:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48800 "EHLO
+        id S231418AbiJXTVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:21:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232520AbiJXTXE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:23:04 -0400
+        with ESMTP id S231464AbiJXTUn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:20:43 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA21C29C;
-        Mon, 24 Oct 2022 10:57:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BE861D1E0B;
+        Mon, 24 Oct 2022 10:56:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 688DCCE1345;
-        Mon, 24 Oct 2022 12:33:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 693AEC433B5;
-        Mon, 24 Oct 2022 12:33:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E9567CE147A;
+        Mon, 24 Oct 2022 12:32:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 051E2C433D6;
+        Mon, 24 Oct 2022 12:32:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614798;
-        bh=OjZ0L2KyAgkZPt75DZB7YHk9PytepHMPjogVsy2mw0A=;
+        s=korg; t=1666614775;
+        bh=XFRkCfAJHCaYT5OdRdGtKdxR0dcdcuxZLYpauLQ+i6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDX6FhU7l0QX2G5OUh6WYgz3iyuXEInm/7K+jhHZslTUxRRV4iJ17AJLqQ1bApjGD
-         63bNkVJFyt7twku02t2R3KecHGDhF9skoGpdBqYCxbtjK9ANODuKonfdTRPSoNw9IH
-         eeuQzI/kpyk6UnCxOP2Vks+NfT3jMp5BEBYojLx8=
+        b=x/hUwflNtgDfCXyIjC0pihUr7oc1ZCT7AdObhJLXimqh6weVjp36gn4l3WRFK3K0b
+         4jM6OJ//Xc5cZwvYfV2/OFZ5O/IbXBUzaYhmdfIu6MTqOXJe2wbVptb3y8JslfIgq0
+         yUVrrPL1LRxV9rT1UtN2+8OP6v8qtc0iP1cP1CBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 381/390] net: ieee802154: return -EINVAL for unknown addr type
-Date:   Mon, 24 Oct 2022 13:32:58 +0200
-Message-Id: <20221024113039.197309148@linuxfoundation.org>
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 382/390] Revert "net/ieee802154: reject zero-sized raw_sendmsg()"
+Date:   Mon, 24 Oct 2022 13:32:59 +0200
+Message-Id: <20221024113039.246515196@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -54,52 +55,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Aring <aahringo@redhat.com>
 
-commit 30393181fdbc1608cc683b4ee99dcce05ffcc8c7 upstream.
+[ Upstream commit 2eb2756f6c9e9621e022d78321ce40a62c4520b5 ]
 
-This patch adds handling to return -EINVAL for an unknown addr type. The
-current behaviour is to return 0 as successful but the size of an
-unknown addr type is not defined and should return an error like -EINVAL.
+This reverts commit 3a4d061c699bd3eedc80dc97a4b2a2e1af83c6f5.
 
-Fixes: 94160108a70c ("net/ieee802154: fix uninit value bug in dgram_sendmsg")
+There is a v2 which does return zero if zero length is given.
+
 Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20221005014750.3685555-1-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ieee802154_netdev.h |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ net/ieee802154/socket.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/include/net/ieee802154_netdev.h
-+++ b/include/net/ieee802154_netdev.h
-@@ -185,21 +185,27 @@ static inline int
- ieee802154_sockaddr_check_size(struct sockaddr_ieee802154 *daddr, int len)
- {
- 	struct ieee802154_addr_sa *sa;
-+	int ret = 0;
- 
- 	sa = &daddr->addr;
- 	if (len < IEEE802154_MIN_NAMELEN)
- 		return -EINVAL;
- 	switch (sa->addr_type) {
-+	case IEEE802154_ADDR_NONE:
-+		break;
- 	case IEEE802154_ADDR_SHORT:
- 		if (len < IEEE802154_NAMELEN_SHORT)
--			return -EINVAL;
-+			ret = -EINVAL;
- 		break;
- 	case IEEE802154_ADDR_LONG:
- 		if (len < IEEE802154_NAMELEN_LONG)
--			return -EINVAL;
-+			ret = -EINVAL;
-+		break;
-+	default:
-+		ret = -EINVAL;
- 		break;
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index d4c162d63634..7edec210780a 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -252,9 +252,6 @@ static int raw_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 		return -EOPNOTSUPP;
  	}
--	return 0;
-+	return ret;
- }
  
- static inline void ieee802154_addr_from_sa(struct ieee802154_addr *a,
+-	if (!size)
+-		return -EINVAL;
+-
+ 	lock_sock(sk);
+ 	if (!sk->sk_bound_dev_if)
+ 		dev = dev_getfirstbyhwtype(sock_net(sk), ARPHRD_IEEE802154);
+-- 
+2.35.1
+
 
 
