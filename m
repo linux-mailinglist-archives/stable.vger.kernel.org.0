@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9274060A48E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:12:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE71D60A9E3
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232756AbiJXMM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:12:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59158 "EHLO
+        id S229886AbiJXNZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:25:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232896AbiJXMLc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:11:32 -0400
+        with ESMTP id S229983AbiJXNXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:23:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 688977FFB9;
-        Mon, 24 Oct 2022 04:53:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 238095FF5D;
+        Mon, 24 Oct 2022 05:30:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0BFA61291;
-        Mon, 24 Oct 2022 11:53:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3448C433C1;
-        Mon, 24 Oct 2022 11:53:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EE45612FD;
+        Mon, 24 Oct 2022 12:28:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E9DEC433D6;
+        Mon, 24 Oct 2022 12:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612384;
-        bh=vjYXcM4d6U4y24O7mT2Q36DVyLJAZZU64TsfuVOvQ4A=;
+        s=korg; t=1666614536;
+        bh=GkeTiV1jLGPSKAFxenl8FDBEIWxxDohqsgMKG+3O+rU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yj63hf8MHq9DE+6r+4IpPgrgXJ6bYbeAtI97DfFmwxZ8MxBaDFTwsfQeFpSF2HKUl
-         vDydXNvMnACWMj5BKKiiJQoWfTGgFUZKNClnNsLmSsTlpIQwPLkdkuRATeYliXiZ49
-         bEyIsbo249k+FzPFJh25Q4Hwn4sKDsGKvlW9bcLM=
+        b=s9vHXgRqDGbfWiqHs65y3LPodk1MWLaS7dB9vvJ3pyaa+2TgAi7W0WVsAmOHkuLM2
+         dTnEfI469rdllQM3D/67oQTldyKCCIUqS95Ul0RSQ2NYk3UJ13mZujyGBw1Er8PlBW
+         V5SN1lnXgBBN7LtDFUyzhvb2uvMH0gOPyEH2g44Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Serge Vasilugin <vasilugin@yandex.ru>,
-        Daniel Golle <daniel@makrotopia.org>,
-        Stanislaw Gruszka <stf_xl@wp.pl>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 178/210] wifi: rt2x00: set correct TX_SW_CFG1 MAC register for MT7620
-Date:   Mon, 24 Oct 2022 13:31:35 +0200
-Message-Id: <20221024113002.738576707@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Qin <chao.qin@intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 299/390] powercap: intel_rapl: fix UBSAN shift-out-of-bounds issue
+Date:   Mon, 24 Oct 2022 13:31:36 +0200
+Message-Id: <20221024113035.746902883@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Chao Qin <chao.qin@intel.com>
 
-[ Upstream commit eeb50acf15762b61921f9df18663f839f387c054 ]
+[ Upstream commit 2d93540014387d1c73b9ccc4d7895320df66d01b ]
 
-Set correct TX_SW_CFG1 MAC register as it is done also in v3 of the
-vendor driver[1].
+When value < time_unit, the parameter of ilog2() will be zero and
+the return value is -1. u64(-1) is too large for shift exponent
+and then will trigger shift-out-of-bounds:
 
-[1]: https://gitlab.com/dm38/padavan-ng/-/blob/master/trunk/proprietary/rt_wifi/rtpci/3.0.X.X/mt76x2/chips/rt6352.c#L531
-Reported-by: Serge Vasilugin <vasilugin@yandex.ru>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/4be38975ce600a34249e12d09a3cb758c6e71071.1663445157.git.daniel@makrotopia.org
+shift exponent 18446744073709551615 is too large for 32-bit type 'int'
+Call Trace:
+ rapl_compute_time_window_core
+ rapl_write_data_raw
+ set_time_window
+ store_constraint_time_window_us
+
+Signed-off-by: Chao Qin <chao.qin@intel.com>
+Acked-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ralink/rt2x00/rt2800lib.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/powercap/intel_rapl_common.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-index 1309c136f7f3..0c90bf0540b9 100644
---- a/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-+++ b/drivers/net/wireless/ralink/rt2x00/rt2800lib.c
-@@ -5315,7 +5315,7 @@ static int rt2800_init_registers(struct rt2x00_dev *rt2x00dev)
- 		rt2800_register_write(rt2x00dev, TX_SW_CFG0, 0x00000404);
- 	} else if (rt2x00_rt(rt2x00dev, RT6352)) {
- 		rt2800_register_write(rt2x00dev, TX_SW_CFG0, 0x00000401);
--		rt2800_register_write(rt2x00dev, TX_SW_CFG1, 0x000C0000);
-+		rt2800_register_write(rt2x00dev, TX_SW_CFG1, 0x000C0001);
- 		rt2800_register_write(rt2x00dev, TX_SW_CFG2, 0x00000000);
- 		rt2800_register_write(rt2x00dev, MIMO_PS_CFG, 0x00000002);
- 		rt2800_register_write(rt2x00dev, TX_PIN_CFG, 0x00150F0F);
+diff --git a/drivers/powercap/intel_rapl_common.c b/drivers/powercap/intel_rapl_common.c
+index a13a07f475d2..285420c1eb7c 100644
+--- a/drivers/powercap/intel_rapl_common.c
++++ b/drivers/powercap/intel_rapl_common.c
+@@ -938,6 +938,9 @@ static u64 rapl_compute_time_window_core(struct rapl_package *rp, u64 value,
+ 		y = value & 0x1f;
+ 		value = (1 << y) * (4 + f) * rp->time_unit / 4;
+ 	} else {
++		if (value < rp->time_unit)
++			return 0;
++
+ 		do_div(value, rp->time_unit);
+ 		y = ilog2(value);
+ 		f = div64_u64(4 * (value - (1 << y)), 1 << y);
 -- 
 2.35.1
 
