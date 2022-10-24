@@ -2,43 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6B5160BA66
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:37:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B668F60B9C2
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:20:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234478AbiJXUgs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:36:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35190 "EHLO
+        id S232149AbiJXUUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:20:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234415AbiJXUg0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:36:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BADAC1358AA;
-        Mon, 24 Oct 2022 11:47:51 -0700 (PDT)
+        with ESMTP id S232493AbiJXUU2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:20:28 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F49A9D50A;
+        Mon, 24 Oct 2022 11:37:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB4B8B81200;
-        Mon, 24 Oct 2022 12:06:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42A84C4314D;
-        Mon, 24 Oct 2022 12:06:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C9908CE13C4;
+        Mon, 24 Oct 2022 12:24:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EE03C433C1;
+        Mon, 24 Oct 2022 12:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613174;
-        bh=btpbaJQOeK/Q5qLPhStOkkSHkPIW1bhoa9FE22TUv0U=;
+        s=korg; t=1666614245;
+        bh=baId3y2PnKov3b1F4NURKQxj97Z3GYNXAxDixrtp190=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uX2oLhy52ExjHMmChEtcUsAZGtEAYlnCHOUqmVR6JJH7GQZQnvTrs66XNk7wmfgxo
-         7ShrfzvUJg90BKXJLMO52wi3XB76/Fbzky/Ai3Q9eP0yIa6BEs/j9nqBgry1pCiOjv
-         vIZ/CLABhhDIynAoC1eJ4imcShDk4bRA1BRcLw/8=
+        b=FpXD+ofYTey4GSaqnI9/wEILYSeDS8A1GQTvRnR25ozcY+bIP744jEUNEL12UC7bT
+         BwMyRbAbRp3qxwWF0z08okMJvGqy7StUCTg9jsfqywVjm5tY8/bDJfBtFj4PdMG1Zo
+         uSmB8m7pHMsrJiQnUT26B3NamdqypvVjUn8I+eA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4 037/255] f2fs: fix to do sanity check on destination blkaddr during recovery
-Date:   Mon, 24 Oct 2022 13:29:07 +0200
-Message-Id: <20221024113003.670696382@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Dillon Min <dillon.minfei@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        dri-devel@lists.freedesktop.org, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 154/390] drm: fix drm_mipi_dbi build errors
+Date:   Mon, 24 Oct 2022 13:29:11 +0200
+Message-Id: <20221024113029.232783928@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,124 +61,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 0ef4ca04a3f9223ff8bc440041c524b2123e09a3 upstream.
+[ Upstream commit eb7de496451bd969e203f02f66585131228ba4ae ]
 
-As Wenqing Liu reported in bugzilla:
+drm_mipi_dbi needs lots of DRM_KMS_HELPER support, so select
+that Kconfig symbol like it is done is most other uses, and
+the way that it was before MIPS_DBI was moved from tinydrm
+to its core location.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=216456
+Fixes these build errors:
 
-loop5: detected capacity change from 0 to 131072
-F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
-F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
-F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
-F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
-F2FS-fs (loop5): recover_inode: ino = 6, name = hln, inline = 1
-F2FS-fs (loop5): recover_data: ino = 6 (i_size: recover) err = 0
-F2FS-fs (loop5): Bitmap was wrongly set, blk:5634
-------------[ cut here ]------------
-WARNING: CPU: 3 PID: 1013 at fs/f2fs/segment.c:2198
-RIP: 0010:update_sit_entry+0xa55/0x10b0 [f2fs]
-Call Trace:
- <TASK>
- f2fs_do_replace_block+0xa98/0x1890 [f2fs]
- f2fs_replace_block+0xeb/0x180 [f2fs]
- recover_data+0x1a69/0x6ae0 [f2fs]
- f2fs_recover_fsync_data+0x120d/0x1fc0 [f2fs]
- f2fs_fill_super+0x4665/0x61e0 [f2fs]
- mount_bdev+0x2cf/0x3b0
- legacy_get_tree+0xed/0x1d0
- vfs_get_tree+0x81/0x2b0
- path_mount+0x47e/0x19d0
- do_mount+0xce/0xf0
- __x64_sys_mount+0x12c/0x1a0
- do_syscall_64+0x38/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ld: drivers/gpu/drm/drm_mipi_dbi.o: in function `mipi_dbi_buf_copy':
+drivers/gpu/drm/drm_mipi_dbi.c:205: undefined reference to `drm_gem_fb_get_obj'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:211: undefined reference to `drm_gem_fb_begin_cpu_access'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:215: undefined reference to `drm_gem_fb_vmap'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:222: undefined reference to `drm_fb_swab'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:224: undefined reference to `drm_fb_memcpy'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:227: undefined reference to `drm_fb_xrgb8888_to_rgb565'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:235: undefined reference to `drm_gem_fb_vunmap'
+ld: drivers/gpu/drm/drm_mipi_dbi.c:237: undefined reference to `drm_gem_fb_end_cpu_access'
+ld: drivers/gpu/drm/drm_mipi_dbi.o: in function `mipi_dbi_dev_init_with_formats':
+ld: drivers/gpu/drm/drm_mipi_dbi.o:/X64/../drivers/gpu/drm/drm_mipi_dbi.c:469: undefined reference to `drm_gem_fb_create_with_dirty'
 
-If we enable CONFIG_F2FS_CHECK_FS config, it will trigger a kernel panic
-instead of warning.
-
-The root cause is: in fuzzed image, SIT table is inconsistent with inode
-mapping table, result in triggering such warning during SIT table update.
-
-This patch introduces a new flag DATA_GENERIC_ENHANCE_UPDATE, w/ this
-flag, data block recovery flow can check destination blkaddr's validation
-in SIT table, and skip f2fs_replace_block() to avoid inconsistent status.
-
-Cc: stable@vger.kernel.org
-Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 174102f4de23 ("drm/tinydrm: Move mipi-dbi")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Dillon Min <dillon.minfei@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Noralf Trønnes <noralf@tronnes.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220823004243.11596-1-rdunlap@infradead.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c |   10 +++++++++-
- fs/f2fs/f2fs.h       |    4 ++++
- fs/f2fs/recovery.c   |    8 ++++++++
- 3 files changed, 21 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -137,7 +137,7 @@ static bool __is_bitmap_valid(struct f2f
- 	unsigned int segno, offset;
- 	bool exist;
+diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+index ca868271f4c4..4e9b3a95fa7c 100644
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -30,6 +30,7 @@ menuconfig DRM
+ config DRM_MIPI_DBI
+ 	tristate
+ 	depends on DRM
++	select DRM_KMS_HELPER
  
--	if (type != DATA_GENERIC_ENHANCE && type != DATA_GENERIC_ENHANCE_READ)
-+	if (type == DATA_GENERIC)
- 		return true;
- 
- 	segno = GET_SEGNO(sbi, blkaddr);
-@@ -145,6 +145,13 @@ static bool __is_bitmap_valid(struct f2f
- 	se = get_seg_entry(sbi, segno);
- 
- 	exist = f2fs_test_bit(offset, se->cur_valid_map);
-+	if (exist && type == DATA_GENERIC_ENHANCE_UPDATE) {
-+		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
-+			 blkaddr, exist);
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
-+		return exist;
-+	}
-+
- 	if (!exist && type == DATA_GENERIC_ENHANCE) {
- 		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
- 			 blkaddr, exist);
-@@ -182,6 +189,7 @@ bool f2fs_is_valid_blkaddr(struct f2fs_s
- 	case DATA_GENERIC:
- 	case DATA_GENERIC_ENHANCE:
- 	case DATA_GENERIC_ENHANCE_READ:
-+	case DATA_GENERIC_ENHANCE_UPDATE:
- 		if (unlikely(blkaddr >= MAX_BLKADDR(sbi) ||
- 				blkaddr < MAIN_BLKADDR(sbi))) {
- 			f2fs_warn(sbi, "access invalid blkaddr:%u",
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -225,6 +225,10 @@ enum {
- 					 * condition of read on truncated area
- 					 * by extent_cache
- 					 */
-+	DATA_GENERIC_ENHANCE_UPDATE,	/*
-+					 * strong check on range and segment
-+					 * bitmap for update case
-+					 */
- 	META_GENERIC,
- };
- 
---- a/fs/f2fs/recovery.c
-+++ b/fs/f2fs/recovery.c
-@@ -630,6 +630,14 @@ retry_prev:
- 				goto err;
- 			}
- 
-+			if (f2fs_is_valid_blkaddr(sbi, dest,
-+					DATA_GENERIC_ENHANCE_UPDATE)) {
-+				f2fs_err(sbi, "Inconsistent dest blkaddr:%u, ino:%lu, ofs:%u",
-+					dest, inode->i_ino, dn.ofs_in_node);
-+				err = -EFSCORRUPTED;
-+				goto err;
-+			}
-+
- 			/* write dummy data page */
- 			f2fs_replace_block(sbi, &dn, src, dest,
- 						ni.version, false, false);
+ config DRM_MIPI_DSI
+ 	bool
+-- 
+2.35.1
+
 
 
