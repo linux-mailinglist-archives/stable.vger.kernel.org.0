@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7933B60A71D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DB1560A482
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:11:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234181AbiJXMr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:47:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56314 "EHLO
+        id S232823AbiJXMLv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:11:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234393AbiJXMon (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:44:43 -0400
+        with ESMTP id S232830AbiJXMLH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:11:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0397D1C6;
-        Mon, 24 Oct 2022 05:09:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78BE33362;
+        Mon, 24 Oct 2022 04:53:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84A3E612EA;
-        Mon, 24 Oct 2022 11:57:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97771C433D6;
-        Mon, 24 Oct 2022 11:57:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5679461253;
+        Mon, 24 Oct 2022 11:40:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A7AEC433D6;
+        Mon, 24 Oct 2022 11:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612624;
-        bh=Ys3ka49cccFJzfsTCTuZ+erQPYHY5yRX3BygybRzjkA=;
+        s=korg; t=1666611641;
+        bh=ZEqcaliMDR/EDegFBvq7Wbf6roDmqbNtSYEaefYeYHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OopmayLJxkz1ILjvZWqXTVXqPwuQM7i3VpxceGJhiMyoNqx6A3/I4QwaA/kACqxcd
-         WNTRIBuDdctvG1PK5Q5q/FZtJuTTEf1knngBc+2TXewDlPx+kivu9KTCCdjdOLMse7
-         3NaHwTCMabz0TrJFzmlanytxc4mDDv5GPdX8GICM=
+        b=guIFiKPQEim1ju0+ZOtqA9FaZDKSalc1Zbk11dpkXr4OMH+N8Htm+DoFvhKVdscVh
+         DvTelgTG6Xky6BtJSWnsIslFAb1do7j8wlOpgJuc3DaUCyUv1Vv/TS8nomejXmTIGj
+         2S5bQUHUF6Ru9E+al0VtvwABR3tyY5Gc5drOFiZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.19 050/229] parisc: fbdev/stifb: Align graphics memory size to 4MB
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 015/159] clk: iproc: Do not rely on node name for correct PLL setup
 Date:   Mon, 24 Oct 2022 13:29:29 +0200
-Message-Id: <20221024113000.699526719@linuxfoundation.org>
+Message-Id: <20221024112949.908348716@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,31 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit aca7c13d3bee81a968337a5515411409ae9d095d upstream.
+[ Upstream commit 1b24a132eba7a1c19475ba2510ec1c00af3ff914 ]
 
-Independend of the current graphics resolution, adjust the reported
-graphics card memory size to the next 4MB boundary.
-This fixes the fbtest program which expects a naturally aligned size.
+After commit 31fd9b79dc58 ("ARM: dts: BCM5301X: update CRU block
+description") a warning from clk-iproc-pll.c was generated due to a
+duplicate PLL name as well as the console stopped working. Upon closer
+inspection it became clear that iproc_pll_clk_setup() used the Device
+Tree node unit name as an unique identifier as well as a parent name to
+parent all clocks under the PLL.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+BCM5301X was the first platform on which that got noticed because of the
+DT node unit name renaming but the same assumptions hold true for any
+user of the iproc_pll_clk_setup() function.
+
+The first 'clock-output-names' property is always guaranteed to be
+unique as well as providing the actual desired PLL clock name, so we
+utilize that to register the PLL and as a parent name of all children
+clock.
+
+Fixes: 5fe225c105fd ("clk: iproc: add initial common clock support")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Rafał Miłecki <rafal@milecki.pl>
+Link: https://lore.kernel.org/r/20220905161504.1526-1-f.fainelli@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/stifb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/bcm/clk-iproc-pll.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/video/fbdev/stifb.c
-+++ b/drivers/video/fbdev/stifb.c
-@@ -1257,7 +1257,7 @@ static int __init stifb_init_fb(struct s
- 	
- 	/* limit fbsize to max visible screen size */
- 	if (fix->smem_len > yres*fix->line_length)
--		fix->smem_len = yres*fix->line_length;
-+		fix->smem_len = ALIGN(yres*fix->line_length, 4*1024*1024);
- 	
- 	fix->accel = FB_ACCEL_NONE;
+diff --git a/drivers/clk/bcm/clk-iproc-pll.c b/drivers/clk/bcm/clk-iproc-pll.c
+index 53006f4305f8..d52f2b810a4b 100644
+--- a/drivers/clk/bcm/clk-iproc-pll.c
++++ b/drivers/clk/bcm/clk-iproc-pll.c
+@@ -621,6 +621,7 @@ void __init iproc_pll_clk_setup(struct device_node *node,
+ 	const char *parent_name;
+ 	struct iproc_clk *iclk_array;
+ 	struct clk_hw_onecell_data *clk_data;
++	const char *clk_name;
  
+ 	if (WARN_ON(!pll_ctrl) || WARN_ON(!clk_ctrl))
+ 		return;
+@@ -669,7 +670,12 @@ void __init iproc_pll_clk_setup(struct device_node *node,
+ 	iclk = &iclk_array[0];
+ 	iclk->pll = pll;
+ 
+-	init.name = node->name;
++	ret = of_property_read_string_index(node, "clock-output-names",
++					    0, &clk_name);
++	if (WARN_ON(ret))
++		goto err_pll_register;
++
++	init.name = clk_name;
+ 	init.ops = &iproc_pll_ops;
+ 	init.flags = 0;
+ 	parent_name = of_clk_get_parent_name(node, 0);
+@@ -689,13 +695,11 @@ void __init iproc_pll_clk_setup(struct device_node *node,
+ 		goto err_pll_register;
+ 
+ 	clk_data->hws[0] = &iclk->hw;
++	parent_name = clk_name;
+ 
+ 	/* now initialize and register all leaf clocks */
+ 	for (i = 1; i < num_clks; i++) {
+-		const char *clk_name;
+-
+ 		memset(&init, 0, sizeof(init));
+-		parent_name = node->name;
+ 
+ 		ret = of_property_read_string_index(node, "clock-output-names",
+ 						    i, &clk_name);
+-- 
+2.35.1
+
 
 
