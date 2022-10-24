@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECF9A60A593
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:27:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CB6660A531
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:21:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233743AbiJXM1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:27:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60536 "EHLO
+        id S232996AbiJXMVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:21:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230439AbiJXM0o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:26:44 -0400
+        with ESMTP id S233017AbiJXMUB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:20:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E9D158EB5;
-        Mon, 24 Oct 2022 05:00:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 143E77B2BA;
+        Mon, 24 Oct 2022 04:58:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA22361291;
-        Mon, 24 Oct 2022 11:58:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06E55C433D6;
-        Mon, 24 Oct 2022 11:58:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C73C3612D1;
+        Mon, 24 Oct 2022 11:47:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9221C433D7;
+        Mon, 24 Oct 2022 11:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612690;
-        bh=aOvtxZzoxLZvYMnqDsCHT9AR35HDLsRHaZZOOkdNEaQ=;
+        s=korg; t=1666612062;
+        bh=Awcd/0SSmDN83dUDpNoaIq8lTcT014AjU8Qvxm5qHes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wwkxBBdVYz6Gen91Jqhbiu0pv7glKyU0m+xuZEUjvhCKq6EYK2+sjt4eb6UsDqsMH
-         DB4wxsteOIXrM1LlsPWL4dhwsUZpXqHAnk8t6ZHvBm5Ym6p7bNE0KY+cULLMkJuG22
-         KXXCLyd/AGKx/Tu5R71CceEBpS09IiPJPEW4VGGg=
+        b=MLjjHABWdhtW9WAWyU+HSDBLufPEEfEv9GZf6A5Wd9Ir5bT0TsVda5caUKDz53cm7
+         kUv7ra1VrYqq5YF+1ClkPJrOnLawctV1PYofcof9dTE7uQmuJ5qxCBj6QuPOK3iAlR
+         h6Z0K0EAmA1Mzu1RYwtY+cWN0Gm2iHwoJrxxcTxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.19 053/229] PCI: Sanitise firmware BAR assignments behind a PCI-PCI bridge
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>
+Subject: [PATCH 4.14 055/210] fs: dlm: fix race between test_bit() and queue_work()
 Date:   Mon, 24 Oct 2022 13:29:32 +0200
-Message-Id: <20221024113000.792508891@linuxfoundation.org>
+Message-Id: <20221024112958.796344237@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,102 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit 0e32818397426a688f598f35d3bc762eca6d7592 upstream.
+commit eef6ec9bf390e836a6c4029f3620fe49528aa1fe upstream.
 
-When pci_assign_resource() is unable to assign resources to a BAR, it uses
-pci_revert_fw_address() to fall back to a firmware assignment (if any).
-Previously pci_revert_fw_address() assumed all addresses could reach the
-device, but this is not true if the device is below a bridge that only
-forwards addresses within its windows.
+This patch fixes a race by using ls_cb_mutex around the bit
+operations and conditional code blocks for LSFL_CB_DELAY.
 
-This problem was observed on a Tyan Tomcat IV S1564D system where the BIOS
-did not assign valid addresses to several bridges and USB devices:
+The function dlm_callback_stop() expects to stop all callbacks and
+flush all currently queued onces. The set_bit() is not enough because
+there can still be queue_work() after the workqueue was flushed.
+To avoid queue_work() after set_bit(), surround both by ls_cb_mutex.
 
-  pci 0000:00:11.0: PCI-to-PCIe bridge to [bus 01-ff]
-  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
-  pci 0000:01:00.0: PCIe Upstream Port to [bus 02-ff]
-  pci 0000:01:00.0:   bridge window [io  0x0000-0x0fff]   # unreachable
-  pci 0000:02:02.0: PCIe Downstream Port to [bus 05-ff]
-  pci 0000:02:02.0:   bridge window [io  0x0000-0x0fff]   # unreachable
-  pci 0000:05:00.0: PCIe-to-PCI bridge to [bus 06-ff]
-  pci 0000:05:00.0:   bridge window [io  0x0000-0x0fff]   # unreachable
-  pci 0000:06:08.0: USB UHCI 1.1
-  pci 0000:06:08.0: BAR 4: [io  0xfce0-0xfcff]            # unreachable
-  pci 0000:06:08.1: USB UHCI 1.1
-  pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff]            # unreachable
-  pci 0000:06:08.0: can't claim BAR 4 [io  0xfce0-0xfcff]: no compatible bridge window
-  pci 0000:06:08.1: can't claim BAR 4 [io  0xfce0-0xfcff]: no compatible bridge window
-
-During the first pass of assigning unassigned resources, there was not
-enough I/O space available, so we couldn't assign the 06:08.0 BAR and
-reverted to the firmware assignment (still unreachable).  Reverting the
-06:08.1 assignment failed because it conflicted with 06:08.0:
-
-  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
-  pci 0000:01:00.0: no space for bridge window [io  size 0x2000]
-  pci 0000:02:02.0: no space for bridge window [io  size 0x1000]
-  pci 0000:05:00.0: no space for bridge window [io  size 0x1000]
-  pci 0000:06:08.0: BAR 4: no space for [io  size 0x0020]
-  pci 0000:06:08.0: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
-  pci 0000:06:08.1: BAR 4: no space for [io  size 0x0020]
-  pci 0000:06:08.1: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
-  pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff] conflicts with 0000:06:08.0 [io  0xfce0-0xfcff]
-
-A subsequent pass assigned valid bridge windows and a valid 06:08.1 BAR,
-but left the 06:08.0 BAR alone, so the UHCI device was still unusable:
-
-  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff] released
-  pci 0000:00:11.0:   bridge window [io  0x1000-0x2fff]   # reassigned
-  pci 0000:01:00.0:   bridge window [io  0x1000-0x2fff]   # reassigned
-  pci 0000:02:02.0:   bridge window [io  0x2000-0x2fff]   # reassigned
-  pci 0000:05:00.0:   bridge window [io  0x2000-0x2fff]   # reassigned
-  pci 0000:06:08.0: BAR 4: assigned [io  0xfce0-0xfcff]   # left alone
-  pci 0000:06:08.1: BAR 4: assigned [io  0x2000-0x201f]
-  ...
-  uhci_hcd 0000:06:08.0: host system error, PCI problems?
-  uhci_hcd 0000:06:08.0: host controller process error, something bad happened!
-  uhci_hcd 0000:06:08.0: host controller halted, very bad!
-  uhci_hcd 0000:06:08.0: HCRESET not completed yet!
-  uhci_hcd 0000:06:08.0: HC died; cleaning up
-
-If the address assigned by firmware is not reachable because it's not
-within upstream bridge windows, fail instead of assigning the unusable
-address from firmware.
-
-[bhelgaas: commit log, use pci_upstream_bridge()]
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=16263
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2203012338460.46819@angie.orcam.me.uk
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209211921250.29493@angie.orcam.me.uk
-Fixes: 58c84eda0756 ("PCI: fall back to original BIOS BAR addresses")
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org # v2.6.35+
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/setup-res.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ fs/dlm/ast.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/setup-res.c
-+++ b/drivers/pci/setup-res.c
-@@ -209,6 +209,17 @@ static int pci_revert_fw_address(struct
+--- a/fs/dlm/ast.c
++++ b/fs/dlm/ast.c
+@@ -198,13 +198,13 @@ void dlm_add_cb(struct dlm_lkb *lkb, uin
+ 	if (!prev_seq) {
+ 		kref_get(&lkb->lkb_ref);
  
- 	root = pci_find_parent_resource(dev, res);
- 	if (!root) {
-+		/*
-+		 * If dev is behind a bridge, accesses will only reach it
-+		 * if res is inside the relevant bridge window.
-+		 */
-+		if (pci_upstream_bridge(dev))
-+			return -ENXIO;
-+
-+		/*
-+		 * On the root bus, assume the host bridge will forward
-+		 * everything.
-+		 */
- 		if (res->flags & IORESOURCE_IO)
- 			root = &ioport_resource;
- 		else
++		mutex_lock(&ls->ls_cb_mutex);
+ 		if (test_bit(LSFL_CB_DELAY, &ls->ls_flags)) {
+-			mutex_lock(&ls->ls_cb_mutex);
+ 			list_add(&lkb->lkb_cb_list, &ls->ls_cb_delay);
+-			mutex_unlock(&ls->ls_cb_mutex);
+ 		} else {
+ 			queue_work(ls->ls_callback_wq, &lkb->lkb_cb_work);
+ 		}
++		mutex_unlock(&ls->ls_cb_mutex);
+ 	}
+  out:
+ 	mutex_unlock(&lkb->lkb_cb_mutex);
+@@ -284,7 +284,9 @@ void dlm_callback_stop(struct dlm_ls *ls
+ 
+ void dlm_callback_suspend(struct dlm_ls *ls)
+ {
++	mutex_lock(&ls->ls_cb_mutex);
+ 	set_bit(LSFL_CB_DELAY, &ls->ls_flags);
++	mutex_unlock(&ls->ls_cb_mutex);
+ 
+ 	if (ls->ls_callback_wq)
+ 		flush_workqueue(ls->ls_callback_wq);
 
 
