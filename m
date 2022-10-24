@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CBBB60B01E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEDE360AC6A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230242AbiJXQCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:02:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59838 "EHLO
+        id S234714AbiJXOGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:06:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232292AbiJXQAS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:00:18 -0400
+        with ESMTP id S237003AbiJXOER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:04:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5F5F89953;
-        Mon, 24 Oct 2022 07:55:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0179915C5;
+        Mon, 24 Oct 2022 05:49:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84DD2B81676;
-        Mon, 24 Oct 2022 12:25:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC469C433D6;
-        Mon, 24 Oct 2022 12:24:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90D11B819CC;
+        Mon, 24 Oct 2022 12:45:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF1ACC433D6;
+        Mon, 24 Oct 2022 12:45:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614300;
-        bh=lU1rMge4AvOB32EqEc1cYUnGuxCTzQQf26R06XK4qiY=;
+        s=korg; t=1666615552;
+        bh=0381ZvfdV9oeeuuMvnvU91yMYOMqK4PF4GfwjJETg80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+bqk5G5Ad70nrU8SlzPsI7bwJKaRTQjAemU3+k8Dhqpv9izFDa2XHY+l/0WtMWxO
-         sZAqtQX3UvKbC3tUjvtr0HzU9ddanZfxj2sFch/wYRJ1M5tDgkIBZqxUTPxyx/cjb5
-         /H80JbvZXuhGZsEOwl6bNW3lADHkojc4M+r88Vt4=
+        b=xSFe1VT90FS8azAtD5aPgUrS+HbcgHFIOVbf1UfyvIeCIkeCXrgb+368C40g7lnni
+         POoRw1IqnZWdUu/uPeuRPQO4+JDhnGBe9fFLKDI29zkl/IQY3Vvzcav7j942EUAyDC
+         WeqvKeo2poa1RzaahqnxNMd8ye+rcsk4cy4OGgO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 208/390] media: meson: vdec: add missing clk_disable_unprepare on error in vdec_hevc_start()
-Date:   Mon, 24 Oct 2022 13:30:05 +0200
-Message-Id: <20221024113031.637131515@linuxfoundation.org>
+Subject: [PATCH 5.15 265/530] iio: adc: at91-sama5d2_adc: check return status for pressure and touch
+Date:   Mon, 24 Oct 2022 13:30:09 +0200
+Message-Id: <20221024113057.046893173@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Qiang <xuqiang36@huawei.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 4029372233e13e281f8c387f279f9f064ced3810 ]
+[ Upstream commit d84ace944a3b24529798dbae1340dea098473155 ]
 
-Add the missing clk_disable_unprepare() before return
-from vdec_hevc_start() in the error handling case.
+Check return status of at91_adc_read_position() and
+at91_adc_read_pressure() in at91_adc_read_info_raw().
 
-Fixes: 823a7300340e (“media: meson: vdec: add common HEVC decoder support”)
-Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 6794e23fa3fe ("iio: adc: at91-sama5d2_adc: add support for oversampling resolution")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220803102855.2191070-3-claudiu.beznea@microchip.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/meson/vdec/vdec_hevc.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/iio/adc/at91-sama5d2_adc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/meson/vdec/vdec_hevc.c b/drivers/staging/media/meson/vdec/vdec_hevc.c
-index 9530e580e57a..afced435c907 100644
---- a/drivers/staging/media/meson/vdec/vdec_hevc.c
-+++ b/drivers/staging/media/meson/vdec/vdec_hevc.c
-@@ -167,8 +167,12 @@ static int vdec_hevc_start(struct amvdec_session *sess)
+diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
+index 92e2e7420aa9..6eb72ba6b4d2 100644
+--- a/drivers/iio/adc/at91-sama5d2_adc.c
++++ b/drivers/iio/adc/at91-sama5d2_adc.c
+@@ -1331,8 +1331,10 @@ static int at91_adc_read_info_raw(struct iio_dev *indio_dev,
+ 		*val = tmp_val;
+ 		mutex_unlock(&st->lock);
+ 		iio_device_release_direct_mode(indio_dev);
++		if (ret > 0)
++			ret = at91_adc_adjust_val_osr(st, val);
  
- 	clk_set_rate(core->vdec_hevc_clk, 666666666);
- 	ret = clk_prepare_enable(core->vdec_hevc_clk);
--	if (ret)
-+	if (ret) {
-+		if (core->platform->revision == VDEC_REVISION_G12A ||
-+		    core->platform->revision == VDEC_REVISION_SM1)
-+			clk_disable_unprepare(core->vdec_hevcf_clk);
- 		return ret;
-+	}
+-		return at91_adc_adjust_val_osr(st, val);
++		return ret;
+ 	}
+ 	if (chan->type == IIO_PRESSURE) {
+ 		ret = iio_device_claim_direct_mode(indio_dev);
+@@ -1345,8 +1347,10 @@ static int at91_adc_read_info_raw(struct iio_dev *indio_dev,
+ 		*val = tmp_val;
+ 		mutex_unlock(&st->lock);
+ 		iio_device_release_direct_mode(indio_dev);
++		if (ret > 0)
++			ret = at91_adc_adjust_val_osr(st, val);
  
- 	if (core->platform->revision == VDEC_REVISION_SM1)
- 		regmap_update_bits(core->regmap_ao, AO_RTI_GEN_PWR_SLEEP0,
+-		return at91_adc_adjust_val_osr(st, val);
++		return ret;
+ 	}
+ 
+ 	/* in this case we have a voltage channel */
 -- 
 2.35.1
 
