@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 676F460AADC
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:42:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69A1F60AAD9
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235826AbiJXNmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:42:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54450 "EHLO
+        id S231547AbiJXNim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:38:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236814AbiJXNlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:41:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABDAD8993C;
-        Mon, 24 Oct 2022 05:38:47 -0700 (PDT)
+        with ESMTP id S235826AbiJXNhB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:37:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A50B14C6;
+        Mon, 24 Oct 2022 05:36:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B1D36132D;
-        Mon, 24 Oct 2022 12:35:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B8DBC433D7;
-        Mon, 24 Oct 2022 12:35:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4888C61361;
+        Mon, 24 Oct 2022 12:35:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E851C433D6;
+        Mon, 24 Oct 2022 12:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614952;
-        bh=pz2UwXMRKNrNA4L+NtDLBqs3w52XvYBv/P4Jt38nelM=;
+        s=korg; t=1666614957;
+        bh=beAhWKXvQm9GjdNfxG+/MZqHkyVEr24AhaspX2hWJsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dk9KlCHgT14bpPFh5t1cw9QJ+NF/0r6PElNihq7j8NNPVCvpe4FxwacxEI+YB3Jct
-         EMVGIA25AnW4Ze0UioKJXPRAoXtTkqC7AeMdAondf8HZOjIGO1aaSjpeg3Yn3x4KqW
-         FtpwNB6I6z9wc306HNoN0vPvpNYKoZlpH9FY64oc=
+        b=wwoSmAXAuGtxuHCqwdBZTtIVafjP+ih+ltSvW+5zck2ZW6P//ihpDmnBld7/wgLbP
+         cKsUOAMR7uiIrOCkk544l3f4bMLGnzmjr4l9xVvJpn6Vi1UyxOwc57d6d42NlwNmgd
+         +bt7mNUNu2zSrpcpBZdOyvS2HJgSwLLNnBk5Sd0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Mengda Chen <chenmengda2009@163.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.15 035/530] hwmon: (gsc-hwmon) Call of_node_get() before of_find_xxx API
-Date:   Mon, 24 Oct 2022 13:26:19 +0200
-Message-Id: <20221024113046.592040234@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        linux-arm-msm@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 037/530] regulator: qcom_rpm: Fix circular deferral regression
+Date:   Mon, 24 Oct 2022 13:26:21 +0200
+Message-Id: <20221024113046.676616735@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,35 +56,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 7f62cf781e6567d59c8935dc8c6068ce2bb904b7 upstream.
+commit 8478ed5844588703a1a4c96a004b1525fbdbdd5e upstream.
 
-In gsc_hwmon_get_devtree_pdata(), we should call of_node_get() before
-the of_find_compatible_node() which will automatically call
-of_node_put() for the 'from' argument.
+On recent kernels, the PM8058 L16 (or any other PM8058 LDO-regulator)
+does not come up if they are supplied by an SMPS-regulator. This
+is not very strange since the regulators are registered in a long
+array and the L-regulators are registered before the S-regulators,
+and if an L-regulator defers, it will never get around to registering
+the S-regulator that it needs.
 
-Fixes: 3bce5377ef66 ("hwmon: Add Gateworks System Controller support")
-Signed-off-by: Liang He <windhl@126.com>
-Co-developed-by: Mengda Chen <chenmengda2009@163.com>
-Signed-off-by: Mengda Chen <chenmengda2009@163.com>
-Link: https://lore.kernel.org/r/20220916154708.3084515-1-chenmengda2009@163.com
+See arch/arm/boot/dts/qcom-apq8060-dragonboard.dts:
+
+pm8058-regulators {
+    (...)
+    vdd_l13_l16-supply = <&pm8058_s4>;
+    (...)
+
+Ooops.
+
+Fix this by moving the PM8058 S-regulators first in the array.
+
+Do the same for the PM8901 S-regulators (though this is currently
+not causing any problems with out device trees) so that the pattern
+of registration order is the same on all PMnnnn chips.
+
+Fixes: 087a1b5cdd55 ("regulator: qcom: Rework to single platform device")
 Cc: stable@vger.kernel.org
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Andy Gross <agross@kernel.org>
+Cc: Bjorn Andersson <andersson@kernel.org>
+Cc: Konrad Dybcio <konrad.dybcio@somainline.org>
+Cc: linux-arm-msm@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220909112529.239143-1-linus.walleij@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/gsc-hwmon.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/regulator/qcom_rpm-regulator.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/drivers/hwmon/gsc-hwmon.c
-+++ b/drivers/hwmon/gsc-hwmon.c
-@@ -267,6 +267,7 @@ gsc_hwmon_get_devtree_pdata(struct devic
- 	pdata->nchannels = nchannels;
+--- a/drivers/regulator/qcom_rpm-regulator.c
++++ b/drivers/regulator/qcom_rpm-regulator.c
+@@ -802,6 +802,12 @@ static const struct rpm_regulator_data r
+ };
  
- 	/* fan controller base address */
-+	of_node_get(dev->parent->of_node);
- 	fan = of_find_compatible_node(dev->parent->of_node, NULL, "gw,gsc-fan");
- 	if (fan && of_property_read_u32(fan, "reg", &pdata->fan_base)) {
- 		dev_err(dev, "fan node without base\n");
+ static const struct rpm_regulator_data rpm_pm8058_regulators[] = {
++	{ "s0",   QCOM_RPM_PM8058_SMPS0,  &pm8058_smps, "vdd_s0" },
++	{ "s1",   QCOM_RPM_PM8058_SMPS1,  &pm8058_smps, "vdd_s1" },
++	{ "s2",   QCOM_RPM_PM8058_SMPS2,  &pm8058_smps, "vdd_s2" },
++	{ "s3",   QCOM_RPM_PM8058_SMPS3,  &pm8058_smps, "vdd_s3" },
++	{ "s4",   QCOM_RPM_PM8058_SMPS4,  &pm8058_smps, "vdd_s4" },
++
+ 	{ "l0",   QCOM_RPM_PM8058_LDO0,   &pm8058_nldo, "vdd_l0_l1_lvs"	},
+ 	{ "l1",   QCOM_RPM_PM8058_LDO1,   &pm8058_nldo, "vdd_l0_l1_lvs" },
+ 	{ "l2",   QCOM_RPM_PM8058_LDO2,   &pm8058_pldo, "vdd_l2_l11_l12" },
+@@ -829,12 +835,6 @@ static const struct rpm_regulator_data r
+ 	{ "l24",  QCOM_RPM_PM8058_LDO24,  &pm8058_nldo, "vdd_l23_l24_l25" },
+ 	{ "l25",  QCOM_RPM_PM8058_LDO25,  &pm8058_nldo, "vdd_l23_l24_l25" },
+ 
+-	{ "s0",   QCOM_RPM_PM8058_SMPS0,  &pm8058_smps, "vdd_s0" },
+-	{ "s1",   QCOM_RPM_PM8058_SMPS1,  &pm8058_smps, "vdd_s1" },
+-	{ "s2",   QCOM_RPM_PM8058_SMPS2,  &pm8058_smps, "vdd_s2" },
+-	{ "s3",   QCOM_RPM_PM8058_SMPS3,  &pm8058_smps, "vdd_s3" },
+-	{ "s4",   QCOM_RPM_PM8058_SMPS4,  &pm8058_smps, "vdd_s4" },
+-
+ 	{ "lvs0", QCOM_RPM_PM8058_LVS0, &pm8058_switch, "vdd_l0_l1_lvs" },
+ 	{ "lvs1", QCOM_RPM_PM8058_LVS1, &pm8058_switch, "vdd_l0_l1_lvs" },
+ 
+@@ -843,6 +843,12 @@ static const struct rpm_regulator_data r
+ };
+ 
+ static const struct rpm_regulator_data rpm_pm8901_regulators[] = {
++	{ "s0",   QCOM_RPM_PM8901_SMPS0, &pm8901_ftsmps, "vdd_s0" },
++	{ "s1",   QCOM_RPM_PM8901_SMPS1, &pm8901_ftsmps, "vdd_s1" },
++	{ "s2",   QCOM_RPM_PM8901_SMPS2, &pm8901_ftsmps, "vdd_s2" },
++	{ "s3",   QCOM_RPM_PM8901_SMPS3, &pm8901_ftsmps, "vdd_s3" },
++	{ "s4",   QCOM_RPM_PM8901_SMPS4, &pm8901_ftsmps, "vdd_s4" },
++
+ 	{ "l0",   QCOM_RPM_PM8901_LDO0, &pm8901_nldo, "vdd_l0" },
+ 	{ "l1",   QCOM_RPM_PM8901_LDO1, &pm8901_pldo, "vdd_l1" },
+ 	{ "l2",   QCOM_RPM_PM8901_LDO2, &pm8901_pldo, "vdd_l2" },
+@@ -851,12 +857,6 @@ static const struct rpm_regulator_data r
+ 	{ "l5",   QCOM_RPM_PM8901_LDO5, &pm8901_pldo, "vdd_l5" },
+ 	{ "l6",   QCOM_RPM_PM8901_LDO6, &pm8901_pldo, "vdd_l6" },
+ 
+-	{ "s0",   QCOM_RPM_PM8901_SMPS0, &pm8901_ftsmps, "vdd_s0" },
+-	{ "s1",   QCOM_RPM_PM8901_SMPS1, &pm8901_ftsmps, "vdd_s1" },
+-	{ "s2",   QCOM_RPM_PM8901_SMPS2, &pm8901_ftsmps, "vdd_s2" },
+-	{ "s3",   QCOM_RPM_PM8901_SMPS3, &pm8901_ftsmps, "vdd_s3" },
+-	{ "s4",   QCOM_RPM_PM8901_SMPS4, &pm8901_ftsmps, "vdd_s4" },
+-
+ 	{ "lvs0", QCOM_RPM_PM8901_LVS0, &pm8901_switch, "lvs0_in" },
+ 	{ "lvs1", QCOM_RPM_PM8901_LVS1, &pm8901_switch, "lvs1_in" },
+ 	{ "lvs2", QCOM_RPM_PM8901_LVS2, &pm8901_switch, "lvs2_in" },
 
 
