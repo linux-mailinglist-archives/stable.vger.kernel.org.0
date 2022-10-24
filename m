@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69AC760B9C6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:21:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 828CF60BA45
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:31:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234116AbiJXUVO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:21:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38020 "EHLO
+        id S230397AbiJXUbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:31:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234145AbiJXUUs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:20:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF64610EE6A;
-        Mon, 24 Oct 2022 11:37:16 -0700 (PDT)
+        with ESMTP id S233258AbiJXUa6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:30:58 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47281115428;
+        Mon, 24 Oct 2022 11:42:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB32DB8170E;
-        Mon, 24 Oct 2022 12:31:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CB06C433C1;
-        Mon, 24 Oct 2022 12:31:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 819BDCE16E4;
+        Mon, 24 Oct 2022 12:51:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92CC6C433D6;
+        Mon, 24 Oct 2022 12:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614712;
-        bh=D8ozL383GaaeAGtKQvIA9IdpVRSMEvGm6dPoBfIkAio=;
+        s=korg; t=1666615888;
+        bh=mZqX+tluggld9fSL1i9YkMGAMPOcimbKnVay6bhf3mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BE8+CxG2ZyrZVDGvIGm2WQcMQuYIqGHg4+SSuLzsSX7QjLb5WWb0c0gyJp2SZ/ox/
-         42bdF/7BdZFKwlCddx2KKWAZRmKkAs5rfnpaJDPw/pYojafyEw4rxXKKkjU5elyusB
-         zbL2dY1HaH29OtCAdIb1orAzwWGT1gR29mk3zoLU=
+        b=ucnbaAmfdd3QKIoesUigwToxvUb+rKTB1hlWN44CChdVfJ+RmIAsAbDyy8D5IJGAg
+         KR8gUNmboMMPbmKjBKpqZIRuhn/UdkOfpUWJzjDnB2qpslLjTyIwAPmvUVKNfBaJAc
+         NKJ4MaOyMi1x8vikX+ErfxCAyLRXg3DWMzC9XCcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 366/390] HID: roccat: Fix use-after-free in roccat_read()
-Date:   Mon, 24 Oct 2022 13:32:43 +0200
-Message-Id: <20221024113038.588672567@linuxfoundation.org>
+        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 421/530] tcp: annotate data-race around tcp_md5sig_pool_populated
+Date:   Mon, 24 Oct 2022 13:32:45 +0200
+Message-Id: <20221024113104.149722363@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,106 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <imv4bel@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit cacdb14b1c8d3804a3a7d31773bc7569837b71a4 ]
+[ Upstream commit aacd467c0a576e5e44d2de4205855dc0fe43f6fb ]
 
-roccat_report_event() is responsible for registering
-roccat-related reports in struct roccat_device.
+tcp_md5sig_pool_populated can be read while another thread
+changes its value.
 
-int roccat_report_event(int minor, u8 const *data)
-{
-	struct roccat_device *device;
-	struct roccat_reader *reader;
-	struct roccat_report *report;
-	uint8_t *new_value;
+The race has no consequence because allocations
+are protected with tcp_md5sig_mutex.
 
-	device = devices[minor];
+This patch adds READ_ONCE() and WRITE_ONCE() to document
+the race and silence KCSAN.
 
-	new_value = kmemdup(data, device->report_size, GFP_ATOMIC);
-	if (!new_value)
-		return -ENOMEM;
-
-	report = &device->cbuf[device->cbuf_end];
-
-	/* passing NULL is safe */
-	kfree(report->value);
-	...
-
-The registered report is stored in the struct roccat_device member
-"struct roccat_report cbuf[ROCCAT_CBUF_SIZE];".
-If more reports are received than the "ROCCAT_CBUF_SIZE" value,
-kfree() the saved report from cbuf[0] and allocates a new reprot.
-Since there is no lock when this kfree() is performed,
-kfree() can be performed even while reading the saved report.
-
-static ssize_t roccat_read(struct file *file, char __user *buffer,
-		size_t count, loff_t *ppos)
-{
-	struct roccat_reader *reader = file->private_data;
-	struct roccat_device *device = reader->device;
-	struct roccat_report *report;
-	ssize_t retval = 0, len;
-	DECLARE_WAITQUEUE(wait, current);
-
-	mutex_lock(&device->cbuf_lock);
-
-	...
-
-	report = &device->cbuf[reader->cbuf_start];
-	/*
-	 * If report is larger than requested amount of data, rest of report
-	 * is lost!
-	 */
-	len = device->report_size > count ? count : device->report_size;
-
-	if (copy_to_user(buffer, report->value, len)) {
-		retval = -EFAULT;
-		goto exit_unlock;
-	}
-	...
-
-The roccat_read() function receives the device->cbuf report and
-delivers it to the user through copy_to_user().
-If the N+ROCCAT_CBUF_SIZE th report is received while copying of
-the Nth report->value is in progress, the pointer that copy_to_user()
-is working on is kfree()ed and UAF read may occur. (race condition)
-
-Since the device node of this driver does not set separate permissions,
-this is not a security vulnerability, but because it is used for
-requesting screen display of profile or dpi settings,
-a user using the roccat device can apply udev to this device node or
-There is a possibility to use it by giving.
-
-Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-roccat.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv4/tcp.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-index 26373b82fe81..6da80e442fdd 100644
---- a/drivers/hid/hid-roccat.c
-+++ b/drivers/hid/hid-roccat.c
-@@ -257,6 +257,8 @@ int roccat_report_event(int minor, u8 const *data)
- 	if (!new_value)
- 		return -ENOMEM;
- 
-+	mutex_lock(&device->cbuf_lock);
-+
- 	report = &device->cbuf[device->cbuf_end];
- 
- 	/* passing NULL is safe */
-@@ -276,6 +278,8 @@ int roccat_report_event(int minor, u8 const *data)
- 			reader->cbuf_start = (reader->cbuf_start + 1) % ROCCAT_CBUF_SIZE;
- 	}
- 
-+	mutex_unlock(&device->cbuf_lock);
-+
- 	wake_up_interruptible(&device->wait);
- 	return 0;
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index b604c7664350..5b4e170b6a34 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -4331,12 +4331,16 @@ static void __tcp_alloc_md5sig_pool(void)
+ 	 * to memory. See smp_rmb() in tcp_get_md5sig_pool()
+ 	 */
+ 	smp_wmb();
+-	tcp_md5sig_pool_populated = true;
++	/* Paired with READ_ONCE() from tcp_alloc_md5sig_pool()
++	 * and tcp_get_md5sig_pool().
++	*/
++	WRITE_ONCE(tcp_md5sig_pool_populated, true);
  }
+ 
+ bool tcp_alloc_md5sig_pool(void)
+ {
+-	if (unlikely(!tcp_md5sig_pool_populated)) {
++	/* Paired with WRITE_ONCE() from __tcp_alloc_md5sig_pool() */
++	if (unlikely(!READ_ONCE(tcp_md5sig_pool_populated))) {
+ 		mutex_lock(&tcp_md5sig_mutex);
+ 
+ 		if (!tcp_md5sig_pool_populated) {
+@@ -4347,7 +4351,8 @@ bool tcp_alloc_md5sig_pool(void)
+ 
+ 		mutex_unlock(&tcp_md5sig_mutex);
+ 	}
+-	return tcp_md5sig_pool_populated;
++	/* Paired with WRITE_ONCE() from __tcp_alloc_md5sig_pool() */
++	return READ_ONCE(tcp_md5sig_pool_populated);
+ }
+ EXPORT_SYMBOL(tcp_alloc_md5sig_pool);
+ 
+@@ -4363,7 +4368,8 @@ struct tcp_md5sig_pool *tcp_get_md5sig_pool(void)
+ {
+ 	local_bh_disable();
+ 
+-	if (tcp_md5sig_pool_populated) {
++	/* Paired with WRITE_ONCE() from __tcp_alloc_md5sig_pool() */
++	if (READ_ONCE(tcp_md5sig_pool_populated)) {
+ 		/* coupled with smp_wmb() in __tcp_alloc_md5sig_pool() */
+ 		smp_rmb();
+ 		return this_cpu_ptr(&tcp_md5sig_pool);
 -- 
 2.35.1
 
