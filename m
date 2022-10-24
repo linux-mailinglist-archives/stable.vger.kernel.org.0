@@ -2,101 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DF14609BC7
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 09:48:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD800609BF7
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 10:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229719AbiJXHr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 03:47:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57144 "EHLO
+        id S229728AbiJXIBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 04:01:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229535AbiJXHr4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 03:47:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BEE012AE0
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 00:47:42 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 867026106D
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 07:47:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91CACC433C1;
-        Mon, 24 Oct 2022 07:47:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666597620;
-        bh=mDxCVlbhEkBBMnGFxu+Ht1RHOrgaQVdyh81t8a1AyC8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OTxgrUmDhhNfm42iIdV/QK8zP269ygoLVhYD3j5sFdeLMxWUUyM9hYp8tq2oih14L
-         6mfwZ3BA2+ApjhF2bJfhcevgpQUrqHSUOJGNhO6WRria8qDPPwMOD5B5PSUiY0dQeT
-         ee03QwWsBqNngUz0s6JNUgEynjV2cma340+W2Yl8=
-Date:   Mon, 24 Oct 2022 09:46:58 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Qu Wenruo <wqu@suse.com>
-Cc:     dsterba@suse.com, nborisov@suse.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] btrfs: enhance unsupported compat RO
- flags handling" failed to apply to 5.10-stable tree
-Message-ID: <Y1ZC8sOqXE5I7EoO@kroah.com>
-References: <1665923098198193@kroah.com>
- <6f9bd9ba-ac8b-4ec5-d4a5-865d5546fecb@suse.com>
+        with ESMTP id S229574AbiJXIBT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 04:01:19 -0400
+Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::225])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6314155C4E
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 01:01:18 -0700 (PDT)
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 26BB81C0009;
+        Mon, 24 Oct 2022 08:01:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1666598476;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=WM1gKr/mJ27ySIGzD2Gf2oi7gGjkYnWH+0R0rF+13XI=;
+        b=GJEZSBEBwUH2EjeVhW9v2X07otLUMZT5PdZbKjnrSgCumTBgZFZQfXVgsF5SY0TTkAUPOa
+        VQAh6zUgOzKc5z76o8AJehxy01Fn734UVuhGPzmTmV0O3ENVBRRkKyfH4lRRjgbPJvpyVn
+        79FftIUDh8yyqusaeRRt34rcmzLWc/NUFzxCu9ac59tpMWcTpW5AYvIpFXAXbtyzh41r+Y
+        mg0doF9QRchusP4M//U4v4Bjb2xHCO/nxeHD3VP4k5kAeLFjhER7IYoZWUPLF0Mqnvwnk2
+        mIhbcH/mtWq8p8KMOQmNgo+Id9peIIy70ni6c8yVpf44GdtIBVbTV1YFXH35UQ==
+Date:   Mon, 24 Oct 2022 10:01:14 +0200
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Tim Harvey <tharvey@gateworks.com>
+Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Tomasz =?UTF-8?B?TW/FhA==?= <tomasz.mon@camlingroup.com>,
+        Richard Weinberger <richard@nod.at>,
+        linux-mtd <linux-mtd@lists.infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        torvalds <torvalds@linux-foundation.org>,
+        Han Xu <han.xu@nxp.com>, kernel <kernel@pengutronix.de>,
+        stable <stable@vger.kernel.org>,
+        k drobinski <k.drobinski@camlintechnologies.com>
+Subject: Re: [PATCH] mtd: rawnand: gpmi: Set WAIT_FOR_READY timeout based on
+ program/erase times
+Message-ID: <20221024100114.627f87bd@xps-13>
+In-Reply-To: <CAJ+vNU0r3Enkwn+WzvEJYc_O4NurRyCssx2S-_ZS_cYCpk2-cA@mail.gmail.com>
+References: <20220701110341.3094023-1-s.hauer@pengutronix.de>
+        <c2d545d1f5478e66c0dac47f4bc4c04256ff44aa.camel@camlingroup.com>
+        <fd830c7e94de6b4a0b532dfcf46cf1edd22b42fb.camel@camlingroup.com>
+        <YtD/9KJZwlVj+6hS@kroah.com>
+        <20220715074631.GA7333@pengutronix.de>
+        <YtEdIujszEKSprbF@kroah.com>
+        <770744970.283550.1657871950910.JavaMail.zimbra@nod.at>
+        <20220902090252.75285234@xps-13>
+        <CAJ+vNU0r3Enkwn+WzvEJYc_O4NurRyCssx2S-_ZS_cYCpk2-cA@mail.gmail.com>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6f9bd9ba-ac8b-4ec5-d4a5-865d5546fecb@suse.com>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 24, 2022 at 03:08:21PM +0800, Qu Wenruo wrote:
-> 
-> 
-> On 2022/10/16 20:24, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 5.10-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> > 
-> > Possible dependencies:
-> > 
-> > 81d5d61454c3 ("btrfs: enhance unsupported compat RO flags handling")
-> > dfe8aec4520b ("btrfs: add a btrfs_block_group_root() helper")
-> > b6e9f16c5fda ("btrfs: replace open coded while loop with proper construct")
-> > 42437a6386ff ("btrfs: introduce mount option rescue=ignorebadroots")
-> 
-> Hi Greg and btrfs guys,
-> 
-> I'm not confident enough to continue backporting this patch (and its
-> dependency) for older branches.
-> 
-> This patch itself relies on the new function fill_dummy_bgs() to skip the
-> full block group items search.
-> 
-> That function is the core functionality to allow us to mount fses read-only
-> with unsupported compat_ro flags.
-> 
-> But if we backport 42437a6386ff ("btrfs: introduce mount option
-> rescue=ignorebadroots"), we need the "rescue=" mount option series, which
-> can be super large, especially for older and older branches.
-> 
-> The other solution is to still implement that fill_dummy_bgs(), but not
-> introducing the "rescue=" mount option.
-> This means, we will have some moderate changes to 42437a6386ff ("btrfs:
-> introduce mount option rescue=ignorebadroots"), but at least no full
-> dependency on the "rescue=" mount options.
-> 
-> I'm wondering which solution would be more acceptable from the POV of stable
-> kernels?
+Hi Tim,
 
-First off, is this really needed in older kernels?  It was marked as
-such, but that's up to you all to decide if it's true or not.
+tharvey@gateworks.com wrote on Fri, 21 Oct 2022 14:55:15 -0700:
 
-So I'll defer to you and the btrfs maintainers on what to do, just let
-us know.
+> On Fri, Sep 2, 2022 at 12:03 AM Miquel Raynal <miquel.raynal@bootlin.com>=
+ wrote:
+> >
+> > Hey folks,
+> >
+> > richard@nod.at wrote on Fri, 15 Jul 2022 09:59:10 +0200 (CEST):
+> > =20
+> > > ----- Urspr=C3=BCngliche Mail ----- =20
+> > > >> My IRC history doesn't go back far enough, but if I recall correct=
+ly
+> > > >> Miquel is on vacation, he would have picked up this patch for linu=
+x-next
+> > > >> otherwise. =20
+> > >
+> > > Exactly. =20
+> >
+> > Indeed, I was off for an extended period of time, I'm (very) slowly
+> > catching up now.
+> > =20
+> > > =20
+> > > > Ok, let me do a round of stable releases so that people don't get h=
+it by
+> > > > this now... =20
+> > >
+> > > Thanks a lot for doing so.
+> > > =20
+> > > > Hopefully this gets fixed up by 5.19-final. =20
+> > >
+> > > Sure, I'll pickup this patch. =20
+> >
+> > Thanks Greg & Richard for the handling of this issue.
+> >
+> > Cheers,
+> > Miqu=C3=A8l
+> > =20
+>=20
+> Hello All,
+>=20
+> As Tomasz stated previously 06781a5026350 was merged in v5.19-rc4 and
+> then was picked up by several stable kernels. While this made it into
+> the 5.15 and 5.18 stable branches it did not make it into the
+> following which are thus the are currently broken:
+> 5.10.y
+> 5.17.y
+>=20
+> How do we get this patch applied to those stable branches as well to
+> resolve this?
 
-thanks,
+It is likely that the original patch (targeting a mainline kernel) did
+not apply to those branches. In this case you can adapt the fix to the
+concerned kernels and send it to stable@ (following the Documentation
+guidelines for backports).
 
-greg k-h
+Thanks,
+Miqu=C3=A8l
