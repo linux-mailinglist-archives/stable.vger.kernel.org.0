@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E434B60AA2C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C6EB60AA2D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232378AbiJXNb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:31:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36954 "EHLO
+        id S232468AbiJXNba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:31:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236013AbiJXN3X (ORCPT
+        with ESMTP id S236016AbiJXN3X (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F214AABF08;
-        Mon, 24 Oct 2022 05:32:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD70B1E1;
+        Mon, 24 Oct 2022 05:32:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2520E61338;
-        Mon, 24 Oct 2022 12:32:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38CC0C433D6;
-        Mon, 24 Oct 2022 12:32:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2C43612B2;
+        Mon, 24 Oct 2022 12:32:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8809C433D6;
+        Mon, 24 Oct 2022 12:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614738;
-        bh=1zSzDiAVmfYGGXOfDWhFwcYMeLXritnbgm9Z9d7MIdU=;
+        s=korg; t=1666614741;
+        bh=3ierzcmJ1iX1qGa2HEvurAr4/bygL9us4GsEWEsJVYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W+2+Mm9sTJpvYn6SE42DOEEd1xQNVNvRrCpYgGFSzeExK639C7gIUZ1KTNkxRJxGB
-         S+HaZr2lVhbiYrlmSCjLlV7i6OJJD970//ln14QleLLH6U7pPE7T4rG8+ivaUZdNAi
-         jm+YW6qBoDDMOY77W+0cR9r7K6rlgycRRz2pQwso=
+        b=ytOJA4XCR08vCIZE8iuE87Jzpa7qvjusJ9bbYiulEJD3SrJAv4Tvsq/Hl0x+0qTfg
+         QnVvc/qeZjwMQdXTo9i8nWhdPdVV/q+Uwnsd1Tab0m6cLp6i8uC48abtnUjv4jEh1N
+         LpzYETF4UjCdVxms0Sw9pwLs/6r3jaHugwvjGVFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 375/390] clk: bcm2835: Make peripheral PLLC critical
-Date:   Mon, 24 Oct 2022 13:32:52 +0200
-Message-Id: <20221024113038.975228832@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 376/390] perf intel-pt: Fix segfault in intel_pt_print_info() with uClibc
+Date:   Mon, 24 Oct 2022 13:32:53 +0200
+Message-Id: <20221024113039.005803311@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -56,47 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 6c5422851d8be8c7451e968fd2e6da41b6109e17 ]
+commit 5a3d47071f0ced0431ef82a5fb6bd077ed9493db upstream.
 
-When testing for a series affecting the VEC, it was discovered that
-turning off and on the VEC clock is crashing the system.
+uClibc segfaulted because NULL was passed as the format to fprintf().
 
-It turns out that, when disabling the VEC clock, it's the only child of
-the PLLC-per clock which will also get disabled. The source of the crash
-is PLLC-per being disabled.
+That happened because one of the format strings was missing and
+intel_pt_print_info() didn't check that before calling fprintf().
 
-It's likely that some other device might not take a clock reference that
-it actually needs, but it's unclear which at this point. Let's make
-PLLC-per critical so that we don't have that crash.
+Add the missing format string, and check format is not NULL before calling
+fprintf().
 
-Reported-by: Noralf Trønnes <noralf@tronnes.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220926084509.12233-1-maxime@cerno.tech
-Reviewed-by: Stefan Wahren <stefan.wahren@i2se.com>
-Acked-by: Noralf Trønnes <noralf@tronnes.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 11fa7cb86b56d361 ("perf tools: Pass Intel PT information for decoding MTC and CYC")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221012082259.22394-2-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/intel-pt.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index f306b959297d..b7f89873fcf5 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -1786,7 +1786,7 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
- 		.load_mask = CM_PLLC_LOADPER,
- 		.hold_mask = CM_PLLC_HOLDPER,
- 		.fixed_divider = 1,
--		.flags = CLK_SET_RATE_PARENT),
-+		.flags = CLK_IS_CRITICAL | CLK_SET_RATE_PARENT),
+--- a/tools/perf/util/intel-pt.c
++++ b/tools/perf/util/intel-pt.c
+@@ -3279,6 +3279,7 @@ static const char * const intel_pt_info_
+ 	[INTEL_PT_SNAPSHOT_MODE]	= "  Snapshot mode       %"PRId64"\n",
+ 	[INTEL_PT_PER_CPU_MMAPS]	= "  Per-cpu maps        %"PRId64"\n",
+ 	[INTEL_PT_MTC_BIT]		= "  MTC bit             %#"PRIx64"\n",
++	[INTEL_PT_MTC_FREQ_BITS]	= "  MTC freq bits       %#"PRIx64"\n",
+ 	[INTEL_PT_TSC_CTC_N]		= "  TSC:CTC numerator   %"PRIu64"\n",
+ 	[INTEL_PT_TSC_CTC_D]		= "  TSC:CTC denominator %"PRIu64"\n",
+ 	[INTEL_PT_CYC_BIT]		= "  CYC bit             %#"PRIx64"\n",
+@@ -3293,8 +3294,12 @@ static void intel_pt_print_info(__u64 *a
+ 	if (!dump_trace)
+ 		return;
  
- 	/*
- 	 * PLLD is the display PLL, used to drive DSI display panels.
--- 
-2.35.1
-
+-	for (i = start; i <= finish; i++)
+-		fprintf(stdout, intel_pt_info_fmts[i], arr[i]);
++	for (i = start; i <= finish; i++) {
++		const char *fmt = intel_pt_info_fmts[i];
++
++		if (fmt)
++			fprintf(stdout, fmt, arr[i]);
++	}
+ }
+ 
+ static void intel_pt_print_info_str(const char *name, const char *str)
 
 
