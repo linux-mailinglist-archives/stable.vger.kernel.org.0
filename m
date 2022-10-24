@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D38960A404
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1700360A71A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229908AbiJXMFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:05:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44972 "EHLO
+        id S234161AbiJXMr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:47:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232453AbiJXMC4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:02:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE1B23EB0;
-        Mon, 24 Oct 2022 04:49:46 -0700 (PDT)
+        with ESMTP id S234476AbiJXMo4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:44:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E731F201BD;
+        Mon, 24 Oct 2022 05:09:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47F1EB8117E;
-        Mon, 24 Oct 2022 11:47:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A15C2C433C1;
-        Mon, 24 Oct 2022 11:47:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92A51612BE;
+        Mon, 24 Oct 2022 12:08:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2FCFC433D6;
+        Mon, 24 Oct 2022 12:08:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612041;
-        bh=zZ6aCnvvIvMD/DtvvB7qbtS2ts7lyXMgsQSGtvWJf1E=;
+        s=korg; t=1666613327;
+        bh=QHolA/OG9b0aq0+4xFDwS22hchZVMgKudTulwkkkeH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cf5tnW9jl781uCuhyFZd5zBA/iLc01IIH16bwrXl164xnE4Twgm7yiLg6ot61+7w+
-         JsH2gcWtUFZ3hxpCuzY0Z25PLOw4nI7kM4SKeBXD5+JrWoEAmljyH6K1ZTBbGUUvWG
-         WqRzO740Y3HgAf2D9UQb1bJcMHyRJA3yPXkcnCG8=
+        b=fNPn1cCLK7QzJz0Jp2xpnjUj/S1v4vvYFl6nU8YEI1t7Q8Y4yc1cNRH5m2vCXDRCo
+         iZD5Dl2t35TNbeqUeTKMkUD0fEtt4yyGn9rgosRAipk0qQIRQHpwmFSs6l8tOLF3IM
+         +a5SWCZRmxLAysntQEz8gL6ud5Y38piwnBssJ6EY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>,
-        Pavel Rojtberg <rojtberg@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.14 048/210] Input: xpad - fix wireless 360 controller breaking after suspend
+        stable@vger.kernel.org, Martin Liska <mliska@suse.cz>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 055/255] gcov: support GCC 12.1 and newer compilers
 Date:   Mon, 24 Oct 2022 13:29:25 +0200
-Message-Id: <20221024112958.545652058@linuxfoundation.org>
+Message-Id: <20221024113004.332068147@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cameron Gutman <aicommander@gmail.com>
+From: Martin Liska <mliska@suse.cz>
 
-commit a17b9841152e7f4621619902b347e2cc39c32996 upstream.
+commit 977ef30a7d888eeb52fb6908f99080f33e5309a8 upstream.
 
-Suspending and resuming the system can sometimes cause the out
-URB to get hung after a reset_resume. This causes LED setting
-and force feedback to break on resume. To avoid this, just drop
-the reset_resume callback so the USB core rebinds xpad to the
-wireless pads on resume if a reset happened.
+Starting with GCC 12.1, the created .gcda format can't be read by gcov
+tool.  There are 2 significant changes to the .gcda file format that
+need to be supported:
 
-A nice side effect of this change is the LED ring on wireless
-controllers is now set correctly on system resume.
+a) [gcov: Use system IO buffering]
+   (23eb66d1d46a34cb28c4acbdf8a1deb80a7c5a05) changed that all sizes in
+   the format are in bytes and not in words (4B)
 
-Cc: stable@vger.kernel.org
-Fixes: 4220f7db1e42 ("Input: xpad - workaround dead irq_out after suspend/ resume")
-Signed-off-by: Cameron Gutman <aicommander@gmail.com>
-Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
-Link: https://lore.kernel.org/r/20220818154411.510308-3-rojtberg@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+b) [gcov: make profile merging smarter]
+   (72e0c742bd01f8e7e6dcca64042b9ad7e75979de) add a new checksum to the
+   file header.
+
+Tested with GCC 7.5, 10.4, 12.2 and the current master.
+
+Link: https://lkml.kernel.org/r/624bda92-f307-30e9-9aaa-8cc678b2dfb2@suse.cz
+Signed-off-by: Martin Liska <mliska@suse.cz>
+Tested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c |    1 -
- 1 file changed, 1 deletion(-)
+ kernel/gcov/gcc_4_7.c |   18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -2000,7 +2000,6 @@ static struct usb_driver xpad_driver = {
- 	.disconnect	= xpad_disconnect,
- 	.suspend	= xpad_suspend,
- 	.resume		= xpad_resume,
--	.reset_resume	= xpad_resume,
- 	.id_table	= xpad_table,
- };
+--- a/kernel/gcov/gcc_4_7.c
++++ b/kernel/gcov/gcc_4_7.c
+@@ -33,6 +33,13 @@
  
+ #define GCOV_TAG_FUNCTION_LENGTH	3
+ 
++/* Since GCC 12.1 sizes are in BYTES and not in WORDS (4B). */
++#if (__GNUC__ >= 12)
++#define GCOV_UNIT_SIZE				4
++#else
++#define GCOV_UNIT_SIZE				1
++#endif
++
+ static struct gcov_info *gcov_info_head;
+ 
+ /**
+@@ -451,12 +458,18 @@ static size_t convert_to_gcda(char *buff
+ 	pos += store_gcov_u32(buffer, pos, info->version);
+ 	pos += store_gcov_u32(buffer, pos, info->stamp);
+ 
++#if (__GNUC__ >= 12)
++	/* Use zero as checksum of the compilation unit. */
++	pos += store_gcov_u32(buffer, pos, 0);
++#endif
++
+ 	for (fi_idx = 0; fi_idx < info->n_functions; fi_idx++) {
+ 		fi_ptr = info->functions[fi_idx];
+ 
+ 		/* Function record. */
+ 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION);
+-		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION_LENGTH);
++		pos += store_gcov_u32(buffer, pos,
++			GCOV_TAG_FUNCTION_LENGTH * GCOV_UNIT_SIZE);
+ 		pos += store_gcov_u32(buffer, pos, fi_ptr->ident);
+ 		pos += store_gcov_u32(buffer, pos, fi_ptr->lineno_checksum);
+ 		pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
+@@ -470,7 +483,8 @@ static size_t convert_to_gcda(char *buff
+ 			/* Counter record. */
+ 			pos += store_gcov_u32(buffer, pos,
+ 					      GCOV_TAG_FOR_COUNTER(ct_idx));
+-			pos += store_gcov_u32(buffer, pos, ci_ptr->num * 2);
++			pos += store_gcov_u32(buffer, pos,
++				ci_ptr->num * 2 * GCOV_UNIT_SIZE);
+ 
+ 			for (cv_idx = 0; cv_idx < ci_ptr->num; cv_idx++) {
+ 				pos += store_gcov_u64(buffer, pos,
 
 
