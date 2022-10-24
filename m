@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC31A60B0B6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:08:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F1DD60B27E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233312AbiJXQHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:07:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38688 "EHLO
+        id S234910AbiJXQrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:47:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232777AbiJXQFa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:05:30 -0400
+        with ESMTP id S235001AbiJXQqb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:46:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72486264BE;
-        Mon, 24 Oct 2022 07:58:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D111A16C9;
+        Mon, 24 Oct 2022 08:31:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BF06B8164B;
-        Mon, 24 Oct 2022 12:20:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63155C433D6;
-        Mon, 24 Oct 2022 12:20:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64AB1B81912;
+        Mon, 24 Oct 2022 12:39:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8FBBC433C1;
+        Mon, 24 Oct 2022 12:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614021;
-        bh=JTuqz7XI2XwjVG0MMTdnj7U3jbDzFHngQ8w9OjJuMJM=;
+        s=korg; t=1666615193;
+        bh=KTZcokemeTem35PNMjBQHPCVWK2pq04hPNhpZ0yUFtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r7Yym9zaMJtdAqE69NhWf4XMsZh+0EtmfLILz54tdpvrz7JLofO0C2d6t9by3C2Q4
-         uEESPq6lPGvdWlFDDeNVDqwBljaiZRGySReHm4mprVzy5xSLJgwHbnvBMygY5cZ3ga
-         6zvOYRexv4O+1XgMPvph05y6wpuhL7DDcjTcEz74=
+        b=pnBb57Z2aFpWT3DOsS8MqMJ6riQua2bvJ+6DeNgfyYq8LrcTFhhTW4/R3g87Zs5/N
+         SzBQV+k+DpAsrYY86Vf8q9shvyXowqzvX6SdCnMio89ty/k1CyTU/yqHPIyRjd8JJJ
+         798Cf/9b9bwr5oJY6pivh/JcS3Xv+2L8q/hxFJn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Hari Chandrakanthan <quic_haric@quicinc.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 102/390] wifi: mac80211: allow bw change during channel switch in mesh
-Date:   Mon, 24 Oct 2022 13:28:19 +0200
-Message-Id: <20221024113027.012358409@linuxfoundation.org>
+Subject: [PATCH 5.15 157/530] spi: mt7621: Fix an error message in mt7621_spi_probe()
+Date:   Mon, 24 Oct 2022 13:28:21 +0200
+Message-Id: <20221024113052.180444724@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hari Chandrakanthan <quic_haric@quicinc.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 6b75f133fe05c36c52d691ff21545d5757fff721 ]
+[ Upstream commit 2b2bf6b7faa9010fae10dc7de76627a3fdb525b3 ]
 
->From 'IEEE Std 802.11-2020 section 11.8.8.4.1':
-  The mesh channel switch may be triggered by the need to avoid
-  interference to a detected radar signal, or to reassign mesh STA
-  channels to ensure the MBSS connectivity.
+'status' is known to be 0 at this point. The expected error code is
+PTR_ERR(clk).
 
-  A 20/40 MHz MBSS may be changed to a 20 MHz MBSS and a 20 MHz
-  MBSS may be changed to a 20/40 MHz MBSS.
+Switch to dev_err_probe() in order to display the expected error code (in a
+human readable way).
+This also filters -EPROBE_DEFER cases, should it happen.
 
-Since the standard allows the change of bandwidth during
-the channel switch in mesh, remove the bandwidth check present in
-ieee80211_set_csa_beacon.
-
-Fixes: c6da674aff94 ("{nl,cfg,mac}80211: enable the triggering of CSA frame in mesh")
-Signed-off-by: Hari Chandrakanthan <quic_haric@quicinc.com>
-Link: https://lore.kernel.org/r/1658903549-21218-1-git-send-email-quic_haric@quicinc.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 1ab7f2a43558 ("staging: mt7621-spi: add mt7621 support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Link: https://lore.kernel.org/r/928f3fb507d53ba0774df27cea0bbba4b055993b.1661599671.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/cfg.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/spi/spi-mt7621.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index 8010967a6874..c6a7f1c99abc 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -3357,9 +3357,6 @@ static int ieee80211_set_csa_beacon(struct ieee80211_sub_if_data *sdata,
- 	case NL80211_IFTYPE_MESH_POINT: {
- 		struct ieee80211_if_mesh *ifmsh = &sdata->u.mesh;
+diff --git a/drivers/spi/spi-mt7621.c b/drivers/spi/spi-mt7621.c
+index b4b9b7309b5e..351b0ef52bbc 100644
+--- a/drivers/spi/spi-mt7621.c
++++ b/drivers/spi/spi-mt7621.c
+@@ -340,11 +340,9 @@ static int mt7621_spi_probe(struct platform_device *pdev)
+ 		return PTR_ERR(base);
  
--		if (params->chandef.width != sdata->vif.bss_conf.chandef.width)
--			return -EINVAL;
--
- 		/* changes into another band are not supported */
- 		if (sdata->vif.bss_conf.chandef.chan->band !=
- 		    params->chandef.chan->band)
+ 	clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(clk)) {
+-		dev_err(&pdev->dev, "unable to get SYS clock, err=%d\n",
+-			status);
+-		return PTR_ERR(clk);
+-	}
++	if (IS_ERR(clk))
++		return dev_err_probe(&pdev->dev, PTR_ERR(clk),
++				     "unable to get SYS clock\n");
+ 
+ 	status = clk_prepare_enable(clk);
+ 	if (status)
 -- 
 2.35.1
 
