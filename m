@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97AD760B238
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF25060B246
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233356AbiJXQnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:43:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35382 "EHLO
+        id S234584AbiJXQoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:44:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234635AbiJXQnR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:43:17 -0400
+        with ESMTP id S234953AbiJXQoF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:44:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3D4C356F6;
-        Mon, 24 Oct 2022 08:29:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F49C5893;
+        Mon, 24 Oct 2022 08:30:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C643B81982;
-        Mon, 24 Oct 2022 12:41:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD0C4C433D6;
-        Mon, 24 Oct 2022 12:41:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 352D6B8125B;
+        Mon, 24 Oct 2022 12:07:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A1AFC433D6;
+        Mon, 24 Oct 2022 12:07:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615277;
-        bh=W+SzmJ4+Ai0GJAXfRt/BGB8Dxa/vhps1D+4o/1qiegw=;
+        s=korg; t=1666613242;
+        bh=9shEacYI84F8JDBsGRgFtl6swnxAE9iunptkZdKsg9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTFRLivE4yDrDdDrkj3iLdAu2Zk4AgVJZm62PD+Oy18VBofoJYr+1+MwfBYJkO0qt
-         MKEJK70WkZ3PopralhWQ4PmS8BORMnQ1hDDIosKgzFW8DBuoUbXkSQEAvjlBpemPFI
-         LiuFtb/+h7g57dIGV7gzQY83PrH6FFNg4MiUOOLQ=
+        b=r6stMrOv0NDAf1BK7Q1Tabk3sqRwOPYGxRMWAbsuxnFlcE0PLED57eZGR8B5lLVyq
+         JnerTkpmGWUkKZgHiHccrmLdA4ZWfdm0EEnUL92SSdjMgN3p6uAVe56LQVycZqhwMF
+         wIsAMS6Ii+RGeSqCvK7lB8x9nc/RGftCKS0GDbEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khalil Blaiech <kblaiech@nvidia.com>,
-        Asmaa Mnebhi <asmaa@nvidia.com>, Wolfram Sang <wsa@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 189/530] i2c: mlxbf: support lock mechanism
+        stable@vger.kernel.org, Andri Yngvason <andri@yngvason.is>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.4 023/255] HID: multitouch: Add memory barriers
 Date:   Mon, 24 Oct 2022 13:28:53 +0200
-Message-Id: <20221024113053.603732562@linuxfoundation.org>
+Message-Id: <20221024113003.209473654@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,121 +52,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Asmaa Mnebhi <asmaa@nvidia.com>
+From: Andri Yngvason <andri@yngvason.is>
 
-[ Upstream commit 86067ccfa1424a26491542d6f6d7546d40b61a10 ]
+commit be6e2b5734a425941fcdcdbd2a9337be498ce2cf upstream.
 
-Linux is not the only entity using the BlueField I2C busses so
-support a lock mechanism provided by hardware to avoid issues
-when multiple entities are trying to access the same bus.
+This fixes broken atomic checks which cause a race between the
+release-timer and processing of hid input.
 
-The lock is acquired whenever written explicitely or the lock
-register is read. So make sure it is always released at the end
-of a successful or failed transaction.
+I noticed that contacts were sometimes sticking, even with the "sticky
+fingers" quirk enabled. This fixes that problem.
 
-Fixes: b5b5b32081cd206b (i2c: mlxbf: I2C SMBus driver for Mellanox BlueField SoC)
-Reviewed-by: Khalil Blaiech <kblaiech@nvidia.com>
-Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 9609827458c3 ("HID: multitouch: optimize the sticky fingers timer")
+Signed-off-by: Andri Yngvason <andri@yngvason.is>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20220907150159.2285460-1-andri@yngvason.is
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-mlxbf.c | 44 ++++++++++++++++++++++++++++++----
- 1 file changed, 39 insertions(+), 5 deletions(-)
+ drivers/hid/hid-multitouch.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
-index ad5efd7497d1..0e840eba4fd6 100644
---- a/drivers/i2c/busses/i2c-mlxbf.c
-+++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -306,6 +306,7 @@ static u64 mlxbf_i2c_corepll_frequency;
-  * exact.
-  */
- #define MLXBF_I2C_SMBUS_TIMEOUT   (300 * 1000) /* 300ms */
-+#define MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT (300 * 1000) /* 300ms */
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1162,7 +1162,7 @@ static void mt_touch_report(struct hid_d
+ 	int contact_count = -1;
  
- /* Encapsulates timing parameters. */
- struct mlxbf_i2c_timings {
-@@ -514,6 +515,25 @@ static bool mlxbf_smbus_master_wait_for_idle(struct mlxbf_i2c_priv *priv)
- 	return false;
- }
+ 	/* sticky fingers release in progress, abort */
+-	if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
++	if (test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+ 		return;
  
-+/*
-+ * wait for the lock to be released before acquiring it.
-+ */
-+static bool mlxbf_i2c_smbus_master_lock(struct mlxbf_i2c_priv *priv)
-+{
-+	if (mlxbf_smbus_poll(priv->smbus->io, MLXBF_I2C_SMBUS_MASTER_GW,
-+			   MLXBF_I2C_MASTER_LOCK_BIT, true,
-+			   MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT))
-+		return true;
-+
-+	return false;
-+}
-+
-+static void mlxbf_i2c_smbus_master_unlock(struct mlxbf_i2c_priv *priv)
-+{
-+	/* Clear the gw to clear the lock */
-+	writel(0, priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_GW);
-+}
-+
- static bool mlxbf_i2c_smbus_transaction_success(u32 master_status,
- 						u32 cause_status)
- {
-@@ -705,10 +725,19 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 	slave = request->slave & GENMASK(6, 0);
- 	addr = slave << 1;
- 
--	/* First of all, check whether the HW is idle. */
--	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv)))
-+	/*
-+	 * Try to acquire the smbus gw lock before any reads of the GW register since
-+	 * a read sets the lock.
-+	 */
-+	if (WARN_ON(!mlxbf_i2c_smbus_master_lock(priv)))
- 		return -EBUSY;
- 
-+	/* Check whether the HW is idle */
-+	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv))) {
-+		ret = -EBUSY;
-+		goto out_unlock;
-+	}
-+
- 	/* Set first byte. */
- 	data_desc[data_idx++] = addr;
- 
-@@ -732,8 +761,10 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 			write_en = 1;
- 			write_len += operation->length;
- 			if (data_idx + operation->length >
--					MLXBF_I2C_MASTER_DATA_DESC_SIZE)
--				return -ENOBUFS;
-+					MLXBF_I2C_MASTER_DATA_DESC_SIZE) {
-+				ret = -ENOBUFS;
-+				goto out_unlock;
-+			}
- 			memcpy(data_desc + data_idx,
- 			       operation->buffer, operation->length);
- 			data_idx += operation->length;
-@@ -765,7 +796,7 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 		ret = mlxbf_i2c_smbus_enable(priv, slave, write_len, block_en,
- 					 pec_en, 0);
- 		if (ret)
--			return ret;
-+			goto out_unlock;
+ 	scantime = *app->scantime;
+@@ -1243,7 +1243,7 @@ static void mt_touch_report(struct hid_d
+ 			del_timer(&td->release_timer);
  	}
  
- 	if (read_en) {
-@@ -792,6 +823,9 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 			priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_FSM);
- 	}
- 
-+out_unlock:
-+	mlxbf_i2c_smbus_master_unlock(priv);
-+
- 	return ret;
+-	clear_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
++	clear_bit_unlock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
  }
  
--- 
-2.35.1
-
+ static int mt_touch_input_configured(struct hid_device *hdev,
+@@ -1680,11 +1680,11 @@ static void mt_expired_timeout(struct ti
+ 	 * An input report came in just before we release the sticky fingers,
+ 	 * it will take care of the sticky fingers.
+ 	 */
+-	if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
++	if (test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+ 		return;
+ 	if (test_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags))
+ 		mt_release_contacts(hdev);
+-	clear_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
++	clear_bit_unlock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
+ }
+ 
+ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
 
 
