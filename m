@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A775E60B390
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5791060B31B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:56:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235326AbiJXRKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:10:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58684 "EHLO
+        id S230268AbiJXQ4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:56:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235204AbiJXRKE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:10:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A038294139;
-        Mon, 24 Oct 2022 08:45:14 -0700 (PDT)
+        with ESMTP id S235062AbiJXQs7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:48:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B02733A3E;
+        Mon, 24 Oct 2022 08:31:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA40C61335;
-        Mon, 24 Oct 2022 12:56:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06243C433C1;
-        Mon, 24 Oct 2022 12:56:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5604FB8171A;
+        Mon, 24 Oct 2022 12:56:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2832C433C1;
+        Mon, 24 Oct 2022 12:56:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616175;
-        bh=VOZfQD/70v7dIut2wKyWJCvorf5i4revhmo2B5p6WqA=;
+        s=korg; t=1666616186;
+        bh=wOSjVS5ufd6jL4mvjWSRUAPxuM5WwHpWoGZeXiaNzDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KXjcf04gcY5ULsDl0l1Bq6dnEuEKkMET0hUlGIFumIo1xzKhBnrKW/Gn7iN3uWKy
-         GfVQwz9XWQ8mG7o/o9a6puKVje37yOfxu4bFhWr2il0QbXuhkxf6ESHSOKP2uLZ5mi
-         Aw83NoRnk6eYS6P7lO/59h0oqxQIk7GqwSJRa2OM=
+        b=HVEcwKbykBKJFojp4SdRaU2M6etEFbTB35vVoWm5AxdAahxOU/e4OqfvnBqJ65LDP
+         OFL0c3vlxZtSr1Tn3tcJh0B0oJZlstUilw70TcHm7N3pRvkPk9+RGxPC/f/wujmZce
+         B0LUPe+OksNSVCEfr0v3qNFRg3Gw87AfIx9KykLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 498/530] arm64: dts: imx8mp: Add snps,gfladj-refclk-lpm-sel quirk to USB nodes
-Date:   Mon, 24 Oct 2022 13:34:02 +0200
-Message-Id: <20221024113107.588116897@linuxfoundation.org>
+Subject: [PATCH 5.15 502/530] staging: rtl8723bs: fix a potential memory leak in rtw_init_cmd_priv()
+Date:   Mon, 24 Oct 2022 13:34:06 +0200
+Message-Id: <20221024113107.766651995@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,46 +52,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit 5c3d5ecf48ab06c709c012bf1e8f0c91e1fcd7ad ]
+[ Upstream commit 708056fba733a73d926772ea4ce9a42d240345da ]
 
-With this set the SOF/ITP counter is based on ref_clk when 2.0 ports are
-suspended.
-snps,dis-u2-freeclk-exists-quirk can be removed as
-snps,gfladj-refclk-lpm-sel also clears the free running clock configuration
-bit.
+In rtw_init_cmd_priv(), if `pcmdpriv->rsp_allocated_buf` is allocated
+in failure, then `pcmdpriv->cmd_allocated_buf` will be not properly
+released. Besides, considering there are only two error paths and the
+first one can directly return, so we do not need implicitly jump to the
+`exit` tag to execute the error handler.
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Link: https://lore.kernel.org/r/20220915062855.751881-4-alexander.stein@ew.tq-group.com
+So this patch added `kfree(pcmdpriv->cmd_allocated_buf);` on the error
+path to release the resource and simplified the return logic of
+rtw_init_cmd_priv(). As there is no proper device to test with, no runtime
+testing was performed.
+
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Link: https://lore.kernel.org/r/tencent_2B7931B79BA38E22205C5A09EFDF11E48805@qq.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mp.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/rtl8723bs/core/rtw_cmd.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mp.dtsi b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
-index 9b07b26230a1..664177ed38d3 100644
---- a/arch/arm64/boot/dts/freescale/imx8mp.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
-@@ -912,7 +912,7 @@
- 				interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
- 				phys = <&usb3_phy0>, <&usb3_phy0>;
- 				phy-names = "usb2-phy", "usb3-phy";
--				snps,dis-u2-freeclk-exists-quirk;
-+				snps,gfladj-refclk-lpm-sel-quirk;
- 			};
+diff --git a/drivers/staging/rtl8723bs/core/rtw_cmd.c b/drivers/staging/rtl8723bs/core/rtw_cmd.c
+index d494c06dab96..93e3a4c9e115 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_cmd.c
++++ b/drivers/staging/rtl8723bs/core/rtw_cmd.c
+@@ -161,8 +161,6 @@ static struct cmd_hdl wlancmds[] = {
  
- 		};
-@@ -953,7 +953,7 @@
- 				interrupts = <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
- 				phys = <&usb3_phy1>, <&usb3_phy1>;
- 				phy-names = "usb2-phy", "usb3-phy";
--				snps,dis-u2-freeclk-exists-quirk;
-+				snps,gfladj-refclk-lpm-sel-quirk;
- 			};
- 		};
+ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
+ {
+-	int res = 0;
+-
+ 	init_completion(&pcmdpriv->cmd_queue_comp);
+ 	init_completion(&pcmdpriv->terminate_cmdthread_comp);
  
+@@ -174,18 +172,16 @@ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
+ 
+ 	pcmdpriv->cmd_allocated_buf = rtw_zmalloc(MAX_CMDSZ + CMDBUFF_ALIGN_SZ);
+ 
+-	if (!pcmdpriv->cmd_allocated_buf) {
+-		res = -ENOMEM;
+-		goto exit;
+-	}
++	if (!pcmdpriv->cmd_allocated_buf)
++		return -ENOMEM;
+ 
+ 	pcmdpriv->cmd_buf = pcmdpriv->cmd_allocated_buf  +  CMDBUFF_ALIGN_SZ - ((SIZE_PTR)(pcmdpriv->cmd_allocated_buf) & (CMDBUFF_ALIGN_SZ-1));
+ 
+ 	pcmdpriv->rsp_allocated_buf = rtw_zmalloc(MAX_RSPSZ + 4);
+ 
+ 	if (!pcmdpriv->rsp_allocated_buf) {
+-		res = -ENOMEM;
+-		goto exit;
++		kfree(pcmdpriv->cmd_allocated_buf);
++		return -ENOMEM;
+ 	}
+ 
+ 	pcmdpriv->rsp_buf = pcmdpriv->rsp_allocated_buf  +  4 - ((SIZE_PTR)(pcmdpriv->rsp_allocated_buf) & 3);
+@@ -195,8 +191,8 @@ int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
+ 	pcmdpriv->rsp_cnt = 0;
+ 
+ 	mutex_init(&pcmdpriv->sctx_mutex);
+-exit:
+-	return res;
++
++	return 0;
+ }
+ 
+ static void c2h_wk_callback(struct work_struct *work);
 -- 
 2.35.1
 
