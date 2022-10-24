@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2B960A363
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 133BE60A3C0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232091AbiJXLz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:55:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49382 "EHLO
+        id S232202AbiJXMAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:00:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232178AbiJXLyE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:54:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E71474BBD;
-        Mon, 24 Oct 2022 04:45:24 -0700 (PDT)
+        with ESMTP id S230003AbiJXL6f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:58:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C10DE2B1A6;
+        Mon, 24 Oct 2022 04:47:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 237B5B81151;
-        Mon, 24 Oct 2022 11:45:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B60C433D6;
-        Mon, 24 Oct 2022 11:45:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B855DCE12CF;
+        Mon, 24 Oct 2022 11:45:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B294AC433C1;
+        Mon, 24 Oct 2022 11:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611922;
-        bh=X/cIJmrKiiqRqx/BcVynhDgyBSUjjuc0ViUWGM72QBM=;
+        s=korg; t=1666611928;
+        bh=UE6C/YunwoRMuPQGwLI+pqaEFufW26X4AEXY60j0vS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBEgwsJeM657bkm5Zzllr7qcN4rgIZV8tLWGFAMJxAO4od/n8PAy/UyzNjL+9epy9
-         TR+eSS/cn64Zmzynj4dcM3M0y5sUcbcfMHm9Pt8AAm0if2KR7JGe9EPOyzgeWfgevQ
-         wPhZt0UBvxbbg5X03GdvNBr95GBhSvXG0YvT5J24=
+        b=EgEHscsoJSqI9zC9vJTC9uD3a1jKtL7xIwyQuR9/8YoQv2vgz9pwKxVkAN1AK7zOs
+         qrNBOk966QC0v0sfxzwbKoh/nqrFPS7+uO+C9qGTJoT8iOf7gLP6hxK4gx82TJEiNf
+         UScXv6VbzaYZ3Pb6iB8Gbgm7TBWIWCaBdwrpUyQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, sunghwan jung <onenowy@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 151/159] Revert "usb: storage: Add quirk for Samsung Fit flash"
-Date:   Mon, 24 Oct 2022 13:31:45 +0200
-Message-Id: <20221024112954.937926881@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.9 153/159] perf intel-pt: Fix segfault in intel_pt_print_info() with uClibc
+Date:   Mon, 24 Oct 2022 13:31:47 +0200
+Message-Id: <20221024112955.006882965@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -52,59 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sunghwan jung <onenowy@gmail.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit ad5dbfc123e6ffbbde194e2a4603323e09f741ee ]
+commit 5a3d47071f0ced0431ef82a5fb6bd077ed9493db upstream.
 
-This reverts commit 86d92f5465958752481269348d474414dccb1552,
-which fix the timeout issue for "Samsung Fit Flash".
+uClibc segfaulted because NULL was passed as the format to fprintf().
 
-But the commit affects not only "Samsung Fit Flash" but also other usb
-storages that use the same controller and causes severe performance
-regression.
+That happened because one of the format strings was missing and
+intel_pt_print_info() didn't check that before calling fprintf().
 
- # hdparm -t /dev/sda (without the quirk)
- Timing buffered disk reads: 622 MB in  3.01 seconds = 206.66 MB/sec
+Add the missing format string, and check format is not NULL before calling
+fprintf().
 
- # hdparm -t /dev/sda (with the quirk)
- Timing buffered disk reads: 220 MB in  3.00 seconds =  73.32 MB/sec
-
-The commit author mentioned that "Issue was reproduced after device has
-bad block", so this quirk should be applied when we have the timeout
-issue with a device that has bad blocks.
-
-We revert the commit so that we apply this quirk by adding kernel
-paramters using a bootloader or other ways when we really need it,
-without the performance regression with devices that don't have the
-issue.
-
-Signed-off-by: sunghwan jung <onenowy@gmail.com>
-Link: https://lore.kernel.org/r/20220913114913.3073-1-onenowy@gmail.com
+Fixes: 11fa7cb86b56d361 ("perf tools: Pass Intel PT information for decoding MTC and CYC")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221012082259.22394-2-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_devs.h | 6 ------
- 1 file changed, 6 deletions(-)
+ tools/perf/util/intel-pt.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index 5a6ca1460711..8c51bb66f16f 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -1294,12 +1294,6 @@ UNUSUAL_DEV( 0x090a, 0x1200, 0x0000, 0x9999,
- 		USB_SC_RBC, USB_PR_BULK, NULL,
- 		0 ),
+--- a/tools/perf/util/intel-pt.c
++++ b/tools/perf/util/intel-pt.c
+@@ -2124,6 +2124,7 @@ static const char * const intel_pt_info_
+ 	[INTEL_PT_SNAPSHOT_MODE]	= "  Snapshot mode       %"PRId64"\n",
+ 	[INTEL_PT_PER_CPU_MMAPS]	= "  Per-cpu maps        %"PRId64"\n",
+ 	[INTEL_PT_MTC_BIT]		= "  MTC bit             %#"PRIx64"\n",
++	[INTEL_PT_MTC_FREQ_BITS]	= "  MTC freq bits       %#"PRIx64"\n",
+ 	[INTEL_PT_TSC_CTC_N]		= "  TSC:CTC numerator   %"PRIu64"\n",
+ 	[INTEL_PT_TSC_CTC_D]		= "  TSC:CTC denominator %"PRIu64"\n",
+ 	[INTEL_PT_CYC_BIT]		= "  CYC bit             %#"PRIx64"\n",
+@@ -2138,8 +2139,12 @@ static void intel_pt_print_info(u64 *arr
+ 	if (!dump_trace)
+ 		return;
  
--UNUSUAL_DEV(0x090c, 0x1000, 0x1100, 0x1100,
--		"Samsung",
--		"Flash Drive FIT",
--		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_MAX_SECTORS_64),
--
- /* aeb */
- UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
- 		"Feiya",
--- 
-2.35.1
-
+-	for (i = start; i <= finish; i++)
+-		fprintf(stdout, intel_pt_info_fmts[i], arr[i]);
++	for (i = start; i <= finish; i++) {
++		const char *fmt = intel_pt_info_fmts[i];
++
++		if (fmt)
++			fprintf(stdout, fmt, arr[i]);
++	}
+ }
+ 
+ static void intel_pt_print_info_str(const char *name, const char *str)
 
 
