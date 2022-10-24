@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC01B60A947
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:17:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4FD560A80B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:01:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235887AbiJXNRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:17:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50458 "EHLO
+        id S234834AbiJXNA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:00:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233069AbiJXNRC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:17:02 -0400
+        with ESMTP id S235258AbiJXM7q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F4C11A3D;
-        Mon, 24 Oct 2022 05:26:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05A48274E;
+        Mon, 24 Oct 2022 05:19:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D79C361291;
-        Mon, 24 Oct 2022 12:25:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEB7AC433D6;
-        Mon, 24 Oct 2022 12:25:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42D46612E7;
+        Mon, 24 Oct 2022 12:07:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5347AC433C1;
+        Mon, 24 Oct 2022 12:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614342;
-        bh=qRVzc51V29E4b48Cb3aNElsbDhochs3vnq6JxPF0XQc=;
+        s=korg; t=1666613258;
+        bh=xk1T27BF9PaH7xxK/iE4NlW4zOBlJKTpUnWvV3WYC5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hr78uM0clRFBmSFRlOL3YUBblI8GusnscDvJwJ1TP3cSoZgPNipyk55dcRVDnTmGH
-         3XrgM+a8kuI2M2X2w77qI8jaRgWffYD3rdikJqIowzSrD1urwwTh3xX5doIqv0kuhE
-         CoI00LpH9dbvsFLNtJb2zlofWthEhUyIDrJ93ISI=
+        b=QvMXN0ZiLp5lySt3PAC/4qoalIqqd2iStlx2ac/bGve5xdLgYH6VdCEMiC1GEh4n5
+         xBnfhvOTqj3axIa59yEbb76LXFyalkHjZWRvp9mDVto0BpY17czZ7mxaW7zopG2T9m
+         7og3V6j6iCK5s2a5vjN8K8owjuCwzJqbDKMeN9ck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 182/390] ARM: Drop CMDLINE_* dependency on ATAGS
+        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 069/255] spi: qup: add missing clk_disable_unprepare on error in spi_qup_pm_resume_runtime()
 Date:   Mon, 24 Oct 2022 13:29:39 +0200
-Message-Id: <20221024113030.502841120@linuxfoundation.org>
+Message-Id: <20221024113004.816616499@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Xu Qiang <xuqiang36@huawei.com>
 
-[ Upstream commit 136f4b1ec7c962ee37a787e095fd37b058d72bd3 ]
+[ Upstream commit 494a22765ce479c9f8ad181c5d24cffda9f534bb ]
 
-On arm32, the configuration options to specify the kernel command line
-type depend on ATAGS.  However, the actual CMDLINE cofiguration option
-does not depend on ATAGS, and the code that handles this is not specific
-to ATAGS (see drivers/of/fdt.c:early_init_dt_scan_chosen()).
+Add the missing clk_disable_unprepare() before return
+from spi_qup_pm_resume_runtime() in the error handling case.
 
-Hence users who desire to override the kernel command line on arm32 must
-enable support for ATAGS, even on a pure-DT system.  Other architectures
-(arm64, loongarch, microblaze, nios2, powerpc, and riscv) do not impose
-such a restriction.
-
-Hence drop the dependency on ATAGS.
-
-Fixes: bd51e2f595580fb6 ("ARM: 7506/1: allow for ATAGS to be configured out when DT support is selected")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: dae1a7700b34 (“spi: qup: Handle clocks in pm_runtime suspend and resume”)
+Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
+Link: https://lore.kernel.org/r/20220825065324.68446-2-xuqiang36@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/spi/spi-qup.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index b587ecc6f949..985ab0b091a6 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -1791,7 +1791,6 @@ config CMDLINE
- choice
- 	prompt "Kernel command line type" if CMDLINE != ""
- 	default CMDLINE_FROM_BOOTLOADER
--	depends on ATAGS
+diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
+index 6da49705a10a..ead6c211047d 100644
+--- a/drivers/spi/spi-qup.c
++++ b/drivers/spi/spi-qup.c
+@@ -1199,8 +1199,10 @@ static int spi_qup_pm_resume_runtime(struct device *device)
+ 		return ret;
  
- config CMDLINE_FROM_BOOTLOADER
- 	bool "Use bootloader kernel arguments if available"
+ 	ret = clk_prepare_enable(controller->cclk);
+-	if (ret)
++	if (ret) {
++		clk_disable_unprepare(controller->iclk);
+ 		return ret;
++	}
+ 
+ 	/* Disable clocks auto gaiting */
+ 	config = readl_relaxed(controller->base + QUP_CONFIG);
 -- 
 2.35.1
 
