@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62F7460AC39
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:05:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC4FF60AFDB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:58:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232161AbiJXODj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:03:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51724 "EHLO
+        id S229877AbiJXP6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:58:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233086AbiJXOCb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59A68C0690;
-        Mon, 24 Oct 2022 05:48:33 -0700 (PDT)
+        with ESMTP id S231529AbiJXP54 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:57:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78F8D86F98;
+        Mon, 24 Oct 2022 07:53:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5195B6132A;
-        Mon, 24 Oct 2022 12:47:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FD9DC433C1;
-        Mon, 24 Oct 2022 12:47:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39130B8169D;
+        Mon, 24 Oct 2022 12:29:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89031C433D7;
+        Mon, 24 Oct 2022 12:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615665;
-        bh=ugBjsepRYvYP6ewZJtg3S2+9ioUPke2+iMbvqyO+qVE=;
+        s=korg; t=1666614583;
+        bh=tzkFWHdBR1QJkTnAVZrUmtw9WJSWAiTSqmAiaamAgSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXhC89j0OUW/n7Yg6HO0dYfflrTUZbksQM2B8JhyceB60ueJeBiVIqmxidMh2UcnD
-         htFnycVRDTNksWaM3kLdCCLq4TfJK0jY18tQTKZdpXJXn3JixCW0ICWM7IDqB/EQjo
-         Yh63j84LNOewKALg3HiW839DHIpISrtoxskGRYd0=
+        b=Ci6lj5MC5ikbIMpxzQOOnF6iyLWefVZYIR7ZGpfspRSf8mAiAVGB358JPBViq0a9R
+         8n6Q+fyFWLMLlhkagHPWkSwJydUYhmSA0xoDYDk9s8A1BGS1yjFs0q5I2StLo8L69R
+         6NixES1kOYZZgfiUM+LFbd7dckrDXNHDWZvLlwO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Skladowski <a_skl39@protonmail.com>,
-        Iskren Chernev <iskren.chernev@gmail.com>,
-        Bjorn Andersson <andersson@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 338/530] clk: qcom: gcc-sm6115: Override default Alpha PLL regs
-Date:   Mon, 24 Oct 2022 13:31:22 +0200
-Message-Id: <20221024113100.306329571@linuxfoundation.org>
+Subject: [PATCH 5.10 287/390] crypto: marvell/octeontx - prevent integer overflows
+Date:   Mon, 24 Oct 2022 13:31:24 +0200
+Message-Id: <20221024113035.175716869@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,191 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Skladowski <a_skl39@protonmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 068a0605ef5a6b430e7278c169bfcd25b680b28f ]
+[ Upstream commit caca37cf6c749ff0303f68418cfe7b757a4e0697 ]
 
-The DEFAULT and BRAMMO PLL offsets are non-standard in downstream, but
-currently only BRAMMO ones are overridden. Override DEFAULT ones too.
+The "code_length" value comes from the firmware file.  If your firmware
+is untrusted realistically there is probably very little you can do to
+protect yourself.  Still we try to limit the damage as much as possible.
+Also Smatch marks any data read from the filesystem as untrusted and
+prints warnings if it not capped correctly.
 
-A very similar thing is happening in gcc-qcm2290 driver.
+The "code_length * 2" can overflow.  The round_up(ucode_size, 16) +
+sizeof() expression can overflow too.  Prevent these overflows.
 
-Fixes: cbe63bfdc54f ("clk: qcom: Add Global Clock controller (GCC) driver for SM6115")
-Signed-off-by: Adam Skladowski <a_skl39@protonmail.com>
-Signed-off-by: Iskren Chernev <iskren.chernev@gmail.com>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220830075620.974009-2-iskren.chernev@gmail.com
+Fixes: d9110b0b01ff ("crypto: marvell - add support for OCTEON TX CPT engine")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-sm6115.c | 46 +++++++++++++++++++++++------------
- 1 file changed, 30 insertions(+), 16 deletions(-)
+ .../crypto/marvell/octeontx/otx_cptpf_ucode.c  | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-sm6115.c b/drivers/clk/qcom/gcc-sm6115.c
-index 68fe9f6f0d2f..e24a977c2580 100644
---- a/drivers/clk/qcom/gcc-sm6115.c
-+++ b/drivers/clk/qcom/gcc-sm6115.c
-@@ -53,11 +53,25 @@ static struct pll_vco gpll10_vco[] = {
- 	{ 750000000, 1500000000, 1 },
- };
+diff --git a/drivers/crypto/marvell/octeontx/otx_cptpf_ucode.c b/drivers/crypto/marvell/octeontx/otx_cptpf_ucode.c
+index 40b482198ebc..a765eefb18c2 100644
+--- a/drivers/crypto/marvell/octeontx/otx_cptpf_ucode.c
++++ b/drivers/crypto/marvell/octeontx/otx_cptpf_ucode.c
+@@ -286,6 +286,7 @@ static int process_tar_file(struct device *dev,
+ 	struct tar_ucode_info_t *tar_info;
+ 	struct otx_cpt_ucode_hdr *ucode_hdr;
+ 	int ucode_type, ucode_size;
++	unsigned int code_length;
  
-+static const u8 clk_alpha_pll_regs_offset[][PLL_OFF_MAX_REGS] = {
-+	[CLK_ALPHA_PLL_TYPE_DEFAULT] =  {
-+		[PLL_OFF_L_VAL] = 0x04,
-+		[PLL_OFF_ALPHA_VAL] = 0x08,
-+		[PLL_OFF_ALPHA_VAL_U] = 0x0c,
-+		[PLL_OFF_TEST_CTL] = 0x10,
-+		[PLL_OFF_TEST_CTL_U] = 0x14,
-+		[PLL_OFF_USER_CTL] = 0x18,
-+		[PLL_OFF_USER_CTL_U] = 0x1c,
-+		[PLL_OFF_CONFIG_CTL] = 0x20,
-+		[PLL_OFF_STATUS] = 0x24,
-+	},
-+};
+ 	/*
+ 	 * If size is less than microcode header size then don't report
+@@ -303,7 +304,13 @@ static int process_tar_file(struct device *dev,
+ 	if (get_ucode_type(ucode_hdr, &ucode_type))
+ 		return 0;
+ 
+-	ucode_size = ntohl(ucode_hdr->code_length) * 2;
++	code_length = ntohl(ucode_hdr->code_length);
++	if (code_length >= INT_MAX / 2) {
++		dev_err(dev, "Invalid code_length %u\n", code_length);
++		return -EINVAL;
++	}
 +
- static struct clk_alpha_pll gpll0 = {
- 	.offset = 0x0,
- 	.vco_table = default_vco,
- 	.num_vco = ARRAY_SIZE(default_vco),
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr = {
- 		.enable_reg = 0x79000,
- 		.enable_mask = BIT(0),
-@@ -83,7 +97,7 @@ static struct clk_alpha_pll_postdiv gpll0_out_aux2 = {
- 	.post_div_table = post_div_table_gpll0_out_aux2,
- 	.num_post_div = ARRAY_SIZE(post_div_table_gpll0_out_aux2),
- 	.width = 4,
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "gpll0_out_aux2",
- 		.parent_hws = (const struct clk_hw *[]){ &gpll0.clkr.hw },
-@@ -115,7 +129,7 @@ static struct clk_alpha_pll_postdiv gpll0_out_main = {
- 	.post_div_table = post_div_table_gpll0_out_main,
- 	.num_post_div = ARRAY_SIZE(post_div_table_gpll0_out_main),
- 	.width = 4,
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "gpll0_out_main",
- 		.parent_hws = (const struct clk_hw *[]){ &gpll0.clkr.hw },
-@@ -137,7 +151,7 @@ static struct clk_alpha_pll gpll10 = {
- 	.offset = 0xa000,
- 	.vco_table = gpll10_vco,
- 	.num_vco = ARRAY_SIZE(gpll10_vco),
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr = {
- 		.enable_reg = 0x79000,
- 		.enable_mask = BIT(10),
-@@ -163,7 +177,7 @@ static struct clk_alpha_pll_postdiv gpll10_out_main = {
- 	.post_div_table = post_div_table_gpll10_out_main,
- 	.num_post_div = ARRAY_SIZE(post_div_table_gpll10_out_main),
- 	.width = 4,
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "gpll10_out_main",
- 		.parent_hws = (const struct clk_hw *[]){ &gpll10.clkr.hw },
-@@ -189,7 +203,7 @@ static struct clk_alpha_pll gpll11 = {
- 	.vco_table = default_vco,
- 	.num_vco = ARRAY_SIZE(default_vco),
- 	.flags = SUPPORTS_DYNAMIC_UPDATE,
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr = {
- 		.enable_reg = 0x79000,
- 		.enable_mask = BIT(11),
-@@ -215,7 +229,7 @@ static struct clk_alpha_pll_postdiv gpll11_out_main = {
- 	.post_div_table = post_div_table_gpll11_out_main,
- 	.num_post_div = ARRAY_SIZE(post_div_table_gpll11_out_main),
- 	.width = 4,
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "gpll11_out_main",
- 		.parent_hws = (const struct clk_hw *[]){ &gpll11.clkr.hw },
-@@ -229,7 +243,7 @@ static struct clk_alpha_pll gpll3 = {
- 	.offset = 0x3000,
- 	.vco_table = default_vco,
- 	.num_vco = ARRAY_SIZE(default_vco),
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr = {
- 		.enable_reg = 0x79000,
- 		.enable_mask = BIT(3),
-@@ -248,7 +262,7 @@ static struct clk_alpha_pll gpll4 = {
- 	.offset = 0x4000,
- 	.vco_table = default_vco,
- 	.num_vco = ARRAY_SIZE(default_vco),
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr = {
- 		.enable_reg = 0x79000,
- 		.enable_mask = BIT(4),
-@@ -274,7 +288,7 @@ static struct clk_alpha_pll_postdiv gpll4_out_main = {
- 	.post_div_table = post_div_table_gpll4_out_main,
- 	.num_post_div = ARRAY_SIZE(post_div_table_gpll4_out_main),
- 	.width = 4,
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "gpll4_out_main",
- 		.parent_hws = (const struct clk_hw *[]){ &gpll4.clkr.hw },
-@@ -287,7 +301,7 @@ static struct clk_alpha_pll gpll6 = {
- 	.offset = 0x6000,
- 	.vco_table = default_vco,
- 	.num_vco = ARRAY_SIZE(default_vco),
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr = {
- 		.enable_reg = 0x79000,
- 		.enable_mask = BIT(6),
-@@ -313,7 +327,7 @@ static struct clk_alpha_pll_postdiv gpll6_out_main = {
- 	.post_div_table = post_div_table_gpll6_out_main,
- 	.num_post_div = ARRAY_SIZE(post_div_table_gpll6_out_main),
- 	.width = 4,
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "gpll6_out_main",
- 		.parent_hws = (const struct clk_hw *[]){ &gpll6.clkr.hw },
-@@ -326,7 +340,7 @@ static struct clk_alpha_pll gpll7 = {
- 	.offset = 0x7000,
- 	.vco_table = default_vco,
- 	.num_vco = ARRAY_SIZE(default_vco),
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr = {
- 		.enable_reg = 0x79000,
- 		.enable_mask = BIT(7),
-@@ -352,7 +366,7 @@ static struct clk_alpha_pll_postdiv gpll7_out_main = {
- 	.post_div_table = post_div_table_gpll7_out_main,
- 	.num_post_div = ARRAY_SIZE(post_div_table_gpll7_out_main),
- 	.width = 4,
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "gpll7_out_main",
- 		.parent_hws = (const struct clk_hw *[]){ &gpll7.clkr.hw },
-@@ -380,7 +394,7 @@ static struct clk_alpha_pll gpll8 = {
- 	.offset = 0x8000,
- 	.vco_table = default_vco,
- 	.num_vco = ARRAY_SIZE(default_vco),
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.flags = SUPPORTS_DYNAMIC_UPDATE,
- 	.clkr = {
- 		.enable_reg = 0x79000,
-@@ -407,7 +421,7 @@ static struct clk_alpha_pll_postdiv gpll8_out_main = {
- 	.post_div_table = post_div_table_gpll8_out_main,
- 	.num_post_div = ARRAY_SIZE(post_div_table_gpll8_out_main),
- 	.width = 4,
--	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
-+	.regs = clk_alpha_pll_regs_offset[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "gpll8_out_main",
- 		.parent_hws = (const struct clk_hw *[]){ &gpll8.clkr.hw },
++	ucode_size = code_length * 2;
+ 	if (!ucode_size || (size < round_up(ucode_size, 16) +
+ 	    sizeof(struct otx_cpt_ucode_hdr) + OTX_CPT_UCODE_SIGN_LEN)) {
+ 		dev_err(dev, "Ucode %s invalid size\n", filename);
+@@ -886,6 +893,7 @@ static int ucode_load(struct device *dev, struct otx_cpt_ucode *ucode,
+ {
+ 	struct otx_cpt_ucode_hdr *ucode_hdr;
+ 	const struct firmware *fw;
++	unsigned int code_length;
+ 	int ret;
+ 
+ 	set_ucode_filename(ucode, ucode_filename);
+@@ -896,7 +904,13 @@ static int ucode_load(struct device *dev, struct otx_cpt_ucode *ucode,
+ 	ucode_hdr = (struct otx_cpt_ucode_hdr *) fw->data;
+ 	memcpy(ucode->ver_str, ucode_hdr->ver_str, OTX_CPT_UCODE_VER_STR_SZ);
+ 	ucode->ver_num = ucode_hdr->ver_num;
+-	ucode->size = ntohl(ucode_hdr->code_length) * 2;
++	code_length = ntohl(ucode_hdr->code_length);
++	if (code_length >= INT_MAX / 2) {
++		dev_err(dev, "Ucode invalid code_length %u\n", code_length);
++		ret = -EINVAL;
++		goto release_fw;
++	}
++	ucode->size = code_length * 2;
+ 	if (!ucode->size || (fw->size < round_up(ucode->size, 16)
+ 	    + sizeof(struct otx_cpt_ucode_hdr) + OTX_CPT_UCODE_SIGN_LEN)) {
+ 		dev_err(dev, "Ucode %s invalid size\n", ucode_filename);
 -- 
 2.35.1
 
