@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68B8860B8C9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:54:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65CDF60B8D0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229945AbiJXTyq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:54:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51006 "EHLO
+        id S233481AbiJXTys (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:54:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233767AbiJXTxt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:53:49 -0400
+        with ESMTP id S233919AbiJXTyJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:54:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7213966A46;
-        Mon, 24 Oct 2022 11:18:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3BB72AC7A;
+        Mon, 24 Oct 2022 11:18:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3502CB811AB;
-        Mon, 24 Oct 2022 12:34:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94BD8C433C1;
-        Mon, 24 Oct 2022 12:34:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B6FBB815A6;
+        Mon, 24 Oct 2022 12:33:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F677C433D7;
+        Mon, 24 Oct 2022 12:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614874;
-        bh=d36qg5TvdbqUYfhos2nuwq38HcGh7VYA/z9sLQILf4c=;
+        s=korg; t=1666614814;
+        bh=no5vOmkhHLyVqt6U3EgfFJ8+Ho+hX3MnrTKAZBQ4eAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ggbRbNKKIln9D35v2WifS1rMXowqdVGcMIFZF4DSsG+S2LkuK2KAiz4zG2RzUkI7+
-         HbSPoXcAdbPbVsHBxQtleOfHJZSEoKirqmX5FrzAXmOaf1A3qRIAxfK8Qqt3E5SDXJ
-         44e4aOYJNe6KL9DeNpP9a1/gLlbUbGyfBKREw2RY=
+        b=z9jOTIVkIIK1BXj2rg8WBcOUtaufzowUpsaSdmBF3e7sfZFVmhk865ysylI50/qjA
+         VnaJERNLUjuPpwrEb7n9FPK+lLqz7SeTJUjqreQwliuFfV4M+rz6Vgzu4fWHPqL6EI
+         n6krLRdyBNLxrQgGeVaSlMo72SITW8JPPbyEb1NI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saranya Gopal <saranya.gopal@intel.com>,
-        Ninad Naik <ninad.naik@intel.com>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 009/530] ALSA: hda/realtek: Add Intel Reference SSID to support headset keys
-Date:   Mon, 24 Oct 2022 13:25:53 +0200
-Message-Id: <20221024113045.420761824@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>, Tom Talpey <tom@talpey.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 014/530] cifs: Fix the error length of VALIDATE_NEGOTIATE_INFO message
+Date:   Mon, 24 Oct 2022 13:25:58 +0200
+Message-Id: <20221024113045.659243504@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -52,34 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saranya Gopal <saranya.gopal@intel.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit 4f2e56a59b9947b3e698d3cabcb858765c12b1e8 upstream.
+commit e98ecc6e94f4e6d21c06660b0f336df02836694f upstream.
 
-This patch fixes the issue with 3.5mm headset keys
-on RPL-P platform.
+Commit d5c7076b772a ("smb3: add smb3.1.1 to default dialect list")
+extend the dialects from 3 to 4, but forget to decrease the extended
+length when specific the dialect, then the message length is larger
+than expected.
 
-[ Rearranged the entry in SSID order by tiwai ]
+This maybe leak some info through network because not initialize the
+message body.
 
-Signed-off-by: Saranya Gopal <saranya.gopal@intel.com>
-Signed-off-by: Ninad Naik <ninad.naik@intel.com>
+After apply this patch, the VALIDATE_NEGOTIATE_INFO message length is
+reduced from 28 bytes to 26 bytes.
+
+Fixes: d5c7076b772a ("smb3: add smb3.1.1 to default dialect list")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221011044916.2278867-1-saranya.gopal@intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Tom Talpey <tom@talpey.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/cifs/smb2pdu.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9069,6 +9069,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x10ec, 0x10f2, "Intel Reference board", ALC700_FIXUP_INTEL_REFERENCE),
- 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x10ec, 0x1230, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
-+	SND_PCI_QUIRK(0x10ec, 0x124c, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
- 	SND_PCI_QUIRK(0x10ec, 0x1252, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
- 	SND_PCI_QUIRK(0x10ec, 0x1254, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
- 	SND_PCI_QUIRK(0x10f7, 0x8338, "Panasonic CF-SZ6", ALC269_FIXUP_HEADSET_MODE),
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -1137,9 +1137,9 @@ int smb3_validate_negotiate(const unsign
+ 		pneg_inbuf->Dialects[0] =
+ 			cpu_to_le16(server->vals->protocol_id);
+ 		pneg_inbuf->DialectCount = cpu_to_le16(1);
+-		/* structure is big enough for 3 dialects, sending only 1 */
++		/* structure is big enough for 4 dialects, sending only 1 */
+ 		inbuflen = sizeof(*pneg_inbuf) -
+-				sizeof(pneg_inbuf->Dialects[0]) * 2;
++				sizeof(pneg_inbuf->Dialects[0]) * 3;
+ 	}
+ 
+ 	rc = SMB2_ioctl(xid, tcon, NO_FILE_ID, NO_FILE_ID,
 
 
