@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EFEB60AD3D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:20:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E3ED60ACCD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234697AbiJXOUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:20:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60856 "EHLO
+        id S232132AbiJXOQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:16:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235982AbiJXOTW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:19:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B62FF94116;
-        Mon, 24 Oct 2022 05:57:08 -0700 (PDT)
+        with ESMTP id S234491AbiJXOOB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:14:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C65DDCBFD0;
+        Mon, 24 Oct 2022 05:54:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ED84612B2;
-        Mon, 24 Oct 2022 12:42:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32432C433C1;
-        Mon, 24 Oct 2022 12:42:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9638761299;
+        Mon, 24 Oct 2022 12:42:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A864DC433D6;
+        Mon, 24 Oct 2022 12:42:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615345;
-        bh=+6nKuQUQQhp/DPGhaTRSC6cZh6rw96mQOZjAlDCFnuo=;
+        s=korg; t=1666615377;
+        bh=OzLtw84/qExOO0VigNtqfN9GRq/sTIKWBf6EPPnoyMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/61IlxmHw4zshUIAwtM29OHglqaxv+DBFY+itEI2CVgW1dVjCCJ+o/7c+Onlvtiv
-         O68x6F2h9j5Pz61v0nkx/eyIMgjM+K6tt/nq/11HqD5iO1nYGH5WbbGSMsO40TDeHI
-         8kTRHTttSXRSdYVuSiaUd0uU3PpXk4P1X2kVygnk=
+        b=WwjQu7C+2BhRXVlKLm7XGJ7Gh9ORMakuuFUwy38x/NRCfMz6gY+Aml6mS3UfBf62K
+         wAAtNY4Hh3MuIf6aquwKe+J79mkpiIF+EXHOrFnUjDgqrlHJVFS+3khl0hR//oqaOy
+         VYqqq3ZFOSbjotqcQcSBy/oo7kLkMTlKt0ki+4fo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Rob Herring <robh@kernel.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 215/530] drm:pl111: Add of_node_put() when breaking out of for_each_available_child_of_node()
-Date:   Mon, 24 Oct 2022 13:29:19 +0200
-Message-Id: <20221024113054.814419464@linuxfoundation.org>
+Subject: [PATCH 5.15 226/530] drm/bridge: megachips: Fix a null pointer dereference bug
+Date:   Mon, 24 Oct 2022 13:29:30 +0200
+Message-Id: <20221024113055.322043908@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,38 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit e0686dc6f2252e009c455fe99e2ce9d62a60eb47 ]
+[ Upstream commit 1ff673333d46d2c1b053ebd0c1c7c7c79e36943e ]
 
-The reference 'child' in the iteration of for_each_available_child_of_node()
-is only escaped out into a local variable which is only used to check
-its value. So we still need to the of_node_put() when breaking of the
-for_each_available_child_of_node() which will automatically increase
-and decrease the refcount.
+When removing the module we will get the following warning:
 
-Fixes: ca454bd42dc2 ("drm/pl111: Support the Versatile Express")
-Signed-off-by: Liang He <windhl@126.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220711131550.361350-1-windhl@126.com
+[   31.911505] i2c-core: driver [stdp2690-ge-b850v3-fw] unregistered
+[   31.912484] general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN PTI
+[   31.913338] KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+[   31.915280] RIP: 0010:drm_bridge_remove+0x97/0x130
+[   31.921825] Call Trace:
+[   31.922533]  stdp4028_ge_b850v3_fw_remove+0x34/0x60 [megachips_stdpxxxx_ge_b850v3_fw]
+[   31.923139]  i2c_device_remove+0x181/0x1f0
+
+The two bridges (stdp2690, stdp4028) do not probe at the same time, so
+the driver does not call ge_b850v3_resgiter() when probing, causing the
+driver to try to remove the object that has not been initialized.
+
+Fix this by checking whether both the bridges are probed.
+
+Fixes: 11632d4aa2b3 ("drm/bridge: megachips: Ensure both bridges are probed before registration")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220830073450.1897020-1-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/pl111/pl111_versatile.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/pl111/pl111_versatile.c b/drivers/gpu/drm/pl111/pl111_versatile.c
-index bdd883f4f0da..963a5d5e6987 100644
---- a/drivers/gpu/drm/pl111/pl111_versatile.c
-+++ b/drivers/gpu/drm/pl111/pl111_versatile.c
-@@ -402,6 +402,7 @@ static int pl111_vexpress_clcd_init(struct device *dev, struct device_node *np,
- 		if (of_device_is_compatible(child, "arm,pl111")) {
- 			has_coretile_clcd = true;
- 			ct_clcd = child;
-+			of_node_put(child);
- 			break;
- 		}
- 		if (of_device_is_compatible(child, "arm,hdlcd")) {
+diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+index cce98bf2a4e7..72248a565579 100644
+--- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
++++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+@@ -296,7 +296,9 @@ static void ge_b850v3_lvds_remove(void)
+ 	 * This check is to avoid both the drivers
+ 	 * removing the bridge in their remove() function
+ 	 */
+-	if (!ge_b850v3_lvds_ptr)
++	if (!ge_b850v3_lvds_ptr ||
++	    !ge_b850v3_lvds_ptr->stdp2690_i2c ||
++		!ge_b850v3_lvds_ptr->stdp4028_i2c)
+ 		goto out;
+ 
+ 	drm_bridge_remove(&ge_b850v3_lvds_ptr->bridge);
 -- 
 2.35.1
 
