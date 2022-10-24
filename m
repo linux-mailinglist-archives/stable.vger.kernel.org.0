@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0460A60A963
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD6A060A735
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230448AbiJXNUf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:20:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53022 "EHLO
+        id S234284AbiJXMs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:48:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231362AbiJXNSR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:18:17 -0400
+        with ESMTP id S234574AbiJXMpI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D295F2FFFE;
-        Mon, 24 Oct 2022 05:26:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2504A18B3F;
+        Mon, 24 Oct 2022 05:09:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F25061268;
-        Mon, 24 Oct 2022 12:23:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73D68C433C1;
-        Mon, 24 Oct 2022 12:23:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E32061280;
+        Mon, 24 Oct 2022 12:08:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A026BC433D6;
+        Mon, 24 Oct 2022 12:08:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614210;
-        bh=Uhl66iM0KuPXimYo3oJQbWlMZPTK9qOjxrbDCHLHOMs=;
+        s=korg; t=1666613319;
+        bh=f5/ry2w4/EIE/Rvgacwxb1aOJVW3QyhE+7Q0rNa4NA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0pmMUtfwt8v8Riu+/xzP00baZEyhAxcCRBYVdJk3I5zQqGc1Zu7ay0zV9fyu/ikxY
-         sz9FtMctD5Jv6yyj7xgGJZlxx9e4enPFlmi08H7iu9hFwhNXHBPs1qtXfcouQBIokx
-         wacVbHq9SNqiK8NDLz6hyhr/7LCeMaLbhWXkLUzE=
+        b=lQvg/zAqOna8+ABd2AeW/3rjf6CsKXJpHtPVUypMK87vd4WD7wlxwEH071NNOFCco
+         JvuLP5sdDdF/C84R1nXuLlfiBTHj0L5tyxd7LyaLcNDoYzm3IbiBEZNkg67505CKoh
+         cuYcfyAERM6QeuMgFLfTJmMIFpNk1+V2JGTRPmOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 174/390] soc: qcom: smsm: Fix refcount leak bugs in qcom_smsm_probe()
-Date:   Mon, 24 Oct 2022 13:29:31 +0200
-Message-Id: <20221024113030.123651577@linuxfoundation.org>
+Subject: [PATCH 5.4 062/255] nfsd: Fix a memory leak in an error handling path
+Date:   Mon, 24 Oct 2022 13:29:32 +0200
+Message-Id: <20221024113004.576442802@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,105 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit af8f6f39b8afd772fda4f8e61823ef8c021bf382 ]
+[ Upstream commit fd1ef88049de09bc70d60b549992524cfc0e66ff ]
 
-There are two refcount leak bugs in qcom_smsm_probe():
+If this memdup_user() call fails, the memory allocated in a previous call
+a few lines above should be freed. Otherwise it leaks.
 
-(1) The 'local_node' is escaped out from for_each_child_of_node() as
-the break of iteration, we should call of_node_put() for it in error
-path or when it is not used anymore.
-(2) The 'node' is escaped out from for_each_available_child_of_node()
-as the 'goto', we should call of_node_put() for it in goto target.
-
-Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220721135217.1301039-1-windhl@126.com
+Fixes: 6ee95d1c8991 ("nfsd: add support for upcall version 2")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/smsm.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ fs/nfsd/nfs4recover.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
-index 6564f15c5319..acba67dfbc85 100644
---- a/drivers/soc/qcom/smsm.c
-+++ b/drivers/soc/qcom/smsm.c
-@@ -511,7 +511,7 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 	for (id = 0; id < smsm->num_hosts; id++) {
- 		ret = smsm_parse_ipc(smsm, id);
- 		if (ret < 0)
--			return ret;
-+			goto out_put;
- 	}
- 
- 	/* Acquire the main SMSM state vector */
-@@ -519,13 +519,14 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 			      smsm->num_entries * sizeof(u32));
- 	if (ret < 0 && ret != -EEXIST) {
- 		dev_err(&pdev->dev, "unable to allocate shared state entry\n");
--		return ret;
-+		goto out_put;
- 	}
- 
- 	states = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_SMSM_SHARED_STATE, NULL);
- 	if (IS_ERR(states)) {
- 		dev_err(&pdev->dev, "Unable to acquire shared state entry\n");
--		return PTR_ERR(states);
-+		ret = PTR_ERR(states);
-+		goto out_put;
- 	}
- 
- 	/* Acquire the list of interrupt mask vectors */
-@@ -533,13 +534,14 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 	ret = qcom_smem_alloc(QCOM_SMEM_HOST_ANY, SMEM_SMSM_CPU_INTR_MASK, size);
- 	if (ret < 0 && ret != -EEXIST) {
- 		dev_err(&pdev->dev, "unable to allocate smsm interrupt mask\n");
--		return ret;
-+		goto out_put;
- 	}
- 
- 	intr_mask = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_SMSM_CPU_INTR_MASK, NULL);
- 	if (IS_ERR(intr_mask)) {
- 		dev_err(&pdev->dev, "unable to acquire shared memory interrupt mask\n");
--		return PTR_ERR(intr_mask);
-+		ret = PTR_ERR(intr_mask);
-+		goto out_put;
- 	}
- 
- 	/* Setup the reference to the local state bits */
-@@ -550,7 +552,8 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 	smsm->state = qcom_smem_state_register(local_node, &smsm_state_ops, smsm);
- 	if (IS_ERR(smsm->state)) {
- 		dev_err(smsm->dev, "failed to register qcom_smem_state\n");
--		return PTR_ERR(smsm->state);
-+		ret = PTR_ERR(smsm->state);
-+		goto out_put;
- 	}
- 
- 	/* Register handlers for remote processor entries of interest. */
-@@ -580,16 +583,19 @@ static int qcom_smsm_probe(struct platform_device *pdev)
- 	}
- 
- 	platform_set_drvdata(pdev, smsm);
-+	of_node_put(local_node);
- 
- 	return 0;
- 
- unwind_interfaces:
-+	of_node_put(node);
- 	for (id = 0; id < smsm->num_entries; id++)
- 		if (smsm->entries[id].domain)
- 			irq_domain_remove(smsm->entries[id].domain);
- 
- 	qcom_smem_state_unregister(smsm->state);
--
-+out_put:
-+	of_node_put(local_node);
- 	return ret;
- }
- 
+diff --git a/fs/nfsd/nfs4recover.c b/fs/nfsd/nfs4recover.c
+index 7d408957ed62..14463e107918 100644
+--- a/fs/nfsd/nfs4recover.c
++++ b/fs/nfsd/nfs4recover.c
+@@ -825,8 +825,10 @@ __cld_pipe_inprogress_downcall(const struct cld_msg_v2 __user *cmsg,
+ 				princhash.data = memdup_user(
+ 						&ci->cc_princhash.cp_data,
+ 						princhashlen);
+-				if (IS_ERR_OR_NULL(princhash.data))
++				if (IS_ERR_OR_NULL(princhash.data)) {
++					kfree(name.data);
+ 					return -EFAULT;
++				}
+ 				princhash.len = princhashlen;
+ 			} else
+ 				princhash.len = 0;
 -- 
 2.35.1
 
