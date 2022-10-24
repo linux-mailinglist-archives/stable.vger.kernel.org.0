@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A858C60A9DF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 117B860A509
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232814AbiJXN0H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:26:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56520 "EHLO
+        id S233187AbiJXMUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:20:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236151AbiJXNYd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:24:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9E19F74D;
-        Mon, 24 Oct 2022 05:30:45 -0700 (PDT)
+        with ESMTP id S233290AbiJXMTH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FC0082747;
+        Mon, 24 Oct 2022 04:57:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1603D61331;
-        Mon, 24 Oct 2022 12:29:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27E6AC433C1;
-        Mon, 24 Oct 2022 12:29:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42592B81134;
+        Mon, 24 Oct 2022 11:53:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99603C433D6;
+        Mon, 24 Oct 2022 11:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614578;
-        bh=wzVrqqZRg7fswRLItuLjYSP7Zzpk6JKxUzObx4VK59E=;
+        s=korg; t=1666612426;
+        bh=5h1EeL079EdoKFS54SY8rSsM7zSpLtptACX919JUZms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GKteBCsP0Zvgn7dIgWAQ8cY00GKpm4GHiukRQmtP98tqhu6Mp8XZBEVxXyShRriSc
-         JJWa6WSn6Q+W4b/TxF4KSyYi4Hte0DyKXFF3FxjfSgtHH6ocsXR5DK/KwaRBJW73Q/
-         KkJF71Yeoz9k67RzZYMGvuYOX+vLupNd0D91hlRA=
+        b=DZq0n4Uux0yo2QOlJt0Sa57WFQIPU7BG1rv2H+0vbhd4Jj9fP72Lspo+OfnpjXfxl
+         wj3e42pRvhJGBHCgLG2/Z99PAQkyk4Jhy5W0P6x4OVo4dxZidsbermtmlBt8aGwKJo
+         ojUcWjiELwzrY0d9eKze6nGBBy8aHkqziTchUqpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Patrick Rudolph <patrick.rudolph@9elements.com>,
-        Mark Brown <broonie@kernel.org>,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 313/390] regulator: core: Prevent integer underflow
+Subject: [PATCH 4.14 193/210] ARM: dts: imx6sl: add missing properties for sram
 Date:   Mon, 24 Oct 2022 13:31:50 +0200
-Message-Id: <20221024113036.294889422@linuxfoundation.org>
+Message-Id: <20221024113003.219532718@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Rudolph <patrick.rudolph@9elements.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 8d8e16592022c9650df8aedfe6552ed478d7135b ]
+[ Upstream commit 60c9213a1d9941a8b33db570796c3f9be8984974 ]
 
-By using a ratio of delay to poll_enabled_time that is not integer
-time_remaining underflows and does not exit the loop as expected.
-As delay could be derived from DT and poll_enabled_time is defined
-in the driver this can easily happen.
+All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
+sram@900000: '#address-cells' is a required property
+sram@900000: '#size-cells' is a required property
+sram@900000: 'ranges' is a required property
 
-Use a signed iterator to make sure that the loop exits once
-the remaining time is negative.
-
-Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
-Link: https://lore.kernel.org/r/20220909125954.577669-1-patrick.rudolph@9elements.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6sl.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 317d701487ec..bf8ba73d6c7c 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -2544,7 +2544,7 @@ static int _regulator_do_enable(struct regulator_dev *rdev)
- 	 * expired, return -ETIMEDOUT.
- 	 */
- 	if (rdev->desc->poll_enabled_time) {
--		unsigned int time_remaining = delay;
-+		int time_remaining = delay;
+diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+index bd9308b222ba..c8613ccd0944 100644
+--- a/arch/arm/boot/dts/imx6sl.dtsi
++++ b/arch/arm/boot/dts/imx6sl.dtsi
+@@ -112,6 +112,9 @@
+ 		ocram: sram@00900000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x00900000 0x20000>;
++			ranges = <0 0x00900000 0x20000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 			clocks = <&clks IMX6SL_CLK_OCRAM>;
+ 		};
  
- 		while (time_remaining > 0) {
- 			_regulator_enable_delay(rdev->desc->poll_enabled_time);
 -- 
 2.35.1
 
