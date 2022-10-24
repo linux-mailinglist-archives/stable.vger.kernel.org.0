@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D41760BB7A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 23:02:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD44F60BA80
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:38:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235202AbiJXVCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 17:02:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36380 "EHLO
+        id S234396AbiJXUiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:38:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234031AbiJXVBl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 17:01:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 107ACCA890;
-        Mon, 24 Oct 2022 12:07:17 -0700 (PDT)
+        with ESMTP id S234539AbiJXUhY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:37:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C05282B26A;
+        Mon, 24 Oct 2022 11:49:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53453B81986;
-        Mon, 24 Oct 2022 12:41:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB13C433D6;
-        Mon, 24 Oct 2022 12:41:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F12E5B81661;
+        Mon, 24 Oct 2022 12:22:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B6C0C433C1;
+        Mon, 24 Oct 2022 12:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615301;
-        bh=gbWOcWJVIeCSTWsZe9h9k7u01aFXM886CSuh3qHNISM=;
+        s=korg; t=1666614142;
+        bh=deb/+f+bTm4Ytyvf8OL7N3yZQGGpLOBi7QxH7ZECr8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Upe2SmRSWqcW+j7E0wIpDkS2m6hhUcMm/qIStnhyFzpP/0hUJuR3bGhpIq/JzpdFg
-         27EgOktdoNcNLjNxNtKLTBd+G189fdcybR2cDkpGVISrAB69p45QUCVh56N4a9EGM+
-         19SWc/MbDn1wPt0EaOhqEo+6h6+ij56F+IDtKzOM=
+        b=FStUWkWWxuZDXLZ2swrvTnoUueVT4ccCVoPAFTvDTkfcJLpMKyeE3VWyseSCi/uyk
+         tYts5V/Pf8iI/rxYOcahZ5DtiBzvAUwMHfbJTSAC5j9XgwmMz+mRxJZgoZNWznDiSR
+         wZhSYg/1hY/1LtJJdZF9xh+fhVhTaWEo6BGsks2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 168/530] spi: qup: add missing clk_disable_unprepare on error in spi_qup_pm_resume_runtime()
-Date:   Mon, 24 Oct 2022 13:28:32 +0200
-Message-Id: <20221024113052.653014735@linuxfoundation.org>
+Subject: [PATCH 5.10 118/390] net: fs_enet: Fix wrong check in do_pd_setup
+Date:   Mon, 24 Oct 2022 13:28:35 +0200
+Message-Id: <20221024113027.705335291@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Qiang <xuqiang36@huawei.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 494a22765ce479c9f8ad181c5d24cffda9f534bb ]
+[ Upstream commit ec3f06b542a960806a81345042e4eee3f8c5dec4 ]
 
-Add the missing clk_disable_unprepare() before return
-from spi_qup_pm_resume_runtime() in the error handling case.
+Should check of_iomap return value 'fep->fec.fecp' instead of 'fep->fcc.fccp'
 
-Fixes: dae1a7700b34 (“spi: qup: Handle clocks in pm_runtime suspend and resume”)
-Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
-Link: https://lore.kernel.org/r/20220825065324.68446-2-xuqiang36@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 976de6a8c304 ("fs_enet: Be an of_platform device when CONFIG_PPC_CPM_NEW_BINDING is set.")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-qup.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/fs_enet/mac-fec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
-index 668d79922fac..f3877eeb3da6 100644
---- a/drivers/spi/spi-qup.c
-+++ b/drivers/spi/spi-qup.c
-@@ -1199,8 +1199,10 @@ static int spi_qup_pm_resume_runtime(struct device *device)
- 		return ret;
+diff --git a/drivers/net/ethernet/freescale/fs_enet/mac-fec.c b/drivers/net/ethernet/freescale/fs_enet/mac-fec.c
+index 99fe2c210d0f..61f4b6e50d29 100644
+--- a/drivers/net/ethernet/freescale/fs_enet/mac-fec.c
++++ b/drivers/net/ethernet/freescale/fs_enet/mac-fec.c
+@@ -98,7 +98,7 @@ static int do_pd_setup(struct fs_enet_private *fep)
+ 		return -EINVAL;
  
- 	ret = clk_prepare_enable(controller->cclk);
--	if (ret)
-+	if (ret) {
-+		clk_disable_unprepare(controller->iclk);
- 		return ret;
-+	}
+ 	fep->fec.fecp = of_iomap(ofdev->dev.of_node, 0);
+-	if (!fep->fcc.fccp)
++	if (!fep->fec.fecp)
+ 		return -EINVAL;
  
- 	/* Disable clocks auto gaiting */
- 	config = readl_relaxed(controller->base + QUP_CONFIG);
+ 	return 0;
 -- 
 2.35.1
 
