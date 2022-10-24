@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 876D660A468
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:10:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 365C960AA35
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232738AbiJXMKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:10:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49574 "EHLO
+        id S233776AbiJXNbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:31:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232856AbiJXMJD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:09:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 206C47E03F;
-        Mon, 24 Oct 2022 04:51:35 -0700 (PDT)
+        with ESMTP id S236104AbiJXN3i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8206BABD5D;
+        Mon, 24 Oct 2022 05:32:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F60AB811B6;
-        Mon, 24 Oct 2022 11:50:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EDA7C433C1;
-        Mon, 24 Oct 2022 11:50:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9304CB815A6;
+        Mon, 24 Oct 2022 12:10:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDAAEC433D7;
+        Mon, 24 Oct 2022 12:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612244;
-        bh=HMtNax6B1YKpRfTbexY+MqRVDn68rD2BXHrv0/2PqNo=;
+        s=korg; t=1666613424;
+        bh=C2m0brS/mQxeTv6w1PZLi108PJEB7MRBUQFStMEbs28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTrW+kyHdxegBKiBbO9u4MPaDYLfyRFAxX3z7hESouLE8CNilz/sjni4ISdp0bxrI
-         +p8kWI8o2eY59yCYgAoxQaHV0Ft0g0RM3dpjLer4yruIA2tm444xFs6xItgiPnlm+Y
-         FSdce94+FaUJPo1wpY+iwJbVd2nwpQw1cCVadzRM=
+        b=Sf+Clm1ChZERGL26LhHN9kmu+XMkEiiJ/7j7LTi/XKw4kjGh4+C9pbVE/ksp5h0Ot
+         sYUQs5KCAZZdiiHYWOIuMscmTSeeQ7+x0DOuP5Zy3YpFdRWv112catmWk1wfYnfJ89
+         v4gL+tb3zMW4BxXPGy23BkR90dbUCTyGOy8CET0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 124/210] tty: xilinx_uartps: Fix the ignore_status
-Date:   Mon, 24 Oct 2022 13:30:41 +0200
-Message-Id: <20221024113000.997716762@linuxfoundation.org>
+Subject: [PATCH 5.4 132/255] tty: xilinx_uartps: Fix the ignore_status
+Date:   Mon, 24 Oct 2022 13:30:42 +0200
+Message-Id: <20221024113006.960063576@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,7 +70,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
-index cdd81c28893a..a04fbf83d123 100644
+index a1409251fbcc..6842999072c5 100644
 --- a/drivers/tty/serial/xilinx_uartps.c
 +++ b/drivers/tty/serial/xilinx_uartps.c
 @@ -369,6 +369,8 @@ static irqreturn_t cdns_uart_isr(int irq, void *dev_id)
