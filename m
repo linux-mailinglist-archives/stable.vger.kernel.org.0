@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD74660A44D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:07:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA37560A764
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:49:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232593AbiJXMHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:07:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38698 "EHLO
+        id S232091AbiJXMtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:49:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232599AbiJXMFq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:05:46 -0400
+        with ESMTP id S234428AbiJXMsp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:48:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC8EB7E30A;
-        Mon, 24 Oct 2022 04:51:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F042923C5;
+        Mon, 24 Oct 2022 05:12:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25261612C3;
-        Mon, 24 Oct 2022 11:51:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3718AC433D7;
-        Mon, 24 Oct 2022 11:51:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B73DD612BB;
+        Mon, 24 Oct 2022 12:11:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1692C433D6;
+        Mon, 24 Oct 2022 12:11:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612297;
-        bh=+IJfdwQZHLdBxmVW+3yGX0T13fs3Qxpi0bql/8osMgE=;
+        s=korg; t=1666613482;
+        bh=7BBawXnclGc7VD+m7l6mAXuY6gIVYHTlLGs2AC/M8g0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDGnHXHeSXslOuUXAxG0RV8jUwi3qHLEdq5x+AHsostU55LPP6H3xFzKwMoc9L2je
-         fJttDwJmKT1b8uU4MVEXuuHhK+aRhAF36r2BuHyfkMdlTcmjJgUe5ceheO+j8CNYSE
-         Kenkytqlbit3eQ6/XBzvWDUrU3yJG8f6RBXJHnJw=
+        b=d5M9xYr7hh/TZjwpuV/vsBo8+y0FfizhFHhPCfqu+s5IEXiEmALgRTvAIegtyEoh0
+         Iugr92MyI0QHofnfw9tP9mIUKpEI099XFe+/iGHj9jd8OIOhV9smxSYBxMxxJscvN3
+         TeLr7jtgfd+HGNJdJQMYGr7cpUzT6jRHdk4Kz2qI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 145/210] mfd: lp8788: Fix an error handling path in lp8788_irq_init() and lp8788_irq_init()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Philipp Hortmann <philipp.g.hortmann@gmail.com>,
+        Nam Cao <namcaov@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 152/255] staging: vt6655: fix some erroneous memory clean-up loops
 Date:   Mon, 24 Oct 2022 13:31:02 +0200
-Message-Id: <20221024113001.678082256@linuxfoundation.org>
+Message-Id: <20221024113007.691974379@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Nam Cao <namcaov@gmail.com>
 
-[ Upstream commit 557244f6284f30613f2d61f14b579303165876c3 ]
+[ Upstream commit 2a2db520e3ca5aafba7c211abfd397666c9b5f9d ]
 
-In lp8788_irq_init(), if an error occurs after a successful
-irq_domain_add_linear() call, it must be undone by a corresponding
-irq_domain_remove() call.
+In some initialization functions of this driver, memory is allocated with
+'i' acting as an index variable and increasing from 0. The commit in
+"Fixes" introduces some clean-up codes in case of allocation failure,
+which free memory in reverse order with 'i' decreasing to 0. However,
+there are some problems:
+  - The case i=0 is left out. Thus memory is leaked.
+  - In case memory allocation fails right from the start, the memory
+    freeing loops will start with i=-1 and invalid memory locations will
+    be accessed.
 
-irq_domain_remove() should also be called in lp8788_irq_exit() for the same
-reason.
+One of these loops has been fixed in commit c8ff91535880 ("staging:
+vt6655: fix potential memory leak"). Fix the remaining erroneous loops.
 
-Fixes: eea6b7cc53aa ("mfd: Add lp8788 mfd driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/bcd5a72c9c1c383dd6324680116426e32737655a.1659261275.git.christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/linux-staging/Yx9H1zSpxmNqx6Xc@kadam/
+Fixes: 5341ee0adb17 ("staging: vt6655: check for memory allocation failures")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Tested-by: Philipp Hortmann <philipp.g.hortmann@gmail.com>
+Signed-off-by: Nam Cao <namcaov@gmail.com>
+Link: https://lore.kernel.org/r/20220912170429.29852-1-namcaov@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/lp8788-irq.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/staging/vt6655/device_main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/lp8788-irq.c b/drivers/mfd/lp8788-irq.c
-index 792d51bae20f..ae65928f35f0 100644
---- a/drivers/mfd/lp8788-irq.c
-+++ b/drivers/mfd/lp8788-irq.c
-@@ -179,6 +179,7 @@ int lp8788_irq_init(struct lp8788 *lp, int irq)
- 				IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
- 				"lp8788-irq", irqd);
- 	if (ret) {
-+		irq_domain_remove(lp->irqdm);
- 		dev_err(lp->dev, "failed to create a thread for IRQ_N\n");
- 		return ret;
+diff --git a/drivers/staging/vt6655/device_main.c b/drivers/staging/vt6655/device_main.c
+index 082302944c37..c1f9b263129e 100644
+--- a/drivers/staging/vt6655/device_main.c
++++ b/drivers/staging/vt6655/device_main.c
+@@ -560,7 +560,7 @@ static int device_init_rd0_ring(struct vnt_private *priv)
+ 	kfree(desc->rd_info);
+ 
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->aRD0Ring[i];
+ 		device_free_rx_buf(priv, desc);
+ 		kfree(desc->rd_info);
+@@ -606,7 +606,7 @@ static int device_init_rd1_ring(struct vnt_private *priv)
+ 	kfree(desc->rd_info);
+ 
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->aRD1Ring[i];
+ 		device_free_rx_buf(priv, desc);
+ 		kfree(desc->rd_info);
+@@ -710,7 +710,7 @@ static int device_init_td1_ring(struct vnt_private *priv)
+ 	return 0;
+ 
+ err_free_desc:
+-	while (--i) {
++	while (i--) {
+ 		desc = &priv->apTD1Rings[i];
+ 		kfree(desc->td_info);
  	}
-@@ -192,4 +193,6 @@ void lp8788_irq_exit(struct lp8788 *lp)
- {
- 	if (lp->irq)
- 		free_irq(lp->irq, lp->irqdm);
-+	if (lp->irqdm)
-+		irq_domain_remove(lp->irqdm);
- }
 -- 
 2.35.1
 
