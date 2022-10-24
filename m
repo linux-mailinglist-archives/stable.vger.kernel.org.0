@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 463E660B9D3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:21:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B9460B9F5
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:23:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234233AbiJXUV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:21:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55986 "EHLO
+        id S234290AbiJXUXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:23:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234055AbiJXUVN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:21:13 -0400
+        with ESMTP id S234138AbiJXUWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:22:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8D9A1217CE;
-        Mon, 24 Oct 2022 11:37:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF4F28BBAA;
+        Mon, 24 Oct 2022 11:38:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72CFCB815FE;
-        Mon, 24 Oct 2022 12:13:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7B1EC43148;
-        Mon, 24 Oct 2022 12:13:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 641A8B815F0;
+        Mon, 24 Oct 2022 12:13:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 860E6C433B5;
+        Mon, 24 Oct 2022 12:13:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613603;
-        bh=/BleCwNH4q+MxKT7DR0P99zio7f8ZwEn9aOrqdQJuJE=;
+        s=korg; t=1666613606;
+        bh=LQ0m32+xLnc7SlLTPzhWZlsx030LdZRIcjFUrM6CNfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gVnODDD8/3VTsdPbxja7M9YOQInd2GFnrE6MP/4izB2rCBP+cYZ1lIaIraCVl61xR
-         NocnxUXnqYNzntTVLUL0D5ivrdsmpROs6midWPzSR9Y4KRPGpu0Fd7TczDmqsv9T9W
-         fctflicsPjwnGO5rl2YenEcnOBMzp//nkfR0VYlo=
+        b=TEbV9PUsMp2XVd6w0GCllpGAN+z03lH2WBe7k3XiLBaVna3cS0mA7xSUX6pQFiWot
+         jtnX4sgJX/TTRGWl/LEpI6rSjYtz5SDkK7oQxJb/Bbb3vb1j6acy5cVKHwSub1DMfA
+         m7unnr/i1MSMNh6uSk1q7YX4e7jkTabQBK/0XySI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Hawkins Jiawei <yin31149@gmail.com>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 200/255] Bluetooth: hci_sysfs: Fix attempting to call device_add multiple times
-Date:   Mon, 24 Oct 2022 13:31:50 +0200
-Message-Id: <20221024113009.665739363@linuxfoundation.org>
+Subject: [PATCH 5.4 201/255] can: bcm: check the result of can_send() in bcm_can_tx()
+Date:   Mon, 24 Oct 2022 13:31:51 +0200
+Message-Id: <20221024113009.694860245@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
 References: <20221024113002.471093005@linuxfoundation.org>
@@ -54,64 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 448a496f760664d3e2e79466aa1787e6abc922b5 ]
+[ Upstream commit 3fd7bfd28cfd68ae80a2fe92ea1615722cc2ee6e ]
 
-device_add shall not be called multiple times as stated in its
-documentation:
+If can_send() fail, it should not update frames_abs counter
+in bcm_can_tx(). Add the result check for can_send() in bcm_can_tx().
 
- 'Do not call this routine or device_register() more than once for
- any device structure'
-
-Syzkaller reports a bug as follows [1]:
-------------[ cut here ]------------
-kernel BUG at lib/list_debug.c:33!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-[...]
-Call Trace:
- <TASK>
- __list_add include/linux/list.h:69 [inline]
- list_add_tail include/linux/list.h:102 [inline]
- kobj_kset_join lib/kobject.c:164 [inline]
- kobject_add_internal+0x18f/0x8f0 lib/kobject.c:214
- kobject_add_varg lib/kobject.c:358 [inline]
- kobject_add+0x150/0x1c0 lib/kobject.c:410
- device_add+0x368/0x1e90 drivers/base/core.c:3452
- hci_conn_add_sysfs+0x9b/0x1b0 net/bluetooth/hci_sysfs.c:53
- hci_le_cis_estabilished_evt+0x57c/0xae0 net/bluetooth/hci_event.c:6799
- hci_le_meta_evt+0x2b8/0x510 net/bluetooth/hci_event.c:7110
- hci_event_func net/bluetooth/hci_event.c:7440 [inline]
- hci_event_packet+0x63d/0xfd0 net/bluetooth/hci_event.c:7495
- hci_rx_work+0xae7/0x1230 net/bluetooth/hci_core.c:4007
- process_one_work+0x991/0x1610 kernel/workqueue.c:2289
- worker_thread+0x665/0x1080 kernel/workqueue.c:2436
- kthread+0x2e4/0x3a0 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
- </TASK>
-
-Link: https://syzkaller.appspot.com/bug?id=da3246e2d33afdb92d66bc166a0934c5b146404a
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Tested-by: Hawkins Jiawei <yin31149@gmail.com>
+Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Suggested-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Link: https://lore.kernel.org/all/9851878e74d6d37aee2f1ee76d68361a46f89458.1663206163.git.william.xuanziyang@huawei.com
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sysfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/can/bcm.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/hci_sysfs.c b/net/bluetooth/hci_sysfs.c
-index b69d88b88d2e..ccd2c377bf83 100644
---- a/net/bluetooth/hci_sysfs.c
-+++ b/net/bluetooth/hci_sysfs.c
-@@ -48,6 +48,9 @@ void hci_conn_add_sysfs(struct hci_conn *conn)
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index 63d81147fb4e..fbf1143a56e1 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -276,6 +276,7 @@ static void bcm_can_tx(struct bcm_op *op)
+ 	struct sk_buff *skb;
+ 	struct net_device *dev;
+ 	struct canfd_frame *cf = op->frames + op->cfsiz * op->currframe;
++	int err;
  
- 	BT_DBG("conn %p", conn);
+ 	/* no target device? => exit */
+ 	if (!op->ifindex)
+@@ -300,11 +301,11 @@ static void bcm_can_tx(struct bcm_op *op)
+ 	/* send with loopback */
+ 	skb->dev = dev;
+ 	can_skb_set_owner(skb, op->sk);
+-	can_send(skb, 1);
++	err = can_send(skb, 1);
++	if (!err)
++		op->frames_abs++;
  
-+	if (device_is_registered(&conn->dev))
-+		return;
-+
- 	dev_set_name(&conn->dev, "%s:%d", hdev->name, conn->handle);
+-	/* update statistics */
+ 	op->currframe++;
+-	op->frames_abs++;
  
- 	if (device_add(&conn->dev) < 0) {
+ 	/* reached last frame? */
+ 	if (op->currframe >= op->nframes)
 -- 
 2.35.1
 
