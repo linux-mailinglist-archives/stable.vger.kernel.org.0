@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7D4E60B80A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:40:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A1F060B808
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:40:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231744AbiJXTkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:40:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58684 "EHLO
+        id S233298AbiJXTkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:40:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233381AbiJXTkP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:40:15 -0400
+        with ESMTP id S233316AbiJXTkM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:40:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 220311D1021;
-        Mon, 24 Oct 2022 11:10:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB536A48B;
+        Mon, 24 Oct 2022 11:10:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D9A7B811A9;
-        Mon, 24 Oct 2022 11:48:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1381C433B5;
-        Mon, 24 Oct 2022 11:48:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A45B3B8117D;
+        Mon, 24 Oct 2022 11:48:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B17EC433C1;
+        Mon, 24 Oct 2022 11:48:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612112;
-        bh=exJ6/ycf2cPgXPDrwu+frN0ZqvWYWR4ZkIMOmn0PI5k=;
+        s=korg; t=1666612125;
+        bh=TaOMZ641qK5g+ToI/uLs8Ny1TZ131P0sMACZ7/5HZuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSNtaVm28anVXL2mizqvNFQXQqSsnv0DyqFX5LsqulmvS0ZCfj1kAaeu70M2TdD9U
-         tSThzEpRgk9k15698rLOuLjuoab6/Z/ThUlpBopvXJbCUV/3Zj9pMEwMDnkOP4VW4h
-         eX+oqYYfoaLD0JVW9UsJmM1UH3OO1GjDvu7ZoWSQ=
+        b=F1JiIZfhPA2oQcXKMXgAphIqMxsJLvQXM7vGMsGGjC3JZBmDaASGO9/SXIa+iPlRy
+         Gu7pzhWPrB1UgjW8XW0LBnVdFsbTpNPvTW23gJWj/0L9Xi7G9QEiYGJ59EeC9p1UKm
+         9+t+amYbNJmeLBE/lO/UvKKmIrwzkUqeakoYRkBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 075/210] ring-buffer: Check pending waiters when doing wake ups as well
-Date:   Mon, 24 Oct 2022 13:29:52 +0200
-Message-Id: <20221024112959.497465537@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+Subject: [PATCH 4.14 080/210] selinux: use "grep -E" instead of "egrep"
+Date:   Mon, 24 Oct 2022 13:29:57 +0200
+Message-Id: <20221024112959.656887511@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -53,45 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit ec0bbc5ec5664dcee344f79373852117dc672c86 upstream.
+commit c969bb8dbaf2f3628927eae73e7c579a74cf1b6e upstream.
 
-The wake up waiters only checks the "wakeup_full" variable and not the
-"full_waiters_pending". The full_waiters_pending is set when a waiter is
-added to the wait queue. The wakeup_full is only set when an event is
-triggered, and it clears the full_waiters_pending to avoid multiple calls
-to irq_work_queue().
+The latest version of grep claims that egrep is now obsolete so the build
+now contains warnings that look like:
+	egrep: warning: egrep is obsolescent; using grep -E
+fix this by using "grep -E" instead.
 
-The irq_work callback really needs to check both wakeup_full as well as
-full_waiters_pending such that this code can be used to wake up waiters
-when a file is closed that represents the ring buffer and the waiters need
-to be woken up.
-
-Link: https://lkml.kernel.org/r/20220927231824.209460321@goodmis.org
-
-Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Fixes: 15693458c4bc0 ("tracing/ring-buffer: Move poll wake ups into ring buffer code")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Eric Paris <eparis@parisplace.org>
+Cc: selinux@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[PM: tweak to remove vdso reference, cleanup subj line]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ scripts/selinux/install_policy.sh |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -512,8 +512,9 @@ static void rb_wake_up_waiters(struct ir
- 	struct rb_irq_work *rbwork = container_of(work, struct rb_irq_work, work);
+--- a/scripts/selinux/install_policy.sh
++++ b/scripts/selinux/install_policy.sh
+@@ -57,7 +57,7 @@ fi
+ cd /etc/selinux/dummy/contexts/files
+ $SF file_contexts /
  
- 	wake_up_all(&rbwork->waiters);
--	if (rbwork->wakeup_full) {
-+	if (rbwork->full_waiters_pending || rbwork->wakeup_full) {
- 		rbwork->wakeup_full = false;
-+		rbwork->full_waiters_pending = false;
- 		wake_up_all(&rbwork->full_waiters);
- 	}
- }
+-mounts=`cat /proc/$$/mounts | egrep "ext2|ext3|xfs|jfs|ext4|ext4dev|gfs2" | awk '{ print $2 '}`
++mounts=`cat /proc/$$/mounts | grep -E "ext2|ext3|xfs|jfs|ext4|ext4dev|gfs2" | awk '{ print $2 '}`
+ $SF file_contexts $mounts
+ 
+ 
 
 
