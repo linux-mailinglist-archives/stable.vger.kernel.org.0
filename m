@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8547460A283
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 675E760A3BA
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231260AbiJXLoy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:44:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43338 "EHLO
+        id S230270AbiJXMAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:00:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231573AbiJXLoC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:44:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 636E873C23;
-        Mon, 24 Oct 2022 04:41:24 -0700 (PDT)
+        with ESMTP id S232429AbiJXL6w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:58:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E2C87C1EA;
+        Mon, 24 Oct 2022 04:47:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DA5561278;
-        Mon, 24 Oct 2022 11:39:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CEF8C433D7;
-        Mon, 24 Oct 2022 11:39:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22EDE61295;
+        Mon, 24 Oct 2022 11:39:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37333C43470;
+        Mon, 24 Oct 2022 11:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611588;
-        bh=0uhDIdfk1epcziMHFK+ZKD1E2NsUZQU+n1FAp35sSls=;
+        s=korg; t=1666611591;
+        bh=Ap5ywalXWtWaRZsxV1rvpRcRkw5qRaysAZ8ipIM0BpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a/QMcWoXEiUs/kSOhgiA93hC7/VVYohdgIvVsWfhJsjF+f64RC7hSnJ5F5fqGR9IQ
-         pgO+fKt7tqt9jPawRqn2qi7dzSZ+pjopOcYHWjVe/Zc+MbF6iJ4mzasTQkSNEDKhfn
-         mpnmRyOASCzTXXBEmDsfsvDnup95kFXYwTCde/pc=
+        b=MmlZMV0KI7fYsqzs9WjRlo6jMeY2ihX2KTlmHE2IE8sbAVa/jfJkv7Hvzju701Fjl
+         of+J0KaE0F8+Kpav9kozSKiE089e7tvi8N9+wYxrqWyPZBWokHtZlSVAsgaPcz/p/1
+         kM+Q0Rf+kTVeIqfjiL/ceh4AjN3KJ8dPG7BxkXgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 035/159] random: avoid reading two cache lines on irq randomness
-Date:   Mon, 24 Oct 2022 13:29:49 +0200
-Message-Id: <20221024112950.680129573@linuxfoundation.org>
+        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.9 036/159] wifi: mac80211_hwsim: avoid mac80211 warning on bad rate
+Date:   Mon, 24 Oct 2022 13:29:50 +0200
+Message-Id: <20221024112950.709946230@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -53,38 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 9ee0507e896b45af6d65408c77815800bce30008 upstream.
+commit 1833b6f46d7e2830251a063935ab464256defe22 upstream.
 
-In order to avoid reading and dirtying two cache lines on every IRQ,
-move the work_struct to the bottom of the fast_pool struct. add_
-interrupt_randomness() always touches .pool and .count, which are
-currently split, because .mix pushes everything down. Instead, move .mix
-to the bottom, so that .pool and .count are always in the first cache
-line, since .mix is only accessed when the pool is full.
+If the tool on the other side (e.g. wmediumd) gets confused
+about the rate, we hit a warning in mac80211. Silence that
+by effectively duplicating the check here and dropping the
+frame silently (in mac80211 it's dropped with the warning).
 
-Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
-Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mac80211_hwsim.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -891,10 +891,10 @@ void __init add_bootloader_randomness(co
- }
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -3011,6 +3011,8 @@ static int hwsim_cloned_frame_received_n
  
- struct fast_pool {
--	struct work_struct mix;
- 	unsigned long pool[4];
- 	unsigned long last;
- 	unsigned int count;
-+	struct work_struct mix;
- };
+ 	rx_status.band = data2->channel->band;
+ 	rx_status.rate_idx = nla_get_u32(info->attrs[HWSIM_ATTR_RX_RATE]);
++	if (rx_status.rate_idx >= data2->hw->wiphy->bands[rx_status.band]->n_bitrates)
++		goto out;
+ 	rx_status.signal = nla_get_u32(info->attrs[HWSIM_ATTR_SIGNAL]);
  
- static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
+ 	memcpy(IEEE80211_SKB_RXCB(skb), &rx_status, sizeof(rx_status));
 
 
