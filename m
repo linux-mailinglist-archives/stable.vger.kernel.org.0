@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83CF160AC31
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:03:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98AAA60AF8D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:53:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229845AbiJXODd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:03:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47464 "EHLO
+        id S231184AbiJXPxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:53:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236952AbiJXOCX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79F4C0693;
-        Mon, 24 Oct 2022 05:48:18 -0700 (PDT)
+        with ESMTP id S231797AbiJXPwx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:52:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D63CE5;
+        Mon, 24 Oct 2022 07:47:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78D3E61342;
-        Mon, 24 Oct 2022 12:46:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E93EC433D6;
-        Mon, 24 Oct 2022 12:46:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3A058CE1353;
+        Mon, 24 Oct 2022 11:51:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D1D6C433D6;
+        Mon, 24 Oct 2022 11:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615583;
-        bh=WFVjG+q3vUFosN6VOG2U+vIcJlTIVoQCqEg0IL9VlxE=;
+        s=korg; t=1666612289;
+        bh=ipcBAw3C0ZMweEZtqlR6OMDjjvMZt6qpdLB5DJIjctM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N0HYa444HdybmU56sRcnXr25d0CunBcgPmC/WtPVLDvrBZz+O5dg6GkvljX3YBD85
-         uWgBJehbURt3nGKkhpILaoQSY9AiN/5rESVN4F43rj+EJuVO718aIMpPLAAqZeuOId
-         senQPNdgGpq0QM1zlaV6bj1j5Z6Wuhh9mtQOcjcI=
+        b=QO1uyp6hkd5Vxvygs73CskbEBSS3DwlprNK+OtbwexxHFAN0IYc2CH+i2aQrd0e0F
+         mGBZRmIG1hxS/EvWnOjdknVpKws3XCr48PPbi3Hr7qPkNEECUm4+o+cUiv0ccltpKE
+         5yu+HdWiBLms+Pmg8vWG1XCzMEEXKOXWhUMRmaOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Song Liu <song@kernel.org>,
+        Logan Gunthorpe <logang@deltatee.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 307/530] mtd: rawnand: fsl_elbc: Fix none ECC mode
+Subject: [PATCH 4.14 134/210] md/raid5: Ensure stripe_fill happens on non-read IO with journal
 Date:   Mon, 24 Oct 2022 13:30:51 +0200
-Message-Id: <20221024113058.957285912@linuxfoundation.org>
+Message-Id: <20221024113001.347618087@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,93 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 049e43b9fd8fd2966940485da163d67e96ee3fea ]
+[ Upstream commit e2eed85bc75138a9eeb63863d20f8904ac42a577 ]
 
-Commit f6424c22aa36 ("mtd: rawnand: fsl_elbc: Make SW ECC work") added
-support for specifying ECC mode via DTS and skipping autodetection.
+When doing degrade/recover tests using the journal a kernel BUG
+is hit at drivers/md/raid5.c:4381 in handle_parity_checks5():
 
-But it broke explicit specification of HW ECC mode in DTS as correct
-settings for HW ECC mode are applied only when NONE mode or nothing was
-specified in DTS file.
+  BUG_ON(!test_bit(R5_UPTODATE, &dev->flags));
 
-Also it started aliasing NONE mode to be same as when ECC mode was not
-specified and disallowed usage of ON_DIE mode.
+This was found to occur because handle_stripe_fill() was skipped
+for stripes in the journal due to a condition in that function.
+Thus blocks were not fetched and R5_UPTODATE was not set when
+the code reached handle_parity_checks5().
 
-Fix all these issues. Use autodetection of ECC mode only in case when mode
-was really not specified in DTS file by checking that ecc value is invalid.
-Set HW ECC settings either when HW ECC was specified in DTS or it was
-autodetected. And do not fail when ON_DIE mode is set.
+To fix this, don't skip handle_stripe_fill() unless the stripe is
+for read.
 
-Fixes: f6424c22aa36 ("mtd: rawnand: fsl_elbc: Make SW ECC work")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220707184328.3845-1-pali@kernel.org
+Fixes: 07e83364845e ("md/r5cache: shift complex rmw from read path to write path")
+Link: https://lore.kernel.org/linux-raid/e05c4239-41a9-d2f7-3cfa-4aa9d2cea8c1@deltatee.com/
+Suggested-by: Song Liu <song@kernel.org>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/fsl_elbc_nand.c | 28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ drivers/md/raid5.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/fsl_elbc_nand.c b/drivers/mtd/nand/raw/fsl_elbc_nand.c
-index aab93b9e6052..a18d121396aa 100644
---- a/drivers/mtd/nand/raw/fsl_elbc_nand.c
-+++ b/drivers/mtd/nand/raw/fsl_elbc_nand.c
-@@ -726,36 +726,40 @@ static int fsl_elbc_attach_chip(struct nand_chip *chip)
- 	struct fsl_lbc_regs __iomem *lbc = ctrl->regs;
- 	unsigned int al;
- 
--	switch (chip->ecc.engine_type) {
- 	/*
- 	 * if ECC was not chosen in DT, decide whether to use HW or SW ECC from
- 	 * CS Base Register
- 	 */
--	case NAND_ECC_ENGINE_TYPE_NONE:
-+	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_INVALID) {
- 		/* If CS Base Register selects full hardware ECC then use it */
- 		if ((in_be32(&lbc->bank[priv->bank].br) & BR_DECC) ==
- 		    BR_DECC_CHK_GEN) {
--			chip->ecc.read_page = fsl_elbc_read_page;
--			chip->ecc.write_page = fsl_elbc_write_page;
--			chip->ecc.write_subpage = fsl_elbc_write_subpage;
--
- 			chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
--			mtd_set_ooblayout(mtd, &fsl_elbc_ooblayout_ops);
--			chip->ecc.size = 512;
--			chip->ecc.bytes = 3;
--			chip->ecc.strength = 1;
- 		} else {
- 			/* otherwise fall back to default software ECC */
- 			chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
- 			chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
- 		}
-+	}
-+
-+	switch (chip->ecc.engine_type) {
-+	/* if HW ECC was chosen, setup ecc and oob layout */
-+	case NAND_ECC_ENGINE_TYPE_ON_HOST:
-+		chip->ecc.read_page = fsl_elbc_read_page;
-+		chip->ecc.write_page = fsl_elbc_write_page;
-+		chip->ecc.write_subpage = fsl_elbc_write_subpage;
-+		mtd_set_ooblayout(mtd, &fsl_elbc_ooblayout_ops);
-+		chip->ecc.size = 512;
-+		chip->ecc.bytes = 3;
-+		chip->ecc.strength = 1;
- 		break;
- 
--	/* if SW ECC was chosen in DT, we do not need to set anything here */
-+	/* if none or SW ECC was chosen, we do not need to set anything here */
-+	case NAND_ECC_ENGINE_TYPE_NONE:
- 	case NAND_ECC_ENGINE_TYPE_SOFT:
-+	case NAND_ECC_ENGINE_TYPE_ON_DIE:
- 		break;
- 
--	/* should we also implement *_ECC_ENGINE_CONTROLLER to do as above? */
- 	default:
- 		return -EINVAL;
- 	}
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 866ba1743f9f..78b48dca3fda 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -3720,7 +3720,7 @@ static void handle_stripe_fill(struct stripe_head *sh,
+ 		 * back cache (prexor with orig_page, and then xor with
+ 		 * page) in the read path
+ 		 */
+-		if (s->injournal && s->failed) {
++		if (s->to_read && s->injournal && s->failed) {
+ 			if (test_bit(STRIPE_R5C_CACHING, &sh->state))
+ 				r5c_make_stripe_write_out(sh);
+ 			goto out;
 -- 
 2.35.1
 
