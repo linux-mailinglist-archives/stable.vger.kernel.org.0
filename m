@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55CD860AD51
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B70BF60AD69
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:23:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231626AbiJXOVC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:21:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54572 "EHLO
+        id S235588AbiJXOX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:23:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235458AbiJXOTC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:19:02 -0400
+        with ESMTP id S235616AbiJXOV1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:21:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34C2623EB4;
-        Mon, 24 Oct 2022 05:56:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5817E97ECF
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 05:58:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D8FB6121A;
-        Mon, 24 Oct 2022 12:56:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5395FC433C1;
-        Mon, 24 Oct 2022 12:56:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 658F161333
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 12:56:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76489C433C1;
+        Mon, 24 Oct 2022 12:56:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616196;
-        bh=LaWtLEvCT2VdGcjH4+ExzTkc5aQ8UDmqchGx5p6nb+g=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aYfuoLWEDzSnJ75NTX8gmUgbegDd3aruKMm1y3PwgfKEIiYb3bWXbjrvyf++9Un3q
-         7EQ96YGBfqtLZgyC2558J/Lmd4plyOBgB1Ftx3TI4AII4SiyPtoNl6oRcSqgajijQP
-         FvfJWVW6vlLbkY6+eGjl6HIjuBz3FEu0wN5Vjfi4=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 530/530] io-wq: Fix memory leak in worker creation
-Date:   Mon, 24 Oct 2022 13:34:34 +0200
-Message-Id: <20221024113109.004217718@linuxfoundation.org>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
-User-Agent: quilt/0.67
+        s=korg; t=1666616201;
+        bh=lxoCBSLyhmT6Gg8REGR3z2MvXmnbNml3mkr8H9Bi434=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LJETqWYW5ERB7RglMtPKuEU5FF94EMxrzc4PHaefE4zQeDT6w3N0c4OumMkYOp7jN
+         kxaeSYq9Apcc0qjlJHQYlb1urMwveBPqV/WyAE0r9k0gmcmsyc39XQC2Hv0cJHQ5P4
+         mpYp1+SWnLIyQBT48hEZrwPW+oNF/8+BKRYIJB/8=
+Date:   Mon, 24 Oct 2022 13:38:18 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Salvatore Bonaccorso <carnil@debian.org>
+Cc:     Diederik de Haas <didi.debian@cknow.org>, stable@vger.kernel.org,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 1/2] Revert "drm/amdgpu: move nbio sdma_doorbell_range()
+ into sdma code for vega"
+Message-ID: <Y1Z5Km83Rcc3W0PY@kroah.com>
+References: <20221020153857.565160-1-alexander.deucher@amd.com>
+ <2651645.mvXUDI8C0e@bagend>
+ <Y1I4rC37gwl367rt@eldamar.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y1I4rC37gwl367rt@eldamar.lan>
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -52,55 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+On Fri, Oct 21, 2022 at 08:14:04AM +0200, Salvatore Bonaccorso wrote:
+> Hi,
+> 
+> On Fri, Oct 21, 2022 at 02:29:22AM +0200, Diederik de Haas wrote:
+> > On Thursday, 20 October 2022 17:38:56 CEST Alex Deucher wrote:
+> > > This reverts commit 9f55f36f749a7608eeef57d7d72991a9bd557341.
+> > > 
+> > > This patch was backported incorrectly when Sasha backported it and
+> > > the patch that caused the regression that this patch set fixed
+> > > was reverted in commit 412b844143e3 ("Revert "PCI/portdrv: Don't disable AER
+> > > reporting in get_port_device_capability()""). This isn't necessary and
+> > > causes a regression so drop it.
+> > > 
+> > > Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2216
+> > > Cc: Shuah Khan <skhan@linuxfoundation.org>
+> > > Cc: Sasha Levin <sashal@kernel.org>
+> > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> > > Cc: <stable@vger.kernel.org>    # 5.10
+> > > ---
+> > 
+> > I build a kernel with these 2 patches reverted and can confirm that that fixes 
+> > the issue on my machine with a Radeon RX Vega 64 GPU. 
+> > # lspci -nn | grep VGA
+> > 0b:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/
+> > ATI] Vega 10 XL/XT [Radeon RX Vega 56/64] [1002:687f] (rev c1)
+> > 
+> > So feel free to add
+> > 
+> > Tested-By: Diederik de Haas <didi.debian@cknow.org>
+> 
+> Note additionally (probably only relevant for Greg while reviewing),
+> that the first of the commits which need to be reverted is already
+> queued as revert in queue-5.10.
 
-commit 996d3efeb091c503afd3ee6b5e20eabf446fd955 upstream.
+Argh, that caused me to drop both of these from the review queue.
 
-If the CPU mask allocation for a node fails, then the memory allocated for
-the 'io_wqe' struct of the current node doesn't get freed on the error
-handling path, since it has not yet been added to the 'wqes' array.
+Can someone verify that this really still is needed on the latest
+5.10-rc that was just sent out?  And if so, please send me whatever is
+really needed?
 
-This was spotted when fuzzing v6.1-rc1 with Syzkaller:
-BUG: memory leak
-unreferenced object 0xffff8880093d5000 (size 1024):
-  comm "syz-executor.2", pid 7701, jiffies 4295048595 (age 13.900s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000cb463369>] __kmem_cache_alloc_node+0x18e/0x720
-    [<00000000147a3f9c>] kmalloc_node_trace+0x2a/0x130
-    [<000000004e107011>] io_wq_create+0x7b9/0xdc0
-    [<00000000c38b2018>] io_uring_alloc_task_context+0x31e/0x59d
-    [<00000000867399da>] __io_uring_add_tctx_node.cold+0x19/0x1ba
-    [<000000007e0e7a79>] io_uring_setup.cold+0x1b80/0x1dce
-    [<00000000b545e9f6>] __x64_sys_io_uring_setup+0x5d/0x80
-    [<000000008a8a7508>] do_syscall_64+0x5d/0x90
-    [<000000004ac08bec>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+this got way too confusing...
 
-Fixes: 0e03496d1967 ("io-wq: use private CPU mask")
-Cc: stable@vger.kernel.org
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Link: https://lore.kernel.org/r/20221020014710.902201-1-rafaelmendsr@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/io-wq.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -1152,10 +1152,10 @@ struct io_wq *io_wq_create(unsigned boun
- 		wqe = kzalloc_node(sizeof(struct io_wqe), GFP_KERNEL, alloc_node);
- 		if (!wqe)
- 			goto err;
-+		wq->wqes[node] = wqe;
- 		if (!alloc_cpumask_var(&wqe->cpu_mask, GFP_KERNEL))
- 			goto err;
- 		cpumask_copy(wqe->cpu_mask, cpumask_of_node(node));
--		wq->wqes[node] = wqe;
- 		wqe->node = alloc_node;
- 		wqe->acct[IO_WQ_ACCT_BOUND].max_workers = bounded;
- 		wqe->acct[IO_WQ_ACCT_UNBOUND].max_workers =
-
-
+greg k-h
