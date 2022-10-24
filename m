@@ -2,173 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD56160B446
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:35:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B30DE60B1E5
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:39:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233029AbiJXRfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:35:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58412 "EHLO
+        id S234447AbiJXQjr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:39:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233237AbiJXRex (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:34:53 -0400
-Received: from mx0a-0014ca01.pphosted.com (mx0a-0014ca01.pphosted.com [208.84.65.235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79C1A4DF13;
-        Mon, 24 Oct 2022 09:09:52 -0700 (PDT)
-Received: from pps.filterd (m0042385.ppops.net [127.0.0.1])
-        by mx0a-0014ca01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29OCu0pT011978;
-        Mon, 24 Oct 2022 07:04:57 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-type; s=proofpoint;
- bh=/pk38fEZ9U0+nRNaqE9OQAzzGVgDKqaCIE5yNVgKWZU=;
- b=Gbt7rWGO+gU4SbmxkflEj+uVO8bmRjccs3rk0hkDaH8GORI/Rv3LjQ2Dpd55P6QToMRR
- d41el+UdBN9oRf+IZGPpjQmJeBfhpJ/TNU83WBi1toEzJ+7QMEXdjt8Dn4vfWsX6GM4X
- 2rK0Yknc6+HzD2O4lzoaIHZXHjLz+G86o3rck9PuFoWri3toHoru2qdRR91eFmDqo+Pz
- YZQ+TIKRhxEgboKpt6bpGSHQ+p0WaMEhH97T7oRoJ1W44NmjcmMhC0iuptiHqquqGJbV
- RZ2lNEkp97vrxRnWFG3koBgTcMvinWBB1rU/gx7wbexmbMtkB+I7myGOMBPxWqY2dqIm Og== 
-Received: from nam04-bn8-obe.outbound.protection.outlook.com (mail-bn8nam04lp2049.outbound.protection.outlook.com [104.47.74.49])
-        by mx0a-0014ca01.pphosted.com (PPS) with ESMTPS id 3kcd30rex2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Oct 2022 07:04:57 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=WlHDOm/tLup3L4hgHeUlBNMDV+4ySZ3hW/935urcMP61tBHKgjKcdnjIIEZZZXCpNz8FLt23+Fi3RAx/gNiO7uk8xe5Q4c9sAcYXIXaXICejPTCJu2aZ2pLcPaRNtm2bkLAadBA+zu7bXZyOPweq6arM9ttSK62pQ1kSxPLrroOVLbEkyThtmHSstaU61zPZvXc2FSfmskb0R//tqMNvyH7DRD+/rxbq+8oOs5FBEkDAvujSLYngAKX292mSlJe4suwRHzDdoDacRYKDLuxCCHwIb+X33F7sXU207/Qv5yYOiG/K7SVdSXja3oXi2zVgzD7Xe85c63IxTxDEYjUmsw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/pk38fEZ9U0+nRNaqE9OQAzzGVgDKqaCIE5yNVgKWZU=;
- b=ksBvzV+/bfv5H+tEufqDiR+z3EgStM459rfPRYV8KKCHvYWB+cuLvLrXBEDGy1SojpgRzRyedBncjOXRer47zxPsTmEFN+hvqdl6RhigT8NimSRgc+r86d+fqnjVy7gTj4XL+o6x+aSpx5oalJJeypH//VnSIoqIVTExziFbm/Fdv5LoRhlZ+6ntuSNul7t1XxEZxjZZwu14d/32NTa0OAnt5oXgwRayvBBgI12pP9T1fq8/tpqSwrzCYC9H0plD5kXfGK1J2+k2Dve2enbf4AHV2jjR7SJSRZAHgNdOtnz6TDzaOYvb8I/lLPms4JntvL1gPB43NWdTbWixECxlbg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 158.140.1.147) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=cadence.com;
- dmarc=pass (p=none sp=none pct=100) action=none header.from=cadence.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/pk38fEZ9U0+nRNaqE9OQAzzGVgDKqaCIE5yNVgKWZU=;
- b=03Kw9fEZEBOyZYjM7x1+NnFSuC5ZaXB7xMoTs18WuOBN5VJWg8jApeOnG5bC1QN5uekFIbRCW3/qbl4r4zJtF1PkqHz4fzAiIrMrZOaUSEula65jTjORIU3zoV4YpoD5NUhWg2dwGql21qP9f8zNPGj6oZ6LvIchZ9K0I0X+dpg=
-Received: from MW4P221CA0007.NAMP221.PROD.OUTLOOK.COM (2603:10b6:303:8b::12)
- by PH8PR07MB9582.namprd07.prod.outlook.com (2603:10b6:510:225::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.29; Mon, 24 Oct
- 2022 14:04:53 +0000
-Received: from MW2NAM12FT010.eop-nam12.prod.protection.outlook.com
- (2603:10b6:303:8b:cafe::db) by MW4P221CA0007.outlook.office365.com
- (2603:10b6:303:8b::12) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5746.26 via Frontend
- Transport; Mon, 24 Oct 2022 14:04:53 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 158.140.1.147)
- smtp.mailfrom=cadence.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=cadence.com;
-Received-SPF: Pass (protection.outlook.com: domain of cadence.com designates
- 158.140.1.147 as permitted sender) receiver=protection.outlook.com;
- client-ip=158.140.1.147; helo=sjmaillnx1.cadence.com; pr=C
-Received: from sjmaillnx1.cadence.com (158.140.1.147) by
- MW2NAM12FT010.mail.protection.outlook.com (10.13.180.77) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5769.10 via Frontend Transport; Mon, 24 Oct 2022 14:04:52 +0000
-Received: from maileu4.global.cadence.com (eudvw-maileu4.cadence.com [10.160.110.201])
-        by sjmaillnx1.cadence.com (8.14.4/8.14.4) with ESMTP id 29OE4o46005187
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 24 Oct 2022 07:04:51 -0700
-Received: from maileu5.global.cadence.com (10.160.110.202) by
- maileu4.global.cadence.com (10.160.110.201) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.7; Mon, 24 Oct 2022 16:04:49 +0200
-Received: from eu-cn01.cadence.com (10.160.89.184) by
- maileu5.global.cadence.com (10.160.110.202) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24 via Frontend Transport; Mon, 24 Oct 2022 16:04:49 +0200
-Received: from eu-cn01.cadence.com (localhost.localdomain [127.0.0.1])
-        by eu-cn01.cadence.com (8.14.7/8.14.7) with ESMTP id 29OE4naR139902;
-        Mon, 24 Oct 2022 10:04:49 -0400
-Received: (from pawell@localhost)
-        by eu-cn01.cadence.com (8.14.7/8.14.7/Submit) id 29OE4nnV139899;
-        Mon, 24 Oct 2022 10:04:49 -0400
-From:   Pawel Laszczak <pawell@cadence.com>
-To:     <peter.chen@kernel.org>
-CC:     <gregkh@linuxfoundation.org>, <linux-usb@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Pawel Laszczak <pawell@cadence.com>, <stable@vger.kernel.org>
-Subject: [PATCH v2] usb: cdnsp: fix issue with ZLP - added TD_SIZE = 1
-Date:   Mon, 24 Oct 2022 10:04:35 -0400
-Message-ID: <1666620275-139704-1-git-send-email-pawell@cadence.com>
-X-Mailer: git-send-email 2.4.5
+        with ESMTP id S234327AbiJXQjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:39:19 -0400
+Received: from mail-qk1-x731.google.com (mail-qk1-x731.google.com [IPv6:2607:f8b0:4864:20::731])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85DC91581AA
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 08:26:39 -0700 (PDT)
+Received: by mail-qk1-x731.google.com with SMTP id m6so6261720qkm.4
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 08:26:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=toxicpanda-com.20210112.gappssmtp.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=0Rh2cXsCiLfd3Hvuw9HOWzlppmrJptREfqb56+Gx5x8=;
+        b=wE9gSv4ZLmJx8cOsnHXU+UJqaxsrBChhnkP/jPYFF6gty83GHFj1ZUOmPWwwG8BP6U
+         x2Q+C7stxGHAPERdcVntAVr1OfHXF4kLP3zucJEonUgWGmglANS06XncwS3KbuhoszP5
+         ZdtMZ+7MrYvhbRbnevkki3UIJQ1vAHxLMhQT8tsH9kPgTAwiIrivp9MU6k/9ure0MVZL
+         4MkzZmZVVS8TmypF0JyHWI1bU0LLU4lZwuZHRMjxbuSHUOHkOg9g4FvLpAK24x1wfDKU
+         31DYpMMYJ5aNIEUpZkvfloFYjfkHgfk1ci7MBrSBMqgVClhD5Gz7ZWDkIF5TNWC/uqt8
+         V2Cw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0Rh2cXsCiLfd3Hvuw9HOWzlppmrJptREfqb56+Gx5x8=;
+        b=cM+P1mKRm0iSfrS/gSCsxM5e33pofUfXllFix4zzQKZ8QxbfRGOlRV5o0pmubgPkvG
+         Je7hb72vNKEkR60HdFrmfQEYf/9C5OudJSkWB9IZ124tPUslnYuYQLQDOh/XmFjrDq32
+         H1vqVr4Qq4/31Au2n9hDzEWZvoE9ZmxDJX4+Q3ACR1ctPQW1y4bspQCc+dfoDP0qgFaW
+         pLKxXxXgF7hG2AMnZDaK7CylXVC+vLOYBBeEAREsvULd6OLPGotQTAUYWub3kOqbhCBo
+         V1fs7CsPbYv1eFFkWNaxFwOq63G2ry9kLf+4H2LjB9XaCdXnh6deLB1wYwKZSAD9KOga
+         87/g==
+X-Gm-Message-State: ACrzQf3hkZWJxKPZQ26SPo6SDafFIVQisZUtZCDsXayi+u4CjCeCDXzM
+        Q3y8RoT8qwnHavyHJYR+Uafq9GTAx6kiSg==
+X-Google-Smtp-Source: AMsMyM5ScTIs/fm1gJNzxdM5xGOtOrjL7eqOOWY/C/tYzdz36lCqwMxCG1kxunGyxUorJUkf9+xfYw==
+X-Received: by 2002:a05:620a:d86:b0:6ce:bca6:9db3 with SMTP id q6-20020a05620a0d8600b006cebca69db3mr23512614qkl.76.1666621019455;
+        Mon, 24 Oct 2022 07:16:59 -0700 (PDT)
+Received: from localhost (cpe-174-109-170-245.nc.res.rr.com. [174.109.170.245])
+        by smtp.gmail.com with ESMTPSA id x23-20020a05620a0b5700b006e54251993esm5962qkg.97.2022.10.24.07.16.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Oct 2022 07:16:59 -0700 (PDT)
+Date:   Mon, 24 Oct 2022 10:16:57 -0400
+From:   Josef Bacik <josef@toxicpanda.com>
+To:     Ernst Herzberg <earny@net4u.de>
+Cc:     stable@vger.kernel.org
+Subject: Re: [Regression] v6.0.3 rcu_preempt detected expedited stalls
+ btrfs-cache btrfs_work_helper
+Message-ID: <Y1aeWdHd4/luzhAu@localhost.localdomain>
+References: <10522366-5c17-c18f-523c-b97c1496927b@net4u.de>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-CrossPremisesHeadersFilteredBySendConnector: maileu4.global.cadence.com
-X-OrganizationHeadersPreserved: maileu4.global.cadence.com
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW2NAM12FT010:EE_|PH8PR07MB9582:EE_
-X-MS-Office365-Filtering-Correlation-Id: f13f8119-9b9d-481b-52aa-08dab5c8b916
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: qWBGWRT2dlEd/SbxcXbSGdqZZMKdvTE3xmC3+4C8AVlpPv6jP0YlA2qWqrcci3RW3/fJ6qBaT8Zx1iEZ17MKSgI7X+B03MV0vx+wBOVO9EyHWJPjCSqfabszxKXCHnwbgbjUBvrf5T5EqwfCEx3TwRTmR1Icsl2j1u0Gmb3nkN9OECIU5msZC2pGam6ukKzSbOdDSiZ3n2qrmMtuY27visZEI5wKx8zlGlxLQfR7OoGfCWsRUvr5ClA0MwhWjG8izJbvuLezkixsK/r1OGcDvkIJScsNkdya69nJoALONYjCsiJiBbjTlVt6ouddv8J/bQ0kqesydqiIQKCxtWsqXD0gCiO6EeeiCD3hlzj25mZA8/r9ww8Kpab1huEXJQ8LQLJsivxSiuWDmUz36ioPjEBuVymLN7ZmKu/jktUMi7nxNFwLn5mKI0Liwj5coeG7wTRhne7Lo16dgPnagH1EmQ5/LXBe96lO583Z0vl+oksDUyfXRfuB5WPJmjCggh0KQfpLn+o9YkvcXgIHToCnTUuod3CGZ2PdHsjMD5lN+jAzr1T2+Z7dEKk65JC/i/hYUzeVfk+LvbiE6TCSDm2JOzd9QHY4wyWe5RbOA3DVXxJMSlvuvFFe5yuAUCmrhqJN6+KjZIpZzAdyhxhy4hAxJVCrwRMCjt/ftVQjAQg+iVIru76Nn1Rh/G69bnSxO6kRQyf5oH2Ek6iC2aH50aziXX11JugPwz5XN1WnpcCjb++qaKP6rWbfoBYvQUm5ykyJoL96h5KAaFsgZRSCAfdyhA==
-X-Forefront-Antispam-Report: CIP:158.140.1.147;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:sjmaillnx1.cadence.com;PTR:unknown.Cadence.COM;CAT:NONE;SFS:(13230022)(4636009)(136003)(346002)(396003)(39860400002)(376002)(36092001)(451199015)(40470700004)(46966006)(36840700001)(83380400001)(82310400005)(36756003)(2616005)(36860700001)(356005)(47076005)(54906003)(5660300002)(336012)(426003)(70206006)(7636003)(4326008)(186003)(6916009)(82740400003)(86362001)(70586007)(316002)(40480700001)(478600001)(40460700003)(42186006)(2906002)(41300700001)(8936002)(26005)(8676002)(6666004);DIR:OUT;SFP:1101;
-X-OriginatorOrg: cadence.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Oct 2022 14:04:52.9212
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: f13f8119-9b9d-481b-52aa-08dab5c8b916
-X-MS-Exchange-CrossTenant-Id: d36035c5-6ce6-4662-a3dc-e762e61ae4c9
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=d36035c5-6ce6-4662-a3dc-e762e61ae4c9;Ip=[158.140.1.147];Helo=[sjmaillnx1.cadence.com]
-X-MS-Exchange-CrossTenant-AuthSource: MW2NAM12FT010.eop-nam12.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR07MB9582
-X-Proofpoint-GUID: RXyMBqr0p2137ijI-LzIFHmLtizwhBRq
-X-Proofpoint-ORIG-GUID: RXyMBqr0p2137ijI-LzIFHmLtizwhBRq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-24_04,2022-10-21_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_check_notspam policy=outbound_check score=0 bulkscore=0
- clxscore=1015 priorityscore=1501 impostorscore=0 malwarescore=0
- adultscore=0 suspectscore=0 spamscore=0 mlxscore=0 lowpriorityscore=0
- mlxlogscore=488 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2209130000 definitions=main-2210240086
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <10522366-5c17-c18f-523c-b97c1496927b@net4u.de>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Patch modifies the TD_SIZE in TRB before ZLP TRB.
-The TD_SIZE in TRB before ZLP TRB must be set to 1 to force
-processing ZLP TRB by controller.
+On Sun, Oct 23, 2022 at 08:21:08AM +0200, Ernst Herzberg wrote:
+> 
+> Kernel v5.19.16 works without issues.
+> Booting v6.0.3:
+> 
+> [    0.000000] microcode: microcode updated early to revision 0xf0, date = 2021-11-12
+> [    0.000000] Linux version 6.0.3+ (root@dunno) (gcc (Gentoo 11.3.0 p4) 11.3.0, GNU ld (Gentoo 2.38 p4) 2.38) #288 SMP PREEMPT Sat Oct 22 22:07:33 CEST 2022
+> [    0.000000] Command line:
+> [ ... ]
+> [   34.150421] br0: port 2(veth2a8760a2) entered blocking state
+> [   34.150423] br0: port 2(veth2a8760a2) entered forwarding state
+> [   34.890258] new mount options do not match the existing superblock, will be ignored
+> [   88.487151] rcu: INFO: rcu_preempt detected expedited stalls on CPUs/tasks: { 1-.... } 6667 jiffies s: 301 root: 0x2/.
+> [   88.487156] rcu: blocking rcu_node structures (internal RCU debug):
+> [   88.487157] Task dump for CPU 1:
+> [   88.487158] task:kworker/u16:5   state:R  running task     stack:    0 pid:  122 ppid:     2 flags:0x00004008
+> [   88.487161] Workqueue: btrfs-cache btrfs_work_helper
+> [   88.487165] Call Trace:
+> [   88.487166]  <TASK>
+> [   88.487167]  ? __schedule+0x241/0x650
+> [   88.487170]  ? crc32c_pcl_intel_update+0xa1/0xb0
+> [   88.487172]  ? crc32c+0x1e/0x40
+> [   88.487174]  ? folio_wait_bit_common+0x17e/0x350
+> [   88.487176]  ? filemap_invalidate_unlock_two+0x30/0x30
+> [   88.487177]  ? __load_free_space_cache+0x25e/0x4a0
+> [   88.487179]  ? pmdp_collapse_flush+0x30/0x30
+> [   88.487180]  ? folio_clear_dirty_for_io+0x94/0x180
+> [   88.487182]  ? __load_free_space_cache+0x25e/0x4a0
+> [   88.487183]  ? kmem_cache_alloc+0x110/0x360
+> [   88.487185]  ? sysvec_apic_timer_interrupt+0xb/0x90
+> [   88.487186]  ? asm_sysvec_apic_timer_interrupt+0x16/0x20
+> [   88.487188]  ? queued_spin_lock_slowpath+0x3d/0x190
+> [   88.487190]  ? __btrfs_remove_free_space_cache+0x9/0x30
+> [   88.487191]  ? load_free_space_cache+0x313/0x380
+> [   88.487193]  ? __clear_extent_bit+0x29e/0x490
+> [   88.487194]  ? caching_thread+0x385/0x4f0
+> [   88.487197]  ? dequeue_entity+0xd8/0x250
+> [   88.487198]  ? btrfs_work_helper+0xcd/0x1e0
+> [   88.487200]  ? process_one_work+0x1aa/0x300
+> [   88.487202]  ? worker_thread+0x48/0x3c0
+> [   88.487204]  ? rescuer_thread+0x3c0/0x3c0
+> [   88.487206]  ? kthread+0xd1/0x100
+> [   88.487207]  ? kthread_complete_and_exit+0x20/0x20
+> [   88.487209]  ? ret_from_fork+0x1f/0x30
+> [   88.487210]  </TASK>
+> [   97.557150] rcu: INFO: rcu_preempt self-detected stall on CPU
+> [   97.557152] rcu:     1-....: (17999 ticks this GP) idle=7034/1/0x4000000000000000 softirq=2073/2073 fqs=5999
+> [   97.557154]  (t=18000 jiffies g=2401 q=2899 ncpus=8)
+> [   97.557156] NMI backtrace for cpu 1
+> [   97.557157] CPU: 1 PID: 122 Comm: kworker/u16:5 Not tainted 6.0.3+ #288
+> [   97.557159] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./Z270M-ITX/ac, BIOS P2.60 03/16/2018
+> [   97.557160] Workqueue: btrfs-cache btrfs_work_helper
+> [   97.557163] Call Trace:
+> [   97.557165]  <IRQ>
+> [   97.557186]  dump_stack_lvl+0x34/0x44
+> [   97.557188]  nmi_cpu_backtrace.cold+0x30/0x70
+> [   97.557189]  ? lapic_can_unplug_cpu+0x80/0x80
+> [   97.557191]  nmi_trigger_cpumask_backtrace+0x95/0xa0
+> [   97.557193]  rcu_dump_cpu_stacks+0xb3/0xea
+> [   97.557196]  rcu_sched_clock_irq.cold+0x1d7/0x699
+> [   97.557197]  ? raw_notifier_call_chain+0x3c/0x50
+> [   97.557198]  ? timekeeping_update+0xaa/0x280
+> [   97.557200]  ? timekeeping_advance+0x35e/0x520
+> [   97.557201]  ? trigger_load_balance+0x5c/0x390
+> [   97.557203]  update_process_times+0x56/0x90
+> [   97.557205]  tick_sched_timer+0x83/0x90
+> [   97.557206]  ? tick_sched_do_timer+0x90/0x90
+> [   97.557206]  ? tick_sched_do_timer+0x90/0x90
+> [   97.557208]  __hrtimer_run_queues+0x10b/0x1b0
+> [   97.557209]  hrtimer_interrupt+0x109/0x230
+> [   97.557210]  __sysvec_apic_timer_interrupt+0x47/0x60
+> [   97.557213]  sysvec_apic_timer_interrupt+0x6d/0x90
+> [   97.557215]  </IRQ>
+> [   97.557215]  <TASK>
+> [   97.557216]  asm_sysvec_apic_timer_interrupt+0x16/0x20
+> [   97.557218] RIP: 0010:queued_spin_lock_slowpath+0x3d/0x190
+> [   97.557220] Code: 0f ba 2a 08 8b 02 0f 92 c1 0f b6 c9 c1 e1 08 30 e4 09 c8 a9 00 01 ff ff 0f 85 ef 00 00 00 85 c0 74 0e 8b 02 84 c0 74 08 f3 90 <8b> 02 84 c0 75 f8 b8 01 00 00 00 66 89 02 c3 8b 37 b8 00 02 00 00
+> [   97.557221] RSP: 0018:ffff888105977ca0 EFLAGS: 00000202
+> [   97.557222] RAX: 0000000000000101 RBX: ffff888111df7cc0 RCX: 0000000000000000
+> [   97.557223] RDX: ffff888105977ce0 RSI: 0000000000000000 RDI: ffff888105977ce0
+> [   97.557224] RBP: ffff888105977ce0 R08: ffff8881336dff88 R09: ffff888105977cf0
+> [   97.557224] R10: ffff888105977ce8 R11: ffff888100911d00 R12: ffff88810b06cc00
+> [   97.557225] R13: 000000000336e000 R14: 0000000000000001 R15: ffff8881022c5605
+> [   97.557226]  __btrfs_remove_free_space_cache+0x9/0x30
+> [   97.557229]  load_free_space_cache+0x313/0x380
+> [   97.557230]  ? __clear_extent_bit+0x29e/0x490
+> [   97.557232]  caching_thread+0x385/0x4f0
+> [   97.557234]  ? dequeue_entity+0xd8/0x250
+> [   97.557235]  btrfs_work_helper+0xcd/0x1e0
+> [   97.557237]  process_one_work+0x1aa/0x300
+> [   97.557240]  worker_thread+0x48/0x3c0
+> [   97.557241]  ? rescuer_thread+0x3c0/0x3c0
+> [   97.557243]  kthread+0xd1/0x100
+> [   97.557245]  ? kthread_complete_and_exit+0x20/0x20
+> [   97.557246]  ret_from_fork+0x1f/0x30
+> [   97.557248]  </TASK>
+> [  151.633996] rcu: INFO: rcu_preempt detected expedited stalls on CPUs/tasks: { 1-.... } 25611 jiffies s: 301 root: 0x2/.
+> [  151.634000] rcu: blocking rcu_node structures (internal RCU debug):
+> [  151.634000] Task dump for CPU 1:
+> [  151.634001] task:kworker/u16:5   state:R  running task     stack:    0 pid:  122 ppid:     2 flags:0x00004008
+> [  151.634004] Workqueue: btrfs-cache btrfs_work_helper
+> [  151.634008] Call Trace:
+> [  151.634008]  <TASK>
+> [  151.634009]  ? __schedule+0x241/0x650
+> [  151.634013]  ? crc32c_pcl_intel_update+0xa1/0xb0
+> [  151.634014]  ? crc32c+0x1e/0x40
+> [ ... ]
+> 
+> -------------------------
+> 
+> Reverting
+> 
+> commit 3ea7c50339859394dd667184b5b16eee1ebb53bc
+> Author: Josef Bacik <josef@toxicpanda.com>
+> Date:   Mon Aug 8 16:10:26 2022 -0400
+> 
+>     btrfs: call __btrfs_remove_free_space_cache_locked on cache load failure
+>     [ Upstream commit 8a1ae2781dee9fc21ca82db682d37bea4bd074ad ]
+>     Now that lockdep is staying enabled through our entire CI runs I started
+>     seeing the following stack in generic/475
+> ------------------------
+> 
+> fixes the problem with dmesg
+> 
+> [   31.250172] br0: port 2(veth2a020081) entered blocking state
+> [   31.250175] br0: port 2(veth2a020081) entered forwarding state
+> [   31.924193] new mount options do not match the existing superblock, will be ignored
+> [   34.334304] BTRFS warning (device sdb3): block group 35530997760 has wrong amount of free space
+> [   34.334314] BTRFS warning (device sdb3): failed to load free space cache for block group 35530997760, rebuilding it now
+> 
+> It is still reproducible.
 
-cc: <stable@vger.kernel.org>
-Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Well I definitely fucked this patch up, because I should have used the _locked
+variant, but this was part of a series where I did the correct thing in the next
+patch
 
----
-Changelog:
-v2:
-- returned value for last TRB must be 0
+    btrfs: remove use btrfs_remove_free_space_cache instead of variant
 
- drivers/usb/cdns3/cdnsp-ring.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+so this problem doesn't exist in linus.  So either we need to pull that back
+into stable as well, or drop this patch from stable.  I'm good either way, this
+was just to fix a lockdep splat so it's not really stable material, but I'll
+leave that decision up to y'all.  Thanks,
 
-diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c
-index 04dfcaa08dc4..aa79bce89d8a 100644
---- a/drivers/usb/cdns3/cdnsp-ring.c
-+++ b/drivers/usb/cdns3/cdnsp-ring.c
-@@ -1769,8 +1769,13 @@ static u32 cdnsp_td_remainder(struct cdnsp_device *pdev,
- 
- 	/* One TRB with a zero-length data packet. */
- 	if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
--	    trb_buff_len == td_total_len)
-+	    trb_buff_len == td_total_len) {
-+		/* Before ZLP driver needs set TD_SIZE=1. */
-+		if (more_trbs_coming)
-+			return 1;
-+
- 		return 0;
-+	}
- 
- 	maxp = usb_endpoint_maxp(preq->pep->endpoint.desc);
- 	total_packet_count = DIV_ROUND_UP(td_total_len, maxp);
--- 
-2.25.1
-
+Josef
