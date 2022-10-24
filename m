@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D71D360A5A5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:27:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8577E60A54B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231129AbiJXM1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:27:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60574 "EHLO
+        id S233305AbiJXMWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:22:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233742AbiJXM1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:27:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D0A2857D0;
-        Mon, 24 Oct 2022 05:01:24 -0700 (PDT)
+        with ESMTP id S233339AbiJXMUx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:20:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2250C7B5AF;
+        Mon, 24 Oct 2022 04:59:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20225B81031;
-        Mon, 24 Oct 2022 11:46:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 762D6C433D7;
-        Mon, 24 Oct 2022 11:46:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 44567612F4;
+        Mon, 24 Oct 2022 11:56:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A0DC433C1;
+        Mon, 24 Oct 2022 11:56:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611977;
-        bh=Cp7+DWlpUZah8k86BOmAXEwfQ215gZeltIl98Wd2g/c=;
+        s=korg; t=1666612611;
+        bh=Sf4p/I5+I0rasfxMUpNRv3gda7JlSUROFiBRNveWqCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nxaYOUH8vnpY3j2vEHT1rhGbpdubRHBUS/0zf8j7rUJN8ry1reXe+m0mhWTa0CPEQ
-         aMEG/k6GnNm2qvr8Gs0t/ezEschSCDMJpF9QOC507UliCzYKMLMXqZkzxs6Zjq2gye
-         c9lYrySmRChlJoa177CzaJBCzBDWFMOFWJNGpnj0=
+        b=lL7JG+AadCkavVvKX5AoANZP4mRPuBxUOaE/3UUoV46dwNGfVkZQeZLfgQaipgxhQ
+         owgQPHBx5qLocySI/ug5q/nPBqhJrpg+9bhpCCPJZv6dL+P00zCvlLLBwhC3opuV1t
+         nze3fg1tjoXm5QgwNvcjxUa4iX9IoEwf8tMeeCkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Hao Sun <sunhao.th@gmail.com>, Jiacheng Xu <stitch@zju.edu.cn>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.14 023/210] fs: fix UAF/GPF bug in nilfs_mdt_destroy
-Date:   Mon, 24 Oct 2022 13:29:00 +0200
-Message-Id: <20221024112957.719455844@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.19 022/229] random: clamp credited irq bits to maximum mixed
+Date:   Mon, 24 Oct 2022 13:29:01 +0200
+Message-Id: <20221024112959.856505864@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +51,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 2e488f13755ffbb60f307e991b27024716a33b29 upstream.
+commit e78a802a7b4febf53f2a92842f494b01062d85a8 upstream.
 
-In alloc_inode, inode_init_always() could return -ENOMEM if
-security_inode_alloc() fails, which causes inode->i_private
-uninitialized. Then nilfs_is_metadata_file_inode() returns
-true and nilfs_free_inode() wrongly calls nilfs_mdt_destroy(),
-which frees the uninitialized inode->i_private
-and leads to crashes(e.g., UAF/GPF).
+Since the most that's mixed into the pool is sizeof(long)*2, don't
+credit more than that many bytes of entropy.
 
-Fix this by moving security_inode_alloc just prior to
-this_cpu_inc(nr_inodes)
-
-Link: https://lkml.kernel.org/r/CAFcO6XOcf1Jj2SeGt=jJV59wmhESeSKpfR0omdFRq+J9nD1vfQ@mail.gmail.com
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Reported-by: Hao Sun <sunhao.th@gmail.com>
-Reported-by: Jiacheng Xu <stitch@zju.edu.cn>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: e3e33fc2ea7f ("random: do not use input pool from hard IRQs")
 Cc: stable@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/inode.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -165,8 +165,6 @@ int inode_init_always(struct super_block
- 	inode->i_wb_frn_history = 0;
- #endif
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -976,7 +976,7 @@ static void mix_interrupt_randomness(str
+ 	local_irq_enable();
  
--	if (security_inode_alloc(inode))
--		goto out;
- 	spin_lock_init(&inode->i_lock);
- 	lockdep_set_class(&inode->i_lock, &sb->s_type->i_lock_key);
+ 	mix_pool_bytes(pool, sizeof(pool));
+-	credit_init_bits(max(1u, (count & U16_MAX) / 64));
++	credit_init_bits(clamp_t(unsigned int, (count & U16_MAX) / 64, 1, sizeof(pool) * 8));
  
-@@ -194,11 +192,12 @@ int inode_init_always(struct super_block
- 	inode->i_fsnotify_mask = 0;
- #endif
- 	inode->i_flctx = NULL;
-+
-+	if (unlikely(security_inode_alloc(inode)))
-+		return -ENOMEM;
- 	this_cpu_inc(nr_inodes);
- 
- 	return 0;
--out:
--	return -ENOMEM;
+ 	memzero_explicit(pool, sizeof(pool));
  }
- EXPORT_SYMBOL(inode_init_always);
- 
 
 
