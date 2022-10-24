@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6CD960A569
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:25:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B18C60A921
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:15:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233435AbiJXMYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:24:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41626 "EHLO
+        id S235832AbiJXNPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:15:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233543AbiJXMXp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:23:45 -0400
+        with ESMTP id S236097AbiJXNOr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:14:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F605275F3;
-        Mon, 24 Oct 2022 04:59:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06D68A2A8D;
+        Mon, 24 Oct 2022 05:25:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EDEB461257;
-        Mon, 24 Oct 2022 11:59:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C0C1C433D6;
-        Mon, 24 Oct 2022 11:59:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FFE1612D2;
+        Mon, 24 Oct 2022 12:25:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BFC2C433D6;
+        Mon, 24 Oct 2022 12:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612793;
-        bh=7JSOKnN3EJHVsIrkcfYIdDr89HElem67G5x8SxQh7dA=;
+        s=korg; t=1666614315;
+        bh=zmCdnqZhVJQJyc3EsuY4FxJn+vF7xfP1KOgUoH30fl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2lvme8Pg1gThCv+SinYO8YoZlHJ3qKuDzbjJVJKGxqwLBoiaJS5v8ZOq284ugXqf
-         m1/vpHPFMl4z5NNh3z13pn3mZgBlYR/1FTK3/aDn56kXmrcz/qGBo8nKii9Pco1ucQ
-         iEH3qwgNHKSfjJ2NmpDujjZ64mjXvpR2YBGoHpJk=
+        b=b00ZQz3hdyF0TjtPu60oGS8NZIXBkxI8YlMcQp0Y+ahE7B2OsYekEUQmPtHUC87Gg
+         RRob5q5cdfyNEq3oJNQ1lHmZIwl/I5VwbFr6DVukerNPB2KtnUZXj3RL83QUWgdwD5
+         sShIrSnrDWRAJi5U9rRKi83TUwHp6srA57H4CQ5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+78c55c7bc6f66e53dce2@syzkaller.appspotmail.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 090/229] net: rds: dont hold sock lock when cancelling work from rds_tcp_reset_callbacks()
-Date:   Mon, 24 Oct 2022 13:30:09 +0200
-Message-Id: <20221024113001.961587129@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Xu Yilun <yilun.xu@intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 213/390] fpga: prevent integer overflow in dfl_feature_ioctl_set_irq()
+Date:   Mon, 24 Oct 2022 13:30:10 +0200
+Message-Id: <20221024113031.867017383@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a91b750fd6629354460282bbf5146c01b05c4859 ]
+[ Upstream commit 939bc5453b8cbdde9f1e5110ce8309aedb1b501a ]
 
-syzbot is reporting lockdep warning at rds_tcp_reset_callbacks() [1], for
-commit ac3615e7f3cffe2a ("RDS: TCP: Reduce code duplication in
-rds_tcp_reset_callbacks()") added cancel_delayed_work_sync() into a section
-protected by lock_sock() without realizing that rds_send_xmit() might call
-lock_sock().
+The "hdr.count * sizeof(s32)" multiplication can overflow on 32 bit
+systems leading to memory corruption.  Use array_size() to fix that.
 
-We don't need to protect cancel_delayed_work_sync() using lock_sock(), for
-even if rds_{send,recv}_worker() re-queued this work while __flush_work()
- from cancel_delayed_work_sync() was waiting for this work to complete,
-retried rds_{send,recv}_worker() is no-op due to the absence of RDS_CONN_UP
-bit.
-
-Link: https://syzkaller.appspot.com/bug?extid=78c55c7bc6f66e53dce2 [1]
-Reported-by: syzbot <syzbot+78c55c7bc6f66e53dce2@syzkaller.appspotmail.com>
-Co-developed-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+78c55c7bc6f66e53dce2@syzkaller.appspotmail.com>
-Fixes: ac3615e7f3cffe2a ("RDS: TCP: Reduce code duplication in rds_tcp_reset_callbacks()")
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 322b598be4d9 ("fpga: dfl: introduce interrupt trigger setting API")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Xu Yilun <yilun.xu@intel.com>
+Link: https://lore.kernel.org/r/YxBAtYCM38dM7yzI@kili
+Signed-off-by: Xu Yilun <yilun.xu@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/tcp.c | 2 +-
+ drivers/fpga/dfl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/rds/tcp.c b/net/rds/tcp.c
-index d4e6466d3989..645cbb17c13a 100644
---- a/net/rds/tcp.c
-+++ b/net/rds/tcp.c
-@@ -176,10 +176,10 @@ void rds_tcp_reset_callbacks(struct socket *sock,
- 	 */
- 	atomic_set(&cp->cp_state, RDS_CONN_RESETTING);
- 	wait_event(cp->cp_waitq, !test_bit(RDS_IN_XMIT, &cp->cp_flags));
--	lock_sock(osock->sk);
- 	/* reset receive side state for rds_tcp_data_recv() for osock  */
- 	cancel_delayed_work_sync(&cp->cp_send_w);
- 	cancel_delayed_work_sync(&cp->cp_recv_w);
-+	lock_sock(osock->sk);
- 	if (tc->t_tinc) {
- 		rds_inc_put(&tc->t_tinc->ti_inc);
- 		tc->t_tinc = NULL;
+diff --git a/drivers/fpga/dfl.c b/drivers/fpga/dfl.c
+index b450870b75ed..eb8a6e329af9 100644
+--- a/drivers/fpga/dfl.c
++++ b/drivers/fpga/dfl.c
+@@ -1857,7 +1857,7 @@ long dfl_feature_ioctl_set_irq(struct platform_device *pdev,
+ 		return -EINVAL;
+ 
+ 	fds = memdup_user((void __user *)(arg + sizeof(hdr)),
+-			  hdr.count * sizeof(s32));
++			  array_size(hdr.count, sizeof(s32)));
+ 	if (IS_ERR(fds))
+ 		return PTR_ERR(fds);
+ 
 -- 
 2.35.1
 
