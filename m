@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 907C960AC9B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2E4660AC54
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232181AbiJXOK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:10:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42886 "EHLO
+        id S232239AbiJXOFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:05:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235387AbiJXOJL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:09:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAFCAC4C1A;
-        Mon, 24 Oct 2022 05:51:02 -0700 (PDT)
+        with ESMTP id S232911AbiJXODr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:03:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01F627F120;
+        Mon, 24 Oct 2022 05:48:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DFFFB8169E;
-        Mon, 24 Oct 2022 12:29:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3D11C433D6;
-        Mon, 24 Oct 2022 12:29:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA59761336;
+        Mon, 24 Oct 2022 12:47:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06560C433D6;
+        Mon, 24 Oct 2022 12:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614589;
-        bh=c0fLL7Bh+LtakEfa2Bn6MBNMSqnGSRdb47GlY6/se8U=;
+        s=korg; t=1666615676;
+        bh=7rNgIZ8t7ZwPJgpss76pj0gV2+cw0OBlIpaZoHxPsnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KLQ8Ws6ddUYLCiKDOpRrFli2pADnVl4asqs7S/eZzm0tbf5lxzv4Zlp5ssI0PAiKD
-         N1KFvshLHh2Dv394DQNdCtm4C+5MO/CHDpspISeCvaV9DO3n0F7ZMpUtgUrClT+Rj4
-         ocd2UsIUFnA4xMF/+IHfe5HhbI2jKm2ccsVc6h8c=
+        b=0MRLlvTacRTcHHx+TGVUcO/7LLO8TyN/fevyvUtDpu5+ru//EBrdfPSXxdRLQuQfO
+         AFvVWIsrey9jtPIQPWrc8uzLhVjaAXMzJuBwcgLRBSlRbi9NXCsI0X88an/mlR+tZF
+         OB4wiAN6m3fYQwHQFOcI3GwCkfxikCGao1/e3Le4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Knecht <vincent.knecht@mailoo.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 289/390] thermal/drivers/qcom/tsens-v0_1: Fix MSM8939 fourth sensor hw_id
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 342/530] mfd: fsl-imx25: Fix an error handling path in mx25_tsadc_setup_irq()
 Date:   Mon, 24 Oct 2022 13:31:26 +0200
-Message-Id: <20221024113035.274825292@linuxfoundation.org>
+Message-Id: <20221024113100.494840816@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Knecht <vincent.knecht@mailoo.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit b0c883e900702f408d62cf92b0ef01303ed69be9 ]
+[ Upstream commit 3fa9e4cfb55da512ebfd57336fde468830719298 ]
 
-Reading temperature from this sensor fails with 'Invalid argument'.
+If devm_of_platform_populate() fails, some resources need to be
+released.
 
-Looking at old vendor dts [1], its hw_id should be 3 instead of 4.
-Change this hw_id accordingly.
+Introduce a mx25_tsadc_unset_irq() function that undoes
+mx25_tsadc_setup_irq() and call it both from the new error handling path
+of the probe and in the remove function.
 
-[1] https://github.com/msm8916-mainline/android_kernel_qcom_msm8916/blob/master/arch/arm/boot/dts/qcom/msm8939-common.dtsi#L511
-
-Fixes: 332bc8ebab2c ("thermal: qcom: tsens-v0_1: Add support for MSM8939")
-Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Bjorn Andersson <andersson@kernel.org>
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Link: https://lore.kernel.org/r/20220811105014.7194-1-vincent.knecht@mailoo.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fixes: a55196eff6d6 ("mfd: fsl-imx25: Use devm_of_platform_populate()")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/d404e04828fc06bcfddf81f9f3e9b4babbe35415.1659269156.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/qcom/tsens-v0_1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mfd/fsl-imx25-tsadc.c | 32 ++++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/thermal/qcom/tsens-v0_1.c b/drivers/thermal/qcom/tsens-v0_1.c
-index 4ffa2e2c0145..9b8ba429a304 100644
---- a/drivers/thermal/qcom/tsens-v0_1.c
-+++ b/drivers/thermal/qcom/tsens-v0_1.c
-@@ -522,7 +522,7 @@ static const struct tsens_ops ops_8939 = {
- struct tsens_plat_data data_8939 = {
- 	.num_sensors	= 10,
- 	.ops		= &ops_8939,
--	.hw_ids		= (unsigned int []){ 0, 1, 2, 4, 5, 6, 7, 8, 9, 10 },
-+	.hw_ids		= (unsigned int []){ 0, 1, 2, 3, 5, 6, 7, 8, 9, 10 },
+diff --git a/drivers/mfd/fsl-imx25-tsadc.c b/drivers/mfd/fsl-imx25-tsadc.c
+index 37e5e02a1d05..85f7982d26d2 100644
+--- a/drivers/mfd/fsl-imx25-tsadc.c
++++ b/drivers/mfd/fsl-imx25-tsadc.c
+@@ -84,6 +84,19 @@ static int mx25_tsadc_setup_irq(struct platform_device *pdev,
+ 	return 0;
+ }
  
- 	.feat		= &tsens_v0_1_feat,
- 	.fields	= tsens_v0_1_regfields,
++static int mx25_tsadc_unset_irq(struct platform_device *pdev)
++{
++	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
++	int irq = platform_get_irq(pdev, 0);
++
++	if (irq) {
++		irq_set_chained_handler_and_data(irq, NULL, NULL);
++		irq_domain_remove(tsadc->domain);
++	}
++
++	return 0;
++}
++
+ static void mx25_tsadc_setup_clk(struct platform_device *pdev,
+ 				 struct mx25_tsadc *tsadc)
+ {
+@@ -171,18 +184,21 @@ static int mx25_tsadc_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, tsadc);
+ 
+-	return devm_of_platform_populate(dev);
++	ret = devm_of_platform_populate(dev);
++	if (ret)
++		goto err_irq;
++
++	return 0;
++
++err_irq:
++	mx25_tsadc_unset_irq(pdev);
++
++	return ret;
+ }
+ 
+ static int mx25_tsadc_remove(struct platform_device *pdev)
+ {
+-	struct mx25_tsadc *tsadc = platform_get_drvdata(pdev);
+-	int irq = platform_get_irq(pdev, 0);
+-
+-	if (irq) {
+-		irq_set_chained_handler_and_data(irq, NULL, NULL);
+-		irq_domain_remove(tsadc->domain);
+-	}
++	mx25_tsadc_unset_irq(pdev);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
