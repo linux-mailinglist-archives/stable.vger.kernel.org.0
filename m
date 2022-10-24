@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8460D60A390
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:57:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5158460A3A4
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:58:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232336AbiJXL5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:57:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55228 "EHLO
+        id S232400AbiJXL6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:58:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232218AbiJXLz4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:55:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B6E179604;
-        Mon, 24 Oct 2022 04:46:57 -0700 (PDT)
+        with ESMTP id S232321AbiJXL47 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:56:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFA267B581;
+        Mon, 24 Oct 2022 04:47:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2EE57B81199;
-        Mon, 24 Oct 2022 11:45:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8076FC433C1;
-        Mon, 24 Oct 2022 11:45:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FE66612B1;
+        Mon, 24 Oct 2022 11:45:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F25AC433D7;
+        Mon, 24 Oct 2022 11:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611901;
-        bh=Nr5t4iCikBHX1YYkYi3yjnB3SitGSSUtsTQsdlXTOmo=;
+        s=korg; t=1666611917;
+        bh=Xzjr1c31nVklNKmxLuRkYMncuBbqb1/Fpk/i6gX/Q0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qQZwLal02ypnSz/Ese7WEZAKWRRGxFm4Jg8Hbn4zS0P3j6HjYOj7vYvQ02mxDhCeS
-         WbIH4QkyYidk0kokTuzeedf6T+pUG3ydYElApGJq+T86zpL1NN2+POn2PtvoPj8RKW
-         INjLEvxBIQ4wXLSoaAqUwpwSDJLX2NSHGiQPSP/I=
+        b=tJUjH0FP+59CCxLyU51fCfpEt5t1FcSwm+8JHURrND3aEP7CpZ1tRckyQ5Za0nxay
+         2B+MiwvhVvcDCi9N66iDBV9XoX0Mmh2PBVRBjAUwFEJM+UfQGjgB0I8hPm5bb55P4U
+         nLIk348eUrTwiQ5hFqMh+jj/t31Ik19vh1Vd3/20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Letu Ren <fantasquex@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 147/159] scsi: 3w-9xxx: Avoid disabling device if failing to enable it
-Date:   Mon, 24 Oct 2022 13:31:41 +0200
-Message-Id: <20221024112954.798605506@linuxfoundation.org>
+Subject: [PATCH 4.9 149/159] usb: host: xhci: Fix potential memory leak in xhci_alloc_stream_info()
+Date:   Mon, 24 Oct 2022 13:31:43 +0200
+Message-Id: <20221024112954.860673461@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -54,40 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit 7eff437b5ee1309b34667844361c6bbb5c97df05 ]
+[ Upstream commit 7e271f42a5cc3768cd2622b929ba66859ae21f97 ]
 
-The original code will "goto out_disable_device" and call
-pci_disable_device() if pci_enable_device() fails. The kernel will generate
-a warning message like "3w-9xxx 0000:00:05.0: disabling already-disabled
-device".
+xhci_alloc_stream_info() allocates stream context array for stream_info
+->stream_ctx_array with xhci_alloc_stream_ctx(). When some error occurs,
+stream_info->stream_ctx_array is not released, which will lead to a
+memory leak.
 
-We shouldn't disable a device that failed to be enabled. A simple return is
-fine.
+We can fix it by releasing the stream_info->stream_ctx_array with
+xhci_free_stream_ctx() on the error path to avoid the potential memory
+leak.
 
-Link: https://lore.kernel.org/r/20220829110115.38789-1-fantasquex@gmail.com
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220921123450.671459-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/3w-9xxx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci-mem.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/3w-9xxx.c b/drivers/scsi/3w-9xxx.c
-index b78a2f3745f2..9c2edd9b66d1 100644
---- a/drivers/scsi/3w-9xxx.c
-+++ b/drivers/scsi/3w-9xxx.c
-@@ -2016,7 +2016,7 @@ static int twa_probe(struct pci_dev *pdev, const struct pci_device_id *dev_id)
- 	retval = pci_enable_device(pdev);
- 	if (retval) {
- 		TW_PRINTK(host, TW_DRIVER, 0x34, "Failed to enable pci device");
--		goto out_disable_device;
-+		return -ENODEV;
- 	}
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index 9b30936904da..0850d587683a 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -703,7 +703,7 @@ struct xhci_stream_info *xhci_alloc_stream_info(struct xhci_hcd *xhci,
+ 			num_stream_ctxs, &stream_info->ctx_array_dma,
+ 			mem_flags);
+ 	if (!stream_info->stream_ctx_array)
+-		goto cleanup_ctx;
++		goto cleanup_ring_array;
+ 	memset(stream_info->stream_ctx_array, 0,
+ 			sizeof(struct xhci_stream_ctx)*num_stream_ctxs);
  
- 	pci_set_master(pdev);
+@@ -764,6 +764,11 @@ struct xhci_stream_info *xhci_alloc_stream_info(struct xhci_hcd *xhci,
+ 	}
+ 	xhci_free_command(xhci, stream_info->free_streams_command);
+ cleanup_ctx:
++	xhci_free_stream_ctx(xhci,
++		stream_info->num_stream_ctxs,
++		stream_info->stream_ctx_array,
++		stream_info->ctx_array_dma);
++cleanup_ring_array:
+ 	kfree(stream_info->stream_rings);
+ cleanup_info:
+ 	kfree(stream_info);
 -- 
 2.35.1
 
