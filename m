@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4570660BAB6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9614160B946
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:07:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234717AbiJXUkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:40:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50844 "EHLO
+        id S232529AbiJXUHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:07:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234783AbiJXUjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:39:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 211352CDCF;
-        Mon, 24 Oct 2022 11:50:05 -0700 (PDT)
+        with ESMTP id S233209AbiJXUGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:06:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A7F3FC6;
+        Mon, 24 Oct 2022 11:26:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1AE8B818C9;
-        Mon, 24 Oct 2022 12:47:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FB3EC433D6;
-        Mon, 24 Oct 2022 12:47:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D6DEB8125E;
+        Mon, 24 Oct 2022 12:26:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02957C433D6;
+        Mon, 24 Oct 2022 12:26:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615644;
-        bh=g6JX/FbexTg6S5fdJfWEIODX30EZwBje8Fl6FaF8REw=;
+        s=korg; t=1666614405;
+        bh=vSgsDIvzzF3Mr1Kj1xaAWGv9LZXJ1IaBnh/leVDRPlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JUYwV+SeTyyZp35HQ/9tiOLVAtGv9PmX1zdU4nu+Cx29RrAZPnQy1NOGEiSevxkV1
-         UkAsegJnboAAllqotXsAmRal45zwkdNRxEpifL0tNaObTvMT0ybyh7mB2G4DlJ0sSz
-         InXRuB85KgSmVkpF8/TiIGehnXn4P4n+oVaGNgCs=
+        b=c8FsqwoZnOp0SmlhUFeYVaJ7qyKvMUTQ/wRRTEyNSOj9dLeGEuBffXZ6x3DmZDw+A
+         VpCjMDeLMWTYUTDGU7jPO+1mS+P5lSuDKo7L58cdilbhWEfWMCDlC0S6ivVO/pWk/p
+         ebTGRfgy3/9tPKFgEmoNVgkgTNQjvsWr9Q42JpKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Baron <jbaron@akamai.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jim Cromie <jim.cromie@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 299/530] dyndbg: let query-modname override actual module name
-Date:   Mon, 24 Oct 2022 13:30:43 +0200
-Message-Id: <20221024113058.599805134@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 247/390] mfd: intel_soc_pmic: Fix an error handling path in intel_soc_pmic_i2c_probe()
+Date:   Mon, 24 Oct 2022 13:30:44 +0200
+Message-Id: <20221024113033.365656870@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Cromie <jim.cromie@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit e75ef56f74965f426dd819a41336b640ffdd8fbc ]
+[ Upstream commit 48749cabba109397b4e7dd556e85718ec0ec114d ]
 
-dyndbg's control-parser: ddebug_parse_query(), requires that search
-terms: module, func, file, lineno, are used only once in a query; a
-thing cannot be named both foo and bar.
+The commit in Fixes: has added a pwm_add_table() call in the probe() and
+a pwm_remove_table() call in the remove(), but forget to update the error
+handling path of the probe.
 
-The cited commit added an overriding module modname, taken from the
-module loader, which is authoritative.  So it set query.module 1st,
-which disallowed its use in the query-string.
+Add the missing pwm_remove_table() call.
 
-But now, its useful to allow a module-load to enable classes across a
-whole (or part of) a subsystem at once.
-
-  # enable (dynamic-debug in) drm only
-  modprobe drm dyndbg="class DRM_UT_CORE +p"
-
-  # get drm_helper too
-  modprobe drm dyndbg="class DRM_UT_CORE module drm* +p"
-
-  # get everything that knows DRM_UT_CORE
-  modprobe drm dyndbg="class DRM_UT_CORE module * +p"
-
-  # also for boot-args:
-  drm.dyndbg="class DRM_UT_CORE module * +p"
-
-So convert the override into a default, by filling it only when/after
-the query-string omitted the module.
-
-NB: the query class FOO handling is forthcoming.
-
-Fixes: 8e59b5cfb9a6 dynamic_debug: add modname arg to exec_query callchain
-Acked-by: Jason Baron <jbaron@akamai.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
-Link: https://lore.kernel.org/r/20220904214134.408619-8-jim.cromie@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a3aa9a93df9f ("mfd: intel_soc_pmic_core: ADD PWM lookup table for CRC PMIC based PWM")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/20220801114211.36267-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/dynamic_debug.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/mfd/intel_soc_pmic_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
-index 00e6507972d8..60d453974155 100644
---- a/lib/dynamic_debug.c
-+++ b/lib/dynamic_debug.c
-@@ -380,10 +380,6 @@ static int ddebug_parse_query(char *words[], int nwords,
- 		return -EINVAL;
- 	}
- 
--	if (modname)
--		/* support $modname.dyndbg=<multiple queries> */
--		query->module = modname;
--
- 	for (i = 0; i < nwords; i += 2) {
- 		char *keyword = words[i];
- 		char *arg = words[i+1];
-@@ -424,6 +420,13 @@ static int ddebug_parse_query(char *words[], int nwords,
- 		if (rc)
- 			return rc;
- 	}
-+	if (!query->module && modname)
-+		/*
-+		 * support $modname.dyndbg=<multiple queries>, when
-+		 * not given in the query itself
-+		 */
-+		query->module = modname;
-+
- 	vpr_info_dq(query, "parsed");
+diff --git a/drivers/mfd/intel_soc_pmic_core.c b/drivers/mfd/intel_soc_pmic_core.c
+index ddd64f9e3341..926653e1f603 100644
+--- a/drivers/mfd/intel_soc_pmic_core.c
++++ b/drivers/mfd/intel_soc_pmic_core.c
+@@ -95,6 +95,7 @@ static int intel_soc_pmic_i2c_probe(struct i2c_client *i2c,
  	return 0;
+ 
+ err_del_irq_chip:
++	pwm_remove_table(crc_pwm_lookup, ARRAY_SIZE(crc_pwm_lookup));
+ 	regmap_del_irq_chip(pmic->irq, pmic->irq_chip_data);
+ 	return ret;
  }
 -- 
 2.35.1
