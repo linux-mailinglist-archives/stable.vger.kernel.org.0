@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4091760A1B7
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7636F60A1C0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229679AbiJXLcm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:32:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57536 "EHLO
+        id S230107AbiJXLdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:33:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230318AbiJXLcX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:32:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11C26550B9;
-        Mon, 24 Oct 2022 04:32:17 -0700 (PDT)
+        with ESMTP id S230301AbiJXLcg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:32:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFABD6068F;
+        Mon, 24 Oct 2022 04:32:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9347B81133;
-        Mon, 24 Oct 2022 11:32:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37FBFC433D6;
-        Mon, 24 Oct 2022 11:32:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1AE161251;
+        Mon, 24 Oct 2022 11:32:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8121C433D6;
+        Mon, 24 Oct 2022 11:32:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611134;
-        bh=UjehT5YJLDsyySDHKVN1z6J5noOu+leeNjyGkzg8UE8=;
+        s=korg; t=1666611137;
+        bh=nInlbStH9a5FQ1hxPfb1aIWblv3RMo5lp/f/c/5RMyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JlUlJ7UPfvgfLqVVexmtPUuaIA0/S2Psnd0rSzsOPPxM6A8uQaVOEWUiaRf9ApOZR
-         t1Q8HDzIUJFKNSysJdZFfovYFG+27C04NkbDBiG3OknEKJqVFg2uDNFBorOzgnawGD
-         rxiz3LoGeeU+gl/62705xAMrFReLuK2+PYyPifdY=
+        b=MDWNg7apRfJPOnTX6yzSJszcqk5EkYrL+IQ4lrRsmrxO1HwPdT4eK/VFBt6/1BoBw
+         QN6c1Y9oSaS62mpPmpO2rlWJAopO2GEVleE0o4qPcBXdxt916lZDOEUSTE20dS3ddC
+         syXZRCV4nP7/EpUhvRT7wCBRPROogjsiscHkaR2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 6.0 03/20] pinctrl: amd: change dev_warn to dev_dbg for additional feature support
-Date:   Mon, 24 Oct 2022 13:31:05 +0200
-Message-Id: <20221024112934.560703191@linuxfoundation.org>
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Chen Yu <yu.c.chen@intel.com>
+Subject: [PATCH 6.0 04/20] thermal: intel_powerclamp: Use first online CPU as control_cpu
+Date:   Mon, 24 Oct 2022 13:31:06 +0200
+Message-Id: <20221024112934.600700322@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112934.415391158@linuxfoundation.org>
 References: <20221024112934.415391158@linuxfoundation.org>
@@ -54,39 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 3160b37e5cb695e866e06c3fdbc385846b569294 upstream.
+commit 4bb7f6c2781e46fc5bd00475a66df2ea30ef330d upstream.
 
-Use dev_dbg instead of dev_warn for additional support of pinmux
-feature.
+Commit 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead
+of smp_processor_id() to avoid crash") fixed an issue related to using
+smp_processor_id() in preemptible context by replacing it with a pair
+of get_cpu()/put_cpu(), but what is needed there really is any online
+CPU and not necessarily the one currently running the code.  Arguably,
+getting the one that's running the code in there is confusing.
 
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Link: https://lore.kernel.org/r/20220830110525.1933198-1-Basavaraj.Natikar@amd.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: Mario Limonciello <mario.limonciello@amd.com>
+For this reason, simply give the control CPU role to the first online
+one which automatically will be CPU0 if it is online, so one check
+can be dropped from the code for an added benefit.
+
+Link: https://lore.kernel.org/linux-pm/20221011113646.GA12080@duo.ucw.cz/
+Fixes: 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Chen Yu <yu.c.chen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-amd.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/thermal/intel/intel_powerclamp.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -1051,13 +1051,13 @@ static void amd_get_iomux_res(struct amd
+--- a/drivers/thermal/intel/intel_powerclamp.c
++++ b/drivers/thermal/intel/intel_powerclamp.c
+@@ -531,11 +531,7 @@ static int start_power_clamp(void)
+ 	cpus_read_lock();
  
- 	index = device_property_match_string(dev, "pinctrl-resource-names",  "iomux");
- 	if (index < 0) {
--		dev_warn(dev, "failed to get iomux index\n");
-+		dev_dbg(dev, "iomux not supported\n");
- 		goto out_no_pinmux;
- 	}
+ 	/* prefer BSP */
+-	control_cpu = 0;
+-	if (!cpu_online(control_cpu)) {
+-		control_cpu = get_cpu();
+-		put_cpu();
+-	}
++	control_cpu = cpumask_first(cpu_online_mask);
  
- 	gpio_dev->iomux_base = devm_platform_ioremap_resource(gpio_dev->pdev, index);
- 	if (IS_ERR(gpio_dev->iomux_base)) {
--		dev_warn(dev, "Failed to get iomux %d io resource\n", index);
-+		dev_dbg(dev, "iomux not supported %d io resource\n", index);
- 		goto out_no_pinmux;
- 	}
- 
+ 	clamping = true;
+ 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
 
 
