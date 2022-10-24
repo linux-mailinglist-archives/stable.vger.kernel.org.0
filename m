@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EB6460B2C0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D56B60B2CC
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232953AbiJXQu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:50:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39570 "EHLO
+        id S232367AbiJXQvM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:51:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235417AbiJXQtd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E46EDCAC7;
-        Mon, 24 Oct 2022 08:32:20 -0700 (PDT)
+        with ESMTP id S235529AbiJXQts (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64D67DA0;
+        Mon, 24 Oct 2022 08:33:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94AC0B8125C;
-        Mon, 24 Oct 2022 12:54:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4C4DC433C1;
-        Mon, 24 Oct 2022 12:54:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0428DB819F7;
+        Mon, 24 Oct 2022 12:54:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C56EC433D7;
+        Mon, 24 Oct 2022 12:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616054;
-        bh=wywoabG9rCgAtYcjbucXslM1obEsgJ2KIBItP/wqNMc=;
+        s=korg; t=1666616059;
+        bh=xqu7Y1D0nbdqkEbtGEB1friyJ8u0gdnTjIHUhQCEvsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qUtjXvq4fXrUcY3X/GpueJNZIdkggcV+2v85kzJNy1t0oUEuGWjtQViv2NET8e4a6
-         UHQiEubBgtkAiep8h+DhEzUE/krR4idvqh4EPW8H4pK4opQqF9aTAZwNSnCMAxNkXF
-         5PPfZ80u1Ahv7SlB3M5tTNmCvLghogoijVT/fkaM=
+        b=Zcle5CKPsmPCj3A+fcX6vn4JQ4LlkJLXSldiz915d1kViS8dK2EXEXQqVLLQukh3t
+         b8/lrcNEcFN13P+FZqEcJGazThjjQKWUAw/vzWM7FFpFw2XvAD+SHQKviKfKLO/QFe
+         c/QSvP5DeZq8EomfiD+6anBhHNb1AmTdx9Mo1Txs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Letu Ren <fantasquex@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Yicong Yang <yangyicong@hisilicon.com>,
+        John Garry <john.garry@huawei.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 483/530] scsi: 3w-9xxx: Avoid disabling device if failing to enable it
-Date:   Mon, 24 Oct 2022 13:33:47 +0200
-Message-Id: <20221024113106.915625896@linuxfoundation.org>
+Subject: [PATCH 5.15 485/530] iommu/arm-smmu-v3: Make default domain type of HiSilicon PTT device to identity
+Date:   Mon, 24 Oct 2022 13:33:49 +0200
+Message-Id: <20221024113107.007187033@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,40 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-[ Upstream commit 7eff437b5ee1309b34667844361c6bbb5c97df05 ]
+[ Upstream commit 24b6c7798a0122012ca848ea0d25e973334266b0 ]
 
-The original code will "goto out_disable_device" and call
-pci_disable_device() if pci_enable_device() fails. The kernel will generate
-a warning message like "3w-9xxx 0000:00:05.0: disabling already-disabled
-device".
+The DMA operations of HiSilicon PTT device can only work properly with
+identical mappings. So add a quirk for the device to force the domain
+as passthrough.
 
-We shouldn't disable a device that failed to be enabled. A simple return is
-fine.
-
-Link: https://lore.kernel.org/r/20220829110115.38789-1-fantasquex@gmail.com
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/20220816114414.4092-2-yangyicong@huawei.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/3w-9xxx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/drivers/scsi/3w-9xxx.c b/drivers/scsi/3w-9xxx.c
-index e41cc354cc8a..6da591508f23 100644
---- a/drivers/scsi/3w-9xxx.c
-+++ b/drivers/scsi/3w-9xxx.c
-@@ -2006,7 +2006,7 @@ static int twa_probe(struct pci_dev *pdev, const struct pci_device_id *dev_id)
- 	retval = pci_enable_device(pdev);
- 	if (retval) {
- 		TW_PRINTK(host, TW_DRIVER, 0x34, "Failed to enable pci device");
--		goto out_disable_device;
-+		return -ENODEV;
+diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+index 79edfdca6607..e7da4a47ce52 100644
+--- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
++++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+@@ -2832,6 +2832,26 @@ static int arm_smmu_dev_disable_feature(struct device *dev,
  	}
+ }
  
- 	pci_set_master(pdev);
++/*
++ * HiSilicon PCIe tune and trace device can be used to trace TLP headers on the
++ * PCIe link and save the data to memory by DMA. The hardware is restricted to
++ * use identity mapping only.
++ */
++#define IS_HISI_PTT_DEVICE(pdev)	((pdev)->vendor == PCI_VENDOR_ID_HUAWEI && \
++					 (pdev)->device == 0xa12e)
++
++static int arm_smmu_def_domain_type(struct device *dev)
++{
++	if (dev_is_pci(dev)) {
++		struct pci_dev *pdev = to_pci_dev(dev);
++
++		if (IS_HISI_PTT_DEVICE(pdev))
++			return IOMMU_DOMAIN_IDENTITY;
++	}
++
++	return 0;
++}
++
+ static struct iommu_ops arm_smmu_ops = {
+ 	.capable		= arm_smmu_capable,
+ 	.domain_alloc		= arm_smmu_domain_alloc,
+@@ -2857,6 +2877,7 @@ static struct iommu_ops arm_smmu_ops = {
+ 	.sva_unbind		= arm_smmu_sva_unbind,
+ 	.sva_get_pasid		= arm_smmu_sva_get_pasid,
+ 	.page_response		= arm_smmu_page_response,
++	.def_domain_type	= arm_smmu_def_domain_type,
+ 	.pgsize_bitmap		= -1UL, /* Restricted during device attach */
+ 	.owner			= THIS_MODULE,
+ };
 -- 
 2.35.1
 
