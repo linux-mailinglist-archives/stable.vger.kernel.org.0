@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24E0060A5E6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B17EC60A58C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:26:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233793AbiJXMas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:30:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34836 "EHLO
+        id S233675AbiJXM0E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:26:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233913AbiJXM2j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D6F586833;
-        Mon, 24 Oct 2022 05:02:15 -0700 (PDT)
+        with ESMTP id S233903AbiJXMYg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:24:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF9516417;
+        Mon, 24 Oct 2022 05:00:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A966961252;
-        Mon, 24 Oct 2022 12:00:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD10EC433C1;
-        Mon, 24 Oct 2022 12:00:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E604B81188;
+        Mon, 24 Oct 2022 11:42:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDEBFC433D7;
+        Mon, 24 Oct 2022 11:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612809;
-        bh=YqqfBLDCHIre+JSjFqMR5fczi5ijx+iG1FyyUcTV2kg=;
+        s=korg; t=1666611739;
+        bh=DSWPBaupk1FspFM1N7wF80naJQX9dlmXeX1iHdvRU/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WVqE6JYZYPPIuk9mUKlyFomUtVMjtR+rmUaZFUlWW5/XJM296uDYLNfwCN9UKQeR9
-         PTptuqLZU6xmzWfYUGfiOV/qAG6+MUb+SAPT1ABczbhEQQbFHhdcA/+Ld3pPVAAsCc
-         QSx53sl2qifZ+0w0Lk7mrDKRz7tcttaV3ljiIW/M=
+        b=CDZlYq0b7Iti1WqO9nH88wQesb155L2hw3cH6zPgtghQkfRErLME1tbYo6WtYwHVk
+         ylB8Cx9fHUhE4tsE7dHptpyuhFVDwHVP1ItKGBifqCDSzRVGk9+XwKnXr+FZ7gkjjY
+         Mc+oqAw3gfaoyJG5vvnUDiWV6fhXTp8f0IdACtuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 128/229] media: exynos4-is: fimc-is: Add of_node_put() when breaking out of loop
+Subject: [PATCH 4.9 093/159] clk: tegra: Fix refcount leak in tegra114_clock_init
 Date:   Mon, 24 Oct 2022 13:30:47 +0200
-Message-Id: <20221024113003.147757617@linuxfoundation.org>
+Message-Id: <20221024112952.824833021@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 211f8304fa21aaedc2c247f0c9d6c7f1aaa61ad7 ]
+[ Upstream commit db16a80c76ea395766913082b1e3f939dde29b2c ]
 
-In fimc_is_register_subdevs(), we need to call of_node_put() for
-the reference 'i2c_bus' when breaking out of the
-for_each_compatible_node() which has increased the refcount.
+of_find_matching_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 9a761e436843 ("[media] exynos4-is: Add Exynos4x12 FIMC-IS driver")
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 2cb5efefd6f7 ("clk: tegra: Implement clocks for Tegra114")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220523143834.7587-1-linmq006@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/fimc-is.c | 1 +
+ drivers/clk/tegra/clk-tegra114.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
-index 0f3f82bd4d20..6f59fe02c727 100644
---- a/drivers/media/platform/exynos4-is/fimc-is.c
-+++ b/drivers/media/platform/exynos4-is/fimc-is.c
-@@ -217,6 +217,7 @@ static int fimc_is_register_subdevs(struct fimc_is *is)
+diff --git a/drivers/clk/tegra/clk-tegra114.c b/drivers/clk/tegra/clk-tegra114.c
+index 933b5dd698b8..c92d8f36a00a 100644
+--- a/drivers/clk/tegra/clk-tegra114.c
++++ b/drivers/clk/tegra/clk-tegra114.c
+@@ -1342,6 +1342,7 @@ static void __init tegra114_clock_init(struct device_node *np)
+ 	}
  
- 			if (ret < 0 || index >= FIMC_IS_SENSORS_NUM) {
- 				of_node_put(child);
-+				of_node_put(i2c_bus);
- 				return ret;
- 			}
- 			index++;
+ 	pmc_base = of_iomap(node, 0);
++	of_node_put(node);
+ 	if (!pmc_base) {
+ 		pr_err("Can't map pmc registers\n");
+ 		WARN_ON(1);
 -- 
 2.35.1
 
