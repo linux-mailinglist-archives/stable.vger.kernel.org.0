@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6192160AB7D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB1BF60A4E4
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:18:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236671AbiJXNwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:52:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46056 "EHLO
+        id S233126AbiJXMST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:18:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236547AbiJXNwO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:52:14 -0400
+        with ESMTP id S233129AbiJXMQ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:16:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6CACBA25A;
-        Mon, 24 Oct 2022 05:42:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02F238111F;
+        Mon, 24 Oct 2022 04:56:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93FA4612BB;
-        Mon, 24 Oct 2022 12:42:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A52B2C433D6;
-        Mon, 24 Oct 2022 12:42:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA9AB61257;
+        Mon, 24 Oct 2022 11:56:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCEF1C433C1;
+        Mon, 24 Oct 2022 11:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615356;
-        bh=g2crMTeUZxtvVq5Uy/9NPi99aTOS+GRPn4fzyhGf+mA=;
+        s=korg; t=1666612590;
+        bh=XvMEixgT9BGjJ6ja9ttKqMsTyosvpjjoTnATBzIPtLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qSS1FFGwzzRA5Vq9lwTxIRtULEn1VTEqAcoLp1aOHwXy+4/+76jetLnRbASjPhNst
-         MP+Mw2AtKoFFCpVsV8VSDwjsJInvD6XKv1OG1CoKU6JIhpqxP+gPoYNQsK4OJJ5GJf
-         FxtxCOzIzFHMr8PNs0jn6yUaQZao0FOgCU9qB1mk=
+        b=sr0v2DSNSuxlRxTLOlpgk/J2JaZ9qHC/KlC4qrXAUsZpo8RCUTbPwBMWtvbORqCob
+         mLu7pnJjPX8jy4hm4I0tawz2JsBcn6v0DtF73WfrgQQt8D7TIXcAq/5rbX02ZQyE0/
+         9sx4wsqVX2ItyQVEfk1nHA0xGHVi1oZoEzKsnRSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 219/530] ASoC: tas2764: Allow mono streams
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>
+Subject: [PATCH 4.19 044/229] fs: dlm: fix race between test_bit() and queue_work()
 Date:   Mon, 24 Oct 2022 13:29:23 +0200
-Message-Id: <20221024113055.007032429@linuxfoundation.org>
+Message-Id: <20221024113000.523018503@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 23204d928a27146d13e11c9383632775345ecca8 ]
+commit eef6ec9bf390e836a6c4029f3620fe49528aa1fe upstream.
 
-The part is a mono speaker amp, but it can do downmix and switch between
-left and right channel, so the right channel range is 1 to 2.
+This patch fixes a race by using ls_cb_mutex around the bit
+operations and conditional code blocks for LSFL_CB_DELAY.
 
-(This mirrors commit bf54d97a835d ("ASoC: tas2770: Allow mono streams")
-which was a fix to the tas2770 driver.)
+The function dlm_callback_stop() expects to stop all callbacks and
+flush all currently queued onces. The set_bit() is not enough because
+there can still be queue_work() after the workqueue was flushed.
+To avoid queue_work() after set_bit(), surround both by ls_cb_mutex.
 
-Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20220825140241.53963-2-povik+lin@cutebit.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/tas2764.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/dlm/ast.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
-index ec13ba01e522..d0b6c174186d 100644
---- a/sound/soc/codecs/tas2764.c
-+++ b/sound/soc/codecs/tas2764.c
-@@ -485,7 +485,7 @@ static struct snd_soc_dai_driver tas2764_dai_driver[] = {
- 		.id = 0,
- 		.playback = {
- 			.stream_name    = "ASI1 Playback",
--			.channels_min   = 2,
-+			.channels_min   = 1,
- 			.channels_max   = 2,
- 			.rates      = TAS2764_RATES,
- 			.formats    = TAS2764_FORMATS,
--- 
-2.35.1
-
+--- a/fs/dlm/ast.c
++++ b/fs/dlm/ast.c
+@@ -200,13 +200,13 @@ void dlm_add_cb(struct dlm_lkb *lkb, uin
+ 	if (!prev_seq) {
+ 		kref_get(&lkb->lkb_ref);
+ 
++		mutex_lock(&ls->ls_cb_mutex);
+ 		if (test_bit(LSFL_CB_DELAY, &ls->ls_flags)) {
+-			mutex_lock(&ls->ls_cb_mutex);
+ 			list_add(&lkb->lkb_cb_list, &ls->ls_cb_delay);
+-			mutex_unlock(&ls->ls_cb_mutex);
+ 		} else {
+ 			queue_work(ls->ls_callback_wq, &lkb->lkb_cb_work);
+ 		}
++		mutex_unlock(&ls->ls_cb_mutex);
+ 	}
+  out:
+ 	mutex_unlock(&lkb->lkb_cb_mutex);
+@@ -286,7 +286,9 @@ void dlm_callback_stop(struct dlm_ls *ls
+ 
+ void dlm_callback_suspend(struct dlm_ls *ls)
+ {
++	mutex_lock(&ls->ls_cb_mutex);
+ 	set_bit(LSFL_CB_DELAY, &ls->ls_flags);
++	mutex_unlock(&ls->ls_cb_mutex);
+ 
+ 	if (ls->ls_callback_wq)
+ 		flush_workqueue(ls->ls_callback_wq);
 
 
