@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8E0860AB66
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:51:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A032060A7E4
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236571AbiJXNvh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:51:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33170 "EHLO
+        id S234807AbiJXNAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:00:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236575AbiJXNvC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:51:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE88AB8C07;
-        Mon, 24 Oct 2022 05:41:39 -0700 (PDT)
+        with ESMTP id S234771AbiJXM6i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:58:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B898181116;
+        Mon, 24 Oct 2022 05:17:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DF64612B2;
-        Mon, 24 Oct 2022 12:41:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EA59C433C1;
-        Mon, 24 Oct 2022 12:41:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06942612CD;
+        Mon, 24 Oct 2022 12:05:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 194BDC433C1;
+        Mon, 24 Oct 2022 12:05:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615261;
-        bh=TWFTvW4p2Dpztexkc4b7jVTIaJVik71BVBhYgVSQ+ls=;
+        s=korg; t=1666613124;
+        bh=547xsTNwHNS98HazWD5C1d4zRtBg8qNe5JpQzIaOh8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTxV9dj8KIMcsV+AlyY4ogaypRSDPRiCGn8SHVrTEyNg5Natb+x91ExZmreQXROIv
-         UjU31MMTJvB4PVcmmkLPz394ZhgzuaDRa4YkIBfZQb4JrY+dXd7eKcLinXkkQkCCpD
-         1L6kpl52rwdm51klfU/LMSyA7fXQupAXOAa+ykps=
+        b=tcvF8UQBw9xmkOsPUSQ9iJCC0O/Y/lSy5GemcCnd0mpCyh2o3REevqq2ljjZk+ydf
+         G/9Xdylk1dgwim2f0y57tMfuGiW2ZTK9zRtP/OuCzgNhosn0gRyMzgu1jKbTU3w+uc
+         ZJhpcSg+c1gVQFNehx3yhQzrJ4dayC3amWIxn/FU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jesus Fernandez Manzano <jesus.manzano@galgus.net>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 183/530] wifi: ath11k: fix number of VHT beamformee spatial streams
-Date:   Mon, 24 Oct 2022 13:28:47 +0200
-Message-Id: <20221024113053.314122890@linuxfoundation.org>
+        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
+        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 018/255] can: kvaser_usb_leaf: Fix TX queue out of sync after restart
+Date:   Mon, 24 Oct 2022 13:28:48 +0200
+Message-Id: <20221024113003.031211772@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,101 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesus Fernandez Manzano <jesus.manzano@galgus.net>
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-[ Upstream commit 55b5ee3357d7bb98ee578cf9b84a652e7a1bc199 ]
+commit 455561fb618fde40558776b5b8435f9420f335db upstream.
 
-The number of spatial streams used when acting as a beamformee in VHT
-mode are reported by the firmware as 7 (8 sts - 1) both in IPQ6018 and
-IPQ8074 which respectively have 2 and 4 sts each. So the firmware should
-report 1 (2 - 1) and 3 (4 - 1).
+The TX queue seems to be implicitly flushed by the hardware during
+bus-off or bus-off recovery, but the driver does not reset the TX
+bookkeeping.
 
-Fix this by checking that the number of VHT beamformee sts reported by
-the firmware is not greater than the number of receiving antennas - 1.
-The fix is based on the same approach used in this same function for
-sanitizing the number of sounding dimensions reported by the firmware.
+Despite not resetting TX bookkeeping the driver still re-enables TX
+queue unconditionally, leading to "cannot find free context" /
+NETDEV_TX_BUSY errors if the TX queue was full at bus-off time.
 
-Without this change, acting as a beamformee in VHT mode is not working
-properly.
+Fix that by resetting TX bookkeeping on CAN restart.
 
-Tested-on: IPQ6018 hw1.0 AHB WLAN.HK.2.5.0.1-01208-QCAHKSWPL_SILICONZ-1
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1-01208-QCAHKSWPL_SILICONZ-1
+Tested with 0bfd:0124 Kvaser Mini PCI Express 2xHS FW 4.18.778.
 
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-Signed-off-by: Jesus Fernandez Manzano <jesus.manzano@galgus.net>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220616173947.21901-1-jesus.manzano@galgus.net
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
+Tested-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010150829.199676-4-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb.h      |    2 ++
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c |    2 +-
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c |    2 ++
+ 3 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index c7ee373a9d2c..ae6e14fe03c7 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -3684,6 +3684,8 @@ static int ath11k_mac_set_txbf_conf(struct ath11k_vif *arvif)
- 	if (vht_cap & (IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE)) {
- 		nsts = vht_cap & IEEE80211_VHT_CAP_BEAMFORMEE_STS_MASK;
- 		nsts >>= IEEE80211_VHT_CAP_BEAMFORMEE_STS_SHIFT;
-+		if (nsts > (ar->num_rx_chains - 1))
-+			nsts = ar->num_rx_chains - 1;
- 		value |= SM(nsts, WMI_TXBF_STS_CAP_OFFSET);
- 	}
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
+@@ -178,6 +178,8 @@ struct kvaser_usb_dev_cfg {
+ extern const struct kvaser_usb_dev_ops kvaser_usb_hydra_dev_ops;
+ extern const struct kvaser_usb_dev_ops kvaser_usb_leaf_dev_ops;
  
-@@ -3724,7 +3726,7 @@ static int ath11k_mac_set_txbf_conf(struct ath11k_vif *arvif)
- static void ath11k_set_vht_txbf_cap(struct ath11k *ar, u32 *vht_cap)
++void kvaser_usb_unlink_tx_urbs(struct kvaser_usb_net_priv *priv);
++
+ int kvaser_usb_recv_cmd(const struct kvaser_usb *dev, void *cmd, int len,
+ 			int *actual_len);
+ 
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
+@@ -453,7 +453,7 @@ static void kvaser_usb_reset_tx_urb_cont
+ /* This method might sleep. Do not call it in the atomic context
+  * of URB completions.
+  */
+-static void kvaser_usb_unlink_tx_urbs(struct kvaser_usb_net_priv *priv)
++void kvaser_usb_unlink_tx_urbs(struct kvaser_usb_net_priv *priv)
  {
- 	bool subfer, subfee;
--	int sound_dim = 0;
-+	int sound_dim = 0, nsts = 0;
+ 	usb_kill_anchored_urbs(&priv->tx_submitted);
+ 	kvaser_usb_reset_tx_urb_contexts(priv);
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -1430,6 +1430,8 @@ static int kvaser_usb_leaf_set_mode(stru
  
- 	subfer = !!(*vht_cap & (IEEE80211_VHT_CAP_SU_BEAMFORMER_CAPABLE));
- 	subfee = !!(*vht_cap & (IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE));
-@@ -3734,6 +3736,11 @@ static void ath11k_set_vht_txbf_cap(struct ath11k *ar, u32 *vht_cap)
- 		subfer = false;
- 	}
- 
-+	if (ar->num_rx_chains < 2) {
-+		*vht_cap &= ~(IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE);
-+		subfee = false;
-+	}
+ 	switch (mode) {
+ 	case CAN_MODE_START:
++		kvaser_usb_unlink_tx_urbs(priv);
 +
- 	/* If SU Beaformer is not set, then disable MU Beamformer Capability */
- 	if (!subfer)
- 		*vht_cap &= ~(IEEE80211_VHT_CAP_MU_BEAMFORMER_CAPABLE);
-@@ -3746,7 +3753,9 @@ static void ath11k_set_vht_txbf_cap(struct ath11k *ar, u32 *vht_cap)
- 	sound_dim >>= IEEE80211_VHT_CAP_SOUNDING_DIMENSIONS_SHIFT;
- 	*vht_cap &= ~IEEE80211_VHT_CAP_SOUNDING_DIMENSIONS_MASK;
- 
--	/* TODO: Need to check invalid STS and Sound_dim values set by FW? */
-+	nsts = (*vht_cap & IEEE80211_VHT_CAP_BEAMFORMEE_STS_MASK);
-+	nsts >>= IEEE80211_VHT_CAP_BEAMFORMEE_STS_SHIFT;
-+	*vht_cap &= ~IEEE80211_VHT_CAP_BEAMFORMEE_STS_MASK;
- 
- 	/* Enable Sounding Dimension Field only if SU BF is enabled */
- 	if (subfer) {
-@@ -3758,9 +3767,15 @@ static void ath11k_set_vht_txbf_cap(struct ath11k *ar, u32 *vht_cap)
- 		*vht_cap |= sound_dim;
- 	}
- 
--	/* Use the STS advertised by FW unless SU Beamformee is not supported*/
--	if (!subfee)
--		*vht_cap &= ~(IEEE80211_VHT_CAP_BEAMFORMEE_STS_MASK);
-+	/* Enable Beamformee STS Field only if SU BF is enabled */
-+	if (subfee) {
-+		if (nsts > (ar->num_rx_chains - 1))
-+			nsts = ar->num_rx_chains - 1;
-+
-+		nsts <<= IEEE80211_VHT_CAP_BEAMFORMEE_STS_SHIFT;
-+		nsts &=  IEEE80211_VHT_CAP_BEAMFORMEE_STS_MASK;
-+		*vht_cap |= nsts;
-+	}
- }
- 
- static struct ieee80211_sta_vht_cap
--- 
-2.35.1
-
+ 		err = kvaser_usb_leaf_simple_cmd_async(priv, CMD_START_CHIP);
+ 		if (err)
+ 			return err;
 
 
