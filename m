@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F93F60B26D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:46:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7045D60B09A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234930AbiJXQqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:46:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52298 "EHLO
+        id S233133AbiJXQG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:06:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234936AbiJXQpj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:45:39 -0400
+        with ESMTP id S233839AbiJXQFC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:05:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD21F175A0;
-        Mon, 24 Oct 2022 08:31:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89AF211E472;
+        Mon, 24 Oct 2022 07:57:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17315B818F6;
-        Mon, 24 Oct 2022 12:39:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 711D4C433D7;
-        Mon, 24 Oct 2022 12:39:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F92CB81658;
+        Mon, 24 Oct 2022 12:21:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A588BC433D6;
+        Mon, 24 Oct 2022 12:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615195;
-        bh=oHdiTEUEGe47W3cAi820NXU1aWR8btKkNh43NEcjkew=;
+        s=korg; t=1666614069;
+        bh=7drasZaXyRBxiatrZXSHUCbArSVbNrOy1uqnbBkzW9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=midfbP8mhAPK/LBEv+CQmQEPyY+2+gISgEjPVYe7igXET53WZZt1AbkOqbixa4Cpd
-         F9vgWtLu4klGBkM271GSE4kJli9iIz+aCx6cfRsvTp89O5j8zIvIcnoFxC1AX61SCo
-         Pz2FalpIqPIfrA4Y1ofibosfNt0M76qKBM1qw3d4=
+        b=DBMCRuHLTuNvSWVk+0onFKSQcMf/rYxtW/hvdSoj7cnDmftN0cSSvJ2uj97MRrDss
+         R1//qsZ5+JeQQIiDhGgoWNW6EFTtalEpMi5DCyPurObgDP7Ax+Y/oZvjRzUX/5s+0n
+         cllcHb2gvDdChsjLhdSy5+ZdYWkrxkQz0OisP9h8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.15 131/530] drm/i915: Fix watermark calculations for gen12+ MC CCS modifier
-Date:   Mon, 24 Oct 2022 13:27:55 +0200
-Message-Id: <20221024113050.984527588@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.10 080/390] efi: libstub: drop pointless get_memory_map() call
+Date:   Mon, 24 Oct 2022 13:27:57 +0200
+Message-Id: <20221024113026.018659861@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +51,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 484b2b9281000274ef7c5cb0a9ebc5da6f5c281c upstream.
+commit d80ca810f096ff66f451e7a3ed2f0cd9ef1ff519 upstream.
 
-Take the gen12+ MC CCS modifier into account when calculating the
-watermarks. Othwerwise we'll calculate the watermarks thinking this
-Y-tiled modifier is linear.
+Currently, the non-x86 stub code calls get_memory_map() redundantly,
+given that the data it returns is never used anywhere. So drop the call.
 
-The rc_surface part is actually a nop since that is not used
-for any glk+ platform.
-
-v2: Split RC CCS vs. MC CCS to separate patches
-
-Cc: stable@vger.kernel.org
-Fixes: 2dfbf9d2873a ("drm/i915/tgl: Gen-12 display can decompress surfaces compressed by the media engine")
-Reviewed-by: Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221003111544.8007-3-ville.syrjala@linux.intel.com
-(cherry picked from commit 91c9651425fe955b1387f3637607dda005f3f710)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v4.14+
+Fixes: 24d7c494ce46 ("efi/arm-stub: Round up FDT allocation to mapping size")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/intel_pm.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/libstub/fdt.c |    8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -5403,11 +5403,13 @@ skl_compute_wm_params(const struct intel
- 		      modifier == I915_FORMAT_MOD_Yf_TILED ||
- 		      modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
- 		      modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
--		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS;
-+		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS ||
-+		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS;
- 	wp->x_tiled = modifier == I915_FORMAT_MOD_X_TILED;
- 	wp->rc_surface = modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
- 			 modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
--			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS;
-+			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS ||
-+			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS;
- 	wp->is_planar = intel_format_info_is_yuv_semiplanar(format, modifier);
+--- a/drivers/firmware/efi/libstub/fdt.c
++++ b/drivers/firmware/efi/libstub/fdt.c
+@@ -281,14 +281,6 @@ efi_status_t allocate_new_fdt_and_exit_b
+ 		goto fail;
+ 	}
  
- 	wp->width = width;
+-	/*
+-	 * Now that we have done our final memory allocation (and free)
+-	 * we can get the memory map key needed for exit_boot_services().
+-	 */
+-	status = efi_get_memory_map(&map);
+-	if (status != EFI_SUCCESS)
+-		goto fail_free_new_fdt;
+-
+ 	status = update_fdt((void *)fdt_addr, fdt_size,
+ 			    (void *)*new_fdt_addr, MAX_FDT_SIZE, cmdline_ptr,
+ 			    initrd_addr, initrd_size);
 
 
