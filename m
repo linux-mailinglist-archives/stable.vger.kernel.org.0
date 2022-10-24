@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B0B860A47B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:11:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F43060ABAD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232885AbiJXML0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:11:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41996 "EHLO
+        id S236615AbiJXNzI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:55:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229782AbiJXMKD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:10:03 -0400
+        with ESMTP id S236759AbiJXNyC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:54:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CAD12BB0A;
-        Mon, 24 Oct 2022 04:53:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E56E8D0FF;
+        Mon, 24 Oct 2022 05:43:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29C516129E;
-        Mon, 24 Oct 2022 11:46:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37632C433D6;
-        Mon, 24 Oct 2022 11:46:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64A7C612DB;
+        Mon, 24 Oct 2022 12:43:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 774D0C433D6;
+        Mon, 24 Oct 2022 12:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611972;
-        bh=iafMQX0LLGAsrS6c7Ds92V5u8tPAuViCsplCLjBiFQs=;
+        s=korg; t=1666615397;
+        bh=fdoR0xvzYT9V9vLf+cdHsA/B+SRWhC/HM+ZFo35VXrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8tpyBib/eObZuC/jQB6lR2lLm8XFJGAIYMhB1b2UJ6Zo/89GV3IdLQu/H47YsJw9
-         8I25WGivDCfCoaGnGxnovfKe5mC5nHJrwHQ+tx/Rm0WNdHLzY0R4CDgU8pu9S9VQF1
-         m9GJcLL3RjnbfLG+wiCl9Oe5wJ8eYMuuqtlpHulk=
+        b=ChU5BYqR7Pk+95lesD1TzvfWbF0AUdTskL6Ww5xLnW7Rlxe4/7Xjc8T61ll2eNaI3
+         9tAMYOl7xsrVMQ7SQ6xjqMGCwNyNxEBaFBOwxfCt+/0ES52foGyitHWojJsqOXql3F
+         EzuOaOY7rPWZCQKSWNRWpQw++PxlAPZ6mjLI8Awo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa@the-dreams.de>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Subject: [PATCH 4.14 021/210] i2c: dev: prevent ZERO_SIZE_PTR deref in i2cdev_ioctl_rdwr()
+        stable@vger.kernel.org, Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Jes Sorensen <jes@trained-monkey.org>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 194/530] wifi: rtl8xxxu: Fix AIFS written to REG_EDCA_*_PARAM
 Date:   Mon, 24 Oct 2022 13:28:58 +0200
-Message-Id: <20221024112957.648694176@linuxfoundation.org>
+Message-Id: <20221024113053.824788491@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Popov <alex.popov@linux.com>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-commit 23a27722b5292ef0b27403c87a109feea8296a5c upstream.
+[ Upstream commit 5574d3290449916397f3092dcd2bac92415498e1 ]
 
-i2cdev_ioctl_rdwr() allocates i2c_msg.buf using memdup_user(), which
-returns ZERO_SIZE_PTR if i2c_msg.len is zero.
+ieee80211_tx_queue_params.aifs is not supposed to be written directly
+to the REG_EDCA_*_PARAM registers. Instead process it like the vendor
+drivers do. It's kinda hacky but it works.
 
-Currently i2cdev_ioctl_rdwr() always dereferences the buf pointer in case
-of I2C_M_RD | I2C_M_RECV_LEN transfer. That causes a kernel oops in
-case of zero len.
+This change boosts the download speed and makes it more stable.
 
-Let's check the len against zero before dereferencing buf pointer.
+Tested with RTL8188FU but all the other supported chips should also
+benefit.
 
-This issue was triggered by syzkaller.
-
-Signed-off-by: Alexander Popov <alex.popov@linux.com>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-[wsa: use '< 1' instead of '!' for easier readability]
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-[Harshit: backport to 4.14.y, use rdwr_pa[i].len instead of msgs[i].len
-as the 4.14.y  code uses rdwr_pa.]
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Acked-by: Jes Sorensen <jes@trained-monkey.org>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/038cc03f-3567-77ba-a7bd-c4930e3b2fad@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-dev.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 49 +++++++++++++++++++
+ 1 file changed, 49 insertions(+)
 
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -297,7 +297,7 @@ static noinline int i2cdev_ioctl_rdwr(st
- 		 */
- 		if (rdwr_pa[i].flags & I2C_M_RECV_LEN) {
- 			if (!(rdwr_pa[i].flags & I2C_M_RD) ||
--			    rdwr_pa[i].buf[0] < 1 ||
-+			    rdwr_pa[i].len < 1 || rdwr_pa[i].buf[0] < 1 ||
- 			    rdwr_pa[i].len < rdwr_pa[i].buf[0] +
- 					     I2C_SMBUS_BLOCK_MAX) {
- 				i++;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index fb2a5fc1a4e6..e74c885a04e5 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -4507,6 +4507,53 @@ rtl8xxxu_wireless_mode(struct ieee80211_hw *hw, struct ieee80211_sta *sta)
+ 	return network_type;
+ }
+ 
++static void rtl8xxxu_set_aifs(struct rtl8xxxu_priv *priv, u8 slot_time)
++{
++	u32 reg_edca_param[IEEE80211_NUM_ACS] = {
++		[IEEE80211_AC_VO] = REG_EDCA_VO_PARAM,
++		[IEEE80211_AC_VI] = REG_EDCA_VI_PARAM,
++		[IEEE80211_AC_BE] = REG_EDCA_BE_PARAM,
++		[IEEE80211_AC_BK] = REG_EDCA_BK_PARAM,
++	};
++	u32 val32;
++	u16 wireless_mode = 0;
++	u8 aifs, aifsn, sifs;
++	int i;
++
++	if (priv->vif) {
++		struct ieee80211_sta *sta;
++
++		rcu_read_lock();
++		sta = ieee80211_find_sta(priv->vif, priv->vif->bss_conf.bssid);
++		if (sta)
++			wireless_mode = rtl8xxxu_wireless_mode(priv->hw, sta);
++		rcu_read_unlock();
++	}
++
++	if (priv->hw->conf.chandef.chan->band == NL80211_BAND_5GHZ ||
++	    (wireless_mode & WIRELESS_MODE_N_24G))
++		sifs = 16;
++	else
++		sifs = 10;
++
++	for (i = 0; i < IEEE80211_NUM_ACS; i++) {
++		val32 = rtl8xxxu_read32(priv, reg_edca_param[i]);
++
++		/* It was set in conf_tx. */
++		aifsn = val32 & 0xff;
++
++		/* aifsn not set yet or already fixed */
++		if (aifsn < 2 || aifsn > 15)
++			continue;
++
++		aifs = aifsn * slot_time + sifs;
++
++		val32 &= ~0xff;
++		val32 |= aifs;
++		rtl8xxxu_write32(priv, reg_edca_param[i], val32);
++	}
++}
++
+ static void
+ rtl8xxxu_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 			  struct ieee80211_bss_conf *bss_conf, u32 changed)
+@@ -4592,6 +4639,8 @@ rtl8xxxu_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 		else
+ 			val8 = 20;
+ 		rtl8xxxu_write8(priv, REG_SLOT, val8);
++
++		rtl8xxxu_set_aifs(priv, val8);
+ 	}
+ 
+ 	if (changed & BSS_CHANGED_BSSID) {
+-- 
+2.35.1
+
 
 
