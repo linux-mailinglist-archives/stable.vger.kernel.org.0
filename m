@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1920260BDF8
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 00:55:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 748F660BDCA
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 00:49:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231432AbiJXWzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 18:55:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53248 "EHLO
+        id S229608AbiJXWtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 18:49:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231440AbiJXWzQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 18:55:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 691104150B;
-        Mon, 24 Oct 2022 14:16:51 -0700 (PDT)
+        with ESMTP id S231490AbiJXWsl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 18:48:41 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EEC52CF4A7;
+        Mon, 24 Oct 2022 14:10:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51A3CB81210;
-        Mon, 24 Oct 2022 12:07:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8B2CC433C1;
-        Mon, 24 Oct 2022 12:07:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 61AD7CE1318;
+        Mon, 24 Oct 2022 11:39:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54791C433C1;
+        Mon, 24 Oct 2022 11:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613256;
-        bh=448XI5nFKO3xYfv7nmwZvLPYd7LKGy/pR4tYG6xDquA=;
+        s=korg; t=1666611574;
+        bh=7d0m2Z6BIjDkYt6daIwwF++izl41uVIUnp2ibyflk6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LrBVr8sF8TDVopNpiua2wSOaPaG7jOVaNMCfCkmOLb5qB+3IIruYeRSYFRg1TofiL
-         Vz4Vq6xt+sLQ4LvVicCc1wpjR9D+1efO3YTeEPDr6AE/sy23G9fUxdxcXmGwQho8CI
-         COoaDcDp/FJ3w/odWA7r/pD/NTxrDWw5qpL7tPjM=
+        b=PQOl9iOX1nyMMdTkqlnUOGy+zJo4rwFZrxjLlMSfp2LoYeAZ45xncW5QYJMIocoGV
+         fuxc9X6yt0vC4cWJFirkCcwj/aLDv6/8xlck+d2zl5JxydpwRuvTf+A/cOO0vclN4s
+         hfkyiQi9DLFe2/SwEufbbfoCBE0AraVp5skKVth8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 068/255] spi: qup: add missing clk_disable_unprepare on error in spi_qup_resume()
-Date:   Mon, 24 Oct 2022 13:29:38 +0200
-Message-Id: <20221024113004.787516127@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.9 031/159] random: clamp credited irq bits to maximum mixed
+Date:   Mon, 24 Oct 2022 13:29:45 +0200
+Message-Id: <20221024112950.545644221@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +51,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Qiang <xuqiang36@huawei.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 70034320fdc597b8f58b4a43bb547f17c4c5557a ]
+commit e78a802a7b4febf53f2a92842f494b01062d85a8 upstream.
 
-Add the missing clk_disable_unprepare() before return
-from spi_qup_resume() in the error handling case.
+Since the most that's mixed into the pool is sizeof(long)*2, don't
+credit more than that many bytes of entropy.
 
-Fixes: 64ff247a978f (“spi: Add Qualcomm QUP SPI controller support”)
-Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
-Link: https://lore.kernel.org/r/20220825065324.68446-1-xuqiang36@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e3e33fc2ea7f ("random: do not use input pool from hard IRQs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-qup.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
-index d1dfb52008b4..6da49705a10a 100644
---- a/drivers/spi/spi-qup.c
-+++ b/drivers/spi/spi-qup.c
-@@ -1246,14 +1246,25 @@ static int spi_qup_resume(struct device *device)
- 		return ret;
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -977,7 +977,7 @@ static void mix_interrupt_randomness(str
+ 	local_irq_enable();
  
- 	ret = clk_prepare_enable(controller->cclk);
--	if (ret)
-+	if (ret) {
-+		clk_disable_unprepare(controller->iclk);
- 		return ret;
-+	}
+ 	mix_pool_bytes(pool, sizeof(pool));
+-	credit_init_bits(max(1u, (count & U16_MAX) / 64));
++	credit_init_bits(clamp_t(unsigned int, (count & U16_MAX) / 64, 1, sizeof(pool) * 8));
  
- 	ret = spi_qup_set_state(controller, QUP_STATE_RESET);
- 	if (ret)
--		return ret;
-+		goto disable_clk;
-+
-+	ret = spi_master_resume(master);
-+	if (ret)
-+		goto disable_clk;
- 
--	return spi_master_resume(master);
-+	return 0;
-+
-+disable_clk:
-+	clk_disable_unprepare(controller->cclk);
-+	clk_disable_unprepare(controller->iclk);
-+	return ret;
+ 	memzero_explicit(pool, sizeof(pool));
  }
- #endif /* CONFIG_PM_SLEEP */
- 
--- 
-2.35.1
-
 
 
