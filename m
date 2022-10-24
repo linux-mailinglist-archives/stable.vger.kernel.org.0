@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C03B560A94F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:17:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75BDB60A543
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:22:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233189AbiJXNRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:17:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47934 "EHLO
+        id S233504AbiJXMWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:22:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233613AbiJXNRP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:17:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE89A3F6E;
-        Mon, 24 Oct 2022 05:26:21 -0700 (PDT)
+        with ESMTP id S233301AbiJXMUh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:20:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C136583236;
+        Mon, 24 Oct 2022 04:58:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7D77B81258;
-        Mon, 24 Oct 2022 12:07:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39BEBC433C1;
-        Mon, 24 Oct 2022 12:07:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 683FE612BB;
+        Mon, 24 Oct 2022 11:56:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A895C433C1;
+        Mon, 24 Oct 2022 11:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613224;
-        bh=D/1C7EpUO8dR4S94f/ncKRR/DAc34QnIqngnR6tn9hs=;
+        s=korg; t=1666612592;
+        bh=7zRqFiuFdqs1g1fTMewFg4NAJ0rlLykQuJxkC+KCfFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F2I2mY67Zc4Zw4nzHgOzUa1fClxNfjYzL9WgEOfkcKnQ5T9nsRh6KjYuFPyNG9rWr
-         eZFTFVofwlTqw8HTX2n5OA87xojzyM6Do5hy9nZ+LnVkr8IoZ4/xBHzrwB5uyCKMa6
-         ab3C97Kg70u9BHseAn8jpkIJrrAVVZ34+RW9hZiQ=
+        b=LFz0445FVYz7U9AzR/vpK7so8OjXaqNUjSW3m8Vc18gCnvWjRbMFC4wEa9dd/6FUO
+         PFJrvxF/1UeWGo1IzIIiOgFDfujYMjcbjd3Ui27jQuteg+Fl5ufW8ehBmCHNm/ijKp
+         zmww03ZhSftMBIBucEf/QoIOHDILKgDM9Ic1C2uI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 054/255] KVM: VMX: Drop bits 31:16 when shoving exception error code into VMCS
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>
+Subject: [PATCH 4.19 045/229] fs: dlm: handle -EBUSY first in lock arg validation
 Date:   Mon, 24 Oct 2022 13:29:24 +0200
-Message-Id: <20221024113004.213318188@linuxfoundation.org>
+Message-Id: <20221024113000.552249834@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit eba9799b5a6efe2993cf92529608e4aa8163d73b upstream.
+commit 44637ca41d551d409a481117b07fa209b330fca9 upstream.
 
-Deliberately truncate the exception error code when shoving it into the
-VMCS (VM-Entry field for vmcs01 and vmcs02, VM-Exit field for vmcs12).
-Intel CPUs are incapable of handling 32-bit error codes and will never
-generate an error code with bits 31:16, but userspace can provide an
-arbitrary error code via KVM_SET_VCPU_EVENTS.  Failure to drop the bits
-on exception injection results in failed VM-Entry, as VMX disallows
-setting bits 31:16.  Setting the bits on VM-Exit would at best confuse
-L1, and at worse induce a nested VM-Entry failure, e.g. if L1 decided to
-reinject the exception back into L2.
+During lock arg validation, first check for -EBUSY cases, then for
+-EINVAL cases. The -EINVAL checks look at lkb state variables
+which are not stable when an lkb is busy and would cause an
+-EBUSY result, e.g. lkb->lkb_grmode.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220830231614.3580124-3-seanjc@google.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |   11 ++++++++++-
- arch/x86/kvm/vmx/vmx.c    |   12 +++++++++++-
- 2 files changed, 21 insertions(+), 2 deletions(-)
+ fs/dlm/lock.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -3427,7 +3427,16 @@ static void nested_vmx_inject_exception_
- 	u32 intr_info = nr | INTR_INFO_VALID_MASK;
+--- a/fs/dlm/lock.c
++++ b/fs/dlm/lock.c
+@@ -2890,24 +2890,24 @@ static int set_unlock_args(uint32_t flag
+ static int validate_lock_args(struct dlm_ls *ls, struct dlm_lkb *lkb,
+ 			      struct dlm_args *args)
+ {
+-	int rv = -EINVAL;
++	int rv = -EBUSY;
  
- 	if (vcpu->arch.exception.has_error_code) {
--		vmcs12->vm_exit_intr_error_code = vcpu->arch.exception.error_code;
-+		/*
-+		 * Intel CPUs do not generate error codes with bits 31:16 set,
-+		 * and more importantly VMX disallows setting bits 31:16 in the
-+		 * injected error code for VM-Entry.  Drop the bits to mimic
-+		 * hardware and avoid inducing failure on nested VM-Entry if L1
-+		 * chooses to inject the exception back to L2.  AMD CPUs _do_
-+		 * generate "full" 32-bit error codes, so KVM allows userspace
-+		 * to inject exception error codes with bits 31:16 set.
-+		 */
-+		vmcs12->vm_exit_intr_error_code = (u16)vcpu->arch.exception.error_code;
- 		intr_info |= INTR_INFO_DELIVER_CODE_MASK;
- 	}
+ 	if (args->flags & DLM_LKF_CONVERT) {
+-		if (lkb->lkb_flags & DLM_IFL_MSTCPY)
++		if (lkb->lkb_status != DLM_LKSTS_GRANTED)
+ 			goto out;
  
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -1676,7 +1676,17 @@ static void vmx_queue_exception(struct k
- 	kvm_deliver_exception_payload(vcpu);
+-		if (args->flags & DLM_LKF_QUECVT &&
+-		    !__quecvt_compat_matrix[lkb->lkb_grmode+1][args->mode+1])
++		if (lkb->lkb_wait_type)
+ 			goto out;
  
- 	if (has_error_code) {
--		vmcs_write32(VM_ENTRY_EXCEPTION_ERROR_CODE, error_code);
-+		/*
-+		 * Despite the error code being architecturally defined as 32
-+		 * bits, and the VMCS field being 32 bits, Intel CPUs and thus
-+		 * VMX don't actually supporting setting bits 31:16.  Hardware
-+		 * will (should) never provide a bogus error code, but AMD CPUs
-+		 * do generate error codes with bits 31:16 set, and so KVM's
-+		 * ABI lets userspace shove in arbitrary 32-bit values.  Drop
-+		 * the upper bits to avoid VM-Fail, losing information that
-+		 * does't really exist is preferable to killing the VM.
-+		 */
-+		vmcs_write32(VM_ENTRY_EXCEPTION_ERROR_CODE, (u16)error_code);
- 		intr_info |= INTR_INFO_DELIVER_CODE_MASK;
+-		rv = -EBUSY;
+-		if (lkb->lkb_status != DLM_LKSTS_GRANTED)
++		if (is_overlap(lkb))
+ 			goto out;
+ 
+-		if (lkb->lkb_wait_type)
++		rv = -EINVAL;
++		if (lkb->lkb_flags & DLM_IFL_MSTCPY)
+ 			goto out;
+ 
+-		if (is_overlap(lkb))
++		if (args->flags & DLM_LKF_QUECVT &&
++		    !__quecvt_compat_matrix[lkb->lkb_grmode+1][args->mode+1])
+ 			goto out;
  	}
  
 
