@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D645A60B776
+	by mail.lfdr.de (Postfix) with ESMTP id 8B2A260B775
 	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231950AbiJXTYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:24:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45932 "EHLO
+        id S231794AbiJXTYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:24:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232082AbiJXTXK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:23:10 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEB1317FD4C;
-        Mon, 24 Oct 2022 10:57:57 -0700 (PDT)
+        with ESMTP id S232354AbiJXTXC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:23:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 997C07AC2A;
+        Mon, 24 Oct 2022 10:57:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 80BC5CE1366;
-        Mon, 24 Oct 2022 12:19:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7192AC433C1;
-        Mon, 24 Oct 2022 12:19:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC6BCB81928;
+        Mon, 24 Oct 2022 12:40:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36150C433D6;
+        Mon, 24 Oct 2022 12:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613952;
-        bh=Y3eT2xE4uYU2PLlz1rAVKbLGZkqNAWjS8soALy34X1Y=;
+        s=korg; t=1666615211;
+        bh=dTXimvS3/PRD19esBnkIqkWImn4hUbImLSQIDJLpmfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVMPVI8obe3lCWzdsiR/nvFUR/+LREElt2+6QoRGpGlznSg0a00a4cRR+kJQR33Qr
-         uB71FzPyQvaFinPN+2+WQHjx8KQyRe9sjLNsviuJ9xtDmfQmXDT8WCeE19FPIH0c++
-         QACBTCXdz0ApkT50R3sC1T6bQICbZYUv96DcT/7o=
+        b=TBlW9CVV/LcUwtL5wxRm7IdPaoD1iR+qXPNOlqlzVT9kyB9TGdEY/ROsdPlgGl1Oq
+         Tx9XLZQX7DM6p/AfHXHmR/2/sHpTJduh8lyBDC0ifv3AZ2MMxCuotiHOfNloF/qDJ1
+         4ef4Bk2kfIiXfd1+aY0ancB0IuaBK8Sf8qD0dMDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 076/390] ring-buffer: Add ring_buffer_wake_waiters()
-Date:   Mon, 24 Oct 2022 13:27:53 +0200
-Message-Id: <20221024113025.849362575@linuxfoundation.org>
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 134/530] smb3: must initialize two ACL struct fields to zero
+Date:   Mon, 24 Oct 2022 13:27:58 +0200
+Message-Id: <20221024113051.119721776@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,116 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Steve French <stfrench@microsoft.com>
 
-commit 7e9fbbb1b776d8d7969551565bc246f74ec53b27 upstream.
+commit f09bd695af3b8ab46fc24e5d6954a24104c38387 upstream.
 
-On closing of a file that represents a ring buffer or flushing the file,
-there may be waiters on the ring buffer that needs to be woken up and exit
-the ring_buffer_wait() function.
+Coverity spotted that we were not initalizing Stbz1 and Stbz2 to
+zero in create_sd_buf.
 
-Add ring_buffer_wake_waiters() to wake up the waiters on the ring buffer
-and allow them to exit the wait loop.
-
-Link: https://lkml.kernel.org/r/20220928133938.28dc2c27@gandalf.local.home
-
-Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Fixes: 15693458c4bc0 ("tracing/ring-buffer: Move poll wake ups into ring buffer code")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Addresses-Coverity: 1513848 ("Uninitialized scalar variable")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/ring_buffer.h |    2 +-
- kernel/trace/ring_buffer.c  |   39 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 40 insertions(+), 1 deletion(-)
+ fs/cifs/smb2pdu.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/linux/ring_buffer.h
-+++ b/include/linux/ring_buffer.h
-@@ -100,7 +100,7 @@ __ring_buffer_alloc(unsigned long size,
- int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full);
- __poll_t ring_buffer_poll_wait(struct trace_buffer *buffer, int cpu,
- 			  struct file *filp, poll_table *poll_table);
--
-+void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu);
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -2354,7 +2354,7 @@ create_sd_buf(umode_t mode, bool set_own
+ 	unsigned int acelen, acl_size, ace_count;
+ 	unsigned int owner_offset = 0;
+ 	unsigned int group_offset = 0;
+-	struct smb3_acl acl;
++	struct smb3_acl acl = {};
  
- #define RING_BUFFER_ALL_CPUS -1
+ 	*len = roundup(sizeof(struct crt_sd_ctxt) + (sizeof(struct cifs_ace) * 4), 8);
  
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -414,6 +414,7 @@ struct rb_irq_work {
- 	struct irq_work			work;
- 	wait_queue_head_t		waiters;
- 	wait_queue_head_t		full_waiters;
-+	long				wait_index;
- 	bool				waiters_pending;
- 	bool				full_waiters_pending;
- 	bool				wakeup_full;
-@@ -802,6 +803,37 @@ static void rb_wake_up_waiters(struct ir
- }
+@@ -2427,6 +2427,7 @@ create_sd_buf(umode_t mode, bool set_own
+ 	acl.AclRevision = ACL_REVISION; /* See 2.4.4.1 of MS-DTYP */
+ 	acl.AclSize = cpu_to_le16(acl_size);
+ 	acl.AceCount = cpu_to_le16(ace_count);
++	/* acl.Sbz1 and Sbz2 MBZ so are not set here, but initialized above */
+ 	memcpy(aclptr, &acl, sizeof(struct smb3_acl));
  
- /**
-+ * ring_buffer_wake_waiters - wake up any waiters on this ring buffer
-+ * @buffer: The ring buffer to wake waiters on
-+ *
-+ * In the case of a file that represents a ring buffer is closing,
-+ * it is prudent to wake up any waiters that are on this.
-+ */
-+void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu)
-+{
-+	struct ring_buffer_per_cpu *cpu_buffer;
-+	struct rb_irq_work *rbwork;
-+
-+	if (cpu == RING_BUFFER_ALL_CPUS) {
-+
-+		/* Wake up individual ones too. One level recursion */
-+		for_each_buffer_cpu(buffer, cpu)
-+			ring_buffer_wake_waiters(buffer, cpu);
-+
-+		rbwork = &buffer->irq_work;
-+	} else {
-+		cpu_buffer = buffer->buffers[cpu];
-+		rbwork = &cpu_buffer->irq_work;
-+	}
-+
-+	rbwork->wait_index++;
-+	/* make sure the waiters see the new index */
-+	smp_wmb();
-+
-+	rb_wake_up_waiters(&rbwork->work);
-+}
-+
-+/**
-  * ring_buffer_wait - wait for input to the ring buffer
-  * @buffer: buffer to wait on
-  * @cpu: the cpu buffer to wait on
-@@ -816,6 +848,7 @@ int ring_buffer_wait(struct trace_buffer
- 	struct ring_buffer_per_cpu *cpu_buffer;
- 	DEFINE_WAIT(wait);
- 	struct rb_irq_work *work;
-+	long wait_index;
- 	int ret = 0;
- 
- 	/*
-@@ -834,6 +867,7 @@ int ring_buffer_wait(struct trace_buffer
- 		work = &cpu_buffer->irq_work;
- 	}
- 
-+	wait_index = READ_ONCE(work->wait_index);
- 
- 	while (true) {
- 		if (full)
-@@ -898,6 +932,11 @@ int ring_buffer_wait(struct trace_buffer
- 		}
- 
- 		schedule();
-+
-+		/* Make sure to see the new wait index */
-+		smp_rmb();
-+		if (wait_index != work->wait_index)
-+			break;
- 	}
- 
- 	if (full)
+ 	buf->ccontext.DataLength = cpu_to_le32(ptr - (__u8 *)&buf->sd);
 
 
