@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFA5760B897
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:51:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D2A60B8B6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:53:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232607AbiJXTvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:51:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44640 "EHLO
+        id S233659AbiJXTxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:53:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232563AbiJXTv0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:51:26 -0400
+        with ESMTP id S233663AbiJXTwB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:52:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 840157C1F5;
-        Mon, 24 Oct 2022 11:17:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FD5727FCE;
+        Mon, 24 Oct 2022 11:17:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2C46B816AD;
-        Mon, 24 Oct 2022 12:33:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13A16C433D6;
-        Mon, 24 Oct 2022 12:33:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 005F1B815BD;
+        Mon, 24 Oct 2022 12:34:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54B40C433D6;
+        Mon, 24 Oct 2022 12:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614838;
-        bh=9RgDa2xi1W+8STkDcV58pjNZP/j9rFjBUfcCyK1cHF4=;
+        s=korg; t=1666614843;
+        bh=AgrAcFz67d+dtJari7EhoPQwuKBW735RiTbDR3OVobA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T46aL+u182J+Ajk+LHStY8HPkew0Zx3Cdshfgaua19Ld6XmquEARLx2Xcl9rTVY9G
-         Q9wu9i38o1kwX75rTaxFOWbhuWTj43ZY+Mq+z74uzz3BRiIsbIezJdHn6/M8SX3HtG
-         263d4ou7IaQ/SiHSpytq3NwhYgYijUixp97lg+Sc=
+        b=W5IncK4RwFT6a7bB40JhgpL8spiIqqbVpf+AsAYElvIl++FzxQUNscOUWmd7BskB9
+         waDt96vUvoxCh3MDXlEvA1u/GifgbiXWi26W3h+LalC2ewYkT6gqMdl5Hhe3ZXo6fm
+         cezd8r95cF22h/LP5daEqYJqxT794TaRoM7SP8MA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
         Anssi Hannula <anssi.hannula@bitwise.fi>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 022/530] can: kvaser_usb: Fix use of uninitialized completion
-Date:   Mon, 24 Oct 2022 13:26:06 +0200
-Message-Id: <20221024113046.016827466@linuxfoundation.org>
+Subject: [PATCH 5.15 024/530] can: kvaser_usb_leaf: Fix TX queue out of sync after restart
+Date:   Mon, 24 Oct 2022 13:26:08 +0200
+Message-Id: <20221024113046.103790929@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -55,55 +55,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-commit cd7f30e174d09a02ca2afa5ef093fb0f0352e0d8 upstream.
+commit 455561fb618fde40558776b5b8435f9420f335db upstream.
 
-flush_comp is initialized when CMD_FLUSH_QUEUE is sent to the device and
-completed when the device sends CMD_FLUSH_QUEUE_RESP.
+The TX queue seems to be implicitly flushed by the hardware during
+bus-off or bus-off recovery, but the driver does not reset the TX
+bookkeeping.
 
-This causes completion of uninitialized completion if the device sends
-CMD_FLUSH_QUEUE_RESP before CMD_FLUSH_QUEUE is ever sent (e.g. as a
-response to a flush by a previously bound driver, or a misbehaving
-device).
+Despite not resetting TX bookkeeping the driver still re-enables TX
+queue unconditionally, leading to "cannot find free context" /
+NETDEV_TX_BUSY errors if the TX queue was full at bus-off time.
 
-Fix that by initializing flush_comp in kvaser_usb_init_one() like the
-other completions.
+Fix that by resetting TX bookkeeping on CAN restart.
 
-This issue is only triggerable after RX URBs have been set up, i.e. the
-interface has been opened at least once.
+Tested with 0bfd:0124 Kvaser Mini PCI Express 2xHS FW 4.18.778.
 
 Cc: stable@vger.kernel.org
-Fixes: aec5fb2268b7 ("can: kvaser_usb: Add support for Kvaser USB hydra family")
+Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
 Tested-by: Jimmy Assarsson <extja@kvaser.com>
 Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
 Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010150829.199676-3-extja@kvaser.com
+Link: https://lore.kernel.org/all/20221010150829.199676-4-extja@kvaser.com
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c  |    1 +
- drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c |    2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb.h      |    2 ++
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c |    2 +-
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c |    2 ++
+ 3 files changed, 5 insertions(+), 1 deletion(-)
 
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
+@@ -178,6 +178,8 @@ struct kvaser_usb_dev_cfg {
+ extern const struct kvaser_usb_dev_ops kvaser_usb_hydra_dev_ops;
+ extern const struct kvaser_usb_dev_ops kvaser_usb_leaf_dev_ops;
+ 
++void kvaser_usb_unlink_tx_urbs(struct kvaser_usb_net_priv *priv);
++
+ int kvaser_usb_recv_cmd(const struct kvaser_usb *dev, void *cmd, int len,
+ 			int *actual_len);
+ 
 --- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
 +++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
-@@ -717,6 +717,7 @@ static int kvaser_usb_init_one(struct kv
- 	init_usb_anchor(&priv->tx_submitted);
- 	init_completion(&priv->start_comp);
- 	init_completion(&priv->stop_comp);
-+	init_completion(&priv->flush_comp);
- 	priv->can.ctrlmode_supported = 0;
- 
- 	priv->dev = dev;
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-@@ -1914,7 +1914,7 @@ static int kvaser_usb_hydra_flush_queue(
+@@ -480,7 +480,7 @@ static void kvaser_usb_reset_tx_urb_cont
+ /* This method might sleep. Do not call it in the atomic context
+  * of URB completions.
+  */
+-static void kvaser_usb_unlink_tx_urbs(struct kvaser_usb_net_priv *priv)
++void kvaser_usb_unlink_tx_urbs(struct kvaser_usb_net_priv *priv)
  {
- 	int err;
+ 	usb_kill_anchored_urbs(&priv->tx_submitted);
+ 	kvaser_usb_reset_tx_urb_contexts(priv);
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -1430,6 +1430,8 @@ static int kvaser_usb_leaf_set_mode(stru
  
--	init_completion(&priv->flush_comp);
-+	reinit_completion(&priv->flush_comp);
- 
- 	err = kvaser_usb_hydra_send_simple_cmd(priv->dev, CMD_FLUSH_QUEUE,
- 					       priv->channel);
+ 	switch (mode) {
+ 	case CAN_MODE_START:
++		kvaser_usb_unlink_tx_urbs(priv);
++
+ 		err = kvaser_usb_leaf_simple_cmd_async(priv, CMD_START_CHIP);
+ 		if (err)
+ 			return err;
 
 
