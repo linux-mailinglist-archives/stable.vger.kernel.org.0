@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DFBF60A607
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FFBC60AA91
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:36:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233740AbiJXMb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:31:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52254 "EHLO
+        id S232140AbiJXNfi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:35:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234198AbiJXM3g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:36 -0400
+        with ESMTP id S233541AbiJXNdi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:33:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9482C88DEF;
-        Mon, 24 Oct 2022 05:03:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EEC1209A6;
+        Mon, 24 Oct 2022 05:34:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D18D612E6;
-        Mon, 24 Oct 2022 11:56:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9416EC43151;
-        Mon, 24 Oct 2022 11:56:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B51BD612BB;
+        Mon, 24 Oct 2022 12:23:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0B8AC433C1;
+        Mon, 24 Oct 2022 12:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612584;
-        bh=547xsTNwHNS98HazWD5C1d4zRtBg8qNe5JpQzIaOh8U=;
+        s=korg; t=1666614182;
+        bh=oei25bppX7opojlLxFImrhg7rgEMZXfr7N6+E7cS4gc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y3RYMttnuQ9MevAoGLI6cs+W0CXMeIBy3+SaoBcUrNEYXAC5ZDkanfYo3vQUXAYQL
-         cW+5H6DhdOUX3oVrjZBzyqGbWE3jneB6PurWWMLOe8kUg+vUWgC5uoV8J2TfnomiwC
-         e1EWzM+FtLhSAMrh6QTv93EiRc8yPqHhnvRcp9g0=
+        b=2YFp3Mi064UJA5WDeV7Jv224y+a5llOy7Mf2heA991TD8i6ZEiDx8F1gTO+dTnqVS
+         YcxTP4jjugZd2q4g2N6/3AcKnURfb4jlJgz40FcON8Vmz3wyMv9r8IP2hwTly4m9p+
+         WpLuMz7ykoz9NXm6UI9wOmPfB8JK7xTCw/rUP8tM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 042/229] can: kvaser_usb_leaf: Fix TX queue out of sync after restart
+        stable@vger.kernel.org, Andreas Pape <apape@de.adit-jv.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 164/390] ALSA: dmaengine: increment buffer pointer atomically
 Date:   Mon, 24 Oct 2022 13:29:21 +0200
-Message-Id: <20221024113000.454060700@linuxfoundation.org>
+Message-Id: <20221024113029.693302618@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Andreas Pape <apape@de.adit-jv.com>
 
-commit 455561fb618fde40558776b5b8435f9420f335db upstream.
+[ Upstream commit d1c442019594692c64a70a86ad88eb5b6db92216 ]
 
-The TX queue seems to be implicitly flushed by the hardware during
-bus-off or bus-off recovery, but the driver does not reset the TX
-bookkeeping.
+Setting pointer and afterwards checking for wraparound leads
+to the possibility of returning the inconsistent pointer position.
 
-Despite not resetting TX bookkeeping the driver still re-enables TX
-queue unconditionally, leading to "cannot find free context" /
-NETDEV_TX_BUSY errors if the TX queue was full at bus-off time.
+This patch increments buffer pointer atomically to avoid this issue.
 
-Fix that by resetting TX bookkeeping on CAN restart.
-
-Tested with 0bfd:0124 Kvaser Mini PCI Express 2xHS FW 4.18.778.
-
-Cc: stable@vger.kernel.org
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Tested-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010150829.199676-4-extja@kvaser.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e7f73a1613567a ("ASoC: Add dmaengine PCM helper functions")
+Signed-off-by: Andreas Pape <apape@de.adit-jv.com>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Link: https://lore.kernel.org/r/1664211493-11789-1-git-send-email-erosca@de.adit-jv.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb.h      |    2 ++
- drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c |    2 +-
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c |    2 ++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ sound/core/pcm_dmaengine.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
-@@ -178,6 +178,8 @@ struct kvaser_usb_dev_cfg {
- extern const struct kvaser_usb_dev_ops kvaser_usb_hydra_dev_ops;
- extern const struct kvaser_usb_dev_ops kvaser_usb_leaf_dev_ops;
+diff --git a/sound/core/pcm_dmaengine.c b/sound/core/pcm_dmaengine.c
+index 4d0e8fe535a1..be58505889a3 100644
+--- a/sound/core/pcm_dmaengine.c
++++ b/sound/core/pcm_dmaengine.c
+@@ -130,12 +130,14 @@ EXPORT_SYMBOL_GPL(snd_dmaengine_pcm_set_config_from_dai_data);
  
-+void kvaser_usb_unlink_tx_urbs(struct kvaser_usb_net_priv *priv);
-+
- int kvaser_usb_recv_cmd(const struct kvaser_usb *dev, void *cmd, int len,
- 			int *actual_len);
- 
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
-@@ -453,7 +453,7 @@ static void kvaser_usb_reset_tx_urb_cont
- /* This method might sleep. Do not call it in the atomic context
-  * of URB completions.
-  */
--static void kvaser_usb_unlink_tx_urbs(struct kvaser_usb_net_priv *priv)
-+void kvaser_usb_unlink_tx_urbs(struct kvaser_usb_net_priv *priv)
+ static void dmaengine_pcm_dma_complete(void *arg)
  {
- 	usb_kill_anchored_urbs(&priv->tx_submitted);
- 	kvaser_usb_reset_tx_urb_contexts(priv);
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -1430,6 +1430,8 @@ static int kvaser_usb_leaf_set_mode(stru
++	unsigned int new_pos;
+ 	struct snd_pcm_substream *substream = arg;
+ 	struct dmaengine_pcm_runtime_data *prtd = substream_to_prtd(substream);
  
- 	switch (mode) {
- 	case CAN_MODE_START:
-+		kvaser_usb_unlink_tx_urbs(priv);
-+
- 		err = kvaser_usb_leaf_simple_cmd_async(priv, CMD_START_CHIP);
- 		if (err)
- 			return err;
+-	prtd->pos += snd_pcm_lib_period_bytes(substream);
+-	if (prtd->pos >= snd_pcm_lib_buffer_bytes(substream))
+-		prtd->pos = 0;
++	new_pos = prtd->pos + snd_pcm_lib_period_bytes(substream);
++	if (new_pos >= snd_pcm_lib_buffer_bytes(substream))
++		new_pos = 0;
++	prtd->pos = new_pos;
+ 
+ 	snd_pcm_period_elapsed(substream);
+ }
+-- 
+2.35.1
+
 
 
