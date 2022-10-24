@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79FA460A8B2
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:10:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90B8F60A6A4
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235484AbiJXNKs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:10:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45666 "EHLO
+        id S231548AbiJXMgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:36:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235871AbiJXNJx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:09:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60A3AA222B;
-        Mon, 24 Oct 2022 05:23:41 -0700 (PDT)
+        with ESMTP id S233904AbiJXMdp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:33:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E262476FD;
+        Mon, 24 Oct 2022 05:05:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0D8C612EA;
-        Mon, 24 Oct 2022 12:11:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1603C433C1;
-        Mon, 24 Oct 2022 12:11:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03310B811F5;
+        Mon, 24 Oct 2022 12:02:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58533C433C1;
+        Mon, 24 Oct 2022 12:02:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613513;
-        bh=Dzp1yNR7MhGQClgmsjrPeU8LYIs6j51LrN6Tl5etqIw=;
+        s=korg; t=1666612969;
+        bh=rJmvJX1Yd+VCFEKraff9jIv/6wTZs/svtd+hRJMqLjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nK3obnwllSafgbh3CbwQWeGdTKLGc6OZwifjfFwQ4giJjOm1hnxze+3nLpeth9n2b
-         VfjQWIfnszc2KBUxRLH3ccW9P2haNpiB6tmWpsO6mdZ3bAI0SiibxZdPVP4U5aMMzE
-         5hnCXGqUSs5eqIMA9wslTYiuT7KFrIhZhA92WC2Q=
+        b=gSF+UaIhCJ4S1+Q66DjdfdWYwK6EU6zTAX+PT9KrKeVuqeRpY2oQmkwJ6M0OtNqKg
+         uewdZISQ032FND2t8qmGCvlVZX8L2BgCQoO/Y/se8S0K1tF460UI8AXA1Ri6LS4Rnt
+         hP7CM5wyMuwxgtea/1f4dPv8Wr/x7Qgbj5owhhxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        "Ivan T. Ivanov" <iivanov@suse.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 166/255] clk: bcm2835: fix bcm2835_clock_rate_from_divisor declaration
+Subject: [PATCH 4.19 157/229] clk: ti: dra7-atl: Fix reference leak in of_dra7_atl_clk_probe
 Date:   Mon, 24 Oct 2022 13:31:16 +0200
-Message-Id: <20221024113008.244913106@linuxfoundation.org>
+Message-Id: <20221024113004.085012351@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 0b919a3728691c172312dee99ba654055ccd8c84 ]
+[ Upstream commit 9c59a01caba26ec06fefd6ca1f22d5fd1de57d63 ]
 
-The return value of bcm2835_clock_rate_from_divisor is always unsigned
-and also all caller expect this. So fix the declaration accordingly.
+pm_runtime_get_sync() will increment pm usage counter.
+Forgetting to putting operation will result in reference leak.
+Add missing pm_runtime_put_sync in some error paths.
 
-Fixes: 41691b8862e2 ("clk: bcm2835: Add support for programming the audio domain clocks")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/20220904141037.38816-1-stefan.wahren@i2se.com
-Reviewed-by: Ivan T. Ivanov <iivanov@suse.de>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 9ac33b0ce81f ("CLK: TI: Driver for DRA7 ATL (Audio Tracking Logic)")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220602030838.52057-1-linmq006@gmail.com
+Reviewed-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/ti/clk-dra7-atl.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index e637bd6b295b..e650379b3230 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -967,9 +967,9 @@ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
- 	return div;
+diff --git a/drivers/clk/ti/clk-dra7-atl.c b/drivers/clk/ti/clk-dra7-atl.c
+index beb672a215b6..a4b6f3ac2d34 100644
+--- a/drivers/clk/ti/clk-dra7-atl.c
++++ b/drivers/clk/ti/clk-dra7-atl.c
+@@ -252,14 +252,16 @@ static int of_dra7_atl_clk_probe(struct platform_device *pdev)
+ 		if (rc) {
+ 			pr_err("%s: failed to lookup atl clock %d\n", __func__,
+ 			       i);
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto pm_put;
+ 		}
+ 
+ 		clk = of_clk_get_from_provider(&clkspec);
+ 		if (IS_ERR(clk)) {
+ 			pr_err("%s: failed to get atl clock %d from provider\n",
+ 			       __func__, i);
+-			return PTR_ERR(clk);
++			ret = PTR_ERR(clk);
++			goto pm_put;
+ 		}
+ 
+ 		cdesc = to_atl_desc(__clk_get_hw(clk));
+@@ -292,8 +294,9 @@ static int of_dra7_atl_clk_probe(struct platform_device *pdev)
+ 		if (cdesc->enabled)
+ 			atl_clk_enable(__clk_get_hw(clk));
+ 	}
+-	pm_runtime_put_sync(cinfo->dev);
+ 
++pm_put:
++	pm_runtime_put_sync(cinfo->dev);
+ 	return ret;
  }
  
--static long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
--					    unsigned long parent_rate,
--					    u32 div)
-+static unsigned long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
-+						     unsigned long parent_rate,
-+						     u32 div)
- {
- 	const struct bcm2835_clock_data *data = clock->data;
- 	u64 temp;
 -- 
 2.35.1
 
