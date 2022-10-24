@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54B7B60BA7A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:37:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8917560BB08
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234388AbiJXUhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:37:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42620 "EHLO
+        id S235006AbiJXUpc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:45:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234391AbiJXUgg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:36:36 -0400
+        with ESMTP id S235162AbiJXUoL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:44:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F3D1D346A;
-        Mon, 24 Oct 2022 11:48:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DDC78052B;
+        Mon, 24 Oct 2022 11:52:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70C77B81219;
-        Mon, 24 Oct 2022 12:07:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF06EC433C1;
-        Mon, 24 Oct 2022 12:07:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FB2DB81250;
+        Mon, 24 Oct 2022 12:07:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E68B8C433D6;
+        Mon, 24 Oct 2022 12:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613235;
-        bh=YzygpU2lqHazfot/AtqlQuUcuIafh1+pkMPgAoMjJ4Q=;
+        s=korg; t=1666613240;
+        bh=aOvtxZzoxLZvYMnqDsCHT9AR35HDLsRHaZZOOkdNEaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqtLZBOrSu3dPOxOhHisPPgHgXh28kLdl62TP49XdqMud2qfA1ThcYFr/W+jOqJvk
-         FObH/x6UodmZyej2eRrdQ/D0614sQ+MthJmcnEIf544rDjU1bfftOlEgwyytUBuNn4
-         D9bS+NF72MJsVKJi7Vh8GV7EYCRxqdkzo0DM/R30=
+        b=j7kjlmre42Csglxqt55+GmQDK69D5Ix3RLHCb8DZtA69anMCZvXws84YrD4+YBzs/
+         7Yt8IDyAYom+lCoDCrKcwBZgWQndeO24a3pqI+A078UHBRIHhS3nOexQLKMkEJ7n4O
+         c4QyzqT1Jjc7s/5E3qzfzYZpR8xjiSwXm9N2nVbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fangrui Song <maskray@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.4 030/255] riscv: Pass -mno-relax only on lld < 15.0.0
-Date:   Mon, 24 Oct 2022 13:29:00 +0200
-Message-Id: <20221024113003.450495044@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.4 032/255] PCI: Sanitise firmware BAR assignments behind a PCI-PCI bridge
+Date:   Mon, 24 Oct 2022 13:29:02 +0200
+Message-Id: <20221024113003.509965008@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
 References: <20221024113002.471093005@linuxfoundation.org>
@@ -55,51 +52,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 3cebf80e9a0d3adcb174053be32c88a640b3344b upstream.
+commit 0e32818397426a688f598f35d3bc762eca6d7592 upstream.
 
-lld since llvm:6611d58f5bbc ("[ELF] Relax R_RISCV_ALIGN"), which will be
-included in the 15.0.0 release, has implemented some RISC-V linker
-relaxation.  -mno-relax is no longer needed in
-KBUILD_CFLAGS/KBUILD_AFLAGS to suppress R_RISCV_ALIGN which older lld
-can not handle:
+When pci_assign_resource() is unable to assign resources to a BAR, it uses
+pci_revert_fw_address() to fall back to a firmware assignment (if any).
+Previously pci_revert_fw_address() assumed all addresses could reach the
+device, but this is not true if the device is below a bridge that only
+forwards addresses within its windows.
 
-    ld.lld: error: capability.c:(.fixup+0x0): relocation R_RISCV_ALIGN
-    requires unimplemented linker relaxation; recompile with -mno-relax
-    but the .o is already compiled with -mno-relax
+This problem was observed on a Tyan Tomcat IV S1564D system where the BIOS
+did not assign valid addresses to several bridges and USB devices:
 
-Signed-off-by: Fangrui Song <maskray@google.com>
-Link: https://lore.kernel.org/r/20220710071117.446112-1-maskray@google.com/
-Link: https://lore.kernel.org/r/20220918092933.19943-1-palmer@rivosinc.com
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Tested-by: Conor Dooley <conor.dooley@microchip.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+  pci 0000:00:11.0: PCI-to-PCIe bridge to [bus 01-ff]
+  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
+  pci 0000:01:00.0: PCIe Upstream Port to [bus 02-ff]
+  pci 0000:01:00.0:   bridge window [io  0x0000-0x0fff]   # unreachable
+  pci 0000:02:02.0: PCIe Downstream Port to [bus 05-ff]
+  pci 0000:02:02.0:   bridge window [io  0x0000-0x0fff]   # unreachable
+  pci 0000:05:00.0: PCIe-to-PCI bridge to [bus 06-ff]
+  pci 0000:05:00.0:   bridge window [io  0x0000-0x0fff]   # unreachable
+  pci 0000:06:08.0: USB UHCI 1.1
+  pci 0000:06:08.0: BAR 4: [io  0xfce0-0xfcff]            # unreachable
+  pci 0000:06:08.1: USB UHCI 1.1
+  pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff]            # unreachable
+  pci 0000:06:08.0: can't claim BAR 4 [io  0xfce0-0xfcff]: no compatible bridge window
+  pci 0000:06:08.1: can't claim BAR 4 [io  0xfce0-0xfcff]: no compatible bridge window
+
+During the first pass of assigning unassigned resources, there was not
+enough I/O space available, so we couldn't assign the 06:08.0 BAR and
+reverted to the firmware assignment (still unreachable).  Reverting the
+06:08.1 assignment failed because it conflicted with 06:08.0:
+
+  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
+  pci 0000:01:00.0: no space for bridge window [io  size 0x2000]
+  pci 0000:02:02.0: no space for bridge window [io  size 0x1000]
+  pci 0000:05:00.0: no space for bridge window [io  size 0x1000]
+  pci 0000:06:08.0: BAR 4: no space for [io  size 0x0020]
+  pci 0000:06:08.0: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
+  pci 0000:06:08.1: BAR 4: no space for [io  size 0x0020]
+  pci 0000:06:08.1: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
+  pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff] conflicts with 0000:06:08.0 [io  0xfce0-0xfcff]
+
+A subsequent pass assigned valid bridge windows and a valid 06:08.1 BAR,
+but left the 06:08.0 BAR alone, so the UHCI device was still unusable:
+
+  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff] released
+  pci 0000:00:11.0:   bridge window [io  0x1000-0x2fff]   # reassigned
+  pci 0000:01:00.0:   bridge window [io  0x1000-0x2fff]   # reassigned
+  pci 0000:02:02.0:   bridge window [io  0x2000-0x2fff]   # reassigned
+  pci 0000:05:00.0:   bridge window [io  0x2000-0x2fff]   # reassigned
+  pci 0000:06:08.0: BAR 4: assigned [io  0xfce0-0xfcff]   # left alone
+  pci 0000:06:08.1: BAR 4: assigned [io  0x2000-0x201f]
+  ...
+  uhci_hcd 0000:06:08.0: host system error, PCI problems?
+  uhci_hcd 0000:06:08.0: host controller process error, something bad happened!
+  uhci_hcd 0000:06:08.0: host controller halted, very bad!
+  uhci_hcd 0000:06:08.0: HCRESET not completed yet!
+  uhci_hcd 0000:06:08.0: HC died; cleaning up
+
+If the address assigned by firmware is not reachable because it's not
+within upstream bridge windows, fail instead of assigning the unusable
+address from firmware.
+
+[bhelgaas: commit log, use pci_upstream_bridge()]
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=16263
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2203012338460.46819@angie.orcam.me.uk
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209211921250.29493@angie.orcam.me.uk
+Fixes: 58c84eda0756 ("PCI: fall back to original BIOS BAR addresses")
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org # v2.6.35+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/Makefile |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/setup-res.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -35,6 +35,7 @@ else
- endif
+--- a/drivers/pci/setup-res.c
++++ b/drivers/pci/setup-res.c
+@@ -209,6 +209,17 @@ static int pci_revert_fw_address(struct
  
- ifeq ($(CONFIG_LD_IS_LLD),y)
-+ifeq ($(shell test $(CONFIG_LLD_VERSION) -lt 150000; echo $$?),0)
- 	KBUILD_CFLAGS += -mno-relax
- 	KBUILD_AFLAGS += -mno-relax
- ifneq ($(LLVM_IAS),1)
-@@ -42,6 +43,7 @@ ifneq ($(LLVM_IAS),1)
- 	KBUILD_AFLAGS += -Wa,-mno-relax
- endif
- endif
-+endif
- 
- # ISA string setting
- riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32ima
+ 	root = pci_find_parent_resource(dev, res);
+ 	if (!root) {
++		/*
++		 * If dev is behind a bridge, accesses will only reach it
++		 * if res is inside the relevant bridge window.
++		 */
++		if (pci_upstream_bridge(dev))
++			return -ENXIO;
++
++		/*
++		 * On the root bus, assume the host bridge will forward
++		 * everything.
++		 */
+ 		if (res->flags & IORESOURCE_IO)
+ 			root = &ioport_resource;
+ 		else
 
 
