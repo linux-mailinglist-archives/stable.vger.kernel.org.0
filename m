@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F01660AA58
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF96660AAEB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:42:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230175AbiJXNcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:32:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42070 "EHLO
+        id S236037AbiJXNmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:42:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236386AbiJXNa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:30:56 -0400
+        with ESMTP id S236023AbiJXNh0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:37:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2626AACF72;
-        Mon, 24 Oct 2022 05:33:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F9C28E28;
+        Mon, 24 Oct 2022 05:36:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 072F4612E4;
-        Mon, 24 Oct 2022 12:33:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C1E6C433C1;
-        Mon, 24 Oct 2022 12:33:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E8C161297;
+        Mon, 24 Oct 2022 12:34:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92053C433C1;
+        Mon, 24 Oct 2022 12:34:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614801;
-        bh=N8y/aHVvIULtmLOJGdQJkklPhvik5UeCcUPrgoO6Tu4=;
+        s=korg; t=1666614861;
+        bh=X2XpOUCM4nCnu2cwJmejV4EjwMZM2ILfoBkD10ig+7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2DgfOvsV1uTFYV+YsBd9qxZRnTlQoP+98hxFuHxZGtkl3/gIWxkA1G9NHhZoABXSN
-         DEZ1a3Juq5ZfUZ4jlrJ0k4Ju47cZTnxuu06s0E5h8NEOfOJB2MT5n2bEA95ryYKI7w
-         jTZZ/y26D80YgqSfO946xGHpKlYkwZYLuZUMUogk=
+        b=SHKtwvybqVKsyB2TeVtZ+vwHgMG6d1WBmoFfLkeOJBELI3W9mLLcNRPTifGEJgQwx
+         BdVla/Hx+juElxysje1UXlTS34a0q5CERbwlJnrEI88GlpRNGJFi5INZqJJ7P3QX7N
+         pWyEJ3eTRV70gEBBc/LoMeaEIWeXj1011g0XAvAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 001/530] Revert "fs: check FMODE_LSEEK to control internal pipe splicing"
-Date:   Mon, 24 Oct 2022 13:25:45 +0200
-Message-Id: <20221024113045.040469515@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 004/530] ALSA: usb-audio: Fix potential memory leaks
+Date:   Mon, 24 Oct 2022 13:25:48 +0200
+Message-Id: <20221024113045.180473538@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,47 +51,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit fd0a6e99b61e6c08fa5cf585d54fd956f70c73a6.
+From: Takashi Iwai <tiwai@suse.de>
 
-Which was upstream commit 97ef77c52b789ec1411d360ed99dca1efe4b2c81.
+commit 6382da0828995af87aa8b8bef28cc61aceb4aff3 upstream.
 
-The commit is missing dependencies and breaks NFS tests, remove it for
-now.
+When the driver hits -ENOMEM at allocating a URB or a buffer, it
+aborts and goes to the error path that releases the all previously
+allocated resources.  However, when -ENOMEM hits at the middle of the
+sync EP URB allocation loop, the partially allocated URBs might be
+left without released, because ep->nurbs is still zero at that point.
 
-Reported-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix it by setting ep->nurbs at first, so that the error handler loops
+over the full URB list.
+
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220930100151.19461-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/splice.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ sound/usb/endpoint.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/splice.c b/fs/splice.c
-index 3abcd7fbc9f2..5dbce4dcc1a7 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -814,15 +814,17 @@ ssize_t splice_direct_to_actor(struct file *in, struct splice_desc *sd,
- {
- 	struct pipe_inode_info *pipe;
- 	long ret, bytes;
-+	umode_t i_mode;
- 	size_t len;
- 	int i, flags, more;
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -1223,6 +1223,7 @@ static int sync_ep_set_params(struct snd
+ 	if (!ep->syncbuf)
+ 		return -ENOMEM;
  
- 	/*
--	 * We require the input to be seekable, as we don't want to randomly
--	 * drop data for eg socket -> socket splicing. Use the piped splicing
--	 * for that!
-+	 * We require the input being a regular file, as we don't want to
-+	 * randomly drop data for eg socket -> socket splicing. Use the
-+	 * piped splicing for that!
- 	 */
--	if (unlikely(!(in->f_mode & FMODE_LSEEK)))
-+	i_mode = file_inode(in)->i_mode;
-+	if (unlikely(!S_ISREG(i_mode) && !S_ISBLK(i_mode)))
- 		return -EINVAL;
++	ep->nurbs = SYNC_URBS;
+ 	for (i = 0; i < SYNC_URBS; i++) {
+ 		struct snd_urb_ctx *u = &ep->urb[i];
+ 		u->index = i;
+@@ -1242,8 +1243,6 @@ static int sync_ep_set_params(struct snd
+ 		u->urb->complete = snd_complete_urb;
+ 	}
  
- 	/*
--- 
-2.35.1
-
+-	ep->nurbs = SYNC_URBS;
+-
+ 	return 0;
+ 
+ out_of_memory:
 
 
