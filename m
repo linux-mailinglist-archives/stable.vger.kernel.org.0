@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3772660B85E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:44:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EACD60B81C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231472AbiJXTof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:44:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48528 "EHLO
+        id S231897AbiJXTlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:41:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231286AbiJXTnT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:43:19 -0400
+        with ESMTP id S232907AbiJXTlU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:41:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E1E6D8F70;
-        Mon, 24 Oct 2022 11:11:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D1DE2871B;
+        Mon, 24 Oct 2022 11:11:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26AC8B818D4;
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5114B818DF;
+        Mon, 24 Oct 2022 12:38:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E085C433D6;
         Mon, 24 Oct 2022 12:38:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A2D1C43142;
-        Mon, 24 Oct 2022 12:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615085;
-        bh=a6b1NSqvH/b6gAlJZYFh0Q5qf/RCTEE7cuX29pmcyhM=;
+        s=korg; t=1666615088;
+        bh=D/B6aQwxRHmZZ3qRQKbdvIcJrvNDkoJUoMZvzwMn/Pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lkk6hxfPEwMTmn9CODMHCKxhGUNzocfNQEsinpTlkkWqqrm16+MULxi039R6WVlQJ
-         eKmRIzEFdx73xmZyU38V52NtUVCL+DQJBuGoznCC1wdvJ7pOA9ukFo9ZaopEOevsEV
-         +hzTSqwv+y+E4GBb0/ivvkJAKqCCRw50ryTc6Zes=
+        b=tA6+7mPEyD4ryQUR6gEZ/xfpF+y+JXXYprdRIbPacSo9dm9nUYkvMXoNIeOmAfeBk
+         jYyTRCJc7/dRS6mlj5+15Rv3IDgndXaqIOse30XtoPauuGlA7ajOphlXbIMorRM0WT
+         /BwTydI9su1rGqALueAGiytk7+iouepAbbpgjb0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tom Zanussi <zanussi@kernel.org>,
         "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 116/530] tracing: Add "(fault)" name injection to kernel probes
-Date:   Mon, 24 Oct 2022 13:27:40 +0200
-Message-Id: <20221024113050.287827419@linuxfoundation.org>
+Subject: [PATCH 5.15 117/530] tracing: Fix reading strings from synthetic events
+Date:   Mon, 24 Oct 2022 13:27:41 +0200
+Message-Id: <20221024113050.335283491@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -56,15 +56,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 2e9906f84fc7c99388bb7123ade167250d50f1c0 upstream.
+commit 0934ae9977c27133449b6dd8c6213970e7eece38 upstream.
 
-Have the specific functions for kernel probes that read strings to inject
-the "(fault)" name directly. trace_probes.c does this too (for uprobes)
-but as the code to read strings are going to be used by synthetic events
-(and perhaps other utilities), it simplifies the code by making sure those
-other uses do not need to implement the "(fault)" name injection as well.
+The follow commands caused a crash:
 
-Link: https://lkml.kernel.org/r/20221012104534.644803645@goodmis.org
+  # cd /sys/kernel/tracing
+  # echo 's:open char file[]' > dynamic_events
+  # echo 'hist:keys=common_pid:file=filename:onchange($file).trace(open,$file)' > events/syscalls/sys_enter_openat/trigger'
+  # echo 1 > events/synthetic/open/enable
+
+BOOM!
+
+The problem is that the synthetic event field "char file[]" will read
+the value given to it as a string without any memory checks to make sure
+the address is valid. The above example will pass in the user space
+address and the sythetic event code will happily call strlen() on it
+and then strscpy() where either one will cause an oops when accessing
+user space addresses.
+
+Use the helper functions from trace_kprobe and trace_eprobe that can
+read strings safely (and actually succeed when the address is from user
+space and the memory is mapped in).
+
+Now the above can show:
+
+     packagekitd-1721    [000] ...2.   104.597170: open: file=/usr/lib/rpm/fileattrs/cmake.attr
+    in:imjournal-978     [006] ...2.   104.599642: open: file=/var/lib/rsyslog/imjournal.state.tmp
+     packagekitd-1721    [000] ...2.   104.626308: open: file=/usr/lib/rpm/fileattrs/debuginfo.attr
+
+Link: https://lkml.kernel.org/r/20221012104534.826549315@goodmis.org
 
 Cc: stable@vger.kernel.org
 Cc: Andrew Morton <akpm@linux-foundation.org>
@@ -75,77 +95,69 @@ Fixes: bd82631d7ccdc ("tracing: Add support for dynamic strings to synthetic eve
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_probe_kernel.h |   31 +++++++++++++++++++++++++------
- 1 file changed, 25 insertions(+), 6 deletions(-)
+ kernel/trace/trace_events_synth.c |   23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
---- a/kernel/trace/trace_probe_kernel.h
-+++ b/kernel/trace/trace_probe_kernel.h
-@@ -2,6 +2,8 @@
- #ifndef __TRACE_PROBE_KERNEL_H_
- #define __TRACE_PROBE_KERNEL_H_
+--- a/kernel/trace/trace_events_synth.c
++++ b/kernel/trace/trace_events_synth.c
+@@ -17,6 +17,8 @@
+ /* for gfp flag names */
+ #include <linux/trace_events.h>
+ #include <trace/events/mmflags.h>
++#include "trace_probe.h"
++#include "trace_probe_kernel.h"
  
-+#define FAULT_STRING "(fault)"
-+
- /*
-  * This depends on trace_probe.h, but can not include it due to
-  * the way trace_probe_tmpl.h is used by trace_kprobe.c and trace_eprobe.c.
-@@ -13,8 +15,16 @@ static nokprobe_inline int
- kern_fetch_store_strlen_user(unsigned long addr)
+ #include "trace_synth.h"
+ 
+@@ -401,6 +403,7 @@ static unsigned int trace_string(struct
  {
- 	const void __user *uaddr =  (__force const void __user *)addr;
+ 	unsigned int len = 0;
+ 	char *str_field;
 +	int ret;
  
--	return strnlen_user_nofault(uaddr, MAX_STRING_SIZE);
-+	ret = strnlen_user_nofault(uaddr, MAX_STRING_SIZE);
-+	/*
-+	 * strnlen_user_nofault returns zero on fault, insert the
-+	 * FAULT_STRING when that occurs.
-+	 */
-+	if (ret <= 0)
-+		return strlen(FAULT_STRING) + 1;
-+	return ret;
- }
+ 	if (is_dynamic) {
+ 		u32 data_offset;
+@@ -409,19 +412,27 @@ static unsigned int trace_string(struct
+ 		data_offset += event->n_u64 * sizeof(u64);
+ 		data_offset += data_size;
  
- /* Return the length of string -- including null terminal byte */
-@@ -34,7 +44,18 @@ kern_fetch_store_strlen(unsigned long ad
- 		len++;
- 	} while (c && ret == 0 && len < MAX_STRING_SIZE);
+-		str_field = (char *)entry + data_offset;
+-
+-		len = strlen(str_val) + 1;
+-		strscpy(str_field, str_val, len);
++		len = kern_fetch_store_strlen((unsigned long)str_val);
  
--	return (ret < 0) ? ret : len;
-+	/* For faults, return enough to hold the FAULT_STRING */
-+	return (ret < 0) ? strlen(FAULT_STRING) + 1 : len;
-+}
+ 		data_offset |= len << 16;
+ 		*(u32 *)&entry->fields[*n_u64] = data_offset;
+ 
++		ret = kern_fetch_store_string((unsigned long)str_val, &entry->fields[*n_u64], entry);
 +
-+static nokprobe_inline void set_data_loc(int ret, void *dest, void *__dest, void *base, int len)
-+{
-+	if (ret >= 0) {
-+		*(u32 *)dest = make_data_loc(ret, __dest - base);
-+	} else {
-+		strscpy(__dest, FAULT_STRING, len);
-+		ret = strlen(__dest) + 1;
-+	}
- }
+ 		(*n_u64)++;
+ 	} else {
+ 		str_field = (char *)&entry->fields[*n_u64];
  
- /*
-@@ -55,8 +76,7 @@ kern_fetch_store_string_user(unsigned lo
- 	__dest = get_loc_data(dest, base);
+-		strscpy(str_field, str_val, STR_VAR_LEN_MAX);
++#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
++		if ((unsigned long)str_val < TASK_SIZE)
++			ret = strncpy_from_user_nofault(str_field, str_val, STR_VAR_LEN_MAX);
++		else
++#endif
++			ret = strncpy_from_kernel_nofault(str_field, str_val, STR_VAR_LEN_MAX);
++
++		if (ret < 0)
++			strcpy(str_field, FAULT_STRING);
++
+ 		(*n_u64) += STR_VAR_LEN_MAX / sizeof(u64);
+ 	}
  
- 	ret = strncpy_from_user_nofault(__dest, uaddr, maxlen);
--	if (ret >= 0)
--		*(u32 *)dest = make_data_loc(ret, __dest - base);
-+	set_data_loc(ret, dest, __dest, base, maxlen);
+@@ -454,7 +465,7 @@ static notrace void trace_event_raw_even
+ 		val_idx = var_ref_idx[field_pos];
+ 		str_val = (char *)(long)var_ref_vals[val_idx];
  
- 	return ret;
- }
-@@ -87,8 +107,7 @@ kern_fetch_store_string(unsigned long ad
- 	 * probing.
- 	 */
- 	ret = strncpy_from_kernel_nofault(__dest, (void *)addr, maxlen);
--	if (ret >= 0)
--		*(u32 *)dest = make_data_loc(ret, __dest - base);
-+	set_data_loc(ret, dest, __dest, base, maxlen);
+-		len = strlen(str_val) + 1;
++		len = kern_fetch_store_strlen((unsigned long)str_val);
  
- 	return ret;
- }
+ 		fields_size += len;
+ 	}
 
 
