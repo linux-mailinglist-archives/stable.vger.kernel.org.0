@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A37A60B432
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0C960B299
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231689AbiJXRcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:32:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55094 "EHLO
+        id S232847AbiJXQuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:50:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233172AbiJXRbl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:31:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2F567D789;
-        Mon, 24 Oct 2022 09:07:07 -0700 (PDT)
+        with ESMTP id S233678AbiJXQrk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:47:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0C97169105;
+        Mon, 24 Oct 2022 08:31:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1822B816A1;
-        Mon, 24 Oct 2022 12:50:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03199C433D6;
-        Mon, 24 Oct 2022 12:50:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53450B811AC;
+        Mon, 24 Oct 2022 12:03:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F073C433C1;
+        Mon, 24 Oct 2022 12:03:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615822;
-        bh=T5DbR9uwnB3rIkubaby5taHprWUpsnmUWgKMGWAwzZw=;
+        s=korg; t=1666612983;
+        bh=uh4tAMinP/rEAHn+FCntp1011ta1Ubrk3F2gTJ+r6pA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Rn0NR3TAGdNcq+pnqAntwF4zGp4dWLic/3Qy0AmqJRufkx3GRRTJs15uYstVSKkA
-         Vxd+B8DkA0mkjoW9zI+EhHmUlIe3fT+Y3/q47CAW74OVDrmg2YKL/hHx7QcJc4Ayvk
-         Ul8if/h/G+m+B1IvUkd63SD3rZfhAfwNkNkLre6w=
+        b=IXzBPHLHUYY55FqLbPoS7M4LtnAmn6FdBV/mrB6QyrWWWyalFns247gwQ8u+GsWye
+         kbOKcDTF8ayzSW5SZvfHwATSLTfo4a20DiR329OGC/CbY80nmbVg16LgjvRyn01+ZN
+         CqlAC2sc7XXi3IFSb89ajz802j+9wiZzs2beP3Co=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Miaoqian Lin <linmq006@gmail.com>
-Subject: [PATCH 5.15 365/530] powerpc/pci_dn: Add missing of_node_put()
-Date:   Mon, 24 Oct 2022 13:31:49 +0200
-Message-Id: <20221024113101.569023843@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 194/229] drm: Prevent drm_copy_field() to attempt copying a NULL pointer
+Date:   Mon, 24 Oct 2022 13:31:53 +0200
+Message-Id: <20221024113005.400833863@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit 110a1fcb6c4d55144d8179983a475f17a1d6f832 ]
+[ Upstream commit f6ee30407e883042482ad4ad30da5eaba47872ee ]
 
-In pci_add_device_node_info(), use of_node_put() to drop the reference
-to 'parent' returned by of_get_parent() to keep refcount balance.
+There are some struct drm_driver fields that are required by drivers since
+drm_copy_field() attempts to copy them to user-space via DRM_IOCTL_VERSION.
 
-Fixes: cca87d303c85 ("powerpc/pci: Refactor pci_dn")
-Co-authored-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220701131750.240170-1-windhl@126.com
+But it can be possible that a driver has a bug and did not set some of the
+fields, which leads to drm_copy_field() attempting to copy a NULL pointer:
+
+[ +10.395966] Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
+[  +0.010955] Mem abort info:
+[  +0.002835]   ESR = 0x0000000096000004
+[  +0.003872]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  +0.005395]   SET = 0, FnV = 0
+[  +0.003113]   EA = 0, S1PTW = 0
+[  +0.003182]   FSC = 0x04: level 0 translation fault
+[  +0.004964] Data abort info:
+[  +0.002919]   ISV = 0, ISS = 0x00000004
+[  +0.003886]   CM = 0, WnR = 0
+[  +0.003040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000115dad000
+[  +0.006536] [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+[  +0.006925] Internal error: Oops: 96000004 [#1] SMP
+...
+[  +0.011113] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  +0.007061] pc : __pi_strlen+0x14/0x150
+[  +0.003895] lr : drm_copy_field+0x30/0x1a4
+[  +0.004156] sp : ffff8000094b3a50
+[  +0.003355] x29: ffff8000094b3a50 x28: ffff8000094b3b70 x27: 0000000000000040
+[  +0.007242] x26: ffff443743c2ba00 x25: 0000000000000000 x24: 0000000000000040
+[  +0.007243] x23: ffff443743c2ba00 x22: ffff8000094b3b70 x21: 0000000000000000
+[  +0.007241] x20: 0000000000000000 x19: ffff8000094b3b90 x18: 0000000000000000
+[  +0.007241] x17: 0000000000000000 x16: 0000000000000000 x15: 0000aaab14b9af40
+[  +0.007241] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
+[  +0.007239] x11: 0000000000000000 x10: 0000000000000000 x9 : ffffa524ad67d4d8
+[  +0.007242] x8 : 0101010101010101 x7 : 7f7f7f7f7f7f7f7f x6 : 6c6e6263606e7141
+[  +0.007239] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000000
+[  +0.007241] x2 : 0000000000000000 x1 : ffff8000094b3b90 x0 : 0000000000000000
+[  +0.007240] Call trace:
+[  +0.002475]  __pi_strlen+0x14/0x150
+[  +0.003537]  drm_version+0x84/0xac
+[  +0.003448]  drm_ioctl_kernel+0xa8/0x16c
+[  +0.003975]  drm_ioctl+0x270/0x580
+[  +0.003448]  __arm64_sys_ioctl+0xb8/0xfc
+[  +0.003978]  invoke_syscall+0x78/0x100
+[  +0.003799]  el0_svc_common.constprop.0+0x4c/0xf4
+[  +0.004767]  do_el0_svc+0x38/0x4c
+[  +0.003357]  el0_svc+0x34/0x100
+[  +0.003185]  el0t_64_sync_handler+0x11c/0x150
+[  +0.004418]  el0t_64_sync+0x190/0x194
+[  +0.003716] Code: 92402c04 b200c3e8 f13fc09f 5400088c (a9400c02)
+[  +0.006180] ---[ end trace 0000000000000000 ]---
+
+Reported-by: Peter Robinson <pbrobinson@gmail.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220705100215.572498-3-javierm@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/pci_dn.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/drm_ioctl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/powerpc/kernel/pci_dn.c b/arch/powerpc/kernel/pci_dn.c
-index 61571ae23953..335767cea137 100644
---- a/arch/powerpc/kernel/pci_dn.c
-+++ b/arch/powerpc/kernel/pci_dn.c
-@@ -330,6 +330,7 @@ struct pci_dn *pci_add_device_node_info(struct pci_controller *hose,
- 	INIT_LIST_HEAD(&pdn->list);
- 	parent = of_get_parent(dn);
- 	pdn->parent = parent ? PCI_DN(parent) : NULL;
-+	of_node_put(parent);
- 	if (pdn->parent)
- 		list_add_tail(&pdn->list, &pdn->parent->child_list);
+diff --git a/drivers/gpu/drm/drm_ioctl.c b/drivers/gpu/drm/drm_ioctl.c
+index 4fea6519510c..2651bfb763a4 100644
+--- a/drivers/gpu/drm/drm_ioctl.c
++++ b/drivers/gpu/drm/drm_ioctl.c
+@@ -460,6 +460,12 @@ static int drm_copy_field(char __user *buf, size_t *buf_len, const char *value)
+ {
+ 	size_t len;
  
++	/* don't attempt to copy a NULL pointer */
++	if (WARN_ONCE(!value, "BUG: the value to copy was not set!")) {
++		*buf_len = 0;
++		return 0;
++	}
++
+ 	/* don't overflow userbuf */
+ 	len = strlen(value);
+ 	if (len > *buf_len)
 -- 
 2.35.1
 
