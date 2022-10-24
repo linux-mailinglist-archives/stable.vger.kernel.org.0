@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9610460BA0B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31BAD60B9FA
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:23:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232584AbiJXUYz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:24:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47596 "EHLO
+        id S233146AbiJXUXu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:23:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234180AbiJXUXH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:23:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58BA217A01D;
-        Mon, 24 Oct 2022 11:38:49 -0700 (PDT)
+        with ESMTP id S234280AbiJXUXF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:23:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18505FF278;
+        Mon, 24 Oct 2022 11:38:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D729B819B1;
-        Mon, 24 Oct 2022 12:48:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D1EEC433D6;
-        Mon, 24 Oct 2022 12:48:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B09C4B815FA;
+        Mon, 24 Oct 2022 12:12:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11031C433D6;
+        Mon, 24 Oct 2022 12:12:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615694;
-        bh=V1yLvhX9zdad2+j+Fwim9g75fpNwO3eUX/S2g7mfUCQ=;
+        s=korg; t=1666613568;
+        bh=cLGKtLbXVqnDb/ajd2omM5QR/yxh49jN/ogXfZjmH1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h0BNjPj4jyyF3QHpxVoF8SC/nsaekkioCmEZex45t74fnadFQ0JK08tD/uESC3II6
-         cdnrkLpUI7/UhsPxG2UCdQOOr482k+RXaGMniRKcdGUdHSu/5d66GsXONyEX1nLrcI
-         Cx8ocdkZSacmoS1Shyz51AL8tL1WDEES1/6Z0Jxc=
+        b=WMaMx8ciqrORJh21IbDIz9P6I22+FWnmBF7rLWw9yKc+WFAmUqYDYfCZZDddcgxoO
+         7ZYIxeVbh41iPRLOQtoAbpVLf/e1/3D1KZe3ZICPuQZ7bjv2YcfykZEQY5KaC4GM8Y
+         q4roMN/GPJY6gigxVfGuSyZ3cx6ui/gjiRvlhxqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 348/530] dmaengine: ioat: stop mod_timer from resurrecting deleted timer in __cleanup()
-Date:   Mon, 24 Oct 2022 13:31:32 +0200
-Message-Id: <20221024113100.760490658@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Arvid Norlander <lkml@vorpal.se>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 185/255] ACPI: video: Add Toshiba Satellite/Portege Z830 quirk
+Date:   Mon, 24 Oct 2022 13:31:35 +0200
+Message-Id: <20221024113009.068729728@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Arvid Norlander <lkml@vorpal.se>
 
-[ Upstream commit 898ec89dbb55b8294695ad71694a0684e62b2a73 ]
+[ Upstream commit 574160b8548deff8b80b174f03201e94ab8431e2 ]
 
-User reports observing timer event report channel halted but no error
-observed in CHANERR register. The driver finished self-test and released
-channel resources. Debug shows that __cleanup() can call
-mod_timer() after the timer has been deleted and thus resurrect the
-timer. While harmless, it causes suprious error message to be emitted.
-Use mod_timer_pending() call to prevent deleted timer from being
-resurrected.
+Toshiba Satellite Z830 needs the quirk video_disable_backlight_sysfs_if
+for proper backlight control after suspend/resume cycles.
 
-Fixes: 3372de5813e4 ("dmaengine: ioatdma: removal of dma_v3.c and relevant ioat3 references")
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/166360672197.3851724.17040290563764838369.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Toshiba Portege Z830 is simply the same laptop rebranded for certain
+markets (I looked through the manual to other language sections to confirm
+this) and thus also needs this quirk.
+
+Thanks to Hans de Goede for suggesting this fix.
+
+Link: https://www.spinics.net/lists/platform-driver-x86/msg34394.html
+Suggested-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Arvid Norlander <lkml@vorpal.se>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Arvid Norlander <lkml@vorpal.se>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ioat/dma.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/acpi/acpi_video.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/dma/ioat/dma.c b/drivers/dma/ioat/dma.c
-index 37ff4ec7db76..e2070df6cad2 100644
---- a/drivers/dma/ioat/dma.c
-+++ b/drivers/dma/ioat/dma.c
-@@ -656,7 +656,7 @@ static void __cleanup(struct ioatdma_chan *ioat_chan, dma_addr_t phys_complete)
- 	if (active - i == 0) {
- 		dev_dbg(to_dev(ioat_chan), "%s: cancel completion timeout\n",
- 			__func__);
--		mod_timer(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
-+		mod_timer_pending(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
- 	}
- 
- 	/* microsecond delay by sysfs variable  per pending descriptor */
-@@ -682,7 +682,7 @@ static void ioat_cleanup(struct ioatdma_chan *ioat_chan)
- 
- 		if (chanerr &
- 		    (IOAT_CHANERR_HANDLE_MASK | IOAT_CHANERR_RECOVER_MASK)) {
--			mod_timer(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
-+			mod_timer_pending(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
- 			ioat_eh(ioat_chan);
- 		}
- 	}
-@@ -879,7 +879,7 @@ static void check_active(struct ioatdma_chan *ioat_chan)
- 	}
- 
- 	if (test_and_clear_bit(IOAT_CHAN_ACTIVE, &ioat_chan->state))
--		mod_timer(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
-+		mod_timer_pending(&ioat_chan->timer, jiffies + IDLE_TIMEOUT);
- }
- 
- static void ioat_reboot_chan(struct ioatdma_chan *ioat_chan)
+diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
+index 81cd47d29932..bf18efd49a25 100644
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -498,6 +498,22 @@ static const struct dmi_system_id video_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE R830"),
+ 		},
+ 	},
++	{
++	 .callback = video_disable_backlight_sysfs_if,
++	 .ident = "Toshiba Satellite Z830",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "SATELLITE Z830"),
++		},
++	},
++	{
++	 .callback = video_disable_backlight_sysfs_if,
++	 .ident = "Toshiba Portege Z830",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE Z830"),
++		},
++	},
+ 	/*
+ 	 * Some machine's _DOD IDs don't have bit 31(Device ID Scheme) set
+ 	 * but the IDs actually follow the Device ID Scheme.
 -- 
 2.35.1
 
