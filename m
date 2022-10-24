@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8824D60AA28
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E434B60AA2C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232038AbiJXNbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:31:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
+        id S232378AbiJXNb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:31:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235993AbiJXN3T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:19 -0400
+        with ESMTP id S236013AbiJXN3X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84DB3ABF00;
-        Mon, 24 Oct 2022 05:32:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F214AABF08;
+        Mon, 24 Oct 2022 05:32:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D331E612DB;
-        Mon, 24 Oct 2022 12:32:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E999BC433C1;
-        Mon, 24 Oct 2022 12:32:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2520E61338;
+        Mon, 24 Oct 2022 12:32:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38CC0C433D6;
+        Mon, 24 Oct 2022 12:32:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614733;
-        bh=bp9G17ff+AGvKAiisHdp5V9YGOcAbJR9l6FKgPCOQTE=;
+        s=korg; t=1666614738;
+        bh=1zSzDiAVmfYGGXOfDWhFwcYMeLXritnbgm9Z9d7MIdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DwbxD2FDKCxgTzEgm19pFxQ1I9bT66ANHUt4/mURIa/9gcybpXWOC95Yaqz/czU8j
-         vyu5POJVGgLjARDQLW07SYei9OyuDh0PUmeD7VDT0YTyGi5Tz7MdDPwH0laFA8nDzC
-         ns0+3J8sn2vYwwm/wCN7l6Xq6I1azuWw7TWN2Yhg=
+        b=W+2+Mm9sTJpvYn6SE42DOEEd1xQNVNvRrCpYgGFSzeExK639C7gIUZ1KTNkxRJxGB
+         S+HaZr2lVhbiYrlmSCjLlV7i6OJJD970//ln14QleLLH6U7pPE7T4rG8+ivaUZdNAi
+         jm+YW6qBoDDMOY77W+0cR9r7K6rlgycRRz2pQwso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 373/390] nvmet-tcp: add bounds check on Transfer Tag
-Date:   Mon, 24 Oct 2022 13:32:50 +0200
-Message-Id: <20221024113038.902327612@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 375/390] clk: bcm2835: Make peripheral PLLC critical
+Date:   Mon, 24 Oct 2022 13:32:52 +0200
+Message-Id: <20221024113038.975228832@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -53,45 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varun Prakash <varun@chelsio.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit b6a545ffa2c192b1e6da4a7924edac5ba9f4ea2b ]
+[ Upstream commit 6c5422851d8be8c7451e968fd2e6da41b6109e17 ]
 
-ttag is used as an index to get cmd in nvmet_tcp_handle_h2c_data_pdu(),
-add a bounds check to avoid out-of-bounds access.
+When testing for a series affecting the VEC, it was discovered that
+turning off and on the VEC clock is crashing the system.
 
-Signed-off-by: Varun Prakash <varun@chelsio.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+It turns out that, when disabling the VEC clock, it's the only child of
+the PLLC-per clock which will also get disabled. The source of the crash
+is PLLC-per being disabled.
+
+It's likely that some other device might not take a clock reference that
+it actually needs, but it's unclear which at this point. Let's make
+PLLC-per critical so that we don't have that crash.
+
+Reported-by: Noralf Trønnes <noralf@tronnes.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20220926084509.12233-1-maxime@cerno.tech
+Reviewed-by: Stefan Wahren <stefan.wahren@i2se.com>
+Acked-by: Noralf Trønnes <noralf@tronnes.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/tcp.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/clk/bcm/clk-bcm2835.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index e3e35b9bd684..2ddbd4f4f628 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -922,10 +922,17 @@ static int nvmet_tcp_handle_h2c_data_pdu(struct nvmet_tcp_queue *queue)
- 	struct nvme_tcp_data_pdu *data = &queue->pdu.data;
- 	struct nvmet_tcp_cmd *cmd;
+diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+index f306b959297d..b7f89873fcf5 100644
+--- a/drivers/clk/bcm/clk-bcm2835.c
++++ b/drivers/clk/bcm/clk-bcm2835.c
+@@ -1786,7 +1786,7 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
+ 		.load_mask = CM_PLLC_LOADPER,
+ 		.hold_mask = CM_PLLC_HOLDPER,
+ 		.fixed_divider = 1,
+-		.flags = CLK_SET_RATE_PARENT),
++		.flags = CLK_IS_CRITICAL | CLK_SET_RATE_PARENT),
  
--	if (likely(queue->nr_cmds))
-+	if (likely(queue->nr_cmds)) {
-+		if (unlikely(data->ttag >= queue->nr_cmds)) {
-+			pr_err("queue %d: received out of bound ttag %u, nr_cmds %u\n",
-+				queue->idx, data->ttag, queue->nr_cmds);
-+			nvmet_tcp_fatal_error(queue);
-+			return -EPROTO;
-+		}
- 		cmd = &queue->cmds[data->ttag];
--	else
-+	} else {
- 		cmd = &queue->connect;
-+	}
- 
- 	if (le32_to_cpu(data->data_offset) != cmd->rbytes_done) {
- 		pr_err("ttag %u unexpected data offset %u (expected %u)\n",
+ 	/*
+ 	 * PLLD is the display PLL, used to drive DSI display panels.
 -- 
 2.35.1
 
