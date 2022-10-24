@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 915EF60B841
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:43:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2283760B823
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:42:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231543AbiJXTnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:43:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45190 "EHLO
+        id S233428AbiJXTmO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:42:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233257AbiJXTmB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:42:01 -0400
+        with ESMTP id S233438AbiJXTl1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:41:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 214BAA3AAE;
-        Mon, 24 Oct 2022 11:11:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C524262DCD;
+        Mon, 24 Oct 2022 11:11:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6F4BEB817AE;
-        Mon, 24 Oct 2022 12:51:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6D10C433D6;
-        Mon, 24 Oct 2022 12:51:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BA91B8169E;
+        Mon, 24 Oct 2022 12:51:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 716D3C433C1;
+        Mon, 24 Oct 2022 12:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615894;
-        bh=nrC9Dr2wMV1BAeXVmJ883+viaAmTBePwL4hWr+ZTiAE=;
+        s=korg; t=1666615904;
+        bh=dJH2252v8C1VcHtokL3JAqci3ZfsZKJ6QQcpbTTfJaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gtJE6h/6eJEzXg4GlzM5Zpn+CQGFeYhCFhm/uOT9iVNeh0zrG5LErGZHuuXdWyPV
-         IhdLo0xCE9CzwZg3Rl3bNi/wKoeLlhdV6Ytq+1qt2kknszmUhYIUl72fd+3WSGTdy2
-         BBUvF7wHkZHMRONGsLMCnjFF+CaIY0hQJUxt/C6g=
+        b=lqq5Px4FZoxgjzruTg3st2L/cx5p5KeNHciyDhkiV6wFunnQDaY5a/s8ixBlU2t4o
+         NbqOad3duDTet+QhgkBQfJW5qxOgryv+aFsyRnp4e0LwslJXscyERnzLRgIrz8XTlk
+         IgmbYxCJO5ich/e3s3cgP7am9R/6LMrYHxk1+jCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jane Chu <jane.chu@oracle.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 422/530] x86/mce: Retrieve poison range from hardware
-Date:   Mon, 24 Oct 2022 13:32:46 +0200
-Message-Id: <20221024113104.198125757@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Jaron <michalx.jaron@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 426/530] iavf: Fix race between iavf_close and iavf_reset_task
+Date:   Mon, 24 Oct 2022 13:32:50 +0200
+Message-Id: <20221024113104.379678664@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,70 +55,292 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jane Chu <jane.chu@oracle.com>
+From: Michal Jaron <michalx.jaron@intel.com>
 
-[ Upstream commit f9781bb18ed828e7b83b7bac4a4ad7cd497ee7d7 ]
+[ Upstream commit 11c12adcbc1598d91e73ab6ddfa41d25a01478ed ]
 
-When memory poison consumption machine checks fire, MCE notifier
-handlers like nfit_handle_mce() record the impacted physical address
-range which is reported by the hardware in the MCi_MISC MSR. The error
-information includes data about blast radius, i.e. how many cachelines
-did the hardware determine are impacted. A recent change
+During stress tests with adding VF to namespace and changing vf's
+trust there was a race between iavf_reset_task and iavf_close.
+Sometimes when IAVF_FLAG_AQ_DISABLE_QUEUES from iavf_close was sent
+to PF after reset and before IAVF_AQ_GET_CONFIG was sent then PF
+returns error IAVF_NOT_SUPPORTED to disable queues request and
+following requests. There is need to get_config before other
+aq_required will be send but iavf_close clears all flags, if
+get_config was not sent before iavf_close, then it will not be send
+at all.
 
-  7917f9cdb503 ("acpi/nfit: rely on mce->misc to determine poison granularity")
+In case when IAVF_FLAG_AQ_GET_OFFLOAD_VLAN_V2_CAPS was sent before
+IAVF_FLAG_AQ_DISABLE_QUEUES then there was rtnl_lock deadlock
+between iavf_close and iavf_adminq_task until iavf_close timeouts
+and disable queues was sent after iavf_close ends.
 
-updated nfit_handle_mce() to stop hard coding the blast radius value of
-1 cacheline, and instead rely on the blast radius reported in 'struct
-mce' which can be up to 4K (64 cachelines).
+There was also a problem with sending delete/add filters.
+Sometimes when filters was not yet added to PF and in
+iavf_close all filters was set to remove there might be a try
+to remove nonexistent filters on PF.
 
-It turns out that apei_mce_report_mem_error() had a similar problem in
-that it hard coded a blast radius of 4K rather than reading the blast
-radius from the error information. Fix apei_mce_report_mem_error() to
-convey the proper poison granularity.
+Add aq_required_tmp to save aq_required flags and send them after
+disable_queues will be handled. Clear flags given to iavf_down
+different than IAVF_FLAG_AQ_GET_CONFIG as this flag is necessary
+to sent other aq_required. Remove some flags that we don't
+want to send as we are in iavf_close and we want to disable
+interface. Remove filters which was not yet sent and send del
+filters flags only when there are filters to remove.
 
-Signed-off-by: Jane Chu <jane.chu@oracle.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/7ed50fd8-521e-cade-77b1-738b8bfb8502@oracle.com
-Link: https://lore.kernel.org/r/20220826233851.1319100-1-jane.chu@oracle.com
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/apei.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 177 ++++++++++++++++----
+ 1 file changed, 141 insertions(+), 36 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/apei.c b/arch/x86/kernel/cpu/mce/apei.c
-index 0e3ae64d3b76..b08b90cdc2a3 100644
---- a/arch/x86/kernel/cpu/mce/apei.c
-+++ b/arch/x86/kernel/cpu/mce/apei.c
-@@ -29,15 +29,26 @@
- void apei_mce_report_mem_error(int severity, struct cper_sec_mem_err *mem_err)
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 00b2ef01f4ea..629ebdfa48b8 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -1012,66 +1012,138 @@ static void iavf_up_complete(struct iavf_adapter *adapter)
+ }
+ 
+ /**
+- * iavf_down - Shutdown the connection processing
++ * iavf_clear_mac_vlan_filters - Remove mac and vlan filters not sent to PF
++ * yet and mark other to be removed.
+  * @adapter: board private structure
+- *
+- * Expects to be called while holding the __IAVF_IN_CRITICAL_TASK bit lock.
+  **/
+-void iavf_down(struct iavf_adapter *adapter)
++static void iavf_clear_mac_vlan_filters(struct iavf_adapter *adapter)
  {
- 	struct mce m;
-+	int lsb;
+-	struct net_device *netdev = adapter->netdev;
+-	struct iavf_vlan_filter *vlf;
+-	struct iavf_cloud_filter *cf;
+-	struct iavf_fdir_fltr *fdir;
+-	struct iavf_mac_filter *f;
+-	struct iavf_adv_rss *rss;
+-
+-	if (adapter->state <= __IAVF_DOWN_PENDING)
+-		return;
+-
+-	netif_carrier_off(netdev);
+-	netif_tx_disable(netdev);
+-	adapter->link_up = false;
+-	iavf_napi_disable_all(adapter);
+-	iavf_irq_disable(adapter);
++	struct iavf_vlan_filter *vlf, *vlftmp;
++	struct iavf_mac_filter *f, *ftmp;
  
- 	if (!(mem_err->validation_bits & CPER_MEM_VALID_PA))
- 		return;
+ 	spin_lock_bh(&adapter->mac_vlan_list_lock);
+-
+ 	/* clear the sync flag on all filters */
+ 	__dev_uc_unsync(adapter->netdev, NULL);
+ 	__dev_mc_unsync(adapter->netdev, NULL);
  
-+	/*
-+	 * Even if the ->validation_bits are set for address mask,
-+	 * to be extra safe, check and reject an error radius '0',
-+	 * and fall back to the default page size.
-+	 */
-+	if (mem_err->validation_bits & CPER_MEM_VALID_PA_MASK)
-+		lsb = find_first_bit((void *)&mem_err->physical_addr_mask, PAGE_SHIFT);
-+	else
-+		lsb = PAGE_SHIFT;
+ 	/* remove all MAC filters */
+-	list_for_each_entry(f, &adapter->mac_filter_list, list) {
+-		f->remove = true;
++	list_for_each_entry_safe(f, ftmp, &adapter->mac_filter_list,
++				 list) {
++		if (f->add) {
++			list_del(&f->list);
++			kfree(f);
++		} else {
++			f->remove = true;
++		}
+ 	}
+ 
+ 	/* remove all VLAN filters */
+-	list_for_each_entry(vlf, &adapter->vlan_filter_list, list) {
+-		vlf->remove = true;
++	list_for_each_entry_safe(vlf, vlftmp, &adapter->vlan_filter_list,
++				 list) {
++		if (vlf->add) {
++			list_del(&vlf->list);
++			kfree(vlf);
++		} else {
++			vlf->remove = true;
++		}
+ 	}
+-
+ 	spin_unlock_bh(&adapter->mac_vlan_list_lock);
++}
 +
- 	mce_setup(&m);
- 	m.bank = -1;
- 	/* Fake a memory read error with unknown channel */
- 	m.status = MCI_STATUS_VAL | MCI_STATUS_EN | MCI_STATUS_ADDRV | MCI_STATUS_MISCV | 0x9f;
--	m.misc = (MCI_MISC_ADDR_PHYS << 6) | PAGE_SHIFT;
-+	m.misc = (MCI_MISC_ADDR_PHYS << 6) | lsb;
++/**
++ * iavf_clear_cloud_filters - Remove cloud filters not sent to PF yet and
++ * mark other to be removed.
++ * @adapter: board private structure
++ **/
++static void iavf_clear_cloud_filters(struct iavf_adapter *adapter)
++{
++	struct iavf_cloud_filter *cf, *cftmp;
  
- 	if (severity >= GHES_SEV_RECOVERABLE)
- 		m.status |= MCI_STATUS_UC;
+ 	/* remove all cloud filters */
+ 	spin_lock_bh(&adapter->cloud_filter_list_lock);
+-	list_for_each_entry(cf, &adapter->cloud_filter_list, list) {
+-		cf->del = true;
++	list_for_each_entry_safe(cf, cftmp, &adapter->cloud_filter_list,
++				 list) {
++		if (cf->add) {
++			list_del(&cf->list);
++			kfree(cf);
++			adapter->num_cloud_filters--;
++		} else {
++			cf->del = true;
++		}
+ 	}
+ 	spin_unlock_bh(&adapter->cloud_filter_list_lock);
++}
++
++/**
++ * iavf_clear_fdir_filters - Remove fdir filters not sent to PF yet and mark
++ * other to be removed.
++ * @adapter: board private structure
++ **/
++static void iavf_clear_fdir_filters(struct iavf_adapter *adapter)
++{
++	struct iavf_fdir_fltr *fdir, *fdirtmp;
+ 
+ 	/* remove all Flow Director filters */
+ 	spin_lock_bh(&adapter->fdir_fltr_lock);
+-	list_for_each_entry(fdir, &adapter->fdir_list_head, list) {
+-		fdir->state = IAVF_FDIR_FLTR_DEL_REQUEST;
++	list_for_each_entry_safe(fdir, fdirtmp, &adapter->fdir_list_head,
++				 list) {
++		if (fdir->state == IAVF_FDIR_FLTR_ADD_REQUEST) {
++			list_del(&fdir->list);
++			kfree(fdir);
++			adapter->fdir_active_fltr--;
++		} else {
++			fdir->state = IAVF_FDIR_FLTR_DEL_REQUEST;
++		}
+ 	}
+ 	spin_unlock_bh(&adapter->fdir_fltr_lock);
++}
++
++/**
++ * iavf_clear_adv_rss_conf - Remove adv rss conf not sent to PF yet and mark
++ * other to be removed.
++ * @adapter: board private structure
++ **/
++static void iavf_clear_adv_rss_conf(struct iavf_adapter *adapter)
++{
++	struct iavf_adv_rss *rss, *rsstmp;
+ 
+ 	/* remove all advance RSS configuration */
+ 	spin_lock_bh(&adapter->adv_rss_lock);
+-	list_for_each_entry(rss, &adapter->adv_rss_list_head, list)
+-		rss->state = IAVF_ADV_RSS_DEL_REQUEST;
++	list_for_each_entry_safe(rss, rsstmp, &adapter->adv_rss_list_head,
++				 list) {
++		if (rss->state == IAVF_ADV_RSS_ADD_REQUEST) {
++			list_del(&rss->list);
++			kfree(rss);
++		} else {
++			rss->state = IAVF_ADV_RSS_DEL_REQUEST;
++		}
++	}
+ 	spin_unlock_bh(&adapter->adv_rss_lock);
++}
++
++/**
++ * iavf_down - Shutdown the connection processing
++ * @adapter: board private structure
++ *
++ * Expects to be called while holding the __IAVF_IN_CRITICAL_TASK bit lock.
++ **/
++void iavf_down(struct iavf_adapter *adapter)
++{
++	struct net_device *netdev = adapter->netdev;
++
++	if (adapter->state <= __IAVF_DOWN_PENDING)
++		return;
++
++	netif_carrier_off(netdev);
++	netif_tx_disable(netdev);
++	adapter->link_up = false;
++	iavf_napi_disable_all(adapter);
++	iavf_irq_disable(adapter);
++
++	iavf_clear_mac_vlan_filters(adapter);
++	iavf_clear_cloud_filters(adapter);
++	iavf_clear_fdir_filters(adapter);
++	iavf_clear_adv_rss_conf(adapter);
+ 
+ 	if (!(adapter->flags & IAVF_FLAG_PF_COMMS_FAILED)) {
+ 		/* cancel any current operation */
+@@ -1080,11 +1152,16 @@ void iavf_down(struct iavf_adapter *adapter)
+ 		 * here for this to complete. The watchdog is still running
+ 		 * and it will take care of this.
+ 		 */
+-		adapter->aq_required = IAVF_FLAG_AQ_DEL_MAC_FILTER;
+-		adapter->aq_required |= IAVF_FLAG_AQ_DEL_VLAN_FILTER;
+-		adapter->aq_required |= IAVF_FLAG_AQ_DEL_CLOUD_FILTER;
+-		adapter->aq_required |= IAVF_FLAG_AQ_DEL_FDIR_FILTER;
+-		adapter->aq_required |= IAVF_FLAG_AQ_DEL_ADV_RSS_CFG;
++		if (!list_empty(&adapter->mac_filter_list))
++			adapter->aq_required |= IAVF_FLAG_AQ_DEL_MAC_FILTER;
++		if (!list_empty(&adapter->vlan_filter_list))
++			adapter->aq_required |= IAVF_FLAG_AQ_DEL_VLAN_FILTER;
++		if (!list_empty(&adapter->cloud_filter_list))
++			adapter->aq_required |= IAVF_FLAG_AQ_DEL_CLOUD_FILTER;
++		if (!list_empty(&adapter->fdir_list_head))
++			adapter->aq_required |= IAVF_FLAG_AQ_DEL_FDIR_FILTER;
++		if (!list_empty(&adapter->adv_rss_list_head))
++			adapter->aq_required |= IAVF_FLAG_AQ_DEL_ADV_RSS_CFG;
+ 		adapter->aq_required |= IAVF_FLAG_AQ_DISABLE_QUEUES;
+ 	}
+ 
+@@ -3483,6 +3560,7 @@ static int iavf_open(struct net_device *netdev)
+ static int iavf_close(struct net_device *netdev)
+ {
+ 	struct iavf_adapter *adapter = netdev_priv(netdev);
++	u64 aq_to_restore;
+ 	int status;
+ 
+ 	mutex_lock(&adapter->crit_lock);
+@@ -3495,6 +3573,29 @@ static int iavf_close(struct net_device *netdev)
+ 	set_bit(__IAVF_VSI_DOWN, adapter->vsi.state);
+ 	if (CLIENT_ENABLED(adapter))
+ 		adapter->flags |= IAVF_FLAG_CLIENT_NEEDS_CLOSE;
++	/* We cannot send IAVF_FLAG_AQ_GET_OFFLOAD_VLAN_V2_CAPS before
++	 * IAVF_FLAG_AQ_DISABLE_QUEUES because in such case there is rtnl
++	 * deadlock with adminq_task() until iavf_close timeouts. We must send
++	 * IAVF_FLAG_AQ_GET_CONFIG before IAVF_FLAG_AQ_DISABLE_QUEUES to make
++	 * disable queues possible for vf. Give only necessary flags to
++	 * iavf_down and save other to set them right before iavf_close()
++	 * returns, when IAVF_FLAG_AQ_DISABLE_QUEUES will be already sent and
++	 * iavf will be in DOWN state.
++	 */
++	aq_to_restore = adapter->aq_required;
++	adapter->aq_required &= IAVF_FLAG_AQ_GET_CONFIG;
++
++	/* Remove flags which we do not want to send after close or we want to
++	 * send before disable queues.
++	 */
++	aq_to_restore &= ~(IAVF_FLAG_AQ_GET_CONFIG		|
++			   IAVF_FLAG_AQ_ENABLE_QUEUES		|
++			   IAVF_FLAG_AQ_CONFIGURE_QUEUES	|
++			   IAVF_FLAG_AQ_ADD_VLAN_FILTER		|
++			   IAVF_FLAG_AQ_ADD_MAC_FILTER		|
++			   IAVF_FLAG_AQ_ADD_CLOUD_FILTER	|
++			   IAVF_FLAG_AQ_ADD_FDIR_FILTER		|
++			   IAVF_FLAG_AQ_ADD_ADV_RSS_CFG);
+ 
+ 	iavf_down(adapter);
+ 	iavf_change_state(adapter, __IAVF_DOWN_PENDING);
+@@ -3518,6 +3619,10 @@ static int iavf_close(struct net_device *netdev)
+ 				    msecs_to_jiffies(500));
+ 	if (!status)
+ 		netdev_warn(netdev, "Device resources not yet released\n");
++
++	mutex_lock(&adapter->crit_lock);
++	adapter->aq_required |= aq_to_restore;
++	mutex_unlock(&adapter->crit_lock);
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
