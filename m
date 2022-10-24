@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D329C60B27C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:47:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B977B60B09E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232749AbiJXQrT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:47:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35088 "EHLO
+        id S231524AbiJXQGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:06:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234998AbiJXQqb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:46:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EE5A1A991C;
-        Mon, 24 Oct 2022 08:31:28 -0700 (PDT)
+        with ESMTP id S233285AbiJXQFS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:05:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20851402ED;
+        Mon, 24 Oct 2022 07:58:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 088E8B818E7;
-        Mon, 24 Oct 2022 12:38:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CE88C433B5;
-        Mon, 24 Oct 2022 12:38:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14785B81643;
+        Mon, 24 Oct 2022 12:19:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CEBEC433C1;
+        Mon, 24 Oct 2022 12:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615114;
-        bh=XH7eVddOd2TaoGdpln6E2fmn2Bqam6nMYnW2HyEEwso=;
+        s=korg; t=1666613944;
+        bh=Oy2e5v0wyuWevJiJGMBDmpHGI+F+5JgU4yTSBkPrXsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ht59Pz9UY3xYsrryrhflqB8PIZi4wXpvSsLKIe1sPJOx1dMQ1+EasKUWMlbhmkDTz
-         IRAcFgjbm1ElO4EBHH043ZwJLCeoRWGdkzYiAkb1NF1bHAu3+HZKQY3Ajk86lVPndH
-         gX/UoE3Yz/GVAPZm6q/XozSarenw0LDnjhwVCYQc=
+        b=MDG3YtQk67q3+TEebYfqu4p1lMaiSvsHelBhZM++3uXLs90fCB9Q6nlE2uPPvfThF
+         39R1w3m3gVD0bJAYXDjbKIWRPMZVAAtMbWP/ZYECzVokyN4+Qqf0k3rXNVjj6YZ0DQ
+         Oza308IKUCsCrG1gBR6IufzA9LIPEAZAFDYTG4A0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 126/530] KVM: VMX: Drop bits 31:16 when shoving exception error code into VMCS
+        stable@vger.kernel.org,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 073/390] ring-buffer: Allow splice to read previous partially read pages
 Date:   Mon, 24 Oct 2022 13:27:50 +0200
-Message-Id: <20221024113050.768069992@linuxfoundation.org>
+Message-Id: <20221024113025.707448543@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit eba9799b5a6efe2993cf92529608e4aa8163d73b upstream.
+commit fa8f4a89736b654125fb254b0db753ac68a5fced upstream.
 
-Deliberately truncate the exception error code when shoving it into the
-VMCS (VM-Entry field for vmcs01 and vmcs02, VM-Exit field for vmcs12).
-Intel CPUs are incapable of handling 32-bit error codes and will never
-generate an error code with bits 31:16, but userspace can provide an
-arbitrary error code via KVM_SET_VCPU_EVENTS.  Failure to drop the bits
-on exception injection results in failed VM-Entry, as VMX disallows
-setting bits 31:16.  Setting the bits on VM-Exit would at best confuse
-L1, and at worse induce a nested VM-Entry failure, e.g. if L1 decided to
-reinject the exception back into L2.
+If a page is partially read, and then the splice system call is run
+against the ring buffer, it will always fail to read, no matter how much
+is in the ring buffer. That's because the code path for a partial read of
+the page does will fail if the "full" flag is set.
+
+The splice system call wants full pages, so if the read of the ring buffer
+is not yet full, it should return zero, and the splice will block. But if
+a previous read was done, where the beginning has been consumed, it should
+still be given to the splice caller if the rest of the page has been
+written to.
+
+This caused the splice command to never consume data in this scenario, and
+let the ring buffer just fill up and lose events.
+
+Link: https://lkml.kernel.org/r/20220927144317.46be6b80@gandalf.local.home
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220830231614.3580124-3-seanjc@google.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 8789a9e7df6bf ("ring-buffer: read page interface")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |   11 ++++++++++-
- arch/x86/kvm/vmx/vmx.c    |   12 +++++++++++-
- 2 files changed, 21 insertions(+), 2 deletions(-)
+ kernel/trace/ring_buffer.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -3826,7 +3826,16 @@ static void nested_vmx_inject_exception_
- 	u32 intr_info = nr | INTR_INFO_VALID_MASK;
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -5341,7 +5341,15 @@ int ring_buffer_read_page(struct trace_b
+ 		unsigned int pos = 0;
+ 		unsigned int size;
  
- 	if (vcpu->arch.exception.has_error_code) {
--		vmcs12->vm_exit_intr_error_code = vcpu->arch.exception.error_code;
+-		if (full)
 +		/*
-+		 * Intel CPUs do not generate error codes with bits 31:16 set,
-+		 * and more importantly VMX disallows setting bits 31:16 in the
-+		 * injected error code for VM-Entry.  Drop the bits to mimic
-+		 * hardware and avoid inducing failure on nested VM-Entry if L1
-+		 * chooses to inject the exception back to L2.  AMD CPUs _do_
-+		 * generate "full" 32-bit error codes, so KVM allows userspace
-+		 * to inject exception error codes with bits 31:16 set.
++		 * If a full page is expected, this can still be returned
++		 * if there's been a previous partial read and the
++		 * rest of the page can be read and the commit page is off
++		 * the reader page.
 +		 */
-+		vmcs12->vm_exit_intr_error_code = (u16)vcpu->arch.exception.error_code;
- 		intr_info |= INTR_INFO_DELIVER_CODE_MASK;
- 	}
++		if (full &&
++		    (!read || (len < (commit - read)) ||
++		     cpu_buffer->reader_page == cpu_buffer->commit_page))
+ 			goto out_unlock;
  
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -1676,7 +1676,17 @@ static void vmx_queue_exception(struct k
- 	kvm_deliver_exception_payload(vcpu);
- 
- 	if (has_error_code) {
--		vmcs_write32(VM_ENTRY_EXCEPTION_ERROR_CODE, error_code);
-+		/*
-+		 * Despite the error code being architecturally defined as 32
-+		 * bits, and the VMCS field being 32 bits, Intel CPUs and thus
-+		 * VMX don't actually supporting setting bits 31:16.  Hardware
-+		 * will (should) never provide a bogus error code, but AMD CPUs
-+		 * do generate error codes with bits 31:16 set, and so KVM's
-+		 * ABI lets userspace shove in arbitrary 32-bit values.  Drop
-+		 * the upper bits to avoid VM-Fail, losing information that
-+		 * does't really exist is preferable to killing the VM.
-+		 */
-+		vmcs_write32(VM_ENTRY_EXCEPTION_ERROR_CODE, (u16)error_code);
- 		intr_info |= INTR_INFO_DELIVER_CODE_MASK;
- 	}
- 
+ 		if (len > (commit - read))
 
 
