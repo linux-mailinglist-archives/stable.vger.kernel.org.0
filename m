@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C139560B44E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:37:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F8860B244
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:44:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231580AbiJXRhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:37:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39756 "EHLO
+        id S234492AbiJXQo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:44:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233614AbiJXRgl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:36:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FF46237967;
-        Mon, 24 Oct 2022 09:11:41 -0700 (PDT)
+        with ESMTP id S234910AbiJXQoC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:44:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7635B88A0A;
+        Mon, 24 Oct 2022 08:30:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E0E9B81675;
-        Mon, 24 Oct 2022 12:24:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A0E8C433C1;
-        Mon, 24 Oct 2022 12:24:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26AE0B81263;
+        Mon, 24 Oct 2022 12:08:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CA6EC433D7;
+        Mon, 24 Oct 2022 12:08:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614266;
-        bh=eSPGLgJoJM+kPIS2tJYcph+18AVY0zIp3pvdV3W6xAw=;
+        s=korg; t=1666613305;
+        bh=j5N1rRaBQUoxQJhkXMaxZ4cTTEwSn03DWlIFc7ndmlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=amSUHUNDcDxuAWJRy9rXcvezA0fSXCJ7Y/iUdjd/dvPzQcm9y4DwYAxhRnYWtFkeQ
-         QBzTqsmurr15XmVCQnBXFxgDFNHszIDxsFEzUpINt2oLn0tJDGZ/Ae6503ct07K/01
-         +1IFKqxGCXPTvix4OsVCDjHyXbpZjrqSDi7oEvgU=
+        b=A4TO2c5YJ27pFscnfWER9NfQEZ6Rg0zLWCekDuFn7QXEKzMyKnr2vmoFRCb0fKNmN
+         ftXYm/gqB5vVd6H0IPdPso3rp5rbFG1a+socxb1I1vPj852gUP7Aa1nURuUtorDLEt
+         C+j2MIoovl4uLpf+FAfQJloRTXbk3tLAlrCn4mGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 196/390] clk: meson: Hold reference returned by of_get_parent()
-Date:   Mon, 24 Oct 2022 13:29:53 +0200
-Message-Id: <20221024113031.133178832@linuxfoundation.org>
+Subject: [PATCH 5.4 085/255] net/ieee802154: reject zero-sized raw_sendmsg()
+Date:   Mon, 24 Oct 2022 13:29:55 +0200
+Message-Id: <20221024113005.332271068@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,97 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 89ab396d712f7c91fe94f55cff23460426f5fc81 ]
+[ Upstream commit 3a4d061c699bd3eedc80dc97a4b2a2e1af83c6f5 ]
 
-We should hold the reference returned by of_get_parent() and use it
-to call of_node_put() for refcount balance.
+syzbot is hitting skb_assert_len() warning at raw_sendmsg() for ieee802154
+socket. What commit dc633700f00f726e ("net/af_packet: check len when
+min_header_len equals to 0") does also applies to ieee802154 socket.
 
-Fixes: 88e2da81241e ("clk: meson: aoclk: refactor common code into dedicated file")
-Fixes: 6682bd4d443f ("clk: meson: factorise meson64 peripheral clock controller drivers")
-Fixes: bb6eddd1d28c ("clk: meson: meson8b: use the HHI syscon if available")
-
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220628141038.168383-1-windhl@126.com
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://syzkaller.appspot.com/bug?extid=5ea725c25d06fb9114c4
+Reported-by: syzbot <syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com>
+Fixes: fd1894224407c484 ("bpf: Don't redirect packets with invalid pkt_len")
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/meson/meson-aoclk.c | 5 ++++-
- drivers/clk/meson/meson-eeclk.c | 5 ++++-
- drivers/clk/meson/meson8b.c     | 5 ++++-
- 3 files changed, 12 insertions(+), 3 deletions(-)
+ net/ieee802154/socket.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/clk/meson/meson-aoclk.c b/drivers/clk/meson/meson-aoclk.c
-index 3a6d84cd6601..67d8a0d30221 100644
---- a/drivers/clk/meson/meson-aoclk.c
-+++ b/drivers/clk/meson/meson-aoclk.c
-@@ -36,6 +36,7 @@ int meson_aoclkc_probe(struct platform_device *pdev)
- 	struct meson_aoclk_reset_controller *rstc;
- 	struct meson_aoclk_data *data;
- 	struct device *dev = &pdev->dev;
-+	struct device_node *np;
- 	struct regmap *regmap;
- 	int ret, clkid;
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index a92b11999e5f..72637d5994d8 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -252,6 +252,9 @@ static int raw_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 		return -EOPNOTSUPP;
+ 	}
  
-@@ -47,7 +48,9 @@ int meson_aoclkc_probe(struct platform_device *pdev)
- 	if (!rstc)
- 		return -ENOMEM;
- 
--	regmap = syscon_node_to_regmap(of_get_parent(dev->of_node));
-+	np = of_get_parent(dev->of_node);
-+	regmap = syscon_node_to_regmap(np);
-+	of_node_put(np);
- 	if (IS_ERR(regmap)) {
- 		dev_err(dev, "failed to get regmap\n");
- 		return PTR_ERR(regmap);
-diff --git a/drivers/clk/meson/meson-eeclk.c b/drivers/clk/meson/meson-eeclk.c
-index a7cb1e7aedc4..18ae38787268 100644
---- a/drivers/clk/meson/meson-eeclk.c
-+++ b/drivers/clk/meson/meson-eeclk.c
-@@ -17,6 +17,7 @@ int meson_eeclkc_probe(struct platform_device *pdev)
- {
- 	const struct meson_eeclkc_data *data;
- 	struct device *dev = &pdev->dev;
-+	struct device_node *np;
- 	struct regmap *map;
- 	int ret, i;
- 
-@@ -25,7 +26,9 @@ int meson_eeclkc_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 
- 	/* Get the hhi system controller node */
--	map = syscon_node_to_regmap(of_get_parent(dev->of_node));
-+	np = of_get_parent(dev->of_node);
-+	map = syscon_node_to_regmap(np);
-+	of_node_put(np);
- 	if (IS_ERR(map)) {
- 		dev_err(dev,
- 			"failed to get HHI regmap\n");
-diff --git a/drivers/clk/meson/meson8b.c b/drivers/clk/meson/meson8b.c
-index 862f0756b50f..1da9d212f8b7 100644
---- a/drivers/clk/meson/meson8b.c
-+++ b/drivers/clk/meson/meson8b.c
-@@ -3735,13 +3735,16 @@ static void __init meson8b_clkc_init_common(struct device_node *np,
- 			struct clk_hw_onecell_data *clk_hw_onecell_data)
- {
- 	struct meson8b_clk_reset *rstc;
-+	struct device_node *parent_np;
- 	const char *notifier_clk_name;
- 	struct clk *notifier_clk;
- 	void __iomem *clk_base;
- 	struct regmap *map;
- 	int i, ret;
- 
--	map = syscon_node_to_regmap(of_get_parent(np));
-+	parent_np = of_get_parent(np);
-+	map = syscon_node_to_regmap(parent_np);
-+	of_node_put(parent_np);
- 	if (IS_ERR(map)) {
- 		pr_info("failed to get HHI regmap - Trying obsolete regs\n");
- 
++	if (!size)
++		return -EINVAL;
++
+ 	lock_sock(sk);
+ 	if (!sk->sk_bound_dev_if)
+ 		dev = dev_getfirstbyhwtype(sock_net(sk), ARPHRD_IEEE802154);
 -- 
 2.35.1
 
