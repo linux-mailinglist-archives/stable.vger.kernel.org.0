@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0426760AFE6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:00:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA17760AC92
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:11:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231165AbiJXP71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 11:59:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40866 "EHLO
+        id S237344AbiJXOKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:10:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232191AbiJXP6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:58:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4292416DC33;
-        Mon, 24 Oct 2022 07:53:42 -0700 (PDT)
+        with ESMTP id S234820AbiJXOHf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:07:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5035A80487;
+        Mon, 24 Oct 2022 05:50:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B71BB816A7;
-        Mon, 24 Oct 2022 12:30:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BA85C433C1;
-        Mon, 24 Oct 2022 12:30:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C45E61298;
+        Mon, 24 Oct 2022 12:50:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 696D4C433D7;
+        Mon, 24 Oct 2022 12:50:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614646;
-        bh=BdfJixTWVY9uxH5Y7CFWtnrm9ZR7+RkdkXJtLPFhc3E=;
+        s=korg; t=1666615832;
+        bh=tzkFWHdBR1QJkTnAVZrUmtw9WJSWAiTSqmAiaamAgSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DOAtLH73oruFBpjhY3vIp4/A3Pf2g+XNZneA68uYL5IlyWG/zoo92cihV/FeJ8Puy
-         9D9Y+ssakCl4e/MlnSdZuVaYi6f56tm1H20C1IC7ObUOkf/+flnT4lkI+Fa6jKELk1
-         Xd7m6ihtTCkX/nG14S4U9my9MnMQ5BwigHvXY3Os=
+        b=H28Hq6P/2A7Gn+o64idRa4+Xsw5HxXQ/CuIhX3fjUnPmhUK3BM69zkmFFN67b9yuX
+         PHBLB2bYOCZAG/22DXVN6cC6hphpeoMqV6YP2BlREMwkMdP3HDYWHSL0XLT5aHzOFS
+         dwAw2GrFe4tjdFVVzljn1nS9OKxvliHqvmyTLRu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Or Cochvi <or.cochvi@intel.com>,
-        Khaled Almahallawy <khaled.almahallawy@intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 340/390] drm/dp: Dont rewrite link config when setting phy test pattern
+Subject: [PATCH 5.15 393/530] crypto: marvell/octeontx - prevent integer overflows
 Date:   Mon, 24 Oct 2022 13:32:17 +0200
-Message-Id: <20221024113037.479901737@linuxfoundation.org>
+Message-Id: <20221024113102.860384626@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,98 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khaled Almahallawy <khaled.almahallawy@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 7b4d8db657192066bc6f1f6635d348413dac1e18 ]
+[ Upstream commit caca37cf6c749ff0303f68418cfe7b757a4e0697 ]
 
-The sequence for Source DP PHY CTS automation is [2][1]:
-1- Emulate successful Link Training(LT)
-2- Short HPD and change link rates and number of lanes by LT.
-(This is same flow for Link Layer CTS)
-3- Short HPD and change PHY test pattern and swing/pre-emphasis
-levels (This step should not trigger LT)
+The "code_length" value comes from the firmware file.  If your firmware
+is untrusted realistically there is probably very little you can do to
+protect yourself.  Still we try to limit the damage as much as possible.
+Also Smatch marks any data read from the filesystem as untrusted and
+prints warnings if it not capped correctly.
 
-The problem is with DP PHY compliance setup as follow:
+The "code_length * 2" can overflow.  The round_up(ucode_size, 16) +
+sizeof() expression can overflow too.  Prevent these overflows.
 
-     [DPTX + on board LTTPR]------Main Link--->[Scope]
-     	     	        ^                         |
-			|                         |
-			|                         |
-			----------Aux Ch------>[Aux Emulator]
-
-At step 3, before writing TRAINING_LANEx_SET/LINK_QUAL_PATTERN_SET
-to declare the pattern/swing requested by scope, we write link
-config in LINK_BW_SET/LANE_COUNT_SET on a port that has LTTPR.
-As LTTPR snoops aux transaction, LINK_BW_SET/LANE_COUNT_SET writes
-indicate a LT will start [Check DP 2.0 E11 -Sec 3.6.8.2 & 3.6.8.6.3],
-and LTTPR will reset the link and stop sending DP signals to
-DPTX/Scope causing the measurements to fail. Note that step 3 will
-not trigger LT and DP link will never recovered by the
-Aux Emulator/Scope.
-
-The reset of link can be tested with a monitor connected to LTTPR
-port simply by writing to LINK_BW_SET or LANE_COUNT_SET as follow
-
-  igt/tools/dpcd_reg write --offset=0x100 --value 0x14 --device=2
-
-OR
-
-  printf '\x14' | sudo dd of=/dev/drm_dp_aux2 bs=1 count=1 conv=notrunc
-  seek=$((0x100))
-
-This single aux write causes the screen to blank, sending short HPD to
-DPTX, setting LINK_STATUS_UPDATE = 1 in DPCD 0x204, and triggering LT.
-
-As stated in [1]:
-"Before any TX electrical testing can be performed, the link between a
-DPTX and DPRX (in this case, a piece of test equipment), including all
-LTTPRs within the path, shall be trained as defined in this Standard."
-
-In addition, changing Phy pattern/Swing/Pre-emphasis (Step 3) uses the
-same link rate and lane count applied on step 2, so no need to redo LT.
-
-The fix is to not rewrite link config in step 3, and just writes
-TRAINING_LANEx_SET and LINK_QUAL_PATTERN_SET
-
-[1]: DP 2.0 E11 - 3.6.11.1 LTTPR DPTX_PHY Electrical Compliance
-
-[2]: Configuring UnigrafDPTC Controller - Automation Test Sequence
-https://www.keysight.com/us/en/assets/9922-01244/help-files/
-D9040DPPC-DisplayPort-Test-Software-Online-Help-latest.chm
-
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Or Cochvi <or.cochvi@intel.com>
-Signed-off-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220916054900.415804-1-khaled.almahallawy@intel.com
+Fixes: d9110b0b01ff ("crypto: marvell - add support for OCTEON TX CPT engine")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_helper.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ .../crypto/marvell/octeontx/otx_cptpf_ucode.c  | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_helper.c b/drivers/gpu/drm/drm_dp_helper.c
-index 3c55753bab16..6ba16db77500 100644
---- a/drivers/gpu/drm/drm_dp_helper.c
-+++ b/drivers/gpu/drm/drm_dp_helper.c
-@@ -2172,17 +2172,8 @@ int drm_dp_set_phy_test_pattern(struct drm_dp_aux *aux,
- 				struct drm_dp_phy_test_params *data, u8 dp_rev)
- {
- 	int err, i;
--	u8 link_config[2];
- 	u8 test_pattern;
+diff --git a/drivers/crypto/marvell/octeontx/otx_cptpf_ucode.c b/drivers/crypto/marvell/octeontx/otx_cptpf_ucode.c
+index 40b482198ebc..a765eefb18c2 100644
+--- a/drivers/crypto/marvell/octeontx/otx_cptpf_ucode.c
++++ b/drivers/crypto/marvell/octeontx/otx_cptpf_ucode.c
+@@ -286,6 +286,7 @@ static int process_tar_file(struct device *dev,
+ 	struct tar_ucode_info_t *tar_info;
+ 	struct otx_cpt_ucode_hdr *ucode_hdr;
+ 	int ucode_type, ucode_size;
++	unsigned int code_length;
  
--	link_config[0] = drm_dp_link_rate_to_bw_code(data->link_rate);
--	link_config[1] = data->num_lanes;
--	if (data->enhanced_frame_cap)
--		link_config[1] |= DP_LANE_COUNT_ENHANCED_FRAME_EN;
--	err = drm_dp_dpcd_write(aux, DP_LINK_BW_SET, link_config, 2);
--	if (err < 0)
--		return err;
--
- 	test_pattern = data->phy_pattern;
- 	if (dp_rev < 0x12) {
- 		test_pattern = (test_pattern << 2) &
+ 	/*
+ 	 * If size is less than microcode header size then don't report
+@@ -303,7 +304,13 @@ static int process_tar_file(struct device *dev,
+ 	if (get_ucode_type(ucode_hdr, &ucode_type))
+ 		return 0;
+ 
+-	ucode_size = ntohl(ucode_hdr->code_length) * 2;
++	code_length = ntohl(ucode_hdr->code_length);
++	if (code_length >= INT_MAX / 2) {
++		dev_err(dev, "Invalid code_length %u\n", code_length);
++		return -EINVAL;
++	}
++
++	ucode_size = code_length * 2;
+ 	if (!ucode_size || (size < round_up(ucode_size, 16) +
+ 	    sizeof(struct otx_cpt_ucode_hdr) + OTX_CPT_UCODE_SIGN_LEN)) {
+ 		dev_err(dev, "Ucode %s invalid size\n", filename);
+@@ -886,6 +893,7 @@ static int ucode_load(struct device *dev, struct otx_cpt_ucode *ucode,
+ {
+ 	struct otx_cpt_ucode_hdr *ucode_hdr;
+ 	const struct firmware *fw;
++	unsigned int code_length;
+ 	int ret;
+ 
+ 	set_ucode_filename(ucode, ucode_filename);
+@@ -896,7 +904,13 @@ static int ucode_load(struct device *dev, struct otx_cpt_ucode *ucode,
+ 	ucode_hdr = (struct otx_cpt_ucode_hdr *) fw->data;
+ 	memcpy(ucode->ver_str, ucode_hdr->ver_str, OTX_CPT_UCODE_VER_STR_SZ);
+ 	ucode->ver_num = ucode_hdr->ver_num;
+-	ucode->size = ntohl(ucode_hdr->code_length) * 2;
++	code_length = ntohl(ucode_hdr->code_length);
++	if (code_length >= INT_MAX / 2) {
++		dev_err(dev, "Ucode invalid code_length %u\n", code_length);
++		ret = -EINVAL;
++		goto release_fw;
++	}
++	ucode->size = code_length * 2;
+ 	if (!ucode->size || (fw->size < round_up(ucode->size, 16)
+ 	    + sizeof(struct otx_cpt_ucode_hdr) + OTX_CPT_UCODE_SIGN_LEN)) {
+ 		dev_err(dev, "Ucode %s invalid size\n", ucode_filename);
 -- 
 2.35.1
 
