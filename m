@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2646860A4C9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:16:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6005E60A8E1
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233077AbiJXMQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:16:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47642 "EHLO
+        id S235687AbiJXNMS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:12:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233482AbiJXMPN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:15:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B7558052B;
-        Mon, 24 Oct 2022 04:56:00 -0700 (PDT)
+        with ESMTP id S236011AbiJXNK0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:10:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C94A22BE2D;
+        Mon, 24 Oct 2022 05:24:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1208B6126B;
-        Mon, 24 Oct 2022 11:55:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25222C433C1;
-        Mon, 24 Oct 2022 11:55:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F10BB81205;
+        Mon, 24 Oct 2022 12:06:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB809C433D6;
+        Mon, 24 Oct 2022 12:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612547;
-        bh=kQIWC0ZgBV/lLuQ8oDBM12FE6Kn6eno2vD1KsA9VkqA=;
+        s=korg; t=1666613177;
+        bh=n+CMlShebmcQLDR5asrTsndohyMMu9dY5i7dyKNhIsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ldUVLxGorLc03Lz+J/5lB0KVih3+Y3d3KedVmHDyYCxSgMNyVTLMmdH359ztOharK
-         fhQOD8IxIJ81konEVqX/wB3mSItFUT7WO1K6aygSeAQZSllpP1J+zOFNwUDK4fqH0D
-         GnUJ8s0QRnTFj6jPB7P7Wvmi4Q3vxpsHQ8bcyfR0=
+        b=s9IyUwV5adMnI32yQafYfOpSoilATCOFAwKN/E5VMOMpmDr+Ubf4F6yuuAlIOpmxA
+         AIe5dloC/LyV76zOQyMAusM03bcJ0QWhUe1pVltY+kwx8eDNEi0pVwMaJfHX/cDOTC
+         9RlkXTzVNTKLY+nOjFBwS5fgLHEcR6e12Xf3Lr4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 029/229] wifi: mac80211_hwsim: avoid mac80211 warning on bad rate
+        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.4 038/255] f2fs: fix to do sanity check on summary info
 Date:   Mon, 24 Oct 2022 13:29:08 +0200
-Message-Id: <20221024113000.070441529@linuxfoundation.org>
+Message-Id: <20221024113003.699400716@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +52,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Chao Yu <chao@kernel.org>
 
-commit 1833b6f46d7e2830251a063935ab464256defe22 upstream.
+commit c6ad7fd16657ebd34a87a97d9588195aae87597d upstream.
 
-If the tool on the other side (e.g. wmediumd) gets confused
-about the rate, we hit a warning in mac80211. Silence that
-by effectively duplicating the check here and dropping the
-frame silently (in mac80211 it's dropped with the warning).
+As Wenqing Liu reported in bugzilla:
 
-Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+https://bugzilla.kernel.org/show_bug.cgi?id=216456
+
+BUG: KASAN: use-after-free in recover_data+0x63ae/0x6ae0 [f2fs]
+Read of size 4 at addr ffff8881464dcd80 by task mount/1013
+
+CPU: 3 PID: 1013 Comm: mount Tainted: G        W          6.0.0-rc4 #1
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ dump_stack_lvl+0x45/0x5e
+ print_report.cold+0xf3/0x68d
+ kasan_report+0xa8/0x130
+ recover_data+0x63ae/0x6ae0 [f2fs]
+ f2fs_recover_fsync_data+0x120d/0x1fc0 [f2fs]
+ f2fs_fill_super+0x4665/0x61e0 [f2fs]
+ mount_bdev+0x2cf/0x3b0
+ legacy_get_tree+0xed/0x1d0
+ vfs_get_tree+0x81/0x2b0
+ path_mount+0x47e/0x19d0
+ do_mount+0xce/0xf0
+ __x64_sys_mount+0x12c/0x1a0
+ do_syscall_64+0x38/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+The root cause is: in fuzzed image, SSA table is corrupted: ofs_in_node
+is larger than ADDRS_PER_PAGE(), result in out-of-range access on 4k-size
+page.
+
+- recover_data
+ - do_recover_data
+  - check_index_in_prev_nodes
+   - f2fs_data_blkaddr
+
+This patch adds sanity check on summary info in recovery and GC flow
+in where the flows rely on them.
+
+After patch:
+[   29.310883] F2FS-fs (loop0): Inconsistent ofs_in_node:65286 in summary, ino:0, nid:6, max:1018
+
+Cc: stable@vger.kernel.org
+Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/f2fs/gc.c       |   10 +++++++++-
+ fs/f2fs/recovery.c |   15 ++++++++++++---
+ 2 files changed, 21 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -3270,6 +3270,8 @@ static int hwsim_cloned_frame_received_n
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -612,7 +612,7 @@ static bool is_alive(struct f2fs_sb_info
+ {
+ 	struct page *node_page;
+ 	nid_t nid;
+-	unsigned int ofs_in_node;
++	unsigned int ofs_in_node, max_addrs;
+ 	block_t source_blkaddr;
  
- 	rx_status.band = data2->channel->band;
- 	rx_status.rate_idx = nla_get_u32(info->attrs[HWSIM_ATTR_RX_RATE]);
-+	if (rx_status.rate_idx >= data2->hw->wiphy->bands[rx_status.band]->n_bitrates)
-+		goto out;
- 	rx_status.signal = nla_get_u32(info->attrs[HWSIM_ATTR_SIGNAL]);
+ 	nid = le32_to_cpu(sum->nid);
+@@ -638,6 +638,14 @@ static bool is_alive(struct f2fs_sb_info
+ 		return false;
+ 	}
  
- 	memcpy(IEEE80211_SKB_RXCB(skb), &rx_status, sizeof(rx_status));
++	max_addrs = IS_INODE(node_page) ? DEF_ADDRS_PER_INODE :
++						DEF_ADDRS_PER_BLOCK;
++	if (ofs_in_node >= max_addrs) {
++		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%u, nid:%u, max:%u",
++			ofs_in_node, dni->ino, dni->nid, max_addrs);
++		return false;
++	}
++
+ 	*nofs = ofs_of_node(node_page);
+ 	source_blkaddr = datablock_addr(NULL, node_page, ofs_in_node);
+ 	f2fs_put_page(node_page, 1);
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -406,7 +406,7 @@ static int check_index_in_prev_nodes(str
+ 	struct dnode_of_data tdn = *dn;
+ 	nid_t ino, nid;
+ 	struct inode *inode;
+-	unsigned int offset;
++	unsigned int offset, ofs_in_node, max_addrs;
+ 	block_t bidx;
+ 	int i;
+ 
+@@ -432,15 +432,24 @@ static int check_index_in_prev_nodes(str
+ got_it:
+ 	/* Use the locked dnode page and inode */
+ 	nid = le32_to_cpu(sum.nid);
++	ofs_in_node = le16_to_cpu(sum.ofs_in_node);
++
++	max_addrs = ADDRS_PER_PAGE(dn->node_page, dn->inode);
++	if (ofs_in_node >= max_addrs) {
++		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%lu, nid:%u, max:%u",
++			ofs_in_node, dn->inode->i_ino, nid, max_addrs);
++		return -EFSCORRUPTED;
++	}
++
+ 	if (dn->inode->i_ino == nid) {
+ 		tdn.nid = nid;
+ 		if (!dn->inode_page_locked)
+ 			lock_page(dn->inode_page);
+ 		tdn.node_page = dn->inode_page;
+-		tdn.ofs_in_node = le16_to_cpu(sum.ofs_in_node);
++		tdn.ofs_in_node = ofs_in_node;
+ 		goto truncate_out;
+ 	} else if (dn->nid == nid) {
+-		tdn.ofs_in_node = le16_to_cpu(sum.ofs_in_node);
++		tdn.ofs_in_node = ofs_in_node;
+ 		goto truncate_out;
+ 	}
+ 
 
 
