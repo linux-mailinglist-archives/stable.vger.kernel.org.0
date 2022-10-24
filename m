@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C26C60AD0C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C0A60ACE7
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234683AbiJXORa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:17:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54550 "EHLO
+        id S232944AbiJXOQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:16:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235335AbiJXOOl (ORCPT
+        with ESMTP id S235275AbiJXOOl (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:14:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE3FD65F6;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1B4BC26;
         Mon, 24 Oct 2022 05:54:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11CCE612E7;
-        Mon, 24 Oct 2022 12:52:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25EAAC433C1;
-        Mon, 24 Oct 2022 12:52:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A650161291;
+        Mon, 24 Oct 2022 12:52:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B632FC433C1;
+        Mon, 24 Oct 2022 12:52:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615976;
-        bh=JG4zpURXQKIe8yvupxxFcpZJr66Oes7UwY5ObWUaDP4=;
+        s=korg; t=1666615979;
+        bh=VyRbyK2ww2404bbaV+nZGsh7aEeNQVyazO8tGuaL5hY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1cad15jthqgT1mzoFUnOFrrBqY4hhjOvoUqUSiEGJw3g3BI1eYzN8737qEavEliBP
-         Y3pXSCnRZqZPU8I/XKdB6f1tLoiKMoAosWIP2ffbgald5YVOVo8+N27kX5oCx/aDy8
-         nBq+uDOFkQYXxx6ZUplZpJeLTSlqxGNCp+y0EJ5Q=
+        b=0XycTAUHk8u0RBhDdtmRIHyX3R/1/xAYm52RWF6X0rmKaNhB2Sj/9WxLpQ17vvJHL
+         DeOC/f2UiJ++a5pPop1z7PbQ3lBVwu/79QtSYCpkelKGCN0EoxSZQCvCPqv3IfLndS
+         VhNBd6AACVYIhKZLGO+OTa9cMtZpDXicxcULIitc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jameson Thies <jthies@google.com>,
-        Prashant Malani <pmalani@chromium.org>,
-        Benson Leung <bleung@chromium.org>,
-        Tzung-Bi Shih <tzungbi@kernel.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 454/530] platform/chrome: cros_ec: Notify the PM of wake events during resume
-Date:   Mon, 24 Oct 2022 13:33:18 +0200
-Message-Id: <20221024113105.591144748@linuxfoundation.org>
+Subject: [PATCH 5.15 455/530] platform/x86: msi-laptop: Change DMI match / alias strings to fix module autoloading
+Date:   Mon, 24 Oct 2022 13:33:19 +0200
+Message-Id: <20221024113105.640060138@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -55,53 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jameson Thies <jthies@google.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 8edd2752b0aa498b3a61f3caee8f79f7e0567fad ]
+[ Upstream commit 2a2565272a3628e45d61625e36ef17af7af4e3de ]
 
-cros_ec_handle_event in the cros_ec driver can notify the PM of wake
-events. When a device is suspended, cros_ec_handle_event will not check
-MKBP events. Instead, received MKBP events are checked during resume by
-cros_ec_report_events_during_suspend. But
-cros_ec_report_events_during_suspend cannot notify the PM if received
-events are wake events, causing wake events to not be reported if
-received while the device is suspended.
+On a MSI S270 with Fedora 37 x86_64 / systemd-251.4 the module does not
+properly autoload.
 
-Update cros_ec_report_events_during_suspend to notify the PM of wake
-events during resume by calling pm_wakeup_event.
+This is likely caused by issues with how systemd-udevd handles the single
+quote char (') which is part of the sys_vendor / chassis_vendor strings
+on this laptop. As a workaround remove the single quote char + everything
+behind it from the sys_vendor + chassis_vendor matches. This fixes
+the module not autoloading.
 
-Signed-off-by: Jameson Thies <jthies@google.com>
-Reviewed-by: Prashant Malani <pmalani@chromium.org>
-Reviewed-by: Benson Leung <bleung@chromium.org>
-Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
-Link: https://lore.kernel.org/r/20220913204954.2931042-1-jthies@google.com
+Link: https://github.com/systemd/systemd/issues/24715
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220917210407.647432-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/platform/x86/msi-laptop.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
-index 4f0390b10cd3..9664e13ded59 100644
---- a/drivers/platform/chrome/cros_ec.c
-+++ b/drivers/platform/chrome/cros_ec.c
-@@ -353,10 +353,16 @@ EXPORT_SYMBOL(cros_ec_suspend);
- 
- static void cros_ec_report_events_during_suspend(struct cros_ec_device *ec_dev)
- {
-+	bool wake_event;
-+
- 	while (ec_dev->mkbp_event_supported &&
--	       cros_ec_get_next_event(ec_dev, NULL, NULL) > 0)
-+	       cros_ec_get_next_event(ec_dev, &wake_event, NULL) > 0) {
- 		blocking_notifier_call_chain(&ec_dev->event_notifier,
- 					     1, ec_dev);
-+
-+		if (wake_event && device_may_wakeup(ec_dev->dev))
-+			pm_wakeup_event(ec_dev->dev, 0);
-+	}
- }
- 
- /**
+diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
+index 3e935303b143..0e804b6c2d24 100644
+--- a/drivers/platform/x86/msi-laptop.c
++++ b/drivers/platform/x86/msi-laptop.c
+@@ -596,11 +596,10 @@ static const struct dmi_system_id msi_dmi_table[] __initconst = {
+ 	{
+ 		.ident = "MSI S270",
+ 		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD"),
++			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1013"),
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "0131"),
+-			DMI_MATCH(DMI_CHASSIS_VENDOR,
+-				  "MICRO-STAR INT'L CO.,LTD")
++			DMI_MATCH(DMI_CHASSIS_VENDOR, "MICRO-STAR INT")
+ 		},
+ 		.driver_data = &quirk_old_ec_model,
+ 		.callback = dmi_check_cb
+@@ -633,8 +632,7 @@ static const struct dmi_system_id msi_dmi_table[] __initconst = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "NOTEBOOK"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "SAM2000"),
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "0131"),
+-			DMI_MATCH(DMI_CHASSIS_VENDOR,
+-				  "MICRO-STAR INT'L CO.,LTD")
++			DMI_MATCH(DMI_CHASSIS_VENDOR, "MICRO-STAR INT")
+ 		},
+ 		.driver_data = &quirk_old_ec_model,
+ 		.callback = dmi_check_cb
 -- 
 2.35.1
 
