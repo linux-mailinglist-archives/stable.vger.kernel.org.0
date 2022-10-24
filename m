@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C6EB60AA2D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:31:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6139060AB84
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232468AbiJXNba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:31:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39188 "EHLO
+        id S236595AbiJXNx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:53:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236016AbiJXN3X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:23 -0400
+        with ESMTP id S236591AbiJXNwc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:52:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD70B1E1;
-        Mon, 24 Oct 2022 05:32:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A913BA902;
+        Mon, 24 Oct 2022 05:42:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B2C43612B2;
-        Mon, 24 Oct 2022 12:32:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8809C433D6;
-        Mon, 24 Oct 2022 12:32:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FF1461280;
+        Mon, 24 Oct 2022 12:32:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73716C43470;
+        Mon, 24 Oct 2022 12:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614741;
-        bh=3ierzcmJ1iX1qGa2HEvurAr4/bygL9us4GsEWEsJVYk=;
+        s=korg; t=1666614743;
+        bh=HHUg5KckEKVunibn2u7StkIkV/6yefiT8qKsdvKKleE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ytOJA4XCR08vCIZE8iuE87Jzpa7qvjusJ9bbYiulEJD3SrJAv4Tvsq/Hl0x+0qTfg
-         QnVvc/qeZjwMQdXTo9i8nWhdPdVV/q+Uwnsd1Tab0m6cLp6i8uC48abtnUjv4jEh1N
-         LpzYETF4UjCdVxms0Sw9pwLs/6r3jaHugwvjGVFI=
+        b=YRqs9Lt4Nu4FqtNHQNP0vloQvemerN1pShKjvqJetLq6GdjoezL5mUQrHiHJvw19a
+         rEZumvUTh1YO019o2Ek/IPpAukXnmiPloNDe6Bpdz03HecQzNMBrd2gNf5WIvowBy9
+         D/ibdM+/s1AFIo6TeIHIEF35PL3jqUQlj4nyCtr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 376/390] perf intel-pt: Fix segfault in intel_pt_print_info() with uClibc
-Date:   Mon, 24 Oct 2022 13:32:53 +0200
-Message-Id: <20221024113039.005803311@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.10 377/390] arm64: topology: fix possible overflow in amu_fie_setup()
+Date:   Mon, 24 Oct 2022 13:32:54 +0200
+Message-Id: <20221024113039.036524410@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -54,56 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit 5a3d47071f0ced0431ef82a5fb6bd077ed9493db upstream.
+commit d4955c0ad77dbc684fc716387070ac24801b8bca upstream.
 
-uClibc segfaulted because NULL was passed as the format to fprintf().
+cpufreq_get_hw_max_freq() returns max frequency in kHz as *unsigned int*,
+while freq_inv_set_max_ratio() gets passed this frequency in Hz as 'u64'.
+Multiplying max frequency by 1000 can potentially result in overflow --
+multiplying by 1000ULL instead should avoid that...
 
-That happened because one of the format strings was missing and
-intel_pt_print_info() didn't check that before calling fprintf().
+Found by Linux Verification Center (linuxtesting.org) with the SVACE static
+analysis tool.
 
-Add the missing format string, and check format is not NULL before calling
-fprintf().
-
-Fixes: 11fa7cb86b56d361 ("perf tools: Pass Intel PT information for decoding MTC and CYC")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221012082259.22394-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: cd0ed03a8903 ("arm64: use activity monitors for frequency invariance")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/01493d64-2bce-d968-86dc-11a122a9c07d@omp.ru
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/intel-pt.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/topology.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/util/intel-pt.c
-+++ b/tools/perf/util/intel-pt.c
-@@ -3279,6 +3279,7 @@ static const char * const intel_pt_info_
- 	[INTEL_PT_SNAPSHOT_MODE]	= "  Snapshot mode       %"PRId64"\n",
- 	[INTEL_PT_PER_CPU_MMAPS]	= "  Per-cpu maps        %"PRId64"\n",
- 	[INTEL_PT_MTC_BIT]		= "  MTC bit             %#"PRIx64"\n",
-+	[INTEL_PT_MTC_FREQ_BITS]	= "  MTC freq bits       %#"PRIx64"\n",
- 	[INTEL_PT_TSC_CTC_N]		= "  TSC:CTC numerator   %"PRIu64"\n",
- 	[INTEL_PT_TSC_CTC_D]		= "  TSC:CTC denominator %"PRIu64"\n",
- 	[INTEL_PT_CYC_BIT]		= "  CYC bit             %#"PRIx64"\n",
-@@ -3293,8 +3294,12 @@ static void intel_pt_print_info(__u64 *a
- 	if (!dump_trace)
- 		return;
+--- a/arch/arm64/kernel/topology.c
++++ b/arch/arm64/kernel/topology.c
+@@ -158,7 +158,7 @@ static int validate_cpu_freq_invariance_
+ 	}
  
--	for (i = start; i <= finish; i++)
--		fprintf(stdout, intel_pt_info_fmts[i], arr[i]);
-+	for (i = start; i <= finish; i++) {
-+		const char *fmt = intel_pt_info_fmts[i];
-+
-+		if (fmt)
-+			fprintf(stdout, fmt, arr[i]);
-+	}
- }
- 
- static void intel_pt_print_info_str(const char *name, const char *str)
+ 	/* Convert maximum frequency from KHz to Hz and validate */
+-	max_freq_hz = cpufreq_get_hw_max_freq(cpu) * 1000;
++	max_freq_hz = cpufreq_get_hw_max_freq(cpu) * 1000ULL;
+ 	if (unlikely(!max_freq_hz)) {
+ 		pr_debug("CPU%d: invalid maximum frequency.\n", cpu);
+ 		return -EINVAL;
 
 
