@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B8960A40E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2646860A4C9
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:16:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232110AbiJXMFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:05:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46316 "EHLO
+        id S233077AbiJXMQI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:16:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232586AbiJXMDv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:03:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C0BB356EA;
-        Mon, 24 Oct 2022 04:50:01 -0700 (PDT)
+        with ESMTP id S233482AbiJXMPN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:15:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B7558052B;
+        Mon, 24 Oct 2022 04:56:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59ADCB811AB;
-        Mon, 24 Oct 2022 11:48:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8440C433C1;
-        Mon, 24 Oct 2022 11:48:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1208B6126B;
+        Mon, 24 Oct 2022 11:55:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25222C433C1;
+        Mon, 24 Oct 2022 11:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612107;
-        bh=a7PnIGvopb4QKsMeyez/yTomLe0JNasOnQjCXOfD6PA=;
+        s=korg; t=1666612547;
+        bh=kQIWC0ZgBV/lLuQ8oDBM12FE6Kn6eno2vD1KsA9VkqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zcTcoqwHZ9SQuT4bnkwkMWwAPypis/GCdc5EFbpOxNXwQwhiW+POHAcREJqeW94XK
-         EHDMrC6KlFO/mYPtem4DZQL7/tv9HI93Fdf9NUtpzAQT1c5LiJtztQiiCJz01qQllP
-         glRVrn69GbL77aMXPvBLZmADw6klviDpFmXTlqUI=
+        b=ldUVLxGorLc03Lz+J/5lB0KVih3+Y3d3KedVmHDyYCxSgMNyVTLMmdH359ztOharK
+         fhQOD8IxIJ81konEVqX/wB3mSItFUT7WO1K6aygSeAQZSllpP1J+zOFNwUDK4fqH0D
+         GnUJ8s0QRnTFj6jPB7P7Wvmi4Q3vxpsHQ8bcyfR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 031/210] USB: serial: ftdi_sio: fix 300 bps rate for SIO
+        stable@vger.kernel.org,
+        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 029/229] wifi: mac80211_hwsim: avoid mac80211 warning on bad rate
 Date:   Mon, 24 Oct 2022 13:29:08 +0200
-Message-Id: <20221024112957.971464744@linuxfoundation.org>
+Message-Id: <20221024113000.070441529@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,31 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 7bd7ad3c310cd6766f170927381eea0aa6f46c69 upstream.
+commit 1833b6f46d7e2830251a063935ab464256defe22 upstream.
 
-The 300 bps rate of SIO devices has been mapped to 9600 bps since
-2003... Let's fix the regression.
+If the tool on the other side (e.g. wmediumd) gets confused
+about the rate, we hit a warning in mac80211. Silence that
+by effectively duplicating the check here and dropping the
+frame silently (in mac80211 it's dropped with the warning).
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reported-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ftdi_sio.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/mac80211_hwsim.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1309,8 +1309,7 @@ static __u32 get_ftdi_divisor(struct tty
- 		case 38400: div_value = ftdi_sio_b38400; break;
- 		case 57600: div_value = ftdi_sio_b57600;  break;
- 		case 115200: div_value = ftdi_sio_b115200; break;
--		} /* baud */
--		if (div_value == 0) {
-+		default:
- 			dev_dbg(dev, "%s - Baudrate (%d) requested is not supported\n",
- 				__func__,  baud);
- 			div_value = ftdi_sio_b9600;
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -3270,6 +3270,8 @@ static int hwsim_cloned_frame_received_n
+ 
+ 	rx_status.band = data2->channel->band;
+ 	rx_status.rate_idx = nla_get_u32(info->attrs[HWSIM_ATTR_RX_RATE]);
++	if (rx_status.rate_idx >= data2->hw->wiphy->bands[rx_status.band]->n_bitrates)
++		goto out;
+ 	rx_status.signal = nla_get_u32(info->attrs[HWSIM_ATTR_SIGNAL]);
+ 
+ 	memcpy(IEEE80211_SKB_RXCB(skb), &rx_status, sizeof(rx_status));
 
 
