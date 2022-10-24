@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B6D160AD09
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB73F60AD1D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:18:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234633AbiJXOR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:17:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36906 "EHLO
+        id S233293AbiJXOSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:18:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234503AbiJXOOC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:14:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E35DECAE74;
-        Mon, 24 Oct 2022 05:54:03 -0700 (PDT)
+        with ESMTP id S233583AbiJXOQf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:16:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D2BCC836;
+        Mon, 24 Oct 2022 05:56:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8CC3612C9;
-        Mon, 24 Oct 2022 12:52:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 090CDC433D6;
-        Mon, 24 Oct 2022 12:52:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B380B8171A;
+        Mon, 24 Oct 2022 12:33:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D056BC433C1;
+        Mon, 24 Oct 2022 12:33:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615939;
-        bh=uZwYTbK6c6lRKIRXzBwGFW3FOhNrXvNl0/chneSWtEo=;
+        s=korg; t=1666614796;
+        bh=QHolA/OG9b0aq0+4xFDwS22hchZVMgKudTulwkkkeH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GtQOYc9bZzlC8LLQaEMDzAw3Dpb9VtoPt8eHNWlflN0JQX5TXtUYhka48LiLX++tO
-         Aq05wYWLFHWIUggP1uelVCtzIiJfxCsY/WGo/9oHXCSORaW+yxWIgUKFQ6+pNcNdi6
-         EXLJ9Rn/XaxHHeqhtECM8GY94ARG1X0XVOPlNGyY=
+        b=nq5gbjgP6pv0emZCv5n7lcXV0/W/4JB+iliVPSs6G0IcNDaeWFC9aWeutAd4pCYyO
+         RQg3ZVADg+XiByk3oZ/qejCBBZLp3/b7sNuOuuuwqPT0l+4B/HOd5FVVKl8aZ+GLvV
+         SRgirzZuWjWkKzmVhA7Beuc+HMVM5kv2yvTmsKnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sungwoo Kim <iam@sung-woo.kim>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 441/530] Bluetooth: L2CAP: Fix user-after-free
-Date:   Mon, 24 Oct 2022 13:33:05 +0200
-Message-Id: <20221024113105.024736583@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Liska <mliska@suse.cz>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 390/390] gcov: support GCC 12.1 and newer compilers
+Date:   Mon, 24 Oct 2022 13:33:07 +0200
+Message-Id: <20221024113039.579086999@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Martin Liska <mliska@suse.cz>
 
-[ Upstream commit 35fcbc4243aad7e7d020b7c1dfb14bb888b20a4f ]
+commit 977ef30a7d888eeb52fb6908f99080f33e5309a8 upstream.
 
-This uses l2cap_chan_hold_unless_zero() after calling
-__l2cap_get_chan_blah() to prevent the following trace:
+Starting with GCC 12.1, the created .gcda format can't be read by gcov
+tool.  There are 2 significant changes to the .gcda file format that
+need to be supported:
 
-Bluetooth: l2cap_core.c:static void l2cap_chan_destroy(struct kref
-*kref)
-Bluetooth: chan 0000000023c4974d
-Bluetooth: parent 00000000ae861c08
-==================================================================
-BUG: KASAN: use-after-free in __mutex_waiter_is_first
-kernel/locking/mutex.c:191 [inline]
-BUG: KASAN: use-after-free in __mutex_lock_common
-kernel/locking/mutex.c:671 [inline]
-BUG: KASAN: use-after-free in __mutex_lock+0x278/0x400
-kernel/locking/mutex.c:729
-Read of size 8 at addr ffff888006a49b08 by task kworker/u3:2/389
+a) [gcov: Use system IO buffering]
+   (23eb66d1d46a34cb28c4acbdf8a1deb80a7c5a05) changed that all sizes in
+   the format are in bytes and not in words (4B)
 
-Link: https://lore.kernel.org/lkml/20220622082716.478486-1-lee.jones@linaro.org
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Sungwoo Kim <iam@sung-woo.kim>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+b) [gcov: make profile merging smarter]
+   (72e0c742bd01f8e7e6dcca64042b9ad7e75979de) add a new checksum to the
+   file header.
+
+Tested with GCC 7.5, 10.4, 12.2 and the current master.
+
+Link: https://lkml.kernel.org/r/624bda92-f307-30e9-9aaa-8cc678b2dfb2@suse.cz
+Signed-off-by: Martin Liska <mliska@suse.cz>
+Tested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ kernel/gcov/gcc_4_7.c |   18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 4e7dd41a8314..8f1a95b9d320 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -4309,6 +4309,12 @@ static int l2cap_connect_create_rsp(struct l2cap_conn *conn,
- 		}
- 	}
+--- a/kernel/gcov/gcc_4_7.c
++++ b/kernel/gcov/gcc_4_7.c
+@@ -33,6 +33,13 @@
  
-+	chan = l2cap_chan_hold_unless_zero(chan);
-+	if (!chan) {
-+		err = -EBADSLT;
-+		goto unlock;
-+	}
+ #define GCOV_TAG_FUNCTION_LENGTH	3
+ 
++/* Since GCC 12.1 sizes are in BYTES and not in WORDS (4B). */
++#if (__GNUC__ >= 12)
++#define GCOV_UNIT_SIZE				4
++#else
++#define GCOV_UNIT_SIZE				1
++#endif
 +
- 	err = 0;
+ static struct gcov_info *gcov_info_head;
  
- 	l2cap_chan_lock(chan);
-@@ -4338,6 +4344,7 @@ static int l2cap_connect_create_rsp(struct l2cap_conn *conn,
- 	}
+ /**
+@@ -451,12 +458,18 @@ static size_t convert_to_gcda(char *buff
+ 	pos += store_gcov_u32(buffer, pos, info->version);
+ 	pos += store_gcov_u32(buffer, pos, info->stamp);
  
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
++#if (__GNUC__ >= 12)
++	/* Use zero as checksum of the compilation unit. */
++	pos += store_gcov_u32(buffer, pos, 0);
++#endif
++
+ 	for (fi_idx = 0; fi_idx < info->n_functions; fi_idx++) {
+ 		fi_ptr = info->functions[fi_idx];
  
- unlock:
- 	mutex_unlock(&conn->chan_lock);
--- 
-2.35.1
-
+ 		/* Function record. */
+ 		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION);
+-		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION_LENGTH);
++		pos += store_gcov_u32(buffer, pos,
++			GCOV_TAG_FUNCTION_LENGTH * GCOV_UNIT_SIZE);
+ 		pos += store_gcov_u32(buffer, pos, fi_ptr->ident);
+ 		pos += store_gcov_u32(buffer, pos, fi_ptr->lineno_checksum);
+ 		pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
+@@ -470,7 +483,8 @@ static size_t convert_to_gcda(char *buff
+ 			/* Counter record. */
+ 			pos += store_gcov_u32(buffer, pos,
+ 					      GCOV_TAG_FOR_COUNTER(ct_idx));
+-			pos += store_gcov_u32(buffer, pos, ci_ptr->num * 2);
++			pos += store_gcov_u32(buffer, pos,
++				ci_ptr->num * 2 * GCOV_UNIT_SIZE);
+ 
+ 			for (cv_idx = 0; cv_idx < ci_ptr->num; cv_idx++) {
+ 				pos += store_gcov_u64(buffer, pos,
 
 
