@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BC5F60B9E6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:22:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF3EC60BAED
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:42:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229864AbiJXUWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:22:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60882 "EHLO
+        id S234931AbiJXUmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:42:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234149AbiJXUV7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:21:59 -0400
+        with ESMTP id S234929AbiJXUlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:41:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 205AE19DD80;
-        Mon, 24 Oct 2022 11:38:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EDD8199896;
+        Mon, 24 Oct 2022 11:50:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38269B815B8;
-        Mon, 24 Oct 2022 12:18:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E291C433D7;
-        Mon, 24 Oct 2022 12:18:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20886B8159B;
+        Mon, 24 Oct 2022 12:17:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F565C433D6;
+        Mon, 24 Oct 2022 12:17:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613881;
-        bh=547xsTNwHNS98HazWD5C1d4zRtBg8qNe5JpQzIaOh8U=;
+        s=korg; t=1666613823;
+        bh=qpkhbREp+upQTVqTctmEWCOKn9PVcpaTOkNdIdq7NqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MeWtdNEakBBVLoBvbCcEMvp9crjGRCAyxvJtpohK8nQgVKOLeOB/89R6QQ3bbrZXC
-         Flf/VlTmMHlVflP/d0Zfew8Z+hjEuLZVyGGmSP+f2wPxGXNWvQpoJrtvOSKZpkH2hC
-         hkTGAoEVOkgT937wfWp4arQLdr4Q4G9lIDx6Sp0c=
+        b=ZHSUXoJLLSltKgq3pfqTMAks4fjfphmYVFBtWJPSoktu1DpTskwKXzR/B6to2jhpw
+         fdwi/JRl/7cBmJSTjyaDC0TnSLGwnfDGrwOZmDXOnvvaStC4wRmvp1CLVd+63irBZQ
+         3l9p/KOJenRbKR4sOjErbU+KBBx1ZPz4XGJmG0A8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 020/390] can: kvaser_usb_leaf: Fix TX queue out of sync after restart
-Date:   Mon, 24 Oct 2022 13:26:57 +0200
-Message-Id: <20221024113023.409427251@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 028/390] ASoC: wcd9335: fix order of Slimbus unprepare/disable
+Date:   Mon, 24 Oct 2022 13:27:05 +0200
+Message-Id: <20221024113023.772109112@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -53,68 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 455561fb618fde40558776b5b8435f9420f335db upstream.
+commit ea8ef003aa53ad23e7705c5cab1c4e664faa6c79 upstream.
 
-The TX queue seems to be implicitly flushed by the hardware during
-bus-off or bus-off recovery, but the driver does not reset the TX
-bookkeeping.
+Slimbus streams are first prepared and then enabled, so the cleanup path
+should reverse it.  The unprepare sets stream->num_ports to 0 and frees
+the stream->ports.  Calling disable after unprepare was not really
+effective (channels was not deactivated) and could lead to further
+issues due to making transfers on unprepared stream.
 
-Despite not resetting TX bookkeeping the driver still re-enables TX
-queue unconditionally, leading to "cannot find free context" /
-NETDEV_TX_BUSY errors if the TX queue was full at bus-off time.
-
-Fix that by resetting TX bookkeeping on CAN restart.
-
-Tested with 0bfd:0124 Kvaser Mini PCI Express 2xHS FW 4.18.778.
-
-Cc: stable@vger.kernel.org
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Tested-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010150829.199676-4-extja@kvaser.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 20aedafdf492 ("ASoC: wcd9335: add support to wcd9335 codec")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220921145354.1683791-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb.h      |    2 ++
- drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c |    2 +-
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c |    2 ++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ sound/soc/codecs/wcd9335.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
-@@ -178,6 +178,8 @@ struct kvaser_usb_dev_cfg {
- extern const struct kvaser_usb_dev_ops kvaser_usb_hydra_dev_ops;
- extern const struct kvaser_usb_dev_ops kvaser_usb_leaf_dev_ops;
- 
-+void kvaser_usb_unlink_tx_urbs(struct kvaser_usb_net_priv *priv);
-+
- int kvaser_usb_recv_cmd(const struct kvaser_usb *dev, void *cmd, int len,
- 			int *actual_len);
- 
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
-@@ -453,7 +453,7 @@ static void kvaser_usb_reset_tx_urb_cont
- /* This method might sleep. Do not call it in the atomic context
-  * of URB completions.
-  */
--static void kvaser_usb_unlink_tx_urbs(struct kvaser_usb_net_priv *priv)
-+void kvaser_usb_unlink_tx_urbs(struct kvaser_usb_net_priv *priv)
- {
- 	usb_kill_anchored_urbs(&priv->tx_submitted);
- 	kvaser_usb_reset_tx_urb_contexts(priv);
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -1430,6 +1430,8 @@ static int kvaser_usb_leaf_set_mode(stru
- 
- 	switch (mode) {
- 	case CAN_MODE_START:
-+		kvaser_usb_unlink_tx_urbs(priv);
-+
- 		err = kvaser_usb_leaf_simple_cmd_async(priv, CMD_START_CHIP);
- 		if (err)
- 			return err;
+--- a/sound/soc/codecs/wcd9335.c
++++ b/sound/soc/codecs/wcd9335.c
+@@ -1971,8 +1971,8 @@ static int wcd9335_trigger(struct snd_pc
+ 	case SNDRV_PCM_TRIGGER_STOP:
+ 	case SNDRV_PCM_TRIGGER_SUSPEND:
+ 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
+-		slim_stream_unprepare(dai_data->sruntime);
+ 		slim_stream_disable(dai_data->sruntime);
++		slim_stream_unprepare(dai_data->sruntime);
+ 		break;
+ 	default:
+ 		break;
 
 
