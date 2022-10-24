@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB39D60A553
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:23:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D92760A521
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233431AbiJXMXP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:23:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40712 "EHLO
+        id S233349AbiJXMUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:20:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233410AbiJXMVk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:21:40 -0400
+        with ESMTP id S233564AbiJXMTv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A62D7C1EA;
-        Mon, 24 Oct 2022 04:59:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D44C983040;
+        Mon, 24 Oct 2022 04:58:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EDD8F612A4;
-        Mon, 24 Oct 2022 11:58:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A428C433C1;
-        Mon, 24 Oct 2022 11:58:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 768BB61218;
+        Mon, 24 Oct 2022 11:49:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C2DFC433C1;
+        Mon, 24 Oct 2022 11:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612714;
-        bh=/11Bn+/w1g2+97iqpB5rxj+jzSQ00chxTdkDUSp8RO0=;
+        s=korg; t=1666612165;
+        bh=ZPeymm10gGxK2SsTtk+hUrOWMe19b/6w/albuianqiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBB9Ov2sq6oBnmzRTiHBf99SlXGClNsrtwm1O9jjfQDxnPc7B/99lMtZVhdziRy5N
-         w3jC7UJXAoutGM3g1xzFcCdvBdti0FueP4c4wl9B7MzSCiu5NGne6yDrA+yHnmvhPh
-         sTPsGaiXKwgyjNGvvTlrsbDQNqkjELn29+a8VIS8=
+        b=hFUKehqiohfX01Z63RRYBck54PzrQdPUwgla5fiCqsCDaHw9rEeKYQYJW+kE1RELw
+         F9WR2S6MUDvuVrLo6yuLOkqCETPUCsIky3Se/d3BcrQXf/UjUGhU/bRAt6E2eaV+yk
+         ehzKqBZJhltYvB1Sx3znYmUp0hr2S12poUl+XKdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Leon Romanovsky <leonro@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 092/229] once: add DO_ONCE_SLOW() for sleepable contexts
+Subject: [PATCH 4.14 094/210] mISDN: fix use-after-free bugs in l1oip timer handlers
 Date:   Mon, 24 Oct 2022 13:30:11 +0200
-Message-Id: <20221024113002.025977656@linuxfoundation.org>
+Message-Id: <20221024113000.080894670@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,147 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 62c07983bef9d3e78e71189441e1a470f0d1e653 ]
+[ Upstream commit 2568a7e0832ee30b0a351016d03062ab4e0e0a3f ]
 
-Christophe Leroy reported a ~80ms latency spike
-happening at first TCP connect() time.
+The l1oip_cleanup() traverses the l1oip_ilist and calls
+release_card() to cleanup module and stack. However,
+release_card() calls del_timer() to delete the timers
+such as keep_tl and timeout_tl. If the timer handler is
+running, the del_timer() will not stop it and result in
+UAF bugs. One of the processes is shown below:
 
-This is because __inet_hash_connect() uses get_random_once()
-to populate a perturbation table which became quite big
-after commit 4c2c8f03a5ab ("tcp: increase source port perturb table to 2^16")
+    (cleanup routine)          |        (timer handler)
+release_card()                 | l1oip_timeout()
+ ...                           |
+ del_timer()                   | ...
+ ...                           |
+ kfree(hc) //FREE              |
+                               | hc->timeout_on = 0 //USE
 
-get_random_once() uses DO_ONCE(), which block hard irqs for the duration
-of the operation.
+Fix by calling del_timer_sync() in release_card(), which
+makes sure the timer handlers have finished before the
+resources, such as l1oip and so on, have been deallocated.
 
-This patch adds DO_ONCE_SLOW() which uses a mutex instead of a spinlock
-for operations where we prefer to stay in process context.
+What's more, the hc->workq and hc->socket_thread can kick
+those timers right back in. We add a bool flag to show
+if card is released. Then, check this flag in hc->workq
+and hc->socket_thread.
 
-Then __inet_hash_connect() can use get_random_slow_once()
-to populate its perturbation table.
-
-Fixes: 4c2c8f03a5ab ("tcp: increase source port perturb table to 2^16")
-Fixes: 190cc82489f4 ("tcp: change source port randomizarion at connect() time")
-Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Link: https://lore.kernel.org/netdev/CANn89iLAEYBaoYajy0Y9UmGFff5GPxDUoG-ErVB2jDdRNQ5Tug@mail.gmail.com/T/#t
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Fixes: 3712b42d4b1b ("Add layer1 over IP support")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/once.h       | 28 ++++++++++++++++++++++++++++
- lib/once.c                 | 30 ++++++++++++++++++++++++++++++
- net/ipv4/inet_hashtables.c |  4 ++--
- 3 files changed, 60 insertions(+), 2 deletions(-)
+ drivers/isdn/mISDN/l1oip.h      |  1 +
+ drivers/isdn/mISDN/l1oip_core.c | 13 +++++++------
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/once.h b/include/linux/once.h
-index ae6f4eb41cbe..bb58e1c3aa03 100644
---- a/include/linux/once.h
-+++ b/include/linux/once.h
-@@ -5,10 +5,18 @@
- #include <linux/types.h>
- #include <linux/jump_label.h>
+diff --git a/drivers/isdn/mISDN/l1oip.h b/drivers/isdn/mISDN/l1oip.h
+index 7ea10db20e3a..48133d022812 100644
+--- a/drivers/isdn/mISDN/l1oip.h
++++ b/drivers/isdn/mISDN/l1oip.h
+@@ -59,6 +59,7 @@ struct l1oip {
+ 	int			bundle;		/* bundle channels in one frm */
+ 	int			codec;		/* codec to use for transmis. */
+ 	int			limit;		/* limit number of bchannels */
++	bool			shutdown;	/* if card is released */
  
-+/* Helpers used from arbitrary contexts.
-+ * Hard irqs are blocked, be cautious.
-+ */
- bool __do_once_start(bool *done, unsigned long *flags);
- void __do_once_done(bool *done, struct static_key_true *once_key,
- 		    unsigned long *flags, struct module *mod);
+ 	/* timer */
+ 	struct timer_list	keep_tl;
+diff --git a/drivers/isdn/mISDN/l1oip_core.c b/drivers/isdn/mISDN/l1oip_core.c
+index 6be2041248d3..c86f33ed9ef9 100644
+--- a/drivers/isdn/mISDN/l1oip_core.c
++++ b/drivers/isdn/mISDN/l1oip_core.c
+@@ -289,7 +289,7 @@ l1oip_socket_send(struct l1oip *hc, u8 localcodec, u8 channel, u32 chanmask,
+ 	p = frame;
  
-+/* Variant for process contexts only. */
-+bool __do_once_slow_start(bool *done);
-+void __do_once_slow_done(bool *done, struct static_key_true *once_key,
-+			 struct module *mod);
-+
- /* Call a function exactly once. The idea of DO_ONCE() is to perform
-  * a function call such as initialization of random seeds, etc, only
-  * once, where DO_ONCE() can live in the fast-path. After @func has
-@@ -52,9 +60,29 @@ void __do_once_done(bool *done, struct static_key_true *once_key,
- 		___ret;							     \
- 	})
+ 	/* restart timer */
+-	if (time_before(hc->keep_tl.expires, jiffies + 5 * HZ))
++	if (time_before(hc->keep_tl.expires, jiffies + 5 * HZ) && !hc->shutdown)
+ 		mod_timer(&hc->keep_tl, jiffies + L1OIP_KEEPALIVE * HZ);
+ 	else
+ 		hc->keep_tl.expires = jiffies + L1OIP_KEEPALIVE * HZ;
+@@ -621,7 +621,9 @@ l1oip_socket_parse(struct l1oip *hc, struct sockaddr_in *sin, u8 *buf, int len)
+ 		goto multiframe;
  
-+/* Variant of DO_ONCE() for process/sleepable contexts. */
-+#define DO_ONCE_SLOW(func, ...)						     \
-+	({								     \
-+		bool ___ret = false;					     \
-+		static bool __section(".data.once") ___done = false;	     \
-+		static DEFINE_STATIC_KEY_TRUE(___once_key);		     \
-+		if (static_branch_unlikely(&___once_key)) {		     \
-+			___ret = __do_once_slow_start(&___done);	     \
-+			if (unlikely(___ret)) {				     \
-+				func(__VA_ARGS__);			     \
-+				__do_once_slow_done(&___done, &___once_key,  \
-+						    THIS_MODULE);	     \
-+			}						     \
-+		}							     \
-+		___ret;							     \
-+	})
-+
- #define get_random_once(buf, nbytes)					     \
- 	DO_ONCE(get_random_bytes, (buf), (nbytes))
- #define get_random_once_wait(buf, nbytes)                                    \
- 	DO_ONCE(get_random_bytes_wait, (buf), (nbytes))                      \
+ 	/* restart timer */
+-	if (time_before(hc->timeout_tl.expires, jiffies + 5 * HZ) || !hc->timeout_on) {
++	if ((time_before(hc->timeout_tl.expires, jiffies + 5 * HZ) ||
++	     !hc->timeout_on) &&
++	    !hc->shutdown) {
+ 		hc->timeout_on = 1;
+ 		mod_timer(&hc->timeout_tl, jiffies + L1OIP_TIMEOUT * HZ);
+ 	} else /* only adjust timer */
+@@ -1248,11 +1250,10 @@ release_card(struct l1oip *hc)
+ {
+ 	int	ch;
  
-+#define get_random_slow_once(buf, nbytes)				     \
-+	DO_ONCE_SLOW(get_random_bytes, (buf), (nbytes))
-+
- #endif /* _LINUX_ONCE_H */
-diff --git a/lib/once.c b/lib/once.c
-index 59149bf3bfb4..351f66aad310 100644
---- a/lib/once.c
-+++ b/lib/once.c
-@@ -66,3 +66,33 @@ void __do_once_done(bool *done, struct static_key_true *once_key,
- 	once_disable_jump(once_key, mod);
- }
- EXPORT_SYMBOL(__do_once_done);
-+
-+static DEFINE_MUTEX(once_mutex);
-+
-+bool __do_once_slow_start(bool *done)
-+	__acquires(once_mutex)
-+{
-+	mutex_lock(&once_mutex);
-+	if (*done) {
-+		mutex_unlock(&once_mutex);
-+		/* Keep sparse happy by restoring an even lock count on
-+		 * this mutex. In case we return here, we don't call into
-+		 * __do_once_done but return early in the DO_ONCE_SLOW() macro.
-+		 */
-+		__acquire(once_mutex);
-+		return false;
-+	}
-+
-+	return true;
-+}
-+EXPORT_SYMBOL(__do_once_slow_start);
-+
-+void __do_once_slow_done(bool *done, struct static_key_true *once_key,
-+			 struct module *mod)
-+	__releases(once_mutex)
-+{
-+	*done = true;
-+	mutex_unlock(&once_mutex);
-+	once_disable_jump(once_key, mod);
-+}
-+EXPORT_SYMBOL(__do_once_slow_done);
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 5295a579ec82..70070f1003a0 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -765,8 +765,8 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- 	if (likely(remaining > 1))
- 		remaining &= ~1U;
+-	if (timer_pending(&hc->keep_tl))
+-		del_timer(&hc->keep_tl);
++	hc->shutdown = true;
  
--	net_get_random_once(table_perturb,
--			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
-+	get_random_slow_once(table_perturb,
-+			     INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
- 	index = port_offset & (INET_TABLE_PERTURB_SIZE - 1);
+-	if (timer_pending(&hc->timeout_tl))
+-		del_timer(&hc->timeout_tl);
++	del_timer_sync(&hc->keep_tl);
++	del_timer_sync(&hc->timeout_tl);
  
- 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
+ 	cancel_work_sync(&hc->workq);
+ 
 -- 
 2.35.1
 
