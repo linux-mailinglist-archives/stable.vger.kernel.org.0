@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0F160BAF6
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5276D60BA07
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:25:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235056AbiJXUn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:43:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58242 "EHLO
+        id S231585AbiJXUY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:24:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234736AbiJXUnB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:43:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86DE8249893;
-        Mon, 24 Oct 2022 11:51:16 -0700 (PDT)
+        with ESMTP id S233454AbiJXUXY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:23:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E217413F48;
+        Mon, 24 Oct 2022 11:38:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3D0BECE16DB;
-        Mon, 24 Oct 2022 12:50:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A156C433C1;
-        Mon, 24 Oct 2022 12:50:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21F1AB810B2;
+        Mon, 24 Oct 2022 12:14:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 733A1C433C1;
+        Mon, 24 Oct 2022 12:14:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615801;
-        bh=KtGQp74GjUm4fjBDfc/e1bqaUuqJ4KqtnZ46BIA9LVA=;
+        s=korg; t=1666613671;
+        bh=NMLKHiEK9NjSAgTP2LcnDOFgdc0G48TbfOyUUvIGw5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hToBVyC+X6u9zICjx6DIHjcc6nxKvEY8D5FUV9W4jgg3TWRW5tUGZ1oOJDIj/Bn64
-         P+s6atLQpgpzDKMRxn9nX5V7/VSWLorTVzJkdq48QGtGpDdGlCRWisCeQ/p2Ltlflf
-         gJPWdBaoTfZDz96Avik7LRM0T3UikBO1P+l1gAf4=
+        b=XRKF8Q06Lv++LwgwFal8wutGEFQP4JUAgBftMbCdaZdqZJCoDYUryystFnh75p6CU
+         6Wq4AaUJGpVyUIgxXJHfOpfuuuIM/TKLhugTssi054x94TJilQNtlrJV5avscacUQr
+         inK8hIZKCDe51xvI9H3uDHpJx466DXNPxbnA4xZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 361/530] mailbox: bcm-ferxrm-mailbox: Fix error check for dma_map_sg
+Subject: [PATCH 5.4 195/255] tcp: annotate data-race around tcp_md5sig_pool_populated
 Date:   Mon, 24 Oct 2022 13:31:45 +0200
-Message-Id: <20221024113101.392155581@linuxfoundation.org>
+Message-Id: <20221024113009.475095136@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@ionos.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 6b207ce8a96a71e966831e3a13c38143ba9a73c1 ]
+[ Upstream commit aacd467c0a576e5e44d2de4205855dc0fe43f6fb ]
 
-dma_map_sg return 0 on error, fix the error check, and return -EIO
-to caller.
+tcp_md5sig_pool_populated can be read while another thread
+changes its value.
 
-Fixes: dbc049eee730 ("mailbox: Add driver for Broadcom FlexRM ring manager")
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+The race has no consequence because allocations
+are protected with tcp_md5sig_mutex.
+
+This patch adds READ_ONCE() and WRITE_ONCE() to document
+the race and silence KCSAN.
+
+Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/bcm-flexrm-mailbox.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/ipv4/tcp.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mailbox/bcm-flexrm-mailbox.c b/drivers/mailbox/bcm-flexrm-mailbox.c
-index 78073ad1f2f1..b7e9fd53d47d 100644
---- a/drivers/mailbox/bcm-flexrm-mailbox.c
-+++ b/drivers/mailbox/bcm-flexrm-mailbox.c
-@@ -632,15 +632,15 @@ static int flexrm_spu_dma_map(struct device *dev, struct brcm_message *msg)
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 2da4f852fc58..aeeeaf2d6482 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -3770,12 +3770,16 @@ static void __tcp_alloc_md5sig_pool(void)
+ 	 * to memory. See smp_rmb() in tcp_get_md5sig_pool()
+ 	 */
+ 	smp_wmb();
+-	tcp_md5sig_pool_populated = true;
++	/* Paired with READ_ONCE() from tcp_alloc_md5sig_pool()
++	 * and tcp_get_md5sig_pool().
++	*/
++	WRITE_ONCE(tcp_md5sig_pool_populated, true);
+ }
  
- 	rc = dma_map_sg(dev, msg->spu.src, sg_nents(msg->spu.src),
- 			DMA_TO_DEVICE);
--	if (rc < 0)
--		return rc;
-+	if (!rc)
-+		return -EIO;
+ bool tcp_alloc_md5sig_pool(void)
+ {
+-	if (unlikely(!tcp_md5sig_pool_populated)) {
++	/* Paired with WRITE_ONCE() from __tcp_alloc_md5sig_pool() */
++	if (unlikely(!READ_ONCE(tcp_md5sig_pool_populated))) {
+ 		mutex_lock(&tcp_md5sig_mutex);
  
- 	rc = dma_map_sg(dev, msg->spu.dst, sg_nents(msg->spu.dst),
- 			DMA_FROM_DEVICE);
--	if (rc < 0) {
-+	if (!rc) {
- 		dma_unmap_sg(dev, msg->spu.src, sg_nents(msg->spu.src),
- 			     DMA_TO_DEVICE);
--		return rc;
-+		return -EIO;
+ 		if (!tcp_md5sig_pool_populated) {
+@@ -3786,7 +3790,8 @@ bool tcp_alloc_md5sig_pool(void)
+ 
+ 		mutex_unlock(&tcp_md5sig_mutex);
  	}
+-	return tcp_md5sig_pool_populated;
++	/* Paired with WRITE_ONCE() from __tcp_alloc_md5sig_pool() */
++	return READ_ONCE(tcp_md5sig_pool_populated);
+ }
+ EXPORT_SYMBOL(tcp_alloc_md5sig_pool);
  
- 	return 0;
+@@ -3802,7 +3807,8 @@ struct tcp_md5sig_pool *tcp_get_md5sig_pool(void)
+ {
+ 	local_bh_disable();
+ 
+-	if (tcp_md5sig_pool_populated) {
++	/* Paired with WRITE_ONCE() from __tcp_alloc_md5sig_pool() */
++	if (READ_ONCE(tcp_md5sig_pool_populated)) {
+ 		/* coupled with smp_wmb() in __tcp_alloc_md5sig_pool() */
+ 		smp_rmb();
+ 		return this_cpu_ptr(&tcp_md5sig_pool);
 -- 
 2.35.1
 
