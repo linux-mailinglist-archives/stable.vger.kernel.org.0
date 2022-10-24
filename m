@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67E5C60B801
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:40:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E76D60B56A
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 20:24:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233327AbiJXTkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:40:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42658 "EHLO
+        id S229876AbiJXSYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 14:24:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231175AbiJXTji (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:39:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F53ACF75;
-        Mon, 24 Oct 2022 11:10:10 -0700 (PDT)
+        with ESMTP id S232120AbiJXSY0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 14:24:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E7520F5C;
+        Mon, 24 Oct 2022 10:05:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 782C9B819D3;
-        Mon, 24 Oct 2022 12:46:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D55F9C433C1;
-        Mon, 24 Oct 2022 12:45:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 094BC612B1;
+        Mon, 24 Oct 2022 12:45:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9490C433D6;
+        Mon, 24 Oct 2022 12:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615560;
-        bh=rQGucdkySq2WMq3kFBntMCiI+Qpd05wuRtGqBbG1zMA=;
+        s=korg; t=1666615499;
+        bh=X38VWH2et6l8j7ErF92H2f0hZx1DchmzPhdw98JHFCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEFwOldW+k82vELXE4lZSbcrWX1k2Xk1UswH+WrV/fLlD2+WF2m09QnehtHtEbTi2
-         tPP4Th81xzeZcVIsh5VnDoc+H1UffSZZuTuOsUef/CrZdWRyEzEkdGDJBDQS4LNwdP
-         bN14wS89E9JQIEXCyqNOG+0ergCC65n+GR8uIUUg=
+        b=VroJbDnu6tpBQKoof3DD5+frb3CYeY2AcTV/8ylrMG7blE62h+Qmh63wJgLAQFl+P
+         hF7sV9P4bagNmmnB3viw0QcVTPFmqWFhCAilrahmP2xuyZRHfnMrcms9eVnyDhpk/1
+         tY3wH/Wcq8wlCSi6U8aUmq90Y5J4ylAujUcO/Pf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 268/530] iio: inkern: only release the device node when done with it
-Date:   Mon, 24 Oct 2022 13:30:12 +0200
-Message-Id: <20221024113057.192502132@linuxfoundation.org>
+Subject: [PATCH 5.15 275/530] clk: oxnas: Hold reference returned by of_get_parent()
+Date:   Mon, 24 Oct 2022 13:30:19 +0200
+Message-Id: <20221024113057.523545189@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,55 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 79c3e84874c7d14f04ad58313b64955a0d2e9437 ]
+[ Upstream commit 1d6aa08c54cd0e005210ab8e3b1e92ede70f8a4f ]
 
-'of_node_put()' can potentially release the memory pointed to by
-'iiospec.np' which would leave us with an invalid pointer (and we would
-still pass it in 'of_xlate()'). Note that it is not guaranteed for the
-of_node lifespan to be attached to the device (to which is attached)
-lifespan so that there is (even though very unlikely) the possibility
-for the node to be freed while the device is still around. Thus, as there
-are indeed some of_xlate users which do access the node, a race is indeed
-possible.
+In oxnas_stdclk_probe(), we need to hold the reference returned by
+of_get_parent() and use it to call of_node_put() for refcount
+balance.
 
-As such, we can only release the node after we are done with it.
-
-Fixes: 17d82b47a215d ("iio: Add OF support")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20220715122903.332535-2-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 0bbd72b4c64f ("clk: Add Oxford Semiconductor OXNAS Standard Clocks")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220628143155.170550-1-windhl@126.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/inkern.c | 6 ++++--
+ drivers/clk/clk-oxnas.c | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
-index b5966365d769..30a8ecb692f8 100644
---- a/drivers/iio/inkern.c
-+++ b/drivers/iio/inkern.c
-@@ -148,9 +148,10 @@ static int __of_iio_channel_get(struct iio_channel *channel,
+diff --git a/drivers/clk/clk-oxnas.c b/drivers/clk/clk-oxnas.c
+index 78d5ea669fea..2fe36f579ac5 100644
+--- a/drivers/clk/clk-oxnas.c
++++ b/drivers/clk/clk-oxnas.c
+@@ -207,7 +207,7 @@ static const struct of_device_id oxnas_stdclk_dt_ids[] = {
  
- 	idev = bus_find_device(&iio_bus_type, NULL, iiospec.np,
- 			       iio_dev_node_match);
--	of_node_put(iiospec.np);
--	if (idev == NULL)
-+	if (idev == NULL) {
-+		of_node_put(iiospec.np);
- 		return -EPROBE_DEFER;
-+	}
+ static int oxnas_stdclk_probe(struct platform_device *pdev)
+ {
+-	struct device_node *np = pdev->dev.of_node;
++	struct device_node *np = pdev->dev.of_node, *parent_np;
+ 	const struct oxnas_stdclk_data *data;
+ 	const struct of_device_id *id;
+ 	struct regmap *regmap;
+@@ -219,7 +219,9 @@ static int oxnas_stdclk_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	data = id->data;
  
- 	indio_dev = dev_to_iio_dev(idev);
- 	channel->indio_dev = indio_dev;
-@@ -158,6 +159,7 @@ static int __of_iio_channel_get(struct iio_channel *channel,
- 		index = indio_dev->info->of_xlate(indio_dev, &iiospec);
- 	else
- 		index = __of_iio_simple_xlate(indio_dev, &iiospec);
-+	of_node_put(iiospec.np);
- 	if (index < 0)
- 		goto err_put;
- 	channel->channel = &indio_dev->channels[index];
+-	regmap = syscon_node_to_regmap(of_get_parent(np));
++	parent_np = of_get_parent(np);
++	regmap = syscon_node_to_regmap(parent_np);
++	of_node_put(parent_np);
+ 	if (IS_ERR(regmap)) {
+ 		dev_err(&pdev->dev, "failed to have parent regmap\n");
+ 		return PTR_ERR(regmap);
 -- 
 2.35.1
 
