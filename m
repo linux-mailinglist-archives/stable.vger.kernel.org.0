@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A840360AB82
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:53:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2DCC60A98C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:22:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236686AbiJXNxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:53:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33702 "EHLO
+        id S229777AbiJXNWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:22:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236569AbiJXNwb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:52:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86202BB07E;
-        Mon, 24 Oct 2022 05:42:56 -0700 (PDT)
+        with ESMTP id S233443AbiJXNVC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:21:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C07BF876AB;
+        Mon, 24 Oct 2022 05:29:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D0106130D;
-        Mon, 24 Oct 2022 12:35:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1CD3C433C1;
-        Mon, 24 Oct 2022 12:35:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A035B61280;
+        Mon, 24 Oct 2022 12:16:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0FE6C433C1;
+        Mon, 24 Oct 2022 12:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614944;
-        bh=ZvsCPR12oufQrHYLoNm365mtLVcr9BbTjaxXV5rh9Ik=;
+        s=korg; t=1666613805;
+        bh=hrbj3D/Rrt4me43Jff/FRrVgjPpISerWoFzxRiWQGmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VUlNz6p6IaNFNE5YUeu3OwXvJLvVwXbFUz/VVRITqseLRJK+of9grtRs2jj2GoeU5
-         9wDUssDDKInDKLwMlAbBsnY3SZl/wmms4d3o6cr0FBLlkJXxz+iC4ENIr0E26HGsre
-         F49Lvbe4nJFo+zhaO/FVF4BkUsPwywBFpNmk7ie4=
+        b=CcbgLdU2ot32++HaQ//l0Rp2rKllp3ByqKP2BTNktIlprKHVdJZ9uEvgKa5rTikq1
+         8pm5jEwr8wrI4d7wtCTU02yUNCqWBJjm5LhQTMRzhQ7vI30VoNlKKIYxGCWmjIyIDE
+         vJPRAJpp+0F72PP6V8BGtm99SuIj6yYdjv9mQQ7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.15 061/530] PCI: Sanitise firmware BAR assignments behind a PCI-PCI bridge
+        stable@vger.kernel.org, Saranya Gopal <saranya.gopal@intel.com>,
+        Ninad Naik <ninad.naik@intel.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 008/390] ALSA: hda/realtek: Add Intel Reference SSID to support headset keys
 Date:   Mon, 24 Oct 2022 13:26:45 +0200
-Message-Id: <20221024113047.800258013@linuxfoundation.org>
+Message-Id: <20221024113022.910682345@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,102 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Saranya Gopal <saranya.gopal@intel.com>
 
-commit 0e32818397426a688f598f35d3bc762eca6d7592 upstream.
+commit 4f2e56a59b9947b3e698d3cabcb858765c12b1e8 upstream.
 
-When pci_assign_resource() is unable to assign resources to a BAR, it uses
-pci_revert_fw_address() to fall back to a firmware assignment (if any).
-Previously pci_revert_fw_address() assumed all addresses could reach the
-device, but this is not true if the device is below a bridge that only
-forwards addresses within its windows.
+This patch fixes the issue with 3.5mm headset keys
+on RPL-P platform.
 
-This problem was observed on a Tyan Tomcat IV S1564D system where the BIOS
-did not assign valid addresses to several bridges and USB devices:
+[ Rearranged the entry in SSID order by tiwai ]
 
-  pci 0000:00:11.0: PCI-to-PCIe bridge to [bus 01-ff]
-  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
-  pci 0000:01:00.0: PCIe Upstream Port to [bus 02-ff]
-  pci 0000:01:00.0:   bridge window [io  0x0000-0x0fff]   # unreachable
-  pci 0000:02:02.0: PCIe Downstream Port to [bus 05-ff]
-  pci 0000:02:02.0:   bridge window [io  0x0000-0x0fff]   # unreachable
-  pci 0000:05:00.0: PCIe-to-PCI bridge to [bus 06-ff]
-  pci 0000:05:00.0:   bridge window [io  0x0000-0x0fff]   # unreachable
-  pci 0000:06:08.0: USB UHCI 1.1
-  pci 0000:06:08.0: BAR 4: [io  0xfce0-0xfcff]            # unreachable
-  pci 0000:06:08.1: USB UHCI 1.1
-  pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff]            # unreachable
-  pci 0000:06:08.0: can't claim BAR 4 [io  0xfce0-0xfcff]: no compatible bridge window
-  pci 0000:06:08.1: can't claim BAR 4 [io  0xfce0-0xfcff]: no compatible bridge window
-
-During the first pass of assigning unassigned resources, there was not
-enough I/O space available, so we couldn't assign the 06:08.0 BAR and
-reverted to the firmware assignment (still unreachable).  Reverting the
-06:08.1 assignment failed because it conflicted with 06:08.0:
-
-  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
-  pci 0000:01:00.0: no space for bridge window [io  size 0x2000]
-  pci 0000:02:02.0: no space for bridge window [io  size 0x1000]
-  pci 0000:05:00.0: no space for bridge window [io  size 0x1000]
-  pci 0000:06:08.0: BAR 4: no space for [io  size 0x0020]
-  pci 0000:06:08.0: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
-  pci 0000:06:08.1: BAR 4: no space for [io  size 0x0020]
-  pci 0000:06:08.1: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
-  pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff] conflicts with 0000:06:08.0 [io  0xfce0-0xfcff]
-
-A subsequent pass assigned valid bridge windows and a valid 06:08.1 BAR,
-but left the 06:08.0 BAR alone, so the UHCI device was still unusable:
-
-  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff] released
-  pci 0000:00:11.0:   bridge window [io  0x1000-0x2fff]   # reassigned
-  pci 0000:01:00.0:   bridge window [io  0x1000-0x2fff]   # reassigned
-  pci 0000:02:02.0:   bridge window [io  0x2000-0x2fff]   # reassigned
-  pci 0000:05:00.0:   bridge window [io  0x2000-0x2fff]   # reassigned
-  pci 0000:06:08.0: BAR 4: assigned [io  0xfce0-0xfcff]   # left alone
-  pci 0000:06:08.1: BAR 4: assigned [io  0x2000-0x201f]
-  ...
-  uhci_hcd 0000:06:08.0: host system error, PCI problems?
-  uhci_hcd 0000:06:08.0: host controller process error, something bad happened!
-  uhci_hcd 0000:06:08.0: host controller halted, very bad!
-  uhci_hcd 0000:06:08.0: HCRESET not completed yet!
-  uhci_hcd 0000:06:08.0: HC died; cleaning up
-
-If the address assigned by firmware is not reachable because it's not
-within upstream bridge windows, fail instead of assigning the unusable
-address from firmware.
-
-[bhelgaas: commit log, use pci_upstream_bridge()]
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=16263
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2203012338460.46819@angie.orcam.me.uk
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209211921250.29493@angie.orcam.me.uk
-Fixes: 58c84eda0756 ("PCI: fall back to original BIOS BAR addresses")
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org # v2.6.35+
+Signed-off-by: Saranya Gopal <saranya.gopal@intel.com>
+Signed-off-by: Ninad Naik <ninad.naik@intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221011044916.2278867-1-saranya.gopal@intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/setup-res.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pci/setup-res.c
-+++ b/drivers/pci/setup-res.c
-@@ -210,6 +210,17 @@ static int pci_revert_fw_address(struct
- 
- 	root = pci_find_parent_resource(dev, res);
- 	if (!root) {
-+		/*
-+		 * If dev is behind a bridge, accesses will only reach it
-+		 * if res is inside the relevant bridge window.
-+		 */
-+		if (pci_upstream_bridge(dev))
-+			return -ENXIO;
-+
-+		/*
-+		 * On the root bus, assume the host bridge will forward
-+		 * everything.
-+		 */
- 		if (res->flags & IORESOURCE_IO)
- 			root = &ioport_resource;
- 		else
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8986,6 +8986,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x10ec, 0x10f2, "Intel Reference board", ALC700_FIXUP_INTEL_REFERENCE),
+ 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x10ec, 0x1230, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
++	SND_PCI_QUIRK(0x10ec, 0x124c, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
+ 	SND_PCI_QUIRK(0x10ec, 0x1252, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
+ 	SND_PCI_QUIRK(0x10ec, 0x1254, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
+ 	SND_PCI_QUIRK(0x10f7, 0x8338, "Panasonic CF-SZ6", ALC269_FIXUP_HEADSET_MODE),
 
 
