@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FC1B60AC6C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F8B60ACFF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:17:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234721AbiJXOGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:06:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41224 "EHLO
+        id S234521AbiJXORO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:17:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237300AbiJXOFT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:05:19 -0400
+        with ESMTP id S235180AbiJXOOc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:14:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 775823384C;
-        Mon, 24 Oct 2022 05:49:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE85132079;
+        Mon, 24 Oct 2022 05:54:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A82F61333;
-        Mon, 24 Oct 2022 12:41:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DA5DC433D6;
-        Mon, 24 Oct 2022 12:41:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D96361280;
+        Mon, 24 Oct 2022 12:43:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BDB8C433C1;
+        Mon, 24 Oct 2022 12:43:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615274;
-        bh=0rrloa4rtQqIKSvTLKwV13mcbf1I5IqFkFUsilHWCIc=;
+        s=korg; t=1666615392;
+        bh=kv2aafQZWXxG9dFeHNnit7opfoXDwVGlj6UlCq69Ok8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i5ZDKfyL9XBTiIMD/CVKRugMEZTE0PgApDbqLKoHi2j+01gk0a59FKSCt3ncxNFhJ
-         g53uLJIYHO957N1oC7pRNFJ0Egy+HRf+8Go9sCU6ruaH9anamShw/2xkN/AUp3HVtK
-         ArhCtgVfkQJzWxJALOmHUKFoPn0Dgvk771Tf1irc=
+        b=gzUD4xLCAL8bYfbOMaXwktlGQJBb+yNqUiexVXqBRpXH5Jfk1fZz5UJ1evSv/hB3h
+         1bW/dZ6LJQqOonzY5fI1Bwp+Fr8TP4efCSRPPm5mHQDJAR7IOW+nlNvnDkYxtbgFNu
+         COVY9VtN9fy+VqxBsiL9BWSOTG9iRknG+D5RjSYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+78c55c7bc6f66e53dce2@syzkaller.appspotmail.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 188/530] skmsg: Schedule psock work if the cached skb exists on the psock
-Date:   Mon, 24 Oct 2022 13:28:52 +0200
-Message-Id: <20221024113053.551985903@linuxfoundation.org>
+Subject: [PATCH 5.15 202/530] net: rds: dont hold sock lock when cancelling work from rds_tcp_reset_callbacks()
+Date:   Mon, 24 Oct 2022 13:29:06 +0200
+Message-Id: <20221024113054.200954559@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,63 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit bec217197b412d74168c6a42fc0f76d0cc9cad00 ]
+[ Upstream commit a91b750fd6629354460282bbf5146c01b05c4859 ]
 
-In sk_psock_backlog function, for ingress direction skb, if no new data
-packet arrives after the skb is cached, the cached skb does not have a
-chance to be added to the receive queue of psock. As a result, the cached
-skb cannot be received by the upper-layer application. Fix this by reschedule
-the psock work to dispose the cached skb in sk_msg_recvmsg function.
+syzbot is reporting lockdep warning at rds_tcp_reset_callbacks() [1], for
+commit ac3615e7f3cffe2a ("RDS: TCP: Reduce code duplication in
+rds_tcp_reset_callbacks()") added cancel_delayed_work_sync() into a section
+protected by lock_sock() without realizing that rds_send_xmit() might call
+lock_sock().
 
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20220907071311.60534-1-liujian56@huawei.com
+We don't need to protect cancel_delayed_work_sync() using lock_sock(), for
+even if rds_{send,recv}_worker() re-queued this work while __flush_work()
+ from cancel_delayed_work_sync() was waiting for this work to complete,
+retried rds_{send,recv}_worker() is no-op due to the absence of RDS_CONN_UP
+bit.
+
+Link: https://syzkaller.appspot.com/bug?extid=78c55c7bc6f66e53dce2 [1]
+Reported-by: syzbot <syzbot+78c55c7bc6f66e53dce2@syzkaller.appspotmail.com>
+Co-developed-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+78c55c7bc6f66e53dce2@syzkaller.appspotmail.com>
+Fixes: ac3615e7f3cffe2a ("RDS: TCP: Reduce code duplication in rds_tcp_reset_callbacks()")
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skmsg.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ net/rds/tcp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index 054073c7cbb9..736d8b035a67 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -435,8 +435,10 @@ int sk_msg_recvmsg(struct sock *sk, struct sk_psock *psock, struct msghdr *msg,
- 			if (copied + copy > len)
- 				copy = len - copied;
- 			copy = copy_page_to_iter(page, sge->offset, copy, iter);
--			if (!copy)
--				return copied ? copied : -EFAULT;
-+			if (!copy) {
-+				copied = copied ? copied : -EFAULT;
-+				goto out;
-+			}
- 
- 			copied += copy;
- 			if (likely(!peek)) {
-@@ -456,7 +458,7 @@ int sk_msg_recvmsg(struct sock *sk, struct sk_psock *psock, struct msghdr *msg,
- 				 * didn't copy the entire length lets just break.
- 				 */
- 				if (copy != sge->length)
--					return copied;
-+					goto out;
- 				sk_msg_iter_var_next(i);
- 			}
- 
-@@ -478,7 +480,9 @@ int sk_msg_recvmsg(struct sock *sk, struct sk_psock *psock, struct msghdr *msg,
- 		}
- 		msg_rx = sk_psock_peek_msg(psock);
- 	}
--
-+out:
-+	if (psock->work_state.skb && copied > 0)
-+		schedule_work(&psock->work);
- 	return copied;
- }
- EXPORT_SYMBOL_GPL(sk_msg_recvmsg);
+diff --git a/net/rds/tcp.c b/net/rds/tcp.c
+index 5327d130c4b5..b560d06e6d96 100644
+--- a/net/rds/tcp.c
++++ b/net/rds/tcp.c
+@@ -166,10 +166,10 @@ void rds_tcp_reset_callbacks(struct socket *sock,
+ 	 */
+ 	atomic_set(&cp->cp_state, RDS_CONN_RESETTING);
+ 	wait_event(cp->cp_waitq, !test_bit(RDS_IN_XMIT, &cp->cp_flags));
+-	lock_sock(osock->sk);
+ 	/* reset receive side state for rds_tcp_data_recv() for osock  */
+ 	cancel_delayed_work_sync(&cp->cp_send_w);
+ 	cancel_delayed_work_sync(&cp->cp_recv_w);
++	lock_sock(osock->sk);
+ 	if (tc->t_tinc) {
+ 		rds_inc_put(&tc->t_tinc->ti_inc);
+ 		tc->t_tinc = NULL;
 -- 
 2.35.1
 
