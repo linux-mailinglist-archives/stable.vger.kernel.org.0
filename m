@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1723360B258
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:45:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED90060B09C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232331AbiJXQpk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:45:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52296 "EHLO
+        id S233160AbiJXQGh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:06:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234603AbiJXQoa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:44:30 -0400
+        with ESMTP id S233955AbiJXQFM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:05:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 345F2D997D;
-        Mon, 24 Oct 2022 08:30:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED1F3FD46;
+        Mon, 24 Oct 2022 07:58:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE1F2B8197A;
-        Mon, 24 Oct 2022 12:40:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F149C433C1;
-        Mon, 24 Oct 2022 12:40:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C89B1B81604;
+        Mon, 24 Oct 2022 12:21:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D3E0C433C1;
+        Mon, 24 Oct 2022 12:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615256;
-        bh=J5srUAPsiaKQ/KlrKrgKe4unUypBVzdCg0g02qpvcU4=;
+        s=korg; t=1666614095;
+        bh=AybWWjy5oG4YPj4VEwcpauYIDdXd/B6+9qt+qJHjKpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jrt0MMVfPC9vd3lTwAmI7pzCCLKuUc12EkLrDOUfYVfivfdc6pWWxYVW6M6V70CXk
-         YgIlehihUfdqbn/rSNy+dtRv9Dc/nm6u3t1rLGWO/udDOCp7xbx1dTi1NsqVLfLnFK
-         6LjeNtGPWb3r2EIaMLzosZjJaYlYmT6ewffcDAT0=
+        b=enXaguFtE4putR+euSPwN1y84BNv5dCOZR1J40021fkniXQ0kxZ2t+pg1t2QwjRpF
+         30uDEnBn0qJyTKhL9KvQJoxgvdyfUrJojhilET7NPmH9hNcNbpSaj12BcQ8HQEV93Q
+         LZRaEqMFdn9b88mCPaS+0zsqhBWeiY4Cu3/OiBaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Antoine Tenart <atenart@kernel.org>,
+        stable@vger.kernel.org, Junichi Uekawa <uekawa@chromium.org>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 181/530] netfilter: conntrack: fix the gc rescheduling delay
-Date:   Mon, 24 Oct 2022 13:28:45 +0200
-Message-Id: <20221024113053.217472850@linuxfoundation.org>
+Subject: [PATCH 5.10 131/390] vhost/vsock: Use kvmalloc/kvfree for larger packets.
+Date:   Mon, 24 Oct 2022 13:28:48 +0200
+Message-Id: <20221024113028.257081646@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,109 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Junichi Uekawa <uekawa@chromium.org>
 
-[ Upstream commit 95eabdd207024312876d0ebed90b4c977e050e85 ]
+[ Upstream commit 0e3f72931fc47bb81686020cc643cde5d9cd0bb8 ]
 
-Commit 2cfadb761d3d ("netfilter: conntrack: revisit gc autotuning")
-changed the eviction rescheduling to the use average expiry of scanned
-entries (within 1-60s) by doing:
+When copying a large file over sftp over vsock, data size is usually 32kB,
+and kmalloc seems to fail to try to allocate 32 32kB regions.
 
-  for (...) {
-      expires = clamp(nf_ct_expires(tmp), ...);
-      next_run += expires;
-      next_run /= 2;
-  }
+ vhost-5837: page allocation failure: order:4, mode:0x24040c0
+ Call Trace:
+  [<ffffffffb6a0df64>] dump_stack+0x97/0xdb
+  [<ffffffffb68d6aed>] warn_alloc_failed+0x10f/0x138
+  [<ffffffffb68d868a>] ? __alloc_pages_direct_compact+0x38/0xc8
+  [<ffffffffb664619f>] __alloc_pages_nodemask+0x84c/0x90d
+  [<ffffffffb6646e56>] alloc_kmem_pages+0x17/0x19
+  [<ffffffffb6653a26>] kmalloc_order_trace+0x2b/0xdb
+  [<ffffffffb66682f3>] __kmalloc+0x177/0x1f7
+  [<ffffffffb66e0d94>] ? copy_from_iter+0x8d/0x31d
+  [<ffffffffc0689ab7>] vhost_vsock_handle_tx_kick+0x1fa/0x301 [vhost_vsock]
+  [<ffffffffc06828d9>] vhost_worker+0xf7/0x157 [vhost]
+  [<ffffffffb683ddce>] kthread+0xfd/0x105
+  [<ffffffffc06827e2>] ? vhost_dev_set_owner+0x22e/0x22e [vhost]
+  [<ffffffffb683dcd1>] ? flush_kthread_worker+0xf3/0xf3
+  [<ffffffffb6eb332e>] ret_from_fork+0x4e/0x80
+  [<ffffffffb683dcd1>] ? flush_kthread_worker+0xf3/0xf3
 
-The issue is the above will make the average ('next_run' here) more
-dependent on the last expiration values than the firsts (for sets > 2).
-Depending on the expiration values used to compute the average, the
-result can be quite different than what's expected. To fix this we can
-do the following:
+Work around by doing kvmalloc instead.
 
-  for (...) {
-      expires = clamp(nf_ct_expires(tmp), ...);
-      next_run += (expires - next_run) / ++count;
-  }
-
-Fixes: 2cfadb761d3d ("netfilter: conntrack: revisit gc autotuning")
-Cc: Florian Westphal <fw@strlen.de>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+Signed-off-by: Junichi Uekawa <uekawa@chromium.org>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/20220928064538.667678-1-uekawa@chromium.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_core.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/vhost/vsock.c                   | 2 +-
+ net/vmw_vsock/virtio_transport_common.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index 31399c53dfb1..ee72da164190 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -67,6 +67,7 @@ struct conntrack_gc_work {
- 	struct delayed_work	dwork;
- 	u32			next_bucket;
- 	u32			avg_timeout;
-+	u32			count;
- 	u32			start_time;
- 	bool			exiting;
- 	bool			early_drop;
-@@ -1439,6 +1440,7 @@ static void gc_worker(struct work_struct *work)
- 	unsigned int expired_count = 0;
- 	unsigned long next_run;
- 	s32 delta_time;
-+	long count;
- 
- 	gc_work = container_of(work, struct conntrack_gc_work, dwork.work);
- 
-@@ -1448,10 +1450,12 @@ static void gc_worker(struct work_struct *work)
- 
- 	if (i == 0) {
- 		gc_work->avg_timeout = GC_SCAN_INTERVAL_INIT;
-+		gc_work->count = 1;
- 		gc_work->start_time = start_time;
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 5d2d6ce7ff41..b0153617fe0e 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -359,7 +359,7 @@ vhost_vsock_alloc_pkt(struct vhost_virtqueue *vq,
+ 		return NULL;
  	}
  
- 	next_run = gc_work->avg_timeout;
-+	count = gc_work->count;
+-	pkt->buf = kmalloc(pkt->len, GFP_KERNEL);
++	pkt->buf = kvmalloc(pkt->len, GFP_KERNEL);
+ 	if (!pkt->buf) {
+ 		kfree(pkt);
+ 		return NULL;
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index d6d3a05c008a..c9ee9259af48 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1196,7 +1196,7 @@ EXPORT_SYMBOL_GPL(virtio_transport_recv_pkt);
  
- 	end_time = start_time + GC_SCAN_MAX_DURATION;
- 
-@@ -1471,8 +1475,8 @@ static void gc_worker(struct work_struct *work)
- 
- 		hlist_nulls_for_each_entry_rcu(h, n, &ct_hash[i], hnnode) {
- 			struct nf_conntrack_net *cnet;
--			unsigned long expires;
- 			struct net *net;
-+			long expires;
- 
- 			tmp = nf_ct_tuplehash_to_ctrack(h);
- 
-@@ -1486,6 +1490,7 @@ static void gc_worker(struct work_struct *work)
- 
- 				gc_work->next_bucket = i;
- 				gc_work->avg_timeout = next_run;
-+				gc_work->count = count;
- 
- 				delta_time = nfct_time_stamp - gc_work->start_time;
- 
-@@ -1501,8 +1506,8 @@ static void gc_worker(struct work_struct *work)
- 			}
- 
- 			expires = clamp(nf_ct_expires(tmp), GC_SCAN_INTERVAL_MIN, GC_SCAN_INTERVAL_CLAMP);
-+			expires = (expires - (long)next_run) / ++count;
- 			next_run += expires;
--			next_run /= 2u;
- 
- 			if (nf_conntrack_max95 == 0 || gc_worker_skip_ct(tmp))
- 				continue;
-@@ -1540,6 +1545,7 @@ static void gc_worker(struct work_struct *work)
- 		delta_time = nfct_time_stamp - end_time;
- 		if (delta_time > 0 && i < hashsz) {
- 			gc_work->avg_timeout = next_run;
-+			gc_work->count = count;
- 			gc_work->next_bucket = i;
- 			next_run = 0;
- 			goto early_exit;
+ void virtio_transport_free_pkt(struct virtio_vsock_pkt *pkt)
+ {
+-	kfree(pkt->buf);
++	kvfree(pkt->buf);
+ 	kfree(pkt);
+ }
+ EXPORT_SYMBOL_GPL(virtio_transport_free_pkt);
 -- 
 2.35.1
 
