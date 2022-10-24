@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E2E960A807
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:01:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6692F60A4ED
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:18:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234991AbiJXNAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33342 "EHLO
+        id S233059AbiJXMSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:18:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235244AbiJXM7o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DE669AC3B;
-        Mon, 24 Oct 2022 05:19:07 -0700 (PDT)
+        with ESMTP id S233056AbiJXMRy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:17:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E5E80E8F;
+        Mon, 24 Oct 2022 04:56:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25C6761257;
-        Mon, 24 Oct 2022 12:04:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38DE7C433C1;
-        Mon, 24 Oct 2022 12:04:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A75FDB8117E;
+        Mon, 24 Oct 2022 11:53:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09036C433D6;
+        Mon, 24 Oct 2022 11:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613061;
-        bh=rNP+Al6u5YeMGaU/bAoWFB6k46B24myAjYk+sEp9nMk=;
+        s=korg; t=1666612402;
+        bh=vvwgSjYLB6FyCR2+DSdzynHETnNIDB8EdTSjFM5J3rI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F8rdWeWWY5NBUOfmK0KPFbaZbtuuphunuT8ZnOewF2cO5jvyLPsUJvJiKkYgA1d92
-         EoA6ZcuXF68rsgupPt/5H7c209JrjuZgpJyFCzLjk0OETjc8iKaZj1V1yg4Dr9O/o1
-         V2pBzsVjr0JyA9/JigJQc/N+DSXC81rzI7emvvcY=
+        b=gbcwPUIXTDLGuyTWW0TMMQz57XnMB2tGBrXW9sJknvg93WkyVTeO07F/VsbJvze7i
+         BtWVwhzFGzrrW7DMU1tHjKZ9XM8UBlRT8o3tjhiv+4hd5NafATQrpWqXaq6K+tn/lE
+         r/42OEWM/+LoGjackaG6SwkBqpeBANe39LVdm1aw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+83672956c7aa6af698b3@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 183/229] Bluetooth: L2CAP: initialize delayed works at l2cap_chan_create()
+Subject: [PATCH 4.14 185/210] drm: Prevent drm_copy_field() to attempt copying a NULL pointer
 Date:   Mon, 24 Oct 2022 13:31:42 +0200
-Message-Id: <20221024113005.022499824@linuxfoundation.org>
+Message-Id: <20221024113002.966489577@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit 2d2cb3066f2c90cd8ca540b36ba7a55e7f2406e0 ]
+[ Upstream commit f6ee30407e883042482ad4ad30da5eaba47872ee ]
 
-syzbot is reporting cancel_delayed_work() without INIT_DELAYED_WORK() at
-l2cap_chan_del() [1], for CONF_NOT_COMPLETE flag (which meant to prevent
-l2cap_chan_del() from calling cancel_delayed_work()) is cleared by timer
-which fires before l2cap_chan_del() is called by closing file descriptor
-created by socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_L2CAP).
+There are some struct drm_driver fields that are required by drivers since
+drm_copy_field() attempts to copy them to user-space via DRM_IOCTL_VERSION.
 
-l2cap_bredr_sig_cmd(L2CAP_CONF_REQ) and l2cap_bredr_sig_cmd(L2CAP_CONF_RSP)
-are calling l2cap_ertm_init(chan), and they call l2cap_chan_ready() (which
-clears CONF_NOT_COMPLETE flag) only when l2cap_ertm_init(chan) succeeded.
+But it can be possible that a driver has a bug and did not set some of the
+fields, which leads to drm_copy_field() attempting to copy a NULL pointer:
 
-l2cap_sock_init() does not call l2cap_ertm_init(chan), and it instead sets
-CONF_NOT_COMPLETE flag by calling l2cap_chan_set_defaults(). However, when
-connect() is requested, "command 0x0409 tx timeout" happens after 2 seconds
- from connect() request, and CONF_NOT_COMPLETE flag is cleared after 4
-seconds from connect() request, for l2cap_conn_start() from
-l2cap_info_timeout() callback scheduled by
+[ +10.395966] Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
+[  +0.010955] Mem abort info:
+[  +0.002835]   ESR = 0x0000000096000004
+[  +0.003872]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  +0.005395]   SET = 0, FnV = 0
+[  +0.003113]   EA = 0, S1PTW = 0
+[  +0.003182]   FSC = 0x04: level 0 translation fault
+[  +0.004964] Data abort info:
+[  +0.002919]   ISV = 0, ISS = 0x00000004
+[  +0.003886]   CM = 0, WnR = 0
+[  +0.003040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000115dad000
+[  +0.006536] [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+[  +0.006925] Internal error: Oops: 96000004 [#1] SMP
+...
+[  +0.011113] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  +0.007061] pc : __pi_strlen+0x14/0x150
+[  +0.003895] lr : drm_copy_field+0x30/0x1a4
+[  +0.004156] sp : ffff8000094b3a50
+[  +0.003355] x29: ffff8000094b3a50 x28: ffff8000094b3b70 x27: 0000000000000040
+[  +0.007242] x26: ffff443743c2ba00 x25: 0000000000000000 x24: 0000000000000040
+[  +0.007243] x23: ffff443743c2ba00 x22: ffff8000094b3b70 x21: 0000000000000000
+[  +0.007241] x20: 0000000000000000 x19: ffff8000094b3b90 x18: 0000000000000000
+[  +0.007241] x17: 0000000000000000 x16: 0000000000000000 x15: 0000aaab14b9af40
+[  +0.007241] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
+[  +0.007239] x11: 0000000000000000 x10: 0000000000000000 x9 : ffffa524ad67d4d8
+[  +0.007242] x8 : 0101010101010101 x7 : 7f7f7f7f7f7f7f7f x6 : 6c6e6263606e7141
+[  +0.007239] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000000
+[  +0.007241] x2 : 0000000000000000 x1 : ffff8000094b3b90 x0 : 0000000000000000
+[  +0.007240] Call trace:
+[  +0.002475]  __pi_strlen+0x14/0x150
+[  +0.003537]  drm_version+0x84/0xac
+[  +0.003448]  drm_ioctl_kernel+0xa8/0x16c
+[  +0.003975]  drm_ioctl+0x270/0x580
+[  +0.003448]  __arm64_sys_ioctl+0xb8/0xfc
+[  +0.003978]  invoke_syscall+0x78/0x100
+[  +0.003799]  el0_svc_common.constprop.0+0x4c/0xf4
+[  +0.004767]  do_el0_svc+0x38/0x4c
+[  +0.003357]  el0_svc+0x34/0x100
+[  +0.003185]  el0t_64_sync_handler+0x11c/0x150
+[  +0.004418]  el0t_64_sync+0x190/0x194
+[  +0.003716] Code: 92402c04 b200c3e8 f13fc09f 5400088c (a9400c02)
+[  +0.006180] ---[ end trace 0000000000000000 ]---
 
-  schedule_delayed_work(&conn->info_timer, L2CAP_INFO_TIMEOUT);
-
-in l2cap_connect() is calling l2cap_chan_ready().
-
-Fix this problem by initializing delayed works used by L2CAP_MODE_ERTM
-mode as soon as l2cap_chan_create() allocates a channel, like I did in
-commit be8597239379f0f5 ("Bluetooth: initialize skb_queue_head at
-l2cap_chan_create()").
-
-Link: https://syzkaller.appspot.com/bug?extid=83672956c7aa6af698b3 [1]
-Reported-by: syzbot <syzbot+83672956c7aa6af698b3@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Reported-by: Peter Robinson <pbrobinson@gmail.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220705100215.572498-3-javierm@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/drm_ioctl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 65d20bdff023..7c280fcdcaa0 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -63,6 +63,9 @@ static void l2cap_send_disconn_req(struct l2cap_chan *chan, int err);
- 
- static void l2cap_tx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
- 		     struct sk_buff_head *skbs, u8 event);
-+static void l2cap_retrans_timeout(struct work_struct *work);
-+static void l2cap_monitor_timeout(struct work_struct *work);
-+static void l2cap_ack_timeout(struct work_struct *work);
- 
- static inline u8 bdaddr_type(u8 link_type, u8 bdaddr_type)
+diff --git a/drivers/gpu/drm/drm_ioctl.c b/drivers/gpu/drm/drm_ioctl.c
+index 335fad8b209a..73dcf03e7e8c 100644
+--- a/drivers/gpu/drm/drm_ioctl.c
++++ b/drivers/gpu/drm/drm_ioctl.c
+@@ -439,6 +439,12 @@ static int drm_copy_field(char __user *buf, size_t *buf_len, const char *value)
  {
-@@ -470,6 +473,9 @@ struct l2cap_chan *l2cap_chan_create(void)
- 	write_unlock(&chan_list_lock);
+ 	size_t len;
  
- 	INIT_DELAYED_WORK(&chan->chan_timer, l2cap_chan_timeout);
-+	INIT_DELAYED_WORK(&chan->retrans_timer, l2cap_retrans_timeout);
-+	INIT_DELAYED_WORK(&chan->monitor_timer, l2cap_monitor_timeout);
-+	INIT_DELAYED_WORK(&chan->ack_timer, l2cap_ack_timeout);
- 
- 	chan->state = BT_OPEN;
- 
-@@ -3154,10 +3160,6 @@ int l2cap_ertm_init(struct l2cap_chan *chan)
- 	chan->rx_state = L2CAP_RX_STATE_RECV;
- 	chan->tx_state = L2CAP_TX_STATE_XMIT;
- 
--	INIT_DELAYED_WORK(&chan->retrans_timer, l2cap_retrans_timeout);
--	INIT_DELAYED_WORK(&chan->monitor_timer, l2cap_monitor_timeout);
--	INIT_DELAYED_WORK(&chan->ack_timer, l2cap_ack_timeout);
--
- 	skb_queue_head_init(&chan->srej_q);
- 
- 	err = l2cap_seq_list_init(&chan->srej_list, chan->tx_win);
++	/* don't attempt to copy a NULL pointer */
++	if (WARN_ONCE(!value, "BUG: the value to copy was not set!")) {
++		*buf_len = 0;
++		return 0;
++	}
++
+ 	/* don't overflow userbuf */
+ 	len = strlen(value);
+ 	if (len > *buf_len)
 -- 
 2.35.1
 
