@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB6E660A905
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B6660A551
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:23:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233565AbiJXNOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:14:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
+        id S233567AbiJXMXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:23:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235595AbiJXNNV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:13:21 -0400
+        with ESMTP id S233397AbiJXMVd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:21:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32AFD2B257;
-        Mon, 24 Oct 2022 05:24:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1366A7C1B8;
+        Mon, 24 Oct 2022 04:59:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0091612F0;
-        Mon, 24 Oct 2022 12:23:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09208C433C1;
-        Mon, 24 Oct 2022 12:23:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F132B612F0;
+        Mon, 24 Oct 2022 11:58:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10B6AC433D7;
+        Mon, 24 Oct 2022 11:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614221;
-        bh=BBEZSL/kEaLKT0nn3CDJDaoaCe8MaFX+1kU7JZ+z9Ck=;
+        s=korg; t=1666612698;
+        bh=TLs3SwpJp5/ZQA5gaztA1mbGtWqcY3sdRIs2FWng1VI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1RMljIeVAiHdhKr+ZvhANY/WKCXvl884UtyaltgRZxbnFx5Rh2DOl1jYGmw2CXqL
-         q+Vx/gU+s0NeF2RVLm9V3J8zj13HFjUfokJjPs1oIKTFbdvCLItmZdfS/sZTwYAiwp
-         VgRjsk9B9spsfo1I5rkM8w5Tn/lVDjJcQUrJ6zhw=
+        b=tg6pVeBZ4O/wQPFhs+oZKKfR1PPmiueyahwLXWO4deDOeCYdTPneAjQsu12YjnaZi
+         CHNTP62DCnqs2qyPBOGxPZTBeVSIlZQESZvm7zKpJDjbGLN1RtKVVq5qDfa3vjjFZ3
+         8VnzhtHPcu4Yj+xDoXnhGj6EIz9foUBYReFmrF/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 177/390] ARM: dts: kirkwood: lsxl: fix serial line
-Date:   Mon, 24 Oct 2022 13:29:34 +0200
-Message-Id: <20221024113030.271848890@linuxfoundation.org>
+        stable@vger.kernel.org, Aurelien Jarno <aurelien@aurel32.net>,
+        Alexandre Ghiti <alexandre.ghiti@canonical.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH 4.19 056/229] riscv: fix build with binutils 2.38
+Date:   Mon, 24 Oct 2022 13:29:35 +0200
+Message-Id: <20221024113000.891820486@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Aurelien Jarno <aurelien@aurel32.net>
 
-[ Upstream commit 04eabc6ac10fda9424606d9a7ab6ab9a5d95350a ]
+commit 6df2a016c0c8a3d0933ef33dd192ea6606b115e3 upstream.
 
-Commit 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl
-settings") unknowingly broke the serial output on this board. Before
-this commit, the pinmux was still configured by the bootloader and the
-kernel didn't reconfigured it again. This was an oversight by the
-initial board support where the pinmux for the serial line was never
-configured by the kernel. But with this commit, the serial line will be
-reconfigured to the wrong pins. This is especially confusing, because
-the output still works, but the input doesn't. Presumingly, the input is
-reconfigured to MPP10, but the output is connected to both MPP11 and
-MPP5.
+>From version 2.38, binutils default to ISA spec version 20191213. This
+means that the csr read/write (csrr*/csrw*) instructions and fence.i
+instruction has separated from the `I` extension, become two standalone
+extensions: Zicsr and Zifencei. As the kernel uses those instruction,
+this causes the following build failure:
 
-Override the pinmux in the board device tree.
+  CC      arch/riscv/kernel/vdso/vgettimeofday.o
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h: Assembler messages:
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
 
-Fixes: 327e15428977 ("ARM: dts: kirkwood: consolidate common pinctrl settings")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The fix is to specify those extensions explicitely in -march. However as
+older binutils version do not support this, we first need to detect
+that.
+
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Tested-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[Conor: converted to the 4.19 style of march string generation]
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 ---
- arch/arm/boot/dts/kirkwood-lsxl.dtsi | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/riscv/Makefile |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/kirkwood-lsxl.dtsi b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-index 7b151acb9984..321a40a98ed2 100644
---- a/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-+++ b/arch/arm/boot/dts/kirkwood-lsxl.dtsi
-@@ -10,6 +10,11 @@
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -49,9 +49,16 @@ ifeq ($(CONFIG_RISCV_ISA_C),y)
+ 	KBUILD_ARCH_C = c
+ endif
  
- 	ocp@f1000000 {
- 		pinctrl: pin-controller@10000 {
-+			/* Non-default UART pins */
-+			pmx_uart0: pmx-uart0 {
-+				marvell,pins = "mpp4", "mpp5";
-+			};
+-KBUILD_AFLAGS += -march=$(KBUILD_MARCH)$(KBUILD_ARCH_A)fd$(KBUILD_ARCH_C)
++# Newer binutils versions default to ISA spec version 20191213 which moves some
++# instructions from the I extension to the Zicsr and Zifencei extensions.
++toolchain-need-zicsr-zifencei := $(call cc-option-yn, -march=$(riscv-march-y)_zicsr_zifencei)
++ifeq ($(toolchain-need-zicsr-zifencei),y)
++	KBUILD_ARCH_ZISCR_ZIFENCEI = _zicsr_zifencei
++endif
 +
- 			pmx_power_hdd: pmx-power-hdd {
- 				marvell,pins = "mpp10";
- 				marvell,function = "gpo";
--- 
-2.35.1
-
++KBUILD_AFLAGS += -march=$(KBUILD_MARCH)$(KBUILD_ARCH_A)fd$(KBUILD_ARCH_C)$(KBUILD_ARCH_ZISCR_ZIFENCEI)
+ 
+-KBUILD_CFLAGS += -march=$(KBUILD_MARCH)$(KBUILD_ARCH_A)$(KBUILD_ARCH_C)
++KBUILD_CFLAGS += -march=$(KBUILD_MARCH)$(KBUILD_ARCH_A)$(KBUILD_ARCH_C)$(KBUILD_ARCH_ZISCR_ZIFENCEI)
+ KBUILD_CFLAGS += -mno-save-restore
+ KBUILD_CFLAGS += -DCONFIG_PAGE_OFFSET=$(CONFIG_PAGE_OFFSET)
+ 
 
 
