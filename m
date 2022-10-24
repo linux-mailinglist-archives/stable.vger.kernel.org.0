@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE96B60BBE5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 23:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE16160BA5E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:36:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230199AbiJXVRO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 17:17:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42736 "EHLO
+        id S234394AbiJXUgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:36:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230437AbiJXVQl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 17:16:41 -0400
+        with ESMTP id S234398AbiJXUgN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:36:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B93B17F644;
-        Mon, 24 Oct 2022 12:22:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BACF611A970;
+        Mon, 24 Oct 2022 11:47:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01869B8198B;
-        Mon, 24 Oct 2022 12:42:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A3BFC433C1;
-        Mon, 24 Oct 2022 12:42:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85C70B8166B;
+        Mon, 24 Oct 2022 12:22:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D28F6C433C1;
+        Mon, 24 Oct 2022 12:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615329;
-        bh=1yz2m924UooZlxeRhPwZdGxdyp876Gmwvdmqv0MWqBE=;
+        s=korg; t=1666614174;
+        bh=7NXYJoYVZF0oqrYBzvMTdd/6sOC09nKfM09j/WB4rgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dQpTVKY7KRF1bdgcH1/YWaAWXhtgDWbtaOeqMCKwKp6ixY4vAjZVxAhBQWLU1IGU1
-         v5tC83o3gkShFYFWRh8/pYJXB3ujfVz6PMSqatiE4R9m2vUVAM9sR4Lcn33WKsPi9V
-         UBGL5UAScXN9D2nPWQevBvdLRYqIDIdnTUqsAfKw=
+        b=GRtQ3SNFH8boxMfGPAhm4msvVmndLTMra6xduzg3DYhdBtiwvaVamIzO/iagQNl20
+         QS4NdkqeBT7s9cF+v7LrN5kwEwDngIaU3FMOg4TOuVLSnBIaJ3YLjoDSLsMmDGyd8t
+         apv0W+2l070fyWbAOv8YD1GNeTaQGWrpQ6pj0yD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 210/530] drm/bridge: Avoid uninitialized variable warning
-Date:   Mon, 24 Oct 2022 13:29:14 +0200
-Message-Id: <20221024113054.579146782@linuxfoundation.org>
+Subject: [PATCH 5.10 161/390] drm/msm/dpu: index dpu_kms->hw_vbif using vbif_idx
+Date:   Mon, 24 Oct 2022 13:29:18 +0200
+Message-Id: <20221024113029.561277803@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +55,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 7d1202738efda60155d98b370b3c70d336be0eea ]
+[ Upstream commit 7538f80ae0d98bf51eb89eee5344aec219902d42 ]
 
-This code works, but technically it uses "num_in_bus_fmts" before it
-has been initialized so it leads to static checker warnings and probably
-KMEMsan warnings at run time.  Initialize the variable to zero to
-silence the warning.
+Remove loops over hw_vbif. Instead always VBIF's idx as an index in the
+array. This fixes an error in dpu_kms_hw_init(), where we fill
+dpu_kms->hw_vbif[i], but check for an error pointer at
+dpu_kms->hw_vbif[vbif_idx].
 
-Fixes: f32df58acc68 ("drm/bridge: Add the necessary bits to support bus format negotiation")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/YrrIs3hoGcPVmXc5@kili
+Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/489569/
+Link: https://lore.kernel.org/r/20220615125703.24647-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_bridge.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c  | 12 ++++------
+ drivers/gpu/drm/msm/disp/dpu1/dpu_vbif.c | 29 +++++++++++-------------
+ 2 files changed, 18 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_bridge.c b/drivers/gpu/drm/drm_bridge.c
-index 7ee29f073857..78bc315b0b73 100644
---- a/drivers/gpu/drm/drm_bridge.c
-+++ b/drivers/gpu/drm/drm_bridge.c
-@@ -762,8 +762,8 @@ static int select_bus_fmt_recursive(struct drm_bridge *first_bridge,
- 				    struct drm_connector_state *conn_state,
- 				    u32 out_bus_fmt)
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+index 7503f093f3b6..b7841f7fc10a 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+@@ -675,12 +675,10 @@ static void _dpu_kms_hw_destroy(struct dpu_kms *dpu_kms)
+ 	_dpu_kms_mmu_destroy(dpu_kms);
+ 
+ 	if (dpu_kms->catalog) {
+-		for (i = 0; i < dpu_kms->catalog->vbif_count; i++) {
+-			u32 vbif_idx = dpu_kms->catalog->vbif[i].id;
+-
+-			if ((vbif_idx < VBIF_MAX) && dpu_kms->hw_vbif[vbif_idx]) {
+-				dpu_hw_vbif_destroy(dpu_kms->hw_vbif[vbif_idx]);
+-				dpu_kms->hw_vbif[vbif_idx] = NULL;
++		for (i = 0; i < ARRAY_SIZE(dpu_kms->hw_vbif); i++) {
++			if (dpu_kms->hw_vbif[i]) {
++				dpu_hw_vbif_destroy(dpu_kms->hw_vbif[i]);
++				dpu_kms->hw_vbif[i] = NULL;
+ 			}
+ 		}
+ 	}
+@@ -987,7 +985,7 @@ static int dpu_kms_hw_init(struct msm_kms *kms)
+ 	for (i = 0; i < dpu_kms->catalog->vbif_count; i++) {
+ 		u32 vbif_idx = dpu_kms->catalog->vbif[i].id;
+ 
+-		dpu_kms->hw_vbif[i] = dpu_hw_vbif_init(vbif_idx,
++		dpu_kms->hw_vbif[vbif_idx] = dpu_hw_vbif_init(vbif_idx,
+ 				dpu_kms->vbif[vbif_idx], dpu_kms->catalog);
+ 		if (IS_ERR_OR_NULL(dpu_kms->hw_vbif[vbif_idx])) {
+ 			rc = PTR_ERR(dpu_kms->hw_vbif[vbif_idx]);
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_vbif.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_vbif.c
+index 5e8c3f3e6625..fc86d34aec80 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_vbif.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_vbif.c
+@@ -11,6 +11,14 @@
+ #include "dpu_hw_vbif.h"
+ #include "dpu_trace.h"
+ 
++static struct dpu_hw_vbif *dpu_get_vbif(struct dpu_kms *dpu_kms, enum dpu_vbif vbif_idx)
++{
++	if (vbif_idx < ARRAY_SIZE(dpu_kms->hw_vbif))
++		return dpu_kms->hw_vbif[vbif_idx];
++
++	return NULL;
++}
++
+ /**
+  * _dpu_vbif_wait_for_xin_halt - wait for the xin to halt
+  * @vbif:	Pointer to hardware vbif driver
+@@ -148,20 +156,15 @@ static u32 _dpu_vbif_get_ot_limit(struct dpu_hw_vbif *vbif,
+ void dpu_vbif_set_ot_limit(struct dpu_kms *dpu_kms,
+ 		struct dpu_vbif_set_ot_params *params)
  {
-+	unsigned int i, num_in_bus_fmts = 0;
- 	struct drm_bridge_state *cur_state;
--	unsigned int num_in_bus_fmts, i;
- 	struct drm_bridge *prev_bridge;
- 	u32 *in_bus_fmts;
- 	int ret;
-@@ -884,7 +884,7 @@ drm_atomic_bridge_chain_select_bus_fmts(struct drm_bridge *bridge,
- 	struct drm_connector *conn = conn_state->connector;
- 	struct drm_encoder *encoder = bridge->encoder;
- 	struct drm_bridge_state *last_bridge_state;
--	unsigned int i, num_out_bus_fmts;
-+	unsigned int i, num_out_bus_fmts = 0;
- 	struct drm_bridge *last_bridge;
- 	u32 *out_bus_fmts;
- 	int ret = 0;
+-	struct dpu_hw_vbif *vbif = NULL;
++	struct dpu_hw_vbif *vbif;
+ 	struct dpu_hw_mdp *mdp;
+ 	bool forced_on = false;
+ 	u32 ot_lim;
+-	int ret, i;
++	int ret;
+ 
+ 	mdp = dpu_kms->hw_mdp;
+ 
+-	for (i = 0; i < ARRAY_SIZE(dpu_kms->hw_vbif); i++) {
+-		if (dpu_kms->hw_vbif[i] &&
+-				dpu_kms->hw_vbif[i]->idx == params->vbif_idx)
+-			vbif = dpu_kms->hw_vbif[i];
+-	}
+-
++	vbif = dpu_get_vbif(dpu_kms, params->vbif_idx);
+ 	if (!vbif || !mdp) {
+ 		DPU_DEBUG("invalid arguments vbif %d mdp %d\n",
+ 				vbif != NULL, mdp != NULL);
+@@ -204,7 +207,7 @@ void dpu_vbif_set_ot_limit(struct dpu_kms *dpu_kms,
+ void dpu_vbif_set_qos_remap(struct dpu_kms *dpu_kms,
+ 		struct dpu_vbif_set_qos_params *params)
+ {
+-	struct dpu_hw_vbif *vbif = NULL;
++	struct dpu_hw_vbif *vbif;
+ 	struct dpu_hw_mdp *mdp;
+ 	bool forced_on = false;
+ 	const struct dpu_vbif_qos_tbl *qos_tbl;
+@@ -216,13 +219,7 @@ void dpu_vbif_set_qos_remap(struct dpu_kms *dpu_kms,
+ 	}
+ 	mdp = dpu_kms->hw_mdp;
+ 
+-	for (i = 0; i < ARRAY_SIZE(dpu_kms->hw_vbif); i++) {
+-		if (dpu_kms->hw_vbif[i] &&
+-				dpu_kms->hw_vbif[i]->idx == params->vbif_idx) {
+-			vbif = dpu_kms->hw_vbif[i];
+-			break;
+-		}
+-	}
++	vbif = dpu_get_vbif(dpu_kms, params->vbif_idx);
+ 
+ 	if (!vbif || !vbif->cap) {
+ 		DPU_ERROR("invalid vbif %d\n", params->vbif_idx);
 -- 
 2.35.1
 
