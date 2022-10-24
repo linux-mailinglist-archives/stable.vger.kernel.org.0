@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84F9860AC4C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:06:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CCC460AD31
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:20:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230337AbiJXOF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:05:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36556 "EHLO
+        id S232819AbiJXOUC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 10:20:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235310AbiJXOCt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:02:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED94645054;
-        Mon, 24 Oct 2022 05:48:31 -0700 (PDT)
+        with ESMTP id S235310AbiJXOS7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:18:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A622C66E;
+        Mon, 24 Oct 2022 05:56:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C51D061347;
-        Mon, 24 Oct 2022 12:38:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD01AC433D6;
-        Mon, 24 Oct 2022 12:38:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7517BB818EB;
+        Mon, 24 Oct 2022 12:39:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8AB4C433C1;
+        Mon, 24 Oct 2022 12:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615138;
-        bh=KqCEdkhPcHZPtHS5XUueyb73weNWSVVYIaiahVplhzQ=;
+        s=korg; t=1666615146;
+        bh=tsYIEnNeNXBKuktBDiK6adMOHZqbmAxFQCb+rNO0Bnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q9afi1B/kuysCin1rFzywseBKVsJKry9AUjLtTve/2GsL8HW0T+b72kY055XRavGn
-         iJ2cgezY7vXGMJBE/c2De2AvoLt9nw+zVTDSNe6q0GgscIX6pj0QAyn1cg+D81nftn
-         aO65G08UVQ+5f6b4eDyhPdVZJ1n0JT5yjC93+9ts=
+        b=T31da/6n9n64A6UeKcHpwI6mhzWkI3QBWY2dCyry0gBnd4AP6We6rmvmQOyTvFiIw
+         QGREWFDxsZ7upxgQ1r50IZ8Flmq/GYpt+44Xm8yjRp/GizFFFu/SLVvQFaunzrFzBG
+         B7qiUUl0Cp1WaevUJX9p8YFntqncAOUUc8eTNYWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.15 129/530] drm/nouveau: fix a use-after-free in nouveau_gem_prime_import_sg_table()
-Date:   Mon, 24 Oct 2022 13:27:53 +0200
-Message-Id: <20221024113050.893252016@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 140/530] sh: machvec: Use char[] for section boundaries
+Date:   Mon, 24 Oct 2022 13:28:04 +0200
+Message-Id: <20221024113051.399438104@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,39 +58,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 540dfd188ea2940582841c1c220bd035a7db0e51 upstream.
+[ Upstream commit c5783af354688b24abd359f7086c282ec74de993 ]
 
-nouveau_bo_init() is backed by ttm_bo_init() and ferries its return code
-back to the caller. On failures, ttm will call nouveau_bo_del_ttm() and
-free the memory.Thus, when nouveau_bo_init() returns an error, the gem
-object has already been released. Then the call to nouveau_bo_ref() will
-use the freed "nvbo->bo" and lead to a use-after-free bug.
+As done for other sections, define the extern as a character array,
+which relaxes many of the compiler-time object size checks, which would
+otherwise assume it's a single long. Solves the following build error:
 
-We should delete the call to nouveau_bo_ref() to avoid the use-after-free.
+arch/sh/kernel/machvec.c: error: array subscript 'struct sh_machine_vector[0]' is partly outside array bounds of 'long int[1]' [-Werror=array-bounds]:  => 105:33
 
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: 019cbd4a4feb ("drm/nouveau: Initialize GEM object before TTM object")
-Cc: Thierry Reding <treding@nvidia.com>
-Cc: <stable@vger.kernel.org> # v5.4+
-Link: https://patchwork.freedesktop.org/patch/msgid/20220705132546.2247677-1-niejianglei2021@163.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: linux-sh@vger.kernel.org
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/lkml/alpine.DEB.2.22.394.2209050944290.964530@ramsan.of.borg/
+Fixes: 9655ad03af2d ("sh: Fixup machvec support.")
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Acked-by: Rich Felker <dalias@libc.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_prime.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/sh/include/asm/sections.h |  2 +-
+ arch/sh/kernel/machvec.c       | 10 +++++-----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nouveau_prime.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_prime.c
-@@ -71,7 +71,6 @@ struct drm_gem_object *nouveau_gem_prime
- 	ret = nouveau_bo_init(nvbo, size, align, NOUVEAU_GEM_DOMAIN_GART,
- 			      sg, robj);
- 	if (ret) {
--		nouveau_bo_ref(NULL, &nvbo);
- 		obj = ERR_PTR(ret);
- 		goto unlock;
+diff --git a/arch/sh/include/asm/sections.h b/arch/sh/include/asm/sections.h
+index 8edb824049b9..0cb0ca149ac3 100644
+--- a/arch/sh/include/asm/sections.h
++++ b/arch/sh/include/asm/sections.h
+@@ -4,7 +4,7 @@
+ 
+ #include <asm-generic/sections.h>
+ 
+-extern long __machvec_start, __machvec_end;
++extern char __machvec_start[], __machvec_end[];
+ extern char __uncached_start, __uncached_end;
+ extern char __start_eh_frame[], __stop_eh_frame[];
+ 
+diff --git a/arch/sh/kernel/machvec.c b/arch/sh/kernel/machvec.c
+index d606679a211e..57efaf5b82ae 100644
+--- a/arch/sh/kernel/machvec.c
++++ b/arch/sh/kernel/machvec.c
+@@ -20,8 +20,8 @@
+ #define MV_NAME_SIZE 32
+ 
+ #define for_each_mv(mv) \
+-	for ((mv) = (struct sh_machine_vector *)&__machvec_start; \
+-	     (mv) && (unsigned long)(mv) < (unsigned long)&__machvec_end; \
++	for ((mv) = (struct sh_machine_vector *)__machvec_start; \
++	     (mv) && (unsigned long)(mv) < (unsigned long)__machvec_end; \
+ 	     (mv)++)
+ 
+ static struct sh_machine_vector * __init get_mv_byname(const char *name)
+@@ -87,8 +87,8 @@ void __init sh_mv_setup(void)
+ 	if (!machvec_selected) {
+ 		unsigned long machvec_size;
+ 
+-		machvec_size = ((unsigned long)&__machvec_end -
+-				(unsigned long)&__machvec_start);
++		machvec_size = ((unsigned long)__machvec_end -
++				(unsigned long)__machvec_start);
+ 
+ 		/*
+ 		 * Sanity check for machvec section alignment. Ensure
+@@ -102,7 +102,7 @@ void __init sh_mv_setup(void)
+ 		 * vector (usually the only one) from .machvec.init.
+ 		 */
+ 		if (machvec_size >= sizeof(struct sh_machine_vector))
+-			sh_mv = *(struct sh_machine_vector *)&__machvec_start;
++			sh_mv = *(struct sh_machine_vector *)__machvec_start;
  	}
+ 
+ 	pr_notice("Booting machvec: %s\n", get_system_type());
+-- 
+2.35.1
+
 
 
