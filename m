@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E3ED60ACCD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:16:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D87F60AEF6
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232132AbiJXOQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:16:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36706 "EHLO
+        id S229930AbiJXPXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:23:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234491AbiJXOOB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:14:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C65DDCBFD0;
-        Mon, 24 Oct 2022 05:54:00 -0700 (PDT)
+        with ESMTP id S232164AbiJXPXQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:23:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19DB718F92E;
+        Mon, 24 Oct 2022 07:08:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9638761299;
-        Mon, 24 Oct 2022 12:42:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A864DC433D6;
-        Mon, 24 Oct 2022 12:42:56 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D0366CE131C;
+        Mon, 24 Oct 2022 11:39:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEB19C433C1;
+        Mon, 24 Oct 2022 11:39:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615377;
-        bh=OzLtw84/qExOO0VigNtqfN9GRq/sTIKWBf6EPPnoyMA=;
+        s=korg; t=1666611586;
+        bh=NmoR6ZF8800yShyuHDROXNDRW2u/lpmaLXLmZLvhgAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WwjQu7C+2BhRXVlKLm7XGJ7Gh9ORMakuuFUwy38x/NRCfMz6gY+Aml6mS3UfBf62K
-         wAAtNY4Hh3MuIf6aquwKe+J79mkpiIF+EXHOrFnUjDgqrlHJVFS+3khl0hR//oqaOy
-         VYqqq3ZFOSbjotqcQcSBy/oo7kLkMTlKt0ki+4fo=
+        b=hGFSsT7BZAltatXegTlT9wDwApoGjDhZE1tR8eX1sPWTVGjAej1C7jUyTtq+yXuJJ
+         St5ucSf+9LTtjUR8p52HqYsAlx0XTcbBNgNDIVVIkXwYTvwfVp6hPjIFub8Mkkidzk
+         ku1tPoQ1FBRbPCgigikVTNTg1IjuAUBifEkzOths=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 226/530] drm/bridge: megachips: Fix a null pointer dereference bug
-Date:   Mon, 24 Oct 2022 13:29:30 +0200
-Message-Id: <20221024113055.322043908@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Danilo Cezar Zanella <danilo.zanella@iag.usp.br>
+Subject: [PATCH 4.9 017/159] ARM: fix function graph tracer and unwinder dependencies
+Date:   Mon, 24 Oct 2022 13:29:31 +0200
+Message-Id: <20221024112949.987222185@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 1ff673333d46d2c1b053ebd0c1c7c7c79e36943e ]
+commit 503621628b32782a07b2318e4112bd4372aa3401 upstream.
 
-When removing the module we will get the following warning:
+Naresh Kamboju recently reported that the function-graph tracer crashes
+on ARM. The function-graph tracer assumes that the kernel is built with
+frame pointers.
 
-[   31.911505] i2c-core: driver [stdp2690-ge-b850v3-fw] unregistered
-[   31.912484] general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN PTI
-[   31.913338] KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-[   31.915280] RIP: 0010:drm_bridge_remove+0x97/0x130
-[   31.921825] Call Trace:
-[   31.922533]  stdp4028_ge_b850v3_fw_remove+0x34/0x60 [megachips_stdpxxxx_ge_b850v3_fw]
-[   31.923139]  i2c_device_remove+0x181/0x1f0
+We explicitly disabled the function-graph tracer when building Thumb2,
+since the Thumb2 ABI doesn't have frame pointers.
 
-The two bridges (stdp2690, stdp4028) do not probe at the same time, so
-the driver does not call ge_b850v3_resgiter() when probing, causing the
-driver to try to remove the object that has not been initialized.
+We recently changed the way the unwinder method was selected, which
+seems to have made it more likely that we can end up with the function-
+graph tracer enabled but without the kernel built with frame pointers.
 
-Fix this by checking whether both the bridges are probed.
+Fix up the function graph tracer dependencies so the option is not
+available when we have no possibility of having frame pointers, and
+adjust the dependencies on the unwinder option to hide the non-frame
+pointer unwinder options if the function-graph tracer is enabled.
 
-Fixes: 11632d4aa2b3 ("drm/bridge: megachips: Ensure both bridges are probed before registration")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220830073450.1897020-1-zheyuma97@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reported-by: Danilo Cezar Zanella <danilo.zanella@iag.usp.br>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/Kconfig       |    2 +-
+ arch/arm/Kconfig.debug |    6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-index cce98bf2a4e7..72248a565579 100644
---- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-+++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-@@ -296,7 +296,9 @@ static void ge_b850v3_lvds_remove(void)
- 	 * This check is to avoid both the drivers
- 	 * removing the bridge in their remove() function
- 	 */
--	if (!ge_b850v3_lvds_ptr)
-+	if (!ge_b850v3_lvds_ptr ||
-+	    !ge_b850v3_lvds_ptr->stdp2690_i2c ||
-+		!ge_b850v3_lvds_ptr->stdp4028_i2c)
- 		goto out;
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -53,7 +53,7 @@ config ARM
+ 	select HAVE_EFFICIENT_UNALIGNED_ACCESS if (CPU_V6 || CPU_V6K || CPU_V7) && MMU
+ 	select HAVE_EXIT_THREAD
+ 	select HAVE_FTRACE_MCOUNT_RECORD if (!XIP_KERNEL)
+-	select HAVE_FUNCTION_GRAPH_TRACER if (!THUMB2_KERNEL)
++	select HAVE_FUNCTION_GRAPH_TRACER if (!THUMB2_KERNEL && !CC_IS_CLANG)
+ 	select HAVE_FUNCTION_TRACER if (!XIP_KERNEL)
+ 	select HAVE_FUTEX_CMPXCHG if FUTEX
+ 	select HAVE_GCC_PLUGINS
+--- a/arch/arm/Kconfig.debug
++++ b/arch/arm/Kconfig.debug
+@@ -17,8 +17,8 @@ config ARM_PTDUMP
  
- 	drm_bridge_remove(&ge_b850v3_lvds_ptr->bridge);
--- 
-2.35.1
-
+ choice
+ 	prompt "Choose kernel unwinder"
+-	default UNWINDER_ARM if AEABI && !FUNCTION_GRAPH_TRACER
+-	default UNWINDER_FRAME_POINTER if !AEABI || FUNCTION_GRAPH_TRACER
++	default UNWINDER_ARM if AEABI
++	default UNWINDER_FRAME_POINTER if !AEABI
+ 	help
+ 	  This determines which method will be used for unwinding kernel stack
+ 	  traces for panics, oopses, bugs, warnings, perf, /proc/<pid>/stack,
+@@ -35,7 +35,7 @@ config UNWINDER_FRAME_POINTER
+ 
+ config UNWINDER_ARM
+ 	bool "ARM EABI stack unwinder"
+-	depends on AEABI
++	depends on AEABI && !FUNCTION_GRAPH_TRACER
+ 	select ARM_UNWIND
+ 	help
+ 	  This option enables stack unwinding support in the kernel
 
 
