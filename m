@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7162260BAB3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:40:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F3B360BB46
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:54:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234703AbiJXUkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:40:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42894 "EHLO
+        id S232239AbiJXUye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:54:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234776AbiJXUjK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:39:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 641E354CB4;
-        Mon, 24 Oct 2022 11:50:08 -0700 (PDT)
+        with ESMTP id S235242AbiJXUxd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:53:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4A4BA7AB3;
+        Mon, 24 Oct 2022 12:00:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5A5DB818CA;
-        Mon, 24 Oct 2022 12:47:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A468C433D6;
-        Mon, 24 Oct 2022 12:47:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BDCE61259;
+        Mon, 24 Oct 2022 12:10:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51696C433D7;
+        Mon, 24 Oct 2022 12:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615636;
-        bh=t/ybkTw5o5DQeKuhsC3Y22PxU+b6JRca7y1WVn2fkBM=;
+        s=korg; t=1666613421;
+        bh=mgOxfyx21Abf6dzZ0R2ImjjUuO/7RuhL89xIScdUt0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kOPnyxYk6njV6MTx27RrzH0nl03L51e0wHVGRMSFwNp7ATvgNghboeZNOYhYt2jUG
-         09pjF8iWfkRvHxYeI6GYKmTVIvbIt2dLNxWLJocYW6KMRgUbNTXfA9xsqfbPfMAPJe
-         SOKmTXx3jbt+seuYxBf9KJgnTtBs9QkFdGwu99xE=
+        b=m1C96i4iZZXtthMlmJl5Lwez+aY9iKNLZIwPCTpeGhX8A2zowxPS9a/f3jqBYM7bM
+         xftQJowQnxiXbPDDY8kVJrIaw+lq8tuXuWKHwmd6mnBLrATQs3zO0aPQSpKDFV67Oo
+         Wy+3SEIsSoXtZEYnwokZdOPQeLwaBbsCyctZAQmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jie Hai <haijie1@huawei.com>,
-        Zhou Wang <wangzhou1@hisilicon.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 296/530] dmaengine: hisilicon: Add multi-thread support for a DMA channel
-Date:   Mon, 24 Oct 2022 13:30:40 +0200
-Message-Id: <20221024113058.463935931@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 131/255] media: exynos4-is: fimc-is: Add of_node_put() when breaking out of loop
+Date:   Mon, 24 Oct 2022 13:30:41 +0200
+Message-Id: <20221024113006.929167878@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,100 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Hai <haijie1@huawei.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 2cbb95883c990d0002a77e13d3278913ab26ad79 ]
+[ Upstream commit 211f8304fa21aaedc2c247f0c9d6c7f1aaa61ad7 ]
 
-When we get a DMA channel and try to use it in multiple threads it
-will cause oops and hanging the system.
+In fimc_is_register_subdevs(), we need to call of_node_put() for
+the reference 'i2c_bus' when breaking out of the
+for_each_compatible_node() which has increased the refcount.
 
-% echo 100 > /sys/module/dmatest/parameters/threads_per_chan
-% echo 100 > /sys/module/dmatest/parameters/iterations
-% echo 1 > /sys/module/dmatest/parameters/run
-[383493.327077] Unable to handle kernel paging request at virtual
-		address dead000000000108
-[383493.335103] Mem abort info:
-[383493.335103]   ESR = 0x96000044
-[383493.335105]   EC = 0x25: DABT (current EL), IL = 32 bits
-[383493.335107]   SET = 0, FnV = 0
-[383493.335108]   EA = 0, S1PTW = 0
-[383493.335109]   FSC = 0x04: level 0 translation fault
-[383493.335110] Data abort info:
-[383493.335111]   ISV = 0, ISS = 0x00000044
-[383493.364739]   CM = 0, WnR = 1
-[383493.367793] [dead000000000108] address between user and kernel
-		address ranges
-[383493.375021] Internal error: Oops: 96000044 [#1] PREEMPT SMP
-[383493.437574] CPU: 63 PID: 27895 Comm: dma0chan0-copy2 Kdump:
-		loaded Tainted: GO 5.17.0-rc4+ #2
-[383493.457851] pstate: 204000c9 (nzCv daIF +PAN -UAO -TCO -DIT
-		-SSBS BTYPE=--)
-[383493.465331] pc : vchan_tx_submit+0x64/0xa0
-[383493.469957] lr : vchan_tx_submit+0x34/0xa0
-
-This occurs because the transmission timed out, and that's due
-to data race. Each thread rewrite channels's descriptor as soon as
-device_issue_pending is called. It leads to the situation that
-the driver thinks that it uses the right descriptor in interrupt
-handler while channels's descriptor has been changed by other
-thread. The descriptor which in fact reported interrupt will not
-be handled any more, as well as its tx->callback.
-That's why timeout reports.
-
-With current fixes channels' descriptor changes it's value only
-when it has been used. A new descriptor is acquired from
-vc->desc_issued queue that is already filled with descriptors
-that are ready to be sent. Threads have no direct access to DMA
-channel descriptor. In case of channel's descriptor is busy, try
-to submit to HW again when a descriptor is completed. In this case,
-vc->desc_issued may be empty when hisi_dma_start_transfer is called,
-so delete error reporting on this. Now it is just possible to queue
-a descriptor for further processing.
-
-Fixes: e9f08b65250d ("dmaengine: hisilicon: Add Kunpeng DMA engine support")
-Signed-off-by: Jie Hai <haijie1@huawei.com>
-Acked-by: Zhou Wang <wangzhou1@hisilicon.com>
-Link: https://lore.kernel.org/r/20220830062251.52993-4-haijie1@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 9a761e436843 ("[media] exynos4-is: Add Exynos4x12 FIMC-IS driver")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/hisi_dma.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/media/platform/exynos4-is/fimc-is.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/hisi_dma.c b/drivers/dma/hisi_dma.c
-index 9e6ce3731ca5..df6be7ca340c 100644
---- a/drivers/dma/hisi_dma.c
-+++ b/drivers/dma/hisi_dma.c
-@@ -271,7 +271,6 @@ static void hisi_dma_start_transfer(struct hisi_dma_chan *chan)
+diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
+index 9bb14bb2e498..c78c2a7f03fa 100644
+--- a/drivers/media/platform/exynos4-is/fimc-is.c
++++ b/drivers/media/platform/exynos4-is/fimc-is.c
+@@ -214,6 +214,7 @@ static int fimc_is_register_subdevs(struct fimc_is *is)
  
- 	vd = vchan_next_desc(&chan->vc);
- 	if (!vd) {
--		dev_err(&hdma_dev->pdev->dev, "no issued task!\n");
- 		chan->desc = NULL;
- 		return;
- 	}
-@@ -303,7 +302,7 @@ static void hisi_dma_issue_pending(struct dma_chan *c)
- 
- 	spin_lock_irqsave(&chan->vc.lock, flags);
- 
--	if (vchan_issue_pending(&chan->vc))
-+	if (vchan_issue_pending(&chan->vc) && !chan->desc)
- 		hisi_dma_start_transfer(chan);
- 
- 	spin_unlock_irqrestore(&chan->vc.lock, flags);
-@@ -441,11 +440,10 @@ static irqreturn_t hisi_dma_irq(int irq, void *data)
- 				    chan->qp_num, chan->cq_head);
- 		if (FIELD_GET(STATUS_MASK, cqe->w0) == STATUS_SUCC) {
- 			vchan_cookie_complete(&desc->vd);
-+			hisi_dma_start_transfer(chan);
- 		} else {
- 			dev_err(&hdma_dev->pdev->dev, "task error!\n");
- 		}
--
--		chan->desc = NULL;
- 	}
- 
- 	spin_unlock(&chan->vc.lock);
+ 			if (ret < 0 || index >= FIMC_IS_SENSORS_NUM) {
+ 				of_node_put(child);
++				of_node_put(i2c_bus);
+ 				return ret;
+ 			}
+ 			index++;
 -- 
 2.35.1
 
