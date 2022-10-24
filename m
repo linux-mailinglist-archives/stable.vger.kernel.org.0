@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F9560B81A
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38A8060B6F4
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:14:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231214AbiJXTlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:41:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36834 "EHLO
+        id S232262AbiJXTOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:14:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232772AbiJXTlS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:41:18 -0400
+        with ESMTP id S233422AbiJXTOO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:14:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA83C25ED2E;
-        Mon, 24 Oct 2022 11:11:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11C2F13D50;
+        Mon, 24 Oct 2022 10:52:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C21D8B811E3;
-        Mon, 24 Oct 2022 11:56:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B85EC433D6;
-        Mon, 24 Oct 2022 11:56:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3BECB81989;
+        Mon, 24 Oct 2022 12:42:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ECE5C433D7;
+        Mon, 24 Oct 2022 12:42:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612574;
-        bh=oPcGZNPOVZFp9ic2M+WBGGfeOaLqyr96TvPpJbQRVoo=;
+        s=korg; t=1666615337;
+        bh=x6mznkUKS4RGGDEjJL95F1nepkI4ncjozWX6b+ZXK9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jzqRBVDpilwy1GlvHyKHqfuD5wVVWezGWNItVf3GbMAqiWy/3ii+3NmQgLujWXC0k
-         29XScArLczgdYaf5/g9aKkSrFmsPSJkxXeznZaBZpZb6dUu6Z/R0Q/O6k+IVXFK7zb
-         PjYj133+9e5fvPri9e2Qz5fe29lSNZJ1I6Dpo95E=
+        b=gvB5d8QD+JZjkEZNfIX4zU+Qd8NAplAeDIW5noG1YNLwcTZDGMYGOMkgoe2kZ3gXZ
+         Ot1KU2RAIiGWRTtd8kuM2NLuCqYfK7rEB0HPKW18Tg8/jyjpp/oPg1TagmNt90kxjn
+         l0DQZM5qpWImEDNQTlMbBBiTduyLzV3XOjR9A1jI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.19 038/229] iio: dac: ad5593r: Fix i2c read protocol requirements
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 213/530] drm/bridge: parade-ps8640: Fix regulator supply order
 Date:   Mon, 24 Oct 2022 13:29:17 +0200
-Message-Id: <20221024113000.334009591@linuxfoundation.org>
+Message-Id: <20221024113054.714124602@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,110 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-commit 558a25f903b4af6361b7fbeea08a6446a0745653 upstream.
+[ Upstream commit fc94224c2e0ae8d83ac511a3ef4962178505469d ]
 
-For reliable operation across the full range of supported
-interface rates, the AD5593R needs a STOP condition between
-address write, and data read (like show in the datasheet Figure 40)
-so in turn i2c_smbus_read_word_swapped cannot be used.
+The datasheet says that VDD12 must be enabled and at full voltage before
+VDD33 is enabled.
 
-While at it, a simple helper was added to make the code simpler.
+Reorder the bulk regulator supply names so that VDD12 is enabled before
+VDD33. Any enable ramp delays should be handled by setting proper
+constraints on the regulators.
 
-Fixes: 56ca9db862bf ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220913073413.140475-2-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: bc1aee7fc8f0 ("drm/bridge: Add I2C based driver for ps8640 bridge")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220721092258.3397461-1-wenst@chromium.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/dac/ad5593r.c |   46 +++++++++++++++++++++++++++-------------------
- 1 file changed, 27 insertions(+), 19 deletions(-)
+ drivers/gpu/drm/bridge/parade-ps8640.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/dac/ad5593r.c
-+++ b/drivers/iio/dac/ad5593r.c
-@@ -15,6 +15,8 @@
- #include <linux/of.h>
- #include <linux/acpi.h>
+--- a/drivers/gpu/drm/bridge/parade-ps8640.c
++++ b/drivers/gpu/drm/bridge/parade-ps8640.c
+@@ -333,8 +333,8 @@ static int ps8640_probe(struct i2c_clien
+ 	if (IS_ERR(ps_bridge->panel_bridge))
+ 		return PTR_ERR(ps_bridge->panel_bridge);
  
-+#include <asm/unaligned.h>
-+
- #define AD5593R_MODE_CONF		(0 << 4)
- #define AD5593R_MODE_DAC_WRITE		(1 << 4)
- #define AD5593R_MODE_ADC_READBACK	(4 << 4)
-@@ -22,6 +24,24 @@
- #define AD5593R_MODE_GPIO_READBACK	(6 << 4)
- #define AD5593R_MODE_REG_READBACK	(7 << 4)
- 
-+static int ad5593r_read_word(struct i2c_client *i2c, u8 reg, u16 *value)
-+{
-+	int ret;
-+	u8 buf[2];
-+
-+	ret = i2c_smbus_write_byte(i2c, reg);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = i2c_master_recv(i2c, buf, sizeof(buf));
-+	if (ret < 0)
-+		return ret;
-+
-+	*value = get_unaligned_be16(buf);
-+
-+	return 0;
-+}
-+
- static int ad5593r_write_dac(struct ad5592r_state *st, unsigned chan, u16 value)
- {
- 	struct i2c_client *i2c = to_i2c_client(st->dev);
-@@ -40,13 +60,7 @@ static int ad5593r_read_adc(struct ad559
- 	if (val < 0)
- 		return (int) val;
- 
--	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_ADC_READBACK);
--	if (val < 0)
--		return (int) val;
--
--	*value = (u16) val;
--
--	return 0;
-+	return ad5593r_read_word(i2c, AD5593R_MODE_ADC_READBACK, value);
- }
- 
- static int ad5593r_reg_write(struct ad5592r_state *st, u8 reg, u16 value)
-@@ -60,25 +74,19 @@ static int ad5593r_reg_write(struct ad55
- static int ad5593r_reg_read(struct ad5592r_state *st, u8 reg, u16 *value)
- {
- 	struct i2c_client *i2c = to_i2c_client(st->dev);
--	s32 val;
--
--	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_REG_READBACK | reg);
--	if (val < 0)
--		return (int) val;
- 
--	*value = (u16) val;
--
--	return 0;
-+	return ad5593r_read_word(i2c, AD5593R_MODE_REG_READBACK | reg, value);
- }
- 
- static int ad5593r_gpio_read(struct ad5592r_state *st, u8 *value)
- {
- 	struct i2c_client *i2c = to_i2c_client(st->dev);
--	s32 val;
-+	u16 val;
-+	int ret;
- 
--	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_GPIO_READBACK);
--	if (val < 0)
--		return (int) val;
-+	ret = ad5593r_read_word(i2c, AD5593R_MODE_GPIO_READBACK, &val);
-+	if (ret)
-+		return ret;
- 
- 	*value = (u8) val;
- 
+-	ps_bridge->supplies[0].supply = "vdd33";
+-	ps_bridge->supplies[1].supply = "vdd12";
++	ps_bridge->supplies[0].supply = "vdd12";
++	ps_bridge->supplies[1].supply = "vdd33";
+ 	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(ps_bridge->supplies),
+ 				      ps_bridge->supplies);
+ 	if (ret)
 
 
