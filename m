@@ -2,70 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0925A60B7C0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:32:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF3AD60B7CD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:33:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233101AbiJXTc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:32:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49570 "EHLO
+        id S233326AbiJXTdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:33:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233165AbiJXTbv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:31:51 -0400
-Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7458A3472C;
-        Mon, 24 Oct 2022 11:02:22 -0700 (PDT)
-Received: by mail-qk1-x732.google.com with SMTP id a18so6598373qko.0;
-        Mon, 24 Oct 2022 11:02:21 -0700 (PDT)
+        with ESMTP id S230006AbiJXTdd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:33:33 -0400
+Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com [IPv6:2607:f8b0:4864:20::72f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BD3B15DB2D;
+        Mon, 24 Oct 2022 11:04:09 -0700 (PDT)
+Received: by mail-qk1-x72f.google.com with SMTP id t25so6571471qkm.2;
+        Mon, 24 Oct 2022 11:04:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=0AjZetwXQvFyjj5rKhKIL62qpGJ5ZqUWEelD4zxLAHY=;
-        b=hAzkIsnj/tlvt9iPucOxSeNI+Xr/rkQ3MOdwedNdN2uKXHlhTLyjqFgbbmMzwGradY
-         1gIqMOMQcU9/MAZ3OKa7dela4Y85F/4O8qtzeSy4WKmmZJpAtK6u7eEQT11YbXPqSofn
-         29CM1n6/6/cqMyXq2kF77hmqL3lyQ4kEfZKsKVCFr+8WXFbw/R333ksNp0nPRd62qb/4
-         +prAFztYiKmlw+6iHZPtcRMfvclEPm+8WQ3OulCnBmzJerHo9PFDX8eWRz/qfpo4oRIi
-         37jv2eYpLhRF32CP8O///inipK1+JfuDel6Fv9+cuLivmxO3PfNVphF0asybCuuuwr1x
-         kjAA==
+        bh=xOnwiqhqmU2vuKfV5AqO+B/jD6mXaGSnSjTuitBAuvo=;
+        b=lPOnS0Z0o1/InyYteCksInxAewCB3O5So3PMkBbconv36tRyL58HtDW96uSm/L01y2
+         TDdPXgJdcqBBleAbVlIhmFk1UOciCbdSznUNWbRIykz590c89N9Qvn9jGi+8xwGaZ64Z
+         jCKAUwQcOArzKqKaiJd55heLKIhht+Bk1Cgu2dGcVZ6Izpo2xuIcje7fmoOj4P+iQPX5
+         lrOKTEH+FslD0dCZkNam8VEoZq5cv0NCtS9hub5+ZlX0/QSyA8pztXnvZ3K7ENLa8ltm
+         Ru7R5yiOPY2hoq3mCKN1qcUY/d9NZf2NaGfezNhdlsmcAORlnid+YeOa/bWaHCgDA6yj
+         6ciA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=0AjZetwXQvFyjj5rKhKIL62qpGJ5ZqUWEelD4zxLAHY=;
-        b=Ce73rA0zCejiOq9iYFFAkx7A2Lx7X9+jp4UhASJvZBvi60cXCjElvV8gA8JxIBzxGi
-         2NaVDklnTparMAcFh9DU7uNdfchlBSluR+mCqDVY0bNrFtOwLWEUPZ1iUQGJbdlpP/SU
-         yOBGIHC08wE4wijr8PUQBF823IjdnJVkktMtM3mJA/jthYn3a+lOAy8VuWBuHKxUgH7p
-         f2L2fRvQE5nT/2gLVhUY3GdJkSFHSg0BoznBNfhLt6m5cnjqKq8DWaK7Y9cud1dabs6u
-         MPtpiBi3jbVFktT8wF69wwVen6iwoLKzpHi7koTLrVviEqWmp3LENCvOq5J1Sf8OI7TI
-         EY7g==
-X-Gm-Message-State: ACrzQf27UL3xa3jN2p4ip6YATJdunZUHXwkL1UKIjUyySRvsNPhjnLPW
-        E2EMyToJEqrqkHrCQmDbl8c=
-X-Google-Smtp-Source: AMsMyM5iVLa+j7+/WKxEYbCrr50S4qHEe5ZrOzkPzfJXkdmBwZdaMqWnAk9anHXQ4WIKlSLa5xcf9g==
-X-Received: by 2002:a05:620a:22cc:b0:6ee:3e43:ac40 with SMTP id o12-20020a05620a22cc00b006ee3e43ac40mr24110693qki.454.1666634478109;
-        Mon, 24 Oct 2022 11:01:18 -0700 (PDT)
+        bh=xOnwiqhqmU2vuKfV5AqO+B/jD6mXaGSnSjTuitBAuvo=;
+        b=NMdsdtpSbe721GjLmxqmH7L7vDzkhItrW3/0dLdnJhIa7keKW9GvjvhSuHYxie0+6f
+         DL2xb0a9ARkSP4U12RSgtvHTbwg/MXK3H5flLdAaXWlMocr3lo30zm8nFP+/7W9ee/zN
+         O2X0sCnSygVimecYKyxzrOWmP25r/T40mGVosKxGJlXgeibXeCBifMOUqS4m4Kbv1xfv
+         8mSFm880aJr63gjEjDvIik87y1XbQPnF6/ugYy+afcxeN9e0yj5F9PKAGJx8MiUpR5SX
+         0LmrwYdHT9DIXawGyjuOzTd7sBchQM1wGM4moskbiHb4fi/29UXfrX0DPvU2T8GGwA1E
+         YFOA==
+X-Gm-Message-State: ACrzQf0TFHvDw4SgiI+BiQw1Ln7OV1ys23l9n9IKR6G5p5Q8kQw/wbNc
+        AtrRO3XnRCPnDBIExhB5YjA=
+X-Google-Smtp-Source: AMsMyM7NTxTI6fxf+uJ3Zu/TRzMRiYlJsU7z+Bv7BrBwx4ABlI2yLTPDNY6xtZxLHuk90IksZUs/XA==
+X-Received: by 2002:a05:620a:490d:b0:6e6:b1ad:7a81 with SMTP id ed13-20020a05620a490d00b006e6b1ad7a81mr22216331qkb.695.1666634575332;
+        Mon, 24 Oct 2022 11:02:55 -0700 (PDT)
 Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id e7-20020ac85987000000b0039cbb50951asm340123qte.24.2022.10.24.11.01.12
+        by smtp.googlemail.com with ESMTPSA id e10-20020a05622a110a00b0039cb9ef50b5sm332196qty.26.2022.10.24.11.02.44
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Oct 2022 11:01:17 -0700 (PDT)
-Message-ID: <7083ebdf-46e4-3e94-a47a-c2d38782245e@gmail.com>
-Date:   Mon, 24 Oct 2022 11:01:10 -0700
+        Mon, 24 Oct 2022 11:02:54 -0700 (PDT)
+Message-ID: <709b3a2e-4dfa-52e1-a75e-f72d73bd97a8@gmail.com>
+Date:   Mon, 24 Oct 2022 11:02:40 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.2.2
-Subject: Re: [PATCH 5.10 000/390] 5.10.150-rc1 review
+Subject: Re: [PATCH v3 1/7] mmc: cqhci: Provide helper for resetting both
+ SDHCI and CQHCI
 Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-References: <20221024113022.510008560@linuxfoundation.org>
+To:     Brian Norris <briannorris@chromium.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     Shawn Lin <shawn.lin@rock-chips.com>, linux-mmc@vger.kernel.org,
+        Al Cooper <alcooperx@gmail.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Broadcom internal kernel review list 
+        <bcm-kernel-feedback-list@broadcom.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        linux-kernel@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        linux-arm-msm@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Andy Gross <agross@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>, stable@vger.kernel.org
+References: <20221024175501.2265400-1-briannorris@chromium.org>
+ <20221024105229.v3.1.Ie85faa09432bfe1b0890d8c24ff95e17f3097317@changeid>
 From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024105229.v3.1.Ie85faa09432bfe1b0890d8c24ff95e17f3097317@changeid>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -78,29 +96,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/24/22 04:26, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.150 release.
-> There are 390 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 10/24/22 10:54, Brian Norris wrote:
+> Several SDHCI drivers need to deactivate command queueing in their reset
+> hook (see sdhci_cqhci_reset() / sdhci-pci-core.c, for example), and
+> several more are coming.
 > 
-> Responses should be made by Wed, 26 Oct 2022 11:29:24 +0000.
-> Anything received after that time might be too late.
+> Those reset implementations have some small subtleties (e.g., ordering
+> of initialization of SDHCI vs. CQHCI might leave us resetting with a
+> NULL ->cqe_private), and are often identical across different host
+> drivers.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.150-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> We also don't want to force a dependency between SDHCI and CQHCI, or
+> vice versa; non-SDHCI drivers use CQHCI, and SDHCI drivers might support
+> command queueing through some other means.
 > 
-> thanks,
+> So, implement a small helper, to avoid repeating the same mistakes in
+> different drivers. Simply stick it in a header, because it's so small it
+> doesn't deserve its own module right now, and inlining to each driver is
+> pretty reasonable.
 > 
-> greg k-h
+> This is marked for -stable, as it is an important prerequisite patch for
+> several SDHCI controller bugfixes that follow.
+> 
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
 Florian
 
