@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86F3B60AB1D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 374F460A837
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:03:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233440AbiJXNpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:45:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55028 "EHLO
+        id S235111AbiJXNC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:02:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236417AbiJXNoL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:44:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAE332BE2F;
-        Mon, 24 Oct 2022 05:40:08 -0700 (PDT)
+        with ESMTP id S235114AbiJXNBZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:01:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 173AC2CDDB;
+        Mon, 24 Oct 2022 05:19:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E52061345;
-        Mon, 24 Oct 2022 12:38:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88AA7C433C1;
-        Mon, 24 Oct 2022 12:38:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 025EA61014;
+        Mon, 24 Oct 2022 12:18:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 151DEC433C1;
+        Mon, 24 Oct 2022 12:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615098;
-        bh=BMhRM4nqWbjmRpKYBjSHNb+WOA6zO/H96SN3tqK7YGs=;
+        s=korg; t=1666613934;
+        bh=vRZRcG52HvItJnHU8ZwO+iF8jCky5QMMnaeL1wxRTTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YwhioM/21g5sm/yzcDulbZpsIrks8bUuNhERB1BiZxqnzgWTtK/teiNXtjM1G73X2
-         NTF26zgx7Zb47EHJDCJQ0vHzl5yCXl2/uSXwW4CY6U2SY8t3bRBy8q787XMbsOkB7n
-         vRVCmBnThXAZ+NvDzlEmwh7Wz4XGrK5FhQaHDRKI=
+        b=CwnfWVmV3EUJXUqlXg5zrjhLrj5q2yZJOEAgUo1IlbqqeGBej5QNE0uIh5jQKGtjH
+         L5gMt6w3qDq7Shv++iJtiwSXsKIKD9ZzHAP6r3PJqzyxQ7fVmj4416qFJ3uyJhNMNT
+         ZkeTsfKBs7z+kcCKaOF7pjqMIvTkXovz8YNyMcSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.15 121/530] media: cedrus: Fix endless loop in cedrus_h265_skip_bits()
-Date:   Mon, 24 Oct 2022 13:27:45 +0200
-Message-Id: <20221024113050.527524218@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 069/390] ext4: fix potential memory leak in ext4_fc_record_regions()
+Date:   Mon, 24 Oct 2022 13:27:46 +0200
+Message-Id: <20221024113025.529118096@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 91db7a3fc7fe670cf1770a398a43bb4a1f776bf1 upstream.
+commit 7069d105c1f15c442b68af43f7fde784f3126739 upstream.
 
-The busy status bit may never de-assert if number of programmed skip
-bits is incorrect, resulting in a kernel hang because the bit is polled
-endlessly in the code. Fix it by adding timeout for the bit-polling.
-This problem is reproducible by setting the data_bit_offset field of
-the HEVC slice params to a wrong value by userspace.
+As krealloc may return NULL, in this case 'state->fc_regions' may not be
+freed by krealloc, but 'state->fc_regions' already set NULL. Then will
+lead to 'state->fc_regions' memory leak.
 
-Cc: stable@vger.kernel.org
-Fixes: 7678c5462680 (media: cedrus: Fix decoding for some HEVC videos)
-Reported-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220921064040.3693255-3-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/media/sunxi/cedrus/cedrus_h265.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/ext4/fast_commit.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-@@ -234,8 +234,9 @@ static void cedrus_h265_skip_bits(struct
- 		cedrus_write(dev, VE_DEC_H265_TRIGGER,
- 			     VE_DEC_H265_TRIGGER_FLUSH_BITS |
- 			     VE_DEC_H265_TRIGGER_TYPE_N_BITS(tmp));
--		while (cedrus_read(dev, VE_DEC_H265_STATUS) & VE_DEC_H265_STATUS_VLD_BUSY)
--			udelay(1);
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -1584,15 +1584,17 @@ int ext4_fc_record_regions(struct super_
+ 	if (replay && state->fc_regions_used != state->fc_regions_valid)
+ 		state->fc_regions_used = state->fc_regions_valid;
+ 	if (state->fc_regions_used == state->fc_regions_size) {
++		struct ext4_fc_alloc_region *fc_regions;
 +
-+		if (cedrus_wait_for(dev, VE_DEC_H265_STATUS, VE_DEC_H265_STATUS_VLD_BUSY))
-+			dev_err_ratelimited(dev->dev, "timed out waiting to skip bits\n");
- 
- 		count += tmp;
+ 		state->fc_regions_size +=
+ 			EXT4_FC_REPLAY_REALLOC_INCREMENT;
+-		state->fc_regions = krealloc(
+-					state->fc_regions,
+-					state->fc_regions_size *
+-					sizeof(struct ext4_fc_alloc_region),
+-					GFP_KERNEL);
+-		if (!state->fc_regions)
++		fc_regions = krealloc(state->fc_regions,
++				      state->fc_regions_size *
++				      sizeof(struct ext4_fc_alloc_region),
++				      GFP_KERNEL);
++		if (!fc_regions)
+ 			return -ENOMEM;
++		state->fc_regions = fc_regions;
  	}
+ 	region = &state->fc_regions[state->fc_regions_used++];
+ 	region->ino = ino;
 
 
