@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C44C60B454
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:37:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC76560B1E2
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:39:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231452AbiJXRhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:37:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44554 "EHLO
+        id S232747AbiJXQjm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:39:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233764AbiJXRhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:37:33 -0400
+        with ESMTP id S232917AbiJXQjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:39:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A3512636;
-        Mon, 24 Oct 2022 09:12:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFD882F3B9;
+        Mon, 24 Oct 2022 08:26:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03165B815E8;
-        Mon, 24 Oct 2022 12:23:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D6F1C433D6;
-        Mon, 24 Oct 2022 12:23:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4BF7B81992;
+        Mon, 24 Oct 2022 12:43:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FFB4C433D7;
+        Mon, 24 Oct 2022 12:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614218;
-        bh=cHT/tctzQJbGiXiQn4s+uUUWvv1Z72ev5clpduBCXxw=;
+        s=korg; t=1666615400;
+        bh=uyem+gn0PLxIqjr40ITYncCZDAqs2evlHBy6sMObmGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ax9WYOH5Pb1Bm2oyEO9cWUhNXrSJra8srf1BITPHvr509X9XTV6hQDI2XZ+IqToB/
-         iCPHVcvwe4ppnoe3Isz1IH0hbuHVtLe63RjoVJ0sxIN1rVbQOwDVU5j+Kgm4h2Ua1M
-         6uJZM9IsM/sp0g3tYneIQMvdA2gC7SkEVPG5Pw0E=
+        b=ViwgZ0CrmFTqzXsjyOXWLC0qbm3N/PLJ0A2ycUGnttZbd81raRupC/bQpolFWNv/7
+         gTaTKti7Rkxow3bm+DODONVZQWJpvOjRdqXwkbKt75SlIfwx3JiuUI851UPI7fZjYI
+         tyim7HHSsWqy6BuCGSBYjOGrx+jikuXr8NxYbTp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        stable@vger.kernel.org, Gerd Hoffmann <kraxel@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 176/390] ARM: dts: turris-omnia: Fix mpp26 pin name and comment
+Subject: [PATCH 5.15 229/530] drm/bochs: fix blanking
 Date:   Mon, 24 Oct 2022 13:29:33 +0200
-Message-Id: <20221024113030.221691548@linuxfoundation.org>
+Message-Id: <20221024113055.451274092@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
 
-[ Upstream commit 49e93898f0dc177e645c22d0664813567fd9ec00 ]
+[ Upstream commit e740ceb53e4579a7a4063712cebecac3c343b189 ]
 
-There is a bug in Turris Omnia's schematics, whereupon the MPP[26] pin,
-which is routed to CN11 pin header, is documented as SPI CS1, but
-MPP[26] pin does not support this function. Instead it controls chip
-select 2 if in "spi0" mode.
+VGA_IS1_RC is the color mode register (VGA_IS1_RM the one for monochrome
+mode, note C vs. M at the end).  So when using VGA_IS1_RC make sure the
+vga device is actually in color mode and set the corresponding bit in the
+misc register.
 
-Fix the name of the pin node in pinctrl node and fix the comment in SPI
-node.
+Reproducible when booting VMs in UEFI mode with some edk2 versions (edk2
+fix is on the way too).  Doesn't happen in BIOS mode because in that
+case the vgabios already flips the bit.
 
-Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: 250e743915d4 ("drm/bochs: Add screen blanking support")
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220906142957.2763577-1-kraxel@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-385-turris-omnia.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/tiny/bochs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/armada-385-turris-omnia.dts b/arch/arm/boot/dts/armada-385-turris-omnia.dts
-index fde4c302f08e..92e08486ec81 100644
---- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
-+++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
-@@ -307,7 +307,7 @@
- 		marvell,function = "spi0";
- 	};
- 
--	spi0cs1_pins: spi0cs1-pins {
-+	spi0cs2_pins: spi0cs2-pins {
- 		marvell,pins = "mpp26";
- 		marvell,function = "spi0";
- 	};
-@@ -342,7 +342,7 @@
- 		};
- 	};
- 
--	/* MISO, MOSI, SCLK and CS1 are routed to pin header CN11 */
-+	/* MISO, MOSI, SCLK and CS2 are routed to pin header CN11 */
- };
- 
- &uart0 {
+diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+index 73415fa9ae0f..eb8116ff0d90 100644
+--- a/drivers/gpu/drm/tiny/bochs.c
++++ b/drivers/gpu/drm/tiny/bochs.c
+@@ -305,6 +305,8 @@ static void bochs_hw_fini(struct drm_device *dev)
+ static void bochs_hw_blank(struct bochs_device *bochs, bool blank)
+ {
+ 	DRM_DEBUG_DRIVER("hw_blank %d\n", blank);
++	/* enable color bit (so VGA_IS1_RC access works) */
++	bochs_vga_writeb(bochs, VGA_MIS_W, VGA_MIS_COLOR);
+ 	/* discard ar_flip_flop */
+ 	(void)bochs_vga_readb(bochs, VGA_IS1_RC);
+ 	/* blank or unblank; we need only update index and set 0x20 */
 -- 
 2.35.1
 
