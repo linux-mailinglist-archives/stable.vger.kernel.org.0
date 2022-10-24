@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 851B660A5D1
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E89F60A501
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230472AbiJXMag (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:30:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60576 "EHLO
+        id S233129AbiJXMUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:20:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233864AbiJXM22 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:28 -0400
+        with ESMTP id S233404AbiJXMTW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D56F986FA4;
-        Mon, 24 Oct 2022 05:02:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AED982775;
+        Mon, 24 Oct 2022 04:58:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC22E612F0;
-        Mon, 24 Oct 2022 12:01:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB629C433D6;
-        Mon, 24 Oct 2022 12:01:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E574612A0;
+        Mon, 24 Oct 2022 11:44:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81B20C433C1;
+        Mon, 24 Oct 2022 11:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612912;
-        bh=54tY2h5Qry2GXNveBLK3B1tcepdEC6wKQ9dOikm8r2Y=;
+        s=korg; t=1666611846;
+        bh=ZM8KwLzQMU6Z+0eJcv/Gy/7anpAdhPECPWXhIWxPZPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rlRPA41i86zuCJ9VOKFWhHgb6ZlY5HeHpv40qtbnCgdMMaUnZ2gFQcm23CzYU3kzC
-         6NEhkZRX52fIqrgbi3blYES5+Ysw0m917aG7RdnOytMt/5FESiV+FeEwp/IP2AzI4B
-         9ByiQxQU8DXtGkR4zVVeXsTfUHb6HYF8yMTLv0iw=
+        b=TutMja1FKraUaEqw/6lgjY1zVXghJvHmZJaxEMlh6zC6xAqMooETO8iR8+vArGAJY
+         FZkchDehEsI+Cnba2s1JQhxKejua0J4t78zrI/CUqx0MTqnxH73oiRVjwnC8SaA5tW
+         9wE7NC6tirggYfTd9kIIjJD9hm+AwJXfq3xxShaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>,
-        John Garry <john.garry@huawei.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 167/229] iommu/iova: Fix module config properly
-Date:   Mon, 24 Oct 2022 13:31:26 +0200
-Message-Id: <20221024113004.479893418@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 133/159] can: bcm: check the result of can_send() in bcm_can_tx()
+Date:   Mon, 24 Oct 2022 13:31:27 +0200
+Message-Id: <20221024112954.335214620@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 4f58330fcc8482aa90674e1f40f601e82f18ed4a ]
+[ Upstream commit 3fd7bfd28cfd68ae80a2fe92ea1615722cc2ee6e ]
 
-IOMMU_IOVA is intended to be an optional library for users to select as
-and when they desire. Since it can be a module now, this means that
-built-in code which has chosen not to select it should not fail to link
-if it happens to have selected as a module by someone else. Replace
-IS_ENABLED() with IS_REACHABLE() to do the right thing.
+If can_send() fail, it should not update frames_abs counter
+in bcm_can_tx(). Add the result check for can_send() in bcm_can_tx().
 
-CC: Thierry Reding <thierry.reding@gmail.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Fixes: 15bbdec3931e ("iommu: Make the iova library a module")
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/548c2f683ca379aface59639a8f0cccc3a1ac050.1663069227.git.robin.murphy@arm.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Suggested-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Link: https://lore.kernel.org/all/9851878e74d6d37aee2f1ee76d68361a46f89458.1663206163.git.william.xuanziyang@huawei.com
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/iova.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/bcm.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/iova.h b/include/linux/iova.h
-index 84fbe73d2ec0..8d4616c532da 100644
---- a/include/linux/iova.h
-+++ b/include/linux/iova.h
-@@ -133,7 +133,7 @@ static inline unsigned long iova_pfn(struct iova_domain *iovad, dma_addr_t iova)
- 	return iova >> iova_shift(iovad);
- }
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index bfb507223468..ece04ad50348 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -285,6 +285,7 @@ static void bcm_can_tx(struct bcm_op *op)
+ 	struct sk_buff *skb;
+ 	struct net_device *dev;
+ 	struct canfd_frame *cf = op->frames + op->cfsiz * op->currframe;
++	int err;
  
--#if IS_ENABLED(CONFIG_IOMMU_IOVA)
-+#if IS_REACHABLE(CONFIG_IOMMU_IOVA)
- int iova_cache_get(void);
- void iova_cache_put(void);
+ 	/* no target device? => exit */
+ 	if (!op->ifindex)
+@@ -309,11 +310,11 @@ static void bcm_can_tx(struct bcm_op *op)
+ 	/* send with loopback */
+ 	skb->dev = dev;
+ 	can_skb_set_owner(skb, op->sk);
+-	can_send(skb, 1);
++	err = can_send(skb, 1);
++	if (!err)
++		op->frames_abs++;
  
+-	/* update statistics */
+ 	op->currframe++;
+-	op->frames_abs++;
+ 
+ 	/* reached last frame? */
+ 	if (op->currframe >= op->nframes)
 -- 
 2.35.1
 
