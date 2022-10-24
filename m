@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB05060BA0D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93EC260BC68
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 23:43:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230320AbiJXUY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:24:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50112 "EHLO
+        id S231272AbiJXVn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 17:43:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234286AbiJXUXj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:23:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51884360B5;
-        Mon, 24 Oct 2022 11:39:06 -0700 (PDT)
+        with ESMTP id S230115AbiJXVnM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 17:43:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C39052E7B92;
+        Mon, 24 Oct 2022 12:53:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C4D3B811B9;
-        Mon, 24 Oct 2022 12:16:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B10E5C433D7;
-        Mon, 24 Oct 2022 12:16:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 860ADB81186;
+        Mon, 24 Oct 2022 12:16:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE044C433C1;
+        Mon, 24 Oct 2022 12:16:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613779;
-        bh=qYKM/knQ12F6UlTUM7FZHtkKGNyWjWZQpvghfT6Vky4=;
+        s=korg; t=1666613784;
+        bh=fS92YeGgAE7/jfevSZZ9qKCTlZHn8Zq5p+Rkx1Cwmg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cm1XkriFDjlcpcNxjIa8GR2lwZk9G1t30K2A+4OxHS0RBnVznJQfKQm/gQvZfI8fl
-         hnkTc8Cqr5fGD3XNRJmlpSxK4fzAWkOXCLOg4uLMCCUbj/AHLE6hONqJLFxN7egWQR
-         yiYTCV+xe+YRII8JC7gRH9BTPM3REOPXN7lb9JYg=
+        b=k79026WlTHzFCYKrjT841Bw+Vyh3BYTn9YUe+qWpoPhBm/wU/ivpLp80sYBGJhIkB
+         CQ1wquyqJGfUFSWg2HgfjN0JzFor+3uWsbci5XcIg12AsZlEFeu0PVqfMJieHuQeIp
+         Vwa6+mFoM33XDTblu4qLpydMxAtbOWZlanPb/LBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>, Tom Talpey <tom@talpey.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.10 011/390] cifs: Fix the error length of VALIDATE_NEGOTIATE_INFO message
-Date:   Mon, 24 Oct 2022 13:26:48 +0200
-Message-Id: <20221024113023.012197841@linuxfoundation.org>
+        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Denys Zagorui <dzagorui@cisco.com>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 013/390] iio: ltc2497: Fix reading conversion results
+Date:   Mon, 24 Oct 2022 13:26:50 +0200
+Message-Id: <20221024113023.115390994@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -53,45 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-commit e98ecc6e94f4e6d21c06660b0f336df02836694f upstream.
+commit 7f4f1096d5921f5d90547596f9ce80e0b924f887 upstream.
 
-Commit d5c7076b772a ("smb3: add smb3.1.1 to default dialect list")
-extend the dialects from 3 to 4, but forget to decrease the extended
-length when specific the dialect, then the message length is larger
-than expected.
+After the result of the previous conversion is read the chip
+automatically starts a new conversion and doesn't accept new i2c
+transfers until this conversion is completed which makes the function
+return failure.
 
-This maybe leak some info through network because not initialize the
-message body.
+So add an early return iff the programming of the new address isn't
+needed. Note this will not fix the problem in general, but all cases
+that are currently used. Once this changes we get the failure back, but
+this can be addressed when the need arises.
 
-After apply this patch, the VALIDATE_NEGOTIATE_INFO message length is
-reduced from 28 bytes to 26 bytes.
-
-Fixes: d5c7076b772a ("smb3: add smb3.1.1 to default dialect list")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Cc: <stable@vger.kernel.org>
-Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 69548b7c2c4f ("iio: adc: ltc2497: split protocol independent part in a separate module ")
+Reported-by: Meng Li <Meng.Li@windriver.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Tested-by: Denys Zagorui <dzagorui@cisco.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220815091647.1523532-1-dzagorui@cisco.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2pdu.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/adc/ltc2497.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -1075,9 +1075,9 @@ int smb3_validate_negotiate(const unsign
- 		pneg_inbuf->Dialects[0] =
- 			cpu_to_le16(server->vals->protocol_id);
- 		pneg_inbuf->DialectCount = cpu_to_le16(1);
--		/* structure is big enough for 3 dialects, sending only 1 */
-+		/* structure is big enough for 4 dialects, sending only 1 */
- 		inbuflen = sizeof(*pneg_inbuf) -
--				sizeof(pneg_inbuf->Dialects[0]) * 2;
-+				sizeof(pneg_inbuf->Dialects[0]) * 3;
+--- a/drivers/iio/adc/ltc2497.c
++++ b/drivers/iio/adc/ltc2497.c
+@@ -41,6 +41,19 @@ static int ltc2497_result_and_measure(st
+ 		}
+ 
+ 		*val = (be32_to_cpu(st->buf) >> 14) - (1 << 17);
++
++		/*
++		 * The part started a new conversion at the end of the above i2c
++		 * transfer, so if the address didn't change since the last call
++		 * everything is fine and we can return early.
++		 * If not (which should only happen when some sort of bulk
++		 * conversion is implemented) we have to program the new
++		 * address. Note that this probably fails as the conversion that
++		 * was triggered above is like not complete yet and the two
++		 * operations have to be done in a single transfer.
++		 */
++		if (ddata->addr_prev == address)
++			return 0;
  	}
  
- 	rc = SMB2_ioctl(xid, tcon, NO_FILE_ID, NO_FILE_ID,
+ 	ret = i2c_smbus_write_byte(st->client,
 
 
