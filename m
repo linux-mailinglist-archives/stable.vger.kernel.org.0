@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E37B60A946
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67AB060A7DB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231258AbiJXNRa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:17:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49856 "EHLO
+        id S230196AbiJXNAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:00:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233113AbiJXNQw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:16:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02F1B537F6;
-        Mon, 24 Oct 2022 05:26:07 -0700 (PDT)
+        with ESMTP id S234807AbiJXM6a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:58:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B3F99835C;
+        Mon, 24 Oct 2022 05:17:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFA64B81199;
-        Mon, 24 Oct 2022 12:04:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 357A5C433D6;
-        Mon, 24 Oct 2022 12:04:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E99086131F;
+        Mon, 24 Oct 2022 12:14:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03832C433C1;
+        Mon, 24 Oct 2022 12:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613082;
-        bh=WWkcmlAyA3f6jXwUv+XMv0JhZ1/YMiSwL+vY8mPdxkY=;
+        s=korg; t=1666613682;
+        bh=N/ic3nvsn6gbap9xn1FFJo7xJmazvDTuIdIeuNaNTDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oi0EEdJQJJCJEVZk3tlb1xC3fYQjt+xwyNas+ac8OJ6vCk88CNJyvVj9H4DywK0sE
-         a+MGL1ZFOQogFWwwBkG1WMQpIb2HGezlN76U5jy2AjWzqI0UNPD4cHvTjH+M2Xb6yQ
-         da5KsBaYdyagTL2JKUXBhIrJtpk8pWLvq4VQwOcU=
+        b=QNpHkygk6BHi8ENZaihv63PkVcrYAUjsvfPvpFIdzRiW9MNGziPn7E+DqrRPFbQy3
+         43SQNAzbzr/5+V7j765HrJA0WxTwDz+1shdVltTPjHRDFMSJNcTk3hsmNa/g5Yb7b8
+         om7LgwJzehwqJAnPYqqm5HQXtA+rU8gu4bmATbF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Letu Ren <fantasquex@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 220/229] clk: bcm2835: Make peripheral PLLC critical
-Date:   Mon, 24 Oct 2022 13:32:19 +0200
-Message-Id: <20221024113006.365791198@linuxfoundation.org>
+Subject: [PATCH 5.4 230/255] scsi: 3w-9xxx: Avoid disabling device if failing to enable it
+Date:   Mon, 24 Oct 2022 13:32:20 +0200
+Message-Id: <20221024113010.788560779@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Letu Ren <fantasquex@gmail.com>
 
-[ Upstream commit 6c5422851d8be8c7451e968fd2e6da41b6109e17 ]
+[ Upstream commit 7eff437b5ee1309b34667844361c6bbb5c97df05 ]
 
-When testing for a series affecting the VEC, it was discovered that
-turning off and on the VEC clock is crashing the system.
+The original code will "goto out_disable_device" and call
+pci_disable_device() if pci_enable_device() fails. The kernel will generate
+a warning message like "3w-9xxx 0000:00:05.0: disabling already-disabled
+device".
 
-It turns out that, when disabling the VEC clock, it's the only child of
-the PLLC-per clock which will also get disabled. The source of the crash
-is PLLC-per being disabled.
+We shouldn't disable a device that failed to be enabled. A simple return is
+fine.
 
-It's likely that some other device might not take a clock reference that
-it actually needs, but it's unclear which at this point. Let's make
-PLLC-per critical so that we don't have that crash.
-
-Reported-by: Noralf Trønnes <noralf@tronnes.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220926084509.12233-1-maxime@cerno.tech
-Reviewed-by: Stefan Wahren <stefan.wahren@i2se.com>
-Acked-by: Noralf Trønnes <noralf@tronnes.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lore.kernel.org/r/20220829110115.38789-1-fantasquex@gmail.com
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 2 +-
+ drivers/scsi/3w-9xxx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index 5a2f8d5d8d7a..180abc00160d 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -1737,7 +1737,7 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
- 		.load_mask = CM_PLLC_LOADPER,
- 		.hold_mask = CM_PLLC_HOLDPER,
- 		.fixed_divider = 1,
--		.flags = CLK_SET_RATE_PARENT),
-+		.flags = CLK_IS_CRITICAL | CLK_SET_RATE_PARENT),
+diff --git a/drivers/scsi/3w-9xxx.c b/drivers/scsi/3w-9xxx.c
+index 3337b1e80412..f6f92033132a 100644
+--- a/drivers/scsi/3w-9xxx.c
++++ b/drivers/scsi/3w-9xxx.c
+@@ -2014,7 +2014,7 @@ static int twa_probe(struct pci_dev *pdev, const struct pci_device_id *dev_id)
+ 	retval = pci_enable_device(pdev);
+ 	if (retval) {
+ 		TW_PRINTK(host, TW_DRIVER, 0x34, "Failed to enable pci device");
+-		goto out_disable_device;
++		return -ENODEV;
+ 	}
  
- 	/*
- 	 * PLLD is the display PLL, used to drive DSI display panels.
+ 	pci_set_master(pdev);
 -- 
 2.35.1
 
