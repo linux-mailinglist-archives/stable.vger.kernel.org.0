@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1246160A610
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F38D60A730
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233889AbiJXMbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:31:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50330 "EHLO
+        id S234274AbiJXMsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:48:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234231AbiJXM3l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96FC023BEC;
-        Mon, 24 Oct 2022 05:03:56 -0700 (PDT)
+        with ESMTP id S234715AbiJXMpd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772F7317FA;
+        Mon, 24 Oct 2022 05:09:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FEBDB811A3;
-        Mon, 24 Oct 2022 11:49:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBB4AC433D6;
-        Mon, 24 Oct 2022 11:49:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B400612F5;
+        Mon, 24 Oct 2022 12:09:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B4F8C433C1;
+        Mon, 24 Oct 2022 12:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612176;
-        bh=IT+ZuMJ69P+nAjLoBJUvmEOjP20rG6UnYzu9ZDnddCQ=;
+        s=korg; t=1666613350;
+        bh=wF6UUJRkHf9QYtND6AvtkHRvV5GkEmtaCAcf59ra3aQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dMA79c2tYlg2QaDwQm9Pi+Vmwsf8UOaKZoYsNfkDqopQKBNeeHWPTXgb7fry00Yft
-         trAbNCBZBmwlTkio3aO4faqnAvArWa1BCExzUEwSMB3l1K3GXtf5IqYlnsNe1TZdz+
-         z1SpOrln1S+gCYJlfBHhXknVOymbm0io2zLQlAUM=
+        b=Y7UyAuIVF1/nFgIIjYbYO4nh379hMu3puDVaWlqsoLxB0yXMqn4YonpfHGU5oyoEQ
+         rBkozKaZ932gUiDY1DMCIqbtnqhPmxifAFcxzizKBZMhol85hZTiixRIlyq5wz+ZIM
+         Brnq66k3WQS4XqlF9+PXvvd7rGFuHa/T9AobhvW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 097/210] bnx2x: fix potential memory leak in bnx2x_tpa_stop()
+Subject: [PATCH 5.4 104/255] ASoC: wm8997: Fix PM disable depth imbalance in wm8997_probe
 Date:   Mon, 24 Oct 2022 13:30:14 +0200
-Message-Id: <20221024113000.171390852@linuxfoundation.org>
+Message-Id: <20221024113005.922301368@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit b43f9acbb8942b05252be83ac25a81cec70cc192 ]
+[ Upstream commit 41a736ac20602f64773e80f0f5b32cde1830a44a ]
 
-bnx2x_tpa_stop() allocates a memory chunk from new_data with
-bnx2x_frag_alloc(). The new_data should be freed when gets some error.
-But when "pad + len > fp->rx_buf_size" is true, bnx2x_tpa_stop() returns
-without releasing the new_data, which will lead to a memory leak.
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context. We fix it by moving
+pm_runtime_enable to the endding of wm8997_probe
 
-We should free the new_data with bnx2x_frag_free() when "pad + len >
-fp->rx_buf_size" is true.
+Fixes:40843aea5a9bd ("ASoC: wm8997: Initial CODEC driver")
 
-Fixes: 07b0f00964def8af9321cfd6c4a7e84f6362f728 ("bnx2x: fix possible panic under memory stress")
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20220928160116.125020-2-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/wm8997.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-index 8c111def8185..96478d79243d 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-@@ -787,6 +787,7 @@ static void bnx2x_tpa_stop(struct bnx2x *bp, struct bnx2x_fastpath *fp,
- 			BNX2X_ERR("skb_put is about to fail...  pad %d  len %d  rx_buf_size %d\n",
- 				  pad, len, fp->rx_buf_size);
- 			bnx2x_panic();
-+			bnx2x_frag_free(fp, new_data);
- 			return;
- 		}
- #endif
+diff --git a/sound/soc/codecs/wm8997.c b/sound/soc/codecs/wm8997.c
+index 229f2986cd96..07378714b013 100644
+--- a/sound/soc/codecs/wm8997.c
++++ b/sound/soc/codecs/wm8997.c
+@@ -1156,9 +1156,6 @@ static int wm8997_probe(struct platform_device *pdev)
+ 		regmap_update_bits(arizona->regmap, wm8997_digital_vu[i],
+ 				   WM8997_DIG_VU, WM8997_DIG_VU);
+ 
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_idle(&pdev->dev);
+-
+ 	arizona_init_common(arizona);
+ 
+ 	ret = arizona_init_vol_limit(arizona);
+@@ -1177,6 +1174,9 @@ static int wm8997_probe(struct platform_device *pdev)
+ 		goto err_spk_irqs;
+ 	}
+ 
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_idle(&pdev->dev);
++
+ 	return ret;
+ 
+ err_spk_irqs:
 -- 
 2.35.1
 
