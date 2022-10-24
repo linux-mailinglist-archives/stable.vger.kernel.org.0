@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9196960ACA9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 16:11:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A6AA60AFE0
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 17:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233163AbiJXOLL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 10:11:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43646 "EHLO
+        id S231522AbiJXP7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:59:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237048AbiJXOJ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 10:09:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AC01C707C;
-        Mon, 24 Oct 2022 05:51:56 -0700 (PDT)
+        with ESMTP id S232125AbiJXP6f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:58:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 682EE143A58;
+        Mon, 24 Oct 2022 07:53:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EEC861342;
-        Mon, 24 Oct 2022 12:51:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C1F9C433B5;
-        Mon, 24 Oct 2022 12:51:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F5EEB81339;
+        Mon, 24 Oct 2022 12:31:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FC65C433C1;
+        Mon, 24 Oct 2022 12:31:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615915;
-        bh=SQBhvpbr67nNnwBS9iLoISYpMqP1aXfZOUUFaVU+bMg=;
+        s=korg; t=1666614667;
+        bh=4FjH9BRTsH6KAHs5Hei+T4T984SR+zlhF2Yp4tsD4EE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yA/NksSg2YRIlIwsu8xBjOkiwiKFBAEj07Iqss7JvNc+OfXwINRKXMqiqe7I+Hn2A
-         syGJLzsJMO5oqwon223zQvGKIIvQaQNX2wWgSMrj1vP6GH/4YwyhNly0+IL1IYVxhZ
-         i8hvKpRK7pvn/7das8rlnh/bqZR43rXUEeXhZi10=
+        b=UlltY2HrJR95mEe4CZ7X66KhCtrC35+IO98A9l1ra08yEz7mGg50EFapNHvS+eSti
+         toRkR58cUCQfF1af+kjNIe7LnBzq+eADyxl3ENUprEyvz9ymMVhij7qM2eWgPe3WPl
+         Gvn6ET+wHGGPKMLXXD5ROI3YsaFJM8UUNWIg4ApE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
-        linux-kselftest@vger.kernel.org,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Stefan Berger <stefanb@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 399/530] selftest: tpm2: Add Client.__del__() to close /dev/tpm* handle
-Date:   Mon, 24 Oct 2022 13:32:23 +0200
-Message-Id: <20221024113103.139238837@linuxfoundation.org>
+Subject: [PATCH 5.10 347/390] ARM: dts: imx6sll: add missing properties for sram
+Date:   Mon, 24 Oct 2022 13:32:24 +0200
+Message-Id: <20221024113037.768874549@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 2d869f0b458547386fbcd8cf3004b271b7347b7f ]
+[ Upstream commit 7492a83ed9b7a151e2dd11d64b06da7a7f0fa7f9 ]
 
-The following output can bee seen when the test is executed:
+All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
+sram@900000: '#address-cells' is a required property
+sram@900000: '#size-cells' is a required property
+sram@900000: 'ranges' is a required property
 
-  test_flush_context (tpm2_tests.SpaceTest) ... \
-    /usr/lib64/python3.6/unittest/case.py:605: ResourceWarning: \
-    unclosed file <_io.FileIO name='/dev/tpmrm0' mode='rb+' closefd=True>
-
-An instance of Client does not implicitly close /dev/tpm* handle, once it
-gets destroyed. Close the file handle in the class destructor
-Client.__del__().
-
-Fixes: 6ea3dfe1e0732 ("selftests: add TPM 2.0 tests")
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: linux-kselftest@vger.kernel.org
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/tpm2/tpm2.py | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/boot/dts/imx6sll.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/testing/selftests/tpm2/tpm2.py b/tools/testing/selftests/tpm2/tpm2.py
-index f34486cd7342..3e67fdb518ec 100644
---- a/tools/testing/selftests/tpm2/tpm2.py
-+++ b/tools/testing/selftests/tpm2/tpm2.py
-@@ -370,6 +370,10 @@ class Client:
-             fcntl.fcntl(self.tpm, fcntl.F_SETFL, flags)
-             self.tpm_poll = select.poll()
+diff --git a/arch/arm/boot/dts/imx6sll.dtsi b/arch/arm/boot/dts/imx6sll.dtsi
+index 0b622201a1f3..bf5b262b91f9 100644
+--- a/arch/arm/boot/dts/imx6sll.dtsi
++++ b/arch/arm/boot/dts/imx6sll.dtsi
+@@ -115,6 +115,9 @@
+ 		ocram: sram@900000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x00900000 0x20000>;
++			ranges = <0 0x00900000 0x20000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 		};
  
-+    def __del__(self):
-+        if self.tpm:
-+            self.tpm.close()
-+
-     def close(self):
-         self.tpm.close()
- 
+ 		intc: interrupt-controller@a01000 {
 -- 
 2.35.1
 
