@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D75D260BAD0
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:41:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0640460BA91
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:38:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234755AbiJXUlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:41:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54586 "EHLO
+        id S234572AbiJXUi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:38:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234751AbiJXUkg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:40:36 -0400
+        with ESMTP id S234328AbiJXUhy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:37:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71EF6265;
-        Mon, 24 Oct 2022 11:50:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92FB79258D;
+        Mon, 24 Oct 2022 11:49:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 680B1B819B3;
-        Mon, 24 Oct 2022 12:44:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD439C433C1;
-        Mon, 24 Oct 2022 12:44:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 909E0B81257;
+        Mon, 24 Oct 2022 12:07:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8C6FC433C1;
+        Mon, 24 Oct 2022 12:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615468;
-        bh=MP1yxVGBMzqN7/KGr058ycVVbIuCkd0O/DCmCEKeALM=;
+        s=korg; t=1666613261;
+        bh=4kuhib7yZhV84x31Vuyv9TsHCqSc7etGBr9ReZnR+PA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MTCf9y0yO5Jlaaln6dChYgeZToKIcqRK1EvwFLBmbq1OdBCoVvj4cMs1LVhWREBIi
-         FWl1EJw6DDbnz6QI8dIlu422Xu6osuqQN5Rs0iyz0QyVyvEXIgdoFm67SN6+lIP3b6
-         kpAvJ1HReutcGZH2cxdRbimx5zZMlPkKfSkSa42A=
+        b=yLtn1MMjOOP/0L2Y6V+FWfdodmCpr2gy+m2IdHxo63ZdK5ZwHneLt/wOb3J6vcJNn
+         8qvkiJkQaFZJDthMC570JfTV29cIpd/TC+5nIrQAqON7AWf/UKmfkhUWojp+8Jjy7b
+         WNb1jgdOebM6muBCxflzRoI9aGOTt0PIr4+WiW6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Kelin Wang <wangkelin2023@163.com>
-Subject: [PATCH 5.15 233/530] ASoC: eureka-tlv320: Hold reference returned from of_find_xxx API
-Date:   Mon, 24 Oct 2022 13:29:37 +0200
-Message-Id: <20221024113055.632850809@linuxfoundation.org>
+        stable@vger.kernel.org, Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 070/255] wifi: rtl8xxxu: Fix skb misuse in TX queue selection
+Date:   Mon, 24 Oct 2022 13:29:40 +0200
+Message-Id: <20221024113004.845254874@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-[ Upstream commit bfb735a3ceff0bab6473bac275da96f9b2a06dec ]
+[ Upstream commit edd5747aa12ed61a5ecbfa58d3908623fddbf1e8 ]
 
-In eukrea_tlv320_probe(), we need to hold the reference returned
-from of_find_compatible_node() which has increased the refcount
-and then call of_node_put() with it when done.
+rtl8xxxu_queue_select() selects the wrong TX queues because it's
+reading memory from the wrong address. It expects to find ieee80211_hdr
+at skb->data, but that's not the case after skb_push(). Move the call
+to rtl8xxxu_queue_select() before the call to skb_push().
 
-Fixes: 66f232908de2 ("ASoC: eukrea-tlv320: Add DT support.")
-Co-authored-by: Kelin Wang <wangkelin2023@163.com>
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220914134354.3995587-1-windhl@126.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/7fa4819a-4f20-b2af-b7a6-8ee01ac49295@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/eukrea-tlv320.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/fsl/eukrea-tlv320.c b/sound/soc/fsl/eukrea-tlv320.c
-index e13271ea84de..29cf9234984d 100644
---- a/sound/soc/fsl/eukrea-tlv320.c
-+++ b/sound/soc/fsl/eukrea-tlv320.c
-@@ -86,7 +86,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 	int ret;
- 	int int_port = 0, ext_port;
- 	struct device_node *np = pdev->dev.of_node;
--	struct device_node *ssi_np = NULL, *codec_np = NULL;
-+	struct device_node *ssi_np = NULL, *codec_np = NULL, *tmp_np = NULL;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index 3062103e216a..977ebb647c0e 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -4950,6 +4950,8 @@ static void rtl8xxxu_tx(struct ieee80211_hw *hw,
+ 	if (control && control->sta)
+ 		sta = control->sta;
  
- 	eukrea_tlv320.dev = &pdev->dev;
- 	if (np) {
-@@ -143,7 +143,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 	}
++	queue = rtl8xxxu_queue_select(hw, skb);
++
+ 	tx_desc = skb_push(skb, tx_desc_size);
  
- 	if (machine_is_eukrea_cpuimx27() ||
--	    of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux")) {
-+	    (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux"))) {
- 		imx_audmux_v1_configure_port(MX27_AUDMUX_HPCR1_SSI0,
- 			IMX_AUDMUX_V1_PCR_SYN |
- 			IMX_AUDMUX_V1_PCR_TFSDIR |
-@@ -158,10 +158,11 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 			IMX_AUDMUX_V1_PCR_SYN |
- 			IMX_AUDMUX_V1_PCR_RXDSEL(MX27_AUDMUX_HPCR1_SSI0)
- 		);
-+		of_node_put(tmp_np);
- 	} else if (machine_is_eukrea_cpuimx25sd() ||
- 		   machine_is_eukrea_cpuimx35sd() ||
- 		   machine_is_eukrea_cpuimx51sd() ||
--		   of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux")) {
-+		   (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux"))) {
- 		if (!np)
- 			ext_port = machine_is_eukrea_cpuimx25sd() ?
- 				4 : 3;
-@@ -178,6 +179,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 			IMX_AUDMUX_V2_PTCR_SYN,
- 			IMX_AUDMUX_V2_PDCR_RXDSEL(int_port)
- 		);
-+		of_node_put(tmp_np);
- 	} else {
- 		if (np) {
- 			/* The eukrea,asoc-tlv320 driver was explicitly
+ 	memset(tx_desc, 0, tx_desc_size);
+@@ -4962,7 +4964,6 @@ static void rtl8xxxu_tx(struct ieee80211_hw *hw,
+ 	    is_broadcast_ether_addr(ieee80211_get_DA(hdr)))
+ 		tx_desc->txdw0 |= TXDESC_BROADMULTICAST;
+ 
+-	queue = rtl8xxxu_queue_select(hw, skb);
+ 	tx_desc->txdw1 = cpu_to_le32(queue << TXDESC_QUEUE_SHIFT);
+ 
+ 	if (tx_info->control.hw_key) {
 -- 
 2.35.1
 
