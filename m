@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83E1660A34C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:53:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10B6F60A2A1
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232064AbiJXLxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:53:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33262 "EHLO
+        id S231564AbiJXLqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:46:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232063AbiJXLwy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:52:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 263AF33373;
-        Mon, 24 Oct 2022 04:44:55 -0700 (PDT)
+        with ESMTP id S231873AbiJXLok (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:44:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D38875CFB;
+        Mon, 24 Oct 2022 04:42:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3CE5ACE1344;
-        Mon, 24 Oct 2022 11:41:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EF2DC433C1;
-        Mon, 24 Oct 2022 11:41:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8D66B8113E;
+        Mon, 24 Oct 2022 11:41:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B031C433C1;
+        Mon, 24 Oct 2022 11:41:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611702;
-        bh=d3Nj01Y5Re8s4uPm1i1fXaN5p8WAoCTqkphTN44PsgU=;
+        s=korg; t=1666611710;
+        bh=14mKDapbgbuh31OpS2MIP0VbUg71zVnPdpLmFUC99dY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OuRXxQ1cYC9+Ok8FnzX4mKSpySEPmMH/uQtCLVaozzvwjCtUUrh/O/dA9LPFLzktu
-         lsH+kCOCWnSsK8d1nRRC7e1utK5nY4oz3wl4jQQLQg9jYzM/czo2eokxt7vRKMv6C1
-         ZFBmqukeXzZPM6x/SA+VpBe2kMRPoRyyWQnfDM1Y=
+        b=oYmxsm3TcQsX9x59NtEyrmR4zuNC93AtNMI54IHri5G/k6E0syjDsPg8hi36INtQa
+         O75L/xW7aDIOXO6VO1NuApPp0nRwcrm7Gm8aT2f1mj4CEF+Un61lS2xNMisBygui/f
+         MNf8vyctJR+o57o/bgv+PNgBKYXmeR8fkWkx3uAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.9 051/159] UM: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
-Date:   Mon, 24 Oct 2022 13:30:05 +0200
-Message-Id: <20221024112951.284697843@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.9 052/159] PCI: Sanitise firmware BAR assignments behind a PCI-PCI bridge
+Date:   Mon, 24 Oct 2022 13:30:06 +0200
+Message-Id: <20221024112951.319992639@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -52,62 +52,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhuacai@loongson.cn>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 16c546e148fa6d14a019431436a6f7b4087dbccd upstream.
+commit 0e32818397426a688f598f35d3bc762eca6d7592 upstream.
 
-When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
-cpu_max_bits_warn() generates a runtime warning similar as below while
-we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
-instead of NR_CPUS to iterate CPUs.
+When pci_assign_resource() is unable to assign resources to a BAR, it uses
+pci_revert_fw_address() to fall back to a firmware assignment (if any).
+Previously pci_revert_fw_address() assumed all addresses could reach the
+device, but this is not true if the device is below a bridge that only
+forwards addresses within its windows.
 
-[    3.052463] ------------[ cut here ]------------
-[    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
-[    3.070072] Modules linked in: efivarfs autofs4
-[    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
-[    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
-[    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
-[    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
-[    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
-[    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
-[    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
-[    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
-[    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
-[    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
-[    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
-[    3.195868]         ...
-[    3.199917] Call Trace:
-[    3.203941] [<90000000002086d8>] show_stack+0x38/0x14c
-[    3.210666] [<9000000000cf846c>] dump_stack_lvl+0x60/0x88
-[    3.217625] [<900000000023d268>] __warn+0xd0/0x100
-[    3.223958] [<9000000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
-[    3.231150] [<9000000000210220>] show_cpuinfo+0x5e8/0x5f0
-[    3.238080] [<90000000004f578c>] seq_read_iter+0x354/0x4b4
-[    3.245098] [<90000000004c2e90>] new_sync_read+0x17c/0x1c4
-[    3.252114] [<90000000004c5174>] vfs_read+0x138/0x1d0
-[    3.258694] [<90000000004c55f8>] ksys_read+0x70/0x100
-[    3.265265] [<9000000000cfde9c>] do_syscall+0x7c/0x94
-[    3.271820] [<9000000000202fe4>] handle_syscall+0xc4/0x160
-[    3.281824] ---[ end trace 8b484262b4b8c24c ]---
+This problem was observed on a Tyan Tomcat IV S1564D system where the BIOS
+did not assign valid addresses to several bridges and USB devices:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+  pci 0000:00:11.0: PCI-to-PCIe bridge to [bus 01-ff]
+  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
+  pci 0000:01:00.0: PCIe Upstream Port to [bus 02-ff]
+  pci 0000:01:00.0:   bridge window [io  0x0000-0x0fff]   # unreachable
+  pci 0000:02:02.0: PCIe Downstream Port to [bus 05-ff]
+  pci 0000:02:02.0:   bridge window [io  0x0000-0x0fff]   # unreachable
+  pci 0000:05:00.0: PCIe-to-PCI bridge to [bus 06-ff]
+  pci 0000:05:00.0:   bridge window [io  0x0000-0x0fff]   # unreachable
+  pci 0000:06:08.0: USB UHCI 1.1
+  pci 0000:06:08.0: BAR 4: [io  0xfce0-0xfcff]            # unreachable
+  pci 0000:06:08.1: USB UHCI 1.1
+  pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff]            # unreachable
+  pci 0000:06:08.0: can't claim BAR 4 [io  0xfce0-0xfcff]: no compatible bridge window
+  pci 0000:06:08.1: can't claim BAR 4 [io  0xfce0-0xfcff]: no compatible bridge window
+
+During the first pass of assigning unassigned resources, there was not
+enough I/O space available, so we couldn't assign the 06:08.0 BAR and
+reverted to the firmware assignment (still unreachable).  Reverting the
+06:08.1 assignment failed because it conflicted with 06:08.0:
+
+  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
+  pci 0000:01:00.0: no space for bridge window [io  size 0x2000]
+  pci 0000:02:02.0: no space for bridge window [io  size 0x1000]
+  pci 0000:05:00.0: no space for bridge window [io  size 0x1000]
+  pci 0000:06:08.0: BAR 4: no space for [io  size 0x0020]
+  pci 0000:06:08.0: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
+  pci 0000:06:08.1: BAR 4: no space for [io  size 0x0020]
+  pci 0000:06:08.1: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
+  pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff] conflicts with 0000:06:08.0 [io  0xfce0-0xfcff]
+
+A subsequent pass assigned valid bridge windows and a valid 06:08.1 BAR,
+but left the 06:08.0 BAR alone, so the UHCI device was still unusable:
+
+  pci 0000:00:11.0:   bridge window [io  0xe000-0xefff] released
+  pci 0000:00:11.0:   bridge window [io  0x1000-0x2fff]   # reassigned
+  pci 0000:01:00.0:   bridge window [io  0x1000-0x2fff]   # reassigned
+  pci 0000:02:02.0:   bridge window [io  0x2000-0x2fff]   # reassigned
+  pci 0000:05:00.0:   bridge window [io  0x2000-0x2fff]   # reassigned
+  pci 0000:06:08.0: BAR 4: assigned [io  0xfce0-0xfcff]   # left alone
+  pci 0000:06:08.1: BAR 4: assigned [io  0x2000-0x201f]
+  ...
+  uhci_hcd 0000:06:08.0: host system error, PCI problems?
+  uhci_hcd 0000:06:08.0: host controller process error, something bad happened!
+  uhci_hcd 0000:06:08.0: host controller halted, very bad!
+  uhci_hcd 0000:06:08.0: HCRESET not completed yet!
+  uhci_hcd 0000:06:08.0: HC died; cleaning up
+
+If the address assigned by firmware is not reachable because it's not
+within upstream bridge windows, fail instead of assigning the unusable
+address from firmware.
+
+[bhelgaas: commit log, use pci_upstream_bridge()]
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=16263
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2203012338460.46819@angie.orcam.me.uk
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209211921250.29493@angie.orcam.me.uk
+Fixes: 58c84eda0756 ("PCI: fall back to original BIOS BAR addresses")
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org # v2.6.35+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/kernel/um_arch.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/setup-res.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/arch/um/kernel/um_arch.c
-+++ b/arch/um/kernel/um_arch.c
-@@ -81,7 +81,7 @@ static int show_cpuinfo(struct seq_file
+--- a/drivers/pci/setup-res.c
++++ b/drivers/pci/setup-res.c
+@@ -214,6 +214,17 @@ static int pci_revert_fw_address(struct
  
- static void *c_start(struct seq_file *m, loff_t *pos)
- {
--	return *pos < NR_CPUS ? cpu_data + *pos : NULL;
-+	return *pos < nr_cpu_ids ? cpu_data + *pos : NULL;
- }
- 
- static void *c_next(struct seq_file *m, void *v, loff_t *pos)
+ 	root = pci_find_parent_resource(dev, res);
+ 	if (!root) {
++		/*
++		 * If dev is behind a bridge, accesses will only reach it
++		 * if res is inside the relevant bridge window.
++		 */
++		if (pci_upstream_bridge(dev))
++			return -ENXIO;
++
++		/*
++		 * On the root bus, assume the host bridge will forward
++		 * everything.
++		 */
+ 		if (res->flags & IORESOURCE_IO)
+ 			root = &ioport_resource;
+ 		else
 
 
