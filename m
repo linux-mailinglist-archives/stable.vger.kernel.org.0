@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2688D60A512
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A399060A973
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:21:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233255AbiJXMUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:20:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59864 "EHLO
+        id S233825AbiJXNVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:21:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233512AbiJXMTn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B058982D02;
-        Mon, 24 Oct 2022 04:58:23 -0700 (PDT)
+        with ESMTP id S236377AbiJXNUR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:20:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB72384E65;
+        Mon, 24 Oct 2022 05:28:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E58E661280;
-        Mon, 24 Oct 2022 11:49:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01680C433D6;
-        Mon, 24 Oct 2022 11:49:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0B40B815AC;
+        Mon, 24 Oct 2022 12:10:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11D41C433C1;
+        Mon, 24 Oct 2022 12:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612144;
-        bh=1dNVR3X2IySjniVZceBtGxiJ2W3mMOjlJ9Z7yNLlviY=;
+        s=korg; t=1666613403;
+        bh=LMiQSmINL+WpJ+Efxa9vMNxwvWoH4bT4QVIx9zBBdls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LNVavv5WrR7OeYuLXPbo6uypjWfDIxZvKbTBq/6ik0/cX6Ex2Vx8ukiaaYECcKKUV
-         ZUBfLTCOnd/mkirCHLEHZ+9h5ypg7hZAKb6mGIRfNaON6oE4GQ/IPtR/wTzkLUF/5w
-         Hfy2PlbweD/FyzDzlrHoTyuWTit0Q1JoZhWYKFjA=
+        b=2WdqA9ppt+2yCOZfja4F/sCCZ/fu3lcDyj6qC4WrcoYbk0+4KXRfQaXlS3AHHdTC5
+         HSOS6vYkWES/A8WtLMH0t9K9sgitwxYj4v6x/qADmhnY9F37xYuPxempTKYS5fmWfw
+         sNNRWjYJd4lpyICEC5UHesZJijUkBXH6LZY0IOko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 086/210] spi: qup: add missing clk_disable_unprepare on error in spi_qup_pm_resume_runtime()
+Subject: [PATCH 5.4 093/255] platform/x86: msi-laptop: Fix resource cleanup
 Date:   Mon, 24 Oct 2022 13:30:03 +0200
-Message-Id: <20221024112959.840946811@linuxfoundation.org>
+Message-Id: <20221024113005.585622506@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Qiang <xuqiang36@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 494a22765ce479c9f8ad181c5d24cffda9f534bb ]
+[ Upstream commit 5523632aa10f906dfe2eb714ee748590dc7fc6b1 ]
 
-Add the missing clk_disable_unprepare() before return
-from spi_qup_pm_resume_runtime() in the error handling case.
+Fix the input-device not getting free-ed on probe-errors and
+fix the msi_touchpad_dwork not getting cancelled on neither
+probe-errors nor on remove.
 
-Fixes: dae1a7700b34 (“spi: qup: Handle clocks in pm_runtime suspend and resume”)
-Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
-Link: https://lore.kernel.org/r/20220825065324.68446-2-xuqiang36@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 143a4c0284dc ("msi-laptop: send out touchpad on/off key")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220825141336.208597-3-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-qup.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/x86/msi-laptop.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
-index c5c727274814..1ca678bcb527 100644
---- a/drivers/spi/spi-qup.c
-+++ b/drivers/spi/spi-qup.c
-@@ -1172,8 +1172,10 @@ static int spi_qup_pm_resume_runtime(struct device *device)
- 		return ret;
- 
- 	ret = clk_prepare_enable(controller->cclk);
--	if (ret)
-+	if (ret) {
-+		clk_disable_unprepare(controller->iclk);
- 		return ret;
-+	}
- 
- 	/* Disable clocks auto gaiting */
- 	config = readl_relaxed(controller->base + QUP_CONFIG);
+diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
+index 0960205ee49f..3e935303b143 100644
+--- a/drivers/platform/x86/msi-laptop.c
++++ b/drivers/platform/x86/msi-laptop.c
+@@ -1116,6 +1116,8 @@ static int __init msi_init(void)
+ fail_create_group:
+ 	if (quirks->load_scm_model) {
+ 		i8042_remove_filter(msi_laptop_i8042_filter);
++		cancel_delayed_work_sync(&msi_touchpad_dwork);
++		input_unregister_device(msi_laptop_input_dev);
+ 		cancel_delayed_work_sync(&msi_rfkill_dwork);
+ 		cancel_work_sync(&msi_rfkill_work);
+ 		rfkill_cleanup();
+@@ -1136,6 +1138,7 @@ static void __exit msi_cleanup(void)
+ {
+ 	if (quirks->load_scm_model) {
+ 		i8042_remove_filter(msi_laptop_i8042_filter);
++		cancel_delayed_work_sync(&msi_touchpad_dwork);
+ 		input_unregister_device(msi_laptop_input_dev);
+ 		cancel_delayed_work_sync(&msi_rfkill_dwork);
+ 		cancel_work_sync(&msi_rfkill_work);
 -- 
 2.35.1
 
