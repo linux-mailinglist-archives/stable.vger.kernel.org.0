@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2905460AA42
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51CD860AAEF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:42:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231557AbiJXNbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:31:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42440 "EHLO
+        id S236059AbiJXNmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:42:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236221AbiJXNaA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:30:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D114C1B9D2;
-        Mon, 24 Oct 2022 05:33:13 -0700 (PDT)
+        with ESMTP id S236874AbiJXNl1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:41:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21788997B;
+        Mon, 24 Oct 2022 05:39:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 986A661316;
-        Mon, 24 Oct 2022 12:12:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5763C433D6;
-        Mon, 24 Oct 2022 12:12:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B88ED612A5;
+        Mon, 24 Oct 2022 12:27:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F98C4314D;
+        Mon, 24 Oct 2022 12:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613579;
-        bh=Ku35vuD17YGpq0QHl+DAKe80YrZ/0TpL18rzyvhTdJ0=;
+        s=korg; t=1666614471;
+        bh=ErzLkvRPieZMIDkHWj/wB4j77OLnn1K+rJFllpPoBzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T1jNKM9xxD57yNy+/qBhZOkspWV7x5VGskmW5hTVknz2/0A8UZazGiXHw9RlcKGmD
-         Se9D77dX2jhWz6Gfo4SH+1RfuFHBuOcw8n0H0kXEl20Lxt+GMJRi+CVlfGA/6df7pC
-         uYNvZluCUQsoUJOnU8tNzmA8e3b0uKlG9mMcnKG0=
+        b=2LYwmQazhwsg+yPfG5tkbTl22368r5lqm5GiG5NXMzDsZSQvx3P/BcUVmrQd2pWc/
+         6yPL2W+zmp1oJ11iYQQmH59eVw8WuaYXCFOzRc151pv1SviJI+GTBZXfQbKydnFLwM
+         wQdGivjSc1ARN7DvHKJaQeYSXfsIIUaPkIBvdzkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 160/255] mfd: lp8788: Fix an error handling path in lp8788_irq_init() and lp8788_irq_init()
+        Kshitiz Varshney <kshitiz.varshney@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 273/390] hwrng: imx-rngc - Moving IRQ handler registering after imx_rngc_irq_mask_clear()
 Date:   Mon, 24 Oct 2022 13:31:10 +0200
-Message-Id: <20221024113007.999419911@linuxfoundation.org>
+Message-Id: <20221024113034.548746044@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Kshitiz Varshney <kshitiz.varshney@nxp.com>
 
-[ Upstream commit 557244f6284f30613f2d61f14b579303165876c3 ]
+[ Upstream commit 10a2199caf437e893d9027d97700b3c6010048b7 ]
 
-In lp8788_irq_init(), if an error occurs after a successful
-irq_domain_add_linear() call, it must be undone by a corresponding
-irq_domain_remove() call.
+Issue:
+While servicing interrupt, if the IRQ happens to be because of a SEED_DONE
+due to a previous boot stage, you end up completing the completion
+prematurely, hence causing kernel to crash while booting.
 
-irq_domain_remove() should also be called in lp8788_irq_exit() for the same
-reason.
+Fix:
+Moving IRQ handler registering after imx_rngc_irq_mask_clear()
 
-Fixes: eea6b7cc53aa ("mfd: Add lp8788 mfd driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/bcd5a72c9c1c383dd6324680116426e32737655a.1659261275.git.christophe.jaillet@wanadoo.fr
+Fixes: 1d5449445bd0 (hwrng: mx-rngc - add a driver for Freescale RNGC)
+Signed-off-by: Kshitiz Varshney <kshitiz.varshney@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/lp8788-irq.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/char/hw_random/imx-rngc.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/mfd/lp8788-irq.c b/drivers/mfd/lp8788-irq.c
-index 348439a3fbbd..39006297f3d2 100644
---- a/drivers/mfd/lp8788-irq.c
-+++ b/drivers/mfd/lp8788-irq.c
-@@ -175,6 +175,7 @@ int lp8788_irq_init(struct lp8788 *lp, int irq)
- 				IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
- 				"lp8788-irq", irqd);
- 	if (ret) {
-+		irq_domain_remove(lp->irqdm);
- 		dev_err(lp->dev, "failed to create a thread for IRQ_N\n");
- 		return ret;
+--- a/drivers/char/hw_random/imx-rngc.c
++++ b/drivers/char/hw_random/imx-rngc.c
+@@ -272,13 +272,6 @@ static int imx_rngc_probe(struct platfor
+ 		goto err;
  	}
-@@ -188,4 +189,6 @@ void lp8788_irq_exit(struct lp8788 *lp)
- {
- 	if (lp->irq)
- 		free_irq(lp->irq, lp->irqdm);
-+	if (lp->irqdm)
-+		irq_domain_remove(lp->irqdm);
- }
--- 
-2.35.1
-
+ 
+-	ret = devm_request_irq(&pdev->dev,
+-			irq, imx_rngc_irq, 0, pdev->name, (void *)rngc);
+-	if (ret) {
+-		dev_err(rngc->dev, "Can't get interrupt working.\n");
+-		goto err;
+-	}
+-
+ 	init_completion(&rngc->rng_op_done);
+ 
+ 	rngc->rng.name = pdev->name;
+@@ -292,6 +285,13 @@ static int imx_rngc_probe(struct platfor
+ 
+ 	imx_rngc_irq_mask_clear(rngc);
+ 
++	ret = devm_request_irq(&pdev->dev,
++			irq, imx_rngc_irq, 0, pdev->name, (void *)rngc);
++	if (ret) {
++		dev_err(rngc->dev, "Can't get interrupt working.\n");
++		return ret;
++	}
++
+ 	if (self_test) {
+ 		ret = imx_rngc_self_test(rngc);
+ 		if (ret) {
 
 
