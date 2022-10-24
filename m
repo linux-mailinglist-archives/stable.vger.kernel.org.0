@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E298E60A7CD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E29AF60A41E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234827AbiJXM6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:58:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41064 "EHLO
+        id S229909AbiJXMFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:05:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234855AbiJXM53 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:57:29 -0400
+        with ESMTP id S232902AbiJXMEh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:04:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65AEA97D4D;
-        Mon, 24 Oct 2022 05:16:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85BCA7B596;
+        Mon, 24 Oct 2022 04:50:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EF0E612B2;
-        Mon, 24 Oct 2022 11:57:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B371BC433D6;
-        Mon, 24 Oct 2022 11:57:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2076612A1;
+        Mon, 24 Oct 2022 11:48:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C33C5C433C1;
+        Mon, 24 Oct 2022 11:48:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612672;
-        bh=z6WHpchUL7v1QNUs+Lx3TStTDhBohf0Lipf4W3Q1V8s=;
+        s=korg; t=1666612120;
+        bh=sZ/yz13J10ldzxTjOIIhRXD7fl+g9Se2enYqUrLTuGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qu8mdS//86KlM4pK8BT8KoF5XXS6+TB2UBnaVpdTTzuKrlkvJ2XDR929Y+fNVcgNs
-         bmcsDDRTLaNkPSnSR6G2JYjPrrvr0o4zKkHxTZVopxw3zp2KY/3vzbZzfLLXyxY0A2
-         ogPRZR5ZJCnRDN37WJ4S7Aq3W7uQbzCYEz7wExXc=
+        b=diz7BDPJx8A1FscNKssBGqtZYJFT92mUTzTvWnBoL50VCJ5cJizqNvr+koWixml6p
+         SmTknUzEjBUbaxrwE2YM5oHmsMqcWsGJrZrlvjITudRZtXvBTGEVdA/0iUV9EXFAXy
+         qWcIHApxmT+/jdHjC7zU2q5iYEPRgqHgztlIDqxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jes Sorensen <Jes.Sorensen@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 075/229] wifi: rtl8xxxu: tighten bounds checking in rtl8xxxu_read_efuse()
-Date:   Mon, 24 Oct 2022 13:29:54 +0200
-Message-Id: <20221024113001.502996260@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 078/210] KVM: nVMX: Unconditionally purge queued/injected events on nested "exit"
+Date:   Mon, 24 Oct 2022 13:29:55 +0200
+Message-Id: <20221024112959.596807202@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 620d5eaeb9059636864bda83ca1c68c20ede34a5 ]
+commit d953540430c5af57f5de97ea9e36253908204027 upstream.
 
-There some bounds checking to ensure that "map_addr" is not out of
-bounds before the start of the loop.  But the checking needs to be
-done as we iterate through the loop because "map_addr" gets larger as
-we iterate.
+Drop pending exceptions and events queued for re-injection when leaving
+nested guest mode, even if the "exit" is due to VM-Fail, SMI, or forced
+by host userspace.  Failure to purge events could result in an event
+belonging to L2 being injected into L1.
 
-Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Jes Sorensen <Jes.Sorensen@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/Yv8eGLdBslLAk3Ct@kili
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This _should_ never happen for VM-Fail as all events should be blocked by
+nested_run_pending, but it's possible if KVM, not the L1 hypervisor, is
+the source of VM-Fail when running vmcs02.
+
+SMI is a nop (barring unknown bugs) as recognition of SMI and thus entry
+to SMM is blocked by pending exceptions and re-injected events.
+
+Forced exit is definitely buggy, but has likely gone unnoticed because
+userspace probably follows the forced exit with KVM_SET_VCPU_EVENTS (or
+some other ioctl() that purges the queue).
+
+Fixes: 4f350c6dbcb9 ("kvm: nVMX: Handle deferred early VMLAUNCH/VMRESUME failure properly")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Link: https://lore.kernel.org/r/20220830231614.3580124-2-seanjc@google.com
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c  | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ arch/x86/kvm/vmx.c |   19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index b80cff96dea1..dd345ed1a717 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -1879,13 +1879,6 @@ static int rtl8xxxu_read_efuse(struct rtl8xxxu_priv *priv)
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -11917,14 +11917,6 @@ static void prepare_vmcs12(struct kvm_vc
+ 		 */
+ 		vmcs12_save_pending_event(vcpu, vmcs12);
+ 	}
+-
+-	/*
+-	 * Drop what we picked up for L2 via vmx_complete_interrupts. It is
+-	 * preserved above and would only end up incorrectly in L1.
+-	 */
+-	vcpu->arch.nmi_injected = false;
+-	kvm_clear_exception_queue(vcpu);
+-	kvm_clear_interrupt_queue(vcpu);
+ }
  
- 		/* We have 8 bits to indicate validity */
- 		map_addr = offset * 8;
--		if (map_addr >= EFUSE_MAP_LEN) {
--			dev_warn(dev, "%s: Illegal map_addr (%04x), "
--				 "efuse corrupt!\n",
--				 __func__, map_addr);
--			ret = -EINVAL;
--			goto exit;
--		}
- 		for (i = 0; i < EFUSE_MAX_WORD_UNIT; i++) {
- 			/* Check word enable condition in the section */
- 			if (word_mask & BIT(i)) {
-@@ -1896,6 +1889,13 @@ static int rtl8xxxu_read_efuse(struct rtl8xxxu_priv *priv)
- 			ret = rtl8xxxu_read_efuse8(priv, efuse_addr++, &val8);
- 			if (ret)
- 				goto exit;
-+			if (map_addr >= EFUSE_MAP_LEN - 1) {
-+				dev_warn(dev, "%s: Illegal map_addr (%04x), "
-+					 "efuse corrupt!\n",
-+					 __func__, map_addr);
-+				ret = -EINVAL;
-+				goto exit;
-+			}
- 			priv->efuse_wifi.raw[map_addr++] = val8;
+ /*
+@@ -12236,6 +12228,17 @@ static void nested_vmx_vmexit(struct kvm
+ 			nested_vmx_abort(vcpu, VMX_ABORT_SAVE_GUEST_MSR_FAIL);
+ 	}
  
- 			ret = rtl8xxxu_read_efuse8(priv, efuse_addr++, &val8);
--- 
-2.35.1
-
++	/*
++	 * Drop events/exceptions that were queued for re-injection to L2
++	 * (picked up via vmx_complete_interrupts()), as well as exceptions
++	 * that were pending for L2.  Note, this must NOT be hoisted above
++	 * prepare_vmcs12(), events/exceptions queued for re-injection need to
++	 * be captured in vmcs12 (see vmcs12_save_pending_event()).
++	 */
++	vcpu->arch.nmi_injected = false;
++	kvm_clear_exception_queue(vcpu);
++	kvm_clear_interrupt_queue(vcpu);
++
+ 	vmx_switch_vmcs(vcpu, &vmx->vmcs01);
+ 	vm_entry_controls_reset_shadow(vmx);
+ 	vm_exit_controls_reset_shadow(vmx);
 
 
