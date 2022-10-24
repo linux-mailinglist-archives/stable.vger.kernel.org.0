@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB2E360BA87
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:38:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94BA060BBC2
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 23:12:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232533AbiJXUiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:38:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44190 "EHLO
+        id S232939AbiJXVMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 17:12:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234572AbiJXUhw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:37:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEF985B9F6;
-        Mon, 24 Oct 2022 11:49:06 -0700 (PDT)
+        with ESMTP id S233342AbiJXVLd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 17:11:33 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C2B7186D4D;
+        Mon, 24 Oct 2022 12:17:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 941E5B815E0;
-        Mon, 24 Oct 2022 12:12:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E563BC433C1;
-        Mon, 24 Oct 2022 12:12:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C23FBCE1355;
+        Mon, 24 Oct 2022 11:52:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 735B4C433C1;
+        Mon, 24 Oct 2022 11:52:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613521;
-        bh=mpW9LaTnpHes5AevAZkGKgrZliGsNsmKn5pSYANPHqc=;
+        s=korg; t=1666612345;
+        bh=7Biv/RB4g1yWRQ3Ir7P+DO9H5qF3EuPehLJSXWw6ecI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yOTPdr/vtz5heIWqE7AZgh5p6k2iMvWRyvA9KOrciS+Gzissuk0Jtt1PgpAXV9z2F
-         WvLL82iKHYSVmMSOtOzOGaULCAHbj0oyOlprx2I13tJIjo1r1C+T/S0ba9FZdjcVAP
-         Dk+/4xzhVJq1sELvf9Ra1aFXn5RG2EvbkI4PFMpA=
+        b=zphT8N3lEmzRyWQCh+kWbXIaAtR5Djp+HSSF4tsRNJiC8pZLsO+ZZXx4ZD5Pz+lxr
+         Ujx4VnnJluMgLMXENuyiy3Xz/PVPXjiAUsQpLTEEe8o+mliAXDjyZGOosHOwgrgVwX
+         jfV+1QIrGEePQTnbF0CtSCyI0B1Mt4MdbUZm1Ghs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-mips@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        llvm@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 169/255] mailbox: bcm-ferxrm-mailbox: Fix error check for dma_map_sg
+Subject: [PATCH 4.14 162/210] MIPS: BCM47XX: Cast memcmp() of function to (void *)
 Date:   Mon, 24 Oct 2022 13:31:19 +0200
-Message-Id: <20221024113008.383353567@linuxfoundation.org>
+Message-Id: <20221024113002.229290480@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +58,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@ionos.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 6b207ce8a96a71e966831e3a13c38143ba9a73c1 ]
+[ Upstream commit 0dedcf6e3301836eb70cfa649052e7ce4fcd13ba ]
 
-dma_map_sg return 0 on error, fix the error check, and return -EIO
-to caller.
+Clang is especially sensitive about argument type matching when using
+__overloaded functions (like memcmp(), etc). Help it see that function
+pointers are just "void *". Avoids this error:
 
-Fixes: dbc049eee730 ("mailbox: Add driver for Broadcom FlexRM ring manager")
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+arch/mips/bcm47xx/prom.c:89:8: error: no matching function for call to 'memcmp'
+                   if (!memcmp(prom_init, prom_init + mem, 32))
+                        ^~~~~~
+include/linux/string.h:156:12: note: candidate function not viable: no known conversion from 'void (void)' to 'const void *' for 1st argument extern int memcmp(const void *,const void *,__kernel_size_t);
+
+Cc: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: "Rafał Miłecki" <zajec5@gmail.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: llvm@lists.linux.dev
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202209080652.sz2d68e5-lkp@intel.com
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/bcm-flexrm-mailbox.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/mips/bcm47xx/prom.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mailbox/bcm-flexrm-mailbox.c b/drivers/mailbox/bcm-flexrm-mailbox.c
-index 8ee9db274802..f7191dbef6fa 100644
---- a/drivers/mailbox/bcm-flexrm-mailbox.c
-+++ b/drivers/mailbox/bcm-flexrm-mailbox.c
-@@ -632,15 +632,15 @@ static int flexrm_spu_dma_map(struct device *dev, struct brcm_message *msg)
- 
- 	rc = dma_map_sg(dev, msg->spu.src, sg_nents(msg->spu.src),
- 			DMA_TO_DEVICE);
--	if (rc < 0)
--		return rc;
-+	if (!rc)
-+		return -EIO;
- 
- 	rc = dma_map_sg(dev, msg->spu.dst, sg_nents(msg->spu.dst),
- 			DMA_FROM_DEVICE);
--	if (rc < 0) {
-+	if (!rc) {
- 		dma_unmap_sg(dev, msg->spu.src, sg_nents(msg->spu.src),
- 			     DMA_TO_DEVICE);
--		return rc;
-+		return -EIO;
+diff --git a/arch/mips/bcm47xx/prom.c b/arch/mips/bcm47xx/prom.c
+index 135a5407f015..d26d9a6f6ee7 100644
+--- a/arch/mips/bcm47xx/prom.c
++++ b/arch/mips/bcm47xx/prom.c
+@@ -85,7 +85,7 @@ static __init void prom_init_mem(void)
+ 			pr_debug("Assume 128MB RAM\n");
+ 			break;
+ 		}
+-		if (!memcmp(prom_init, prom_init + mem, 32))
++		if (!memcmp((void *)prom_init, (void *)prom_init + mem, 32))
+ 			break;
  	}
+ 	lowmem = mem;
+@@ -162,7 +162,7 @@ void __init bcm47xx_prom_highmem_init(void)
  
- 	return 0;
+ 	off = EXTVBASE + __pa(off);
+ 	for (extmem = 128 << 20; extmem < 512 << 20; extmem <<= 1) {
+-		if (!memcmp(prom_init, (void *)(off + extmem), 16))
++		if (!memcmp((void *)prom_init, (void *)(off + extmem), 16))
+ 			break;
+ 	}
+ 	extmem -= lowmem;
 -- 
 2.35.1
 
