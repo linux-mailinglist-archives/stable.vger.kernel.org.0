@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6CEB60AA41
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE17060A72C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230349AbiJXNbv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:31:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40410 "EHLO
+        id S234224AbiJXMsL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:48:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236208AbiJXN36 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EABA39BB7;
-        Mon, 24 Oct 2022 05:33:21 -0700 (PDT)
+        with ESMTP id S234713AbiJXMpd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E3520BE1;
+        Mon, 24 Oct 2022 05:09:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 484F8B81334;
-        Mon, 24 Oct 2022 12:09:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A079EC433C1;
-        Mon, 24 Oct 2022 12:09:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 062C261254;
+        Mon, 24 Oct 2022 12:09:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17F1BC433D6;
+        Mon, 24 Oct 2022 12:09:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613356;
-        bh=ftqTTz4oueZLOW8B6OOpn9+6JAH7uQ2dzq2hyjs5PNs=;
+        s=korg; t=1666613361;
+        bh=2Vjaw+jnNPYG7C987hDFRmh/ww6z2y9ybP/IXCozQTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qP5zeIh3arv2uXg5wLR/mtoKcyyOtJwt6k6XaqexITHj4bCPy1uUxJ3oDy/7QuVea
-         Fw1FPcRbrUOwHnxZFSZsIr/D2y8+m54G7ZF3pKs1TlOMKmPOi3/CTgUx0muAph82Ub
-         a8qW9inXAHIRaf2hKg8iCxi/291JevSn846WBKjk=
+        b=jOjUGyq0IzlmWu9kmm6mkur/pupHbEG0AB5gO9F3p8RqSfS+v4KT/QoWIRW3zRb+N
+         BCsE0mlQo/w/5KpAdEoFgQHEDOMALt7tcyYaFuLlNJWS+SnnkBQxQHTgk2SHj7nAmE
+         CEF+2ncMsbdDvHQpzu68uODC8ExOa8XzgER+SIzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 106/255] ASoC: wm5102: Fix PM disable depth imbalance in wm5102_probe
-Date:   Mon, 24 Oct 2022 13:30:16 +0200
-Message-Id: <20221024113005.981453324@linuxfoundation.org>
+        stable@vger.kernel.org, Brent Lu <brent.lu@intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 107/255] ALSA: hda/hdmi: Dont skip notification handling during PM operation
+Date:   Mon, 24 Oct 2022 13:30:17 +0200
+Message-Id: <20221024113006.021031087@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
 References: <20221024113002.471093005@linuxfoundation.org>
@@ -53,49 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit fcbb60820cd3008bb44334a0395e5e57ccb77329 ]
+[ Upstream commit 5226c7b9784eee215e3914f440b3c2e1764f67a8 ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context. We fix it by moving
-pm_runtime_enable to the endding of wm5102_probe.
+The HDMI driver skips the notification handling from the graphics
+driver when the codec driver is being in the PM operation.  This
+behavior was introduced by the commit eb399d3c99d8 ("ALSA: hda - Skip
+ELD notification during PM process").  This skip may cause a problem,
+as we may miss the ELD update when the connection/disconnection
+happens right at the runtime-PM operation of the audio codec.
 
-Fixes:93e8791dd34ca ("ASoC: wm5102: Initial driver")
+Although this workaround was valid at that time, it's no longer true;
+the fix was required just because the ELD update procedure needed to
+wake up the audio codec, which had lead to a runtime-resume during a
+runtime-suspend.  Meanwhile, the ELD update procedure doesn't need a
+codec wake up any longer since the commit 788d441a164c ("ALSA: hda -
+Use component ops for i915 HDMI/DP audio jack handling"); i.e. there
+is no much reason for skipping the notification.
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220928160116.125020-4-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Let's drop those checks for addressing the missing notification.
+
+Fixes: 788d441a164c ("ALSA: hda - Use component ops for i915 HDMI/DP audio jack handling")
+Reported-by: Brent Lu <brent.lu@intel.com>
+Link: https://lore.kernel.org/r/20220927135807.4097052-1-brent.lu@intel.com
+Link: https://lore.kernel.org/r/20221001074809.7461-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm5102.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_hdmi.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
-index d6d4b4121369..c5667b149c70 100644
---- a/sound/soc/codecs/wm5102.c
-+++ b/sound/soc/codecs/wm5102.c
-@@ -2084,9 +2084,6 @@ static int wm5102_probe(struct platform_device *pdev)
- 		regmap_update_bits(arizona->regmap, wm5102_digital_vu[i],
- 				   WM5102_DIG_VU, WM5102_DIG_VU);
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index 169e74299987..091a7fe85451 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2570,9 +2570,6 @@ static void generic_acomp_pin_eld_notify(void *audio_ptr, int port, int dev_id)
+ 	 */
+ 	if (codec->core.dev.power.power_state.event == PM_EVENT_SUSPEND)
+ 		return;
+-	/* ditto during suspend/resume process itself */
+-	if (snd_hdac_is_in_pm(&codec->core))
+-		return;
  
--	pm_runtime_enable(&pdev->dev);
--	pm_runtime_idle(&pdev->dev);
--
- 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
- 				  "ADSP2 Compressed IRQ", wm5102_adsp2_irq,
- 				  wm5102);
-@@ -2119,6 +2116,9 @@ static int wm5102_probe(struct platform_device *pdev)
- 		goto err_spk_irqs;
- 	}
+ 	check_presence_and_report(codec, pin_nid, dev_id);
+ }
+@@ -2775,9 +2772,6 @@ static void intel_pin_eld_notify(void *audio_ptr, int port, int pipe)
+ 	 */
+ 	if (codec->core.dev.power.power_state.event == PM_EVENT_SUSPEND)
+ 		return;
+-	/* ditto during suspend/resume process itself */
+-	if (snd_hdac_is_in_pm(&codec->core))
+-		return;
  
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_idle(&pdev->dev);
-+
- 	return ret;
- 
- err_spk_irqs:
+ 	snd_hdac_i915_set_bclk(&codec->bus->core);
+ 	check_presence_and_report(codec, pin_nid, dev_id);
 -- 
 2.35.1
 
