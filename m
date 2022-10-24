@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D932660B2C8
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:51:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CED0760B2AF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:50:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232536AbiJXQvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:51:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35096 "EHLO
+        id S230169AbiJXQup (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:50:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235495AbiJXQtq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:46 -0400
+        with ESMTP id S235236AbiJXQtQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:49:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32896CF866;
-        Mon, 24 Oct 2022 08:32:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6465E0703;
+        Mon, 24 Oct 2022 08:32:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 614EBB819B4;
-        Mon, 24 Oct 2022 12:53:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE5DBC433C1;
-        Mon, 24 Oct 2022 12:53:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E262B819B6;
+        Mon, 24 Oct 2022 12:54:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C5C3C433D6;
+        Mon, 24 Oct 2022 12:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666616038;
-        bh=i1lndpiEkYrYAtQpDMBbdOudkzLK1aVb7W6EgX5Yd3A=;
+        s=korg; t=1666616049;
+        bh=eeYR1pQLtcJDxO9LFF9+dLExakAoN06GkoHBkN1iWGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SuA0Wo0SgEKyCH4in67v0+vRgOi27B7sPtUh5tKf/fwpl9VKz7GW6Ce5E42SO+ltr
-         GYudiIEMKK2takcMTkN2m0oLgf3QzgAK9vTMmW7aYiMkdLCll3mmbtTP+lkvHsEjTF
-         hJZ54LvVazV3tXHbS26fZTgRiFfs41b3lgPtFue4=
+        b=u8I56jnpgoxwPRXQiqYYLjRBxw+0hMnNfpI0/mooPu4tE8ExBKE3KpginTiU2Flll
+         MHvbcqPKIhkxiz4hGxivGteDlIo1vSagmKU5H/Y6WE/L/oParLzQn7BpPc0iC5SkaT
+         78JYWX2S21TwP06PoScE9i6jzZ0Z+P4ZvzVdO+aw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Justin Chen <justinpopo6@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 478/530] media: platform: fix some double free in meson-ge2d and mtk-jpeg and s5p-mfc
-Date:   Mon, 24 Oct 2022 13:33:42 +0200
-Message-Id: <20221024113106.686319090@linuxfoundation.org>
+Subject: [PATCH 5.15 481/530] usb: host: xhci-plat: suspend/resume clks for brcm
+Date:   Mon, 24 Oct 2022 13:33:45 +0200
+Message-Id: <20221024113106.827926990@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,68 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Justin Chen <justinpopo6@gmail.com>
 
-[ Upstream commit c65c3f3a2cbf21ed429d9b9c725bdb5dc6abf4cf ]
+[ Upstream commit c69400b09e471a3f1167adead55a808f0da6534a ]
 
-video_unregister_device will release device internally. There is no need to
-call video_device_release after video_unregister_device.
+The xhci_plat_brcm xhci block can enter suspend with clock disabled to save
+power and re-enable them on resume. Make use of the XHCI_SUSPEND_RESUME_CLKS
+quirk to do so.
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+Link: https://lore.kernel.org/r/1660170455-15781-3-git-send-email-justinpopo6@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/meson/ge2d/ge2d.c        | 1 -
- drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c | 1 -
- drivers/media/platform/s5p-mfc/s5p_mfc.c        | 3 +--
- 3 files changed, 1 insertion(+), 4 deletions(-)
+ drivers/usb/host/xhci-plat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/meson/ge2d/ge2d.c b/drivers/media/platform/meson/ge2d/ge2d.c
-index a373dea9866b..a885cbc99e38 100644
---- a/drivers/media/platform/meson/ge2d/ge2d.c
-+++ b/drivers/media/platform/meson/ge2d/ge2d.c
-@@ -1032,7 +1032,6 @@ static int ge2d_remove(struct platform_device *pdev)
+diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
+index 2687662f26b6..972a44b2a7f1 100644
+--- a/drivers/usb/host/xhci-plat.c
++++ b/drivers/usb/host/xhci-plat.c
+@@ -134,7 +134,7 @@ static const struct xhci_plat_priv xhci_plat_renesas_rcar_gen3 = {
+ };
  
- 	video_unregister_device(ge2d->vfd);
- 	v4l2_m2m_release(ge2d->m2m_dev);
--	video_device_release(ge2d->vfd);
- 	v4l2_device_unregister(&ge2d->v4l2_dev);
- 	clk_disable_unprepare(ge2d->clk);
+ static const struct xhci_plat_priv xhci_plat_brcm = {
+-	.quirks = XHCI_RESET_ON_RESUME,
++	.quirks = XHCI_RESET_ON_RESUME | XHCI_SUSPEND_RESUME_CLKS,
+ };
  
-diff --git a/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c b/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
-index a89c7b206eef..470f8f167744 100644
---- a/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
-+++ b/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
-@@ -1457,7 +1457,6 @@ static int mtk_jpeg_remove(struct platform_device *pdev)
- 
- 	pm_runtime_disable(&pdev->dev);
- 	video_unregister_device(jpeg->vdev);
--	video_device_release(jpeg->vdev);
- 	v4l2_m2m_release(jpeg->m2m_dev);
- 	v4l2_device_unregister(&jpeg->v4l2_dev);
- 	mtk_jpeg_clk_release(jpeg);
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc.c b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-index f336a9543273..4fc135d9f38b 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-@@ -1406,6 +1406,7 @@ static int s5p_mfc_probe(struct platform_device *pdev)
- /* Deinit MFC if probe had failed */
- err_enc_reg:
- 	video_unregister_device(dev->vfd_dec);
-+	dev->vfd_dec = NULL;
- err_dec_reg:
- 	video_device_release(dev->vfd_enc);
- err_enc_alloc:
-@@ -1451,8 +1452,6 @@ static int s5p_mfc_remove(struct platform_device *pdev)
- 
- 	video_unregister_device(dev->vfd_enc);
- 	video_unregister_device(dev->vfd_dec);
--	video_device_release(dev->vfd_enc);
--	video_device_release(dev->vfd_dec);
- 	v4l2_device_unregister(&dev->v4l2_dev);
- 	s5p_mfc_unconfigure_dma_memory(dev);
- 
+ static const struct of_device_id usb_xhci_of_match[] = {
 -- 
 2.35.1
 
