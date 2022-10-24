@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC3AB60B5FF
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 20:45:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B01CE60B598
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 20:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232580AbiJXSpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 14:45:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41876 "EHLO
+        id S231293AbiJXScq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 14:32:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232543AbiJXSpS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 14:45:18 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A36BCAC498;
-        Mon, 24 Oct 2022 10:27:02 -0700 (PDT)
+        with ESMTP id S231277AbiJXScU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 14:32:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC380EC52E;
+        Mon, 24 Oct 2022 10:14:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2F614CE13CF;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 966BD612DF;
+        Mon, 24 Oct 2022 12:26:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4268C433D6;
         Mon, 24 Oct 2022 12:26:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B69FC433C1;
-        Mon, 24 Oct 2022 12:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614384;
-        bh=l3lOmvb8DxNeJCwa8Zo59caxbNTlaKKRdNSZFh4rEMY=;
+        s=korg; t=1666614387;
+        bh=n4LDqRK75QqNUoCyLhZB6FxCrwa59oxkbhRpYS1K6Ns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lCblZg3g/HaucYtS6HBQZ9tDgdjRqjNy+C3g27SJqrghLgghPnT14DH4Ts1NpRlcq
-         BN1UkJtGbFuVC9RdN4KbmZiGTjgsgzcHvrRAiUdYANRlVVhfNL9sOM6ieKEJTwMTHv
-         HAcwLfSkdoooTbnetCvzd/AoWIUbyLczT/zNWX18=
+        b=KSu/4Y4mkZ0OXTF55mgKau12avLWTM3EVe5uV2caZAOzTE2itSxBfamT30PbC956g
+         WNflNrz3LPPlnThWX6hLVzNRUDCzgzFCBRuqMgUoiaEYGCb/MDCaQZAE0Lr0VId9zT
+         9S3n1Cu+Ldi3z0j/917Vo7JEUYgwmM6ZcfzoWdEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Philipp Hortmann <philipp.g.hortmann@gmail.com>,
-        Nam Cao <namcaov@gmail.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 240/390] staging: vt6655: fix some erroneous memory clean-up loops
-Date:   Mon, 24 Oct 2022 13:30:37 +0200
-Message-Id: <20221024113033.029480414@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        David Gow <davidgow@google.com>,
+        Julius Werner <jwerner@chromium.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Evan Green <evgreen@chromium.org>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 241/390] firmware: google: Test spinlock on panic path to avoid lockups
+Date:   Mon, 24 Oct 2022 13:30:38 +0200
+Message-Id: <20221024113033.079404628@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -53,66 +58,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nam Cao <namcaov@gmail.com>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-[ Upstream commit 2a2db520e3ca5aafba7c211abfd397666c9b5f9d ]
+[ Upstream commit 3e081438b8e639cc76ef1a5ce0c1bd8a154082c7 ]
 
-In some initialization functions of this driver, memory is allocated with
-'i' acting as an index variable and increasing from 0. The commit in
-"Fixes" introduces some clean-up codes in case of allocation failure,
-which free memory in reverse order with 'i' decreasing to 0. However,
-there are some problems:
-  - The case i=0 is left out. Thus memory is leaked.
-  - In case memory allocation fails right from the start, the memory
-    freeing loops will start with i=-1 and invalid memory locations will
-    be accessed.
+Currently the gsmi driver registers a panic notifier as well as
+reboot and die notifiers. The callbacks registered are called in
+atomic and very limited context - for instance, panic disables
+preemption and local IRQs, also all secondary CPUs (not executing
+the panic path) are shutdown.
 
-One of these loops has been fixed in commit c8ff91535880 ("staging:
-vt6655: fix potential memory leak"). Fix the remaining erroneous loops.
+With that said, taking a spinlock in this scenario is a dangerous
+invitation for lockup scenarios. So, fix that by checking if the
+spinlock is free to acquire in the panic notifier callback - if not,
+bail-out and avoid a potential hang.
 
-Link: https://lore.kernel.org/linux-staging/Yx9H1zSpxmNqx6Xc@kadam/
-Fixes: 5341ee0adb17 ("staging: vt6655: check for memory allocation failures")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Tested-by: Philipp Hortmann <philipp.g.hortmann@gmail.com>
-Signed-off-by: Nam Cao <namcaov@gmail.com>
-Link: https://lore.kernel.org/r/20220912170429.29852-1-namcaov@gmail.com
+Fixes: 74c5b31c6618 ("driver: Google EFI SMI")
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: David Gow <davidgow@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Julius Werner <jwerner@chromium.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Reviewed-by: Evan Green <evgreen@chromium.org>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Link: https://lore.kernel.org/r/20220909200755.189679-1-gpiccoli@igalia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/vt6655/device_main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/firmware/google/gsmi.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/staging/vt6655/device_main.c b/drivers/staging/vt6655/device_main.c
-index 09ab6d6f2429..0dd70173a754 100644
---- a/drivers/staging/vt6655/device_main.c
-+++ b/drivers/staging/vt6655/device_main.c
-@@ -564,7 +564,7 @@ static int device_init_rd0_ring(struct vnt_private *priv)
- 	kfree(desc->rd_info);
- 
- err_free_desc:
--	while (--i) {
-+	while (i--) {
- 		desc = &priv->aRD0Ring[i];
- 		device_free_rx_buf(priv, desc);
- 		kfree(desc->rd_info);
-@@ -610,7 +610,7 @@ static int device_init_rd1_ring(struct vnt_private *priv)
- 	kfree(desc->rd_info);
- 
- err_free_desc:
--	while (--i) {
-+	while (i--) {
- 		desc = &priv->aRD1Ring[i];
- 		device_free_rx_buf(priv, desc);
- 		kfree(desc->rd_info);
-@@ -715,7 +715,7 @@ static int device_init_td1_ring(struct vnt_private *priv)
- 	return 0;
- 
- err_free_desc:
--	while (--i) {
-+	while (i--) {
- 		desc = &priv->apTD1Rings[i];
- 		kfree(desc->td_info);
- 	}
+diff --git a/drivers/firmware/google/gsmi.c b/drivers/firmware/google/gsmi.c
+index 7d9367b22010..c1cd5ca875ca 100644
+--- a/drivers/firmware/google/gsmi.c
++++ b/drivers/firmware/google/gsmi.c
+@@ -680,6 +680,15 @@ static struct notifier_block gsmi_die_notifier = {
+ static int gsmi_panic_callback(struct notifier_block *nb,
+ 			       unsigned long reason, void *arg)
+ {
++
++	/*
++	 * Panic callbacks are executed with all other CPUs stopped,
++	 * so we must not attempt to spin waiting for gsmi_dev.lock
++	 * to be released.
++	 */
++	if (spin_is_locked(&gsmi_dev.lock))
++		return NOTIFY_DONE;
++
+ 	gsmi_shutdown_reason(GSMI_SHUTDOWN_PANIC);
+ 	return NOTIFY_DONE;
+ }
 -- 
 2.35.1
 
