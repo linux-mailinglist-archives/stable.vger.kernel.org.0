@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4457B60A8B3
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:11:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5FB060A7E1
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235406AbiJXNK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:10:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36424 "EHLO
+        id S234713AbiJXNAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:00:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235919AbiJXNKL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:10:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB02A47B;
-        Mon, 24 Oct 2022 05:23:31 -0700 (PDT)
+        with ESMTP id S234896AbiJXM6d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:58:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A50B98357;
+        Mon, 24 Oct 2022 05:17:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09187B8161F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA5E261329;
+        Mon, 24 Oct 2022 12:15:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03D4DC4314A;
         Mon, 24 Oct 2022 12:15:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63EEBC433D6;
-        Mon, 24 Oct 2022 12:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613718;
-        bh=j+67didnIPF+xzyve6MvUXmjz4nmKeBUiydpiwCnhUs=;
+        s=korg; t=1666613721;
+        bh=9IwWBpBPAy1XPz+qmN4K1594agSedGaY6AGFztpHjGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3NEMBF57gAnl8lTkIIuLnagX7B+NrVvvzb6f/Jtn50jpCVRsu6KsYCxSFCcBSlZE
-         TOEJPRMR6X458sRJwr2az39/r/YLePwraEdizw51kUoQQHRgh1hti1VryqsSdTSBMc
-         1/qUVRYcmK6/BCXkLKa1q7392Wyg0++/Urt25BnM=
+        b=nZ20VDmgQlUxxj9jkCxBactClz8KR2e6oztdtkgvDV269uK1+6MRivDrr4/Vu8+m9
+         B50CUla8NIALk8ahdGJSRrmtUW8/4Cbv3pvuf4bkK5jmma/AAhwvUgWCDzVBVzpp5d
+         KegnoHj1z/yj3NugtTu5KsPkb65mlAJaIGx+/GKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 243/255] nvmet-tcp: add bounds check on Transfer Tag
-Date:   Mon, 24 Oct 2022 13:32:33 +0200
-Message-Id: <20221024113011.330767504@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+79832d33eb89fb3cd092@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 244/255] usb: idmouse: fix an uninit-value in idmouse_open
+Date:   Mon, 24 Oct 2022 13:32:34 +0200
+Message-Id: <20221024113011.373443793@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
 References: <20221024113002.471093005@linuxfoundation.org>
@@ -53,45 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varun Prakash <varun@chelsio.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit b6a545ffa2c192b1e6da4a7924edac5ba9f4ea2b ]
+[ Upstream commit bce2b0539933e485d22d6f6f076c0fcd6f185c4c ]
 
-ttag is used as an index to get cmd in nvmet_tcp_handle_h2c_data_pdu(),
-add a bounds check to avoid out-of-bounds access.
+In idmouse_create_image, if any ftip_command fails, it will
+go to the reset label. However, this leads to the data in
+bulk_in_buffer[HEADER..IMGSIZE] uninitialized. And the check
+for valid image incurs an uninitialized dereference.
 
-Signed-off-by: Varun Prakash <varun@chelsio.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fix this by moving the check before reset label since this
+check only be valid if the data after bulk_in_buffer[HEADER]
+has concrete data.
+
+Note that this is found by KMSAN, so only kernel compilation
+is tested.
+
+Reported-by: syzbot+79832d33eb89fb3cd092@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20220922134847.1101921-1-dzm91@hust.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/tcp.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/usb/misc/idmouse.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index eb5b39c2bba8..df7a911d303f 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -858,10 +858,17 @@ static int nvmet_tcp_handle_h2c_data_pdu(struct nvmet_tcp_queue *queue)
- 	struct nvme_tcp_data_pdu *data = &queue->pdu.data;
- 	struct nvmet_tcp_cmd *cmd;
+diff --git a/drivers/usb/misc/idmouse.c b/drivers/usb/misc/idmouse.c
+index bb24527f3c70..ba2b6fbab9b8 100644
+--- a/drivers/usb/misc/idmouse.c
++++ b/drivers/usb/misc/idmouse.c
+@@ -178,10 +178,6 @@ static int idmouse_create_image(struct usb_idmouse *dev)
+ 		bytes_read += bulk_read;
+ 	}
  
--	if (likely(queue->nr_cmds))
-+	if (likely(queue->nr_cmds)) {
-+		if (unlikely(data->ttag >= queue->nr_cmds)) {
-+			pr_err("queue %d: received out of bound ttag %u, nr_cmds %u\n",
-+				queue->idx, data->ttag, queue->nr_cmds);
-+			nvmet_tcp_fatal_error(queue);
-+			return -EPROTO;
-+		}
- 		cmd = &queue->cmds[data->ttag];
--	else
-+	} else {
- 		cmd = &queue->connect;
-+	}
+-	/* reset the device */
+-reset:
+-	ftip_command(dev, FTIP_RELEASE, 0, 0);
+-
+ 	/* check for valid image */
+ 	/* right border should be black (0x00) */
+ 	for (bytes_read = sizeof(HEADER)-1 + WIDTH-1; bytes_read < IMGSIZE; bytes_read += WIDTH)
+@@ -193,6 +189,10 @@ static int idmouse_create_image(struct usb_idmouse *dev)
+ 		if (dev->bulk_in_buffer[bytes_read] != 0xFF)
+ 			return -EAGAIN;
  
- 	if (le32_to_cpu(data->data_offset) != cmd->rbytes_done) {
- 		pr_err("ttag %u unexpected data offset %u (expected %u)\n",
++	/* reset the device */
++reset:
++	ftip_command(dev, FTIP_RELEASE, 0, 0);
++
+ 	/* should be IMGSIZE == 65040 */
+ 	dev_dbg(&dev->interface->dev, "read %d bytes fingerprint data\n",
+ 		bytes_read);
 -- 
 2.35.1
 
