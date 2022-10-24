@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AC9760B7FD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:39:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDA4260B779
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231768AbiJXTjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:39:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53318 "EHLO
+        id S231779AbiJXTYr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:24:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233628AbiJXTjZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:39:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C509C7C1CA;
-        Mon, 24 Oct 2022 11:09:56 -0700 (PDT)
+        with ESMTP id S232105AbiJXTWs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:22:48 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD6A8C4DA1;
+        Mon, 24 Oct 2022 10:57:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BFC0DB81197;
-        Mon, 24 Oct 2022 11:51:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21FC0C433C1;
-        Mon, 24 Oct 2022 11:51:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 535D7CE134D;
+        Mon, 24 Oct 2022 11:52:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67333C433D6;
+        Mon, 24 Oct 2022 11:52:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612313;
-        bh=J90OA6eZTp0oGiLkAzqf0xGHHm4dRJ2CBpHn1NUQH+w=;
+        s=korg; t=1666612352;
+        bh=QsAUGu98aFCufOBe4iBWZ+qBocl7d9WXykBVUjlzfZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0wkMbXofebdSr1SITsyd4e1zCXhLB0keUkH7clTXjMderfJgdoL3nEWxw1wkd/TtH
-         blO0y2wYO4WL/h8+2XzG7clx+CSRMJDs1hvFXoh5+4u3c9W8KmhdHl1oP3ZMVtm1kW
-         /BZVVlYt1It2YWz19cKM/GbPj0Ap1+o74MmlIpkM=
+        b=UvlB8XkOxmPArORef54xfQrXmn/wGt4pRGP9jYk4SckPA2m8Bquv02bIXXDtNc4Py
+         ddNP+DMwy4BVCzV9wD2sE2VDXxwX7QnKX8Chihi0H38PwO2dyHPc1Np5PdeMcihapP
+         rzj/ix0nJVYQpGhcACL3RLu7dc2OmmS50lUd+2S0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 151/210] mailbox: bcm-ferxrm-mailbox: Fix error check for dma_map_sg
-Date:   Mon, 24 Oct 2022 13:31:08 +0200
-Message-Id: <20221024113001.874873699@linuxfoundation.org>
+Subject: [PATCH 4.14 164/210] thermal: intel_powerclamp: Use get_cpu() instead of smp_processor_id() to avoid crash
+Date:   Mon, 24 Oct 2022 13:31:21 +0200
+Message-Id: <20221024113002.289703206@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -53,45 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@ionos.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 6b207ce8a96a71e966831e3a13c38143ba9a73c1 ]
+[ Upstream commit 68b99e94a4a2db6ba9b31fe0485e057b9354a640 ]
 
-dma_map_sg return 0 on error, fix the error check, and return -EIO
-to caller.
+When CPU 0 is offline and intel_powerclamp is used to inject
+idle, it generates kernel BUG:
 
-Fixes: dbc049eee730 ("mailbox: Add driver for Broadcom FlexRM ring manager")
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+BUG: using smp_processor_id() in preemptible [00000000] code: bash/15687
+caller is debug_smp_processor_id+0x17/0x20
+CPU: 4 PID: 15687 Comm: bash Not tainted 5.19.0-rc7+ #57
+Call Trace:
+<TASK>
+dump_stack_lvl+0x49/0x63
+dump_stack+0x10/0x16
+check_preemption_disabled+0xdd/0xe0
+debug_smp_processor_id+0x17/0x20
+powerclamp_set_cur_state+0x7f/0xf9 [intel_powerclamp]
+...
+...
+
+Here CPU 0 is the control CPU by default and changed to the current CPU,
+if CPU 0 offlined. This check has to be performed under cpus_read_lock(),
+hence the above warning.
+
+Use get_cpu() instead of smp_processor_id() to avoid this BUG.
+
+Suggested-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+[ rjw: Subject edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/bcm-flexrm-mailbox.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/thermal/intel_powerclamp.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mailbox/bcm-flexrm-mailbox.c b/drivers/mailbox/bcm-flexrm-mailbox.c
-index 7e3ed2714630..6e5d59f40a18 100644
---- a/drivers/mailbox/bcm-flexrm-mailbox.c
-+++ b/drivers/mailbox/bcm-flexrm-mailbox.c
-@@ -626,15 +626,15 @@ static int flexrm_spu_dma_map(struct device *dev, struct brcm_message *msg)
+diff --git a/drivers/thermal/intel_powerclamp.c b/drivers/thermal/intel_powerclamp.c
+index c3293fa2bb1b..7ff59f86a543 100644
+--- a/drivers/thermal/intel_powerclamp.c
++++ b/drivers/thermal/intel_powerclamp.c
+@@ -550,8 +550,10 @@ static int start_power_clamp(void)
  
- 	rc = dma_map_sg(dev, msg->spu.src, sg_nents(msg->spu.src),
- 			DMA_TO_DEVICE);
--	if (rc < 0)
--		return rc;
-+	if (!rc)
-+		return -EIO;
+ 	/* prefer BSP */
+ 	control_cpu = 0;
+-	if (!cpu_online(control_cpu))
+-		control_cpu = smp_processor_id();
++	if (!cpu_online(control_cpu)) {
++		control_cpu = get_cpu();
++		put_cpu();
++	}
  
- 	rc = dma_map_sg(dev, msg->spu.dst, sg_nents(msg->spu.dst),
- 			DMA_FROM_DEVICE);
--	if (rc < 0) {
-+	if (!rc) {
- 		dma_unmap_sg(dev, msg->spu.src, sg_nents(msg->spu.src),
- 			     DMA_TO_DEVICE);
--		return rc;
-+		return -EIO;
- 	}
- 
- 	return 0;
+ 	clamping = true;
+ 	schedule_delayed_work(&poll_pkg_cstate_work, 0);
 -- 
 2.35.1
 
