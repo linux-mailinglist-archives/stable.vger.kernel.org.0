@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44AAB60A5DA
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7BF260A447
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:07:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233811AbiJXMau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:30:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60548 "EHLO
+        id S232520AbiJXMH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:07:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233731AbiJXM2w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E832C87088;
-        Mon, 24 Oct 2022 05:02:21 -0700 (PDT)
+        with ESMTP id S232525AbiJXMFa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:05:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DB627D780;
+        Mon, 24 Oct 2022 04:51:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C59F1B811C1;
-        Mon, 24 Oct 2022 11:58:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25911C433C1;
-        Mon, 24 Oct 2022 11:58:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9014E612BB;
+        Mon, 24 Oct 2022 11:51:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A54F5C433D6;
+        Mon, 24 Oct 2022 11:51:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612727;
+        s=korg; t=1666612287;
         bh=8veHvggDsF0H695N4ZaRHLld1XJTkiSOIyJfY6Uu+i8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3ddocst3sv+7EjJg2w9vwbkBB2e6JoMl+P3iKslEPvV/G5jai9wS5zsn5qpir9ub
-         X0KwTjoylkTkYaCvJFUy3MPNds2+E5TP52w/YiOThOYcE0OgBnjDFeCBh9CBOxXF9U
-         vxTlBNlXD0ohlb/jua89yK1ivYBVe46+SaZydNF8=
+        b=BbcjQWI7IiQj4m55vOPeE3ZFPsHEB5jYgXE8JWdmD6v7ssDUu63kmo+K3KZT9J9Ti
+         +4CHlDxL6/mAnBLm8Vwy4sOB7BCzcglTNmDHHkyyTN6Dp+kO8BxZP/mF5Q8eS5AGUw
+         XYLqVRdcbFbovmF27OXbM3iye/NciAJdKl8aQpKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 097/229] platform/x86: msi-laptop: Fix old-ec check for backlight registering
+Subject: [PATCH 4.14 099/210] platform/x86: msi-laptop: Fix old-ec check for backlight registering
 Date:   Mon, 24 Oct 2022 13:30:16 +0200
-Message-Id: <20221024113002.176828433@linuxfoundation.org>
+Message-Id: <20221024113000.237096348@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
