@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A761960A62F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:32:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C11BD60A9AC
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:23:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233934AbiJXMcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:32:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53744 "EHLO
+        id S231229AbiJXNXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:23:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234369AbiJXMaK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:30:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03D6E11A24;
-        Mon, 24 Oct 2022 05:04:23 -0700 (PDT)
+        with ESMTP id S234058AbiJXNXB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:23:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C6A12F397;
+        Mon, 24 Oct 2022 05:29:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C09C2B811A6;
-        Mon, 24 Oct 2022 11:52:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD7DC433D6;
-        Mon, 24 Oct 2022 11:52:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D997A612E9;
+        Mon, 24 Oct 2022 12:27:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC516C433D6;
+        Mon, 24 Oct 2022 12:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612326;
-        bh=0lbPNCsDRrqENwaCBcpPeVLGu2TkgjKhDAEw/yHaLpw=;
+        s=korg; t=1666614476;
+        bh=AlKGxA5oHb1mhMs88++LuDXBhLryEnVpofotGpHubyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U5CAAWGeR+YW9yPkjnbUbT3KF6bgJkueqzAeaWDCsUyVhzXNcnJThen8YIcwJl0K1
-         UzRqU4g2uKE7CvP2DSa+C333Nwdt5jGoZrZQKq6DHkCPjOT/SwXoMKbzvGzwBOcJLT
-         6dYdSU6pwkTDeThbD5gfcGNVl6ZkVqZaKUZv7y58=
+        b=k5uMHShrY1q2NtApzvhZieoSnKLhkEktpFNG9HOCNpVmRTYp0JEIrwk+6au1sjCvM
+         FcPfkEKiY7SA4l5UtX1jRcxclubOGDFJ8GB2JKsnwp0hpAcPur8+KcyBvawluaWahm
+         Zw0nXrV6yWiRQK3+m+ZPdxvvV1np83CQwW5GXnPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 155/210] powerpc/powernv: add missing of_node_put() in opal_export_attrs()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 275/390] iommu/omap: Fix buffer overflow in debugfs
 Date:   Mon, 24 Oct 2022 13:31:12 +0200
-Message-Id: <20221024113002.010570901@linuxfoundation.org>
+Message-Id: <20221024113034.648307904@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 71a92e99c47900cc164620948b3863382cec4f1a ]
+[ Upstream commit 184233a5202786b20220acd2d04ddf909ef18f29 ]
 
-After using 'np' returned by of_find_node_by_path(), of_node_put()
-need be called to decrease the refcount.
+There are two issues here:
 
-Fixes: 11fe909d2362 ("powerpc/powernv: Add OPAL exports attributes to sysfs")
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220906141703.118192-1-zhengyongjun3@huawei.com
+1) The "len" variable needs to be checked before the very first write.
+   Otherwise if omap2_iommu_dump_ctx() with "bytes" less than 32 it is a
+   buffer overflow.
+2) The snprintf() function returns the number of bytes that *would* have
+   been copied if there were enough space.  But we want to know the
+   number of bytes which were *actually* copied so use scnprintf()
+   instead.
+
+Fixes: bd4396f09a4a ("iommu/omap: Consolidate OMAP IOMMU modules")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/YuvYh1JbE3v+abd5@kili
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/opal.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iommu/omap-iommu-debug.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/platforms/powernv/opal.c b/arch/powerpc/platforms/powernv/opal.c
-index 597fcbf7a39e..c8bc9accd858 100644
---- a/arch/powerpc/platforms/powernv/opal.c
-+++ b/arch/powerpc/platforms/powernv/opal.c
-@@ -677,6 +677,7 @@ static void opal_export_attrs(void)
- 	kobj = kobject_create_and_add("exports", opal_kobj);
- 	if (!kobj) {
- 		pr_warn("kobject_create_and_add() of exports failed\n");
-+		of_node_put(np);
- 		return;
- 	}
+diff --git a/drivers/iommu/omap-iommu-debug.c b/drivers/iommu/omap-iommu-debug.c
+index a99afb5d9011..259f65291d90 100644
+--- a/drivers/iommu/omap-iommu-debug.c
++++ b/drivers/iommu/omap-iommu-debug.c
+@@ -32,12 +32,12 @@ static inline bool is_omap_iommu_detached(struct omap_iommu *obj)
+ 		ssize_t bytes;						\
+ 		const char *str = "%20s: %08x\n";			\
+ 		const int maxcol = 32;					\
+-		bytes = snprintf(p, maxcol, str, __stringify(name),	\
++		if (len < maxcol)					\
++			goto out;					\
++		bytes = scnprintf(p, maxcol, str, __stringify(name),	\
+ 				 iommu_read_reg(obj, MMU_##name));	\
+ 		p += bytes;						\
+ 		len -= bytes;						\
+-		if (len < maxcol)					\
+-			goto out;					\
+ 	} while (0)
  
+ static ssize_t
 -- 
 2.35.1
 
