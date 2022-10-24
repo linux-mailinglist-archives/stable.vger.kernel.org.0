@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE46D60A32D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:52:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38EF560A342
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231873AbiJXLwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:52:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33170 "EHLO
+        id S232090AbiJXLxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:53:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231862AbiJXLuk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:50:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E97DA6C945;
-        Mon, 24 Oct 2022 04:44:05 -0700 (PDT)
+        with ESMTP id S232054AbiJXLwr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:52:47 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 757AC140D1;
+        Mon, 24 Oct 2022 04:44:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C143612A8;
-        Mon, 24 Oct 2022 11:40:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD67CC433C1;
-        Mon, 24 Oct 2022 11:40:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5DE38CE1331;
+        Mon, 24 Oct 2022 11:40:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B31AC433D6;
+        Mon, 24 Oct 2022 11:40:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611655;
-        bh=UC4N3sBjhLDZ+wcXGgo6PpGYM16M/ta0K69RYYrVh+s=;
+        s=korg; t=1666611657;
+        bh=pS5WP/5RnEfDdJOQcfOSKRNblYIG0koFCLEF4yVIa44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RzxJ7p9FVuftpUoT6BMCQFOIQ/YoSsMjipLG+6jEvGpeepeGGslyzrM3Br+VgXBe3
-         xW5TPDeiaQP3Dr9ve9Q7n3rPe+mfhYAxxYlZNjmotqv30/tnDPz8uKPrUz1aendkrf
-         4BvYPum64TLdS6x8+0p7u6KU+62TVvpPdLlXIZak=
+        b=SUIeEzcB+TygSa55iKR8/Z/zeBgrEPL+nPX9/SIy/4pIYbHyA+oOi/nF1lLdMmqFs
+         q0yMrHr2PwLTK9GP0wBaVWDTMLZgpZccS/YrG8tWi4AulZYFVW0mMvDh6KkmjO7V0Q
+         0ZIw+Hyi8D5eYxOC6B7CXhg7x9TCgIgPIBqCHfiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Jiazi.Li" <jiazi.li@transsion.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 061/159] ring-buffer: Fix race between reset page and reading page
-Date:   Mon, 24 Oct 2022 13:30:15 +0200
-Message-Id: <20221024112951.678044566@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Luczaj <mhal@rbox.co>,
+        Sean Christopherson <seanjc@google.com>
+Subject: [PATCH 4.9 062/159] KVM: x86/emulator: Fix handing of POP SS to correctly set interruptibility
+Date:   Mon, 24 Oct 2022 13:30:16 +0200
+Message-Id: <20221024112951.717779337@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -54,115 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Michal Luczaj <mhal@rbox.co>
 
-commit a0fcaaed0c46cf9399d3a2d6e0c87ddb3df0e044 upstream.
+commit 6aa5c47c351b22c21205c87977c84809cd015fcf upstream.
 
-The ring buffer is broken up into sub buffers (currently of page size).
-Each sub buffer has a pointer to its "tail" (the last event written to the
-sub buffer). When a new event is requested, the tail is locally
-incremented to cover the size of the new event. This is done in a way that
-there is no need for locking.
+The emulator checks the wrong variable while setting the CPU
+interruptibility state, the target segment is embedded in the instruction
+opcode, not the ModR/M register.  Fix the condition.
 
-If the tail goes past the end of the sub buffer, the process of moving to
-the next sub buffer takes place. After setting the current sub buffer to
-the next one, the previous one that had the tail go passed the end of the
-sub buffer needs to be reset back to the original tail location (before
-the new event was requested) and the rest of the sub buffer needs to be
-"padded".
-
-The race happens when a reader takes control of the sub buffer. As readers
-do a "swap" of sub buffers from the ring buffer to get exclusive access to
-the sub buffer, it replaces the "head" sub buffer with an empty sub buffer
-that goes back into the writable portion of the ring buffer. This swap can
-happen as soon as the writer moves to the next sub buffer and before it
-updates the last sub buffer with padding.
-
-Because the sub buffer can be released to the reader while the writer is
-still updating the padding, it is possible for the reader to see the event
-that goes past the end of the sub buffer. This can cause obvious issues.
-
-To fix this, add a few memory barriers so that the reader definitely sees
-the updates to the sub buffer, and also waits until the writer has put
-back the "tail" of the sub buffer back to the last event that was written
-on it.
-
-To be paranoid, it will only spin for 1 second, otherwise it will
-warn and shutdown the ring buffer code. 1 second should be enough as
-the writer does have preemption disabled. If the writer doesn't move
-within 1 second (with preemption disabled) something is horribly
-wrong. No interrupt should last 1 second!
-
-Link: https://lore.kernel.org/all/20220830120854.7545-1-jiazi.li@transsion.com/
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216369
-Link: https://lkml.kernel.org/r/20220929104909.0650a36c@gandalf.local.home
-
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Michal Luczaj <mhal@rbox.co>
+Fixes: a5457e7bcf9a ("KVM: emulate: POP SS triggers a MOV SS shadow too")
 Cc: stable@vger.kernel.org
-Fixes: c7b0930857e22 ("ring-buffer: prevent adding write in discarded area")
-Reported-by: Jiazi.Li <jiazi.li@transsion.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/all/20220821215900.1419215-1-mhal@rbox.co
+Signed-off-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |   33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ arch/x86/kvm/emulate.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -2122,6 +2122,9 @@ rb_reset_tail(struct ring_buffer_per_cpu
- 		/* Mark the rest of the page with padding */
- 		rb_event_set_padding(event);
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -1980,7 +1980,7 @@ static int em_pop_sreg(struct x86_emulat
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return rc;
  
-+		/* Make sure the padding is visible before the write update */
-+		smp_wmb();
-+
- 		/* Set the write back to the previous setting */
- 		local_sub(length, &tail_page->write);
- 		return;
-@@ -2133,6 +2136,9 @@ rb_reset_tail(struct ring_buffer_per_cpu
- 	/* time delta must be non zero */
- 	event->time_delta = 1;
- 
-+	/* Make sure the padding is visible before the tail_page->write update */
-+	smp_wmb();
-+
- 	/* Set write to end of buffer */
- 	length = (tail + length) - BUF_PAGE_SIZE;
- 	local_sub(length, &tail_page->write);
-@@ -3724,6 +3730,33 @@ rb_get_reader_page(struct ring_buffer_pe
- 	arch_spin_unlock(&cpu_buffer->lock);
- 	local_irq_restore(flags);
- 
-+	/*
-+	 * The writer has preempt disable, wait for it. But not forever
-+	 * Although, 1 second is pretty much "forever"
-+	 */
-+#define USECS_WAIT	1000000
-+        for (nr_loops = 0; nr_loops < USECS_WAIT; nr_loops++) {
-+		/* If the write is past the end of page, a writer is still updating it */
-+		if (likely(!reader || rb_page_write(reader) <= BUF_PAGE_SIZE))
-+			break;
-+
-+		udelay(1);
-+
-+		/* Get the latest version of the reader write value */
-+		smp_rmb();
-+	}
-+
-+	/* The writer is not moving forward? Something is wrong */
-+	if (RB_WARN_ON(cpu_buffer, nr_loops == USECS_WAIT))
-+		reader = NULL;
-+
-+	/*
-+	 * Make sure we see any padding after the write update
-+	 * (see rb_reset_tail())
-+	 */
-+	smp_rmb();
-+
-+
- 	return reader;
- }
- 
+-	if (ctxt->modrm_reg == VCPU_SREG_SS)
++	if (seg == VCPU_SREG_SS)
+ 		ctxt->interruptibility = KVM_X86_SHADOW_INT_MOV_SS;
+ 	if (ctxt->op_bytes > 2)
+ 		rsp_increment(ctxt, ctxt->op_bytes - 2);
 
 
