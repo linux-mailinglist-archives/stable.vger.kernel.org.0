@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08D0E60B9DB
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:22:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FAEC60B9A9
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:16:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233395AbiJXUWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:22:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47326 "EHLO
+        id S233399AbiJXUQa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:16:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230335AbiJXUVh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:21:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 777622CE1D;
-        Mon, 24 Oct 2022 11:37:49 -0700 (PDT)
+        with ESMTP id S234122AbiJXUQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:16:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C0BCB65;
+        Mon, 24 Oct 2022 11:33:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91C01B815E5;
-        Mon, 24 Oct 2022 12:12:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE80AC433C1;
-        Mon, 24 Oct 2022 12:12:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA3E4B815AC;
+        Mon, 24 Oct 2022 12:29:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E5F6C433D7;
+        Mon, 24 Oct 2022 12:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613542;
-        bh=l0qQ2lCaxTmpz63zjBz0GZTyNJRYUHWb1NPdjSlk1wE=;
+        s=korg; t=1666614591;
+        bh=qdJdH1Ww3YeKPIgjETV1ThfvN509TAE5iFLPR3eu1+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vk1oLlUHKYjalHdeF79E4YUqmxb9o97OZSa6nzISLlZvT99uZl2zxfeDjt7GNcwfa
-         x4x1VL0JXIXLljqcwwFBluXormy/UC7OLVPwtjY7hVbuifEGX2iUfAxQbmmQIx6x/Q
-         RX0kSOF1WNZXgEgc/5CUYHf3QhOFNtw2IIFd1YdQ=
+        b=RB7qKZAAruMHFPFNb/aU7VcrtqaPOZh4ZdWDiEl2mlg9VHqyjyQIWSZ2c/ot7Jf5m
+         PVZTH5TGfiPqRn8GjsBw9UnyNfzbczYqdsdeP1rdZ14McSHi/WxFzIZNbybzoCthY1
+         9Q8QKoyEC7fZb+cuXsXnFTnpJT42C1UFxCFDGzMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Shuai Xue <xueshuai@linux.alibaba.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 176/255] powerpc: Fix SPE Power ISA properties for e500v1 platforms
-Date:   Mon, 24 Oct 2022 13:31:26 +0200
-Message-Id: <20221024113008.678272331@linuxfoundation.org>
+Subject: [PATCH 5.10 290/390] ACPI: APEI: do not add task_work to kernel thread to avoid memory leak
+Date:   Mon, 24 Oct 2022 13:31:27 +0200
+Message-Id: <20221024113035.325362340@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,145 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Shuai Xue <xueshuai@linux.alibaba.com>
 
-[ Upstream commit 37b9345ce7f4ab17538ea62def6f6d430f091355 ]
+[ Upstream commit 415fed694fe11395df56e05022d6e7cee1d39dd3 ]
 
-Commit 2eb28006431c ("powerpc/e500v2: Add Power ISA properties to comply
-with ePAPR 1.1") introduced new include file e500v2_power_isa.dtsi and
-should have used it for all e500v2 platforms. But apparently it was used
-also for e500v1 platforms mpc8540, mpc8541, mpc8555 and mpc8560.
+If an error is detected as a result of user-space process accessing a
+corrupt memory location, the CPU may take an abort. Then the platform
+firmware reports kernel via NMI like notifications, e.g. NOTIFY_SEA,
+NOTIFY_SOFTWARE_DELEGATED, etc.
 
-e500v1 cores compared to e500v2 do not support double precision floating
-point SPE instructions. Hence power-isa-sp.fd should not be set on e500v1
-platforms, which is in e500v2_power_isa.dtsi include file.
+For NMI like notifications, commit 7f17b4a121d0 ("ACPI: APEI: Kick the
+memory_failure() queue for synchronous errors") keep track of whether
+memory_failure() work was queued, and make task_work pending to flush out
+the queue so that the work is processed before return to user-space.
 
-Fix this issue by introducing a new e500v1_power_isa.dtsi include file and
-use it in all e500v1 device tree files.
+The code use init_mm to check whether the error occurs in user space:
 
-Fixes: 2eb28006431c ("powerpc/e500v2: Add Power ISA properties to comply with ePAPR 1.1")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220902212103.22534-1-pali@kernel.org
+    if (current->mm != &init_mm)
+
+The condition is always true, becase _nobody_ ever has "init_mm" as a real
+VM any more.
+
+In addition to abort, errors can also be signaled as asynchronous
+exceptions, such as interrupt and SError. In such case, the interrupted
+current process could be any kind of thread. When a kernel thread is
+interrupted, the work ghes_kick_task_work deferred to task_work will never
+be processed because entry_handler returns to call ret_to_kernel() instead
+of ret_to_user(). Consequently, the estatus_node alloced from
+ghes_estatus_pool in ghes_in_nmi_queue_one_entry() will not be freed.
+After around 200 allocations in our platform, the ghes_estatus_pool will
+run of memory and ghes_in_nmi_queue_one_entry() returns ENOMEM. As a
+result, the event failed to be processed.
+
+    sdei: event 805 on CPU 113 failed with error: -2
+
+Finally, a lot of unhandled events may cause platform firmware to exceed
+some threshold and reboot.
+
+The condition should generally just do
+
+    if (current->mm)
+
+as described in active_mm.rst documentation.
+
+Then if an asynchronous error is detected when a kernel thread is running,
+(e.g. when detected by a background scrubber), do not add task_work to it
+as the original patch intends to do.
+
+Fixes: 7f17b4a121d0 ("ACPI: APEI: Kick the memory_failure() queue for synchronous errors")
+Signed-off-by: Shuai Xue <xueshuai@linux.alibaba.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/fsl/e500v1_power_isa.dtsi        | 51 +++++++++++++++++++
- arch/powerpc/boot/dts/fsl/mpc8540ads.dts      |  2 +-
- arch/powerpc/boot/dts/fsl/mpc8541cds.dts      |  2 +-
- arch/powerpc/boot/dts/fsl/mpc8555cds.dts      |  2 +-
- arch/powerpc/boot/dts/fsl/mpc8560ads.dts      |  2 +-
- 5 files changed, 55 insertions(+), 4 deletions(-)
- create mode 100644 arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi
+ drivers/acpi/apei/ghes.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi b/arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi
-new file mode 100644
-index 000000000000..7e2a90cde72e
---- /dev/null
-+++ b/arch/powerpc/boot/dts/fsl/e500v1_power_isa.dtsi
-@@ -0,0 +1,51 @@
-+/*
-+ * e500v1 Power ISA Device Tree Source (include)
-+ *
-+ * Copyright 2012 Freescale Semiconductor Inc.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *     * Redistributions of source code must retain the above copyright
-+ *       notice, this list of conditions and the following disclaimer.
-+ *     * Redistributions in binary form must reproduce the above copyright
-+ *       notice, this list of conditions and the following disclaimer in the
-+ *       documentation and/or other materials provided with the distribution.
-+ *     * Neither the name of Freescale Semiconductor nor the
-+ *       names of its contributors may be used to endorse or promote products
-+ *       derived from this software without specific prior written permission.
-+ *
-+ *
-+ * ALTERNATIVELY, this software may be distributed under the terms of the
-+ * GNU General Public License ("GPL") as published by the Free Software
-+ * Foundation, either version 2 of that License or (at your option) any
-+ * later version.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY Freescale Semiconductor "AS IS" AND ANY
-+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-+ * DISCLAIMED. IN NO EVENT SHALL Freescale Semiconductor BE LIABLE FOR ANY
-+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ */
-+
-+/ {
-+	cpus {
-+		power-isa-version = "2.03";
-+		power-isa-b;		// Base
-+		power-isa-e;		// Embedded
-+		power-isa-atb;		// Alternate Time Base
-+		power-isa-cs;		// Cache Specification
-+		power-isa-e.le;		// Embedded.Little-Endian
-+		power-isa-e.pm;		// Embedded.Performance Monitor
-+		power-isa-ecl;		// Embedded Cache Locking
-+		power-isa-mmc;		// Memory Coherence
-+		power-isa-sp;		// Signal Processing Engine
-+		power-isa-sp.fs;	// SPE.Embedded Float Scalar Single
-+		power-isa-sp.fv;	// SPE.Embedded Float Vector
-+		mmu-type = "power-embedded";
-+	};
-+};
-diff --git a/arch/powerpc/boot/dts/fsl/mpc8540ads.dts b/arch/powerpc/boot/dts/fsl/mpc8540ads.dts
-index 18a885130538..e03ae130162b 100644
---- a/arch/powerpc/boot/dts/fsl/mpc8540ads.dts
-+++ b/arch/powerpc/boot/dts/fsl/mpc8540ads.dts
-@@ -7,7 +7,7 @@
+diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
+index 0c8330ed1ffd..5206fd3b7867 100644
+--- a/drivers/acpi/apei/ghes.c
++++ b/drivers/acpi/apei/ghes.c
+@@ -985,7 +985,7 @@ static void ghes_proc_in_irq(struct irq_work *irq_work)
+ 				ghes_estatus_cache_add(generic, estatus);
+ 		}
  
- /dts-v1/;
- 
--/include/ "e500v2_power_isa.dtsi"
-+/include/ "e500v1_power_isa.dtsi"
- 
- / {
- 	model = "MPC8540ADS";
-diff --git a/arch/powerpc/boot/dts/fsl/mpc8541cds.dts b/arch/powerpc/boot/dts/fsl/mpc8541cds.dts
-index ac381e7b1c60..a2a6c5cf852e 100644
---- a/arch/powerpc/boot/dts/fsl/mpc8541cds.dts
-+++ b/arch/powerpc/boot/dts/fsl/mpc8541cds.dts
-@@ -7,7 +7,7 @@
- 
- /dts-v1/;
- 
--/include/ "e500v2_power_isa.dtsi"
-+/include/ "e500v1_power_isa.dtsi"
- 
- / {
- 	model = "MPC8541CDS";
-diff --git a/arch/powerpc/boot/dts/fsl/mpc8555cds.dts b/arch/powerpc/boot/dts/fsl/mpc8555cds.dts
-index 9f58db2a7e66..901b6ff06dfb 100644
---- a/arch/powerpc/boot/dts/fsl/mpc8555cds.dts
-+++ b/arch/powerpc/boot/dts/fsl/mpc8555cds.dts
-@@ -7,7 +7,7 @@
- 
- /dts-v1/;
- 
--/include/ "e500v2_power_isa.dtsi"
-+/include/ "e500v1_power_isa.dtsi"
- 
- / {
- 	model = "MPC8555CDS";
-diff --git a/arch/powerpc/boot/dts/fsl/mpc8560ads.dts b/arch/powerpc/boot/dts/fsl/mpc8560ads.dts
-index a24722ccaebf..c2f9aea78b29 100644
---- a/arch/powerpc/boot/dts/fsl/mpc8560ads.dts
-+++ b/arch/powerpc/boot/dts/fsl/mpc8560ads.dts
-@@ -7,7 +7,7 @@
- 
- /dts-v1/;
- 
--/include/ "e500v2_power_isa.dtsi"
-+/include/ "e500v1_power_isa.dtsi"
- 
- / {
- 	model = "MPC8560ADS";
+-		if (task_work_pending && current->mm != &init_mm) {
++		if (task_work_pending && current->mm) {
+ 			estatus_node->task_work.func = ghes_kick_task_work;
+ 			estatus_node->task_work_cpu = smp_processor_id();
+ 			ret = task_work_add(current, &estatus_node->task_work,
 -- 
 2.35.1
 
