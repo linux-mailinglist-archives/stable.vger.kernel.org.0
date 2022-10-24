@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E6A460A507
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCD1A60A4B7
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:15:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233213AbiJXMUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:20:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47544 "EHLO
+        id S232949AbiJXMPb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:15:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233005AbiJXMSn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:18:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E365080E95;
-        Mon, 24 Oct 2022 04:57:18 -0700 (PDT)
+        with ESMTP id S233294AbiJXMOo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:14:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B11A18350;
+        Mon, 24 Oct 2022 04:55:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4DE061291;
-        Mon, 24 Oct 2022 11:55:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4955C433C1;
-        Mon, 24 Oct 2022 11:55:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42ADC612BB;
+        Mon, 24 Oct 2022 11:55:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 559A4C433C1;
+        Mon, 24 Oct 2022 11:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612505;
-        bh=xxDHkhWXn9LWoUKnTOuFYR63Zphxmul0hUMh47XisPY=;
+        s=korg; t=1666612507;
+        bh=pKT/iQfxBxGioKBlfo90x9MW0lGwQY8QgTHrj5HQNl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNeRCenC61q5K5K3kG+Mt7NSuMhycgfio2NCGHyKPMBWhHoZQ9qnuKRq66fgXLgTE
-         KAK+LZ3H986RgVy0dUa3UI4sZO0Ql8iY7bE03ITswmitogBDsIjaRhGAUJLBAg9xu5
-         QJJMbS+eMxzTEEO+1h9/DZoF2YKp+BJHwOlEtlf4=
+        b=JUmQI2wKs8AyNhafoVJbp+Z4gPI1wkY59zQG/zS8icN6M3NlU8N29XU41bRs/enVX
+         xzSVJTmFD600LoPz3MXn7da6pZ56AxmfS9Pm60CXgYqdKpQtJE5iKcUS6aZUlT9qs2
+         rATxg53oQ9iV7ksEvx0t6T448BHPH/JIxdTfUs3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Dmitry Vyukov" <dvyukov@google.com>,
-        stable <stable@kernel.org>,
-        syzbot+23f57c5ae902429285d7@syzkaller.appspotmail.com,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        PaX Team <pageexec@freemail.hu>
-Subject: [PATCH 4.19 013/229] usb: mon: make mmapped memory read only
-Date:   Mon, 24 Oct 2022 13:28:52 +0200
-Message-Id: <20221024112959.566961406@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 014/229] USB: serial: ftdi_sio: fix 300 bps rate for SIO
+Date:   Mon, 24 Oct 2022 13:28:53 +0200
+Message-Id: <20221024112959.601347548@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
 References: <20221024112959.085534368@linuxfoundation.org>
@@ -55,47 +51,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@linaro.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit a659daf63d16aa883be42f3f34ff84235c302198 upstream.
+commit 7bd7ad3c310cd6766f170927381eea0aa6f46c69 upstream.
 
-Syzbot found an issue in usbmon module, where the user space client can
-corrupt the monitor's internal memory, causing the usbmon module to
-crash the kernel with segfault, UAF, etc.
+The 300 bps rate of SIO devices has been mapped to 9600 bps since
+2003... Let's fix the regression.
 
-The reproducer mmaps the /dev/usbmon memory to user space, and
-overwrites it with arbitrary data, which causes all kinds of issues.
-
-Return an -EPERM error from mon_bin_mmap() if the flag VM_WRTIE is set.
-Also clear VM_MAYWRITE to make it impossible to change it to writable
-later.
-
-Cc: "Dmitry Vyukov" <dvyukov@google.com>
-Cc: stable <stable@kernel.org>
-Fixes: 6f23ee1fefdc ("USB: add binary API to usbmon")
-Suggested-by: PaX Team <pageexec@freemail.hu>	# for the VM_MAYRITE portion
-Link: https://syzkaller.appspot.com/bug?id=2eb1f35d6525fa4a74d75b4244971e5b1411c95a
-Reported-by: syzbot+23f57c5ae902429285d7@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Link: https://lore.kernel.org/r/20220919215957.205681-1-tadeusz.struk@linaro.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/mon/mon_bin.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/serial/ftdi_sio.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/usb/mon/mon_bin.c
-+++ b/drivers/usb/mon/mon_bin.c
-@@ -1268,6 +1268,11 @@ static int mon_bin_mmap(struct file *fil
- {
- 	/* don't do anything here: "fault" will set up page table entries */
- 	vma->vm_ops = &mon_bin_vm_ops;
-+
-+	if (vma->vm_flags & VM_WRITE)
-+		return -EPERM;
-+
-+	vma->vm_flags &= ~VM_MAYWRITE;
- 	vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
- 	vma->vm_private_data = filp->private_data;
- 	mon_bin_vma_open(vma);
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1304,8 +1304,7 @@ static u32 get_ftdi_divisor(struct tty_s
+ 		case 38400: div_value = ftdi_sio_b38400; break;
+ 		case 57600: div_value = ftdi_sio_b57600;  break;
+ 		case 115200: div_value = ftdi_sio_b115200; break;
+-		} /* baud */
+-		if (div_value == 0) {
++		default:
+ 			dev_dbg(dev, "%s - Baudrate (%d) requested is not supported\n",
+ 				__func__,  baud);
+ 			div_value = ftdi_sio_b9600;
 
 
