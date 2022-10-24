@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D17460B243
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B72FE60B13E
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:17:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234446AbiJXQoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:44:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34408 "EHLO
+        id S234261AbiJXQRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:17:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234878AbiJXQoA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:44:00 -0400
+        with ESMTP id S232119AbiJXQPw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:15:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A33DB85586;
-        Mon, 24 Oct 2022 08:30:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D591038465;
+        Mon, 24 Oct 2022 08:03:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5EFB9B8172A;
-        Mon, 24 Oct 2022 12:35:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABA3BC433D6;
-        Mon, 24 Oct 2022 12:35:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11D2EB81632;
+        Mon, 24 Oct 2022 12:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CD5AC433D7;
+        Mon, 24 Oct 2022 12:16:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614915;
-        bh=BX8VTQIPLJW77cNwpmkb/Yr53Pz0B1c4Ovk/HIEfias=;
+        s=korg; t=1666613773;
+        bh=6Q8RJsXE1kESmQt7BuzCD7VcjKXu9zTMzzTGYbKSZ8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gLPlKegL6ash4IhBPMaRcvnV+I0S31SzGc7VXBCmRKAku6PAjNWJg3WEhCL+nW5/I
-         z72gImGofreT8Apt5/zrImvQGftZESgofZ98sXh3goa71Eme5ULBtEv9gKSrwaWvjE
-         DUV/PtC/1sSi8uqstiL58+c3aKHi/YNR64qqAmyE=
+        b=WCw1HV+c82NiIAiMLFA+N7ruoSuz47XCH1u0sqWOiffVtbELeNS3hnfrivZPjrBqT
+         Rs7C59AZyzAr3bOKrtWJZxd0KnD2e9YYD9v1Xiq2O1UOzbZMRdAX6zNfrzwsUewC/t
+         QDqAzT2tfD3X14aWQQf8PE1AbJBwM+N5ZKLzdybc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 051/530] dmaengine: mxs: use platform_driver_register
-Date:   Mon, 24 Oct 2022 13:26:35 +0200
-Message-Id: <20221024113047.334265511@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 001/390] ALSA: oss: Fix potential deadlock at unregistration
+Date:   Mon, 24 Oct 2022 13:26:38 +0200
+Message-Id: <20221024113022.577845029@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,70 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 26696d4657167112a1079f86cba1739765c1360e upstream.
+commit 97d917879d7f92df09c3f21fd54609a8bcd654b2 upstream.
 
-Driver registration fails on SOC imx8mn as its supplier, the clock
-control module, is probed later than subsys initcall level. This driver
-uses platform_driver_probe which is not compatible with deferred probing
-and won't be probed again later if probe function fails due to clock not
-being available at that time.
+We took sound_oss_mutex around the calls of unregister_sound_special()
+at unregistering OSS devices.  This may, however, lead to a deadlock,
+because we manage the card release via the card's device object, and
+the release may happen at unregister_sound_special() call -- which
+will take sound_oss_mutex again in turn.
 
-This patch replaces the use of platform_driver_probe with
-platform_driver_register which will allow probing the driver later again
-when the clock control module will be available.
+Although the deadlock might be fixed by relaxing the rawmidi mutex in
+the previous commit, it's safer to move unregister_sound_special()
+calls themselves out of the sound_oss_mutex, too.  The call is
+race-safe as the function has a spinlock protection by itself.
 
-The __init annotation has been dropped because it is not compatible with
-deferred probing. The code is not executed once and its memory cannot be
-freed.
-
-Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
-Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/CAB7eexJP7w1B0mVgDF0dQ+gWor7UdkiwPczmL7pn91xx8xpzOA@mail.gmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221011070147.7611-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Link: https://lore.kernel.org/r/20220921170556.1055962-1-dario.binacchi@amarulasolutions.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
 ---
- drivers/dma/mxs-dma.c |   11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ sound/core/sound_oss.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/dma/mxs-dma.c
-+++ b/drivers/dma/mxs-dma.c
-@@ -670,7 +670,7 @@ static enum dma_status mxs_dma_tx_status
- 	return mxs_chan->status;
+--- a/sound/core/sound_oss.c
++++ b/sound/core/sound_oss.c
+@@ -162,7 +162,6 @@ int snd_unregister_oss_device(int type,
+ 		mutex_unlock(&sound_oss_mutex);
+ 		return -ENOENT;
+ 	}
+-	unregister_sound_special(minor);
+ 	switch (SNDRV_MINOR_OSS_DEVICE(minor)) {
+ 	case SNDRV_MINOR_OSS_PCM:
+ 		track2 = SNDRV_MINOR_OSS(cidx, SNDRV_MINOR_OSS_AUDIO);
+@@ -174,12 +173,18 @@ int snd_unregister_oss_device(int type,
+ 		track2 = SNDRV_MINOR_OSS(cidx, SNDRV_MINOR_OSS_DMMIDI1);
+ 		break;
+ 	}
+-	if (track2 >= 0) {
+-		unregister_sound_special(track2);
++	if (track2 >= 0)
+ 		snd_oss_minors[track2] = NULL;
+-	}
+ 	snd_oss_minors[minor] = NULL;
+ 	mutex_unlock(&sound_oss_mutex);
++
++	/* call unregister_sound_special() outside sound_oss_mutex;
++	 * otherwise may deadlock, as it can trigger the release of a card
++	 */
++	unregister_sound_special(minor);
++	if (track2 >= 0)
++		unregister_sound_special(track2);
++
+ 	kfree(mptr);
+ 	return 0;
  }
- 
--static int __init mxs_dma_init(struct mxs_dma_engine *mxs_dma)
-+static int mxs_dma_init(struct mxs_dma_engine *mxs_dma)
- {
- 	int ret;
- 
-@@ -741,7 +741,7 @@ static struct dma_chan *mxs_dma_xlate(st
- 				     ofdma->of_node);
- }
- 
--static int __init mxs_dma_probe(struct platform_device *pdev)
-+static int mxs_dma_probe(struct platform_device *pdev)
- {
- 	struct device_node *np = pdev->dev.of_node;
- 	const struct mxs_dma_type *dma_type;
-@@ -839,10 +839,7 @@ static struct platform_driver mxs_dma_dr
- 		.name	= "mxs-dma",
- 		.of_match_table = mxs_dma_dt_ids,
- 	},
-+	.probe = mxs_dma_probe,
- };
- 
--static int __init mxs_dma_module_init(void)
--{
--	return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
--}
--subsys_initcall(mxs_dma_module_init);
-+builtin_platform_driver(mxs_dma_driver);
 
 
