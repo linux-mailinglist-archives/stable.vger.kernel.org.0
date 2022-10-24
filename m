@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B11460A423
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:05:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 791A260A81B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:01:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232559AbiJXMFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:05:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39548 "EHLO
+        id S235121AbiJXNB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:01:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232968AbiJXMEp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:04:45 -0400
+        with ESMTP id S235378AbiJXNAF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:00:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1646B7CB66;
-        Mon, 24 Oct 2022 04:51:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E75811834;
+        Mon, 24 Oct 2022 05:19:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4090061290;
-        Mon, 24 Oct 2022 11:50:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51BD4C433C1;
-        Mon, 24 Oct 2022 11:50:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06E9A61290;
+        Mon, 24 Oct 2022 12:10:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 155EEC433C1;
+        Mon, 24 Oct 2022 12:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612252;
-        bh=xCxQdsIqbqTUrcEZF9unwa2f9VV/naFt7tQVh//Op7g=;
+        s=korg; t=1666613432;
+        bh=erp1Dq2cXRI9kYCT9NdeySqx+z3DNa6n189hM0YEwPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFjOhmTuN2OE8W00d22bHJY+OFmYtmBKsQiQaGPCHW4wwk5PkZEWT7Lhxfy4/a8Jt
-         /0OKuGzLbEwUhE0NCBfitP2Lt1gKHQpkl+6ijzy0GfygP/Fm2vfxbadVkIAJg+ss8J
-         2EXT0M9VK2+P3HTjWSeXFcdQihGt4nzFC7EDglwA=
+        b=kQPqNYtSN4hxLetGoU/ZDrEaJP0lCglc7dFh6l5rY2nYskAwRYDgiGLL4FmYKRgB2
+         CaaZbWZfhrSHVwVZRVqDxXbHFO4L1sbXVNVoukltnmZur6ostGbRTT+eN0/7JUr1pC
+         NJn0s51qa8dNdqUTggVfZ3wMPxyBzL7XDULhPhVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bob Pearson <rpearsonhpe@gmail.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 127/210] RDMA/rxe: Fix the error caused by qp->sk
-Date:   Mon, 24 Oct 2022 13:30:44 +0200
-Message-Id: <20221024113001.102053019@linuxfoundation.org>
+Subject: [PATCH 5.4 135/255] RDMA/rxe: Fix the error caused by qp->sk
+Date:   Mon, 24 Oct 2022 13:30:45 +0200
+Message-Id: <20221024113007.067610368@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -79,10 +79,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
-index 6647a1628953..2391b0e698a9 100644
+index be3eff792864..89f6d54a4312 100644
 --- a/drivers/infiniband/sw/rxe/rxe_qp.c
 +++ b/drivers/infiniband/sw/rxe/rxe_qp.c
-@@ -871,8 +871,10 @@ static void rxe_qp_do_cleanup(struct work_struct *work)
+@@ -847,8 +847,10 @@ static void rxe_qp_do_cleanup(struct work_struct *work)
  
  	free_rd_atomic_resources(qp);
  
