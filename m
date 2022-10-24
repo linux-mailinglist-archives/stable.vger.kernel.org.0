@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA35160AB69
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:51:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6451F60A7AA
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236607AbiJXNvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:51:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33710 "EHLO
+        id S234600AbiJXMzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:55:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235971AbiJXNvR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:51:17 -0400
+        with ESMTP id S234946AbiJXMyW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:54:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D052BA922;
-        Mon, 24 Oct 2022 05:42:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB20D14D2E;
+        Mon, 24 Oct 2022 05:14:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04C6A612E1;
-        Mon, 24 Oct 2022 12:41:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18DCBC433D6;
-        Mon, 24 Oct 2022 12:41:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23004612B3;
+        Mon, 24 Oct 2022 11:56:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 348DFC433D6;
+        Mon, 24 Oct 2022 11:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615311;
-        bh=qPnxopLTQHV79B90wxJyp54v1UlgLbcth3uYypFrUBQ=;
+        s=korg; t=1666612606;
+        bh=5/+T7+Hbc+gs+Q2MxLjLyv7qCijM55C8bgamH/I/2XQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gbToQm8RANQBKQXiBNc6cRXc4f+mjzZdtlDbeVneiL5GXmm+NOWmv7mkNqUfrLeal
-         l/ZLPFMMqdZBSdZl+qMHFByA3O5P0QASouxeGtWLictj+5RxJSvM3hUHy6Uv+bOpHd
-         ATWuH3g6xzARQt+ZfiHlHzgeEq5lGcKi6Hoitod0=
+        b=ge9O/pTENp2klJzHO4VlyiHqLK3YDCVeS45Wt6/+sEumoQ9FwY/Wg56ridGV1/G+B
+         6Msr6nl1wtyO74eKN4IaF+8t4f1W2tXpWGcC5dCHDKrJJ09l9leMmGfOZ1rOd0YHim
+         7stdK2V+zCQxH6F652gIUO24ZIId/IZkx15uLxpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junichi Uekawa <uekawa@chromium.org>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 195/530] vhost/vsock: Use kvmalloc/kvfree for larger packets.
+        stable@vger.kernel.org,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.19 020/229] nilfs2: replace WARN_ONs by nilfs_error for checkpoint acquisition failure
 Date:   Mon, 24 Oct 2022 13:28:59 +0200
-Message-Id: <20221024113053.872840609@linuxfoundation.org>
+Message-Id: <20221024112959.796764482@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junichi Uekawa <uekawa@chromium.org>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-[ Upstream commit 0e3f72931fc47bb81686020cc643cde5d9cd0bb8 ]
+commit 723ac751208f6d6540191689cfbf6c77135a7a1b upstream.
 
-When copying a large file over sftp over vsock, data size is usually 32kB,
-and kmalloc seems to fail to try to allocate 32 32kB regions.
+If creation or finalization of a checkpoint fails due to anomalies in the
+checkpoint metadata on disk, a kernel warning is generated.
 
- vhost-5837: page allocation failure: order:4, mode:0x24040c0
- Call Trace:
-  [<ffffffffb6a0df64>] dump_stack+0x97/0xdb
-  [<ffffffffb68d6aed>] warn_alloc_failed+0x10f/0x138
-  [<ffffffffb68d868a>] ? __alloc_pages_direct_compact+0x38/0xc8
-  [<ffffffffb664619f>] __alloc_pages_nodemask+0x84c/0x90d
-  [<ffffffffb6646e56>] alloc_kmem_pages+0x17/0x19
-  [<ffffffffb6653a26>] kmalloc_order_trace+0x2b/0xdb
-  [<ffffffffb66682f3>] __kmalloc+0x177/0x1f7
-  [<ffffffffb66e0d94>] ? copy_from_iter+0x8d/0x31d
-  [<ffffffffc0689ab7>] vhost_vsock_handle_tx_kick+0x1fa/0x301 [vhost_vsock]
-  [<ffffffffc06828d9>] vhost_worker+0xf7/0x157 [vhost]
-  [<ffffffffb683ddce>] kthread+0xfd/0x105
-  [<ffffffffc06827e2>] ? vhost_dev_set_owner+0x22e/0x22e [vhost]
-  [<ffffffffb683dcd1>] ? flush_kthread_worker+0xf3/0xf3
-  [<ffffffffb6eb332e>] ret_from_fork+0x4e/0x80
-  [<ffffffffb683dcd1>] ? flush_kthread_worker+0xf3/0xf3
+This patch replaces the WARN_ONs by nilfs_error, so that a kernel, booted
+with panic_on_warn, does not panic.  A nilfs_error is appropriate here to
+handle the abnormal filesystem condition.
 
-Work around by doing kvmalloc instead.
+This also replaces the detected error codes with an I/O error so that
+neither of the internal error codes is returned to callers.
 
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-Signed-off-by: Junichi Uekawa <uekawa@chromium.org>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Link: https://lore.kernel.org/r/20220928064538.667678-1-uekawa@chromium.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220929123330.19658-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+fbb3e0b24e8dae5a16ee@syzkaller.appspotmail.com
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/vsock.c                   | 2 +-
- net/vmw_vsock/virtio_transport_common.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ fs/nilfs2/segment.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index dcb1585819a1..97bfe499222b 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -393,7 +393,7 @@ vhost_vsock_alloc_pkt(struct vhost_virtqueue *vq,
- 		return NULL;
- 	}
- 
--	pkt->buf = kmalloc(pkt->len, GFP_KERNEL);
-+	pkt->buf = kvmalloc(pkt->len, GFP_KERNEL);
- 	if (!pkt->buf) {
- 		kfree(pkt);
- 		return NULL;
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index ec2c2afbf0d0..3a12aee33e92 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1342,7 +1342,7 @@ EXPORT_SYMBOL_GPL(virtio_transport_recv_pkt);
- 
- void virtio_transport_free_pkt(struct virtio_vsock_pkt *pkt)
- {
--	kfree(pkt->buf);
-+	kvfree(pkt->buf);
- 	kfree(pkt);
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -880,9 +880,11 @@ static int nilfs_segctor_create_checkpoi
+ 		nilfs_mdt_mark_dirty(nilfs->ns_cpfile);
+ 		nilfs_cpfile_put_checkpoint(
+ 			nilfs->ns_cpfile, nilfs->ns_cno, bh_cp);
+-	} else
+-		WARN_ON(err == -EINVAL || err == -ENOENT);
+-
++	} else if (err == -EINVAL || err == -ENOENT) {
++		nilfs_error(sci->sc_super,
++			    "checkpoint creation failed due to metadata corruption.");
++		err = -EIO;
++	}
+ 	return err;
  }
- EXPORT_SYMBOL_GPL(virtio_transport_free_pkt);
--- 
-2.35.1
-
+ 
+@@ -896,7 +898,11 @@ static int nilfs_segctor_fill_in_checkpo
+ 	err = nilfs_cpfile_get_checkpoint(nilfs->ns_cpfile, nilfs->ns_cno, 0,
+ 					  &raw_cp, &bh_cp);
+ 	if (unlikely(err)) {
+-		WARN_ON(err == -EINVAL || err == -ENOENT);
++		if (err == -EINVAL || err == -ENOENT) {
++			nilfs_error(sci->sc_super,
++				    "checkpoint finalization failed due to metadata corruption.");
++			err = -EIO;
++		}
+ 		goto failed_ibh;
+ 	}
+ 	raw_cp->cp_snapshot_list.ssl_next = 0;
 
 
