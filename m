@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4529D60B05F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C059960B43C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:32:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232971AbiJXQFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:05:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40792 "EHLO
+        id S233697AbiJXRc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 13:32:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233099AbiJXQEO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:14 -0400
+        with ESMTP id S231709AbiJXRcJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 13:32:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C43C48C91;
-        Mon, 24 Oct 2022 07:56:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F3E412AFB;
+        Mon, 24 Oct 2022 09:07:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12AD5B811BE;
-        Mon, 24 Oct 2022 12:27:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62653C433C1;
-        Mon, 24 Oct 2022 12:27:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F0B8B81687;
+        Mon, 24 Oct 2022 12:28:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CB7CC433D6;
+        Mon, 24 Oct 2022 12:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614473;
-        bh=TSjoHx9SAKNV0MMEJApepwgZRfRkoPzmJXeQfO9jPJ8=;
+        s=korg; t=1666614478;
+        bh=NI1fBXPVYlDZ4B6j6GMBIhhEi5k4CLiLesxDmWTMZN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jh9LGlkc5xR5ChduVwXveTuJ+PXgGMnqLp2Auqg+sM1ZOCkPbO7SCosegAGznxnJZ
-         aMNmE01vl+gVXhoMLSCu2mcAfM/ExOVJ8jTeTGem5I9601vU6dcSRRJH2ROJEGkucq
-         8RcC4KQcJ7qH4NG7Gu90FDklcTOIjAa5XdaecOGA=
+        b=QPYW0c3NgrtsaZFLCqMr93Vr4BPK5MGD5LW4MlgcxowgJ+8TC2gNOZyEwFFByg+1p
+         BvemKqfuf3ztEpPs8AOeZXyAxc+PfXe+xpJ3GDVZ3z68wrSChk62vCUrMYIyl3tJkq
+         V3a9SnT6jewY4jiz7njhQeJNkVUQ+J40TEflAqTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 274/390] cgroup/cpuset: Enable update_tasks_cpumask() on top_cpuset
-Date:   Mon, 24 Oct 2022 13:31:11 +0200
-Message-Id: <20221024113034.598799027@linuxfoundation.org>
+        stable@vger.kernel.org, Ignat Korchagin <ignat@cloudflare.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 276/390] crypto: akcipher - default implementation for setting a private key
+Date:   Mon, 24 Oct 2022 13:31:13 +0200
+Message-Id: <20221024113034.686505466@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -52,69 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Ignat Korchagin <ignat@cloudflare.com>
 
-[ Upstream commit ec5fbdfb99d18482619ac42605cb80fbb56068ee ]
+[ Upstream commit bc155c6c188c2f0c5749993b1405673d25a80389 ]
 
-Previously, update_tasks_cpumask() is not supposed to be called with
-top cpuset. With cpuset partition that takes CPUs away from the top
-cpuset, adjusting the cpus_mask of the tasks in the top cpuset is
-necessary. Percpu kthreads, however, are ignored.
+Changes from v1:
+  * removed the default implementation from set_pub_key: it is assumed that
+    an implementation must always have this callback defined as there are
+    no use case for an algorithm, which doesn't need a public key
 
-Fixes: ee8dde0cd2ce ("cpuset: Add new v2 cpuset.sched.partition flag")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Many akcipher implementations (like ECDSA) support only signature
+verifications, so they don't have all callbacks defined.
+
+Commit 78a0324f4a53 ("crypto: akcipher - default implementations for
+request callbacks") introduced default callbacks for sign/verify
+operations, which just return an error code.
+
+However, these are not enough, because before calling sign the caller would
+likely call set_priv_key first on the instantiated transform (as the
+in-kernel testmgr does). This function does not have a default stub, so the
+kernel crashes, when trying to set a private key on an akcipher, which
+doesn't support signature generation.
+
+I've noticed this, when trying to add a KAT vector for ECDSA signature to
+the testmgr.
+
+With this patch the testmgr returns an error in dmesg (as it should)
+instead of crashing the kernel NULL ptr dereference.
+
+Fixes: 78a0324f4a53 ("crypto: akcipher - default implementations for request callbacks")
+Signed-off-by: Ignat Korchagin <ignat@cloudflare.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cpuset.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ crypto/akcipher.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index b7830f1f1f3a..43270b07b2e0 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -33,6 +33,7 @@
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/kmod.h>
-+#include <linux/kthread.h>
- #include <linux/list.h>
- #include <linux/mempolicy.h>
- #include <linux/mm.h>
-@@ -1059,10 +1060,18 @@ static void update_tasks_cpumask(struct cpuset *cs)
- {
- 	struct css_task_iter it;
- 	struct task_struct *task;
-+	bool top_cs = cs == &top_cpuset;
- 
- 	css_task_iter_start(&cs->css, 0, &it);
--	while ((task = css_task_iter_next(&it)))
-+	while ((task = css_task_iter_next(&it))) {
-+		/*
-+		 * Percpu kthreads in top_cpuset are ignored
-+		 */
-+		if (top_cs && (task->flags & PF_KTHREAD) &&
-+		    kthread_is_per_cpu(task))
-+			continue;
- 		set_cpus_allowed_ptr(task, cs->effective_cpus);
-+	}
- 	css_task_iter_end(&it);
+diff --git a/crypto/akcipher.c b/crypto/akcipher.c
+index f866085c8a4a..ab975a420e1e 100644
+--- a/crypto/akcipher.c
++++ b/crypto/akcipher.c
+@@ -120,6 +120,12 @@ static int akcipher_default_op(struct akcipher_request *req)
+ 	return -ENOSYS;
  }
  
-@@ -2016,12 +2025,7 @@ static int update_prstate(struct cpuset *cs, int new_prs)
- 		update_flag(CS_CPU_EXCLUSIVE, cs, 0);
- 	}
++static int akcipher_default_set_key(struct crypto_akcipher *tfm,
++				     const void *key, unsigned int keylen)
++{
++	return -ENOSYS;
++}
++
+ int crypto_register_akcipher(struct akcipher_alg *alg)
+ {
+ 	struct crypto_alg *base = &alg->base;
+@@ -132,6 +138,8 @@ int crypto_register_akcipher(struct akcipher_alg *alg)
+ 		alg->encrypt = akcipher_default_op;
+ 	if (!alg->decrypt)
+ 		alg->decrypt = akcipher_default_op;
++	if (!alg->set_priv_key)
++		alg->set_priv_key = akcipher_default_set_key;
  
--	/*
--	 * Update cpumask of parent's tasks except when it is the top
--	 * cpuset as some system daemons cannot be mapped to other CPUs.
--	 */
--	if (parent != &top_cpuset)
--		update_tasks_cpumask(parent);
-+	update_tasks_cpumask(parent);
- 
- 	if (parent->child_ecpus_count)
- 		update_sibling_cpumasks(parent, cs, &tmpmask);
+ 	akcipher_prepare_alg(alg);
+ 	return crypto_register_alg(base);
 -- 
 2.35.1
 
