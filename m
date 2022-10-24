@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E45A60A3B5
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:00:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4D8260A2F3
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:49:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230213AbiJXMAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:00:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56342 "EHLO
+        id S231637AbiJXLts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:49:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232396AbiJXL60 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:58:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2571760CA;
-        Mon, 24 Oct 2022 04:47:34 -0700 (PDT)
+        with ESMTP id S231896AbiJXLtK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:49:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E153E275F6;
+        Mon, 24 Oct 2022 04:43:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F90361291;
-        Mon, 24 Oct 2022 11:47:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3243CC433C1;
-        Mon, 24 Oct 2022 11:47:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8264CB81144;
+        Mon, 24 Oct 2022 11:39:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE75DC433C1;
+        Mon, 24 Oct 2022 11:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612051;
-        bh=sM65ncKA0Fp2DSYemjydTSKTheS9f7SXxpox3tYAn2Y=;
+        s=korg; t=1666611556;
+        bh=HBBpffrAAZogUx4OltO2p8Q0Pibr4p0o4OS7Dboa33g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNqBN8ku60M9m9AqrE/vJ1Yo2Rr9q30ZqB++9ynbZORSWK/cGzyqvCEpZsq08yUb9
-         /48hb3t3FKRLKLCrpNBUw/VLxQ8F75k3C2bbwk6hOysiNWmLXNAyHphcduDzInkBuK
-         GBu1WMWbA0dt+F3qi0QtZgXA5poMp8iHAtYpZWtU=
+        b=eSZE+DNLGwCGyHFMC3xxYhdenDhWqRz+FXx85GhxOhch+tmc4buIH4npr/iDDCZfq
+         2wW07k88ChxfpD05DpvXcZctE/yZxikoceV/EqRVL0YMDPvhOv+jMOEbktP7uTKPGF
+         N2plFa6s7hn89DqQA33BGxh51q/gbyYgnIoBFhbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 051/210] ALSA: rawmidi: Drop register_mutex in snd_rawmidi_free()
-Date:   Mon, 24 Oct 2022 13:29:28 +0200
-Message-Id: <20221024112958.649197190@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 4.9 016/159] Makefile.extrawarn: Move -Wcast-function-type-strict to W=1
+Date:   Mon, 24 Oct 2022 13:29:30 +0200
+Message-Id: <20221024112949.948390655@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,38 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-commit a70aef7982b012e86dfd39fbb235e76a21ae778a upstream.
+commit 2120635108b35ecad9c59c8b44f6cbdf4f98214e upstream.
 
-The register_mutex taken around the dev_unregister callback call in
-snd_rawmidi_free() may potentially lead to a mutex deadlock, when OSS
-emulation and a hot unplug are involved.
+We enable -Wcast-function-type globally in the kernel to warn about
+mismatching types in function pointer casts. Compilers currently
+warn only about ABI incompability with this flag, but Clang 16 will
+enable a stricter version of the check by default that checks for an
+exact type match. This will be very noisy in the kernel, so disable
+-Wcast-function-type-strict without W=1 until the new warnings have
+been addressed.
 
-Since the mutex doesn't protect the actual race (as the registration
-itself is already protected by another means), let's drop it.
-
-Link: https://lore.kernel.org/r/CAB7eexJP7w1B0mVgDF0dQ+gWor7UdkiwPczmL7pn91xx8xpzOA@mail.gmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221011070147.7611-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://reviews.llvm.org/D134831
+Link: https://github.com/ClangBuiltLinux/linux/issues/1724
+Suggested-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220930203310.4010564-1-samitolvanen@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/rawmidi.c |    2 --
- 1 file changed, 2 deletions(-)
+ scripts/Makefile.extrawarn |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/rawmidi.c
-+++ b/sound/core/rawmidi.c
-@@ -1633,10 +1633,8 @@ static int snd_rawmidi_free(struct snd_r
- 
- 	snd_info_free_entry(rmidi->proc_entry);
- 	rmidi->proc_entry = NULL;
--	mutex_lock(&register_mutex);
- 	if (rmidi->ops && rmidi->ops->dev_unregister)
- 		rmidi->ops->dev_unregister(rmidi);
--	mutex_unlock(&register_mutex);
- 
- 	snd_rawmidi_free_substreams(&rmidi->streams[SNDRV_RAWMIDI_STREAM_INPUT]);
- 	snd_rawmidi_free_substreams(&rmidi->streams[SNDRV_RAWMIDI_STREAM_OUTPUT]);
+--- a/scripts/Makefile.extrawarn
++++ b/scripts/Makefile.extrawarn
+@@ -72,5 +72,6 @@ KBUILD_CFLAGS += $(call cc-disable-warni
+ KBUILD_CFLAGS += $(call cc-disable-warning, uninitialized)
+ KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
+ KBUILD_CFLAGS += $(call cc-disable-warning, unaligned-access)
++KBUILD_CFLAGS += $(call cc-disable-warning, cast-function-type-strict)
+ endif
+ endif
 
 
