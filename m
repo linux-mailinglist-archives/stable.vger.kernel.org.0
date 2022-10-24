@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D880A60A802
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:00:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C19A60A9ED
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:26:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234968AbiJXNAr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:00:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42984 "EHLO
+        id S232315AbiJXN0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:26:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235189AbiJXM7g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:59:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCDDC8168B;
-        Mon, 24 Oct 2022 05:19:05 -0700 (PDT)
+        with ESMTP id S236253AbiJXNYv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:24:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 766E088A06;
+        Mon, 24 Oct 2022 05:30:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DF22612E1;
-        Mon, 24 Oct 2022 11:53:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 422BFC433C1;
-        Mon, 24 Oct 2022 11:53:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BFCF61330;
+        Mon, 24 Oct 2022 12:29:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 208E2C433D6;
+        Mon, 24 Oct 2022 12:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612407;
-        bh=vE5rL+QOIEbIK8xVnEOaxCra1ZgilolzKDEk5wzU78s=;
+        s=korg; t=1666614557;
+        bh=s/TgH2cZHDS2UeT0O4dRQAweALS5Vjeej9+FSzcTV9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/lbCdeVB3B/FEWDkCwVUoUGMo++i0oegFHRSq2s4JIaPLYauxYtqRg79+wPrjQgw
-         LjiIWgFnxJPJ+pBVYjq/6zlpcvyTCt4LIUWlnmrmguy7UFRBrUPlHF1hMJm7R03JZ7
-         voxlmIdbxmkT47vefwCOS0MjqtPE9E9gsBMhKiuk=
+        b=dCdCVu3OAUtfAGnxHeFcvJ6NEEYb7p7A3Yg5um20KOgcjY7C40ED99oVgTpRrFHOB
+         U/T9SGL8oOVEw6drLtDP+QK1bCdwgN5WI39gzR8Grxc+bJcizqVrpvjf9q3CwZHrPi
+         dXm3+2mnSucz/AwIjVfcUKDQSCA6lYDFMDTy/HCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Quentin Monnet <quentin@isovalent.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 186/210] drm/vc4: vec: Fix timings for VEC modes
+Subject: [PATCH 5.10 306/390] bpftool: Clear errno after libcaps checks
 Date:   Mon, 24 Oct 2022 13:31:43 +0200
-Message-Id: <20221024113002.996469012@linuxfoundation.org>
+Message-Id: <20221024113036.032845428@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
+From: Quentin Monnet <quentin@isovalent.com>
 
-[ Upstream commit 30d7565be96b3946c18a1ce3fd538f7946839092 ]
+[ Upstream commit cea558855c39b7f1f02ff50dcf701ca6596bc964 ]
 
-This commit fixes vertical timings of the VEC (composite output) modes
-to accurately represent the 525-line ("NTSC") and 625-line ("PAL") ITU-R
-standards.
+When bpftool is linked against libcap, the library runs a "constructor"
+function to compute the number of capabilities of the running kernel
+[0], at the beginning of the execution of the program. As part of this,
+it performs multiple calls to prctl(). Some of these may fail, and set
+errno to a non-zero value:
 
-Previous timings were actually defined as 502 and 601 lines, resulting
-in non-standard 62.69 Hz and 52 Hz signals being generated,
-respectively.
+    # strace -e prctl ./bpftool version
+    prctl(PR_CAPBSET_READ, CAP_MAC_OVERRIDE) = 1
+    prctl(PR_CAPBSET_READ, 0x30 /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    prctl(PR_CAPBSET_READ, CAP_CHECKPOINT_RESTORE) = 1
+    prctl(PR_CAPBSET_READ, 0x2c /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    prctl(PR_CAPBSET_READ, 0x2a /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    prctl(PR_CAPBSET_READ, 0x29 /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    ** fprintf added at the top of main(): we have errno == 1
+    ./bpftool v7.0.0
+    using libbpf v1.0
+    features: libbfd, libbpf_strict, skeletons
+    +++ exited with 0 +++
 
-Signed-off-by: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
-Acked-by: Noralf Trønnes <noralf@tronnes.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220728-rpi-analog-tv-properties-v2-28-459522d653a7@cerno.tech
+This has been addressed in libcap 2.63 [1], but until this version is
+available everywhere, we can fix it on bpftool side.
+
+Let's clean errno at the beginning of the main() function, to make sure
+that these checks do not interfere with the batch mode, where we error
+out if errno is set after a bpftool command.
+
+  [0] https://git.kernel.org/pub/scm/libs/libcap/libcap.git/tree/libcap/cap_alloc.c?h=libcap-2.65#n20
+  [1] https://git.kernel.org/pub/scm/libs/libcap/libcap.git/commit/?id=f25a1b7e69f7b33e6afb58b3e38f3450b7d2d9a0
+
+Signed-off-by: Quentin Monnet <quentin@isovalent.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220815162205.45043-1-quentin@isovalent.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_vec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/bpf/bpftool/main.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_vec.c b/drivers/gpu/drm/vc4/vc4_vec.c
-index 3a9a302247a2..bcf7880f84a8 100644
---- a/drivers/gpu/drm/vc4/vc4_vec.c
-+++ b/drivers/gpu/drm/vc4/vc4_vec.c
-@@ -291,7 +291,7 @@ static void vc4_vec_ntsc_j_mode_set(struct vc4_vec *vec)
- static const struct drm_display_mode ntsc_mode = {
- 	DRM_MODE("720x480", DRM_MODE_TYPE_DRIVER, 13500,
- 		 720, 720 + 14, 720 + 14 + 64, 720 + 14 + 64 + 60, 0,
--		 480, 480 + 3, 480 + 3 + 3, 480 + 3 + 3 + 16, 0,
-+		 480, 480 + 7, 480 + 7 + 6, 525, 0,
- 		 DRM_MODE_FLAG_INTERLACE)
- };
+diff --git a/tools/bpf/bpftool/main.c b/tools/bpf/bpftool/main.c
+index 1854d6b97860..4fd4e3462ebc 100644
+--- a/tools/bpf/bpftool/main.c
++++ b/tools/bpf/bpftool/main.c
+@@ -398,6 +398,16 @@ int main(int argc, char **argv)
  
-@@ -313,7 +313,7 @@ static void vc4_vec_pal_m_mode_set(struct vc4_vec *vec)
- static const struct drm_display_mode pal_mode = {
- 	DRM_MODE("720x576", DRM_MODE_TYPE_DRIVER, 13500,
- 		 720, 720 + 20, 720 + 20 + 64, 720 + 20 + 64 + 60, 0,
--		 576, 576 + 2, 576 + 2 + 3, 576 + 2 + 3 + 20, 0,
-+		 576, 576 + 4, 576 + 4 + 6, 625, 0,
- 		 DRM_MODE_FLAG_INTERLACE)
- };
+ 	setlinebuf(stdout);
  
++#ifdef USE_LIBCAP
++	/* Libcap < 2.63 hooks before main() to compute the number of
++	 * capabilities of the running kernel, and doing so it calls prctl()
++	 * which may fail and set errno to non-zero.
++	 * Let's reset errno to make sure this does not interfere with the
++	 * batch mode.
++	 */
++	errno = 0;
++#endif
++
+ 	last_do_help = do_help;
+ 	pretty_output = false;
+ 	json_output = false;
 -- 
 2.35.1
 
