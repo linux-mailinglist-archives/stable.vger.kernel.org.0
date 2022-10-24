@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBF7B60B98D
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:14:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C17AB60BA63
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233971AbiJXUO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:14:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33844 "EHLO
+        id S231408AbiJXUgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:36:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233896AbiJXUNs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:13:48 -0400
+        with ESMTP id S231200AbiJXUgP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:36:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DF9D17066;
-        Mon, 24 Oct 2022 11:31:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A9271946F6;
+        Mon, 24 Oct 2022 11:48:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C74BB818D7;
-        Mon, 24 Oct 2022 12:49:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4742C433D7;
-        Mon, 24 Oct 2022 12:49:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA2E7B81148;
+        Mon, 24 Oct 2022 12:04:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D79FC433C1;
+        Mon, 24 Oct 2022 12:04:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615796;
-        bh=lGARC4Nn7ejgyBy9Z2BSKfmVxSfgD1+Vzdjc7iZZwQw=;
+        s=korg; t=1666613040;
+        bh=hbrNI6UZGqIUMmr7wMjGk5RiYuUfR5NKahn1VHVNLng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o5JM+Vk3aifHMPb9eCnhOAeK9RWFyDvoFhmSm+aEZnNtaEgzLR0QV+mqS+WCHgZnb
-         4jxkJb7agRAIFnyUpHgHhatVGN9B/v78Q+nLu7Qyj2MBssOrQ62IU0xrt0lyUOEyjl
-         6uJR7juEX3CfHIo4t6RFGVz7MNzqRH24AXYMrH9Y=
+        b=d+qtJV0GF7IW2ea/INsvnwyjqXKjujcB53/k4skNUPPHXusSgTMa+RtVucrGaYpkI
+         hlbjf2Wjj7P0q88ucGEkqN55vCoO7xuSFeeDpLJEa2hzDOT2grUHdNwr03zx8Bg4I1
+         9T/nGgFq+2zLnt5kotzvumSq5kmv68b+hd1cApyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Enzo Matsumiya <ematsumiya@suse.de>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 386/530] cifs: return correct error in ->calc_signature()
-Date:   Mon, 24 Oct 2022 13:32:10 +0200
-Message-Id: <20221024113102.534278772@linuxfoundation.org>
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 214/229] md/raid5: Wait for MD_SB_CHANGE_PENDING in raid5d
+Date:   Mon, 24 Oct 2022 13:32:13 +0200
+Message-Id: <20221024113006.135387848@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +52,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enzo Matsumiya <ematsumiya@suse.de>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 09a1f9a168ae1f69f701689429871793174417d2 ]
+[ Upstream commit 5e2cf333b7bd5d3e62595a44d598a254c697cd74 ]
 
-If an error happens while getting the key or session in the
-->calc_signature implementations, 0 (success) is returned. Fix it by
-returning a proper error code.
+A complicated deadlock exists when using the journal and an elevated
+group_thrtead_cnt. It was found with loop devices, but its not clear
+whether it can be seen with real disks. The deadlock can occur simply
+by writing data with an fio script.
 
-Since it seems to be highly unlikely to happen wrap the rc check in
-unlikely() too.
+When the deadlock occurs, multiple threads will hang in different ways:
 
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Fixes: 32811d242ff6 ("cifs: Start using per session key for smb2/3 for signature generation")
-Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+ 1) The group threads will hang in the blk-wbt code with bios waiting to
+    be submitted to the block layer:
+
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        ops_run_io+0x46b/0x1a30
+        handle_stripe+0xcd3/0x36b0
+        handle_active_stripes.constprop.0+0x6f6/0xa60
+        raid5_do_work+0x177/0x330
+
+    Or:
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        flush_deferred_bios+0x136/0x170
+        raid5_do_work+0x262/0x330
+
+ 2) The r5l_reclaim thread will hang in the same way, submitting a
+    bio to the block layer:
+
+        io_schedule+0x70/0xb0
+        rq_qos_wait+0x153/0x210
+        wbt_wait+0x115/0x1b0
+        __rq_qos_throttle+0x38/0x60
+        blk_mq_submit_bio+0x589/0xcd0
+        __submit_bio+0xe6/0x100
+        submit_bio_noacct_nocheck+0x42e/0x470
+        submit_bio_noacct+0x4c2/0xbb0
+        submit_bio+0x3f/0xf0
+        md_super_write+0x12f/0x1b0
+        md_update_sb.part.0+0x7c6/0xff0
+        md_update_sb+0x30/0x60
+        r5l_do_reclaim+0x4f9/0x5e0
+        r5l_reclaim_thread+0x69/0x30b
+
+    However, before hanging, the MD_SB_CHANGE_PENDING flag will be
+    set for sb_flags in r5l_write_super_and_discard_space(). This
+    flag will never be cleared because the submit_bio() call never
+    returns.
+
+ 3) Due to the MD_SB_CHANGE_PENDING flag being set, handle_stripe()
+    will do no processing on any pending stripes and re-set
+    STRIPE_HANDLE. This will cause the raid5d thread to enter an
+    infinite loop, constantly trying to handle the same stripes
+    stuck in the queue.
+
+    The raid5d thread has a blk_plug that holds a number of bios
+    that are also stuck waiting seeing the thread is in a loop
+    that never schedules. These bios have been accounted for by
+    blk-wbt thus preventing the other threads above from
+    continuing when they try to submit bios. --Deadlock.
+
+To fix this, add the same wait_event() that is used in raid5_do_work()
+to raid5d() such that if MD_SB_CHANGE_PENDING is set, the thread will
+schedule and wait until the flag is cleared. The schedule action will
+flush the plug which will allow the r5l_reclaim thread to continue,
+thus preventing the deadlock.
+
+However, md_check_recovery() calls can also clear MD_SB_CHANGE_PENDING
+from the same thread and can thus deadlock if the thread is put to
+sleep. So avoid waiting if md_check_recovery() is being called in the
+loop.
+
+It's not clear when the deadlock was introduced, but the similar
+wait_event() call in raid5_do_work() was added in 2017 by this
+commit:
+
+    16d997b78b15 ("md/raid5: simplfy delaying of writes while metadata
+                   is updated.")
+
+Link: https://lore.kernel.org/r/7f3b87b6-b52a-f737-51d7-a4eec5c44112@deltatee.com
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2transport.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/md/raid5.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/fs/cifs/smb2transport.c
-+++ b/fs/cifs/smb2transport.c
-@@ -221,9 +221,9 @@ smb2_calc_signature(struct smb_rqst *rqs
- 	struct smb_rqst drqst;
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 3310f670a4ab..7fe0619c487a 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -44,6 +44,7 @@
+  */
  
- 	ses = smb2_find_smb_ses(server, shdr->SessionId);
--	if (!ses) {
-+	if (unlikely(!ses)) {
- 		cifs_server_dbg(VFS, "%s: Could not find session\n", __func__);
--		return 0;
-+		return -ENOENT;
+ #include <linux/blkdev.h>
++#include <linux/delay.h>
+ #include <linux/kthread.h>
+ #include <linux/raid/pq.h>
+ #include <linux/async_tx.h>
+@@ -6329,7 +6330,18 @@ static void raid5d(struct md_thread *thread)
+ 			spin_unlock_irq(&conf->device_lock);
+ 			md_check_recovery(mddev);
+ 			spin_lock_irq(&conf->device_lock);
++
++			/*
++			 * Waiting on MD_SB_CHANGE_PENDING below may deadlock
++			 * seeing md_check_recovery() is needed to clear
++			 * the flag when using mdmon.
++			 */
++			continue;
+ 		}
++
++		wait_event_lock_irq(mddev->sb_wait,
++			!test_bit(MD_SB_CHANGE_PENDING, &mddev->sb_flags),
++			conf->device_lock);
  	}
+ 	pr_debug("%d stripes handled\n", handled);
  
- 	memset(smb2_signature, 0x0, SMB2_HMACSHA256_SIZE);
-@@ -542,8 +542,10 @@ smb3_calc_signature(struct smb_rqst *rqs
- 	u8 key[SMB3_SIGN_KEY_SIZE];
- 
- 	rc = smb2_get_sign_key(shdr->SessionId, server, key);
--	if (rc)
--		return 0;
-+	if (unlikely(rc)) {
-+		cifs_server_dbg(VFS, "%s: Could not get signing key\n", __func__);
-+		return rc;
-+	}
- 
- 	if (allocate_crypto) {
- 		rc = cifs_alloc_hash("cmac(aes)", &hash, &sdesc);
+-- 
+2.35.1
+
 
 
