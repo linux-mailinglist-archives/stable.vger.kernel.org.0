@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10A7260A7A2
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:54:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0143760A911
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:15:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230327AbiJXMy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:54:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60704 "EHLO
+        id S235664AbiJXNO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:14:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234817AbiJXMyG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:54:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9153895B3;
-        Mon, 24 Oct 2022 05:14:23 -0700 (PDT)
+        with ESMTP id S235872AbiJXNOB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:14:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F31333BC6A;
+        Mon, 24 Oct 2022 05:25:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 657C8612D5;
-        Mon, 24 Oct 2022 12:06:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AC2BC433D6;
-        Mon, 24 Oct 2022 12:06:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AB826128E;
+        Mon, 24 Oct 2022 12:24:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E9EC433C1;
+        Mon, 24 Oct 2022 12:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613179;
-        bh=nThvYlMCokv6gXc3/lKR2WMS3hubHiyAx5INGUND/qw=;
+        s=korg; t=1666614239;
+        bh=zT6MDUv1/e0ceaKhgr+62ulahZ4sloOaOytnAgt472Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gdibjvGothA0ZsTD0B3zBYEm0xxwMa1p5ocdescMIy+kBXjS8XdmgtrHhZZoBGBlB
-         K3SIRDfaQNsKB2i6ySbfkjZcTnYyNo8b086pfuTY1s55hH5mxD6GP398cFFGhOkYT9
-         ax0Sihhpl7LCYGr0n/TdK3C/MXism4KUc7QvW3Hw=
+        b=D58szVF4dQdH+LncKC1IOPB3MqSD46wlnsyH+5kAFyeRlcnxV/t5XtNWXEfwEB3JX
+         X1zazr/OHud48EZW0QhN2HFriYYE2IEimnbMbj5099FD4o0sP6yWERWKfK0OmrXY3z
+         ZOXYOTLqv8O02OZGvs0VpOmuKEMpson7o7Qtm/pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+b8c672b0e22615c80fe0@syzkaller.appspotmail.com,
-        Khalid Masum <khalid.masum.92@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 039/255] nilfs2: fix use-after-free bug of struct nilfs_root
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 152/390] platform/x86: msi-laptop: Fix old-ec check for backlight registering
 Date:   Mon, 24 Oct 2022 13:29:09 +0200
-Message-Id: <20221024113003.729627889@linuxfoundation.org>
+Message-Id: <20221024113029.154824734@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit d325dc6eb763c10f591c239550b8c7e5466a5d09 upstream.
+[ Upstream commit 83ac7a1c2ed5f17caa07cbbc84bad3c05dc3bf22 ]
 
-If the beginning of the inode bitmap area is corrupted on disk, an inode
-with the same inode number as the root inode can be allocated and fail
-soon after.  In this case, the subsequent call to nilfs_clear_inode() on
-that bogus root inode will wrongly decrement the reference counter of
-struct nilfs_root, and this will erroneously free struct nilfs_root,
-causing kernel oopses.
+Commit 2cc6c717799f ("msi-laptop: Port to new backlight interface
+selection API") replaced this check:
 
-This fixes the problem by changing nilfs_new_inode() to skip reserved
-inode numbers while repairing the inode bitmap.
+	if (!quirks->old_ec_model || acpi_video_backlight_support())
+		pr_info("Brightness ignored, ...");
+	else
+		do_register();
 
-Link: https://lkml.kernel.org/r/20221003150519.39789-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+b8c672b0e22615c80fe0@syzkaller.appspotmail.com
-Reported-by: Khalid Masum <khalid.masum.92@gmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+With:
+
+	if (quirks->old_ec_model ||
+	    acpi_video_get_backlight_type() == acpi_backlight_vendor)
+		do_register();
+
+But since the do_register() part was part of the else branch, the entire
+condition should be inverted.  So not only the 2 statements on either
+side of the || should be inverted, but the || itself should be replaced
+with a &&.
+
+In practice this has likely not been an issue because the new-ec models
+(old_ec_model==false) likely all support ACPI video backlight control,
+making acpi_video_get_backlight_type() return acpi_backlight_video
+turning the second part of the || also false when old_ec_model == false.
+
+Fixes: 2cc6c717799f ("msi-laptop: Port to new backlight interface selection API")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220825141336.208597-1-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/inode.c |   18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/platform/x86/msi-laptop.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/nilfs2/inode.c
-+++ b/fs/nilfs2/inode.c
-@@ -340,6 +340,7 @@ struct inode *nilfs_new_inode(struct ino
- 	struct inode *inode;
- 	struct nilfs_inode_info *ii;
- 	struct nilfs_root *root;
-+	struct buffer_head *bh;
- 	int err = -ENOMEM;
- 	ino_t ino;
+diff --git a/drivers/platform/x86/msi-laptop.c b/drivers/platform/x86/msi-laptop.c
+index 24ffc8e2d2d1..0960205ee49f 100644
+--- a/drivers/platform/x86/msi-laptop.c
++++ b/drivers/platform/x86/msi-laptop.c
+@@ -1048,8 +1048,7 @@ static int __init msi_init(void)
+ 		return -EINVAL;
  
-@@ -355,11 +356,26 @@ struct inode *nilfs_new_inode(struct ino
- 	ii->i_state = BIT(NILFS_I_NEW);
- 	ii->i_root = root;
- 
--	err = nilfs_ifile_create_inode(root->ifile, &ino, &ii->i_bh);
-+	err = nilfs_ifile_create_inode(root->ifile, &ino, &bh);
- 	if (unlikely(err))
- 		goto failed_ifile_create_inode;
- 	/* reference count of i_bh inherits from nilfs_mdt_read_block() */
- 
-+	if (unlikely(ino < NILFS_USER_INO)) {
-+		nilfs_msg(sb, KERN_WARNING,
-+			  "inode bitmap is inconsistent for reserved inodes");
-+		do {
-+			brelse(bh);
-+			err = nilfs_ifile_create_inode(root->ifile, &ino, &bh);
-+			if (unlikely(err))
-+				goto failed_ifile_create_inode;
-+		} while (ino < NILFS_USER_INO);
-+
-+		nilfs_msg(sb, KERN_INFO,
-+			  "repaired inode bitmap for reserved inodes");
-+	}
-+	ii->i_bh = bh;
-+
- 	atomic64_inc(&root->inodes_count);
- 	inode_init_owner(inode, dir, mode);
- 	inode->i_ino = ino;
+ 	/* Register backlight stuff */
+-
+-	if (quirks->old_ec_model ||
++	if (quirks->old_ec_model &&
+ 	    acpi_video_get_backlight_type() == acpi_backlight_vendor) {
+ 		struct backlight_properties props;
+ 		memset(&props, 0, sizeof(struct backlight_properties));
+-- 
+2.35.1
+
 
 
