@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 090F360A939
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F2660A4FC
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235828AbiJXNRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:17:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36994 "EHLO
+        id S232997AbiJXMUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:20:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235825AbiJXNPo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:15:44 -0400
+        with ESMTP id S233299AbiJXMTI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFA395B13E;
-        Mon, 24 Oct 2022 05:26:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5087B29B;
+        Mon, 24 Oct 2022 04:57:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7127E612A0;
-        Mon, 24 Oct 2022 12:25:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86A7CC433C1;
-        Mon, 24 Oct 2022 12:25:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A26F61300;
+        Mon, 24 Oct 2022 11:57:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D26BC433C1;
+        Mon, 24 Oct 2022 11:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614331;
-        bh=c1UlfST0IreGSVgy1VtrSqlHFdH8zsS8igVObdDVohA=;
+        s=korg; t=1666612648;
+        bh=jUROC4zzUDnOqA3R2EJJIUBUUCj8PuAErpT09V3rKDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkfDjagW7skjLdP6F11f+6sGGAQ+6BWoAVyusBvs9zN8x3Uh03i019giuTkrTlBBs
-         u55xvOvPF+c3NgS5w0ZmtuRO1PcVLjqZpxMxe84BGVw8puoT9EQUTbMfYiwC/Q8GAK
-         R0gHAJJpWLD2KuDffW2n/zGYZZgc+SZv9WasVw3o=
+        b=bDsBFMNf5nfDP8KIxRmsB7cvRYQVnPabDPN/+6IbL0k/SCFR1EB6KPMrg1NgNuRhB
+         58iLy30bEwNbXavpZ0z/4aq/i1xp/r2mzKWtGen62WAZ3sGux6qx84CP1V5iJFz8Mq
+         t2cIQnyBi/j8laYW5LoQuvkZ84m3eUxW7EIG16oA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 188/390] iio: adc: at91-sama5d2_adc: disable/prepare buffer on suspend/resume
-Date:   Mon, 24 Oct 2022 13:29:45 +0200
-Message-Id: <20221024113030.767076920@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Luczaj <mhal@rbox.co>,
+        Sean Christopherson <seanjc@google.com>
+Subject: [PATCH 4.19 067/229] KVM: x86/emulator: Fix handing of POP SS to correctly set interruptibility
+Date:   Mon, 24 Oct 2022 13:29:46 +0200
+Message-Id: <20221024113001.252481650@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Michal Luczaj <mhal@rbox.co>
 
-[ Upstream commit 808175e21d9b7f866eda742e8970f27b78afe5db ]
+commit 6aa5c47c351b22c21205c87977c84809cd015fcf upstream.
 
-In case triggered buffers are enabled while system is suspended they will
-not work anymore after resume. For this call at91_adc_buffer_postdisable()
-on suspend and at91_adc_buffer_prepare() on resume. On tests it has been
-seen that at91_adc_buffer_postdisable() call is not necessary but it has
-been kept because it also does the book keeping for DMA. On resume path
-there is no need to call at91_adc_configure_touch() as it is embedded in
-at91_adc_buffer_prepare().
+The emulator checks the wrong variable while setting the CPU
+interruptibility state, the target segment is embedded in the instruction
+opcode, not the ModR/M register.  Fix the condition.
 
-Fixes: 073c662017f2f ("iio: adc: at91-sama5d2_adc: add support for DMA")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220803102855.2191070-5-claudiu.beznea@microchip.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Michal Luczaj <mhal@rbox.co>
+Fixes: a5457e7bcf9a ("KVM: emulate: POP SS triggers a MOV SS shadow too")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/all/20220821215900.1419215-1-mhal@rbox.co
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/at91-sama5d2_adc.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ arch/x86/kvm/emulate.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
-index ef6dc85024c1..250b78ee1625 100644
---- a/drivers/iio/adc/at91-sama5d2_adc.c
-+++ b/drivers/iio/adc/at91-sama5d2_adc.c
-@@ -1907,6 +1907,9 @@ static __maybe_unused int at91_adc_suspend(struct device *dev)
- 	struct iio_dev *indio_dev = dev_get_drvdata(dev);
- 	struct at91_adc_state *st = iio_priv(indio_dev);
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -1975,7 +1975,7 @@ static int em_pop_sreg(struct x86_emulat
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return rc;
  
-+	if (iio_buffer_enabled(indio_dev))
-+		at91_adc_buffer_postdisable(indio_dev);
-+
- 	/*
- 	 * Do a sofware reset of the ADC before we go to suspend.
- 	 * this will ensure that all pins are free from being muxed by the ADC
-@@ -1950,14 +1953,11 @@ static __maybe_unused int at91_adc_resume(struct device *dev)
- 	if (!iio_buffer_enabled(indio_dev))
- 		return 0;
- 
--	/* check if we are enabling triggered buffer or the touchscreen */
--	if (at91_adc_current_chan_is_touch(indio_dev))
--		return at91_adc_configure_touch(st, true);
--	else
--		return at91_adc_configure_trigger(st->trig, true);
-+	ret = at91_adc_buffer_prepare(indio_dev);
-+	if (ret)
-+		goto vref_disable_resume;
- 
--	/* not needed but more explicit */
--	return 0;
-+	return at91_adc_configure_trigger(st->trig, true);
- 
- vref_disable_resume:
- 	regulator_disable(st->vref);
--- 
-2.35.1
-
+-	if (ctxt->modrm_reg == VCPU_SREG_SS)
++	if (seg == VCPU_SREG_SS)
+ 		ctxt->interruptibility = KVM_X86_SHADOW_INT_MOV_SS;
+ 	if (ctxt->op_bytes > 2)
+ 		rsp_increment(ctxt, ctxt->op_bytes - 2);
 
 
