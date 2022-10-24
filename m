@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C17AB60BA63
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:37:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95EE160BC6F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 23:46:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231408AbiJXUgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:36:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35234 "EHLO
+        id S230406AbiJXVqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 17:46:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231200AbiJXUgP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:36:15 -0400
+        with ESMTP id S230403AbiJXVqK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 17:46:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A9271946F6;
-        Mon, 24 Oct 2022 11:48:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A43062EA949;
+        Mon, 24 Oct 2022 12:57:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA2E7B81148;
-        Mon, 24 Oct 2022 12:04:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D79FC433C1;
-        Mon, 24 Oct 2022 12:04:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D73DB8162D;
+        Mon, 24 Oct 2022 12:15:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E38DCC433D6;
+        Mon, 24 Oct 2022 12:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613040;
-        bh=hbrNI6UZGqIUMmr7wMjGk5RiYuUfR5NKahn1VHVNLng=;
+        s=korg; t=1666613755;
+        bh=taxUfp8kazFUkRPz0vnQPhk9pwyhF/QDE/9ci5+0rf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+qtJV0GF7IW2ea/INsvnwyjqXKjujcB53/k4skNUPPHXusSgTMa+RtVucrGaYpkI
-         hlbjf2Wjj7P0q88ucGEkqN55vCoO7xuSFeeDpLJEa2hzDOT2grUHdNwr03zx8Bg4I1
-         9T/nGgFq+2zLnt5kotzvumSq5kmv68b+hd1cApyU=
+        b=Ey0iDlGh5cfpWsp3teHGhn+ktil1HlINGL7s2Fn1v0m+lTTrnXEEXlzB+owQ8Q3wZ
+         DnGAZBMoksqwLwyxJRN3Vhk+Er4D9jXq5qQyZh1eoeAZn4iimDJsPPo3dE8A5TqFpw
+         TyUAz6gUldDPEuaGZAPwKm4sTGoEXQrUVM0/cEh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 214/229] md/raid5: Wait for MD_SB_CHANGE_PENDING in raid5d
-Date:   Mon, 24 Oct 2022 13:32:13 +0200
-Message-Id: <20221024113006.135387848@linuxfoundation.org>
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 228/255] media: cx88: Fix a null-ptr-deref bug in buffer_prepare()
+Date:   Mon, 24 Oct 2022 13:32:18 +0200
+Message-Id: <20221024113010.704603529@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,143 +54,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 5e2cf333b7bd5d3e62595a44d598a254c697cd74 ]
+[ Upstream commit 2b064d91440b33fba5b452f2d1b31f13ae911d71 ]
 
-A complicated deadlock exists when using the journal and an elevated
-group_thrtead_cnt. It was found with loop devices, but its not clear
-whether it can be seen with real disks. The deadlock can occur simply
-by writing data with an fio script.
+When the driver calls cx88_risc_buffer() to prepare the buffer, the
+function call may fail, resulting in a empty buffer and null-ptr-deref
+later in buffer_queue().
 
-When the deadlock occurs, multiple threads will hang in different ways:
+The following log can reveal it:
 
- 1) The group threads will hang in the blk-wbt code with bios waiting to
-    be submitted to the block layer:
+[   41.822762] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN PTI
+[   41.824488] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+[   41.828027] RIP: 0010:buffer_queue+0xc2/0x500
+[   41.836311] Call Trace:
+[   41.836945]  __enqueue_in_driver+0x141/0x360
+[   41.837262]  vb2_start_streaming+0x62/0x4a0
+[   41.838216]  vb2_core_streamon+0x1da/0x2c0
+[   41.838516]  __vb2_init_fileio+0x981/0xbc0
+[   41.839141]  __vb2_perform_fileio+0xbf9/0x1120
+[   41.840072]  vb2_fop_read+0x20e/0x400
+[   41.840346]  v4l2_read+0x215/0x290
+[   41.840603]  vfs_read+0x162/0x4c0
 
-        io_schedule+0x70/0xb0
-        rq_qos_wait+0x153/0x210
-        wbt_wait+0x115/0x1b0
-        io_schedule+0x70/0xb0
-        rq_qos_wait+0x153/0x210
-        wbt_wait+0x115/0x1b0
-        __rq_qos_throttle+0x38/0x60
-        blk_mq_submit_bio+0x589/0xcd0
-        wbt_wait+0x115/0x1b0
-        __rq_qos_throttle+0x38/0x60
-        blk_mq_submit_bio+0x589/0xcd0
-        __submit_bio+0xe6/0x100
-        submit_bio_noacct_nocheck+0x42e/0x470
-        submit_bio_noacct+0x4c2/0xbb0
-        ops_run_io+0x46b/0x1a30
-        handle_stripe+0xcd3/0x36b0
-        handle_active_stripes.constprop.0+0x6f6/0xa60
-        raid5_do_work+0x177/0x330
+Fix this by checking the return value of cx88_risc_buffer()
 
-    Or:
-        io_schedule+0x70/0xb0
-        rq_qos_wait+0x153/0x210
-        wbt_wait+0x115/0x1b0
-        __rq_qos_throttle+0x38/0x60
-        blk_mq_submit_bio+0x589/0xcd0
-        __submit_bio+0xe6/0x100
-        submit_bio_noacct_nocheck+0x42e/0x470
-        submit_bio_noacct+0x4c2/0xbb0
-        flush_deferred_bios+0x136/0x170
-        raid5_do_work+0x262/0x330
+[hverkuil: fix coding style issues]
 
- 2) The r5l_reclaim thread will hang in the same way, submitting a
-    bio to the block layer:
-
-        io_schedule+0x70/0xb0
-        rq_qos_wait+0x153/0x210
-        wbt_wait+0x115/0x1b0
-        __rq_qos_throttle+0x38/0x60
-        blk_mq_submit_bio+0x589/0xcd0
-        __submit_bio+0xe6/0x100
-        submit_bio_noacct_nocheck+0x42e/0x470
-        submit_bio_noacct+0x4c2/0xbb0
-        submit_bio+0x3f/0xf0
-        md_super_write+0x12f/0x1b0
-        md_update_sb.part.0+0x7c6/0xff0
-        md_update_sb+0x30/0x60
-        r5l_do_reclaim+0x4f9/0x5e0
-        r5l_reclaim_thread+0x69/0x30b
-
-    However, before hanging, the MD_SB_CHANGE_PENDING flag will be
-    set for sb_flags in r5l_write_super_and_discard_space(). This
-    flag will never be cleared because the submit_bio() call never
-    returns.
-
- 3) Due to the MD_SB_CHANGE_PENDING flag being set, handle_stripe()
-    will do no processing on any pending stripes and re-set
-    STRIPE_HANDLE. This will cause the raid5d thread to enter an
-    infinite loop, constantly trying to handle the same stripes
-    stuck in the queue.
-
-    The raid5d thread has a blk_plug that holds a number of bios
-    that are also stuck waiting seeing the thread is in a loop
-    that never schedules. These bios have been accounted for by
-    blk-wbt thus preventing the other threads above from
-    continuing when they try to submit bios. --Deadlock.
-
-To fix this, add the same wait_event() that is used in raid5_do_work()
-to raid5d() such that if MD_SB_CHANGE_PENDING is set, the thread will
-schedule and wait until the flag is cleared. The schedule action will
-flush the plug which will allow the r5l_reclaim thread to continue,
-thus preventing the deadlock.
-
-However, md_check_recovery() calls can also clear MD_SB_CHANGE_PENDING
-from the same thread and can thus deadlock if the thread is put to
-sleep. So avoid waiting if md_check_recovery() is being called in the
-loop.
-
-It's not clear when the deadlock was introduced, but the similar
-wait_event() call in raid5_do_work() was added in 2017 by this
-commit:
-
-    16d997b78b15 ("md/raid5: simplfy delaying of writes while metadata
-                   is updated.")
-
-Link: https://lore.kernel.org/r/7f3b87b6-b52a-f737-51d7-a4eec5c44112@deltatee.com
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid5.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/media/pci/cx88/cx88-vbi.c   |  9 +++---
+ drivers/media/pci/cx88/cx88-video.c | 43 +++++++++++++++--------------
+ 2 files changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 3310f670a4ab..7fe0619c487a 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -44,6 +44,7 @@
-  */
+diff --git a/drivers/media/pci/cx88/cx88-vbi.c b/drivers/media/pci/cx88/cx88-vbi.c
+index 58489ea0c1da..7cf2271866d0 100644
+--- a/drivers/media/pci/cx88/cx88-vbi.c
++++ b/drivers/media/pci/cx88/cx88-vbi.c
+@@ -144,11 +144,10 @@ static int buffer_prepare(struct vb2_buffer *vb)
+ 		return -EINVAL;
+ 	vb2_set_plane_payload(vb, 0, size);
  
- #include <linux/blkdev.h>
-+#include <linux/delay.h>
- #include <linux/kthread.h>
- #include <linux/raid/pq.h>
- #include <linux/async_tx.h>
-@@ -6329,7 +6330,18 @@ static void raid5d(struct md_thread *thread)
- 			spin_unlock_irq(&conf->device_lock);
- 			md_check_recovery(mddev);
- 			spin_lock_irq(&conf->device_lock);
-+
-+			/*
-+			 * Waiting on MD_SB_CHANGE_PENDING below may deadlock
-+			 * seeing md_check_recovery() is needed to clear
-+			 * the flag when using mdmon.
-+			 */
-+			continue;
- 		}
-+
-+		wait_event_lock_irq(mddev->sb_wait,
-+			!test_bit(MD_SB_CHANGE_PENDING, &mddev->sb_flags),
-+			conf->device_lock);
+-	cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
+-			 0, VBI_LINE_LENGTH * lines,
+-			 VBI_LINE_LENGTH, 0,
+-			 lines);
+-	return 0;
++	return cx88_risc_buffer(dev->pci, &buf->risc, sgt->sgl,
++				0, VBI_LINE_LENGTH * lines,
++				VBI_LINE_LENGTH, 0,
++				lines);
+ }
+ 
+ static void buffer_finish(struct vb2_buffer *vb)
+diff --git a/drivers/media/pci/cx88/cx88-video.c b/drivers/media/pci/cx88/cx88-video.c
+index b8abcd550604..547e18da1ad7 100644
+--- a/drivers/media/pci/cx88/cx88-video.c
++++ b/drivers/media/pci/cx88/cx88-video.c
+@@ -433,6 +433,7 @@ static int queue_setup(struct vb2_queue *q,
+ 
+ static int buffer_prepare(struct vb2_buffer *vb)
+ {
++	int ret;
+ 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+ 	struct cx8800_dev *dev = vb->vb2_queue->drv_priv;
+ 	struct cx88_core *core = dev->core;
+@@ -447,35 +448,35 @@ static int buffer_prepare(struct vb2_buffer *vb)
+ 
+ 	switch (core->field) {
+ 	case V4L2_FIELD_TOP:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl, 0, UNSET,
+-				 buf->bpl, 0, core->height);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl, 0, UNSET,
++				       buf->bpl, 0, core->height);
+ 		break;
+ 	case V4L2_FIELD_BOTTOM:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl, UNSET, 0,
+-				 buf->bpl, 0, core->height);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl, UNSET, 0,
++				       buf->bpl, 0, core->height);
+ 		break;
+ 	case V4L2_FIELD_SEQ_TB:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl,
+-				 0, buf->bpl * (core->height >> 1),
+-				 buf->bpl, 0,
+-				 core->height >> 1);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl,
++				       0, buf->bpl * (core->height >> 1),
++				       buf->bpl, 0,
++				       core->height >> 1);
+ 		break;
+ 	case V4L2_FIELD_SEQ_BT:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl,
+-				 buf->bpl * (core->height >> 1), 0,
+-				 buf->bpl, 0,
+-				 core->height >> 1);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl,
++				       buf->bpl * (core->height >> 1), 0,
++				       buf->bpl, 0,
++				       core->height >> 1);
+ 		break;
+ 	case V4L2_FIELD_INTERLACED:
+ 	default:
+-		cx88_risc_buffer(dev->pci, &buf->risc,
+-				 sgt->sgl, 0, buf->bpl,
+-				 buf->bpl, buf->bpl,
+-				 core->height >> 1);
++		ret = cx88_risc_buffer(dev->pci, &buf->risc,
++				       sgt->sgl, 0, buf->bpl,
++				       buf->bpl, buf->bpl,
++				       core->height >> 1);
+ 		break;
  	}
- 	pr_debug("%d stripes handled\n", handled);
+ 	dprintk(2,
+@@ -483,7 +484,7 @@ static int buffer_prepare(struct vb2_buffer *vb)
+ 		buf, buf->vb.vb2_buf.index, __func__,
+ 		core->width, core->height, dev->fmt->depth, dev->fmt->fourcc,
+ 		(unsigned long)buf->risc.dma);
+-	return 0;
++	return ret;
+ }
  
+ static void buffer_finish(struct vb2_buffer *vb)
 -- 
 2.35.1
 
