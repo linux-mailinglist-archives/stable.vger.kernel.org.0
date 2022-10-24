@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2300A60B33E
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:00:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 501DC60B079
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231411AbiJXRAi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 13:00:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56914 "EHLO
+        id S233019AbiJXQGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:06:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232000AbiJXQ5x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:57:53 -0400
+        with ESMTP id S233240AbiJXQEY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4279946238;
-        Mon, 24 Oct 2022 08:37:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B56ED11A977;
+        Mon, 24 Oct 2022 07:56:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 422EBB811DD;
-        Mon, 24 Oct 2022 11:59:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FFE9C433D6;
-        Mon, 24 Oct 2022 11:59:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21BF2B8128A;
+        Mon, 24 Oct 2022 12:25:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79094C433C1;
+        Mon, 24 Oct 2022 12:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612767;
-        bh=YmD/sxiRNcUAS4pk6CrV8Ul3dzvDsIvTgC6QwATOJDs=;
+        s=korg; t=1666614302;
+        bh=oYRhmtQE/klOFsQCHCsRhaWDY77M6fjbrOG794N8IJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yhOx63Xo+789rG3Tsg24k5TH8lrTjhRtaBSLE964phXBNpuHT/hyc/VB6FiPyFEN8
-         f3DRVViF4VnxlYWw1KN0mpqzarxUJ2OpmMd3MsGNTJwtP+3mbzP27L+ldPOCRF67oX
-         0X5UmXxLLA49nFwCTLfBnRilFJ2NMZIPsBtH/xBQ=
+        b=KZmOpVJtc8qUDt2fUJg1AFqlA4QF0cZOaWZL5YhmsSj2qGgaoMyMagmfpdK7EX0Tw
+         SAUThNLDF8g43AfOm3vKpf/lKKfVjf5D5zdVCcC65KbhT0VP51mCKRNZ4vNf1W601u
+         LGC7wgqn3qrNxpIZMaCvbHW9Gc85ZE3JrD9mAnFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 084/229] netfilter: nft_fib: Fix for rpath check with VRF devices
-Date:   Mon, 24 Oct 2022 13:30:03 +0200
-Message-Id: <20221024113001.783335287@linuxfoundation.org>
+Subject: [PATCH 5.10 209/390] media: xilinx: vipp: Fix refcount leak in xvip_graph_dma_init
+Date:   Mon, 24 Oct 2022 13:30:06 +0200
+Message-Id: <20221024113031.677951768@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 2a8a7c0eaa8747c16aa4a48d573aa920d5c00a5c ]
+[ Upstream commit 1c78f19c3a0ea312a8178a6bfd8934eb93e9b10a ]
 
-Analogous to commit b575b24b8eee3 ("netfilter: Fix rpfilter
-dropping vrf packets by mistake") but for nftables fib expression:
-Add special treatment of VRF devices so that typical reverse path
-filtering via 'fib saddr . iif oif' expression works as expected.
+of_get_child_by_name() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: f6d0cbcf09c50 ("netfilter: nf_tables: add fib expression")
-Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Fixes: df3305156f98 ("[media] v4l: xilinx: Add Xilinx Video IP core")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/netfilter/nft_fib_ipv4.c | 3 +++
- net/ipv6/netfilter/nft_fib_ipv6.c | 6 +++++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ drivers/media/platform/xilinx/xilinx-vipp.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/net/ipv4/netfilter/nft_fib_ipv4.c b/net/ipv4/netfilter/nft_fib_ipv4.c
-index e50976e3c213..3b2e8ac45d4e 100644
---- a/net/ipv4/netfilter/nft_fib_ipv4.c
-+++ b/net/ipv4/netfilter/nft_fib_ipv4.c
-@@ -95,6 +95,9 @@ void nft_fib4_eval(const struct nft_expr *expr, struct nft_regs *regs,
- 	else
- 		oif = NULL;
+diff --git a/drivers/media/platform/xilinx/xilinx-vipp.c b/drivers/media/platform/xilinx/xilinx-vipp.c
+index cc2856efea59..f2b0c490187c 100644
+--- a/drivers/media/platform/xilinx/xilinx-vipp.c
++++ b/drivers/media/platform/xilinx/xilinx-vipp.c
+@@ -472,7 +472,7 @@ static int xvip_graph_dma_init(struct xvip_composite_device *xdev)
+ {
+ 	struct device_node *ports;
+ 	struct device_node *port;
+-	int ret;
++	int ret = 0;
  
-+	if (priv->flags & NFTA_FIB_F_IIF)
-+		fl4.flowi4_oif = l3mdev_master_ifindex_rcu(oif);
-+
- 	if (nft_hook(pkt) == NF_INET_PRE_ROUTING &&
- 	    nft_fib_is_loopback(pkt->skb, nft_in(pkt))) {
- 		nft_fib_store_result(dest, priv, pkt,
-diff --git a/net/ipv6/netfilter/nft_fib_ipv6.c b/net/ipv6/netfilter/nft_fib_ipv6.c
-index 36be3cf0adef..fa71e40789ed 100644
---- a/net/ipv6/netfilter/nft_fib_ipv6.c
-+++ b/net/ipv6/netfilter/nft_fib_ipv6.c
-@@ -41,6 +41,9 @@ static int nft_fib6_flowi_init(struct flowi6 *fl6, const struct nft_fib *priv,
- 	if (ipv6_addr_type(&fl6->daddr) & IPV6_ADDR_LINKLOCAL) {
- 		lookup_flags |= RT6_LOOKUP_F_IFACE;
- 		fl6->flowi6_oif = get_ifindex(dev ? dev : pkt->skb->dev);
-+	} else if ((priv->flags & NFTA_FIB_F_IIF) &&
-+		   (netif_is_l3_master(dev) || netif_is_l3_slave(dev))) {
-+		fl6->flowi6_oif = dev->ifindex;
+ 	ports = of_get_child_by_name(xdev->dev->of_node, "ports");
+ 	if (ports == NULL) {
+@@ -482,13 +482,14 @@ static int xvip_graph_dma_init(struct xvip_composite_device *xdev)
+ 
+ 	for_each_child_of_node(ports, port) {
+ 		ret = xvip_graph_dma_init_one(xdev, port);
+-		if (ret < 0) {
++		if (ret) {
+ 			of_node_put(port);
+-			return ret;
++			break;
+ 		}
  	}
  
- 	if (ipv6_addr_type(&fl6->saddr) & IPV6_ADDR_UNICAST)
-@@ -189,7 +192,8 @@ void nft_fib6_eval(const struct nft_expr *expr, struct nft_regs *regs,
- 	if (rt->rt6i_flags & (RTF_REJECT | RTF_ANYCAST | RTF_LOCAL))
- 		goto put_rt_err;
+-	return 0;
++	of_node_put(ports);
++	return ret;
+ }
  
--	if (oif && oif != rt->rt6i_idev->dev)
-+	if (oif && oif != rt->rt6i_idev->dev &&
-+	    l3mdev_master_ifindex_rcu(rt->rt6i_idev->dev) != oif->ifindex)
- 		goto put_rt_err;
- 
- 	switch (priv->result) {
+ static void xvip_graph_cleanup(struct xvip_composite_device *xdev)
 -- 
 2.35.1
 
