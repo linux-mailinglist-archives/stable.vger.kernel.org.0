@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E063960BA35
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:29:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D9A860BA89
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:38:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230126AbiJXU3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:29:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56306 "EHLO
+        id S234615AbiJXUit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:38:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234379AbiJXU3C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:29:02 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99D0710F8AF;
-        Mon, 24 Oct 2022 11:41:33 -0700 (PDT)
+        with ESMTP id S234610AbiJXUiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:38:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 256C4F593;
+        Mon, 24 Oct 2022 11:49:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1A528CE16DE;
-        Mon, 24 Oct 2022 12:50:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A430C433D6;
-        Mon, 24 Oct 2022 12:50:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A59B61257;
+        Mon, 24 Oct 2022 12:51:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A7D0C43470;
+        Mon, 24 Oct 2022 12:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615856;
-        bh=KJQPpJ32UIqN4u7A8mzjqm34rg4kJPRAbyTUOPAsbIY=;
+        s=korg; t=1666615874;
+        bh=wptZSXMfTHCS8yg64d9eFyNTCBSG3MYIcBN8bHhvfOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvUisClKraLRx0/yysAjMTJ52+ZjjdkS9QaL1/q7pZz0GSR/89LL28asOdgnsl6B3
-         KMCepmu4dAQafTZbXqNPKjuy2TjQz0fPA33BR99l129+LOFt7vru0n/v2wN6TlTco8
-         Mi5GPPIMBsCTht3xfqkpt+jo5SePQRloc4mOuYFI=
+        b=0a0rc916Il6gPiPiiUaBeGDGNpOYd1b1LEf+EVXVD+sl5krvtSci3UNNCvFa3tDH0
+         4Qu71VF3YsZjKAL0IPKWvE7OGOC1SZVH+qwfWUUDmYhpXdohRc0Og+81C0gDvv9yO2
+         doAFKU6fzcu4vLMHK4NRjEHejdbFE4mRDQPYQ4Iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Quentin Monnet <quentin@isovalent.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 410/530] ARM: decompressor: Include .data.rel.ro.local
-Date:   Mon, 24 Oct 2022 13:32:34 +0200
-Message-Id: <20221024113103.643088356@linuxfoundation.org>
+Subject: [PATCH 5.15 416/530] bpftool: Clear errno after libcaps checks
+Date:   Mon, 24 Oct 2022 13:32:40 +0200
+Message-Id: <20221024113103.925205821@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -55,48 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Quentin Monnet <quentin@isovalent.com>
 
-[ Upstream commit 1b64daf413acd86c2c13f5443f6b4ef3690c8061 ]
+[ Upstream commit cea558855c39b7f1f02ff50dcf701ca6596bc964 ]
 
-The .data.rel.ro.local section has the same semantics as .data.rel.ro
-here, so include it in the .rodata section of the decompressor.
-Additionally since the .printk_index section isn't usable outside of
-the core kernel, discard it in the decompressor. Avoids these warnings:
+When bpftool is linked against libcap, the library runs a "constructor"
+function to compute the number of capabilities of the running kernel
+[0], at the beginning of the execution of the program. As part of this,
+it performs multiple calls to prctl(). Some of these may fail, and set
+errno to a non-zero value:
 
-arm-linux-gnueabi-ld: warning: orphan section `.data.rel.ro.local' from `arch/arm/boot/compressed/fdt_rw.o' being placed in section `.data.rel.ro.local'
-arm-linux-gnueabi-ld: warning: orphan section `.printk_index' from `arch/arm/boot/compressed/fdt_rw.o' being placed in section `.printk_index'
+    # strace -e prctl ./bpftool version
+    prctl(PR_CAPBSET_READ, CAP_MAC_OVERRIDE) = 1
+    prctl(PR_CAPBSET_READ, 0x30 /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    prctl(PR_CAPBSET_READ, CAP_CHECKPOINT_RESTORE) = 1
+    prctl(PR_CAPBSET_READ, 0x2c /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    prctl(PR_CAPBSET_READ, 0x2a /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    prctl(PR_CAPBSET_READ, 0x29 /* CAP_??? */) = -1 EINVAL (Invalid argument)
+    ** fprintf added at the top of main(): we have errno == 1
+    ./bpftool v7.0.0
+    using libbpf v1.0
+    features: libbfd, libbpf_strict, skeletons
+    +++ exited with 0 +++
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/linux-mm/202209080545.qMIVj7YM-lkp@intel.com
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+This has been addressed in libcap 2.63 [1], but until this version is
+available everywhere, we can fix it on bpftool side.
+
+Let's clean errno at the beginning of the main() function, to make sure
+that these checks do not interfere with the batch mode, where we error
+out if errno is set after a bpftool command.
+
+  [0] https://git.kernel.org/pub/scm/libs/libcap/libcap.git/tree/libcap/cap_alloc.c?h=libcap-2.65#n20
+  [1] https://git.kernel.org/pub/scm/libs/libcap/libcap.git/commit/?id=f25a1b7e69f7b33e6afb58b3e38f3450b7d2d9a0
+
+Signed-off-by: Quentin Monnet <quentin@isovalent.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220815162205.45043-1-quentin@isovalent.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/compressed/vmlinux.lds.S | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/bpf/bpftool/main.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm/boot/compressed/vmlinux.lds.S b/arch/arm/boot/compressed/vmlinux.lds.S
-index 1bcb68ac4b01..3fcb3e62dc56 100644
---- a/arch/arm/boot/compressed/vmlinux.lds.S
-+++ b/arch/arm/boot/compressed/vmlinux.lds.S
-@@ -23,6 +23,7 @@ SECTIONS
-     *(.ARM.extab*)
-     *(.note.*)
-     *(.rel.*)
-+    *(.printk_index)
-     /*
-      * Discard any r/w data - this produces a link error if we have any,
-      * which is required for PIC decompression.  Local data generates
-@@ -57,6 +58,7 @@ SECTIONS
-     *(.rodata)
-     *(.rodata.*)
-     *(.data.rel.ro)
-+    *(.data.rel.ro.*)
-   }
-   .piggydata : {
-     *(.piggydata)
+diff --git a/tools/bpf/bpftool/main.c b/tools/bpf/bpftool/main.c
+index d27ec4f852bb..b70c023f3a57 100644
+--- a/tools/bpf/bpftool/main.c
++++ b/tools/bpf/bpftool/main.c
+@@ -404,6 +404,16 @@ int main(int argc, char **argv)
+ 
+ 	setlinebuf(stdout);
+ 
++#ifdef USE_LIBCAP
++	/* Libcap < 2.63 hooks before main() to compute the number of
++	 * capabilities of the running kernel, and doing so it calls prctl()
++	 * which may fail and set errno to non-zero.
++	 * Let's reset errno to make sure this does not interfere with the
++	 * batch mode.
++	 */
++	errno = 0;
++#endif
++
+ 	last_do_help = do_help;
+ 	pretty_output = false;
+ 	json_output = false;
 -- 
 2.35.1
 
