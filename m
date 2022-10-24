@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E7860A28C
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:45:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FD8060A301
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:50:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230006AbiJXLpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:45:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42646 "EHLO
+        id S231305AbiJXLuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:50:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231736AbiJXLoW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:44:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32BDBD5A;
-        Mon, 24 Oct 2022 04:41:52 -0700 (PDT)
+        with ESMTP id S231844AbiJXLtF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:49:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAABA2125A;
+        Mon, 24 Oct 2022 04:43:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DE17B8117B;
-        Mon, 24 Oct 2022 11:40:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A908FC43470;
-        Mon, 24 Oct 2022 11:40:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED2B4B8117A;
+        Mon, 24 Oct 2022 11:40:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49C69C43470;
+        Mon, 24 Oct 2022 11:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611618;
-        bh=66V6PwS+1zZa07hIGePR1fkuGJ16jCujTpJ53JGWIjo=;
+        s=korg; t=1666611620;
+        bh=Awcd/0SSmDN83dUDpNoaIq8lTcT014AjU8Qvxm5qHes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JMFwaJEo2bAviMusWJivlKL+nsI82A2ZsMe8LTgiQLHPD1+T7v+zTxkV5EucZcnXt
-         e/2cQb9jD23o0eqTqpSJN8kAJki4Yb9uv3icsEedSqMvg307kUkayngf2QcSxI/64J
-         1hO0ScdZ0KhW6HtnaSet9Q2LW0SBPhT6w8EI8ZwI=
+        b=lB0PLDXmDESahme5pgsy4l0Wc/sPAcCEp8E4tdpmG0zYIzFfBoKVOL59vM5yC3Zln
+         S1o7FIIJA4PSHJr94s2T1xCCwn/SLaPLmtxf6A94KvgaitB5EKrsVryccH3SRYUyRn
+         lMFemW9uT4bGNqodO4VATkvuaVQMFNrk+Hc0mf48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.9 045/159] iio: dac: ad5593r: Fix i2c read protocol requirements
-Date:   Mon, 24 Oct 2022 13:29:59 +0200
-Message-Id: <20221024112951.039626959@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>
+Subject: [PATCH 4.9 046/159] fs: dlm: fix race between test_bit() and queue_work()
+Date:   Mon, 24 Oct 2022 13:30:00 +0200
+Message-Id: <20221024112951.076208775@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -55,110 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit 558a25f903b4af6361b7fbeea08a6446a0745653 upstream.
+commit eef6ec9bf390e836a6c4029f3620fe49528aa1fe upstream.
 
-For reliable operation across the full range of supported
-interface rates, the AD5593R needs a STOP condition between
-address write, and data read (like show in the datasheet Figure 40)
-so in turn i2c_smbus_read_word_swapped cannot be used.
+This patch fixes a race by using ls_cb_mutex around the bit
+operations and conditional code blocks for LSFL_CB_DELAY.
 
-While at it, a simple helper was added to make the code simpler.
+The function dlm_callback_stop() expects to stop all callbacks and
+flush all currently queued onces. The set_bit() is not enough because
+there can still be queue_work() after the workqueue was flushed.
+To avoid queue_work() after set_bit(), surround both by ls_cb_mutex.
 
-Fixes: 56ca9db862bf ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220913073413.140475-2-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/dac/ad5593r.c |   46 +++++++++++++++++++++++++++-------------------
- 1 file changed, 27 insertions(+), 19 deletions(-)
+ fs/dlm/ast.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/dac/ad5593r.c
-+++ b/drivers/iio/dac/ad5593r.c
-@@ -14,6 +14,8 @@
- #include <linux/module.h>
- #include <linux/of.h>
+--- a/fs/dlm/ast.c
++++ b/fs/dlm/ast.c
+@@ -198,13 +198,13 @@ void dlm_add_cb(struct dlm_lkb *lkb, uin
+ 	if (!prev_seq) {
+ 		kref_get(&lkb->lkb_ref);
  
-+#include <asm/unaligned.h>
-+
- #define AD5593R_MODE_CONF		(0 << 4)
- #define AD5593R_MODE_DAC_WRITE		(1 << 4)
- #define AD5593R_MODE_ADC_READBACK	(4 << 4)
-@@ -21,6 +23,24 @@
- #define AD5593R_MODE_GPIO_READBACK	(6 << 4)
- #define AD5593R_MODE_REG_READBACK	(7 << 4)
++		mutex_lock(&ls->ls_cb_mutex);
+ 		if (test_bit(LSFL_CB_DELAY, &ls->ls_flags)) {
+-			mutex_lock(&ls->ls_cb_mutex);
+ 			list_add(&lkb->lkb_cb_list, &ls->ls_cb_delay);
+-			mutex_unlock(&ls->ls_cb_mutex);
+ 		} else {
+ 			queue_work(ls->ls_callback_wq, &lkb->lkb_cb_work);
+ 		}
++		mutex_unlock(&ls->ls_cb_mutex);
+ 	}
+  out:
+ 	mutex_unlock(&lkb->lkb_cb_mutex);
+@@ -284,7 +284,9 @@ void dlm_callback_stop(struct dlm_ls *ls
  
-+static int ad5593r_read_word(struct i2c_client *i2c, u8 reg, u16 *value)
-+{
-+	int ret;
-+	u8 buf[2];
-+
-+	ret = i2c_smbus_write_byte(i2c, reg);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = i2c_master_recv(i2c, buf, sizeof(buf));
-+	if (ret < 0)
-+		return ret;
-+
-+	*value = get_unaligned_be16(buf);
-+
-+	return 0;
-+}
-+
- static int ad5593r_write_dac(struct ad5592r_state *st, unsigned chan, u16 value)
+ void dlm_callback_suspend(struct dlm_ls *ls)
  {
- 	struct i2c_client *i2c = to_i2c_client(st->dev);
-@@ -39,13 +59,7 @@ static int ad5593r_read_adc(struct ad559
- 	if (val < 0)
- 		return (int) val;
++	mutex_lock(&ls->ls_cb_mutex);
+ 	set_bit(LSFL_CB_DELAY, &ls->ls_flags);
++	mutex_unlock(&ls->ls_cb_mutex);
  
--	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_ADC_READBACK);
--	if (val < 0)
--		return (int) val;
--
--	*value = (u16) val;
--
--	return 0;
-+	return ad5593r_read_word(i2c, AD5593R_MODE_ADC_READBACK, value);
- }
- 
- static int ad5593r_reg_write(struct ad5592r_state *st, u8 reg, u16 value)
-@@ -59,25 +73,19 @@ static int ad5593r_reg_write(struct ad55
- static int ad5593r_reg_read(struct ad5592r_state *st, u8 reg, u16 *value)
- {
- 	struct i2c_client *i2c = to_i2c_client(st->dev);
--	s32 val;
--
--	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_REG_READBACK | reg);
--	if (val < 0)
--		return (int) val;
- 
--	*value = (u16) val;
--
--	return 0;
-+	return ad5593r_read_word(i2c, AD5593R_MODE_REG_READBACK | reg, value);
- }
- 
- static int ad5593r_gpio_read(struct ad5592r_state *st, u8 *value)
- {
- 	struct i2c_client *i2c = to_i2c_client(st->dev);
--	s32 val;
-+	u16 val;
-+	int ret;
- 
--	val = i2c_smbus_read_word_swapped(i2c, AD5593R_MODE_GPIO_READBACK);
--	if (val < 0)
--		return (int) val;
-+	ret = ad5593r_read_word(i2c, AD5593R_MODE_GPIO_READBACK, &val);
-+	if (ret)
-+		return ret;
- 
- 	*value = (u8) val;
- 
+ 	if (ls->ls_callback_wq)
+ 		flush_workqueue(ls->ls_callback_wq);
 
 
