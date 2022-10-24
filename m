@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E84AF60B762
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:23:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D40B660B8AB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232570AbiJXTXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:23:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45328 "EHLO
+        id S233565AbiJXTwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:52:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230490AbiJXTV6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:21:58 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B69AE46;
-        Mon, 24 Oct 2022 10:57:21 -0700 (PDT)
+        with ESMTP id S233572AbiJXTvs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:51:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72988114DE1;
+        Mon, 24 Oct 2022 11:17:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9BD03CE1621;
-        Mon, 24 Oct 2022 12:35:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC73EC433B5;
-        Mon, 24 Oct 2022 12:35:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F8ECB817BF;
+        Mon, 24 Oct 2022 12:36:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93A71C433D6;
+        Mon, 24 Oct 2022 12:36:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614955;
-        bh=qzNPjTgfZEYYgdxUncWZqKaKdlo8w1SbSuDFg3W8BnA=;
+        s=korg; t=1666614962;
+        bh=tFfixY4/pqwPaFdGtoJbOHe7Ybm1zAZUS/nzuXpRp/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aj+wYq1wxaBgicbNWyPgG4GT1M2j2LmLR1a2cAubS1/jiwTyBMlnbDotqQb9xb5fh
-         xls8l1o+qKJlFfbbZqtezzOqWwCyRs+Xhuqw14c1xMJrfGTPSEB7Eq9JdFdxzeaozR
-         gQIv+5hjxKGngxLd+kTer5ZwTUJjxLLLAurYxwIY=
+        b=UX+kR0aZomuQhsZKZ4mIES0G73wPpZkwwm53AzNcuf0zKkhp964xsTn+B0vkGF7xb
+         FhM0cGhziFE2zpAo0nYDH3ns0Ouu601Uj9wWrkKu+UscEY95dwZk+HOz9karjEP21T
+         wh0t/KMA9KKvO0tNIsWuFxlMgEoziYA3p5UQapw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 036/530] net: thunderbolt: Enable DMA paths only after rings are enabled
-Date:   Mon, 24 Oct 2022 13:26:20 +0200
-Message-Id: <20221024113046.631669915@linuxfoundation.org>
+        stable@vger.kernel.org, Brice Goglin <Brice.Goglin@inria.fr>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Atish Patra <atishp@rivosinc.com>,
+        Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH 5.15 039/530] riscv: topology: fix default topology reporting
+Date:   Mon, 24 Oct 2022 13:26:23 +0200
+Message-Id: <20221024113046.786018890@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -53,78 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-commit ff7cd07f306406493f7b78890475e85b6d0811ed upstream.
+commit fbd92809997a391f28075f1c8b5ee314c225557c upstream.
 
-If the other host starts sending packets early on it is possible that we
-are still in the middle of populating the initial Rx ring packets to the
-ring. This causes the tbnet_poll() to mess over the queue and causes
-list corruption. This happens specifically when connected with macOS as
-it seems start sending various IP discovery packets as soon as its side
-of the paths are configured.
+RISC-V has no sane defaults to fall back on where there is no cpu-map
+in the devicetree.
+Without sane defaults, the package, core and thread IDs are all set to
+-1. This causes user-visible inaccuracies for tools like hwloc/lstopo
+which rely on the sysfs cpu topology files to detect a system's
+topology.
 
-To prevent this we move the DMA path enabling to happen after we have
-primed the Rx ring. This makes sure no incoming packets can arrive
-before we are ready to handle them.
+On a PolarFire SoC, which should have 4 harts with a thread each,
+lstopo currently reports:
 
-Fixes: e69b6c02b4c3 ("net: Add support for networking over Thunderbolt cable")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Machine (793MB total)
+  Package L#0
+    NUMANode L#0 (P#0 793MB)
+    Core L#0
+      L1d L#0 (32KB) + L1i L#0 (32KB) + PU L#0 (P#0)
+      L1d L#1 (32KB) + L1i L#1 (32KB) + PU L#1 (P#1)
+      L1d L#2 (32KB) + L1i L#2 (32KB) + PU L#2 (P#2)
+      L1d L#3 (32KB) + L1i L#3 (32KB) + PU L#3 (P#3)
+
+Adding calls to store_cpu_topology() in {boot,smp} hart bringup code
+results in the correct topolgy being reported:
+
+Machine (793MB total)
+  Package L#0
+    NUMANode L#0 (P#0 793MB)
+    L1d L#0 (32KB) + L1i L#0 (32KB) + Core L#0 + PU L#0 (P#0)
+    L1d L#1 (32KB) + L1i L#1 (32KB) + Core L#1 + PU L#1 (P#1)
+    L1d L#2 (32KB) + L1i L#2 (32KB) + Core L#2 + PU L#2 (P#2)
+    L1d L#3 (32KB) + L1i L#3 (32KB) + Core L#3 + PU L#3 (P#3)
+
+CC: stable@vger.kernel.org # 456797da792f: arm64: topology: move store_cpu_topology() to shared code
+Fixes: 03f11f03dbfe ("RISC-V: Parse cpu topology during boot.")
+Reported-by: Brice Goglin <Brice.Goglin@inria.fr>
+Link: https://github.com/open-mpi/hwloc/issues/536
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Reviewed-by: Atish Patra <atishp@rivosinc.com>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/thunderbolt.c |   28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ arch/riscv/Kconfig          |    2 +-
+ arch/riscv/kernel/smpboot.c |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/thunderbolt.c
-+++ b/drivers/net/thunderbolt.c
-@@ -612,18 +612,13 @@ static void tbnet_connected_work(struct
- 		return;
- 	}
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -46,7 +46,7 @@ config RISCV
+ 	select CLINT_TIMER if !MMU
+ 	select COMMON_CLK
+ 	select EDAC_SUPPORT
+-	select GENERIC_ARCH_TOPOLOGY if SMP
++	select GENERIC_ARCH_TOPOLOGY
+ 	select GENERIC_ATOMIC64 if !64BIT
+ 	select GENERIC_CLOCKEVENTS_BROADCAST if SMP
+ 	select GENERIC_EARLY_IOREMAP
+--- a/arch/riscv/kernel/smpboot.c
++++ b/arch/riscv/kernel/smpboot.c
+@@ -53,6 +53,7 @@ void __init smp_prepare_cpus(unsigned in
+ 	unsigned int curr_cpuid;
  
--	/* Both logins successful so enable the high-speed DMA paths and
--	 * start the network device queue.
-+	/* Both logins successful so enable the rings, high-speed DMA
-+	 * paths and start the network device queue.
-+	 *
-+	 * Note we enable the DMA paths last to make sure we have primed
-+	 * the Rx ring before any incoming packets are allowed to
-+	 * arrive.
- 	 */
--	ret = tb_xdomain_enable_paths(net->xd, net->local_transmit_path,
--				      net->rx_ring.ring->hop,
--				      net->remote_transmit_path,
--				      net->tx_ring.ring->hop);
--	if (ret) {
--		netdev_err(net->dev, "failed to enable DMA paths\n");
--		return;
--	}
--
- 	tb_ring_start(net->tx_ring.ring);
- 	tb_ring_start(net->rx_ring.ring);
+ 	curr_cpuid = smp_processor_id();
++	store_cpu_topology(curr_cpuid);
+ 	numa_store_cpu_info(curr_cpuid);
+ 	numa_add_cpu(curr_cpuid);
  
-@@ -635,10 +630,21 @@ static void tbnet_connected_work(struct
- 	if (ret)
- 		goto err_free_rx_buffers;
+@@ -165,9 +166,9 @@ asmlinkage __visible void smp_callin(voi
+ 	mmgrab(mm);
+ 	current->active_mm = mm;
  
-+	ret = tb_xdomain_enable_paths(net->xd, net->local_transmit_path,
-+				      net->rx_ring.ring->hop,
-+				      net->remote_transmit_path,
-+				      net->tx_ring.ring->hop);
-+	if (ret) {
-+		netdev_err(net->dev, "failed to enable DMA paths\n");
-+		goto err_free_tx_buffers;
-+	}
-+
- 	netif_carrier_on(net->dev);
- 	netif_start_queue(net->dev);
- 	return;
++	store_cpu_topology(curr_cpuid);
+ 	notify_cpu_starting(curr_cpuid);
+ 	numa_add_cpu(curr_cpuid);
+-	update_siblings_masks(curr_cpuid);
+ 	set_cpu_online(curr_cpuid, 1);
  
-+err_free_tx_buffers:
-+	tbnet_free_buffers(&net->tx_ring);
- err_free_rx_buffers:
- 	tbnet_free_buffers(&net->rx_ring);
- err_stop_rings:
+ 	/*
 
 
