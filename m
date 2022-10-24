@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5768460A2CD
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:48:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E43B460A2DB
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231734AbiJXLsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:48:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42648 "EHLO
+        id S231599AbiJXLsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:48:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231678AbiJXLrP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:47:15 -0400
+        with ESMTP id S231601AbiJXLrw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:47:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C4A26571;
-        Mon, 24 Oct 2022 04:42:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87CD62E9EC;
+        Mon, 24 Oct 2022 04:43:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7606B61257;
-        Mon, 24 Oct 2022 11:42:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83779C433D7;
-        Mon, 24 Oct 2022 11:42:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D89161277;
+        Mon, 24 Oct 2022 11:42:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BE85C433C1;
+        Mon, 24 Oct 2022 11:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611741;
-        bh=g3xurf+26Zeho2T4obK1FAu9yl7PM0ykkt9q2gqZ0KA=;
+        s=korg; t=1666611744;
+        bh=gVRxCi6HdZ+Y2hyxhs77KDg41vKK92c+2may0MmZ35Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YzobpuijF4ol/wBtCL9EXZyt6Ab4gVhLwBUVHHg1HkiPQcptIhxRsLjRhfEtY3L3R
-         ZQmWQeIB5LsCu5DQ+VvLot2eA+LwfHCGkxLQW/dA0Zjb+Jk2BfFmrzIqMmDCnrXEF5
-         brJKxsW0sqIBMDU7Ho0xl2xBGdH4Ar6DaC3EGU0w=
+        b=uMKGRpnVtoz3nyRzROiWLnIAoJgctFNNqNcRcKrrh2LJf8W+PRS1Ccs7kJwxxX3XN
+         zZoPX7K7kkLDJzjZqHe5LdqxPA6T3U+PuORp2MyWKLrOIvBApXwCBTySaW2+GkL3MP
+         zjxDYBj+ZFb1xhv/MItaemkKSxC7jLHY5AtcbzQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 094/159] clk: tegra20: Fix refcount leak in tegra20_clock_init
-Date:   Mon, 24 Oct 2022 13:30:48 +0200
-Message-Id: <20221024112952.857340828@linuxfoundation.org>
+Subject: [PATCH 4.9 095/159] HSI: omap_ssi: Fix refcount leak in ssi_probe
+Date:   Mon, 24 Oct 2022 13:30:49 +0200
+Message-Id: <20221024112952.897460797@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -55,33 +55,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 4e343bafe03ff68a62f48f8235cf98f2c685468b ]
+[ Upstream commit 9a2ea132df860177b33c9fd421b26c4e9a0a9396 ]
 
-of_find_matching_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+When returning or breaking early from a
+for_each_available_child_of_node() loop, we need to explicitly call
+of_node_put() on the child node to possibly release the node.
 
-Fixes: 37c26a906527 ("clk: tegra: add clock support for Tegra20")
+Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220523152811.19692-1-linmq006@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-tegra20.c | 1 +
+ drivers/hsi/controllers/omap_ssi_core.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/tegra/clk-tegra20.c b/drivers/clk/tegra/clk-tegra20.c
-index 837e5cbd60e9..4c9038e73888 100644
---- a/drivers/clk/tegra/clk-tegra20.c
-+++ b/drivers/clk/tegra/clk-tegra20.c
-@@ -1101,6 +1101,7 @@ static void __init tegra20_clock_init(struct device_node *np)
+diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
+index 22cd7169011d..56de30c25063 100644
+--- a/drivers/hsi/controllers/omap_ssi_core.c
++++ b/drivers/hsi/controllers/omap_ssi_core.c
+@@ -562,6 +562,7 @@ static int ssi_probe(struct platform_device *pd)
+ 		if (!childpdev) {
+ 			err = -ENODEV;
+ 			dev_err(&pd->dev, "failed to create ssi controller port\n");
++			of_node_put(child);
+ 			goto out3;
+ 		}
  	}
- 
- 	pmc_base = of_iomap(node, 0);
-+	of_node_put(node);
- 	if (!pmc_base) {
- 		pr_err("Can't map pmc registers\n");
- 		BUG();
 -- 
 2.35.1
 
