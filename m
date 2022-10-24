@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C0AD60A699
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:37:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2B7860A827
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:02:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231277AbiJXMgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:36:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44412 "EHLO
+        id S235054AbiJXNCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:02:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234278AbiJXMem (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:34:42 -0400
+        with ESMTP id S234954AbiJXNAq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:00:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E11574A807;
-        Mon, 24 Oct 2022 05:05:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A7D31C41D;
+        Mon, 24 Oct 2022 05:19:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D53E612BF;
-        Mon, 24 Oct 2022 12:04:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DE76C433C1;
-        Mon, 24 Oct 2022 12:04:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 841B66128E;
+        Mon, 24 Oct 2022 12:14:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93B46C433D6;
+        Mon, 24 Oct 2022 12:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613087;
-        bh=nU5shlmlTDL+WA15wXTBEMZOu70bg3gompzMDfGsWu8=;
+        s=korg; t=1666613684;
+        bh=azAkJqJbnTmmew6QdoYoIdY01RIbkpxXD1N808qO7go=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hL3a5z6l2Qr4q2CC+F7xlvybcngWdUmP0CH8b3G3ITelh5Eejbfb14fMgIk9iWj/t
-         zTvzTlD1ph2n/77BFkecYMbeRceu0rJcglBDqmPiBTi7iH5U3BgrY/zyP1+3NR0F35
-         M4WcJg7dCGhjcFs5oiEY1kwYP4efYORP92GwrZG8=
+        b=iQjuipbjFV7GZAhF0XTvuMjgPwvu61qfM76DPBNt/AFVHXNdRrMTnL2QXl41xGRt0
+         H9QRjUUoSFugl7RV0MmTSJ/BhmsfHZOBgW3Aplq8GfF69t3VI8eKmP/UZua/puDL1v
+         wDkwFzPxbd+gPNziLomUjn20XohORU1AADSEECBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 222/229] net: ieee802154: return -EINVAL for unknown addr type
+        stable@vger.kernel.org,
+        syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 231/255] nbd: Fix hung when signal interrupts nbd_start_device_ioctl()
 Date:   Mon, 24 Oct 2022 13:32:21 +0200
-Message-Id: <20221024113006.446380153@linuxfoundation.org>
+Message-Id: <20221024113010.835858082@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,54 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-commit 30393181fdbc1608cc683b4ee99dcce05ffcc8c7 upstream.
+[ Upstream commit 1de7c3cf48fc41cd95adb12bd1ea9033a917798a ]
 
-This patch adds handling to return -EINVAL for an unknown addr type. The
-current behaviour is to return 0 as successful but the size of an
-unknown addr type is not defined and should return an error like -EINVAL.
+syzbot reported hung task [1].  The following program is a simplified
+version of the reproducer:
 
-Fixes: 94160108a70c ("net/ieee802154: fix uninit value bug in dgram_sendmsg")
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+int main(void)
+{
+	int sv[2], fd;
+
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0)
+		return 1;
+	if ((fd = open("/dev/nbd0", 0)) < 0)
+		return 1;
+	if (ioctl(fd, NBD_SET_SIZE_BLOCKS, 0x81) < 0)
+		return 1;
+	if (ioctl(fd, NBD_SET_SOCK, sv[0]) < 0)
+		return 1;
+	if (ioctl(fd, NBD_DO_IT) < 0)
+		return 1;
+	return 0;
+}
+
+When signal interrupt nbd_start_device_ioctl() waiting the condition
+atomic_read(&config->recv_threads) == 0, the task can hung because it
+waits the completion of the inflight IOs.
+
+This patch fixes the issue by clearing queue, not just shutdown, when
+signal interrupt nbd_start_device_ioctl().
+
+Link: https://syzkaller.appspot.com/bug?id=7d89a3ffacd2b83fdd39549bc4d8e0a89ef21239 [1]
+Reported-by: syzbot+38e6c55d4969a14c1534@syzkaller.appspotmail.com
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220907163502.577561-1-syoshida@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ieee802154_netdev.h |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/block/nbd.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/include/net/ieee802154_netdev.h
-+++ b/include/net/ieee802154_netdev.h
-@@ -193,21 +193,27 @@ static inline int
- ieee802154_sockaddr_check_size(struct sockaddr_ieee802154 *daddr, int len)
- {
- 	struct ieee802154_addr_sa *sa;
-+	int ret = 0;
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 09323b0510f0..610dc6a36a9d 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1327,10 +1327,12 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
+ 	mutex_unlock(&nbd->config_lock);
+ 	ret = wait_event_interruptible(config->recv_wq,
+ 					 atomic_read(&config->recv_threads) == 0);
+-	if (ret)
++	if (ret) {
+ 		sock_shutdown(nbd);
+-	flush_workqueue(nbd->recv_workq);
++		nbd_clear_que(nbd);
++	}
  
- 	sa = &daddr->addr;
- 	if (len < IEEE802154_MIN_NAMELEN)
- 		return -EINVAL;
- 	switch (sa->addr_type) {
-+	case IEEE802154_ADDR_NONE:
-+		break;
- 	case IEEE802154_ADDR_SHORT:
- 		if (len < IEEE802154_NAMELEN_SHORT)
--			return -EINVAL;
-+			ret = -EINVAL;
- 		break;
- 	case IEEE802154_ADDR_LONG:
- 		if (len < IEEE802154_NAMELEN_LONG)
--			return -EINVAL;
-+			ret = -EINVAL;
-+		break;
-+	default:
-+		ret = -EINVAL;
- 		break;
- 	}
--	return 0;
-+	return ret;
- }
- 
- static inline void ieee802154_addr_from_sa(struct ieee802154_addr *a,
++	flush_workqueue(nbd->recv_workq);
+ 	mutex_lock(&nbd->config_lock);
+ 	nbd_bdev_reset(bdev);
+ 	/* user requested, ignore socket errors */
+-- 
+2.35.1
+
 
 
