@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A2560B982
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B50560B97D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 22:13:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229786AbiJXUOW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 16:14:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38792 "EHLO
+        id S233253AbiJXUNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 16:13:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234054AbiJXUN5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:13:57 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E730323152;
-        Mon, 24 Oct 2022 11:32:16 -0700 (PDT)
+        with ESMTP id S233183AbiJXUM5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 16:12:57 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F9554C00C;
+        Mon, 24 Oct 2022 11:31:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 88FCACE16E0;
-        Mon, 24 Oct 2022 12:53:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 689C1C433C1;
-        Mon, 24 Oct 2022 12:53:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F3EC6CE16FC;
+        Mon, 24 Oct 2022 12:54:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1346AC433C1;
+        Mon, 24 Oct 2022 12:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615989;
-        bh=UYP2oKc4P3SHCiQi03PA0B37xuoGOAcj8Lm2E2okRUA=;
+        s=korg; t=1666616096;
+        bh=fummW0x/o/r/SgB1ZUE91SpUwlijrDtb+JgfkTDdCV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oRxY6jV4Zgyel84UwsDRr5UJtQhP+Aft0CA6xwOf625BQwtdj+lGkX1ugjJ7YHRj4
-         nGNKCermKR9ADtBMCtsod8Hpi1XbBBZG83vGTPbR1PhexQVHMDxRJX/4NYuMQemUHq
-         zUqTH4aqoiYGEddawEJYRCvSTCInjf6j060G2mc8=
+        b=oBUXLdqQhSdKqVOYMNYn1yOjSS4bifFR8e5+DEBCRx4yVfemmEWL7uriyYxyFkXqn
+         eJvcNdOKXQk7QU6O0/YljEvufgoigvJyFzQZs1MJJ+PfdmkDVbkoKXsf7Smd5u8YkV
+         ogeTXaVvcNbH+uP1PMgdJ3wjlQA/nYPtQehi33OY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Adri=C3=A1n=20Larumbe?= <adrian.larumbe@collabora.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 458/530] drm/meson: reorder driver deinit sequence to fix use-after-free bug
-Date:   Mon, 24 Oct 2022 13:33:22 +0200
-Message-Id: <20221024113105.793072600@linuxfoundation.org>
+Subject: [PATCH 5.15 469/530] ARM: dts: imx6sx: add missing properties for sram
+Date:   Mon, 24 Oct 2022 13:33:33 +0200
+Message-Id: <20221024113106.275606298@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
 References: <20221024113044.976326639@linuxfoundation.org>
@@ -54,156 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrián Larumbe <adrian.larumbe@collabora.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 31c519981eb141c7ec39bfd5be25d35f02edb868 ]
+[ Upstream commit 415432c008b2bce8138841356ba444631cabaa50 ]
 
-Unloading the driver triggers the following KASAN warning:
+All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
+sram@900000: '#address-cells' is a required property
+sram@900000: '#size-cells' is a required property
+sram@900000: 'ranges' is a required property
 
-[  +0.006275] =============================================================
-[  +0.000029] BUG: KASAN: use-after-free in __list_del_entry_valid+0xe0/0x1a0
-[  +0.000026] Read of size 8 at addr ffff000020c395e0 by task rmmod/2695
-
-[  +0.000019] CPU: 5 PID: 2695 Comm: rmmod Tainted: G         C O      5.19.0-rc6-lrmbkasan+ #1
-[  +0.000013] Hardware name: Hardkernel ODROID-N2Plus (DT)
-[  +0.000008] Call trace:
-[  +0.000007]  dump_backtrace+0x1ec/0x280
-[  +0.000013]  show_stack+0x24/0x80
-[  +0.000008]  dump_stack_lvl+0x98/0xd4
-[  +0.000011]  print_address_description.constprop.0+0x80/0x520
-[  +0.000011]  print_report+0x128/0x260
-[  +0.000007]  kasan_report+0xb8/0xfc
-[  +0.000008]  __asan_report_load8_noabort+0x3c/0x50
-[  +0.000010]  __list_del_entry_valid+0xe0/0x1a0
-[  +0.000009]  drm_atomic_private_obj_fini+0x30/0x200 [drm]
-[  +0.000172]  drm_bridge_detach+0x94/0x260 [drm]
-[  +0.000145]  drm_encoder_cleanup+0xa4/0x290 [drm]
-[  +0.000144]  drm_mode_config_cleanup+0x118/0x740 [drm]
-[  +0.000143]  drm_mode_config_init_release+0x1c/0x2c [drm]
-[  +0.000144]  drm_managed_release+0x170/0x414 [drm]
-[  +0.000142]  drm_dev_put.part.0+0xc0/0x124 [drm]
-[  +0.000143]  drm_dev_put+0x20/0x30 [drm]
-[  +0.000142]  meson_drv_unbind+0x1d8/0x2ac [meson_drm]
-[  +0.000028]  take_down_aggregate_device+0xb0/0x160
-[  +0.000016]  component_del+0x18c/0x360
-[  +0.000009]  meson_dw_hdmi_remove+0x28/0x40 [meson_dw_hdmi]
-[  +0.000015]  platform_remove+0x64/0xb0
-[  +0.000009]  device_remove+0xb8/0x154
-[  +0.000009]  device_release_driver_internal+0x398/0x5b0
-[  +0.000009]  driver_detach+0xac/0x1b0
-[  +0.000009]  bus_remove_driver+0x158/0x29c
-[  +0.000009]  driver_unregister+0x70/0xb0
-[  +0.000008]  platform_driver_unregister+0x20/0x2c
-[  +0.000008]  meson_dw_hdmi_platform_driver_exit+0x1c/0x30 [meson_dw_hdmi]
-[  +0.000012]  __do_sys_delete_module+0x288/0x400
-[  +0.000011]  __arm64_sys_delete_module+0x5c/0x80
-[  +0.000009]  invoke_syscall+0x74/0x260
-[  +0.000009]  el0_svc_common.constprop.0+0xcc/0x260
-[  +0.000009]  do_el0_svc+0x50/0x70
-[  +0.000007]  el0_svc+0x68/0x1a0
-[  +0.000012]  el0t_64_sync_handler+0x11c/0x150
-[  +0.000008]  el0t_64_sync+0x18c/0x190
-
-[  +0.000018] Allocated by task 0:
-[  +0.000007] (stack is not available)
-
-[  +0.000011] Freed by task 2695:
-[  +0.000008]  kasan_save_stack+0x2c/0x5c
-[  +0.000011]  kasan_set_track+0x2c/0x40
-[  +0.000008]  kasan_set_free_info+0x28/0x50
-[  +0.000009]  ____kasan_slab_free+0x128/0x1d4
-[  +0.000008]  __kasan_slab_free+0x18/0x24
-[  +0.000007]  slab_free_freelist_hook+0x108/0x230
-[  +0.000011]  kfree+0x110/0x35c
-[  +0.000008]  release_nodes+0xf0/0x16c
-[  +0.000009]  devres_release_group+0x180/0x270
-[  +0.000008]  component_unbind+0x128/0x1e0
-[  +0.000010]  component_unbind_all+0x1b8/0x264
-[  +0.000009]  meson_drv_unbind+0x1a0/0x2ac [meson_drm]
-[  +0.000025]  take_down_aggregate_device+0xb0/0x160
-[  +0.000009]  component_del+0x18c/0x360
-[  +0.000009]  meson_dw_hdmi_remove+0x28/0x40 [meson_dw_hdmi]
-[  +0.000012]  platform_remove+0x64/0xb0
-[  +0.000008]  device_remove+0xb8/0x154
-[  +0.000009]  device_release_driver_internal+0x398/0x5b0
-[  +0.000009]  driver_detach+0xac/0x1b0
-[  +0.000009]  bus_remove_driver+0x158/0x29c
-[  +0.000008]  driver_unregister+0x70/0xb0
-[  +0.000008]  platform_driver_unregister+0x20/0x2c
-[  +0.000008]  meson_dw_hdmi_platform_driver_exit+0x1c/0x30 [meson_dw_hdmi]
-[  +0.000011]  __do_sys_delete_module+0x288/0x400
-[  +0.000010]  __arm64_sys_delete_module+0x5c/0x80
-[  +0.000008]  invoke_syscall+0x74/0x260
-[  +0.000008]  el0_svc_common.constprop.0+0xcc/0x260
-[  +0.000008]  do_el0_svc+0x50/0x70
-[  +0.000007]  el0_svc+0x68/0x1a0
-[  +0.000009]  el0t_64_sync_handler+0x11c/0x150
-[  +0.000009]  el0t_64_sync+0x18c/0x190
-
-[  +0.000014] The buggy address belongs to the object at ffff000020c39000
-               which belongs to the cache kmalloc-4k of size 4096
-[  +0.000008] The buggy address is located 1504 bytes inside of
-               4096-byte region [ffff000020c39000, ffff000020c3a000)
-
-[  +0.000016] The buggy address belongs to the physical page:
-[  +0.000009] page:fffffc0000830e00 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x20c38
-[  +0.000013] head:fffffc0000830e00 order:3 compound_mapcount:0 compound_pincount:0
-[  +0.000008] flags: 0xffff00000010200(slab|head|node=0|zone=0|lastcpupid=0xffff)
-[  +0.000019] raw: 0ffff00000010200 fffffc0000fd4808 fffffc0000126208 ffff000000002e80
-[  +0.000009] raw: 0000000000000000 0000000000020002 00000001ffffffff 0000000000000000
-[  +0.000008] page dumped because: kasan: bad access detected
-
-[  +0.000011] Memory state around the buggy address:
-[  +0.000008]  ffff000020c39480: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  +0.000007]  ffff000020c39500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  +0.000007] >ffff000020c39580: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  +0.000007]                                                        ^
-[  +0.000007]  ffff000020c39600: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  +0.000007]  ffff000020c39680: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  +0.000006] ==================================================================
-
-The reason this is happening is unloading meson-dw-hdmi will cause the
-component API to take down the aggregate device, which in turn will cause
-all devres-managed memory to be freed, including the struct dw_hdmi
-allocated in dw_hdmi_probe. This struct embeds a struct drm_bridge that is
-added at the end of the function, and which is later on picked up in
-meson_encoder_hdmi_init.
-
-However, when attaching the bridge to the encoder created in
-meson_encoder_hdmi_init, it's linked to the encoder's bridge chain, from
-where it never leaves, even after devres_release_group is called when the
-driver's components are unbound and the embedding structure freed.
-
-Then, when calling drm_dev_put in the aggregate driver's unbind function,
-drm_bridge_detach is called for every single bridge linked to the encoder,
-including the one whose memory had already been deallocated.
-
-Fix by calling component_unbind_all after drm_dev_put.
-
-Signed-off-by: Adrián Larumbe <adrian.larumbe@collabora.com>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220919010940.419893-2-adrian.larumbe@collabora.com
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6sx.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
-index a56607501d36..56c7daeb116a 100644
---- a/drivers/gpu/drm/meson/meson_drv.c
-+++ b/drivers/gpu/drm/meson/meson_drv.c
-@@ -387,9 +387,9 @@ static void meson_drv_unbind(struct device *dev)
- 	drm_dev_unregister(drm);
- 	drm_kms_helper_poll_fini(drm);
- 	drm_atomic_helper_shutdown(drm);
--	component_unbind_all(dev, drm);
- 	free_irq(priv->vsync_irq, drm);
- 	drm_dev_put(drm);
-+	component_unbind_all(dev, drm);
+diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
+index 8516730778df..8bef5440278b 100644
+--- a/arch/arm/boot/dts/imx6sx.dtsi
++++ b/arch/arm/boot/dts/imx6sx.dtsi
+@@ -164,12 +164,18 @@
+ 		ocram_s: sram@8f8000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x008f8000 0x4000>;
++			ranges = <0 0x008f8000 0x4000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 			clocks = <&clks IMX6SX_CLK_OCRAM_S>;
+ 		};
  
- 	if (priv->afbcd.ops)
- 		priv->afbcd.ops->exit(priv);
+ 		ocram: sram@900000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x00900000 0x20000>;
++			ranges = <0 0x00900000 0x20000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 			clocks = <&clks IMX6SX_CLK_OCRAM>;
+ 		};
+ 
 -- 
 2.35.1
 
