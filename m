@@ -2,103 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BD8060BD5A
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 00:28:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C83AC60BEA9
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 01:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229634AbiJXW21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 18:28:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43580 "EHLO
+        id S231349AbiJXXdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 19:33:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231367AbiJXW2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 18:28:11 -0400
-Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BAEF792C9
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 13:49:44 -0700 (PDT)
-Received: by mail-il1-x12a.google.com with SMTP id i9so5809429ilv.9
-        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 13:49:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=L7LHbcvZIY8r47g2KsyoVCnt3cTEDb/n81/RnCjdJ7Q=;
-        b=dPue2clgRdYd4AS5JGvWhb+3qRAE5rY9oPc1ac5IJ9qh541g+KjAhAokThvCSYQ85i
-         Dt6pI56c/EZr5s5CB0wHhG7FPoMegrU4Mqipew+jdp3Cz4rU3/v1XmrfrkcVhw8DVM9X
-         RuuL4tHn0y9LUbqticD45uHEgj6vMPBv0x+F8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=L7LHbcvZIY8r47g2KsyoVCnt3cTEDb/n81/RnCjdJ7Q=;
-        b=VPdQpvHmqT75Gph4NgdqDn+L5l81yfAshMDBcIX20vleyeVoRs28k1tsUEmMNtV3b1
-         MY1s3viptvLUd7vUODdmAbx2gh6It1QybX2IlerThA9JU3HEK8vu/OKXjODm8CqAjuTq
-         /7pxOo8Qct1IDlS40DgeVWlxu3Aio2vq0FCYYBxOFp2YEIBWBkFQmNN5X/cyGneYnp2l
-         gB9m3AjZynLPwYVZQFQTKhQL59Wdm6HeLKo80K5HdVVh8+AcJWAChYp3o6V8VFvhujIu
-         D2QT8VR7gtNBd10+Q239zm9sXvAy1aSBGldjmzHFBsyzRoqzATreGXErl9/are6s3jWq
-         z0SQ==
-X-Gm-Message-State: ACrzQf1WMSMLYbNe77gD5ZOV8kwfLZNs0iXtEe4PWd+O3NMehLomE2Iw
-        MFIoF6TcQJAvvQttb29pGjYo2w==
-X-Google-Smtp-Source: AMsMyM4c1uW72CLag7R26KKH7E/esxMYN8j8ZTuhh+8/vqorNM8zozH7TLP1jcG6hAN6CvzhZEjD2A==
-X-Received: by 2002:a05:6e02:158a:b0:2d3:f198:9f39 with SMTP id m10-20020a056e02158a00b002d3f1989f39mr23231166ilu.206.1666644493727;
-        Mon, 24 Oct 2022 13:48:13 -0700 (PDT)
-Received: from [192.168.1.128] ([38.15.45.1])
-        by smtp.gmail.com with ESMTPSA id z13-20020a92bf0d000000b002fa9a1fc421sm317236ilh.45.2022.10.24.13.48.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Oct 2022 13:48:12 -0700 (PDT)
-Message-ID: <1f6eed06-dc00-c3ec-7298-05de2c4955de@linuxfoundation.org>
-Date:   Mon, 24 Oct 2022 14:48:11 -0600
+        with ESMTP id S230405AbiJXXcZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 19:32:25 -0400
+Received: from aposti.net (aposti.net [89.234.176.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE040107A8C;
+        Mon, 24 Oct 2022 14:53:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1666644740; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=avcN02YNvaxpZRdy8N6BP2+uTVrnwX31SrzsZGCAp0c=;
+        b=Bmyh2YOhAjfg1GSy4ncnAj+0uagLOdl4JNbxAeyUKnYnHQsPI4htDWCoHQuYlBqCsqa7qz
+        a1TvbaO2+3VP3gUDS4UmlqXfBkR5Tze5O7MPfwSi++v+pk0pHtro5AQCZftppjugDkmdxZ
+        IqWyRrP0D7KxE5peHD5QjkDZvR7LGAI=
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     od@opendingux.net, linux-pwm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        Paul Cercueil <paul@crapouillou.net>, stable@vger.kernel.org
+Subject: [PATCH 1/5] pwm: jz4740: Fix pin level of disabled TCU2 channels, part 1
+Date:   Mon, 24 Oct 2022 21:52:09 +0100
+Message-Id: <20221024205213.327001-2-paul@crapouillou.net>
+In-Reply-To: <20221024205213.327001-1-paul@crapouillou.net>
+References: <20221024205213.327001-1-paul@crapouillou.net>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH 6.0 00/20] 6.0.4-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20221024112934.415391158@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-In-Reply-To: <20221024112934.415391158@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/24/22 05:31, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.4 release.
-> There are 20 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 26 Oct 2022 11:29:24 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.4-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+The "duty > cycle" trick to force the pin level of a disabled TCU2
+channel would only work when the channel had been enabled previously.
 
-Compiled and booted on my test system. No dmesg regressions.
+Address this issue by enabling the PWM mode in jz4740_pwm_disable
+(I know, right) so that the "duty > cycle" trick works before disabling
+the PWM channel right after.
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+This issue went unnoticed, as the PWM pins on the majority of the boards
+tested would default to the inactive level once the corresponding TCU
+clock was enabled, so the first call to jz4740_pwm_disable() would not
+actually change the pin levels.
 
-thanks,
--- Shuah
+On the GCW Zero however, the PWM pin for the backlight (PWM1, which is
+a TCU2 channel) goes active as soon as the timer1 clock is enabled.
+Since the jz4740_pwm_disable() function did not work on channels not
+previously enabled, the backlight would shine at full brightness from
+the moment the backlight driver would probe, until the backlight driver
+tried to *enable* the PWM output.
+
+With this fix, the PWM pins will be forced inactive as soon as
+jz4740_pwm_apply() is called (and might be reconfigured to active if
+dictated by the pwm_state). This means that there is still a tiny time
+frame between the .request() and .apply() callbacks where the PWM pin
+might be active. Sadly, there is no way to fix this issue: it is
+impossible to write a PWM channel's registers if the corresponding clock
+is not enabled, and enabling the clock is what causes the PWM pin to go
+active.
+
+There is a workaround, though, which complements this fix: simply
+starting the backlight driver (or any PWM client driver) with a "init"
+pinctrl state that sets the pin as an inactive GPIO. Once the driver is
+probed and the pinctrl state switches to "default", the regular PWM pin
+configuration can be used as it will be properly driven.
+
+Fixes: c2693514a0a1 ("pwm: jz4740: Obtain regmap from parent node")
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Cc: stable@vger.kernel.org
+---
+ drivers/pwm/pwm-jz4740.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
+index a5fdf97c0d2e..228eb104bf1e 100644
+--- a/drivers/pwm/pwm-jz4740.c
++++ b/drivers/pwm/pwm-jz4740.c
+@@ -102,11 +102,14 @@ static void jz4740_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
+ 	struct jz4740_pwm_chip *jz = to_jz4740(chip);
+ 
+ 	/*
+-	 * Set duty > period. This trick allows the TCU channels in TCU2 mode to
+-	 * properly return to their init level.
++	 * Set duty > period, then enable PWM mode and start the counter.
++	 * This trick allows to force the inactive pin level for the TCU2
++	 * channels.
+ 	 */
+ 	regmap_write(jz->map, TCU_REG_TDHRc(pwm->hwpwm), 0xffff);
+ 	regmap_write(jz->map, TCU_REG_TDFRc(pwm->hwpwm), 0x0);
++	regmap_set_bits(jz->map, TCU_REG_TCSRc(pwm->hwpwm), TCU_TCSR_PWM_EN);
++	regmap_write(jz->map, TCU_REG_TESR, BIT(pwm->hwpwm));
+ 
+ 	/*
+ 	 * Disable PWM output.
+-- 
+2.35.1
+
