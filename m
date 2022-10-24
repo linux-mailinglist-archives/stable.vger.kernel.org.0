@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA59460A5B1
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:28:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC01B60A947
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:17:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230056AbiJXM2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:28:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60588 "EHLO
+        id S235887AbiJXNRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:17:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233668AbiJXM1N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:27:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E316386809;
-        Mon, 24 Oct 2022 05:01:38 -0700 (PDT)
+        with ESMTP id S233069AbiJXNRC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:17:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F4C11A3D;
+        Mon, 24 Oct 2022 05:26:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74EE6B81186;
-        Mon, 24 Oct 2022 11:57:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1AD0C433D6;
-        Mon, 24 Oct 2022 11:57:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D79C361291;
+        Mon, 24 Oct 2022 12:25:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEB7AC433D6;
+        Mon, 24 Oct 2022 12:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612630;
-        bh=vu9eNoLHiHjtM5lf+Zi1lWs4QGZZCvb2o0ZwjBsrQh4=;
+        s=korg; t=1666614342;
+        bh=qRVzc51V29E4b48Cb3aNElsbDhochs3vnq6JxPF0XQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1iVg+5SxRa4jPT9KVHB9AXw7Ae8nUYv0lO8bh71kZOA8qzKiNSHJaEbxwb297ywI
-         t1tYSZiDGiGlmN6NbPs1UW370T8NoSBeEj9g338KJ97Ghlz+ZKGqo+IYMXo6Ka9QMy
-         9h4AMFhiH/S4qUbOCIMCdOJ4jiO4d9241fU/44iY=
+        b=Hr78uM0clRFBmSFRlOL3YUBblI8GusnscDvJwJ1TP3cSoZgPNipyk55dcRVDnTmGH
+         3XrgM+a8kuI2M2X2w77qI8jaRgWffYD3rdikJqIowzSrD1urwwTh3xX5doIqv0kuhE
+         CoI00LpH9dbvsFLNtJb2zlofWthEhUyIDrJ93ISI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Lalith Rajendran <lalithkraj@google.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 060/229] ext4: make ext4_lazyinit_thread freezable
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 182/390] ARM: Drop CMDLINE_* dependency on ATAGS
 Date:   Mon, 24 Oct 2022 13:29:39 +0200
-Message-Id: <20221024113001.027446839@linuxfoundation.org>
+Message-Id: <20221024113030.502841120@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lalith Rajendran <lalithkraj@google.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 3b575495ab8dbb4dbe85b4ac7f991693c3668ff5 upstream.
+[ Upstream commit 136f4b1ec7c962ee37a787e095fd37b058d72bd3 ]
 
-ext4_lazyinit_thread is not set freezable. Hence when the thread calls
-try_to_freeze it doesn't freeze during suspend and continues to send
-requests to the storage during suspend, resulting in suspend failures.
+On arm32, the configuration options to specify the kernel command line
+type depend on ATAGS.  However, the actual CMDLINE cofiguration option
+does not depend on ATAGS, and the code that handles this is not specific
+to ATAGS (see drivers/of/fdt.c:early_init_dt_scan_chosen()).
 
-Cc: stable@kernel.org
-Signed-off-by: Lalith Rajendran <lalithkraj@google.com>
-Link: https://lore.kernel.org/r/20220818214049.1519544-1-lalithkraj@google.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Hence users who desire to override the kernel command line on arm32 must
+enable support for ATAGS, even on a pure-DT system.  Other architectures
+(arm64, loongarch, microblaze, nios2, powerpc, and riscv) do not impose
+such a restriction.
+
+Hence drop the dependency on ATAGS.
+
+Fixes: bd51e2f595580fb6 ("ARM: 7506/1: allow for ATAGS to be configured out when DT support is selected")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3112,6 +3112,7 @@ static int ext4_lazyinit_thread(void *ar
- 	unsigned long next_wakeup, cur;
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index b587ecc6f949..985ab0b091a6 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1791,7 +1791,6 @@ config CMDLINE
+ choice
+ 	prompt "Kernel command line type" if CMDLINE != ""
+ 	default CMDLINE_FROM_BOOTLOADER
+-	depends on ATAGS
  
- 	BUG_ON(NULL == eli);
-+	set_freezable();
- 
- cont_thread:
- 	while (true) {
+ config CMDLINE_FROM_BOOTLOADER
+ 	bool "Use bootloader kernel arguments if available"
+-- 
+2.35.1
+
 
 
