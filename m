@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21AB460B042
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:03:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 632F860B33B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 19:00:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232771AbiJXQDW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:03:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38458 "EHLO
+        id S230459AbiJXRAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 13:00:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232370AbiJXQC2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:02:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27151112A86;
-        Mon, 24 Oct 2022 07:55:42 -0700 (PDT)
+        with ESMTP id S229959AbiJXQ62 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:58:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 770373E777;
+        Mon, 24 Oct 2022 08:37:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9559AB81680;
-        Mon, 24 Oct 2022 12:26:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F354FC433D6;
-        Mon, 24 Oct 2022 12:26:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2DF9B811E7;
+        Mon, 24 Oct 2022 11:59:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4613AC433C1;
+        Mon, 24 Oct 2022 11:59:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614371;
-        bh=fVjz5Ks1uqp8ZxMRnCA4ldqH2dXUZmbtXtJd8+Cg3r0=;
+        s=korg; t=1666612798;
+        bh=m13IFTUaEZZ3IJYKl4KRUETJ2GzfudCnvdR4i1l9oaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uINb36pSX2qsT1/FwFZEO6fOlTeoDyPqpCfT31zrZk0ZiT8jocBts1ZWNwg4d9dg1
-         tTrCnLR6ZnX6y7PdbJBNdxPMRrpbXjtDkI5xvEzeyQTWDQPIvSIDwk6TriRkqom5rP
-         KG2LldHZUppDmGV45UhtePY3fg63nFUXXNm4QS0s=
+        b=qqEbLNyAPCTEwuAFuaX3eekFLcL0S1oIz+RLtdlcknsqZgvAt/AavZudW850fudZF
+         ooVuuwcQOHABYyC5jKdcLMJWuhPmN/dphp+/q8fiRhE49A0HI2zXoRjX93YmFZCtSb
+         RjhziRO5E2nvCsXgmxi+4UYgvaVYAeiQFE7743ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 236/390] serial: 8250: Add an empty line and remove some useless {}
-Date:   Mon, 24 Oct 2022 13:30:33 +0200
-Message-Id: <20221024113032.840433308@linuxfoundation.org>
+Subject: [PATCH 4.19 116/229] ARM: dts: exynos: fix polarity of VBUS GPIO of Origen
+Date:   Mon, 24 Oct 2022 13:30:35 +0200
+Message-Id: <20221024113002.753802574@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 26f7591632d74f637f346f5d642d8ebe6b433fc9 ]
+[ Upstream commit a08137bd1e0a7ce951dce9ce4a83e39d379b6e1b ]
 
-This fixes the following checkpatch.pl warnings:
-   WARNING: Missing a blank line after declarations
-   WARNING: braces {} are not necessary for any arm of this statement
+EHCI Oxynos (drivers/usb/host/ehci-exynos.c) drives VBUS GPIO high when
+trying to power up the bus, therefore the GPIO in DTS must be marked as
+"active high". This will be important when EHCI driver is converted to
+gpiod API that respects declared polarities.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/257ffd691b4a062ad017333c9430d69da6dbd29a.1619594713.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 039d4926379b ("serial: 8250: Toggle IER bits on only after irq has been set up")
+Fixes: 4e8991def565 ("ARM: dts: exynos: Enable AX88760 USB hub on Origen board")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20220927220504.3744878-1-dmitry.torokhov@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/exynos4412-origen.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_core.c b/drivers/tty/serial/8250/8250_core.c
-index 98ce484f1089..aae9d26ce4f4 100644
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -332,9 +332,9 @@ static int univ8250_setup_irq(struct uart_8250_port *up)
- 	 * hardware interrupt, we use a timer-based system.  The original
- 	 * driver used to do this with IRQ0.
- 	 */
--	if (!port->irq) {
-+	if (!port->irq)
- 		mod_timer(&up->timer, jiffies + uart_poll_timeout(port));
--	} else
-+	else
- 		retval = serial_link_irq_chain(up);
+diff --git a/arch/arm/boot/dts/exynos4412-origen.dts b/arch/arm/boot/dts/exynos4412-origen.dts
+index 346f71932457..e5bfa76185a2 100644
+--- a/arch/arm/boot/dts/exynos4412-origen.dts
++++ b/arch/arm/boot/dts/exynos4412-origen.dts
+@@ -87,7 +87,7 @@
+ };
  
- 	return retval;
-@@ -766,6 +766,7 @@ void serial8250_suspend_port(int line)
- 	if (!console_suspend_enabled && uart_console(port) &&
- 	    port->type != PORT_8250) {
- 		unsigned char canary = 0xa5;
-+
- 		serial_out(up, UART_SCR, canary);
- 		if (serial_in(up, UART_SCR) == canary)
- 			up->canary = canary;
+ &ehci {
+-	samsung,vbus-gpio = <&gpx3 5 1>;
++	samsung,vbus-gpio = <&gpx3 5 GPIO_ACTIVE_HIGH>;
+ 	status = "okay";
+ 
+ 	port@1 {
 -- 
 2.35.1
 
