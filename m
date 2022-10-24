@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC23860A5B8
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:30:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A66760A466
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233526AbiJXM2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:28:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57336 "EHLO
+        id S232723AbiJXMKL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:10:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233793AbiJXM2P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:28:15 -0400
+        with ESMTP id S232844AbiJXMJB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:09:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 696CB86F91;
-        Mon, 24 Oct 2022 05:02:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F3F7F0AF;
+        Mon, 24 Oct 2022 04:52:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13944B811A1;
-        Mon, 24 Oct 2022 11:57:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FF22C433D6;
-        Mon, 24 Oct 2022 11:57:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C659DB81158;
+        Mon, 24 Oct 2022 11:40:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 217F2C433B5;
+        Mon, 24 Oct 2022 11:39:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612666;
-        bh=5jtB3YGE+UAWdXBMYTNVATKere32q+gsH1tPZl6hWoM=;
+        s=korg; t=1666611599;
+        bh=zZ6aCnvvIvMD/DtvvB7qbtS2ts7lyXMgsQSGtvWJf1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SDHwTNwCSY0/Ws6vMTU5gUXHHlWzeHW/LLXx6op88He78KLdQa3dMKWBLJj8xBdgb
-         lWuowtxMxjl+viFuFSPRA/1qwjQoCckouMj8aqhTJok4JjqvKL748SiaVziYv2U+rs
-         o39YoL+S2Few9VlKvsvbBJk132E+FStbfqV9aQW0=
+        b=gmWnYtn0ST9o0YnFnkXzaZkOExg/nW9Tkkzkv0Njy4gCwcKGrcji0oUAQRlcBYfCw
+         WhVhf65pAnYPSO7sdx9/vY+vIISZGYTX2Ot0RclNpbnfMRSD6O0qvgJWCnf1F2Kwom
+         JgpyqqaHPLnouoMsXa4YfQKJ+/HJNKt4iEkyFFvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lam Thai <lamthai@arista.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Quentin Monnet <quentin@isovalent.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 073/229] bpftool: Fix a wrong type cast in btf_dumper_int
-Date:   Mon, 24 Oct 2022 13:29:52 +0200
-Message-Id: <20221024113001.440029793@linuxfoundation.org>
+        stable@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>,
+        Pavel Rojtberg <rojtberg@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 039/159] Input: xpad - fix wireless 360 controller breaking after suspend
+Date:   Mon, 24 Oct 2022 13:29:53 +0200
+Message-Id: <20221024112950.808880388@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
+References: <20221024112949.358278806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lam Thai <lamthai@arista.com>
+From: Cameron Gutman <aicommander@gmail.com>
 
-[ Upstream commit 7184aef9c0f7a81db8fd18d183ee42481d89bf35 ]
+commit a17b9841152e7f4621619902b347e2cc39c32996 upstream.
 
-When `data` points to a boolean value, casting it to `int *` is problematic
-and could lead to a wrong value being passed to `jsonw_bool`. Change the
-cast to `bool *` instead.
+Suspending and resuming the system can sometimes cause the out
+URB to get hung after a reset_resume. This causes LED setting
+and force feedback to break on resume. To avoid this, just drop
+the reset_resume callback so the USB core rebinds xpad to the
+wireless pads on resume if a reset happened.
 
-Fixes: b12d6ec09730 ("bpf: btf: add btf print functionality")
-Signed-off-by: Lam Thai <lamthai@arista.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Reviewed-by: Quentin Monnet <quentin@isovalent.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20220824225859.9038-1-lamthai@arista.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+A nice side effect of this change is the LED ring on wireless
+controllers is now set correctly on system resume.
+
+Cc: stable@vger.kernel.org
+Fixes: 4220f7db1e42 ("Input: xpad - workaround dead irq_out after suspend/ resume")
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+Link: https://lore.kernel.org/r/20220818154411.510308-3-rojtberg@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/bpf/bpftool/btf_dumper.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/joystick/xpad.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/tools/bpf/bpftool/btf_dumper.c b/tools/bpf/bpftool/btf_dumper.c
-index 1e7c619228a2..2da43d930ed3 100644
---- a/tools/bpf/bpftool/btf_dumper.c
-+++ b/tools/bpf/bpftool/btf_dumper.c
-@@ -164,7 +164,7 @@ static int btf_dumper_int(const struct btf_type *t, __u8 bit_offset,
- 					     *(char *)data);
- 		break;
- 	case BTF_INT_BOOL:
--		jsonw_bool(jw, *(int *)data);
-+		jsonw_bool(jw, *(bool *)data);
- 		break;
- 	default:
- 		/* shouldn't happen */
--- 
-2.35.1
-
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -2000,7 +2000,6 @@ static struct usb_driver xpad_driver = {
+ 	.disconnect	= xpad_disconnect,
+ 	.suspend	= xpad_suspend,
+ 	.resume		= xpad_resume,
+-	.reset_resume	= xpad_resume,
+ 	.id_table	= xpad_table,
+ };
+ 
 
 
