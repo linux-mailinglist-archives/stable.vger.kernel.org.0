@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ABDE60B757
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:23:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CC5C60B7EF
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:37:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232014AbiJXTXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:23:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44598 "EHLO
+        id S232163AbiJXThh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:37:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232193AbiJXTVv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:21:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 205DE5E674;
-        Mon, 24 Oct 2022 10:57:15 -0700 (PDT)
+        with ESMTP id S233360AbiJXThS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:37:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE94D165CA7;
+        Mon, 24 Oct 2022 11:07:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 177EEB81984;
-        Mon, 24 Oct 2022 12:41:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70899C433C1;
-        Mon, 24 Oct 2022 12:41:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85B21B81259;
+        Mon, 24 Oct 2022 12:07:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB003C433C1;
+        Mon, 24 Oct 2022 12:07:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666615287;
-        bh=786S+Dn2aWcaP69zrtbMp2Xt408gllhiKlEpepX6aYo=;
+        s=korg; t=1666613227;
+        bh=f8G+ZqxzK7owbbLn3ZRePAVxBAeNxR/+4kqK8EJlIRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g64ML5hVMTlldpEV5mjkDb7hN7PK/RGpNxfshKMtv2+G9uBmwxi3VKNEU6tDVjlId
-         UzAooCts0QCWXkRbgOZh3bcwtsyzwb8SMjAFUan5p4fNrJzguYLk4zbHab9r35qYZo
-         sNuN5xZVM26v7P534bjs9zhASxPIokokyzlNe51Q=
+        b=Irajqu3uS83PMU9X7hj7h+dDtJkfMTN7HB4jOiJ5srsFi36CR5WrtRDJUELtwNKZN
+         X6gLiO9aHmnnrqgyGLbiQix6TrG6mp79ReNY1uj2/GctBLwVmK5c+7j8/0y45UmF7c
+         LGfH3v9DPymHFcTxV/u1FJJVKvZLnxF4/9h7GGSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
-        Florian Westphal <fw@strlen.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 192/530] netfilter: nft_fib: Fix for rpath check with VRF devices
-Date:   Mon, 24 Oct 2022 13:28:56 +0200
-Message-Id: <20221024113053.747340677@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.4 027/255] RISC-V: Make port I/O string accessors actually work
+Date:   Mon, 24 Oct 2022 13:28:57 +0200
+Message-Id: <20221024113003.351633006@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-References: <20221024113044.976326639@linuxfoundation.org>
+In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
+References: <20221024113002.471093005@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +53,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit 2a8a7c0eaa8747c16aa4a48d573aa920d5c00a5c ]
+commit 9cc205e3c17d5716da7ebb7fa0c985555e95d009 upstream.
 
-Analogous to commit b575b24b8eee3 ("netfilter: Fix rpfilter
-dropping vrf packets by mistake") but for nftables fib expression:
-Add special treatment of VRF devices so that typical reverse path
-filtering via 'fib saddr . iif oif' expression works as expected.
+Fix port I/O string accessors such as `insb', `outsb', etc. which use
+the physical PCI port I/O address rather than the corresponding memory
+mapping to get at the requested location, which in turn breaks at least
+accesses made by our parport driver to a PCIe parallel port such as:
 
-Fixes: f6d0cbcf09c50 ("netfilter: nf_tables: add fib expression")
-Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+PCI parallel port detected: 1415:c118, I/O at 0x1000(0x1008), IRQ 20
+parport0: PC-style at 0x1000 (0x1008), irq 20, using FIFO [PCSPP,TRISTATE,COMPAT,EPP,ECP]
+
+causing a memory access fault:
+
+Unable to handle kernel access to user memory without uaccess routines at virtual address 0000000000001008
+Oops [#1]
+Modules linked in:
+CPU: 1 PID: 350 Comm: cat Not tainted 6.0.0-rc2-00283-g10d4879f9ef0-dirty #23
+Hardware name: SiFive HiFive Unmatched A00 (DT)
+epc : parport_pc_fifo_write_block_pio+0x266/0x416
+ ra : parport_pc_fifo_write_block_pio+0xb4/0x416
+epc : ffffffff80542c3e ra : ffffffff80542a8c sp : ffffffd88899fc60
+ gp : ffffffff80fa2700 tp : ffffffd882b1e900 t0 : ffffffd883d0b000
+ t1 : ffffffffff000002 t2 : 4646393043330a38 s0 : ffffffd88899fcf0
+ s1 : 0000000000001000 a0 : 0000000000000010 a1 : 0000000000000000
+ a2 : ffffffd883d0a010 a3 : 0000000000000023 a4 : 00000000ffff8fbb
+ a5 : ffffffd883d0a001 a6 : 0000000100000000 a7 : ffffffc800000000
+ s2 : ffffffffff000002 s3 : ffffffff80d28880 s4 : ffffffff80fa1f50
+ s5 : 0000000000001008 s6 : 0000000000000008 s7 : ffffffd883d0a000
+ s8 : 0004000000000000 s9 : ffffffff80dc1d80 s10: ffffffd8807e4000
+ s11: 0000000000000000 t3 : 00000000000000ff t4 : 393044410a303930
+ t5 : 0000000000001000 t6 : 0000000000040000
+status: 0000000200000120 badaddr: 0000000000001008 cause: 000000000000000f
+[<ffffffff80543212>] parport_pc_compat_write_block_pio+0xfe/0x200
+[<ffffffff8053bbc0>] parport_write+0x46/0xf8
+[<ffffffff8050530e>] lp_write+0x158/0x2d2
+[<ffffffff80185716>] vfs_write+0x8e/0x2c2
+[<ffffffff80185a74>] ksys_write+0x52/0xc2
+[<ffffffff80185af2>] sys_write+0xe/0x16
+[<ffffffff80003770>] ret_from_syscall+0x0/0x2
+---[ end trace 0000000000000000 ]---
+
+For simplicity address the problem by adding PCI_IOBASE to the physical
+address requested in the respective wrapper macros only, observing that
+the raw accessors such as `__insb', `__outsb', etc. are not supposed to
+be used other than by said macros.  Remove the cast to `long' that is no
+longer needed on `addr' now that it is used as an offset from PCI_IOBASE
+and add parentheses around `addr' needed for predictable evaluation in
+macro expansion.  No need to make said adjustments in separate changes
+given that current code is gravely broken and does not ever work.
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: fab957c11efe2 ("RISC-V: Atomic and Locking Code")
+Cc: stable@vger.kernel.org # v4.15+
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209220223080.29493@angie.orcam.me.uk
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/netfilter/nft_fib_ipv4.c | 3 +++
- net/ipv6/netfilter/nft_fib_ipv6.c | 6 +++++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ arch/riscv/include/asm/io.h |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/ipv4/netfilter/nft_fib_ipv4.c b/net/ipv4/netfilter/nft_fib_ipv4.c
-index 03df986217b7..9e6f0f1275e2 100644
---- a/net/ipv4/netfilter/nft_fib_ipv4.c
-+++ b/net/ipv4/netfilter/nft_fib_ipv4.c
-@@ -83,6 +83,9 @@ void nft_fib4_eval(const struct nft_expr *expr, struct nft_regs *regs,
- 	else
- 		oif = NULL;
+--- a/arch/riscv/include/asm/io.h
++++ b/arch/riscv/include/asm/io.h
+@@ -252,9 +252,9 @@ __io_reads_ins(reads, u32, l, __io_br(),
+ __io_reads_ins(ins,  u8, b, __io_pbr(), __io_par(addr))
+ __io_reads_ins(ins, u16, w, __io_pbr(), __io_par(addr))
+ __io_reads_ins(ins, u32, l, __io_pbr(), __io_par(addr))
+-#define insb(addr, buffer, count) __insb((void __iomem *)(long)addr, buffer, count)
+-#define insw(addr, buffer, count) __insw((void __iomem *)(long)addr, buffer, count)
+-#define insl(addr, buffer, count) __insl((void __iomem *)(long)addr, buffer, count)
++#define insb(addr, buffer, count) __insb(PCI_IOBASE + (addr), buffer, count)
++#define insw(addr, buffer, count) __insw(PCI_IOBASE + (addr), buffer, count)
++#define insl(addr, buffer, count) __insl(PCI_IOBASE + (addr), buffer, count)
  
-+	if (priv->flags & NFTA_FIB_F_IIF)
-+		fl4.flowi4_oif = l3mdev_master_ifindex_rcu(oif);
-+
- 	if (nft_hook(pkt) == NF_INET_PRE_ROUTING &&
- 	    nft_fib_is_loopback(pkt->skb, nft_in(pkt))) {
- 		nft_fib_store_result(dest, priv, nft_in(pkt));
-diff --git a/net/ipv6/netfilter/nft_fib_ipv6.c b/net/ipv6/netfilter/nft_fib_ipv6.c
-index 92f3235fa287..602743f6dcee 100644
---- a/net/ipv6/netfilter/nft_fib_ipv6.c
-+++ b/net/ipv6/netfilter/nft_fib_ipv6.c
-@@ -37,6 +37,9 @@ static int nft_fib6_flowi_init(struct flowi6 *fl6, const struct nft_fib *priv,
- 	if (ipv6_addr_type(&fl6->daddr) & IPV6_ADDR_LINKLOCAL) {
- 		lookup_flags |= RT6_LOOKUP_F_IFACE;
- 		fl6->flowi6_oif = get_ifindex(dev ? dev : pkt->skb->dev);
-+	} else if ((priv->flags & NFTA_FIB_F_IIF) &&
-+		   (netif_is_l3_master(dev) || netif_is_l3_slave(dev))) {
-+		fl6->flowi6_oif = dev->ifindex;
- 	}
+ __io_writes_outs(writes,  u8, b, __io_bw(), __io_aw())
+ __io_writes_outs(writes, u16, w, __io_bw(), __io_aw())
+@@ -266,22 +266,22 @@ __io_writes_outs(writes, u32, l, __io_bw
+ __io_writes_outs(outs,  u8, b, __io_pbw(), __io_paw())
+ __io_writes_outs(outs, u16, w, __io_pbw(), __io_paw())
+ __io_writes_outs(outs, u32, l, __io_pbw(), __io_paw())
+-#define outsb(addr, buffer, count) __outsb((void __iomem *)(long)addr, buffer, count)
+-#define outsw(addr, buffer, count) __outsw((void __iomem *)(long)addr, buffer, count)
+-#define outsl(addr, buffer, count) __outsl((void __iomem *)(long)addr, buffer, count)
++#define outsb(addr, buffer, count) __outsb(PCI_IOBASE + (addr), buffer, count)
++#define outsw(addr, buffer, count) __outsw(PCI_IOBASE + (addr), buffer, count)
++#define outsl(addr, buffer, count) __outsl(PCI_IOBASE + (addr), buffer, count)
  
- 	if (ipv6_addr_type(&fl6->saddr) & IPV6_ADDR_UNICAST)
-@@ -193,7 +196,8 @@ void nft_fib6_eval(const struct nft_expr *expr, struct nft_regs *regs,
- 	if (rt->rt6i_flags & (RTF_REJECT | RTF_ANYCAST | RTF_LOCAL))
- 		goto put_rt_err;
+ #ifdef CONFIG_64BIT
+ __io_reads_ins(reads, u64, q, __io_br(), __io_ar(addr))
+ #define readsq(addr, buffer, count) __readsq(addr, buffer, count)
  
--	if (oif && oif != rt->rt6i_idev->dev)
-+	if (oif && oif != rt->rt6i_idev->dev &&
-+	    l3mdev_master_ifindex_rcu(rt->rt6i_idev->dev) != oif->ifindex)
- 		goto put_rt_err;
+ __io_reads_ins(ins, u64, q, __io_pbr(), __io_par(addr))
+-#define insq(addr, buffer, count) __insq((void __iomem *)addr, buffer, count)
++#define insq(addr, buffer, count) __insq(PCI_IOBASE + (addr), buffer, count)
  
- 	nft_fib_store_result(dest, priv, rt->rt6i_idev->dev);
--- 
-2.35.1
-
+ __io_writes_outs(writes, u64, q, __io_bw(), __io_aw())
+ #define writesq(addr, buffer, count) __writesq(addr, buffer, count)
+ 
+ __io_writes_outs(outs, u64, q, __io_pbr(), __io_paw())
+-#define outsq(addr, buffer, count) __outsq((void __iomem *)addr, buffer, count)
++#define outsq(addr, buffer, count) __outsq(PCI_IOBASE + (addr), buffer, count)
+ #endif
+ 
+ #include <asm-generic/io.h>
 
 
