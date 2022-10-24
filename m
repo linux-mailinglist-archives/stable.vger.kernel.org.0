@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 064FB60A725
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:48:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8AB60A561
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234238AbiJXMsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:48:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59016 "EHLO
+        id S233593AbiJXMXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:23:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234589AbiJXMpL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:45:11 -0400
+        with ESMTP id S233233AbiJXMWn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:22:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD6922F01D;
-        Mon, 24 Oct 2022 05:09:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DACA63E7;
+        Mon, 24 Oct 2022 04:59:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EA9A6129D;
-        Mon, 24 Oct 2022 12:09:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5EF2C433D6;
-        Mon, 24 Oct 2022 12:09:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D8FA61280;
+        Mon, 24 Oct 2022 11:58:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F296C433D7;
+        Mon, 24 Oct 2022 11:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613348;
-        bh=ZrsYK6Nl2EM2TgK2s+s0ekaPojcy+Op5hVt+uaDoDp0=;
+        s=korg; t=1666612719;
+        bh=KqhLPw44/U/3UiBEYNT1QjNxtDA8eRK5sbZocUnIHaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkfhLekGj1NiNV+3WBWy8cQNLmrob0z49U4VDyVXPgiGuZ9JHAMRSsww9wiKl0IaI
-         Gm+EH15uX9gy+V6YzcohLotbDdjzML7rXE9bgT2Aot4lkJb7lxTbmr8+UZkMs3ms9J
-         8cwyXPRT4UB8wtP6KcX5ns9tHnVGzPs/BZhDtJhw=
+        b=rCHAcMRHctbUPZQgVpIlNhrRvQATvyIZ3ubqyD47m2vaNfLJ+cScZIMYFqVj9q3Jg
+         I/45KplujBZIcJbS07n0TSd3PVrafZc2mPUzZVSsoC3pDirbZEOTCm3YCrUsi6GEVH
+         VionEYxRL9zM4+4k9JHE+8c7O/2xfe4TDAhHxJZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 103/255] mmc: wmt-sdmmc: Fix an error handling path in wmt_mci_probe()
+Subject: [PATCH 4.19 094/229] drm: bridge: adv7511: fix CEC power down control register offset
 Date:   Mon, 24 Oct 2022 13:30:13 +0200
-Message-Id: <20221024113005.892591461@linuxfoundation.org>
+Message-Id: <20221024113002.087392095@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Alvin Šipraga <alsi@bang-olufsen.dk>
 
-[ Upstream commit cb58188ad90a61784a56a64f5107faaf2ad323e7 ]
+[ Upstream commit 1d22b6033ea113a4c3850dfa2c0770885c81aec8 ]
 
-A dma_free_coherent() call is missing in the error handling path of the
-probe, as already done in the remove function.
+The ADV7511_REG_CEC_CTRL = 0xE2 register is part of the main register
+map - not the CEC register map. As such, we shouldn't apply an offset to
+the register address. Doing so will cause us to address a bogus register
+for chips with a CEC register map offset (e.g. ADV7533).
 
-Fixes: 3a96dff0f828 ("mmc: SD/MMC Host Controller for Wondermedia WM8505/WM8650")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/53fc6ffa5d1c428fefeae7d313cf4a669c3a1e98.1663873255.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 3b1b975003e4 ("drm: adv7511/33: add HDMI CEC support")
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220612144854.2223873-2-alvin@pqrs.dk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/wmt-sdmmc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511.h     | 5 +----
+ drivers/gpu/drm/bridge/adv7511/adv7511_cec.c | 4 ++--
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mmc/host/wmt-sdmmc.c b/drivers/mmc/host/wmt-sdmmc.c
-index 2c4ba1fa4bbf..d774068dba30 100644
---- a/drivers/mmc/host/wmt-sdmmc.c
-+++ b/drivers/mmc/host/wmt-sdmmc.c
-@@ -849,7 +849,7 @@ static int wmt_mci_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->clk_sdmmc)) {
- 		dev_err(&pdev->dev, "Error getting clock\n");
- 		ret = PTR_ERR(priv->clk_sdmmc);
--		goto fail5;
-+		goto fail5_and_a_half;
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511.h b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+index 73d8ccb97742..d214865c2459 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511.h
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511.h
+@@ -383,10 +383,7 @@ void adv7511_cec_irq_process(struct adv7511 *adv7511, unsigned int irq1);
+ #else
+ static inline int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ {
+-	unsigned int offset = adv7511->type == ADV7533 ?
+-						ADV7533_REG_CEC_OFFSET : 0;
+-
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset,
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL,
+ 		     ADV7511_CEC_CTRL_POWER_DOWN);
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c b/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
+index a20a45c0b353..ddd1305b82b2 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
+@@ -316,7 +316,7 @@ int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ 		goto err_cec_alloc;
  	}
  
- 	ret = clk_prepare_enable(priv->clk_sdmmc);
-@@ -866,6 +866,9 @@ static int wmt_mci_probe(struct platform_device *pdev)
- 	return 0;
- fail6:
- 	clk_put(priv->clk_sdmmc);
-+fail5_and_a_half:
-+	dma_free_coherent(&pdev->dev, mmc->max_blk_count * 16,
-+			  priv->dma_desc_buffer, priv->dma_desc_device_addr);
- fail5:
- 	free_irq(dma_irq, priv);
- fail4:
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset, 0);
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL, 0);
+ 	/* cec soft reset */
+ 	regmap_write(adv7511->regmap_cec,
+ 		     ADV7511_REG_CEC_SOFT_RESET + offset, 0x01);
+@@ -343,7 +343,7 @@ int adv7511_cec_init(struct device *dev, struct adv7511 *adv7511)
+ 	dev_info(dev, "Initializing CEC failed with error %d, disabling CEC\n",
+ 		 ret);
+ err_cec_parse_dt:
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL + offset,
++	regmap_write(adv7511->regmap, ADV7511_REG_CEC_CTRL,
+ 		     ADV7511_CEC_CTRL_POWER_DOWN);
+ 	return ret == -EPROBE_DEFER ? ret : 0;
+ }
 -- 
 2.35.1
 
