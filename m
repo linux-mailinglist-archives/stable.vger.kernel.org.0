@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5BF260B813
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C502A60B6E4
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:13:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230467AbiJXTlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:41:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58382 "EHLO
+        id S233194AbiJXTNf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:13:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233293AbiJXTks (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:40:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40C9A1D442E;
-        Mon, 24 Oct 2022 11:10:45 -0700 (PDT)
+        with ESMTP id S233230AbiJXTNM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:13:12 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADACF19899A;
+        Mon, 24 Oct 2022 10:51:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 919A4B81158;
-        Mon, 24 Oct 2022 11:53:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFB63C433C1;
-        Mon, 24 Oct 2022 11:53:42 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 28506CE136C;
+        Mon, 24 Oct 2022 12:50:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C3A7C433C1;
+        Mon, 24 Oct 2022 12:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612423;
-        bh=DUNRbOfYHcGduoEF3sZo4D3K7GhkZpVN4FdTCRui4gY=;
+        s=korg; t=1666615827;
+        bh=OdDlMAN61B7j3oqOsYoJ6xIr+rzx3DGoeZGYiKv9/OU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/4ysU79IDXuzxsY91lUYmD6YBbShwMc7QD7brd/9QDRWkdd8OM20GmtgrHNNbR2P
-         EPNOQPlbm65gHRUOFshh7DJ5hCAZIwR+u0KrH2YyO7aJXvySp9Ul7t7C08g7D9PGtK
-         7aVoXNLm+/CjQLNHM4Qmo7X2i3yWG2V9fL5FssSs=
+        b=pqjrmkNHtFnjTTlgL0lAh61BSFaYosPbxH+suG3mndYuLL1qqV0ZMsBRhDhUY/rgv
+         Vt7dNCxnBJdORx2RvUgKQ3spMXCf53vAGGLKa+7afN7jBEw7cVyZqpKzypCgVhkwX3
+         kfG6dvPU3r6nARkaEyil5t8hXKuMXDCdvia0DmJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Rohan McLure <rmclure@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 192/210] ARM: dts: imx6qp: add missing properties for sram
-Date:   Mon, 24 Oct 2022 13:31:49 +0200
-Message-Id: <20221024113003.179050162@linuxfoundation.org>
+Subject: [PATCH 5.15 367/530] powerpc: Fix fallocate and fadvise64_64 compat parameter combination
+Date:   Mon, 24 Oct 2022 13:31:51 +0200
+Message-Id: <20221024113101.652523831@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Rohan McLure <rmclure@linux.ibm.com>
 
-[ Upstream commit 088fe5237435ee2f7ed4450519b2ef58b94c832f ]
+[ Upstream commit 016ff72bd2090903715c0f9422a44afbb966f4ee ]
 
-All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
-sram@940000: '#address-cells' is a required property
-sram@940000: '#size-cells' is a required property
-sram@940000: 'ranges' is a required property
+As reported[1] by Arnd, the arch-specific fadvise64_64 and fallocate
+compatibility handlers assume parameters are passed with 32-bit
+big-endian ABI. This affects the assignment of odd-even parameter pairs
+to the high or low words of a 64-bit syscall parameter.
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fix fadvise64_64 fallocate compat handlers to correctly swap upper/lower
+32 bits conditioned on endianness.
+
+A future patch will replace the arch-specific compat fallocate with an
+asm-generic implementation. This patch is intended for ease of
+back-port.
+
+[1]: https://lore.kernel.org/all/be29926f-226e-48dc-871a-e29a54e80583@www.fastmail.com/
+
+Fixes: 57f48b4b74e7 ("powerpc/compat_sys: swap hi/lo parts of 64-bit syscall args in LE mode")
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Rohan McLure <rmclure@linux.ibm.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220921065605.1051927-9-rmclure@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qp.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/powerpc/include/asm/syscalls.h | 12 ++++++++++++
+ arch/powerpc/kernel/sys_ppc32.c     | 14 +-------------
+ arch/powerpc/kernel/syscalls.c      |  4 ++--
+ 3 files changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6qp.dtsi b/arch/arm/boot/dts/imx6qp.dtsi
-index 299d863690c5..6cf0f9e18b70 100644
---- a/arch/arm/boot/dts/imx6qp.dtsi
-+++ b/arch/arm/boot/dts/imx6qp.dtsi
-@@ -47,12 +47,18 @@
- 		ocram2: sram@00940000 {
- 			compatible = "mmio-sram";
- 			reg = <0x00940000 0x20000>;
-+			ranges = <0 0x00940000 0x20000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
- 		};
+diff --git a/arch/powerpc/include/asm/syscalls.h b/arch/powerpc/include/asm/syscalls.h
+index 7ee66ae5444d..0e85d7aa395d 100644
+--- a/arch/powerpc/include/asm/syscalls.h
++++ b/arch/powerpc/include/asm/syscalls.h
+@@ -8,6 +8,18 @@
+ #include <linux/types.h>
+ #include <linux/compat.h>
  
- 		ocram3: sram@00960000 {
- 			compatible = "mmio-sram";
- 			reg = <0x00960000 0x20000>;
-+			ranges = <0 0x00960000 0x20000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
- 		};
++/*
++ * long long munging:
++ * The 32 bit ABI passes long longs in an odd even register pair.
++ * High and low parts are swapped depending on endian mode,
++ * so define a macro (similar to mips linux32) to handle that.
++ */
++#ifdef __LITTLE_ENDIAN__
++#define merge_64(low, high) (((u64)high << 32) | low)
++#else
++#define merge_64(high, low) (((u64)high << 32) | low)
++#endif
++
+ struct rtas_args;
  
+ asmlinkage long sys_mmap(unsigned long addr, size_t len,
+diff --git a/arch/powerpc/kernel/sys_ppc32.c b/arch/powerpc/kernel/sys_ppc32.c
+index 16ff0399a257..719bfc6d1e3f 100644
+--- a/arch/powerpc/kernel/sys_ppc32.c
++++ b/arch/powerpc/kernel/sys_ppc32.c
+@@ -56,18 +56,6 @@ unsigned long compat_sys_mmap2(unsigned long addr, size_t len,
+ 	return sys_mmap(addr, len, prot, flags, fd, pgoff << 12);
+ }
+ 
+-/* 
+- * long long munging:
+- * The 32 bit ABI passes long longs in an odd even register pair.
+- * High and low parts are swapped depending on endian mode,
+- * so define a macro (similar to mips linux32) to handle that.
+- */
+-#ifdef __LITTLE_ENDIAN__
+-#define merge_64(low, high) ((u64)high << 32) | low
+-#else
+-#define merge_64(high, low) ((u64)high << 32) | low
+-#endif
+-
+ compat_ssize_t compat_sys_pread64(unsigned int fd, char __user *ubuf, compat_size_t count,
+ 			     u32 reg6, u32 pos1, u32 pos2)
+ {
+@@ -94,7 +82,7 @@ asmlinkage int compat_sys_truncate64(const char __user * path, u32 reg4,
+ asmlinkage long compat_sys_fallocate(int fd, int mode, u32 offset1, u32 offset2,
+ 				     u32 len1, u32 len2)
+ {
+-	return ksys_fallocate(fd, mode, ((loff_t)offset1 << 32) | offset2,
++	return ksys_fallocate(fd, mode, merge_64(offset1, offset2),
+ 			     merge_64(len1, len2));
+ }
+ 
+diff --git a/arch/powerpc/kernel/syscalls.c b/arch/powerpc/kernel/syscalls.c
+index 825931e400df..e3edcf8f7cae 100644
+--- a/arch/powerpc/kernel/syscalls.c
++++ b/arch/powerpc/kernel/syscalls.c
+@@ -99,8 +99,8 @@ long ppc64_personality(unsigned long personality)
+ long ppc_fadvise64_64(int fd, int advice, u32 offset_high, u32 offset_low,
+ 		      u32 len_high, u32 len_low)
+ {
+-	return ksys_fadvise64_64(fd, (u64)offset_high << 32 | offset_low,
+-				 (u64)len_high << 32 | len_low, advice);
++	return ksys_fadvise64_64(fd, merge_64(offset_high, offset_low),
++				 merge_64(len_high, len_low), advice);
+ }
+ 
+ SYSCALL_DEFINE0(switch_endian)
 -- 
 2.35.1
 
