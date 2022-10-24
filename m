@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63B6D60A949
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:17:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20AB360A8DD
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:12:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235899AbiJXNRi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 09:17:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36996 "EHLO
+        id S235668AbiJXNML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:12:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235914AbiJXNRE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:17:04 -0400
+        with ESMTP id S235995AbiJXNKW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:10:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91CD8A3465;
-        Mon, 24 Oct 2022 05:26:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB39237ED;
+        Mon, 24 Oct 2022 05:24:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8299F612E1;
-        Mon, 24 Oct 2022 12:22:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 951EFC433C1;
-        Mon, 24 Oct 2022 12:22:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 27EB66126B;
+        Mon, 24 Oct 2022 12:22:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3490CC433C1;
+        Mon, 24 Oct 2022 12:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614169;
-        bh=lF6ikwfS09Vqb7bDreozm3jZplO8R39vXqkubMiPaoI=;
+        s=korg; t=1666614171;
+        bh=MP1yxVGBMzqN7/KGr058ycVVbIuCkd0O/DCmCEKeALM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IwtxEb9sUYxYIZILn9H769LBB0k6FQKTG5cCu91Zp1S6TPWZk5veUydp+VrHx1OL1
-         irvUrJxf5pENvpOaAdfxM/GGGHPSVPxFa9kL3ymAOguwduIZfO5+xQ74VpZeK7PQeb
-         0xbC5tLgpTkAB+h9DAkvInphbQCeaPaEtYpTNwtk=
+        b=LQLd8fVlNVxtEpwQBGP8dDJu4lurxDhvvehZdTol0AvnTAFasb7m6PnadaZmEQZ0Q
+         YxvqrZGp6TpxQpkqkMAm1i4ZB+5Iy3Dpyop097rwlYRDJfT+DWUMr/4f0SRTbLuYsR
+         VMusNC1NIWXUMjOzvWZcvhcQbldIINWsc+yw3tOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 159/390] mmc: au1xmmc: Fix an error handling path in au1xmmc_probe()
-Date:   Mon, 24 Oct 2022 13:29:16 +0200
-Message-Id: <20221024113029.469146107@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Kelin Wang <wangkelin2023@163.com>
+Subject: [PATCH 5.10 160/390] ASoC: eureka-tlv320: Hold reference returned from of_find_xxx API
+Date:   Mon, 24 Oct 2022 13:29:17 +0200
+Message-Id: <20221024113029.513716431@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -54,39 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 5cbedf52608cc3cbc1c2a9a861fb671620427a20 ]
+[ Upstream commit bfb735a3ceff0bab6473bac275da96f9b2a06dec ]
 
-If clk_prepare_enable() fails, there is no point in calling
-clk_disable_unprepare() in the error handling path.
+In eukrea_tlv320_probe(), we need to hold the reference returned
+from of_find_compatible_node() which has increased the refcount
+and then call of_node_put() with it when done.
 
-Move the out_clk label at the right place.
-
-Fixes: b6507596dfd6 ("MIPS: Alchemy: au1xmmc: use clk framework")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/21d99886d07fa7fcbec74992657dabad98c935c4.1661412818.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 66f232908de2 ("ASoC: eukrea-tlv320: Add DT support.")
+Co-authored-by: Kelin Wang <wangkelin2023@163.com>
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220914134354.3995587-1-windhl@126.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/au1xmmc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/fsl/eukrea-tlv320.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/host/au1xmmc.c b/drivers/mmc/host/au1xmmc.c
-index bd00515fbaba..56a3bf51d446 100644
---- a/drivers/mmc/host/au1xmmc.c
-+++ b/drivers/mmc/host/au1xmmc.c
-@@ -1097,8 +1097,9 @@ static int au1xmmc_probe(struct platform_device *pdev)
- 	if (host->platdata && host->platdata->cd_setup &&
- 	    !(mmc->caps & MMC_CAP_NEEDS_POLL))
- 		host->platdata->cd_setup(mmc, 0);
--out_clk:
-+
- 	clk_disable_unprepare(host->clk);
-+out_clk:
- 	clk_put(host->clk);
- out_irq:
- 	free_irq(host->irq, host);
+diff --git a/sound/soc/fsl/eukrea-tlv320.c b/sound/soc/fsl/eukrea-tlv320.c
+index e13271ea84de..29cf9234984d 100644
+--- a/sound/soc/fsl/eukrea-tlv320.c
++++ b/sound/soc/fsl/eukrea-tlv320.c
+@@ -86,7 +86,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 	int ret;
+ 	int int_port = 0, ext_port;
+ 	struct device_node *np = pdev->dev.of_node;
+-	struct device_node *ssi_np = NULL, *codec_np = NULL;
++	struct device_node *ssi_np = NULL, *codec_np = NULL, *tmp_np = NULL;
+ 
+ 	eukrea_tlv320.dev = &pdev->dev;
+ 	if (np) {
+@@ -143,7 +143,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	if (machine_is_eukrea_cpuimx27() ||
+-	    of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux")) {
++	    (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx21-audmux"))) {
+ 		imx_audmux_v1_configure_port(MX27_AUDMUX_HPCR1_SSI0,
+ 			IMX_AUDMUX_V1_PCR_SYN |
+ 			IMX_AUDMUX_V1_PCR_TFSDIR |
+@@ -158,10 +158,11 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 			IMX_AUDMUX_V1_PCR_SYN |
+ 			IMX_AUDMUX_V1_PCR_RXDSEL(MX27_AUDMUX_HPCR1_SSI0)
+ 		);
++		of_node_put(tmp_np);
+ 	} else if (machine_is_eukrea_cpuimx25sd() ||
+ 		   machine_is_eukrea_cpuimx35sd() ||
+ 		   machine_is_eukrea_cpuimx51sd() ||
+-		   of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux")) {
++		   (tmp_np = of_find_compatible_node(NULL, NULL, "fsl,imx31-audmux"))) {
+ 		if (!np)
+ 			ext_port = machine_is_eukrea_cpuimx25sd() ?
+ 				4 : 3;
+@@ -178,6 +179,7 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 			IMX_AUDMUX_V2_PTCR_SYN,
+ 			IMX_AUDMUX_V2_PDCR_RXDSEL(int_port)
+ 		);
++		of_node_put(tmp_np);
+ 	} else {
+ 		if (np) {
+ 			/* The eukrea,asoc-tlv320 driver was explicitly
 -- 
 2.35.1
 
