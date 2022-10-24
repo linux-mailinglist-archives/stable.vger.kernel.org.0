@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 117B860A509
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:20:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4EED60AA3B
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233187AbiJXMUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:20:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48442 "EHLO
+        id S234108AbiJXNbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:31:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233290AbiJXMTH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:19:07 -0400
+        with ESMTP id S236190AbiJXN35 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:29:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FC0082747;
-        Mon, 24 Oct 2022 04:57:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FF2EAC4AC;
+        Mon, 24 Oct 2022 05:33:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42592B81134;
-        Mon, 24 Oct 2022 11:53:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99603C433D6;
-        Mon, 24 Oct 2022 11:53:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F3F7B811C1;
+        Mon, 24 Oct 2022 12:04:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F145AC433D7;
+        Mon, 24 Oct 2022 12:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612426;
-        bh=5h1EeL079EdoKFS54SY8rSsM7zSpLtptACX919JUZms=;
+        s=korg; t=1666613056;
+        bh=QqpHLqiHJ8pQMZ2r9rm0Nz/ebpA/pgrtpSt7B2/lRsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DZq0n4Uux0yo2QOlJt0Sa57WFQIPU7BG1rv2H+0vbhd4Jj9fP72Lspo+OfnpjXfxl
-         wj3e42pRvhJGBHCgLG2/Z99PAQkyk4Jhy5W0P6x4OVo4dxZidsbermtmlBt8aGwKJo
-         ojUcWjiELwzrY0d9eKze6nGBBy8aHkqziTchUqpg=
+        b=pcQjuQ/uDiZ+SmDlzrAHufTcvWDHFv/03JNe2rS6wMhbi6OhqSnxHV8DZp5K0/vNj
+         Av9oj9WmjHb3VLmBvaHeBeuQvOOBOpRvpj+J3/yA8h+CQtF5YCRGfuUTtPQHjJL/4U
+         ImPObQ8av9NTYmcyW3XECNmJSruO6ctoT3sCm3gQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 193/210] ARM: dts: imx6sl: add missing properties for sram
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sungwoo Kim <iam@sung-woo.kim>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 191/229] Bluetooth: L2CAP: Fix user-after-free
 Date:   Mon, 24 Oct 2022 13:31:50 +0200
-Message-Id: <20221024113003.219532718@linuxfoundation.org>
+Message-Id: <20221024113005.308616466@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
-References: <20221024112956.797777597@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+References: <20221024112959.085534368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 60c9213a1d9941a8b33db570796c3f9be8984974 ]
+[ Upstream commit 35fcbc4243aad7e7d020b7c1dfb14bb888b20a4f ]
 
-All 3 properties are required by sram.yaml. Fixes the dtbs_check warning:
-sram@900000: '#address-cells' is a required property
-sram@900000: '#size-cells' is a required property
-sram@900000: 'ranges' is a required property
+This uses l2cap_chan_hold_unless_zero() after calling
+__l2cap_get_chan_blah() to prevent the following trace:
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Bluetooth: l2cap_core.c:static void l2cap_chan_destroy(struct kref
+*kref)
+Bluetooth: chan 0000000023c4974d
+Bluetooth: parent 00000000ae861c08
+==================================================================
+BUG: KASAN: use-after-free in __mutex_waiter_is_first
+kernel/locking/mutex.c:191 [inline]
+BUG: KASAN: use-after-free in __mutex_lock_common
+kernel/locking/mutex.c:671 [inline]
+BUG: KASAN: use-after-free in __mutex_lock+0x278/0x400
+kernel/locking/mutex.c:729
+Read of size 8 at addr ffff888006a49b08 by task kworker/u3:2/389
+
+Link: https://lore.kernel.org/lkml/20220622082716.478486-1-lee.jones@linaro.org
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Sungwoo Kim <iam@sung-woo.kim>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6sl.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ net/bluetooth/l2cap_core.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
-index bd9308b222ba..c8613ccd0944 100644
---- a/arch/arm/boot/dts/imx6sl.dtsi
-+++ b/arch/arm/boot/dts/imx6sl.dtsi
-@@ -112,6 +112,9 @@
- 		ocram: sram@00900000 {
- 			compatible = "mmio-sram";
- 			reg = <0x00900000 0x20000>;
-+			ranges = <0 0x00900000 0x20000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 			clocks = <&clks IMX6SL_CLK_OCRAM>;
- 		};
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 7c280fcdcaa0..5c965f7b1709 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -4049,6 +4049,12 @@ static int l2cap_connect_create_rsp(struct l2cap_conn *conn,
+ 		}
+ 	}
  
++	chan = l2cap_chan_hold_unless_zero(chan);
++	if (!chan) {
++		err = -EBADSLT;
++		goto unlock;
++	}
++
+ 	err = 0;
+ 
+ 	l2cap_chan_lock(chan);
+@@ -4078,6 +4084,7 @@ static int l2cap_connect_create_rsp(struct l2cap_conn *conn,
+ 	}
+ 
+ 	l2cap_chan_unlock(chan);
++	l2cap_chan_put(chan);
+ 
+ unlock:
+ 	mutex_unlock(&conn->chan_lock);
 -- 
 2.35.1
 
