@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2DE060A612
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:31:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04A9360A491
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:12:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233891AbiJXMbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:31:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51164 "EHLO
+        id S232951AbiJXMMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 08:12:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234241AbiJXM3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:29:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7468A868B4;
-        Mon, 24 Oct 2022 05:03:44 -0700 (PDT)
+        with ESMTP id S230138AbiJXMME (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:12:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C0B80529;
+        Mon, 24 Oct 2022 04:53:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5DF8612BE;
-        Mon, 24 Oct 2022 12:02:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7EDCC433D6;
-        Mon, 24 Oct 2022 12:02:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8348B811AC;
+        Mon, 24 Oct 2022 11:52:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 083F6C433D7;
+        Mon, 24 Oct 2022 11:52:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612967;
-        bh=J5kxD+IcyiLjueojU6BHKyBWY1G0nIvUI3uXZKpvxz0=;
+        s=korg; t=1666612334;
+        bh=e9h4yRhNzUIntkHSn1fFub1FEWUXriihXcHA0orFn+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=spjDvkWrXYnbEaWe464ksIydaOY6eQ2c4SNmi0YJGLD30VrkSdOULVqIwqOfnk/Zf
-         Hec1APiHN0XyMjYXw6AE2PM9TgxNwbnWG2jLkWXf0lcQltOneunZc1f8TSSfUNdWLP
-         bFea9V2PF9NTeWMSXCkrEAThhpR7tnq7kFPr2d0E=
+        b=JOsHCeNNmRe61eJk4M7KCQnP5kbW8Ysii3FqN7rhGKaYFsqVnWQhqO7KP3OooLPkc
+         Ii28VVqL3GTIa9TzrWS4gYiF/kSazp6tZxJve9rOiR0nD2us+9Chue8iMhDIxbQNIl
+         qrPUa86HMW908b5nAnYJp6be9epOE8cRUMfsc/po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        "Ivan T. Ivanov" <iivanov@suse.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 156/229] clk: bcm2835: fix bcm2835_clock_rate_from_divisor declaration
+        stable@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>,
+        John Garry <john.garry@huawei.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 158/210] iommu/iova: Fix module config properly
 Date:   Mon, 24 Oct 2022 13:31:15 +0200
-Message-Id: <20221024113004.055435333@linuxfoundation.org>
+Message-Id: <20221024113002.104768124@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
+References: <20221024112956.797777597@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 0b919a3728691c172312dee99ba654055ccd8c84 ]
+[ Upstream commit 4f58330fcc8482aa90674e1f40f601e82f18ed4a ]
 
-The return value of bcm2835_clock_rate_from_divisor is always unsigned
-and also all caller expect this. So fix the declaration accordingly.
+IOMMU_IOVA is intended to be an optional library for users to select as
+and when they desire. Since it can be a module now, this means that
+built-in code which has chosen not to select it should not fail to link
+if it happens to have selected as a module by someone else. Replace
+IS_ENABLED() with IS_REACHABLE() to do the right thing.
 
-Fixes: 41691b8862e2 ("clk: bcm2835: Add support for programming the audio domain clocks")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/20220904141037.38816-1-stefan.wahren@i2se.com
-Reviewed-by: Ivan T. Ivanov <iivanov@suse.de>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+CC: Thierry Reding <thierry.reding@gmail.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Fixes: 15bbdec3931e ("iommu: Make the iova library a module")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/548c2f683ca379aface59639a8f0cccc3a1ac050.1663069227.git.robin.murphy@arm.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/iova.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index fd78dd5356ed..5a2f8d5d8d7a 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -950,9 +950,9 @@ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
- 	return div;
+diff --git a/include/linux/iova.h b/include/linux/iova.h
+index 7d23bbb887f2..641e62700ef3 100644
+--- a/include/linux/iova.h
++++ b/include/linux/iova.h
+@@ -131,7 +131,7 @@ static inline unsigned long iova_pfn(struct iova_domain *iovad, dma_addr_t iova)
+ 	return iova >> iova_shift(iovad);
  }
  
--static long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
--					    unsigned long parent_rate,
--					    u32 div)
-+static unsigned long bcm2835_clock_rate_from_divisor(struct bcm2835_clock *clock,
-+						     unsigned long parent_rate,
-+						     u32 div)
- {
- 	const struct bcm2835_clock_data *data = clock->data;
- 	u64 temp;
+-#if IS_ENABLED(CONFIG_IOMMU_IOVA)
++#if IS_REACHABLE(CONFIG_IOMMU_IOVA)
+ int iova_cache_get(void);
+ void iova_cache_put(void);
+ 
 -- 
 2.35.1
 
