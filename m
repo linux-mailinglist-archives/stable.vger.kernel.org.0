@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BE1B60B86F
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:45:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D24BE60B84D
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 21:44:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232964AbiJXTp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 15:45:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49012 "EHLO
+        id S232641AbiJXTnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 15:43:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233591AbiJXToJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:44:09 -0400
+        with ESMTP id S233425AbiJXTmO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 15:42:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62012196B63;
-        Mon, 24 Oct 2022 11:12:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50CFE22BEF;
+        Mon, 24 Oct 2022 11:11:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CEC6CB811CB;
-        Mon, 24 Oct 2022 11:54:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 301B5C4314B;
-        Mon, 24 Oct 2022 11:54:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08CF3B811C6;
+        Mon, 24 Oct 2022 11:54:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 670BDC433C1;
+        Mon, 24 Oct 2022 11:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612470;
-        bh=f6PvnzB2NTuAawVlsGsqh/PREkZdKYRgw4IKCn33zoY=;
+        s=korg; t=1666612475;
+        bh=GlxaIfTe2cbL0wzvJCYu/yb+Dzwdt/fPXLrbYdgTPUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y9nM0RJULq/ER9Y7EVfF5ymqOtesz2jMHh9KSN1Xkve5fojNCELpqqLvp+RusxaFh
-         1lcRzUTQleLfIN6FIZG0d4aJJeVUhvdwM/ZyvWlzsOTycYMyuEHqJv/3RoTTZ6FZU2
-         sVIA1Hqfp/hdZM5u0Jgr10iyIWOD+uofeJXcFPF4=
+        b=Eaz/YkH8iKBdC8/i4WLn91OxuJENa3snRYbqMoYEgI/6NLd83/YZzwYRUsAJvJhBN
+         VnqlJ5/UR8zbadSydS1yyhKqjAvIMtuzWpk/qHsFcETkKe1NE78ScXZB7Y0h3/RTp3
+         QxJLs+qa6xLqN/bMVwtLPbETg3Be020ot6vGHu9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Guo <guoweibin@inspur.com>,
+        stable@vger.kernel.org,
+        syzbot+79832d33eb89fb3cd092@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 200/210] usb: musb: Fix musb_gadget.c rxstate overflow bug
-Date:   Mon, 24 Oct 2022 13:31:57 +0200
-Message-Id: <20221024113003.474849741@linuxfoundation.org>
+Subject: [PATCH 4.14 202/210] usb: idmouse: fix an uninit-value in idmouse_open
+Date:   Mon, 24 Oct 2022 13:31:59 +0200
+Message-Id: <20221024113003.534804391@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112956.797777597@linuxfoundation.org>
 References: <20221024112956.797777597@linuxfoundation.org>
@@ -52,40 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Guo <guoweibin@inspur.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit eea4c860c3b366369eff0489d94ee4f0571d467d ]
+[ Upstream commit bce2b0539933e485d22d6f6f076c0fcd6f185c4c ]
 
-The usb function device call musb_gadget_queue() adds the passed
-request to musb_ep::req_list,If the (request->length > musb_ep->packet_sz)
-and (is_buffer_mapped(req) return false),the rxstate() will copy all data
-in fifo to request->buf which may cause request->buf out of bounds.
+In idmouse_create_image, if any ftip_command fails, it will
+go to the reset label. However, this leads to the data in
+bulk_in_buffer[HEADER..IMGSIZE] uninitialized. And the check
+for valid image incurs an uninitialized dereference.
 
-Fix it by add the length check :
-fifocnt = min_t(unsigned, request->length - request->actual, fifocnt);
+Fix this by moving the check before reset label since this
+check only be valid if the data after bulk_in_buffer[HEADER]
+has concrete data.
 
-Signed-off-by: Robin Guo <guoweibin@inspur.com>
-Link: https://lore.kernel.org/r/20220906102119.1b071d07a8391ff115e6d1ef@inspur.com
+Note that this is found by KMSAN, so only kernel compilation
+is tested.
+
+Reported-by: syzbot+79832d33eb89fb3cd092@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20220922134847.1101921-1-dzm91@hust.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/musb_gadget.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/misc/idmouse.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/musb/musb_gadget.c b/drivers/usb/musb/musb_gadget.c
-index 319c5a1b4a6a..8fd68f45a8df 100644
---- a/drivers/usb/musb/musb_gadget.c
-+++ b/drivers/usb/musb/musb_gadget.c
-@@ -785,6 +785,9 @@ static void rxstate(struct musb *musb, struct musb_request *req)
- 			musb_writew(epio, MUSB_RXCSR, csr);
+diff --git a/drivers/usb/misc/idmouse.c b/drivers/usb/misc/idmouse.c
+index 01ef2551be46..974b8d0621bd 100644
+--- a/drivers/usb/misc/idmouse.c
++++ b/drivers/usb/misc/idmouse.c
+@@ -182,10 +182,6 @@ static int idmouse_create_image(struct usb_idmouse *dev)
+ 		bytes_read += bulk_read;
+ 	}
  
- buffer_aint_mapped:
-+			fifo_count = min_t(unsigned int,
-+					request->length - request->actual,
-+					(unsigned int)fifo_count);
- 			musb_read_fifo(musb_ep->hw_ep, fifo_count, (u8 *)
- 					(request->buf + request->actual));
- 			request->actual += fifo_count;
+-	/* reset the device */
+-reset:
+-	ftip_command(dev, FTIP_RELEASE, 0, 0);
+-
+ 	/* check for valid image */
+ 	/* right border should be black (0x00) */
+ 	for (bytes_read = sizeof(HEADER)-1 + WIDTH-1; bytes_read < IMGSIZE; bytes_read += WIDTH)
+@@ -197,6 +193,10 @@ static int idmouse_create_image(struct usb_idmouse *dev)
+ 		if (dev->bulk_in_buffer[bytes_read] != 0xFF)
+ 			return -EAGAIN;
+ 
++	/* reset the device */
++reset:
++	ftip_command(dev, FTIP_RELEASE, 0, 0);
++
+ 	/* should be IMGSIZE == 65040 */
+ 	dev_dbg(&dev->interface->dev, "read %d bytes fingerprint data\n",
+ 		bytes_read);
 -- 
 2.35.1
 
