@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6E7E60AFF9
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:00:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FD9760AFEE
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:00:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230498AbiJXP7c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 11:59:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36006 "EHLO
+        id S231703AbiJXP6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 11:58:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231824AbiJXP6A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:58:00 -0400
+        with ESMTP id S232198AbiJXP57 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 11:57:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15908ABF33;
-        Mon, 24 Oct 2022 07:53:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 847799B857;
+        Mon, 24 Oct 2022 07:53:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 347DBB811FC;
-        Mon, 24 Oct 2022 12:29:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C9C1C433C1;
-        Mon, 24 Oct 2022 12:29:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3BBB8B819F8;
+        Mon, 24 Oct 2022 12:50:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 984E5C433C1;
+        Mon, 24 Oct 2022 12:50:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614575;
-        bh=wDzhue31XLNHt55NrDeEwqRpEBMxu6FjW/bq0+Z9MQs=;
+        s=korg; t=1666615825;
+        bh=sGvbRb5NiJdw7oxaNFUv1rbOzyzBclWqFbsrGH+8zOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yi5F0S+2CDkxv2r9tajo1RvHO7Lqj4O4LPL2BF3VrstInmBMyHYNZpxrpYAGP08DV
-         nqaVBjTpLiQOmwaQS3BJia3eFmjKcSgLr1bBvkyodyxxzSaIfGEKHncO47nz6j/wxk
-         fmQG0gyg93qosJ5o0CIJFKBFnHnESNDDqgpZ3ikw=
+        b=YTGxj2tEuy3QwsJ+tWhygXSzvYPbblLEnleWgixNS80hG5rTrKXtDc8pgPm9uw0Od
+         HBYsJkXib+QUnSJ/DaBYTITuE24prWevg0p9G+vT0A+2le/ih+qSCn9kB/4H84kabM
+         V28klhIBdANKQBV6wsDaN1lRftGuRAbYY5P+diLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Coffin <alex.coffin@matician.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 312/390] wifi: brcmfmac: fix use-after-free bug in brcmf_netdev_start_xmit()
-Date:   Mon, 24 Oct 2022 13:31:49 +0200
-Message-Id: <20221024113036.257119856@linuxfoundation.org>
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 366/530] powerpc/powernv: add missing of_node_put() in opal_export_attrs()
+Date:   Mon, 24 Oct 2022 13:31:50 +0200
+Message-Id: <20221024113101.609026980@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
-References: <20221024113022.510008560@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,138 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Coffin <alex.coffin@matician.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 3f42faf6db431e04bf942d2ebe3ae88975723478 ]
+[ Upstream commit 71a92e99c47900cc164620948b3863382cec4f1a ]
 
-> ret = brcmf_proto_tx_queue_data(drvr, ifp->ifidx, skb);
+After using 'np' returned by of_find_node_by_path(), of_node_put()
+need be called to decrease the refcount.
 
-may be schedule, and then complete before the line
-
-> ndev->stats.tx_bytes += skb->len;
-
-[   46.912801] ==================================================================
-[   46.920552] BUG: KASAN: use-after-free in brcmf_netdev_start_xmit+0x718/0x8c8 [brcmfmac]
-[   46.928673] Read of size 4 at addr ffffff803f5882e8 by task systemd-resolve/328
-[   46.935991]
-[   46.937514] CPU: 1 PID: 328 Comm: systemd-resolve Tainted: G           O      5.4.199-[REDACTED] #1
-[   46.947255] Hardware name: [REDACTED]
-[   46.954568] Call trace:
-[   46.957037]  dump_backtrace+0x0/0x2b8
-[   46.960719]  show_stack+0x24/0x30
-[   46.964052]  dump_stack+0x128/0x194
-[   46.967557]  print_address_description.isra.0+0x64/0x380
-[   46.972877]  __kasan_report+0x1d4/0x240
-[   46.976723]  kasan_report+0xc/0x18
-[   46.980138]  __asan_report_load4_noabort+0x18/0x20
-[   46.985027]  brcmf_netdev_start_xmit+0x718/0x8c8 [brcmfmac]
-[   46.990613]  dev_hard_start_xmit+0x1bc/0xda0
-[   46.994894]  sch_direct_xmit+0x198/0xd08
-[   46.998827]  __qdisc_run+0x37c/0x1dc0
-[   47.002500]  __dev_queue_xmit+0x1528/0x21f8
-[   47.006692]  dev_queue_xmit+0x24/0x30
-[   47.010366]  neigh_resolve_output+0x37c/0x678
-[   47.014734]  ip_finish_output2+0x598/0x2458
-[   47.018927]  __ip_finish_output+0x300/0x730
-[   47.023118]  ip_output+0x2e0/0x430
-[   47.026530]  ip_local_out+0x90/0x140
-[   47.030117]  igmpv3_sendpack+0x14c/0x228
-[   47.034049]  igmpv3_send_cr+0x384/0x6b8
-[   47.037895]  igmp_ifc_timer_expire+0x4c/0x118
-[   47.042262]  call_timer_fn+0x1cc/0xbe8
-[   47.046021]  __run_timers+0x4d8/0xb28
-[   47.049693]  run_timer_softirq+0x24/0x40
-[   47.053626]  __do_softirq+0x2c0/0x117c
-[   47.057387]  irq_exit+0x2dc/0x388
-[   47.060715]  __handle_domain_irq+0xb4/0x158
-[   47.064908]  gic_handle_irq+0x58/0xb0
-[   47.068581]  el0_irq_naked+0x50/0x5c
-[   47.072162]
-[   47.073665] Allocated by task 328:
-[   47.077083]  save_stack+0x24/0xb0
-[   47.080410]  __kasan_kmalloc.isra.0+0xc0/0xe0
-[   47.084776]  kasan_slab_alloc+0x14/0x20
-[   47.088622]  kmem_cache_alloc+0x15c/0x468
-[   47.092643]  __alloc_skb+0xa4/0x498
-[   47.096142]  igmpv3_newpack+0x158/0xd78
-[   47.099987]  add_grhead+0x210/0x288
-[   47.103485]  add_grec+0x6b0/0xb70
-[   47.106811]  igmpv3_send_cr+0x2e0/0x6b8
-[   47.110657]  igmp_ifc_timer_expire+0x4c/0x118
-[   47.115027]  call_timer_fn+0x1cc/0xbe8
-[   47.118785]  __run_timers+0x4d8/0xb28
-[   47.122457]  run_timer_softirq+0x24/0x40
-[   47.126389]  __do_softirq+0x2c0/0x117c
-[   47.130142]
-[   47.131643] Freed by task 180:
-[   47.134712]  save_stack+0x24/0xb0
-[   47.138041]  __kasan_slab_free+0x108/0x180
-[   47.142146]  kasan_slab_free+0x10/0x18
-[   47.145904]  slab_free_freelist_hook+0xa4/0x1b0
-[   47.150444]  kmem_cache_free+0x8c/0x528
-[   47.154292]  kfree_skbmem+0x94/0x108
-[   47.157880]  consume_skb+0x10c/0x5a8
-[   47.161466]  __dev_kfree_skb_any+0x88/0xa0
-[   47.165598]  brcmu_pkt_buf_free_skb+0x44/0x68 [brcmutil]
-[   47.171023]  brcmf_txfinalize+0xec/0x190 [brcmfmac]
-[   47.176016]  brcmf_proto_bcdc_txcomplete+0x1c0/0x210 [brcmfmac]
-[   47.182056]  brcmf_sdio_sendfromq+0x8dc/0x1e80 [brcmfmac]
-[   47.187568]  brcmf_sdio_dpc+0xb48/0x2108 [brcmfmac]
-[   47.192529]  brcmf_sdio_dataworker+0xc8/0x238 [brcmfmac]
-[   47.197859]  process_one_work+0x7fc/0x1a80
-[   47.201965]  worker_thread+0x31c/0xc40
-[   47.205726]  kthread+0x2d8/0x370
-[   47.208967]  ret_from_fork+0x10/0x18
-[   47.212546]
-[   47.214051] The buggy address belongs to the object at ffffff803f588280
-[   47.214051]  which belongs to the cache skbuff_head_cache of size 208
-[   47.227086] The buggy address is located 104 bytes inside of
-[   47.227086]  208-byte region [ffffff803f588280, ffffff803f588350)
-[   47.238814] The buggy address belongs to the page:
-[   47.243618] page:ffffffff00dd6200 refcount:1 mapcount:0 mapping:ffffff804b6bf800 index:0xffffff803f589900 compound_mapcount: 0
-[   47.255007] flags: 0x10200(slab|head)
-[   47.258689] raw: 0000000000010200 ffffffff00dfa980 0000000200000002 ffffff804b6bf800
-[   47.266439] raw: ffffff803f589900 0000000080190018 00000001ffffffff 0000000000000000
-[   47.274180] page dumped because: kasan: bad access detected
-[   47.279752]
-[   47.281251] Memory state around the buggy address:
-[   47.286051]  ffffff803f588180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[   47.293277]  ffffff803f588200: fb fb fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   47.300502] >ffffff803f588280: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[   47.307723]                                                           ^
-[   47.314343]  ffffff803f588300: fb fb fb fb fb fb fb fb fb fb fc fc fc fc fc fc
-[   47.321569]  ffffff803f588380: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
-[   47.328789] ==================================================================
-
-Signed-off-by: Alexander Coffin <alex.coffin@matician.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220808174925.3922558-1-alex.coffin@matician.com
+Fixes: 11fe909d2362 ("powerpc/powernv: Add OPAL exports attributes to sysfs")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220906141703.118192-1-zhengyongjun3@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/powernv/opal.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-index 61039538a15b..c8e1d505f7b5 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-@@ -290,6 +290,7 @@ static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
- 	struct brcmf_pub *drvr = ifp->drvr;
- 	struct ethhdr *eh;
- 	int head_delta;
-+	unsigned int tx_bytes = skb->len;
- 
- 	brcmf_dbg(DATA, "Enter, bsscfgidx=%d\n", ifp->bsscfgidx);
- 
-@@ -364,7 +365,7 @@ static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
- 		ndev->stats.tx_dropped++;
- 	} else {
- 		ndev->stats.tx_packets++;
--		ndev->stats.tx_bytes += skb->len;
-+		ndev->stats.tx_bytes += tx_bytes;
+diff --git a/arch/powerpc/platforms/powernv/opal.c b/arch/powerpc/platforms/powernv/opal.c
+index e9d18519e650..5178ec6f3715 100644
+--- a/arch/powerpc/platforms/powernv/opal.c
++++ b/arch/powerpc/platforms/powernv/opal.c
+@@ -892,6 +892,7 @@ static void opal_export_attrs(void)
+ 	kobj = kobject_create_and_add("exports", opal_kobj);
+ 	if (!kobj) {
+ 		pr_warn("kobject_create_and_add() of exports failed\n");
++		of_node_put(np);
+ 		return;
  	}
  
- 	/* Return ok: we always eat the packet */
 -- 
 2.35.1
 
