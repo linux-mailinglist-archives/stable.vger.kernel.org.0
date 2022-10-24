@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8577E60A54B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 14:22:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E452E60ABA4
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 15:55:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233305AbiJXMWy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 08:22:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37440 "EHLO
+        id S236545AbiJXNzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 09:55:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233339AbiJXMUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 08:20:53 -0400
+        with ESMTP id S236711AbiJXNxn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 09:53:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2250C7B5AF;
-        Mon, 24 Oct 2022 04:59:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BA66BC617;
+        Mon, 24 Oct 2022 05:43:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44567612F4;
-        Mon, 24 Oct 2022 11:56:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A0DC433C1;
-        Mon, 24 Oct 2022 11:56:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AD9E61328;
+        Mon, 24 Oct 2022 12:42:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6710C433D6;
+        Mon, 24 Oct 2022 12:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666612611;
-        bh=Sf4p/I5+I0rasfxMUpNRv3gda7JlSUROFiBRNveWqCk=;
+        s=korg; t=1666615369;
+        bh=1vk9cCfPuQn9h6X3LRfdcgmD8iNffBsmLEgziE8/sDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lL7JG+AadCkavVvKX5AoANZP4mRPuBxUOaE/3UUoV46dwNGfVkZQeZLfgQaipgxhQ
-         owgQPHBx5qLocySI/ug5q/nPBqhJrpg+9bhpCCPJZv6dL+P00zCvlLLBwhC3opuV1t
-         nze3fg1tjoXm5QgwNvcjxUa4iX9IoEwf8tMeeCkI=
+        b=s26we/TZ68fLeNi74lWh4grXRu6eyHY1jSIbCXBfddPk0cbFbloddizDfMF9YsUic
+         JmcBoAG/xkBBt9trnTHh0WXr7JXUAmEirjsdExOMHEY7SUXByIhyLskaf7EltykeEX
+         jGvUnFvrzbYtHw8vOK4tUFoZB9Pi23SUrKAd5m9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 022/229] random: clamp credited irq bits to maximum mixed
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 197/530] mISDN: fix use-after-free bugs in l1oip timer handlers
 Date:   Mon, 24 Oct 2022 13:29:01 +0200
-Message-Id: <20221024112959.856505864@linuxfoundation.org>
+Message-Id: <20221024113053.966947418@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
+References: <20221024113044.976326639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,31 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit e78a802a7b4febf53f2a92842f494b01062d85a8 upstream.
+[ Upstream commit 2568a7e0832ee30b0a351016d03062ab4e0e0a3f ]
 
-Since the most that's mixed into the pool is sizeof(long)*2, don't
-credit more than that many bytes of entropy.
+The l1oip_cleanup() traverses the l1oip_ilist and calls
+release_card() to cleanup module and stack. However,
+release_card() calls del_timer() to delete the timers
+such as keep_tl and timeout_tl. If the timer handler is
+running, the del_timer() will not stop it and result in
+UAF bugs. One of the processes is shown below:
 
-Fixes: e3e33fc2ea7f ("random: do not use input pool from hard IRQs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    (cleanup routine)          |        (timer handler)
+release_card()                 | l1oip_timeout()
+ ...                           |
+ del_timer()                   | ...
+ ...                           |
+ kfree(hc) //FREE              |
+                               | hc->timeout_on = 0 //USE
+
+Fix by calling del_timer_sync() in release_card(), which
+makes sure the timer handlers have finished before the
+resources, such as l1oip and so on, have been deallocated.
+
+What's more, the hc->workq and hc->socket_thread can kick
+those timers right back in. We add a bool flag to show
+if card is released. Then, check this flag in hc->workq
+and hc->socket_thread.
+
+Fixes: 3712b42d4b1b ("Add layer1 over IP support")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/isdn/mISDN/l1oip.h      |  1 +
+ drivers/isdn/mISDN/l1oip_core.c | 13 +++++++------
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -976,7 +976,7 @@ static void mix_interrupt_randomness(str
- 	local_irq_enable();
+diff --git a/drivers/isdn/mISDN/l1oip.h b/drivers/isdn/mISDN/l1oip.h
+index 7ea10db20e3a..48133d022812 100644
+--- a/drivers/isdn/mISDN/l1oip.h
++++ b/drivers/isdn/mISDN/l1oip.h
+@@ -59,6 +59,7 @@ struct l1oip {
+ 	int			bundle;		/* bundle channels in one frm */
+ 	int			codec;		/* codec to use for transmis. */
+ 	int			limit;		/* limit number of bchannels */
++	bool			shutdown;	/* if card is released */
  
- 	mix_pool_bytes(pool, sizeof(pool));
--	credit_init_bits(max(1u, (count & U16_MAX) / 64));
-+	credit_init_bits(clamp_t(unsigned int, (count & U16_MAX) / 64, 1, sizeof(pool) * 8));
+ 	/* timer */
+ 	struct timer_list	keep_tl;
+diff --git a/drivers/isdn/mISDN/l1oip_core.c b/drivers/isdn/mISDN/l1oip_core.c
+index 2c40412466e6..a77195e378b7 100644
+--- a/drivers/isdn/mISDN/l1oip_core.c
++++ b/drivers/isdn/mISDN/l1oip_core.c
+@@ -275,7 +275,7 @@ l1oip_socket_send(struct l1oip *hc, u8 localcodec, u8 channel, u32 chanmask,
+ 	p = frame;
  
- 	memzero_explicit(pool, sizeof(pool));
- }
+ 	/* restart timer */
+-	if (time_before(hc->keep_tl.expires, jiffies + 5 * HZ))
++	if (time_before(hc->keep_tl.expires, jiffies + 5 * HZ) && !hc->shutdown)
+ 		mod_timer(&hc->keep_tl, jiffies + L1OIP_KEEPALIVE * HZ);
+ 	else
+ 		hc->keep_tl.expires = jiffies + L1OIP_KEEPALIVE * HZ;
+@@ -601,7 +601,9 @@ l1oip_socket_parse(struct l1oip *hc, struct sockaddr_in *sin, u8 *buf, int len)
+ 		goto multiframe;
+ 
+ 	/* restart timer */
+-	if (time_before(hc->timeout_tl.expires, jiffies + 5 * HZ) || !hc->timeout_on) {
++	if ((time_before(hc->timeout_tl.expires, jiffies + 5 * HZ) ||
++	     !hc->timeout_on) &&
++	    !hc->shutdown) {
+ 		hc->timeout_on = 1;
+ 		mod_timer(&hc->timeout_tl, jiffies + L1OIP_TIMEOUT * HZ);
+ 	} else /* only adjust timer */
+@@ -1232,11 +1234,10 @@ release_card(struct l1oip *hc)
+ {
+ 	int	ch;
+ 
+-	if (timer_pending(&hc->keep_tl))
+-		del_timer(&hc->keep_tl);
++	hc->shutdown = true;
+ 
+-	if (timer_pending(&hc->timeout_tl))
+-		del_timer(&hc->timeout_tl);
++	del_timer_sync(&hc->keep_tl);
++	del_timer_sync(&hc->timeout_tl);
+ 
+ 	cancel_work_sync(&hc->workq);
+ 
+-- 
+2.35.1
+
 
 
