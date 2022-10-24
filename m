@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32DBD60A2AC
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:46:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64BA960A2B5
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 13:46:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231405AbiJXLqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 07:46:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43336 "EHLO
+        id S231441AbiJXLqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 07:46:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231407AbiJXLpM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:45:12 -0400
+        with ESMTP id S231438AbiJXLpQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 07:45:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23B0B6BD51;
-        Mon, 24 Oct 2022 04:42:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26B291275F;
+        Mon, 24 Oct 2022 04:42:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D44361254;
-        Mon, 24 Oct 2022 11:41:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22FB9C433C1;
-        Mon, 24 Oct 2022 11:41:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A922F612BE;
+        Mon, 24 Oct 2022 11:41:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBBBAC433D6;
+        Mon, 24 Oct 2022 11:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666611668;
-        bh=z03gnAyu/ZPDMEYEDNx/tGiKO/URw4LGx7hfVzA473Q=;
+        s=korg; t=1666611671;
+        bh=rG3ub0U7/cQm/WivGP8FxXmsTrG3WqKRY49hGng6RBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eieu9/5XTn9nK9IqkJhoq+ZzNVWRyEIGOrsbQ5iQ4fUkX7NknaKP3mATyt2YgNzAh
-         7Jo/45iAYM6ucaJJ2p+kTU+WhHnTh0LvPLUVsrKVOkXUIWU6ukVDC33yxfKCF/d2t5
-         iCCoI/ftrw8zZn8PewIQPt+NgIfqjOzhCi3fukkk=
+        b=aDwI48QVM4cHsDhX8hcS8Mcp45CEshqEZqDCZp1dhIreEF2z6tP1jHIgIF9L7yZzE
+         BsrHu+IB8JSpWxi9xi5+VUfo9Q6TKhVx0hgsdO1QBDki9NXTSxbsyKjmWLBysluVZB
+         qky9Ww6pcmOUiOlSN/0VPU6zlGl903f0M9TSiiD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Hari Chandrakanthan <quic_haric@quicinc.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 066/159] wifi: mac80211: allow bw change during channel switch in mesh
-Date:   Mon, 24 Oct 2022 13:30:20 +0200
-Message-Id: <20221024112951.872628357@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jes Sorensen <Jes.Sorensen@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 067/159] wifi: rtl8xxxu: tighten bounds checking in rtl8xxxu_read_efuse()
+Date:   Mon, 24 Oct 2022 13:30:21 +0200
+Message-Id: <20221024112951.914160397@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024112949.358278806@linuxfoundation.org>
 References: <20221024112949.358278806@linuxfoundation.org>
@@ -54,45 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hari Chandrakanthan <quic_haric@quicinc.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 6b75f133fe05c36c52d691ff21545d5757fff721 ]
+[ Upstream commit 620d5eaeb9059636864bda83ca1c68c20ede34a5 ]
 
->From 'IEEE Std 802.11-2020 section 11.8.8.4.1':
-  The mesh channel switch may be triggered by the need to avoid
-  interference to a detected radar signal, or to reassign mesh STA
-  channels to ensure the MBSS connectivity.
+There some bounds checking to ensure that "map_addr" is not out of
+bounds before the start of the loop.  But the checking needs to be
+done as we iterate through the loop because "map_addr" gets larger as
+we iterate.
 
-  A 20/40 MHz MBSS may be changed to a 20 MHz MBSS and a 20 MHz
-  MBSS may be changed to a 20/40 MHz MBSS.
-
-Since the standard allows the change of bandwidth during
-the channel switch in mesh, remove the bandwidth check present in
-ieee80211_set_csa_beacon.
-
-Fixes: c6da674aff94 ("{nl,cfg,mac}80211: enable the triggering of CSA frame in mesh")
-Signed-off-by: Hari Chandrakanthan <quic_haric@quicinc.com>
-Link: https://lore.kernel.org/r/1658903549-21218-1-git-send-email-quic_haric@quicinc.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Jes Sorensen <Jes.Sorensen@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/Yv8eGLdBslLAk3Ct@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/cfg.c | 3 ---
- 1 file changed, 3 deletions(-)
+ .../net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c  | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index 091ac3a7b186..85beeb32f59f 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -3016,9 +3016,6 @@ static int ieee80211_set_csa_beacon(struct ieee80211_sub_if_data *sdata,
- 	case NL80211_IFTYPE_MESH_POINT: {
- 		struct ieee80211_if_mesh *ifmsh = &sdata->u.mesh;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index e73613b9f2f5..31e9495bb479 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -1879,13 +1879,6 @@ static int rtl8xxxu_read_efuse(struct rtl8xxxu_priv *priv)
  
--		if (params->chandef.width != sdata->vif.bss_conf.chandef.width)
--			return -EINVAL;
--
- 		/* changes into another band are not supported */
- 		if (sdata->vif.bss_conf.chandef.chan->band !=
- 		    params->chandef.chan->band)
+ 		/* We have 8 bits to indicate validity */
+ 		map_addr = offset * 8;
+-		if (map_addr >= EFUSE_MAP_LEN) {
+-			dev_warn(dev, "%s: Illegal map_addr (%04x), "
+-				 "efuse corrupt!\n",
+-				 __func__, map_addr);
+-			ret = -EINVAL;
+-			goto exit;
+-		}
+ 		for (i = 0; i < EFUSE_MAX_WORD_UNIT; i++) {
+ 			/* Check word enable condition in the section */
+ 			if (word_mask & BIT(i)) {
+@@ -1896,6 +1889,13 @@ static int rtl8xxxu_read_efuse(struct rtl8xxxu_priv *priv)
+ 			ret = rtl8xxxu_read_efuse8(priv, efuse_addr++, &val8);
+ 			if (ret)
+ 				goto exit;
++			if (map_addr >= EFUSE_MAP_LEN - 1) {
++				dev_warn(dev, "%s: Illegal map_addr (%04x), "
++					 "efuse corrupt!\n",
++					 __func__, map_addr);
++				ret = -EINVAL;
++				goto exit;
++			}
+ 			priv->efuse_wifi.raw[map_addr++] = val8;
+ 
+ 			ret = rtl8xxxu_read_efuse8(priv, efuse_addr++, &val8);
 -- 
 2.35.1
 
