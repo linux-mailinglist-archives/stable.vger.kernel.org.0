@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 375C660B111
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E37E60B12C
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:17:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233778AbiJXQP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:15:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33592 "EHLO
+        id S233201AbiJXQQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:16:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234554AbiJXQO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:14:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9A28134DFA;
-        Mon, 24 Oct 2022 08:02:46 -0700 (PDT)
+        with ESMTP id S235067AbiJXQPo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:15:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CA7F52E4B;
+        Mon, 24 Oct 2022 08:03:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6C36B81639;
-        Mon, 24 Oct 2022 12:18:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F34EEC433D6;
-        Mon, 24 Oct 2022 12:18:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCC89B815C2;
+        Mon, 24 Oct 2022 12:18:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D5B6C433C1;
+        Mon, 24 Oct 2022 12:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613908;
-        bh=ChU/ww02ACpyHpa+pKCFFhqDDbl0ru9AfAh7lCblT2M=;
+        s=korg; t=1666613913;
+        bh=cDE7mdxA2GnHKcv/HGZn7QWb8vlWewY71vte2eP/0v4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iEaJAuUhqw7FQ8A1v7UboLxNhN+mkEi1neA9Nlc/cG8EYhKQGpYm2PK0kKKu4Za3N
-         GFQpEd9M4hWxAWvCu7K3G8mW+YzI0A8x6a2AQ4hLiefcfb5Hr6DeZatsRMvyh+AU0w
-         WFgKeNT2l+gv7l0vIM4cMcv3aA+qHgLH4yruF9y4=
+        b=JSFNgbNEeH9lVQTLjudiEZBbYoWQm/LSgcUs268UKfS0GM2vS60VbIfuPDjHrFohm
+         dto+FQSAIT0QGkQADW2gMXnNRxpVkKXgAFQ1uQZKQY90Q7zM6nJoCWxDgRG0VlQoWh
+         JFBcZHZG3NJYzC4sWSEzUEnROYfkfbT2cV8Sxs50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        syzbot+bd13648a53ed6933ca49@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Lukas Czerner <lczerner@redhat.com>,
+        Lalith Rajendran <lalithkraj@google.com>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 060/390] ext4: avoid crash when inline data creation follows DIO write
-Date:   Mon, 24 Oct 2022 13:27:37 +0200
-Message-Id: <20221024113025.196924417@linuxfoundation.org>
+Subject: [PATCH 5.10 062/390] ext4: make ext4_lazyinit_thread freezable
+Date:   Mon, 24 Oct 2022 13:27:39 +0200
+Message-Id: <20221024113025.269897167@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -55,78 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Lalith Rajendran <lalithkraj@google.com>
 
-commit 4bb26f2885ac6930984ee451b952c5a6042f2c0e upstream.
+commit 3b575495ab8dbb4dbe85b4ac7f991693c3668ff5 upstream.
 
-When inode is created and written to using direct IO, there is nothing
-to clear the EXT4_STATE_MAY_INLINE_DATA flag. Thus when inode gets
-truncated later to say 1 byte and written using normal write, we will
-try to store the data as inline data. This confuses the code later
-because the inode now has both normal block and inline data allocated
-and the confusion manifests for example as:
-
-kernel BUG at fs/ext4/inode.c:2721!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 0 PID: 359 Comm: repro Not tainted 5.19.0-rc8-00001-g31ba1e3b8305-dirty #15
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-1.fc36 04/01/2014
-RIP: 0010:ext4_writepages+0x363d/0x3660
-RSP: 0018:ffffc90000ccf260 EFLAGS: 00010293
-RAX: ffffffff81e1abcd RBX: 0000008000000000 RCX: ffff88810842a180
-RDX: 0000000000000000 RSI: 0000008000000000 RDI: 0000000000000000
-RBP: ffffc90000ccf650 R08: ffffffff81e17d58 R09: ffffed10222c680b
-R10: dfffe910222c680c R11: 1ffff110222c680a R12: ffff888111634128
-R13: ffffc90000ccf880 R14: 0000008410000000 R15: 0000000000000001
-FS:  00007f72635d2640(0000) GS:ffff88811b000000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000565243379180 CR3: 000000010aa74000 CR4: 0000000000150eb0
-Call Trace:
- <TASK>
- do_writepages+0x397/0x640
- filemap_fdatawrite_wbc+0x151/0x1b0
- file_write_and_wait_range+0x1c9/0x2b0
- ext4_sync_file+0x19e/0xa00
- vfs_fsync_range+0x17b/0x190
- ext4_buffered_write_iter+0x488/0x530
- ext4_file_write_iter+0x449/0x1b90
- vfs_write+0xbcd/0xf40
- ksys_write+0x198/0x2c0
- __x64_sys_write+0x7b/0x90
- do_syscall_64+0x3d/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- </TASK>
-
-Fix the problem by clearing EXT4_STATE_MAY_INLINE_DATA when we are doing
-direct IO write to a file.
+ext4_lazyinit_thread is not set freezable. Hence when the thread calls
+try_to_freeze it doesn't freeze during suspend and continues to send
+requests to the storage during suspend, resulting in suspend failures.
 
 Cc: stable@kernel.org
-Reported-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Reported-by: syzbot+bd13648a53ed6933ca49@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=a1e89d09bbbcbd5c4cb45db230ee28c822953984
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Tested-by: Tadeusz Struk<tadeusz.struk@linaro.org>
-Link: https://lore.kernel.org/r/20220727155753.13969-1-jack@suse.cz
+Signed-off-by: Lalith Rajendran <lalithkraj@google.com>
+Link: https://lore.kernel.org/r/20220818214049.1519544-1-lalithkraj@google.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/file.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/ext4/super.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/file.c
-+++ b/fs/ext4/file.c
-@@ -529,6 +529,12 @@ static ssize_t ext4_dio_write_iter(struc
- 		ret = -EAGAIN;
- 		goto out;
- 	}
-+	/*
-+	 * Make sure inline data cannot be created anymore since we are going
-+	 * to allocate blocks for DIO. We know the inode does not have any
-+	 * inline data now because ext4_dio_supported() checked for that.
-+	 */
-+	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3550,6 +3550,7 @@ static int ext4_lazyinit_thread(void *ar
+ 	unsigned long next_wakeup, cur;
  
- 	offset = iocb->ki_pos;
- 	count = ret;
+ 	BUG_ON(NULL == eli);
++	set_freezable();
+ 
+ cont_thread:
+ 	while (true) {
 
 
