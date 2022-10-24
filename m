@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1F1A60B07B
-	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9010360B07F
+	for <lists+stable@lfdr.de>; Mon, 24 Oct 2022 18:06:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232909AbiJXQGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 12:06:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39282 "EHLO
+        id S233028AbiJXQGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 12:06:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233284AbiJXQE0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:26 -0400
+        with ESMTP id S233400AbiJXQEl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 12:04:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 134AF11875B;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89BE325E8B;
         Mon, 24 Oct 2022 07:57:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 50D62B8164F;
-        Mon, 24 Oct 2022 12:20:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99A68C433D6;
-        Mon, 24 Oct 2022 12:20:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB583B81645;
+        Mon, 24 Oct 2022 12:20:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35566C433D7;
+        Mon, 24 Oct 2022 12:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666614006;
-        bh=CifxF7W0vyRSTNa9fDJ55Z8Vyy7rXSy4F/Ob9GWNSg8=;
+        s=korg; t=1666614008;
+        bh=CuwPXSO5nQD6+tQbPlDUkxV3DhhtWO58vcsfSI7QTA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MARKIkgJbpZnoyM84G8+F0KpZwMF1VYfu9Ph95ubmsaUBJUepxkMMjnF8a49zBGzk
-         0l8l06GL8e8pGIiZHhAvqgaylvtx195yXSazOZ6egjFhJy3YM8l5jjJ5X4kzzGfqGd
-         df+3tvaoJPBuvWU4UnNq6HZjCedGjj/VFOvlYzBE=
+        b=eL3NQIodQmRch5yYYddPDcm9q0FuiuAiJuPZI1Fu416+6r6/qa8azaBHRpfEXnsVZ
+         RtA86RjVaQDVCpr6b6EX6LleWeX2th/p1ZXotzmI8xQgtW23mhJeu67HFVjxj/CYHM
+         12pJAvS2dq+XdzBDQsapRCVMP8GU7H8w29GTWx8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 097/390] ARM: 9247/1: mm: set readonly for MT_MEMORY_RO with ARM_LPAE
-Date:   Mon, 24 Oct 2022 13:28:14 +0200
-Message-Id: <20221024113026.786635168@linuxfoundation.org>
+Subject: [PATCH 5.10 098/390] objtool: Preserve special st_shndx indexes in elf_update_symbol
+Date:   Mon, 24 Oct 2022 13:28:15 +0200
+Message-Id: <20221024113026.825316947@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
 References: <20221024113022.510008560@linuxfoundation.org>
@@ -53,44 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Kefeng <wangkefeng.wang@huawei.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 14ca1a4690750bb54e1049e49f3140ef48958a6e ]
+[ Upstream commit 5141d3a06b2da1731ac82091298b766a1f95d3d8 ]
 
-MT_MEMORY_RO is introduced by commit 598f0a99fa8a ("ARM: 9210/1:
-Mark the FDT_FIXED sections as shareable"), which is a readonly
-memory type for FDT area, but there are some different between
-ARM_LPAE and non-ARM_LPAE, we need to setup PMD_SECT_AP2 and
-L_PMD_SECT_RDONLY for MT_MEMORY_RO when ARM_LAPE enabled.
+elf_update_symbol fails to preserve the special st_shndx values
+between [SHN_LORESERVE, SHN_HIRESERVE], which results in it
+converting SHN_ABS entries into SHN_UNDEF, for example. Explicitly
+check for the special indexes and ensure these symbols are not
+marked undefined.
 
-non-ARM_LPAE	0xff800000-0xffa00000           2M PGD KERNEL      ro NX SHD
-ARM_LPAE	0xff800000-0xffc00000           4M PMD RW NX SHD
-ARM_LPAE+fix	0xff800000-0xffc00000           4M PMD ro NX SHD
-
-Fixes: 598f0a99fa8a ("ARM: 9210/1: Mark the FDT_FIXED sections as shareable")
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fixes: ead165fa1042 ("objtool: Fix symbol creation")
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220908215504.3686827-17-samitolvanen@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/mmu.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/objtool/elf.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
-index 86f213f1b44b..0d0c3bf23914 100644
---- a/arch/arm/mm/mmu.c
-+++ b/arch/arm/mm/mmu.c
-@@ -300,7 +300,11 @@ static struct mem_type mem_types[] __ro_after_init = {
- 		.prot_pte  = L_PTE_PRESENT | L_PTE_YOUNG | L_PTE_DIRTY |
- 			     L_PTE_XN | L_PTE_RDONLY,
- 		.prot_l1   = PMD_TYPE_TABLE,
-+#ifdef CONFIG_ARM_LPAE
-+		.prot_sect = PMD_TYPE_SECT | L_PMD_SECT_RDONLY | PMD_SECT_AP2,
-+#else
- 		.prot_sect = PMD_TYPE_SECT,
-+#endif
- 		.domain    = DOMAIN_KERNEL,
- 	},
- 	[MT_ROM] = {
+diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
+index 5aa3b4e76479..a2ea3931e01d 100644
+--- a/tools/objtool/elf.c
++++ b/tools/objtool/elf.c
+@@ -578,6 +578,11 @@ static int elf_update_symbol(struct elf *elf, struct section *symtab,
+ 	Elf64_Xword entsize = symtab->sh.sh_entsize;
+ 	int max_idx, idx = sym->idx;
+ 	Elf_Scn *s, *t = NULL;
++	bool is_special_shndx = sym->sym.st_shndx >= SHN_LORESERVE &&
++				sym->sym.st_shndx != SHN_XINDEX;
++
++	if (is_special_shndx)
++		shndx = sym->sym.st_shndx;
+ 
+ 	s = elf_getscn(elf->elf, symtab->idx);
+ 	if (!s) {
+@@ -663,7 +668,7 @@ static int elf_update_symbol(struct elf *elf, struct section *symtab,
+ 	}
+ 
+ 	/* setup extended section index magic and write the symbol */
+-	if (shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) {
++	if ((shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) || is_special_shndx) {
+ 		sym->sym.st_shndx = shndx;
+ 		if (!shndx_data)
+ 			shndx = 0;
 -- 
 2.35.1
 
