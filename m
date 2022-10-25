@@ -2,83 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E8160CDA3
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 15:36:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A21960CDAC
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 15:37:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232915AbiJYNgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 09:36:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34762 "EHLO
+        id S232907AbiJYNha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 09:37:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232035AbiJYNgq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 09:36:46 -0400
-Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D934718A038;
-        Tue, 25 Oct 2022 06:36:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-        s=42; h=Message-Id:Date:Cc:To:From;
-        bh=uXjEVyiJz1NN6rY5kzCX1caYcoY8Gfm0LKkyWDK0U+M=; b=PYdgyx1AlotXNX1znmEsf4VWTm
-        HMr/ssTvFvn/oXGVwfAjpEu13Rb9Hon/t5VCSKAukEuP+c9CG9TgjyPeGgY5lt40sGhGeZjaSqkML
-        bGuk1Hms6KKulaz0jzFFeOVRxxYHDvyqDvz3lpLvSCvMmJmgbvZB3K/K8wy5z3uYvU7KsZlB4lRkh
-        MBM5mUyL9OaD2m5TcgaOOf5+/beQ+2xPuiL4O+D9/6FkCbLAeKaAj9FqIWYr66sIsM/kfhF1dUoOs
-        8/2TJQkzn/PWBmf9vur13TlYWEHhTL/1yOSU5Js8miY3G6nYEAgftI6aWZesCP+FEttEtyUL4LX6t
-        KghQ+fwx17RJchpnLFYAWeabxauET4wmLVaPfRFFa2VWsmHhc2xgkZWKJ1oE0l2daikr1ufTMZ8wb
-        up3aiNXG8mKJ0CDXOwx+cd2eg1RwYISDv8BuZojMIsAfBSeL5bC/OBMOBkGzXSiIbLZcu91/7bthn
-        foNOeHTrtrLlvbHraZwj8egM;
-Received: from [127.0.0.2] (localhost [127.0.0.1])
-        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__ECDSA_SECP256R1_SHA256__CHACHA20_POLY1305:256)
-        (Exim)
-        id 1onK6i-005jmK-3S; Tue, 25 Oct 2022 13:36:40 +0000
-From:   Stefan Metzmacher <metze@samba.org>
-To:     io-uring@vger.kernel.org, netdev@vger.kernel.org
-Cc:     Stefan Metzmacher <metze@samba.org>, stable@vger.kernel.org,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 1/1] net: also flag accepted sockets supporting msghdr originated zerocopy
-Date:   Tue, 25 Oct 2022 15:36:23 +0200
-Message-Id: <8c1ce5e77d3ec52c94d8bd1269ea1bb900c42019.1666704904.git.metze@samba.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <cover.1666704904.git.metze@samba.org>
-References: <cover.1666704904.git.metze@samba.org>
+        with ESMTP id S232793AbiJYNhM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 09:37:12 -0400
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72BF1956F4;
+        Tue, 25 Oct 2022 06:37:08 -0700 (PDT)
+Received: by mail-oi1-x230.google.com with SMTP id g130so14124612oia.13;
+        Tue, 25 Oct 2022 06:37:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
+         :content-language:user-agent:mime-version:date:message-id:sender
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=5jYA4CRt7QwFxQ2WJSL+6qpHoqAMY4yfe7v64iFTEeg=;
+        b=KMv+Ujbtf9SE9T3fWLARgIMD8dbNUhfiDS39mJbUVKWDXSkcfY17IW89WFcRZi1/YC
+         fSSRRIbACOz6R3JKItclWb9tEY/GClRIlEFt4ybhrL4YZ5YaKsEmAwfyEobi8mI/yjZe
+         uHMejs5tRKWe1U1Ko2LFB60OSVUGL0RJKhbo9omuEYfIFy7SXMX6oRWri/hCZR2SRYlA
+         G5j+shdwHTAyzGGAcG5XPmIEhOD/iklVUHI7KVAZgnWkPpS7cNKTG8oWSyINMZkHivw3
+         iiQwEpj4SEmukIZiS9GdSYD3DtueSQT1jUQNd//LNQZ7xJ2l1GLSF0pYpJEcc+DQZZE0
+         fjWQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
+         :content-language:user-agent:mime-version:date:message-id:sender
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=5jYA4CRt7QwFxQ2WJSL+6qpHoqAMY4yfe7v64iFTEeg=;
+        b=kakDwEtAvJFpaG0h45HOyuoU/H68PkHpl8p8+J307tWc1FHhJVPpQJkBuEy/MBhiIU
+         Z2aIah0Oyukq4QFO3l8RNuIgioKGfau1bOmRg49/w12UFs15Bm0es5lxQsNrQRsNYv77
+         AjYfCf8mAxmc4IjMzrZoLyW8g6YpC/dgzUEFXVBcs+BQYSw8KAPe5bC1iD2OGlpP1XWC
+         e0lp5KqrAiEcutxId6qIjQonmZwLSbjQ5UG55/RKXxjlT4X36K2C0OMsFTZkALEtkZop
+         Kqqzl0m1jj+q0rDh+sjwiI8a/VpFINv42EDM6drxlOYPCFA88VtBP9xLL6g5q2Xp82Yj
+         EFBw==
+X-Gm-Message-State: ACrzQf3o19ONjFUdo37D25Bbr5iw7zxpC5e0eq6I8CFb2Zj1FazBRCtg
+        vs+n1atqg9oqE53fpwIGDmiXkozHG0k=
+X-Google-Smtp-Source: AMsMyM5WKNa9inG277X3WE+Hxvew5Iq1MaPP04sOO3fCVaaTKDsT4e9kpQ4vtyQvvbEj6fjBB87kGQ==
+X-Received: by 2002:a05:6870:d79b:b0:130:f29c:b54c with SMTP id bd27-20020a056870d79b00b00130f29cb54cmr22926276oab.125.1666705016366;
+        Tue, 25 Oct 2022 06:36:56 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id i11-20020a54408b000000b00354b575424csm938403oii.29.2022.10.25.06.36.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 25 Oct 2022 06:36:55 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <5373483d-adde-2884-6017-75f3bd25d6bc@roeck-us.net>
+Date:   Tue, 25 Oct 2022 06:36:52 -0700
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Content-Language: en-US
+To:     Christian Bach <christian.bach@scs.ch>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+References: <ZR0P278MB0773545F02B32FAF648F968AEB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+ <ZR0P278MB0773072DD153BA902AFE635AEB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+ <Y1fYjmtQZa53dPfR@kroah.com>
+ <ZR0P278MB077321F8565A4FF929B132A1EB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+From:   Guenter Roeck <linux@roeck-us.net>
+Subject: Re: AW: tcpci module in Kernel 5.15.74 with PTN5110 not working
+ correctly
+In-Reply-To: <ZR0P278MB077321F8565A4FF929B132A1EB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Without this only the client initiated tcp sockets have SOCK_SUPPORT_ZC.
-The listening socket on the server also has it, but the accepted
-connections didn't, which meant IORING_OP_SEND[MSG]_ZC will always
-fails with -EOPNOTSUPP.
+Hi,
 
-Fixes: e993ffe3da4b ("net: flag sockets supporting msghdr originated zerocopy")
-Cc: <stable@vger.kernel.org> # 6.0
-CC: Pavel Begunkov <asml.silence@gmail.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-CC: Jens Axboe <axboe@kernel.dk>
-Link: https://lore.kernel.org/io-uring/20221024141503.22b4e251@kernel.org/T/#m38aa19b0b825758fb97860a38ad13122051f9dda
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
----
- net/ipv4/af_inet.c | 2 ++
- 1 file changed, 2 insertions(+)
+On 10/25/22 05:48, Christian Bach wrote:
+> Thank you for answering. I did try a Kernel from 1 year ago (11. December 2020 - with the Hash b5206275b46c30a8236feb34a1dc247fa3683d83). But this Kernel had the exact same behavior.
+> I even wanted to go back further the when the tcpm module got it's own subdirectory (v4.20 - 20. September 2018 - Hash ae8a2ca8a2215c7e31e6d874f7303801bb15fbbc) to see if it still worked at that time but my build system was not able to build it.
+> 
 
-diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index 3dd02396517d..4728087c42a5 100644
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -754,6 +754,8 @@ int inet_accept(struct socket *sock, struct socket *newsock, int flags,
- 		  (TCPF_ESTABLISHED | TCPF_SYN_RECV |
- 		  TCPF_CLOSE_WAIT | TCPF_CLOSE)));
- 
-+	if (test_bit(SOCK_SUPPORT_ZC, &sock->flags))
-+		set_bit(SOCK_SUPPORT_ZC, &newsock->flags);
- 	sock_graft(sk2, newsock);
- 
- 	newsock->state = SS_CONNECTED;
--- 
-2.34.1
+Greg asked for you to test with a v5.4.y kernel. ae8a2ca8a221..b5206275b46c30a82
+is again a pretty large step with more than 100 commits in the drivers/usb/typec/tcpm/
+directory.
+
+Also, it might be useful to provide the respective kernel logs.
+
+Thanks,
+Guenter
+
+> -----Ursprüngliche Nachricht-----
+> Von: Greg KH <gregkh@linuxfoundation.org>
+> Gesendet: Dienstag, 25. Oktober 2022 14:38
+> An: Christian Bach <christian.bach@scs.ch>
+> Cc: stable@vger.kernel.org; regressions@lists.linux.dev; linux@roeck-us.net; linux-usb@vger.kernel.org
+> Betreff: Re: tcpci module in Kernel 5.15.74 with PTN5110 not working correctly
+> 
+> [You don't often get email from gregkh@linuxfoundation.org. Learn why this is important at https://aka.ms/LearnAboutSenderIdentification ]
+> 
+> On Tue, Oct 25, 2022 at 12:19:39PM +0000, Christian Bach wrote:
+>> Hello
+>>
+>> For a few weeks now I am trying to make the PTN5110 chip work with the new Kernel 5.15.74. The same hardware setup was working with the 4.19.72 Kernel. The steps I took so far are as follows:
+> 
+> That is a huge jump.  Why not use 'git bisect'?
+> 
+> Or start with a smaller jump.  Why not go to 5.4.y first, that's only a year's worth of changes, instead of 4 years of changes.
+> 
+> thanks,
+> 
+> greg k-h
 
