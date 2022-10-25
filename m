@@ -2,72 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDC6B60C2D1
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 06:51:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5642360C3C1
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 08:21:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229629AbiJYEv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 00:51:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50866 "EHLO
+        id S231194AbiJYGVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 02:21:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbiJYEvz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 00:51:55 -0400
-Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C11C107CCF;
-        Mon, 24 Oct 2022 21:51:53 -0700 (PDT)
-Received: by mail-io1-xd30.google.com with SMTP id n73so9402793iod.13;
-        Mon, 24 Oct 2022 21:51:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=user-agent:in-reply-to:content-disposition:mime-version:references
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZNgL2wjNRdh2GczKnFpFkr5L5ObE69cEXgJ9ULuz+v4=;
-        b=RpVpW+FeaRTCQ9qDhK5bYJcDnJZi7uI6sNLs79q0SbqcHP5V6rX0f30SYsg6m44kcd
-         xCA3vV/g2Ev5sGiFWaExKSaZ8wWsOiEazQwWHJKkEWcWh74jKUAp0PGQ7inp7Sxh2gJL
-         Q/2Hmxf5NOg0AJWub5Wdtv/t+ZwyhVUhWdf3rHnGkvWvDSs8BzT/ya69PTgAALFcj9Qh
-         5MTqQVJDvAvDZaw6QH3to0ujDBn0lMjti+5+baSybSnovrbCe+UQgh7zTyN2kEGeyKod
-         5DpwtkPtYDjOliOk8zlvmzIIzii0Ux3Qipmm/Zn9lfFgaUaypcoAfC/1p57Oxlz98IOl
-         2Nxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=user-agent:in-reply-to:content-disposition:mime-version:references
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZNgL2wjNRdh2GczKnFpFkr5L5ObE69cEXgJ9ULuz+v4=;
-        b=gGDEwzdd8Z+/0RQllnedR9PXz/Ew/9xCKuZ6jnJsyq6j2PlaWXra21Oi5IqiYi50PF
-         ZmVt4/iLwCqIciJG19uY+EbIK2tVx70O0kxjOkjmhrCFt0ZMZZAOTuirHYTE2X0wbxhu
-         hI5b8hl/kCwI3u4H6a7GHDcQPz4NMz/IoqzYFu+mPbP5zNjw03WkOg/o8eTJnq1dAV+J
-         bxNPizmrnAB3JhbdZq6nPtSlTKQx4MnU9attOxQAoaiu5IB2FFRU9QtAOEj4Tb4F8p27
-         J8Py9C8KEDcn7C9XiFx7/ELKMHKlEyl7e0eLDsq63pNFvwUrZkAdaFY0qmzFo+pAPc7f
-         2cJw==
-X-Gm-Message-State: ACrzQf3YQsIhL7WB3mzH543CZrUxvrcCtUVksI+jPWakZyhKE1BOuWJy
-        5pAjxjZSeNEgMvBJKYtAoO0=
-X-Google-Smtp-Source: AMsMyM60a5D5jCGCBz3s6WL62ycVM3Tod51CpUG+vNB3YnvREadb5b3/eglDZ27GhuyO2G/cd3WuDA==
-X-Received: by 2002:a05:6638:2710:b0:363:ac95:d86a with SMTP id m16-20020a056638271000b00363ac95d86amr25696472jav.272.1666673513090;
-        Mon, 24 Oct 2022 21:51:53 -0700 (PDT)
-Received: from qjv001-XeonWs (c-67-167-199-249.hsd1.il.comcast.net. [67.167.199.249])
-        by smtp.gmail.com with ESMTPSA id s1-20020a92c5c1000000b0030005ae9241sm672125ilt.43.2022.10.24.21.51.52
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 24 Oct 2022 21:51:52 -0700 (PDT)
-Date:   Mon, 24 Oct 2022 23:51:50 -0500
-From:   Jeff Vanhoof <jdv1029@gmail.com>
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Cc:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, John Youn <John.Youn@synopsys.com>,
-        stable@vger.kernel.org, Dan Vacura <w36195@motorola.com>
-Subject: Re: [PATCH v2 2/2] usb: dwc3: gadget: Don't set IMI for no_interrupt
-Message-ID: <20221025045148.GA15715@qjv001-XeonWs>
-References: <cover.1666661013.git.Thinh.Nguyen@synopsys.com>
- <453f4dc3189eb855e31768d5caa6bfc7f4bf5074.1666661013.git.Thinh.Nguyen@synopsys.com>
+        with ESMTP id S229457AbiJYGVo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 02:21:44 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 230AB1BE92
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 23:21:39 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1onDJb-0007AK-Jt; Tue, 25 Oct 2022 08:21:31 +0200
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1onDJb-000G3y-C5; Tue, 25 Oct 2022 08:21:30 +0200
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1onDJZ-00ASFg-Hl; Tue, 25 Oct 2022 08:21:29 +0200
+Date:   Tue, 25 Oct 2022 08:21:29 +0200
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Thierry Reding <thierry.reding@gmail.com>, od@opendingux.net,
+        linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/5] pwm: jz4740: Fix pin level of disabled TCU2
+ channels, part 1
+Message-ID: <20221025062129.drzltbavg6hrhv7r@pengutronix.de>
+References: <20221024205213.327001-1-paul@crapouillou.net>
+ <20221024205213.327001-2-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="5xgfedwwwq7lvzdq"
 Content-Disposition: inline
-In-Reply-To: <453f4dc3189eb855e31768d5caa6bfc7f4bf5074.1666661013.git.Thinh.Nguyen@synopsys.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+In-Reply-To: <20221024205213.327001-2-paul@crapouillou.net>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,46 +55,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 24, 2022 at 06:28:04PM -0700, Thinh Nguyen wrote:
-> The gadget driver may have a certain expectation of how the request
-> completion flow should be from to its configuration. Make sure the
-> controller driver respect that. That is, don't set IMI (Interrupt on
-> Missed Isoc) when usb_request->no_interrupt is set.
-> 
-> Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+
+--5xgfedwwwq7lvzdq
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hello,
+
+On Mon, Oct 24, 2022 at 09:52:09PM +0100, Paul Cercueil wrote:
+> The "duty > cycle" trick to force the pin level of a disabled TCU2
+> channel would only work when the channel had been enabled previously.
+>=20
+> Address this issue by enabling the PWM mode in jz4740_pwm_disable
+> (I know, right) so that the "duty > cycle" trick works before disabling
+> the PWM channel right after.
+>=20
+> This issue went unnoticed, as the PWM pins on the majority of the boards
+> tested would default to the inactive level once the corresponding TCU
+> clock was enabled, so the first call to jz4740_pwm_disable() would not
+> actually change the pin levels.
+>=20
+> On the GCW Zero however, the PWM pin for the backlight (PWM1, which is
+> a TCU2 channel) goes active as soon as the timer1 clock is enabled.
+> Since the jz4740_pwm_disable() function did not work on channels not
+> previously enabled, the backlight would shine at full brightness from
+> the moment the backlight driver would probe, until the backlight driver
+> tried to *enable* the PWM output.
+>=20
+> With this fix, the PWM pins will be forced inactive as soon as
+> jz4740_pwm_apply() is called (and might be reconfigured to active if
+> dictated by the pwm_state). This means that there is still a tiny time
+> frame between the .request() and .apply() callbacks where the PWM pin
+> might be active. Sadly, there is no way to fix this issue: it is
+> impossible to write a PWM channel's registers if the corresponding clock
+> is not enabled, and enabling the clock is what causes the PWM pin to go
+> active.
+>=20
+> There is a workaround, though, which complements this fix: simply
+> starting the backlight driver (or any PWM client driver) with a "init"
+> pinctrl state that sets the pin as an inactive GPIO. Once the driver is
+> probed and the pinctrl state switches to "default", the regular PWM pin
+> configuration can be used as it will be properly driven.
+>=20
+> Fixes: c2693514a0a1 ("pwm: jz4740: Obtain regmap from parent node")
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-> ---
->  Changes in v2:
->  - None
-> 
->  drivers/usb/dwc3/gadget.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-> index 230b3c660054..702bdf42ad2f 100644
-> --- a/drivers/usb/dwc3/gadget.c
-> +++ b/drivers/usb/dwc3/gadget.c
-> @@ -1292,8 +1292,8 @@ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
->  			trb->ctrl = DWC3_TRBCTL_ISOCHRONOUS;
->  		}
->  
-> -		/* always enable Interrupt on Missed ISOC */
-> -		trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
-> +		if (!req->request.no_interrupt)
-> +			trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
->  		break;
->  
->  	case USB_ENDPOINT_XFER_BULK:
-> -- 
-> 2.28.0
->
 
-No new issue seen during testing. Described changes make sense to do.
+OK, understood the issue. I think there is another similar issue: The
+clk is get and enabled only in the .request() callback. The result is (I
+think---depends on a few further conditions) that if you have the
+backlight driver as a module and the bootloader enables the backlight to
+show a splash screen, the backlight goes off because of the
+clk_disable_unused initcall.
 
-Reviewed-by: Jeff Vanhoof <jdv1029@gmail.com>
-Tested-by: Jeff Vanhoof <jdv1029@gmail.com>
+So the right thing to do is to get the clock in .probe(), and ensure it
+is kept on if the PWM is running already. Then you can also enable the
+counter in .probe() and don't care for it in the enable and disable
+functions.
 
-Regards,
-Jeff
+The init pinctrl then has to be on the PWM then, but that's IMHO ok.
 
+Best regards
+Uwe
+
+PS: While looking into the driver I noticed that .request() uses
+dev_err_probe(). That's wrong, this function is only supposed to be used
+in .probe().
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--5xgfedwwwq7lvzdq
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmNXgGYACgkQwfwUeK3K
+7AnfjggAnEOBtXlPzcBwx8UedR+Wp2Bwl4cWaX4hA3RCsLJJRov0yjJ0x9r5HGBf
+kE+ut8y6I42VSGXLwaPZAwqjNhiAP7NPvXyTOckvrgUk4UZXXmRYVHqrkP7UQRWI
+mVyJWG0LPMd45Swx66Rkf6IDnDwgUTpP8ClZqFaZo/luiPz2kI8IJ1OYLNFTRxis
+k/OPQWYLeFtM4QAZXjH1PJq1W4RGKR8jZZTvyDOZkEuT1f5vQyeMeCIXdv9CxvOE
+1VU/x/FpAsppfw7LwbTSzjJ+31OdWCWBpqZ7uH5J4G115q4dtc7FD1cLVNOx3E+/
+YsVQS9JuYF0B/YlX9qv8v5KAhWagkw==
+=sVSE
+-----END PGP SIGNATURE-----
+
+--5xgfedwwwq7lvzdq--
