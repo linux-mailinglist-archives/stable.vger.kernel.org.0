@@ -2,115 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 891FA60CF83
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 16:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F10E60CF8A
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 16:50:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232359AbiJYOsw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 10:48:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50184 "EHLO
+        id S230025AbiJYOuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 10:50:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231649AbiJYOsv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 10:48:51 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8754118F243;
-        Tue, 25 Oct 2022 07:48:50 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id jb18so4844235wmb.4;
-        Tue, 25 Oct 2022 07:48:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=oBcBe5YIMobauGuiBqXg3xuJUSAXxBckHePPz8bMkq0=;
-        b=neJJukcaAU9DMTXji0kQbuXURWqCNLs008Urjce3hHte2aBdxkFpGVyhSKanqpCMud
-         xBThGlSNNeKg8TiHAHrswQ1uY6eD/72I9TcqDASFLbvHJKec3ThNTBDSvJB3XZEPowIB
-         WOJPWshkVHnpVsL+y0dI77rMwik1eNMAX41y153UY/wjC7tXAfGwUHv+odYTn/7OB4d8
-         7uk0CClDDyp7RUAc8yeglbc1+pnzZZWRs7/RuxfLnC14K/zdEaGu5f8HyvhfTNiwGjuw
-         W4qegVf0oqUXfDhrN8YWCEbxBZRXOBov++rITcw1d4LVjmVAOykHce8CCTfAcyAiYyOy
-         SQ6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=oBcBe5YIMobauGuiBqXg3xuJUSAXxBckHePPz8bMkq0=;
-        b=skIr9xgs0DD/6VLHZWIm5RZhzaD+fHSwgCskDHkfX/30dh8lAAVTC06DiYHe+7Matm
-         b1QtVrPhj4+KxIKnVvV8/kV7CKd4yww+K1ISAqaIKgSZ8fuU30axXcUjh+49XViwhwaA
-         2cWbEaL3wadEvrdyjE0kk5nsKRBiaNa401LkICafGAJqKdNAmhNpsETk3S1Vtar/PbNf
-         mJBoZZ9At7GYfR2M9b4LAh2ZvzgZ37Iuk43+6eRSIa/Aw22jQmnNQLH+iuAJ+5BqPIDE
-         VBKSAdUF207n5DVosseYC3pBm5D5ilA61CYj0BAU+B2TQeJ8Z0iO7VomUkuHataYd1f1
-         klPw==
-X-Gm-Message-State: ACrzQf1dRL3VF+ms4eI/O36aAU0aHqLPnbn/IRD1Om6/JUraK02VelGq
-        Ua+VgqtdbTD6two8DNG2jJ8=
-X-Google-Smtp-Source: AMsMyM4Warv7e/nkFGSBwFdI4/idn9nJJhu51VnhptuON0H+u165dTjQECcyEa13HCuTXkURt7s3qQ==
-X-Received: by 2002:a05:600c:a47:b0:3a6:5848:4bde with SMTP id c7-20020a05600c0a4700b003a658484bdemr46389632wmq.189.1666709328932;
-        Tue, 25 Oct 2022 07:48:48 -0700 (PDT)
-Received: from [10.1.2.99] (wifi-guest-gw.tecnico.ulisboa.pt. [193.136.152.65])
-        by smtp.gmail.com with ESMTPSA id b9-20020a5d45c9000000b00236488f62d6sm2653927wrs.79.2022.10.25.07.48.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Oct 2022 07:48:48 -0700 (PDT)
-Message-ID: <63b0e654-5c2c-2061-44b5-3d1b2645ad19@gmail.com>
-Date:   Tue, 25 Oct 2022 15:47:01 +0100
+        with ESMTP id S232036AbiJYOuP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 10:50:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CF6F57DE3;
+        Tue, 25 Oct 2022 07:50:14 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD06861989;
+        Tue, 25 Oct 2022 14:50:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92EC4C433D6;
+        Tue, 25 Oct 2022 14:50:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1666709413;
+        bh=VCltjqERKRXqiEIpoMVQ9binZrINHP3djXjLUsnrY/Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=sPChzJNVdFp0eS17oqBoQV6rW+/XvI85cf5PLyQwbF0TnsSuv/BhDtqoqshmAjMxN
+         SGfaZTjo+kAKd38XCblRNqbxEX3Z9mYImDfNHMXnvt3tUKjHbs+tkK04RKoqRvh4Ss
+         J1xfZiUhXXqbMlsIH4r+nyyCOKf0SvajwNt9dyso=
+Date:   Tue, 25 Oct 2022 16:50:10 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, tiwai@suse.com,
+        alsa-devel@alsa-project.org, peter.ujfalusi@linux.intel.com,
+        mkumard@nvidia.com
+Subject: Re: [PATCH AUTOSEL 6.0 07/44] ALSA: hda: Fix page fault in
+ snd_hda_codec_shutdown()
+Message-ID: <Y1f3opiid6pvKINq@kroah.com>
+References: <20221009234932.1230196-1-sashal@kernel.org>
+ <20221009234932.1230196-7-sashal@kernel.org>
+ <24d084e1-700d-da77-d93e-2d330aac2f63@linux.intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-Subject: Re: [PATCH 1/1] net: also flag accepted sockets supporting msghdr
- originated zerocopy
-To:     Stefan Metzmacher <metze@samba.org>, io-uring@vger.kernel.org,
-        netdev@vger.kernel.org
-Cc:     stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>
-References: <cover.1666704904.git.metze@samba.org>
- <8c1ce5e77d3ec52c94d8bd1269ea1bb900c42019.1666704904.git.metze@samba.org>
-Content-Language: en-US
-From:   Pavel Begunkov <asml.silence@gmail.com>
-In-Reply-To: <8c1ce5e77d3ec52c94d8bd1269ea1bb900c42019.1666704904.git.metze@samba.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <24d084e1-700d-da77-d93e-2d330aac2f63@linux.intel.com>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/25/22 14:36, Stefan Metzmacher wrote:
-> Without this only the client initiated tcp sockets have SOCK_SUPPORT_ZC.
-> The listening socket on the server also has it, but the accepted
-> connections didn't, which meant IORING_OP_SEND[MSG]_ZC will always
-> fails with -EOPNOTSUPP.
-
-Jakub pointed out a bunch of places yesterday that we have to
-consider. I'll pick it up and resend with the rest. Thanks
-
-
-> Fixes: e993ffe3da4b ("net: flag sockets supporting msghdr originated zerocopy")
-> Cc: <stable@vger.kernel.org> # 6.0
-> CC: Pavel Begunkov <asml.silence@gmail.com>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> CC: Jens Axboe <axboe@kernel.dk>
-> Link: https://lore.kernel.org/io-uring/20221024141503.22b4e251@kernel.org/T/#m38aa19b0b825758fb97860a38ad13122051f9dda
-> Signed-off-by: Stefan Metzmacher <metze@samba.org>
-> ---
->   net/ipv4/af_inet.c | 2 ++
->   1 file changed, 2 insertions(+)
+On Tue, Oct 25, 2022 at 09:27:32AM -0500, Pierre-Louis Bossart wrote:
 > 
-> diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-> index 3dd02396517d..4728087c42a5 100644
-> --- a/net/ipv4/af_inet.c
-> +++ b/net/ipv4/af_inet.c
-> @@ -754,6 +754,8 @@ int inet_accept(struct socket *sock, struct socket *newsock, int flags,
->   		  (TCPF_ESTABLISHED | TCPF_SYN_RECV |
->   		  TCPF_CLOSE_WAIT | TCPF_CLOSE)));
->   
-> +	if (test_bit(SOCK_SUPPORT_ZC, &sock->flags))
-> +		set_bit(SOCK_SUPPORT_ZC, &newsock->flags);
->   	sock_graft(sk2, newsock);
->   
->   	newsock->state = SS_CONNECTED;
+> 
+> On 10/9/22 18:48, Sasha Levin wrote:
+> > From: Cezary Rojewski <cezary.rojewski@intel.com>
+> > 
+> > [ Upstream commit f2bd1c5ae2cb0cf9525c9bffc0038c12dd7e1338 ]
+> 
+> This commit on linux-stable seems to have broken a number of platforms.
+> 
+> 6.0.2 worked fine.
+> 6.0.3 does not
+> 
+> reverting this commit solves the problem, see
+> https://github.com/thesofproject/linux/issues/3960 for details.
+> 
+> Are we missing a prerequisite patch for this commit?
 
--- 
-Pavel Begunkov
+Please see https://lore.kernel.org/r/20221024143931.15722-1-tiwai@suse.de
+
+Does that solve it for you?
+
+thanks,
+
+greg k-h
