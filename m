@@ -2,178 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D7B360D228
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 18:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 461CC60D23F
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 19:08:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231629AbiJYQ7p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 12:59:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56470 "EHLO
+        id S229864AbiJYRH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 13:07:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231476AbiJYQ7n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 12:59:43 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C0D917415
-        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 09:59:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666717182; x=1698253182;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=qX7Kc/WSRswECF9x6zNcp49V86F7NNcuzfDKFsaS378=;
-  b=KVuCfC75zHwY7diHD9rODDcWbI+hTstI7LVAu0OXt/riY+OmGCiRe3Pv
-   s8VMhkFIq5rRmfCeeJi2xcVVwUDOQKurPevAmPF4Kt73FcEVMdzlmJRJl
-   ngNtwJ86obG9vl0qHVOknwO48U91W+274tL7/rr7NPqvQ8Fgj7+rTiAvE
-   nXtAnrETyhCTvRtlse+RsE6D582n9FEKuwe+gaLqzaUekr1wrVU7QhnCT
-   NrUcvnWEtyUFx6l1N088xeNqgavUQlbKdFLlsaZU8SAEAe4HqWRqfe76P
-   5qKpXbIN/8Jgin2Jg5NwYYGl0nJYjf3q3/m7y+hpVVGsgbtNx0OtZj4zg
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10511"; a="291036523"
-X-IronPort-AV: E=Sophos;i="5.95,212,1661842800"; 
-   d="scan'208";a="291036523"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Oct 2022 09:59:41 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10511"; a="609640147"
-X-IronPort-AV: E=Sophos;i="5.95,212,1661842800"; 
-   d="scan'208";a="609640147"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.191])
-  by orsmga006.jf.intel.com with SMTP; 25 Oct 2022 09:59:39 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Tue, 25 Oct 2022 19:59:38 +0300
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] drm/i915/sdvo: Fallback to current output timings for LVDS fixed mode
-Date:   Tue, 25 Oct 2022 19:59:38 +0300
-Message-Id: <20221025165938.17264-1-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.37.4
+        with ESMTP id S231351AbiJYRH6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 13:07:58 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9EC2108DD7
+        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 10:07:56 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id k2so14330641ejr.2
+        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 10:07:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=AC1uAuVt0BevV1hXaTU1Uc4K/3bo5jaK0nilJIQDNPs=;
+        b=lYp5I8az47ZXp+iQT2xHj8wjnds3sQrp19gPb2X96V90OoHMnW299aQ6j42w1AAbNf
+         6uKKqGBUNb4U2WEzBXPLkEX11qEdhK0oDfiKQ/3uUwdyXU4SOamIcvY7Yt2EGav6525s
+         qnP8PF+yj4x/Pt+tBIeT5GkLxKUNE4ju0a3f+L0z6IdRtIpoQHWbj754g5hCbT1OXln6
+         6Zl6ATBRYh6PympCdZgI7d9wbOk8SdCSQJsBNf0BurNN7Smd2pfYmNbeFNjSsoB2vCyN
+         5n+s4+MGFft420Uozm+UwBwHBkA+qI4HYC2B1UIwlEOCUzPgOvd4jBj3VT5erloIWCsK
+         8ZXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=AC1uAuVt0BevV1hXaTU1Uc4K/3bo5jaK0nilJIQDNPs=;
+        b=FFZ7CBzBj0LvXn08HvOW7NVBDNIOhFRLLwgdSWDn6PM+SQe759NA7QgcAQuzfXdje9
+         WlUF4jqB7TEek1x4MvMpI+KuDRlpqQuNpgWL2rJggvKCmFvhIbaPLtmHwaOwzYNU/SyG
+         RdegAZgy6/yUlhA1B+8wtqeeYlAaNEK6UvKnkif7IABu4EMFv1i82IedXadpviQbRLGd
+         ZTjiM1PSSiYb6Z3DDETOt7e9+6t1gi3H68B6PtNLQ2kc133ztB2+ndDYE6o+9cWyGqc+
+         CD41vjwi1BqBQoRGAEm52GRV2OAyRoaxdO/ZS4loJA6qJLxowA+2LNFLX83YcQxoF3HG
+         ewjQ==
+X-Gm-Message-State: ACrzQf1EtftdTop6xnL5+kX7/XpPtyL4m8CQKAs6kudOzSzImkE6fPVL
+        UU6dS0Mx45IOO6NafGWFLy0BucDNCa+9tu8pU0W9Hg==
+X-Google-Smtp-Source: AMsMyM5+cM7THsirIfJ10IYZBSKVJbxS6df7eMLY+mACvZcOAjzxndRAS5qcMbtd7ct/wpM0jM7Pi9x2RnpZKe++EZQ=
+X-Received: by 2002:a17:906:fe45:b0:788:15a5:7495 with SMTP id
+ wz5-20020a170906fe4500b0078815a57495mr34004170ejb.633.1666717675144; Tue, 25
+ Oct 2022 10:07:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+References: <20221024112959.085534368@linuxfoundation.org>
+In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 25 Oct 2022 22:37:43 +0530
+Message-ID: <CA+G9fYteLc8VuPqLtgzb1nKGbO1NChbYeLkUxhb-JbnboAEwJA@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/229] 4.19.262-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+On Mon, 24 Oct 2022 at 17:25, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.262 release.
+> There are 229 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 26 Oct 2022 11:29:24 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.262-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-If we can't dig out a fixed mode for LVDS from the VBT or EDID
-let's fall back to using the current output timings. This should
-work as long as the BIOS has (somehow) enabled the output.
+Results from Linaro's test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-In this case we are dealing with the some kind of BLB based POS
-machine (Toshiba SurePOS 500) where neither the OpRegion mailbox
-nor the vbios ROM contain a valid VBT. And no EDID anywhere we
-could find either.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Cc: <stable@vger.kernel.org> # v5.19+
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7301
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
- drivers/gpu/drm/i915/display/intel_panel.c |  6 ++--
- drivers/gpu/drm/i915/display/intel_panel.h |  3 ++
- drivers/gpu/drm/i915/display/intel_sdvo.c  | 40 ++++++++++++++++++++++
- 3 files changed, 46 insertions(+), 3 deletions(-)
+## Build
+* kernel: 4.19.262-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.19.y
+* git commit: a838554008fbadb75c035d3c473a2d9e26080a33
+* git describe: v4.19.261-230-ga838554008fb
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19.261-230-ga838554008fb
 
-diff --git a/drivers/gpu/drm/i915/display/intel_panel.c b/drivers/gpu/drm/i915/display/intel_panel.c
-index 69ce77711b7c..69082fbc7647 100644
---- a/drivers/gpu/drm/i915/display/intel_panel.c
-+++ b/drivers/gpu/drm/i915/display/intel_panel.c
-@@ -275,9 +275,9 @@ void intel_panel_add_edid_fixed_modes(struct intel_connector *connector,
- 	intel_panel_destroy_probed_modes(connector);
- }
- 
--static void intel_panel_add_fixed_mode(struct intel_connector *connector,
--				       struct drm_display_mode *fixed_mode,
--				       const char *type)
-+void intel_panel_add_fixed_mode(struct intel_connector *connector,
-+				struct drm_display_mode *fixed_mode,
-+				const char *type)
- {
- 	struct drm_i915_private *i915 = to_i915(connector->base.dev);
- 	struct drm_display_info *info = &connector->base.display_info;
-diff --git a/drivers/gpu/drm/i915/display/intel_panel.h b/drivers/gpu/drm/i915/display/intel_panel.h
-index 5c5b5b7f95b6..964efed8ef3c 100644
---- a/drivers/gpu/drm/i915/display/intel_panel.h
-+++ b/drivers/gpu/drm/i915/display/intel_panel.h
-@@ -43,6 +43,9 @@ int intel_panel_fitting(struct intel_crtc_state *crtc_state,
- 			const struct drm_connector_state *conn_state);
- int intel_panel_compute_config(struct intel_connector *connector,
- 			       struct drm_display_mode *adjusted_mode);
-+void intel_panel_add_fixed_mode(struct intel_connector *connector,
-+				struct drm_display_mode *fixed_mode,
-+				const char *type);
- void intel_panel_add_edid_fixed_modes(struct intel_connector *connector,
- 				      bool use_alt_fixed_modes);
- void intel_panel_add_vbt_lfp_fixed_mode(struct intel_connector *connector);
-diff --git a/drivers/gpu/drm/i915/display/intel_sdvo.c b/drivers/gpu/drm/i915/display/intel_sdvo.c
-index cf8e80936d8e..9ed54118b669 100644
---- a/drivers/gpu/drm/i915/display/intel_sdvo.c
-+++ b/drivers/gpu/drm/i915/display/intel_sdvo.c
-@@ -781,6 +781,13 @@ static bool intel_sdvo_get_input_timing(struct intel_sdvo *intel_sdvo,
- 				     SDVO_CMD_GET_INPUT_TIMINGS_PART1, dtd);
- }
- 
-+static bool intel_sdvo_get_output_timing(struct intel_sdvo *intel_sdvo,
-+					 struct intel_sdvo_dtd *dtd)
-+{
-+	return intel_sdvo_get_timing(intel_sdvo,
-+				     SDVO_CMD_GET_OUTPUT_TIMINGS_PART1, dtd);
-+}
-+
- static bool
- intel_sdvo_create_preferred_input_timing(struct intel_sdvo *intel_sdvo,
- 					 struct intel_sdvo_connector *intel_sdvo_connector,
-@@ -2864,6 +2871,36 @@ intel_sdvo_analog_init(struct intel_sdvo *intel_sdvo, int device)
- 	return true;
- }
- 
-+static void
-+intel_sdvo_add_current_fixed_mode(struct intel_sdvo *intel_sdvo,
-+				  struct intel_sdvo_connector *connector)
-+{
-+	struct drm_i915_private *i915 = to_i915(intel_sdvo->base.base.dev);
-+	struct drm_display_mode *mode;
-+	struct intel_sdvo_dtd dtd = {};
-+
-+	if (!intel_sdvo_set_target_output(intel_sdvo,
-+					  connector->output_flag)) {
-+		drm_dbg_kms(&i915->drm, "failed to set SDVO target output\n");
-+		return;
-+	}
-+
-+	if (!intel_sdvo_get_output_timing(intel_sdvo, &dtd)) {
-+		drm_dbg_kms(&i915->drm, "failed to get SDVO output timings\n");
-+		return;
-+	}
-+
-+	mode = drm_mode_create(&i915->drm);
-+	if (!mode)
-+		return;
-+
-+	intel_sdvo_get_mode_from_dtd(mode, &dtd);
-+
-+	drm_mode_set_name(mode);
-+
-+	intel_panel_add_fixed_mode(&connector->base, mode, "current (SDVO)");
-+}
-+
- static bool
- intel_sdvo_lvds_init(struct intel_sdvo *intel_sdvo, int device)
- {
-@@ -2913,6 +2950,9 @@ intel_sdvo_lvds_init(struct intel_sdvo *intel_sdvo, int device)
- 		intel_panel_add_edid_fixed_modes(intel_connector, false);
- 	}
- 
-+	if (!intel_panel_preferred_fixed_mode(intel_connector))
-+		intel_sdvo_add_current_fixed_mode(intel_sdvo, intel_sdvo_connector);
-+
- 	intel_panel_init(intel_connector);
- 
- 	if (!intel_panel_preferred_fixed_mode(intel_connector))
--- 
-2.37.4
+## No Test Regressions (compared to v4.19.261)
 
+## No Metric Regressions (compared to v4.19.261)
+
+## No Test Fixes (compared to v4.19.261)
+
+## No Metric Fixes (compared to v4.19.261)
+
+
+## Test result summary
+total: 50296, pass: 43870, fail: 595, skip: 5348, xfail: 483
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 323 total, 318 passed, 5 failed
+* arm64: 61 total, 60 passed, 1 failed
+* i386: 29 total, 28 passed, 1 failed
+* mips: 46 total, 46 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 63 total, 63 passed, 0 failed
+* s390: 15 total, 15 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 55 total, 54 passed, 1 failed
+
+## Test suites summary
+* fwts
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-lib
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-zram
+* kunit
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
