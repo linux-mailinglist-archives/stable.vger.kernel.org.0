@@ -2,82 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1470B60CD33
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 15:16:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E8160CDA3
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 15:36:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232399AbiJYNQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 09:16:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57026 "EHLO
+        id S232915AbiJYNgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 09:36:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232481AbiJYNQh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 09:16:37 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F171EE4C34;
-        Tue, 25 Oct 2022 06:16:36 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 53BFFCE1D3E;
-        Tue, 25 Oct 2022 13:16:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 266A4C433C1;
-        Tue, 25 Oct 2022 13:16:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666703793;
-        bh=wVGWwrHfgzYkkGdBBbnsd8BkLklDXYYfWo7u/4uzzdg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ni5aywoaYtYYP26T27kHY/BmtpFOgTt8rIcI5g/1jRhh2uxzb2MSfT6qYC8ziQWu5
-         qTzUbqvxV5Cu4dOzR1KCPElB28UeVIf7nmRRAQTriHg5wrrNCY/i0rtsT4mq+07wrn
-         qJf7wricUf6qQBlKdDCV4YhoD/zORLGIqASEel9Y=
-Date:   Tue, 25 Oct 2022 15:16:30 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Anders Blomdell <anders.blomdell@control.lth.se>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: Re: [PATCH 5.10 044/390] serial: 8250: Let drivers request full
- 16550A feature probing
-Message-ID: <Y1fhrrEz50XCmD79@kroah.com>
-References: <20221024113022.510008560@linuxfoundation.org>
- <20221024113024.492214172@linuxfoundation.org>
- <20221024172710.GA24827@duo.ucw.cz>
+        with ESMTP id S232035AbiJYNgq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 09:36:46 -0400
+Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D934718A038;
+        Tue, 25 Oct 2022 06:36:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
+        s=42; h=Message-Id:Date:Cc:To:From;
+        bh=uXjEVyiJz1NN6rY5kzCX1caYcoY8Gfm0LKkyWDK0U+M=; b=PYdgyx1AlotXNX1znmEsf4VWTm
+        HMr/ssTvFvn/oXGVwfAjpEu13Rb9Hon/t5VCSKAukEuP+c9CG9TgjyPeGgY5lt40sGhGeZjaSqkML
+        bGuk1Hms6KKulaz0jzFFeOVRxxYHDvyqDvz3lpLvSCvMmJmgbvZB3K/K8wy5z3uYvU7KsZlB4lRkh
+        MBM5mUyL9OaD2m5TcgaOOf5+/beQ+2xPuiL4O+D9/6FkCbLAeKaAj9FqIWYr66sIsM/kfhF1dUoOs
+        8/2TJQkzn/PWBmf9vur13TlYWEHhTL/1yOSU5Js8miY3G6nYEAgftI6aWZesCP+FEttEtyUL4LX6t
+        KghQ+fwx17RJchpnLFYAWeabxauET4wmLVaPfRFFa2VWsmHhc2xgkZWKJ1oE0l2daikr1ufTMZ8wb
+        up3aiNXG8mKJ0CDXOwx+cd2eg1RwYISDv8BuZojMIsAfBSeL5bC/OBMOBkGzXSiIbLZcu91/7bthn
+        foNOeHTrtrLlvbHraZwj8egM;
+Received: from [127.0.0.2] (localhost [127.0.0.1])
+        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__ECDSA_SECP256R1_SHA256__CHACHA20_POLY1305:256)
+        (Exim)
+        id 1onK6i-005jmK-3S; Tue, 25 Oct 2022 13:36:40 +0000
+From:   Stefan Metzmacher <metze@samba.org>
+To:     io-uring@vger.kernel.org, netdev@vger.kernel.org
+Cc:     Stefan Metzmacher <metze@samba.org>, stable@vger.kernel.org,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 1/1] net: also flag accepted sockets supporting msghdr originated zerocopy
+Date:   Tue, 25 Oct 2022 15:36:23 +0200
+Message-Id: <8c1ce5e77d3ec52c94d8bd1269ea1bb900c42019.1666704904.git.metze@samba.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <cover.1666704904.git.metze@samba.org>
+References: <cover.1666704904.git.metze@samba.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221024172710.GA24827@duo.ucw.cz>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 24, 2022 at 07:27:10PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > From: Maciej W. Rozycki <macro@orcam.me.uk>
-> > 
-> > commit 9906890c89e4dbd900ed87ad3040080339a7f411 upstream.
-> > 
-> > A SERIAL_8250_16550A_VARIANTS configuration option has been recently
-> > defined that lets one request the 8250 driver not to probe for 16550A
-> > device features so as to reduce the driver's device startup time in
-> > virtual machines.
-> > 
-> > Some actual hardware devices require these features to have been fully
-> > determined however for their driver to work correctly, so define a flag
-> > to let drivers request full 16550A feature probing on a device-by-device
-> > basis if required regardless of the SERIAL_8250_16550A_VARIANTS option
-> > setting chosen.
-> 
-> As far as I can see, the UPF_FULL_PROBE is never set in 5.10.150 tree,
-> so we should not need it there.
+Without this only the client initiated tcp sockets have SOCK_SUPPORT_ZC.
+The listening socket on the server also has it, but the accepted
+connections didn't, which meant IORING_OP_SEND[MSG]_ZC will always
+fails with -EOPNOTSUPP.
 
-Ah, yes, it was tagged wrong.  I'll go drop this now, it's only needed
-in 5.15.y
+Fixes: e993ffe3da4b ("net: flag sockets supporting msghdr originated zerocopy")
+Cc: <stable@vger.kernel.org> # 6.0
+CC: Pavel Begunkov <asml.silence@gmail.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+CC: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/io-uring/20221024141503.22b4e251@kernel.org/T/#m38aa19b0b825758fb97860a38ad13122051f9dda
+Signed-off-by: Stefan Metzmacher <metze@samba.org>
+---
+ net/ipv4/af_inet.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-thanks,
+diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+index 3dd02396517d..4728087c42a5 100644
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -754,6 +754,8 @@ int inet_accept(struct socket *sock, struct socket *newsock, int flags,
+ 		  (TCPF_ESTABLISHED | TCPF_SYN_RECV |
+ 		  TCPF_CLOSE_WAIT | TCPF_CLOSE)));
+ 
++	if (test_bit(SOCK_SUPPORT_ZC, &sock->flags))
++		set_bit(SOCK_SUPPORT_ZC, &newsock->flags);
+ 	sock_graft(sk2, newsock);
+ 
+ 	newsock->state = SS_CONNECTED;
+-- 
+2.34.1
 
-greg k-h
