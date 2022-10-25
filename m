@@ -2,122 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D99760CC02
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 14:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50CD460CC65
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 14:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231917AbiJYMh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 08:37:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56672 "EHLO
+        id S232437AbiJYMto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 08:49:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231925AbiJYMh5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 08:37:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F7951870BF
-        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 05:37:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666701475;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=boAr6JkR73ssS+S6gWh1SUDS3IyoLaLW/9nsvQotYJ4=;
-        b=buIvF6Wdj4Z3TWvMsVWhhbcdeit14okTC/DgKZwYjIJQUgNAvhu9IaWBWM4jGtZKxt0ri7
-        J8vU3l3L5mI/+5ho+8Kqw4E5XJwBHBrFQW3IJcWJx4Udeq3YfmxAhLVgaBtHq8DuoWeWyd
-        0+5xZqqgww+TfPL+cvWUPUsuTg4C6E0=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-470-QTzcfl6kMFSkPo91IvFfWQ-1; Tue, 25 Oct 2022 08:37:52 -0400
-X-MC-Unique: QTzcfl6kMFSkPo91IvFfWQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S230245AbiJYMtZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 08:49:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 913FD193762;
+        Tue, 25 Oct 2022 05:47:57 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id EE10D380671E;
-        Tue, 25 Oct 2022 12:37:51 +0000 (UTC)
-Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 737352166B2A;
-        Tue, 25 Oct 2022 12:37:51 +0000 (UTC)
-From:   Emanuele Giuseppe Esposito <eesposit@redhat.com>
-To:     kvm@vger.kernel.org
-Cc:     Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8155B61919;
+        Tue, 25 Oct 2022 12:47:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60931C433D6;
+        Tue, 25 Oct 2022 12:47:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1666702037;
+        bh=PRmqS5H+nCp9dplF7lCxZ/svls2XGbTUgDWMeIMlsbU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=O16r+C8HYrEgaR0P0z3/hFYuLy0xAnu9sEbIfGlOOfQCoSWHULDzBxmppvxU7hE8j
+         lVYQXCmknfIwBbCNw3vBkg5PV5+lZgKV/yNUhkExYtevIQjjb1NDTJrfemJS++jSnA
+         hwV2PWwEAX3vTqQG9BkfOPcOL976KoEVpzlxurmY=
+Date:   Tue, 25 Oct 2022 14:47:15 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
         Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Bandan Das <bsd@redhat.com>,
-        linux-kernel@vger.kernel.org,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] KVM: vmx/nested: avoid blindly setting SECONDARY_EXEC_ENCLS_EXITING when sgx is enabled
-Date:   Tue, 25 Oct 2022 08:37:49 -0400
-Message-Id: <20221025123749.2201649-1-eesposit@redhat.com>
+        "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 174/229] x86/entry: Work around Clang __bdos() bug
+Message-ID: <Y1fa082Vhar2x1DM@kroah.com>
+References: <20221024112959.085534368@linuxfoundation.org>
+ <20221024113004.718917343@linuxfoundation.org>
+ <20221024174127.GC25198@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221024174127.GC25198@duo.ucw.cz>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently vmx enables SECONDARY_EXEC_ENCLS_EXITING even when sgx
-is not set in the host MSR.
+On Mon, Oct 24, 2022 at 07:41:27PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > From: Kees Cook <keescook@chromium.org>
+> > 
+> > [ Upstream commit 3e1730842f142add55dc658929221521a9ea62b6 ]
+> > 
+> > Clang produces a false positive when building with CONFIG_FORTIFY_SOURCE=y
+> > and CONFIG_UBSAN_BOUNDS=y when operating on an array with a dynamic
+> > offset. Work around this by using a direct assignment of an empty
+> > instance. Avoids this warning:
+> > 
+> > ../include/linux/fortify-string.h:309:4: warning: call to __write_overflow_field declared with 'warn
+> > ing' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wat
+> > tribute-warning]
+> >                         __write_overflow_field(p_size_field, size);
+> >                         ^
+> > 
+> > which was isolated to the memset() call in xen_load_idt().
+> > 
+> > Note that this looks very much like another bug that was worked around:
+> > https://github.com/ClangBuiltLinux/linux/issues/1592
+> 
+> We don't have CONFIG_UBSAN_BOUNDS in 4.19, so maybe we don't need this
+> one?
 
-When booting a guest, KVM checks that the cpuid bit is actually set
-in vmx.c, and if not, it does not enable the feature.
+Good point, I'll drop this from 5.4.y and older now, thanks.
 
-However, in nesting this control bit is blindly set, and will be
-propagated to VMCS12 and VMCS02. Therefore, when L1 tries to boot
-the guest, the host will try to execute VMLOAD with VMCS02 containing
-a feature that the hardware does not support, making it fail with
-hardware error 0x7.
-
-According to section "Secondary Processor-Based VM-Execution Controls"
-in the Intel SDM, software should *always* check the value in the
-actual MSR_IA32_VMX_PROCBASED_CTLS2 before enabling this bit.
-
-Not updating enable_sgx is responsible for a second bug:
-vmx_set_cpu_caps() doesn't clear the SGX bits when hardware support is
-unavailable.  This is a much less problematic bug as it only pops up
-if SGX is soft-disabled (the case being handled by cpu_has_sgx()) or if
-SGX is supported for bare metal but not in the VMCS (will never happen
-when running on bare metal, but can theoertically happen when running in
-a VM).
-
-Last but not least, KVM should ideally have module params reflect KVM's
-actual configuration.
-
-RHBZ: https://bugzilla.redhat.com/show_bug.cgi?id=2127128
-
-Fixes: 72add915fbd5 ("KVM: VMX: Enable SGX virtualization for SGX1, SGX2 and LC")
-Cc: stable@vger.kernel.org
-
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Suggested-by: Bandan Das <bsd@redhat.com>
-Signed-off-by: Emanuele Giuseppe Esposito <eesposit@redhat.com>
----
- arch/x86/kvm/vmx/vmx.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 9dba04b6b019..ea0c65d3c08a 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -8263,6 +8263,11 @@ static __init int hardware_setup(void)
- 	if (!cpu_has_virtual_nmis())
- 		enable_vnmi = 0;
- 
-+	#ifdef CONFIG_X86_SGX_KVM
-+		if (!cpu_has_vmx_encls_vmexit())
-+			enable_sgx = false;
-+	#endif
-+
- 	/*
- 	 * set_apic_access_page_addr() is used to reload apic access
- 	 * page upon invalidation.  No need to do anything if not
--- 
-2.31.1
-
+greg k-h
