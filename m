@@ -2,182 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4B6360C4E9
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 09:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E625860C56C
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 09:37:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230520AbiJYHV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 03:21:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40822 "EHLO
+        id S231172AbiJYHhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 03:37:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231308AbiJYHV1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 03:21:27 -0400
-Received: from out28-52.mail.aliyun.com (out28-52.mail.aliyun.com [115.124.28.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73CA875481;
-        Tue, 25 Oct 2022 00:21:23 -0700 (PDT)
-X-Alimail-AntiSpam: AC=CONTINUE;BC=0.07441602|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.00302366-0.00215713-0.994819;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047206;MF=kant@allwinnertech.com;NM=1;PH=DS;RN=9;RT=9;SR=0;TI=SMTPD_---.PpTooo6_1666682480;
-Received: from SunxiBot.allwinnertech.com(mailfrom:kant@allwinnertech.com fp:SMTPD_---.PpTooo6_1666682480)
-          by smtp.aliyun-inc.com;
-          Tue, 25 Oct 2022 15:21:21 +0800
-From:   Kant Fan <kant@allwinnertech.com>
-To:     myungjoo.ham@samsung.com, kyungmin.park@samsung.com,
-        cw00.choi@samsung.com, mturquette@ti.com, rjw@rjwysocki.net,
-        khilman@ti.com
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        with ESMTP id S231706AbiJYHhK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 03:37:10 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DDB9186C
+        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 00:37:08 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id b2so10352549eja.6
+        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 00:37:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ionos.com; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Q62BXo1sUE/A7oBeCBFMb3IRGsZ8ne8pgvaqkcg6rqk=;
+        b=LoSpLLvbaQdrc8sxLciYVrpC5WT+DRd48s1s750iRun8RkwECoZ1COwzBcQbphlTsL
+         n6ApWbOjSXr41nL6RCy+wXuf4Q7PQyfpsTTtIeOVOZXdXyg7kwDI+eiFR+DnwWRPjEGp
+         PUkWunx0E4i2yW5bQmrH5tApL0cK4sGPQEXIV5NqTyIvdWWr2nMibLdvPwzfZdB353oQ
+         cV6GBYRGnzWyRoHajwdiYa+tJt+3wGqM1nCLv4cUgJgY+eV6+a1AfBsDFJRpe4uiZsyB
+         CD6Y7mpKfPJgcuyo+D9ect3vcm+U2ad7rsB5bX1CjvinIGfXi1b8bfn2tXvXBx2ztYMO
+         LOdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Q62BXo1sUE/A7oBeCBFMb3IRGsZ8ne8pgvaqkcg6rqk=;
+        b=EvDO1/uslJpI78IVCBy3qAtS7ju7rCtVnI5j8ANWYOAdFERFnfCV2FWcOAKRHyRJfJ
+         lfmRt1zVZjPKnRx2nDvwrruEwIgOsLZa4X1uldv40/wpD8DvItp5YR+Zy3tXUz7rWuV8
+         vCDGXIZF+Pq/OjGgdn1id2g+qxyGqSvQz0aqs87P9Yqe9+Er5mElErs80Q+i87ga3fPJ
+         h1TbIWmp94Pl8fY0pUD+eo4gYgHp1Mo/QFxQmvTIjfzUbEi9K/w9PCjHt+a7JDsahVYf
+         8STrXGj5Z83IObkPiPNpMR9ZbKweAyuKTXh8iAv4GSQPij9tGQvuCicZ1jpzq9VXAfue
+         E53A==
+X-Gm-Message-State: ACrzQf1BRDeRrA+FNuM8zK0EWp2BAyQGCetq2a78/MRsvzneJSj2aS0X
+        QhW0/TCMZlMHaPSu5vUSqUR7XEoOGqeM3Q==
+X-Google-Smtp-Source: AMsMyM4IKVQrHGhP9O593qinEjIBwx0l2Gkir4iOByK1CLvEBYybHeHeisQ7apaJk4W1SeU0MTu2IQ==
+X-Received: by 2002:a17:907:7638:b0:7aa:987f:4e91 with SMTP id jy24-20020a170907763800b007aa987f4e91mr5287570ejc.442.1666683427000;
+        Tue, 25 Oct 2022 00:37:07 -0700 (PDT)
+Received: from lb02065.fkb.profitbricks.net ([2001:9e8:1417:db00:fbfd:10a3:7b84:252c])
+        by smtp.gmail.com with ESMTPSA id gs18-20020a170906f19200b007a62215eb4esm965342ejb.16.2022.10.25.00.37.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Oct 2022 00:37:06 -0700 (PDT)
+From:   Jack Wang <jinpu.wang@ionos.com>
+To:     linux-raid@vger.kernel.org
+Cc:     song@kernel.org,
+        Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>,
         stable@vger.kernel.org
-Subject: [PATCH v4] PM/devfreq: governor: Add a private governor_data for governor
-Date:   Tue, 25 Oct 2022 15:21:09 +0800
-Message-Id: <20221025072109.64025-1-kant@allwinnertech.com>
-X-Mailer: git-send-email 2.29.0
+Subject: [PATCHv3] md/bitmap: Fix bitmap chunk size overflow issues
+Date:   Tue, 25 Oct 2022 09:37:05 +0200
+Message-Id: <20221025073705.17692-1-jinpu.wang@ionos.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The member void *data in the structure devfreq can be overwrite
-by governor_userspace. For example:
-1. The device driver assigned the devfreq governor to simple_ondemand
-by the function devfreq_add_device() and init the devfreq member
-void *data to a pointer of a static structure devfreq_simple_ondemand_data
-by the function devfreq_add_device().
-2. The user changed the devfreq governor to userspace by the command
-"echo userspace > /sys/class/devfreq/.../governor".
-3. The governor userspace alloced a dynamic memory for the struct
-userspace_data and assigend the member void *data of devfreq to
-this memory by the function userspace_init().
-4. The user changed the devfreq governor back to simple_ondemand
-by the command "echo simple_ondemand > /sys/class/devfreq/.../governor".
-5. The governor userspace exited and assigned the member void *data
-in the structure devfreq to NULL by the function userspace_exit().
-6. The governor simple_ondemand fetched the static information of
-devfreq_simple_ondemand_data in the function
-devfreq_simple_ondemand_func() but the member void *data of devfreq was
-assigned to NULL by the function userspace_exit().
-7. The information of upthreshold and downdifferential is lost
-and the governor simple_ondemand can't work correctly.
+From: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
 
-The member void *data in the structure devfreq is designed for
-a static pointer used in a governor and inited by the function
-devfreq_add_device(). This patch add an element named governor_data
-in the devfreq structure which can be used by a governor(E.g userspace)
-who want to assign a private data to do some private things.
+- limit bitmap chunk size internal u64 variable to values not overflowing
+  the u32 bitmap superblock structure variable stored on persistent media
+- assign bitmap chunk size internal u64 variable from unsigned values to
+  avoid possible sign extension artifacts when assigning from a s32 value
 
-Fixes: ce26c5bb9569 ("PM / devfreq: Add basic governors")
-Cc: stable@vger.kernel.org # 5.10+
-Reviewed-by: Chanwoo Choi <cwchoi00@gmail.com>
-Acked-by: MyungJoo Ham <myungjoo.ham@samsung.com>
-Signed-off-by: Kant Fan <kant@allwinnertech.com>
+The bug has been there since at least kernel 4.0.
+Steps to reproduce it:
+1: mdadm -C /dev/mdx -l 1 --bitmap=internal --bitmap-chunk=256M -e 1.2
+-n2 /dev/rnbd1 /dev/rnbd2
+2 resize member device rnbd1 and rnbd2 to 8 TB
+3 mdadm --grow /dev/mdx --size=max
+
+The bitmap_chunksize will overflow without patch.
+
+Cc: stable@vger.kernel.org
+
+Signed-off-by: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Song Liu <song@kernel.org>
 ---
- drivers/devfreq/devfreq.c            |  6 ++----
- drivers/devfreq/governor_userspace.c | 12 ++++++------
- include/linux/devfreq.h              |  7 ++++---
- 3 files changed, 12 insertions(+), 13 deletions(-)
+v3: fix build warning on i386.
+ drivers/md/md-bitmap.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
-index 63347a5ae599..8c5f6f7fca11 100644
---- a/drivers/devfreq/devfreq.c
-+++ b/drivers/devfreq/devfreq.c
-@@ -776,8 +776,7 @@ static void remove_sysfs_files(struct devfreq *devfreq,
-  * @dev:	the device to add devfreq feature.
-  * @profile:	device-specific profile to run devfreq.
-  * @governor_name:	name of the policy to choose frequency.
-- * @data:	private data for the governor. The devfreq framework does not
-- *		touch this value.
-+ * @data:	devfreq driver pass to governors, governor should not change it.
-  */
- struct devfreq *devfreq_add_device(struct device *dev,
- 				   struct devfreq_dev_profile *profile,
-@@ -1011,8 +1010,7 @@ static void devm_devfreq_dev_release(struct device *dev, void *res)
-  * @dev:	the device to add devfreq feature.
-  * @profile:	device-specific profile to run devfreq.
-  * @governor_name:	name of the policy to choose frequency.
-- * @data:	private data for the governor. The devfreq framework does not
-- *		touch this value.
-+ * @data:	 devfreq driver pass to governors, governor should not change it.
-  *
-  * This function manages automatically the memory of devfreq device using device
-  * resource management and simplify the free operation for memory of devfreq
-diff --git a/drivers/devfreq/governor_userspace.c b/drivers/devfreq/governor_userspace.c
-index ab9db7adb3ad..d69672ccacc4 100644
---- a/drivers/devfreq/governor_userspace.c
-+++ b/drivers/devfreq/governor_userspace.c
-@@ -21,7 +21,7 @@ struct userspace_data {
- 
- static int devfreq_userspace_func(struct devfreq *df, unsigned long *freq)
- {
--	struct userspace_data *data = df->data;
-+	struct userspace_data *data = df->governor_data;
- 
- 	if (data->valid)
- 		*freq = data->user_frequency;
-@@ -40,7 +40,7 @@ static ssize_t set_freq_store(struct device *dev, struct device_attribute *attr,
- 	int err = 0;
- 
- 	mutex_lock(&devfreq->lock);
--	data = devfreq->data;
-+	data = devfreq->governor_data;
- 
- 	sscanf(buf, "%lu", &wanted);
- 	data->user_frequency = wanted;
-@@ -60,7 +60,7 @@ static ssize_t set_freq_show(struct device *dev,
- 	int err = 0;
- 
- 	mutex_lock(&devfreq->lock);
--	data = devfreq->data;
-+	data = devfreq->governor_data;
- 
- 	if (data->valid)
- 		err = sprintf(buf, "%lu\n", data->user_frequency);
-@@ -91,7 +91,7 @@ static int userspace_init(struct devfreq *devfreq)
- 		goto out;
- 	}
- 	data->valid = false;
--	devfreq->data = data;
-+	devfreq->governor_data = data;
- 
- 	err = sysfs_create_group(&devfreq->dev.kobj, &dev_attr_group);
- out:
-@@ -107,8 +107,8 @@ static void userspace_exit(struct devfreq *devfreq)
- 	if (devfreq->dev.kobj.sd)
- 		sysfs_remove_group(&devfreq->dev.kobj, &dev_attr_group);
- 
--	kfree(devfreq->data);
--	devfreq->data = NULL;
-+	kfree(devfreq->governor_data);
-+	devfreq->governor_data = NULL;
+diff --git a/drivers/md/md-bitmap.c b/drivers/md/md-bitmap.c
+index 63ece30114e5..e7cc6ba1b657 100644
+--- a/drivers/md/md-bitmap.c
++++ b/drivers/md/md-bitmap.c
+@@ -486,7 +486,7 @@ void md_bitmap_print_sb(struct bitmap *bitmap)
+ 	sb = kmap_atomic(bitmap->storage.sb_page);
+ 	pr_debug("%s: bitmap file superblock:\n", bmname(bitmap));
+ 	pr_debug("         magic: %08x\n", le32_to_cpu(sb->magic));
+-	pr_debug("       version: %d\n", le32_to_cpu(sb->version));
++	pr_debug("       version: %u\n", le32_to_cpu(sb->version));
+ 	pr_debug("          uuid: %08x.%08x.%08x.%08x\n",
+ 		 le32_to_cpu(*(__le32 *)(sb->uuid+0)),
+ 		 le32_to_cpu(*(__le32 *)(sb->uuid+4)),
+@@ -497,11 +497,11 @@ void md_bitmap_print_sb(struct bitmap *bitmap)
+ 	pr_debug("events cleared: %llu\n",
+ 		 (unsigned long long) le64_to_cpu(sb->events_cleared));
+ 	pr_debug("         state: %08x\n", le32_to_cpu(sb->state));
+-	pr_debug("     chunksize: %d B\n", le32_to_cpu(sb->chunksize));
+-	pr_debug("  daemon sleep: %ds\n", le32_to_cpu(sb->daemon_sleep));
++	pr_debug("     chunksize: %u B\n", le32_to_cpu(sb->chunksize));
++	pr_debug("  daemon sleep: %us\n", le32_to_cpu(sb->daemon_sleep));
+ 	pr_debug("     sync size: %llu KB\n",
+ 		 (unsigned long long)le64_to_cpu(sb->sync_size)/2);
+-	pr_debug("max write behind: %d\n", le32_to_cpu(sb->write_behind));
++	pr_debug("max write behind: %u\n", le32_to_cpu(sb->write_behind));
+ 	kunmap_atomic(sb);
  }
  
- static int devfreq_userspace_handler(struct devfreq *devfreq,
-diff --git a/include/linux/devfreq.h b/include/linux/devfreq.h
-index 34aab4dd336c..4dc7cda4fd46 100644
---- a/include/linux/devfreq.h
-+++ b/include/linux/devfreq.h
-@@ -152,8 +152,8 @@ struct devfreq_stats {
-  * @max_state:		count of entry present in the frequency table.
-  * @previous_freq:	previously configured frequency value.
-  * @last_status:	devfreq user device info, performance statistics
-- * @data:	Private data of the governor. The devfreq framework does not
-- *		touch this.
-+ * @data:	devfreq driver pass to governors, governor should not change it.
-+ * @governor_data:	private data for governors, devfreq core doesn't touch it.
-  * @user_min_freq_req:	PM QoS minimum frequency request from user (via sysfs)
-  * @user_max_freq_req:	PM QoS maximum frequency request from user (via sysfs)
-  * @scaling_min_freq:	Limit minimum frequency requested by OPP interface
-@@ -193,7 +193,8 @@ struct devfreq {
- 	unsigned long previous_freq;
- 	struct devfreq_dev_status last_status;
+@@ -2105,7 +2105,8 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
+ 			bytes = DIV_ROUND_UP(chunks, 8);
+ 			if (!bitmap->mddev->bitmap_info.external)
+ 				bytes += sizeof(bitmap_super_t);
+-		} while (bytes > (space << 9));
++		} while (bytes > (space << 9) && (chunkshift + BITMAP_BLOCK_SHIFT) <
++			(BITS_PER_BYTE * sizeof(((bitmap_super_t *)0)->chunksize) - 1));
+ 	} else
+ 		chunkshift = ffz(~chunksize) - BITMAP_BLOCK_SHIFT;
  
--	void *data; /* private data for governors */
-+	void *data;
-+	void *governor_data;
+@@ -2150,7 +2151,7 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
+ 	bitmap->counts.missing_pages = pages;
+ 	bitmap->counts.chunkshift = chunkshift;
+ 	bitmap->counts.chunks = chunks;
+-	bitmap->mddev->bitmap_info.chunksize = 1 << (chunkshift +
++	bitmap->mddev->bitmap_info.chunksize = 1UL << (chunkshift +
+ 						     BITMAP_BLOCK_SHIFT);
  
- 	struct dev_pm_qos_request user_min_freq_req;
- 	struct dev_pm_qos_request user_max_freq_req;
+ 	blocks = min(old_counts.chunks << old_counts.chunkshift,
+@@ -2176,8 +2177,8 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
+ 				bitmap->counts.missing_pages = old_counts.pages;
+ 				bitmap->counts.chunkshift = old_counts.chunkshift;
+ 				bitmap->counts.chunks = old_counts.chunks;
+-				bitmap->mddev->bitmap_info.chunksize = 1 << (old_counts.chunkshift +
+-									     BITMAP_BLOCK_SHIFT);
++				bitmap->mddev->bitmap_info.chunksize =
++					1UL << (old_counts.chunkshift + BITMAP_BLOCK_SHIFT);
+ 				blocks = old_counts.chunks << old_counts.chunkshift;
+ 				pr_warn("Could not pre-allocate in-memory bitmap for cluster raid\n");
+ 				break;
+@@ -2537,6 +2538,9 @@ chunksize_store(struct mddev *mddev, const char *buf, size_t len)
+ 	if (csize < 512 ||
+ 	    !is_power_of_2(csize))
+ 		return -EINVAL;
++	if (BITS_PER_LONG > 32 && csize >= (1ULL << (BITS_PER_BYTE *
++		sizeof(((bitmap_super_t *)0)->chunksize))))
++		return -EOVERFLOW;
+ 	mddev->bitmap_info.chunksize = csize;
+ 	return len;
+ }
 -- 
-2.29.0
+2.34.1
 
