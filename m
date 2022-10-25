@@ -2,111 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EEEC60C277
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 06:05:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 120E760C281
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 06:12:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229528AbiJYEFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 00:05:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32778 "EHLO
+        id S230217AbiJYEMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 00:12:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230194AbiJYEFf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 00:05:35 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99084DFF7;
-        Mon, 24 Oct 2022 21:05:32 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id 78so10405768pgb.13;
-        Mon, 24 Oct 2022 21:05:32 -0700 (PDT)
+        with ESMTP id S230107AbiJYEMx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 00:12:53 -0400
+Received: from 001.mia.mailroute.net (001.mia.mailroute.net [199.89.3.4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68844130D4D
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 21:12:49 -0700 (PDT)
+Received: from localhost (001.mia.mailroute.net [127.0.0.1])
+        by 001.mia.mailroute.net (Postfix) with ESMTP id 4MxJSc2zpqz2KYJR
+        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 04:12:48 +0000 (UTC)
+X-Virus-Scanned: by MailRoute
+Received: from 001.mia.mailroute.net ([199.89.3.4])
+        by localhost (001.mia [127.0.0.1]) (mroute_mailscanner, port 10026)
+        with LMTP id yzuDkZ-aNIuS for <stable@vger.kernel.org>;
+        Tue, 25 Oct 2022 04:12:46 +0000 (UTC)
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com [209.85.222.197])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by 001.mia.mailroute.net (Postfix) with ESMTPS id 4MxJSZ4VDXz2KY9r
+        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 04:12:46 +0000 (UTC)
+Received: by mail-qk1-f197.google.com with SMTP id h8-20020a05620a284800b006b5c98f09fbso10729238qkp.21
+        for <stable@vger.kernel.org>; Mon, 24 Oct 2022 21:12:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZQa6ftKOheF7CVATYu6FGbp0ocnWZwF8PVY64lyLhoM=;
-        b=hnMBzTT/cC+QpgngwxCnviZIQzjKtd72bF1nCGbpL4eaVNjJWPfojj18zD4tT3jko2
-         nMN558xxJQwpU/Wx2G+QBMijIE7n28uWV15+9SuXz8V8qcmTrZ0fDcF+0RZrb4DVoPPu
-         PwGgIxn+UrrKfpEVhNVGu4ToOw0chE6cCsur7vgskqfWIDL5+sLpFINkhfe2TeaYyAkg
-         PdY82lCWAuSQo0udCArLMVBOo3mivsMlnItfR2fAddePHWCIy60/RMeRc1eAztnFZ2s/
-         6oKDX8dKnZa5KjYNGqFyQX+m4CTpDLRt0hfES+KoCHsrIRT7z9QiMpxSOeJ8aybUC9q4
-         stEA==
+        d=sladewatkins.net; s=googled;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=eRZeax8ZK3CS3LfPjBqPBNDHjw2kJt26ab1K5VUm8bA=;
+        b=nREHJ5Tq+t172QmoJBFfosI6flBmUyEHHBG2mFDgFfJvZRFrcFivR25ipqmllRoT5C
+         LRS1lW+2UJvLbJjtaLpbj0w+vJr2tGQv0Vm1CZ1uOFU6tnZ38r295dSwbVVvmQetJD6S
+         nakgxCi76EvVI92IRS653GoR+EwKEEDwImqL7Sx3yTWl2dW4SOn8arwItJuJVJ/S0nGO
+         35npwzYloDjS15Ja80RwrHPd9GoJeUWA1Qj0Jh9VveGgtXBB50GNK+dHt/EZjuWGleov
+         VI7EqIl3IQvpvN/kUZQ+TXoErk2cuU7NwqO5qdOcFxlHSlKeUX3Woc70WYYiBQh8Qf52
+         NMsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZQa6ftKOheF7CVATYu6FGbp0ocnWZwF8PVY64lyLhoM=;
-        b=JZdvTtqZozl8U7VbfiqOPikwgyF3u+NOq5OxGRqbxzojc86H9TPr4cfAb6PxaDYEQo
-         cQVlkGkZXxvuXN/JHgZtH0oSwQ75jhO80GvbBnLaxHkwpYFEp7p9Wbnn6IrzLJPnlJQx
-         MRBJznyW0l28ugH5PPwAmaXrmXZbfw5sHglfNEHhXXHnKr4BDP7d5jU1hsowj531oBr0
-         mLtIFast1+QEdDz4BZSdH/4Ptu/r4/U0sVvMWn7dJmW+bZEJhnX6nOrFKmsTQp9BiUqI
-         aJ/w4MScdgMdKdZxbx4P/XEQ8nZt7bTdlEYMRRowqy+hDAAuORUQJgePj701V0bQh7mg
-         BH1Q==
-X-Gm-Message-State: ACrzQf2643y77N6FN/0n9GBctdnaXkUGwPvFmmSZEx1v8MUb2PigdfId
-        YiamAu9mU/ZVGSAub2VSz43VGWWktWRvMw==
-X-Google-Smtp-Source: AMsMyM5aLirzYvsaFJweXIINNc5ABMyu6YOfTm73ZNmGEVGPvNk11aavIDjtVqLOyv17TwASEHRaSA==
-X-Received: by 2002:a63:4384:0:b0:43a:18ce:f98a with SMTP id q126-20020a634384000000b0043a18cef98amr30641470pga.273.1666670732126;
-        Mon, 24 Oct 2022 21:05:32 -0700 (PDT)
-Received: from debian.me (subs02-180-214-232-7.three.co.id. [180.214.232.7])
-        by smtp.gmail.com with ESMTPSA id d197-20020a621dce000000b0056c231d80bdsm243778pfd.157.2022.10.24.21.05.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Oct 2022 21:05:31 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id E3E53103F53; Tue, 25 Oct 2022 11:05:28 +0700 (WIB)
-Date:   Tue, 25 Oct 2022 11:05:28 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: Re: [PATCH 5.15 000/530] 5.15.75-rc1 review
-Message-ID: <Y1dgiM1at60Wcm6a@debian.me>
-References: <20221024113044.976326639@linuxfoundation.org>
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=eRZeax8ZK3CS3LfPjBqPBNDHjw2kJt26ab1K5VUm8bA=;
+        b=jifq3oK3HuYJfdRoy8jsytVHsZ9XZaDD3zy27a9ogUeiMcfJkw6774gd5Dli42wE0j
+         aw6AVleaoDptNU/ws8IMsgkc9nMs6VDWqLMKGN+bBd5X5zBUntrfWIaKo9wjhAYNNH4V
+         SYmR/A9lAhMzHNiOBEDXsF+uuv2qa4HUNAYqqDY9X0qf8mbMQX//lmaJ3Z6hClX5eW++
+         5wKa8/TK5wDEx+zQ9EUpYG1cbm/HA5UVvagNaJAwwNKHRddWx84DNhPyITiBJhmofTpO
+         tYGumf1SF2BZ/zNC9iXrpxmGyQzJ771KTR50aB6m02n1aJ6dS1YVlNR1yZhCd9+4QAHm
+         OIpA==
+X-Gm-Message-State: ACrzQf1vQDzMAmbNr/va2DXPCPt22X6bQDlg6taDa953wR2IyBUrG4fS
+        JSyofS0dsRgDvLJd6BtWn9vqvF+L/Lb73A75OJOkk8lwPgtEqiLdcC8qNN04JLjk+jE3Q3fxXUF
+        U/PiGfYZqgy3vZEpce0vX5r7Kbf9ytkY=
+X-Received: by 2002:a05:620a:2947:b0:6ee:88c9:bcdc with SMTP id n7-20020a05620a294700b006ee88c9bcdcmr25981204qkp.143.1666671165244;
+        Mon, 24 Oct 2022 21:12:45 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM6ekGR/WqLv3RSc7wYas2t4wRYPXMGljMeYPoCmQ7VvtBVwVo608L81PV4ys7w7WMkk/jXijA==
+X-Received: by 2002:a05:620a:2947:b0:6ee:88c9:bcdc with SMTP id n7-20020a05620a294700b006ee88c9bcdcmr25981195qkp.143.1666671165031;
+        Mon, 24 Oct 2022 21:12:45 -0700 (PDT)
+Received: from [192.168.1.39] (pool-108-4-135-94.albyny.fios.verizon.net. [108.4.135.94])
+        by smtp.gmail.com with ESMTPSA id dt47-20020a05620a47af00b006ee96d82188sm1384931qkb.1.2022.10.24.21.12.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Oct 2022 21:12:44 -0700 (PDT)
+Message-ID: <b190538b-3b82-d3e7-664b-550318a61e66@sladewatkins.net>
+Date:   Tue, 25 Oct 2022 00:12:43 -0400
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="CPDhycYeX2u+Ftac"
-Content-Disposition: inline
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Subject: Re: [PATCH 5.15 000/530] 5.15.75-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com
+References: <20221024113044.976326639@linuxfoundation.org>
+From:   Slade Watkins <srw@sladewatkins.net>
 In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,SPF_PASS,URIBL_BLOCKED
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---CPDhycYeX2u+Ftac
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Oct 24, 2022 at 01:25:44PM +0200, Greg Kroah-Hartman wrote:
+On 10/24/22 7:25 AM, Greg Kroah-Hartman wrote:
 > This is the start of the stable review cycle for the 5.15.75 release.
 > There are 530 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->=20
+> 
+> Responses should be made by Wed, 26 Oct 2022 11:29:24 +0000.
+> Anything received after that time might be too late.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.1.0).
+5.15.75-rc1 compiled and booted on my x86_64 test system. No errors or
+regressions.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Tested-by: Slade Watkins <srw@sladewatkins.net>
 
---=20
-An old man doll... just what I always wanted! - Clara
+All the best,
 
---CPDhycYeX2u+Ftac
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY1dghAAKCRD2uYlJVVFO
-o28sAQCIDUU53Pc0rdKeJy2JyG9rwTLfnnnVxWqlB/OdqTal5gEAp1TyJRpB61yL
-Jx8ayi8DSfTgWlePXWc32DGZD+Wl9w8=
-=mgsc
------END PGP SIGNATURE-----
-
---CPDhycYeX2u+Ftac--
+-srw
