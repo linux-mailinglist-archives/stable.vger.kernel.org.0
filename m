@@ -2,48 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03F9860CECD
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 16:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A08460CECF
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 16:21:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232719AbiJYOVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 10:21:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44476 "EHLO
+        id S232445AbiJYOVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 10:21:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232968AbiJYOVH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 10:21:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD486746A;
-        Tue, 25 Oct 2022 07:21:02 -0700 (PDT)
+        with ESMTP id S232511AbiJYOVO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 10:21:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47DA872FE2
+        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 07:21:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4155AB81D14;
-        Tue, 25 Oct 2022 14:21:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF32C433C1;
-        Tue, 25 Oct 2022 14:20:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03F2AB81D4D
+        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 14:21:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6124BC433C1;
+        Tue, 25 Oct 2022 14:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666707660;
-        bh=npqwxasURQRjt6ABDS11DHTpEYlQm3/w7oHiAuuaNNQ=;
+        s=korg; t=1666707670;
+        bh=DrBtBT1YwkPRhGh4yStdeRbRv12U7agiY0u8AUBEnNQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zqyiqDiIFYYZ5JichYUevRVtzSCBeTiGoqVbpYFwVp8SpXUMu99ghXGdK4GO1AlJa
-         zmv71rQfOke0AtlwfLOa54yMMdbLsfgsBfy88vrTBwkuuMsDuKKHdoqBpT1DJirl1P
-         MrqkNvVWfWHhtgdI+IhMrzl6owd8GeD/QBGsMj3k=
-Date:   Tue, 25 Oct 2022 16:20:57 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        b=xx0Iq2eB80GNuLD4zohIrDU7Alb4u079NFrCosSIZC67KlwTebEImud0Z1Caryb8C
+         jytzFpjCJmxKcwTdpQdAuBjnp7LsDGRzAkpHPQG3vDbGY/0poOVxmhzp01Pxckpz0d
+         nNXUaj/X2VxUI1ovq+qSE+z91SAw4kz/WqAG2kLE=
+Date:   Tue, 25 Oct 2022 16:21:08 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Deucher, Alexander" <Alexander.Deucher@amd.com>
+Cc:     Salvatore Bonaccorso <carnil@debian.org>,
+        Diederik de Haas <didi.debian@cknow.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
         Shuah Khan <skhan@linuxfoundation.org>,
-        "Deucher, Alexander" <Alexander.Deucher@amd.com>
-Subject: Re: [PATCH 5.10 384/390] Revert "drm/amdgpu: move nbio
- sdma_doorbell_range() into sdma code for vega"
-Message-ID: <Y1fwyYcHsMPhUE2o@kroah.com>
-References: <20221024113022.510008560@linuxfoundation.org>
- <20221024113039.334437223@linuxfoundation.org>
- <Y1emKRzhii9qK+cN@eldamar.lan>
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 1/2] Revert "drm/amdgpu: move nbio sdma_doorbell_range()
+ into sdma code for vega"
+Message-ID: <Y1fw1IQhsBWnJbiQ@kroah.com>
+References: <20221020153857.565160-1-alexander.deucher@amd.com>
+ <2651645.mvXUDI8C0e@bagend>
+ <Y1I4rC37gwl367rt@eldamar.lan>
+ <Y1Z5Km83Rcc3W0PY@kroah.com>
+ <BL1PR12MB51443BFF32835644A72F7A38F72E9@BL1PR12MB5144.namprd12.prod.outlook.com>
+ <Y1ana7eNFN/CMNOg@kroah.com>
+ <BL1PR12MB5144F3CC640A18DF0C36E414F72E9@BL1PR12MB5144.namprd12.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y1emKRzhii9qK+cN@eldamar.lan>
+In-Reply-To: <BL1PR12MB5144F3CC640A18DF0C36E414F72E9@BL1PR12MB5144.namprd12.prod.outlook.com>
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
@@ -54,99 +60,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 25, 2022 at 11:02:33AM +0200, Salvatore Bonaccorso wrote:
-> Hi Greg,
+On Mon, Oct 24, 2022 at 05:31:53PM +0000, Deucher, Alexander wrote:
+> [Public]
 > 
-> On Mon, Oct 24, 2022 at 01:33:01PM +0200, Greg Kroah-Hartman wrote:
-> > From: Shuah Khan <skhan@linuxfoundation.org>
+> > -----Original Message-----
+> > From: Greg KH <gregkh@linuxfoundation.org>
+> > Sent: Monday, October 24, 2022 10:56 AM
+> > To: Deucher, Alexander <Alexander.Deucher@amd.com>
+> > Cc: Salvatore Bonaccorso <carnil@debian.org>; Diederik de Haas
+> > <didi.debian@cknow.org>; stable@vger.kernel.org; Shuah Khan
+> > <skhan@linuxfoundation.org>; Sasha Levin <sashal@kernel.org>
+> > Subject: Re: [PATCH 1/2] Revert "drm/amdgpu: move nbio
+> > sdma_doorbell_range() into sdma code for vega"
 > > 
-> > This reverts commit 9f55f36f749a7608eeef57d7d72991a9bd557341 which is
-> > commit e3163bc8ffdfdb405e10530b140135b2ee487f89 upstream.
+> > On Mon, Oct 24, 2022 at 02:39:41PM +0000, Deucher, Alexander wrote:
+> > > [Public]
 > > 
-> > This commit causes repeated WARN_ONs from
+> > Of course it is!
 > > 
-> > drivers/gpu/drm/amd/amdgpu/../display/amdgpu_dm/amd
-> > gpu_dm.c:7391 amdgpu_dm_atomic_commit_tail+0x23b9/0x2430 [amdgpu]
+> > > > -----Original Message-----
+> > > > From: Greg KH <gregkh@linuxfoundation.org>
+> > > > Sent: Monday, October 24, 2022 7:38 AM
+> > > > To: Salvatore Bonaccorso <carnil@debian.org>
+> > > > Cc: Diederik de Haas <didi.debian@cknow.org>;
+> > > > stable@vger.kernel.org; Deucher, Alexander
+> > > > <Alexander.Deucher@amd.com>; Shuah Khan
+> > <skhan@linuxfoundation.org>;
+> > > > Sasha Levin <sashal@kernel.org>
+> > > > Subject: Re: [PATCH 1/2] Revert "drm/amdgpu: move nbio
+> > > > sdma_doorbell_range() into sdma code for vega"
 > > 
-> > dmesg fills up with the following messages and drm initialization takes
-> > a very long time.
+> > This is horrid, please fix up your email system.
 > > 
-> > Cc: <stable@vger.kernel.org>    # 5.10
-> > Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > ---
-> >  drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c |    5 -----
-> >  drivers/gpu/drm/amd/amdgpu/soc15.c     |   25 +++++++++++++++++++++++++
-> >  2 files changed, 25 insertions(+), 5 deletions(-)
+> > > > On Fri, Oct 21, 2022 at 08:14:04AM +0200, Salvatore Bonaccorso wrote:
+> > > > > Hi,
+> > > > >
+> > > > > On Fri, Oct 21, 2022 at 02:29:22AM +0200, Diederik de Haas wrote:
+> > > > > > On Thursday, 20 October 2022 17:38:56 CEST Alex Deucher wrote:
+> > > > > > > This reverts commit 9f55f36f749a7608eeef57d7d72991a9bd557341.
+> > > > > > >
+> > > > > > > This patch was backported incorrectly when Sasha backported it
+> > > > > > > and the patch that caused the regression that this patch set
+> > > > > > > fixed was reverted in commit 412b844143e3 ("Revert
+> > > > > > > "PCI/portdrv: Don't disable AER reporting in
+> > > > > > > get_port_device_capability()""). This isn't necessary and causes a
+> > regression so drop it.
+> > > > > > >
+> > > > > > > Bug:
+> > > > > > >
+> > > > https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2F
+> > > > > > > gitlab.freedesktop.org%2Fdrm%2Famd%2F-
+> > > > %2Fissues%2F2216&amp;data=05
+> > > > > > >
+> > > >
+> > %7C01%7Calexander.deucher%40amd.com%7C5f932b93d7154b20994a08dab
+> > > > 5bf
+> > > > > > >
+> > > >
+> > 354e%7C3dd8961fe4884e608e11a82d994e183d%7C0%7C0%7C6380221300859
+> > > > 453
+> > > > > > >
+> > > >
+> > 54%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luM
+> > > > zIiLCJ
+> > > > > > >
+> > > >
+> > BTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7C%7C&amp;sdata=D9Gkpt0
+> > > > zCN5q
+> > > > > > > BWoSngMY%2FiJyHWiaAC34eWr2UfYRIjE%3D&amp;reserved=0
+> > > > > > > Cc: Shuah Khan <skhan@linuxfoundation.org>
+> > > > > > > Cc: Sasha Levin <sashal@kernel.org>
+> > > > > > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> > > > > > > Cc: <stable@vger.kernel.org>    # 5.10
+> > > > > > > ---
+> > > > > >
+> > > > > > I build a kernel with these 2 patches reverted and can confirm
+> > > > > > that that fixes the issue on my machine with a Radeon RX Vega 64
+> > GPU.
+> > > > > > # lspci -nn | grep VGA
+> > > > > > 0b:00.0 VGA compatible controller [0300]: Advanced Micro
+> > > > > > Devices, Inc. [AMD/ ATI] Vega 10 XL/XT [Radeon RX Vega 56/64]
+> > > > > > [1002:687f] (rev c1)
+> > > > > >
+> > > > > > So feel free to add
+> > > > > >
+> > > > > > Tested-By: Diederik de Haas <didi.debian@cknow.org>
+> > > > >
+> > > > > Note additionally (probably only relevant for Greg while
+> > > > > reviewing), that the first of the commits which need to be
+> > > > > reverted is already queued as revert in queue-5.10.
+> > > >
+> > > > Argh, that caused me to drop both of these from the review queue.
+> > > >
+> > > > Can someone verify that this really still is needed on the latest
+> > > > 5.10-rc that was just sent out?  And if so, please send me whatever is
+> > really needed?
+> > > >
+> > > > this got way too confusing...
+> > >
+> > > These two patches need to be reverted from 5.10:
+> > > 9f55f36f749a7608eeef57d7d72991a9bd557341
+> > > 7b0db849ea030a70b8fb9c9afec67c81f955482e
+> > >
+> > > I did not see either of the reverts in linux-5.10.y in the stable tree when I
+> > generated these 2 revert patches.  Where should I be looking to see
+> > proposed stable patches other than being possibly being cc'ed on a patch?
+> > Shuah had proposed a patch to revert
+> > 9f55f36f749a7608eeef57d7d72991a9bd557341, but I didn't see it in linux-
+> > 5.10.y and I added some additional details to the commit message to provide
+> > more background on why it was being reverted so I wasn't sure if it had been
+> > applied or not.
 > > 
-> > --- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-> > +++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-> > @@ -1475,11 +1475,6 @@ static int sdma_v4_0_start(struct amdgpu
-> >  		WREG32_SDMA(i, mmSDMA0_CNTL, temp);
-> >  
-> >  		if (!amdgpu_sriov_vf(adev)) {
-> > -			ring = &adev->sdma.instance[i].ring;
-> > -			adev->nbio.funcs->sdma_doorbell_range(adev, i,
-> > -				ring->use_doorbell, ring->doorbell_index,
-> > -				adev->doorbell_index.sdma_doorbell_range);
-> > -
-> >  			/* unhalt engine */
-> >  			temp = RREG32_SDMA(i, mmSDMA0_F32_CNTL);
-> >  			temp = REG_SET_FIELD(temp, SDMA0_F32_CNTL, HALT, 0);
-> > --- a/drivers/gpu/drm/amd/amdgpu/soc15.c
-> > +++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
-> > @@ -1332,6 +1332,25 @@ static int soc15_common_sw_fini(void *ha
-> >  	return 0;
-> >  }
-> >  
-> > +static void soc15_doorbell_range_init(struct amdgpu_device *adev)
-> > +{
-> > +	int i;
-> > +	struct amdgpu_ring *ring;
-> > +
-> > +	/* sdma/ih doorbell range are programed by hypervisor */
-> > +	if (!amdgpu_sriov_vf(adev)) {
-> > +		for (i = 0; i < adev->sdma.num_instances; i++) {
-> > +			ring = &adev->sdma.instance[i].ring;
-> > +			adev->nbio.funcs->sdma_doorbell_range(adev, i,
-> > +				ring->use_doorbell, ring->doorbell_index,
-> > +				adev->doorbell_index.sdma_doorbell_range);
-> > +		}
-> > +
-> > +		adev->nbio.funcs->ih_doorbell_range(adev, adev->irq.ih.use_doorbell,
-> > +						adev->irq.ih.doorbell_index);
-> > +	}
-> > +}
-> > +
-> >  static int soc15_common_hw_init(void *handle)
-> >  {
-> >  	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
-> > @@ -1351,6 +1370,12 @@ static int soc15_common_hw_init(void *ha
-> >  
-> >  	/* enable the doorbell aperture */
-> >  	soc15_enable_doorbell_aperture(adev, true);
-> > +	/* HW doorbell routing policy: doorbell writing not
-> > +	 * in SDMA/IH/MM/ACV range will be routed to CP. So
-> > +	 * we need to init SDMA/IH/MM/ACV doorbell range prior
-> > +	 * to CP ip block init and ring test.
-> > +	 */
-> > +	soc15_doorbell_range_init(adev);
-> >  
-> >  	return 0;
-> >  }
+> > /me hands you some '\n' characters....
+> > 
+> > Look in the stable-queue git tree for what is queued up next.
+> > 
+> > Now you can see all the emails for the 5.10-rc release on the list as well in the
+> > linux-stable-rc git tree if you want to look there instead.
+> > 
+> > Can you check and make sure it's all correct now?
 > 
-> Can you please as well revert 7b0db849ea030a70b8fb9c9afec67c81f955482e
-> on top?
-> 
-> See https://lore.kernel.org/stable/BL1PR12MB5144F3CC640A18DF0C36E414F72E9@BL1PR12MB5144.namprd12.prod.outlook.com/
-> 
-> Both of these reverts need to be applied to fix regressions which were
-> reported in https://gitlab.freedesktop.org/drm/amd/-/issues/2216 and
-> downstream in Debian (https://bugs.debian.org/1022025).
-> 
-> If it is now not anymore possible for 5.10.150 can you pick the revert
-> for 5.10.151?
+> Please also revert 7b0db849ea030a70b8fb9c9afec67c81f955482e or apply patch 2/2 of this series of if you'd
+> prefer, I can resend just patch 2/2 by itself.
 
 Now queued up.
-
-greg k-h
