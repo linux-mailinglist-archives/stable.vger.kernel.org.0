@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DA360C469
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 08:59:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2193E60C46A
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 08:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230214AbiJYG7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 02:59:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43234 "EHLO
+        id S231489AbiJYG7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 02:59:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230257AbiJYG7K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 02:59:10 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B2B5C765
+        with ESMTP id S230324AbiJYG7M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 02:59:12 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6CEDF582
         for <stable@vger.kernel.org>; Mon, 24 Oct 2022 23:59:08 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id b185so4804366pfb.9
+Received: by mail-pj1-x102f.google.com with SMTP id h14so9936777pjv.4
         for <stable@vger.kernel.org>; Mon, 24 Oct 2022 23:59:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=+F3G5M01GdkbD+j4tWPniP7GmeZSHp10tHTnflvfSgI=;
-        b=NKqinQ2p64rCI1BWyzzjVQA5CoongiR3om2tJXyp3Y6Qkyd2xtu08p5/Jz7Yh9unPZ
-         M2dpSwVgavrMOEZbvKy8pPkbwru7qfRazt/2gn5BofETOLcrl9c9OQyobx2e9paIHYfu
-         1WO2fMHD/S/sQGO6J5p9Ex8HXz6OdgIj5SrfVwYJoj6mts+raMToGOvGN+rDDAUSQlMa
-         Wfhyq971GephLPWkCDIFMeL3Gw6rBDTGAsmnJebHKtu17gDQlrQOjfdwVWUWI5qWQ8Ga
-         xL558CxUPiiZkmrZ0nYW6y85Bv0+hb5wQZTHg/ivCBHmxkD/vH55/ay4b3NcmxRvI69p
-         Ndhw==
+        bh=9myVEgQiBR9YKMODXgnUqoc9ny/7McYNEQcIMXZTPw4=;
+        b=HJauqhyGWZUMMjvh0rrEwN2vy9gDXZQosE3HlTkkXkNdSBwXjumCxBTIYY0qKbqCMh
+         rLvb3goS4F/+iL3gIQDWHhRtrOhqkvng+S5cLosZZ6t2y5C2mw7dlPDtTlWwC0w3vD6H
+         sNmBbrrAbq3IU2by96CoM+yvxh1yF6/vEzDhU2bMGbbJHsc33bfxRCGtGZ4fSk762W6A
+         LlfRAL6kTVAwyq6umYzuStzsHJtGynfjQC66zX84GYBVO/Yi77k9uSLHz/9H7uqO+dtR
+         KuULjC71YnxKvErEEOq4vccRGncEb2FlTl8qLmzQBFAPDpPxYSjl7I3ExR3z1XBM2UEO
+         emZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=+F3G5M01GdkbD+j4tWPniP7GmeZSHp10tHTnflvfSgI=;
-        b=Tw6/fj3plQ4R8XfKLQrkwc2LSGb76pnxM4rr6JWwTAy5IFSQLMSD3sO+5MBCcA1S1I
-         JweQCp9AXL6R42xMpAcW3f9JvZiEdw2yEOzdH8V7hWQ5dPja5T2KQNEAYfps9smQC7Qn
-         JxLYA/cL749Dfk597e6FQkyqt+FpofnW/DET7oalpvaXhU5R+sDCQ/Ct/2AptIgnj6+2
-         P3sdthwcR6/Ai02bwcdzeD1NIGitqX3Q4UVsozWkmlu+QtendWsF5UMEEoe44Unva/8f
-         x1tkFoZFGOTLqHSYgECMEcC5yjadHWEYGjewGcbNPKaIHUbUvubi+cPKr31GBPIqrfhR
-         k/jQ==
-X-Gm-Message-State: ACrzQf0sRTQxIOTRRQOrJKk2DYEcCs/WWj6ycg79bpu+/jpXRySLXPC6
-        +czlqtqtb1n3ddPK1i1AUwDxCsvtZc04tcv8
-X-Google-Smtp-Source: AMsMyM7Nqv6RFL2/S9f2corEcmvN4IKXuJNUJuRUKRSOZlcsEpFcGbf2RJHxf1LdlboTzXKItnuyJg==
-X-Received: by 2002:a05:6a00:f95:b0:56b:9dae:73c9 with SMTP id ct21-20020a056a000f9500b0056b9dae73c9mr13936517pfb.48.1666681147195;
+        bh=9myVEgQiBR9YKMODXgnUqoc9ny/7McYNEQcIMXZTPw4=;
+        b=oUpEMGZ92U/Irz2lNA/CRpaN2wIIewyflMft71Pf7fYCwGXwk6tczQWv1AIMqWPmKp
+         084ch3fDksxe723Q8OhOnVmvq2kpTK70Dlgh6pytPc79J9jawS9lMH7NvmeiuCnLrUYb
+         L3YP/UTryfOZrHBIhJ1XgBhRnX52kDWzhhzULDAy149iPKAoU1MU8ksyMg0OTvOYZswh
+         A1OKUBc/VL9hFHJazwfPxwDuLjzJgoTgB4Ryy6L2YsQ1BLgShxJrpf9KXx9mWmyCVtKN
+         VItgb9L4BcoYku7dMbKA4BN9ENYZL3oHzpMt8rRlM3JsoVsLt0ukIJjhB0OTCSaHx5Xr
+         Vg3A==
+X-Gm-Message-State: ACrzQf0vih1EGwGZJYZ8cVGYMds43zH9MSTrJwwDQjzkMHW5QsguS1Mk
+        6UVzCq7k+2nez5dOBOszkpf7X1ytrlR8vDFN
+X-Google-Smtp-Source: AMsMyM4NZRRqKsYrJUlJpc+iPqd4poyiEaxOhdPHq2p9HoNArlhJlcooc2yI1gQKgHgKtmhaAHbjtA==
+X-Received: by 2002:a17:90b:1e0c:b0:20f:bcbf:ab5 with SMTP id pg12-20020a17090b1e0c00b0020fbcbf0ab5mr41383374pjb.187.1666681147446;
         Mon, 24 Oct 2022 23:59:07 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c4-20020a17090a558400b001fd76f7a0d1sm4816457pji.54.2022.10.24.23.59.06
+        by smtp.gmail.com with ESMTPSA id d9-20020a170902654900b001753654d9c5sm688230pln.95.2022.10.24.23.59.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 24 Oct 2022 23:59:06 -0700 (PDT)
-Message-ID: <6357893a.170a0220.b0961.8b69@mx.google.com>
+Message-ID: <6357893a.170a0220.6756e.199a@mx.google.com>
 Date:   Mon, 24 Oct 2022 23:59:06 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.9.330-160-g5bb2c3c178f3
-X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Kernel: v4.9.330-159-g35257fcfa3113
+X-Kernelci-Branch: queue/4.9
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.9.y build: 188 builds: 3 failed, 185 passed,
- 2 errors, 34 warnings (v4.9.330-160-g5bb2c3c178f3)
+Subject: stable-rc/queue/4.9 build: 188 builds: 3 failed, 185 passed, 2 errors,
+ 34 warnings (v4.9.330-159-g35257fcfa3113)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -71,16 +71,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y build: 188 builds: 3 failed, 185 passed, 2 errors, 34=
- warnings (v4.9.330-160-g5bb2c3c178f3)
+stable-rc/queue/4.9 build: 188 builds: 3 failed, 185 passed, 2 errors, 34 w=
+arnings (v4.9.330-159-g35257fcfa3113)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.330-160-g5bb2c3c178f3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
+/kernel/v4.9.330-159-g35257fcfa3113/
 
 Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.330-160-g5bb2c3c178f3
-Git Commit: 5bb2c3c178f36dd75d9e5050ce4e40c3a33792a8
+Branch: queue/4.9
+Git Describe: v4.9.330-159-g35257fcfa3113
+Git Commit: 35257fcfa3113b0cb3afb5c4171a0bf67d5fd505
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -171,27 +171,6 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
-n mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
 mismatches
 
@@ -206,6 +185,27 @@ y section `.head.text'
 -----
 allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
 mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -1075,6 +1075,20 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
 ismatches
 
@@ -1094,20 +1108,6 @@ smatches
 -----
 tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
- mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
