@@ -2,229 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 461CC60D23F
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 19:08:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D802160D24C
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 19:16:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229864AbiJYRH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 13:07:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
+        id S232292AbiJYRQS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 13:16:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231351AbiJYRH6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 13:07:58 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9EC2108DD7
-        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 10:07:56 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id k2so14330641ejr.2
-        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 10:07:56 -0700 (PDT)
+        with ESMTP id S232227AbiJYRQR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 13:16:17 -0400
+Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com [IPv6:2607:f8b0:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9711157F55;
+        Tue, 25 Oct 2022 10:16:16 -0700 (PDT)
+Received: by mail-ot1-x331.google.com with SMTP id cb2-20020a056830618200b00661b6e5dcd8so8164529otb.8;
+        Tue, 25 Oct 2022 10:16:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=AC1uAuVt0BevV1hXaTU1Uc4K/3bo5jaK0nilJIQDNPs=;
-        b=lYp5I8az47ZXp+iQT2xHj8wjnds3sQrp19gPb2X96V90OoHMnW299aQ6j42w1AAbNf
-         6uKKqGBUNb4U2WEzBXPLkEX11qEdhK0oDfiKQ/3uUwdyXU4SOamIcvY7Yt2EGav6525s
-         qnP8PF+yj4x/Pt+tBIeT5GkLxKUNE4ju0a3f+L0z6IdRtIpoQHWbj754g5hCbT1OXln6
-         6Zl6ATBRYh6PympCdZgI7d9wbOk8SdCSQJsBNf0BurNN7Smd2pfYmNbeFNjSsoB2vCyN
-         5n+s4+MGFft420Uozm+UwBwHBkA+qI4HYC2B1UIwlEOCUzPgOvd4jBj3VT5erloIWCsK
-         8ZXA==
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=wdbCZ4CHEVidOPRYp9p5sbBFoXVtuLvQpFWkZTNGqG8=;
+        b=AzlwddO6tQinP8jw4jAugqQY958HFAM6LfcjRoiQACNTNMIX6pJHJ1v1cmKrI92Vmi
+         3b/msy4x4LpoD+oS373Mu2FQv5mmIZVU70aVht9jHVZfbC8phTaMFtg0N4Fs5BZUOs1y
+         bzzjq+Lk67EZ+Rw5rGcf96sM5OKnl+kGeI9EqNUVRCrdqwVgPghm8yXIwiTWI7vs2DtC
+         Eyb35lZ9trThsZhe/7JQsCwFzJzLHbovlnpbkrEfXojNusXsrI0ND3ICxvHtsdt4nGxJ
+         PCBGVslVr617J8MUaB+Cug2pLY7o6xQ83SMEUgl7IbjNkWqUGoz88v0K6dmM5cuZv0qd
+         OFMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=AC1uAuVt0BevV1hXaTU1Uc4K/3bo5jaK0nilJIQDNPs=;
-        b=FFZ7CBzBj0LvXn08HvOW7NVBDNIOhFRLLwgdSWDn6PM+SQe759NA7QgcAQuzfXdje9
-         WlUF4jqB7TEek1x4MvMpI+KuDRlpqQuNpgWL2rJggvKCmFvhIbaPLtmHwaOwzYNU/SyG
-         RdegAZgy6/yUlhA1B+8wtqeeYlAaNEK6UvKnkif7IABu4EMFv1i82IedXadpviQbRLGd
-         ZTjiM1PSSiYb6Z3DDETOt7e9+6t1gi3H68B6PtNLQ2kc133ztB2+ndDYE6o+9cWyGqc+
-         CD41vjwi1BqBQoRGAEm52GRV2OAyRoaxdO/ZS4loJA6qJLxowA+2LNFLX83YcQxoF3HG
-         ewjQ==
-X-Gm-Message-State: ACrzQf1EtftdTop6xnL5+kX7/XpPtyL4m8CQKAs6kudOzSzImkE6fPVL
-        UU6dS0Mx45IOO6NafGWFLy0BucDNCa+9tu8pU0W9Hg==
-X-Google-Smtp-Source: AMsMyM5+cM7THsirIfJ10IYZBSKVJbxS6df7eMLY+mACvZcOAjzxndRAS5qcMbtd7ct/wpM0jM7Pi9x2RnpZKe++EZQ=
-X-Received: by 2002:a17:906:fe45:b0:788:15a5:7495 with SMTP id
- wz5-20020a170906fe4500b0078815a57495mr34004170ejb.633.1666717675144; Tue, 25
- Oct 2022 10:07:55 -0700 (PDT)
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wdbCZ4CHEVidOPRYp9p5sbBFoXVtuLvQpFWkZTNGqG8=;
+        b=lAemjJd3AbGK4ir1zxBqBjHvntar7g/j8HLUBw2MNUxCfk9Pcuq3PSlte5Gttq1cN4
+         cB9wcun5aj7cuxzxGUzmnbrAkbbQz6HcyBr7oNeHGq0FHjiDbkIg553fKRILMGKyGxex
+         aecHl+gskRbvaJCJ4/vhbOrsPWdd77CLC/QPfqUeYYF1hfzx38u2Qg4bdppLKEujPUdb
+         zWQ/ewGCjr7XS62M7K1Yo2LX/eMq6gvbtCtU8lo+XGX0TEQqOLZZcjboRIFvOVOu3H+f
+         nXJRS140J+GZ9AA5/W8YVHDQurHcFrSsh/j1f3wwYKeVNNrNCpSjbx4/gxx4nTXVU7cF
+         C3Hg==
+X-Gm-Message-State: ACrzQf1GHQ/aKvW+aPzwtOEc+LHKQ50Fy85odXHmxPOgf7Ft3/r3Yzri
+        hpfHmjVRKCLW7TlzGzcgmXaPL4iaZLs=
+X-Google-Smtp-Source: AMsMyM5/KJoKTe1dHpKJNs/RLAnLytdPfzAEdK77gcjqf5hxyWbZpZc8Td0gXqB29a0fZ/Cwzs/WtQ==
+X-Received: by 2002:a05:6830:4cb:b0:661:98d9:e2fd with SMTP id s11-20020a05683004cb00b0066198d9e2fdmr19965470otd.314.1666718176220;
+        Tue, 25 Oct 2022 10:16:16 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id z33-20020a056870462100b0012c21a64a76sm1726981oao.24.2022.10.25.10.16.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Oct 2022 10:16:15 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 25 Oct 2022 10:16:14 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Christian Bach <christian.bach@scs.ch>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+Subject: Re: AW: tcpci module in Kernel 5.15.74 with PTN5110 not working
+ correctly
+Message-ID: <20221025171614.GB968059@roeck-us.net>
+References: <ZR0P278MB0773545F02B32FAF648F968AEB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+ <ZR0P278MB0773072DD153BA902AFE635AEB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+ <Y1fYjmtQZa53dPfR@kroah.com>
+ <ZR0P278MB077321F8565A4FF929B132A1EB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+ <5373483d-adde-2884-6017-75f3bd25d6bc@roeck-us.net>
+ <ZR0P278MB0773212E08AA1007241990FCEB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
 MIME-Version: 1.0
-References: <20221024112959.085534368@linuxfoundation.org>
-In-Reply-To: <20221024112959.085534368@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 25 Oct 2022 22:37:43 +0530
-Message-ID: <CA+G9fYteLc8VuPqLtgzb1nKGbO1NChbYeLkUxhb-JbnboAEwJA@mail.gmail.com>
-Subject: Re: [PATCH 4.19 000/229] 4.19.262-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZR0P278MB0773212E08AA1007241990FCEB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 24 Oct 2022 at 17:25, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.262 release.
-> There are 229 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 26 Oct 2022 11:29:24 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.262-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, Oct 25, 2022 at 04:17:27PM +0000, Christian Bach wrote:
+> Ok
+> 
+> I now tested the whole thing also with some of the v5.4.y kernels. Just to avoid misunderstandings I listed all my tests below:
+> 
+> Kernel    | Hash                                       | Bug     | Comment
+> Version   | (date)                                     | present |
+> ----------|--------------------------------------------|---------|--------------
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+> ----------|--------------------------------------------|---------|--------------
+> v5.10-rc1 | 3650b228f83adda7e5ee532e2b90429c03f7b9ec   | Yes     | This kernel behaves exactly like 5.15.74
+>           | (25. October 2020)                         |         |
+> ----------|--------------------------------------------|---------|--------------
+> v5.4.219  | 35826e154ee014b64ccfa0d1f12d36b8f8a75939   | Yes     | This kernel performs segnificantly worse in
+>           | (19. October 2022)                         | worse   |  nagotiating with the USP-PD power-supply and
+>           |                                            |         |  even crashes about 50% of the tries. It then
+>           |                                            |         |  gets stuck in the ISR just as it does 100%
+>           |                                            |         |  of the time when connecting the USB-A to USB-C
+>           |                                            |         |  cable. (and even when disconnecting the cable)
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Thanks a lot for the detailed report. It would be great if you can
+send actual crash logs. Maybe that problem is fixable in v5.4.y.
 
-## Build
-* kernel: 4.19.262-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.19.y
-* git commit: a838554008fbadb75c035d3c473a2d9e26080a33
-* git describe: v4.19.261-230-ga838554008fb
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19.261-230-ga838554008fb
+Can you also test v5.0 .. v5.3 ? Mainline would be best (not v5.0.x but v5.0) ?
 
-## No Test Regressions (compared to v4.19.261)
+> I would love to send some kernel logs but I can not see any entry in dmesg. Can you instruct me how to get the corresponding kernel logs?
+> 
 
-## No Metric Regressions (compared to v4.19.261)
+This won't be in dmesg; that would be way too noisy since it logs
+each state machine action.
 
-## No Test Fixes (compared to v4.19.261)
+You should find the logs in /sys/debug/kernel/usb/tcpm-<index>.
+In older kernels it is just a file, in more recent kernels it is a
+directory with files in it. In really old kernels it is
+/sys/debug/kernel/tcpm/tcpm-<index>. If you don't immediately find
+the file(s), just search for files with "tcpm" in the name in
+/sys/kernel/debug.
 
-## No Metric Fixes (compared to v4.19.261)
+Hope this helps,
 
-
-## Test result summary
-total: 50296, pass: 43870, fail: 595, skip: 5348, xfail: 483
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 323 total, 318 passed, 5 failed
-* arm64: 61 total, 60 passed, 1 failed
-* i386: 29 total, 28 passed, 1 failed
-* mips: 46 total, 46 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 63 total, 63 passed, 0 failed
-* s390: 15 total, 15 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 55 total, 54 passed, 1 failed
-
-## Test suites summary
-* fwts
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-lib
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-zram
-* kunit
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Thanks,
+Guenter
