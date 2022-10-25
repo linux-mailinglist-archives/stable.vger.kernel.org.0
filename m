@@ -2,67 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E35060D37A
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 20:21:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 249A460D37E
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 20:22:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232427AbiJYSV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 14:21:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50892 "EHLO
+        id S229544AbiJYSWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 14:22:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232172AbiJYSV4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 14:21:56 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CA4FDD8A7
-        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 11:21:56 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id y65-20020a25c844000000b006bb773548d5so12576342ybf.5
-        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 11:21:56 -0700 (PDT)
+        with ESMTP id S231629AbiJYSWO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 14:22:14 -0400
+Received: from mail-qk1-x731.google.com (mail-qk1-x731.google.com [IPv6:2607:f8b0:4864:20::731])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36AF4DD89D;
+        Tue, 25 Oct 2022 11:22:13 -0700 (PDT)
+Received: by mail-qk1-x731.google.com with SMTP id s17so8682233qkj.12;
+        Tue, 25 Oct 2022 11:22:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=PjNoCfBC/CKwMAwiLtsnaqEW9HWbqcvaYiZFCHqhX1A=;
-        b=cUt63EGPJ5XLXHEiRR83p6e5nk3wF+EccI3J2Nj4Hz7sd+o45EdjHmClaVdJS7D6Qt
-         SRVj8/gV7ow6GDJ8o9U0wqDQuR4bhJD648XzGLZIF6bPN1Sdx3E6Rg7CDPlZWdwOkQgp
-         AldXSSSnsZD7zLMgOdb0Vfa/h8JHe098M+X4gSZKtZWQWp5p15UcDWhAiMMLrjUjhkcY
-         KC0eBsTNKsCRaOvTdGIHQ6ESz+Ix1YWpg7YnPKEM4Ti4Gz2qXJY47W47EziC/8C/dDfo
-         8xbZi5AbaDJ/hjFTwNPbJswDGS8yutCtZxwos1qagpx/I6fIYQdakdLMhuiTDm8H//iZ
-         9INg==
+        d=gmail.com; s=20210112;
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=03UT5t/fYdE/VyZRSDmwX+UU/pnZJIK2pz1Plq4mrr8=;
+        b=DfjpEeCvsb8iuHcfRdVkLxWOtuOmW3CJJm3VgzBwYEFxJztyrl6E4qFfcFwru9i0Ae
+         2Sd/4JpyoVFQCJkybtX0Ikqka6DoeSW1bBc93QBBzS9vpZbu3HMUKehH5Yt9E93iAx3/
+         ZK9P7IR6e6yaFQlb4gRn3LNRh21W+gnXiTxzQU2bWaO60Jhbny8q5YoMsVbUnEDc9B7e
+         OzpDbL8up2tGXTRNYZNSOG89Hl2m9f99ZXy0ydZcdvgFQJefahZagm37VhfNDaTFSEU/
+         YetrypkKBhmzqWrU4zPKuAAyXgqmRRZb48h2Bz+yV8cTyTSFikKBVcuBc0jKtT9Np7JJ
+         qQIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=PjNoCfBC/CKwMAwiLtsnaqEW9HWbqcvaYiZFCHqhX1A=;
-        b=28ZmWye4b8vYFPABraOONGo+YBybd2ccKY67pnJWJuIb/RveyYDVlVXOLnePCr5sMn
-         2C+JD7MmKDsFPWT2NerotDC5OaQSts09okJC9bx3ks/amCCVfdnU23VhIrfEr3PY1eYu
-         s9dzB6unv16hsc1owajvyWsEGZiiaI4Z/6j5xSL7sqm2RLPB6/egDurYnpRAYWBNKQbx
-         CudntEJU1OzZKQiZjRz0N5gAOjBCS4jTUhs97MJbQIfmOgIdyHOZeHl1fbUW6w9qY029
-         820M3ZCuxSlM3u4C6EqFg/YGgA7dtbwvC7G2ScahduIHIKAsLNxuFXJJp2LH56B+mGc0
-         WUJQ==
-X-Gm-Message-State: ACrzQf3uG+qkXRzMTunvrJFEBp5bdKj+GXmFW9TDfOm+sxMgPyRGFlQ2
-        RxgMXYGXK9sof9OVCrdszI+D/9rKYQzWx30TOOJ6
-X-Google-Smtp-Source: AMsMyM4O87oXuKbv1CK6ykDEbUdHUhv03vaFJfj6qvi2cGjc27L1Ng0hWt6v43WJjuwTFmjgJpiMHYC0BIw0H/MfKP8n
-X-Received: from ajr0.svl.corp.google.com ([2620:15c:2d4:203:9558:df20:7923:f362])
- (user=axelrasmussen job=sendgmr) by 2002:a0d:cc51:0:b0:36c:98b0:dc38 with
- SMTP id o78-20020a0dcc51000000b0036c98b0dc38mr12308042ywd.275.1666722115408;
- Tue, 25 Oct 2022 11:21:55 -0700 (PDT)
-Date:   Tue, 25 Oct 2022 11:21:49 -0700
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.38.0.135.g90850a2211-goog
-Message-ID: <20221025182149.3076870-1-axelrasmussen@google.com>
-Subject: [PATCH] userfaultfd: wake on unregister for minor faults as well as missing
-From:   Axel Rasmussen <axelrasmussen@google.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Xu <peterx@redhat.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     Axel Rasmussen <axelrasmussen@google.com>,
-        Lokesh Gidra <lokeshgidra@google.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=03UT5t/fYdE/VyZRSDmwX+UU/pnZJIK2pz1Plq4mrr8=;
+        b=BSs1Q50ROQAZH/lrFB/bDM/kzbKinqC6O7CN8CH4l6sxcuoCFnOnkSZF/eNci1BDcQ
+         +I4OgRzgsO93+tykbthxMvwIvhL+smq6V3XuPjBU/H6phvP2X54sbsHOUk8MDlvBSkY2
+         e8STavKnjRlR7NIY73hV9vipO4w9V+G6Da/aQC/0pxtyKAML9tVvBwN7jzhuxeNupUoc
+         zLdT7LdT4/jBWrGmDZmaPyRKV+906HmdLBKxG0+BWck8k65JTfy5iuFPl17eWnGeA4F0
+         N9ptKQfkkQ+oNQAAze6emhpaPKo31OojKE18+gWyHJsmRWwr+Sv/OskmYKdJcA1dybU8
+         jxHQ==
+X-Gm-Message-State: ACrzQf35NBVU7LLW+mSC3+io9azZ7NTe0TcZvKO3c3tY4YEqfXhi2Y+B
+        kqiQZORF38AS4No9UYS4euZeWkFNkfhLAtZX
+X-Google-Smtp-Source: AMsMyM5QXd/yteCqTbbzG5kZdrzc5KazvGAOucqMxF04knCksB8KSuLkmVApVVBy/kj/VSim5V89GA==
+X-Received: by 2002:ae9:e115:0:b0:6ee:bcbb:396 with SMTP id g21-20020ae9e115000000b006eebcbb0396mr27870289qkm.668.1666722132160;
+        Tue, 25 Oct 2022 11:22:12 -0700 (PDT)
+Received: from qjv001-XeonWs (c-67-167-199-249.hsd1.il.comcast.net. [67.167.199.249])
+        by smtp.gmail.com with ESMTPSA id m8-20020a05620a290800b006ce40fbb8f6sm2584820qkp.21.2022.10.25.11.22.11
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 25 Oct 2022 11:22:11 -0700 (PDT)
+Date:   Tue, 25 Oct 2022 13:22:09 -0500
+From:   Jeff Vanhoof <jdv1029@gmail.com>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Cc:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, John Youn <John.Youn@synopsys.com>,
+        stable@vger.kernel.org, Dan Vacura <w36195@motorola.com>
+Subject: Re: [PATCH v2 1/2] usb: dwc3: gadget: Stop processing more requests
+ on IMI
+Message-ID: <20221025182207.GA8539@qjv001-XeonWs>
+References: <cover.1666661013.git.Thinh.Nguyen@synopsys.com>
+ <699a342b618611be834b06d9d64abae7d01486cd.1666661013.git.Thinh.Nguyen@synopsys.com>
+ <20221025044545.GA12741@qjv001-XeonWs>
+ <20221025164235.GA5795@qjv001-XeonWs>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221025164235.GA5795@qjv001-XeonWs>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,37 +78,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This was an overlooked edge case when minor faults were added. In
-general, minor faults have the same rough edge here as missing faults:
-if we unregister while there are waiting threads, they will just remain
-waiting forever, as there is no way for userspace to wake them after
-unregistration. To work around this, userspace needs to carefully wake
-everything before unregistering.
+Hi Thinh,
 
-So, wake for minor faults just like we already do for missing faults as
-part of the unregistration process.
+On Tue, Oct 25, 2022 at 11:42:37AM -0500, Jeff Vanhoof wrote:
+> Hi Thinh,
+> 
+> On Mon, Oct 24, 2022 at 11:45:48PM -0500, Jeff Vanhoof wrote:
+> > On Mon, Oct 24, 2022 at 06:27:57PM -0700, Thinh Nguyen wrote:
+> > > When servicing a transfer completion event, the dwc3 driver will reclaim
+> > > TRBs of started requests up to the request associated with the interrupt
+> > > event. Currently we don't check for interrupt due to missed isoc, and
+> > > the driver may attempt to reclaim TRBs beyond the associated event. This
+> > > causes invalid memory access when the hardware still owns the TRB. If
+> > > there's a missed isoc TRB with IMI (interrupt on missed isoc), make sure
+> > > to stop servicing further.
+> > > 
+> > > Note that only the last TRB of chained TRBs has its status updated with
+> > > missed isoc.
+> > > 
+> > > Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+> > > Cc: stable@vger.kernel.org
+> > > Reported-by: Jeff Vanhoof <jdv1029@gmail.com>
+> > > Reported-by: Dan Vacura <w36195@motorola.com>
+> > > Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+> > > ---
+> > >  Changes in v2:
+> > >  - No need to check for CHN=0 since only the last TRB has its status
+> > >    updated to missed isoc
+> > > 
+> > >  drivers/usb/dwc3/gadget.c | 4 ++++
+> > >  1 file changed, 4 insertions(+)
+> > > 
+> > > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+> > > index dd8ecbe61bec..230b3c660054 100644
+> > > --- a/drivers/usb/dwc3/gadget.c
+> > > +++ b/drivers/usb/dwc3/gadget.c
+> > > @@ -3248,6 +3248,10 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
+> > >  	if (event->status & DEPEVT_STATUS_SHORT && !chain)
+> > >  		return 1;
+> > >  
+> > > +	if ((trb->ctrl & DWC3_TRB_CTRL_ISP_IMI) &&
+> > > +	    DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC)
+> > > +		return 1;
+> > > +
+> > >  	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
+> > >  	    (trb->ctrl & DWC3_TRB_CTRL_LST))
+> > >  		return 1;
+> > > -- 
+> > > 2.28.0
+> > >
+> > 
+> > Testing shows that the changes appear to work to prevent the arm-smmu panic I
+> > was seeing after missed isoc errors. Also, changes to reclaim trbs only up to
+> > the associated interrupt event make sense.
+> > 
+> > Reviewed-by: Jeff Vanhoof <jdv1029@gmail.com>
+> > Tested-by: Jeff Vanhoof <jdv1029@gmail.com>
+> > 
+> > Regards,
+> > Jeff
+> > 
+> 
+> I just followed up with Dan and he mentioned that he was still seeing the arm-smmu panic on his baseline. I will work with him this afternoon to better understand what may be going on there. Let's hold off on merging these changes in until we figure out what is going on. He and I are testing off of different baselines (5.10 vs 5.15), different USB speeds (USB 3 vs 2), and are using different hardware, so I don't know yet why we are seeing a difference here.
+> 
+> Regards,
+> Jeff
+> 
 
-Cc: stable@vger.kernel.org
-Fixes: 7677f7fd8be7 ("userfaultfd: add minor fault registration mode")
-Reported-by: Lokesh Gidra <lokeshgidra@google.com>
-Signed-off-by: Axel Rasmussen <axelrasmussen@google.com>
----
- fs/userfaultfd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Between the changes for PATCH v2 1/2 & PATCH v2 2/2, are there any extra
+precautions required for when scatter gather is in use? Should the IMI bit be
+set only for the last item in the sg list? I suspect something in this area but
+I have no proof yet. Your thoughts?
 
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index 07c81ab3fd4d..7daee4b9481c 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -1606,7 +1606,7 @@ static int userfaultfd_unregister(struct userfaultfd_ctx *ctx,
- 			start = vma->vm_start;
- 		vma_end = min(end, vma->vm_end);
- 
--		if (userfaultfd_missing(vma)) {
-+		if (userfaultfd_missing(vma) || userfaultfd_minor(vma)) {
- 			/*
- 			 * Wake any concurrent pending userfault while
- 			 * we unregister, so they will not hang
--- 
-2.38.0.135.g90850a2211-goog
+Thanks,
+Jeff
+
+
 
