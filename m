@@ -2,204 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 104BA60C6D0
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 10:46:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99AFD60C71B
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 11:01:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230305AbiJYIqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 04:46:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47632 "EHLO
+        id S231691AbiJYJBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 05:01:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230525AbiJYIqK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 04:46:10 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68C6BEA345
-        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 01:46:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1666687544;
-        bh=1hlO0xp1QKme+jWFrFuCBHfanOnxZRk+T6OJTnerW7M=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:Reply-To:
-         In-Reply-To;
-        b=MrOBXxLir3zQckpgfyhwbCJ079uVvtvE0KipvnhHiep1U4kqnRzYboPPht02awymU
-         dbEeEL+1oaeR4X0pnjnOPqrPIV+cxwQHN27bvxmat0RIHDEASG0lqT+S7IjD3P6IhM
-         K8nXwvYZbmwgymkbpH+xhA4FlnJII6M33MaP7DRw=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.0.179] ([178.165.198.54]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1Mzhj9-1p07mQ3uT3-00vcqZ; Tue, 25
- Oct 2022 10:45:44 +0200
-Message-ID: <95953ffd-32db-62be-bbba-8d4a88cb1ca6@gmx.net>
-Date:   Tue, 25 Oct 2022 10:45:42 +0200
+        with ESMTP id S230470AbiJYJBL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 05:01:11 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3236E15625D;
+        Tue, 25 Oct 2022 02:01:10 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id y69so16199456ede.5;
+        Tue, 25 Oct 2022 02:01:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=wLIAvmAFWA52Brg4JWhyZq0dx28rQeW46BFdke4ZXzQ=;
+        b=Xapotkqqbc4nmBLLTFWP8tn3kN2CT/ecfjCvSAUptRmHFb3A6/bCY2Gks3tTFbsXF6
+         D20bWElWxiZWhgr/b7kvPGdBuHWHcDmcDniWRjN3TTwBZvenzbRDmIk2VGl8bB8MLOhw
+         g6I1fKMyYdD1mjfvVVeBmeB8m9XOQXoQ+6FDQBifk7klDnR1Qw1gqzaBVKf61u2LurWu
+         +5CoVabaHNjlQ+yhtygaz6NZx4jfzfayP41VqRNZaHWyNs8bhipGqI0KKmVOP7b43PrQ
+         fJOagP4Cu1qtmVknbLuN2O57HF7UnJf7k9kNROvgWo25PJrDNuuDZ9TbIcFA/VvTSWGm
+         9FNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wLIAvmAFWA52Brg4JWhyZq0dx28rQeW46BFdke4ZXzQ=;
+        b=cnA0e3YJEc3aMqB3KUbL4I1/4dMbFhcL1j7f/Bt8X7rgaTAR9p6VU8uY0cWBacTJqU
+         yOQ3+DOHPp3cO1MoRs6H3fELagn09f9013Mu2+dwjHGQS4+rhmjzCUvLARVHKUUAQcAz
+         8UY6Y057IciZFePa1PhFMN9vdDaPHtBi3yTbk4qMDVt9SFIf3qOYbrHn91y7O7VzSLFe
+         3LlkPXWubzRhB3jqLpYYMOMujHpawhXeCszupolrM0oEzTvQHbJ55gJsT6WAyXxw3r+A
+         PFu4lQ46Wx8hJk0xUQkTaxe8nlTb6ufSZh4hlO6HkMLgpm9rTQnWz47k/Iwmb/DcvwA5
+         W8dw==
+X-Gm-Message-State: ACrzQf0Ed+bEbuorP9xuN4FytjgQafedgf90c9dCMa4VG5pdlTnOltII
+        yNApd8pCnHxpt6ooiQG0v8U=
+X-Google-Smtp-Source: AMsMyM5kss7w95bR0b1CfblNA/LwLPIWVPSYkdln0JiD9EXyZ5hx5Jh4FMc9FVHvc4BtHwOavQIUDA==
+X-Received: by 2002:a05:6402:4445:b0:461:b506:de51 with SMTP id o5-20020a056402444500b00461b506de51mr10297577edb.388.1666688468539;
+        Tue, 25 Oct 2022 02:01:08 -0700 (PDT)
+Received: from krava (2001-1ae9-1c2-4c00-8b88-53b7-c55c-8535.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:8b88:53b7:c55c:8535])
+        by smtp.gmail.com with ESMTPSA id x10-20020a1709060eea00b007415f8ffcbbsm1055728eji.98.2022.10.25.02.01.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Oct 2022 02:01:08 -0700 (PDT)
+From:   Jiri Olsa <olsajiri@gmail.com>
+X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
+Date:   Tue, 25 Oct 2022 11:01:05 +0200
+To:     Chuang Wang <nashuiliang@gmail.com>
+Cc:     stable@vger.kernel.org, Song Liu <song@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>, bpf@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bpf: Clean up all resources when register_fprobe_ips
+ returns an error
+Message-ID: <Y1el0SXrk8paN1Zm@krava>
+References: <20221025080628.523300-1-nashuiliang@gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [Regression] CPU stalls and eventually causes a complete system
- freeze with 6.0.3 due to "video/aperture: Disable and unregister sysfb
- devices via aperture helpers"
-To:     Thomas Zimmermann <tzimmermann@suse.de>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        ML dri-devel <dri-devel@lists.freedesktop.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <bbf7afe7-6ed2-6708-d302-4ba657444c45@leemhuis.info>
- <668a8ffd-ffc7-e1cc-28b4-1caca1bcc3d6@suse.de>
- <958fd763-01b6-0167-ba6b-97cbd3bddcb6@leemhuis.info>
- <Y1Z2sq9RyEnIdixD@kroah.com> <51651c2e-3706-37d7-01e7-5d473a412850@suse.de>
- <70e16994-6f5b-d648-0848-2eb7e3ad641a@gmx.net>
- <ef862938-3e1a-5138-2bda-d10e9188f920@suse.de>
-Content-Language: de-AT
-From:   Andreas Thalhammer <andreas.thalhammer-linux@gmx.net>
-Reply-To: andreas.thalhammer@linux.com
-In-Reply-To: <ef862938-3e1a-5138-2bda-d10e9188f920@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:zxAssNYuJ/nRnimIBG+dwZkpAmy6Kw0koPKVrMohPbwCL+PxCuO
- 3vAq2sUNmIgliuJJb9OYSxbjgSQF/f7MvSDE3gIiJvnxEmKbGyCRhvaVUBhRtZFXy72Sown
- 3k6ltKgVD4Ojg8Sj7DRzCKHmhHC7vGAgaBM018VXlMk+08v9Tfjog62BkocadEBANVgCec6
- Zre0WHtTOIXE1xQmaqaNA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:jqpKQVu95eU=:Fr6ik1Xo/+cgtdi2+x5Bm2
- RBtiU6svXahvsQYN7VuePRgSIffF4xeM/rf7XXMYPoOa/PVZtDF3vgEbUMrN/aMdfgkqpc7gR
- 2Quw+Ftb47/3TVxb5TbJO7x/21afaTsgzAk986wBNfDXQw1myPFegYb6LwQp5LDMPBtOfjIyg
- 0TKZK3kN8m1EPgUEtC2+1s0fJlBvDsfXHaNJhQSHGUkJCj/Dz1DfMs5KbTpOuExtqG8MR29sm
- eQGA/ch7Y8acug6hedXZAyWYE/bu09Z8VFtlhogz5YMpulNvREQOrNQTa2PMvDH3LWTknpRei
- bHF9lvnbHkh9fqzuWYRHLfSCAvQDj9n3I19GyElET9PtZg4NZ16nZ0Tlo4j5EZljAoy0mFLeN
- jYbYpP50Mc9Fb1yhoyGygobqpewHwBDAsbLmZBI4Gu/UUbhEuQARKk/bGK/nInG35XsBKrj6S
- A/OtgNedEPkk9pnuNb38IjqiZ8rir7NsTZPnDwcTYhMzjrFY3uuQLGcji9gwnNhby/YBoLv1a
- s3Gy5AFsgiTXHCHBxeyUIUMKy+QcJvhF4op4M8g9pB9DRqMzksRA/spb4wloL7A4uxzCZOxSZ
- 6Ck8JTCRM7gUXhYMU3cg4yzVOG0uTw/F6EHQL/oUUK09HvVZgILxnty2fDZL1TtaYZQnC7iQ1
- S7Xk7tAb/94PfVZiLTk/I3jJ13VSRvXXmfpjrNIIEHxeSurKI4xvJ8ohNNfebzWZAqbnPOKMD
- Sq2ph3PZxyziN+k11Y0Ie6NRXx8S4k7CfwlPPc8tmUOz4oP5DT+2V2wklwhDspOQjWICEaLNY
- Xz9xK++/jghqGS/vuiX0xO5yqKPz78yFn+7frGgquw9DYJODOFjBXHH0fsNwyny3U6sCZ+c39
- VmF3lwOCPDMLgKs73xzRbwomiv5PLx0MPZvn78cKU3Vb3QhsFTFSvHPOIg77P/TQNfbf/QwE0
- cnV7Vsw8etesLJVxs7JzINW716K1XgrVQsuJ8cI6ez7PUS01bhCrhXxitPxHe8++I6gqC9VyF
- bpcrOMK7rrj8s1nnkarQm/SpF7DQXHjz+sw7n2QNhzxlIphCE0A64oC0m8oYklWW97eFzfrWQ
- EQC6AyL1eGT2grwL9VPcNPUAOODfi4XPdCCzSNCCyFj/eAPJirPhkpqCu2qPy9wxuTAS9/Zqu
- ERPTeI3YtzK2wRmaQf6xrdnlV7SF/G/59yBFjVJeNyfkGzp9DlAbHUxZB1caVl8pYgRtaPOqt
- uelvdem5aTlbKUGPvCRJgqzYdTJcFKei85pfmdT9zvgV1soijNH0a2NGjashd+4Q/sjo0z71b
- uwQSb0BrcjwMxKNr2mRoJLKX3RRJZiY7QsdonLGKskf6dQxjD9xIcR2DOfH6Q2qaJNo1JVLnN
- lCzjk6lPla7RyU7TeYt6z/FzQHP9YCCgke8kkEbhTGkrPLsoL/3JpPYZBfcARzBvp5OBSVlZ1
- oltpsa9rHBRaa7RyV4HAoZR7ckPylNJT0hwRVgzj1hMrRbkCKnu8hQAbmCpE3Jt9V47OCoLuy
- 86VSNXgrfXTcgrBEY1tBul0XOmjTIKT48HeG85ad9UL17D8XJN/+p9ZGw9WknGlAN7A==
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221025080628.523300-1-nashuiliang@gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am 25.10.22 um 10:16 schrieb Thomas Zimmermann:
-> Hi Andreas
->
-> Am 24.10.22 um 18:19 schrieb Andreas Thalhammer:
->> Am 24.10.22 um 13:31 schrieb Thomas Zimmermann:
->>> Hi
->>>
->>> Am 24.10.22 um 13:27 schrieb Greg KH:
->>>> On Mon, Oct 24, 2022 at 12:41:43PM +0200, Thorsten Leemhuis wrote:
->>>>> Hi! Thx for the reply.
->>>>>
->>>>> On 24.10.22 12:26, Thomas Zimmermann wrote:
->>>>>> Am 23.10.22 um 10:04 schrieb Thorsten Leemhuis:
->>>>>>>
->>>>>>> I noticed a regression report in bugzilla.kernel.org. As many
->>>>>>> (most?)
->>>>>>> kernel developer don't keep an eye on it, I decided to forward it =
-by
->>>>>>> mail. Quoting from
->>>>>>> https://bugzilla.kernel.org/show_bug.cgi?id=3D216616=C2=A0 :
->>>>>>>
->>>>>>>> =C2=A0=C2=A0 Andreas 2022-10-22 14:25:32 UTC
->>>>>>>>
->>>>>>>> Created attachment 303074 [details]
->>>>>>>> dmesg
->>>>>>
->>>>>> I've looked at the kernel log and found that simpledrm has been
->>>>>> loaded
->>>>>> *after* amdgpu, which should never happen. The problematic patch ha=
-s
->>>>>> been taken from a long list of refactoring work on this code. No
->>>>>> wonder
->>>>>> that it doesn't work as expected.
->>>>>>
->>>>>> Please cherry-pick commit 9d69ef183815 ("fbdev/core: Remove
->>>>>> remove_conflicting_pci_framebuffers()") into the 6.0 stable branch
->>>>>> and
->>>>>> report on the results. It should fix the problem.
->>>>>
->>>>> Greg, is that enough for you to pick this up? Or do you want
->>>>> Andreas to
->>>>> test first if it really fixes the reported problem?
->>>>
->>>> This should be good enough.=C2=A0 If this does NOT fix the issue, ple=
-ase let
->>>> me know.
->>>
->>> Thanks a lot. I think I can provided a dedicated fix if the proposed
->>> commit doesn't work.
->>>
->>> Best regards
->>> Thomas
->>>
->>>>
->>>> thanks,
->>>>
->>>> greg k-h
->>>
->>
->> Thanks... In short: the additional patch did NOT fix the problem.
->
-> Yeah, it's also part of a larger changeset. But I wouldn't want to
-> backport all those changes either.
->
-> Attached is a simple patch for linux-stable that adds the necessary fix.
-> If this still doesn't work, we should probably revert the problematic
-> patch.
->
-> Please test the patch and let me know if it works.
+On Tue, Oct 25, 2022 at 04:06:28PM +0800, Chuang Wang wrote:
+> When register_fprobe_ips returns an error, bpf_link_cleanup just cleans
+> up bpf_link_primer's resources and forgets to clean up
+> bpf_kprobe_multi_link, addrs, cookies.
+> 
+> So, by adding 'goto error', this ensures that all resources are cleaned
+> up.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 0dcac2725406 ("bpf: Add multi kprobe link")
+> Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
+> ---
+>  kernel/trace/bpf_trace.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
+> index 1ed08967fb97..5b806ef20857 100644
+> --- a/kernel/trace/bpf_trace.c
+> +++ b/kernel/trace/bpf_trace.c
+> @@ -2778,7 +2778,7 @@ int bpf_kprobe_multi_link_attach(const union bpf_attr *attr, struct bpf_prog *pr
+>  	err = register_fprobe_ips(&link->fp, addrs, cnt);
+>  	if (err) {
+>  		bpf_link_cleanup(&link_primer);
+> -		return err;
+> +		goto error;
 
+that should be taken care of bpf_kprobe_multi_link_dealloc,
+through the fput path in bpf_link_cleanup
 
-Yes, this fixed the problem. I'm running 6.0.3 with your patch now, all
-fine.
+do you see any related memory leak like report in kmemleak?
 
-Thanks!
-Andreas
+jirka
 
->
-> Best regards
-> Thomas
->
->>
->> I don't use git and I don't know how to /cherry-pick commit/
->> 9d69ef183815, but I found the patch here:
->> https://patchwork.freedesktop.org/patch/494609/
->>
->> I hope that's the right one. I reintegrated
->> v2-07-11-video-aperture-Disable-and-unregister-sysfb-devices-via-apertu=
-re-helpers.patch
->> and also applied
->> v2-04-11-fbdev-core-Remove-remove_conflicting_pci_framebuffers.patch,
->> did a "make mrproper" and thereafter compiled a clean new 6.0.3 kernel
->> (same .config).
->>
->> Now the system doesn't even boot to a console. The first boot got me to
->> a rcu_shed stall on CPUs/tasks, same as above, but this time with:
->> Workqueue: btrfs-cache btrfs_work_helper
->>
->> I booted a second time with the same kernel, and it got stuck after
->> mounting the root btrfs filesystem (what looked like a total freeze, bu=
-t
->> when it didn't show a rcu_stall message after ~2 min I got impatient an=
-d
->> wanted to see if I had just busted my root filesystem...)
->>
->> I booted 6.0.2 and everything is fine. (I'm very glad! I definitely
->> should update my backup right away!)
->>
->> I will try 6.1-rc1 next, bear with...
->>
->
-
+>  	}
+>  
+>  	return bpf_link_settle(&link_primer);
+> -- 
+> 2.34.1
+> 
