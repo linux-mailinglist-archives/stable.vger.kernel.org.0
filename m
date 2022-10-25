@@ -2,60 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75A0660D78B
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 00:58:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62DA860D78C
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 00:58:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232827AbiJYW6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 18:58:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38324 "EHLO
+        id S232805AbiJYW6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 18:58:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232807AbiJYW6t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 18:58:49 -0400
-Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BEF7CAE6C
-        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 15:58:47 -0700 (PDT)
-Received: by mail-qt1-x82a.google.com with SMTP id a24so8713501qto.10
-        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 15:58:47 -0700 (PDT)
+        with ESMTP id S232799AbiJYW6u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 18:58:50 -0400
+Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com [IPv6:2607:f8b0:4864:20::72f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3257CABC4
+        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 15:58:48 -0700 (PDT)
+Received: by mail-qk1-x72f.google.com with SMTP id d13so9327206qko.5
+        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 15:58:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lIOCkMKSAlpytczsKPYt4GfYy+CqAu4NwuvWfPqSCe4=;
-        b=p6lD5iMCtjk0v7bF+X94uqKvC7VQ6CxpR3d9t1DLwyoVJhFf8sBYockgUMm5d1HZF2
-         dkiYAwMiDbnU1o5G3kbPLWgT1vLAV0FCR7PGtlYtT9PeaSzxl2+oYQf24wv8oD2336T4
-         6F0qYGyGC1X/FAuwY0R8SEiNLjCFak6ATXvh06eKCSVy26OI1vtRvwxd4fKfVKz4PYkf
-         rd5Z0X1Bflx1T+LEkX8C7i44HzrexOdBStiqN+/OVgyoXt3zFYanEo4eh6U3MJZc3MyY
-         Y/4ALe7xKTyAjJ2THw34Njq7j01ekxonoVs2BYKQ28yGW0+qu91Lpko8zgTtLown0ugZ
-         KC9g==
+        bh=WixtnkjIiakyjDMRRGYgga5pzScIBgbls6qg2ioGE5I=;
+        b=OkdCWbdCs9EKfPdf/YHj9eghyLLdwO+gtZBC8j0e6/uWOstZwGaPfQruB+q2nTtwXy
+         xLiAhusZs34Q3ZOGtMZ0OniwYCv3Xd36/O1qXsrMwM3ukCIHjsHGWJRyOUaAudTISuT3
+         /37Ho7+rOqwK0eNJNOG0HETiYw2g+sDTnJGthbL98Vw98DL54B+Jwaz0ILuMl52AHDce
+         T5s8UN8M3Peu4MeUoJMbxD9euxbNojyDlw5aHXHCn5CGnsk7VntwFe29aaamDZjzUmQK
+         rMRG1dlwmuQ3fn7quSQ5pbHNHP04i9XOohXaxruEYH+eTZ9iZOHe329jGyC7k6h4OGJ0
+         WE3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lIOCkMKSAlpytczsKPYt4GfYy+CqAu4NwuvWfPqSCe4=;
-        b=0k8J0Ja4zgdatekC7O0ASZHXmQt/OB8/2VXw7jjLRH5vQ2D1wh/FEbEuGXUIlnS2ew
-         vrnsgLE1CWynVjZV7FMDgNRzcS5zWt8NGYsuOX9vtK2Y/zON//UZA/RC3CE+/IhsOFJX
-         mVbQkjlm4vwHfJlUGMXmsibmKDW+t38e2N10heY6nECTjntn1Iyu5b0XRRJWFW6cHu6b
-         3BvPT9BaKh4zOGEyo4Kisqx6juMVC3leTAgw4jMFmykIzaMMs5pUNS1m6J31tzuSgQSk
-         8B+wNmtJqWvY31/EoGRThjIN77s+oX8gkot3POlMk5Jcs7apHNHsbLbCEBDCr5MjUGJU
-         TolA==
-X-Gm-Message-State: ACrzQf0hiTxNPLOax37C19blr1uxNw8aS5Iqpy6EmLix64N4Q4NdaLpv
-        9blTmqA5mHWg0TW631t0VWcYiDxSltQ=
-X-Google-Smtp-Source: AMsMyM753VKLEhi+9Pd10w2Wm3kg+uyGz8FgPvfTKqYxFW+IROBXk28HjLdQiltkc1MPC9EZCKPWaA==
-X-Received: by 2002:ac8:7d01:0:b0:39c:ebdf:490c with SMTP id g1-20020ac87d01000000b0039cebdf490cmr34723218qtb.179.1666738726427;
-        Tue, 25 Oct 2022 15:58:46 -0700 (PDT)
+        bh=WixtnkjIiakyjDMRRGYgga5pzScIBgbls6qg2ioGE5I=;
+        b=BB9CkjHiG6Vbo+nSbJc2o8k7PCeX10y+JA3r0LO2d/pR0gNZL2ZvUQtXUNs/aNLCA8
+         YcNKeu7TobyjBTlJWIq6+g8etkk6ULy8q8TgdbfcLLMm+o3k0+w5gFQqqrghoDEk758I
+         CxCNAZ2wD4vcNangPPD51DTbDac/MTeJDDnnLx6GV5eVHYrl286IUpJxOtrOPmGvRZ7v
+         rQxCDF1DjEws/UX1YbRVDJMK+mUW7UY0ZpEI2ANtWYqmduDp8G7WujY3zXS2lEWM9uYF
+         VT7vpHelu4FFj/FCAwIkz2+YG8mjsqiEi6n2Ej8QuoXC/Yg8b2bXu9TK9WRva+JPI0JF
+         xhrg==
+X-Gm-Message-State: ACrzQf3NWHK3HqCkUNU6c9MOi5cV/Teos8p07X6pTVd0NbcGbPGFeyW4
+        eOMXsbTZ77ULDZeqRvC/9VsmSWLPpOk=
+X-Google-Smtp-Source: AMsMyM7LNb9wTox4SYg71agtMo2ZXLFmIGxC1NYq/FH0lOg+NzQh81X9cAqR/aVQtfBoaIdeSD56Eg==
+X-Received: by 2002:a05:620a:4114:b0:6ee:dfb7:1584 with SMTP id j20-20020a05620a411400b006eedfb71584mr28668364qko.262.1666738727807;
+        Tue, 25 Oct 2022 15:58:47 -0700 (PDT)
 Received: from mail-ash-it-01.broadcom.com ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id r12-20020ae9d60c000000b006ecdfcf9d81sm2823766qkk.84.2022.10.25.15.58.45
+        by smtp.gmail.com with ESMTPSA id r12-20020ae9d60c000000b006ecdfcf9d81sm2823766qkk.84.2022.10.25.15.58.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Oct 2022 15:58:46 -0700 (PDT)
+        Tue, 25 Oct 2022 15:58:47 -0700 (PDT)
 From:   James Smart <jsmart2021@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     jsmart2021@gmail.com, justintee8345@gmail.com,
-        martin.petersen@oracle.com, gregkh@linuxfoundation.org
-Subject: [PATCH 26/33] scsi: lpfc: Remove redundant lpfc_sli_prep_wqe() call
-Date:   Tue, 25 Oct 2022 15:57:32 -0700
-Message-Id: <20221025225739.85182-27-jsmart2021@gmail.com>
+        martin.petersen@oracle.com, gregkh@linuxfoundation.org,
+        Dick Kennedy <dick.kennedy@broadcom.com>
+Subject: [PATCH 27/33] scsi: lpfc: Fix split code for FLOGI on FCoE
+Date:   Tue, 25 Oct 2022 15:57:33 -0700
+Message-Id: <20221025225739.85182-28-jsmart2021@gmail.com>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20221025225739.85182-1-jsmart2021@gmail.com>
 References: <20221025225739.85182-1-jsmart2021@gmail.com>
@@ -71,38 +72,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Prior patch added a call to lpfc_sli_prep_wqe() prior to
-lpfc_sli_issue_iocb().  This call should not have been added as prep_wqe is
-called within the issue_iocb routine. So it's called twice now.
+The refactoring code converted context information from SLI-3 to SLI-4.
+The conversion for the SLI-4 bit field tried to use the old (hacky) SLI3
+high/low bit settings.  Needless to say, it was incorrect.
 
-Remove the redundant prep call.
+Explicitly set the context field to type FCFI and set it in the wqe.
+SLI-4 is now a proper bit field so no need for the shifting/anding.
 
-Link: https://lore.kernel.org/r/20220427222223.57920-1-jsmart2021@gmail.com
-Fixes: 31a59f75702f ("scsi: lpfc: SLI path split: Refactor Abort paths")
+Link: https://lore.kernel.org/r/20220506205528.61590-1-jsmart2021@gmail.com
+Fixes: 6831ce129f19 ("scsi: lpfc: SLI path split: Refactor base ELS paths and the FLOGI path")
+Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
 Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 ---
- drivers/scsi/lpfc/lpfc_sli.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_els.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index a20267ce00bb..534f9c163874 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -18671,13 +18671,11 @@ lpfc_sli4_seq_abort_rsp(struct lpfc_vport *vport,
- 	       phba->sli4_hba.rpi_ids[ndlp->nlp_rpi]);
- 	bf_set(wqe_cmnd, &icmd->generic.wqe_com, CMD_XMIT_BLS_RSP64_CX);
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index 0315662272de..7a2741d02b0f 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -1330,7 +1330,7 @@ lpfc_issue_els_flogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 		if (bf_get(lpfc_sli_intf_if_type, &phba->sli4_hba.sli_intf) ==
+ 		    LPFC_SLI_INTF_IF_TYPE_0) {
+ 			/* FLOGI needs to be 3 for WQE FCFI */
+-			ct = ((SLI4_CT_FCFI >> 1) & 1) | (SLI4_CT_FCFI & 1);
++			ct = SLI4_CT_FCFI;
+ 			bf_set(wqe_ct, &wqe->els_req.wqe_com, ct);
  
--
- 	/* Xmit CT abts response on exchange <xid> */
- 	lpfc_printf_vlog(vport, KERN_INFO, LOG_ELS,
- 			 "1200 Send BLS cmd x%x on oxid x%x Data: x%x\n",
- 			 ctiocb->abort_rctl, oxid, phba->link_state);
- 
--	lpfc_sli_prep_wqe(phba, ctiocb);
- 	rc = lpfc_sli_issue_iocb(phba, LPFC_ELS_RING, ctiocb, 0);
- 	if (rc == IOCB_ERROR) {
- 		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+ 			/* Set the fcfi to the fcfi we registered with */
 -- 
 2.35.3
 
