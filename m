@@ -2,606 +2,433 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4936E60CB38
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 13:46:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E44760CBA9
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 14:19:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232046AbiJYLqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 07:46:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46428 "EHLO
+        id S231259AbiJYMTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 08:19:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229800AbiJYLqO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 07:46:14 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35119DECE
-        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 04:45:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666698319; x=1698234319;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=tM/4jYvcjl5B0+A81tcnvcHGfBKNnd6QlqKC6SGefkg=;
-  b=mrFBtU6T81Jnl81mZEunB7RL1k/51wiCpwKkyQK+o0ZY9Ts9wMGOieVL
-   ls+NliZ9k3mnNfe0KnZweqNk9Rv2TlS37gO+tXAQCKmBzTCvy189kQfVE
-   +estv1vu+2EvX8Fl/6Zgu5GWkbeP7dtq+fmWeSklUzSMImHAeSQRb8B2U
-   ZJjtlminus5Toa90cDU8WDVpbh66iCqHIH++aeh1igxljIt2Tih+3sjVi
-   a0N3pt1GzIflJcPo66DQRTnNBcQsDMSIgIr36fO9WLnPHYdk0qKrUw/oM
-   tNHa2vPhicLYK4BpRCQ3Vm04vUHxm21i+CvjB0jT267E8VNPuhmoYg7q1
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10510"; a="369720132"
-X-IronPort-AV: E=Sophos;i="5.95,212,1661842800"; 
-   d="scan'208";a="369720132"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Oct 2022 04:45:02 -0700
-X-IronPort-AV: E=McAfee;i="6500,9779,10510"; a="876776269"
-X-IronPort-AV: E=Sophos;i="5.95,212,1661842800"; 
-   d="scan'208";a="876776269"
-Received: from ideak-desk.fi.intel.com ([10.237.68.144])
-  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Oct 2022 04:45:00 -0700
-From:   Imre Deak <imre.deak@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>, stable@vger.kernel.org
-Subject: [PATCH v4 1/4] drm/i915/tgl+: Add locking around DKL PHY register accesses
-Date:   Tue, 25 Oct 2022 14:44:55 +0300
-Message-Id: <20221025114457.2191004-1-imre.deak@intel.com>
-X-Mailer: git-send-email 2.31.1.189.g2e36527f23
-In-Reply-To: <20221025102644.2123988-2-imre.deak@intel.com>
-References: <20221025102644.2123988-2-imre.deak@intel.com>
+        with ESMTP id S231511AbiJYMTo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 08:19:44 -0400
+Received: from CHE01-ZR0-obe.outbound.protection.outlook.com (mail-zr0che01on2114.outbound.protection.outlook.com [40.107.24.114])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD6C63DBC9;
+        Tue, 25 Oct 2022 05:19:41 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Qt302slrZzViP8KTrC+8Q6IWA+9M2SL8YXxbh5dDP72+Q86Rgf24xGvtFZUnS00hODMj+9HjWvjvsz+ekkaPj+tFYsSgkmg8D1FN8AsLBnJmjCM9AvJ8PJvfXhqgKIFIFP+xQQL9WMdImxa9vsOSiF5vz51klWXoZhiAvcwEKzjws0a847d/KJ/WdXBP+Izg9FbNvDk2TpsWKZgiaWJthgj7fbSQbBJt98bGBlvAi9ruHPD31OUReFB31RFIcC0N6rslyUzTp671HYZxREzDLG14DVuLdUceH+3DumUKjJoCQC1gAmq/HxCKDvqFHdaMkjT1QNxRKYMaks9EaJyjZQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Wxc7XeVj8h11OShgFLe2DnXJM8hDZ68mkQeXt0fGhpg=;
+ b=ikpwz8+I/ctXkrDf9HMGzYWFddrX2v4Urvu9qJGYKbctQr3Z+Byaux3QXv/hJjIWtCX6USr32PNaFo4muYFbuU28OqoN+wV/XczehR6Z+CFLJ6WyK3o6JJh63AVjVsyGIc3sTr3OERPMhZjMBHdSXTJj4hdmed0hYs7Fqs47mUI2gu3JzpbC3bXrjmXa2+jv4HF1nOb7DMvkI/AGSXuR5VnJCGfXlvBXIAuDptDSqEobqEMGhw5yYkTlYkZeZzLuCX8CUS3cSjog2ZkfGeXuNOoJWk1AwSAvhenNDLSaUa7baooELvQnPO42zhraqf6icj+qI5VxlAel4cs0kd9hyA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=scs.ch; dmarc=pass action=none header.from=scs.ch; dkim=pass
+ header.d=scs.ch; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=scs.ch; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Wxc7XeVj8h11OShgFLe2DnXJM8hDZ68mkQeXt0fGhpg=;
+ b=SSEQ4wsO4Qg0wmEA1iPKNn/p/hy1TYojRsE0hbvfAQriLp2b6XMqwJEw3cAGEPDNqgIyaUrnblg/6t7/qxe4y6eqVbeBRZI1IobIi7wm9vLTcuzYPXLqD3hQ+TOUEKkFjtQdw3XN/gsptIT3udPwd/nrILRcp6DNjvkeZGtHmGhJYzgz1eiiXsFlr2sbFXoZxBqVSHmd4Xi7pZ8jLmNAygJqts1NAPgnFgf2oenHUEe4vG2OrY2wC+t4R7cZZEjmmrdsAIwrOav8AV2+ZWz38BPlOETQx1baNBu9XS1OMZ6bup+DuUefwejL2/cumt71YnQ3Imw+pcF7IhfcHBaxMA==
+Received: from ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:4d::10)
+ by GV0P278MB0855.CHEP278.PROD.OUTLOOK.COM (2603:10a6:710:54::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5746.28; Tue, 25 Oct
+ 2022 12:19:39 +0000
+Received: from ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM
+ ([fe80::a72a:1fa7:a789:4222]) by ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM
+ ([fe80::a72a:1fa7:a789:4222%9]) with mapi id 15.20.5746.028; Tue, 25 Oct 2022
+ 12:19:39 +0000
+From:   Christian Bach <christian.bach@scs.ch>
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+CC:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+Subject: tcpci module in Kernel 5.15.74 with PTN5110 not working correctly
+Thread-Topic: tcpci module in Kernel 5.15.74 with PTN5110 not working
+ correctly
+Thread-Index: AdjoVYnpyrmyLmxITSiX1bJ23H/1egAFm5rg
+Date:   Tue, 25 Oct 2022 12:19:39 +0000
+Message-ID: <ZR0P278MB0773072DD153BA902AFE635AEB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+References: <ZR0P278MB0773545F02B32FAF648F968AEB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+In-Reply-To: <ZR0P278MB0773545F02B32FAF648F968AEB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+Accept-Language: en-US
+Content-Language: de-DE
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=scs.ch;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: ZR0P278MB0773:EE_|GV0P278MB0855:EE_
+x-ms-office365-filtering-correlation-id: 42807f7b-358a-4f04-0b74-08dab683307a
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: vsqxuXOr3LmG288eiyMtEhzUubHo9nrHnGX+7GMahK4iTKzz4YCPfMVDmIxU7cCvCK3BUFCpXkap87WS9xBvraj/HVEJukC2in0ddPzooYmxAf6m+bi7cM/HwogimflixLIl4KFo/bFzVKTgGcOrBODLwiiTpBtJ8+b2WE1r2bz3cREEdDJtbrP6y4E35Ppkh008EitzFIqFax5im5Dz0GNE6KyWv5TC3NaZr3CVHiwVSnsvYo/3e+0k4ecc2YrzJXP7aqZODDGpW5am8jbKLyFZWfr9EBMKSOthugIJEEI9myQsy/sehNtIKog1rNgYOKvM1kIQNNr1npJz+VsekIZ7NfLv3bh0wfZJT0/eYNjeep7JJ7rhw8RRAF5Bx8f11TMS/3Y6vXuDvYia9c8dFO8OdJ7pZP1HbNjPdeWE7FJA1T165yH9kMyhJiWCBLR9/7fz1X13ZdVyI0ZQUGzboqzbo1m8z2jJ4ZirnoLLkjlvHmvX0Ih33FCP78mHyu8p3GBeUI3BxpfPUyT6zHeQnCNp/BxyPahTnnrJhfsLnQE+GBqGPwiwtn6QlBm/hr4wI15sIp8mwx4hQrZyvrWwdye+XucP+QqjFLk1MaHWdzZdg9dfyZDpcmNA/3fnydYOswgte8sv23tSlOxn6ieO5wGrk5+Rvx/O4FOQ2J0u6OhAUFmsLYLZvm3oSi0JTm3tBmCl9/lktrJwYKhMmMgf2gExeo23yKCNvhVwYGeoiKSnlH/lpW36BbPv1jDDqqf/RgpXfMmyMyL/lnWB27jPzc4ZMIfPpOSgcal+2tgdiFY=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230022)(366004)(136003)(396003)(346002)(39840400004)(376002)(451199015)(41300700001)(54906003)(478600001)(5660300002)(966005)(8936002)(33656002)(83380400001)(38070700005)(38100700002)(55016003)(66446008)(44832011)(64756008)(2906002)(8676002)(66946007)(4326008)(66476007)(66556008)(71200400001)(316002)(52536014)(6916009)(76116006)(2940100002)(9686003)(186003)(66574015)(26005)(122000001)(86362001)(6506007)(7696005);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?SLJ/AtFzocN+ULe1FKZzLaoVlE2zLbKH+GbHYKSPH23TGKQRmScj2HJAsH?=
+ =?iso-8859-1?Q?QMOCT6QtemWHdFBo+O9f2VKS91iwLy94xphnLXgzu9tabw/aU4p+gHUFBm?=
+ =?iso-8859-1?Q?jmJcEIsiAfHpuaR15cVQZW/0yFhOLKRWjzxaVifD66yTUNAOfVvHaME90F?=
+ =?iso-8859-1?Q?qgUjIVFNN3iAd5jQv0Fjj/kptxij7ars2tuM7uQfMWaX62D9FfOUp6qPpp?=
+ =?iso-8859-1?Q?xqOcxwVp+kcwB0tcerZK/YwPXYZtGKWzXtDG03ibwbI2KKcbfr8ReKPV7P?=
+ =?iso-8859-1?Q?gCpY1xZ6XVLd5xtB4Qp3lgxThaP5mDMRvrUtCVRNuKzqO46Ck7GFa6A6WU?=
+ =?iso-8859-1?Q?xQQzXVW0DXe+EVRaTCJHaYkXwtDEeSHsNA/8Yy4AMBZUAHXIXR9eJ2fpt7?=
+ =?iso-8859-1?Q?WJk3EwfAKxA39zTQHoSp72PqAFdkb/3fu2ay7iH2oMJu5uwXdTW4ilJgK8?=
+ =?iso-8859-1?Q?Dm+fRe6aS2YS9kYqWxkOGKa8WMyiTblQ7KhS6oKDLyQ83vCFNz6Xx5660R?=
+ =?iso-8859-1?Q?6XEGuz/u95wNxGRYoEFxQ+ZuY9PiMgXM0JuSUZs49kHjiRc0zP1g9yDh3g?=
+ =?iso-8859-1?Q?cUrguL8Y9D23uooFTF7gZeAHnvFSTaOwDnNHtGZ7CuedC3EXhqQfm/37rx?=
+ =?iso-8859-1?Q?FOuAJKl2gLRZ2pgTROw+WCKe1lUnSUadQztf69EyNAkkb7ayM558ZS9wGe?=
+ =?iso-8859-1?Q?VLxGnTJiM+mDP2a2W3OtSfjH2i77Qtd2jHUfTgDfe56Jd9wNtvZONGViqT?=
+ =?iso-8859-1?Q?ixoRJ+6t83C3eGy4qxIkjm+Batr/gpB57TZUeSSkShSorZYfYR4p9Gb/6c?=
+ =?iso-8859-1?Q?kv5qO53H1wAmB2A0SNLB2dmdXl4oktHpx9WV+OZAvYCRjt8wUK0yOXesyB?=
+ =?iso-8859-1?Q?pfhVduUTF1DVnrUxsIgT6ECa4ni6AaML4YqOE2OQLPtujsQzFPv5/M4J2N?=
+ =?iso-8859-1?Q?3oND1lDc94Qs7agErZt5d5ttnHPbZN4nI3jcoH5H3Te7ebO9dd289JNCOV?=
+ =?iso-8859-1?Q?kbGMkvvlMF5oWLrFz7rdFi5C4mH4Z6S7UDnkUGKiCuOHFr8r/y7sjaMigS?=
+ =?iso-8859-1?Q?6dOiWUx9WjPeHwok4YD0rD7YfiSy+NxXNZmaadMt9cBVbU+bFz+BqDYz8D?=
+ =?iso-8859-1?Q?rde99UzpCIspTaE46LkYODuUVuc5XXCgF1uQbdzJmgpRI/wuwVJrejoU8X?=
+ =?iso-8859-1?Q?w9MJQlatnvSpMMYv0x4JCV5GsQqSfpyU+Z8+YZzmf0ayZSfGJTCA9MGxrt?=
+ =?iso-8859-1?Q?l84a4EZfgfeHUnSq9gppaS9Kc92N+YWMW7lz7KZuS/EGCtjXqBymOpp0Bo?=
+ =?iso-8859-1?Q?heTlrmIu48HzU+NeC1u4tJcygWSgKt2QXx6sKPAgu6ThwIp6Lbw2agyWpR?=
+ =?iso-8859-1?Q?+9do7pE4kfmZrt7sc/VVu76tVTgb4gSFX+9LBOUliLPk4u4bd/pzknO4sA?=
+ =?iso-8859-1?Q?rkdjIgivOG3qRRIub0OS2hn0RUWUmmUAmnU2egux0zoWYA0PsScn7VSkUa?=
+ =?iso-8859-1?Q?Bgbk4qG+SuxHwvlvJ6Aqqc4goCwFHLRZrlK1gnU66EHgOwsZQ5coQ0HS4Z?=
+ =?iso-8859-1?Q?WHariusqKuszvzPJy/lpj56MqPCIbLaM7sw5cSJP/LQnEpJFNca9sk5dSj?=
+ =?iso-8859-1?Q?0MBXc7bPtPGTVJOF97TxPhPT8tWmUGfDtz?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+X-OriginatorOrg: scs.ch
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: 42807f7b-358a-4f04-0b74-08dab683307a
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Oct 2022 12:19:39.6153
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 1b8c3cb6-94f9-44ce-91ec-7183fd2364b2
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: /DLwMbtlxzST7LkK0MmscPsHtOFY4QosicSzLBrdz661WE2n3fOtzVlDhH0N2bvIWoJUZk28SDdOevJTFFiEvA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: GV0P278MB0855
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Accessing the TypeC DKL PHY registers during modeset-commit,
--verification, DP link-retraining and AUX power well toggling is racy
-due to these code paths being concurrent and the PHY register bank
-selection register (HIP_INDEX_REG) being shared between PHY instances
-(aka TC ports) and the bank selection being not atomic wrt. the actual
-PHY register access.
+Hello
 
-Add the required locking around each PHY register bank selection->
-register access sequence.
+For a few weeks now I am trying to make the PTN5110 chip work with the new =
+Kernel 5.15.74. The same hardware setup was working with the 4.19.72 Kernel=
+. The steps I took so far are as follows:
+1. Study the Documentation and look at example Device Tree's in the Kernel
+2. Try out different Device Tree configurations derived from the Documentat=
+ion and examples
+3. I did look on Stackoverflow, the NXP and other forums for any similar is=
+sue but could not find any
+4. Updating the Kernel to the newest Version I was able to find: 5.15.74 (H=
+ash: f0bee94053065c7cb8eacadfdd6bf739a2042b35 in Repo: git://git.yoctoproje=
+ct.org/linux-yocto.git;branch=3Dv5.15/standard/base)
+5. Downgrade to the earliest Kernel possible: v5.10-rc1 (Hash: 3650b228f83a=
+dda7e5ee532e2b90429c03f7b9ec in Repo: git://git.yoctoproject.org/linux-yoct=
+o.git;branch=3Dv5.15/standard/base)
 
-Kudos to Ville for noticing the race conditions.
+None of those steps had any effect. Every time I plug in a USB-A to USB-C c=
+able the Kernel gets stuck in the ISR until I unplug the cable. (Attaching =
+a full USB-PD capable Power Source over a USB-C cable works fine)
+This results in an unreasonable high CPU usage (most of the times the CPU g=
+ets blocked completely).
 
-v2:
-- Add the DKL PHY register accessors to intel_dkl_phy.[ch]. (Jani)
-- Make the DKL_REG_TC_PORT macro independent of PHY internals.
-- Move initing the DKL PHY lock to a more logical place.
+I did analyze the I2C bus and found that the old Kernel did change many con=
+figurations after the A-C cable got attached while the new Kernel does noth=
+ing (please see logs below).
+I also did compare what happens on the I2C bus during chip initialization b=
+ut did not find any mentionable differences.
 
-v3:
-- Fix parameter reuse in the DKL_REG_TC_PORT definition.
-- Document the usage of phy_lock.
+My HW setup is an i.mx6ul with the PTN5110 attached on I2C4.
 
-v4:
-- Fix adding TC_PORT_1 offset in the DKL_REG_TC_PORT definition.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+My device tree looks like this:
+/ {
+=A0=A0=A0=A0=A0=A0=A0=A0 regulators {
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 compatible =3D "simple-bus=
+";
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 #address-cells =3D <1>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 #size-cells =3D <0>;
 
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: <stable@vger.kernel.org> # v5.5+
-Acked-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Imre Deak <imre.deak@intel.com>
----
- drivers/gpu/drm/i915/Makefile                 |   1 +
- drivers/gpu/drm/i915/display/intel_ddi.c      |  68 +++++------
- .../gpu/drm/i915/display/intel_display_core.h |   8 ++
- .../i915/display/intel_display_power_well.c   |   7 +-
- drivers/gpu/drm/i915/display/intel_dkl_phy.c  | 109 ++++++++++++++++++
- drivers/gpu/drm/i915/display/intel_dkl_phy.h  |  24 ++++
- drivers/gpu/drm/i915/display/intel_dpll_mgr.c |  59 +++++-----
- drivers/gpu/drm/i915/i915_driver.c            |   1 +
- drivers/gpu/drm/i915/i915_reg.h               |   3 +
- 9 files changed, 204 insertions(+), 76 deletions(-)
- create mode 100644 drivers/gpu/drm/i915/display/intel_dkl_phy.c
- create mode 100644 drivers/gpu/drm/i915/display/intel_dkl_phy.h
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 reg_usb_otg1_vbus: regulat=
+or@2 {
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ compatible =3D "regulator-fixed";
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ reg =3D <2>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ regulator-name =3D "usb_otg1_vbus";
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ pinctrl-names =3D "default";
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ pinctrl-0 =3D <&pinctrl_usb_otg1_vbus>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ regulator-min-microvolt =3D <5000000>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ regulator-max-microvolt =3D <5000000>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ gpio =3D <&gpio2 8 GPIO_ACTIVE_HIGH>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ enable-active-high;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ status =3D "okay";
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 };
+=A0=A0=A0=A0=A0=A0=A0=A0 };
+};
 
-diff --git a/drivers/gpu/drm/i915/Makefile b/drivers/gpu/drm/i915/Makefile
-index 2535593ab379e..51704b54317cf 100644
---- a/drivers/gpu/drm/i915/Makefile
-+++ b/drivers/gpu/drm/i915/Makefile
-@@ -285,6 +285,7 @@ i915-y += \
- 	display/intel_ddi.o \
- 	display/intel_ddi_buf_trans.o \
- 	display/intel_display_trace.o \
-+	display/intel_dkl_phy.o \
- 	display/intel_dp.o \
- 	display/intel_dp_aux.o \
- 	display/intel_dp_aux_backlight.o \
-diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
-index 971356237eca3..7708ccbbdeb75 100644
---- a/drivers/gpu/drm/i915/display/intel_ddi.c
-+++ b/drivers/gpu/drm/i915/display/intel_ddi.c
-@@ -43,6 +43,7 @@
- #include "intel_de.h"
- #include "intel_display_power.h"
- #include "intel_display_types.h"
-+#include "intel_dkl_phy.h"
- #include "intel_dp.h"
- #include "intel_dp_link_training.h"
- #include "intel_dp_mst.h"
-@@ -1262,33 +1263,30 @@ static void tgl_dkl_phy_set_signal_levels(struct intel_encoder *encoder,
- 	for (ln = 0; ln < 2; ln++) {
- 		int level;
- 
--		intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--			       HIP_INDEX_VAL(tc_port, ln));
--
--		intel_de_write(dev_priv, DKL_TX_PMD_LANE_SUS(tc_port), 0);
-+		intel_dkl_phy_write(dev_priv, DKL_TX_PMD_LANE_SUS(tc_port), ln, 0);
- 
- 		level = intel_ddi_level(encoder, crtc_state, 2*ln+0);
- 
--		intel_de_rmw(dev_priv, DKL_TX_DPCNTL0(tc_port),
--			     DKL_TX_PRESHOOT_COEFF_MASK |
--			     DKL_TX_DE_EMPAHSIS_COEFF_MASK |
--			     DKL_TX_VSWING_CONTROL_MASK,
--			     DKL_TX_PRESHOOT_COEFF(trans->entries[level].dkl.preshoot) |
--			     DKL_TX_DE_EMPHASIS_COEFF(trans->entries[level].dkl.de_emphasis) |
--			     DKL_TX_VSWING_CONTROL(trans->entries[level].dkl.vswing));
-+		intel_dkl_phy_rmw(dev_priv, DKL_TX_DPCNTL0(tc_port), ln,
-+				  DKL_TX_PRESHOOT_COEFF_MASK |
-+				  DKL_TX_DE_EMPAHSIS_COEFF_MASK |
-+				  DKL_TX_VSWING_CONTROL_MASK,
-+				  DKL_TX_PRESHOOT_COEFF(trans->entries[level].dkl.preshoot) |
-+				  DKL_TX_DE_EMPHASIS_COEFF(trans->entries[level].dkl.de_emphasis) |
-+				  DKL_TX_VSWING_CONTROL(trans->entries[level].dkl.vswing));
- 
- 		level = intel_ddi_level(encoder, crtc_state, 2*ln+1);
- 
--		intel_de_rmw(dev_priv, DKL_TX_DPCNTL1(tc_port),
--			     DKL_TX_PRESHOOT_COEFF_MASK |
--			     DKL_TX_DE_EMPAHSIS_COEFF_MASK |
--			     DKL_TX_VSWING_CONTROL_MASK,
--			     DKL_TX_PRESHOOT_COEFF(trans->entries[level].dkl.preshoot) |
--			     DKL_TX_DE_EMPHASIS_COEFF(trans->entries[level].dkl.de_emphasis) |
--			     DKL_TX_VSWING_CONTROL(trans->entries[level].dkl.vswing));
-+		intel_dkl_phy_rmw(dev_priv, DKL_TX_DPCNTL1(tc_port), ln,
-+				  DKL_TX_PRESHOOT_COEFF_MASK |
-+				  DKL_TX_DE_EMPAHSIS_COEFF_MASK |
-+				  DKL_TX_VSWING_CONTROL_MASK,
-+				  DKL_TX_PRESHOOT_COEFF(trans->entries[level].dkl.preshoot) |
-+				  DKL_TX_DE_EMPHASIS_COEFF(trans->entries[level].dkl.de_emphasis) |
-+				  DKL_TX_VSWING_CONTROL(trans->entries[level].dkl.vswing));
- 
--		intel_de_rmw(dev_priv, DKL_TX_DPCNTL2(tc_port),
--			     DKL_TX_DP20BITMODE, 0);
-+		intel_dkl_phy_rmw(dev_priv, DKL_TX_DPCNTL2(tc_port), ln,
-+				  DKL_TX_DP20BITMODE, 0);
- 
- 		if (IS_ALDERLAKE_P(dev_priv)) {
- 			u32 val;
-@@ -1306,10 +1304,10 @@ static void tgl_dkl_phy_set_signal_levels(struct intel_encoder *encoder,
- 				val |= DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2(0);
- 			}
- 
--			intel_de_rmw(dev_priv, DKL_TX_DPCNTL2(tc_port),
--				     DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX1_MASK |
--				     DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2_MASK,
--				     val);
-+			intel_dkl_phy_rmw(dev_priv, DKL_TX_DPCNTL2(tc_port), ln,
-+					  DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX1_MASK |
-+					  DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2_MASK,
-+					  val);
- 		}
- 	}
- }
-@@ -2019,12 +2017,8 @@ icl_program_mg_dp_mode(struct intel_digital_port *dig_port,
- 		return;
- 
- 	if (DISPLAY_VER(dev_priv) >= 12) {
--		intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--			       HIP_INDEX_VAL(tc_port, 0x0));
--		ln0 = intel_de_read(dev_priv, DKL_DP_MODE(tc_port));
--		intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--			       HIP_INDEX_VAL(tc_port, 0x1));
--		ln1 = intel_de_read(dev_priv, DKL_DP_MODE(tc_port));
-+		ln0 = intel_dkl_phy_read(dev_priv, DKL_DP_MODE(tc_port), 0);
-+		ln1 = intel_dkl_phy_read(dev_priv, DKL_DP_MODE(tc_port), 1);
- 	} else {
- 		ln0 = intel_de_read(dev_priv, MG_DP_MODE(0, tc_port));
- 		ln1 = intel_de_read(dev_priv, MG_DP_MODE(1, tc_port));
-@@ -2085,12 +2079,8 @@ icl_program_mg_dp_mode(struct intel_digital_port *dig_port,
- 	}
- 
- 	if (DISPLAY_VER(dev_priv) >= 12) {
--		intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--			       HIP_INDEX_VAL(tc_port, 0x0));
--		intel_de_write(dev_priv, DKL_DP_MODE(tc_port), ln0);
--		intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--			       HIP_INDEX_VAL(tc_port, 0x1));
--		intel_de_write(dev_priv, DKL_DP_MODE(tc_port), ln1);
-+		intel_dkl_phy_write(dev_priv, DKL_DP_MODE(tc_port), 0, ln0);
-+		intel_dkl_phy_write(dev_priv, DKL_DP_MODE(tc_port), 1, ln1);
- 	} else {
- 		intel_de_write(dev_priv, MG_DP_MODE(0, tc_port), ln0);
- 		intel_de_write(dev_priv, MG_DP_MODE(1, tc_port), ln1);
-@@ -3094,10 +3084,8 @@ static void adlp_tbt_to_dp_alt_switch_wa(struct intel_encoder *encoder)
- 	enum tc_port tc_port = intel_port_to_tc(i915, encoder->port);
- 	int ln;
- 
--	for (ln = 0; ln < 2; ln++) {
--		intel_de_write(i915, HIP_INDEX_REG(tc_port), HIP_INDEX_VAL(tc_port, ln));
--		intel_de_rmw(i915, DKL_PCS_DW5(tc_port), DKL_PCS_DW5_CORE_SOFTRESET, 0);
--	}
-+	for (ln = 0; ln < 2; ln++)
-+		intel_dkl_phy_rmw(i915, DKL_PCS_DW5(tc_port), ln, DKL_PCS_DW5_CORE_SOFTRESET, 0);
- }
- 
- static void intel_ddi_prepare_link_retrain(struct intel_dp *intel_dp,
-diff --git a/drivers/gpu/drm/i915/display/intel_display_core.h b/drivers/gpu/drm/i915/display/intel_display_core.h
-index 96cf994b0ad1f..9b51148e8ba56 100644
---- a/drivers/gpu/drm/i915/display/intel_display_core.h
-+++ b/drivers/gpu/drm/i915/display/intel_display_core.h
-@@ -315,6 +315,14 @@ struct intel_display {
- 		struct intel_global_obj obj;
- 	} dbuf;
- 
-+	struct {
-+		/*
-+		 * dkl.phy_lock protects against concurrent access of the
-+		 * Dekel TypeC PHYs.
-+		 */
-+		spinlock_t phy_lock;
-+	} dkl;
-+
- 	struct {
- 		/* VLV/CHV/BXT/GLK DSI MMIO register base address */
- 		u32 mmio_base;
-diff --git a/drivers/gpu/drm/i915/display/intel_display_power_well.c b/drivers/gpu/drm/i915/display/intel_display_power_well.c
-index df7ee4969ef17..1d18eee562534 100644
---- a/drivers/gpu/drm/i915/display/intel_display_power_well.c
-+++ b/drivers/gpu/drm/i915/display/intel_display_power_well.c
-@@ -12,6 +12,7 @@
- #include "intel_de.h"
- #include "intel_display_power_well.h"
- #include "intel_display_types.h"
-+#include "intel_dkl_phy.h"
- #include "intel_dmc.h"
- #include "intel_dpio_phy.h"
- #include "intel_dpll.h"
-@@ -529,11 +530,9 @@ icl_tc_phy_aux_power_well_enable(struct drm_i915_private *dev_priv,
- 		enum tc_port tc_port;
- 
- 		tc_port = TGL_AUX_PW_TO_TC_PORT(i915_power_well_instance(power_well)->hsw.idx);
--		intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--			       HIP_INDEX_VAL(tc_port, 0x2));
- 
--		if (intel_de_wait_for_set(dev_priv, DKL_CMN_UC_DW_27(tc_port),
--					  DKL_CMN_UC_DW27_UC_HEALTH, 1))
-+		if (wait_for(intel_dkl_phy_read(dev_priv, DKL_CMN_UC_DW_27(tc_port), 2) &
-+			     DKL_CMN_UC_DW27_UC_HEALTH, 1))
- 			drm_warn(&dev_priv->drm,
- 				 "Timeout waiting TC uC health\n");
- 	}
-diff --git a/drivers/gpu/drm/i915/display/intel_dkl_phy.c b/drivers/gpu/drm/i915/display/intel_dkl_phy.c
-new file mode 100644
-index 0000000000000..710b030c7ed54
---- /dev/null
-+++ b/drivers/gpu/drm/i915/display/intel_dkl_phy.c
-@@ -0,0 +1,109 @@
-+// SPDX-License-Identifier: MIT
-+/*
-+ * Copyright © 2022 Intel Corporation
-+ */
-+
-+#include "i915_drv.h"
-+#include "i915_reg.h"
-+
-+#include "intel_de.h"
-+#include "intel_display.h"
-+#include "intel_dkl_phy.h"
-+
-+static void
-+dkl_phy_set_hip_idx(struct drm_i915_private *i915, i915_reg_t reg, int idx)
-+{
-+	enum tc_port tc_port = DKL_REG_TC_PORT(reg);
-+
-+	drm_WARN_ON(&i915->drm, tc_port < TC_PORT_1 || tc_port >= I915_MAX_TC_PORTS);
-+
-+	intel_de_write(i915,
-+		       HIP_INDEX_REG(tc_port),
-+		       HIP_INDEX_VAL(tc_port, idx));
-+}
-+
-+/**
-+ * intel_dkl_phy_read - read a Dekel PHY register
-+ * @i915: i915 device instance
-+ * @reg: Dekel PHY register
-+ * @ln: lane instance of @reg
-+ *
-+ * Read the @reg Dekel PHY register.
-+ *
-+ * Returns the read value.
-+ */
-+u32
-+intel_dkl_phy_read(struct drm_i915_private *i915, i915_reg_t reg, int ln)
-+{
-+	u32 val;
-+
-+	spin_lock(&i915->display.dkl.phy_lock);
-+
-+	dkl_phy_set_hip_idx(i915, reg, ln);
-+	val = intel_de_read(i915, reg);
-+
-+	spin_unlock(&i915->display.dkl.phy_lock);
-+
-+	return val;
-+}
-+
-+/**
-+ * intel_dkl_phy_write - write a Dekel PHY register
-+ * @i915: i915 device instance
-+ * @reg: Dekel PHY register
-+ * @ln: lane instance of @reg
-+ * @val: value to write
-+ *
-+ * Write @val to the @reg Dekel PHY register.
-+ */
-+void
-+intel_dkl_phy_write(struct drm_i915_private *i915, i915_reg_t reg, int ln, u32 val)
-+{
-+	spin_lock(&i915->display.dkl.phy_lock);
-+
-+	dkl_phy_set_hip_idx(i915, reg, ln);
-+	intel_de_write(i915, reg, val);
-+
-+	spin_unlock(&i915->display.dkl.phy_lock);
-+}
-+
-+/**
-+ * intel_dkl_phy_rmw - read-modify-write a Dekel PHY register
-+ * @i915: i915 device instance
-+ * @reg: Dekel PHY register
-+ * @ln: lane instance of @reg
-+ * @clear: mask to clear
-+ * @set: mask to set
-+ *
-+ * Read the @reg Dekel PHY register, clearing then setting the @clear/@set bits in it, and writing
-+ * this value back to the register if the value differs from the read one.
-+ */
-+void
-+intel_dkl_phy_rmw(struct drm_i915_private *i915, i915_reg_t reg, int ln, u32 clear, u32 set)
-+{
-+	spin_lock(&i915->display.dkl.phy_lock);
-+
-+	dkl_phy_set_hip_idx(i915, reg, ln);
-+	intel_de_rmw(i915, reg, clear, set);
-+
-+	spin_unlock(&i915->display.dkl.phy_lock);
-+}
-+
-+/**
-+ * intel_dkl_phy_posting_read - do a posting read from a Dekel PHY register
-+ * @i915: i915 device instance
-+ * @reg: Dekel PHY register
-+ * @ln: lane instance of @reg
-+ *
-+ * Read the @reg Dekel PHY register without returning the read value.
-+ */
-+void
-+intel_dkl_phy_posting_read(struct drm_i915_private *i915, i915_reg_t reg, int ln)
-+{
-+	spin_lock(&i915->display.dkl.phy_lock);
-+
-+	dkl_phy_set_hip_idx(i915, reg, ln);
-+	intel_de_posting_read(i915, reg);
-+
-+	spin_unlock(&i915->display.dkl.phy_lock);
-+}
-diff --git a/drivers/gpu/drm/i915/display/intel_dkl_phy.h b/drivers/gpu/drm/i915/display/intel_dkl_phy.h
-new file mode 100644
-index 0000000000000..260ad121a0b18
---- /dev/null
-+++ b/drivers/gpu/drm/i915/display/intel_dkl_phy.h
-@@ -0,0 +1,24 @@
-+/* SPDX-License-Identifier: MIT */
-+/*
-+ * Copyright © 2022 Intel Corporation
-+ */
-+
-+#ifndef __INTEL_DKL_PHY_H__
-+#define __INTEL_DKL_PHY_H__
-+
-+#include <linux/types.h>
-+
-+#include "i915_reg_defs.h"
-+
-+struct drm_i915_private;
-+
-+u32
-+intel_dkl_phy_read(struct drm_i915_private *i915, i915_reg_t reg, int ln);
-+void
-+intel_dkl_phy_write(struct drm_i915_private *i915, i915_reg_t reg, int ln, u32 val);
-+void
-+intel_dkl_phy_rmw(struct drm_i915_private *i915, i915_reg_t reg, int ln, u32 clear, u32 set);
-+void
-+intel_dkl_phy_posting_read(struct drm_i915_private *i915, i915_reg_t reg, int ln);
-+
-+#endif /* __INTEL_DKL_PHY_H__ */
-diff --git a/drivers/gpu/drm/i915/display/intel_dpll_mgr.c b/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-index b63600d8ebeb0..8bbc2b5e50ed9 100644
---- a/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-+++ b/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-@@ -25,6 +25,7 @@
- 
- #include "intel_de.h"
- #include "intel_display_types.h"
-+#include "intel_dkl_phy.h"
- #include "intel_dpio_phy.h"
- #include "intel_dpll.h"
- #include "intel_dpll_mgr.h"
-@@ -3486,15 +3487,12 @@ static bool dkl_pll_get_hw_state(struct drm_i915_private *dev_priv,
- 	 * All registers read here have the same HIP_INDEX_REG even though
- 	 * they are on different building blocks
- 	 */
--	intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--		       HIP_INDEX_VAL(tc_port, 0x2));
--
--	hw_state->mg_refclkin_ctl = intel_de_read(dev_priv,
--						  DKL_REFCLKIN_CTL(tc_port));
-+	hw_state->mg_refclkin_ctl = intel_dkl_phy_read(dev_priv,
-+						       DKL_REFCLKIN_CTL(tc_port), 2);
- 	hw_state->mg_refclkin_ctl &= MG_REFCLKIN_CTL_OD_2_MUX_MASK;
- 
- 	hw_state->mg_clktop2_hsclkctl =
--		intel_de_read(dev_priv, DKL_CLKTOP2_HSCLKCTL(tc_port));
-+		intel_dkl_phy_read(dev_priv, DKL_CLKTOP2_HSCLKCTL(tc_port), 2);
- 	hw_state->mg_clktop2_hsclkctl &=
- 		MG_CLKTOP2_HSCLKCTL_TLINEDRV_CLKSEL_MASK |
- 		MG_CLKTOP2_HSCLKCTL_CORE_INPUTSEL_MASK |
-@@ -3502,32 +3500,32 @@ static bool dkl_pll_get_hw_state(struct drm_i915_private *dev_priv,
- 		MG_CLKTOP2_HSCLKCTL_DSDIV_RATIO_MASK;
- 
- 	hw_state->mg_clktop2_coreclkctl1 =
--		intel_de_read(dev_priv, DKL_CLKTOP2_CORECLKCTL1(tc_port));
-+		intel_dkl_phy_read(dev_priv, DKL_CLKTOP2_CORECLKCTL1(tc_port), 2);
- 	hw_state->mg_clktop2_coreclkctl1 &=
- 		MG_CLKTOP2_CORECLKCTL1_A_DIVRATIO_MASK;
- 
--	hw_state->mg_pll_div0 = intel_de_read(dev_priv, DKL_PLL_DIV0(tc_port));
-+	hw_state->mg_pll_div0 = intel_dkl_phy_read(dev_priv, DKL_PLL_DIV0(tc_port), 2);
- 	val = DKL_PLL_DIV0_MASK;
- 	if (dev_priv->display.vbt.override_afc_startup)
- 		val |= DKL_PLL_DIV0_AFC_STARTUP_MASK;
- 	hw_state->mg_pll_div0 &= val;
- 
--	hw_state->mg_pll_div1 = intel_de_read(dev_priv, DKL_PLL_DIV1(tc_port));
-+	hw_state->mg_pll_div1 = intel_dkl_phy_read(dev_priv, DKL_PLL_DIV1(tc_port), 2);
- 	hw_state->mg_pll_div1 &= (DKL_PLL_DIV1_IREF_TRIM_MASK |
- 				  DKL_PLL_DIV1_TDC_TARGET_CNT_MASK);
- 
--	hw_state->mg_pll_ssc = intel_de_read(dev_priv, DKL_PLL_SSC(tc_port));
-+	hw_state->mg_pll_ssc = intel_dkl_phy_read(dev_priv, DKL_PLL_SSC(tc_port), 2);
- 	hw_state->mg_pll_ssc &= (DKL_PLL_SSC_IREF_NDIV_RATIO_MASK |
- 				 DKL_PLL_SSC_STEP_LEN_MASK |
- 				 DKL_PLL_SSC_STEP_NUM_MASK |
- 				 DKL_PLL_SSC_EN);
- 
--	hw_state->mg_pll_bias = intel_de_read(dev_priv, DKL_PLL_BIAS(tc_port));
-+	hw_state->mg_pll_bias = intel_dkl_phy_read(dev_priv, DKL_PLL_BIAS(tc_port), 2);
- 	hw_state->mg_pll_bias &= (DKL_PLL_BIAS_FRAC_EN_H |
- 				  DKL_PLL_BIAS_FBDIV_FRAC_MASK);
- 
- 	hw_state->mg_pll_tdc_coldst_bias =
--		intel_de_read(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port));
-+		intel_dkl_phy_read(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port), 2);
- 	hw_state->mg_pll_tdc_coldst_bias &= (DKL_PLL_TDC_SSC_STEP_SIZE_MASK |
- 					     DKL_PLL_TDC_FEED_FWD_GAIN_MASK);
- 
-@@ -3715,61 +3713,58 @@ static void dkl_pll_write(struct drm_i915_private *dev_priv,
- 	 * All registers programmed here have the same HIP_INDEX_REG even
- 	 * though on different building block
- 	 */
--	intel_de_write(dev_priv, HIP_INDEX_REG(tc_port),
--		       HIP_INDEX_VAL(tc_port, 0x2));
--
- 	/* All the registers are RMW */
--	val = intel_de_read(dev_priv, DKL_REFCLKIN_CTL(tc_port));
-+	val = intel_dkl_phy_read(dev_priv, DKL_REFCLKIN_CTL(tc_port), 2);
- 	val &= ~MG_REFCLKIN_CTL_OD_2_MUX_MASK;
- 	val |= hw_state->mg_refclkin_ctl;
--	intel_de_write(dev_priv, DKL_REFCLKIN_CTL(tc_port), val);
-+	intel_dkl_phy_write(dev_priv, DKL_REFCLKIN_CTL(tc_port), 2, val);
- 
--	val = intel_de_read(dev_priv, DKL_CLKTOP2_CORECLKCTL1(tc_port));
-+	val = intel_dkl_phy_read(dev_priv, DKL_CLKTOP2_CORECLKCTL1(tc_port), 2);
- 	val &= ~MG_CLKTOP2_CORECLKCTL1_A_DIVRATIO_MASK;
- 	val |= hw_state->mg_clktop2_coreclkctl1;
--	intel_de_write(dev_priv, DKL_CLKTOP2_CORECLKCTL1(tc_port), val);
-+	intel_dkl_phy_write(dev_priv, DKL_CLKTOP2_CORECLKCTL1(tc_port), 2, val);
- 
--	val = intel_de_read(dev_priv, DKL_CLKTOP2_HSCLKCTL(tc_port));
-+	val = intel_dkl_phy_read(dev_priv, DKL_CLKTOP2_HSCLKCTL(tc_port), 2);
- 	val &= ~(MG_CLKTOP2_HSCLKCTL_TLINEDRV_CLKSEL_MASK |
- 		 MG_CLKTOP2_HSCLKCTL_CORE_INPUTSEL_MASK |
- 		 MG_CLKTOP2_HSCLKCTL_HSDIV_RATIO_MASK |
- 		 MG_CLKTOP2_HSCLKCTL_DSDIV_RATIO_MASK);
- 	val |= hw_state->mg_clktop2_hsclkctl;
--	intel_de_write(dev_priv, DKL_CLKTOP2_HSCLKCTL(tc_port), val);
-+	intel_dkl_phy_write(dev_priv, DKL_CLKTOP2_HSCLKCTL(tc_port), 2, val);
- 
- 	val = DKL_PLL_DIV0_MASK;
- 	if (dev_priv->display.vbt.override_afc_startup)
- 		val |= DKL_PLL_DIV0_AFC_STARTUP_MASK;
--	intel_de_rmw(dev_priv, DKL_PLL_DIV0(tc_port), val,
--		     hw_state->mg_pll_div0);
-+	intel_dkl_phy_rmw(dev_priv, DKL_PLL_DIV0(tc_port), 2, val,
-+			  hw_state->mg_pll_div0);
- 
--	val = intel_de_read(dev_priv, DKL_PLL_DIV1(tc_port));
-+	val = intel_dkl_phy_read(dev_priv, DKL_PLL_DIV1(tc_port), 2);
- 	val &= ~(DKL_PLL_DIV1_IREF_TRIM_MASK |
- 		 DKL_PLL_DIV1_TDC_TARGET_CNT_MASK);
- 	val |= hw_state->mg_pll_div1;
--	intel_de_write(dev_priv, DKL_PLL_DIV1(tc_port), val);
-+	intel_dkl_phy_write(dev_priv, DKL_PLL_DIV1(tc_port), 2, val);
- 
--	val = intel_de_read(dev_priv, DKL_PLL_SSC(tc_port));
-+	val = intel_dkl_phy_read(dev_priv, DKL_PLL_SSC(tc_port), 2);
- 	val &= ~(DKL_PLL_SSC_IREF_NDIV_RATIO_MASK |
- 		 DKL_PLL_SSC_STEP_LEN_MASK |
- 		 DKL_PLL_SSC_STEP_NUM_MASK |
- 		 DKL_PLL_SSC_EN);
- 	val |= hw_state->mg_pll_ssc;
--	intel_de_write(dev_priv, DKL_PLL_SSC(tc_port), val);
-+	intel_dkl_phy_write(dev_priv, DKL_PLL_SSC(tc_port), 2, val);
- 
--	val = intel_de_read(dev_priv, DKL_PLL_BIAS(tc_port));
-+	val = intel_dkl_phy_read(dev_priv, DKL_PLL_BIAS(tc_port), 2);
- 	val &= ~(DKL_PLL_BIAS_FRAC_EN_H |
- 		 DKL_PLL_BIAS_FBDIV_FRAC_MASK);
- 	val |= hw_state->mg_pll_bias;
--	intel_de_write(dev_priv, DKL_PLL_BIAS(tc_port), val);
-+	intel_dkl_phy_write(dev_priv, DKL_PLL_BIAS(tc_port), 2, val);
- 
--	val = intel_de_read(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port));
-+	val = intel_dkl_phy_read(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port), 2);
- 	val &= ~(DKL_PLL_TDC_SSC_STEP_SIZE_MASK |
- 		 DKL_PLL_TDC_FEED_FWD_GAIN_MASK);
- 	val |= hw_state->mg_pll_tdc_coldst_bias;
--	intel_de_write(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port), val);
-+	intel_dkl_phy_write(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port), 2, val);
- 
--	intel_de_posting_read(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port));
-+	intel_dkl_phy_posting_read(dev_priv, DKL_PLL_TDC_COLDST_BIAS(tc_port), 2);
- }
- 
- static void icl_pll_power_enable(struct drm_i915_private *dev_priv,
-diff --git a/drivers/gpu/drm/i915/i915_driver.c b/drivers/gpu/drm/i915/i915_driver.c
-index ffff49868dc51..c3d43f9b1e45d 100644
---- a/drivers/gpu/drm/i915/i915_driver.c
-+++ b/drivers/gpu/drm/i915/i915_driver.c
-@@ -355,6 +355,7 @@ static int i915_driver_early_probe(struct drm_i915_private *dev_priv)
- 	mutex_init(&dev_priv->display.wm.wm_mutex);
- 	mutex_init(&dev_priv->display.pps.mutex);
- 	mutex_init(&dev_priv->display.hdcp.comp_mutex);
-+	spin_lock_init(&dev_priv->display.dkl.phy_lock);
- 
- 	i915_memcpy_init_early(dev_priv);
- 	intel_runtime_pm_init_early(&dev_priv->runtime_pm);
-diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
-index 99a8535193957..52e49687ddb5d 100644
---- a/drivers/gpu/drm/i915/i915_reg.h
-+++ b/drivers/gpu/drm/i915/i915_reg.h
-@@ -7442,6 +7442,9 @@ enum skl_power_gate {
- #define _DKL_PHY5_BASE			0x16C000
- #define _DKL_PHY6_BASE			0x16D000
- 
-+#define DKL_REG_TC_PORT(__reg) \
-+	(TC_PORT_1 + ((__reg).reg - _DKL_PHY1_BASE) / (_DKL_PHY2_BASE - _DKL_PHY1_BASE))
-+
- /* DEKEL PHY MMIO Address = Phy base + (internal address & ~index_mask) */
- #define _DKL_PCS_DW5			0x14
- #define DKL_PCS_DW5(tc_port)		_MMIO(_PORT(tc_port, _DKL_PHY1_BASE, \
--- 
-2.37.1
+&usbotg1 {
+=A0=A0=A0=A0=A0=A0=A0=A0 /*pinctrl-names =3D "default";
+=A0=A0=A0=A0=A0=A0=A0=A0 pinctrl-0 =3D <&pinctrl_usbotg1>;*/
+=A0=A0=A0=A0=A0=A0=A0=A0 dr_mode =3D "otg";
+=A0=A0=A0=A0=A0=A0=A0=A0 status =3D "okay";
+=A0=A0=A0=A0=A0=A0=A0=A0 disable-over-current;
+=A0=A0=A0=A0=A0=A0=A0=A0 vbus-supply =3D <&reg_usb_otg1_vbus>;
+};
+
+&i2c4 {
+=A0=A0=A0=A0=A0=A0=A0=A0 clock-frequency =3D <100000>;
+=A0=A0=A0=A0=A0=A0=A0=A0 pinctrl-names =3D "default";
+=A0=A0=A0=A0=A0=A0=A0=A0 pinctrl-0 =3D <&pinctrl_i2c4>;
+=A0=A0=A0=A0=A0=A0=A0=A0 status =3D "okay";
+
+=A0=A0=A0=A0=A0=A0=A0=A0 usb_pd: ptn5110@50 {
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 compatible =3D "nxp,ptn511=
+0";
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 reg =3D <0x50>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 pinctrl-names =3D "default=
+";
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 pinctrl-0 =3D <&pinctrl_us=
+b_pd>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 interrupt-parent =3D <&gpi=
+o2>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 interrupts =3D <11 IRQ_TYP=
+E_LEVEL_LOW>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 wakeup-source;
+
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 usb_con: connector {
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ compatible =3D "usb-c-connector";
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ label =3D "USB-C";
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ data-role =3D "dual";
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ power-role =3D "dual";
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ try-power-role =3D "sink";
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ source-pdos =3D <PDO_FIXED(VSAFE5V, 2000, PDO_FIXED_USB_COMM | PDO_FIXED_D=
+UAL_ROLE)>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ sink-pdos =3D <PDO_FIXED(VSAFE5V, 2000, PDO_FIXED_USB_COMM | PDO_FIXED_DUA=
+L_ROLE)
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 //PDO_FIXED(VSAFE5V, 3000, 0)
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 //PDO_FIXED(9000, 3000, 0)
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 PDO_FIXED(12000, 3000, 0)
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0PDO_FIXED(20000, 3000, 0)>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 //PDO_FIXED(20000, 5000, 0)>;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ op-sink-microwatt =3D <10000000>;
+
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 };
+=A0=A0=A0=A0=A0=A0=A0=A0 };
+};
+
+&iomuxc {
+=A0=A0=A0=A0=A0=A0=A0=A0 pinctrl_i2c4: i2c4grp {
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 fsl,pins =3D <
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ MX6UL_PAD_UART2_TX_DATA__I2C4_SCL 0x4001b8b0
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ MX6UL_PAD_UART2_RX_DATA__I2C4_SDA 0x4001b8b0
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 >;
+=A0=A0=A0=A0=A0=A0=A0=A0 };
+
+=A0=A0=A0=A0=A0=A0=A0=A0 pinctrl_usb_pd: usbpdgrp {
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 fsl,pins =3D <
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ MX6UL_PAD_ENET2_TX_DATA0__GPIO2_IO11=A0=A0=A0=A0=A0 0x0001b020 /* Alert In=
+terrupt */
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ MX6UL_PAD_ENET2_TX_CLK__GPIO2_IO14=A0=A0=A0=A0=A0=A0=A0 0x0001b020 /* Faul=
+t Interrupt */
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 >;
+=A0=A0=A0=A0=A0=A0=A0=A0 };
+
+=A0=A0=A0=A0=A0=A0=A0=A0 pinctrl_usb_otg1_vbus: usbotg1 {
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 fsl,pins =3D <
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ MX6UL_PAD_ENET2_RX_DATA0__GPIO2_IO08=A0=A0=A0=A0=A0 0x000000b9
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ MX6UL_PAD_ENET2_RX_DATA1__USB_OTG1_OC=A0=A0=A0=A0 0x000010b0
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 >;
+=A0=A0=A0=A0=A0=A0=A0=A0 };
+};
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+I2C Log on plug in event of Kernel 5.15.68:
+Direction=A0 | Address=A0 | Data
+-------------------------------
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 02 22
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 02 22
+Read=A0=A0=A0=A0=A0=A0 | 14=A0=A0=A0=A0=A0=A0 | 04
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 02 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 02 02
+Read=A0=A0=A0=A0=A0=A0 | 1E=A0=A0=A0=A0=A0=A0 | 0C
+Read=A0=A0=A0=A0=A0=A0 | 14=A0=A0=A0=A0=A0=A0 | 04
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 03 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 03 02
+Read=A0=A0=A0=A0=A0=A0 | 1E=A0=A0=A0=A0=A0=A0 | 0C
+Read=A0=A0=A0=A0=A0=A0 | 1A=A0=A0=A0=A0=A0=A0 | 4A
+Read=A0=A0=A0=A0=A0=A0 | 14=A0=A0=A0=A0=A0=A0 | 04
+Read=A0=A0=A0=A0=A0=A0 | 1D=A0=A0=A0=A0=A0=A0 | 11
+Read=A0=A0=A0=A0=A0=A0 | 1E=A0=A0=A0=A0=A0=A0 | 0C
+
+Pause for 200ms
+
+Read=A0=A0=A0=A0=A0=A0 | 1A=A0=A0=A0=A0=A0=A0 | 4A
+Read=A0=A0=A0=A0=A0=A0 | 1A=A0=A0=A0=A0=A0=A0 | 4A
+Read=A0=A0=A0=A0=A0=A0 | 1D=A0=A0=A0=A0=A0=A0 | 11
+Write=A0=A0=A0=A0=A0 | 1A=A0=A0=A0=A0=A0=A0 | 0E
+Write=A0=A0=A0=A0=A0 | 19=A0=A0=A0=A0 =A0=A0| 00
+Write=A0=A0=A0=A0=A0 | 2E=A0=A0=A0=A0=A0=A0 | 02
+Write=A0=A0=A0=A0=A0 | 23=A0=A0=A0=A0=A0=A0 | 66
+Write=A0=A0=A0=A0=A0 | 23=A0=A0=A0=A0=A0=A0 | 55
+Write=A0=A0=A0=A0=A0 | 2F=A0=A0=A0=A0=A0=A0 | 21
+
+Pause for 300ms
+
+Write=A0=A0=A0=A0=A0 | 51=A0=A0=A0=A0=A0=A0 | 02
+Write=A0=A0=A0=A0=A0 | 52=A0=A0=A0=A0=A0=A0 | 00 00
+Write=A0=A0=A0=A0=A0 | 50=A0=A0=A0=A0=A0=A0 | 25
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 50 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 50 02
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 72=A0=A0=A0=A0=A0=A0 | 8C 00
+Read=A0=A0=A0=A0=A0=A0 | 1C=A0=A0=A0=A0=A0=A0 | 60
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 2F=A0=A0=A0 =A0=A0=A0| 00
+Read=A0=A0=A0=A0=A0=A0 | 1C=A0=A0=A0=A0=A0=A0 | 60
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 2E=A0=A0=A0=A0=A0=A0 | 02
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+(It will loop like this until the cable gets detached)
+
+
+I2C Log on plug in event of Kernel 5.15.68:
+Direction=A0 | Address=A0 | Data
+-------------------------------
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 02 22
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 02 22
+Read=A0=A0=A0=A0=A0=A0 | 14=A0=A0=A0=A0=A0=A0 | 04
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 02 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 02 02
+Read=A0=A0=A0=A0=A0=A0 | 1E=A0=A0=A0=A0=A0=A0 | 0C
+Read=A0=A0=A0=A0=A0=A0 | 14=A0=A0=A0=A0=A0=A0 | 04
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 02 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 02 02
+Read=A0=A0=A0=A0=A0=A0 | 1E=A0=A0=A0=A0=A0=A0 | 0C
+Read=A0=A0=A0=A0=A0=A0 | 14=A0=A0=A0=A0=A0=A0 | 04
+Read=A0=A0=A0=A0=A0=A0 | 1E=A0=A0=A0=A0=A0=A0 | 0C
+
+Pause for 200ms
+
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 01 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 01 02
+Read=A0=A0=A0=A0=A0=A0 | 1D=A0=A0=A0=A0=A0=A0 | 11
+
+Pause for 250ms
+
+Read=A0=A0=A0=A0=A0=A0 | 1A=A0=A0=A0=A0=A0=A0 | 4A
+Write=A0=A0=A0=A0=A0 | 1A=A0=A0=A0=A0 =A0=A0| 4E
+Write=A0=A0=A0=A0=A0 | 19=A0=A0=A0=A0=A0=A0 | 00
+Write=A0=A0=A0=A0=A0 | 2E=A0=A0=A0=A0=A0=A0 | 02
+Write=A0=A0=A0=A0=A0 | 23=A0=A0=A0=A0=A0=A0 | 66
+Write=A0=A0=A0=A0=A0 | 23=A0=A0=A0=A0=A0=A0 | 55
+Write=A0=A0=A0=A0=A0 | 2F=A0=A0=A0=A0=A0=A0 | 21
+
+Pause for 4ms
+
+Write=A0=A0=A0=A0=A0 | 51=A0=A0=A0=A0=A0=A0 | 02
+Write=A0=A0=A0=A0=A0 | 52=A0=A0=A0=A0=A0=A0 | 00 00
+Write=A0=A0=A0=A0=A0 | 50=A0=A0=A0=A0=A0=A0 | 35
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 50 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 50 02
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 2F=A0=A0=A0=A0=A0=A0 | 00
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Read=A0=A0=A0=A0=A0=A0 | 1C=A0=A0=A0=A0=A0=A0 | 60
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 00 02
+Write=A0=A0=A0=A0=A0 | 23=A0=A0=A0=A0=A0=A0 | 66
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 02 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 02 02
+Write=A0=A0=A0=A0=A0 | 23=A0=A0=A0=A0=A0=A0 | 44
+Read=A0=A0=A0=A0=A0=A0 | 14=A0=A0=A0=A0=A0=A0 | FF
+Write=A0=A0=A0=A0=A0 | 2E=A0=A0=A0=A0=A0=A0 | 02
+Read=A0=A0=A0=A0=A0=A0 | 1E=A0=A0=A0=A0=A0=A0 | 0C
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | FF FF
+Write=A0=A0=A0=A0=A0 | 14=A0=A0=A0=A0=A0=A0 | 04
+Write=A0=A0=A0=A0=A0 | 23=A0=A0=A0=A0=A0=A0 | 33
+Write=A0=A0=A0=A0=A0 | 12=A0=A0=A0=A0=A0=A0 | 7F 00
+Write=A0=A0=A0=A0=A0 | 2F=A0=A0=A0=A0=A0=A0 | 00
+Write=A0=A0=A0=A0=A0 | 23=A0=A0=A0=A0=A0=A0 | 66
+Write=A0=A0=A0=A0=A0 | 23=A0=A0=A0=A0=A0=A0 | 44
+Read=A0=A0=A0=A0=A0=A0 | 1C=A0=A0=A0=A0=A0=A0 | 60
+Read=A0=A0=A0=A0=A0=A0 | 1A=A0=A0=A0=A0=A0=A0 | 4E
+Write=A0=A0=A0=A0=A0 | 1A=A0=A0=A0=A0=A0=A0 | 4E
+Write=A0=A0=A0=A0=A0 | 19=A0=A0=A0=A0=A0=A0 | 00
+Write=A0=A0=A0=A0=A0 | 2E=A0=A0=A0=A0=A0=A0 | 02
+Read=A0=A0=A0=A0=A0=A0 | 1E=A0=A0=A0=A0=A0=A0 | 0C
+Read=A0=A0=A0=A0=A0=A0 | 1D=A0=A0=A0=A0=A0=A0 | 11
+Write=A0=A0=A0=A0=A0 | 2F=A0=A0=A0=A0=A0=A0 | 00
+Write=A0=A0=A0=A0=A0 | 23=A0=A0=A0=A0=A0=A0 | 66
+Write=A0=A0=A0=A0=A0 | 23=A0=A0=A0=A0=A0=A0 | 44
+Read=A0=A0=A0=A0=A0=A0 | 1C=A0=A0=A0=A0=A0=A0 | 60
+Read=A0=A0=A0=A0=A0=A0 | 1A=A0=A0=A0=A0=A0=A0 | 4E
+Write=A0=A0=A0=A0=A0 | 1A=A0=A0=A0=A0=A0=A0 | 4E
+Write=A0=A0=A0=A0=A0 | 19=A0=A0=A0=A0=A0=A0 | 00
+Write=A0=A0=A0=A0=A0 | 2E=A0=A0=A0=A0=A0=A0 | 02
+Write=A0=A0=A0=A0=A0 | 1A=A0=A0=A0=A0=A0=A0 | 0F
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 01 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 01 02
+Read=A0=A0=A0=A0=A0=A0 | 1D=A0=A0=A0=A0=A0=A0 | 00
+Write=A0=A0=A0=A0=A0 | 1A=A0=A0=A0=A0 =A0=A0| 4A
+Write=A0=A0=A0=A0=A0 | 23=A0=A0=A0=A0=A0=A0 | 99
+Read=A0=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 01 02
+Write=A0=A0=A0=A0=A0 | 10=A0=A0=A0=A0=A0=A0 | 01 02
+Read=A0=A0=A0=A0=A0=A0 | 1D=A0=A0=A0=A0=A0=A0 | 11
+(no more communication after this point)
+
+--=A0
+Dipl. El-Ing. FH Christian Bach, Projektleiter
+Direct +41 43 456 16 96=A0 . =A0http://www.scs.ch
+Supercomputing Systems AG=A0 . =A0Technoparkstrasse 1=A0 . =A0CH-8005 Z=FCr=
+ich=A0
 
