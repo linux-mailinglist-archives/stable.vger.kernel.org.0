@@ -2,68 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F3E660C18D
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 04:16:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D957360C1F6
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 04:54:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230035AbiJYCQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Oct 2022 22:16:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53480 "EHLO
+        id S229714AbiJYCyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Oct 2022 22:54:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229919AbiJYCQR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 22:16:17 -0400
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 257DC79604;
-        Mon, 24 Oct 2022 19:16:17 -0700 (PDT)
-Received: by linux.microsoft.com (Postfix, from userid 1131)
-        id AC8D420FEB7D; Mon, 24 Oct 2022 19:16:16 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com AC8D420FEB7D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1666664176;
-        bh=tE9WRoMKpk05z8CwKPDducghhYXGRwpvqxaFsVbfSKs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lqugX4tHGWkrm3q9bn2Ctu51vegacVHukluYni4UCdXjycraC5bjuBwSfn1ozuXEg
-         YE9UHW/FCgl0DYiwF1pM7AuWYnPXGNoLem9fwWjnfax4AghHRo34kXvDNuwOCKzLhG
-         ru9JY7qMDjxhDnfmFj8X+6I9e1+T96YQoRdQf0l4=
-Date:   Mon, 24 Oct 2022 19:16:16 -0700
-From:   Kelsey Steele <kelseysteele@linux.microsoft.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: Re: [PATCH 5.15 000/530] 5.15.75-rc1 review
-Message-ID: <20221025021616.GA6345@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <20221024113044.976326639@linuxfoundation.org>
+        with ESMTP id S231411AbiJYCxs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Oct 2022 22:53:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 524041211E1;
+        Mon, 24 Oct 2022 19:53:45 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD695616E6;
+        Tue, 25 Oct 2022 02:53:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98A31C433C1;
+        Tue, 25 Oct 2022 02:53:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1666666424;
+        bh=bgoqEEDvEzhJrh/4G88Q8OoiwieqsueEejZQ94ELqxM=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=Ge6F4ay+H3GfgnTrjb10k9mDv43jrwM/QSF6PXQSHbhGJPX5IMdTqcg1R3ndDvaiH
+         MSavLeGVgqF5W6+GA6VgZwYTRqdfS4T9wIwwQZPKFvz1a47zG1wBLkYQ1kSzp1Obgn
+         JlP/PDnAOOHusRrXQw/plpAvcVt8tqWFWdwspEGLjXTUeiiHeHGa7Mk9zHY30qdr5v
+         FlOuicsgsX3HNnjz2F2LaRMm+gnyo9GvI9DNoTn9OaOl1oAyzUbKujnkaSzsYoUJIJ
+         giaH18pI9jgEco/0K5QGVRxbqKgxxcPzESk2IzsbNdDxRHVp0+4ngj0WZf41IfnSUI
+         Q0wcDytvVODqw==
+Message-ID: <1b9d6a6d-4e19-f455-bf9a-659b85a3206f@kernel.org>
+Date:   Tue, 25 Oct 2022 10:53:40 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221024113044.976326639@linuxfoundation.org>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+Subject: Re: [PATCH 5.10 052/390] f2fs: fix to do sanity check on summary info
+Content-Language: en-US
+To:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Wenqing Liu <wenqingliu0120@gmail.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+References: <20221024113022.510008560@linuxfoundation.org>
+ <20221024113024.853480982@linuxfoundation.org>
+ <20221024173012.GA25198@duo.ucw.cz>
+From:   Chao Yu <chao@kernel.org>
+In-Reply-To: <20221024173012.GA25198@duo.ucw.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 24, 2022 at 01:25:44PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.75 release.
-> There are 530 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 2022/10/25 1:30, Pavel Machek wrote:
+> Hi!
 > 
-> Responses should be made by Wed, 26 Oct 2022 11:29:24 +0000.
-> Anything received after that time might be too late.
+>> From: Chao Yu <chao@kernel.org>
+>>
+>> commit c6ad7fd16657ebd34a87a97d9588195aae87597d upstream.
+>>
+>> As Wenqing Liu reported in bugzilla:
+>>
+>> https://bugzilla.kernel.org/show_bug.cgi?id=216456
+>>
+>> BUG: KASAN: use-after-free in recover_data+0x63ae/0x6ae0 [f2fs]
+>> Read of size 4 at addr ffff8881464dcd80 by task mount/1013
+> 
+> I believe this is missing put_page on the error path:
+> 
+>> +++ b/fs/f2fs/gc.c
+>> @@ -1003,6 +1003,14 @@ static bool is_alive(struct f2fs_sb_info
+>>   		return false;
+>>   	}
+>>   
+>> +	max_addrs = IS_INODE(node_page) ? DEF_ADDRS_PER_INODE :
+>> +						DEF_ADDRS_PER_BLOCK;
+>> +	if (ofs_in_node >= max_addrs) {
+>> +		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%u, nid:%u, max:%u",
+>> +			ofs_in_node, dni->ino, dni->nid, max_addrs);
+>> +		return false;
+>> +	}
+>> +
+>>   	*nofs = ofs_of_node(node_page);
+>>   	source_blkaddr = data_blkaddr(NULL, node_page, ofs_in_node);
+>>   	f2fs_put_page(node_page, 1);
+> 
+> So something like this is needed. (Feel free to test/adapt/apply).
+> 
+> Signed-off-by: Pavel Machek <pavel@denx.de>
+> 
+> Best regards,
+> 								Pavel
+> 
+> diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+> index 4546e01b2ee0..dab794225cce 100644
+> --- a/fs/f2fs/gc.c
+> +++ b/fs/f2fs/gc.c
+> @@ -1110,6 +1110,7 @@ static bool is_alive(struct f2fs_sb_info *sbi, struct f2fs_summary *sum,
+>   	if (ofs_in_node >= max_addrs) {
+>   		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%u, nid:%u, max:%u",
+>   			ofs_in_node, dni->ino, dni->nid, max_addrs);
+> +		f2fs_put_page(node_page, 1);
+>   		return false;
+>   	}
 
-No regressions found on WSL x86_64 or WSL arm64
+My bad, thanks for fixing this.
 
-Built, booted, and compared dmesg against 5.15.74.
+Reviewed-by: Chao Yu <chao@kernel.org>
 
-Thank you.
+Thanks,
 
-Tested-by: Kelsey Steele <kelseysteele@linux.microsoft.com> 
+>   
+> 
