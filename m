@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49EB560C647
-	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 10:20:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E370D60C656
+	for <lists+stable@lfdr.de>; Tue, 25 Oct 2022 10:22:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231394AbiJYIUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 04:20:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43278 "EHLO
+        id S232196AbiJYIWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 04:22:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231868AbiJYIUo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 04:20:44 -0400
+        with ESMTP id S232142AbiJYIWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 04:22:41 -0400
 Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1916DBBE4;
-        Tue, 25 Oct 2022 01:20:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B853CEF5BD;
+        Tue, 25 Oct 2022 01:22:39 -0700 (PDT)
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 5C95B1C0016; Tue, 25 Oct 2022 10:20:41 +0200 (CEST)
-Date:   Tue, 25 Oct 2022 10:20:40 +0200
+        id 5DB1E1C0016; Tue, 25 Oct 2022 10:22:38 +0200 (CEST)
+Date:   Tue, 25 Oct 2022 10:22:37 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Chen Yu <yu.c.chen@intel.com>
-Subject: Re: [PATCH 4.9 158/159] thermal: intel_powerclamp: Use first online
- CPU as control_cpu
-Message-ID: <20221025082040.GA9520@duo.ucw.cz>
-References: <20221024112949.358278806@linuxfoundation.org>
- <20221024112955.194790075@linuxfoundation.org>
+        David Gow <davidgow@google.com>,
+        Tales Aparecida <tales.aparecida@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 195/229] drm/amd/display: fix overflow on MIN_I64
+ definition
+Message-ID: <20221025082237.GB9520@duo.ucw.cz>
+References: <20221024112959.085534368@linuxfoundation.org>
+ <20221024113005.440623785@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
+        protocol="application/pgp-signature"; boundary="f2QGlHpHGjS2mn6Y"
 Content-Disposition: inline
-In-Reply-To: <20221024112955.194790075@linuxfoundation.org>
+In-Reply-To: <20221024113005.440623785@linuxfoundation.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
         SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
@@ -42,63 +44,68 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=us-ascii
+--f2QGlHpHGjS2mn6Y
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> From: David Gow <davidgow@google.com>
 >=20
-> commit 4bb7f6c2781e46fc5bd00475a66df2ea30ef330d upstream.
+> [ Upstream commit 6ae0632d17759852c07e2d1e0a31c728eb6ba246 ]
 >=20
-> Commit 68b99e94a4a2 ("thermal: intel_powerclamp: Use get_cpu() instead
-> of smp_processor_id() to avoid crash") fixed an issue related to using
-> smp_processor_id() in preemptible context by replacing it with a pair
-> of get_cpu()/put_cpu(), but what is needed there really is any online
-> CPU and not necessarily the one currently running the code.  Arguably,
-> getting the one that's running the code in there is confusing.
+> The definition of MIN_I64 in bw_fixed.c can cause gcc to whinge about
+> integer overflow, because it is treated as a positive value, which is
+> then negated. The temporary positive value is not necessarily
+> representable.
 >=20
-> For this reason, simply give the control CPU role to the first online
-> one which automatically will be CPU0 if it is online, so one check
-> can be dropped from the code for an added benefit.
+> This causes the following warning:
+> ../drivers/gpu/drm/amd/amdgpu/../display/dc/dml/calcs/bw_fixed.c:30:19:
+> warning: integer overflow in expression =E2=80=98-9223372036854775808=E2=
+=80=99 of type
+> =E2=80=98long long int=E2=80=99 results in =E2=80=98-9223372036854775808=
+=E2=80=99 [-Woverflow]
+>   30 |         (int64_t)(-(1LL << 63))
+>      |                   ^
+>=20
+> Writing out (-MAX_I64 - 1) works instead.
 
-While this is nice cleanup (and I complained about original code being
-interesting) original code still looks okay and we don't really need this in
-stable.
+While this probably fixes the warning, better fix would be to include
+limits.h which already has equivalent definitions.
 
 Thanks and best regards,
 								Pavel
 
-> +++ b/drivers/thermal/intel_powerclamp.c
-> @@ -518,11 +518,7 @@ static int start_power_clamp(void)
->  	get_online_cpus();
+> -#define MIN_I64 \
+> -	(int64_t)(-(1LL << 63))
+> -
+>  #define MAX_I64 \
+>  	(int64_t)((1ULL << 63) - 1)
 > =20
->  	/* prefer BSP */
-> -	control_cpu =3D 0;
-> -	if (!cpu_online(control_cpu)) {
-> -		control_cpu =3D get_cpu();
-> -		put_cpu();
-> -	}
-> +	control_cpu =3D cpumask_first(cpu_online_mask);
+> +#define MIN_I64 \
+> +	(-MAX_I64 - 1)
+> +
+>  #define FRACTIONAL_PART_MASK \
+>  	((1ULL << BW_FIXED_BITS_PER_FRACTIONAL_PART) - 1)
 > =20
->  	clamping =3D true;
->  	schedule_delayed_work(&poll_pkg_cstate_work, 0);
+> --=20
+> 2.35.1
+>=20
 >=20
 
 --=20
 DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---pWyiEgJYm5f9v55/
+--f2QGlHpHGjS2mn6Y
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY1ecWAAKCRAw5/Bqldv6
-8s3mAKCbR0vVa1W+JRQLfgQAql33CH+iHACfQjWBQbswVB2wl1crgkfRXZOOqc8=
-=XB+p
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY1eczQAKCRAw5/Bqldv6
+8pVCAJ43iW1FofsAsPLtMMAPmphPLrb+YQCgknCNaLt+z1Rby0N/lPRR3e0r9Tw=
+=H1iX
 -----END PGP SIGNATURE-----
 
---pWyiEgJYm5f9v55/--
+--f2QGlHpHGjS2mn6Y--
