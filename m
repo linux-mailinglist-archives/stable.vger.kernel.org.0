@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A6CE60D784
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 00:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6C5460D787
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 00:58:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231706AbiJYW6m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Oct 2022 18:58:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38188 "EHLO
+        id S232816AbiJYW6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Oct 2022 18:58:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232796AbiJYW6l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 18:58:41 -0400
-Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47E31CAE6C
-        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 15:58:39 -0700 (PDT)
-Received: by mail-qk1-x72c.google.com with SMTP id a5so9330679qkl.6
-        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 15:58:39 -0700 (PDT)
+        with ESMTP id S232799AbiJYW6n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Oct 2022 18:58:43 -0400
+Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 643C7D73FC
+        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 15:58:41 -0700 (PDT)
+Received: by mail-qt1-x830.google.com with SMTP id h24so8725867qta.7
+        for <stable@vger.kernel.org>; Tue, 25 Oct 2022 15:58:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jf85nKnisNf5+tzJ6jwbue0hi8jw73b+A+KidUhgRYo=;
-        b=jSHVKQ3u3ok9acS0R2d7oSNB2zh/r8adxfQQIaOQrrNl55sWRzbyGiddVen+enXRsO
-         EgI/o+cXZVLHNpAulHHknj6uI5X04jL2aMSca2uKIP2Przu4bbLN0BayRjErQTkLbMiy
-         vgxeAXFyRuDPH/xZeQkLlbjhjMh7VPLl8IO7eKJyjNr0yj3dEevqscx/oSye9h/47sN3
-         mM7xDnCMtcfOZssi8iyYKNpRWmWrW4Y0Rf+ydabiA0e8G8Vhh3GUUmPpC7A1AaIHTKVm
-         z7sZJY3c+FnliqJ0xmq2aM37Np4JfYfZu8PJMxIVYsdtGHivFyKvoU+G/iYBGxhPvqQ4
-         4RKQ==
+        bh=PdsHp2C4zbBX4rbpo9g907qvDO9EMPxJ63O7ReB2W/M=;
+        b=clrMT1ZQ0SO6so16zvyxiMrkWYb4sxIQp1ynBiQ3OdfhTP4ncNk/aFOGWPN6Bn1VtQ
+         V6Wy1Ea8q0nMTbXQLlC7hGCkuleB7w7VR2pdZp8XRpbkdW5xDtUzW4hr3FF+i4KNf6Id
+         sQBdnfmoekFNczkuF37Y5E/uA2CufL3cq0qD2qHEt4uiFOMzZ0SR5BXnQrgw1uAbqO9l
+         Wau0P0HvhSF3c64XeFgPHIeYuU87TipNW5hklR8fBeS++yAvH72KXJEJf+0EWXMSZknF
+         hYukE/9v8qP3qlrWUGjcWx9NS4+1UvsULVWcu9YSv1/cHdpEDyS1NHSK+ra8uDzO5lbn
+         tf3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jf85nKnisNf5+tzJ6jwbue0hi8jw73b+A+KidUhgRYo=;
-        b=pYb9e9LcJb4B/AqBqQohrfnug9jY3AZgJKke7hSEyjXXiQb4/g4Mh+ANomlcqTeDzq
-         0fVtOzHzDFNXnxh3TrBov2Dn/beu+IpStZizLeMTjA4Hbu0Am/k27rvvjRf9P2HXmccW
-         LZJp0TYPBCsQSxpoRgzNE1IyhrsfZ0iVxkfV9cOBsl52aKAAxdbf8TvHXqZO4JakpPf3
-         RzTBjjhRNiRmgWMF1JdWBVu65VGeWpJ870NhSvIPYHUQWuKNZxS5ANaslXXglPUNx6jS
-         bOqZjbcmFtBoBTIbL01nBpcy+IS3Fnyl9ZhlTA9KPNvLW50PEa/PUlnklCH9+udVSorf
-         3fRQ==
-X-Gm-Message-State: ACrzQf1VeJlufDBO9XIYvS3Tly5Qo2RJEV6Y9OKMAwpoVAs6c4vJZ4gl
-        oSloO8oEc37PfPjjQzaTQFSHH+M2iI4=
-X-Google-Smtp-Source: AMsMyM5NvkHZPcpVxtqwRjx6LVh//qLP9Wms/Q4O7kenRoMlmgRLVDtGELVQr7L+yD1qk6c51/J7Bw==
-X-Received: by 2002:a05:620a:290d:b0:6b6:1a92:d88a with SMTP id m13-20020a05620a290d00b006b61a92d88amr28977686qkp.58.1666738718521;
-        Tue, 25 Oct 2022 15:58:38 -0700 (PDT)
+        bh=PdsHp2C4zbBX4rbpo9g907qvDO9EMPxJ63O7ReB2W/M=;
+        b=F3WYZoxSaCm8RnbXyAnNQBLgh/t0EdxSyNxnPsTX/L2cMvHy2y+Z0hDXukICRndp9c
+         IS55JBUtdUD87vI2M3mo10BnUsBJOYigPzg61SX+fng2+wIdx5AWCEPEWGtKBFrtQAnb
+         EKUQ/YHO75l5HHfsF1B2jgXoxXWT8nE3pbYR6lOWoyD7MVvFF5jpjssgO6ECeDgwZC99
+         JK2Cq3M2Jf2vrPVVvQqdWXns0hTgcpE1FTLI17O4aFb63RzhVSkciOzP2aZm20TR+W5p
+         0vx5TYU/WEx8svwMN2bXziXsQ+iUvqJ+wJej1XN6LSafBv3F//Px+BUis+6/AlvsvQ++
+         2BPg==
+X-Gm-Message-State: ACrzQf0R9K1TWLhqypbVikqeDVNjjjKupC/bkWOhwkA6DCJp+LKjS7sq
+        a7guisX+2UnFbvpDkp6LJkEiwvZeZDo=
+X-Google-Smtp-Source: AMsMyM4R/RKTYU3hWKLIKNCqnx6kPr21HyL1MoB9tGrBdhpepJsgHHcInQeeV283lJmaaKHhvUVrDQ==
+X-Received: by 2002:a05:622a:211:b0:39c:f429:e03a with SMTP id b17-20020a05622a021100b0039cf429e03amr35269109qtx.389.1666738719991;
+        Tue, 25 Oct 2022 15:58:39 -0700 (PDT)
 Received: from mail-ash-it-01.broadcom.com ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id r12-20020ae9d60c000000b006ecdfcf9d81sm2823766qkk.84.2022.10.25.15.58.37
+        by smtp.gmail.com with ESMTPSA id r12-20020ae9d60c000000b006ecdfcf9d81sm2823766qkk.84.2022.10.25.15.58.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Oct 2022 15:58:37 -0700 (PDT)
+        Tue, 25 Oct 2022 15:58:39 -0700 (PDT)
 From:   James Smart <jsmart2021@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     jsmart2021@gmail.com, justintee8345@gmail.com,
         martin.petersen@oracle.com, gregkh@linuxfoundation.org,
         Justin Tee <justin.tee@broadcom.com>
-Subject: [PATCH 20/33] scsi: lpfc: SLI path split: Refactor SCSI paths
-Date:   Tue, 25 Oct 2022 15:57:26 -0700
-Message-Id: <20221025225739.85182-21-jsmart2021@gmail.com>
+Subject: [PATCH 21/33] scsi: lpfc: SLI path split: Refactor Abort paths
+Date:   Tue, 25 Oct 2022 15:57:27 -0700
+Message-Id: <20221025225739.85182-22-jsmart2021@gmail.com>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20221025225739.85182-1-jsmart2021@gmail.com>
 References: <20221025225739.85182-1-jsmart2021@gmail.com>
@@ -72,7 +72,17 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch refactors the SCSI paths to use SLI-4 as the primary interface.
+This patch refactors the Abort paths to use SLI-4 as the primary interface.
+
+ - Introduce generic lpfc_sli_prep_abort_xri jump table routine
+
+ - Consolidate lpfc_sli4_issue_abort_iotag and lpfc_sli_issue_abort_iotag
+   into a single generic lpfc_sli_issue_abort_iotag routine
+
+ - Consolidate lpfc_sli4_abort_fcp_cmpl and lpfc_sli_abort_fcp_cmpl into a
+   single generic lpfc_sli_abort_fcp_cmpl routine
+
+ - Remove unused routine lpfc_get_iocb_from_iocbq
 
  - Conversion away from using SLI-3 iocb structures to set/access fields in
    common routines. Use the new generic get/set routines that were added.
@@ -83,659 +93,805 @@ This patch refactors the SCSI paths to use SLI-4 as the primary interface.
    SLI4 specific sections. This replaces the set-as-SLI3 then translate to
    SLI4 behavior of the past.
 
-Link: https://lore.kernel.org/r/20220225022308.16486-14-jsmart2021@gmail.com
+Link: https://lore.kernel.org/r/20220225022308.16486-15-jsmart2021@gmail.com
 Co-developed-by: Justin Tee <justin.tee@broadcom.com>
 Signed-off-by: Justin Tee <justin.tee@broadcom.com>
 Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 ---
- drivers/scsi/lpfc/lpfc.h      |   4 +
- drivers/scsi/lpfc/lpfc_scsi.c | 374 +++++++++++++++-------------------
- drivers/scsi/lpfc/lpfc_sli.c  |   6 +-
- 3 files changed, 174 insertions(+), 210 deletions(-)
+ drivers/scsi/lpfc/lpfc.h      |  14 +-
+ drivers/scsi/lpfc/lpfc_crtn.h |   3 +
+ drivers/scsi/lpfc/lpfc_nvme.c |   5 +-
+ drivers/scsi/lpfc/lpfc_scsi.c |  12 +-
+ drivers/scsi/lpfc/lpfc_sli.c  | 382 +++++++++++++++++++---------------
+ drivers/scsi/lpfc/lpfc_sli.h  |   4 +-
+ 6 files changed, 236 insertions(+), 184 deletions(-)
 
 diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
-index 5ef33bec01ad..d5861fb764bf 100644
+index d5861fb764bf..8906dc967a4b 100644
 --- a/drivers/scsi/lpfc/lpfc.h
 +++ b/drivers/scsi/lpfc/lpfc.h
-@@ -920,6 +920,10 @@ struct lpfc_hba {
- 		(struct lpfc_vport *vport,
- 		 struct lpfc_io_buf *lpfc_cmd,
- 		 uint8_t tmo);
-+	int (*lpfc_scsi_prep_task_mgmt_cmd)
-+		(struct lpfc_vport *vport,
-+		 struct lpfc_io_buf *lpfc_cmd,
-+		 u64 lun, u8 task_mgmt_cmd);
+@@ -935,8 +935,6 @@ struct lpfc_hba {
+ 	void (*__lpfc_sli_release_iocbq)(struct lpfc_hba *,
+ 			 struct lpfc_iocbq *);
+ 	int (*lpfc_hba_down_post)(struct lpfc_hba *phba);
+-	IOCB_t * (*lpfc_get_iocb_from_iocbq)
+-		(struct lpfc_iocbq *);
+ 	void (*lpfc_scsi_cmd_iocb_cmpl)
+ 		(struct lpfc_hba *, struct lpfc_iocbq *, struct lpfc_iocbq *);
  
- 	/* IOCB interface function jump table entries */
- 	int (*__lpfc_sli_issue_iocb)
-diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
-index 5654d030ef41..4ada928ba45e 100644
---- a/drivers/scsi/lpfc/lpfc_scsi.c
-+++ b/drivers/scsi/lpfc/lpfc_scsi.c
-@@ -2942,154 +2942,58 @@ lpfc_calc_bg_err(struct lpfc_hba *phba, struct lpfc_io_buf *lpfc_cmd)
-  * -1 - Internal error (bad profile, ...etc)
-  */
- static int
--lpfc_sli4_parse_bg_err(struct lpfc_hba *phba, struct lpfc_io_buf *lpfc_cmd,
--		       struct lpfc_wcqe_complete *wcqe)
-+lpfc_parse_bg_err(struct lpfc_hba *phba, struct lpfc_io_buf *lpfc_cmd,
-+		  struct lpfc_iocbq *pIocbOut)
- {
- 	struct scsi_cmnd *cmd = lpfc_cmd->pCmd;
-+	struct sli3_bg_fields *bgf;
- 	int ret = 0;
--	u32 status = bf_get(lpfc_wcqe_c_status, wcqe);
-+	struct lpfc_wcqe_complete *wcqe;
-+	u32 status;
- 	u32 bghm = 0;
- 	u32 bgstat = 0;
- 	u64 failing_sector = 0;
+@@ -983,6 +981,9 @@ struct lpfc_hba {
+ 					   struct lpfc_dmabuf *bmp, u16 rpi,
+ 					   u16 ox_id, u32 num_entry, u8 rctl,
+ 					   u8 last_seq, u8 cr_cx_cmd);
++	void (*__lpfc_sli_prep_abort_xri)(struct lpfc_iocbq *cmdiocbq,
++					  u16 ulp_context, u16 iotag,
++					  u8 ulp_class, u16 cqid, bool ia);
  
--	if (status == CQE_STATUS_DI_ERROR) {
--		if (bf_get(lpfc_wcqe_c_bg_ge, wcqe)) /* Guard Check failed */
--			bgstat |= BGS_GUARD_ERR_MASK;
--		if (bf_get(lpfc_wcqe_c_bg_ae, wcqe)) /* AppTag Check failed */
--			bgstat |= BGS_APPTAG_ERR_MASK;
--		if (bf_get(lpfc_wcqe_c_bg_re, wcqe)) /* RefTag Check failed */
--			bgstat |= BGS_REFTAG_ERR_MASK;
--
--		/* Check to see if there was any good data before the error */
--		if (bf_get(lpfc_wcqe_c_bg_tdpv, wcqe)) {
--			bgstat |= BGS_HI_WATER_MARK_PRESENT_MASK;
--			bghm = wcqe->total_data_placed;
--		}
--
--		/*
--		 * Set ALL the error bits to indicate we don't know what
--		 * type of error it is.
--		 */
--		if (!bgstat)
--			bgstat |= (BGS_REFTAG_ERR_MASK | BGS_APPTAG_ERR_MASK |
--				BGS_GUARD_ERR_MASK);
--	}
--
--	if (lpfc_bgs_get_guard_err(bgstat)) {
--		ret = 1;
--
--		scsi_build_sense(cmd, 1, ILLEGAL_REQUEST, 0x10, 0x1);
--		set_host_byte(cmd, DID_ABORT);
--		phba->bg_guard_err_cnt++;
--		lpfc_printf_log(phba, KERN_WARNING, LOG_FCP | LOG_BG,
--				"9059 BLKGRD: Guard Tag error in cmd"
--				" 0x%x lba 0x%llx blk cnt 0x%x "
--				"bgstat=x%x bghm=x%x\n", cmd->cmnd[0],
--				(unsigned long long)scsi_get_lba(cmd),
--				scsi_logical_block_count(cmd), bgstat, bghm);
--	}
--
--	if (lpfc_bgs_get_reftag_err(bgstat)) {
--		ret = 1;
--
--		scsi_build_sense(cmd, 1, ILLEGAL_REQUEST, 0x10, 0x3);
--		set_host_byte(cmd, DID_ABORT);
--
--		phba->bg_reftag_err_cnt++;
--		lpfc_printf_log(phba, KERN_WARNING, LOG_FCP | LOG_BG,
--				"9060 BLKGRD: Ref Tag error in cmd"
--				" 0x%x lba 0x%llx blk cnt 0x%x "
--				"bgstat=x%x bghm=x%x\n", cmd->cmnd[0],
--				(unsigned long long)scsi_get_lba(cmd),
--				scsi_logical_block_count(cmd), bgstat, bghm);
--	}
-+	if (phba->sli_rev == LPFC_SLI_REV4) {
-+		wcqe = &pIocbOut->wcqe_cmpl;
-+		status = bf_get(lpfc_wcqe_c_status, wcqe);
- 
--	if (lpfc_bgs_get_apptag_err(bgstat)) {
--		ret = 1;
-+		if (status == CQE_STATUS_DI_ERROR) {
-+			/* Guard Check failed */
-+			if (bf_get(lpfc_wcqe_c_bg_ge, wcqe))
-+				bgstat |= BGS_GUARD_ERR_MASK;
- 
--		scsi_build_sense(cmd, 1, ILLEGAL_REQUEST, 0x10, 0x2);
--		set_host_byte(cmd, DID_ABORT);
-+			/* AppTag Check failed */
-+			if (bf_get(lpfc_wcqe_c_bg_ae, wcqe))
-+				bgstat |= BGS_APPTAG_ERR_MASK;
- 
--		phba->bg_apptag_err_cnt++;
--		lpfc_printf_log(phba, KERN_WARNING, LOG_FCP | LOG_BG,
--				"9062 BLKGRD: App Tag error in cmd"
--				" 0x%x lba 0x%llx blk cnt 0x%x "
--				"bgstat=x%x bghm=x%x\n", cmd->cmnd[0],
--				(unsigned long long)scsi_get_lba(cmd),
--				scsi_logical_block_count(cmd), bgstat, bghm);
--	}
-+			/* RefTag Check failed */
-+			if (bf_get(lpfc_wcqe_c_bg_re, wcqe))
-+				bgstat |= BGS_REFTAG_ERR_MASK;
- 
--	if (lpfc_bgs_get_hi_water_mark_present(bgstat)) {
--		/*
--		 * setup sense data descriptor 0 per SPC-4 as an information
--		 * field, and put the failing LBA in it.
--		 * This code assumes there was also a guard/app/ref tag error
--		 * indication.
--		 */
--		cmd->sense_buffer[7] = 0xc;   /* Additional sense length */
--		cmd->sense_buffer[8] = 0;     /* Information descriptor type */
--		cmd->sense_buffer[9] = 0xa;   /* Additional descriptor length */
--		cmd->sense_buffer[10] = 0x80; /* Validity bit */
-+			/* Check to see if there was any good data before the
-+			 * error
-+			 */
-+			if (bf_get(lpfc_wcqe_c_bg_tdpv, wcqe)) {
-+				bgstat |= BGS_HI_WATER_MARK_PRESENT_MASK;
-+				bghm = wcqe->total_data_placed;
-+			}
- 
--		/* bghm is a "on the wire" FC frame based count */
--		switch (scsi_get_prot_op(cmd)) {
--		case SCSI_PROT_READ_INSERT:
--		case SCSI_PROT_WRITE_STRIP:
--			bghm /= cmd->device->sector_size;
--			break;
--		case SCSI_PROT_READ_STRIP:
--		case SCSI_PROT_WRITE_INSERT:
--		case SCSI_PROT_READ_PASS:
--		case SCSI_PROT_WRITE_PASS:
--			bghm /= (cmd->device->sector_size +
--				sizeof(struct scsi_dif_tuple));
--			break;
-+			/*
-+			 * Set ALL the error bits to indicate we don't know what
-+			 * type of error it is.
-+			 */
-+			if (!bgstat)
-+				bgstat |= (BGS_REFTAG_ERR_MASK |
-+					   BGS_APPTAG_ERR_MASK |
-+					   BGS_GUARD_ERR_MASK);
- 		}
- 
--		failing_sector = scsi_get_lba(cmd);
--		failing_sector += bghm;
--
--		/* Descriptor Information */
--		put_unaligned_be64(failing_sector, &cmd->sense_buffer[12]);
--	}
--
--	if (!ret) {
--		/* No error was reported - problem in FW? */
--		lpfc_printf_log(phba, KERN_WARNING, LOG_FCP | LOG_BG,
--				"9068 BLKGRD: Unknown error in cmd"
--				" 0x%x lba 0x%llx blk cnt 0x%x "
--				"bgstat=x%x bghm=x%x\n", cmd->cmnd[0],
--				(unsigned long long)scsi_get_lba(cmd),
--				scsi_logical_block_count(cmd), bgstat, bghm);
--
--		/* Calculate what type of error it was */
--		lpfc_calc_bg_err(phba, lpfc_cmd);
-+	} else {
-+		bgf = &pIocbOut->iocb.unsli3.sli3_bg;
-+		bghm = bgf->bghm;
-+		bgstat = bgf->bgstat;
- 	}
--	return ret;
--}
--
--/*
-- * This function checks for BlockGuard errors detected by
-- * the HBA.  In case of errors, the ASC/ASCQ fields in the
-- * sense buffer will be set accordingly, paired with
-- * ILLEGAL_REQUEST to signal to the kernel that the HBA
-- * detected corruption.
-- *
-- * Returns:
-- *  0 - No error found
-- *  1 - BlockGuard error found
-- * -1 - Internal error (bad profile, ...etc)
-- */
--static int
--lpfc_parse_bg_err(struct lpfc_hba *phba, struct lpfc_io_buf *lpfc_cmd,
--		  struct lpfc_iocbq *pIocbOut)
--{
--	struct scsi_cmnd *cmd = lpfc_cmd->pCmd;
--	struct sli3_bg_fields *bgf = &pIocbOut->iocb.unsli3.sli3_bg;
--	int ret = 0;
--	uint32_t bghm = bgf->bghm;
--	uint32_t bgstat = bgf->bgstat;
--	uint64_t failing_sector = 0;
- 
- 	if (lpfc_bgs_get_invalid_prof(bgstat)) {
- 		cmd->result = DID_ERROR << 16;
-@@ -3117,7 +3021,6 @@ lpfc_parse_bg_err(struct lpfc_hba *phba, struct lpfc_io_buf *lpfc_cmd,
- 
- 	if (lpfc_bgs_get_guard_err(bgstat)) {
- 		ret = 1;
--
- 		scsi_build_sense(cmd, 1, ILLEGAL_REQUEST, 0x10, 0x1);
- 		set_host_byte(cmd, DID_ABORT);
- 		phba->bg_guard_err_cnt++;
-@@ -3131,10 +3034,8 @@ lpfc_parse_bg_err(struct lpfc_hba *phba, struct lpfc_io_buf *lpfc_cmd,
- 
- 	if (lpfc_bgs_get_reftag_err(bgstat)) {
- 		ret = 1;
--
- 		scsi_build_sense(cmd, 1, ILLEGAL_REQUEST, 0x10, 0x3);
- 		set_host_byte(cmd, DID_ABORT);
--
- 		phba->bg_reftag_err_cnt++;
- 		lpfc_printf_log(phba, KERN_WARNING, LOG_FCP | LOG_BG,
- 				"9056 BLKGRD: Ref Tag error in cmd "
-@@ -3146,10 +3047,8 @@ lpfc_parse_bg_err(struct lpfc_hba *phba, struct lpfc_io_buf *lpfc_cmd,
- 
- 	if (lpfc_bgs_get_apptag_err(bgstat)) {
- 		ret = 1;
--
- 		scsi_build_sense(cmd, 1, ILLEGAL_REQUEST, 0x10, 0x2);
- 		set_host_byte(cmd, DID_ABORT);
--
- 		phba->bg_apptag_err_cnt++;
- 		lpfc_printf_log(phba, KERN_WARNING, LOG_FCP | LOG_BG,
- 				"9061 BLKGRD: App Tag error in cmd "
-@@ -4194,7 +4093,6 @@ lpfc_fcp_io_cmd_wqe_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pwqeIn,
- 	struct Scsi_Host *shost;
- 	u32 logit = LOG_FCP;
- 	u32 status, idx;
--	unsigned long iflags = 0;
- 	u32 lat;
- 	u8 wait_xb_clr = 0;
- 
-@@ -4209,30 +4107,16 @@ lpfc_fcp_io_cmd_wqe_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pwqeIn,
- 	rdata = lpfc_cmd->rdata;
- 	ndlp = rdata->pnode;
- 
--	if (bf_get(lpfc_wcqe_c_xb, wcqe)) {
--		/* TOREMOVE - currently this flag is checked during
--		 * the release of lpfc_iocbq. Remove once we move
--		 * to lpfc_wqe_job construct.
--		 *
--		 * This needs to be done outside buf_lock
--		 */
--		spin_lock_irqsave(&phba->hbalock, iflags);
--		lpfc_cmd->cur_iocbq.cmd_flag |= LPFC_EXCHANGE_BUSY;
--		spin_unlock_irqrestore(&phba->hbalock, iflags);
--	}
--
--	/* Guard against abort handler being called at same time */
--	spin_lock(&lpfc_cmd->buf_lock);
--
- 	/* Sanity check on return of outstanding command */
- 	cmd = lpfc_cmd->pCmd;
- 	if (!cmd) {
- 		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
- 				 "9042 I/O completion: Not an active IO\n");
--		spin_unlock(&lpfc_cmd->buf_lock);
- 		lpfc_release_scsi_buf(phba, lpfc_cmd);
- 		return;
- 	}
-+	/* Guard against abort handler being called at same time */
-+	spin_lock(&lpfc_cmd->buf_lock);
- 	idx = lpfc_cmd->cur_iocbq.hba_wqidx;
- 	if (phba->sli4_hba.hdwq)
- 		phba->sli4_hba.hdwq[idx].scsi_cstat.io_cmpls++;
-@@ -4406,12 +4290,14 @@ lpfc_fcp_io_cmd_wqe_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pwqeIn,
- 				 * This is a response for a BG enabled
- 				 * cmd. Parse BG error
- 				 */
--				lpfc_sli4_parse_bg_err(phba, lpfc_cmd,
--						       wcqe);
-+				lpfc_parse_bg_err(phba, lpfc_cmd, pwqeOut);
- 				break;
-+			} else {
-+				lpfc_printf_vlog(vport, KERN_WARNING,
-+						 LOG_BG,
-+						 "9040 non-zero BGSTAT "
-+						 "on unprotected cmd\n");
- 			}
--			lpfc_printf_vlog(vport, KERN_WARNING, LOG_BG,
--				 "9040 non-zero BGSTAT on unprotected cmd\n");
- 		}
- 		lpfc_printf_vlog(vport, KERN_WARNING, logit,
- 				 "9036 Local Reject FCP cmd x%x failed"
-@@ -5016,7 +4902,7 @@ lpfc_scsi_prep_cmnd(struct lpfc_vport *vport, struct lpfc_io_buf *lpfc_cmd,
+ 	/* expedite pool */
+ 	struct lpfc_epd_pool epd_pool;
+@@ -1875,6 +1876,15 @@ u32 get_job_data_placed(struct lpfc_hba *phba, struct lpfc_iocbq *iocbq)
+ 		return iocbq->iocb.un.genreq64.bdl.bdeSize;
  }
  
- /**
-- * lpfc_scsi_prep_task_mgmt_cmd - Convert SLI3 scsi TM cmd to FCP info unit
-+ * lpfc_scsi_prep_task_mgmt_cmd_s3 - Convert SLI3 scsi TM cmd to FCP info unit
-  * @vport: The virtual port for which this call is being executed.
-  * @lpfc_cmd: Pointer to lpfc_io_buf data structure.
-  * @lun: Logical unit number.
-@@ -5030,10 +4916,9 @@ lpfc_scsi_prep_cmnd(struct lpfc_vport *vport, struct lpfc_io_buf *lpfc_cmd,
-  *   1 - Success
-  **/
- static int
--lpfc_scsi_prep_task_mgmt_cmd(struct lpfc_vport *vport,
--			     struct lpfc_io_buf *lpfc_cmd,
--			     uint64_t lun,
--			     uint8_t task_mgmt_cmd)
-+lpfc_scsi_prep_task_mgmt_cmd_s3(struct lpfc_vport *vport,
-+				struct lpfc_io_buf *lpfc_cmd,
-+				u64 lun, u8 task_mgmt_cmd)
- {
- 	struct lpfc_iocbq *piocbq;
- 	IOCB_t *piocb;
-@@ -5054,15 +4939,10 @@ lpfc_scsi_prep_task_mgmt_cmd(struct lpfc_vport *vport,
- 	memset(fcp_cmnd, 0, sizeof(struct fcp_cmnd));
- 	int_to_scsilun(lun, &fcp_cmnd->fcp_lun);
- 	fcp_cmnd->fcpCntl2 = task_mgmt_cmd;
--	if (vport->phba->sli_rev == 3 &&
--	    !(vport->phba->sli3_options & LPFC_SLI3_BG_ENABLED))
-+	if (!(vport->phba->sli3_options & LPFC_SLI3_BG_ENABLED))
- 		lpfc_fcpcmd_to_iocb(piocb->unsli3.fcp_ext.icd, fcp_cmnd);
- 	piocb->ulpCommand = CMD_FCP_ICMND64_CR;
- 	piocb->ulpContext = ndlp->nlp_rpi;
--	if (vport->phba->sli_rev == LPFC_SLI_REV4) {
--		piocb->ulpContext =
--		  vport->phba->sli4_hba.rpi_ids[ndlp->nlp_rpi];
--	}
- 	piocb->ulpFCP2Rcvy = (ndlp->nlp_fcp_info & NLP_FCP_2_DEVICE) ? 1 : 0;
- 	piocb->ulpClass = (ndlp->nlp_fcp_info & 0x0f);
- 	piocb->ulpPU = 0;
-@@ -5078,8 +4958,79 @@ lpfc_scsi_prep_task_mgmt_cmd(struct lpfc_vport *vport,
- 	} else
- 		piocb->ulpTimeout = lpfc_cmd->timeout;
- 
--	if (vport->phba->sli_rev == LPFC_SLI_REV4)
--		lpfc_sli4_set_rsp_sgl_last(vport->phba, lpfc_cmd);
-+	return 1;
++static inline
++u32 get_job_abtsiotag(struct lpfc_hba *phba, struct lpfc_iocbq *iocbq)
++{
++	if (phba->sli_rev == LPFC_SLI_REV4)
++		return iocbq->wqe.abort_cmd.wqe_com.abort_tag;
++	else
++		return iocbq->iocb.un.acxri.abortIoTag;
 +}
 +
-+/**
-+ * lpfc_scsi_prep_task_mgmt_cmd_s4 - Convert SLI4 scsi TM cmd to FCP info unit
-+ * @vport: The virtual port for which this call is being executed.
-+ * @lpfc_cmd: Pointer to lpfc_io_buf data structure.
-+ * @lun: Logical unit number.
-+ * @task_mgmt_cmd: SCSI task management command.
-+ *
-+ * This routine creates FCP information unit corresponding to @task_mgmt_cmd
-+ * for device with SLI-4 interface spec.
-+ *
-+ * Return codes:
-+ *   0 - Error
-+ *   1 - Success
-+ **/
-+static int
-+lpfc_scsi_prep_task_mgmt_cmd_s4(struct lpfc_vport *vport,
-+				struct lpfc_io_buf *lpfc_cmd,
-+				u64 lun, u8 task_mgmt_cmd)
+ static inline
+ u32 get_job_els_rsp64_did(struct lpfc_hba *phba, struct lpfc_iocbq *iocbq)
+ {
+diff --git a/drivers/scsi/lpfc/lpfc_crtn.h b/drivers/scsi/lpfc/lpfc_crtn.h
+index 2e30a63c665b..6f69dfc82096 100644
+--- a/drivers/scsi/lpfc/lpfc_crtn.h
++++ b/drivers/scsi/lpfc/lpfc_crtn.h
+@@ -365,6 +365,9 @@ void lpfc_sli_prep_xmit_seq64(struct lpfc_hba *phba,
+ 			      struct lpfc_dmabuf *bmp, u16 rpi, u16 ox_id,
+ 			      u32 num_entry, u8 rctl, u8 last_seq,
+ 			      u8 cr_cx_cmd);
++void lpfc_sli_prep_abort_xri(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocbq,
++			     u16 ulp_context, u16 iotag, u8 ulp_class, u16 cqid,
++			     bool ia);
+ struct lpfc_sglq *__lpfc_clear_active_sglq(struct lpfc_hba *phba, uint16_t xri);
+ struct lpfc_sglq *__lpfc_sli_get_nvmet_sglq(struct lpfc_hba *phba,
+ 					    struct lpfc_iocbq *piocbq);
+diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+index c74b2187dbad..d1264ed60b6e 100644
+--- a/drivers/scsi/lpfc/lpfc_nvme.c
++++ b/drivers/scsi/lpfc/lpfc_nvme.c
+@@ -1753,9 +1753,8 @@ lpfc_nvme_abort_fcreq_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 			"6145 ABORT_XRI_CN completing on rpi x%x "
+ 			"original iotag x%x, abort cmd iotag x%x "
+ 			"req_tag x%x, status x%x, hwstatus x%x\n",
+-			cmdiocb->iocb.un.acxri.abortContextTag,
+-			cmdiocb->iocb.un.acxri.abortIoTag,
+-			cmdiocb->iotag,
++			bf_get(wqe_ctxt_tag, &cmdiocb->wqe.generic.wqe_com),
++			get_job_abtsiotag(phba, cmdiocb), cmdiocb->iotag,
+ 			bf_get(lpfc_wcqe_c_request_tag, abts_cmpl),
+ 			bf_get(lpfc_wcqe_c_status, abts_cmpl),
+ 			bf_get(lpfc_wcqe_c_hw_status, abts_cmpl));
+diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
+index 4ada928ba45e..c7505e57d5ff 100644
+--- a/drivers/scsi/lpfc/lpfc_scsi.c
++++ b/drivers/scsi/lpfc/lpfc_scsi.c
+@@ -5925,15 +5925,13 @@ lpfc_abort_handler(struct scsi_cmnd *cmnd)
+ 	}
+ 
+ 	lpfc_cmd->waitq = &waitq;
+-	if (phba->sli_rev == LPFC_SLI_REV4) {
++	if (phba->sli_rev == LPFC_SLI_REV4)
+ 		spin_unlock(&pring_s4->ring_lock);
+-		ret_val = lpfc_sli4_issue_abort_iotag(phba, iocb,
+-						      lpfc_sli4_abort_fcp_cmpl);
+-	} else {
++	else
+ 		pring = &phba->sli.sli3_ring[LPFC_FCP_RING];
+-		ret_val = lpfc_sli_issue_abort_iotag(phba, pring, iocb,
+-						     lpfc_sli_abort_fcp_cmpl);
+-	}
++
++	ret_val = lpfc_sli_issue_abort_iotag(phba, pring, iocb,
++					     lpfc_sli_abort_fcp_cmpl);
+ 
+ 	/* Make sure HBA is alive */
+ 	lpfc_issue_hb_tmo(phba);
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 7b17d6c4cffa..b1476c8fe8e4 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -98,12 +98,6 @@ union lpfc_wqe128 lpfc_iread_cmd_template;
+ union lpfc_wqe128 lpfc_iwrite_cmd_template;
+ union lpfc_wqe128 lpfc_icmnd_cmd_template;
+ 
+-static IOCB_t *
+-lpfc_get_iocb_from_iocbq(struct lpfc_iocbq *iocbq)
+-{
+-	return &iocbq->iocb;
+-}
+-
+ /* Setup WQE templates for IOs */
+ void lpfc_wqe_cmd_template(void)
+ {
+@@ -1727,20 +1721,18 @@ static int
+ lpfc_sli_ringtxcmpl_put(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 			struct lpfc_iocbq *piocb)
+ {
+-	if (phba->sli_rev == LPFC_SLI_REV4)
+-		lockdep_assert_held(&pring->ring_lock);
+-	else
+-		lockdep_assert_held(&phba->hbalock);
++	u32 ulp_command = 0;
+ 
+ 	BUG_ON(!piocb);
++	ulp_command = get_job_cmnd(phba, piocb);
+ 
+ 	list_add_tail(&piocb->list, &pring->txcmplq);
+ 	piocb->cmd_flag |= LPFC_IO_ON_TXCMPLQ;
+ 	pring->txcmplq_cnt++;
+-
+ 	if ((unlikely(pring->ringno == LPFC_ELS_RING)) &&
+-	   (piocb->iocb.ulpCommand != CMD_ABORT_XRI_CN) &&
+-	   (piocb->iocb.ulpCommand != CMD_CLOSE_XRI_CN)) {
++	   (ulp_command != CMD_ABORT_XRI_WQE) &&
++	   (ulp_command != CMD_ABORT_XRI_CN) &&
++	   (ulp_command != CMD_CLOSE_XRI_CN)) {
+ 		BUG_ON(!piocb->vport);
+ 		if (!(piocb->vport->load_flag & FC_UNLOADING))
+ 			mod_timer(&piocb->vport->els_tmofunc,
+@@ -10855,6 +10847,77 @@ lpfc_sli_prep_xmit_seq64(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocbq,
+ 					 rctl, last_seq, cr_cx_cmd);
+ }
+ 
++static void
++__lpfc_sli_prep_abort_xri_s3(struct lpfc_iocbq *cmdiocbq, u16 ulp_context,
++			     u16 iotag, u8 ulp_class, u16 cqid, bool ia)
 +{
-+	struct lpfc_iocbq *pwqeq = &lpfc_cmd->cur_iocbq;
-+	union lpfc_wqe128 *wqe = &pwqeq->wqe;
-+	struct fcp_cmnd *fcp_cmnd;
-+	struct lpfc_rport_data *rdata = lpfc_cmd->rdata;
-+	struct lpfc_nodelist *ndlp = rdata->pnode;
++	IOCB_t *icmd = NULL;
 +
-+	if (!ndlp || ndlp->nlp_state != NLP_STE_MAPPED_NODE)
-+		return 0;
++	icmd = &cmdiocbq->iocb;
++	memset(icmd, 0, sizeof(*icmd));
 +
-+	pwqeq->vport = vport;
-+	/* Initialize 64 bytes only */
-+	memset(wqe, 0, sizeof(union lpfc_wqe128));
++	/* Word 5 */
++	icmd->un.acxri.abortContextTag = ulp_context;
++	icmd->un.acxri.abortIoTag = iotag;
 +
-+	/* From the icmnd template, initialize words 4 - 11 */
-+	memcpy(&wqe->words[4], &lpfc_icmnd_cmd_template.words[4],
-+	       sizeof(uint32_t) * 8);
-+
-+	fcp_cmnd = lpfc_cmd->fcp_cmnd;
-+	/* Clear out any old data in the FCP command area */
-+	memset(fcp_cmnd, 0, sizeof(struct fcp_cmnd));
-+	int_to_scsilun(lun, &fcp_cmnd->fcp_lun);
-+	fcp_cmnd->fcpCntl3 = 0;
-+	fcp_cmnd->fcpCntl2 = task_mgmt_cmd;
-+
-+	bf_set(payload_offset_len, &wqe->fcp_icmd,
-+	       sizeof(struct fcp_cmnd) + sizeof(struct fcp_rsp));
-+	bf_set(cmd_buff_len, &wqe->fcp_icmd, 0);
-+	bf_set(wqe_ctxt_tag, &wqe->generic.wqe_com,  /* ulpContext */
-+	       vport->phba->sli4_hba.rpi_ids[ndlp->nlp_rpi]);
-+	bf_set(wqe_erp, &wqe->fcp_icmd.wqe_com,
-+	       ((ndlp->nlp_fcp_info & NLP_FCP_2_DEVICE) ? 1 : 0));
-+	bf_set(wqe_class, &wqe->fcp_icmd.wqe_com,
-+	       (ndlp->nlp_fcp_info & 0x0f));
-+
-+	/* ulpTimeout is only one byte */
-+	if (lpfc_cmd->timeout > 0xff) {
-+		/*
-+		 * Do not timeout the command at the firmware level.
-+		 * The driver will provide the timeout mechanism.
-+		 */
-+		bf_set(wqe_tmo, &wqe->fcp_icmd.wqe_com, 0);
++	if (ia) {
++		/* Word 7 */
++		icmd->ulpCommand = CMD_CLOSE_XRI_CN;
 +	} else {
-+		bf_set(wqe_tmo, &wqe->fcp_icmd.wqe_com, lpfc_cmd->timeout);
++		/* Word 3 */
++		icmd->un.acxri.abortType = ABORT_TYPE_ABTS;
++
++		/* Word 7 */
++		icmd->ulpClass = ulp_class;
++		icmd->ulpCommand = CMD_ABORT_XRI_CN;
 +	}
 +
-+	lpfc_prep_embed_io(vport->phba, lpfc_cmd);
-+	bf_set(wqe_xri_tag, &wqe->generic.wqe_com, pwqeq->sli4_xritag);
-+	wqe->generic.wqe_com.abort_tag = pwqeq->iotag;
-+	bf_set(wqe_reqtag, &wqe->generic.wqe_com, pwqeq->iotag);
++	/* Word 7 */
++	icmd->ulpLe = 1;
++}
 +
-+	lpfc_sli4_set_rsp_sgl_last(vport->phba, lpfc_cmd);
- 
- 	return 1;
- }
-@@ -5106,6 +5057,8 @@ lpfc_scsi_api_table_setup(struct lpfc_hba *phba, uint8_t dev_grp)
- 		phba->lpfc_release_scsi_buf = lpfc_release_scsi_buf_s3;
- 		phba->lpfc_get_scsi_buf = lpfc_get_scsi_buf_s3;
- 		phba->lpfc_scsi_prep_cmnd_buf = lpfc_scsi_prep_cmnd_buf_s3;
-+		phba->lpfc_scsi_prep_task_mgmt_cmd =
-+					lpfc_scsi_prep_task_mgmt_cmd_s3;
++static void
++__lpfc_sli_prep_abort_xri_s4(struct lpfc_iocbq *cmdiocbq, u16 ulp_context,
++			     u16 iotag, u8 ulp_class, u16 cqid, bool ia)
++{
++	union lpfc_wqe128 *wqe;
++
++	wqe = &cmdiocbq->wqe;
++	memset(wqe, 0, sizeof(*wqe));
++
++	/* Word 3 */
++	bf_set(abort_cmd_criteria, &wqe->abort_cmd, T_XRI_TAG);
++	if (ia)
++		bf_set(abort_cmd_ia, &wqe->abort_cmd, 1);
++	else
++		bf_set(abort_cmd_ia, &wqe->abort_cmd, 0);
++
++	/* Word 7 */
++	bf_set(wqe_cmnd, &wqe->abort_cmd.wqe_com, CMD_ABORT_XRI_WQE);
++
++	/* Word 8 */
++	wqe->abort_cmd.wqe_com.abort_tag = ulp_context;
++
++	/* Word 9 */
++	bf_set(wqe_reqtag, &wqe->abort_cmd.wqe_com, iotag);
++
++	/* Word 10 */
++	bf_set(wqe_qosd, &wqe->abort_cmd.wqe_com, 1);
++
++	/* Word 11 */
++	bf_set(wqe_cqid, &wqe->abort_cmd.wqe_com, cqid);
++	bf_set(wqe_cmd_type, &wqe->abort_cmd.wqe_com, OTHER_COMMAND);
++}
++
++void
++lpfc_sli_prep_abort_xri(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocbq,
++			u16 ulp_context, u16 iotag, u8 ulp_class, u16 cqid,
++			bool ia)
++{
++	phba->__lpfc_sli_prep_abort_xri(cmdiocbq, ulp_context, iotag, ulp_class,
++					cqid, ia);
++}
++
+ /**
+  * lpfc_sli_api_table_setup - Set up sli api function jump table
+  * @phba: The hba struct for which this call is being executed.
+@@ -10876,6 +10939,7 @@ lpfc_sli_api_table_setup(struct lpfc_hba *phba, uint8_t dev_grp)
+ 		phba->__lpfc_sli_prep_els_req_rsp = __lpfc_sli_prep_els_req_rsp_s3;
+ 		phba->__lpfc_sli_prep_gen_req = __lpfc_sli_prep_gen_req_s3;
+ 		phba->__lpfc_sli_prep_xmit_seq64 = __lpfc_sli_prep_xmit_seq64_s3;
++		phba->__lpfc_sli_prep_abort_xri = __lpfc_sli_prep_abort_xri_s3;
  		break;
  	case LPFC_PCI_DEV_OC:
- 		phba->lpfc_scsi_prep_dma_buf = lpfc_scsi_prep_dma_buf_s4;
-@@ -5113,6 +5066,8 @@ lpfc_scsi_api_table_setup(struct lpfc_hba *phba, uint8_t dev_grp)
- 		phba->lpfc_release_scsi_buf = lpfc_release_scsi_buf_s4;
- 		phba->lpfc_get_scsi_buf = lpfc_get_scsi_buf_s4;
- 		phba->lpfc_scsi_prep_cmnd_buf = lpfc_scsi_prep_cmnd_buf_s4;
-+		phba->lpfc_scsi_prep_task_mgmt_cmd =
-+					lpfc_scsi_prep_task_mgmt_cmd_s4;
+ 		phba->__lpfc_sli_issue_iocb = __lpfc_sli_issue_iocb_s4;
+@@ -10884,6 +10948,7 @@ lpfc_sli_api_table_setup(struct lpfc_hba *phba, uint8_t dev_grp)
+ 		phba->__lpfc_sli_prep_els_req_rsp = __lpfc_sli_prep_els_req_rsp_s4;
+ 		phba->__lpfc_sli_prep_gen_req = __lpfc_sli_prep_gen_req_s4;
+ 		phba->__lpfc_sli_prep_xmit_seq64 = __lpfc_sli_prep_xmit_seq64_s4;
++		phba->__lpfc_sli_prep_abort_xri = __lpfc_sli_prep_abort_xri_s4;
  		break;
  	default:
  		lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
-@@ -5591,6 +5546,7 @@ lpfc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *cmnd)
+@@ -10891,7 +10956,6 @@ lpfc_sli_api_table_setup(struct lpfc_hba *phba, uint8_t dev_grp)
+ 				dev_grp);
+ 		return -ENODEV;
+ 	}
+-	phba->lpfc_get_iocb_from_iocbq = lpfc_get_iocb_from_iocbq;
+ 	return 0;
+ }
+ 
+@@ -11091,8 +11155,8 @@ lpfc_sli_abts_err_handler(struct lpfc_hba *phba,
+ 	lpfc_printf_log(phba, KERN_INFO, LOG_SLI,
+ 			"3095 Event Context not found, no "
+ 			"action on vpi %d rpi %d status 0x%x, reason 0x%x\n",
+-			iocbq->iocb.ulpContext, iocbq->iocb.ulpStatus,
+-			vpi, rpi);
++			vpi, rpi, iocbq->iocb.ulpStatus,
++			iocbq->iocb.ulpContext);
+ }
+ 
+ /* lpfc_sli4_abts_err_handler - handle a failed ABTS request from an SLI4 port.
+@@ -11940,47 +12004,33 @@ static void
+ lpfc_sli_abort_els_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 			struct lpfc_iocbq *rspiocb)
  {
- 	struct lpfc_vport *vport = (struct lpfc_vport *) shost->hostdata;
- 	struct lpfc_hba   *phba = vport->phba;
-+	struct lpfc_iocbq *cur_iocbq = NULL;
- 	struct lpfc_rport_data *rdata;
- 	struct lpfc_nodelist *ndlp;
- 	struct lpfc_io_buf *lpfc_cmd;
-@@ -5684,6 +5640,7 @@ lpfc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *cmnd)
- 	}
- 	lpfc_cmd->rx_cmd_start = start;
- 
-+	cur_iocbq = &lpfc_cmd->cur_iocbq;
- 	/*
- 	 * Store the midlayer's command structure for the completion phase
- 	 * and complete the command initialization.
-@@ -5691,7 +5648,7 @@ lpfc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *cmnd)
- 	lpfc_cmd->pCmd  = cmnd;
- 	lpfc_cmd->rdata = rdata;
- 	lpfc_cmd->ndlp = ndlp;
--	lpfc_cmd->cur_iocbq.cmd_cmpl = NULL;
-+	cur_iocbq->cmd_cmpl = NULL;
- 	cmnd->host_scribble = (unsigned char *)lpfc_cmd;
- 
- 	err = lpfc_scsi_prep_cmnd(vport, lpfc_cmd, ndlp);
-@@ -5733,7 +5690,6 @@ lpfc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *cmnd)
- 		goto out_host_busy_free_buf;
- 	}
- 
+-	IOCB_t *irsp = &rspiocb->iocb;
+-	uint16_t abort_iotag, abort_context;
+-	struct lpfc_iocbq *abort_iocb = NULL;
 -
- 	/* check the necessary and sufficient condition to support VMID */
- 	if (lpfc_is_vmid_enabled(phba) &&
- 	    (ndlp->vmid_support ||
-@@ -5746,20 +5702,19 @@ lpfc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *cmnd)
- 		if (uuid) {
- 			err = lpfc_vmid_get_appid(vport, uuid, cmnd,
- 				(union lpfc_vmid_io_tag *)
--					&lpfc_cmd->cur_iocbq.vmid_tag);
-+					&cur_iocbq->vmid_tag);
- 			if (!err)
--				lpfc_cmd->cur_iocbq.cmd_flag |= LPFC_IO_VMID;
-+				cur_iocbq->cmd_flag |= LPFC_IO_VMID;
+-	if (irsp->ulpStatus) {
++	u32 ulp_status = get_job_ulpstatus(phba, rspiocb);
++	u32 ulp_word4 = get_job_word4(phba, rspiocb);
++	u8 cmnd = get_job_cmnd(phba, cmdiocb);
+ 
++	if (ulp_status) {
+ 		/*
+ 		 * Assume that the port already completed and returned, or
+ 		 * will return the iocb. Just Log the message.
+ 		 */
+-		abort_context = cmdiocb->iocb.un.acxri.abortContextTag;
+-		abort_iotag = cmdiocb->iocb.un.acxri.abortIoTag;
+-
+-		spin_lock_irq(&phba->hbalock);
+ 		if (phba->sli_rev < LPFC_SLI_REV4) {
+-			if (irsp->ulpCommand == CMD_ABORT_XRI_CX &&
+-			    irsp->ulpStatus == IOSTAT_LOCAL_REJECT &&
+-			    irsp->un.ulpWord[4] == IOERR_ABORT_REQUESTED) {
+-				spin_unlock_irq(&phba->hbalock);
++			if (cmnd == CMD_ABORT_XRI_CX &&
++			    ulp_status == IOSTAT_LOCAL_REJECT &&
++			    ulp_word4 == IOERR_ABORT_REQUESTED) {
+ 				goto release_iocb;
+ 			}
+-			if (abort_iotag != 0 &&
+-				abort_iotag <= phba->sli.last_iotag)
+-				abort_iocb =
+-					phba->sli.iocbq_lookup[abort_iotag];
+-		} else
+-			/* For sli4 the abort_tag is the XRI,
+-			 * so the abort routine puts the iotag  of the iocb
+-			 * being aborted in the context field of the abort
+-			 * IOCB.
+-			 */
+-			abort_iocb = phba->sli.iocbq_lookup[abort_context];
++		}
+ 
+ 		lpfc_printf_log(phba, KERN_WARNING, LOG_ELS | LOG_SLI,
+ 				"0327 Cannot abort els iocb x%px "
+-				"with tag %x context %x, abort status %x, "
+-				"abort code %x\n",
+-				abort_iocb, abort_iotag, abort_context,
+-				irsp->ulpStatus, irsp->un.ulpWord[4]);
++				"with io cmd xri %x abort tag : x%x, "
++				"abort status %x abort code %x\n",
++				cmdiocb, get_job_abtsiotag(phba, cmdiocb),
++				(phba->sli_rev == LPFC_SLI_REV4) ?
++				get_wqe_reqtag(cmdiocb) :
++				cmdiocb->iocb.un.acxri.abortContextTag,
++				ulp_status, ulp_word4);
+ 
+-		spin_unlock_irq(&phba->hbalock);
+ 	}
+ release_iocb:
+ 	lpfc_sli_release_iocbq(phba, cmdiocb);
+@@ -12059,20 +12109,21 @@ lpfc_sli_issue_abort_iotag(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ {
+ 	struct lpfc_vport *vport = cmdiocb->vport;
+ 	struct lpfc_iocbq *abtsiocbp;
+-	IOCB_t *icmd = NULL;
+-	IOCB_t *iabt = NULL;
+ 	int retval = IOCB_ERROR;
+ 	unsigned long iflags;
+-	struct lpfc_nodelist *ndlp;
++	struct lpfc_nodelist *ndlp = NULL;
++	u32 ulp_command = get_job_cmnd(phba, cmdiocb);
++	u16 ulp_context, iotag;
++	bool ia;
+ 
+ 	/*
+ 	 * There are certain command types we don't want to abort.  And we
+ 	 * don't want to abort commands that are already in the process of
+ 	 * being aborted.
+ 	 */
+-	icmd = &cmdiocb->iocb;
+-	if (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
+-	    icmd->ulpCommand == CMD_CLOSE_XRI_CN ||
++	if (ulp_command == CMD_ABORT_XRI_WQE ||
++	    ulp_command == CMD_ABORT_XRI_CN ||
++	    ulp_command == CMD_CLOSE_XRI_CN ||
+ 	    cmdiocb->cmd_flag & LPFC_DRIVER_ABORTED)
+ 		return IOCB_ABORTING;
+ 
+@@ -12107,37 +12158,40 @@ lpfc_sli_issue_abort_iotag(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 	 */
+ 	cmdiocb->cmd_flag |= LPFC_DRIVER_ABORTED;
+ 
+-	iabt = &abtsiocbp->iocb;
+-	iabt->un.acxri.abortType = ABORT_TYPE_ABTS;
+-	iabt->un.acxri.abortContextTag = icmd->ulpContext;
+ 	if (phba->sli_rev == LPFC_SLI_REV4) {
+-		iabt->un.acxri.abortIoTag = cmdiocb->sli4_xritag;
+-		if (pring->ringno == LPFC_ELS_RING)
+-			iabt->un.acxri.abortContextTag = cmdiocb->iotag;
++		ulp_context = cmdiocb->sli4_xritag;
++		iotag = abtsiocbp->iotag;
+ 	} else {
+-		iabt->un.acxri.abortIoTag = icmd->ulpIoTag;
++		iotag = cmdiocb->iocb.ulpIoTag;
+ 		if (pring->ringno == LPFC_ELS_RING) {
+ 			ndlp = (struct lpfc_nodelist *)(cmdiocb->context1);
+-			iabt->un.acxri.abortContextTag = ndlp->nlp_rpi;
++			ulp_context = ndlp->nlp_rpi;
++		} else {
++			ulp_context = cmdiocb->iocb.ulpContext;
  		}
  	}
--
- 	atomic_inc(&ndlp->cmd_pending);
+-	iabt->ulpLe = 1;
+-	iabt->ulpClass = icmd->ulpClass;
 +
- #ifdef CONFIG_SCSI_LPFC_DEBUG_FS
- 	if (unlikely(phba->hdwqstat_on & LPFC_CHECK_SCSI_IO))
- 		this_cpu_inc(phba->sli4_hba.c_stat->xmt_io);
- #endif
- 	/* Issue I/O to adapter */
--	err = lpfc_sli_issue_fcp_io(phba, LPFC_FCP_RING,
--				    &lpfc_cmd->cur_iocbq,
-+	err = lpfc_sli_issue_fcp_io(phba, LPFC_FCP_RING, cur_iocbq,
- 				    SLI_IOCB_RET_IOCB);
- #ifdef CONFIG_SCSI_LPFC_DEBUG_FS
- 	if (start) {
-@@ -5772,25 +5727,25 @@ lpfc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *cmnd)
- #endif
- 	if (err) {
- 		lpfc_printf_vlog(vport, KERN_INFO, LOG_FCP,
--				   "3376 FCP could not issue IOCB err %x "
--				   "FCP cmd x%x <%d/%llu> "
--				   "sid: x%x did: x%x oxid: x%x "
--				   "Data: x%x x%x x%x x%x\n",
--				   err, cmnd->cmnd[0],
--				   cmnd->device ? cmnd->device->id : 0xffff,
--				   cmnd->device ? cmnd->device->lun : (u64)-1,
--				   vport->fc_myDID, ndlp->nlp_DID,
--				   phba->sli_rev == LPFC_SLI_REV4 ?
--				   lpfc_cmd->cur_iocbq.sli4_xritag : 0xffff,
--				   phba->sli_rev == LPFC_SLI_REV4 ?
--				   phba->sli4_hba.rpi_ids[ndlp->nlp_rpi] :
--				   lpfc_cmd->cur_iocbq.iocb.ulpContext,
--				   lpfc_cmd->cur_iocbq.iotag,
--				   phba->sli_rev == LPFC_SLI_REV4 ?
--				   bf_get(wqe_tmo,
--				   &lpfc_cmd->cur_iocbq.wqe.generic.wqe_com) :
--				   lpfc_cmd->cur_iocbq.iocb.ulpTimeout,
--				   (uint32_t)(scsi_cmd_to_rq(cmnd)->timeout / 1000));
-+				 "3376 FCP could not issue iocb err %x "
-+				 "FCP cmd x%x <%d/%llu> "
-+				 "sid: x%x did: x%x oxid: x%x "
-+				 "Data: x%x x%x x%x x%x\n",
-+				 err, cmnd->cmnd[0],
-+				 cmnd->device ? cmnd->device->id : 0xffff,
-+				 cmnd->device ? cmnd->device->lun : (u64)-1,
-+				 vport->fc_myDID, ndlp->nlp_DID,
-+				 phba->sli_rev == LPFC_SLI_REV4 ?
-+				 cur_iocbq->sli4_xritag : 0xffff,
-+				 phba->sli_rev == LPFC_SLI_REV4 ?
-+				 phba->sli4_hba.rpi_ids[ndlp->nlp_rpi] :
-+				 cur_iocbq->iocb.ulpContext,
-+				 cur_iocbq->iotag,
-+				 phba->sli_rev == LPFC_SLI_REV4 ?
-+				 bf_get(wqe_tmo,
-+					&cur_iocbq->wqe.generic.wqe_com) :
-+				 cur_iocbq->iocb.ulpTimeout,
-+				 (uint32_t)(scsi_cmd_to_rq(cmnd)->timeout / 1000));
++	if (phba->link_state < LPFC_LINK_UP ||
++	    (phba->sli_rev == LPFC_SLI_REV4 &&
++	     phba->sli4_hba.link_state.status == LPFC_FC_LA_TYPE_LINK_DOWN))
++		ia = true;
++	else
++		ia = false;
++
++	lpfc_sli_prep_abort_xri(phba, abtsiocbp, ulp_context, iotag,
++				cmdiocb->iocb.ulpClass,
++				LPFC_WQE_CQ_ID_DEFAULT, ia);
++
++	abtsiocbp->vport = vport;
  
- 		goto out_host_busy_free_buf;
- 	}
-@@ -6167,7 +6122,7 @@ lpfc_send_taskmgmt(struct lpfc_vport *vport, struct scsi_cmnd *cmnd,
- 		return FAILED;
- 	pnode = rdata->pnode;
+ 	/* ABTS WQE must go to the same WQ as the WQE to be aborted */
+ 	abtsiocbp->hba_wqidx = cmdiocb->hba_wqidx;
+ 	if (cmdiocb->cmd_flag & LPFC_IO_FCP)
+ 		abtsiocbp->cmd_flag |= (LPFC_IO_FCP | LPFC_USE_FCPWQIDX);
++
+ 	if (cmdiocb->cmd_flag & LPFC_IO_FOF)
+ 		abtsiocbp->cmd_flag |= LPFC_IO_FOF;
  
--	lpfc_cmd = lpfc_get_scsi_buf(phba, pnode, NULL);
-+	lpfc_cmd = lpfc_get_scsi_buf(phba, rdata->pnode, NULL);
- 	if (lpfc_cmd == NULL)
- 		return FAILED;
- 	lpfc_cmd->timeout = phba->cfg_task_mgmt_tmo;
-@@ -6175,8 +6130,8 @@ lpfc_send_taskmgmt(struct lpfc_vport *vport, struct scsi_cmnd *cmnd,
- 	lpfc_cmd->pCmd = cmnd;
- 	lpfc_cmd->ndlp = pnode;
+-	if (phba->link_state < LPFC_LINK_UP ||
+-	    (phba->sli_rev == LPFC_SLI_REV4 &&
+-	     phba->sli4_hba.link_state.status == LPFC_FC_LA_TYPE_LINK_DOWN))
+-		iabt->ulpCommand = CMD_CLOSE_XRI_CN;
+-	else
+-		iabt->ulpCommand = CMD_ABORT_XRI_CN;
+-
+ 	if (cmpl)
+ 		abtsiocbp->cmd_cmpl = cmpl;
+ 	else
+@@ -12161,12 +12215,12 @@ lpfc_sli_issue_abort_iotag(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ abort_iotag_exit:
  
--	status = lpfc_scsi_prep_task_mgmt_cmd(vport, lpfc_cmd, lun_id,
--					   task_mgmt_cmd);
-+	status = phba->lpfc_scsi_prep_task_mgmt_cmd(vport, lpfc_cmd, lun_id,
-+						    task_mgmt_cmd);
- 	if (!status) {
- 		lpfc_release_scsi_buf(phba, lpfc_cmd);
- 		return FAILED;
-@@ -6189,6 +6144,7 @@ lpfc_send_taskmgmt(struct lpfc_vport *vport, struct scsi_cmnd *cmnd,
- 		return FAILED;
- 	}
- 	iocbq->cmd_cmpl = lpfc_tskmgmt_def_cmpl;
-+	iocbq->vport = vport;
+ 	lpfc_printf_vlog(vport, KERN_INFO, LOG_SLI,
+-			 "0339 Abort xri x%x, original iotag x%x, "
+-			 "abort cmd iotag x%x retval x%x\n",
+-			 iabt->un.acxri.abortIoTag,
+-			 iabt->un.acxri.abortContextTag,
+-			 abtsiocbp->iotag, retval);
+-
++			 "0339 Abort IO XRI x%x, Original iotag x%x, "
++			 "abort tag x%x Cmdjob : x%px Abortjob : x%px "
++			 "retval x%x\n",
++			 ulp_context, (phba->sli_rev == LPFC_SLI_REV4) ?
++			 cmdiocb->iotag : iotag, iotag, cmdiocb, abtsiocbp,
++			 retval);
+ 	if (retval) {
+ 		cmdiocb->cmd_flag &= ~LPFC_DRIVER_ABORTED;
+ 		__lpfc_sli_release_iocbq(phba, abtsiocbp);
+@@ -12226,7 +12280,7 @@ static int
+ lpfc_sli_validate_fcp_iocb_for_abort(struct lpfc_iocbq *iocbq,
+ 				     struct lpfc_vport *vport)
+ {
+-	IOCB_t *icmd = NULL;
++	u8 ulp_command;
  
- 	lpfc_printf_vlog(vport, KERN_INFO, LOG_FCP,
- 			 "0702 Issue %s to TGT %d LUN %llu "
-@@ -6200,26 +6156,28 @@ lpfc_send_taskmgmt(struct lpfc_vport *vport, struct scsi_cmnd *cmnd,
- 	status = lpfc_sli_issue_iocb_wait(phba, LPFC_FCP_RING,
- 					  iocbq, iocbqrsp, lpfc_cmd->timeout);
- 	if ((status != IOCB_SUCCESS) ||
--	    (iocbqrsp->iocb.ulpStatus != IOSTAT_SUCCESS)) {
-+	    (get_job_ulpstatus(phba, iocbqrsp) != IOSTAT_SUCCESS)) {
- 		if (status != IOCB_SUCCESS ||
--		    iocbqrsp->iocb.ulpStatus != IOSTAT_FCP_RSP_ERROR)
-+		    get_job_ulpstatus(phba, iocbqrsp) != IOSTAT_FCP_RSP_ERROR)
- 			lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
- 					 "0727 TMF %s to TGT %d LUN %llu "
- 					 "failed (%d, %d) cmd_flag x%x\n",
- 					 lpfc_taskmgmt_name(task_mgmt_cmd),
- 					 tgt_id, lun_id,
--					 iocbqrsp->iocb.ulpStatus,
--					 iocbqrsp->iocb.un.ulpWord[4],
-+					 get_job_ulpstatus(phba, iocbqrsp),
-+					 get_job_word4(phba, iocbqrsp),
- 					 iocbq->cmd_flag);
- 		/* if ulpStatus != IOCB_SUCCESS, then status == IOCB_SUCCESS */
- 		if (status == IOCB_SUCCESS) {
--			if (iocbqrsp->iocb.ulpStatus == IOSTAT_FCP_RSP_ERROR)
-+			if (get_job_ulpstatus(phba, iocbqrsp) ==
-+			    IOSTAT_FCP_RSP_ERROR)
- 				/* Something in the FCP_RSP was invalid.
- 				 * Check conditions */
- 				ret = lpfc_check_fcp_rsp(vport, lpfc_cmd);
- 			else
- 				ret = FAILED;
--		} else if (status == IOCB_TIMEDOUT) {
-+		} else if ((status == IOCB_TIMEDOUT) ||
-+			   (status == IOCB_ABORTED)) {
- 			ret = TIMEOUT_ERROR;
- 		} else {
- 			ret = FAILED;
-@@ -6229,7 +6187,7 @@ lpfc_send_taskmgmt(struct lpfc_vport *vport, struct scsi_cmnd *cmnd,
+ 	/* No null ptr vports */
+ 	if (!iocbq || iocbq->vport != vport)
+@@ -12235,12 +12289,13 @@ lpfc_sli_validate_fcp_iocb_for_abort(struct lpfc_iocbq *iocbq,
+ 	/* iocb must be for FCP IO, already exists on the TX cmpl queue,
+ 	 * can't be premarked as driver aborted, nor be an ABORT iocb itself
+ 	 */
+-	icmd = &iocbq->iocb;
++	ulp_command = get_job_cmnd(vport->phba, iocbq);
+ 	if (!(iocbq->cmd_flag & LPFC_IO_FCP) ||
+ 	    !(iocbq->cmd_flag & LPFC_IO_ON_TXCMPLQ) ||
+ 	    (iocbq->cmd_flag & LPFC_DRIVER_ABORTED) ||
+-	    (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
+-	     icmd->ulpCommand == CMD_CLOSE_XRI_CN))
++	    (ulp_command == CMD_ABORT_XRI_CN ||
++	     ulp_command == CMD_CLOSE_XRI_CN ||
++	     ulp_command == CMD_ABORT_XRI_WQE))
+ 		return -EINVAL;
  
- 	lpfc_sli_release_iocbq(phba, iocbqrsp);
- 
--	if (ret != TIMEOUT_ERROR)
-+	if (status != IOCB_TIMEDOUT)
- 		lpfc_release_scsi_buf(phba, lpfc_cmd);
- 
- 	return ret;
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index 0cb16a0b9776..7b17d6c4cffa 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -12667,6 +12667,7 @@ lpfc_sli_wake_iocb_wait(struct lpfc_hba *phba,
- 	wait_queue_head_t *pdone_q;
+ 	return 0;
+@@ -12332,9 +12387,9 @@ lpfc_sli_sum_iocb(struct lpfc_vport *vport, uint16_t tgt_id, uint64_t lun_id,
+ {
+ 	struct lpfc_hba *phba = vport->phba;
+ 	struct lpfc_iocbq *iocbq;
+-	IOCB_t *icmd = NULL;
+ 	int sum, i;
  	unsigned long iflags;
- 	struct lpfc_io_buf *lpfc_cmd;
-+	size_t offset = offsetof(struct lpfc_iocbq, wqe);
++	u8 ulp_command;
  
  	spin_lock_irqsave(&phba->hbalock, iflags);
- 	if (cmdiocbq->cmd_flag & LPFC_IO_WAKE_TMO) {
-@@ -12687,10 +12688,11 @@ lpfc_sli_wake_iocb_wait(struct lpfc_hba *phba,
+ 	for (i = 1, sum = 0; i <= phba->sli.last_iotag; i++) {
+@@ -12347,9 +12402,10 @@ lpfc_sli_sum_iocb(struct lpfc_vport *vport, uint16_t tgt_id, uint64_t lun_id,
+ 			continue;
+ 
+ 		/* Include counting outstanding aborts */
+-		icmd = &iocbq->iocb;
+-		if (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
+-		    icmd->ulpCommand == CMD_CLOSE_XRI_CN) {
++		ulp_command = get_job_cmnd(phba, iocbq);
++		if (ulp_command == CMD_ABORT_XRI_CN ||
++		    ulp_command == CMD_CLOSE_XRI_CN ||
++		    ulp_command == CMD_ABORT_XRI_WQE) {
+ 			sum++;
+ 			continue;
+ 		}
+@@ -12363,33 +12419,6 @@ lpfc_sli_sum_iocb(struct lpfc_vport *vport, uint16_t tgt_id, uint64_t lun_id,
+ 	return sum;
+ }
+ 
+-/**
+- * lpfc_sli4_abort_fcp_cmpl - Completion handler function for aborted FCP IOCBs
+- * @phba: Pointer to HBA context object
+- * @cmdiocb: Pointer to command iocb object.
+- * @wcqe: pointer to the complete wcqe
+- *
+- * This function is called when an aborted FCP iocb completes. This
+- * function is called by the ring event handler with no lock held.
+- * This function frees the iocb. It is called for sli-4 adapters.
+- **/
+-void
+-lpfc_sli4_abort_fcp_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+-			 struct lpfc_wcqe_complete *wcqe)
+-{
+-	lpfc_printf_log(phba, KERN_INFO, LOG_SLI,
+-			"3017 ABORT_XRI_CN completing on rpi x%x "
+-			"original iotag x%x, abort cmd iotag x%x "
+-			"status 0x%x, reason 0x%x\n",
+-			cmdiocb->iocb.un.acxri.abortContextTag,
+-			cmdiocb->iocb.un.acxri.abortIoTag,
+-			cmdiocb->iotag,
+-			(bf_get(lpfc_wcqe_c_status, wcqe)
+-			& LPFC_IOCB_STATUS_MASK),
+-			wcqe->parameter);
+-	lpfc_sli_release_iocbq(phba, cmdiocb);
+-}
+-
+ /**
+  * lpfc_sli_abort_fcp_cmpl - Completion handler function for aborted FCP IOCBs
+  * @phba: Pointer to HBA context object
+@@ -12405,13 +12434,15 @@ lpfc_sli_abort_fcp_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 			struct lpfc_iocbq *rspiocb)
+ {
+ 	lpfc_printf_log(phba, KERN_INFO, LOG_SLI,
+-			"3096 ABORT_XRI_CN completing on rpi x%x "
++			"3096 ABORT_XRI_CX completing on rpi x%x "
+ 			"original iotag x%x, abort cmd iotag x%x "
+ 			"status 0x%x, reason 0x%x\n",
++			(phba->sli_rev == LPFC_SLI_REV4) ?
++			cmdiocb->sli4_xritag :
+ 			cmdiocb->iocb.un.acxri.abortContextTag,
+-			cmdiocb->iocb.un.acxri.abortIoTag,
+-			cmdiocb->iotag, rspiocb->iocb.ulpStatus,
+-			rspiocb->iocb.un.ulpWord[4]);
++			get_job_abtsiotag(phba, cmdiocb),
++			cmdiocb->iotag, get_job_ulpstatus(phba, rspiocb),
++			get_job_word4(phba, rspiocb));
+ 	lpfc_sli_release_iocbq(phba, cmdiocb);
+ 	return;
+ }
+@@ -12452,7 +12483,6 @@ lpfc_sli_abort_iocb(struct lpfc_vport *vport, u16 tgt_id, u64 lun_id,
+ 	int errcnt = 0, ret_val = 0;
+ 	unsigned long iflags;
+ 	int i;
+-	void *fcp_cmpl = NULL;
+ 
+ 	/* all I/Os are in process of being flushed */
+ 	if (phba->hba_flag & HBA_IOQ_FLUSH)
+@@ -12471,13 +12501,11 @@ lpfc_sli_abort_iocb(struct lpfc_vport *vport, u16 tgt_id, u64 lun_id,
+ 		spin_lock_irqsave(&phba->hbalock, iflags);
+ 		if (phba->sli_rev == LPFC_SLI_REV3) {
+ 			pring = &phba->sli.sli3_ring[LPFC_FCP_RING];
+-			fcp_cmpl = lpfc_sli_abort_fcp_cmpl;
+ 		} else if (phba->sli_rev == LPFC_SLI_REV4) {
+ 			pring = lpfc_sli4_calc_ring(phba, iocbq);
+-			fcp_cmpl = lpfc_sli4_abort_fcp_cmpl;
+ 		}
+ 		ret_val = lpfc_sli_issue_abort_iotag(phba, pring, iocbq,
+-						     fcp_cmpl);
++						     lpfc_sli_abort_fcp_cmpl);
+ 		spin_unlock_irqrestore(&phba->hbalock, iflags);
+ 		if (ret_val != IOCB_SUCCESS)
+ 			errcnt++;
+@@ -12519,12 +12547,13 @@ lpfc_sli_abort_taskmgmt(struct lpfc_vport *vport, struct lpfc_sli_ring *pring,
+ 	struct lpfc_hba *phba = vport->phba;
+ 	struct lpfc_io_buf *lpfc_cmd;
+ 	struct lpfc_iocbq *abtsiocbq;
+-	struct lpfc_nodelist *ndlp;
++	struct lpfc_nodelist *ndlp = NULL;
+ 	struct lpfc_iocbq *iocbq;
+-	IOCB_t *icmd;
+ 	int sum, i, ret_val;
+ 	unsigned long iflags;
+ 	struct lpfc_sli_ring *pring_s4 = NULL;
++	u16 ulp_context, iotag, cqid = LPFC_WQE_CQ_ID_DEFAULT;
++	bool ia;
+ 
+ 	spin_lock_irqsave(&phba->hbalock, iflags);
+ 
+@@ -12586,16 +12615,32 @@ lpfc_sli_abort_taskmgmt(struct lpfc_vport *vport, struct lpfc_sli_ring *pring,
+ 			continue;
+ 		}
+ 
+-		icmd = &iocbq->iocb;
+-		abtsiocbq->iocb.un.acxri.abortType = ABORT_TYPE_ABTS;
+-		abtsiocbq->iocb.un.acxri.abortContextTag = icmd->ulpContext;
+-		if (phba->sli_rev == LPFC_SLI_REV4)
+-			abtsiocbq->iocb.un.acxri.abortIoTag =
+-							 iocbq->sli4_xritag;
++		if (phba->sli_rev == LPFC_SLI_REV4) {
++			iotag = abtsiocbq->iotag;
++			ulp_context = iocbq->sli4_xritag;
++			cqid = lpfc_cmd->hdwq->io_cq_map;
++		} else {
++			iotag = iocbq->iocb.ulpIoTag;
++			if (pring->ringno == LPFC_ELS_RING) {
++				ndlp = (struct lpfc_nodelist *)(iocbq->context1);
++				ulp_context = ndlp->nlp_rpi;
++			} else {
++				ulp_context = iocbq->iocb.ulpContext;
++			}
++		}
++
++		ndlp = lpfc_cmd->rdata->pnode;
++
++		if (lpfc_is_link_up(phba) &&
++		    (ndlp && ndlp->nlp_state == NLP_STE_MAPPED_NODE))
++			ia = false;
+ 		else
+-			abtsiocbq->iocb.un.acxri.abortIoTag = icmd->ulpIoTag;
+-		abtsiocbq->iocb.ulpLe = 1;
+-		abtsiocbq->iocb.ulpClass = icmd->ulpClass;
++			ia = true;
++
++		lpfc_sli_prep_abort_xri(phba, abtsiocbq, ulp_context, iotag,
++					iocbq->iocb.ulpClass, cqid,
++					ia);
++
+ 		abtsiocbq->vport = vport;
+ 
+ 		/* ABTS WQE must go to the same WQ as the WQE to be aborted */
+@@ -12605,14 +12650,6 @@ lpfc_sli_abort_taskmgmt(struct lpfc_vport *vport, struct lpfc_sli_ring *pring,
+ 		if (iocbq->cmd_flag & LPFC_IO_FOF)
+ 			abtsiocbq->cmd_flag |= LPFC_IO_FOF;
+ 
+-		ndlp = lpfc_cmd->rdata->pnode;
+-
+-		if (lpfc_is_link_up(phba) &&
+-		    (ndlp && ndlp->nlp_state == NLP_STE_MAPPED_NODE))
+-			abtsiocbq->iocb.ulpCommand = CMD_ABORT_XRI_CN;
+-		else
+-			abtsiocbq->iocb.ulpCommand = CMD_CLOSE_XRI_CN;
+-
+ 		/* Setup callback routine and issue the command. */
+ 		abtsiocbq->cmd_cmpl = lpfc_sli_abort_fcp_cmpl;
+ 
+@@ -18475,8 +18512,8 @@ lpfc_sli4_seq_abort_rsp_cmpl(struct lpfc_hba *phba,
+ 	if (rsp_iocbq && rsp_iocbq->iocb.ulpStatus)
+ 		lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+ 			"3154 BLS ABORT RSP failed, data:  x%x/x%x\n",
+-			rsp_iocbq->iocb.ulpStatus,
+-			rsp_iocbq->iocb.un.ulpWord[4]);
++			get_job_ulpstatus(phba, rsp_iocbq),
++			get_job_word4(phba, rsp_iocbq));
+ }
+ 
+ /**
+@@ -18518,7 +18555,7 @@ lpfc_sli4_seq_abort_rsp(struct lpfc_vport *vport,
+ 	struct lpfc_nodelist *ndlp;
+ 	uint16_t oxid, rxid, xri, lxri;
+ 	uint32_t sid, fctl;
+-	IOCB_t *icmd;
++	union lpfc_wqe128 *icmd;
+ 	int rc;
+ 
+ 	if (!lpfc_is_link_up(phba))
+@@ -18546,22 +18583,11 @@ lpfc_sli4_seq_abort_rsp(struct lpfc_vport *vport,
+ 	if (!ctiocb)
  		return;
+ 
++	icmd = &ctiocb->wqe;
++
+ 	/* Extract the F_CTL field from FC_HDR */
+ 	fctl = sli4_fctl_from_fc_hdr(fc_hdr);
+ 
+-	icmd = &ctiocb->iocb;
+-	icmd->un.xseq64.bdl.bdeSize = 0;
+-	icmd->un.xseq64.bdl.ulpIoTag32 = 0;
+-	icmd->un.xseq64.w5.hcsw.Dfctl = 0;
+-	icmd->un.xseq64.w5.hcsw.Rctl = FC_RCTL_BA_ACC;
+-	icmd->un.xseq64.w5.hcsw.Type = FC_TYPE_BLS;
+-
+-	/* Fill in the rest of iocb fields */
+-	icmd->ulpCommand = CMD_XMIT_BLS_RSP64_CX;
+-	icmd->ulpBdeCount = 0;
+-	icmd->ulpLe = 1;
+-	icmd->ulpClass = CLASS3;
+-	icmd->ulpContext = phba->sli4_hba.rpi_ids[ndlp->nlp_rpi];
+ 	ctiocb->context1 = lpfc_nlp_get(ndlp);
+ 	if (!ctiocb->context1) {
+ 		lpfc_sli_release_iocbq(phba, ctiocb);
+@@ -18572,17 +18598,15 @@ lpfc_sli4_seq_abort_rsp(struct lpfc_vport *vport,
+ 	ctiocb->cmd_cmpl = lpfc_sli4_seq_abort_rsp_cmpl;
+ 	ctiocb->sli4_lxritag = NO_XRI;
+ 	ctiocb->sli4_xritag = NO_XRI;
++	ctiocb->abort_rctl = FC_RCTL_BA_ACC;
+ 
+-	if (fctl & FC_FC_EX_CTX) {
++	if (fctl & FC_FC_EX_CTX)
+ 		/* Exchange responder sent the abort so we
+ 		 * own the oxid.
+ 		 */
+-		ctiocb->abort_bls = LPFC_ABTS_UNSOL_RSP;
+ 		xri = oxid;
+-	} else {
+-		ctiocb->abort_bls = LPFC_ABTS_UNSOL_INT;
++	else
+ 		xri = rxid;
+-	}
+ 	lxri = lpfc_sli4_xri_inrange(phba, xri);
+ 	if (lxri != NO_XRI)
+ 		lpfc_set_rrq_active(phba, ndlp, lxri,
+@@ -18594,10 +18618,12 @@ lpfc_sli4_seq_abort_rsp(struct lpfc_vport *vport,
+ 	 */
+ 	if ((fctl & FC_FC_EX_CTX) &&
+ 	    (lxri > lpfc_sli4_get_iocb_cnt(phba))) {
+-		icmd->un.xseq64.w5.hcsw.Rctl = FC_RCTL_BA_RJT;
+-		bf_set(lpfc_vndr_code, &icmd->un.bls_rsp, 0);
+-		bf_set(lpfc_rsn_expln, &icmd->un.bls_rsp, FC_BA_RJT_INV_XID);
+-		bf_set(lpfc_rsn_code, &icmd->un.bls_rsp, FC_BA_RJT_UNABLE);
++		ctiocb->abort_rctl = FC_RCTL_BA_RJT;
++		bf_set(xmit_bls_rsp64_rjt_vspec, &icmd->xmit_bls_rsp, 0);
++		bf_set(xmit_bls_rsp64_rjt_expc, &icmd->xmit_bls_rsp,
++		       FC_BA_RJT_INV_XID);
++		bf_set(xmit_bls_rsp64_rjt_rsnc, &icmd->xmit_bls_rsp,
++		       FC_BA_RJT_UNABLE);
  	}
  
-+	/* Copy the contents of the local rspiocb into the caller's buffer. */
- 	cmdiocbq->cmd_flag |= LPFC_IO_WAKE;
- 	if (cmdiocbq->context2 && rspiocbq)
--		memcpy(&((struct lpfc_iocbq *)cmdiocbq->context2)->iocb,
--		       &rspiocbq->iocb, sizeof(IOCB_t));
-+		memcpy((char *)cmdiocbq->context2 + offset,
-+		       (char *)rspiocbq + offset, sizeof(*rspiocbq) - offset);
+ 	/* If BA_ABTS failed to abort a partially assembled receive sequence,
+@@ -18605,10 +18631,12 @@ lpfc_sli4_seq_abort_rsp(struct lpfc_vport *vport,
+ 	 * the IOCB for a BA_RJT.
+ 	 */
+ 	if (aborted == false) {
+-		icmd->un.xseq64.w5.hcsw.Rctl = FC_RCTL_BA_RJT;
+-		bf_set(lpfc_vndr_code, &icmd->un.bls_rsp, 0);
+-		bf_set(lpfc_rsn_expln, &icmd->un.bls_rsp, FC_BA_RJT_INV_XID);
+-		bf_set(lpfc_rsn_code, &icmd->un.bls_rsp, FC_BA_RJT_UNABLE);
++		ctiocb->abort_rctl = FC_RCTL_BA_RJT;
++		bf_set(xmit_bls_rsp64_rjt_vspec, &icmd->xmit_bls_rsp, 0);
++		bf_set(xmit_bls_rsp64_rjt_expc, &icmd->xmit_bls_rsp,
++		       FC_BA_RJT_INV_XID);
++		bf_set(xmit_bls_rsp64_rjt_rsnc, &icmd->xmit_bls_rsp,
++		       FC_BA_RJT_UNABLE);
+ 	}
  
- 	/* Set the exchange busy flag for task management commands */
- 	if ((cmdiocbq->cmd_flag & LPFC_IO_FCP) &&
+ 	if (fctl & FC_FC_EX_CTX) {
+@@ -18616,28 +18644,40 @@ lpfc_sli4_seq_abort_rsp(struct lpfc_vport *vport,
+ 		 * of BA_ACC will use OX_ID from ABTS for the XRI_TAG
+ 		 * field and RX_ID from ABTS for RX_ID field.
+ 		 */
+-		bf_set(lpfc_abts_orig, &icmd->un.bls_rsp, LPFC_ABTS_UNSOL_RSP);
++		ctiocb->abort_bls = LPFC_ABTS_UNSOL_RSP;
++		bf_set(xmit_bls_rsp64_rxid, &icmd->xmit_bls_rsp, rxid);
+ 	} else {
+ 		/* ABTS sent by initiator to CT exchange, construction
+ 		 * of BA_ACC will need to allocate a new XRI as for the
+ 		 * XRI_TAG field.
+ 		 */
+-		bf_set(lpfc_abts_orig, &icmd->un.bls_rsp, LPFC_ABTS_UNSOL_INT);
++		ctiocb->abort_bls = LPFC_ABTS_UNSOL_INT;
+ 	}
+-	bf_set(lpfc_abts_rxid, &icmd->un.bls_rsp, rxid);
+-	bf_set(lpfc_abts_oxid, &icmd->un.bls_rsp, oxid);
++
++	/* OX_ID is invariable to who sent ABTS to CT exchange */
++	bf_set(xmit_bls_rsp64_oxid, &icmd->xmit_bls_rsp, oxid);
++	bf_set(xmit_bls_rsp64_oxid, &icmd->xmit_bls_rsp, rxid);
++
++	/* Use CT=VPI */
++	bf_set(wqe_els_did, &icmd->xmit_bls_rsp.wqe_dest,
++	       ndlp->nlp_DID);
++	bf_set(xmit_bls_rsp64_temprpi, &icmd->xmit_bls_rsp,
++	       phba->sli4_hba.rpi_ids[ndlp->nlp_rpi]);
++	bf_set(wqe_cmnd, &icmd->generic.wqe_com, CMD_XMIT_BLS_RSP64_CX);
++
+ 
+ 	/* Xmit CT abts response on exchange <xid> */
+ 	lpfc_printf_vlog(vport, KERN_INFO, LOG_ELS,
+ 			 "1200 Send BLS cmd x%x on oxid x%x Data: x%x\n",
+-			 icmd->un.xseq64.w5.hcsw.Rctl, oxid, phba->link_state);
++			 ctiocb->abort_rctl, oxid, phba->link_state);
+ 
++	lpfc_sli_prep_wqe(phba, ctiocb);
+ 	rc = lpfc_sli_issue_iocb(phba, LPFC_ELS_RING, ctiocb, 0);
+ 	if (rc == IOCB_ERROR) {
+ 		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+ 				 "2925 Failed to issue CT ABTS RSP x%x on "
+ 				 "xri x%x, Data x%x\n",
+-				 icmd->un.xseq64.w5.hcsw.Rctl, oxid,
++				 ctiocb->abort_rctl, oxid,
+ 				 phba->link_state);
+ 		lpfc_nlp_put(ndlp);
+ 		ctiocb->context1 = NULL;
+diff --git a/drivers/scsi/lpfc/lpfc_sli.h b/drivers/scsi/lpfc/lpfc_sli.h
+index 9f5b6574e638..d5c26995ba39 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.h
++++ b/drivers/scsi/lpfc/lpfc_sli.h
+@@ -76,11 +76,13 @@ struct lpfc_iocbq {
+ 	struct lpfc_wcqe_complete wcqe_cmpl;	/* WQE cmpl */
+ 
+ 	u32 unsol_rcv_len;	/* Receive len in usol path */
++
+ 	uint8_t num_bdes;
+ 	uint8_t abort_bls;	/* ABTS by initiator or responder */
+-
++	u8 abort_rctl;		/* ACC or RJT flag */
+ 	uint8_t priority;	/* OAS priority */
+ 	uint8_t retry;		/* retry counter for IOCB cmd - if needed */
++
+ 	u32 cmd_flag;
+ #define LPFC_IO_LIBDFC		1	/* libdfc iocb */
+ #define LPFC_IO_WAKE		2	/* Synchronous I/O completed */
 -- 
 2.35.3
 
