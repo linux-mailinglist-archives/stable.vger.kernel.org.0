@@ -2,121 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56AA260E0B9
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 14:34:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E2ED60E1A2
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 15:11:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233522AbiJZMeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 08:34:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36856 "EHLO
+        id S231476AbiJZNLH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 09:11:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232625AbiJZMeG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 08:34:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1A8AF1AA;
-        Wed, 26 Oct 2022 05:34:05 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 434DAB821D9;
-        Wed, 26 Oct 2022 12:34:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20DAFC433D6;
-        Wed, 26 Oct 2022 12:34:02 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="Xx5KKuxr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1666787640;
+        with ESMTP id S233487AbiJZNLG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 09:11:06 -0400
+Received: from mail.kmu-office.ch (mail.kmu-office.ch [IPv6:2a02:418:6a02::a2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9167BFA02A;
+        Wed, 26 Oct 2022 06:11:02 -0700 (PDT)
+Received: from webmail.kmu-office.ch (unknown [IPv6:2a02:418:6a02::a3])
+        by mail.kmu-office.ch (Postfix) with ESMTPSA id 255C85C3ABB;
+        Wed, 26 Oct 2022 15:11:00 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=agner.ch; s=dkim;
+        t=1666789860;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=ZeAi1MGyrPwsr84DGCNB/7Ek0xszjHGR2vlAtEQhd1A=;
-        b=Xx5KKuxrtpwoY9Wy+CYd1WDXBT9sCoNC9fjwsGkstHhNbN1WpvKcBizZeRpT/FCzCiS4RQ
-        tcs+Bt7NF3eTh8IExPNnbvvnyDYVtjOIBQ7zCHExZIsoRAGhDA8m5Mp/+dUQ/2ed4jN+pX
-        1b2G92MsVRvv78DJhUgz7++3kx0ah/c=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 8a7530bf (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Wed, 26 Oct 2022 12:33:59 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     netdev@vger.kernel.org, lvs-devel@vger.kernel.org,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Julian Anastasov <ja@ssi.bg>,
-        Simon Horman <horms@verge.net.au>, stable@vger.kernel.org
-Subject: [PATCH] ipvs: use explicitly signed chars
-Date:   Wed, 26 Oct 2022 14:32:16 +0200
-Message-Id: <20221026123216.1575440-1-Jason@zx2c4.com>
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=QLFgExITwIN4lybw/UjaBeJn22b4fh+Q9W7AXp52SJY=;
+        b=NXnk3GNi1ceLZUXZtK/jPKqypVy8x6mNmwOgzfH+iUj3QQb6Z3ENK2E4RlUnXtjfKJVtqm
+        Wn5M1kNEE8cyHkU7FE42iFAuIiIAi43yeknhNOjcOrQglCHzKixmbrlc3Vq7Lz40BlGukP
+        g+eGl7/bauZiRChnA3yzqFLh/UxjCoo=
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+Date:   Wed, 26 Oct 2022 15:11:00 +0200
+From:   Stefan Agner <stefan@agner.ch>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        stable <stable@kernel.org>, regressions@lists.linux.dev,
+        m.szyprowski@samsung.com, krzk@kernel.org
+Subject: Re: [PATCH stable-5.15 3/3] usb: dwc3: disable USB core PHY
+ management
+In-Reply-To: <Y1JCIKT80P9IysKD@hovoldconsulting.com>
+References: <20220906120702.19219-1-johan@kernel.org>
+ <20220906120702.19219-4-johan@kernel.org>
+ <808bdba846bb60456adf10a3016911ee@agner.ch>
+ <Y0+8dKESygFunXOu@hovoldconsulting.com>
+ <86c0f1ee8ffc94f9a53690dda6a83fbb@agner.ch>
+ <Y1JCIKT80P9IysKD@hovoldconsulting.com>
+Message-ID: <b2a1e70bda64cb741efe81c5b7e56707@agner.ch>
+X-Sender: stefan@agner.ch
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The `char` type with no explicit sign is sometimes signed and sometimes
-unsigned. This code will break on platforms such as arm, where char is
-unsigned. So mark it here as explicitly signed, so that the
-todrop_counter decrement and subsequent comparison is correct.
+On 2022-10-21 08:54, Johan Hovold wrote:
+> On Fri, Oct 21, 2022 at 12:06:12AM +0200, Stefan Agner wrote:
+>> On 2022-10-19 10:59, Johan Hovold wrote:
+>> > On Tue, Oct 18, 2022 at 05:27:24PM +0200, Stefan Agner wrote:
+>> >> On 2022-09-06 14:07, Johan Hovold wrote:
+>> >> > From: Johan Hovold <johan+linaro@kernel.org>
+>> >> >
+>> >> > commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea upstream.
+>> >> >
+>> >> > The dwc3 driver manages its PHYs itself so the USB core PHY management
+>> >> > needs to be disabled.
+>> >> >
+>> >> > Use the struct xhci_plat_priv hack added by commits 46034a999c07 ("usb:
+>> >> > host: xhci-plat: add platform data support") and f768e718911e ("usb:
+>> >> > host: xhci-plat: add priv quirk for skip PHY initialization") to
+>> >> > propagate the setting for now.
+> 
+>> >> For some reason, this commit seems to break detection of the USB to
+>> >> S-ATA controller on ODROID-HC1 devices (Exynos 5422).
+> 
+>> > I think this may be related to the calibration calls added to dwc3 and
+>> > later removed again by commits:
+>> >
+>> > 	d8c80bb3b55b ("phy: exynos5-usbdrd: Calibrate LOS levels for exynos5420/5800")
+>> > 	a0a465569b45 ("usb: dwc3: remove generic PHY calibrate() calls")
+>> >
+>> > The removal explicitly mentions that the expectation is that USB core
+>> > will do the PHY calibration.
+>> >
+>> > There could be other changes in the sequencing of events that this
+>> > platform has been implicitly relying on, but as a start, could try
+>> > adding the missing calibration calls (patch below) and see if that makes a
+>> > difference?
+>> 
+>> The patch below did not apply to 5.15.74 directly, but I think I was
+>> able to get the corrected patch applied (see below)
+> 
+> Looks good to me.
+> 
+>> That said, I do not have direct access to that hardware, but I created a
+>> build and asked the user test it.
+> 
+> Thanks, let me know how it goes.
 
-Cc: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Julian Anastasov <ja@ssi.bg>
-Cc: Simon Horman <horms@verge.net.au>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- net/netfilter/ipvs/ip_vs_conn.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+The user reports the S-ATA disk is *not* recognized with that patch
+applied.
 
-diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
-index 8c04bb57dd6f..7c4866c04343 100644
---- a/net/netfilter/ipvs/ip_vs_conn.c
-+++ b/net/netfilter/ipvs/ip_vs_conn.c
-@@ -1249,40 +1249,40 @@ static const struct seq_operations ip_vs_conn_sync_seq_ops = {
- 	.next  = ip_vs_conn_seq_next,
- 	.stop  = ip_vs_conn_seq_stop,
- 	.show  = ip_vs_conn_sync_seq_show,
- };
- #endif
- 
- 
- /* Randomly drop connection entries before running out of memory
-  * Can be used for DATA and CTL conns. For TPL conns there are exceptions:
-  * - traffic for services in OPS mode increases ct->in_pkts, so it is supported
-  * - traffic for services not in OPS mode does not increase ct->in_pkts in
-  * all cases, so it is not supported
-  */
- static inline int todrop_entry(struct ip_vs_conn *cp)
- {
- 	/*
- 	 * The drop rate array needs tuning for real environments.
- 	 * Called from timer bh only => no locking
- 	 */
--	static const char todrop_rate[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
--	static char todrop_counter[9] = {0};
-+	static const signed char todrop_rate[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-+	static signed char todrop_counter[9] = {0};
- 	int i;
- 
- 	/* if the conn entry hasn't lasted for 60 seconds, don't drop it.
- 	   This will leave enough time for normal connection to get
- 	   through. */
- 	if (time_before(cp->timeout + jiffies, cp->timer.expires + 60*HZ))
- 		return 0;
- 
- 	/* Don't drop the entry if its number of incoming packets is not
- 	   located in [0, 8] */
- 	i = atomic_read(&cp->in_pkts);
- 	if (i > 8 || i < 0) return 0;
- 
- 	if (!todrop_rate[i]) return 0;
- 	if (--todrop_counter[i] > 0) return 0;
- 
- 	todrop_counter[i] = todrop_rate[i];
- 	return 1;
- }
--- 
-2.38.1
+--
+Stefan
 
