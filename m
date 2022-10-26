@@ -2,145 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D86E60E355
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 16:30:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B6A60E39F
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 16:45:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234010AbiJZOaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 10:30:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34598 "EHLO
+        id S233507AbiJZOo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 10:44:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233728AbiJZOa1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 10:30:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6DD1422C8;
-        Wed, 26 Oct 2022 07:30:25 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S233232AbiJZOo4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 10:44:56 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B436A2EF0D;
+        Wed, 26 Oct 2022 07:44:52 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A0CCB82033;
-        Wed, 26 Oct 2022 14:30:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EFC1C433C1;
-        Wed, 26 Oct 2022 14:30:22 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=fail reason="signature verification failed" (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="PLquYrQz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1666794619;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=P6tG8AO+VnJ6tGDJZNZETw7TGH2GPbgVHdULos2RrT4=;
-        b=PLquYrQzd8Dq5Xpi6TjfwLK5bB+2sSOz0v/BByfpdPGjMfbUgMJhXqmAM9y9AU2ACHIoar
-        FeBoJ9q9KA+64KRL8LwyPRg5QXD1W+zY5CymoCEEQQDtl5rb2uq+qjj39Dd3qzJabVxr2k
-        IC8VyBw9KtRvh8LEkBQdKVDlzag0rts=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 1c5698b1 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Wed, 26 Oct 2022 14:30:19 +0000 (UTC)
-Date:   Wed, 26 Oct 2022 16:30:17 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Julian Anastasov <ja@ssi.bg>
-Cc:     netdev@vger.kernel.org, lvs-devel@vger.kernel.org,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Simon Horman <horms@verge.net.au>, stable@vger.kernel.org
-Subject: Re: [PATCH] ipvs: use explicitly signed chars
-Message-ID: <Y1lEebYfRwrtliDL@zx2c4.com>
-References: <20221026123216.1575440-1-Jason@zx2c4.com>
- <4cc36ff5-46fd-c2b3-3292-d6369337fec1@ssi.bg>
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 1EFE91F9C4;
+        Wed, 26 Oct 2022 14:44:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1666795491; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=+RrmOm3kzDgxxTWpCvltOJ7YGHgmCCHKFztOG/89NuM=;
+        b=lszomHV3S7rCE45fjaXCWP6/QpN7GHFLiaBj0YSlT5qgsUgq2N14HJXJTJBnB7TNITYUzu
+        eJ9Lf40QA2N78WJTb1nE5sx/yzknR4rbcyWSCt7Nj/7U/KUC8qCJ+UTS9OFt3zv2h2BSeY
+        OtrvzgdFJop/FwNFlmWFoZs6FQQChVo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1666795491;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=+RrmOm3kzDgxxTWpCvltOJ7YGHgmCCHKFztOG/89NuM=;
+        b=Za28MosAkgcdQXUzUNfUHsixjAIr76jpAnPOas2OFQwOGEQat3bDw7kUkpUKOXUU7sN/OB
+        w4sv9xaRQHxy8SBw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id BB48513A77;
+        Wed, 26 Oct 2022 14:44:50 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id rrmcLOJHWWOBDAAAMHmgww
+        (envelope-from <tzimmermann@suse.de>); Wed, 26 Oct 2022 14:44:50 +0000
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     javierm@redhat.com, deller@gmx.de, sashal@kernel.org,
+        gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Andreas Thalhammer <andreas.thalhammer-linux@gmx.net>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Zack Rusin <zackr@vmware.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Changcheng Deng <deng.changcheng@zte.com.cn>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH v2] video/aperture: Call sysfb_disable() before removing PCI devices
+Date:   Wed, 26 Oct 2022 16:44:48 +0200
+Message-Id: <20221026144448.424-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.38.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <4cc36ff5-46fd-c2b3-3292-d6369337fec1@ssi.bg>
-X-Spam-Status: No, score=-6.5 required=5.0 tests=BAYES_00,DKIM_INVALID,
-        DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 26, 2022 at 05:20:03PM +0300, Julian Anastasov wrote:
-> 
-> 	Hello,
-> 
-> On Wed, 26 Oct 2022, Jason A. Donenfeld wrote:
-> 
-> > The `char` type with no explicit sign is sometimes signed and sometimes
-> > unsigned. This code will break on platforms such as arm, where char is
-> > unsigned. So mark it here as explicitly signed, so that the
-> > todrop_counter decrement and subsequent comparison is correct.
-> > 
-> > Cc: Pablo Neira Ayuso <pablo@netfilter.org>
-> > Cc: Julian Anastasov <ja@ssi.bg>
-> > Cc: Simon Horman <horms@verge.net.au>
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> 
-> 	Looks good to me for -next, thanks!
+Call sysfb_disable() from aperture_remove_conflicting_pci_devices()
+before removing PCI devices. Without, simpledrm can still bind to
+simple-framebuffer devices after the hardware driver has taken over
+the hardware. Both drivers interfere with each other and results are
+undefined.
 
-This is actually net.git material, not net-next.git material,
-considering it fixes a bug on arm and many other archs, and is marked
-with a stable@ tag.
+Reported modesetting errors [1] are shown below.
 
-> 
-> Acked-by: Julian Anastasov <ja@ssi.bg>
-> 
-> > ---
-> >  net/netfilter/ipvs/ip_vs_conn.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
-> > index 8c04bb57dd6f..7c4866c04343 100644
-> > --- a/net/netfilter/ipvs/ip_vs_conn.c
-> > +++ b/net/netfilter/ipvs/ip_vs_conn.c
-> > @@ -1249,40 +1249,40 @@ static const struct seq_operations ip_vs_conn_sync_seq_ops = {
-> >  	.next  = ip_vs_conn_seq_next,
-> >  	.stop  = ip_vs_conn_seq_stop,
-> >  	.show  = ip_vs_conn_sync_seq_show,
-> >  };
-> >  #endif
-> >  
-> >  
-> >  /* Randomly drop connection entries before running out of memory
-> >   * Can be used for DATA and CTL conns. For TPL conns there are exceptions:
-> >   * - traffic for services in OPS mode increases ct->in_pkts, so it is supported
-> >   * - traffic for services not in OPS mode does not increase ct->in_pkts in
-> >   * all cases, so it is not supported
-> >   */
-> >  static inline int todrop_entry(struct ip_vs_conn *cp)
-> >  {
-> >  	/*
-> >  	 * The drop rate array needs tuning for real environments.
-> >  	 * Called from timer bh only => no locking
-> >  	 */
-> > -	static const char todrop_rate[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-> > -	static char todrop_counter[9] = {0};
-> > +	static const signed char todrop_rate[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-> > +	static signed char todrop_counter[9] = {0};
-> >  	int i;
-> >  
-> >  	/* if the conn entry hasn't lasted for 60 seconds, don't drop it.
-> >  	   This will leave enough time for normal connection to get
-> >  	   through. */
-> >  	if (time_before(cp->timeout + jiffies, cp->timer.expires + 60*HZ))
-> >  		return 0;
-> >  
-> >  	/* Don't drop the entry if its number of incoming packets is not
-> >  	   located in [0, 8] */
-> >  	i = atomic_read(&cp->in_pkts);
-> >  	if (i > 8 || i < 0) return 0;
-> >  
-> >  	if (!todrop_rate[i]) return 0;
-> >  	if (--todrop_counter[i] > 0) return 0;
-> >  
-> >  	todrop_counter[i] = todrop_rate[i];
-> >  	return 1;
-> >  }
-> > -- 
-> > 2.38.1
-> 
-> Regards
-> 
-> --
-> Julian Anastasov <ja@ssi.bg>
-> 
+---- snap ----
+rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: { 13-.... } 7 jiffies s: 165 root: 0x2000/.
+rcu: blocking rcu_node structures (internal RCU debug):
+Task dump for CPU 13:
+task:X               state:R  running task     stack:    0 pid: 4242 ppid:  4228 flags:0x00000008
+Call Trace:
+ <TASK>
+ ? commit_tail+0xd7/0x130
+ ? drm_atomic_helper_commit+0x126/0x150
+ ? drm_atomic_commit+0xa4/0xe0
+ ? drm_plane_get_damage_clips.cold+0x1c/0x1c
+ ? drm_atomic_helper_dirtyfb+0x19e/0x280
+ ? drm_mode_dirtyfb_ioctl+0x10f/0x1e0
+ ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+ ? drm_ioctl_kernel+0xc4/0x150
+ ? drm_ioctl+0x246/0x3f0
+ ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+ ? __x64_sys_ioctl+0x91/0xd0
+ ? do_syscall_64+0x60/0xd0
+ ? entry_SYSCALL_64_after_hwframe+0x4b/0xb5
+ </TASK>
+...
+rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: { 13-.... } 30 jiffies s: 169 root: 0x2000/.
+rcu: blocking rcu_node structures (internal RCU debug):
+Task dump for CPU 13:
+task:X               state:R  running task     stack:    0 pid: 4242 ppid:  4228 flags:0x0000400e
+Call Trace:
+ <TASK>
+ ? memcpy_toio+0x76/0xc0
+ ? memcpy_toio+0x1b/0xc0
+ ? drm_fb_memcpy_toio+0x76/0xb0
+ ? drm_fb_blit_toio+0x75/0x2b0
+ ? simpledrm_simple_display_pipe_update+0x132/0x150
+ ? drm_atomic_helper_commit_planes+0xb6/0x230
+ ? drm_atomic_helper_commit_tail+0x44/0x80
+ ? commit_tail+0xd7/0x130
+ ? drm_atomic_helper_commit+0x126/0x150
+ ? drm_atomic_commit+0xa4/0xe0
+ ? drm_plane_get_damage_clips.cold+0x1c/0x1c
+ ? drm_atomic_helper_dirtyfb+0x19e/0x280
+ ? drm_mode_dirtyfb_ioctl+0x10f/0x1e0
+ ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+ ? drm_ioctl_kernel+0xc4/0x150
+ ? drm_ioctl+0x246/0x3f0
+ ? drm_mode_getfb2_ioctl+0x2d0/0x2d0
+ ? __x64_sys_ioctl+0x91/0xd0
+ ? do_syscall_64+0x60/0xd0
+ ? entry_SYSCALL_64_after_hwframe+0x4b/0xb5
+ </TASK>
+
+The problem was added by commit 5e0137612430 ("video/aperture: Disable
+and unregister sysfb devices via aperture helpers") to v6.0.3 and does
+not exist in the mainline branch.
+
+The mainline commit 5e0137612430 ("video/aperture: Disable and
+unregister sysfb devices via aperture helpers") has been backported
+from v6.0-rc1 to stable v6.0.3 from a larger patch series [2] that
+reworks fbdev framebuffer ownership. The backport misses a change to
+aperture_remove_conflicting_pci_devices(). Mainline itself is fine,
+because the function does not exist there as a result of the patch
+series.
+
+Instead of backporting the whole series, fix the additional function.
+
+v2:
+	* expand justification for this fix (Greg)
+
+Reported-by: Andreas Thalhammer <andreas.thalhammer-linux@gmx.net>
+Reported-by: Thorsten Leemhuis <regressions@leemhuis.info>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Tested-by: Andreas Thalhammer <andreas.thalhammer-linux@gmx.net>
+Fixes: cfecfc98a78d ("video/aperture: Disable and unregister sysfb devices via aperture helpers")
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Cc: Zack Rusin <zackr@vmware.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Zhen Lei <thunder.leizhen@huawei.com>
+Cc: Changcheng Deng <deng.changcheng@zte.com.cn>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: dri-devel@lists.freedesktop.org
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: linux-fbdev@vger.kernel.org
+Cc: <stable@vger.kernel.org> # v6.0.3+
+Link: https://lore.kernel.org/dri-devel/d6afe54b-f8d7-beb2-3609-186e566cbfac@gmx.net/T/#t # [1]
+Link: https://patchwork.freedesktop.org/series/106040/ # [2]
+---
+ drivers/video/aperture.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/video/aperture.c b/drivers/video/aperture.c
+index d245826a9324..cc6427a091bc 100644
+--- a/drivers/video/aperture.c
++++ b/drivers/video/aperture.c
+@@ -338,6 +338,17 @@ int aperture_remove_conflicting_pci_devices(struct pci_dev *pdev, const char *na
+ 	resource_size_t base, size;
+ 	int bar, ret;
+ 
++	/*
++	 * If a driver asked to unregister a platform device registered by
++	 * sysfb, then can be assumed that this is a driver for a display
++	 * that is set up by the system firmware and has a generic driver.
++	 *
++	 * Drivers for devices that don't have a generic driver will never
++	 * ask for this, so let's assume that a real driver for the display
++	 * was already probed and prevent sysfb to register devices later.
++	 */
++	sysfb_disable();
++
+ 	/*
+ 	 * WARNING: Apparently we must kick fbdev drivers before vgacon,
+ 	 * otherwise the vga fbdev driver falls over.
+-- 
+2.38.0
+
