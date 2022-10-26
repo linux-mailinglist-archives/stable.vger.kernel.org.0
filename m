@@ -2,45 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5A0760E5F5
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 18:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFCA460E602
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 19:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233951AbiJZQ7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 12:59:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48718 "EHLO
+        id S234049AbiJZRBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 13:01:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234097AbiJZQ6z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 12:58:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9580AF1A8;
-        Wed, 26 Oct 2022 09:58:49 -0700 (PDT)
+        with ESMTP id S233961AbiJZRBY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 13:01:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6650C7D1E4
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 10:01:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4618761FC9;
-        Wed, 26 Oct 2022 16:58:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A1AFC433C1;
-        Wed, 26 Oct 2022 16:58:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB53761DA3
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 17:01:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB0E2C433D6;
+        Wed, 26 Oct 2022 17:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666803528;
-        bh=MxMNVBq6qCtDiZuSSRHMS4DNSCx1BT6mrpskQwkZdF4=;
+        s=korg; t=1666803665;
+        bh=SBSmtghuTZOPnCnRsA7mvD0wy2RMZPB6lZUogrhCws4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tdX3s73UqQuJyp0qg2D8dDRFehu3TsIJuSq+SigPvbKYviY1zlgjgEw3YE6CFNkmO
-         AU9iJZ1xSEWJ6pjy4aPEq07F17ijONUWMmCgLN4SqpHFdhvXNA75N7BuRcMTfiLj+n
-         Wx6jbvQZiYBiiRkorWf3vQO4wVjbPAPp81he0ozg=
-Date:   Wed, 26 Oct 2022 18:58:46 +0200
+        b=Cb6AtTfB0cNFgyQNF4AsmaS6b9CRjSgR31s9hU2oSnUKt0Iuf2sq+vYid83OsypYq
+         /zmXwKvpdE6pec1b2/5bwhB74/QOxCt6FxG3hvs8Bo4E+dDnD7mh3vcc+igGMpR5lK
+         ipLVOUX5rT4qkblUEyFMNzvrsDv1UzjXJTxVm9V4=
+Date:   Wed, 26 Oct 2022 19:01:02 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
-Cc:     linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        jason@zx2c4.com, saeed.mirzamohammadi@oracle.com
-Subject: Re: [PATCH stable 0/5] Fix missing patches in stable
-Message-ID: <Y1lnRm9NZDhIFhwU@kroah.com>
-References: <20221017192006.36398-1-saeed.mirzamohammadi@oracle.com>
+To:     Mikulas Patocka <mpatocka@redhat.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: backport of patches 8238b4579866b7c1bb99883cfe102a43db5506ff and
+ d6ffe6067a54972564552ea45d320fb98db1ac5e
+Message-ID: <Y1lnzkSUjuH7acSf@kroah.com>
+References: <alpine.LRH.2.02.2209301128030.23900@file01.intranet.prod.int.rdu2.redhat.com>
+ <YzflXQMdGLsjPb70@kroah.com>
+ <alpine.LRH.2.02.2210030459050.10514@file01.intranet.prod.int.rdu2.redhat.com>
+ <Yz21dn2vJPOVOffr@kroah.com>
+ <Y0Rtkk7hA4CBwp16@kroah.com>
+ <alpine.LRH.2.02.2210110531260.30193@file01.intranet.prod.int.rdu2.redhat.com>
+ <Y0U+UkLYiRzvgoF8@kroah.com>
+ <alpine.LRH.2.02.2210180733360.5835@file01.intranet.prod.int.rdu2.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221017192006.36398-1-saeed.mirzamohammadi@oracle.com>
+In-Reply-To: <alpine.LRH.2.02.2210180733360.5835@file01.intranet.prod.int.rdu2.redhat.com>
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
@@ -51,32 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 17, 2022 at 12:20:01PM -0700, Saeed Mirzamohammadi wrote:
-> The following patches has been applied to 6.0 but only patch#2 below
-> has been applied to stable. This caused regression with nfs tests in
-> all stable releases.
+On Tue, Oct 18, 2022 at 07:36:22AM -0400, Mikulas Patocka wrote:
 > 
-> This patchset backports patches 1 and 3-6 to stable.
 > 
-> 1. 868941b14441 fs: remove no_llseek
-> 2. 97ef77c52b78 fs: check FMODE_LSEEK to control internal pipe splicing
-> 3. 54ef7a47f67d vfio: do not set FMODE_LSEEK flag
-> 4. c9eb2d427c1c dma-buf: remove useless FMODE_LSEEK flag
-> 5. 4e3299eaddff fs: do not compare against ->llseek
-> 6. e7478158e137 fs: clear or set FMODE_LSEEK based on llseek function
+> On Tue, 11 Oct 2022, Greg KH wrote:
 > 
-> For 5.10.y and 5.4.y only, a revert of patch#2 is already included.
-> Please apply patch#2, for 5.4.y and 5.10.y as well.
+> > On Tue, Oct 11, 2022 at 05:48:26AM -0400, Mikulas Patocka wrote:
+> > > 
+> > > 
+> > > On Mon, 10 Oct 2022, Greg KH wrote:
+> > > 
+> > > > Nope, these cause loads of breakages.  See
+> > > > https://lore.kernel.org/r/09eca44e-4d91-a060-d48c-d0aa41ac5045@roeck-us.net
+> > > > for one such example, and I know kbuild sent you other build problems.
+> > > > I'll drop all of these from the stable trees now.  Please feel free to
+> > > > resend them when you have the build issues worked out.
+> > > > 
+> > > > thanks,
+> > > > 
+> > > > greg k-h
+> > > 
+> > > I don't have cross compilers for all the architectures that Linux 
+> > > supports. Is there some way how to have the patch compile-tested before I 
+> > > send it to you?
+> > 
+> > You can download those compilers from kernel.org, they are all available
+> > there.
+> 
+> OK. I downloaded cross compilers from 
+> https://mirrors.edge.kernel.org/pub/tools/crosstool/ and compile-tested 
+> the patches with all possible architectures.
+> 
+> Here I'm sending new versions.
 
-I am sorry, I really do not understand here.
+But don't you need 2 patches, not just 1, to be applied?
 
-You list these commits in a specific order, yet the patches you send are
-in a different order.
+Please resend a set of series, one series per stable kernel branch, to
+make it more obvious what to do.  Your thread here is very confusing.
 
-And they don't apply to 5.10 or older.
-
-Can you resend proper patch series, for each stable branch that you want
-these applied to, so that I can correctly queue them up?
+See the stable mailing list archives for lots of examples of how to do
+this properly, here are 2 good examples:
+	https://lore.kernel.org/r/20221019125303.2845522-1-conor.dooley@microchip.com
+	https://lore.kernel.org/r/20221019125209.2844943-1-conor.dooley@microchip.com
 
 thanks,
 
