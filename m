@@ -2,185 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BCE260EAF5
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 23:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18E9660EAFA
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 23:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229510AbiJZVvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 17:51:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40130 "EHLO
+        id S233571AbiJZVwl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 17:52:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233548AbiJZVvl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 17:51:41 -0400
-Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9230497EDA
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 14:51:38 -0700 (PDT)
-Received: by mail-oi1-x235.google.com with SMTP id g130so20533380oia.13
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 14:51:38 -0700 (PDT)
+        with ESMTP id S233605AbiJZVwk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 17:52:40 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D5FA9B846
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 14:52:36 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id ez6so15410846pjb.1
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 14:52:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=EPlffG47xJTu/eCD1FI0MkLZITbqaPUGdqLyBsrHEsQ=;
-        b=pQ3NtFajmDVuyFwcZCucRfU67xVNr9BztJT2DtYdIksFSYe4tA87UHPCfYmn76nQTa
-         6Z0KMQUreGgCQVKDQLSgUC/FWku4QYzk2ivLlrRXT7EGUbbjwIBucQ4RTVvLD82QARHZ
-         oxMjCgwB/lR69W+ma5Xuoq+mP3NN0oVqoUgLpkJID7xvAAlF+O3M+ypOaFQOyZs6wtdx
-         4633ZPoltaxwMhCdbgRyWRYx4M2C9pVy8biqdYppAToF8P08gq8GfOSNxK0WfxXZY5W2
-         y2pvHMO6/vukkbT+GVaoYVQSBHaTibplPq0kEQol9Cpqx/llivPk5SNy94rIM9EAcjZD
-         4kjA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=awIBFyyi7dEbAJ7faG+pTX4DFZJXn0MIoAexLWdZK3A=;
+        b=WaBKGOT2tdvrAyfeNWTeiG5ZRmXDR8LiSB4OWV9r45zVLhNCaaxc4xEycPfRDXbMKz
+         4FmhsjYc1XvvCyD9tDMvjA1xQDbsZWPTDWXpS2OV2IsA8MxDnXgiDTEjeiMNu7zLjxRR
+         izelpFDFTbke6uk1Ea9rETBojdWL7HrdW2YCTc1OGeIiK+94VU2RzhoKLeZJQ6AfITe6
+         q/USrBpGZ+3DXBAwtFvCmIDVS3h4G9rT8RvRPTyubxhS5K4+khhi73ZfeVsgic7hOzot
+         za/4knMMt4gRe34U0qSF2Yemf0ltRvAEt6gQJOHYy1doVHevbYzishgqHZouT5bFWqZI
+         3iYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=EPlffG47xJTu/eCD1FI0MkLZITbqaPUGdqLyBsrHEsQ=;
-        b=6VG1WbvioA3tnU6DPVZ0I5pgA+VpgHRB+xD1pai5ysu4UIUOTCxMJwCtBiNa7saPjO
-         dYPbdJKjhVHILjrBPRlqORlaaG9dMWMlRKK6mrbwKuY0J5pX1yM1D/pIQeJzzsGhSYEg
-         vtBid7eCanpMrja5tCU0vLM9rHk9hxpDjdPwk7snAEvvGPTh/xGToSF8WgIihUNv7vvj
-         Nt7bT4mw28vnKe2H3TDQt3zUmO0tCUkMSJ4MOHSpWlBgwNmzUSMNnbsBQ7qt9ymAG9fm
-         7c6rXw/alI6e+ypzYCixCxzWKcRAroh6dcQe22SxP99Trr5pCOEl8TgpPOOffeFyk/aW
-         7xzw==
-X-Gm-Message-State: ACrzQf0HdAqBVRC24vl9dsSnIZ2cjO35pYHuJCVjTKDwZ2VUEZ8bgrky
-        UDopo3cc2B8gGMjGJLhaQwI+Uw==
-X-Google-Smtp-Source: AMsMyM5kHy58Uc7tCzACZk/sYsLCjau2lYMY7FceCP3xGE+duN3aFlkIn1ckVQxeuiJFcDufNQ6qEw==
-X-Received: by 2002:aca:1108:0:b0:359:aeef:505a with SMTP id 8-20020aca1108000000b00359aeef505amr2303122oir.288.1666821097743;
-        Wed, 26 Oct 2022 14:51:37 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id n203-20020aca40d4000000b00354978180d8sm2499375oia.22.2022.10.26.14.51.35
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=awIBFyyi7dEbAJ7faG+pTX4DFZJXn0MIoAexLWdZK3A=;
+        b=a3vdGWt+UHU+SAn0JkzrKjI1vRgx2HMbR/1aro5SsDys1oukxRNkBHR2Io0UBmLBbv
+         kW7s+TA2CX4DKVo3V/5OysEwjoo03h1Guo+2wPf4K1ZTPNs356UWH4MKi2r6Rn0ximyO
+         MJwpTtcsvZVbWhlpigwNo6C50GNqi0u+FgR1oxQQAE3mEEgxn4QVhIFBYdGTUHNY5f+0
+         FaYkIPfy0Kdqr8UBbLcs6UjWa8rDAokcMCCn+MDyyIqkk9OOHDwQoh3Xur6sO3hx2Kis
+         +9Pz3f97uMFxLGZxuOkVDJRD3sBsGxXL3T7KUkKh7UnvVt96ysjivg6i9I6vAE/TD5Dr
+         8jeA==
+X-Gm-Message-State: ACrzQf0+PLT43l9/pPYDaz0uNaX5jbglavhLXw3pF9IetDynifLk/3lP
+        y6as55Jgh9FyEYl9uDs2biRaKj+O2dRhM/fL
+X-Google-Smtp-Source: AMsMyM6SoinskAQnb0xg9jC9k0m8qlzbr/anK/PIOF0Jo4jsNbKmxK9a71lg9sHAh7vwOkvfU2kgcw==
+X-Received: by 2002:a17:903:447:b0:186:b945:c0b2 with SMTP id iw7-20020a170903044700b00186b945c0b2mr13470397plb.25.1666821155419;
+        Wed, 26 Oct 2022 14:52:35 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g9-20020a656cc9000000b004308422060csm3184015pgw.69.2022.10.26.14.52.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Oct 2022 14:51:36 -0700 (PDT)
-Date:   Wed, 26 Oct 2022 14:51:16 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Yuanzheng Song <songyuanzheng@huawei.com>
-cc:     akpm@linux-foundation.org, gregkh@linuxfoundation.org,
-        peterx@redhat.com, david@redhat.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH STABLE 5.10] mm/memory: add non-anonymous page check in
- the copy_present_page()
-In-Reply-To: <20221024094911.3054769-1-songyuanzheng@huawei.com>
-Message-ID: <3823471f-6dda-256e-e082-718879c05449@google.com>
-References: <20221024094911.3054769-1-songyuanzheng@huawei.com>
+        Wed, 26 Oct 2022 14:52:34 -0700 (PDT)
+Message-ID: <6359ac22.650a0220.f61ff.6cf0@mx.google.com>
+Date:   Wed, 26 Oct 2022 14:52:34 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.75
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-5.15.y baseline: 139 runs, 1 regressions (v5.15.75)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 24 Oct 2022, Yuanzheng Song wrote:
+stable/linux-5.15.y baseline: 139 runs, 1 regressions (v5.15.75)
 
-> The vma->anon_vma of the child process may be NULL because
-> the entire vma does not contain anonymous pages. In this
-> case, a BUG will occur when the copy_present_page() passes
-> a copy of a non-anonymous page of that vma to the
-> page_add_new_anon_rmap() to set up new anonymous rmap.
-> 
-> ------------[ cut here ]------------
-> kernel BUG at mm/rmap.c:1044!
-> Internal error: Oops - BUG: 0 [#1] SMP
-> Modules linked in:
-> CPU: 2 PID: 3617 Comm: test Not tainted 5.10.149 #1
-> Hardware name: linux,dummy-virt (DT)
-> pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
-> pc : __page_set_anon_rmap+0xbc/0xf8
-> lr : __page_set_anon_rmap+0xbc/0xf8
-> sp : ffff800014c1b870
-> x29: ffff800014c1b870 x28: 0000000000000001
-> x27: 0000000010100073 x26: ffff1d65c517baa8
-> x25: ffff1d65cab0f000 x24: ffff1d65c416d800
-> x23: ffff1d65cab5f248 x22: 0000000020000000
-> x21: 0000000000000001 x20: 0000000000000000
-> x19: fffffe75970023c0 x18: 0000000000000000
-> x17: 0000000000000000 x16: 0000000000000000
-> x15: 0000000000000000 x14: 0000000000000000
-> x13: 0000000000000000 x12: 0000000000000000
-> x11: 0000000000000000 x10: 0000000000000000
-> x9 : ffffc3096d5fb858 x8 : 0000000000000000
-> x7 : 0000000000000011 x6 : ffff5a5c9089c000
-> x5 : 0000000000020000 x4 : ffff5a5c9089c000
-> x3 : ffffc3096d200000 x2 : ffffc3096e8d0000
-> x1 : ffff1d65ca3da740 x0 : 0000000000000000
-> Call trace:
->  __page_set_anon_rmap+0xbc/0xf8
->  page_add_new_anon_rmap+0x1e0/0x390
->  copy_pte_range+0xd00/0x1248
->  copy_page_range+0x39c/0x620
->  dup_mmap+0x2e0/0x5a8
->  dup_mm+0x78/0x140
->  copy_process+0x918/0x1a20
->  kernel_clone+0xac/0x638
->  __do_sys_clone+0x78/0xb0
->  __arm64_sys_clone+0x30/0x40
->  el0_svc_common.constprop.0+0xb0/0x308
->  do_el0_svc+0x48/0xb8
->  el0_svc+0x24/0x38
->  el0_sync_handler+0x160/0x168
->  el0_sync+0x180/0x1c0
-> Code: 97f8ff85 f9400294 17ffffeb 97f8ff82 (d4210000)
-> ---[ end trace a972347688dc9bd4 ]---
-> Kernel panic - not syncing: Oops - BUG: Fatal exception
-> SMP: stopping secondary CPUs
-> Kernel Offset: 0x43095d200000 from 0xffff800010000000
-> PHYS_OFFSET: 0xffffe29a80000000
-> CPU features: 0x08200022,61806082
-> Memory Limit: none
-> ---[ end Kernel panic - not syncing: Oops - BUG: Fatal exception ]---
-> 
-> This problem has been fixed by the fb3d824d1a46
-> ("mm/rmap: split page_dup_rmap() into page_dup_file_rmap() and page_try_dup_anon_rmap()"),
-> but still exists in the linux-5.10.y branch.
-> 
-> This patch is not applicable to this version because
-> of the large version differences. Therefore, fix it by
-> adding non-anonymous page check in the copy_present_page().
-> 
-> Fixes: 70e806e4e645 ("mm: Do early cow for pinned pages during fork() for ptes")
-> Signed-off-by: Yuanzheng Song <songyuanzheng@huawei.com>
+Regressions Summary
+-------------------
 
-It's a good point, but this patch should not go into any stable release
-without an explicit Ack from either Peter Xu or David Hildenbrand.
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-To my eye, it's simply avoiding the issue, rather than fixing
-it properly; and even if the issue is so rare, and fixing properly
-too difficult or inefficent (a cached anon_vma?), that a workaround
-is good enough, it still looks like the wrong workaround (checking
-dst_vma->anon_vma instead of PageAnon seems more to the point, and
-less lenient).
 
-But my eye on COW is very poor nowadays, and I may be plain wrong.
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.15.y/kernel=
+/v5.15.75/plan/baseline/
 
-Hugh
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.15.y
+  Describe: v5.15.75
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      bd8a595958a5b02e58cdd6fed82d4ebc77b1988a =
 
-> ---
->  mm/memory.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
-> 
-> diff --git a/mm/memory.c b/mm/memory.c
-> index cc50fa0f4590..45973fd97be8 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -823,6 +823,17 @@ copy_present_page(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma
->  	if (likely(!page_maybe_dma_pinned(page)))
->  		return 1;
->  
-> +	/*
-> +	 * The vma->anon_vma of the child process may be NULL
-> +	 * because the entire vma does not contain anonymous pages.
-> +	 * A BUG will occur when the copy_present_page() passes
-> +	 * a copy of a non-anonymous page of that vma to the
-> +	 * page_add_new_anon_rmap() to set up new anonymous rmap.
-> +	 * Return 1 if the page is not an anonymous page.
-> +	*/
-> +	if (!PageAnon(page))
-> +		return 1;
-> +
->  	new_page = *prealloc;
->  	if (!new_page)
->  		return -EAGAIN;
-> -- 
-> 2.25.1
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63597ea6a4b65ada91e7db64
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.75/a=
+rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
+vin.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.75/a=
+rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
+vin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/63597ea6a4b65ada91e7db8a
+        failing since 231 days (last pass: v5.15.25, first fail: v5.15.27)
+
+    2022-10-26T18:38:12.331931  <8>[   59.474583] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-10-26T18:38:13.355546  /lava-7730234/1/../bin/lava-test-case   =
+
+ =20
