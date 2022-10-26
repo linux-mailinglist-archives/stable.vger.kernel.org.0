@@ -2,109 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B141060E4EF
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:38:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A420860E52C
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 18:01:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233767AbiJZPiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 11:38:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33258 "EHLO
+        id S234652AbiJZQBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 12:01:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233833AbiJZPiR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:38:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE95313224A
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:38:16 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B134EB82344
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:38:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F17BC433D6;
-        Wed, 26 Oct 2022 15:38:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666798694;
-        bh=92PztjF3mlEZAumy8669STMEJRGS5xyXV8gs6hrvKlc=;
-        h=Subject:To:Cc:From:Date:From;
-        b=WflZTnLswBo3YzwRUF2U7GjabF1lMreVtggFULQZds4RNuNNWHfWkAQEnETk0qyvu
-         2+tX9S8pQN433NJo3WSPyWvnk8DvVboUJmW95xiaWsb1jgjc9NtUti1wW1fT3JuKJN
-         8J/Kz83DaIW4FgK8h8YWpNo2pV7qJvhdxe/mfBY4=
-Subject: FAILED: patch "[PATCH] x86/topology: Fix duplicated core ID within a package" failed to apply to 5.4-stable tree
-To:     rui.zhang@intel.com, dave.hansen@linux.intel.com,
-        len.brown@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Oct 2022 17:38:11 +0200
-Message-ID: <166679869185223@kroah.com>
+        with ESMTP id S234629AbiJZQB0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 12:01:26 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E2110FFC;
+        Wed, 26 Oct 2022 09:01:01 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id 21so8300738edv.3;
+        Wed, 26 Oct 2022 09:01:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eh+SEU+HnlEQUbzfnGbfU7kWNyEwnXy9QRYac8VJ2Q4=;
+        b=NpxL6YqAXQlu73AZJIkFuQX1ymYP/ct6mf0wbAK5OulIJMkr2/uBv7rqvE8RaazO86
+         FqB0tJYiiMaS1mlmkvuRE4tduf33y9xTYa7GOtdf6Y9L7O6iW1DDKcLiGPVfCzoHF4oM
+         vfZhchwk3lS7saoKnBYPcAZ2P1senLC8gdVGeETVCkiErXPEpfxnYegKcXRLoKD0HjSG
+         zzk0jEfAENn3ajktr3YQK3ASMLyebtbJVpy+5IqUBHMQ9vO4HeC+ZSUsIImTjwEis8P+
+         +OTw+6hiOF/M+ROAlVhZoXIAWf8llK6Lh+GbRiVGcWnIvhEM9FHbGHynCPnsgNjSUPM2
+         2o7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=eh+SEU+HnlEQUbzfnGbfU7kWNyEwnXy9QRYac8VJ2Q4=;
+        b=tMPQw49zOgzU40K2hnoDMgyGa3JDb/IPFRHinZlKoPsMUhZv84fvK/8Q3GYe7Lf28N
+         u1+Eu16RnuOmw+JIvAkKOoHX6s7PAmJR6MsIS5znmTqo5vvSwVZKigUDngO+z+4FrGzm
+         E519i50J188zr6OEqZByitzqv8AoMo2PqJu8pG6Cz8kjMJNO6roVg3mUjdT2iHNvRAJh
+         igXsDcBrTN4ECqklll6NTZgfCFVKVCEY2z2jfGepNNw5T7Qi3BopbGMRoutdhXp61fDj
+         K8hfkLLvoEakrmD8UtcUbKSpgqiApAk2JsPO1cv6gG1lG9VStHOggeI4REq0QiVkDls2
+         4EVQ==
+X-Gm-Message-State: ACrzQf0ps2lu7JKtPzWmObiq+7skjp00SSy2rNLcgNkBV1u6gE3acjIR
+        bZSMYerTlIfoiFOZ+D0+B8o=
+X-Google-Smtp-Source: AMsMyM6QXU8xfCeZGqtR6fz4hE0zcKx1lhuevTCZW36Q97qDQJUfxPXiBCuH/bsGX9HrCq73gGDFWA==
+X-Received: by 2002:a05:6402:358e:b0:461:ea80:fb61 with SMTP id y14-20020a056402358e00b00461ea80fb61mr12685675edc.356.1666800060420;
+        Wed, 26 Oct 2022 09:01:00 -0700 (PDT)
+Received: from michele-ThinkPad-T14-Gen-1.wind3.hub ([31.190.164.33])
+        by smtp.gmail.com with ESMTPSA id j6-20020a170906278600b00780b1979adesm3133449ejc.218.2022.10.26.09.00.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Oct 2022 09:00:58 -0700 (PDT)
+From:   mdecandia@gmail.com
+To:     gregkh@linuxfoundation.org
+Cc:     akpm@linux-foundation.org, bsegall@google.com, edumazet@google.com,
+        jbaron@akamai.com, khazhy@google.com, linux-kernel@vger.kernel.org,
+        r@hev.cc, rpenyaev@suse.de, shakeelb@google.com, stable@kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        viro@zeniv.linux.org.uk
+Subject: [PATCH 5.4 051/389] epoll: autoremove wakers even more aggressively
+Date:   Wed, 26 Oct 2022 18:00:51 +0200
+Message-Id: <20221026160051.5340-1-mdecandia@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220823080117.738248512@linuxfoundation.org>
+References: <20220823080117.738248512@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-Possible dependencies:
-
-71eac7063698 ("x86/topology: Fix duplicated core ID within a package")
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 71eac7063698b7d7b8fafb1683ac24a034541141 Mon Sep 17 00:00:00 2001
-From: Zhang Rui <rui.zhang@intel.com>
-Date: Fri, 14 Oct 2022 17:01:47 +0800
-Subject: [PATCH] x86/topology: Fix duplicated core ID within a package
-
-Today, core ID is assumed to be unique within each package.
-
-But an AlderLake-N platform adds a Module level between core and package,
-Linux excludes the unknown modules bits from the core ID, resulting in
-duplicate core ID's.
-
-To keep core ID unique within a package, Linux must include all APIC-ID
-bits for known or unknown levels above the core and below the package
-in the core ID.
-
-It is important to understand that core ID's have always come directly
-from the APIC-ID encoding, which comes from the BIOS. Thus there is no
-guarantee that they start at 0, or that they are contiguous.
-As such, naively using them for array indexes can be problematic.
-
-[ dhansen: un-known -> unknown ]
-
-Fixes: 7745f03eb395 ("x86/topology: Add CPUID.1F multi-die/package support")
-Suggested-by: Len Brown <len.brown@intel.com>
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Len Brown <len.brown@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20221014090147.1836-5-rui.zhang@intel.com
-
-diff --git a/arch/x86/kernel/cpu/topology.c b/arch/x86/kernel/cpu/topology.c
-index f7592814e5d5..5e868b62a7c4 100644
---- a/arch/x86/kernel/cpu/topology.c
-+++ b/arch/x86/kernel/cpu/topology.c
-@@ -141,7 +141,7 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
- 		sub_index++;
- 	}
- 
--	core_select_mask = (~(-1 << core_plus_mask_width)) >> ht_mask_width;
-+	core_select_mask = (~(-1 << pkg_mask_width)) >> ht_mask_width;
- 	die_select_mask = (~(-1 << die_plus_mask_width)) >>
- 				core_plus_mask_width;
- 
-
+=0D
+Subject: [PATCH 5.4 051/389] epoll: autoremove wakers even more aggressivel=
+y=0D
+=0D
+Hi all,=0D
+I'm facing an hangup of runc command during startup of containers on Ubuntu=
+ 20.04,=0D
+just adding this patch to my updated linux kernel 5.4.210.=0D
+=0D
+The runc process exits if I run an strace on it with the strace_runc_hangup=
+.login you can find here=0D
+=0D
+https://github.com/opencontainers/runc/issues/3641=0D
+=0D
+with more details.=0D
+=0D
+Testing it with previous docker-ce/containerio releases, just hangup the ru=
+nc process and it will remain locked even analyzing it with strace.=0D
+=0D
+Any idea or further test I can do on it?=0D
+=0D
+Thanks,=0D
+Michele=
