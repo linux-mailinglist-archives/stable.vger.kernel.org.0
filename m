@@ -2,105 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 365EF60E77A
+	by mail.lfdr.de (Postfix) with ESMTP id B32BD60E77B
 	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 20:33:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234260AbiJZSdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 14:33:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46910 "EHLO
+        id S233628AbiJZSdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 14:33:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234505AbiJZScv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 14:32:51 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76673BCA1
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 11:32:13 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id kt23so18232848ejc.7
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 11:32:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=m0iuel/bwanr0F35kqo/iiFIUgLGxYmOV2Z3DDNfjKU=;
-        b=kcWexajE0RetXYSRh7/phh7Xpm4jPXreN682urffe/jOF/DwXv5P809I50+u+LKrbK
-         2zHcPeHW9a61KwRvHZyUiNX+/3u2y/RKdCbK1FggilmIBFBUtkB2z5GDg1DiD0ZaIilQ
-         MM3Q7WO+XJmhfKy41QZulgGLyBiPVvYmu9WLFXMv1hLFbnbdbkwaY5r7y00SNq9nC9rd
-         A/wALr6gFp8Ds75oduHkwjj6TUC2BQe0nO6XUsMY/RuxDjI+0NsUaty31tNQLULOYnt7
-         NZC+TI6L77/Ngifx3fFem1V5ZjN04N7GMt/yCwFhHTuVnpQHMFi2oSwr1dgsnCJ2b7OZ
-         wM4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=m0iuel/bwanr0F35kqo/iiFIUgLGxYmOV2Z3DDNfjKU=;
-        b=pBhIhqjJwy+yAvbEOcphwDKZ1x8HbcHaBdITTs6uNQNX5CSP1GofLVSGNgPDjyr91I
-         U/hrtg5gyzmYY3mwbn0YxKcALYpGzY1h0aMQALEn+a/YLy5+XCt9124FRFL9vQg5UWGo
-         V+cVjMhIEwUwUCd3BCGw3FiaUG3LLgvykLnT7apqZ2lzHGGeF6M/prUZ9QWkj1srYwmX
-         UR//gambgvAT2CNQp3Eew1RfNVI2clvnxjtDQSM75DbRVkGzYGrEZRhWLWsvniVKL3Zb
-         nFtZ+7WjkOvljaowCuaPHxQuiHbvRSfW2eeLW7iBa7gXnbv2tWU4p6E6MiEx+fxAJvj+
-         mFlQ==
-X-Gm-Message-State: ACrzQf381xJ1pPChi0dyac9AGqXdBLlwGByedG+hlmQzpin9r+9P47H/
-        e7arC7j9Q/4d3BRsncsnO1yti5gxTDly7HX8SsygwCL2YQTChg==
-X-Google-Smtp-Source: AMsMyM7SAsGoH8Gf3FDbemeR5sFFvoWNx3EI5Xu6RQbn8jc9y/LeyrTF+i6Z+yuhwuJ1b04cQeAHWZIIOUWinJoMt5w=
-X-Received: by 2002:a17:907:94c1:b0:792:56d7:2879 with SMTP id
- dn1-20020a17090794c100b0079256d72879mr34270575ejc.144.1666809131974; Wed, 26
- Oct 2022 11:32:11 -0700 (PDT)
+        with ESMTP id S234508AbiJZScw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 14:32:52 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5503E6144
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 11:32:16 -0700 (PDT)
+Received: from [192.168.0.139] ([5.147.48.148]) by mail.gmx.net (mrgmx105
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 1MUXtY-1oerFO3Qno-00QVX6; Wed, 26
+ Oct 2022 20:32:14 +0200
+Message-ID: <a92bc96d-fdd0-08cf-6d29-4366efeb54a5@gmx.com>
+Date:   Wed, 26 Oct 2022 20:32:13 +0200
 MIME-Version: 1.0
-References: <20221026162438.711738-1-sethjenkins@google.com> <Y1ljQBkfcCoLYTx+@kroah.com>
-In-Reply-To: <Y1ljQBkfcCoLYTx+@kroah.com>
-From:   Seth Jenkins <sethjenkins@google.com>
-Date:   Wed, 26 Oct 2022 14:32:00 -0400
-Message-ID: <CALxfFW6a_Fe1rwbXf6LnG-1PvjtwLwGLHYYPr8c-Wda3NNJD8g@mail.gmail.com>
-Subject: Re: [PATCH stable 4.19-5.19] mm: /proc/pid/smaps_rollup: fix no vma's null-deref
-To:     Greg KH <gregkh@linuxfoundation.org>, willy@infradead.org,
-        Liam.Howlett@oracle.com
-Cc:     stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.0
+Subject: Re: [PATCH] backport: r8152: PID for the Lenovo OneLink+ Dock
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+References: <20221024214207.49365-1-jflf_kernel@gmx.com>
+ <Y1ll54KuNR/GUlIO@kroah.com>
+From:   jflf_kernel@gmx.com
+In-Reply-To: <Y1ll54KuNR/GUlIO@kroah.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:RWUdtYGrtC8Dcv8EB4z4JWp7lKBlX7rit8LG6MWrIcADFvVjkRC
+ wFE6sFjwsExZnJwpNHOOO1R+qflA/A6jFSevv6jU+bU+1CX6s0HE1/JTrL8pJkWlZ65L6zl
+ WwZygGel/RXPldxXFAliycNwUKqpEo7SG20WdCrN+d6q07Qv3noveFg89vtMxUh3c2A4jrM
+ WKUny12zTx2z2IChYAXeA==
+UI-OutboundReport: notjunk:1;M01:P0:hnnBHn7luys=;D8tVP1X6yuQoId5T1Ra5paFzkAA
+ OUxyxjIVEL+RmGPQk0o6zGZKkw0wnEY6WjskwONmlcqFC5j4RhOHXCY3Nd0mrnSmAXfKNII1C
+ kMgmZHYgbtV3J0iB5qvfuy/aYUXggBTE3MeHvEFLuYKLLCzi7hhK/EqAs28Myt+7lAuQ5oWqj
+ Hn3Ajs+nQLzcRi05KmGLNBq8u39ILorUkipu5oTdaem70QqDmM+p00EY407gKdKCoXzZjWqIj
+ 7fwPn98Uia+Z0hVO9Bg8Q7u1RpGSCj/7bSDuiThxIzLP++sBZsZwCj/Fw2GSXh1Nl4C++YIiU
+ 6jz0if4ok604RxNF94b/aaAWkdaHq4SzP5VOwlo/D8R58v7wGaCiZcHBsgfR/Px/bkACmev+X
+ pqwA4u1bjJhHt5ET7aPz6AUw4KYsiReiZ+Aa/2XgfribUxEmRbs3vBT2NE6zp06Vx7AIlc/Ze
+ uQqr7IRGZQnqdGNwVAcVQScUJLa5xjTabSZq21TISaJhR5ID102lA7MdVmKKmJhkgx0sOGLVT
+ c4tYSeI2CbgSehysyzbEqRWIGYJ+f5222tEnGSKC4GEZyuNZr+2IxCwzAkwiSI0vAokvC9umI
+ 2RZo6xTgycCrzX+hW5DOkS4LnU4i2qbfx2XD1xnxRjlkvLQulMsC2fvDED5Md0s8JUE7GgmaO
+ MMZRt/u6tT+aw6rI2SV7p6z4DUG/dfmwcPP87bdvzqJQ2qyzIR0mFSp09UuFf+bZvdAusZNdN
+ Ys93HmCF/VD0ySqtTrPKDaSeZNOVwRQE5I9ooF0LkgXQUoJnuoHez/TOHvL/K6z6o0fYQ1mBP
+ b11/iP8M/PXmCVsJp903jvYW1kP7lVlzZxYkO2GGoaZldRaWjZ8u4z1L3XpiDtI7TzJunq27a
+ A7Vf7JfgRoI5BVgMgUqotNLC37lbgRoGGi2fTd4CZJvyja+rck7jjxvMbbGIIvE4V8mFyFAkA
+ HnEhDg==
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,FREEMAIL_FROM,
+        NICE_REPLY_A,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
 
-The upstream commit that fixed the issue was not an intentional fix
-AFAIK, but a refactor to switch to maple tree VMA lookups. I was under
-the impression that there were no plans to backport maple trees back
-to stable trees but do let me know if that presumption is incorrect.
-Assuming they're not getting backported, what do you think of this
-instead:
-c4c84f06285e on upstream resolves this issue as part of the switch to
-using maple trees for VMA lookups, but a fix must still be applied to
-stable trees 4.19-5.19.
-
-On Wed, Oct 26, 2022 at 12:41 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Wed, Oct 26, 2022 at 12:24:38PM -0400, Seth Jenkins wrote:
-> > Commit 258f669e7e88 ("mm: /proc/pid/smaps_rollup: convert to single value
-> > seq_file") introduced a null-deref if there are no vma's in the task in
-> > show_smaps_rollup.
-> >
-> > Fixes: 258f669e7e88 ("mm: /proc/pid/smaps_rollup: convert to single value seq_file")
-> > Signed-off-by: Seth Jenkins <sethjenkins@google.com>
-> > Reviewed-by: Alexey Dobriyan <adobriyan@gmail.com>
-> > Tested-by: Alexey Dobriyan <adobriyan@gmail.com>
-> > ---
-> > c4c84f06285e on upstream resolves this issue, but a fix must still be applied to stable trees 4.19-5.19.
->
-> And you need to document really really really well why we can not take
-> that upstream commit please.
->
-> Also note that 5.19.y is end-of-life.
->
-> Please fix up and resend.
->
-> thanks,
->
+On 26/10/2022 18.52, Greg KH wrote:
+> On Mon, Oct 24, 2022 at 11:42:07PM +0200, Jean-Francois Le Fillatre wrote:
+>> [ Upstream commit 1bd3a383075c64d638e65d263c9267b08ee7733c ]
+>>
+>> The Lenovo OneLink+ Dock contains an RTL8153 controller that behaves as
+>> a broken CDC device by default. Add the custom Lenovo PID to the r8152
+>> driver to support it properly.
+>>
+>> This backport removes the PID declaration for MAC address passthrough,
+>> for kernels that don't support the feature.
+>>
+>> Applies to v4.14, v4.19, v5.4, v5.10
+>>
+>> Signed-off-by: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
+> 
+> All now queued up, thanks.
+> 
 > greg k-h
+
+Thank you very much, much appreciated. It's been a learning curve.
+
+JF
