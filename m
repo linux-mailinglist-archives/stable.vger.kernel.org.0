@@ -2,52 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17CB760E5A6
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 18:45:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEB2260E5B4
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 18:48:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233736AbiJZQo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 12:44:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40560 "EHLO
+        id S233779AbiJZQsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 12:48:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233764AbiJZQoz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 12:44:55 -0400
+        with ESMTP id S233812AbiJZQsB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 12:48:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0C71186F8;
-        Wed, 26 Oct 2022 09:44:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5562CFF264;
+        Wed, 26 Oct 2022 09:48:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FD3161FC1;
-        Wed, 26 Oct 2022 16:44:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 667D6C433D6;
-        Wed, 26 Oct 2022 16:44:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E815361FB7;
+        Wed, 26 Oct 2022 16:47:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3FBCC433D6;
+        Wed, 26 Oct 2022 16:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666802691;
-        bh=v2vJEnTUg412iPyFqVh3AU7lTJ8xlrRpmNsdJMgQONo=;
+        s=korg; t=1666802879;
+        bh=N4pHwh+tY/v5x/wFmlPjVR8THFTPHGXNBhEs3/MGs9M=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=z52xgPPJhqJZ1LUJNuyTcSUnCQgc2fk/LJ4wwshdKmoxYPho4SCkIZ/aG6EHKVCxB
-         48VQ8+9/1zhMOcaLJu2wOTfpu4YpMByRygviQl9nHJI9JNgx6NTFcTBtGkhHmsYFqv
-         3DERACnBjaeWMdeT9cyuCMHYigQ5Z1M8MR6rR1FM=
-Date:   Wed, 26 Oct 2022 18:44:49 +0200
+        b=pLZ/B8Wv0pu2V3uqRUFKBPEVKhEdE1jIpLu3LqmCGfVzJSUIpKeEJryJfgnxLQwP9
+         3XRmyI3D04S50xeJwNY8mcezi7j8NoesrmlnfEQAKXycv8wG6mCqPv1pQgahQAoYw1
+         +Jl2ESk7qjwlazzon29GNoHSKF0EyahlvZPejr9I=
+Date:   Wed, 26 Oct 2022 18:47:56 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jiri Olsa <jolsa@kernel.org>
-Cc:     stable@vger.kernel.org, bpf@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin Rodriguez Reboredo <yakoyoku@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Philip =?iso-8859-1?Q?M=FCller?= <philm@manjaro.org>
-Subject: Re: [PATCH stable 5.10 0/5] kbuild: Fix compilation for latest
- pahole release
-Message-ID: <Y1lkASXgeW0jfP8o@kroah.com>
-References: <20221019085604.1017583-1-jolsa@kernel.org>
+To:     Yu Kuai <yukuai1@huaweicloud.com>
+Cc:     axboe@kernel.dk, yukuai3@huawei.com, stable@vger.kernel.org,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        yi.zhang@hawei.com
+Subject: Re: [PATCH 5.10 2/3] blk-wbt: call rq_qos_add() after wb_normal is
+ initialized
+Message-ID: <Y1lkvFXjEMA80AFO@kroah.com>
+References: <20221018014326.467842-1-yukuai1@huaweicloud.com>
+ <20221018014326.467842-3-yukuai1@huaweicloud.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221019085604.1017583-1-jolsa@kernel.org>
+In-Reply-To: <20221018014326.467842-3-yukuai1@huaweicloud.com>
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
@@ -58,40 +53,17 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 19, 2022 at 10:55:59AM +0200, Jiri Olsa wrote:
-> hi,
-> new version of pahole (1.24) is causing compilation fail for 5.10
-> stable kernel, discussed in here [1][2]. Sending fix for that plus
-> dependency patches.
+On Tue, Oct 18, 2022 at 09:43:25AM +0800, Yu Kuai wrote:
+> From: Yu Kuai <yukuai3@huawei.com>
 > 
-> thanks,
-> jirka
-> 
-> 
-> [1] https://lore.kernel.org/bpf/20220825163538.vajnsv3xcpbhl47v@altlinux.org/
-> [2] https://lore.kernel.org/bpf/YwQRKkmWqsf%2FDu6A@kernel.org/
-> ---
-> Andrii Nakryiko (1):
->       kbuild: skip per-CPU BTF generation for pahole v1.18-v1.21
-> 
-> Ilya Leoshkevich (1):
->       bpf: Generate BTF_KIND_FLOAT when linking vmlinux
-> 
-> Javier Martinez Canillas (1):
->       kbuild: Quote OBJCOPY var to avoid a pahole call break the build
-> 
-> Jiri Olsa (1):
->       kbuild: Unify options for BTF generation for vmlinux and modules
-> 
-> Martin Rodriguez Reboredo (1):
->       kbuild: Add skip_encoding_btf_enum64 option to pahole
-> 
->  Makefile                |  3 +++
->  scripts/link-vmlinux.sh |  2 +-
->  scripts/pahole-flags.sh | 21 +++++++++++++++++++++
->  3 files changed, 25 insertions(+), 1 deletion(-)
->  create mode 100755 scripts/pahole-flags.sh
+> commit 8c5035dfbb9475b67c82b3fdb7351236525bf52b upstream.
 
-Now queued up, thanks.
+I need a 5.15 version of this, and the 3/3 patch in order to be able to
+apply the 5.10.y version.
+
+Can you please send that, and then resend the remaining patches here for
+5.10.y?
+
+thanks,
 
 greg k-h
