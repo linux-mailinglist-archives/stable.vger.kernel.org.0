@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AF1160E434
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:11:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E3560E438
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:11:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231164AbiJZPLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 11:11:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34908 "EHLO
+        id S234295AbiJZPLR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 11:11:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234474AbiJZPLL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:11:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25E536292E
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:11:08 -0700 (PDT)
+        with ESMTP id S234478AbiJZPLR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:11:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2504D98349
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:11:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B620D61F71
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:11:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5D73C433C1;
-        Wed, 26 Oct 2022 15:11:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B07A8B822FF
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:11:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0847CC433C1;
+        Wed, 26 Oct 2022 15:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666797067;
-        bh=zsujlgFyJjet5xmFZljWMjgcWGgGbMB2GZ2FzDcNj/0=;
+        s=korg; t=1666797070;
+        bh=wMFwPkXqLyME8VnUPWM+N9HoYBXLPWhFmlUixARJWcI=;
         h=Subject:To:Cc:From:Date:From;
-        b=Mgkv8Tu0ueI34bz9MZTJCT6yt0vOlwq414JrUP05BSAGFnArKkaNA2aE4W5bTLdm4
-         sNOqfGr7NOXppH+Cf4nVPmZyRG2GQUavpKjuI38PeXPScYN+ZjE0Squy+y3cnDlU8c
-         C9gg2209EgxVGqHs0Xz0Ym/Xl7LUVVfzoFn2A3sY=
-Subject: FAILED: patch "[PATCH] media: mceusb: Use new usb_control_msg_*() routines" failed to apply to 6.0-stable tree
+        b=p9bmh+bFObudRCStocDoBClCQcXNBs18aTrAsuo8kMwb8Y5/krjNx5ne25qYYSDTc
+         FenBl6FxYPoxqWR31CU+uh9KoBStm93yF1KMrGVzCCTsvtA/c11CTkNkf5XZKT99/N
+         fXv/VT1R2BOvG1OdzxtfsaLuxOWj/p8nrfZkZ+N0=
+Subject: FAILED: patch "[PATCH] media: mceusb: Use new usb_control_msg_*() routines" failed to apply to 5.15-stable tree
 To:     stern@rowland.harvard.edu, linhaoguo86@gmail.com,
         mchehab@kernel.org, sean@mess.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Oct 2022 17:11:04 +0200
-Message-ID: <166679706424177@kroah.com>
+Date:   Wed, 26 Oct 2022 17:11:06 +0200
+Message-ID: <166679706639163@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,7 @@ id to <stable@vger.kernel.org>.
 Possible dependencies:
 
 41fd1cb61514 ("media: mceusb: Use new usb_control_msg_*() routines")
+16394e998cbb ("media: mceusb: fix control-message timeouts")
 
 thanks,
 
