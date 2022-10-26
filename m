@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 749D460E422
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:08:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A737760E424
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:08:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233318AbiJZPIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 11:08:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55880 "EHLO
+        id S234362AbiJZPIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 11:08:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234280AbiJZPIt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:08:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5539125009
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:08:48 -0700 (PDT)
+        with ESMTP id S234020AbiJZPIy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:08:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 730C412347E
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:08:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83B39B822F6
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:08:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF58AC433C1;
-        Wed, 26 Oct 2022 15:08:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 105AD61F4E
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:08:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 240E1C433C1;
+        Wed, 26 Oct 2022 15:08:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666796926;
-        bh=GqH8CU5wDH7rWNLUjAwkgas/nIoAC6beJK24Im8xtcg=;
+        s=korg; t=1666796932;
+        bh=SCs+mFFs6HCdnUBA5nIP4nssLf622QRPW3i2pYkNKWQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZK3HDPCFo6M+ymzGJsxhYPTufp1/DUwadYq5hL41cqHoRmHyxvk/LX82j4cLgO87Q
-         ctXxfkfhnKyO/DV58uwqRVv5MczLYJDHfmjHumbvNW4V60HLc6JA+3gLDMKoLK4O55
-         qaa0+6Y/ekU6eaMyteKu85EHT3HLXOKhVpmGmAjw=
-Subject: FAILED: patch "[PATCH] KVM: x86: Add compat handler for KVM_X86_SET_MSR_FILTER" failed to apply to 5.10-stable tree
+        b=lv/Dp5FCTFMGVLf3qnlKW3CzgNAhmPt7rkeT9b/kqDhxXCRyatho/KHU4goJj3ap3
+         uPB9Pd6fsadda8x32UGmwNB3RT/HZ1OWSj6z9CKcqf5+VmgnsEsqTaa8sdWs6yaR4v
+         HhN8Y4JKmN1DTYr7bMEqaxkXio8zP/gUkUkY4EtE=
+Subject: FAILED: patch "[PATCH] KVM: x86: Add compat handler for KVM_X86_SET_MSR_FILTER" failed to apply to 5.15-stable tree
 To:     graf@amazon.com, pbonzini@redhat.com, randrianasulu@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Oct 2022 17:08:41 +0200
-Message-ID: <1666796921121176@kroah.com>
+Date:   Wed, 26 Oct 2022 17:08:42 +0200
+Message-ID: <16667969227954@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,7 +56,6 @@ id to <stable@vger.kernel.org>.
 Possible dependencies:
 
 1739c7017fb1 ("KVM: x86: Add compat handler for KVM_X86_SET_MSR_FILTER")
-7d62874f69d7 ("kvm: x86: implement KVM PM-notifier")
 
 thanks,
 
