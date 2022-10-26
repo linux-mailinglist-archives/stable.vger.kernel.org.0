@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B01360E41D
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:07:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 835EA60E420
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:08:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233677AbiJZPHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 11:07:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54796 "EHLO
+        id S230090AbiJZPIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 11:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233655AbiJZPHk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:07:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E9FD10DE56
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:07:39 -0700 (PDT)
+        with ESMTP id S234284AbiJZPIj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:08:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F535125038
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:08:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A0CAB82256
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:07:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A82FAC433D6;
-        Wed, 26 Oct 2022 15:07:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CBAD61F4E
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:08:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F084C433D7;
+        Wed, 26 Oct 2022 15:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666796857;
-        bh=yhBBcOVwgh/KpyUkyLq3o6TV+9c9032o48LVxRUO9j4=;
+        s=korg; t=1666796917;
+        bh=9WX5WJ5QCo7hc5LA8I30a46R/fHJRCxWyp/2lofU/cQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=dfl5ueiPI8X0/cwlHxQ65g54pFzSkqRX4Z2+0dlJC28kIrnznNNrjg98K1vn5S+R2
-         TWLvty2lazoyREH4V/R+ZH/8AhXYJVBtFdpezFRyXJD0EXUa26gvDqdnD+8pLp6BCN
-         xEpio+YaGnP1UAFHrOioHgvk/cPTwz0i0DEY3BVw=
-Subject: FAILED: patch "[PATCH] mm,hugetlb: take hugetlb_lock before decrementing" failed to apply to 4.9-stable tree
-To:     riel@surriel.com, akpm@linux-foundation.org, gkmccready@meta.com,
-        mike.kravetz@oracle.com, n-horiguchi@ah.jp.nec.com,
-        songmuchun@bytedance.com, stable@vger.kernel.org
+        b=eMI6SDXZHnoITWTDTQTej47oMI7NFapoVxXT/4TBOHqexwqM+9dhNsEmZa3uumARw
+         o2PBaS8FrBexMKxLAVxgpLS9ykkDWQ3Csj2MIrRlJ18qCnP72PTP4vext8uC2FtWOw
+         kbaBhh0D2eh44FYnpnA9vButLr5KAbBGyLdsAmbo=
+Subject: FAILED: patch "[PATCH] KVM: x86: Copy filter arg outside" failed to apply to 5.10-stable tree
+To:     graf@amazon.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Oct 2022 17:07:26 +0200
-Message-ID: <1666796846105131@kroah.com>
+Date:   Wed, 26 Oct 2022 17:08:35 +0200
+Message-ID: <16667969154640@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,33 +48,33 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-12df140f0bdf ("mm,hugetlb: take hugetlb_lock before decrementing h->resv_huge_pages")
-db71ef79b59b ("hugetlb: make free_huge_page irq safe")
-10c6ec49802b ("hugetlb: change free_pool_huge_page to remove_pool_huge_page")
-1121828a0c21 ("hugetlb: call update_and_free_page without hugetlb_lock")
-6eb4e88a6d27 ("hugetlb: create remove_hugetlb_page() to separate functionality")
-2938396771c8 ("hugetlb: add per-hstate mutex to synchronize user adjustments")
-5c8ecb131a65 ("mm/hugetlb_cgroup: remove unnecessary VM_BUG_ON_PAGE in hugetlb_cgroup_migrate()")
-5af1ab1d24e0 ("mm/hugetlb: optimize the surplus state transfer code in move_hugetlb_state()")
-6c0371490140 ("hugetlb: convert PageHugeFreed to HPageFreed flag")
-9157c31186c3 ("hugetlb: convert PageHugeTemporary() to HPageTemporary flag")
-8f251a3d5ce3 ("hugetlb: convert page_huge_active() HPageMigratable flag")
-d6995da31122 ("hugetlb: use page.private for hugetlb specific page flags")
-dbfee5aee7e5 ("hugetlb: fix update_and_free_page contig page struct assumption")
-3f1b0162f6f6 ("mm/hugetlb: remove unnecessary VM_BUG_ON_PAGE on putback_active_hugepage()")
-1d88433bb008 ("mm/hugetlb: fix use after free when subpool max_hpages accounting is not enabled")
-0aa7f3544aaa ("mm/hugetlb: avoid unnecessary hugetlb_acct_memory() call")
-ecbf4724e606 ("mm: hugetlb: remove VM_BUG_ON_PAGE from page_huge_active")
-0eb2df2b5629 ("mm: hugetlb: fix a race between isolating and freeing page")
-7ffddd499ba6 ("mm: hugetlb: fix a race between freeing and dissolving the page")
-585fc0d2871c ("mm: hugetlbfs: fix cannot migrate the fallocated HugeTLB page")
+2e3272bc1790 ("KVM: x86: Copy filter arg outside kvm_vm_ioctl_set_msr_filter()")
+cf5029d5dd7c ("KVM: x86: Protect the unused bits in MSR exiting flags")
+b318e8decf6b ("KVM: x86: Protect userspace MSR filter with SRCU, and set atomically-ish")
+b3646477d458 ("KVM: x86: use static calls to reduce kvm_x86_ops overhead")
+fe6b6bc802b4 ("KVM: VMX: Enable bus lock VM exit")
+8e5332402164 ("KVM: VMX: Convert vcpu_vmx.exit_reason to a union")
+15b51dc08a34 ("KVM: x86: Take KVM's SRCU lock only if steal time update is needed")
+19979fba9bfa ("KVM: x86: Remove obsolete disabling of page faults in kvm_arch_vcpu_put()")
+647daca25d24 ("KVM: SVM: Add support for booting APs in an SEV-ES guest")
+8640ca588b03 ("KVM: SVM: Add AP_JUMP_TABLE support in prep for AP booting")
+861377730aa9 ("KVM: SVM: Provide support for SEV-ES vCPU loading")
+376c6d285017 ("KVM: SVM: Provide support for SEV-ES vCPU creation/loading")
+85ca8be938c0 ("KVM: SVM: Set the encryption mask for the SVM host save area")
+4444dfe4050b ("KVM: SVM: Add NMI support for an SEV-ES guest")
+5719455fbd95 ("KVM: SVM: Do not report support for SMM for an SEV-ES guest")
+7ed9abfe8e9f ("KVM: SVM: Support string IO operations for an SEV-ES guest")
+8f423a80d299 ("KVM: SVM: Support MMIO for an SEV-ES guest")
+d523ab6ba275 ("KVM: SVM: Create trace events for VMGEXIT processing")
+d36946679ef6 ("KVM: SVM: Add support for SEV-ES GHCB MSR protocol function 0x004")
+1edc14599e06 ("KVM: SVM: Add support for SEV-ES GHCB MSR protocol function 0x002")
 
 thanks,
 
@@ -84,48 +82,87 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 12df140f0bdfae5dcfc81800970dd7f6f632e00c Mon Sep 17 00:00:00 2001
-From: Rik van Riel <riel@surriel.com>
-Date: Mon, 17 Oct 2022 20:25:05 -0400
-Subject: [PATCH] mm,hugetlb: take hugetlb_lock before decrementing
- h->resv_huge_pages
+From 2e3272bc1790825c43d2c39690bf2836b81c6d36 Mon Sep 17 00:00:00 2001
+From: Alexander Graf <graf@amazon.com>
+Date: Mon, 17 Oct 2022 20:45:40 +0200
+Subject: [PATCH] KVM: x86: Copy filter arg outside
+ kvm_vm_ioctl_set_msr_filter()
 
-The h->*_huge_pages counters are protected by the hugetlb_lock, but
-alloc_huge_page has a corner case where it can decrement the counter
-outside of the lock.
+In the next patch we want to introduce a second caller to
+set_msr_filter() which constructs its own filter list on the stack.
+Refactor the original function so it takes it as argument instead of
+reading it through copy_from_user().
 
-This could lead to a corrupted value of h->resv_huge_pages, which we have
-observed on our systems.
+Signed-off-by: Alexander Graf <graf@amazon.com>
+Message-Id: <20221017184541.2658-3-graf@amazon.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-Take the hugetlb_lock before decrementing h->resv_huge_pages to avoid a
-potential race.
-
-Link: https://lkml.kernel.org/r/20221017202505.0e6a4fcd@imladris.surriel.com
-Fixes: a88c76954804 ("mm: hugetlb: fix hugepage memory leak caused by wrong reserve count")
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Glen McCready <gkmccready@meta.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index b586cdd75930..dede0337c07c 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -2924,11 +2924,11 @@ struct page *alloc_huge_page(struct vm_area_struct *vma,
- 		page = alloc_buddy_huge_page_with_mpol(h, vma, addr);
- 		if (!page)
- 			goto out_uncharge_cgroup;
-+		spin_lock_irq(&hugetlb_lock);
- 		if (!avoid_reserve && vma_has_reserves(vma, gbl_chg)) {
- 			SetHPageRestoreReserve(page);
- 			h->resv_huge_pages--;
- 		}
--		spin_lock_irq(&hugetlb_lock);
- 		list_add(&page->lru, &h->hugepage_activelist);
- 		set_page_refcounted(page);
- 		/* Fall through */
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 4bd5f8a751de..78f779f0264b 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6442,26 +6442,22 @@ static int kvm_add_msr_filter(struct kvm_x86_msr_filter *msr_filter,
+ 	return 0;
+ }
+ 
+-static int kvm_vm_ioctl_set_msr_filter(struct kvm *kvm, void __user *argp)
++static int kvm_vm_ioctl_set_msr_filter(struct kvm *kvm,
++				       struct kvm_msr_filter *filter)
+ {
+-	struct kvm_msr_filter __user *user_msr_filter = argp;
+ 	struct kvm_x86_msr_filter *new_filter, *old_filter;
+-	struct kvm_msr_filter filter;
+ 	bool default_allow;
+ 	bool empty = true;
+ 	int r = 0;
+ 	u32 i;
+ 
+-	if (copy_from_user(&filter, user_msr_filter, sizeof(filter)))
+-		return -EFAULT;
+-
+-	if (filter.flags & ~KVM_MSR_FILTER_DEFAULT_DENY)
++	if (filter->flags & ~KVM_MSR_FILTER_DEFAULT_DENY)
+ 		return -EINVAL;
+ 
+-	for (i = 0; i < ARRAY_SIZE(filter.ranges); i++)
+-		empty &= !filter.ranges[i].nmsrs;
++	for (i = 0; i < ARRAY_SIZE(filter->ranges); i++)
++		empty &= !filter->ranges[i].nmsrs;
+ 
+-	default_allow = !(filter.flags & KVM_MSR_FILTER_DEFAULT_DENY);
++	default_allow = !(filter->flags & KVM_MSR_FILTER_DEFAULT_DENY);
+ 	if (empty && !default_allow)
+ 		return -EINVAL;
+ 
+@@ -6469,8 +6465,8 @@ static int kvm_vm_ioctl_set_msr_filter(struct kvm *kvm, void __user *argp)
+ 	if (!new_filter)
+ 		return -ENOMEM;
+ 
+-	for (i = 0; i < ARRAY_SIZE(filter.ranges); i++) {
+-		r = kvm_add_msr_filter(new_filter, &filter.ranges[i]);
++	for (i = 0; i < ARRAY_SIZE(filter->ranges); i++) {
++		r = kvm_add_msr_filter(new_filter, &filter->ranges[i]);
+ 		if (r) {
+ 			kvm_free_msr_filter(new_filter);
+ 			return r;
+@@ -6915,9 +6911,16 @@ long kvm_arch_vm_ioctl(struct file *filp,
+ 	case KVM_SET_PMU_EVENT_FILTER:
+ 		r = kvm_vm_ioctl_set_pmu_event_filter(kvm, argp);
+ 		break;
+-	case KVM_X86_SET_MSR_FILTER:
+-		r = kvm_vm_ioctl_set_msr_filter(kvm, argp);
++	case KVM_X86_SET_MSR_FILTER: {
++		struct kvm_msr_filter __user *user_msr_filter = argp;
++		struct kvm_msr_filter filter;
++
++		if (copy_from_user(&filter, user_msr_filter, sizeof(filter)))
++			return -EFAULT;
++
++		r = kvm_vm_ioctl_set_msr_filter(kvm, &filter);
+ 		break;
++	}
+ 	default:
+ 		r = -ENOTTY;
+ 	}
 
