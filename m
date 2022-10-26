@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6972760E42F
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:10:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16BBC60E433
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:11:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233663AbiJZPKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 11:10:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33878 "EHLO
+        id S234492AbiJZPLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 11:11:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233948AbiJZPKp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:10:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD31F60EBA
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:10:44 -0700 (PDT)
+        with ESMTP id S234328AbiJZPLB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:11:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAE0390824
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:10:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A07B61F72
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:10:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A087C433D7;
-        Wed, 26 Oct 2022 15:10:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 827A561F4E
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:10:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95AE3C433D6;
+        Wed, 26 Oct 2022 15:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666797043;
-        bh=sJHSkzTZhw79F/NSb4T/ZeQLbzLGS+DajhHIFZgbqoQ=;
+        s=korg; t=1666797057;
+        bh=AeO/vIaij6dPiGJnm+mQ/jS04qm8Bmd8fJgGKSzYZfc=;
         h=Subject:To:Cc:From:Date:From;
-        b=T3U4hGjZbGZdU7S6I4KZwWBF9Uei/QSX5WH0HXKfpox4UVsJN0fBnuR4cmzkQpXoD
-         UK2FKleYdlT0QPJEK0REGIuEu5gOW9ZwlGqI1mSaA4Fz1hxThA0vJPTa9WTC2+a6vX
-         q87jBJEeQ1oEBL28naZuwJ9JSBpkHlWqRXP+GvjA=
-Subject: FAILED: patch "[PATCH] media: mceusb: set timeout to at least timeout provided" failed to apply to 4.9-stable tree
-To:     sean@mess.org, mchehab@kernel.org
+        b=hGkxj5DHgQ2BldmtyZqvMY0mD/Ot4k0O0nZPVnVBbaIS3DAg5Ms/8wvq7ELx/4yJo
+         pCVcSNlMnn3u9Ilpcst3bBRtYml2KxBaZWLb0f5Obb0rrjcJh8W6jmH/dzzSEspGYr
+         EP2WTk+L7JzWfZd2IK3O0VtSwqimCURZk1PSL7BI=
+Subject: FAILED: patch "[PATCH] media: mceusb: Use new usb_control_msg_*() routines" failed to apply to all-stable tree
+To:     stern@rowland.harvard.edu, linhaoguo86@gmail.com,
+        mchehab@kernel.org, sean@mess.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Oct 2022 17:10:29 +0200
-Message-ID: <166679702990171@kroah.com>
+Date:   Wed, 26 Oct 2022 17:10:55 +0200
+Message-ID: <1666797055201253@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,CONTENT_AFTER_HTML,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -48,25 +49,53 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the all-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-20b794ddce47 ("media: mceusb: set timeout to at least timeout provided")
-528222d853f9 ("media: rc: harmonize infrared durations to microseconds")
-261463dbc34f ("media: rc: add support for Infrared Toy and IR Droid devices")
-6f5129e251ae ("media: rtl28xxu: fix idle handling")
-e43148645d18 ("media: mceusb: fix out of bounds read in MCE receiver buffer")
-81bab3fa6ca8 ("media: rc: increase rc-mm tolerance and add debug message")
-9fc3ce31f5bd ("media: mceusb: fix (eliminate) TX IR signal length limit")
-0c4df39e504b ("media: technisat-usb2: break out of loop at end of buffer")
-172876928f98 ("media: rc: xbox_remote: add protocol and set timeout")
-a49a7a4635de ("media: smipcie: add universal ir capability")
-721074b03411 ("media: rc: rcmm decoder and encoder")
-903b77c63167 ("Merge tag 'linux-kselftest-4.21-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/shuah/linux-kselftest")
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<title>kernel/git/sashal/deps.git - Sashas dependency resolver</title>
+<meta name='generator' content='cgit '/>
+<meta name='robots' content='noindex, nofollow'/>
+<link rel='stylesheet' type='text/css' href='/cgit-data/cgit.css'/>
+<link rel='shortcut icon' href='/favicon.ico'/>
+<link rel='alternate' title='Atom feed' href='http://git.kernel.org/pub/scm/linux/kernel/git/sashal/deps.git/atom/?h=master' type='application/atom+xml'/>
+<link rel='vcs-git' href='git://git.kernel.org/pub/scm/linux/kernel/git/sashal/deps.git' title='kernel/git/sashal/deps.git Git repository'/>
+<link rel='vcs-git' href='https://git.kernel.org/pub/scm/linux/kernel/git/sashal/deps.git' title='kernel/git/sashal/deps.git Git repository'/>
+<link rel='vcs-git' href='https://kernel.googlesource.com/pub/scm/linux/kernel/git/sashal/deps.git' title='kernel/git/sashal/deps.git Git repository'/>
+</head>
+<body>
+<div id='cgit'><table id='header'>
+<tr>
+<td class='logo' rowspan='2'><a href='/'><img src='/cgit-data/cgit.png' alt='cgit logo'/></a></td>
+<td class='main'><a href='/'>index</a> : <a title='kernel/git/sashal/deps.git' href='/pub/scm/linux/kernel/git/sashal/deps.git/'>kernel/git/sashal/deps.git</a></td><td class='form'><form method='get'>
+<select name='h' onchange='this.form.submit();'>
+<option value='master' selected='selected'>master</option>
+</select> <input type='submit' value='switch'/></form></td></tr>
+<tr><td class='sub'>Sashas dependency resolver</td><td class='sub right'>Sasha Levin</td></tr></table>
+<table class='tabs'><tr><td>
+<a href='/pub/scm/linux/kernel/git/sashal/deps.git/'>summary</a><a href='/pub/scm/linux/kernel/git/sashal/deps.git/refs/'>refs</a><a href='/pub/scm/linux/kernel/git/sashal/deps.git/log/'>log</a><a href='/pub/scm/linux/kernel/git/sashal/deps.git/tree/'>tree</a><a href='/pub/scm/linux/kernel/git/sashal/deps.git/commit/'>commit</a><a href='/pub/scm/linux/kernel/git/sashal/deps.git/diff/'>diff</a><a href='/pub/scm/linux/kernel/git/sashal/deps.git/stats/'>stats</a></td><td class='form'><form class='right' method='get' action='/pub/scm/linux/kernel/git/sashal/deps.git/log/'>
+<select name='qt'>
+<option value='grep'>log msg</option>
+<option value='author'>author</option>
+<option value='committer'>committer</option>
+<option value='range'>range</option>
+</select>
+<input class='txt' type='search' size='10' name='q' value=''/>
+<input type='submit' value='search'/>
+</form>
+</td></tr></table>
+<div class='content'><div class='error'>Not found</div>
+</div> <!-- class=content -->
+<div class='footer'>generated by <a href='https://git.zx2c4.com/cgit/about/'>cgit </a> (<a href='https://git-scm.com/'>git 2.34.1</a>) at 2022-10-26 15:10:55 +0000</div>
+</div> <!-- id=cgit -->
+</body>
+</html>
 
 thanks,
 
@@ -74,31 +103,129 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 20b794ddce475ed012deb365000527c17b3e93e6 Mon Sep 17 00:00:00 2001
-From: Sean Young <sean@mess.org>
-Date: Fri, 2 Sep 2022 12:32:21 +0200
-Subject: [PATCH] media: mceusb: set timeout to at least timeout provided
+From 41fd1cb6151439b205ac7611883d85ae14250172 Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Fri, 26 Aug 2022 21:31:40 +0200
+Subject: [PATCH] media: mceusb: Use new usb_control_msg_*() routines
 
-By rounding down, the actual timeout can be lower than requested. As a
-result, long spaces just below the requested timeout can be incorrectly
-reported as timeout and truncated.
+Automatic kernel fuzzing led to a WARN about invalid pipe direction in
+the mceusb driver:
 
-Fixes: 877f1a7cee3f ("media: rc: mceusb: allow the timeout to be configurable")
+------------[ cut here ]------------
+usb 6-1: BOGUS control dir, pipe 80000380 doesn't match bRequestType 40
+WARNING: CPU: 0 PID: 2465 at drivers/usb/core/urb.c:410
+usb_submit_urb+0x1326/0x1820 drivers/usb/core/urb.c:410
+Modules linked in:
+CPU: 0 PID: 2465 Comm: kworker/0:2 Not tainted 5.19.0-rc4-00208-g69cb6c6556ad #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+1.13.0-1ubuntu1.1 04/01/2014
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:usb_submit_urb+0x1326/0x1820 drivers/usb/core/urb.c:410
+Code: 7c 24 40 e8 ac 23 91 fd 48 8b 7c 24 40 e8 b2 70 1b ff 45 89 e8
+44 89 f1 4c 89 e2 48 89 c6 48 c7 c7 a0 30 a9 86 e8 48 07 11 02 <0f> 0b
+e9 1c f0 ff ff e8 7e 23 91 fd 0f b6 1d 63 22 83 05 31 ff 41
+RSP: 0018:ffffc900032becf0 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: ffff8881100f3058 RCX: 0000000000000000
+RDX: ffffc90004961000 RSI: ffff888114c6d580 RDI: fffff52000657d90
+RBP: ffff888105ad90f0 R08: ffffffff812c3638 R09: 0000000000000000
+R10: 0000000000000005 R11: ffffed1023504ef1 R12: ffff888105ad9000
+R13: 0000000000000040 R14: 0000000080000380 R15: ffff88810ba96500
+FS: 0000000000000000(0000) GS:ffff88811a800000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffe810bda58 CR3: 000000010b720000 CR4: 0000000000350ef0
+Call Trace:
+<TASK>
+usb_start_wait_urb+0x101/0x4c0 drivers/usb/core/message.c:58
+usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
+usb_control_msg+0x31c/0x4a0 drivers/usb/core/message.c:153
+mceusb_gen1_init drivers/media/rc/mceusb.c:1431 [inline]
+mceusb_dev_probe+0x258e/0x33f0 drivers/media/rc/mceusb.c:1807
+
+The reason for the warning is clear enough; the driver sends an
+unusual read request on endpoint 0 but does not set the USB_DIR_IN bit
+in the bRequestType field.
+
+More importantly, the whole situation can be avoided and the driver
+simplified by converting it over to the relatively new
+usb_control_msg_recv() and usb_control_msg_send() routines.  That's
+what this fix does.
+
+Reported-and-tested-by: Rondreis <linhaoguo86@gmail.com>
+Link: https://lore.kernel.org/all/CAB7eexLLApHJwZfMQ=X-PtRhw0BgO+5KcSMS05FNUYejJXqtSA@mail.gmail.com/
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 Cc: stable@vger.kernel.org
 Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 
 diff --git a/drivers/media/rc/mceusb.c b/drivers/media/rc/mceusb.c
-index 39d2b03e2631..c76ba24c1f55 100644
+index 0834d5f866fd..39d2b03e2631 100644
 --- a/drivers/media/rc/mceusb.c
 +++ b/drivers/media/rc/mceusb.c
-@@ -1077,7 +1077,7 @@ static int mceusb_set_timeout(struct rc_dev *dev, unsigned int timeout)
- 	struct mceusb_dev *ir = dev->priv;
- 	unsigned int units;
+@@ -1416,42 +1416,37 @@ static void mceusb_gen1_init(struct mceusb_dev *ir)
+ {
+ 	int ret;
+ 	struct device *dev = ir->dev;
+-	char *data;
+-
+-	data = kzalloc(USB_CTRL_MSG_SZ, GFP_KERNEL);
+-	if (!data) {
+-		dev_err(dev, "%s: memory allocation failed!", __func__);
+-		return;
+-	}
++	char data[USB_CTRL_MSG_SZ];
  
--	units = DIV_ROUND_CLOSEST(timeout, MCE_TIME_UNIT);
-+	units = DIV_ROUND_UP(timeout, MCE_TIME_UNIT);
+ 	/*
+ 	 * This is a strange one. Windows issues a set address to the device
+ 	 * on the receive control pipe and expect a certain value pair back
+ 	 */
+-	ret = usb_control_msg(ir->usbdev, usb_rcvctrlpipe(ir->usbdev, 0),
+-			      USB_REQ_SET_ADDRESS, USB_TYPE_VENDOR, 0, 0,
+-			      data, USB_CTRL_MSG_SZ, 3000);
++	ret = usb_control_msg_recv(ir->usbdev, 0, USB_REQ_SET_ADDRESS,
++				   USB_DIR_IN | USB_TYPE_VENDOR,
++				   0, 0, data, USB_CTRL_MSG_SZ, 3000,
++				   GFP_KERNEL);
+ 	dev_dbg(dev, "set address - ret = %d", ret);
+ 	dev_dbg(dev, "set address - data[0] = %d, data[1] = %d",
+ 						data[0], data[1]);
  
- 	cmdbuf[2] = units >> 8;
- 	cmdbuf[3] = units;
+ 	/* set feature: bit rate 38400 bps */
+-	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
+-			      USB_REQ_SET_FEATURE, USB_TYPE_VENDOR,
+-			      0xc04e, 0x0000, NULL, 0, 3000);
++	ret = usb_control_msg_send(ir->usbdev, 0,
++				   USB_REQ_SET_FEATURE, USB_TYPE_VENDOR,
++				   0xc04e, 0x0000, NULL, 0, 3000, GFP_KERNEL);
+ 
+ 	dev_dbg(dev, "set feature - ret = %d", ret);
+ 
+ 	/* bRequest 4: set char length to 8 bits */
+-	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
+-			      4, USB_TYPE_VENDOR,
+-			      0x0808, 0x0000, NULL, 0, 3000);
++	ret = usb_control_msg_send(ir->usbdev, 0,
++				   4, USB_TYPE_VENDOR,
++				   0x0808, 0x0000, NULL, 0, 3000, GFP_KERNEL);
+ 	dev_dbg(dev, "set char length - retB = %d", ret);
+ 
+ 	/* bRequest 2: set handshaking to use DTR/DSR */
+-	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
+-			      2, USB_TYPE_VENDOR,
+-			      0x0000, 0x0100, NULL, 0, 3000);
++	ret = usb_control_msg_send(ir->usbdev, 0,
++				   2, USB_TYPE_VENDOR,
++				   0x0000, 0x0100, NULL, 0, 3000, GFP_KERNEL);
+ 	dev_dbg(dev, "set handshake  - retC = %d", ret);
+ 
+ 	/* device resume */
+@@ -1459,8 +1454,6 @@ static void mceusb_gen1_init(struct mceusb_dev *ir)
+ 
+ 	/* get hw/sw revision? */
+ 	mce_command_out(ir, GET_REVISION, sizeof(GET_REVISION));
+-
+-	kfree(data);
+ }
+ 
+ static void mceusb_gen2_init(struct mceusb_dev *ir)
 
