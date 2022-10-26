@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64F9F60E414
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7805560E417
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:07:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233871AbiJZPGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 11:06:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53536 "EHLO
+        id S232823AbiJZPHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 11:07:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233755AbiJZPGd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:06:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DECD010AC2D
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:06:32 -0700 (PDT)
+        with ESMTP id S233394AbiJZPHK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:07:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9D310B7BD
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:07:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BFDF61F58
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:06:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60E14C433C1;
-        Wed, 26 Oct 2022 15:06:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31DBC61F5E
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:07:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EDFAC433D6;
+        Wed, 26 Oct 2022 15:07:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666796791;
-        bh=k6G87COw+uyFLg3dCCR8jPqhMldMmlqFDnxgTHHVleY=;
+        s=korg; t=1666796828;
+        bh=8SLv6uPo/xB1IDdCf8Jaf5N2lPORmz9qGbQQTHbMg6I=;
         h=Subject:To:Cc:From:Date:From;
-        b=JuLdds6I14avNCXo3fi/x6VbKq4eyiutMpGc9iZpRu0fsKDlk8FBQIO+XQJOUU2gI
-         eKrasjdCqujAYRiOOwzEvtqDmqVvDypOLimv2/xNKym7EH1BtWvW9D7DTNGsa063tD
-         6YM0tNttAHtqvN0osg2D0yVykVgVGWXjDzsNPK0U=
-Subject: FAILED: patch "[PATCH] x86/resctrl: Fix min_cbm_bits for AMD" failed to apply to 5.10-stable tree
-To:     babu.moger@amd.com, bp@suse.de, eranian@google.com,
-        fenghua.yu@intel.com, james.morse@arm.com, mingo@kernel.org,
-        reinette.chatre@intel.com, stable@vger.kernel.org
+        b=UtTyfdAddocEZfyqhN9X4Yt9L9efKp7f74fQ9NS302+FMQATWv0X2XGtgfnQ9kciB
+         V8nskMyqLBVewop6qyUdcbd74kYONsqLqHy7Y+y6ybaac/Abop/TYyj1TbBxfbg8GE
+         wgDZFsbZa5n8L9wMWPDr0iFlTtnoxgLE3fe3PG28=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: fix sdma doorbell init ordering on APUs" failed to apply to 5.10-stable tree
+To:     alexander.deucher@amd.com, christian.koenig@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Oct 2022 17:06:29 +0200
-Message-ID: <1666796789102181@kroah.com>
+Date:   Wed, 26 Oct 2022 17:07:06 +0200
+Message-ID: <1666796826227113@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -57,24 +55,18 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-67bf6493449b ("x86/resctrl: Fix min_cbm_bits for AMD")
-2b8dd4ab65da ("x86/resctrl: Calculate the index from the configuration type")
-2e7df368fc92 ("x86/resctrl: Apply offset correction when config is staged")
-f07e9d025057 ("x86/resctrl: Add a helper to read a closid's configuration")
-2e6678195d59 ("x86/resctrl: Rename update_domains() to resctrl_arch_update_domains()")
-75408e43509e ("x86/resctrl: Allow different CODE/DATA configurations to be staged")
-e8f7282552b9 ("x86/resctrl: Group staged configuration into a separate struct")
-1c290682c0c9 ("x86/resctrl: Pass the schema to resctrl filesystem functions")
-eb6f31876941 ("x86/resctrl: Add resctrl_arch_get_num_closid()")
-3183e87c1b79 ("x86/resctrl: Store the effective num_closid in the schema")
-331ebe4c4349 ("x86/resctrl: Walk the resctrl schema list instead of an arch list")
-208ab16847c5 ("x86/resctrl: Label the resources with their configuration type")
-f2594492308d ("x86/resctrl: Pass the schema in info dir's private pointer")
-cdb9ebc91784 ("x86/resctrl: Add a separate schema list for resctrl")
-792e0f6f789b ("x86/resctrl: Split struct rdt_domain")
-63c8b1231929 ("x86/resctrl: Split struct rdt_resource")
-fd2afa70eff0 ("x86/resctrl: Fix kernel-doc in internal.h")
-8ba27ae36b41 ("Merge tag 'x86_cache_for_v5.11' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip")
+50b0e4d4da09 ("drm/amdgpu: fix sdma doorbell init ordering on APUs")
+59c43748c7c8 ("drm/amdgpu: move nbio sdma_doorbell_range() into sdma code for vega")
+db10109793bb ("drm/amdgpu: move nbio ih_doorbell_range() into ih code for vega")
+b672cb1eee59 ("drm/amdgpu: enable retry fault wptr overflow")
+bebd4c79a4eb ("drm/amdgpu: create vega20 ih blocks")
+554bdbf6de74 ("drm/amdgpu: use cached ih rb control reg offsets for vega10")
+21822b6a968d ("drm/amdgpu: switch to ih_enable_ring for vega10")
+fd95e1b1049e ("drm/amdgpu: switch to ih_toggle_interrupts for vega10")
+c73750322aaf ("drm/amdgpu: add helper to toggle ih ring interrupts for vega10")
+ffa02126e0ef ("drm/amdgpu: add helper to enable an ih ring for vega10")
+1ebb4841f064 ("drm/amdgpu: add helper to init ih ring regs for vega10")
+4750918978a7 ("drm/amdgpu: enabled software IH ring for Vega")
 
 thanks,
 
@@ -82,98 +74,87 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 67bf6493449b09590f9f71d7df29efb392b12d25 Mon Sep 17 00:00:00 2001
-From: Babu Moger <babu.moger@amd.com>
-Date: Tue, 27 Sep 2022 15:16:29 -0500
-Subject: [PATCH] x86/resctrl: Fix min_cbm_bits for AMD
+From 50b0e4d4da09fa501e722af886f97e60a4f820d6 Mon Sep 17 00:00:00 2001
+From: Alex Deucher <alexander.deucher@amd.com>
+Date: Wed, 19 Oct 2022 16:57:42 -0400
+Subject: [PATCH] drm/amdgpu: fix sdma doorbell init ordering on APUs
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-AMD systems support zero CBM (capacity bit mask) for cache allocation.
-That is reflected in rdt_init_res_defs_amd() by:
+Commit 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
+uncovered a bug in amdgpu that required a reordering of the driver
+init sequence to avoid accessing a special register on the GPU
+before it was properly set up leading to an PCI AER error.  This
+reordering uncovered a different hw programming ordering dependency
+in some APUs where the SDMA doorbells need to be programmed before
+the GFX doorbells. To fix this, move the SDMA doorbell programming
+back into the soc15 common code, but use the actual doorbell range
+values directly rather than the values stored in the ring structure
+since those will not be initialized at this point.
 
-  r->cache.arch_has_empty_bitmaps = true;
+This is a partial revert, but with the doorbell assignment
+fixed so the proper doorbell index is set before it's used.
 
-However given the unified code in cbm_validate(), checking for:
+Fixes: e3163bc8ffdfdb ("drm/amdgpu: move nbio sdma_doorbell_range() into sdma code for vega")
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: skhan@linuxfoundation.org
+Cc: stable@vger.kernel.org
 
-  val == 0 && !arch_has_empty_bitmaps
-
-is not enough because of another check in cbm_validate():
-
-  if ((zero_bit - first_bit) < r->cache.min_cbm_bits)
-
-The default value of r->cache.min_cbm_bits = 1.
-
-Leading to:
-
-  $ cd /sys/fs/resctrl
-  $ mkdir foo
-  $ cd foo
-  $ echo L3:0=0 > schemata
-    -bash: echo: write error: Invalid argument
-  $ cat /sys/fs/resctrl/info/last_cmd_status
-    Need at least 1 bits in the mask
-
-Initialize the min_cbm_bits to 0 for AMD. Also, remove the default
-setting of min_cbm_bits and initialize it separately.
-
-After the fix:
-
-  $ cd /sys/fs/resctrl
-  $ mkdir foo
-  $ cd foo
-  $ echo L3:0=0 > schemata
-  $ cat /sys/fs/resctrl/info/last_cmd_status
-    ok
-
-Fixes: 316e7f901f5a ("x86/resctrl: Add struct rdt_cache::arch_has_{sparse, empty}_bitmaps")
-Co-developed-by: Stephane Eranian <eranian@google.com>
-Signed-off-by: Stephane Eranian <eranian@google.com>
-Signed-off-by: Babu Moger <babu.moger@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: James Morse <james.morse@arm.com>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Fenghua Yu <fenghua.yu@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/lkml/20220517001234.3137157-1-eranian@google.com
-
-diff --git a/arch/x86/kernel/cpu/resctrl/core.c b/arch/x86/kernel/cpu/resctrl/core.c
-index de62b0b87ced..3266ea36667c 100644
---- a/arch/x86/kernel/cpu/resctrl/core.c
-+++ b/arch/x86/kernel/cpu/resctrl/core.c
-@@ -66,9 +66,6 @@ struct rdt_hw_resource rdt_resources_all[] = {
- 			.rid			= RDT_RESOURCE_L3,
- 			.name			= "L3",
- 			.cache_level		= 3,
--			.cache = {
--				.min_cbm_bits	= 1,
--			},
- 			.domains		= domain_init(RDT_RESOURCE_L3),
- 			.parse_ctrlval		= parse_cbm,
- 			.format_str		= "%d=%0*x",
-@@ -83,9 +80,6 @@ struct rdt_hw_resource rdt_resources_all[] = {
- 			.rid			= RDT_RESOURCE_L2,
- 			.name			= "L2",
- 			.cache_level		= 2,
--			.cache = {
--				.min_cbm_bits	= 1,
--			},
- 			.domains		= domain_init(RDT_RESOURCE_L2),
- 			.parse_ctrlval		= parse_cbm,
- 			.format_str		= "%d=%0*x",
-@@ -836,6 +830,7 @@ static __init void rdt_init_res_defs_intel(void)
- 			r->cache.arch_has_sparse_bitmaps = false;
- 			r->cache.arch_has_empty_bitmaps = false;
- 			r->cache.arch_has_per_cpu_cfg = false;
-+			r->cache.min_cbm_bits = 1;
- 		} else if (r->rid == RDT_RESOURCE_MBA) {
- 			hw_res->msr_base = MSR_IA32_MBA_THRTL_BASE;
- 			hw_res->msr_update = mba_wrmsr_intel;
-@@ -856,6 +851,7 @@ static __init void rdt_init_res_defs_amd(void)
- 			r->cache.arch_has_sparse_bitmaps = true;
- 			r->cache.arch_has_empty_bitmaps = true;
- 			r->cache.arch_has_per_cpu_cfg = true;
-+			r->cache.min_cbm_bits = 0;
- 		} else if (r->rid == RDT_RESOURCE_MBA) {
- 			hw_res->msr_base = MSR_IA32_MBA_BW_BASE;
- 			hw_res->msr_update = mba_wrmsr_amd;
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+index 298fa11702e7..1122bd4eae98 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+@@ -1417,11 +1417,6 @@ static int sdma_v4_0_start(struct amdgpu_device *adev)
+ 		WREG32_SDMA(i, mmSDMA0_CNTL, temp);
+ 
+ 		if (!amdgpu_sriov_vf(adev)) {
+-			ring = &adev->sdma.instance[i].ring;
+-			adev->nbio.funcs->sdma_doorbell_range(adev, i,
+-				ring->use_doorbell, ring->doorbell_index,
+-				adev->doorbell_index.sdma_doorbell_range);
+-
+ 			/* unhalt engine */
+ 			temp = RREG32_SDMA(i, mmSDMA0_F32_CNTL);
+ 			temp = REG_SET_FIELD(temp, SDMA0_F32_CNTL, HALT, 0);
+diff --git a/drivers/gpu/drm/amd/amdgpu/soc15.c b/drivers/gpu/drm/amd/amdgpu/soc15.c
+index 183024d7c184..e3b2b6b4f1a6 100644
+--- a/drivers/gpu/drm/amd/amdgpu/soc15.c
++++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
+@@ -1211,6 +1211,20 @@ static int soc15_common_sw_fini(void *handle)
+ 	return 0;
+ }
+ 
++static void soc15_sdma_doorbell_range_init(struct amdgpu_device *adev)
++{
++	int i;
++
++	/* sdma doorbell range is programed by hypervisor */
++	if (!amdgpu_sriov_vf(adev)) {
++		for (i = 0; i < adev->sdma.num_instances; i++) {
++			adev->nbio.funcs->sdma_doorbell_range(adev, i,
++				true, adev->doorbell_index.sdma_engine[i] << 1,
++				adev->doorbell_index.sdma_doorbell_range);
++		}
++	}
++}
++
+ static int soc15_common_hw_init(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+@@ -1230,6 +1244,13 @@ static int soc15_common_hw_init(void *handle)
+ 
+ 	/* enable the doorbell aperture */
+ 	soc15_enable_doorbell_aperture(adev, true);
++	/* HW doorbell routing policy: doorbell writing not
++	 * in SDMA/IH/MM/ACV range will be routed to CP. So
++	 * we need to init SDMA doorbell range prior
++	 * to CP ip block init and ring test.  IH already
++	 * happens before CP.
++	 */
++	soc15_sdma_doorbell_range_init(adev);
+ 
+ 	return 0;
+ }
 
