@@ -2,129 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6E2B60DB43
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 08:31:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B94160DB45
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 08:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232848AbiJZGbO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 02:31:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44632 "EHLO
+        id S232935AbiJZGbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 02:31:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232540AbiJZGbN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 02:31:13 -0400
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 515158E9AE;
-        Tue, 25 Oct 2022 23:31:12 -0700 (PDT)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29Q1nMHn016341;
-        Wed, 26 Oct 2022 06:31:07 GMT
+        with ESMTP id S232540AbiJZGbT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 02:31:19 -0400
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 436D295E4A;
+        Tue, 25 Oct 2022 23:31:18 -0700 (PDT)
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29Q1nQqp030372;
+        Wed, 26 Oct 2022 06:31:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version; s=corp-2022-7-12;
- bh=RcI50StIy12ptR4TMHlLnsR5ebHI2rMtvAANXH5BVw4=;
- b=aqiHvR0SnBorCMyMPSJkbuRiKdj6lTc015a15cIU3J+PZOx4NrRgK11vUgIaSoqfWmW4
- r5yClZG++53LZEd4stSY37UtBt1MZlcusLr6pYDi5zOZlW5r4HbCSVrTbLY3A2nQHjnj
- UcA00p54MXSK7sCN46ex2S00POLs2JtBFtgZ5qMtsOQzb4gWyvIdUeiUvvs0JLc2GiAl
- GdUemhSn7uP/4cNpoz/8Ca7tikclNUgLZz0qzMfEZ2IXiR0/2jqrF91vY3Y12Y/EnFbv
- 25NQ2OF3hI4ibOfstmnZl0YryFNP6xkUDlkSPDEMjW4vRb/2Xh3rpnhMi9VgAvNqMCdX 3w== 
+ bh=X73lIuVv1dKUGPvc38YuZn9piOhOQaHrY5lm2WaNfrg=;
+ b=aTCLpTnr0R/RVMMd8vhTV5m0RlUnF3j7cu6kTps8REqQJeNViwT6lXbIBDfoqNrPwelC
+ UD5UA9odFVW0AgOnTwRJz/jZsRaLGmMr5hb/RHsCC+pyMmYoAAZuVSNHCo167cOqlL78
+ tf+OhDfFfFxRa6wn8GqZqlseXP4/QPzNEsE+0msteHvkcUn9my5d2lKEoTv0Z0JYAb4L
+ xpTQVbFHZmf/zIsKXmkd5P5867CUC5YdHa/a78X5dKuk9f9Q7jdesrx7+si8cJYAo48q
+ ISCyFDDTIxM4yTGlfz4x6E6vlpsvBrAyEESJ9pIx1mR6G+eqfYPPz5wCiCpS6gR2r6Me qA== 
 Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3kc6xe4u3b-1
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3kc741x25u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 26 Oct 2022 06:31:06 +0000
+        Wed, 26 Oct 2022 06:31:13 +0000
 Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 29Q35aT2011247;
-        Wed, 26 Oct 2022 06:31:06 GMT
-Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2174.outbound.protection.outlook.com [104.47.56.174])
-        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3kc6y5d9su-1
+        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 29Q357Z4010910;
+        Wed, 26 Oct 2022 06:31:13 GMT
+Received: from nam04-bn8-obe.outbound.protection.outlook.com (mail-bn8nam04lp2041.outbound.protection.outlook.com [104.47.74.41])
+        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3kc6y5d9x0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 26 Oct 2022 06:31:05 +0000
+        Wed, 26 Oct 2022 06:31:13 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=EWAUuGVJdW9JIcOfmvCMOMNM+TgpJoNuKGyjaNv8/BnK9hMJLeiI7zg8bbLkLWu8H9xbQ1XsSl6chU+XYxmVL4uhEGvbjebL0ojaui7tJ9Qa4O+qRID9VEMBw+fxZeytgHRrd0JujNGLDxkxlRsj0vl8LbKTNk3j/AbLpbzB3IhKIYPMbs2pkjTFucMvENLtNbLuPAoK1qNS2CqBBb/ra1OUDKQZz87JXCVzS1108gYtmPfGsoIBmilmbu7qK3PR8cIN/v5BbBDtc2hs855BJJVXo7vbkSvGWWHsArR8g+kKpaEXYdZHZj6YaCsezkisB3fu6aML0fBeAhhQ003d4g==
+ b=JhdDuLB5AxASQNaRaJUHFyOmiviSXzqToVdFZkdliGglnTwueViWBOJusYwwCAEZc/UlMCyhquF1+6KxjTwd2rbPKPzRzptEjfTthQflU4ZjVdqzMfsYWk/4VRCVxkphSQ+Hx7i89AS0reirdT0/IqPZEnkVdacQg007ghPrQp3DgUgGRAltxsS7xeH7YZTllANEqr3NXlApT+kPd7e+TsOVa4FrvbmigWgDSUYr71w7Z+F3IH9o/caElswz3EdNh2gPNh8Dh07Hebd7UOFd5vBuhPuPiFGwU4+83gI63JJrmho5F+n21jjlL+Znow7FCQ+n39vdYBSWZKeZfbivmg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=RcI50StIy12ptR4TMHlLnsR5ebHI2rMtvAANXH5BVw4=;
- b=kTAtFvsut+iEMC1rrE1Up1kC7hEwzU7DNfY+BMvaF28cuYTYU3HUsAv7UzhpTRW3I8ror5JhixeXYoaEbipt6/2fQW/2nBKTLWkSwiHVDfOLfn3boemn8V0S62naNWeP8SASnzKkqeKQ0FdaQviQs6qT32l0xNlaXz5J+6jJ0JHhfyrcgRA20Lk85tRfXe4m1bMH8Ex341aapezwW82A8lei4U5D/IwyeG7aMksGDV9IHU3UAq1wcdFW3B3gzuVvLlOVAoZCDsG1bPIDk+JWpjMXyFmchEZlkfTdr5bvQIpwCdyV7dS7W/Hh/+8JVYCRVoL5OJuRKkfwazsgYOH9LQ==
+ bh=X73lIuVv1dKUGPvc38YuZn9piOhOQaHrY5lm2WaNfrg=;
+ b=T+K6ChtR9KE2bvkAApYpOTF829M5gaI/ZnwaSX05427LOCv/SZ5hVuAwQow6NzttXOJq3wKjE6h0PJQ/sgW+R7KKvcwqxoO3JvoCZzUx2SYZ0/1y8g0fOgdFiTP0HUCf+BiDdEsGhEyDiAsZFrZR0guJzEOFkPrHh0K0+M71GiHNkuWN62b+0DUi+QAC67afFXzJ8Nb7Fbgg7XWZtwmoiHRngWXP8v6SpG+aUme4KdoNmNubhPSOWM6wWqngtjzJdxTJINFbyjRwXCRMR9X1xFYyAa7F/g/8UUf2yEAwf7rRxNzDNXGM4C7K3TYfMZ9XbJwiY/zCX+CUqq6iMvH8zQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=RcI50StIy12ptR4TMHlLnsR5ebHI2rMtvAANXH5BVw4=;
- b=KZjVn91WKIyn0djRYQFyLxyWlHSht5HWoZePx1g2dl0AGodW5vnjPya3hj/zK5OF72OmBizfhIhgVL8VWQ9lKbFIh8WyYqQCo1+ALPThCTpwp6X1jeGhsel8D0U/Wi2HblsDYdcQeUsnm7u9T2aqZJJkJqXrOn9XTfffSe7rED0=
+ bh=X73lIuVv1dKUGPvc38YuZn9piOhOQaHrY5lm2WaNfrg=;
+ b=pEyRe0r4X6Qsno3/f4LqJIeV1ovEaj5Gw56lczMjEq6Xu8kIvEirgDzLPqkRALN/g1eJ/gXSNCwflbH+5ajZ5lVMzjfEF4BmGN59KeYLZZ1bljnx+RyZK09s0jwDarYZSwWgAEkEplOPRlmJUYPzdwLvWwfAfucbXiuDDm47ofg=
 Received: from SA1PR10MB5867.namprd10.prod.outlook.com (2603:10b6:806:22b::9)
  by PH0PR10MB4646.namprd10.prod.outlook.com (2603:10b6:510:38::23) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5746.23; Wed, 26 Oct
- 2022 06:31:03 +0000
+ 2022 06:31:11 +0000
 Received: from SA1PR10MB5867.namprd10.prod.outlook.com
  ([fe80::81a2:47b1:9cbf:e9c]) by SA1PR10MB5867.namprd10.prod.outlook.com
  ([fe80::81a2:47b1:9cbf:e9c%6]) with mapi id 15.20.5723.033; Wed, 26 Oct 2022
- 06:31:03 +0000
+ 06:31:10 +0000
 From:   Chandan Babu R <chandan.babu@oracle.com>
 To:     gregkh@linuxfoundation.org
 Cc:     sashal@kernel.org, mcgrof@kernel.org, linux-xfs@vger.kernel.org,
         stable@vger.kernel.org, djwong@kernel.org, chandan.babu@oracle.com,
         amir73il@gmail.com, leah.rumancik@gmail.com
-Subject: [PATCH 5.4 21/26] xfs: don't write a corrupt unmount record to force summary counter recalc
-Date:   Wed, 26 Oct 2022 11:58:38 +0530
-Message-Id: <20221026062843.927600-22-chandan.babu@oracle.com>
+Subject: [PATCH 5.4 22/26] xfs: trylock underlying buffer on dquot flush
+Date:   Wed, 26 Oct 2022 11:58:39 +0530
+Message-Id: <20221026062843.927600-23-chandan.babu@oracle.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221026062843.927600-1-chandan.babu@oracle.com>
 References: <20221026062843.927600-1-chandan.babu@oracle.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: SI1PR02CA0032.apcprd02.prod.outlook.com
- (2603:1096:4:1f6::12) To SA1PR10MB5867.namprd10.prod.outlook.com
+X-ClientProxiedBy: SI2PR02CA0010.apcprd02.prod.outlook.com
+ (2603:1096:4:194::15) To SA1PR10MB5867.namprd10.prod.outlook.com
  (2603:10b6:806:22b::9)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: SA1PR10MB5867:EE_|PH0PR10MB4646:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7ee9222c-30a9-47d6-b76b-08dab71ba7f7
+X-MS-Office365-Filtering-Correlation-Id: b690774b-e79d-46f8-bb53-08dab71bac1d
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: JQZo81oSkdgMAocxVy3plRz6FHJNyIi5xLC6Nr7djoz04mJw/7ZyacBzYvIq4edvnixcUOvmf4wpBn+Ks1C4tSsAnp0auAaia8O64in0QtSoc8NMs/3l/k2yC78s8Zx7LP+j8qQJCHCdAz3l1BvZ9T9t1yhX/UM71aQLc1E5q5K078O07eTHUlIQMCuaNerga4Nl17D1OnQ5jq28BveuSOwA9h+Fdt1PJ11J4iHwckLbP6zuIBwlaUI3I/PTe9ZBOWhQANN0m01fkl5urO0Wn+46xnuVZ54TrzoBAf+mEPSA8lHsVH5zQNRf1OCVmaXcMPnMSbtlG8pc6cTOPZ8k/3yMBtZdsLxVIJ+CoPp5noDYXN6rIoZQ0j+9rPdC2xxA9rlGJl7L3Ng/FbP9NRyrvIQlH28coIyw89eX2F+J2ictBLS6yL/2QaBwwRdHHHBjArLqOqb5TrFjbJhBDvXvfz0htFPzjvKcvwBSxyxTSQCLR5yZRSQdB6w6lI+GgiioTd+vA64kWlKvgOdzRRR6Fd8guz5laeyOU9zjouGu/kJz+Tg2uO4PODb2I2gbtwpYYC6huQVApFvCkH3G6Mt+fKMRo+QXxUGT+YHJ1Bj3pPG9rU0szdiZccdAmRIocgHHRbeN+nHUAWT7zXL9LNmEzsG8GTosCRn7RS3rPXjJqUrGK7KojfobGNE3PYqLYWZdaJxXO22wC88oRYmNnTgfbg==
+X-Microsoft-Antispam-Message-Info: ojbSgCbcBDoFvm6GkjFexfCQd6mIqVSVs9Av3LZ+uDzeCXhc17M/pDBJm5JuQaDG8E0SEmsYFb9hM784uvUERlgtBBQ2lL/Q+EAaOJ49lzs37YwJn00MP3mG4PL/aq/k2zzDQ/1Mf0HiYbsSZqRg9Qbyn/tbRg56m9dSx+fSyS1zquaTDH63hb/TLWG8DwHCUeMqpoVctHusgg7q6TrrpxRxY2ctCPx8Nmfe45HQudoCWze0QzNN3R1YjdfGstU2MfhGDRZ4UmuK3QegYvwj0ZVNiPCEiubBaFyI+f35GILmCXXrW3WBjxwG57zofk4j6y77TaxRG6yMsouqIDEqnyNMFtvvqiJyOJ3iYYPD2b0kVyW1vCra/FOV1PVkokKNSdq0P0HEhmcwPBar2GwrpJtdeTF8MHutl6+qf4j62x/RwUuSKJ+uqgGd0OY88mpHWEAJ9b2x50MhmrDjLIqChwADZkuAsagthZVu9B1UlgrQ/Lv8DgOnUHekAagluDhHl+S5F6/0vuFGaJP7GITnI9LZHCBTh/+0leTp3hp95IhWIYy89OREc/rvyKPYzkFDEKw0gUm/rZZ0FKhbAAAFCkD36Xv4Z/MWQSv07I/eDM+SQs1DpO/jJaiIsIWF6Nlip5M8Ygs2wwGJ6TP+cOHBS0uX48a+MEWFuN4qMQmJ0n2rL6zQWWWVHJX58VIyI8q/dxKxT5Rit73mURF3t1OX+g==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR10MB5867.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(136003)(396003)(376002)(366004)(39860400002)(346002)(451199015)(478600001)(38100700002)(83380400001)(6486002)(66556008)(6916009)(1076003)(6666004)(8676002)(36756003)(4326008)(66476007)(186003)(6506007)(8936002)(26005)(66946007)(41300700001)(316002)(2906002)(86362001)(6512007)(2616005)(5660300002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?3yFS0ykXgT6Q/sy7VNzTDLKn//+hkk/zeFI68FgF6Ttma3H7yP+MNMmZfRoU?=
- =?us-ascii?Q?LFMNn2H1ke2mRRvAT1k3BD35RJ6Gexa+56xy6cJdvDlflDf1FkCFtr72lAqZ?=
- =?us-ascii?Q?lClWkJdIl2c0ZR08Cn8KVzbyWAZQ0klK1AoxzrCFCkJ0wTQpRPJK/vmr7Vfb?=
- =?us-ascii?Q?Qq5AHnr2sRoRK0XGz0hLIRze0xXE0dd5Xn9eIK5YR5lVFm/TWVsVKJUclPqL?=
- =?us-ascii?Q?4oCGhnsW4ifR98GpJT+URZfk2I1hJQY3xQUsX6oemeBHMazrJf1+/RgExQB0?=
- =?us-ascii?Q?vAwRdt8AKBckgpdUla/m18Nm4gO6nCxJ1+wIz2d1Ssbb4xgG6ov053dNFlif?=
- =?us-ascii?Q?aK49tdO7StU5OLbpTyhjcjgZyQVIhNE7rzisXWq9i6iZ0PROVpmy987+RDCk?=
- =?us-ascii?Q?LsjYBpvONOsPVACe1grBc68Z0z2gImBiywqy0uPl54XSICiHbSrcFTOF9+mf?=
- =?us-ascii?Q?K6AtMCD928PcM8hcF5lD5nNy0bKbMox9XaeMokMDzmifV9Ys0kSZJNtXspd1?=
- =?us-ascii?Q?hIVw1dz5zGISAC3Fk9pNXTRI265mSi/I9VCQUBCRSPTLx9mQHGdG/+gBnnlU?=
- =?us-ascii?Q?XFRWd5W5xa3mb3EvmOQlaJfGzi9m7tDzEK3Bb+eQOpHgbwNfASc/P01QEj0n?=
- =?us-ascii?Q?vDV4MZuzuv0XJZ0DaWHXEgOvc9D/QCCiYZwrLeYx5HNa2xSl8SX61aPY7E9Z?=
- =?us-ascii?Q?VT2cjgjjGXqS1o/F54CVOFLIN8Bq/0SEt5RHmL3UXLXd4ho+iyMeVZrhOaEA?=
- =?us-ascii?Q?TGyGnn/mJKbhWzqrOhqC/84Sdgo4/6DinCUOtTvY8PC4frdwnbRsi7CJwvKo?=
- =?us-ascii?Q?42Y4wTkPcMJnp/J/xBLx28r7xVArB7SklsiTa6DHZYa8ElLZvIn7d4NPKEub?=
- =?us-ascii?Q?FSK+djHpvD75fqRTQ+nza00P6VYAlPB/vyRXJ1Wg+TnyysKgJ3b1n7YsLTTI?=
- =?us-ascii?Q?+MNj5YtP3vbehN8av/3ithRybmtqE2ns4qGGBQJzw4VzVAav6bkTCdFUIxTp?=
- =?us-ascii?Q?M5/d8SsG9YS/9HII1Gv2tiFpZwFzOzlitb0vn/9jQoAghmF2xJR0abiqVFa4?=
- =?us-ascii?Q?1UsakVeyJuAkQGH3U1cR/eySjE2b1Mc1q3fS6OtmRHUhTeCe3CuVwrMQpMrG?=
- =?us-ascii?Q?V/ooTBV+FoEIAUWcQVMnJxKKV+MH1POVjwjFTOvXXk49WhLEQhz1+keov+tS?=
- =?us-ascii?Q?aPIep0qTq+RURcbV6J3cSTiTCe946QYmqZdSTXyxxmtYqNVpPBE57EM/8827?=
- =?us-ascii?Q?r//sFYbgHvzHm+75w3hIOzOK9sGh2dPojp8XOHTjKZi3QiJetgBhnD5voSGK?=
- =?us-ascii?Q?UcwkYozEaxMY/E3WzosSEmLlx5gkvHecTQhxegWzgfRIkLlDSBMlMFWFv8Vq?=
- =?us-ascii?Q?lPGJ5ySDDOtsI5YvFkl31pk5N63Rlb3R+Tp64Wi5smTOSXbM6HV1M2rEXbYH?=
- =?us-ascii?Q?CFIdcXI7kNB4mq+AdtZqDAmCRpVWkvJKrDVEDHcOe4/P4UAA9i8DoDUP/IEs?=
- =?us-ascii?Q?4bb9rHIl1VFoKRM0TECEq5IsLc40NqbRxCe9+7uZPDW5RXDy492p7I3lunyS?=
- =?us-ascii?Q?Bk9aL5+vQIkIhwvh6gaW+Db7w1k8Vx/0Pk67w1bDO21/PhwG0QNsUL+9Hx6g?=
- =?us-ascii?Q?2w=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?mZpjrmWAuYycYOENS2FmyxDouaE7yPCu7FKCPT3TN/jC3lDFerJ5rX/GMa4D?=
+ =?us-ascii?Q?RzqlTbrAXW54EHaCnVkmn35P/VIjZwdJ159HlqaQyD32+5opyt2s8OF7GGTA?=
+ =?us-ascii?Q?/CB/1jvYkc+eZycQBjuHh3U4MbUrgQl1jgg080KZHBMODQ1R/C54pLtGDE6g?=
+ =?us-ascii?Q?oELwgrAaSlzf/Gic5vY1be0eV3HKKCPYGyPmtyVPDDAa9XpTtGyqsWov7A/o?=
+ =?us-ascii?Q?9ePb5Sfstydu5O+f8G1S08PKoavu7Y22xCx3mAkOCZC0RY5cB1cmBGdYR2ur?=
+ =?us-ascii?Q?wB3iHFgUjoDQDy6uzKCticogoD6J5hbRSO2MSQFzjGUAj0A83Is9MyDsytHD?=
+ =?us-ascii?Q?nssORI68uc38Rg229pC11JAsm70TpFRMvfygXEa2nDbhNryZT2tbXB1TrwhS?=
+ =?us-ascii?Q?I+amMq2yU4jXWxjYI1nuTXjQ+R3JSNgfOdvIk4FMIGNN4x64EgMPxCjGZmA/?=
+ =?us-ascii?Q?CRp7cJMw2id+nmDhm95PxJ8N9AjPFzvAZMWSQvOeJ1GqPPNaPNnIbWOZW7Cq?=
+ =?us-ascii?Q?Y9rmLc0cHAwvER9l5RurnKjeAa9gfrpCoLf3mk+Ti7B4lHqJs+Fm5khP6CtB?=
+ =?us-ascii?Q?KGXwZs+rORGlhvnxLxNuOq78reGz6eH1OgNUdrIs0Xef9G3r7KGWFEjmCWJ5?=
+ =?us-ascii?Q?SAHMKNG+jNv/31EwPcRG5QkxpWGy9Z56ij9H4zuievUHzLxOX0F+wYaSc2sG?=
+ =?us-ascii?Q?clj0LasFctrYIHdUCWXrG1tZU/Ju472L6WmfK5qrfT8xft7VVyAJDvSwkQAE?=
+ =?us-ascii?Q?RughGuqvHtW+R/e3wIskhNcBeT3n34s/p/T0g+0QDU9JoLqkpc54ICQebtEa?=
+ =?us-ascii?Q?Il+8GWKlZjLlhQubQphQaOdUWsbYit5CtOkq92LVFUuV7/wV9dVbZ/AItXJb?=
+ =?us-ascii?Q?EBb4f3eoj7Qi0qEx2Vm/Q3rFqQkUKd/TLl3RdRxHBHSUjTX1BDo3Sasf7E7z?=
+ =?us-ascii?Q?VrwN/wOEc+qJVteh0eCOkZzNOZIH0gY2T6QBquMoBhIs+2+dFCnJe6I1GnD/?=
+ =?us-ascii?Q?ErCKro51XddDpmBGPgx+SqWy5/abTPe2qBZ9hDiLg3/XwMNuVt0P7ejalmAu?=
+ =?us-ascii?Q?gVZ5Os4nh3Ft+PKeRq1n8Vmay7trzQMizlKtKab9VJ6Y7wvQ3n0P4A8OQA2p?=
+ =?us-ascii?Q?Lz57bnLRTSpW5uURPn6Cn+H72nvCMpb3gCJOXjXlDYMheljZQpg/NCVp2Clz?=
+ =?us-ascii?Q?gEzCkilqowbl5iy2U6/veC+Aghuadca5XaAqdrd98ko5Oi/TQ4F3VvQQzAJU?=
+ =?us-ascii?Q?q8zyg6JbVKo0jG5kolZHMY6mIT0yZTAxT9+XGKQIvMp9ZLNqgXtQcQu7kSuG?=
+ =?us-ascii?Q?jtAi2F3oBI1yWInV8PkhQbfNM0DTa7b9+YjLpMAVRBKodCi5ricFC7dT/RMs?=
+ =?us-ascii?Q?eJTSc5M+qytHAAnSMZml1KsZZfm/0otKCOGIEekUpvwb9rVrY8Pdg+6EbPmE?=
+ =?us-ascii?Q?SuRJ8DzKFZAl9oxyuB8HxixX7cSxgC08/QoMggk/xLgNujkvczCmZP2eYTVz?=
+ =?us-ascii?Q?He2S1dZm4A0rn59ZMRiBnQjW1ibQbClpCkVpqizhS44tgVmWD4wcMj9TiTpN?=
+ =?us-ascii?Q?GIjbNJeueaXTFY7/6t6EjhwU6KDwmvFXbFTyTjNu3lUZBCTP2fN3H/vwHoC5?=
+ =?us-ascii?Q?3g=3D=3D?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7ee9222c-30a9-47d6-b76b-08dab71ba7f7
+X-MS-Exchange-CrossTenant-Network-Message-Id: b690774b-e79d-46f8-bb53-08dab71bac1d
 X-MS-Exchange-CrossTenant-AuthSource: SA1PR10MB5867.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Oct 2022 06:31:03.7312
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Oct 2022 06:31:10.8788
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Gi+GRCEnO9t68LX7yYJydeEv1MrewaVpfM9IJJTLELDHGbq7dbjRSuTPIYOuWxmnS+xnGJRd3a8yK56nPvbWKw==
+X-MS-Exchange-CrossTenant-UserPrincipalName: iHMKJVo7vV+/VLEIqF9ntGWD7NWPtSQxH9UPgR84nF0MPUJsQ2jVlQpOVDHZ8UQ+xxl0WUhn5AYH8MYhaoGVmQ==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR10MB4646
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
@@ -133,8 +133,8 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 b
  suspectscore=0 malwarescore=0 phishscore=0 mlxscore=0 spamscore=0
  adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2209130000 definitions=main-2210260036
-X-Proofpoint-GUID: B7DBvdqfmxRruNVxTQ6rMPGCrLUEfCac
-X-Proofpoint-ORIG-GUID: B7DBvdqfmxRruNVxTQ6rMPGCrLUEfCac
+X-Proofpoint-GUID: TYgYcCcpnYyxv98iREtM1Svo7cCNdFmp
+X-Proofpoint-ORIG-GUID: TYgYcCcpnYyxv98iREtM1Svo7cCNdFmp
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
@@ -145,79 +145,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Brian Foster <bfoster@redhat.com>
 
-commit 5cc3c006eb45524860c4d1dd4dd7ad4a506bf3f5 upstream.
+commit 8d3d7e2b35ea7d91d6e085c93b5efecfb0fba307 upstream.
 
-[ Modify fs/xfs/xfs_log.c to include the changes at locations suitable for
-  5.4-lts kernel ]
+A dquot flush currently blocks on the buffer lock for the underlying
+dquot buffer. In turn, this causes xfsaild to block rather than
+continue processing other items in the meantime. Update
+xfs_qm_dqflush() to trylock the buffer, similar to how inode buffers
+are handled, and return -EAGAIN if the lock fails. Fix up any
+callers that don't currently handle the error properly.
 
-In commit f467cad95f5e3, I added the ability to force a recalculation of
-the filesystem summary counters if they seemed incorrect.  This was done
-(not entirely correctly) by tweaking the log code to write an unmount
-record without the UMOUNT_TRANS flag set.  At next mount, the log
-recovery code will fail to find the unmount record and go into recovery,
-which triggers the recalculation.
-
-What actually gets written to the log is what ought to be an unmount
-record, but without any flags set to indicate what kind of record it
-actually is.  This worked to trigger the recalculation, but we shouldn't
-write bogus log records when we could simply write nothing.
-
-Fixes: f467cad95f5e3 ("xfs: force summary counter recalc at next mount")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Brian Foster <bfoster@redhat.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
 ---
- fs/xfs/xfs_log.c | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ fs/xfs/xfs_dquot.c      |  6 +++---
+ fs/xfs/xfs_dquot_item.c |  3 ++-
+ fs/xfs/xfs_qm.c         | 14 +++++++++-----
+ 3 files changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/fs/xfs/xfs_log.c b/fs/xfs/xfs_log.c
-index 7b0d9ad8cb1a..63c0f1e9d101 100644
---- a/fs/xfs/xfs_log.c
-+++ b/fs/xfs/xfs_log.c
-@@ -837,19 +837,6 @@ xfs_log_write_unmount_record(
+diff --git a/fs/xfs/xfs_dquot.c b/fs/xfs/xfs_dquot.c
+index 55c73f012762..9596b86e7de9 100644
+--- a/fs/xfs/xfs_dquot.c
++++ b/fs/xfs/xfs_dquot.c
+@@ -1105,8 +1105,8 @@ xfs_qm_dqflush(
+ 	 * Get the buffer containing the on-disk dquot
+ 	 */
+ 	error = xfs_trans_read_buf(mp, NULL, mp->m_ddev_targp, dqp->q_blkno,
+-				   mp->m_quotainfo->qi_dqchunklen, 0, &bp,
+-				   &xfs_dquot_buf_ops);
++				   mp->m_quotainfo->qi_dqchunklen, XBF_TRYLOCK,
++				   &bp, &xfs_dquot_buf_ops);
  	if (error)
- 		goto out_err;
+ 		goto out_unlock;
  
--	/*
--	 * If we think the summary counters are bad, clear the unmount header
--	 * flag in the unmount record so that the summary counters will be
--	 * recalculated during log recovery at next mount.  Refer to
--	 * xlog_check_unmount_rec for more details.
--	 */
--	if (XFS_TEST_ERROR(xfs_fs_has_sickness(mp, XFS_SICK_FS_COUNTERS), mp,
--			XFS_ERRTAG_FORCE_SUMMARY_RECALC)) {
--		xfs_alert(mp, "%s: will fix summary counters at next mount",
--				__func__);
--		flags &= ~XLOG_UNMOUNT_TRANS;
+@@ -1176,7 +1176,7 @@ xfs_qm_dqflush(
+ 
+ out_unlock:
+ 	xfs_dqfunlock(dqp);
+-	return -EIO;
++	return error;
+ }
+ 
+ /*
+diff --git a/fs/xfs/xfs_dquot_item.c b/fs/xfs/xfs_dquot_item.c
+index cf65e2e43c6e..baad1748d0d1 100644
+--- a/fs/xfs/xfs_dquot_item.c
++++ b/fs/xfs/xfs_dquot_item.c
+@@ -189,7 +189,8 @@ xfs_qm_dquot_logitem_push(
+ 		if (!xfs_buf_delwri_queue(bp, buffer_list))
+ 			rval = XFS_ITEM_FLUSHING;
+ 		xfs_buf_relse(bp);
 -	}
--
- 	/* remove inited flag, and account for space used */
- 	tic->t_flags = 0;
- 	tic->t_curr_res -= sizeof(magic);
-@@ -932,6 +919,19 @@ xfs_log_unmount_write(xfs_mount_t *mp)
- 	} while (iclog != first_iclog);
- #endif
- 	if (! (XLOG_FORCED_SHUTDOWN(log))) {
-+		/*
-+		 * If we think the summary counters are bad, avoid writing the
-+		 * unmount record to force log recovery at next mount, after
-+		 * which the summary counters will be recalculated.  Refer to
-+		 * xlog_check_unmount_rec for more details.
-+		 */
-+		if (XFS_TEST_ERROR(xfs_fs_has_sickness(mp, XFS_SICK_FS_COUNTERS),
-+				mp, XFS_ERRTAG_FORCE_SUMMARY_RECALC)) {
-+			xfs_alert(mp,
-+				"%s: will fix summary counters at next mount",
-+				__func__);
-+			return 0;
-+		}
- 		xfs_log_write_unmount_record(mp);
- 	} else {
++	} else if (error == -EAGAIN)
++		rval = XFS_ITEM_LOCKED;
+ 
+ 	spin_lock(&lip->li_ailp->ail_lock);
+ out_unlock:
+diff --git a/fs/xfs/xfs_qm.c b/fs/xfs/xfs_qm.c
+index fe93e044d81b..ef2faee96909 100644
+--- a/fs/xfs/xfs_qm.c
++++ b/fs/xfs/xfs_qm.c
+@@ -121,12 +121,11 @@ xfs_qm_dqpurge(
+ {
+ 	struct xfs_mount	*mp = dqp->q_mount;
+ 	struct xfs_quotainfo	*qi = mp->m_quotainfo;
++	int			error = -EAGAIN;
+ 
+ 	xfs_dqlock(dqp);
+-	if ((dqp->dq_flags & XFS_DQ_FREEING) || dqp->q_nrefs != 0) {
+-		xfs_dqunlock(dqp);
+-		return -EAGAIN;
+-	}
++	if ((dqp->dq_flags & XFS_DQ_FREEING) || dqp->q_nrefs != 0)
++		goto out_unlock;
+ 
+ 	dqp->dq_flags |= XFS_DQ_FREEING;
+ 
+@@ -139,7 +138,6 @@ xfs_qm_dqpurge(
+ 	 */
+ 	if (XFS_DQ_IS_DIRTY(dqp)) {
+ 		struct xfs_buf	*bp = NULL;
+-		int		error;
+ 
  		/*
+ 		 * We don't care about getting disk errors here. We need
+@@ -149,6 +147,8 @@ xfs_qm_dqpurge(
+ 		if (!error) {
+ 			error = xfs_bwrite(bp);
+ 			xfs_buf_relse(bp);
++		} else if (error == -EAGAIN) {
++			goto out_unlock;
+ 		}
+ 		xfs_dqflock(dqp);
+ 	}
+@@ -174,6 +174,10 @@ xfs_qm_dqpurge(
+ 
+ 	xfs_qm_dqdestroy(dqp);
+ 	return 0;
++
++out_unlock:
++	xfs_dqunlock(dqp);
++	return error;
+ }
+ 
+ /*
 -- 
 2.35.1
 
