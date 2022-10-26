@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A737760E424
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:08:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19A2360E42D
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:10:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234362AbiJZPIz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 11:08:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56024 "EHLO
+        id S233940AbiJZPKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 11:10:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234020AbiJZPIy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:08:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 730C412347E
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:08:53 -0700 (PDT)
+        with ESMTP id S233896AbiJZPKj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:10:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 561A85E565
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:10:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 105AD61F4E
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:08:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 240E1C433C1;
-        Wed, 26 Oct 2022 15:08:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E220E61F72
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:10:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFFCDC433D6;
+        Wed, 26 Oct 2022 15:10:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666796932;
-        bh=SCs+mFFs6HCdnUBA5nIP4nssLf622QRPW3i2pYkNKWQ=;
+        s=korg; t=1666797038;
+        bh=ucqWQUAPvMUVRrKyQFMv2cy3GOBtZJQ5fEreLsQCayg=;
         h=Subject:To:Cc:From:Date:From;
-        b=lv/Dp5FCTFMGVLf3qnlKW3CzgNAhmPt7rkeT9b/kqDhxXCRyatho/KHU4goJj3ap3
-         uPB9Pd6fsadda8x32UGmwNB3RT/HZ1OWSj6z9CKcqf5+VmgnsEsqTaa8sdWs6yaR4v
-         HhN8Y4JKmN1DTYr7bMEqaxkXio8zP/gUkUkY4EtE=
-Subject: FAILED: patch "[PATCH] KVM: x86: Add compat handler for KVM_X86_SET_MSR_FILTER" failed to apply to 5.15-stable tree
-To:     graf@amazon.com, pbonzini@redhat.com, randrianasulu@gmail.com
+        b=ODlMX7yJRe/gcw0fuNX4OBOU3ovGMrQ4ARtw8HcTdFgGdTvWG9VjX8WPwwWAXbe/P
+         zegFTZfzvLdvZ6VAqCmXsUawzqY4ARR/dEs5DlEvoTYDZ7fA6kL4qQGH61V7lAyeLt
+         orx9id5OYFf15/EiBr/XrHwiBdRgK6M9xY+HjVa8=
+Subject: FAILED: patch "[PATCH] media: mceusb: set timeout to at least timeout provided" failed to apply to 4.19-stable tree
+To:     sean@mess.org, mchehab@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Oct 2022 17:08:42 +0200
-Message-ID: <16667969227954@kroah.com>
+Date:   Wed, 26 Oct 2022 17:10:27 +0200
+Message-ID: <1666797027198162@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,14 +48,25 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-1739c7017fb1 ("KVM: x86: Add compat handler for KVM_X86_SET_MSR_FILTER")
+20b794ddce47 ("media: mceusb: set timeout to at least timeout provided")
+528222d853f9 ("media: rc: harmonize infrared durations to microseconds")
+261463dbc34f ("media: rc: add support for Infrared Toy and IR Droid devices")
+6f5129e251ae ("media: rtl28xxu: fix idle handling")
+e43148645d18 ("media: mceusb: fix out of bounds read in MCE receiver buffer")
+81bab3fa6ca8 ("media: rc: increase rc-mm tolerance and add debug message")
+9fc3ce31f5bd ("media: mceusb: fix (eliminate) TX IR signal length limit")
+0c4df39e504b ("media: technisat-usb2: break out of loop at end of buffer")
+172876928f98 ("media: rc: xbox_remote: add protocol and set timeout")
+a49a7a4635de ("media: smipcie: add universal ir capability")
+721074b03411 ("media: rc: rcmm decoder and encoder")
+903b77c63167 ("Merge tag 'linux-kselftest-4.21-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/shuah/linux-kselftest")
 
 thanks,
 
@@ -63,92 +74,31 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1739c7017fb1d759965dcbab925ff5980a5318cb Mon Sep 17 00:00:00 2001
-From: Alexander Graf <graf@amazon.com>
-Date: Mon, 17 Oct 2022 20:45:41 +0200
-Subject: [PATCH] KVM: x86: Add compat handler for KVM_X86_SET_MSR_FILTER
+From 20b794ddce475ed012deb365000527c17b3e93e6 Mon Sep 17 00:00:00 2001
+From: Sean Young <sean@mess.org>
+Date: Fri, 2 Sep 2022 12:32:21 +0200
+Subject: [PATCH] media: mceusb: set timeout to at least timeout provided
 
-The KVM_X86_SET_MSR_FILTER ioctls contains a pointer in the passed in
-struct which means it has a different struct size depending on whether
-it gets called from 32bit or 64bit code.
+By rounding down, the actual timeout can be lower than requested. As a
+result, long spaces just below the requested timeout can be incorrectly
+reported as timeout and truncated.
 
-This patch introduces compat code that converts from the 32bit struct to
-its 64bit counterpart which then gets used going forward internally.
-With this applied, 32bit QEMU can successfully set MSR bitmaps when
-running on 64bit kernels.
-
-Reported-by: Andrew Randrianasulu <randrianasulu@gmail.com>
-Fixes: 1a155254ff937 ("KVM: x86: Introduce MSR filtering")
-Signed-off-by: Alexander Graf <graf@amazon.com>
-Message-Id: <20221017184541.2658-4-graf@amazon.com>
+Fixes: 877f1a7cee3f ("media: rc: mceusb: allow the timeout to be configurable")
 Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 78f779f0264b..9cf1ba865562 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -6489,6 +6489,62 @@ static int kvm_vm_ioctl_set_msr_filter(struct kvm *kvm,
- 	return 0;
- }
+diff --git a/drivers/media/rc/mceusb.c b/drivers/media/rc/mceusb.c
+index 39d2b03e2631..c76ba24c1f55 100644
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -1077,7 +1077,7 @@ static int mceusb_set_timeout(struct rc_dev *dev, unsigned int timeout)
+ 	struct mceusb_dev *ir = dev->priv;
+ 	unsigned int units;
  
-+#ifdef CONFIG_KVM_COMPAT
-+/* for KVM_X86_SET_MSR_FILTER */
-+struct kvm_msr_filter_range_compat {
-+	__u32 flags;
-+	__u32 nmsrs;
-+	__u32 base;
-+	__u32 bitmap;
-+};
-+
-+struct kvm_msr_filter_compat {
-+	__u32 flags;
-+	struct kvm_msr_filter_range_compat ranges[KVM_MSR_FILTER_MAX_RANGES];
-+};
-+
-+#define KVM_X86_SET_MSR_FILTER_COMPAT _IOW(KVMIO, 0xc6, struct kvm_msr_filter_compat)
-+
-+long kvm_arch_vm_compat_ioctl(struct file *filp, unsigned int ioctl,
-+			      unsigned long arg)
-+{
-+	void __user *argp = (void __user *)arg;
-+	struct kvm *kvm = filp->private_data;
-+	long r = -ENOTTY;
-+
-+	switch (ioctl) {
-+	case KVM_X86_SET_MSR_FILTER_COMPAT: {
-+		struct kvm_msr_filter __user *user_msr_filter = argp;
-+		struct kvm_msr_filter_compat filter_compat;
-+		struct kvm_msr_filter filter;
-+		int i;
-+
-+		if (copy_from_user(&filter_compat, user_msr_filter,
-+				   sizeof(filter_compat)))
-+			return -EFAULT;
-+
-+		filter.flags = filter_compat.flags;
-+		for (i = 0; i < ARRAY_SIZE(filter.ranges); i++) {
-+			struct kvm_msr_filter_range_compat *cr;
-+
-+			cr = &filter_compat.ranges[i];
-+			filter.ranges[i] = (struct kvm_msr_filter_range) {
-+				.flags = cr->flags,
-+				.nmsrs = cr->nmsrs,
-+				.base = cr->base,
-+				.bitmap = (__u8 *)(ulong)cr->bitmap,
-+			};
-+		}
-+
-+		r = kvm_vm_ioctl_set_msr_filter(kvm, &filter);
-+		break;
-+	}
-+	}
-+
-+	return r;
-+}
-+#endif
-+
- #ifdef CONFIG_HAVE_KVM_PM_NOTIFIER
- static int kvm_arch_suspend_notifier(struct kvm *kvm)
- {
+-	units = DIV_ROUND_CLOSEST(timeout, MCE_TIME_UNIT);
++	units = DIV_ROUND_UP(timeout, MCE_TIME_UNIT);
+ 
+ 	cmdbuf[2] = units >> 8;
+ 	cmdbuf[3] = units;
 
