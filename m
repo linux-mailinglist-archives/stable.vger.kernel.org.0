@@ -2,84 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4178C60E3F9
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:01:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D145160E3FD
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:01:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234412AbiJZPBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 11:01:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42804 "EHLO
+        id S233859AbiJZPBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 11:01:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234144AbiJZPBQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:01:16 -0400
-Received: from mg.ssi.bg (mg.ssi.bg [193.238.174.37])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 765AB3F1C4;
-        Wed, 26 Oct 2022 08:01:14 -0700 (PDT)
-Received: from mg.ssi.bg (localhost [127.0.0.1])
-        by mg.ssi.bg (Proxmox) with ESMTP id D433911E33;
-        Wed, 26 Oct 2022 18:01:13 +0300 (EEST)
-Received: from ink.ssi.bg (unknown [193.238.174.40])
-        by mg.ssi.bg (Proxmox) with ESMTP id 9338911F07;
-        Wed, 26 Oct 2022 18:01:12 +0300 (EEST)
-Received: from ja.ssi.bg (unknown [178.16.129.10])
-        by ink.ssi.bg (Postfix) with ESMTPS id 654093C07E1;
-        Wed, 26 Oct 2022 18:01:10 +0300 (EEST)
-Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-        by ja.ssi.bg (8.17.1/8.16.1) with ESMTP id 29QF19DQ097559;
-        Wed, 26 Oct 2022 18:01:09 +0300
-Date:   Wed, 26 Oct 2022 18:01:09 +0300 (EEST)
-From:   Julian Anastasov <ja@ssi.bg>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-cc:     netdev@vger.kernel.org, lvs-devel@vger.kernel.org,
-        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Simon Horman <horms@verge.net.au>, stable@vger.kernel.org
-Subject: Re: [PATCH] ipvs: use explicitly signed chars
-In-Reply-To: <Y1lEebYfRwrtliDL@zx2c4.com>
-Message-ID: <bb93406f-6935-deee-22e4-c4b4be55bc60@ssi.bg>
-References: <20221026123216.1575440-1-Jason@zx2c4.com> <4cc36ff5-46fd-c2b3-3292-d6369337fec1@ssi.bg> <Y1lEebYfRwrtliDL@zx2c4.com>
+        with ESMTP id S234430AbiJZPBl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:01:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44A8372B54;
+        Wed, 26 Oct 2022 08:01:33 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A646B822B7;
+        Wed, 26 Oct 2022 15:01:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0E5EC433D6;
+        Wed, 26 Oct 2022 15:01:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1666796491;
+        bh=n4/bSJRGPaHG6gg6DhxrLuyda0RfQUlRms8iW7cyv9c=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DtjaGLHEgVvgvBorqId6mVnIaKvj3wGP/gEMF2QcqWeinzpJsIECda6GShJvVnqVG
+         WEdeZdMNa7UGrPlcv6SMER3sy0jAjnXYUbJAkh6pPbXb2AqM0XHJDRxGNIJfyQfZqI
+         XbfMzf8LFDVIjLuwHxvAswDkb9YQ6f+JvAW0dIgI=
+Date:   Wed, 26 Oct 2022 17:01:28 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Qu Wenruo <wqu@suse.com>
+Cc:     stable@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: Re: [PATCH STABLE 5.15] btrfs: enhance unsupported compat RO flags
+ handling
+Message-ID: <Y1lLyEXl+XsD/Jjn@kroah.com>
+References: <12f048b72ae2e2a465a519cf6402f0e6cf19321d.1666594445.git.wqu@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12f048b72ae2e2a465a519cf6402f0e6cf19321d.1666594445.git.wqu@suse.com>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-	Hello,
-
-On Wed, 26 Oct 2022, Jason A. Donenfeld wrote:
-
-> On Wed, Oct 26, 2022 at 05:20:03PM +0300, Julian Anastasov wrote:
-> > 
-> > 	Hello,
-> > 
-> > On Wed, 26 Oct 2022, Jason A. Donenfeld wrote:
-> > 
-> > > The `char` type with no explicit sign is sometimes signed and sometimes
-> > > unsigned. This code will break on platforms such as arm, where char is
-> > > unsigned. So mark it here as explicitly signed, so that the
-> > > todrop_counter decrement and subsequent comparison is correct.
-> > > 
-> > > Cc: Pablo Neira Ayuso <pablo@netfilter.org>
-> > > Cc: Julian Anastasov <ja@ssi.bg>
-> > > Cc: Simon Horman <horms@verge.net.au>
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> > 
-> > 	Looks good to me for -next, thanks!
+On Mon, Oct 24, 2022 at 02:54:54PM +0800, Qu Wenruo wrote:
+> commit 81d5d61454c365718655cfc87d8200c84e25d596 upstream.
 > 
-> This is actually net.git material, not net-next.git material,
-> considering it fixes a bug on arm and many other archs, and is marked
-> with a stable@ tag.
+> Currently there are two corner cases not handling compat RO flags
+> correctly:
 
-	OK. As algorithm is not SMP safe, the problem is
-not just for the first 256 packets on these platforms.
+Now queued up, thanks.
 
-Regards
-
---
-Julian Anastasov <ja@ssi.bg>
-
+greg k-h
