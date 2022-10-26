@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C53360E5D9
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 18:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5A0760E5F5
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 18:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233305AbiJZQyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 12:54:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35858 "EHLO
+        id S233951AbiJZQ7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 12:59:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233682AbiJZQyP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 12:54:15 -0400
+        with ESMTP id S234097AbiJZQ6z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 12:58:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C66E5F985B;
-        Wed, 26 Oct 2022 09:54:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9580AF1A8;
+        Wed, 26 Oct 2022 09:58:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62BCE61FCB;
-        Wed, 26 Oct 2022 16:54:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 749EFC433B5;
-        Wed, 26 Oct 2022 16:54:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4618761FC9;
+        Wed, 26 Oct 2022 16:58:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A1AFC433C1;
+        Wed, 26 Oct 2022 16:58:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666803253;
-        bh=2QZvPddq3LVwpWCyC1ZiUaUBdBGd9LnlGy6Mb6c2s4s=;
+        s=korg; t=1666803528;
+        bh=MxMNVBq6qCtDiZuSSRHMS4DNSCx1BT6mrpskQwkZdF4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=DU2ADWSpgiv68QWcovvOgwewY9Z73R9kogo7fj+a9gqGDFwVtu4NbJlYduFTC93hO
-         7KKisriyuNInA8/ls1JVEaUGl5iJeFVKBdkN7Rbg/dEJwcaeu6mOYQBeNDupfw0ZgF
-         vayaStsp9+kuKPsvh/SQ7G7kIa83oceizN2Ioqm8=
-Date:   Wed, 26 Oct 2022 18:54:11 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Dominique Martinet <dominique.martinet@atmark-techno.com>
-Cc:     Lukas Wunner <lukas@wunner.de>, stable@vger.kernel.org,
-        Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Roosen Henri <Henri.Roosen@ginzinger.com>,
-        linux-serial@vger.kernel.org,
-        Lino Sanfilippo <LinoSanfilippo@gmx.de>,
-        Daisuke Mizobuchi <mizo@atmark-techno.com>
-Subject: Re: [PATCH 5.10 v2 1/2] serial: core: move RS485 configuration tasks
- from drivers into core
-Message-ID: <Y1lmM7Qu1yscuaIU@kroah.com>
-References: <20221017051737.51727-1-dominique.martinet@atmark-techno.com>
+        b=tdX3s73UqQuJyp0qg2D8dDRFehu3TsIJuSq+SigPvbKYviY1zlgjgEw3YE6CFNkmO
+         AU9iJZ1xSEWJ6pjy4aPEq07F17ijONUWMmCgLN4SqpHFdhvXNA75N7BuRcMTfiLj+n
+         Wx6jbvQZiYBiiRkorWf3vQO4wVjbPAPp81he0ozg=
+Date:   Wed, 26 Oct 2022 18:58:46 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+Cc:     linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        jason@zx2c4.com, saeed.mirzamohammadi@oracle.com
+Subject: Re: [PATCH stable 0/5] Fix missing patches in stable
+Message-ID: <Y1lnRm9NZDhIFhwU@kroah.com>
+References: <20221017192006.36398-1-saeed.mirzamohammadi@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221017051737.51727-1-dominique.martinet@atmark-techno.com>
+In-Reply-To: <20221017192006.36398-1-saeed.mirzamohammadi@oracle.com>
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
@@ -56,36 +51,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 17, 2022 at 02:17:36PM +0900, Dominique Martinet wrote:
-> From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+On Mon, Oct 17, 2022 at 12:20:01PM -0700, Saeed Mirzamohammadi wrote:
+> The following patches has been applied to 6.0 but only patch#2 below
+> has been applied to stable. This caused regression with nfs tests in
+> all stable releases.
 > 
-> Several drivers that support setting the RS485 configuration via userspace
-> implement one or more of the following tasks:
+> This patchset backports patches 1 and 3-6 to stable.
 > 
-> - in case of an invalid RTS configuration (both RTS after send and RTS on
->   send set or both unset) fall back to enable RTS on send and disable RTS
->   after send
+> 1. 868941b14441 fs: remove no_llseek
+> 2. 97ef77c52b78 fs: check FMODE_LSEEK to control internal pipe splicing
+> 3. 54ef7a47f67d vfio: do not set FMODE_LSEEK flag
+> 4. c9eb2d427c1c dma-buf: remove useless FMODE_LSEEK flag
+> 5. 4e3299eaddff fs: do not compare against ->llseek
+> 6. e7478158e137 fs: clear or set FMODE_LSEEK based on llseek function
 > 
-> - nullify the padding field of the returned serial_rs485 struct
-> 
-> - copy the configuration into the uart port struct
-> 
-> - limit RTS delays to 100 ms
-> 
-> Move these tasks into the serial core to make them generic and to provide
-> a consistent behaviour among all drivers.
-> 
-> Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-> Link: https://lore.kernel.org/r/20220410104642.32195-2-LinoSanfilippo@gmx.de
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> [ Upstream commit 0ed12afa5655512ee418047fb3546d229df20aa1 ]
-> Signed-off-by: Daisuke Mizobuchi <mizo@atmark-techno.com>
-> Signed-off-by: Dominique Martinet <dominique.martinet@atmark-techno.com>
-> ---
-> Follow-up of https://lkml.kernel.org/r/20221017013807.34614-1-dominique.martinet@atmark-techno.com
+> For 5.10.y and 5.4.y only, a revert of patch#2 is already included.
+> Please apply patch#2, for 5.4.y and 5.10.y as well.
 
-I need a 5.15.y version of this series before I can take the 5.10.y
-version.
+I am sorry, I really do not understand here.
+
+You list these commits in a specific order, yet the patches you send are
+in a different order.
+
+And they don't apply to 5.10 or older.
+
+Can you resend proper patch series, for each stable branch that you want
+these applied to, so that I can correctly queue them up?
 
 thanks,
 
