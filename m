@@ -2,60 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E974360E083
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 14:20:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56AA260E0B9
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 14:34:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233044AbiJZMUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 08:20:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59158 "EHLO
+        id S233522AbiJZMeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 08:34:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233401AbiJZMUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 08:20:53 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7CE95F99B;
-        Wed, 26 Oct 2022 05:20:52 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1onfOp-0000Mf-V2; Wed, 26 Oct 2022 14:20:48 +0200
-Message-ID: <63294047-20e7-6ff2-01b8-a267b0ecb4af@leemhuis.info>
-Date:   Wed, 26 Oct 2022 14:20:47 +0200
+        with ESMTP id S232625AbiJZMeG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 08:34:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1A8AF1AA;
+        Wed, 26 Oct 2022 05:34:05 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 434DAB821D9;
+        Wed, 26 Oct 2022 12:34:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20DAFC433D6;
+        Wed, 26 Oct 2022 12:34:02 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="Xx5KKuxr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1666787640;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=ZeAi1MGyrPwsr84DGCNB/7Ek0xszjHGR2vlAtEQhd1A=;
+        b=Xx5KKuxrtpwoY9Wy+CYd1WDXBT9sCoNC9fjwsGkstHhNbN1WpvKcBizZeRpT/FCzCiS4RQ
+        tcs+Bt7NF3eTh8IExPNnbvvnyDYVtjOIBQ7zCHExZIsoRAGhDA8m5Mp/+dUQ/2ed4jN+pX
+        1b2G92MsVRvv78DJhUgz7++3kx0ah/c=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 8a7530bf (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Wed, 26 Oct 2022 12:33:59 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     netdev@vger.kernel.org, lvs-devel@vger.kernel.org,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Julian Anastasov <ja@ssi.bg>,
+        Simon Horman <horms@verge.net.au>, stable@vger.kernel.org
+Subject: [PATCH] ipvs: use explicitly signed chars
+Date:   Wed, 26 Oct 2022 14:32:16 +0200
+Message-Id: <20221026123216.1575440-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [REGRESSION] introduced in 5.10.140 causes drives to drop from
- LSI SAS controller (Bisected to 6d17a112e9a63ff6a5edffd1676b99e0ffbcd269)
- #forregzbot
-Content-Language: en-US, de-DE
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-To:     regressions@lists.linux.dev
-Cc:     stable@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <CADy0EvLGJmZe-x9wzWSB6+tDKNuLHd8Km3J5MiWWYQRR2ctS3A@mail.gmail.com>
- <350ec615-ffe8-2e0e-149d-4bf45932a585@acm.org>
- <ddec1a2f-1d55-ac42-9877-0d7119d087cd@leemhuis.info>
-In-Reply-To: <ddec1a2f-1d55-ac42-9877-0d7119d087cd@leemhuis.info>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1666786852;3454d1b2;
-X-HE-SMSGID: 1onfOp-0000Mf-V2
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[Note: this mail is primarily send for documentation purposes and/or for
-regzbot, my Linux kernel regression tracking bot. That's why I removed
-most or all folks from the list of recipients, but left any that looked
-like a mailing lists. These mails usually contain '#forregzbot' in the
-subject, to make them easy to spot and filter out.]
+The `char` type with no explicit sign is sometimes signed and sometimes
+unsigned. This code will break on platforms such as arm, where char is
+unsigned. So mark it here as explicitly signed, so that the
+todrop_counter decrement and subsequent comparison is correct.
 
-On 22.09.22 13:38, Thorsten Leemhuis wrote:
->
-> Hmm, nothing happened here for a week. :-/ That's not how this should be
-> when it comes to regressions...
-> 
-> Jason, any news on this? 
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Julian Anastasov <ja@ssi.bg>
+Cc: Simon Horman <horms@verge.net.au>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ net/netfilter/ipvs/ip_vs_conn.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-#regzbot invalid: reporter MIA
+diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
+index 8c04bb57dd6f..7c4866c04343 100644
+--- a/net/netfilter/ipvs/ip_vs_conn.c
++++ b/net/netfilter/ipvs/ip_vs_conn.c
+@@ -1249,40 +1249,40 @@ static const struct seq_operations ip_vs_conn_sync_seq_ops = {
+ 	.next  = ip_vs_conn_seq_next,
+ 	.stop  = ip_vs_conn_seq_stop,
+ 	.show  = ip_vs_conn_sync_seq_show,
+ };
+ #endif
+ 
+ 
+ /* Randomly drop connection entries before running out of memory
+  * Can be used for DATA and CTL conns. For TPL conns there are exceptions:
+  * - traffic for services in OPS mode increases ct->in_pkts, so it is supported
+  * - traffic for services not in OPS mode does not increase ct->in_pkts in
+  * all cases, so it is not supported
+  */
+ static inline int todrop_entry(struct ip_vs_conn *cp)
+ {
+ 	/*
+ 	 * The drop rate array needs tuning for real environments.
+ 	 * Called from timer bh only => no locking
+ 	 */
+-	static const char todrop_rate[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+-	static char todrop_counter[9] = {0};
++	static const signed char todrop_rate[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
++	static signed char todrop_counter[9] = {0};
+ 	int i;
+ 
+ 	/* if the conn entry hasn't lasted for 60 seconds, don't drop it.
+ 	   This will leave enough time for normal connection to get
+ 	   through. */
+ 	if (time_before(cp->timeout + jiffies, cp->timer.expires + 60*HZ))
+ 		return 0;
+ 
+ 	/* Don't drop the entry if its number of incoming packets is not
+ 	   located in [0, 8] */
+ 	i = atomic_read(&cp->in_pkts);
+ 	if (i > 8 || i < 0) return 0;
+ 
+ 	if (!todrop_rate[i]) return 0;
+ 	if (--todrop_counter[i] > 0) return 0;
+ 
+ 	todrop_counter[i] = todrop_rate[i];
+ 	return 1;
+ }
+-- 
+2.38.1
+
