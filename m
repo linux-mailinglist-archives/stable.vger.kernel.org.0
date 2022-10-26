@@ -2,100 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D262360DBA3
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 08:59:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4111660DC09
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 09:24:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232965AbiJZG7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 02:59:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55556 "EHLO
+        id S232939AbiJZHXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 03:23:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230134AbiJZG7Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 02:59:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A386975493;
-        Tue, 25 Oct 2022 23:59:14 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S232926AbiJZHXv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 03:23:51 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D6E7B0B01
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 00:23:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1666769030;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=/57zO14tKIKGiNB71iEufewLL5Xzf0HGWHVNOYYvEjw=;
+        b=XCcoAZug2vieLz6h+70bbuFudRcm3uu9D32qV+Fhh30xxi6O/bXI0P27v/b6tX38CIgHEK
+        ydn82OoeAn+gDzclPPWkhhpjf0jtfD9NhTYRYGBOwtckoy+uPpDO1Uab0oZHJehBo+ee/O
+        5n7LAedVM3XXAWjap+psJzKq2hJqY4s=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-500-ZNgQvMONPnewK8x-4MJpNg-1; Wed, 26 Oct 2022 03:23:44 -0400
+X-MC-Unique: ZNgQvMONPnewK8x-4MJpNg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49AB8B82115;
-        Wed, 26 Oct 2022 06:59:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82A42C433D6;
-        Wed, 26 Oct 2022 06:59:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666767552;
-        bh=o3PteaupfkQia0zeAvo4ds5YtLe/oXcMoM1XiCUq12c=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=atlTzHF8NAQoZWFpoaxe98PiZEf4+3vzFcvl8T6pqHuLU3AZa0t+TmWOTjPPXL0YX
-         NKD0I+pspYEUimuTX0A5dDm3U6JXcniY+1p9z7SGABg7sd278vNLa22+iZAO1BYkpc
-         uBVHr8DPpAO1zHc7ZC2aUpCTrllGWjodb+X+qJ5w=
-Date:   Wed, 26 Oct 2022 09:00:05 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Reka Norman <rekanorman@chromium.org>
-Cc:     Mathias Nyman <mathias.nyman@intel.com>, linux-usb@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 43FDC185A7AF;
+        Wed, 26 Oct 2022 07:23:37 +0000 (UTC)
+Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E7BB9111F3B6;
+        Wed, 26 Oct 2022 07:23:32 +0000 (UTC)
+From:   Emanuele Giuseppe Esposito <eesposit@redhat.com>
+To:     kvm@vger.kernel.org
+Cc:     Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Bandan Das <bsd@redhat.com>,
+        linux-kernel@vger.kernel.org,
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
         stable@vger.kernel.org
-Subject: Re: [PATCH 2/4] xhci: Add quirk to reset host back to default state
- at shutdown
-Message-ID: <Y1ja9cqkD32cEO0L@kroah.com>
-References: <20221024142720.4122053-1-mathias.nyman@intel.com>
- <20221024142720.4122053-3-mathias.nyman@intel.com>
- <CAEmPcwsBDwFoXOcXKXkx1aebnq3CV036Ygz_oXOobcyKoQQNnQ@mail.gmail.com>
+Subject: [PATCH v3] KVM: nVMX: Advertise ENCLS_EXITING to L1 iff SGX is fully supported
+Date:   Wed, 26 Oct 2022 03:23:30 -0400
+Message-Id: <20221026072330.2248336-1-eesposit@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAEmPcwsBDwFoXOcXKXkx1aebnq3CV036Ygz_oXOobcyKoQQNnQ@mail.gmail.com>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 26, 2022 at 05:40:10PM +1100, Reka Norman wrote:
-> On Wed, Oct 26, 2022 at 5:01 PM Mathias Nyman <mathias.nyman@intel.com> wrote:
-> >
-> > From: Mathias Nyman <mathias.nyman@linux.intel.com>
-> >
-> > Systems based on Alder Lake P see significant boot time delay if
-> > boot firmware tries to control usb ports in unexpected link states.
-> >
-> > This is seen with self-powered usb devices that survive in U3 link
-> > suspended state over S5.
-> >
-> > A more generic solution to power off ports at shutdown was attempted in
-> > commit 83810f84ecf1 ("xhci: turn off port power in shutdown")
-> > but it caused regression.
-> >
-> > Add host specific XHCI_RESET_TO_DEFAULT quirk which will reset host and
-> > ports back to default state in shutdown.
-> >
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-> > ---
-> >  drivers/usb/host/xhci-pci.c |  4 ++++
-> >  drivers/usb/host/xhci.c     | 10 ++++++++--
-> >  drivers/usb/host/xhci.h     |  1 +
-> >  3 files changed, 13 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-> > index 6dd3102749b7..fbbd547ba12a 100644
-> > --- a/drivers/usb/host/xhci-pci.c
-> > +++ b/drivers/usb/host/xhci-pci.c
-> > @@ -257,6 +257,10 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
-> >              pdev->device == PCI_DEVICE_ID_INTEL_DNV_XHCI))
-> >                 xhci->quirks |= XHCI_MISSING_CAS;
-> >
-> > +       if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
-> > +           pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI)
-> 
-> We need this quirk for ADL-N too (device ID 0x54ed). Would you mind
-> updating the patch? Or I can send a separate patch if you prefer.
+Clear enable_sgx if ENCLS-exiting is not supported, i.e. if SGX cannot be
+virtualized.  This fixes a bug where KVM would advertise ENCLS-exiting to
+L1 and propagate the control from vmcs12 to vmcs02 even if ENCLS-exiting
+isn't supported in secondary execution controls, e.g. because SGX isn't
+fully enabled, and thus induce an unexpected VM-Fail in L1.
 
-A separate patch is required, please submit it.
+Not updating enable_sgx is responsible for a second bug:
+vmx_set_cpu_caps() doesn't clear the SGX bits when hardware support is
+unavailable.  This is a much less problematic bug as it only pops up
+if SGX is soft-disabled (the case being handled by cpu_has_sgx()) or if
+SGX is supported for bare metal but not in the VMCS (will never happen
+when running on bare metal, but can theoertically happen when running in
+a VM).
 
-thanks,
+Last but not least, KVM should ideally have module params reflect KVM's
+actual configuration.
 
-greg k-h
+RHBZ: https://bugzilla.redhat.com/show_bug.cgi?id=2127128
+
+Fixes: 72add915fbd5 ("KVM: VMX: Enable SGX virtualization for SGX1, SGX2 and LC")
+Cc: stable@vger.kernel.org
+
+Suggested-by: Sean Christopherson <seanjc@google.com>
+Suggested-by: Bandan Das <bsd@redhat.com>
+Signed-off-by: Emanuele Giuseppe Esposito <eesposit@redhat.com>
+---
+ arch/x86/kvm/vmx/vmx.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 9dba04b6b019..ea0c65d3c08a 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -8263,6 +8263,11 @@ static __init int hardware_setup(void)
+ 	if (!cpu_has_virtual_nmis())
+ 		enable_vnmi = 0;
+ 
++	#ifdef CONFIG_X86_SGX_KVM
++		if (!cpu_has_vmx_encls_vmexit())
++			enable_sgx = false;
++	#endif
++
+ 	/*
+ 	 * set_apic_access_page_addr() is used to reload apic access
+ 	 * page upon invalidation.  No need to do anything if not
+-- 
+2.31.1
+
