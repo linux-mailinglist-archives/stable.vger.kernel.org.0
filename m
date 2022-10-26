@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21F9760E43A
+	by mail.lfdr.de (Postfix) with ESMTP id 76A9960E43B
 	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:11:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234240AbiJZPLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 11:11:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34352 "EHLO
+        id S232733AbiJZPL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 11:11:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234328AbiJZPLV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:11:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DB61A3AA0
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:11:20 -0700 (PDT)
+        with ESMTP id S233319AbiJZPL0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:11:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96A71D8F5A
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:11:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED21B61F72
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:11:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B9E3C433C1;
-        Wed, 26 Oct 2022 15:11:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B078B82301
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:11:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EC5AC433D7;
+        Wed, 26 Oct 2022 15:11:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666797079;
-        bh=KQKhIkbmpLjQzu0heUHMikAiPYJu4g/m37Sqj6QjbXg=;
+        s=korg; t=1666797082;
+        bh=O3tKMfUGPSTR48Hso4gTKPz1jR02JLL5UWHCGk/v+CA=;
         h=Subject:To:Cc:From:Date:From;
-        b=O94KpfLxPlEtkzWAeKWKes8bjJreCKrPw7dIt5i1CVuLdyms/ilrYwfz7PycAU+W6
-         6X1ZLUW1xMVEKRMTxNukJHJtOZHjKBZWYZluLyFm7aQKLieN1O+LJr3FDCbyHM+iNR
-         irDdkQ2nH+/ejh0cqQaJUV39PANP/Ja9sKezY1ww=
-Subject: FAILED: patch "[PATCH] media: mceusb: Use new usb_control_msg_*() routines" failed to apply to 4.19-stable tree
+        b=lEJfZzorrmCwOEa02IFp/wF0mt6i8Qb9a+TFlXjcjnufZRZg/oxyugp4WzOGkiz1b
+         wz9PuKxyucKvXWm7fz6lVgUZ8qejSeBrA+62QgIXADhqEh2goHi5lwX5nKl9EI5j+b
+         ugba6ORNLe3mOXk/3KKpka3Z6VU6zrfL9AOw47p8=
+Subject: FAILED: patch "[PATCH] media: mceusb: Use new usb_control_msg_*() routines" failed to apply to 4.14-stable tree
 To:     stern@rowland.harvard.edu, linhaoguo86@gmail.com,
         mchehab@kernel.org, sean@mess.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Oct 2022 17:11:10 +0200
-Message-ID: <1666797070241185@kroah.com>
+Date:   Wed, 26 Oct 2022 17:11:12 +0200
+Message-ID: <1666797072140159@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,6 +59,8 @@ Possible dependencies:
 41fd1cb61514 ("media: mceusb: Use new usb_control_msg_*() routines")
 16394e998cbb ("media: mceusb: fix control-message timeouts")
 9fc3ce31f5bd ("media: mceusb: fix (eliminate) TX IR signal length limit")
+877f1a7cee3f ("media: rc: mceusb: allow the timeout to be configurable")
+279c60fd896d ("media: mceusb: add IR learning support features (IR carrier frequency measurement and wide-band/short-range receiver)")
 
 thanks,
 
