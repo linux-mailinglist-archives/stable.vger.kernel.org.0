@@ -2,86 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5EC660E93C
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 21:43:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9C8F60E945
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 21:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235128AbiJZTnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 15:43:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39566 "EHLO
+        id S234361AbiJZTng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 15:43:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235111AbiJZTmp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 15:42:45 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DADCE8C5A
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 12:42:32 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id f193so15990431pgc.0
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 12:42:32 -0700 (PDT)
+        with ESMTP id S235133AbiJZTnO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 15:43:14 -0400
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720E3D18CF
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 12:42:47 -0700 (PDT)
+Received: by mail-lf1-x136.google.com with SMTP id j4so31010652lfk.0
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 12:42:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LFkN1+K+3c6IFRt45FwrvvUQl9YtYqgay0mkP7wZUzI=;
-        b=Ptd/qvcQFlVNozF95zAXwMzpsas/LwI5wHV3oflUnbitKOiLaHryheLfF3YTU7W17v
-         DouX+oik7tskpRZKEOv/6c+nv6ly+84fq1yReybvquZ46D9b16eI1rp5TR8B0iTslP9D
-         aJcizkMujXHwIpHkD76cUTfDfKViObgVbX9cY=
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=zMYZxL04hWH2PZ6vJak+KLXReH8LIrsCpuymZRqCQuk=;
+        b=ZAx/9und4SFDOlvDZ90doIyigl1AirCbsf8z2YGYEMc3bk06egUUEnFcVFM1BgdTyc
+         O6fqj4TVqhqMAN8EZm6Vt2eZtZN+qjWBNQMC5Vc8ukJIt8cumjiH8GcoHZEQOt74q9mO
+         DdrGLyflrMRO8MnizNC6H9DQfc7mOATT+5ZjdplMQ6vvBi9bGzIj7fi7KdSr/ucrmhVf
+         6vUckxsvzBW2cu3KX6Kc8V+holQLkpum6Gma33Y1mke8Tt9Cfw0TQQ8aLWPMdESVJNOM
+         ZuqtfXYPEvqAvUiv+PwWDtIk50PHjY5/pPnRD8rjjCIEn9XxQGSfqS3KM3yvbD5WQjwY
+         OWGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LFkN1+K+3c6IFRt45FwrvvUQl9YtYqgay0mkP7wZUzI=;
-        b=vXylGj+lgMgzHbnI9UkSNEzVzugOqZyLQV3/vHY4ZvbyIjhO1jA1JWE2ZV5h6ocGZe
-         NzkcXjA54yRvZchSYhMswGi3UgkrBx2iYWJzzXpAnCm9hXr4FSiikQkgPaSHQ2EGNLg0
-         hh0rW1j+0rO9v1tyZwrxZ3MveedNOp0PS20Kk2kl5QHcMEvgJgGcBmavzod/4E3Nbiua
-         WFyUQL+WNnGDgcFjULzfIAZoL7jB6NcXfcchakVZiY6BzJ9Nm0p8/QfRTgiTL2NO7Kzw
-         YDDxr6tA1Ijntji4dcp43iUybUbqrQVUI2CwtfMse6d9NjU1UqILzuCs0ko6xhZQUqmy
-         80tA==
-X-Gm-Message-State: ACrzQf1w2HNVT7slHouHl5mWGEo1MjQP3m5Ev2BkIkoQIq8MmUpq+m6O
-        NiW9aSYPGhVQ2X19FgUmViX6WA==
-X-Google-Smtp-Source: AMsMyM7MUq83w6QW8GTgoSVmGHUkhYg+59TKZGFbk++5ozcHLFc830Dpn94qePcFscvuSJH84VxKfw==
-X-Received: by 2002:a63:4461:0:b0:43c:dbdb:90c4 with SMTP id t33-20020a634461000000b0043cdbdb90c4mr37440184pgk.340.1666813351660;
-        Wed, 26 Oct 2022 12:42:31 -0700 (PDT)
-Received: from localhost ([2620:15c:9d:2:c9e3:74f3:6b2b:135])
-        by smtp.gmail.com with UTF8SMTPSA id y20-20020a170902b49400b00179e1f08634sm3219719plr.222.2022.10.26.12.42.29
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=zMYZxL04hWH2PZ6vJak+KLXReH8LIrsCpuymZRqCQuk=;
+        b=v+3Sg2EOSaDLKV2tsteN4GXy0FbJPSJZ6hCCu9txpOIKYc/PrGwDv5cxUNUV5slcMa
+         QNnYaBQd+WDtECEkLBeBUT3VpIm0Nj2jQb7/FFWWMnVuJqkqj2djYCpwVPtYJ2zH8+2Q
+         gWKwOZRXhEMPQjQDnH20sQg46IK+TiFKm+k7mXqbieGr59lhs3Osnq1DwxWPCNFcY3yF
+         P/l9FmP8Pq5oZh0MQhB1n4qLTdd17ZkxMDnCuZRqSFFKzPktVDS9h+NSHBdBW2w3f282
+         Qoq8r+0nv82Gg1Bj6I5DbYKGYIEvaqWQksxxN1PO9SOF6R2z/qdUX2XBfN5Fy2v6EyOe
+         IgZg==
+X-Gm-Message-State: ACrzQf3A5rmI8rzA7vYICEkxucTbjJ8uyFHsJf3WuIYOiQCGdCKPY62N
+        BVs1pR9UkEmg+RqT9YBajew9Cw==
+X-Google-Smtp-Source: AMsMyM67lIeLflrZFt4dXiuUg4lborbWndQxvZ66aIfbu2PHV9pOgXVdY2Tf1eV2Lal90qH3qePTVg==
+X-Received: by 2002:a05:6512:3d9f:b0:4a2:4986:281 with SMTP id k31-20020a0565123d9f00b004a249860281mr15907943lfv.123.1666813365853;
+        Wed, 26 Oct 2022 12:42:45 -0700 (PDT)
+Received: from [10.27.10.248] ([195.165.23.90])
+        by smtp.gmail.com with ESMTPSA id b14-20020a056512070e00b0049f54c5f2a4sm943868lfs.229.2022.10.26.12.42.45
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 26 Oct 2022 12:42:31 -0700 (PDT)
-From:   Brian Norris <briannorris@chromium.org>
-To:     Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     Shawn Guo <shawnguo@kernel.org>, linux-mmc@vger.kernel.org,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        linux-arm-msm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Broadcom internal kernel review list 
-        <bcm-kernel-feedback-list@broadcom.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Andy Gross <agross@kernel.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        linux-kernel@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Al Cooper <alcooperx@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Haibo Chen <haibo.chen@nxp.com>,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Brian Norris <briannorris@chromium.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v4 2/7] mmc: sdhci-of-arasan: Fix SDHCI_RESET_ALL for CQHCI
-Date:   Wed, 26 Oct 2022 12:42:04 -0700
-Message-Id: <20221026124150.v4.2.I29f6a2189e84e35ad89c1833793dca9e36c64297@changeid>
-X-Mailer: git-send-email 2.38.0.135.g90850a2211-goog
-In-Reply-To: <20221026194209.3758834-1-briannorris@chromium.org>
-References: <20221026194209.3758834-1-briannorris@chromium.org>
+        Wed, 26 Oct 2022 12:42:45 -0700 (PDT)
+Message-ID: <5ff7957a-d220-f134-4b33-7c388dbb5627@linaro.org>
+Date:   Wed, 26 Oct 2022 22:42:44 +0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.3
+Subject: Re: [PATCH] phy: qcom-qmp-combo: fix NULL-deref on runtime resume
+Content-Language: en-GB
+To:     Johan Hovold <johan+linaro@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>
+Cc:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        linux-arm-msm@vger.kernel.org, linux-phy@lists.infradead.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20221026162116.26462-1-johan+linaro@kernel.org>
+From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+In-Reply-To: <20221026162116.26462-1-johan+linaro@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -90,76 +78,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SDHCI_RESET_ALL resets will reset the hardware CQE state, but we aren't
-tracking that properly in software. When out of sync, we may trigger
-various timeouts.
+On 26/10/2022 19:21, Johan Hovold wrote:
+> Commit fc64623637da ("phy: qcom-qmp-combo,usb: add support for separate
+> PCS_USB region") started treating the PCS_USB registers as potentially
+> separate from the PCS registers but used the wrong base when no PCS_USB
+> offset has been provided.
+> 
+> Fix the PCS_USB base used at runtime resume to prevent dereferencing a
+> NULL pointer on platforms that do not provide a PCS_USB offset (e.g.
+> SC7180).
+> 
+> Fixes: fc64623637da ("phy: qcom-qmp-combo,usb: add support for separate PCS_USB region")
+> Cc: stable@vger.kernel.org	# 5.20
+> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> ---
+>   drivers/phy/qualcomm/phy-qcom-qmp-combo.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 
-It's not typical to perform resets while CQE is enabled, but one
-particular case I hit commonly enough: mmc_suspend() -> mmc_power_off().
-Typically we will eventually deactivate CQE (cqhci_suspend() ->
-cqhci_deactivate()), but that's not guaranteed -- in particular, if
-we perform a partial (e.g., interrupted) system suspend.
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-The same bug was already found and fixed for two other drivers, in v5.7
-and v5.9:
-
-  5cf583f1fb9c ("mmc: sdhci-msm: Deactivate CQE during SDHC reset")
-  df57d73276b8 ("mmc: sdhci-pci: Fix SDHCI_RESET_ALL for CQHCI for Intel
-                 GLK-based controllers")
-
-The latter is especially prescient, saying "other drivers using CQHCI
-might benefit from a similar change, if they also have CQHCI reset by
-SDHCI_RESET_ALL."
-
-So like these other patches, deactivate CQHCI when resetting the
-controller. Do this via the new sdhci_and_cqhci_reset() helper.
-
-This patch depends on (and should not compile without) the patch
-entitled "mmc: cqhci: Provide helper for resetting both SDHCI and
-CQHCI".
-
-Fixes: 84362d79f436 ("mmc: sdhci-of-arasan: Add CQHCI support for arasan,sdhci-5.1")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
----
-
-Changes in v4:
- - Improve for-stable cherry-picking notes
- - Add Adrian's Ack
-
-Changes in v3:
- - Refactor to a "SDHCI and CQHCI" helper -- sdhci_and_cqhci_reset()
-
-Changes in v2:
- - Rely on cqhci_deactivate() to safely handle (ignore)
-   not-yet-initialized CQE support
-
- drivers/mmc/host/sdhci-of-arasan.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/mmc/host/sdhci-of-arasan.c b/drivers/mmc/host/sdhci-of-arasan.c
-index 3997cad1f793..cfb891430174 100644
---- a/drivers/mmc/host/sdhci-of-arasan.c
-+++ b/drivers/mmc/host/sdhci-of-arasan.c
-@@ -25,6 +25,7 @@
- #include <linux/firmware/xlnx-zynqmp.h>
- 
- #include "cqhci.h"
-+#include "sdhci-cqhci.h"
- #include "sdhci-pltfm.h"
- 
- #define SDHCI_ARASAN_VENDOR_REGISTER	0x78
-@@ -366,7 +367,7 @@ static void sdhci_arasan_reset(struct sdhci_host *host, u8 mask)
- 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
- 	struct sdhci_arasan_data *sdhci_arasan = sdhci_pltfm_priv(pltfm_host);
- 
--	sdhci_reset(host, mask);
-+	sdhci_and_cqhci_reset(host, mask);
- 
- 	if (sdhci_arasan->quirks & SDHCI_ARASAN_QUIRK_FORCE_CDTEST) {
- 		ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
 -- 
-2.38.0.135.g90850a2211-goog
+With best wishes
+Dmitry
 
