@@ -2,154 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 556A560E21E
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 15:24:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD92B60E329
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 16:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233722AbiJZNY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 09:24:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41750 "EHLO
+        id S234197AbiJZOUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 10:20:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234119AbiJZNYK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 09:24:10 -0400
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CA289AEA17;
-        Wed, 26 Oct 2022 06:23:49 -0700 (PDT)
-Received: from linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net (linux.microsoft.com [13.77.154.182])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 9F4A6210185B;
-        Wed, 26 Oct 2022 06:23:48 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 9F4A6210185B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1666790628;
-        bh=6fCTFFKJE64Z/YLmNey+rlj3zBPszoKkH2V6PRGhTDI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=HhQ1vsH7RQd2iePFpuijE5BXnwo3d64ZR7IO6iR6v3TqMxolKv0UofgLbOSX5Xxlb
-         BWYRrDNRl7F4lQ3YKpW+wmfG4DvGYc9cnz0L7sDHhf2BpeithSJlzec8IBCIBsx3K7
-         9CKNLOHTzNkjkoNV50aUmYXUhTAIa76Olaa16Ajg=
-From:   Gaurav Kohli <gauravkohli@linux.microsoft.com>
-To:     stable@vger.kernel.org, gauravkohli@linux.microsoft.com
-Cc:     gregkh@linuxfoundation.org, haiyangz@microsoft.com,
-        davem@davemloft.net, linux-hyperv@vger.kernel.org
-Subject: [PATCH 5.10] hv_netvsc: Fix race between VF offering and VF association message from host
-Date:   Wed, 26 Oct 2022 06:23:43 -0700
-Message-Id: <1666790623-29227-1-git-send-email-gauravkohli@linux.microsoft.com>
-X-Mailer: git-send-email 1.8.3.1
-X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S234220AbiJZOUN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 10:20:13 -0400
+Received: from mg.ssi.bg (mg.ssi.bg [193.238.174.37])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0576E2E6BF;
+        Wed, 26 Oct 2022 07:20:11 -0700 (PDT)
+Received: from mg.ssi.bg (localhost [127.0.0.1])
+        by mg.ssi.bg (Proxmox) with ESMTP id 0964011C96;
+        Wed, 26 Oct 2022 17:20:11 +0300 (EEST)
+Received: from ink.ssi.bg (unknown [193.238.174.40])
+        by mg.ssi.bg (Proxmox) with ESMTP id 9C81211C33;
+        Wed, 26 Oct 2022 17:20:09 +0300 (EEST)
+Received: from ja.ssi.bg (unknown [178.16.129.10])
+        by ink.ssi.bg (Postfix) with ESMTPS id C2DE83C07E1;
+        Wed, 26 Oct 2022 17:20:06 +0300 (EEST)
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+        by ja.ssi.bg (8.17.1/8.16.1) with ESMTP id 29QEK3RO087932;
+        Wed, 26 Oct 2022 17:20:05 +0300
+Date:   Wed, 26 Oct 2022 17:20:03 +0300 (EEST)
+From:   Julian Anastasov <ja@ssi.bg>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+cc:     netdev@vger.kernel.org, lvs-devel@vger.kernel.org,
+        netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Simon Horman <horms@verge.net.au>, stable@vger.kernel.org
+Subject: Re: [PATCH] ipvs: use explicitly signed chars
+In-Reply-To: <20221026123216.1575440-1-Jason@zx2c4.com>
+Message-ID: <4cc36ff5-46fd-c2b3-3292-d6369337fec1@ssi.bg>
+References: <20221026123216.1575440-1-Jason@zx2c4.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 365e1ececb2905f94cc10a5817c5b644a32a3ae2 ]
 
-During vm boot, there might be possibility that vf registration
-call comes before the vf association from host to vm.
+	Hello,
 
-And this might break netvsc vf path, To prevent the same block
-vf registration until vf bind message comes from host.
+On Wed, 26 Oct 2022, Jason A. Donenfeld wrote:
 
-Cc: stable@vger.kernel.org
-Fixes: 00d7ddba11436 ("hv_netvsc: pair VF based on serial number")
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Gaurav Kohli <gauravkohli@linux.microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
----
- drivers/net/hyperv/hyperv_net.h |  3 ++-
- drivers/net/hyperv/netvsc.c     |  4 ++++
- drivers/net/hyperv/netvsc_drv.c | 20 ++++++++++++++++++++
- 3 files changed, 26 insertions(+), 1 deletion(-)
+> The `char` type with no explicit sign is sometimes signed and sometimes
+> unsigned. This code will break on platforms such as arm, where char is
+> unsigned. So mark it here as explicitly signed, so that the
+> todrop_counter decrement and subsequent comparison is correct.
+> 
+> Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+> Cc: Julian Anastasov <ja@ssi.bg>
+> Cc: Simon Horman <horms@verge.net.au>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 
-diff --git a/drivers/net/hyperv/hyperv_net.h b/drivers/net/hyperv/hyperv_net.h
-index a0f338cf1424..367878493e70 100644
---- a/drivers/net/hyperv/hyperv_net.h
-+++ b/drivers/net/hyperv/hyperv_net.h
-@@ -977,7 +977,8 @@ struct net_device_context {
- 	u32 vf_alloc;
- 	/* Serial number of the VF to team with */
- 	u32 vf_serial;
--
-+	/* completion variable to confirm vf association */
-+	struct completion vf_add;
- 	/* Is the current data path through the VF NIC? */
- 	bool  data_path_is_vf;
- 
-diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
-index 0c3de94b5178..f813ec586049 100644
---- a/drivers/net/hyperv/netvsc.c
-+++ b/drivers/net/hyperv/netvsc.c
-@@ -1324,6 +1324,10 @@ static void netvsc_send_vf(struct net_device *ndev,
- 
- 	net_device_ctx->vf_alloc = nvmsg->msg.v4_msg.vf_assoc.allocated;
- 	net_device_ctx->vf_serial = nvmsg->msg.v4_msg.vf_assoc.serial;
-+
-+	if (net_device_ctx->vf_alloc)
-+		complete(&net_device_ctx->vf_add);
-+
- 	netdev_info(ndev, "VF slot %u %s\n",
- 		    net_device_ctx->vf_serial,
- 		    net_device_ctx->vf_alloc ? "added" : "removed");
-diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
-index 261e6e55a907..db6e2f8cc16e 100644
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -2287,6 +2287,7 @@ static struct net_device *get_netvsc_byslot(const struct net_device *vf_netdev)
- {
- 	struct device *parent = vf_netdev->dev.parent;
- 	struct net_device_context *ndev_ctx;
-+	struct net_device *ndev;
- 	struct pci_dev *pdev;
- 	u32 serial;
- 
-@@ -2313,6 +2314,18 @@ static struct net_device *get_netvsc_byslot(const struct net_device *vf_netdev)
- 			return hv_get_drvdata(ndev_ctx->device_ctx);
- 	}
- 
-+	/* Fallback path to check synthetic vf with
-+	 * help of mac addr
-+	 */
-+	list_for_each_entry(ndev_ctx, &netvsc_dev_list, list) {
-+		ndev = hv_get_drvdata(ndev_ctx->device_ctx);
-+		if (ether_addr_equal(vf_netdev->perm_addr, ndev->perm_addr)) {
-+			netdev_notice(vf_netdev,
-+				      "falling back to mac addr based matching\n");
-+			return ndev;
-+		}
-+	}
-+
- 	netdev_notice(vf_netdev,
- 		      "no netdev found for vf serial:%u\n", serial);
- 	return NULL;
-@@ -2403,6 +2416,11 @@ static int netvsc_vf_changed(struct net_device *vf_netdev)
- 		return NOTIFY_OK;
- 	net_device_ctx->data_path_is_vf = vf_is_up;
- 
-+	if (vf_is_up && !net_device_ctx->vf_alloc) {
-+		netdev_info(ndev, "Waiting for the VF association from host\n");
-+		wait_for_completion(&net_device_ctx->vf_add);
-+	}
-+
- 	netvsc_switch_datapath(ndev, vf_is_up);
- 	netdev_info(ndev, "Data path switched %s VF: %s\n",
- 		    vf_is_up ? "to" : "from", vf_netdev->name);
-@@ -2426,6 +2444,7 @@ static int netvsc_unregister_vf(struct net_device *vf_netdev)
- 
- 	netvsc_vf_setxdp(vf_netdev, NULL);
- 
-+	reinit_completion(&net_device_ctx->vf_add);
- 	netdev_rx_handler_unregister(vf_netdev);
- 	netdev_upper_dev_unlink(vf_netdev, ndev);
- 	RCU_INIT_POINTER(net_device_ctx->vf_netdev, NULL);
-@@ -2463,6 +2482,7 @@ static int netvsc_probe(struct hv_device *dev,
- 
- 	INIT_DELAYED_WORK(&net_device_ctx->dwork, netvsc_link_change);
- 
-+	init_completion(&net_device_ctx->vf_add);
- 	spin_lock_init(&net_device_ctx->lock);
- 	INIT_LIST_HEAD(&net_device_ctx->reconfig_events);
- 	INIT_DELAYED_WORK(&net_device_ctx->vf_takeover, netvsc_vf_setup);
--- 
-2.25.1
+	Looks good to me for -next, thanks!
+
+Acked-by: Julian Anastasov <ja@ssi.bg>
+
+> ---
+>  net/netfilter/ipvs/ip_vs_conn.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
+> index 8c04bb57dd6f..7c4866c04343 100644
+> --- a/net/netfilter/ipvs/ip_vs_conn.c
+> +++ b/net/netfilter/ipvs/ip_vs_conn.c
+> @@ -1249,40 +1249,40 @@ static const struct seq_operations ip_vs_conn_sync_seq_ops = {
+>  	.next  = ip_vs_conn_seq_next,
+>  	.stop  = ip_vs_conn_seq_stop,
+>  	.show  = ip_vs_conn_sync_seq_show,
+>  };
+>  #endif
+>  
+>  
+>  /* Randomly drop connection entries before running out of memory
+>   * Can be used for DATA and CTL conns. For TPL conns there are exceptions:
+>   * - traffic for services in OPS mode increases ct->in_pkts, so it is supported
+>   * - traffic for services not in OPS mode does not increase ct->in_pkts in
+>   * all cases, so it is not supported
+>   */
+>  static inline int todrop_entry(struct ip_vs_conn *cp)
+>  {
+>  	/*
+>  	 * The drop rate array needs tuning for real environments.
+>  	 * Called from timer bh only => no locking
+>  	 */
+> -	static const char todrop_rate[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+> -	static char todrop_counter[9] = {0};
+> +	static const signed char todrop_rate[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+> +	static signed char todrop_counter[9] = {0};
+>  	int i;
+>  
+>  	/* if the conn entry hasn't lasted for 60 seconds, don't drop it.
+>  	   This will leave enough time for normal connection to get
+>  	   through. */
+>  	if (time_before(cp->timeout + jiffies, cp->timer.expires + 60*HZ))
+>  		return 0;
+>  
+>  	/* Don't drop the entry if its number of incoming packets is not
+>  	   located in [0, 8] */
+>  	i = atomic_read(&cp->in_pkts);
+>  	if (i > 8 || i < 0) return 0;
+>  
+>  	if (!todrop_rate[i]) return 0;
+>  	if (--todrop_counter[i] > 0) return 0;
+>  
+>  	todrop_counter[i] = todrop_rate[i];
+>  	return 1;
+>  }
+> -- 
+> 2.38.1
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
 
