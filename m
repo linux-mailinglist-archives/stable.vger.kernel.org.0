@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16BBC60E433
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:11:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AF1160E434
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:11:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234492AbiJZPLG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 11:11:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34616 "EHLO
+        id S231164AbiJZPLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 11:11:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234328AbiJZPLB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:11:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAE0390824
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:10:58 -0700 (PDT)
+        with ESMTP id S234474AbiJZPLL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:11:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25E536292E
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:11:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 827A561F4E
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:10:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95AE3C433D6;
-        Wed, 26 Oct 2022 15:10:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B620D61F71
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:11:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5D73C433C1;
+        Wed, 26 Oct 2022 15:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666797057;
-        bh=AeO/vIaij6dPiGJnm+mQ/jS04qm8Bmd8fJgGKSzYZfc=;
+        s=korg; t=1666797067;
+        bh=zsujlgFyJjet5xmFZljWMjgcWGgGbMB2GZ2FzDcNj/0=;
         h=Subject:To:Cc:From:Date:From;
-        b=hGkxj5DHgQ2BldmtyZqvMY0mD/Ot4k0O0nZPVnVBbaIS3DAg5Ms/8wvq7ELx/4yJo
-         pCVcSNlMnn3u9Ilpcst3bBRtYml2KxBaZWLb0f5Obb0rrjcJh8W6jmH/dzzSEspGYr
-         EP2WTk+L7JzWfZd2IK3O0VtSwqimCURZk1PSL7BI=
-Subject: FAILED: patch "[PATCH] media: mceusb: Use new usb_control_msg_*() routines" failed to apply to all-stable tree
+        b=Mgkv8Tu0ueI34bz9MZTJCT6yt0vOlwq414JrUP05BSAGFnArKkaNA2aE4W5bTLdm4
+         sNOqfGr7NOXppH+Cf4nVPmZyRG2GQUavpKjuI38PeXPScYN+ZjE0Squy+y3cnDlU8c
+         C9gg2209EgxVGqHs0Xz0Ym/Xl7LUVVfzoFn2A3sY=
+Subject: FAILED: patch "[PATCH] media: mceusb: Use new usb_control_msg_*() routines" failed to apply to 6.0-stable tree
 To:     stern@rowland.harvard.edu, linhaoguo86@gmail.com,
         mchehab@kernel.org, sean@mess.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Oct 2022 17:10:55 +0200
-Message-ID: <1666797055201253@kroah.com>
+Date:   Wed, 26 Oct 2022 17:11:04 +0200
+Message-ID: <166679706424177@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,CONTENT_AFTER_HTML,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -49,53 +49,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the all-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-<!DOCTYPE html>
-<html lang='en'>
-<head>
-<title>kernel/git/sashal/deps.git - Sashas dependency resolver</title>
-<meta name='generator' content='cgit '/>
-<meta name='robots' content='noindex, nofollow'/>
-<link rel='stylesheet' type='text/css' href='/cgit-data/cgit.css'/>
-<link rel='shortcut icon' href='/favicon.ico'/>
-<link rel='alternate' title='Atom feed' href='http://git.kernel.org/pub/scm/linux/kernel/git/sashal/deps.git/atom/?h=master' type='application/atom+xml'/>
-<link rel='vcs-git' href='git://git.kernel.org/pub/scm/linux/kernel/git/sashal/deps.git' title='kernel/git/sashal/deps.git Git repository'/>
-<link rel='vcs-git' href='https://git.kernel.org/pub/scm/linux/kernel/git/sashal/deps.git' title='kernel/git/sashal/deps.git Git repository'/>
-<link rel='vcs-git' href='https://kernel.googlesource.com/pub/scm/linux/kernel/git/sashal/deps.git' title='kernel/git/sashal/deps.git Git repository'/>
-</head>
-<body>
-<div id='cgit'><table id='header'>
-<tr>
-<td class='logo' rowspan='2'><a href='/'><img src='/cgit-data/cgit.png' alt='cgit logo'/></a></td>
-<td class='main'><a href='/'>index</a> : <a title='kernel/git/sashal/deps.git' href='/pub/scm/linux/kernel/git/sashal/deps.git/'>kernel/git/sashal/deps.git</a></td><td class='form'><form method='get'>
-<select name='h' onchange='this.form.submit();'>
-<option value='master' selected='selected'>master</option>
-</select> <input type='submit' value='switch'/></form></td></tr>
-<tr><td class='sub'>Sashas dependency resolver</td><td class='sub right'>Sasha Levin</td></tr></table>
-<table class='tabs'><tr><td>
-<a href='/pub/scm/linux/kernel/git/sashal/deps.git/'>summary</a><a href='/pub/scm/linux/kernel/git/sashal/deps.git/refs/'>refs</a><a href='/pub/scm/linux/kernel/git/sashal/deps.git/log/'>log</a><a href='/pub/scm/linux/kernel/git/sashal/deps.git/tree/'>tree</a><a href='/pub/scm/linux/kernel/git/sashal/deps.git/commit/'>commit</a><a href='/pub/scm/linux/kernel/git/sashal/deps.git/diff/'>diff</a><a href='/pub/scm/linux/kernel/git/sashal/deps.git/stats/'>stats</a></td><td class='form'><form class='right' method='get' action='/pub/scm/linux/kernel/git/sashal/deps.git/log/'>
-<select name='qt'>
-<option value='grep'>log msg</option>
-<option value='author'>author</option>
-<option value='committer'>committer</option>
-<option value='range'>range</option>
-</select>
-<input class='txt' type='search' size='10' name='q' value=''/>
-<input type='submit' value='search'/>
-</form>
-</td></tr></table>
-<div class='content'><div class='error'>Not found</div>
-</div> <!-- class=content -->
-<div class='footer'>generated by <a href='https://git.zx2c4.com/cgit/about/'>cgit </a> (<a href='https://git-scm.com/'>git 2.34.1</a>) at 2022-10-26 15:10:55 +0000</div>
-</div> <!-- id=cgit -->
-</body>
-</html>
+41fd1cb61514 ("media: mceusb: Use new usb_control_msg_*() routines")
 
 thanks,
 
