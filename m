@@ -2,138 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD12460DB20
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 08:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F1460DB23
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 08:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231681AbiJZG3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 02:29:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35440 "EHLO
+        id S231801AbiJZG3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 02:29:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231801AbiJZG3X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 02:29:23 -0400
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9621780E89;
-        Tue, 25 Oct 2022 23:29:22 -0700 (PDT)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29Q1nC6D023389;
-        Wed, 26 Oct 2022 06:29:17 GMT
+        with ESMTP id S232906AbiJZG3a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 02:29:30 -0400
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01930C64;
+        Tue, 25 Oct 2022 23:29:28 -0700 (PDT)
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29Q1nQqM030372;
+        Wed, 26 Oct 2022 06:29:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version; s=corp-2022-7-12;
- bh=mLyRTUxWLzsK9l+p11J3vAAMydBHTPTyQhGcQLImiYk=;
- b=IH9djKL93JPVknbCn0xl/6YzBN+LXBZyl8eibbalibqa73kzo+TkhDKSEbEy/PXfQwR0
- S9CASqkFymKZwhAMk3ITFe728/tYuPFGWWshmDwjMELwSQlj35zp/3qDH3RCq1Y+ZUpK
- PX5MuWF6kEJpPhgufXg99ON8axBXLB9JeWpN1HyAZL2mAzPghRf85lKcb9deET4vqEvz
- uGjwbXVdrb9OvsdCWKXwqO7R9CeCUQCzNfQi33fQlJSFGe+6qQLpnCBK1yL6wZv1FgF8
- eWE67Z0M4Kcjr+Bqa3xfKD9fxpy1FlZb5yl4FqojZe3U64p9iyJviMuoyaPQ7tEpe1ic dw== 
-Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3kc7a35nnp-1
+ bh=dEvIrjhmCC0lYyPS4woWX7pYOSXBBMZMTgztOIxPhHw=;
+ b=SxxjaZbPD4hNJtHRtsIcV9rKCixxUnXRE51nhCVVO0stDNnSRIzFKuO1AMOSdHVjoZb1
+ JfCzmy2D3m80QsjS1Uf7IKEKcJ727UpVooG952mjDWO3eU3+8QxsHt4us+4gOBLRGHwv
+ V5E8ojp77rS3hh4MPmC2orku5Y8rMSnRU3B3Pkg/4BwqGQMlS3STlfiute8LbEcdKsky
+ 2cudpMU2R1d9+ZUxm6qdfK6+XlXBnFXAIZa6caYqP67wGSTxpwowegj7iKNTAALD3/iN
+ FbNOdvEzgHsUBsjBIEY7WNbB5n6OnL/EqFDWn3MxMRJKSus8CPOl0TiRTtt1UzNvmd6C Tw== 
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3kc741x226-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 26 Oct 2022 06:29:17 +0000
-Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 29Q320Ps011113;
-        Wed, 26 Oct 2022 06:29:16 GMT
+        Wed, 26 Oct 2022 06:29:23 +0000
+Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 29Q37APL017253;
+        Wed, 26 Oct 2022 06:29:22 GMT
 Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2171.outbound.protection.outlook.com [104.47.56.171])
-        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3kc6y5d7y2-1
+        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3kc6y5mwju-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 26 Oct 2022 06:29:16 +0000
+        Wed, 26 Oct 2022 06:29:22 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=nKwxVsmnS7v1BLuFdAc1Y5XWR7sTJEhgQLKtoAqODnHIoCYvYnLYUnt/syOvkp64+8ypHSE7g1eFAt+505pVDNTYDeeupZTmxQ9jB9kclH/0vSWJRSDAUGvF4CVbby6E/pBFCKhDoG8FjoxbLEZOs6+M8tOVyij3vaYNuGQd0jIkRp6ox8BKDGr7LG+CyCmLdckAbLv/c0NqShNKOvNYIz35rCS1GlerQ4ODtytWz3ZIJFi+sbItLXQUAwEmCV3hL4B/2ozDuEsDpfi3ernqTUP1/uVOUy9PVwyr3BODdLiipfv2xdg9Hh2/LNkVfHXqZFs4LdVAjD/z4GtLcPqxqQ==
+ b=j0epNaveLbLU9Ev8KdtxYPqzTnDUee9UIq1XyRrubv2aFzu68h7D4pR4PQ0eq4mONkRDZe7MqiJ83Flqa5HXg+HnhjMyUNbN7jEUo7R73yZ2nBlPvJ0dbLBiSHfTMZvFNqGBLpImfLa3imvAefrehRtXjKVrXN+B0HRMcfyuPuurjbSfDo5ezoy/IlSfw4p2A4ffGoc/T5HvxL0lG0s2w7QKjRtzAmAaPHCIti9OMlqrC6Vf1buQv2ro5SZMOExTUnBRJMffRf4L30iaoBDalU9hxD0PkGWOVocBJJ5HFDqwmT0NL/FXZY5lqdiNFdC5/w7SsjW97eUvPxCeA26HoA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=mLyRTUxWLzsK9l+p11J3vAAMydBHTPTyQhGcQLImiYk=;
- b=RaoXAv2z+QcXlWhbzgZCritT6HJ7C9mM4OR2GbB+LfjLLtpgJX9EgUNQkfgmVxt9EBghIFsx7IEkfsr7lECaFMFfr7/aeSuwB22qfHIl8M2Ec5iR+9Ur4wrmo8B34wD0dGzK2o8XfkAsQuytwFTE2hYhjzCQkdwK9Rlg6n1+G3CVxvsuUTN5RRKdiO1JqqmS3/WY0Awv5a96sqp87wLxpsaXgv6X+bPPcxdEcti8zajlIvY9LKMsWtHABf0gu2zAhtFa54+QiVE5OUVDlXl4xcNxZcprsiFoi4rbblqgifzE8rflOLsbvqTAgXXhTT+eQCQyCEF0STZHap1H1YvYPQ==
+ bh=dEvIrjhmCC0lYyPS4woWX7pYOSXBBMZMTgztOIxPhHw=;
+ b=JEu2A85FEyCoOnp+zHA7gttslyYN+JXOB2dJYqorU+CBeZYOl/y+1P9BgDsD6NXj53jfxBKIecZBCGSVhTyCM9c6zcKA5HpBcd8gAuRN6t6BFurxz5ObrJ4DYTY2adKV14TQon1GG7hrklTBpOd13iE6B0JFJlM7t6KwNsvn2GYjumEfObptEeOSc8IR4Fkc/SuS/3qDUTGhgD88ra5OjWcjc/bd4pGtlPy3Ex7Lc2pVl27oQdK8KTpjHQedRbOSRYSdZjBEYWDCFJyoZKoIr7Fg5uqzEZdGi0HOAxxHS7WVd8farjkExGuhTH1EI4K+pY+wcAETD2D+jTZQ2FjGcw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mLyRTUxWLzsK9l+p11J3vAAMydBHTPTyQhGcQLImiYk=;
- b=CHB4ldYeTJezbN3p+MNoDzXKaq5Bdj7/wElAxzk/xwfpKFAQvykA0U/Yp0TntpjwVv6FO+PcRwKyhgEzVUlblMS/bnJwSKKqJEGbW++LQn+Bqk7Q/v+66gJ8LMF8fvBgcEP/WXaDh7nPOr/l8dU5uwJrlY7dazoNOGBrlLipkrc=
+ bh=dEvIrjhmCC0lYyPS4woWX7pYOSXBBMZMTgztOIxPhHw=;
+ b=MphHJr9cOjAYYwOk7/M/i+8H9PvEP5wj4HF+WAlfxe9UIfCUUAjfLQuSyp3NbbzvP+g3zV70RYYcQAFmPhD+k4zYRBCzlLMcBuZoOIgsaz8b1oiB495eZxEMiV7eldF6QfIw4jibOYYQeg0hQ1pDlsEQXJVHPCDn/D08YTguRFs=
 Received: from SA1PR10MB5867.namprd10.prod.outlook.com (2603:10b6:806:22b::9)
  by CO1PR10MB4498.namprd10.prod.outlook.com (2603:10b6:303:6c::19) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5746.28; Wed, 26 Oct
- 2022 06:29:14 +0000
+ 2022 06:29:20 +0000
 Received: from SA1PR10MB5867.namprd10.prod.outlook.com
  ([fe80::81a2:47b1:9cbf:e9c]) by SA1PR10MB5867.namprd10.prod.outlook.com
  ([fe80::81a2:47b1:9cbf:e9c%6]) with mapi id 15.20.5723.033; Wed, 26 Oct 2022
- 06:29:14 +0000
+ 06:29:20 +0000
 From:   Chandan Babu R <chandan.babu@oracle.com>
 To:     gregkh@linuxfoundation.org
 Cc:     sashal@kernel.org, mcgrof@kernel.org, linux-xfs@vger.kernel.org,
         stable@vger.kernel.org, djwong@kernel.org, chandan.babu@oracle.com,
         amir73il@gmail.com, leah.rumancik@gmail.com
-Subject: [PATCH 5.4 04/26] xfs: add a function to deal with corrupt buffers post-verifiers
-Date:   Wed, 26 Oct 2022 11:58:21 +0530
-Message-Id: <20221026062843.927600-5-chandan.babu@oracle.com>
+Subject: [PATCH 5.4 05/26] xfs: xfs_buf_corruption_error should take __this_address
+Date:   Wed, 26 Oct 2022 11:58:22 +0530
+Message-Id: <20221026062843.927600-6-chandan.babu@oracle.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221026062843.927600-1-chandan.babu@oracle.com>
 References: <20221026062843.927600-1-chandan.babu@oracle.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: TYCP286CA0047.JPNP286.PROD.OUTLOOK.COM
- (2603:1096:400:2b5::18) To SA1PR10MB5867.namprd10.prod.outlook.com
+X-ClientProxiedBy: TYWPR01CA0009.jpnprd01.prod.outlook.com
+ (2603:1096:400:a9::14) To SA1PR10MB5867.namprd10.prod.outlook.com
  (2603:10b6:806:22b::9)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: SA1PR10MB5867:EE_|CO1PR10MB4498:EE_
-X-MS-Office365-Filtering-Correlation-Id: 25137eb3-cdc1-4f4c-e4ff-08dab71b66cb
+X-MS-Office365-Filtering-Correlation-Id: 1103078d-3ade-46e0-1487-08dab71b6a99
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: dwJNupSXivwqbBjcv37g1kp3GF2+PpJVK73QE8+unBoQBuxsQjxAB9nwk2jgupVQfcmr6cpnCRawXG1vpneQfzbr+qBmij8m5Qd/fcPPjppXagGtuZJyHLNJWb+n5U1FJAC9MAbu8Px5LRk9rlVPSlRKdVyqEmFNk/rPQSdvMJVlhfVkaPzHhe2Am8xGdkkIhl7MfW2UuefKxeHqjUbgzHz3ytES9eDjRbgRrylAb4Nk66r6cjjnbX/t1Wfirefunj+RRO38bEFoCCPy8GOuY1H76d0M6owxQxMxq4BHdRuX4RkIRvFisDaqm0Sqo9F3imM6PkGHbI9aXYBj1Rc/dzOjA9aYvxqYGU/hIPpzGDxw1NOoDHp2luy4/CNl9DgoOZH+m+xLuXLr5dq9Lcn6BIjovZutrj11b9XjZz3HVkTwTIUfeUrjDIvg62W3iZYs+kJ1l4/CH8pmBETtaFFYqWgLif38fKAXTgWwbdYxAMGXPXc7namcBrOXdbR7qBLE3v+1kvk8HN9LJQ0qVysYrujr3hPrPDMqb2CAkatg0kkLhHGVl5BrNDg2xTrdkF+RDgNw4wlDSvn+sbgZhxViSqICl8TsFxcrHh6DuFA/w8KiMn+6XWgi+BKlJAr1da+weJI36D5TSy4EFMz94FbpzofyZk+YaHWzeO+03lyYxPSrmP405PSpaQOqicycXTB1zSfNkadH0z5FRYNX3BDgEQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR10MB5867.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(136003)(366004)(396003)(346002)(376002)(39860400002)(451199015)(186003)(66556008)(41300700001)(478600001)(2616005)(66946007)(1076003)(66476007)(4326008)(2906002)(8676002)(38100700002)(83380400001)(86362001)(316002)(6486002)(6916009)(6512007)(6506007)(6666004)(8936002)(26005)(36756003)(5660300002);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: Em7CFEO1yetBJzNbhKKF0n3k1n0pdm7pcNMl0OEv6FEu1akEETo5RUtV4Bgr/L6ODG3CFtMai5gl3lNOexs7Nf8pGkXny9FNOLx/wDBgup5oDxqSDeUMkIc0c5/u+5/m7HF2B7YIGmhLbkPa4IGUUIiuYwxcX8eTclqnmCkm0vQ8sxvMRsTPiV6ZUO0D5SWP9DNRMqBMJsaRJ4AQ7aK3N1o1rnzO+9gSDpalTX6prSbZk7zic35eSc/5LOASJ4DAsoEUw1Af7EO8dQIkBKeTS6MGcX4Bs83fNDh3Nx/artORhSB+hiW2IH+K5j6QKaidpSDxOagTeggY7hhehRUBvjyQe6fOISkvA52V7H5rYaG7FU166DU62NVOxVgurF2euJL26eXAZgPzL5Dwzvb1HRefRzBSHN2Sc95dkEs4g7F8hApvvshtCQQRpeypLnVOYFX+K6TxPbfDKq+Yflf4EAzp3nvGWp+96DnExZVC23udbuyXI57DVBXNNmoRKR1WD8nL66KYcj5sgUQvTkqRLQbRA+zMFn1oX0ixwroisApK/A5fIOpPwKLqaUT2S+KaRq7QjJg7RV26meSTvojQyVerqj1PWhF097jHzNihNbAPTDMfr2N/XnnjXYbjJvIpX7Q9px55iM+G9JlHRKSdnsKR6zL2FmSSjSU1VUMqMiu6tcg9TtLsJZ3evlXXdqH+u7K0Gv98uWcw58jSRm8nDw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR10MB5867.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(136003)(366004)(396003)(346002)(376002)(39860400002)(451199015)(186003)(66556008)(41300700001)(478600001)(2616005)(66946007)(1076003)(66476007)(4326008)(2906002)(8676002)(38100700002)(83380400001)(86362001)(316002)(6486002)(6916009)(6512007)(6506007)(8936002)(26005)(36756003)(5660300002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?aERK2NwJ3z1OImIimTWPH8y7LO1bcMsfmBJTXi4BTTX4M3l8AbloIJEw1vo/?=
- =?us-ascii?Q?BhHunm3IEUfMv1MQAxAjWhf13X6z3B1Rxg0xjJfmrQRN2aGnL1CONahXvNLk?=
- =?us-ascii?Q?2htP0Ub1cFJqJDbFH0z6PBr30vuRE2jRkSw/OCiu6Bp0nE66c4Kk2KURN9Kt?=
- =?us-ascii?Q?PPCHqD/P57yjaOGtShfAmeLGLpG8zmH0l1J5kNvSHeePVKQ2PlbcvwRXn/CH?=
- =?us-ascii?Q?mVxQc8wudNf8Ls0KGHWOVZCENnNvCzApTNK/yfkLj+wOqtH6DfelXm03TWeb?=
- =?us-ascii?Q?3f2LSSmYDrrnXmqbNdnqzlGgX0seY+d4hF54nRr0p8DfTWNFNhL6zV/X9GbA?=
- =?us-ascii?Q?jK3IsXMrufQh0OdvhLl50QFFM2IcnGh1ur4U+yufrnMj3tzUuGGEBaQOU71I?=
- =?us-ascii?Q?319MfG7ibprrczTy9ZLAhSx7Tv+uLgzucWOjHmWjeHpMcLn6FVhMgwbPJbFc?=
- =?us-ascii?Q?3JAWyjTJr0PkBxV0hVWjYHMw1wlQE+f5fRla9MWlPp+84mndlPJ/W2DY4J4T?=
- =?us-ascii?Q?qVzfGmxzjNb4QW41Fiie/jguK6XO4YF5z4um+P2owDy31UlCxJGtl7aOpbXY?=
- =?us-ascii?Q?9+1rBTnxrUKv9RkYOOj2A0Awut2C4aBjeLffkliRo8hnkJtkVeEkTTlhIbH0?=
- =?us-ascii?Q?IwKyfG1Xlu9JVmiv0g9WpyGAGPdpGBefrE54LASZD5LBo4gIg09tVvu9nQAM?=
- =?us-ascii?Q?9yr2bF9CCiOvzHKhJyRrfMP530Nwgz6ajuluQG0w4FwBYd2ihuE9onrCllsf?=
- =?us-ascii?Q?2f2STWyyzk2upRBoo7COYyNoZ7W2bBZXSCxjJiiqkl7X96z13RKDjJWtErdS?=
- =?us-ascii?Q?nTKRmn1nd/quzcAG3jBmQHFE7F5j+D2g3PRmoE9ku7JsxPxi4NU5rkXKBMVw?=
- =?us-ascii?Q?zN61Tnn4e7sUE4oXdXvvjr9gNfMOOEOeQst6YT3lgNERhw9QpOGHDxIlx3dm?=
- =?us-ascii?Q?x+ztuCPYhsD5TSHQAgXgFLVsQQASEVaNOvuwHO1opjrgjkrk8KygSx1svmWN?=
- =?us-ascii?Q?YBH6OHkM2svdGuE5zZSMV11T7Ve6wm3t9yauEgEK8Blf31HSRHOhjvkfa4OK?=
- =?us-ascii?Q?gsE7FnTSrSicchhZB4lkBr/OQapg4k1eSgnvFPCAWOa5VAOTbI93UZ3NjVfV?=
- =?us-ascii?Q?OyErLhEeF3tT894t0L51PCkYM07z9NgCiR9HCl+G6c2nZh9t/eBg8vbRc/RS?=
- =?us-ascii?Q?HaRf4AEpEtfZ9D7zVvbMUcvcNypPZo4kxVbFG/bQr5Ys75iP4QWtvcojk+p6?=
- =?us-ascii?Q?gGFwmllgwSPhG/s4Kn9CExNT/k6fXNbnn3jmSGtynJKbjuX0Ut7yK8LoZMR4?=
- =?us-ascii?Q?afE03IjMl/1QLlo9iaCxo8AK3rsoZnJlwbLSx5F2UaR4VxVxV26QxGcRAX7W?=
- =?us-ascii?Q?n8qZNTjBVmbUoN73ornq0u/Ivp2FxZOlO6BWk08tvrRYiXCoXJXgEukib8GH?=
- =?us-ascii?Q?eBO9m9JqWo7Fly1XB9esME3DPyBtkGGXSZqVsAp+ZikVMzF0Nb6oblHOpJhd?=
- =?us-ascii?Q?VcpGqMVNktT3D3Xhqni8vvZMkCDRAMQc0T0OHyruydj91pFZRYKIk7NHBH+L?=
- =?us-ascii?Q?wyXA1Iztf7vM0oEPWgr8KXHCUa6PxytVH5G5xTmU?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?lQ4VFKnuVxuviAAl0kKALJMnK+Q5mooOL7xFoe34WxEpRPEL0tSMYVPeVyPo?=
+ =?us-ascii?Q?jQWhXCk4I47b3DZrbxx+DTm0F7vkuKm2Dxxbkxfj8QsV5FK/SrzEGPeJAMbT?=
+ =?us-ascii?Q?khdsOeVGWRyb3pb0wtoMiZnDPfH6QuDsrAdVfjOY/fbdiQLpmqkxTcAQtAAQ?=
+ =?us-ascii?Q?4S5hBclcccgF1rA3G+zyP4q0/Ppd8hlRdAk3H05FRKRg6/IXybrOZQr1TRn8?=
+ =?us-ascii?Q?rE3gTS66lumuKPZY8HdfdoxzPHAbQFrvYMh973Xwt+cfxRDyTGY2L2Tr1mkq?=
+ =?us-ascii?Q?OUlJlPM0cF9U9ZuyZNReVf0dlPPH8riaCD7yIwzhoHsRjdJCofj/z+mpi9i6?=
+ =?us-ascii?Q?qnTkuMlHell4ZihvcJCpcAwhQA916+sPwKYQTMw20A7mgpeoZ1VlVKw685JB?=
+ =?us-ascii?Q?thuQ99lO+Zgje7ve1Q0f8XLeXTHy4VSvMeWhYpRn/B5XMUUuumLpc0/0cBR3?=
+ =?us-ascii?Q?collDIJiBr6Ah2VxugDFQH592RL5+rJ/fJ/VMtioVfv1kxNV6RU/fG/WE93m?=
+ =?us-ascii?Q?70E3twm8OJlqJr9u/QD37JRLV5the8LpCPdVduOIOXUd+epPrbVSjDA9M5gx?=
+ =?us-ascii?Q?lMp5fwzg1GhesWI14jYvchXn2QZg9iRuxN9kbCXsK8AlauJVx97AXmiIC7tX?=
+ =?us-ascii?Q?hC/BQLzuLkRo6ni1VAtnri4aiV/7bEzSmYGIyxAAGJPi+pazotNd8tncXfOi?=
+ =?us-ascii?Q?dbIUtGMLwNqbyZZVA98f/k5dDcMmAClUnFdmXSyndM/QZ+Cpa+V3qLm3W3Yo?=
+ =?us-ascii?Q?fbFufYDVx8diGkZtKvmnSaJrPYVtIplYNu1/LzvQJmkJWjNZxvmaBvTTCZfE?=
+ =?us-ascii?Q?b4n8f/NI3ycIp01TvSiwWrC7bTrTqDUK9kAzmSxTeBKXoPoH1DsqfhImfVyy?=
+ =?us-ascii?Q?I07Y/2cGmgNW+zxpR82dXUMb1e0tDi+etkeVeXERHxBt0YZl7+yr8FkahW5g?=
+ =?us-ascii?Q?Y8mlDyi2rWuAsOyDhNm1L+L++v3WDWE09MtNzB+8hXElPdaWTbQ2yEm76ak7?=
+ =?us-ascii?Q?0GDd8nJuGCEJdFtFMvj9+9mCAfLLhssihENBQQBYT5Cgc1d3c/XfEUu68ZXH?=
+ =?us-ascii?Q?AxSdVhv48/VnycYfWt167dA/gQQWkOXzpdHdUV6XH3L1qi98wEItXTD0E2lE?=
+ =?us-ascii?Q?bwVfwYXIV1M3Hb36zO1Ks4AtlUqdsIcazXVQqjCVPbbl63/7XqrXUOQ09kMo?=
+ =?us-ascii?Q?BMv8Rnj5E4YfysnAr+sAYLGkvPES39KZMr2G0H9Nvj/F0Jy5EInYQHb11ama?=
+ =?us-ascii?Q?3htFYoR7ts6Bvyglx5y5/lSqjDP+PG2Qi38/1BjNNVT8qfW2YOangYqbvpTm?=
+ =?us-ascii?Q?3bE/Rcp+e+HoPcGcTtSrltrby0R2X1qnax5yqojipEWjsjQ0IOm0bq4i//7g?=
+ =?us-ascii?Q?ZtlBZ9vmorBFAHmtl3peb/Ot9Kim0gZpfcZO29SH8l3haNge4bxUbiDhSWYV?=
+ =?us-ascii?Q?lX6sve2VcPixE8iH6CU8s4Gc4Gqtbqu6ZjDxAi6Fg3jgu7wZBIsIlZsb5idJ?=
+ =?us-ascii?Q?pNf1E8CfQuzkxwN0kFQ0ogDJnuLVIaPzQ9RtSFizgdFZMOqlhSE4FAZHBmF7?=
+ =?us-ascii?Q?uL84AN5PQjgwu+5mI73HMscWbYaDW4HALd47y5RTOCMDJD1sOtBWzbuwXV3G?=
+ =?us-ascii?Q?6Q=3D=3D?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 25137eb3-cdc1-4f4c-e4ff-08dab71b66cb
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1103078d-3ade-46e0-1487-08dab71b6a99
 X-MS-Exchange-CrossTenant-AuthSource: SA1PR10MB5867.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Oct 2022 06:29:14.6890
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Oct 2022 06:29:20.7700
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Ci0YtTUPzLkupXcBt3FROWKPTKq6ElEMLB1vCaQ5OJpc16uAxZMZfRfH0vHn4PO5ma09xYl41vLJmrsM49rXhA==
+X-MS-Exchange-CrossTenant-UserPrincipalName: PRb5kDOM3VPrueF7pjZOjlMd6uFY+N2unaFysDjBc76hufpS4a8XvNpkn6ugPmU+awiT1fK631OW4jgKyFyttg==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR10MB4498
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-10-26_02,2022-10-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 bulkscore=0
- suspectscore=0 malwarescore=0 phishscore=0 mlxscore=0 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210260036
-X-Proofpoint-GUID: lKR0JCuafZ6zUYAgo0tDGqWZ7hDD7JRg
-X-Proofpoint-ORIG-GUID: lKR0JCuafZ6zUYAgo0tDGqWZ7hDD7JRg
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxscore=0 phishscore=0
+ mlxlogscore=999 adultscore=0 malwarescore=0 spamscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
+ definitions=main-2210260036
+X-Proofpoint-GUID: KljJvCi51mruatka03hkIaQYpEWabE7E
+X-Proofpoint-ORIG-GUID: KljJvCi51mruatka03hkIaQYpEWabE7E
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
@@ -146,305 +147,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-commit 8d57c21600a514d7a9237327c2496ae159bab5bb upstream.
+commit e83cf875d67a6cb9ddfaa8b45d2fa93d12b5c66f upstream.
 
-Add a helper function to get rid of buffers that we have decided are
-corrupt after the verifiers have run.  This function is intended to
-handle metadata checks that can't happen in the verifiers, such as
-inter-block relationship checking.  Note that we now mark the buffer
-stale so that it will not end up on any LRU and will be purged on
-release.
+Add a xfs_failaddr_t parameter to this function so that callers can
+potentially pass in (and therefore report) the exact point in the code
+where we decided that a metadata buffer was corrupt.  This enables us to
+wire it up to checking functions that have to run outside of verifiers.
 
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
 ---
- fs/xfs/libxfs/xfs_alloc.c     |  2 +-
- fs/xfs/libxfs/xfs_attr_leaf.c |  6 +++---
- fs/xfs/libxfs/xfs_btree.c     |  2 +-
- fs/xfs/libxfs/xfs_da_btree.c  | 10 +++++-----
- fs/xfs/libxfs/xfs_dir2_leaf.c |  2 +-
- fs/xfs/libxfs/xfs_dir2_node.c |  6 +++---
- fs/xfs/xfs_attr_inactive.c    |  6 +++---
- fs/xfs/xfs_attr_list.c        |  2 +-
- fs/xfs/xfs_buf.c              | 22 ++++++++++++++++++++++
- fs/xfs/xfs_buf.h              |  2 ++
- fs/xfs/xfs_error.c            |  2 ++
- fs/xfs/xfs_inode.c            |  4 ++--
- 12 files changed, 46 insertions(+), 20 deletions(-)
+ fs/xfs/xfs_buf.c   | 2 +-
+ fs/xfs/xfs_error.c | 5 +++--
+ fs/xfs/xfs_error.h | 2 +-
+ 3 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_alloc.c b/fs/xfs/libxfs/xfs_alloc.c
-index 084d39d8856b..1193fd6e4bad 100644
---- a/fs/xfs/libxfs/xfs_alloc.c
-+++ b/fs/xfs/libxfs/xfs_alloc.c
-@@ -685,7 +685,7 @@ xfs_alloc_update_counters(
- 	xfs_trans_agblocks_delta(tp, len);
- 	if (unlikely(be32_to_cpu(agf->agf_freeblks) >
- 		     be32_to_cpu(agf->agf_length))) {
--		xfs_buf_corruption_error(agbp);
-+		xfs_buf_mark_corrupt(agbp);
- 		return -EFSCORRUPTED;
- 	}
- 
-diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
-index c86ddbf6d105..e69332d8f1cb 100644
---- a/fs/xfs/libxfs/xfs_attr_leaf.c
-+++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-@@ -2288,7 +2288,7 @@ xfs_attr3_leaf_lookup_int(
- 	xfs_attr3_leaf_hdr_from_disk(args->geo, &ichdr, leaf);
- 	entries = xfs_attr3_leaf_entryp(leaf);
- 	if (ichdr.count >= args->geo->blksize / 8) {
--		xfs_buf_corruption_error(bp);
-+		xfs_buf_mark_corrupt(bp);
- 		return -EFSCORRUPTED;
- 	}
- 
-@@ -2307,11 +2307,11 @@ xfs_attr3_leaf_lookup_int(
- 			break;
- 	}
- 	if (!(probe >= 0 && (!ichdr.count || probe < ichdr.count))) {
--		xfs_buf_corruption_error(bp);
-+		xfs_buf_mark_corrupt(bp);
- 		return -EFSCORRUPTED;
- 	}
- 	if (!(span <= 4 || be32_to_cpu(entry->hashval) == hashval)) {
--		xfs_buf_corruption_error(bp);
-+		xfs_buf_mark_corrupt(bp);
- 		return -EFSCORRUPTED;
- 	}
- 
-diff --git a/fs/xfs/libxfs/xfs_btree.c b/fs/xfs/libxfs/xfs_btree.c
-index a13a25e922ec..8c43cac15832 100644
---- a/fs/xfs/libxfs/xfs_btree.c
-+++ b/fs/xfs/libxfs/xfs_btree.c
-@@ -1820,7 +1820,7 @@ xfs_btree_lookup_get_block(
- 
- out_bad:
- 	*blkp = NULL;
--	xfs_buf_corruption_error(bp);
-+	xfs_buf_mark_corrupt(bp);
- 	xfs_trans_brelse(cur->bc_tp, bp);
- 	return -EFSCORRUPTED;
- }
-diff --git a/fs/xfs/libxfs/xfs_da_btree.c b/fs/xfs/libxfs/xfs_da_btree.c
-index 1e2dc65adeb8..12ef16c157dc 100644
---- a/fs/xfs/libxfs/xfs_da_btree.c
-+++ b/fs/xfs/libxfs/xfs_da_btree.c
-@@ -504,7 +504,7 @@ xfs_da3_split(
- 	node = oldblk->bp->b_addr;
- 	if (node->hdr.info.forw) {
- 		if (be32_to_cpu(node->hdr.info.forw) != addblk->blkno) {
--			xfs_buf_corruption_error(oldblk->bp);
-+			xfs_buf_mark_corrupt(oldblk->bp);
- 			error = -EFSCORRUPTED;
- 			goto out;
- 		}
-@@ -517,7 +517,7 @@ xfs_da3_split(
- 	node = oldblk->bp->b_addr;
- 	if (node->hdr.info.back) {
- 		if (be32_to_cpu(node->hdr.info.back) != addblk->blkno) {
--			xfs_buf_corruption_error(oldblk->bp);
-+			xfs_buf_mark_corrupt(oldblk->bp);
- 			error = -EFSCORRUPTED;
- 			goto out;
- 		}
-@@ -1544,7 +1544,7 @@ xfs_da3_node_lookup_int(
- 		}
- 
- 		if (magic != XFS_DA_NODE_MAGIC && magic != XFS_DA3_NODE_MAGIC) {
--			xfs_buf_corruption_error(blk->bp);
-+			xfs_buf_mark_corrupt(blk->bp);
- 			return -EFSCORRUPTED;
- 		}
- 
-@@ -1559,7 +1559,7 @@ xfs_da3_node_lookup_int(
- 
- 		/* Tree taller than we can handle; bail out! */
- 		if (nodehdr.level >= XFS_DA_NODE_MAXDEPTH) {
--			xfs_buf_corruption_error(blk->bp);
-+			xfs_buf_mark_corrupt(blk->bp);
- 			return -EFSCORRUPTED;
- 		}
- 
-@@ -1567,7 +1567,7 @@ xfs_da3_node_lookup_int(
- 		if (blkno == args->geo->leafblk)
- 			expected_level = nodehdr.level - 1;
- 		else if (expected_level != nodehdr.level) {
--			xfs_buf_corruption_error(blk->bp);
-+			xfs_buf_mark_corrupt(blk->bp);
- 			return -EFSCORRUPTED;
- 		} else
- 			expected_level--;
-diff --git a/fs/xfs/libxfs/xfs_dir2_leaf.c b/fs/xfs/libxfs/xfs_dir2_leaf.c
-index 388b5da12228..c8ee3250b749 100644
---- a/fs/xfs/libxfs/xfs_dir2_leaf.c
-+++ b/fs/xfs/libxfs/xfs_dir2_leaf.c
-@@ -1344,7 +1344,7 @@ xfs_dir2_leaf_removename(
- 	ltp = xfs_dir2_leaf_tail_p(args->geo, leaf);
- 	bestsp = xfs_dir2_leaf_bests_p(ltp);
- 	if (be16_to_cpu(bestsp[db]) != oldbest) {
--		xfs_buf_corruption_error(lbp);
-+		xfs_buf_mark_corrupt(lbp);
- 		return -EFSCORRUPTED;
- 	}
- 	/*
-diff --git a/fs/xfs/libxfs/xfs_dir2_node.c b/fs/xfs/libxfs/xfs_dir2_node.c
-index 35e698fa85fd..1c8a12f229b5 100644
---- a/fs/xfs/libxfs/xfs_dir2_node.c
-+++ b/fs/xfs/libxfs/xfs_dir2_node.c
-@@ -375,7 +375,7 @@ xfs_dir2_leaf_to_node(
- 	ltp = xfs_dir2_leaf_tail_p(args->geo, leaf);
- 	if (be32_to_cpu(ltp->bestcount) >
- 				(uint)dp->i_d.di_size / args->geo->blksize) {
--		xfs_buf_corruption_error(lbp);
-+		xfs_buf_mark_corrupt(lbp);
- 		return -EFSCORRUPTED;
- 	}
- 
-@@ -449,7 +449,7 @@ xfs_dir2_leafn_add(
- 	 * into other peoples memory
- 	 */
- 	if (index < 0) {
--		xfs_buf_corruption_error(bp);
-+		xfs_buf_mark_corrupt(bp);
- 		return -EFSCORRUPTED;
- 	}
- 
-@@ -745,7 +745,7 @@ xfs_dir2_leafn_lookup_for_entry(
- 
- 	xfs_dir3_leaf_check(dp, bp);
- 	if (leafhdr.count <= 0) {
--		xfs_buf_corruption_error(bp);
-+		xfs_buf_mark_corrupt(bp);
- 		return -EFSCORRUPTED;
- 	}
- 
-diff --git a/fs/xfs/xfs_attr_inactive.c b/fs/xfs/xfs_attr_inactive.c
-index 9c88203b537b..f052de128fa1 100644
---- a/fs/xfs/xfs_attr_inactive.c
-+++ b/fs/xfs/xfs_attr_inactive.c
-@@ -145,7 +145,7 @@ xfs_attr3_node_inactive(
- 	 * Since this code is recursive (gasp!) we must protect ourselves.
- 	 */
- 	if (level > XFS_DA_NODE_MAXDEPTH) {
--		xfs_buf_corruption_error(bp);
-+		xfs_buf_mark_corrupt(bp);
- 		xfs_trans_brelse(*trans, bp);	/* no locks for later trans */
- 		return -EFSCORRUPTED;
- 	}
-@@ -196,7 +196,7 @@ xfs_attr3_node_inactive(
- 			error = xfs_attr3_leaf_inactive(trans, dp, child_bp);
- 			break;
- 		default:
--			xfs_buf_corruption_error(child_bp);
-+			xfs_buf_mark_corrupt(child_bp);
- 			xfs_trans_brelse(*trans, child_bp);
- 			error = -EFSCORRUPTED;
- 			break;
-@@ -281,7 +281,7 @@ xfs_attr3_root_inactive(
- 		break;
- 	default:
- 		error = -EFSCORRUPTED;
--		xfs_buf_corruption_error(bp);
-+		xfs_buf_mark_corrupt(bp);
- 		xfs_trans_brelse(*trans, bp);
- 		break;
- 	}
-diff --git a/fs/xfs/xfs_attr_list.c b/fs/xfs/xfs_attr_list.c
-index 8b9b500e75e8..8c0972834449 100644
---- a/fs/xfs/xfs_attr_list.c
-+++ b/fs/xfs/xfs_attr_list.c
-@@ -271,7 +271,7 @@ xfs_attr_node_list_lookup(
- 	return 0;
- 
- out_corruptbuf:
--	xfs_buf_corruption_error(bp);
-+	xfs_buf_mark_corrupt(bp);
- 	xfs_trans_brelse(tp, bp);
- 	return -EFSCORRUPTED;
- }
 diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
-index 1264ac63e4e5..948824d044b3 100644
+index 948824d044b3..4f18457aae2a 100644
 --- a/fs/xfs/xfs_buf.c
 +++ b/fs/xfs/xfs_buf.c
-@@ -1546,6 +1546,28 @@ xfs_buf_zero(
- 	}
+@@ -1564,7 +1564,7 @@ __xfs_buf_mark_corrupt(
+ {
+ 	ASSERT(bp->b_flags & XBF_DONE);
+ 
+-	xfs_buf_corruption_error(bp);
++	xfs_buf_corruption_error(bp, fa);
+ 	xfs_buf_stale(bp);
  }
  
-+/*
-+ * Log a message about and stale a buffer that a caller has decided is corrupt.
-+ *
-+ * This function should be called for the kinds of metadata corruption that
-+ * cannot be detect from a verifier, such as incorrect inter-block relationship
-+ * data.  Do /not/ call this function from a verifier function.
-+ *
-+ * The buffer must be XBF_DONE prior to the call.  Afterwards, the buffer will
-+ * be marked stale, but b_error will not be set.  The caller is responsible for
-+ * releasing the buffer or fixing it.
-+ */
-+void
-+__xfs_buf_mark_corrupt(
-+	struct xfs_buf		*bp,
-+	xfs_failaddr_t		fa)
-+{
-+	ASSERT(bp->b_flags & XBF_DONE);
-+
-+	xfs_buf_corruption_error(bp);
-+	xfs_buf_stale(bp);
-+}
-+
- /*
-  *	Handling of buffer targets (buftargs).
-  */
-diff --git a/fs/xfs/xfs_buf.h b/fs/xfs/xfs_buf.h
-index f6ce17d8d848..621467ab17c8 100644
---- a/fs/xfs/xfs_buf.h
-+++ b/fs/xfs/xfs_buf.h
-@@ -270,6 +270,8 @@ static inline int xfs_buf_submit(struct xfs_buf *bp)
- }
- 
- void xfs_buf_zero(struct xfs_buf *bp, size_t boff, size_t bsize);
-+void __xfs_buf_mark_corrupt(struct xfs_buf *bp, xfs_failaddr_t fa);
-+#define xfs_buf_mark_corrupt(bp) __xfs_buf_mark_corrupt((bp), __this_address)
- 
- /* Buffer Utility Routines */
- extern void *xfs_buf_offset(struct xfs_buf *, size_t);
 diff --git a/fs/xfs/xfs_error.c b/fs/xfs/xfs_error.c
-index d8cdb27fe6ed..b32c47c20e8a 100644
+index b32c47c20e8a..e9acd58248f9 100644
 --- a/fs/xfs/xfs_error.c
 +++ b/fs/xfs/xfs_error.c
-@@ -345,6 +345,8 @@ xfs_corruption_error(
-  * Complain about the kinds of metadata corruption that we can't detect from a
-  * verifier, such as incorrect inter-block relationship data.  Does not set
-  * bp->b_error.
-+ *
-+ * Call xfs_buf_mark_corrupt, not this function.
+@@ -350,13 +350,14 @@ xfs_corruption_error(
   */
  void
  xfs_buf_corruption_error(
-diff --git a/fs/xfs/xfs_inode.c b/fs/xfs/xfs_inode.c
-index 30202d8c25e4..5f18c5c8c5b8 100644
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -2149,7 +2149,7 @@ xfs_iunlink_update_bucket(
- 	 * head of the list.
- 	 */
- 	if (old_value == new_agino) {
--		xfs_buf_corruption_error(agibp);
-+		xfs_buf_mark_corrupt(agibp);
- 		return -EFSCORRUPTED;
- 	}
+-	struct xfs_buf		*bp)
++	struct xfs_buf		*bp,
++	xfs_failaddr_t		fa)
+ {
+ 	struct xfs_mount	*mp = bp->b_mount;
  
-@@ -2283,7 +2283,7 @@ xfs_iunlink(
- 	next_agino = be32_to_cpu(agi->agi_unlinked[bucket_index]);
- 	if (next_agino == agino ||
- 	    !xfs_verify_agino_or_null(mp, agno, next_agino)) {
--		xfs_buf_corruption_error(agibp);
-+		xfs_buf_mark_corrupt(agibp);
- 		return -EFSCORRUPTED;
- 	}
+ 	xfs_alert_tag(mp, XFS_PTAG_VERIFIER_ERROR,
+ 		  "Metadata corruption detected at %pS, %s block 0x%llx",
+-		  __return_address, bp->b_ops->name, bp->b_bn);
++		  fa, bp->b_ops->name, bp->b_bn);
  
+ 	xfs_alert(mp, "Unmount and run xfs_repair");
+ 
+diff --git a/fs/xfs/xfs_error.h b/fs/xfs/xfs_error.h
+index c319379f7d1a..c6bb7d7a2161 100644
+--- a/fs/xfs/xfs_error.h
++++ b/fs/xfs/xfs_error.h
+@@ -15,7 +15,7 @@ extern void xfs_corruption_error(const char *tag, int level,
+ 			struct xfs_mount *mp, const void *buf, size_t bufsize,
+ 			const char *filename, int linenum,
+ 			xfs_failaddr_t failaddr);
+-void xfs_buf_corruption_error(struct xfs_buf *bp);
++void xfs_buf_corruption_error(struct xfs_buf *bp, xfs_failaddr_t fa);
+ extern void xfs_buf_verifier_error(struct xfs_buf *bp, int error,
+ 			const char *name, const void *buf, size_t bufsz,
+ 			xfs_failaddr_t failaddr);
 -- 
 2.35.1
 
