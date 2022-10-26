@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7805560E417
-	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:07:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DC6060E418
+	for <lists+stable@lfdr.de>; Wed, 26 Oct 2022 17:07:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232823AbiJZPHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 11:07:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54104 "EHLO
+        id S233800AbiJZPH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 11:07:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233394AbiJZPHK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:07:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9D310B7BD
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:07:09 -0700 (PDT)
+        with ESMTP id S233655AbiJZPH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 11:07:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78CF910CFAE
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 08:07:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31DBC61F5E
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:07:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EDFAC433D6;
-        Wed, 26 Oct 2022 15:07:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 133E461F4E
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 15:07:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21A07C433C1;
+        Wed, 26 Oct 2022 15:07:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666796828;
-        bh=8SLv6uPo/xB1IDdCf8Jaf5N2lPORmz9qGbQQTHbMg6I=;
+        s=korg; t=1666796845;
+        bh=J7MECvg9Nf3nayG0fkmJ/1d8hkBfh9gzyYk/6T9Wye8=;
         h=Subject:To:Cc:From:Date:From;
-        b=UtTyfdAddocEZfyqhN9X4Yt9L9efKp7f74fQ9NS302+FMQATWv0X2XGtgfnQ9kciB
-         V8nskMyqLBVewop6qyUdcbd74kYONsqLqHy7Y+y6ybaac/Abop/TYyj1TbBxfbg8GE
-         wgDZFsbZa5n8L9wMWPDr0iFlTtnoxgLE3fe3PG28=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: fix sdma doorbell init ordering on APUs" failed to apply to 5.10-stable tree
-To:     alexander.deucher@amd.com, christian.koenig@amd.com
+        b=xU2fhD7QhO/lQpt8ti3Cm6oNhsBTAu7Wv0r4lv+yTzLGRVsUWOB7Mz9Lpa5eAIAG7
+         LycZsn9nq8T0nBML20K+nHVOxE+AN/OcNL4Aon+aCt5FKjOAcu5VynXnnO8qtpw1ff
+         XBmaisJGJVjAPL+z2Vx1se+YGOLw6nV1PeEpZjCs=
+Subject: FAILED: patch "[PATCH] mm,hugetlb: take hugetlb_lock before decrementing" failed to apply to 5.10-stable tree
+To:     riel@surriel.com, akpm@linux-foundation.org, gkmccready@meta.com,
+        mike.kravetz@oracle.com, n-horiguchi@ah.jp.nec.com,
+        songmuchun@bytedance.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Oct 2022 17:07:06 +0200
-Message-ID: <1666796826227113@kroah.com>
+Date:   Wed, 26 Oct 2022 17:07:22 +0200
+Message-ID: <1666796842124254@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -55,18 +57,26 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-50b0e4d4da09 ("drm/amdgpu: fix sdma doorbell init ordering on APUs")
-59c43748c7c8 ("drm/amdgpu: move nbio sdma_doorbell_range() into sdma code for vega")
-db10109793bb ("drm/amdgpu: move nbio ih_doorbell_range() into ih code for vega")
-b672cb1eee59 ("drm/amdgpu: enable retry fault wptr overflow")
-bebd4c79a4eb ("drm/amdgpu: create vega20 ih blocks")
-554bdbf6de74 ("drm/amdgpu: use cached ih rb control reg offsets for vega10")
-21822b6a968d ("drm/amdgpu: switch to ih_enable_ring for vega10")
-fd95e1b1049e ("drm/amdgpu: switch to ih_toggle_interrupts for vega10")
-c73750322aaf ("drm/amdgpu: add helper to toggle ih ring interrupts for vega10")
-ffa02126e0ef ("drm/amdgpu: add helper to enable an ih ring for vega10")
-1ebb4841f064 ("drm/amdgpu: add helper to init ih ring regs for vega10")
-4750918978a7 ("drm/amdgpu: enabled software IH ring for Vega")
+12df140f0bdf ("mm,hugetlb: take hugetlb_lock before decrementing h->resv_huge_pages")
+db71ef79b59b ("hugetlb: make free_huge_page irq safe")
+10c6ec49802b ("hugetlb: change free_pool_huge_page to remove_pool_huge_page")
+1121828a0c21 ("hugetlb: call update_and_free_page without hugetlb_lock")
+6eb4e88a6d27 ("hugetlb: create remove_hugetlb_page() to separate functionality")
+2938396771c8 ("hugetlb: add per-hstate mutex to synchronize user adjustments")
+5c8ecb131a65 ("mm/hugetlb_cgroup: remove unnecessary VM_BUG_ON_PAGE in hugetlb_cgroup_migrate()")
+5af1ab1d24e0 ("mm/hugetlb: optimize the surplus state transfer code in move_hugetlb_state()")
+6c0371490140 ("hugetlb: convert PageHugeFreed to HPageFreed flag")
+9157c31186c3 ("hugetlb: convert PageHugeTemporary() to HPageTemporary flag")
+8f251a3d5ce3 ("hugetlb: convert page_huge_active() HPageMigratable flag")
+d6995da31122 ("hugetlb: use page.private for hugetlb specific page flags")
+dbfee5aee7e5 ("hugetlb: fix update_and_free_page contig page struct assumption")
+3f1b0162f6f6 ("mm/hugetlb: remove unnecessary VM_BUG_ON_PAGE on putback_active_hugepage()")
+1d88433bb008 ("mm/hugetlb: fix use after free when subpool max_hpages accounting is not enabled")
+0aa7f3544aaa ("mm/hugetlb: avoid unnecessary hugetlb_acct_memory() call")
+ecbf4724e606 ("mm: hugetlb: remove VM_BUG_ON_PAGE from page_huge_active")
+0eb2df2b5629 ("mm: hugetlb: fix a race between isolating and freeing page")
+7ffddd499ba6 ("mm: hugetlb: fix a race between freeing and dissolving the page")
+585fc0d2871c ("mm: hugetlbfs: fix cannot migrate the fallocated HugeTLB page")
 
 thanks,
 
@@ -74,87 +84,48 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 50b0e4d4da09fa501e722af886f97e60a4f820d6 Mon Sep 17 00:00:00 2001
-From: Alex Deucher <alexander.deucher@amd.com>
-Date: Wed, 19 Oct 2022 16:57:42 -0400
-Subject: [PATCH] drm/amdgpu: fix sdma doorbell init ordering on APUs
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 12df140f0bdfae5dcfc81800970dd7f6f632e00c Mon Sep 17 00:00:00 2001
+From: Rik van Riel <riel@surriel.com>
+Date: Mon, 17 Oct 2022 20:25:05 -0400
+Subject: [PATCH] mm,hugetlb: take hugetlb_lock before decrementing
+ h->resv_huge_pages
 
-Commit 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
-uncovered a bug in amdgpu that required a reordering of the driver
-init sequence to avoid accessing a special register on the GPU
-before it was properly set up leading to an PCI AER error.  This
-reordering uncovered a different hw programming ordering dependency
-in some APUs where the SDMA doorbells need to be programmed before
-the GFX doorbells. To fix this, move the SDMA doorbell programming
-back into the soc15 common code, but use the actual doorbell range
-values directly rather than the values stored in the ring structure
-since those will not be initialized at this point.
+The h->*_huge_pages counters are protected by the hugetlb_lock, but
+alloc_huge_page has a corner case where it can decrement the counter
+outside of the lock.
 
-This is a partial revert, but with the doorbell assignment
-fixed so the proper doorbell index is set before it's used.
+This could lead to a corrupted value of h->resv_huge_pages, which we have
+observed on our systems.
 
-Fixes: e3163bc8ffdfdb ("drm/amdgpu: move nbio sdma_doorbell_range() into sdma code for vega")
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: skhan@linuxfoundation.org
-Cc: stable@vger.kernel.org
+Take the hugetlb_lock before decrementing h->resv_huge_pages to avoid a
+potential race.
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-index 298fa11702e7..1122bd4eae98 100644
---- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-@@ -1417,11 +1417,6 @@ static int sdma_v4_0_start(struct amdgpu_device *adev)
- 		WREG32_SDMA(i, mmSDMA0_CNTL, temp);
- 
- 		if (!amdgpu_sriov_vf(adev)) {
--			ring = &adev->sdma.instance[i].ring;
--			adev->nbio.funcs->sdma_doorbell_range(adev, i,
--				ring->use_doorbell, ring->doorbell_index,
--				adev->doorbell_index.sdma_doorbell_range);
--
- 			/* unhalt engine */
- 			temp = RREG32_SDMA(i, mmSDMA0_F32_CNTL);
- 			temp = REG_SET_FIELD(temp, SDMA0_F32_CNTL, HALT, 0);
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc15.c b/drivers/gpu/drm/amd/amdgpu/soc15.c
-index 183024d7c184..e3b2b6b4f1a6 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc15.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
-@@ -1211,6 +1211,20 @@ static int soc15_common_sw_fini(void *handle)
- 	return 0;
- }
- 
-+static void soc15_sdma_doorbell_range_init(struct amdgpu_device *adev)
-+{
-+	int i;
-+
-+	/* sdma doorbell range is programed by hypervisor */
-+	if (!amdgpu_sriov_vf(adev)) {
-+		for (i = 0; i < adev->sdma.num_instances; i++) {
-+			adev->nbio.funcs->sdma_doorbell_range(adev, i,
-+				true, adev->doorbell_index.sdma_engine[i] << 1,
-+				adev->doorbell_index.sdma_doorbell_range);
-+		}
-+	}
-+}
-+
- static int soc15_common_hw_init(void *handle)
- {
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
-@@ -1230,6 +1244,13 @@ static int soc15_common_hw_init(void *handle)
- 
- 	/* enable the doorbell aperture */
- 	soc15_enable_doorbell_aperture(adev, true);
-+	/* HW doorbell routing policy: doorbell writing not
-+	 * in SDMA/IH/MM/ACV range will be routed to CP. So
-+	 * we need to init SDMA doorbell range prior
-+	 * to CP ip block init and ring test.  IH already
-+	 * happens before CP.
-+	 */
-+	soc15_sdma_doorbell_range_init(adev);
- 
- 	return 0;
- }
+Link: https://lkml.kernel.org/r/20221017202505.0e6a4fcd@imladris.surriel.com
+Fixes: a88c76954804 ("mm: hugetlb: fix hugepage memory leak caused by wrong reserve count")
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Glen McCready <gkmccready@meta.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index b586cdd75930..dede0337c07c 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -2924,11 +2924,11 @@ struct page *alloc_huge_page(struct vm_area_struct *vma,
+ 		page = alloc_buddy_huge_page_with_mpol(h, vma, addr);
+ 		if (!page)
+ 			goto out_uncharge_cgroup;
++		spin_lock_irq(&hugetlb_lock);
+ 		if (!avoid_reserve && vma_has_reserves(vma, gbl_chg)) {
+ 			SetHPageRestoreReserve(page);
+ 			h->resv_huge_pages--;
+ 		}
+-		spin_lock_irq(&hugetlb_lock);
+ 		list_add(&page->lru, &h->hugepage_activelist);
+ 		set_page_refcounted(page);
+ 		/* Fall through */
 
