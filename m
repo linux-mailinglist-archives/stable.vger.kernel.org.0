@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED77C60FE6A
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:05:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B098260FDEB
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236936AbiJ0RFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:05:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59976 "EHLO
+        id S236797AbiJ0RAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:00:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236929AbiJ0RE7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F473760E5
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:58 -0700 (PDT)
+        with ESMTP id S236768AbiJ0RAY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:00:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68CDF53029
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:00:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FB04B825F3
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6C19C433D7;
-        Thu, 27 Oct 2022 17:04:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 037E3623EB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:00:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1838DC433C1;
+        Thu, 27 Oct 2022 17:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890296;
-        bh=mj+0bRVnIeB2yERBmu+CoZX1cRQRFUdBZKLzv33u2sM=;
+        s=korg; t=1666890022;
+        bh=Btu0cHoKTRVUa2jXii3AKYawTa1B6jYFqgos1CXR42s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YCNfjrBRNxW4lcAh4KEDHFcic0B0BMndJZaCrbZkUfft/fs9EJ8XijN/sqF7O9h+F
-         BpfYMq8n++6C9ywHIUJTGJDtuHkxc0m5LfoCtj/hHL02mhoperudUwQWz4W+EZtTnD
-         hEFtx8+EIyFZZhmII5sM/xTMK4UnpebcoXMCJki4=
+        b=A9MHpU9K/eUpt26CX5SNWZM+SoWdMFj8GaoLUBBgCb2mWzJf2zdJY9A4Gmhr6/TwD
+         gkGj8yQPyETf0h8JdLY+t8n/LvlJs62Izx44QmJ0RMibDK7eYDbj6CUS/9lw1cQGSP
+         AW9C3iRZdoRN9Tzdljm5l/JtQzJuhkIq3OXfJAj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 17/79] kbuild: Quote OBJCOPY var to avoid a pahole call break the build
-Date:   Thu, 27 Oct 2022 18:55:27 +0200
-Message-Id: <20221027165054.949482075@linuxfoundation.org>
+        patches@lists.linux.dev, Will Mortensen <will@extrahop.com>,
+        Charlotte Tan <charlotte@extrahop.com>,
+        Aaron Tomlin <atomlin@redhat.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 86/94] iommu/vt-d: Allow NVS regions in arch_rmrr_sanity_check()
+Date:   Thu, 27 Oct 2022 18:55:28 +0200
+Message-Id: <20221027165100.652230362@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
+References: <20221027165057.208202132@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Charlotte Tan <charlotte@extrahop.com>
 
-commit ff2e6efda0d5c51b33e2bcc0b0b981ac0a0ef214 upstream.
+[ Upstream commit 5566e68d829f5d87670d5984c1c2ccb4c518405f ]
 
-[backported for dependency, skipped Makefile.modfinal change,
-because module BTF is not supported in 5.10]
+arch_rmrr_sanity_check() warns if the RMRR is not covered by an ACPI
+Reserved region, but it seems like it should accept an NVS region as
+well. The ACPI spec
+https://uefi.org/specs/ACPI/6.5/15_System_Address_Map_Interfaces.html
+uses similar wording for "Reserved" and "NVS" region types; for NVS
+regions it says "This range of addresses is in use or reserved by the
+system and must not be used by the operating system."
 
-The ccache tool can be used to speed up cross-compilation, by calling the
-compiler and binutils through ccache. For example, following should work:
+There is an old comment on this mailing list that also suggests NVS
+regions should pass the arch_rmrr_sanity_check() test:
 
-    $ export ARCH=arm64 CROSS_COMPILE="ccache aarch64-linux-gnu-"
+ The warnings come from arch_rmrr_sanity_check() since it checks whether
+ the region is E820_TYPE_RESERVED. However, if the purpose of the check
+ is to detect RMRR has regions that may be used by OS as free memory,
+ isn't  E820_TYPE_NVS safe, too?
 
-    $ make M=drivers/gpu/drm/rockchip/
+This patch overlaps with another proposed patch that would add the region
+type to the log since sometimes the bug reporter sees this log on the
+console but doesn't know to include the kernel log:
 
-but pahole fails to extract the BTF info from DWARF, breaking the build:
+https://lore.kernel.org/lkml/20220611204859.234975-3-atomlin@redhat.com/
 
-      CC [M]  drivers/gpu/drm/rockchip//rockchipdrm.mod.o
-      LD [M]  drivers/gpu/drm/rockchip//rockchipdrm.ko
-      BTF [M] drivers/gpu/drm/rockchip//rockchipdrm.ko
-    aarch64-linux-gnu-objcopy: invalid option -- 'J'
-    Usage: aarch64-linux-gnu-objcopy [option(s)] in-file [out-file]
-     Copies a binary file, possibly transforming it in the process
-    ...
-    make[1]: *** [scripts/Makefile.modpost:156: __modpost] Error 2
-    make: *** [Makefile:1866: modules] Error 2
+Here's an example of the "Firmware Bug" apparent false positive (wrapped
+for line length):
 
-this fails because OBJCOPY is set to "ccache aarch64-linux-gnu-copy" and
-later pahole is executed with the following command line:
+ DMAR: [Firmware Bug]: No firmware reserved region can cover this RMRR
+       [0x000000006f760000-0x000000006f762fff], contact BIOS vendor for
+       fixes
+ DMAR: [Firmware Bug]: Your BIOS is broken; bad RMRR
+       [0x000000006f760000-0x000000006f762fff]
 
-    LLVM_OBJCOPY=$(OBJCOPY) $(PAHOLE) -J --btf_base vmlinux $@
+This is the snippet from the e820 table:
 
-which gets expanded to:
+ BIOS-e820: [mem 0x0000000068bff000-0x000000006ebfefff] reserved
+ BIOS-e820: [mem 0x000000006ebff000-0x000000006f9fefff] ACPI NVS
+ BIOS-e820: [mem 0x000000006f9ff000-0x000000006fffefff] ACPI data
 
-    LLVM_OBJCOPY=ccache aarch64-linux-gnu-objcopy pahole -J ...
-
-instead of:
-
-    LLVM_OBJCOPY="ccache aarch64-linux-gnu-objcopy" pahole -J ...
-
-Fixes: 5f9ae91f7c0d ("kbuild: Build kernel module BTFs if BTF is enabled and pahole supports it")
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Link: https://lore.kernel.org/bpf/20210526215228.3729875-1-javierm@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f036c7fa0ab6 ("iommu/vt-d: Check VT-d RMRR region in BIOS is reported as reserved")
+Cc: Will Mortensen <will@extrahop.com>
+Link: https://lore.kernel.org/linux-iommu/64a5843d-850d-e58c-4fc2-0a0eeeb656dc@nec.com/
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216443
+Signed-off-by: Charlotte Tan <charlotte@extrahop.com>
+Reviewed-by: Aaron Tomlin <atomlin@redhat.com>
+Link: https://lore.kernel.org/r/20220929044449.32515-1-charlotte@extrahop.com
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/link-vmlinux.sh |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/iommu.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/scripts/link-vmlinux.sh
-+++ b/scripts/link-vmlinux.sh
-@@ -162,7 +162,7 @@ gen_btf()
- 	vmlinux_link ${1}
+diff --git a/arch/x86/include/asm/iommu.h b/arch/x86/include/asm/iommu.h
+index 0bef44d30a27..2fd52b65deac 100644
+--- a/arch/x86/include/asm/iommu.h
++++ b/arch/x86/include/asm/iommu.h
+@@ -25,8 +25,10 @@ arch_rmrr_sanity_check(struct acpi_dmar_reserved_memory *rmrr)
+ {
+ 	u64 start = rmrr->base_address;
+ 	u64 end = rmrr->end_address + 1;
++	int entry_type;
  
- 	info "BTF" ${2}
--	LLVM_OBJCOPY=${OBJCOPY} ${PAHOLE} -J ${extra_paholeopt} ${1}
-+	LLVM_OBJCOPY="${OBJCOPY}" ${PAHOLE} -J ${extra_paholeopt} ${1}
+-	if (e820__mapped_all(start, end, E820_TYPE_RESERVED))
++	entry_type = e820__get_entry_type(start, end);
++	if (entry_type == E820_TYPE_RESERVED || entry_type == E820_TYPE_NVS)
+ 		return 0;
  
- 	# Create ${2} which contains just .BTF section but no symbols. Add
- 	# SHF_ALLOC because .BTF will be part of the vmlinux image. --strip-all
+ 	pr_err(FW_BUG "No firmware reserved region can cover this RMRR [%#018Lx-%#018Lx], contact BIOS vendor for fixes\n",
+-- 
+2.35.1
+
 
 
