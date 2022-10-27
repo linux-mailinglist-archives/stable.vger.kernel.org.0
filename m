@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46F6660FE7B
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:05:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 912AA60FE2C
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:02:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236955AbiJ0RFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:05:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35216 "EHLO
+        id S236865AbiJ0RCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:02:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236974AbiJ0RFn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:05:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0772172501
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:05:41 -0700 (PDT)
+        with ESMTP id S236868AbiJ0RCu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:02:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8BBD189C2C
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:02:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D4A5610AB
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:05:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6716FC433C1;
-        Thu, 27 Oct 2022 17:05:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 73173B82561
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:02:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0524C433C1;
+        Thu, 27 Oct 2022 17:02:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890340;
-        bh=J74gDJ183VL7qTA4sqncMaRQBXf6qKr3QSKjxecx+PM=;
+        s=korg; t=1666890167;
+        bh=sRSibHzq0H/78sdMNvmGsd94+aYQZpn8TI6yMhhDJrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tF2PEYA4RpjLdn3jJn/tSo1AS2uS7bdz3dcf081FV1HLUtWkL/3Kyi0NZWKjjILcZ
-         f0HZmp/k3daM2DBRrt7smILMX3YEyz+y3hdwIRg1REFAJMW0NyM7xaKXROKcEDp8Ja
-         ZS2G23hr7fWodbsNNOoNaV7FuEgWt38vjpIm6UxM=
+        b=tpGaphTV5C8HntPtJ4xVUgtOQRwhsAO04zuXpvU92VnVZFGM7eT6g4zWLjtSVlFDh
+         Z54aKwsvCyu6p60mhlvIJ8bbT9rIqPgxiESh6jN+pZGqHKTNWgIxZnHPnpayY9AUZQ
+         wKsCvt9++ZkvIg6z1YpBOl0sCYuzC7nzU9C2xn5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Harini Katakam <harini.katakam@amd.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 34/79] net: phy: dp83867: Extend RX strap quirk for SGMII mode
-Date:   Thu, 27 Oct 2022 18:55:44 +0200
-Message-Id: <20221027165055.535350365@linuxfoundation.org>
+Subject: [PATCH 5.15 47/79] cifs: Fix xid leak in cifs_copy_file_range()
+Date:   Thu, 27 Oct 2022 18:55:45 +0200
+Message-Id: <20221027165056.469819014@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harini Katakam <harini.katakam@amd.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 0c9efbd5c50c64ead434960a404c9c9a097b0403 ]
+[ Upstream commit 9a97df404a402fe1174d2d1119f87ff2a0ca2fe9 ]
 
-When RX strap in HW is not set to MODE 3 or 4, bit 7 and 8 in CF4
-register should be set. The former is already handled in
-dp83867_config_init; add the latter in SGMII specific initialization.
+If the file is used by swap, before return -EOPNOTSUPP, should
+free the xid, otherwise, the xid will be leaked.
 
-Fixes: 2a10154abcb7 ("net: phy: dp83867: Add TI dp83867 phy")
-Signed-off-by: Harini Katakam <harini.katakam@amd.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4e8aea30f775 ("smb3: enable swap on SMB3 mounts")
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83867.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/cifs/cifsfs.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index f86acad0aad4..c8031e297faf 100644
---- a/drivers/net/phy/dp83867.c
-+++ b/drivers/net/phy/dp83867.c
-@@ -757,6 +757,14 @@ static int dp83867_config_init(struct phy_device *phydev)
- 		else
- 			val &= ~DP83867_SGMII_TYPE;
- 		phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_SGMIICTL, val);
-+
-+		/* This is a SW workaround for link instability if RX_CTRL is
-+		 * not strapped to mode 3 or 4 in HW. This is required for SGMII
-+		 * in addition to clearing bit 7, handled above.
-+		 */
-+		if (dp83867->rxctrl_strap_quirk)
-+			phy_set_bits_mmd(phydev, DP83867_DEVADDR, DP83867_CFG4,
-+					 BIT(8));
- 	}
+diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
+index 8ec55bbd705d..668dd6a86295 100644
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -1263,8 +1263,11 @@ static ssize_t cifs_copy_file_range(struct file *src_file, loff_t off,
+ 	ssize_t rc;
+ 	struct cifsFileInfo *cfile = dst_file->private_data;
  
- 	val = phy_read(phydev, DP83867_CFG3);
+-	if (cfile->swapfile)
+-		return -EOPNOTSUPP;
++	if (cfile->swapfile) {
++		rc = -EOPNOTSUPP;
++		free_xid(xid);
++		return rc;
++	}
+ 
+ 	rc = cifs_file_copychunk_range(xid, src_file, off, dst_file, destoff,
+ 					len, flags);
 -- 
 2.35.1
 
