@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0187F6103B9
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 23:03:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03D146103BB
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 23:03:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236622AbiJ0VDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 17:03:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53160 "EHLO
+        id S236317AbiJ0VDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 17:03:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236081AbiJ0VCy (ORCPT
+        with ESMTP id S236640AbiJ0VCy (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 17:02:54 -0400
-Received: from smtp-fw-2101.amazon.com (smtp-fw-2101.amazon.com [72.21.196.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C31FC1B1D9;
-        Thu, 27 Oct 2022 13:55:03 -0700 (PDT)
+Received: from smtp-fw-9103.amazon.com (smtp-fw-9103.amazon.com [207.171.188.200])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3183120A7;
+        Thu, 27 Oct 2022 13:55:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1666904105; x=1698440105;
+  t=1666904104; x=1698440104;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version;
-  bh=J5U38Tk1pvE7lZaGYO3rHFRbdrKKTLtPvUaNDZw34Go=;
-  b=JM0Mq31m8v7Ug5vtcS22kowathxzzSTqIpOaWfDHCWjIo+RyfBrepwhD
-   ozanyVr8Cl0R8Hob42foQ+tLyGbuBlfsgYk8y+Hi0lifc818lVcgQw+V9
-   eWCx8Fl+mg7dgLdlXoB7aEaqPa6RebjKDXzjAXB0HeaIHjxTaO3ICaYsf
-   g=;
+  bh=Z7sqfVSVSKh4TNpMhf6nX11hr+gOrxoKTq4f3WRMvmk=;
+  b=JNFOqcmyoy+P4jmIqAAKAA6MXZSjzhtRU2F5Bh6bZCnK+oV8+7XZUg3S
+   oIEi33L4K2xZF6kXKJ0nP02Afbq2svBscmZKhK5GU1lF8p8WuT1KU/YLT
+   Lng5J5ApF2N5rTueR8l2L+QKgaajmMGQwCmbCPLyfP0Djue4b/T5jxlZo
+   Y=;
 X-IronPort-AV: E=Sophos;i="5.95,218,1661817600"; 
-   d="scan'208";a="257153072"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-pdx-1box-2bm6-32cf6363.us-west-2.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-2101.iad2.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2022 20:55:02 +0000
+   d="scan'208";a="1068508370"
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-pdx-2b-m6i4x-26a610d2.us-west-2.amazon.com) ([10.25.36.214])
+  by smtp-border-fw-9103.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2022 20:55:02 +0000
 Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
-        by email-inbound-relay-pdx-1box-2bm6-32cf6363.us-west-2.amazon.com (Postfix) with ESMTPS id 6327281C1A;
+        by email-inbound-relay-pdx-2b-m6i4x-26a610d2.us-west-2.amazon.com (Postfix) with ESMTPS id D0A20417B7;
         Thu, 27 Oct 2022 20:55:01 +0000 (UTC)
 Received: from EX19D030UWB002.ant.amazon.com (10.13.139.182) by
  EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1497.42; Thu, 27 Oct 2022 20:55:00 +0000
+ id 15.0.1497.42; Thu, 27 Oct 2022 20:55:01 +0000
 Received: from u3c3f5cfe23135f.ant.amazon.com (10.43.161.14) by
  EX19D030UWB002.ant.amazon.com (10.13.139.182) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.2.1118.15; Thu, 27 Oct 2022 20:55:00 +0000
+ 15.2.1118.15; Thu, 27 Oct 2022 20:55:01 +0000
 From:   Suraj Jitindar Singh <surajjs@amazon.com>
 To:     <stable@vger.kernel.org>
 CC:     <surajjs@amazon.com>, <sjitindarsingh@gmail.com>,
         <cascardo@canonical.com>, <kvm@vger.kernel.org>,
         <pbonzini@redhat.com>, <jpoimboe@kernel.org>,
         <peterz@infradead.org>, <x86@kernel.org>
-Subject: [PATCH 4.14 10/34] x86/bugs: Add AMD retbleed= boot parameter
-Date:   Thu, 27 Oct 2022 13:54:50 -0700
-Message-ID: <20221027205452.17271-2-surajjs@amazon.com>
+Subject: [PATCH 4.14 11/34] x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value
+Date:   Thu, 27 Oct 2022 13:54:51 -0700
+Message-ID: <20221027205452.17271-3-surajjs@amazon.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20221027205452.17271-1-surajjs@amazon.com>
 References: <20221027204801.13146-1-surajjs@amazon.com>
@@ -58,168 +58,132 @@ X-ClientProxiedBy: EX13D39UWA003.ant.amazon.com (10.43.160.235) To
  EX19D030UWB002.ant.amazon.com (10.13.139.182)
 X-Spam-Status: No, score=-12.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_SPF_WL autolearn=ham autolearn_force=no version=3.4.6
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Chartre <alexandre.chartre@oracle.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 7fbf47c7ce50b38a64576b150e7011ae73d54669 upstream.
+commit caa0ff24d5d0e02abce5e65c3d2b7f20a6617be5 upstream.
 
-Add the "retbleed=<value>" boot parameter to select a mitigation for
-RETBleed. Possible values are "off", "auto" and "unret"
-(JMP2RET mitigation). The default value is "auto".
+Due to TIF_SSBD and TIF_SPEC_IB the actual IA32_SPEC_CTRL value can
+differ from x86_spec_ctrl_base. As such, keep a per-CPU value
+reflecting the current task's MSR content.
 
-Currently, "retbleed=auto" will select the unret mitigation on
-AMD and Hygon and no mitigation on Intel (JMP2RET is not effective on
-Intel).
+  [jpoimboe: rename]
 
-  [peterz: rebase; add hygon]
-  [jpoimboe: cleanups]
-
-Signed-off-by: Alexandre Chartre <alexandre.chartre@oracle.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[ bp: Adjust context - no jmp2ret mitigation exists ]
-Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
 ---
- .../admin-guide/kernel-parameters.txt         | 12 ++++
- arch/x86/kernel/cpu/bugs.c                    | 70 ++++++++++++++++++-
- 2 files changed, 81 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/nospec-branch.h |  1 +
+ arch/x86/kernel/cpu/bugs.c           | 28 +++++++++++++++++++++++-----
+ arch/x86/kernel/process.c            |  2 +-
+ 3 files changed, 25 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 681d429c6426..4f1269d81f97 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -3965,6 +3965,18 @@
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index 8a618fbf569f..6bc5a324dd65 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -291,6 +291,7 @@ static inline void indirect_branch_prediction_barrier(void)
  
- 	retain_initrd	[RAM] Keep initrd memory after extraction
+ /* The Intel SPEC CTRL MSR base value cache */
+ extern u64 x86_spec_ctrl_base;
++extern void write_spec_ctrl_current(u64 val);
  
-+	retbleed=	[X86] Control mitigation of RETBleed (Arbitrary
-+			Speculative Code Execution with Return Instructions)
-+			vulnerability.
-+
-+			off         - unconditionally disable
-+			auto        - automatically select a migitation
-+
-+			Selecting 'auto' will choose a mitigation method at run
-+			time according to the CPU.
-+
-+			Not specifying this option is equivalent to retbleed=auto.
-+
- 	rfkill.default_state=
- 		0	"airplane mode".  All wifi, bluetooth, wimax, gps, fm,
- 			etc. communication is blocked by default.
+ /*
+  * With retpoline, we must use IBRS to restrict branch prediction
 diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 6706c6af08a1..9249831fc3bb 100644
+index 9249831fc3bb..b0768341afbe 100644
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -36,6 +36,7 @@
- #include "cpu.h"
+@@ -47,11 +47,29 @@ static void __init taa_select_mitigation(void);
+ static void __init mmio_select_mitigation(void);
+ static void __init srbds_select_mitigation(void);
  
- static void __init spectre_v1_select_mitigation(void);
-+static void __init retbleed_select_mitigation(void);
- static void __init spectre_v2_select_mitigation(void);
- static void __init ssb_select_mitigation(void);
- static void __init l1tf_select_mitigation(void);
-@@ -111,6 +112,12 @@ void __init check_bugs(void)
+-/* The base value of the SPEC_CTRL MSR that always has to be preserved. */
++/* The base value of the SPEC_CTRL MSR without task-specific bits set */
+ u64 x86_spec_ctrl_base;
+ EXPORT_SYMBOL_GPL(x86_spec_ctrl_base);
++
++/* The current value of the SPEC_CTRL MSR with task-specific bits set */
++DEFINE_PER_CPU(u64, x86_spec_ctrl_current);
++EXPORT_SYMBOL_GPL(x86_spec_ctrl_current);
++
+ static DEFINE_MUTEX(spec_ctrl_mutex);
  
- 	/* Select the proper CPU mitigations before patching alternatives: */
- 	spectre_v1_select_mitigation();
-+	retbleed_select_mitigation();
-+	/*
-+	 * spectre_v2_select_mitigation() relies on the state set by
-+	 * retbleed_select_mitigation(); specifically the STIBP selection is
-+	 * forced for UNRET.
-+	 */
- 	spectre_v2_select_mitigation();
- 	ssb_select_mitigation();
- 	l1tf_select_mitigation();
-@@ -705,6 +712,67 @@ static int __init nospectre_v1_cmdline(char *str)
- }
- early_param("nospectre_v1", nospectre_v1_cmdline);
- 
-+#undef pr_fmt
-+#define pr_fmt(fmt)     "RETBleed: " fmt
-+
-+enum retbleed_mitigation {
-+	RETBLEED_MITIGATION_NONE
-+};
-+
-+enum retbleed_mitigation_cmd {
-+	RETBLEED_CMD_OFF,
-+	RETBLEED_CMD_AUTO
-+};
-+
-+const char * const retbleed_strings[] = {
-+	[RETBLEED_MITIGATION_NONE]	= "Vulnerable"
-+};
-+
-+static enum retbleed_mitigation retbleed_mitigation __ro_after_init =
-+	RETBLEED_MITIGATION_NONE;
-+static enum retbleed_mitigation_cmd retbleed_cmd __ro_after_init =
-+	RETBLEED_CMD_AUTO;
-+
-+static int __init retbleed_parse_cmdline(char *str)
++/*
++ * Keep track of the SPEC_CTRL MSR value for the current task, which may differ
++ * from x86_spec_ctrl_base due to STIBP/SSB in __speculation_ctrl_update().
++ */
++void write_spec_ctrl_current(u64 val)
 +{
-+	if (!str)
-+		return -EINVAL;
-+
-+	if (!strcmp(str, "off"))
-+		retbleed_cmd = RETBLEED_CMD_OFF;
-+	else if (!strcmp(str, "auto"))
-+		retbleed_cmd = RETBLEED_CMD_AUTO;
-+	else
-+		pr_err("Unknown retbleed option (%s). Defaulting to 'auto'\n", str);
-+
-+	return 0;
-+}
-+early_param("retbleed", retbleed_parse_cmdline);
-+
-+static void __init retbleed_select_mitigation(void)
-+{
-+	if (!boot_cpu_has_bug(X86_BUG_RETBLEED) || cpu_mitigations_off())
++	if (this_cpu_read(x86_spec_ctrl_current) == val)
 +		return;
 +
-+	switch (retbleed_cmd) {
-+	case RETBLEED_CMD_OFF:
-+		return;
-+
-+	case RETBLEED_CMD_AUTO:
-+	default:
-+		if (!boot_cpu_has_bug(X86_BUG_RETBLEED))
-+			break;
-+		break;
-+	}
-+
-+	switch (retbleed_mitigation) {
-+	default:
-+		break;
-+	}
-+
-+	pr_info("%s\n", retbleed_strings[retbleed_mitigation]);
++	this_cpu_write(x86_spec_ctrl_current, val);
++	wrmsrl(MSR_IA32_SPEC_CTRL, val);
 +}
 +
- #undef pr_fmt
- #define pr_fmt(fmt)     "Spectre V2 : " fmt
+ /*
+  * The vendor and possibly platform specific bits which can be modified in
+  * x86_spec_ctrl_base.
+@@ -1173,7 +1191,7 @@ static void __init spectre_v2_select_mitigation(void)
+ 	if (spectre_v2_in_eibrs_mode(mode)) {
+ 		/* Force it so VMEXIT will restore correctly */
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+-		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++		write_spec_ctrl_current(x86_spec_ctrl_base);
+ 	}
  
-@@ -1901,7 +1969,7 @@ static ssize_t srbds_show_state(char *buf)
+ 	switch (mode) {
+@@ -1228,7 +1246,7 @@ static void __init spectre_v2_select_mitigation(void)
  
- static ssize_t retbleed_show_state(char *buf)
+ static void update_stibp_msr(void * __unused)
  {
--	return sprintf(buf, "Vulnerable\n");
-+	return sprintf(buf, "%s\n", retbleed_strings[retbleed_mitigation]);
+-	wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++	write_spec_ctrl_current(x86_spec_ctrl_base);
  }
  
- static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr,
+ /* Update x86_spec_ctrl_base in case SMT state changed. */
+@@ -1471,7 +1489,7 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
+ 			x86_amd_ssb_disable();
+ 		} else {
+ 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
+-			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++			write_spec_ctrl_current(x86_spec_ctrl_base);
+ 		}
+ 	}
+ 
+@@ -1676,7 +1694,7 @@ int arch_prctl_spec_ctrl_get(struct task_struct *task, unsigned long which)
+ void x86_spec_ctrl_setup_ap(void)
+ {
+ 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
+-		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++		write_spec_ctrl_current(x86_spec_ctrl_base);
+ 
+ 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
+ 		x86_amd_ssb_disable();
+diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+index a07b09f68e7e..6e000c6ec6be 100644
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -435,7 +435,7 @@ static __always_inline void __speculation_ctrl_update(unsigned long tifp,
+ 	}
+ 
+ 	if (updmsr)
+-		wrmsrl(MSR_IA32_SPEC_CTRL, msr);
++		write_spec_ctrl_current(msr);
+ }
+ 
+ static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
 -- 
 2.17.1
 
