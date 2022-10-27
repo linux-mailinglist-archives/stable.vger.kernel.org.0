@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5827B60FEFE
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:10:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4472860FF03
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:12:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237107AbiJ0RKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:10:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47364 "EHLO
+        id S235851AbiJ0RMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:12:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237111AbiJ0RKX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:10:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 992AE73C0C
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:10:22 -0700 (PDT)
+        with ESMTP id S237111AbiJ0RMA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:12:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 202D2196080;
+        Thu, 27 Oct 2022 10:12:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3930762401
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:10:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49E9DC433C1;
-        Thu, 27 Oct 2022 17:10:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D35D8B82725;
+        Thu, 27 Oct 2022 17:11:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11712C433D7;
+        Thu, 27 Oct 2022 17:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890621;
-        bh=5nHD4EdobDTekB7OeRn72V2zL9cMbr3p5Z/BAnBioJU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZACp127xSrZE+E4qNSSkcOLArWdxOfS2UuCWzK3oa/CdCmWokfFrwlbwcYDPHQql
-         UfDf0kgJe10Vt9M+4PV9GS4U/7wZDLnPW544gbqppn1/aSKo//hWvgh/KPayZYA6zY
-         o4SlPMI9gptlycBENIbxvvAX6TsCJ82bRsjkdxes=
+        s=korg; t=1666890717;
+        bh=OthIepUJZIoPch672mR6O1MyRWeTc583C3jgDvQAITY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=zEwFnupunEu00yR3dWXQii8wByzqh61KTC5R3dYUX+2hkZ/poSe8hHhK2EPoA4+Nx
+         SjTln3P3ce5lYitnLFqd6yDSo+pAsjNcXaZWCBu94DSNJ65DBx8MV0YZ99hdzqZb/I
+         G2W8ixcEAva62Cajn/T1Q845U1bnA3cpcVezExVU=
+Date:   Thu, 27 Oct 2022 19:11:45 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Seth Jenkins <sethjenkins@google.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH 5.4 53/53] mm: /proc/pid/smaps_rollup: fix no vmas null-deref
-Date:   Thu, 27 Oct 2022 18:56:41 +0200
-Message-Id: <20221027165051.926794456@linuxfoundation.org>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
-References: <20221027165049.817124510@linuxfoundation.org>
-User-Agent: quilt/0.67
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Subject: Re: [PATCH 6.0 00/94] 6.0.6-rc1 review
+Message-ID: <Y1q70RS+mhz1vD8U@kroah.com>
+References: <20221027165057.208202132@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -52,31 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seth Jenkins <sethjenkins@google.com>
+On Thu, Oct 27, 2022 at 06:54:02PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.6 release.
+> There are 94 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 29 Oct 2022 16:50:35 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.6-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
 
-Commit 258f669e7e88 ("mm: /proc/pid/smaps_rollup: convert to single value
-seq_file") introduced a null-deref if there are no vma's in the task in
-show_smaps_rollup.
+A process change for those who care.
 
-Fixes: 258f669e7e88 ("mm: /proc/pid/smaps_rollup: convert to single value seq_file")
-Signed-off-by: Seth Jenkins <sethjenkins@google.com>
-Reviewed-by: Alexey Dobriyan <adobriyan@gmail.com>
-Tested-by: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/proc/task_mmu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Previously, all of the -rc patches have been sent to
+linux-kernel@vger.kernel.org.  That turns out to be a lovely way to
+stress-test email servers both on the sending, and receiving side.
 
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -884,7 +884,7 @@ static int show_smaps_rollup(struct seq_
- 		last_vma_end = vma->vm_end;
- 	}
- 
--	show_vma_header_prefix(m, priv->mm->mmap->vm_start,
-+	show_vma_header_prefix(m, priv->mm->mmap ? priv->mm->mmap->vm_start : 0,
- 			       last_vma_end, 0, 0, 0, 0);
- 	seq_pad(m, ' ');
- 	seq_puts(m, "[rollup]\n");
+The vger postmasters have done a valiant job in fixing up all sorts of
+crazy issues that this has caused over the years, moving jobs to
+different machines, moving some reciever domains to separate queues or
+machines, and trying to debug loony gmail server issues.  They have, and
+continue to, do a wonderful job at all of this.
 
+But the stable patch bombs were causing problems, no matter what.  To
+help try to aliviate the overally mail load on the main linux-kernel
+list, I am now NOT sending all of the patches to lkml, only the -rc
+announcements.
 
+If you want to see all of the patches, they will all be cc:ed to the
+stable@vger.kernel.org list, and they should all show up almost
+instantly on lore.kernel.org as they are getting sent also to the
+patches@lists address as well.
+
+So this should provide a bit of breathing room on the main linux-kernel
+mailqueue for a while.  And if you do want to see the full set of
+patches, either use lore and the assorted tools that can easily get
+emails out of it, or subscribe to the stable@vger mailing list.
+
+thanks,
+
+greg "I had a spam assassin rule named after me" k-h
