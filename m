@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6C0B60FE33
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E5460FECC
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236875AbiJ0RDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:03:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57262 "EHLO
+        id S237056AbiJ0RIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:08:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236876AbiJ0RDH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:03:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B0C1911CB
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:03:06 -0700 (PDT)
+        with ESMTP id S237051AbiJ0RIc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:08:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E08919D886
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:08:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10BC0623D7
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:03:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21E62C433D6;
-        Thu, 27 Oct 2022 17:03:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B183BB824DB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:08:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DAD0C433D6;
+        Thu, 27 Oct 2022 17:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890185;
-        bh=D1goD+RYI0bhFhSW/L9OXH1paxVk9/5A2l/PQswuSYw=;
+        s=korg; t=1666890508;
+        bh=Xcksv0pGWzs3BGYaNbTBVvggUXa+mFrKV60f9GqQo2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mij17RMTda5iJKhJGDHBicZv34QwKWTY5W3qvZxna4GdTOlpfMYivFmbhpoKH7/IB
-         t4XAumcF/iibFhd9sasnBg1W1BEtDUHBedIX6qAsBqySKBUx4bbSYT3DUxPqPzUIH+
-         4cHvQoohwJzXZSfj5hTzFpN68VkFevQDRot/4xMU=
+        b=XZE5VG2qYku1xjVfSPi98/n27qsPznZfrnU0Y1qUXDbhgArhw6oPP2oyP7/iIriBw
+         +5RTcIGqVl49m+KronJOTeWmRCwztoLHHgawttU7TRnPfUBQVaXlLNXsLFPwsFUjMJ
+         OoU8EobKmjZy4A8Ghxd8doKqxbdagfUXsz0JkJMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 53/79] netfilter: nf_tables: relax NFTA_SET_ELEM_KEY_END set flags requirements
+        patches@lists.linux.dev, Brian Foster <bfoster@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Chandan Babu R <chandan.babu@oracle.com>
+Subject: [PATCH 5.4 03/53] xfs: rework collapse range into an atomic operation
 Date:   Thu, 27 Oct 2022 18:55:51 +0200
-Message-Id: <20221027165056.678170043@linuxfoundation.org>
+Message-Id: <20221027165049.951175600@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
-References: <20221027165054.917467648@linuxfoundation.org>
+In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
+References: <20221027165049.817124510@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,43 +55,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit 96df8360dbb435cc69f7c3c8db44bf8b1c24cd7b ]
+commit 211683b21de959a647de74faedfdd8a5d189327e upstream.
 
-Otherwise EINVAL is bogusly reported to userspace when deleting a set
-element. NFTA_SET_ELEM_KEY_END does not need to be set in case of:
+The collapse range operation uses a unique transaction and ilock
+cycle for the hole punch and each extent shift iteration of the
+overall operation. While the hole punch is safe as a separate
+operation due to the iolock, cycling the ilock after each extent
+shift is risky w.r.t. concurrent operations, similar to insert range.
 
-- insertion: if not present, start key is used as end key.
-- deletion: only start key needs to be specified, end key is ignored.
+To avoid this problem, make collapse range atomic with respect to
+ilock. Hold the ilock across the entire operation, replace the
+individual transactions with a single rolling transaction sequence
+and finish dfops on each iteration to perform pending frees and roll
+the transaction. Remove the unnecessary quota reservation as
+collapse range can only ever merge extents (and thus remove extent
+records and potentially free bmap blocks). The dfops call
+automatically relogs the inode to keep it moving in the log. This
+guarantees that nothing else can change the extent mapping of an
+inode while a collapse range operation is in progress.
 
-Hence, relax the sanity check.
-
-Fixes: 88cccd908d51 ("netfilter: nf_tables: NFTA_SET_ELEM_KEY_END requires concat and interval flags")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/xfs/xfs_bmap_util.c |   29 +++++++++++++++--------------
+ 1 file changed, 15 insertions(+), 14 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 460ad341d160..f7a5b8414423 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -5720,8 +5720,9 @@ static bool nft_setelem_valid_key_end(const struct nft_set *set,
- 			  (NFT_SET_CONCAT | NFT_SET_INTERVAL)) {
- 		if (flags & NFT_SET_ELEM_INTERVAL_END)
- 			return false;
--		if (!nla[NFTA_SET_ELEM_KEY_END] &&
--		    !(flags & NFT_SET_ELEM_CATCHALL))
-+
-+		if (nla[NFTA_SET_ELEM_KEY_END] &&
-+		    flags & NFT_SET_ELEM_CATCHALL)
- 			return false;
- 	} else {
- 		if (nla[NFTA_SET_ELEM_KEY_END])
--- 
-2.35.1
-
+--- a/fs/xfs/xfs_bmap_util.c
++++ b/fs/xfs/xfs_bmap_util.c
+@@ -1237,7 +1237,6 @@ xfs_collapse_file_space(
+ 	int			error;
+ 	xfs_fileoff_t		next_fsb = XFS_B_TO_FSB(mp, offset + len);
+ 	xfs_fileoff_t		shift_fsb = XFS_B_TO_FSB(mp, len);
+-	uint			resblks = XFS_DIOSTRAT_SPACE_RES(mp, 0);
+ 	bool			done = false;
+ 
+ 	ASSERT(xfs_isilocked(ip, XFS_IOLOCK_EXCL));
+@@ -1253,32 +1252,34 @@ xfs_collapse_file_space(
+ 	if (error)
+ 		return error;
+ 
+-	while (!error && !done) {
+-		error = xfs_trans_alloc(mp, &M_RES(mp)->tr_write, resblks, 0, 0,
+-					&tp);
+-		if (error)
+-			break;
++	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_write, 0, 0, 0, &tp);
++	if (error)
++		return error;
+ 
+-		xfs_ilock(ip, XFS_ILOCK_EXCL);
+-		error = xfs_trans_reserve_quota(tp, mp, ip->i_udquot,
+-				ip->i_gdquot, ip->i_pdquot, resblks, 0,
+-				XFS_QMOPT_RES_REGBLKS);
+-		if (error)
+-			goto out_trans_cancel;
+-		xfs_trans_ijoin(tp, ip, XFS_ILOCK_EXCL);
++	xfs_ilock(ip, XFS_ILOCK_EXCL);
++	xfs_trans_ijoin(tp, ip, 0);
+ 
++	while (!done) {
+ 		error = xfs_bmap_collapse_extents(tp, ip, &next_fsb, shift_fsb,
+ 				&done);
+ 		if (error)
+ 			goto out_trans_cancel;
++		if (done)
++			break;
+ 
+-		error = xfs_trans_commit(tp);
++		/* finish any deferred frees and roll the transaction */
++		error = xfs_defer_finish(&tp);
++		if (error)
++			goto out_trans_cancel;
+ 	}
+ 
++	error = xfs_trans_commit(tp);
++	xfs_iunlock(ip, XFS_ILOCK_EXCL);
+ 	return error;
+ 
+ out_trans_cancel:
+ 	xfs_trans_cancel(tp);
++	xfs_iunlock(ip, XFS_ILOCK_EXCL);
+ 	return error;
+ }
+ 
 
 
