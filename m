@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A600B60FE96
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0EEC60FE57
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:04:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236980AbiJ0RGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:06:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37682 "EHLO
+        id S236906AbiJ0REe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:04:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236994AbiJ0RGf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:06:35 -0400
+        with ESMTP id S236919AbiJ0REb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4346619846B
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:06:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C77F017E0B
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D3F43623F4
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:06:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3075C433C1;
-        Thu, 27 Oct 2022 17:06:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 671A6623EB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EEB3C433C1;
+        Thu, 27 Oct 2022 17:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890393;
-        bh=1ietTuvYT7MIXV3lAYE65GkR/JyalumTigwboTm5b5g=;
+        s=korg; t=1666890269;
+        bh=FI9X7XuAvd0oPECG4LNBFMCLmkxR1Avh7ZxLRS0Vs3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NWD/G/bfFFzr9A9HrMkmMVxIkW/IY87hmZK7SUY7w/oXx0vNta/FHNbRn9V/5ODM9
-         UdiMFvR9aWpXmvNnWBUp9orHi8O0bKn+rxG9Pqw4UfzZEM3wo+LCUt3h7w8DblLuxr
-         QAB9crh2GRRw3h7ahr5MHlyMARz4WZUC57kjeGg8=
+        b=OJnBnBSAHJ1mCb83xp00qB50tZqgZ4LUhT1HOquz5T11UH49hyz1A+i3ZL0zqJS1G
+         QdHrNsNMG6acjoa9XGckte9VNvOuW6d9OAGH2wBp8ZBKofqLFSnGrYHJW3Kh7aoz/N
+         yH6j61Hr/17qJuwo49Ru5D3d6D5ABvHLv14HtrPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Felix Riemann <felix.riemann@sma.de>,
         Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 52/79] net: phy: dp83822: disable MDI crossover status change interrupt
+Subject: [PATCH 5.15 64/79] net: phy: dp83822: disable MDI crossover status change interrupt
 Date:   Thu, 27 Oct 2022 18:56:02 +0200
-Message-Id: <20221027165056.093050287@linuxfoundation.org>
+Message-Id: <20221027165057.050653484@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -76,10 +75,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/net/phy/dp83822.c b/drivers/net/phy/dp83822.c
-index 3a8849716459..db651649e0b8 100644
+index a792dd6d2ec3..0b511abb5422 100644
 --- a/drivers/net/phy/dp83822.c
 +++ b/drivers/net/phy/dp83822.c
-@@ -268,8 +268,7 @@ static int dp83822_config_intr(struct phy_device *phydev)
+@@ -253,8 +253,7 @@ static int dp83822_config_intr(struct phy_device *phydev)
  				DP83822_EEE_ERROR_CHANGE_INT_EN);
  
  		if (!dp83822->fx_enabled)
