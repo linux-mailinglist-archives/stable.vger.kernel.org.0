@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD17D60FE72
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D09DE60FDDA
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:59:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236934AbiJ0RFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:05:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32936 "EHLO
+        id S236692AbiJ0Q7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 12:59:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236964AbiJ0RFQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:05:16 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76EA61358B7
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:05:14 -0700 (PDT)
+        with ESMTP id S236801AbiJ0Q7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:59:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A60A8186D9
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:59:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 656DCCE279A
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:05:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7321DC433C1;
-        Thu, 27 Oct 2022 17:05:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50CF9B82641
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:59:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8596C433D6;
+        Thu, 27 Oct 2022 16:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890311;
-        bh=Q5ot/Wyj7o/rmkQOaFcpbdB7JEysf9GXn2sQlz2bfIM=;
+        s=korg; t=1666889978;
+        bh=u0PUjNvxdaP0i0oDWooGTOffuOkyLvg+p2mkRSnY1L8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JI0nQa+uqoMIKGPzR2+a+5tHbSarhdc3ADwjndVIJ/bfhP249W608AhVvVgbYVmk0
-         YqECfETcxJlIQLDWHayhQ16JAU8/PSe91rVIvif8Ob7ESrwQ4BS38h1ZFsNrkLLqDi
-         j8g9XK7koAz6SRAjqsqtd+qZPg2ZNJLPpRSXTjCM=
+        b=zDAyd4+qGI251T2R3xVKwiq4NPBqMU/M41jwNoS8u5q8Fe033Y+x7NAAhPY2x1PPu
+         RwxfUZ3JXDyOq3xjnXN7p5cHxd7sLo0tsdMeIfIZADeEMd1782VqN2EQYHIPbXVdcY
+         IaR/3gUOlwgwgsk55eo5+ZX6ZiQKcM7/c6gl/pZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tan Ninghao <tanninghao1@huawei.com>,
-        "GONG, Ruiqi" <gongruiqi1@huawei.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>, GONG@vger.kernel.org
-Subject: [PATCH 5.10 03/79] selinux: enable use of both GFP_KERNEL and GFP_ATOMIC in convert_context()
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 71/94] nvme-hwmon: consistently ignore errors from nvme_hwmon_init
 Date:   Thu, 27 Oct 2022 18:55:13 +0200
-Message-Id: <20221027165054.412916090@linuxfoundation.org>
+Message-Id: <20221027165100.048745338@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
+References: <20221027165057.208202132@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,129 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GONG, Ruiqi <gongruiqi1@huawei.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit abe3c631447dcd1ba7af972fe6f054bee6f136fa upstream.
+[ Upstream commit 6b8cf94005187952f794c0c4ed3920a1e8accfa3 ]
 
-The following warning was triggered on a hardware environment:
+An NVMe controller works perfectly fine even when the hwmon
+initialization fails.  Stop returning errors that do not come from a
+controller reset from nvme_hwmon_init to handle this case consistently.
 
-  SELinux: Converting 162 SID table entries...
-  BUG: sleeping function called from invalid context at
-       __might_sleep+0x60/0x74 0x0
-  in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 5943, name: tar
-  CPU: 7 PID: 5943 Comm: tar Tainted: P O 5.10.0 #1
-  Call trace:
-   dump_backtrace+0x0/0x1c8
-   show_stack+0x18/0x28
-   dump_stack+0xe8/0x15c
-   ___might_sleep+0x168/0x17c
-   __might_sleep+0x60/0x74
-   __kmalloc_track_caller+0xa0/0x7dc
-   kstrdup+0x54/0xac
-   convert_context+0x48/0x2e4
-   sidtab_context_to_sid+0x1c4/0x36c
-   security_context_to_sid_core+0x168/0x238
-   security_context_to_sid_default+0x14/0x24
-   inode_doinit_use_xattr+0x164/0x1e4
-   inode_doinit_with_dentry+0x1c0/0x488
-   selinux_d_instantiate+0x20/0x34
-   security_d_instantiate+0x70/0xbc
-   d_splice_alias+0x4c/0x3c0
-   ext4_lookup+0x1d8/0x200 [ext4]
-   __lookup_slow+0x12c/0x1e4
-   walk_component+0x100/0x200
-   path_lookupat+0x88/0x118
-   filename_lookup+0x98/0x130
-   user_path_at_empty+0x48/0x60
-   vfs_statx+0x84/0x140
-   vfs_fstatat+0x20/0x30
-   __se_sys_newfstatat+0x30/0x74
-   __arm64_sys_newfstatat+0x1c/0x2c
-   el0_svc_common.constprop.0+0x100/0x184
-   do_el0_svc+0x1c/0x2c
-   el0_svc+0x20/0x34
-   el0_sync_handler+0x80/0x17c
-   el0_sync+0x13c/0x140
-  SELinux: Context system_u:object_r:pssp_rsyslog_log_t:s0:c0 is
-           not valid (left unmapped).
-
-It was found that within a critical section of spin_lock_irqsave in
-sidtab_context_to_sid(), convert_context() (hooked by
-sidtab_convert_params.func) might cause the process to sleep via
-allocating memory with GFP_KERNEL, which is problematic.
-
-As Ondrej pointed out [1], convert_context()/sidtab_convert_params.func
-has another caller sidtab_convert_tree(), which is okay with GFP_KERNEL.
-Therefore, fix this problem by adding a gfp_t argument for
-convert_context()/sidtab_convert_params.func and pass GFP_KERNEL/_ATOMIC
-properly in individual callers.
-
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/20221018120111.1474581-1-gongruiqi1@huawei.com/ [1]
-Reported-by: Tan Ninghao <tanninghao1@huawei.com>
-Fixes: ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve performance")
-Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
-Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
-[PM: wrap long BUG() output lines, tweak subject line]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
+Stable-dep-of: c94b7f9bab22 ("nvme-hwmon: kmalloc the NVME SMART log buffer")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/ss/services.c |    5 +++--
- security/selinux/ss/sidtab.c   |    4 ++--
- security/selinux/ss/sidtab.h   |    2 +-
- 3 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/nvme/host/core.c  |  6 +++++-
+ drivers/nvme/host/hwmon.c | 13 ++++++++-----
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2011,7 +2011,8 @@ static inline int convert_context_handle
-  * in `newc'.  Verify that the context is valid
-  * under the new policy.
-  */
--static int convert_context(struct context *oldc, struct context *newc, void *p)
-+static int convert_context(struct context *oldc, struct context *newc, void *p,
-+			   gfp_t gfp_flags)
- {
- 	struct convert_context_args *args;
- 	struct ocontext *oc;
-@@ -2025,7 +2026,7 @@ static int convert_context(struct contex
- 	args = p;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 59e4b188fc71..ed47c256dbd2 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3256,8 +3256,12 @@ int nvme_init_ctrl_finish(struct nvme_ctrl *ctrl)
+ 		return ret;
  
- 	if (oldc->str) {
--		s = kstrdup(oldc->str, GFP_KERNEL);
-+		s = kstrdup(oldc->str, gfp_flags);
- 		if (!s)
- 			return -ENOMEM;
+ 	if (!ctrl->identified && !nvme_discovery_ctrl(ctrl)) {
++		/*
++		 * Do not return errors unless we are in a controller reset,
++		 * the controller works perfectly fine without hwmon.
++		 */
+ 		ret = nvme_hwmon_init(ctrl);
+-		if (ret < 0)
++		if (ret == -EINTR)
+ 			return ret;
+ 	}
  
---- a/security/selinux/ss/sidtab.c
-+++ b/security/selinux/ss/sidtab.c
-@@ -325,7 +325,7 @@ int sidtab_context_to_sid(struct sidtab
- 		}
+diff --git a/drivers/nvme/host/hwmon.c b/drivers/nvme/host/hwmon.c
+index 0a586d712920..23918bb7bdca 100644
+--- a/drivers/nvme/host/hwmon.c
++++ b/drivers/nvme/host/hwmon.c
+@@ -230,7 +230,7 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
  
- 		rc = convert->func(context, &dst_convert->context,
--				   convert->args);
-+				   convert->args, GFP_ATOMIC);
- 		if (rc) {
- 			context_destroy(&dst->context);
- 			goto out_unlock;
-@@ -404,7 +404,7 @@ static int sidtab_convert_tree(union sid
- 		while (i < SIDTAB_LEAF_ENTRIES && *pos < count) {
- 			rc = convert->func(&esrc->ptr_leaf->entries[i].context,
- 					   &edst->ptr_leaf->entries[i].context,
--					   convert->args);
-+					   convert->args, GFP_KERNEL);
- 			if (rc)
- 				return rc;
- 			(*pos)++;
---- a/security/selinux/ss/sidtab.h
-+++ b/security/selinux/ss/sidtab.h
-@@ -65,7 +65,7 @@ struct sidtab_isid_entry {
- };
+ 	data = kzalloc(sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+-		return 0;
++		return -ENOMEM;
  
- struct sidtab_convert_params {
--	int (*func)(struct context *oldc, struct context *newc, void *args);
-+	int (*func)(struct context *oldc, struct context *newc, void *args, gfp_t gfp_flags);
- 	void *args;
- 	struct sidtab *target;
- };
+ 	data->ctrl = ctrl;
+ 	mutex_init(&data->read_lock);
+@@ -238,8 +238,7 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
+ 	err = nvme_hwmon_get_smart_log(data);
+ 	if (err) {
+ 		dev_warn(dev, "Failed to read smart log (error %d)\n", err);
+-		kfree(data);
+-		return err;
++		goto err_free_data;
+ 	}
+ 
+ 	hwmon = hwmon_device_register_with_info(dev, "nvme",
+@@ -247,11 +246,15 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
+ 						NULL);
+ 	if (IS_ERR(hwmon)) {
+ 		dev_warn(dev, "Failed to instantiate hwmon device\n");
+-		kfree(data);
+-		return PTR_ERR(hwmon);
++		err = PTR_ERR(hwmon);
++		goto err_free_data;
+ 	}
+ 	ctrl->hwmon_device = hwmon;
+ 	return 0;
++
++err_free_data:
++	kfree(data);
++	return err;
+ }
+ 
+ void nvme_hwmon_exit(struct nvme_ctrl *ctrl)
+-- 
+2.35.1
+
 
 
