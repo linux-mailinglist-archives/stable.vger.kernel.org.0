@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B098260FDEB
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F60060FE3A
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:03:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236797AbiJ0RAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:00:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51588 "EHLO
+        id S236876AbiJ0RD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:03:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236768AbiJ0RAY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:00:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68CDF53029
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:00:23 -0700 (PDT)
+        with ESMTP id S236882AbiJ0RDZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:03:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 435F619344F
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:03:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 037E3623EB
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:00:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1838DC433C1;
-        Thu, 27 Oct 2022 17:00:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D44B6B824DB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:03:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31099C433C1;
+        Thu, 27 Oct 2022 17:03:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890022;
-        bh=Btu0cHoKTRVUa2jXii3AKYawTa1B6jYFqgos1CXR42s=;
+        s=korg; t=1666890201;
+        bh=FKcj+BgVyDm84cshr1z6fAoMZQlqYkM1ICvRymYjvYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A9MHpU9K/eUpt26CX5SNWZM+SoWdMFj8GaoLUBBgCb2mWzJf2zdJY9A4Gmhr6/TwD
-         gkGj8yQPyETf0h8JdLY+t8n/LvlJs62Izx44QmJ0RMibDK7eYDbj6CUS/9lw1cQGSP
-         AW9C3iRZdoRN9Tzdljm5l/JtQzJuhkIq3OXfJAj0=
+        b=JKFwCeSVD2+XuVqf6bR0mw+SREdpcj0U3fmc8zop6K69rMgl5dqSgPnEtBdPWmGii
+         uVEYVRZstsxly3M5/sqhuShXzDTw8yVfhQOUaQmDHbNbzP4xPa0u3vLNSHGh2+1rVz
+         pv15lodqqDdEHiHnfYP1/0gBzDgZjPwVaPGLZqCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Will Mortensen <will@extrahop.com>,
-        Charlotte Tan <charlotte@extrahop.com>,
-        Aaron Tomlin <atomlin@redhat.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 86/94] iommu/vt-d: Allow NVS regions in arch_rmrr_sanity_check()
+        patches@lists.linux.dev, Len Brown <len.brown@intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 5.15 30/79] x86/topology: Fix multiple packages shown on a single-package system
 Date:   Thu, 27 Oct 2022 18:55:28 +0200
-Message-Id: <20221027165100.652230362@linuxfoundation.org>
+Message-Id: <20221027165055.949519255@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
-References: <20221027165057.208202132@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charlotte Tan <charlotte@extrahop.com>
+From: Zhang Rui <rui.zhang@intel.com>
 
-[ Upstream commit 5566e68d829f5d87670d5984c1c2ccb4c518405f ]
+commit 2b12a7a126d62bdbd81f4923c21bf6e9a7fbd069 upstream.
 
-arch_rmrr_sanity_check() warns if the RMRR is not covered by an ACPI
-Reserved region, but it seems like it should accept an NVS region as
-well. The ACPI spec
-https://uefi.org/specs/ACPI/6.5/15_System_Address_Map_Interfaces.html
-uses similar wording for "Reserved" and "NVS" region types; for NVS
-regions it says "This range of addresses is in use or reserved by the
-system and must not be used by the operating system."
+CPUID.1F/B does not enumerate Package level explicitly, instead, all the
+APIC-ID bits above the enumerated levels are assumed to be package ID
+bits.
 
-There is an old comment on this mailing list that also suggests NVS
-regions should pass the arch_rmrr_sanity_check() test:
+Current code gets package ID by shifting out all the APIC-ID bits that
+Linux supports, rather than shifting out all the APIC-ID bits that
+CPUID.1F enumerates. This introduces problems when CPUID.1F enumerates a
+level that Linux does not support.
 
- The warnings come from arch_rmrr_sanity_check() since it checks whether
- the region is E820_TYPE_RESERVED. However, if the purpose of the check
- is to detect RMRR has regions that may be used by OS as free memory,
- isn't  E820_TYPE_NVS safe, too?
+For example, on a single package AlderLake-N, there are 2 Ecore Modules
+with 4 atom cores in each module.  Linux does not support the Module
+level and interprets the Module ID bits as package ID and erroneously
+reports a multi module system as a multi-package system.
 
-This patch overlaps with another proposed patch that would add the region
-type to the log since sometimes the bug reporter sees this log on the
-console but doesn't know to include the kernel log:
+Fix this by using APIC-ID bits above all the CPUID.1F enumerated levels
+as package ID.
 
-https://lore.kernel.org/lkml/20220611204859.234975-3-atomlin@redhat.com/
+[ dhansen: spelling fix ]
 
-Here's an example of the "Firmware Bug" apparent false positive (wrapped
-for line length):
-
- DMAR: [Firmware Bug]: No firmware reserved region can cover this RMRR
-       [0x000000006f760000-0x000000006f762fff], contact BIOS vendor for
-       fixes
- DMAR: [Firmware Bug]: Your BIOS is broken; bad RMRR
-       [0x000000006f760000-0x000000006f762fff]
-
-This is the snippet from the e820 table:
-
- BIOS-e820: [mem 0x0000000068bff000-0x000000006ebfefff] reserved
- BIOS-e820: [mem 0x000000006ebff000-0x000000006f9fefff] ACPI NVS
- BIOS-e820: [mem 0x000000006f9ff000-0x000000006fffefff] ACPI data
-
-Fixes: f036c7fa0ab6 ("iommu/vt-d: Check VT-d RMRR region in BIOS is reported as reserved")
-Cc: Will Mortensen <will@extrahop.com>
-Link: https://lore.kernel.org/linux-iommu/64a5843d-850d-e58c-4fc2-0a0eeeb656dc@nec.com/
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216443
-Signed-off-by: Charlotte Tan <charlotte@extrahop.com>
-Reviewed-by: Aaron Tomlin <atomlin@redhat.com>
-Link: https://lore.kernel.org/r/20220929044449.32515-1-charlotte@extrahop.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7745f03eb395 ("x86/topology: Add CPUID.1F multi-die/package support")
+Suggested-by: Len Brown <len.brown@intel.com>
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Len Brown <len.brown@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20221014090147.1836-4-rui.zhang@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/iommu.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/topology.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/include/asm/iommu.h b/arch/x86/include/asm/iommu.h
-index 0bef44d30a27..2fd52b65deac 100644
---- a/arch/x86/include/asm/iommu.h
-+++ b/arch/x86/include/asm/iommu.h
-@@ -25,8 +25,10 @@ arch_rmrr_sanity_check(struct acpi_dmar_reserved_memory *rmrr)
- {
- 	u64 start = rmrr->base_address;
- 	u64 end = rmrr->end_address + 1;
-+	int entry_type;
+--- a/arch/x86/kernel/cpu/topology.c
++++ b/arch/x86/kernel/cpu/topology.c
+@@ -96,6 +96,7 @@ int detect_extended_topology(struct cpui
+ 	unsigned int ht_mask_width, core_plus_mask_width, die_plus_mask_width;
+ 	unsigned int core_select_mask, core_level_siblings;
+ 	unsigned int die_select_mask, die_level_siblings;
++	unsigned int pkg_mask_width;
+ 	bool die_level_present = false;
+ 	int leaf;
  
--	if (e820__mapped_all(start, end, E820_TYPE_RESERVED))
-+	entry_type = e820__get_entry_type(start, end);
-+	if (entry_type == E820_TYPE_RESERVED || entry_type == E820_TYPE_NVS)
- 		return 0;
+@@ -111,10 +112,10 @@ int detect_extended_topology(struct cpui
+ 	core_level_siblings = smp_num_siblings = LEVEL_MAX_SIBLINGS(ebx);
+ 	core_plus_mask_width = ht_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+ 	die_level_siblings = LEVEL_MAX_SIBLINGS(ebx);
+-	die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
++	pkg_mask_width = die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
  
- 	pr_err(FW_BUG "No firmware reserved region can cover this RMRR [%#018Lx-%#018Lx], contact BIOS vendor for fixes\n",
--- 
-2.35.1
-
+ 	sub_index = 1;
+-	do {
++	while (true) {
+ 		cpuid_count(leaf, sub_index, &eax, &ebx, &ecx, &edx);
+ 
+ 		/*
+@@ -132,8 +133,13 @@ int detect_extended_topology(struct cpui
+ 			die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+ 		}
+ 
++		if (LEAFB_SUBTYPE(ecx) != INVALID_TYPE)
++			pkg_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
++		else
++			break;
++
+ 		sub_index++;
+-	} while (LEAFB_SUBTYPE(ecx) != INVALID_TYPE);
++	}
+ 
+ 	core_select_mask = (~(-1 << core_plus_mask_width)) >> ht_mask_width;
+ 	die_select_mask = (~(-1 << die_plus_mask_width)) >>
+@@ -148,7 +154,7 @@ int detect_extended_topology(struct cpui
+ 	}
+ 
+ 	c->phys_proc_id = apic->phys_pkg_id(c->initial_apicid,
+-				die_plus_mask_width);
++				pkg_mask_width);
+ 	/*
+ 	 * Reinit the apicid, now that we have extended initial_apicid.
+ 	 */
 
 
