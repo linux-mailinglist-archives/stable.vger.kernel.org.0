@@ -2,149 +2,235 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 589BC60F7CD
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 14:45:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E996360F7D1
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 14:46:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234187AbiJ0Mpo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 08:45:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55912 "EHLO
+        id S235803AbiJ0MqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 08:46:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235387AbiJ0Mpd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 08:45:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CED4BD2A;
-        Thu, 27 Oct 2022 05:45:32 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S235772AbiJ0Mps (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 08:45:48 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1665552FEC
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 05:45:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1666874743;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=E+3Is9OtWpzJQ5NVeZSeXzS8hn6BwXdv3U86wQ+Lf60=;
+        b=eYGi9l3/q5p71hFk6em+DxucO4AjjaEg90SIMVckcWlrS59dudd9FZ17tL7RZGnKwEXb/Q
+        GDWuQPY/rdvRghMkEP42WWbszPqCbKMUbRgD2Iom8xCvDsLIvOrhETmLC0tQ9dtH9cwuZQ
+        ODWqHu26ohG6PHTtkBiJ/p/sRH17w7k=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-222-y8KoMoXcMRqvTH7mpiip5A-1; Thu, 27 Oct 2022 08:45:40 -0400
+X-MC-Unique: y8KoMoXcMRqvTH7mpiip5A-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC8766229C;
-        Thu, 27 Oct 2022 12:45:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13CF5C433C1;
-        Thu, 27 Oct 2022 12:45:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666874731;
-        bh=VwK3xnv7tqr64wpARnMxEPqabn4IYyL5RaDxsRoawBs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GiogSBYXfJ0r9+KZxe55/GEemyJGjjCmHjQtUDgImzxG7bKDiuIoQwnwncIu5fRmA
-         Vdgw8qZtdKPbF7cVmPqsTiXrY1hNfQgyjzM7r1xCXqi9T5u2DURIO1fwD7KIXred9x
-         N8hwc7uVYVimOc+gQ3HgHg0JEboeKXr/FOtGSVvAUGmFFaU1BvWhiNYlH+QTtcRiuu
-         97ykirTvwKbSF9pN1tyHyQwAv0dJk14Swxl/jDkawtwEniTwdVK88tO2pNQ6MZ4E5t
-         nkqBtV8ZqTMxaqzwEIMBQ4A+zd4G9ShWctrswDE0x4DFzpj1y7p/8Ff39RjAaDj2MP
-         OGtFcy8N1TNEA==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1oo2G3-0007iP-Cb; Thu, 27 Oct 2022 14:45:16 +0200
-Date:   Thu, 27 Oct 2022 14:45:15 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Stefan Agner <stefan@agner.ch>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        stable <stable@kernel.org>, regressions@lists.linux.dev,
-        m.szyprowski@samsung.com, krzk@kernel.org
-Subject: Re: [PATCH stable-5.15 3/3] usb: dwc3: disable USB core PHY
- management
-Message-ID: <Y1p9Wy9w5umMBC4V@hovoldconsulting.com>
-References: <20220906120702.19219-1-johan@kernel.org>
- <20220906120702.19219-4-johan@kernel.org>
- <808bdba846bb60456adf10a3016911ee@agner.ch>
- <Y0+8dKESygFunXOu@hovoldconsulting.com>
- <86c0f1ee8ffc94f9a53690dda6a83fbb@agner.ch>
- <Y1JCIKT80P9IysKD@hovoldconsulting.com>
- <b2a1e70bda64cb741efe81c5b7e56707@agner.ch>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DBD912A59563;
+        Thu, 27 Oct 2022 12:45:39 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id D7C244221F;
+        Thu, 27 Oct 2022 12:45:39 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 29RCjdcw022701;
+        Thu, 27 Oct 2022 08:45:39 -0400
+Received: from localhost (mpatocka@localhost)
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 29RCjdwH022697;
+        Thu, 27 Oct 2022 08:45:39 -0400
+X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
+Date:   Thu, 27 Oct 2022 08:45:39 -0400 (EDT)
+From:   Mikulas Patocka <mpatocka@redhat.com>
+X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
+To:     Greg KH <gregkh@linuxfoundation.org>
+cc:     stable@vger.kernel.org
+Subject: [PATCH 4.19 2/2] provide arch_test_bit_acquire for architectures
+ that define test_bit
+Message-ID: <alpine.LRH.2.21.2210270845160.22202@file01.intranet.prod.int.rdu2.redhat.com>
+User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b2a1e70bda64cb741efe81c5b7e56707@agner.ch>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 26, 2022 at 03:11:00PM +0200, Stefan Agner wrote:
-> On 2022-10-21 08:54, Johan Hovold wrote:
-> > On Fri, Oct 21, 2022 at 12:06:12AM +0200, Stefan Agner wrote:
-> >> On 2022-10-19 10:59, Johan Hovold wrote:
-> >> > On Tue, Oct 18, 2022 at 05:27:24PM +0200, Stefan Agner wrote:
-> >> >> On 2022-09-06 14:07, Johan Hovold wrote:
-> >> >> > From: Johan Hovold <johan+linaro@kernel.org>
-> >> >> >
-> >> >> > commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea upstream.
-> >> >> >
-> >> >> > The dwc3 driver manages its PHYs itself so the USB core PHY management
-> >> >> > needs to be disabled.
-> >> >> >
-> >> >> > Use the struct xhci_plat_priv hack added by commits 46034a999c07 ("usb:
-> >> >> > host: xhci-plat: add platform data support") and f768e718911e ("usb:
-> >> >> > host: xhci-plat: add priv quirk for skip PHY initialization") to
-> >> >> > propagate the setting for now.
-> > 
-> >> >> For some reason, this commit seems to break detection of the USB to
-> >> >> S-ATA controller on ODROID-HC1 devices (Exynos 5422).
-> > 
-> >> > I think this may be related to the calibration calls added to dwc3 and
-> >> > later removed again by commits:
-> >> >
-> >> > 	d8c80bb3b55b ("phy: exynos5-usbdrd: Calibrate LOS levels for exynos5420/5800")
-> >> > 	a0a465569b45 ("usb: dwc3: remove generic PHY calibrate() calls")
-> >> >
-> >> > The removal explicitly mentions that the expectation is that USB core
-> >> > will do the PHY calibration.
-> >> >
-> >> > There could be other changes in the sequencing of events that this
-> >> > platform has been implicitly relying on, but as a start, could try
-> >> > adding the missing calibration calls (patch below) and see if that makes a
-> >> > difference?
-> >> 
-> >> The patch below did not apply to 5.15.74 directly, but I think I was
-> >> able to get the corrected patch applied (see below)
+commit d6ffe6067a54972564552ea45d320fb98db1ac5e upstream.
 
-> The user reports the S-ATA disk is *not* recognized with that patch
-> applied.
+Some architectures define their own arch_test_bit and they also need
+arch_test_bit_acquire, otherwise they won't compile.  We also clean up
+the code by using the generic test_bit if that is equivalent to the
+arch-specific version.
 
-I just noticed a mistake in the instrumentation patch I sent you. Could
-you try moving the calibrations calls after dwc3_host_init() (e.g. as in
-the second chunk in the diff below)?
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 8238b4579866 ("wait_on_bit: add an acquire memory barrier")
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-As mentioned in the commit message for a0a465569b45 ("usb: dwc3: remove
-generic PHY calibrate() calls"), this may not work if the xhci-plat
-driver is built as a module and there are some corner cases that it does
-not cover.
+---
+ arch/alpha/include/asm/bitops.h   |    7 +++++++
+ arch/arc/include/asm/bitops.h     |    7 +++++++
+ arch/h8300/include/asm/bitops.h   |    3 ++-
+ arch/hexagon/include/asm/bitops.h |   15 +++++++++++++++
+ arch/ia64/include/asm/bitops.h    |    7 +++++++
+ arch/m68k/include/asm/bitops.h    |    6 ++++++
+ arch/s390/include/asm/bitops.h    |    7 +++++++
+ arch/sh/include/asm/bitops-op32.h |    7 +++++++
+ 8 files changed, 58 insertions(+), 1 deletion(-)
 
-It seems we should revert the offending commit and then try to find some
-time to untangle this mess, but please check if the below addresses the
-issue first so we know what the problem is.
-
-I'll prepare a revert in the meantime.
-
-Johan
-
-
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 31156d4dec9f..37d49a394912 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -197,6 +197,8 @@ static void __dwc3_set_mode(struct work_struct *work)
-                                otg_set_vbus(dwc->usb2_phy->otg, true);
-                        phy_set_mode(dwc->usb2_generic_phy, PHY_MODE_USB_HOST);
-                        phy_set_mode(dwc->usb3_generic_phy, PHY_MODE_USB_HOST);
-+                       phy_calibrate(dwc->usb2_generic_phy);
-+                       phy_calibrate(dwc->usb3_generic_phy);
-                        if (dwc->dis_split_quirk) {
-                                reg = dwc3_readl(dwc->regs, DWC3_GUCTL3);
-                                reg |= DWC3_GUCTL3_SPLITDISABLE;
-@@ -1391,6 +1393,9 @@ static int dwc3_core_init_mode(struct dwc3 *dwc)
-                ret = dwc3_host_init(dwc);
-                if (ret)
-                        return dev_err_probe(dev, ret, "failed to initialize host\n");
+Index: linux-stable/arch/alpha/include/asm/bitops.h
+===================================================================
+--- linux-stable.orig/arch/alpha/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
++++ linux-stable/arch/alpha/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
+@@ -289,6 +289,13 @@ test_bit(int nr, const volatile void * a
+ 	return (1UL & (((const int *) addr)[nr >> 5] >> (nr & 31))) != 0UL;
+ }
+ 
++static __always_inline bool
++test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++{
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
++}
 +
-+               phy_calibrate(dwc->usb2_generic_phy);
-+               phy_calibrate(dwc->usb3_generic_phy);
-                break;
-        case USB_DR_MODE_OTG:
-                INIT_WORK(&dwc->drd_work, __dwc3_set_mode);
+ /*
+  * ffz = Find First Zero in word. Undefined if no zero exists,
+  * so code should check against ~0UL first..
+Index: linux-stable/arch/hexagon/include/asm/bitops.h
+===================================================================
+--- linux-stable.orig/arch/hexagon/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
++++ linux-stable/arch/hexagon/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
+@@ -186,7 +186,22 @@ static inline int __test_bit(int nr, con
+ 	return retval;
+ }
+ 
++static inline int __test_bit_acquire(int nr, const volatile unsigned long *addr)
++{
++	int retval;
++
++	asm volatile(
++	"{P0 = tstbit(%1,%2); if (P0.new) %0 = #1; if (!P0.new) %0 = #0;}\n"
++	: "=&r" (retval)
++	: "r" (addr[BIT_WORD(nr)]), "r" (nr % BITS_PER_LONG)
++	: "p0", "memory"
++	);
++
++	return retval;
++}
++
+ #define test_bit(nr, addr) __test_bit(nr, addr)
++#define test_bit_acquire(nr, addr) __test_bit_acquire(nr, addr)
+ 
+ /*
+  * ffz - find first zero in word.
+Index: linux-stable/arch/ia64/include/asm/bitops.h
+===================================================================
+--- linux-stable.orig/arch/ia64/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
++++ linux-stable/arch/ia64/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
+@@ -337,6 +337,13 @@ test_bit (int nr, const volatile void *a
+ 	return 1 & (((const volatile __u32 *) addr)[nr >> 5] >> (nr & 31));
+ }
+ 
++static __always_inline bool
++test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++{
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
++}
++
+ /**
+  * ffz - find the first zero bit in a long word
+  * @x: The long word to find the bit in
+Index: linux-stable/arch/m68k/include/asm/bitops.h
+===================================================================
+--- linux-stable.orig/arch/m68k/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
++++ linux-stable/arch/m68k/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
+@@ -153,6 +153,12 @@ static inline int test_bit(int nr, const
+ 	return (vaddr[nr >> 5] & (1UL << (nr & 31))) != 0;
+ }
+ 
++static __always_inline bool
++test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++{
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
++}
+ 
+ static inline int bset_reg_test_and_set_bit(int nr,
+ 					    volatile unsigned long *vaddr)
+Index: linux-stable/arch/s390/include/asm/bitops.h
+===================================================================
+--- linux-stable.orig/arch/s390/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
++++ linux-stable/arch/s390/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
+@@ -215,6 +215,13 @@ static inline int test_bit(unsigned long
+ 	return (*addr >> (nr & 7)) & 1;
+ }
+ 
++static __always_inline bool
++test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++{
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
++}
++
+ static inline int test_and_set_bit_lock(unsigned long nr,
+ 					volatile unsigned long *ptr)
+ {
+Index: linux-stable/arch/sh/include/asm/bitops-op32.h
+===================================================================
+--- linux-stable.orig/arch/sh/include/asm/bitops-op32.h	2022-10-27 14:23:33.000000000 +0200
++++ linux-stable/arch/sh/include/asm/bitops-op32.h	2022-10-27 14:23:33.000000000 +0200
+@@ -140,4 +140,11 @@ static inline int test_bit(int nr, const
+ 	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
+ }
+ 
++static __always_inline bool
++test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++{
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
++}
++
+ #endif /* __ASM_SH_BITOPS_OP32_H */
+Index: linux-stable/arch/arc/include/asm/bitops.h
+===================================================================
+--- linux-stable.orig/arch/arc/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
++++ linux-stable/arch/arc/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
+@@ -254,6 +254,13 @@ test_bit(unsigned int nr, const volatile
+ 	return ((mask & *addr) != 0);
+ }
+ 
++static __always_inline bool
++test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++{
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
++}
++
+ #ifdef CONFIG_ISA_ARCOMPACT
+ 
+ /*
+Index: linux-stable/arch/h8300/include/asm/bitops.h
+===================================================================
+--- linux-stable.orig/arch/h8300/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
++++ linux-stable/arch/h8300/include/asm/bitops.h	2022-10-27 14:23:33.000000000 +0200
+@@ -89,7 +89,8 @@ static inline int test_bit(int nr, const
+ 	return ret;
+ }
+ 
+-#define __test_bit(nr, addr) test_bit(nr, addr)
++#define __test_bit(nr, addr)		test_bit(nr, addr)
++#define test_bit_acquire(nr, addr)	test_bit(nr, addr)
+ 
+ #define H8300_GEN_TEST_BITOP(FNNAME, OP)				\
+ static inline int FNNAME(int nr, void *addr)				\
+
